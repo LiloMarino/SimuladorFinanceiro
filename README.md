@@ -1,14 +1,59 @@
 # Projeto Simulador Financeiro
 
-## Visão Geral
-Este projeto simula o mercado financeiro brasileiro para testar estratégias de negociação e investimento. Ele combina tanto renda fixa (ex.: CDB, LCI, LCA, Tesouro Direto) quanto renda variável (ex.: Ações, FIIs, ETFs). A simulação inclui funcionalidades como salário mensal, gerenciamento de portfólio e métricas de desempenho, todas adaptadas ao mercado brasileiro.
+## 📌 Visão Geral
+Este projeto é um **simulador financeiro interativo**, inspirado em jogos RTS como **Hearts of Iron e Victoria 3**, focado no **mercado financeiro brasileiro**. O objetivo é testar estratégias de negociação e investimento, oferecendo um ambiente dinâmico onde o usuário pode interagir comprando e vendendo ativos. A simulação inclui tanto **renda fixa (CDB, LCI, LCA, Tesouro Direto)** quanto **renda variável (Ações, FIIs, ETFs)**, com funcionalidades que permitem um acompanhamento detalhado do portfólio.
 
-## Funcionalidades
-- **Simulação de negociações em tempo real**: Comprar e vender ações, FIIs e ETFs.
-- **Simulação de investimentos em renda fixa**: Acompanhar retornos de CDB, LCI, LCA e Tesouro Direto.
-- **Salário mensal**: Adicionar renda periódica para simular um pagamento regular.
-- **Análise de desempenho**: Mensurar a eficácia das estratégias com métricas como retorno, drawdown e índice de Sharpe.
-- **Foco no Brasil**: Inclui ativos e dados relevantes ao mercado financeiro brasileiro.
+## 🎮 Modos de Jogo
+### 1️⃣ **Modo Automático** 📈  
+- O tempo avança automaticamente como em um RTS.  
+- As compras e vendas são executadas com base em uma estratégia programada.  
+- O usuário pode escolher ou testar diferentes estratégias.  
+
+### 2️⃣ **Modo Manual** 🏦  
+- O jogador pode **emitir ordens de compra e venda manualmente**.  
+- O mercado segue em tempo real, e o usuário decide quando intervir.  
+- O tempo avança continuamente, mas pode ser pausado ou acelerado (**1x, 2x, 4x, 10x**).  
+
+## 🔥 Funcionalidades Principais
+✅ **Simulação de negociações** em tempo real (Ações, FIIs, ETFs).  
+✅ **Investimentos em renda fixa** (CDB, LCI, LCA, Tesouro Direto).  
+✅ **Salário mensal**: Simulação de renda periódica.  
+✅ **Análise de desempenho**: Retorno, drawdown, índice de Sharpe, etc.  
+✅ **Eventos econômicos**: Crises, mudanças de juros e inflação.  
+✅ **Gráficos interativos** com **Plotly**.  
+✅ **Interface Web** amigável usando **Streamlit**.  
+✅ **Suporte a múltiplas fontes de dados** (Yahoo Finance, APIs da B3, etc.).  
+
+## 🛠️ Tecnologias Utilizadas
+- **[Backtrader](https://www.backtrader.com/)** → Motor de backtesting e simulação.  
+- **[Streamlit](https://streamlit.io/)** → Interface gráfica interativa.  
+- **[Plotly](https://plotly.com/python/)** → Gráficos dinâmicos.  
+- **[yfinance](https://pypi.org/project/yfinance/)** → Dados do mercado financeiro.  
+- **Banco de Dados (MySQL ou SQLite)** → Armazenamento de históricos e portfólio.  
+
+## 🚀 Roadmap do Desenvolvimento
+### 📌 Fase 1: Estrutura Base
+- [ ] Configurar ambiente e dependências (Backtrader, Streamlit, Plotly, yfinance).  
+- [ ] Criar estrutura inicial do projeto e banco de dados.  
+- [ ] Implementar coleta de dados (Yahoo Finance + outras fontes).  
+- [ ] Criar sistema de portfólio e saldo inicial do usuário.  
+
+### 📌 Fase 2: Implementação do Mercado
+- [ ] Criar lógica de simulação de mercado com Backtrader.  
+- [ ] Implementar regras de compra e venda.  
+- [ ] Configurar investimentos em renda fixa.  
+- [ ] Adicionar eventos econômicos dinâmicos.  
+
+### 📌 Fase 3: Interface Gráfica (Streamlit)
+- [ ] Criar painel de **gráficos interativos** com Plotly.  
+- [ ] Criar **botões de compra/venda** para o modo manual.  
+- [ ] Implementar **botão de pause/play** e controle de velocidade.  
+
+### 📌 Fase 4: Testes e Refinamento
+- [ ] Testar e ajustar estratégias de negociação.  
+- [ ] Ajustar **métricas de desempenho** (Sharpe, Drawdown, etc.).  
+- [ ] Testar estabilidade e desempenho do simulador.  
+- [ ] Documentar código e criar tutoriais.  
 
 ## Configuração
 1. **Dependências Python**:
@@ -34,70 +79,6 @@ Este projeto simula o mercado financeiro brasileiro para testar estratégias de 
     └── README.md            # Documentação
     ```
 
-## Issues
-
-### Desenvolvimento do MVP
-1. **Motor de Simulação Principal**  
-   - **Descrição**: Configurar o motor do Backtrader para simular o gerenciamento de portfólio.
-   - **Tarefas**:
-     - Inicializar o "Cerebro" do Backtrader com um saldo de caixa padrão.
-     - Adicionar lógica para rastrear um portfólio de investimentos em renda fixa e variável.
-     - Permitir fluxo de caixa periódico (salário mensal).
-   - **Etiquetas**: `simulação`, `backtrader`
-
-2. **Integração de Dados de Renda Variável**  
-   - **Descrição**: Integrar ações, FIIs e ETFs brasileiros utilizando o Yahoo Finance.
-   - **Tarefas**:
-     - Obter dados históricos para PETR4.SA, VALE3.SA, etc.
-     - Garantir que os dados sejam ajustados para dividendos e splits.
-     - Testar o carregamento no Backtrader.
-   - **Etiquetas**: `dados`, `integração`
-
-3. **Simulação de Renda Fixa**  
-   - **Descrição**: Simular retornos de renda fixa com base no CDI ou IPCA.
-   - **Tarefas**:
-     - Criar uma classe genérica para ativos de renda fixa.
-     - Calcular juros compostos diários ou mensais.
-     - Integrar ao portfólio do Backtrader.
-   - **Etiquetas**: `renda fixa`, `simulação`
-
-4. **Métricas de Desempenho**  
-   - **Descrição**: Adicionar métricas para avaliar o sucesso das estratégias.
-   - **Tarefas**:
-     - Incluir retorno, índice de Sharpe e drawdown.
-     - Exibir as métricas como parte dos resultados da simulação.
-   - **Etiquetas**: `análise`, `desempenho`
-
-### Melhorias
-5. **Interface Amigável**  
-   - **Descrição**: Criar um painel para interagir com a simulação.
-   - **Tarefas**:
-     - Utilizar Streamlit ou Dash para o frontend.
-     - Exibir portfólio, transações e métricas de desempenho.
-   - **Etiquetas**: `frontend`, `painel`
-
-6. **Testes de Cenários**  
-   - **Descrição**: Adicionar suporte para simulação de cenários hipotéticos.
-   - **Tarefas**:
-     - Implementar cenários de choque no mercado (ex.: quedas bruscas).
-     - Permitir simulações parametrizadas (ex.: diferentes níveis de salário).
-   - **Etiquetas**: `simulação`, `cenários`
-
-7. **Análises Avançadas**  
-   - **Descrição**: Adicionar insights mais profundos sobre o desempenho das estratégias.
-   - **Tarefas**:
-     - Comparar estratégias lado a lado.
-     - Visualizar diversificação de portfólio e exposição ao risco.
-   - **Etiquetas**: `análise`, `melhorias`
-
-### Documentação
-8. **Escrever Documentação**  
-   - **Descrição**: Criar guias para uso e extensão do simulador.
-   - **Tarefas**:
-     - Escrever um guia para execução de simulações.
-     - Documentar o processo de configuração e personalizações.
-   - **Etiquetas**: `documentação`
-
 ## Como Executar
 1. Clone o repositório:
    ```bash
@@ -114,13 +95,6 @@ Este projeto simula o mercado financeiro brasileiro para testar estratégias de 
    ```bash
    python main.py
    ```
-
-## Roadmap
-- [x] Configuração básica do Backtrader
-- [ ] Integração com renda fixa
-- [ ] Simulação de salário mensal
-- [ ] Interface com painel
-- [ ] Testes de cenários
 
 ## Contribuindo
 1. Faça um fork do repositório.
