@@ -1,108 +1,106 @@
-# Projeto Simulador Financeiro
+# 📊 Simulador Financeiro  
 
-## 📌 Visão Geral
-Este projeto é um **simulador financeiro interativo**, inspirado em jogos RTS como **Hearts of Iron e Victoria 3**, focado no **mercado financeiro brasileiro**. O objetivo é testar estratégias de negociação e investimento, oferecendo um ambiente dinâmico onde o usuário pode interagir comprando e vendendo ativos. A simulação inclui tanto **renda fixa (CDB, LCI, LCA, Tesouro Direto)** quanto **renda variável (Ações, FIIs, ETFs)**, com funcionalidades que permitem um acompanhamento detalhado do portfólio.
+## 📌 Visão Geral  
+O **Simulador Financeiro** é uma aplicação interativa inspirada em jogos RTS como **Capitalism Lab e Victoria 3**, que permite testar estratégias de investimento no **mercado financeiro brasileiro**. O simulador inclui **renda fixa (CDB, LCI, LCA, Tesouro Direto)** e **renda variável (Ações, FIIs, ETFs)**, além de eventos econômicos dinâmicos, métricas de desempenho e suporte a múltiplas fontes de dados.  
 
-## 🎮 Modos de Jogo
+O objetivo é oferecer um ambiente dinâmico para experimentação de estratégias de compra e venda de ativos, seja de forma automática ou manual.  
+
+## 🎮 Modos de Jogo  
+
 ### 1️⃣ **Modo Automático** 📈  
-- O tempo avança automaticamente como em um RTS.  
-- As compras e vendas são executadas com base em uma estratégia programada.  
-- O usuário pode escolher ou testar diferentes estratégias.  
+- O tempo avança automaticamente, como em um RTS.  
+- As compras e vendas são executadas conforme uma **estratégia de negociação programada**.  
+- O usuário pode configurar e testar diferentes **algoritmos de investimento**.  
 
 ### 2️⃣ **Modo Manual** 🏦  
 - O jogador pode **emitir ordens de compra e venda manualmente**.  
-- O mercado segue em tempo real, e o usuário decide quando intervir.  
-- O tempo avança continuamente, mas pode ser pausado ou acelerado (**1x, 2x, 4x, 10x**).  
+- O mercado segue em tempo real, e o usuário decide **quando intervir**.  
+- O tempo pode ser pausado ou acelerado (**1x, 2x, 4x, 10x**).  
 
-## 🔥 Funcionalidades Principais
-✅ **Simulação de negociações** em tempo real (Ações, FIIs, ETFs).  
+### 3️⃣ **Modo Multiplayer** 🌐  
+- Permite **vários jogadores** competindo simultaneamente.  
+- O jogo sincroniza eventos econômicos e tempo de simulação para todos os participantes.  
+- O jogador com o maior patrimônio ao final vence.  
+
+## 🔥 Funcionalidades Principais  
+
+✅ **Simulação de negociações** (Ações, FIIs, ETFs) em tempo real.  
 ✅ **Investimentos em renda fixa** (CDB, LCI, LCA, Tesouro Direto).  
-✅ **Salário mensal**: Simulação de renda periódica.  
+✅ **Fluxo de caixa mensal** (simulação de salário ou renda fixa recorrente).  
 ✅ **Análise de desempenho**: Retorno, drawdown, índice de Sharpe, etc.  
-✅ **Eventos econômicos**: Crises, mudanças de juros e inflação.  
-✅ **Gráficos interativos** com **Plotly**.  
-✅ **Interface Web** amigável usando **Streamlit**.  
-✅ **Suporte a múltiplas fontes de dados** (Yahoo Finance, APIs da B3, etc.).  
+✅ **Eventos econômicos dinâmicos**: Crises, mudanças nos juros e inflação.  
+✅ **Gráficos interativos** em **Plotly** para acompanhar a evolução do portfólio.  
+✅ **Interface Web** intuitiva via **Streamlit**.  
+✅ **Suporte a múltiplas fontes de dados** (Yahoo Finance, MySQL, SQLite).  
+✅ **Modo Multiplayer** com servidor cliente-servidor.  
+✅ **Empacotamento como executável (.exe)** para facilitar a distribuição.  
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Tecnologias Utilizadas  
+
 - **[Backtrader](https://www.backtrader.com/)** → Motor de backtesting e simulação.  
 - **[Streamlit](https://streamlit.io/)** → Interface gráfica interativa.  
 - **[Plotly](https://plotly.com/python/)** → Gráficos dinâmicos.  
 - **[yfinance](https://pypi.org/project/yfinance/)** → Dados do mercado financeiro.  
-- **Banco de Dados (MySQL ou SQLite)** → Armazenamento de históricos e portfólio.  
+- **Banco de Dados** → **MySQL e SQLite** para armazenamento de históricos e portfólio.  
+- **WebSockets** → Comunicação em tempo real para o modo multiplayer.  
+- **PyInstaller** → Empacotamento da aplicação como executável (.exe).  
 
-## 🚀 Roadmap do Desenvolvimento
-### 📌 Fase 1: Estrutura Base
-- [ ] Configurar ambiente e dependências (Backtrader, Streamlit, Plotly, yfinance).  
-- [ ] Criar estrutura inicial do projeto e banco de dados.  
-- [ ] Implementar coleta de dados (Yahoo Finance + outras fontes).  
-- [ ] Criar sistema de portfólio e saldo inicial do usuário.  
+## 🔧 Configuração e Instalação  
 
-### 📌 Fase 2: Implementação do Mercado
-- [ ] Criar lógica de simulação de mercado com Backtrader.  
-- [ ] Implementar regras de compra e venda.  
-- [ ] Configurar investimentos em renda fixa.  
-- [ ] Adicionar eventos econômicos dinâmicos.  
+1. **Instale o Python 3.9+**  
+2. **Instale as dependências**:  
+   ```bash
+   pip install -r requirements.txt
+   ```  
+3. **Configure as fontes de dados**:  
+   - Dados de ações e FIIs via **Yahoo Finance** ou **API da B3**.  
+   - Dados de renda fixa simulados conforme o CDI e IPCA.  
 
-### 📌 Fase 3: Interface Gráfica (Streamlit)
-- [ ] Criar painel de **gráficos interativos** com Plotly.  
-- [ ] Criar **botões de compra/venda** para o modo manual.  
-- [ ] Implementar **botão de pause/play** e controle de velocidade.  
+4. **Estrutura do Projeto**:  
+   ```plaintext
+   /simulador-financeiro
+   ├── data/                # Dados históricos baixados
+   ├── strategies/          # Estratégias de negociação automatizadas
+   ├── assets/              # Configuração de ativos (ações, FIIs, renda fixa)
+   ├── utils/               # Funções auxiliares
+   ├── main.py              # Ponto de entrada do simulador
+   ├── server.py            # Servidor do modo multiplayer
+   ├── requirements.txt     # Lista de dependências
+   └── README.md            # Documentação
+   ```  
 
-### 📌 Fase 4: Testes e Refinamento
-- [ ] Testar e ajustar estratégias de negociação.  
-- [ ] Ajustar **métricas de desempenho** (Sharpe, Drawdown, etc.).  
-- [ ] Testar estabilidade e desempenho do simulador.  
-- [ ] Documentar código e criar tutoriais.  
+## 🚀 Como Executar  
 
-## Configuração
-1. **Dependências Python**:
-    - Instale o Python 3.9 ou superior.
-    - Instale as bibliotecas necessárias:
-      ```bash
-      pip install backtrader pandas matplotlib yfinance
-      ```
-
-2. **Fontes de Dados**:
-    - Renda variável: Utilize o Yahoo Finance ou Alpha Vantage para dados históricos (ex.: PETR4.SA para Petrobras).
-    - Renda fixa: Simule os retornos baseados em índices (ex.: CDI, IPCA).
-
-3. **Estrutura do Projeto**:
-    ```plaintext
-    /simulador-financeiro
-    ├── data/                # Pasta para armazenar conjuntos de dados baixados
-    ├── strategies/          # Estratégias personalizadas de negociação
-    ├── assets/              # Configuração de diferentes ativos (ações, FIIs, renda fixa)
-    ├── utils/               # Funções auxiliares
-    ├── main.py              # Ponto de entrada para executar simulações
-    ├── requirements.txt     # Lista de dependências
-    └── README.md            # Documentação
-    ```
-
-## Como Executar
-1. Clone o repositório:
+1. Clone o repositório:  
    ```bash
    git clone https://github.com/seu-repositorio/simulador-financeiro.git
    cd simulador-financeiro
-   ```
+   ```  
 
-2. Instale as dependências:
+2. Instale as dependências:  
    ```bash
    pip install -r requirements.txt
-   ```
+   ```  
 
-3. Execute a simulação:
+3. Inicie a interface gráfica (modo local):  
    ```bash
-   python main.py
-   ```
+   streamlit run main.py
+   ```  
 
-## Contribuindo
-1. Faça um fork do repositório.
-2. Crie uma nova branch para sua funcionalidade:
+4. Para ativar o **modo multiplayer**, inicie o servidor antes de conectar os clientes:  
+   ```bash
+   python server.py
+   ```  
+
+## 📊 Contribuindo  
+
+1. Faça um **fork** do repositório.  
+2. Crie uma nova branch para sua funcionalidade:  
    ```bash
    git checkout -b nome-da-funcionalidade
-   ```
-3. Commit suas alterações e abra um Pull Request.
+   ```  
+3. Commit suas alterações e abra um **Pull Request**.  
 
 ---
-Sinta-se à vontade para contribuir ou sugerir funcionalidades para este projeto!
+
+Sinta-se à vontade para contribuir ou sugerir novas funcionalidades! 🚀
