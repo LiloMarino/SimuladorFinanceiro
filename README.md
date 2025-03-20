@@ -29,20 +29,24 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 ✅ **Fluxo de caixa mensal** (simulação de salário ou renda fixa recorrente).  
 ✅ **Análise de desempenho**: Retorno, drawdown, índice de Sharpe, etc.  
 ✅ **Eventos econômicos dinâmicos**: Crises, mudanças nos juros e inflação.  
-✅ **Gráficos interativos** em **Plotly** para acompanhar a evolução do portfólio.  
-✅ **Interface Web** intuitiva via **Streamlit**.  
+✅ **Gráficos interativos** em **Plotly + Dash** para acompanhar a evolução do portfólio.  
+✅ **Interface Web personalizada** via **Flask + Dash + CSS**.  
 ✅ **Suporte a múltiplas fontes de dados** (Yahoo Finance, MySQL, SQLite).  
-✅ **Modo Multiplayer** com servidor cliente-servidor.  
+✅ **Modo Multiplayer** com servidor cliente-servidor via **WebSockets**.  
+✅ **Atualizações em tempo real** simulando ticks do mercado.  
 ✅ **Empacotamento como executável (.exe)** para facilitar a distribuição.  
 
 ## 🛠️ Tecnologias Utilizadas  
 
 - **[Backtrader](https://www.backtrader.com/)** → Motor de backtesting e simulação.  
-- **[Streamlit](https://streamlit.io/)** → Interface gráfica interativa.  
-- **[Plotly](https://plotly.com/python/)** → Gráficos dinâmicos.  
+- **[Flask](https://flask.palletsprojects.com/)** → Backend da aplicação.  
+- **[Dash](https://dash.plotly.com/)** → Framework para interface gráfica interativa.  
+- **[Plotly](https://plotly.com/python/)** → Gráficos dinâmicos para acompanhamento do portfólio.  
 - **[yfinance](https://pypi.org/project/yfinance/)** → Dados do mercado financeiro.  
+- **[SQLAlchemy](https://www.sqlalchemy.org/)** → ORM para banco de dados.  
+- **[Alembic](https://alembic.sqlalchemy.org/)** → Controle de versões do banco de dados.  
 - **Banco de Dados** → **MySQL e SQLite** para armazenamento de históricos e portfólio.  
-- **WebSockets** → Comunicação em tempo real para o modo multiplayer.  
+- **WebSockets** → Comunicação em tempo real para atualização de gráficos e multiplayer.  
 - **PyInstaller** → Empacotamento da aplicação como executável (.exe).  
 
 ## 🔧 Configuração e Instalação  
@@ -56,18 +60,48 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
    - Dados de ações e FIIs via **Yahoo Finance** ou **API da B3**.  
    - Dados de renda fixa simulados conforme o CDI e IPCA.  
 
-4. **Estrutura do Projeto**:  
-   ```plaintext
-   /simulador-financeiro
-   ├── data/                # Dados históricos baixados
-   ├── strategies/          # Estratégias de negociação automatizadas
-   ├── assets/              # Configuração de ativos (ações, FIIs, renda fixa)
-   ├── utils/               # Funções auxiliares
-   ├── main.py              # Ponto de entrada do simulador
-   ├── server.py            # Servidor do modo multiplayer
-   ├── requirements.txt     # Lista de dependências
-   └── README.md            # Documentação
-   ```  
+4. **Configurar banco de dados e Alembic**:  
+   - Para MySQL, edite o arquivo `alembic.ini`:  
+     ```ini
+     sqlalchemy.url = mysql+mysqlconnector://usuario:senha@localhost/seu_banco
+     ```
+   - Para SQLite, use:  
+     ```ini
+     sqlalchemy.url = sqlite:///banco.db
+     ```
+   - Crie as tabelas do banco:  
+     ```bash
+     alembic upgrade head
+     ```
+
+---
+
+## 📁 Estrutura do Projeto  
+
+```plaintext
+/simulador-financeiro
+├── backend/               # Lógica do servidor Flask
+│   ├── models.py          # Modelos do SQLAlchemy
+│   ├── database.py        # Configuração do banco de dados
+│   ├── routes.py          # Rotas da API
+│   ├── websocket.py       # Comunicação em tempo real
+│   ├── strategies/        # Estratégias de negociação automatizadas
+│   ├── data_loader.py     # Manipulação de dados históricos
+│   └── __init__.py
+│
+├── frontend/              # Interface Web em Dash
+│   ├── assets/            # CSS, JS e imagens
+│   ├── layouts.py         # Estrutura das páginas
+│   ├── callbacks.py       # Atualizações em tempo real
+│   └── app.py             # Entrada do Dash
+│
+├── migrations/            # Migrações do Alembic
+│
+├── main.py                # Ponto de entrada da aplicação Flask
+├── requirements.txt       # Lista de dependências
+├── README.md              # Documentação
+└── server.py              # Servidor do modo multiplayer
+```
 
 ## 🚀 Como Executar  
 
@@ -82,12 +116,17 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
    pip install -r requirements.txt
    ```  
 
-3. Inicie a interface gráfica (modo local):  
+3. Inicie o backend Flask:  
    ```bash
-   streamlit run main.py
+   python main.py
    ```  
 
-4. Para ativar o **modo multiplayer**, inicie o servidor antes de conectar os clientes:  
+4. Inicie a interface gráfica Dash:  
+   ```bash
+   python frontend/app.py
+   ```  
+
+5. Para ativar o **modo multiplayer**, inicie o servidor WebSockets antes de conectar os clientes:  
    ```bash
    python server.py
    ```  
@@ -100,7 +139,3 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
    git checkout -b nome-da-funcionalidade
    ```  
 3. Commit suas alterações e abra um **Pull Request**.  
-
----
-
-Sinta-se à vontade para contribuir ou sugerir novas funcionalidades! 🚀
