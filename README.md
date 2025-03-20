@@ -83,17 +83,23 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 ├── backend/               # Lógica do servidor Flask
 │   ├── models.py          # Modelos do SQLAlchemy
 │   ├── database.py        # Configuração do banco de dados
-│   ├── routes.py          # Rotas da API
+│   ├── routes.py          # Rotas da aplicação (views)
 │   ├── websocket.py       # Comunicação em tempo real
 │   ├── strategies/        # Estratégias de negociação automatizadas
 │   ├── data_loader.py     # Manipulação de dados históricos
+│   ├── templates/         # Templates HTML (Jinja2)
+│   │   ├── base.html      # Template base para reutilização
+│   │   ├── index.html     # Página inicial
+│   │   ├── dashboard.html # Painel de investimentos
+│   │   ├── trade.html     # Tela de negociação manual
+│   │   └── multiplayer.html # Tela do modo multiplayer
+│   ├── static/            # Arquivos estáticos (CSS, JS, imagens)
+│   │   ├── css/
+│   │   │   ├── style.css  # Estilos personalizados
+│   │   ├── js/
+│   │   │   ├── app.js     # Scripts da aplicação
+│   │   ├── img/           # Imagens e ícones
 │   └── __init__.py
-│
-├── frontend/              # Interface Web em Dash
-│   ├── assets/            # CSS, JS e imagens
-│   ├── layouts.py         # Estrutura das páginas
-│   ├── callbacks.py       # Atualizações em tempo real
-│   └── app.py             # Entrada do Dash
 │
 ├── migrations/            # Migrações do Alembic
 │
