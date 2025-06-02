@@ -109,6 +109,63 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 └── server.py              # Servidor do modo multiplayer
 ```
 
+## 🔄 Fluxo de Desenvolvimento: MySQL Workbench + SQLAlchemy + Alembic
+
+Este projeto adota um ciclo de desenvolvimento que combina a praticidade do **MySQL Workbench** com o poder de versionamento do **Alembic** e a portabilidade do **SQLAlchemy**. Isso permite que a aplicação funcione tanto com **MySQL**, **SQLite** ou outros bancos compatíveis com o SQLAlchemy.
+
+### 📌 Etapas do Fluxo
+
+```text
+1️⃣ Modela visualmente no MySQL Workbench (.mwb)
+⬇️
+2️⃣ Atualiza o banco MySQL (via Forward Engineering)
+⬇️
+3️⃣ Gera o ORM automaticamente com sqlacodegen
+⬇️
+4️⃣ Usa Alembic para rastrear e controlar as mudanças
+⬇️
+5️⃣ Aplica migrações em múltiplos bancos (MySQL, SQLite, etc)
+🔁
+```
+
+### 🧰 Comandos úteis
+
+#### 1. Gerar modelos ORM com `sqlacodegen`
+
+```bash
+sqlacodegen mysql+pymysql://<usuario>:<senha>@<localhost>/<nomedobanco> > backend/models.py
+```
+
+#### 2. Inicializar Alembic (uma vez apenas)
+
+```bash
+alembic init migrations
+```
+
+Isso criará uma pasta `/migrations` com a estrutura de controle de versões.
+
+#### 3. Configurar o banco no `alembic.ini`
+
+No arquivo `alembic.ini`, altere a string de conexão:
+
+```ini
+sqlalchemy.url = mysql+pymysql://<usuario>:<senha>@<localhost>/<nomedobanco>
+```
+
+Ou defina dinamicamente em `backend/database.py` (mais flexível).
+
+#### 4. Gerar migração automaticamente com base nas alterações do ORM
+
+```bash
+alembic revision --autogenerate -m "Nova versão do modelo"
+```
+
+#### 5. Aplicar a migração ao banco configurado
+
+```bash
+alembic upgrade head
+```
+
 ## 🚀 Como Executar  
 
 1. Clone o repositório:  
@@ -136,6 +193,28 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
    ```bash
    python server.py
    ```  
+
+## Estrutura
+
+| Necessidade                      | Ferramenta recomendada                   |
+| -------------------------------- | ---------------------------------------- |
+| Atualizar gráfico a cada 2s      | Dash + Plotly                            |
+| Mostrar preço em tempo real      | WebSocket ou AJAX (JS)                   |
+| Dashboard interativo com filtros | Dash (com ou sem Plotly)                 |
+| Vários usuários sincronizados    | WebSocket com servidor (ex: `socket.io`) |
+| Site bonito com HTML pronto      | DeepSite + Jinja2                        |
+
+
+```plaintext
+📦 backend/
+│
+├── routes.py        <- Roteamento das páginas HTML (como Router do React)
+├── websocket.py     <- Comunicação real-time com JS no front
+├── controllers/     <- Lógica de negócios (consultas, simulações)
+├── templates/       <- HTML + Jinja2 (ex: vindo do DeepSite)
+├── static/          <- CSS, JS, imagens (também exportado do DeepSite)
+├── dashboards/      <- Dash apps (ex: dashboard de desempenho)
+```
 
 ## 📊 Contribuindo  
 
