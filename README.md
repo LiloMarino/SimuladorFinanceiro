@@ -216,6 +216,14 @@ alembic upgrade head
 ├── dashboards/      <- Dash apps (ex: dashboard de desempenho)
 ```
 
+## 📜 Licença
+
+Este projeto está licenciado sob os termos da [Licença Pública Geral GNU, versão 3 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html).
+
+Você pode usar, modificar e redistribuir este software livremente, contanto que preserve a mesma licença em versões modificadas.
+
+© 2025 Murilo Marino
+
 ## 📊 Contribuindo  
 
 1. Faça um **fork** do repositório.  
