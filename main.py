@@ -15,3 +15,8 @@ Consulte a Licença Pública Geral GNU para mais detalhes.
 Você deve ter recebido uma cópia da Licença Pública Geral GNU
 junto com este programa. Caso não, veja <https://www.gnu.org/licenses/>.
 """
+
+from backend.data_loader import atualizar_ativo
+
+if __name__ == "__main__":
+    atualizar_ativo("PETR4.SA")

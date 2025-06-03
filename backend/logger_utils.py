@@ -8,7 +8,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 def setup_logger(
     name: str = "APP", log_file: str = "app.log", level=logging.INFO
 ) -> logging.Logger:
-    logger = logging.getLogger(name.upper())
+    logger = logging.getLogger(name.split(".")[-1].upper().replace("_", " "))
     logger.setLevel(level)
 
     formatter = logging.Formatter(
