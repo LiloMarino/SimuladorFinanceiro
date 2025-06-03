@@ -96,34 +96,6 @@ O projeto detecta automaticamente qual banco usar (MySQL ou SQLite) com base nas
 Base.metadata.create_all(bind=engine)
 ```
 
-## 🚀 Como Executar  
-
-1. Clone o repositório:  
-   ```bash
-   git clone https://github.com/seu-repositorio/simulador-financeiro.git
-   cd simulador-financeiro
-   ```  
-
-2. Instale as dependências:  
-   ```bash
-   pip install -r requirements.txt
-   ```  
-
-3. Inicie o backend Flask:  
-   ```bash
-   python main.py
-   ```  
-
-4. Inicie a interface gráfica Dash:  
-   ```bash
-   python frontend/app.py
-   ```  
-
-5. Para ativar o **modo multiplayer**, inicie o servidor WebSockets antes de conectar os clientes:  
-   ```bash
-   python server.py
-   ```  
-
 ## Estrutura
 
 | Necessidade                      | Ferramenta recomendada                   |
@@ -154,11 +126,3 @@ Você pode usar, modificar e redistribuir este software livremente, contanto que
 
 © 2025 Murilo Marino
 
-## 📊 Contribuindo  
-
-1. Faça um **fork** do repositório.  
-2. Crie uma nova branch para sua funcionalidade:  
-   ```bash
-   git checkout -b nome-da-funcionalidade
-   ```  
-3. Commit suas alterações e abra um **Pull Request**.  
