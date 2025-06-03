@@ -1,5 +1,9 @@
 greenlet==3.2.2
+inflect==7.5.0
+more-itertools==10.7.0
 PyMySQL==1.1.1
 python-dotenv==1.1.0
+sqlacodegen==3.0.0
 SQLAlchemy==2.0.41
+typeguard==4.4.2
 typing_extensions==4.14.0
