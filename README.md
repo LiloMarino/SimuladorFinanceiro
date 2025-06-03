@@ -80,22 +80,6 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 └── server.py              # Servidor do modo multiplayer
 ```
 
-### 🔁 Ciclo de Desenvolvimento com Banco de Dados
-
-1. ✏️ **Editar modelo no MySQL Workbench** (`.mwb`)
-2. 📥 **Sincronizar o banco de dados MySQL**
-3. 🧬 **Gerar ORM com sqlacodegen**  
-
-```bash
-   sqlacodegen mysql+pymysql://usuario:senha@localhost/simulador_financeiro > backend/models/models.py
-```
-4. 🛠️ **Compatibilizar com múltiplos bancos (MySQL/SQLite)**
-
-O projeto detecta automaticamente qual banco usar (MySQL ou SQLite) com base nas variáveis de ambiente, e cria as tabelas automaticamente com:
-```python
-Base.metadata.create_all(bind=engine)
-```
-
 ## Estrutura
 
 | Necessidade                      | Ferramenta recomendada                   |
