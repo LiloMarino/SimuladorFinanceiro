@@ -44,37 +44,9 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 - **[Plotly](https://plotly.com/python/)** → Gráficos dinâmicos para acompanhamento do portfólio.  
 - **[yfinance](https://pypi.org/project/yfinance/)** → Dados do mercado financeiro.  
 - **[SQLAlchemy](https://www.sqlalchemy.org/)** → ORM para banco de dados.  
-- **[Alembic](https://alembic.sqlalchemy.org/)** → Controle de versões do banco de dados.  
 - **Banco de Dados** → **MySQL e SQLite** para armazenamento de históricos e portfólio.  
 - **WebSockets** → Comunicação em tempo real para atualização de gráficos e multiplayer.  
 - **PyInstaller** → Empacotamento da aplicação como executável (.exe).  
-
-## 🔧 Configuração e Instalação  
-
-1. **Instale o Python 3.9+**  
-2. **Instale as dependências**:  
-   ```bash
-   pip install -r requirements.txt
-   ```  
-3. **Configure as fontes de dados**:  
-   - Dados de ações e FIIs via **Yahoo Finance** ou **API da B3**.  
-   - Dados de renda fixa simulados conforme o CDI e IPCA.  
-
-4. **Configurar banco de dados e Alembic**:  
-   - Para MySQL, edite o arquivo `alembic.ini`:  
-     ```ini
-     sqlalchemy.url = mysql+mysqlconnector://usuario:senha@localhost/seu_banco
-     ```
-   - Para SQLite, use:  
-     ```ini
-     sqlalchemy.url = sqlite:///banco.db
-     ```
-   - Crie as tabelas do banco:  
-     ```bash
-     alembic upgrade head
-     ```
-
----
 
 ## 📁 Estrutura do Projeto  
 
@@ -101,7 +73,6 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 │   │   ├── img/           # Imagens e ícones
 │   └── __init__.py
 │
-├── migrations/            # Migrações do Alembic
 │
 ├── main.py                # Ponto de entrada da aplicação Flask
 ├── requirements.txt       # Lista de dependências
@@ -109,61 +80,20 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 └── server.py              # Servidor do modo multiplayer
 ```
 
-## 🔄 Fluxo de Desenvolvimento: MySQL Workbench + SQLAlchemy + Alembic
+### 🔁 Ciclo de Desenvolvimento com Banco de Dados
 
-Este projeto adota um ciclo de desenvolvimento que combina a praticidade do **MySQL Workbench** com o poder de versionamento do **Alembic** e a portabilidade do **SQLAlchemy**. Isso permite que a aplicação funcione tanto com **MySQL**, **SQLite** ou outros bancos compatíveis com o SQLAlchemy.
-
-### 📌 Etapas do Fluxo
-
-```text
-1️⃣ Modela visualmente no MySQL Workbench (.mwb)
-⬇️
-2️⃣ Atualiza o banco MySQL (via Forward Engineering)
-⬇️
-3️⃣ Gera o ORM automaticamente com sqlacodegen
-⬇️
-4️⃣ Usa Alembic para rastrear e controlar as mudanças
-⬇️
-5️⃣ Aplica migrações em múltiplos bancos (MySQL, SQLite, etc)
-🔁
-```
-
-### 🧰 Comandos úteis
-
-#### 1. Gerar modelos ORM com `sqlacodegen`
+1. ✏️ **Editar modelo no MySQL Workbench** (`.mwb`)
+2. 📥 **Sincronizar o banco de dados MySQL**
+3. 🧬 **Gerar ORM com sqlacodegen**  
 
 ```bash
-sqlacodegen mysql+pymysql://<usuario>:<senha>@<localhost>/<nomedobanco> > backend/models.py
+   sqlacodegen mysql+pymysql://usuario:senha@localhost/simulador_financeiro > backend/models/models.py
 ```
+4. 🛠️ **Compatibilizar com múltiplos bancos (MySQL/SQLite)**
 
-#### 2. Inicializar Alembic (uma vez apenas)
-
-```bash
-alembic init migrations
-```
-
-Isso criará uma pasta `/migrations` com a estrutura de controle de versões.
-
-#### 3. Configurar o banco no `alembic.ini`
-
-No arquivo `alembic.ini`, altere a string de conexão:
-
-```ini
-sqlalchemy.url = mysql+pymysql://<usuario>:<senha>@<localhost>/<nomedobanco>
-```
-
-Ou defina dinamicamente em `backend/database.py` (mais flexível).
-
-#### 4. Gerar migração automaticamente com base nas alterações do ORM
-
-```bash
-alembic revision --autogenerate -m "Nova versão do modelo"
-```
-
-#### 5. Aplicar a migração ao banco configurado
-
-```bash
-alembic upgrade head
+O projeto detecta automaticamente qual banco usar (MySQL ou SQLite) com base nas variáveis de ambiente, e cria as tabelas automaticamente com:
+```python
+Base.metadata.create_all(bind=engine)
 ```
 
 ## 🚀 Como Executar  
