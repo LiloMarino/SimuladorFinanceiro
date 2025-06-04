@@ -78,7 +78,6 @@ def atualizar_ativo(ticker: str):
                 low=row["Low"],
                 close=row["Close"],
                 volume=row["Volume"],
-                openinterest=None,
             )
             session.add(registro)
 

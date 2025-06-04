@@ -1,17 +1,16 @@
 import datetime
-import decimal
-from typing import List, Optional
+from typing import List
 
 from sqlalchemy import (
-    DECIMAL,
+    BigInteger,
     DateTime,
+    Double,
     Enum,
     ForeignKeyConstraint,
     Index,
     Integer,
     String,
 )
-from sqlalchemy.dialects.mysql import DECIMAL
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -43,11 +42,10 @@ class PrecoHistorico(Base):
 
     ativos_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     time: Mapped[datetime.datetime] = mapped_column(DateTime, primary_key=True)
-    open: Mapped[decimal.Decimal] = mapped_column(DECIMAL(15, 6))
-    high: Mapped[decimal.Decimal] = mapped_column(DECIMAL(15, 6))
-    low: Mapped[decimal.Decimal] = mapped_column(DECIMAL(15, 6))
-    close: Mapped[decimal.Decimal] = mapped_column(DECIMAL(15, 6))
-    volume: Mapped[decimal.Decimal] = mapped_column(DECIMAL(20, 2))
-    openinterest: Mapped[Optional[decimal.Decimal]] = mapped_column(DECIMAL(15, 6))
+    open: Mapped[float] = mapped_column(Double())
+    high: Mapped[float] = mapped_column(Double())
+    low: Mapped[float] = mapped_column(Double())
+    close: Mapped[float] = mapped_column(Double())
+    volume: Mapped[int] = mapped_column(BigInteger)
 
     ativos: Mapped["Ativos"] = relationship("Ativos", back_populates="preco_historico")
