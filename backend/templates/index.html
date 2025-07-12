@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,126 +11,46 @@
         .sidebar-transition {
             transition: all 0.3s ease;
         }
+
         .card-hover:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
+
         .active-nav-item {
             background-color: #3b82f6;
             color: white;
         }
-        .active-speed, .time-scale-btn.active-speed {
+
+        .active-speed,
+        .time-scale-btn.active-speed {
             background-color: #1e40af;
             color: white;
         }
     </style>
 </head>
+
 <body class="bg-gray-100 font-sans">
     <div class="flex h-screen overflow-hidden">
+
         <!-- Sidebar -->
-        <div id="sidebar" class="sidebar-transition bg-blue-800 text-white w-64 md:w-20 flex-shrink-0 h-full overflow-y-auto">
-            <div class="flex items-center justify-between p-4 border-b border-blue-700">
-                <span id="logo-text" class="text-xl font-bold whitespace-nowrap md:hidden">FinSim</span>
-                <button id="toggle-sidebar" class="text-white focus:outline-none">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-            <nav class="mt-4">
-                <ul>
-                    <li>
-                        <a href="#" class="flex items-center p-4 hover:bg-blue-700 active-nav-item" data-section="variable-income">
-                            <i class="fas fa-chart-line text-lg w-6"></i>
-                            <span id="nav-text-1" class="ml-3 whitespace-nowrap md:hidden">Renda Variável</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-4 hover:bg-blue-700" data-section="fixed-income">
-                            <i class="fas fa-coins text-lg w-6"></i>
-                            <span id="nav-text-2" class="ml-3 whitespace-nowrap md:hidden">Renda Fixa</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-4 hover:bg-blue-700" data-section="portfolio">
-                            <i class="fas fa-wallet text-lg w-6"></i>
-                            <span id="nav-text-3" class="ml-3 whitespace-nowrap md:hidden">Carteira</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-4 hover:bg-blue-700" data-section="import-assets">
-                            <i class="fas fa-file-import text-lg w-6"></i>
-                            <span id="nav-text-4" class="ml-3 whitespace-nowrap md:hidden">Importar Ativos</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-4 hover:bg-blue-700" data-section="stock-detail">
-                            <i class="fas fa-search-dollar text-lg w-6"></i>
-                            <span id="nav-text-5" class="ml-3 whitespace-nowrap md:hidden">Detalhe Ativo</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-4 hover:bg-blue-700" data-section="fixed-income-detail">
-                            <i class="fas fa-file-invoice-dollar text-lg w-6"></i>
-                            <span id="nav-text-6" class="ml-3 whitespace-nowrap md:hidden">Detalhe RF</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-4 hover:bg-blue-700" data-section="strategies">
-                            <i class="fas fa-robot text-lg w-6"></i>
-                            <span id="nav-text-7" class="ml-3 whitespace-nowrap md:hidden">Estratégias</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-4 hover:bg-blue-700" data-section="stats">
-                            <i class="fas fa-trophy text-lg w-6"></i>
-                            <span id="nav-text-8" class="ml-3 whitespace-nowrap md:hidden">Estatísticas</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-4 hover:bg-blue-700" data-section="lobby">
-                            <i class="fas fa-door-open text-lg w-6"></i>
-                            <span id="nav-text-9" class="ml-3 whitespace-nowrap md:hidden">Sala Multiplayer</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="flex items-center p-4 hover:bg-blue-700" data-section="settings">
-                            <i class="fas fa-cog text-lg w-6"></i>
-                            <span id="nav-text-10" class="ml-3 whitespace-nowrap md:hidden">Configurações</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+        {% include 'partials/sidebar.html' %}
 
         <!-- Main Content -->
         <div class="flex-1 overflow-auto">
             <!-- Top Bar -->
-            <header class="bg-white shadow-sm">
-                <div class="flex items-center justify-between p-4">
-                    <h1 class="text-xl font-semibold text-gray-800">Renda Variável</h1>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-sm text-gray-600 hidden md:block">Velocidade:</span>
-                        <div class="flex bg-gray-200 rounded-md divide-x divide-gray-300 overflow-hidden">
-                            <button class="speed-btn px-3 py-1 text-sm active-speed" data-speed="0">Pausar</button>
-                            <button class="speed-btn px-3 py-1 text-sm" data-speed="1">1x</button>
-                            <button class="speed-btn px-3 py-1 text-sm" data-speed="2">2x</button>
-                            <button class="speed-btn px-3 py-1 text-sm" data-speed="4">4x</button>
-                            <button class="speed-btn px-3 py-1 text-sm" data-speed="10">10x</button>
-                        </div>
-                        <div class="ml-4 flex items-center">
-                            <span class="text-sm text-gray-600 mr-2">Simulação:</span>
-                            <span id="simulation-time" class="font-medium">00:00:00</span>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            {% include 'partials/topbar.html' %}
 
             <!-- Content Area -->
             <main class="p-6">
+                {% block content %}
+                {% endblock %}
                 <!-- Variable Income Section (Default Visible) -->
                 <section id="variable-income" class="section-content">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         <!-- Stock Cards -->
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">PETR4</h3>
@@ -152,12 +73,13 @@
                                 </div>
                             </div>
                             <div class="bg-gray-50 px-4 py-2 flex justify-end">
-                                <button class="text-blue-600 text-sm font-medium hover:text-blue-800" 
-                                        onclick="window.location.href='/stock-details?ticker=PETR4'">Ver</button>
+                                <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
+                                    onclick="window.location.href='/stock-details?ticker=PETR4'">Ver</button>
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">VALE3</h3>
@@ -181,11 +103,12 @@
                             </div>
                             <div class="bg-gray-50 px-4 py-2 flex justify-end">
                                 <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
-                                        onclick="window.location.href='/stock-details?ticker=VALE3'">Ver</button>
+                                    onclick="window.location.href='/stock-details?ticker=VALE3'">Ver</button>
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">ITUB4</h3>
@@ -209,11 +132,12 @@
                             </div>
                             <div class="bg-gray-50 px-4 py-2 flex justify-end">
                                 <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
-                                        onclick="window.location.href='/stock-details?ticker=ITUB4'">Ver</button>
+                                    onclick="window.location.href='/stock-details?ticker=ITUB4'">Ver</button>
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">BBDC4</h3>
@@ -237,11 +161,12 @@
                             </div>
                             <div class="bg-gray-50 px-4 py-2 flex justify-end">
                                 <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
-                                        onclick="window.location.href='/stock-details?ticker=BBDC4'">Ver</button>
+                                    onclick="window.location.href='/stock-details?ticker=BBDC4'">Ver</button>
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">BBAS3</h3>
@@ -265,11 +190,12 @@
                             </div>
                             <div class="bg-gray-50 px-4 py-2 flex justify-end">
                                 <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
-                                        onclick="window.location.href='/stock-details?ticker=BBAS3'">Ver</button>
+                                    onclick="window.location.href='/stock-details?ticker=BBAS3'">Ver</button>
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">WEGE3</h3>
@@ -293,7 +219,7 @@
                             </div>
                             <div class="bg-gray-50 px-4 py-2 flex justify-end">
                                 <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
-                                        onclick="window.location.href='/stock-details?ticker=WEGE3'">Ver</button>
+                                    onclick="window.location.href='/stock-details?ticker=WEGE3'">Ver</button>
                             </div>
                         </div>
                     </div>
@@ -303,7 +229,8 @@
                 <section id="fixed-income" class="section-content hidden">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         <!-- LCI Card -->
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">LCI</h3>
@@ -331,7 +258,8 @@
                         </div>
 
                         <!-- LCA Card -->
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">LCA</h3>
@@ -359,7 +287,8 @@
                         </div>
 
                         <!-- CDB Card -->
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">CDB</h3>
@@ -387,7 +316,8 @@
                         </div>
 
                         <!-- Tesouro Direto Card -->
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">Tesouro IPCA+</h3>
@@ -415,7 +345,8 @@
                         </div>
 
                         <!-- CDB Prefixado Card -->
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">CDB Prefixado</h3>
@@ -443,7 +374,8 @@
                         </div>
 
                         <!-- Tesouro Selic Card -->
-                        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+                        <div
+                            class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
                             <div class="p-4 border-b">
                                 <div class="flex justify-between items-center">
                                     <h3 class="font-bold text-lg">Tesouro Selic</h3>
@@ -583,12 +515,24 @@
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ativo</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Atual</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% Carteira</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Retorno</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Ativo</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Quantidade</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Valor Atual</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                % Carteira</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Retorno</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -599,7 +543,8 @@
                                             <td class="px-6 py-4 whitespace-nowrap">25,8%</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-green-600">+12,5%</td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <button class="text-blue-600 hover:text-blue-800 text-sm" onclick="window.location.href='/stock-details?ticker=PETR4'">
+                                                <button class="text-blue-600 hover:text-blue-800 text-sm"
+                                                    onclick="window.location.href='/stock-details?ticker=PETR4'">
                                                     <i class="fas fa-eye mr-1"></i> Detalhes
                                                 </button>
                                             </td>
@@ -611,7 +556,8 @@
                                             <td class="px-6 py-4 whitespace-nowrap">27,0%</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-red-600">-4,2%</td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <button class="text-blue-600 hover:text-blue-800 text-sm" onclick="window.location.href='/stock-details?ticker=VALE3'">
+                                                <button class="text-blue-600 hover:text-blue-800 text-sm"
+                                                    onclick="window.location.href='/stock-details?ticker=VALE3'">
                                                     <i class="fas fa-eye mr-1"></i> Detalhes
                                                 </button>
                                             </td>
@@ -666,7 +612,8 @@
                             <div class="flex justify-between mb-4">
                                 <h3 class="font-semibold">Histórico de Preços</h3>
                                 <div class="flex bg-gray-200 rounded-md divide-x divide-gray-300 overflow-hidden">
-                                    <button class="time-scale-btn px-3 py-1 text-sm active-speed" data-scale="1d">1D</button>
+                                    <button class="time-scale-btn px-3 py-1 text-sm active-speed"
+                                        data-scale="1d">1D</button>
                                     <button class="time-scale-btn px-3 py-1 text-sm" data-scale="1w">1S</button>
                                     <button class="time-scale-btn px-3 py-1 text-sm" data-scale="1m">1M</button>
                                     <button class="time-scale-btn px-3 py-1 text-sm" data-scale="3m">3M</button>
@@ -702,7 +649,8 @@
                         <!-- Actions -->
                         <div class="flex flex-col sm:flex-row gap-4">
                             <div class="flex-1 bg-gray-100 p-4 rounded-lg">
-                                <h3 class="font-medium mb-4">Você possui <span class="font-bold">450</span> ações (R$ 14.602,50)</h3>
+                                <h3 class="font-medium mb-4">Você possui <span class="font-bold">450</span> ações (R$
+                                    14.602,50)</h3>
                                 <div class="flex flex-col sm:flex-row gap-2">
                                     <input type="number" placeholder="Quantidade" class="flex-1 p-2 border rounded-md">
                                     <button class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md">
@@ -811,13 +759,16 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Valor do Investimento</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Valor do
+                                            Investimento</label>
                                         <div class="relative">
                                             <span class="absolute left-3 top-2">R$</span>
-                                            <input type="number" class="w-full pl-8 p-2 border rounded-md" placeholder="0,00">
+                                            <input type="number" class="w-full pl-8 p-2 border rounded-md"
+                                                placeholder="0,00">
                                         </div>
                                     </div>
-                                    <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md">
+                                    <button
+                                        class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md">
                                         <i class="fas fa-shopping-cart mr-2"></i> Investir agora
                                     </button>
                                 </div>
@@ -836,7 +787,8 @@
                                             <span class="text-gray-600">Valor de resgate</span>
                                             <span class="font-medium text-green-600">R$ 0,00*</span>
                                         </div>
-                                        <p class="text-xs text-gray-500 mt-2">* Valores projetados considerando taxa atual do CDI e vencimento em 3 anos</p>
+                                        <p class="text-xs text-gray-500 mt-2">* Valores projetados considerando taxa
+                                            atual do CDI e vencimento em 3 anos</p>
                                     </div>
                                 </div>
                             </div>
@@ -864,7 +816,9 @@
                                         <div class="flex items-center space-x-2">
                                             <label class="relative inline-flex items-center cursor-pointer">
                                                 <input type="checkbox" value="" class="sr-only peer" checked>
-                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                <div
+                                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                                </div>
                                             </label>
                                         </div>
                                     </div>
@@ -873,7 +827,9 @@
                                         <div class="flex items-center space-x-2">
                                             <label class="relative inline-flex items-center cursor-pointer">
                                                 <input type="checkbox" value="" class="sr-only peer">
-                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                <div
+                                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                                </div>
                                             </label>
                                         </div>
                                     </div>
@@ -882,7 +838,9 @@
                                         <div class="flex items-center space-x-2">
                                             <label class="relative inline-flex items-center cursor-pointer">
                                                 <input type="checkbox" value="" class="sr-only peer">
-                                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                <div
+                                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+                                                </div>
                                             </label>
                                         </div>
                                     </div>
@@ -891,8 +849,10 @@
                                 <div class="border-t pt-4">
                                     <h3 class="font-medium mb-2">Modo de Execução</h3>
                                     <div class="flex space-x-2">
-                                        <button class="flex-1 bg-blue-600 text-white py-2 rounded-md">Automático</button>
-                                        <button class="flex-1 bg-gray-200 hover:bg-gray-300 py-2 rounded-md">Manual</button>
+                                        <button
+                                            class="flex-1 bg-blue-600 text-white py-2 rounded-md">Automático</button>
+                                        <button
+                                            class="flex-1 bg-gray-200 hover:bg-gray-300 py-2 rounded-md">Manual</button>
                                     </div>
                                 </div>
                             </div>
@@ -911,7 +871,9 @@
                                     </div>
                                 </div>
                                 <div class="h-64 bg-gray-100 rounded">
-                                    <textarea class="w-full h-full p-3 font-mono text-sm bg-gray-900 text-green-400 rounded" placeholder="# Digite seu código de estratégia aqui
+                                    <textarea
+                                        class="w-full h-full p-3 font-mono text-sm bg-gray-900 text-green-400 rounded"
+                                        placeholder="# Digite seu código de estratégia aqui
 def strategy(data):
     # Lógica da estratégia
     if data['rsi'] < 30:
@@ -939,11 +901,13 @@ def strategy(data):
                                 </button>
                             </div>
                             <div class="h-48 overflow-y-auto bg-gray-100 rounded p-3 font-mono text-sm">
-                                <div class="text-green-600">[10:30:05] PETR4: Compra realizada - 100 ações @ R$32.45</div>
+                                <div class="text-green-600">[10:30:05] PETR4: Compra realizada - 100 ações @ R$32.45
+                                </div>
                                 <div class="text-red-600">[11:15:22] VALE3: Venda realizada - 50 ações @ R$67.89</div>
                                 <div>[11:45:18] Nenhum sinal identificado nas últimas 30 velas</div>
                                 <div class="text-gray-400">[12:00:00] Analisando 5 ativos no momento...</div>
-                                <div class="text-green-600">[12:30:15] ITUB4: Compra realizada - 200 ações @ R$28.12</div>
+                                <div class="text-green-600">[12:30:15] ITUB4: Compra realizada - 200 ações @ R$28.12
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -953,17 +917,25 @@ def strategy(data):
                 <section id="stats" class="section-content hidden">
                     <div class="bg-white rounded-lg shadow p-6">
                         <h2 class="text-xl font-semibold mb-6">Estatísticas Multiplayer</h2>
-                        
+
                         <div class="mb-6">
                             <h3 class="font-medium mb-2">Ranking de Jogadores</h3>
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posição</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jogador</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patrimônio</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Retorno %</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Posição</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Jogador</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Patrimônio</th>
+                                            <th
+                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Retorno %</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -1037,22 +1009,26 @@ def strategy(data):
                 <section id="lobby" class="section-content hidden">
                     <div class="bg-white rounded-lg shadow p-6 max-w-3xl mx-auto">
                         <h2 class="text-2xl font-semibold mb-6 text-center">Entrar na Partida</h2>
-                        
+
                         <div class="space-y-6">
                             <!-- Nickname Input -->
                             <div>
-                                <label for="nickname" class="block text-sm font-medium text-gray-700 mb-1">Seu Nickname</label>
-                                <input type="text" id="nickname" class="w-full p-2 border rounded-md" placeholder="Ex: TraderPro2023">
+                                <label for="nickname" class="block text-sm font-medium text-gray-700 mb-1">Seu
+                                    Nickname</label>
+                                <input type="text" id="nickname" class="w-full p-2 border rounded-md"
+                                    placeholder="Ex: TraderPro2023">
                             </div>
 
                             <!-- Simulation Settings -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">Data Inicial</label>
+                                    <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">Data
+                                        Inicial</label>
                                     <input type="date" id="start-date" class="w-full p-2 border rounded-md">
                                 </div>
                                 <div>
-                                    <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">Data Final</label>
+                                    <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">Data
+                                        Final</label>
                                     <input type="date" id="end-date" class="w-full p-2 border rounded-md">
                                 </div>
                             </div>
@@ -1064,13 +1040,16 @@ def strategy(data):
                                     <div class="flex-1">
                                         <label class="block text-sm text-gray-600 mb-1">IP do Host</label>
                                         <div class="flex">
-                                            <input type="text" id="host-ip" value="192.168.1.100:3000" class="flex-1 p-2 border rounded-l-md" readonly>
-                                            <button onclick="copyHostIP()" class="bg-gray-200 hover:bg-gray-300 px-3 rounded-r-md">
+                                            <input type="text" id="host-ip" value="192.168.1.100:3000"
+                                                class="flex-1 p-2 border rounded-l-md" readonly>
+                                            <button onclick="copyHostIP()"
+                                                class="bg-gray-200 hover:bg-gray-300 px-3 rounded-r-md">
                                                 <i class="fas fa-copy"></i>
                                             </button>
                                         </div>
                                     </div>
-                                    <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md whitespace-nowrap">
+                                    <button
+                                        class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md whitespace-nowrap">
                                         <i class="fas fa-share-alt mr-1"></i> Compartilhar
                                     </button>
                                 </div>
@@ -1078,7 +1057,8 @@ def strategy(data):
 
                             <!-- Players List -->
                             <div>
-                                <h3 class="font-medium mb-3">Jogadores na Sala <span class="text-sm text-gray-500">(3/8)</span></h3>
+                                <h3 class="font-medium mb-3">Jogadores na Sala <span
+                                        class="text-sm text-gray-500">(3/8)</span></h3>
                                 <div class="border rounded-lg overflow-hidden">
                                     <div class="divide-y divide-gray-200">
                                         <div class="p-3 flex items-center justify-between bg-green-50">
@@ -1107,7 +1087,8 @@ def strategy(data):
                             </div>
 
                             <!-- Start Button -->
-                            <button class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-medium">
+                            <button
+                                class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-medium">
                                 <i class="fas fa-play mr-2"></i> Iniciar Partida
                             </button>
                         </div>
@@ -1127,7 +1108,7 @@ def strategy(data):
                 <section id="import-assets" class="section-content hidden">
                     <div class="bg-white rounded-lg shadow p-6">
                         <h2 class="text-xl font-semibold mb-6">Importar Ativos</h2>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <!-- CSV Import Card -->
                             <div class="border rounded-lg p-6">
@@ -1156,9 +1137,11 @@ def strategy(data):
                                 </div>
                                 <p class="text-gray-600 mb-4">Busque ativos usando a API do yFinance.</p>
                                 <div class="mb-4">
-                                    <label for="asset-search" class="block text-sm font-medium text-gray-700 mb-1">Código do Ativo</label>
+                                    <label for="asset-search"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Código do Ativo</label>
                                     <div class="relative">
-                                        <input type="text" id="asset-search" class="w-full p-2 border rounded-md" placeholder="Ex: PETR4, VALE3, BTC-USD">
+                                        <input type="text" id="asset-search" class="w-full p-2 border rounded-md"
+                                            placeholder="Ex: PETR4, VALE3, BTC-USD">
                                         <button class="absolute right-2 top-2 text-gray-500">
                                             <i class="fas fa-search"></i>
                                         </button>
@@ -1184,132 +1167,7 @@ def strategy(data):
             </main>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
 
-    <script>
-        // Copy host IP to clipboard
-        function copyHostIP() {
-            const ipField = document.getElementById('host-ip');
-            ipField.select();
-            document.execCommand('copy');
-            alert('IP copiado para a área de transferência!');
-        }
-
-        // Toggle sidebar
-        const sidebar = document.getElementById('sidebar');
-        const toggleSidebar = document.getElementById('toggle-sidebar');
-        const navTexts = ['nav-text-1', 'nav-text-2', 'nav-text-3', 'nav-text-4', 'nav-text-5', 'nav-text-6', 'nav-text-7', 'nav-text-8'];
-        const logoText = document.getElementById('logo-text');
-
-        toggleSidebar.addEventListener('click', () => {
-            sidebar.classList.toggle('md:w-20');
-            sidebar.classList.toggle('w-64');
-            
-            // Toggle nav text visibility
-            navTexts.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.classList.toggle('md:hidden');
-                }
-            });
-            
-            // Toggle logo text
-            logoText.classList.toggle('md:hidden');
-        });
-
-        // Navigation between sections
-        const navLinks = document.querySelectorAll('nav a');
-        const sections = document.querySelectorAll('.section-content');
-
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                // Remove active class from all nav items
-                navLinks.forEach(navLink => {
-                    navLink.classList.remove('active-nav-item');
-                });
-                
-                // Add active class to clicked nav item
-                link.classList.add('active-nav-item');
-                
-                // Hide all sections
-                sections.forEach(section => {
-                    section.classList.add('hidden');
-                });
-                
-                // Show the selected section
-                const sectionId = link.getAttribute('data-section');
-                document.getElementById(sectionId).classList.remove('hidden');
-                
-                // Update header title
-                const headerTitle = document.querySelector('header h1');
-                if (sectionId === 'variable-income') headerTitle.textContent = 'Renda Variável';
-                else if (sectionId === 'fixed-income') headerTitle.textContent = 'Renda Fixa';
-                else if (sectionId === 'portfolio') headerTitle.textContent = 'Carteira';
-                else if (sectionId === 'import-assets') headerTitle.textContent = 'Importar Ativos';
-                else if (sectionId === 'stock-detail') headerTitle.textContent = 'Detalhe do Ativo';
-                else if (sectionId === 'fixed-income-detail') headerTitle.textContent = 'Detalhe Renda Fixa';
-                else if (sectionId === 'strategies') headerTitle.textContent = 'Estratégias';
-                else if (sectionId === 'stats') headerTitle.textContent = 'Estatísticas Multiplayer';
-                else if (sectionId === 'lobby') headerTitle.textContent = 'Sala Multiplayer';
-                else if (sectionId === 'settings') headerTitle.textContent = 'Configurações';
-            });
-        });
-
-        // Speed controls
-        const speedButtons = document.querySelectorAll('.speed-btn');
-        let currentSpeed = 0;
-        let simulationTime = 0;
-        let simulationInterval;
-
-        speedButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Remove active class from all speed buttons
-                speedButtons.forEach(btn => {
-                    btn.classList.remove('active-speed');
-                });
-                
-                // Add active class to clicked button
-                button.classList.add('active-speed');
-                
-                // Set current speed
-                currentSpeed = parseInt(button.getAttribute('data-speed'));
-                
-                // Start/stop simulation based on speed
-                if (currentSpeed > 0) {
-                    startSimulation();
-                } else {
-                    stopSimulation();
-                }
-            });
-        });
-
-        function startSimulation() {
-            stopSimulation(); // Clear any existing interval
-            
-            // Update simulation time every second
-            simulationInterval = setInterval(() => {
-                simulationTime += currentSpeed;
-                updateSimulationTime();
-            }, 1000);
-        }
-
-        function stopSimulation() {
-            clearInterval(simulationInterval);
-        }
-
-        function updateSimulationTime() {
-            const hours = Math.floor(simulationTime / 3600);
-            const minutes = Math.floor((simulationTime % 3600) / 60);
-            const seconds = simulationTime % 60;
-            
-            document.getElementById('simulation-time').textContent = 
-                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-
-        // Initialize with variable income section visible
-        document.querySelector('nav a[data-section="variable-income"]').classList.add('active-nav-item');
-        document.querySelector('.speed-btn[data-speed="0"]').classList.add('active-speed');
-    </script>
-<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=LiloMarino/finsim" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
 </html>

@@ -16,7 +16,25 @@ Você deve ter recebido uma cópia da Licença Pública Geral GNU
 junto com este programa. Caso não, veja <https://www.gnu.org/licenses/>.
 """
 
-from backend.data_loader import atualizar_ativo
+from pathlib import Path
+
+from flask import Flask
+
+from backend.routes import routes
+
+BACKEND_DIR = Path("backend")
+
+
+def create_app():
+    app = Flask(
+        __name__,
+        template_folder=BACKEND_DIR / "templates",
+        static_folder=BACKEND_DIR / "static",
+    )
+    app.register_blueprint(routes)
+    return app
+
 
 if __name__ == "__main__":
-    atualizar_ativo("PETR4.SA")
+    app = create_app()
+    app.run(debug=True)

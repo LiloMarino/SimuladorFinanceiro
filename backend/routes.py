@@ -15,3 +15,8 @@ def importar_ativo_route():
             "importar.html", status=mensagem
         )  # Mostra mensagem na tela
     return redirect("/")  # Ou volta para home
+
+
+@routes.route("/", methods=["GET"])
+def index():
+    return render_template("index.html")
