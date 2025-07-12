@@ -7,19 +7,28 @@
 ```plaintext
 /SimuladorFinanceiro
 ├── .gitignore                   # Arquivos e pastas a serem ignorados pelo Git
+├── CONTRIBUTING.md              # Guia para contribuir com o projeto
 ├── LICENSE                      # Licença de uso do projeto
 ├── README.md                    # Documentação principal
 ├── backend/                     # Lógica do backend em Flask
+│   ├── data_loader.py
 │   ├── database.py              # Configuração do banco de dados
 │   ├── logger_utils.py          # Utilitários para logging
-│   └── models/                  # Modelos ORM
-│       └── models.py            # Definição dos modelos de dados
+│   ├── models/                  # Modelos ORM
+│   │   └── models.py            # Definição dos modelos de dados
+│   ├── routes.py                # Rotas de navegação (páginas)
+│   ├── static/
+│   │   └── css/
+│   │       └── style.css
+│   └── templates/               # HTML com Jinja2
+│       └── index.html
 ├── data/                        # Arquivos de dados de entrada
 │   └── simulador_financeiro.mwb # Modelo visual do banco (MySQL Workbench)
 ├── example.env                  # Exemplo de variáveis de ambiente
 ├── main.py                      # Ponto de entrada da aplicação Flask
 ├── requirements.txt             # Lista de dependências do projeto
 └── scripts/                     # Scripts auxiliares
+    ├── fix_model.py
     ├── tree.py                  # Geração da árvore do projeto
     └── tree_descriptions.yaml
 ```

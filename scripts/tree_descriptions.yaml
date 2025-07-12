@@ -1,16 +1,19 @@
 .gitignore: Arquivos e pastas a serem ignorados pelo Git
-CONTRIBUTING.md: Guia para contribuir com o projeto
-LICENSE: Licença de uso do projeto
-README.md: Documentação principal
 backend/: Lógica do backend em Flask
+backend/base.html: Layout principal (topbar + sidebar)
 backend/database.py: Configuração do banco de dados
 backend/logger_utils.py: Utilitários para logging
 backend/models/: Modelos ORM
 backend/models/models.py: Definição dos modelos de dados
+backend/routes.py: Rotas de navegação (páginas)
+backend/templates: HTML com Jinja2
+CONTRIBUTING.md: Guia para contribuir com o projeto
 data/: Arquivos de dados de entrada
 data/simulador_financeiro.mwb: Modelo visual do banco (MySQL Workbench)
 example.env: Exemplo de variáveis de ambiente
+LICENSE: Licença de uso do projeto
 main.py: Ponto de entrada da aplicação Flask
+README.md: Documentação principal
 requirements.txt: Lista de dependências do projeto
 scripts/: Scripts auxiliares
 scripts/tree.py: Geração da árvore do projeto

@@ -69,10 +69,14 @@ def atualizar_ativo(ticker: str):
             multi_level_index=False,
         )
 
+        if df is None:
+            logger.error(f"Erro ao buscar dados de '{ticker}'.")
+            return
+
         for index, row in df.iterrows():
             registro = PrecoHistorico(
                 ativos_id=ativo.ativos_id,
-                time=index.to_pydatetime(),
+                time=index.to_pydatetime(),  # type:ignore
                 open=row["Open"],
                 high=row["High"],
                 low=row["Low"],
