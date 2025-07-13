@@ -9,22 +9,18 @@ function copyHostIP() {
 // Toggle sidebar
 const sidebar = document.getElementById('sidebar');
 const toggleSidebar = document.getElementById('toggle-sidebar');
-const navTexts = ['nav-text-1', 'nav-text-2', 'nav-text-3', 'nav-text-4', 'nav-text-5', 'nav-text-6', 'nav-text-7', 'nav-text-8'];
 const logoText = document.getElementById('logo-text');
 
 toggleSidebar.addEventListener('click', () => {
     sidebar.classList.toggle('md:w-20');
     sidebar.classList.toggle('w-64');
 
-    // Toggle nav text visibility
-    navTexts.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.classList.toggle('md:hidden');
-        }
+    // Alterna visibilidade de todos os labels da sidebar
+    document.querySelectorAll('.nav-label').forEach(label => {
+        label.classList.toggle('md:hidden');
     });
 
-    // Toggle logo text
+    // Alterna visibilidade do texto do logo
     logoText.classList.toggle('md:hidden');
 });
 
