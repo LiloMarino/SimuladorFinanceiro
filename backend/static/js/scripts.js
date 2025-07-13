@@ -28,46 +28,6 @@ toggleSidebar.addEventListener('click', () => {
     logoText.classList.toggle('md:hidden');
 });
 
-// Navigation between sections
-const navLinks = document.querySelectorAll('nav a');
-const sections = document.querySelectorAll('.section-content');
-
-navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-
-        // Remove active class from all nav items
-        navLinks.forEach(navLink => {
-            navLink.classList.remove('active-nav-item');
-        });
-
-        // Add active class to clicked nav item
-        link.classList.add('active-nav-item');
-
-        // Hide all sections
-        sections.forEach(section => {
-            section.classList.add('hidden');
-        });
-
-        // Show the selected section
-        const sectionId = link.getAttribute('data-section');
-        document.getElementById(sectionId).classList.remove('hidden');
-
-        // Update header title
-        const headerTitle = document.querySelector('header h1');
-        if (sectionId === 'variable-income') headerTitle.textContent = 'Renda Variável';
-        else if (sectionId === 'fixed-income') headerTitle.textContent = 'Renda Fixa';
-        else if (sectionId === 'portfolio') headerTitle.textContent = 'Carteira';
-        else if (sectionId === 'import-assets') headerTitle.textContent = 'Importar Ativos';
-        else if (sectionId === 'stock-detail') headerTitle.textContent = 'Detalhe do Ativo';
-        else if (sectionId === 'fixed-income-detail') headerTitle.textContent = 'Detalhe Renda Fixa';
-        else if (sectionId === 'strategies') headerTitle.textContent = 'Estratégias';
-        else if (sectionId === 'stats') headerTitle.textContent = 'Estatísticas Multiplayer';
-        else if (sectionId === 'lobby') headerTitle.textContent = 'Sala Multiplayer';
-        else if (sectionId === 'settings') headerTitle.textContent = 'Configurações';
-    });
-});
-
 // Speed controls
 const speedButtons = document.querySelectorAll('.speed-btn');
 let currentSpeed = 0;
@@ -119,6 +79,4 @@ function updateSimulationTime() {
         `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-// Initialize with variable income section visible
-document.querySelector('nav a[data-section="variable-income"]').classList.add('active-nav-item');
 document.querySelector('.speed-btn[data-speed="0"]').classList.add('active-speed');
