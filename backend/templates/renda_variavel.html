@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block content %}
+<section id="variable-income" class="section-content">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Stock Cards -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-lg">PETR4</h3>
+                    <span class="text-green-500 text-sm font-medium">+2.34%</span>
+                </div>
+                <p class="text-gray-500 text-sm">Petróleo Brasileiro S.A.</p>
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Preço:</span>
+                    <span class="font-medium">R$ 32.45</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Volume:</span>
+                    <span class="font-medium">1.2M</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Variação:</span>
+                    <span class="font-medium">+0.74</span>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-2 flex justify-end">
+                <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
+                    onclick="window.location.href='/stock-details?ticker=PETR4'">Ver</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-lg">VALE3</h3>
+                    <span class="text-red-500 text-sm font-medium">-1.12%</span>
+                </div>
+                <p class="text-gray-500 text-sm">Vale S.A.</p>
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Preço:</span>
+                    <span class="font-medium">R$ 67.89</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Volume:</span>
+                    <span class="font-medium">850K</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Variação:</span>
+                    <span class="font-medium">-0.77</span>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-2 flex justify-end">
+                <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
+                    onclick="window.location.href='/stock-details?ticker=VALE3'">Ver</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-lg">ITUB4</h3>
+                    <span class="text-green-500 text-sm font-medium">+0.89%</span>
+                </div>
+                <p class="text-gray-500 text-sm">Itaú Unibanco</p>
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Preço:</span>
+                    <span class="font-medium">R$ 28.12</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Volume:</span>
+                    <span class="font-medium">950K</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Variação:</span>
+                    <span class="font-medium">+0.25</span>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-2 flex justify-end">
+                <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
+                    onclick="window.location.href='/stock-details?ticker=ITUB4'">Ver</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-lg">BBDC4</h3>
+                    <span class="text-green-500 text-sm font-medium">+3.45%</span>
+                </div>
+                <p class="text-gray-500 text-sm">Banco Bradesco</p>
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Preço:</span>
+                    <span class="font-medium">R$ 15.78</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Volume:</span>
+                    <span class="font-medium">1.5M</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Variação:</span>
+                    <span class="font-medium">+0.53</span>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-2 flex justify-end">
+                <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
+                    onclick="window.location.href='/stock-details?ticker=BBDC4'">Ver</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-lg">BBAS3</h3>
+                    <span class="text-red-500 text-sm font-medium">-0.67%</span>
+                </div>
+                <p class="text-gray-500 text-sm">Banco do Brasil</p>
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Preço:</span>
+                    <span class="font-medium">R$ 45.23</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Volume:</span>
+                    <span class="font-medium">720K</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Variação:</span>
+                    <span class="font-medium">-0.31</span>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-2 flex justify-end">
+                <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
+                    onclick="window.location.href='/stock-details?ticker=BBAS3'">Ver</button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+            <div class="p-4 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-lg">WEGE3</h3>
+                    <span class="text-green-500 text-sm font-medium">+1.78%</span>
+                </div>
+                <p class="text-gray-500 text-sm">WEG S.A.</p>
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Preço:</span>
+                    <span class="font-medium">R$ 36.75</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-500">Volume:</span>
+                    <span class="font-medium">420K</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Variação:</span>
+                    <span class="font-medium">+0.64</span>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-2 flex justify-end">
+                <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
+                    onclick="window.location.href='/stock-details?ticker=WEGE3'">Ver</button>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

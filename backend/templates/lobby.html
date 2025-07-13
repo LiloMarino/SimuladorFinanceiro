@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+<section id="lobby" class="section-content hidden">
+    <div class="bg-white rounded-lg shadow p-6 max-w-3xl mx-auto">
+        <h2 class="text-2xl font-semibold mb-6 text-center">Entrar na Partida</h2>
+
+        <div class="space-y-6">
+            <!-- Nickname Input -->
+            <div>
+                <label for="nickname" class="block text-sm font-medium text-gray-700 mb-1">Seu
+                    Nickname</label>
+                <input type="text" id="nickname" class="w-full p-2 border rounded-md" placeholder="Ex: TraderPro2023">
+            </div>
+
+            <!-- Simulation Settings -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="start-date" class="block text-sm font-medium text-gray-700 mb-1">Data
+                        Inicial</label>
+                    <input type="date" id="start-date" class="w-full p-2 border rounded-md">
+                </div>
+                <div>
+                    <label for="end-date" class="block text-sm font-medium text-gray-700 mb-1">Data
+                        Final</label>
+                    <input type="date" id="end-date" class="w-full p-2 border rounded-md">
+                </div>
+            </div>
+
+            <!-- Multiplayer Options -->
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h3 class="font-medium mb-2">Opções Multiplayer</h3>
+                <div class="flex items-center gap-4">
+                    <div class="flex-1">
+                        <label class="block text-sm text-gray-600 mb-1">IP do Host</label>
+                        <div class="flex">
+                            <input type="text" id="host-ip" value="192.168.1.100:3000"
+                                class="flex-1 p-2 border rounded-l-md" readonly>
+                            <button onclick="copyHostIP()" class="bg-gray-200 hover:bg-gray-300 px-3 rounded-r-md">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md whitespace-nowrap">
+                        <i class="fas fa-share-alt mr-1"></i> Compartilhar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Players List -->
+            <div>
+                <h3 class="font-medium mb-3">Jogadores na Sala <span class="text-sm text-gray-500">(3/8)</span></h3>
+                <div class="border rounded-lg overflow-hidden">
+                    <div class="divide-y divide-gray-200">
+                        <div class="p-3 flex items-center justify-between bg-green-50">
+                            <div class="flex items-center">
+                                <i class="fas fa-user text-green-600 mr-2"></i>
+                                <span class="font-medium">Você</span>
+                            </div>
+                            <span class="text-sm text-gray-500">Pronto</span>
+                        </div>
+                        <div class="p-3 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-user text-blue-600 mr-2"></i>
+                                <span>TraderPro</span>
+                            </div>
+                            <span class="text-sm text-gray-500">Conectado</span>
+                        </div>
+                        <div class="p-3 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <i class="fas fa-user text-purple-600 mr-2"></i>
+                                <span>InvestAnjo</span>
+                            </div>
+                            <span class="text-sm text-gray-500">Conectado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <button class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-md font-medium">
+                <i class="fas fa-play mr-2"></i> Iniciar Partida
+            </button>
+        </div>
+    </div>
+</section>
+{% endblock %}
