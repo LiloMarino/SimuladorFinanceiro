@@ -21,10 +21,22 @@ from pathlib import Path
 
 from flask import Flask
 
+from backend import logger_utils
+from backend.database import DB_PATH, engine
+from backend.models.models import Base
 from backend.routes import routes
 
 BACKEND_DIR = Path("backend")
 SECRET_PATH = Path("secret.key")
+
+logger = logger_utils.setup_logger(__name__)
+
+
+def init_db_once():
+    if engine.url.get_backend_name() == "sqlite":
+        if not DB_PATH.exists():
+            print("Criando banco SQLite pela primeira vez...")
+            Base.metadata.create_all(bind=engine)
 
 
 def get_secret_key():
@@ -48,5 +60,8 @@ def create_app():
 
 
 if __name__ == "__main__":
+    init_db_once()
+    backend = engine.url.get_backend_name()
+    logger.info(f"Banco de dados em uso: {backend.upper()} ({engine.url})")
     app = create_app()
     app.run(debug=True)
