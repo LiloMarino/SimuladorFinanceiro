@@ -1,10 +1,11 @@
-from flask import Blueprint, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for
 
 routes = Blueprint("routes", __name__)
 
 
 @routes.route("/", methods=["GET"])
 def index():
+    flash("Bem-vindo ao Simulador Financeiro!", "success")
     return redirect(url_for("routes.portfolio"))
 
 

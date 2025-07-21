@@ -20,6 +20,24 @@
         <div class="flex-1 overflow-auto">
             <!-- Top Bar -->
             {% include 'partials/topbar.html' %}
+            
+            <!-- Toast -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+              <div class="fixed top-4 right-4 space-y-2 z-50">
+                  {% for category, message in messages %}
+                      <div class="px-4 py-3 rounded shadow-lg text-white
+                          {% if category == 'success' %}bg-green-500
+                          {% elif category == 'warning' %}bg-yellow-500
+                          {% elif category == 'error' %}bg-red-500
+                          {% else %}bg-gray-800
+                          {% endif %}">
+                          {{ message }}
+                      </div>
+                  {% endfor %}
+              </div>
+              {% endif %}
+            {% endwith %}
 
             <!-- Content Area -->
             <main class="p-6">

@@ -16,6 +16,7 @@ Você deve ter recebido uma cópia da Licença Pública Geral GNU
 junto com este programa. Caso não, veja <https://www.gnu.org/licenses/>.
 """
 
+import secrets
 from pathlib import Path
 
 from flask import Flask
@@ -23,6 +24,16 @@ from flask import Flask
 from backend.routes import routes
 
 BACKEND_DIR = Path("backend")
+SECRET_PATH = Path("secret.key")
+
+
+def get_secret_key():
+    if SECRET_PATH.exists():
+        secret_key = SECRET_PATH.read_text()
+    else:
+        secret_key = secrets.token_hex(16)
+        SECRET_PATH.write_text(secret_key)
+    return secret_key
 
 
 def create_app():
@@ -31,6 +42,7 @@ def create_app():
         template_folder=BACKEND_DIR / "templates",
         static_folder=BACKEND_DIR / "static",
     )
+    app.secret_key = get_secret_key()
     app.register_blueprint(routes)
     return app
 
