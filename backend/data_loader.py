@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 logger = setup_logger(__name__)
 
 
-def importar_ativo(session: Session, ticker: str, classe: str = "acao") -> Ativos:
+def import_stock(session: Session, ticker: str, classe: str = "acao") -> Ativos:
     ativo = session.query(Ativos).filter_by(ticker=ticker).first()
 
     if ativo:
@@ -31,10 +31,10 @@ def importar_ativo(session: Session, ticker: str, classe: str = "acao") -> Ativo
     return novo_ativo
 
 
-def atualizar_ativo(ticker: str):
+def update_stock(ticker: str):
     logger.info(f"Atualizando dados do ativo '{ticker}'")
     with SessionLocal() as session:
-        ativo = importar_ativo(session, ticker)
+        ativo = import_stock(session, ticker)
 
         # Buscar a última data registrada
         ultima_data = (
