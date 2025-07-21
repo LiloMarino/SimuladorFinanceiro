@@ -82,6 +82,6 @@ document.querySelector('.speed-btn[data-speed="0"]').classList.add('active-speed
 setTimeout(() => {
     document.querySelectorAll(".toast, .alert, .toast-auto").forEach(el => {
         el.style.opacity = 0;
-        setTimeout(() => el.remove(), 300); // remove do DOM
+        setTimeout(() => el.remove(), 300);
     });
-}, 4000);
+}, 3000); // 3000ms = 3s
