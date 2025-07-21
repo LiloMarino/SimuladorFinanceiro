@@ -84,4 +84,4 @@ setTimeout(() => {
         el.style.opacity = 0;
         setTimeout(() => el.remove(), 300);
     });
-}, 3000); // 3000ms = 3s
+}, 4000); // 3000ms = 3s

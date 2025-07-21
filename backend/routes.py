@@ -1,11 +1,12 @@
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+
+from backend.data_loader import update_stock
 
 routes = Blueprint("routes", __name__)
 
 
 @routes.route("/", methods=["GET"])
 def index():
-    flash("Bem-vindo ao Simulador Financeiro!", "success")
     return redirect(url_for("routes.portfolio"))
 
 
@@ -24,8 +25,23 @@ def portfolio():
     return render_template("carteira.html", active_page=portfolio.__name__)
 
 
-@routes.route("/importar-ativos", methods=["GET"])
+@routes.route("/importar-ativos", methods=["GET", "POST"])
 def import_assets():
+    if request.method == "POST":
+        ticker = request.form.get("ticker")
+
+        if not ticker:
+            flash("Você precisa fornecer o código do ativo!", "warning")
+            return redirect(url_for("routes.import_assets"))
+
+        try:
+            update_stock(ticker)
+            flash(f"Ativo '{ticker}' importado com sucesso!", "success")
+        except Exception as e:
+            flash(f"Erro ao importar ativo '{ticker}': {str(e)}", "danger")
+
+        return redirect(url_for("routes.import_assets"))
+
     return render_template("importar_ativos.html", active_page=import_assets.__name__)
 
 
