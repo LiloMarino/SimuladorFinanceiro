@@ -5,89 +5,76 @@
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-semibold">Estratégias Automatizadas</h2>
             <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md">
-                <i class="fas fa-plus mr-2"></i> Nova Estratégia
+                <i class="fas fa-sync-alt mr-2"></i> Refresh
             </button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 gap-6">
             <!-- Strategy Selection Panel -->
             <div class="border rounded-lg p-4">
-                <h3 class="font-medium mb-4">Estratégias Disponíveis</h3>
-                <div class="space-y-2 mb-4">
-                    <div class="bg-gray-100 p-3 rounded-md flex justify-between items-center">
-                        <span>Média Móvel 50/200</span>
-                        <div class="flex items-center space-x-2">
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" value="" class="sr-only peer" checked>
-                                <div
-                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="bg-gray-100 p-3 rounded-md flex justify-between items-center">
-                        <span>RSI Oversold/Overbought</span>
-                        <div class="flex items-center space-x-2">
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" value="" class="sr-only peer">
-                                <div
-                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="bg-gray-100 p-3 rounded-md flex justify-between items-center">
-                        <span>Breakout Trading</span>
-                        <div class="flex items-center space-x-2">
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" value="" class="sr-only peer">
-                                <div
-                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border-t pt-4">
+                <div class="mb-6">
                     <h3 class="font-medium mb-2">Modo de Execução</h3>
-                    <div class="flex space-x-2">
-                        <button class="flex-1 bg-blue-600 text-white py-2 rounded-md">Automático</button>
-                        <button class="flex-1 bg-gray-200 hover:bg-gray-300 py-2 rounded-md">Manual</button>
+                    <div class="flex space-x-4">
+                        <button
+                            class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg shadow hover:bg-blue-700 transition">
+                            <i class="fas fa-robot mr-2"></i> Automático
+                        </button>
+                        <button class="flex-1 bg-gray-100 hover:bg-gray-200 py-3 px-4 rounded-lg shadow transition">
+                            <i class="fas fa-hand-paper mr-2"></i> Manual
+                        </button>
                     </div>
                 </div>
-            </div>
+                <h3 class="font-medium mb-4">Estratégias Disponíveis</h3>
 
-            <!-- Code Editor -->
-            <div class="border rounded-lg p-4 lg:col-span-2">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-medium">Editor de Estratégia (Python)</h3>
-                    <div class="flex space-x-2">
-                        <button class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md">
-                            <i class="fas fa-play mr-1"></i> Executar
-                        </button>
-                        <button class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md">
-                            <i class="fas fa-save mr-1"></i> Salvar
-                        </button>
-                    </div>
-                </div>
-                <div class="h-64 bg-gray-100 rounded">
-                    <textarea class="w-full h-full p-3 font-mono text-sm bg-gray-900 text-green-400 rounded"
-                        placeholder="# Digite seu código de estratégia aqui
-def strategy(data):
-    # Lógica da estratégia
-    if data['rsi'] < 30:
-        return 'BUY'
-    elif data['rsi'] > 70:
-        return 'SELL'
-    return None"># Digite seu código de estratégia aqui
-def strategy(data):
-    # Lógica da estratégia
-    if data['rsi'] < 30:
-        return 'BUY'
-    elif data['rsi'] > 70:
-        return 'SELL'
-    return None</textarea>
+                <div class="space-y-2">
+                    <label
+                        class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg cursor-pointer transition">
+                        <div>
+                            <h4 class="font-medium">Média Móvel 50/200</h4>
+                            <p class="text-sm text-gray-500">Compra quando média de 50 dias cruza acima de 200 dias</p>
+                        </div>
+                        <div class="relative">
+                            <input type="radio" name="strategy" value="moving-average" class="sr-only peer" checked>
+                            <div
+                                class="w-6 h-6 border-2 border-gray-300 rounded-full peer-checked:border-blue-600 flex items-center justify-center transition">
+                                <div
+                                    class="w-3 h-3 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100 transition">
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    <label
+                        class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg cursor-pointer transition mt-2">
+                        <div>
+                            <h4 class="font-medium">RSI Oversold/Overbought</h4>
+                            <p class="text-sm text-gray-500">Compra quando RSI < 30, vende quando RSI> 70</p>
+                        </div>
+                        <div class="relative">
+                            <input type="radio" name="strategy" value="rsi" class="sr-only peer">
+                            <div
+                                class="w-6 h-6 border-2 border-gray-300 rounded-full peer-checked:border-blue-600 flex items-center justify-center transition">
+                                <div
+                                    class="w-3 h-3 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100 transition">
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    <label
+                        class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg cursor-pointer transition mt-2">
+                        <div>
+                            <h4 class="font-medium">Breakout Trading</h4>
+                            <p class="text-sm text-gray-500">Compra quando preço rompe resistência com volume</p>
+                        </div>
+                        <div class="relative">
+                            <input type="radio" name="strategy" value="breakout" class="sr-only peer">
+                            <div
+                                class="w-6 h-6 border-2 border-gray-300 rounded-full peer-checked:border-blue-600 flex items-center justify-center transition">
+                                <div
+                                    class="w-3 h-3 rounded-full bg-blue-600 opacity-0 peer-checked:opacity-100 transition">
+                                </div>
+                            </div>
+                        </div>
+                    </label>
                 </div>
             </div>
         </div>
@@ -101,13 +88,11 @@ def strategy(data):
                 </button>
             </div>
             <div class="h-48 overflow-y-auto bg-gray-100 rounded p-3 font-mono text-sm">
-                <div class="text-green-600">[10:30:05] PETR4: Compra realizada - 100 ações @ R$32.45
-                </div>
+                <div class="text-green-600">[10:30:05] PETR4: Compra realizada - 100 ações @ R$32.45</div>
                 <div class="text-red-600">[11:15:22] VALE3: Venda realizada - 50 ações @ R$67.89</div>
                 <div>[11:45:18] Nenhum sinal identificado nas últimas 30 velas</div>
                 <div class="text-gray-400">[12:00:00] Analisando 5 ativos no momento...</div>
-                <div class="text-green-600">[12:30:15] ITUB4: Compra realizada - 200 ações @ R$28.12
-                </div>
+                <div class="text-green-600">[12:30:15] ITUB4: Compra realizada - 200 ações @ R$28.12</div>
             </div>
         </div>
     </div>
