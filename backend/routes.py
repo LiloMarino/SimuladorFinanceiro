@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
-from backend.data_loader import update_stock
+from backend.data_loader import update_from_csv, update_from_yfinance
 
 routes = Blueprint("routes", __name__)
 
@@ -28,17 +28,29 @@ def portfolio():
 @routes.route("/importar-ativos", methods=["GET", "POST"])
 def import_assets():
     if request.method == "POST":
-        ticker = request.form.get("ticker")
-
-        if not ticker:
-            flash("Você precisa fornecer o código do ativo!", "warning")
-            return redirect(url_for("routes.import_assets"))
+        action = request.form.get("action")
 
         try:
-            update_stock(ticker)
-            flash(f"Ativo '{ticker}' importado com sucesso!", "success")
+            if action == "yfinance":
+                ticker = request.form.get("ticker")
+                if not ticker:
+                    flash("Você precisa fornecer o código do ativo!", "warning")
+                else:
+                    update_from_yfinance(ticker)
+                    flash(f"Ativo '{ticker}' importado com sucesso!", "success")
+
+            elif action == "csv":
+                file = request.files.get("csv_file")
+                if not file:
+                    flash("Você precisa selecionar um arquivo CSV!", "warning")
+                else:
+                    update_from_csv(file)
+                    flash("Arquivo CSV importado com sucesso!", "success")
+            else:
+                flash("Ação inválida.", "danger")
+
         except Exception as e:
-            flash(f"Erro ao importar ativo '{ticker}': {str(e)}", "danger")
+            flash(f"Erro ao importar: {str(e)}", "danger")
 
         return redirect(url_for("routes.import_assets"))
 

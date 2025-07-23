@@ -87,3 +87,11 @@ def update_stock(ticker: str):
 
         session.commit()
         logger.info(f"Dados de '{ticker}' atualizados com sucesso.")
+
+
+def update_from_csv(file):
+    pass
+
+
+def update_from_yfinance(ticker):
+    pass

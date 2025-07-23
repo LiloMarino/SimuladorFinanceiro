@@ -78,6 +78,51 @@ function updateSimulationTime() {
 document.querySelector('.speed-btn[data-speed="0"]').classList.add('active-speed');
 
 
+// Drag-n-drop
+const input = document.getElementById("csv-upload");
+const fileNameDisplay = document.getElementById("file-name");
+const dropArea = document.getElementById("drop-area");
+
+// Evita que o navegador abra o arquivo quando solto na página
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+});
+
+// Efeito visual ao arrastar sobre a área
+['dragenter', 'dragover'].forEach(eventName => {
+    dropArea.addEventListener(eventName, () => {
+        dropArea.classList.add('border-blue-500', 'bg-blue-50');
+    });
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, () => {
+        dropArea.classList.remove('border-blue-500', 'bg-blue-50');
+    });
+});
+
+// Atualiza input e texto ao soltar o arquivo
+dropArea.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        input.files = files;
+        fileNameDisplay.textContent = `Arquivo selecionado: ${files[0].name}`;
+    }
+});
+
+// Quando seleciona manualmente via clique
+input.addEventListener("change", function () {
+    const file = input.files[0];
+    if (file) {
+        fileNameDisplay.textContent = `Arquivo selecionado: ${file.name}`;
+    } else {
+        fileNameDisplay.textContent = "";
+    }
+});
+
 // Timeout para esconder toasts
 setTimeout(() => {
     document.querySelectorAll(".toast, .alert, .toast-auto").forEach(el => {
