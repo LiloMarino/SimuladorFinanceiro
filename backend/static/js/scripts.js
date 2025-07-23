@@ -1,12 +1,12 @@
 import { initSidebarToggle } from "./modules/sidebar.js";
-import { initDragAndDrop } from "./modules/dragndrop.js";
+import { initImporter } from "./modules/import.js";
 import { initSimulationControls } from "./modules/simulation.js";
 import { initCopyHostIP } from "./modules/copy.js";
 import { initAutoToast } from "./modules/toast.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     initSidebarToggle();
-    initDragAndDrop();
+    initImporter();
     initSimulationControls();
     initCopyHostIP();
     initAutoToast();

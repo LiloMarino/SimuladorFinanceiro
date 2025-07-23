@@ -1,4 +1,5 @@
-export function initDragAndDrop() {
+export function initImporter() {
+    // Drag-n-Drop
     const input = document.getElementById("csv-upload");
     const fileNameDisplay = document.getElementById("file-name");
     const dropArea = document.getElementById("drop-area");
@@ -40,4 +41,26 @@ export function initDragAndDrop() {
             fileNameDisplay.textContent = "";
         }
     });
+
+    // Modal de confirmação para importação
+    const modal = document.getElementById('confirm-modal');
+    const openModalBtn = document.getElementById('open-modal-btn');
+    const confirmBtn = document.getElementById('confirm-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const csvForm = document.getElementById('csv-form');
+
+    if (openModalBtn && modal && confirmBtn && cancelBtn && csvForm) {
+        openModalBtn.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            csvForm.submit();
+        });
+    }
 }
