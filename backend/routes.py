@@ -40,12 +40,20 @@ def import_assets():
                     flash(f"Ativo '{ticker}' importado com sucesso!", "success")
 
             elif action == "csv":
+                ticker = request.form.get("ticker")
                 file = request.files.get("csv_file")
-                if not file:
+
+                if not ticker:
+                    flash("Você precisa fornecer o nome do ativo!", "warning")
+                elif not file:
                     flash("Você precisa selecionar um arquivo CSV!", "warning")
                 else:
-                    update_from_csv(file)
-                    flash("Arquivo CSV importado com sucesso!", "success")
+                    update_from_csv(file, ticker)
+                    flash(
+                        f"Arquivo CSV do ativo '{ticker}' importado com sucesso!",
+                        "success",
+                    )
+
             else:
                 flash("Ação inválida.", "danger")
 
