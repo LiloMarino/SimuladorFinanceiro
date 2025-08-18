@@ -43,7 +43,13 @@
                         <p id="file-name" class="mt-2 text-sm text-gray-700"></p>
                         <!-- Aqui aparece o nome do arquivo -->
                     </div>
-                    <button type="button" id="open-modal-btn"
+                    <div class="mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="overwrite" class="mr-2">
+                            <span class="text-sm text-gray-700">Sobrescrever dados existentes</span>
+                        </label>
+                    </div>
+                    <button type="button" data-open-modal data-form="csv-form" data-action="csv"
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md">
                         Importar CSV
                     </button>
@@ -52,7 +58,7 @@
 
 
             <!-- yFinance Import Form -->
-            <form method="POST" action="{{ url_for('routes.import_assets') }}">
+            <form id="yfinance-form" method="POST" action="{{ url_for('routes.import_assets') }}">
                 <div class="border rounded-lg p-6">
                     <div class="flex items-center mb-4">
                         <i class="fas fa-chart-line text-yellow-500 text-2xl mr-3"></i>
@@ -69,7 +75,13 @@
                             </button>
                         </div>
                     </div>
-                    <button type="submit" name="action" value="yfinance"
+                    <div class="mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="overwrite" class="mr-2">
+                            <span class="text-sm text-gray-700">Sobrescrever dados existentes</span>
+                        </label>
+                    </div>
+                    <button type="button" data-open-modal data-form="yfinance-form" data-action="yfinance"
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md">
                         Buscar e Importar
                     </button>

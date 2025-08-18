@@ -29,6 +29,7 @@ def portfolio():
 def import_assets():
     if request.method == "POST":
         action = request.form.get("action")
+        overwrite = request.form.get("overwrite") == "on"
 
         try:
             if action == "yfinance":
@@ -36,8 +37,12 @@ def import_assets():
                 if not ticker:
                     flash("Você precisa fornecer o código do ativo!", "warning")
                 else:
-                    update_from_yfinance(ticker)
-                    flash(f"Ativo '{ticker}' importado com sucesso!", "success")
+                    update_from_yfinance(ticker, overwrite=overwrite)
+                    flash(
+                        f"Ativo '{ticker}' importado com sucesso!"
+                        + (" (sobrescrito)" if overwrite else ""),
+                        "success",
+                    )
 
             elif action == "csv":
                 ticker = request.form.get("ticker")
@@ -48,9 +53,10 @@ def import_assets():
                 elif not file:
                     flash("Você precisa selecionar um arquivo CSV!", "warning")
                 else:
-                    update_from_csv(file, ticker)
+                    update_from_csv(file, ticker, overwrite=overwrite)
                     flash(
-                        f"Arquivo CSV do ativo '{ticker}' importado com sucesso!",
+                        f"Arquivo CSV do ativo '{ticker}' importado com sucesso!"
+                        + (" (sobrescrito)" if overwrite else ""),
                         "success",
                     )
 

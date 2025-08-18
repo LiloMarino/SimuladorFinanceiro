@@ -34,9 +34,55 @@ def from_yfinance(
     return df
 
 
-def from_csv(file) -> pd.DataFrame:
+def from_csv(file, fillzero: bool = True) -> pd.DataFrame:
     logger.info(f"Lendo arquivo CSV '{file.filename}'...")
     df = pd.read_csv(file)
+
+    # Converte datas (formato dd.mm.yyyy → datetime)
+    df["Data"] = pd.to_datetime(df["Data"], format="%d.%m.%Y", errors="coerce")
+
+    # Renomeia colunas para inglês (o que seu código espera)
+    df = df.rename(
+        columns={
+            "Último": "Close",
+            "Abertura": "Open",
+            "Máxima": "High",
+            "Mínima": "Low",
+            "Vol.": "Volume",
+        }
+    )
+
+    # Remove % e converte para número
+    for col in ["Close", "Open", "High", "Low"]:
+        df[col] = df[col].astype(str).str.replace(",", ".").astype(float)
+
+    # Trata volume (tipo "28,59K")
+    def parse_vol(x):
+        x = str(x).replace(".", "").replace(",", ".")
+        if "K" in x:
+            return float(x.replace("K", "")) * 1000
+        if "M" in x:
+            return float(x.replace("M", "")) * 1_000_000
+        return float(x)
+
+    df["Volume"] = df["Volume"].apply(parse_vol)
+
+    # Trata valores ausentes
+    if fillzero:
+        missing_before = (
+            df[["Open", "High", "Low", "Close", "Volume"]].isna().sum().sum()
+        )
+        df = df.fillna(0)
+        if missing_before > 0:
+            logger.warning(
+                f"{missing_before} valores ausentes foram preenchidos com zero!"
+            )
+    else:
+        df = df.dropna(subset=["Open", "High", "Low", "Close", "Volume"])
+
+    # Coloca Data como índice
+    df = df.set_index("Data")
+
     return df
 
 
@@ -81,7 +127,7 @@ def upsert_dataframe(
         registros = [
             PrecoHistorico(
                 ativos_id=ativo.ativos_id,
-                time=index.to_pydatetime(),
+                time=index,
                 open=row["Open"],
                 high=row["High"],
                 low=row["Low"],
