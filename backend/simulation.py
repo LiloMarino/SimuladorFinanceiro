@@ -35,7 +35,7 @@ class Simulation:
                     stocks.append(
                         {
                             "ticker": ph.ativos.ticker,
-                            "name": ph.ativos.classe,
+                            "name": ph.ativos.nome,
                             "price": ph.close,
                             "volume": ph.volume,
                             "change": round(ph.close - ph.open, 2),

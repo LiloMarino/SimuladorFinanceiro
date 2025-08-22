@@ -1,11 +1,11 @@
 import datetime
+import decimal
 from typing import List
 
 from sqlalchemy import (
     BigInteger,
     DateTime,
     Double,
-    Enum,
     ForeignKeyConstraint,
     Index,
     Integer,
@@ -24,7 +24,7 @@ class Ativos(Base):
 
     ativos_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     ticker: Mapped[str] = mapped_column(String(16))
-    classe: Mapped[str] = mapped_column(Enum("acao", "fii", "etf", "bdr"))
+    nome: Mapped[str] = mapped_column(String(50))
 
     preco_historico: Mapped[List["PrecoHistorico"]] = relationship(
         "PrecoHistorico", back_populates="ativos"

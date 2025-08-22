@@ -91,17 +91,25 @@ def from_csv(file, fillzero: bool = True) -> pd.DataFrame:
 # -------------------
 
 
-def upsert_dataframe(
-    df: pd.DataFrame, ticker: str, classe: str = "acao", overwrite: bool = False
-):
+def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
     with SessionLocal() as session:
         # 1. Garante que o ativo existe
         ativo = session.query(Ativos).filter_by(ticker=ticker).first()
         if not ativo:
-            ativo = Ativos(ticker=ticker, classe=classe)
+            try:
+                yf_ticker = yf.Ticker(ticker)
+                info = yf_ticker.info
+                nome = info.get("longName") or info.get("shortName") or ticker
+            except Exception as e:
+                logger.warning(
+                    f"Não foi possível obter nome de '{ticker}' no yfinance: {e}"
+                )
+                nome = ticker
+
+            ativo = Ativos(ticker=ticker, nome=nome)
             session.add(ativo)
             session.commit()
-            logger.info(f"Ativo '{ticker}' criado no banco.")
+            logger.info(f"Ativo '{ticker}' ({nome}) criado no banco.")
 
         # 2. Lógica de sobrescrever
         if overwrite:
