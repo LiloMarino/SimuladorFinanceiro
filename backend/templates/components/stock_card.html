@@ -1,0 +1,31 @@
+{% macro stock_card(stock) %}
+<div class="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200">
+    <div class="p-4 border-b">
+        <div class="flex justify-between items-center">
+            <h3 class="font-bold text-lg">{{ stock.ticker }}</h3>
+            <span class="{{ 'text-green-500' if '+' in stock.change_pct else 'text-red-500' }} text-sm font-medium">
+                {{ stock.change_pct }}
+            </span>
+        </div>
+        <p class="text-gray-500 text-sm">{{ stock.name }}</p>
+    </div>
+    <div class="p-4">
+        <div class="flex justify-between text-sm mb-2">
+            <span class="text-gray-500">Preço:</span>
+            <span class="font-medium">R$ {{ stock.price }}</span>
+        </div>
+        <div class="flex justify-between text-sm mb-2">
+            <span class="text-gray-500">Volume:</span>
+            <span class="font-medium">{{ stock.volume }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Variação:</span>
+            <span class="font-medium">{{ stock.change }}</span>
+        </div>
+    </div>
+    <div class="bg-gray-50 px-4 py-2 flex justify-end">
+        <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
+            onclick="window.location.href='/stock-details?ticker={{ stock.ticker }}'">Ver</button>
+    </div>
+</div>
+{% endmacro %}

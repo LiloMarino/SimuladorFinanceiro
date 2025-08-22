@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from backend.data_loader import update_from_csv, update_from_yfinance
+from backend.simulation import get_simulation
 
 routes = Blueprint("routes", __name__)
 
@@ -12,7 +13,12 @@ def index():
 
 @routes.route("/renda-variavel", methods=["GET"])
 def variable_income():
-    return render_template("renda_variavel.html", active_page=variable_income.__name__)
+    simulation = get_simulation()
+    return render_template(
+        "renda_variavel.html",
+        stocks=simulation.get_stocks(),
+        active_page=variable_income.__name__,
+    )
 
 
 @routes.route("/renda-fixa", methods=["GET"])
