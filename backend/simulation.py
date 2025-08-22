@@ -37,9 +37,10 @@ class Simulation:
                             "ticker": ph.ativos.ticker,
                             "name": ph.ativos.nome,
                             "price": ph.close,
-                            "volume": ph.volume,
+                            "low": ph.low,
+                            "high": ph.high,
                             "change": round(ph.close - ph.open, 2),
-                            "change_pct": f"{round((ph.close - ph.open)/ph.open*100,2)}%",
+                            "change_pct": f"{(ph.close - ph.open) / ph.open * 100:+.2f}%",
                         }
                     )
             return stocks
