@@ -25,6 +25,7 @@ from backend import logger_utils
 from backend.database import DB_PATH, engine
 from backend.models.models import Base
 from backend.routes import routes
+from backend.websocket import register_socketio_events
 
 BACKEND_DIR = Path("backend")
 SECRET_PATH = Path("secret.key")
@@ -33,18 +34,16 @@ logger = logger_utils.setup_logger(__name__)
 
 
 def init_db_once():
-    if engine.url.get_backend_name() == "sqlite":
-        if not DB_PATH.exists():
-            print("Criando banco SQLite pela primeira vez...")
-            Base.metadata.create_all(bind=engine)
+    if engine.url.get_backend_name() == "sqlite" and not DB_PATH.exists():
+        print("Criando banco SQLite pela primeira vez...")
+        Base.metadata.create_all(bind=engine)
 
 
 def get_secret_key():
     if SECRET_PATH.exists():
-        secret_key = SECRET_PATH.read_text()
-    else:
-        secret_key = secrets.token_hex(16)
-        SECRET_PATH.write_text(secret_key)
+        return SECRET_PATH.read_text()
+    secret_key = secrets.token_hex(16)
+    SECRET_PATH.write_text(secret_key)
     return secret_key
 
 
@@ -63,5 +62,7 @@ if __name__ == "__main__":
     init_db_once()
     backend = engine.url.get_backend_name()
     logger.info(f"Banco de dados em uso: {backend.upper()} ({engine.url})")
+
     app = create_app()
-    app.run(debug=True)
+    socketio = register_socketio_events(app)  # Injeta WebSocket
+    socketio.run(app, debug=True)

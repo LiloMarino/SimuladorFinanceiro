@@ -1,38 +1,29 @@
+import { io } from "https://cdn.socket.io/4.7.1/socket.io.esm.min.js";
+
 export function initSimulationControls() {
     const speedButtons = document.querySelectorAll('.speed-btn');
     const timeDisplay = document.getElementById('simulation-time');
     if (!speedButtons.length || !timeDisplay) return;
 
-    async function updateSpeed(speed) {
-        const res = await fetch("/simulation/speed", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ speed }),
-        });
-        const state = await res.json();
-        console.log("Velocidade alterada:", state);
-    }
+    const socket = io(); // conecta no backend
 
-    async function fetchState() {
-        const res = await fetch("/simulation/state");
-        const state = await res.json();
+    // 🔹 Recebe atualizações do backend
+    socket.on("simulation_update", (state) => {
         timeDisplay.textContent = state.current_date;
-        return state;
-    }
-
-    speedButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            speedButtons.forEach(btn => btn.classList.remove('active-speed'));
-            button.classList.add('active-speed');
-
-            const newSpeed = parseInt(button.getAttribute('data-speed'));
-            updateSpeed(newSpeed);
+        speedButtons.forEach(btn => {
+            btn.classList.toggle("active-speed", parseInt(btn.dataset.speed) === state.speed);
         });
     });
 
-    // Atualiza o tempo periodicamente (polling simples)
-    setInterval(fetchState, 2000);
-
-    // Inicializa estado
-    fetchState();
+    // 🔹 Ao clicar, envia via REST (não WebSocket)
+    speedButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+            const newSpeed = parseInt(button.dataset.speed);
+            await fetch("/api/set_speed", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ speed: newSpeed })
+            });
+        });
+    });
 }

@@ -45,7 +45,8 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 - **[yfinance](https://pypi.org/project/yfinance/)** → Dados do mercado financeiro.  
 - **[SQLAlchemy](https://www.sqlalchemy.org/)** → ORM para banco de dados.  
 - **Banco de Dados** → **MySQL e SQLite** para armazenamento de históricos e portfólio.  
-- **WebSockets** → Comunicação em tempo real para atualização de gráficos e multiplayer.  
+- **WebSockets** → Comunicação em tempo real para atualização de gráficos e multiplayer (back -> front).
+- **REST** → Comunicação em eventos e dados externos (front -> back).
 - **PyInstaller** → Empacotamento da aplicação como executável (.exe).  
 
 ## 📁 Estrutura do Projeto  

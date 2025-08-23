@@ -6,7 +6,10 @@ backend/logger_utils.py: Utilitários para logging
 backend/models/: Modelos ORM
 backend/models/models.py: Definição dos modelos de dados
 backend/routes.py: Rotas de navegação (páginas)
+backend/data_loader.py: Importação de dados históricos
+backend/simulation.py: Classe Simulation
 backend/templates: HTML com Jinja2
+backend/websocket.py: Comunicação real-time com JS no front
 CONTRIBUTING.md: Guia para contribuir com o projeto
 data/: Arquivos de dados de entrada
 data/simulador_financeiro.mwb: Modelo visual do banco (MySQL Workbench)

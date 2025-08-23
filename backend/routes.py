@@ -1,9 +1,13 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 
 from backend.data_loader import update_from_csv, update_from_yfinance
 from backend.simulation import get_simulation
 
 routes = Blueprint("routes", __name__)
+
+# ----------
+# Páginas
+# ----------
 
 
 @routes.route("/", methods=["GET"])
@@ -116,3 +120,19 @@ def lobby():
 @routes.route("/configuracoes", methods=["GET"])
 def settings():
     return render_template("configs.html", active_page=settings.__name__)
+
+
+# -----------
+# REST API
+# -----------
+
+
+@routes.route("/api/set_speed", methods=["POST"])
+def set_speed():
+    data = request.get_json()
+    speed = data.get("speed", 0)
+
+    simulation = get_simulation()
+    simulation.speed = speed
+
+    return jsonify({"status": "ok", "speed": simulation.speed})

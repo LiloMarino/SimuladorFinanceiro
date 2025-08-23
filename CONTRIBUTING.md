@@ -6,30 +6,54 @@
 
 ```plaintext
 /SimuladorFinanceiro
-├── .gitignore                   # Arquivos e pastas a serem ignorados pelo Git
-├── CONTRIBUTING.md              # Guia para contribuir com o projeto
-├── LICENSE                      # Licença de uso do projeto
-├── README.md                    # Documentação principal
-├── backend/                     # Lógica do backend em Flask
-│   ├── data_loader.py
-│   ├── database.py              # Configuração do banco de dados
-│   ├── logger_utils.py          # Utilitários para logging
-│   ├── models/                  # Modelos ORM
-│   │   └── models.py            # Definição dos modelos de dados
-│   ├── routes.py                # Rotas de navegação (páginas)
+├── .gitignore                          # Arquivos e pastas a serem ignorados pelo Git
+├── CONTRIBUTING.md                     # Guia para contribuir com o projeto
+├── LICENSE                             # Licença de uso do projeto
+├── README.md                           # Documentação principal
+├── backend/                            # Lógica do backend em Flask
+│   ├── data_loader.py                  # Importação de dados históricos
+│   ├── database.py                     # Configuração do banco de dados
+│   ├── logger_utils.py                 # Utilitários para logging
+│   ├── models/                         # Modelos ORM
+│   │   └── models.py                   # Definição dos modelos de dados
+│   ├── routes.py                       # Rotas de navegação (páginas)
+│   ├── simulation.py                   # Classe Simulation
 │   ├── static/
-│   │   └── css/
-│   │       └── style.css
-│   └── templates/               # HTML com Jinja2
-│       └── index.html
-├── data/                        # Arquivos de dados de entrada
-│   └── simulador_financeiro.mwb # Modelo visual do banco (MySQL Workbench)
-├── example.env                  # Exemplo de variáveis de ambiente
-├── main.py                      # Ponto de entrada da aplicação Flask
-├── requirements.txt             # Lista de dependências do projeto
-└── scripts/                     # Scripts auxiliares
+│   │   ├── css/
+│   │   │   └── style.css
+│   │   └── js/
+│   │       ├── global.js
+│   │       └── modules/
+│   │           ├── import.js
+│   │           ├── sidebar.js
+│   │           ├── simulation.js
+│   │           └── toast.js
+│   ├── templates/                      # HTML com Jinja2
+│   │   ├── base.html
+│   │   ├── carteira.html
+│   │   ├── components/
+│   │   │   └── stock_card.html
+│   │   ├── configs.html
+│   │   ├── detalhe_renda_fixa.html
+│   │   ├── detalhe_renda_variavel.html
+│   │   ├── estatisticas.html
+│   │   ├── estrategias.html
+│   │   ├── importar_ativos.html
+│   │   ├── lobby.html
+│   │   ├── partials/
+│   │   │   ├── sidebar.html
+│   │   │   └── topbar.html
+│   │   ├── renda_fixa.html
+│   │   └── renda_variavel.html
+│   └── websocket.py                    # Comunicação real-time com JS no front
+├── data/                               # Arquivos de dados de entrada
+│   └── simulador_financeiro.mwb        # Modelo visual do banco (MySQL Workbench)
+├── example.env                         # Exemplo de variáveis de ambiente
+├── main.py                             # Ponto de entrada da aplicação Flask
+├── requirements.txt                    # Lista de dependências do projeto
+└── scripts/                            # Scripts auxiliares
     ├── fix_model.py
-    ├── tree.py                  # Geração da árvore do projeto
+    ├── tree.py                         # Geração da árvore do projeto
     └── tree_descriptions.yaml
 ```
 
