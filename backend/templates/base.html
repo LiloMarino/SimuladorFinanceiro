@@ -12,6 +12,16 @@
 
 <body class="bg-gray-100 font-sans">
     <div class="flex h-screen overflow-hidden">
+        {% set nav_items = [
+            {"endpoint": "routes.variable_income", "icon": "fa-chart-line", "label": "Renda Variável", "key": "variable_income"},
+            {"endpoint": "routes.fixed_income", "icon": "fa-coins", "label": "Renda Fixa", "key": "fixed_income"},
+            {"endpoint": "routes.portfolio", "icon": "fa-wallet", "label": "Carteira", "key": "portfolio"},
+            {"endpoint": "routes.import_assets", "icon": "fa-file-import", "label": "Importar Ativos", "key": "import_assets"},
+            {"endpoint": "routes.strategies", "icon": "fa-robot", "label": "Estratégias", "key": "strategies"},
+            {"endpoint": "routes.statistics", "icon": "fa-trophy", "label": "Estatísticas", "key": "statistics"},
+            {"endpoint": "routes.lobby", "icon": "fa-door-open", "label": "Sala Multiplayer", "key": "lobby"},
+            {"endpoint": "routes.settings", "icon": "fa-cog", "label": "Configurações", "key": "settings"}
+        ] %}
 
         <!-- Sidebar -->
         {% include 'partials/sidebar.html' %}
@@ -19,6 +29,7 @@
         <!-- Main Content -->
         <div class="flex-1 overflow-auto">
             <!-- Top Bar -->
+            {% set page_label = nav_items | selectattr('key','equalto',active_page) | map(attribute='label') | first %}
             {% include 'partials/topbar.html' %}
             
             <!-- Toast -->
