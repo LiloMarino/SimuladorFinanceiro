@@ -79,8 +79,15 @@ def import_assets():
 
 @routes.route("/renda-variavel/<string:ativo>", methods=["GET"])
 def variable_income_details(ativo):
+    simulation = get_simulation()
+    stock = simulation.get_stock_details(ativo)
+    if not stock:
+        return "Ativo não encontrado", 404
+
     return render_template(
-        "detalhe_renda_variavel.html", ativo=ativo, active_page=variable_income.__name__
+        "detalhe_renda_variavel.html",
+        stock=stock,
+        active_page=variable_income.__name__,
     )
 
 

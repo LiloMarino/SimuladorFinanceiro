@@ -24,8 +24,10 @@
         </div>
     </div>
     <div class="bg-gray-50 px-4 py-2 flex justify-end">
-        <button class="text-blue-600 text-sm font-medium hover:text-blue-800"
-            onclick="window.location.href='/stock-details?ticker={{ stock.ticker }}'">Ver</button>
+        <a href="{{ url_for('routes.variable_income_details', ativo=stock.ticker) }}"
+            class="text-blue-600 text-sm font-medium hover:text-blue-800">
+            Ver
+        </a>
     </div>
 </div>
 {% endmacro %}

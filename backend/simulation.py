@@ -45,6 +45,32 @@ class Simulation:
                     )
             return stocks
 
+    def get_stock_details(self, ticker: str) -> dict | None:
+        """Consulta o banco e retorna os dados de um ativo específico no dia atual."""
+        with SessionLocal() as session:
+            ativo = session.query(Ativos).filter_by(ticker=ticker).first()
+            if not ativo:
+                return None
+
+            ph = (
+                session.query(PrecoHistorico)
+                .filter_by(ativos_id=ativo.ativos_id, time=self.current_date)
+                .first()
+            )
+            if not ph:
+                return None
+
+            return {
+                "ticker": ativo.ticker,
+                "name": ativo.nome,
+                "price": ph.close,
+                "low": ph.low,
+                "high": ph.high,
+                "volume": ph.volume,
+                "change": round(ph.close - ph.open, 2),
+                "change_pct": f"{(ph.close - ph.open) / ph.open * 100:+.2f}%",
+            }
+
 
 def get_simulation() -> Simulation:
     if "simulation" not in current_app.config:
