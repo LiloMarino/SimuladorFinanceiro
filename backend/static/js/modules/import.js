@@ -86,3 +86,7 @@ export function initImporter() {
         });
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    initImporter();
+});

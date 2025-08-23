@@ -91,3 +91,6 @@
     </div>
 </section>
 {% endblock %}
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/modules/import.js') }}"></script>
+{% endblock %}

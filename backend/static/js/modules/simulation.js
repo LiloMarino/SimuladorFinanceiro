@@ -3,45 +3,36 @@ export function initSimulationControls() {
     const timeDisplay = document.getElementById('simulation-time');
     if (!speedButtons.length || !timeDisplay) return;
 
-    let currentSpeed = 0;
-    let simulationTime = 0;
-    let simulationInterval;
-
-    function startSimulation() {
-        stopSimulation();
-        simulationInterval = setInterval(() => {
-            simulationTime += currentSpeed;
-            updateSimulationTime();
-        }, 1000);
+    async function updateSpeed(speed) {
+        const res = await fetch("/simulation/speed", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ speed }),
+        });
+        const state = await res.json();
+        console.log("Velocidade alterada:", state);
     }
 
-    function stopSimulation() {
-        clearInterval(simulationInterval);
-    }
-
-    function updateSimulationTime() {
-        const hours = Math.floor(simulationTime / 3600);
-        const minutes = Math.floor((simulationTime % 3600) / 60);
-        const seconds = simulationTime % 60;
-
-        timeDisplay.textContent =
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    async function fetchState() {
+        const res = await fetch("/simulation/state");
+        const state = await res.json();
+        timeDisplay.textContent = state.current_date;
+        return state;
     }
 
     speedButtons.forEach(button => {
         button.addEventListener('click', () => {
             speedButtons.forEach(btn => btn.classList.remove('active-speed'));
             button.classList.add('active-speed');
-            currentSpeed = parseInt(button.getAttribute('data-speed'));
 
-            if (currentSpeed > 0) {
-                startSimulation();
-            } else {
-                stopSimulation();
-            }
+            const newSpeed = parseInt(button.getAttribute('data-speed'));
+            updateSpeed(newSpeed);
         });
     });
 
-    // Ativa o botão de velocidade 0 inicialmente
-    document.querySelector('.speed-btn[data-speed="0"]')?.classList.add('active-speed');
+    // Atualiza o tempo periodicamente (polling simples)
+    setInterval(fetchState, 2000);
+
+    // Inicializa estado
+    fetchState();
 }
