@@ -18,8 +18,8 @@ class Simulation:
     def next_day(self):
         """Avança um dia na simulação."""
         if self.__current_date < self.__end_date:
-            logger.info(f"Avançando para o dia {self.get_current_date_formatted()}")
             self.__current_date += timedelta(days=1)
+            logger.info(f"Avançando para o dia {self.get_current_date_formatted()}")
         else:
             logger.info("Fim da simulação")
             raise StopIteration("Fim da simulação")

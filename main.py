@@ -25,7 +25,7 @@ from backend import logger_utils
 from backend.database import DB_PATH, engine
 from backend.models.models import Base
 from backend.routes import routes
-from backend.websocket import register_socketio_events
+from backend.websocket import init_socketio, socketio
 
 BACKEND_DIR = Path("backend")
 SECRET_PATH = Path("secret.key")
@@ -64,5 +64,5 @@ if __name__ == "__main__":
     logger.info(f"Banco de dados em uso: {backend.upper()} ({engine.url})")
 
     app = create_app()
-    socketio = register_socketio_events(app)  # Injeta WebSocket
+    init_socketio(app)
     socketio.run(app, debug=True)
