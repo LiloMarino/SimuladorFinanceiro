@@ -1,11 +1,10 @@
-import { io } from "https://cdn.socket.io/4.7.1/socket.io.esm.min.js";
-
 export function initSimulationControls() {
     const speedButtons = document.querySelectorAll('.speed-btn');
     const timeDisplay = document.getElementById('simulation-time');
     if (!speedButtons.length || !timeDisplay) return;
-    
-    const socket = io();
+
+    // Socket global definido em socket.js
+    const socket = window.socket;
 
     socket.on("connect", () => console.log("Conectado ao WebSocket", socket.id));
     socket.on("disconnect", () => console.log("Desconectado"));

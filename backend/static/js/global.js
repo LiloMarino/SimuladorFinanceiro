@@ -1,5 +1,5 @@
 import { initSidebarToggle } from "./modules/sidebar.js";
-import { initSimulationControls } from "./modules/simulation.js";
+import { initSimulationControls } from "./modules/topbar.js";
 import { initAutoToast } from "./modules/toast.js";
 
 document.addEventListener("DOMContentLoaded", () => {
