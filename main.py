@@ -65,4 +65,4 @@ if __name__ == "__main__":
 
     app = create_app()
     socketio = register_socketio_events(app)  # Injeta WebSocket
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=False)

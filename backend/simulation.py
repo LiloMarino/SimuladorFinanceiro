@@ -2,22 +2,37 @@ from datetime import datetime, timedelta
 
 from flask import current_app
 
+from backend import logger_utils
 from backend.database import SessionLocal
 from backend.models.models import Ativos, PrecoHistorico
+
+logger = logger_utils.setup_logger(__name__)
 
 
 class Simulation:
     def __init__(self, start_date: datetime, end_date: datetime):
-        self.speed = 0
-        self.current_date = start_date
-        self.end_date = end_date
+        self.__speed = 0
+        self.__current_date = start_date
+        self.__end_date = end_date
 
     def next_day(self):
         """Avança um dia na simulação."""
-        if self.current_date < self.end_date:
-            self.current_date += timedelta(days=1)
+        if self.__current_date < self.__end_date:
+            logger.info(f"Avançando para o dia {self.get_current_date_formatted()}")
+            self.__current_date += timedelta(days=1)
         else:
+            logger.info("Fim da simulação")
             raise StopIteration("Fim da simulação")
+
+    def get_current_date_formatted(self) -> str:
+        return self.__current_date.strftime("%d/%m/%Y")
+
+    def set_speed(self, speed: int):
+        logger.info(f"Velocidade da simulação alterada para {speed}x")
+        self.__speed = speed
+
+    def get_speed(self) -> int:
+        return self.__speed
 
     def get_stocks(self) -> list[PrecoHistorico]:
         """Consulta o banco e retorna todos os ativos do dia atual."""
@@ -28,7 +43,7 @@ class Simulation:
             for ativo in ativos:
                 ph = (
                     session.query(PrecoHistorico)
-                    .filter_by(ativos_id=ativo.ativos_id, time=self.current_date)
+                    .filter_by(ativos_id=ativo.ativos_id, time=self.__current_date)
                     .first()
                 )
                 if ph:
@@ -54,7 +69,7 @@ class Simulation:
 
             ph = (
                 session.query(PrecoHistorico)
-                .filter_by(ativos_id=ativo.ativos_id, time=self.current_date)
+                .filter_by(ativos_id=ativo.ativos_id, time=self.__current_date)
                 .first()
             )
             if not ph:

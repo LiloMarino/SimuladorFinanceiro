@@ -1,4 +1,13 @@
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 
 from backend.data_loader import update_from_csv, update_from_yfinance
 from backend.simulation import get_simulation
@@ -133,6 +142,11 @@ def set_speed():
     speed = data.get("speed", 0)
 
     simulation = get_simulation()
-    simulation.speed = speed
+    simulation.set_speed(speed)
 
-    return jsonify({"status": "ok", "speed": simulation.speed})
+    # Envia a atualização de velocidade via WebSocket para todos
+    socketio = current_app.config.get("socketio")
+    if socketio:
+        socketio.emit("speed_update", {"speed": simulation.get_speed()})
+
+    return jsonify({"status": "ok", "speed": simulation.get_speed()})

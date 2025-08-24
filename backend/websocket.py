@@ -1,51 +1,53 @@
-import threading
-import time
-
 from flask_socketio import SocketIO
 
+from backend import logger_utils
 from backend.simulation import get_simulation
 
-socketio = SocketIO(cors_allowed_origins="*")
+simulation_loop_started = False
+
+logger = logger_utils.setup_logger(__name__)
 
 
 def register_socketio_events(app):
-    """Registra eventos do WebSocket e inicia o loop da simulação."""
-    socketio.init_app(app)
+    global simulation_loop_started
 
-    simulation = get_simulation()
+    socketio_instance = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+    app.config["socketio"] = socketio_instance
 
-    @socketio.on("connect")
+    @socketio_instance.on("connect")
     def on_connect():
-        # Envia estado inicial ao cliente
-        socketio.emit(
+        simulation = get_simulation()
+        socketio_instance.emit(
             "simulation_update",
-            {
-                "speed": simulation.speed,
-                "current_date": simulation.current_date.strftime("%Y-%m-%d"),
-            },
+            {"current_date": simulation.get_current_date_formatted()},
         )
+        socketio_instance.emit("speed_update", {"speed": simulation.get_speed()})
 
-    # 🔹 Só backend → frontend, então nada de set_speed aqui.
-    # O controle de velocidade pode vir via REST se você quiser.
+    if not simulation_loop_started:
+        simulation_loop_started = True
 
-    def run_simulation():
-        """Loop que avança a simulação e envia atualizações via WebSocket."""
-        while True:
-            if simulation.speed > 0:
-                try:
-                    simulation.next_day()
-                    socketio.emit(
-                        "simulation_update",
-                        {
-                            "speed": simulation.speed,
-                            "current_date": simulation.current_date.strftime(
-                                "%Y-%m-%d"
-                            ),
-                        },
-                    )
-                except StopIteration:
-                    break
-            time.sleep(1 / max(simulation.speed, 1))
+        def run_simulation(app):
+            with app.app_context():
+                simulation = get_simulation()
+                while True:
+                    if simulation.get_speed() > 0:
+                        try:
+                            simulation.next_day()
+                            app.config["socketio"].emit(
+                                "simulation_update",
+                                {
+                                    "current_date": simulation.get_current_date_formatted()
+                                },
+                            )
+                            app.config["socketio"].emit(
+                                "speed_update",
+                                {"speed": simulation.get_speed()},
+                            )
+                        except StopIteration:
+                            break
+                    # Sleep cooperativo
+                    app.config["socketio"].sleep(1 / max(simulation.get_speed(), 1))
 
-    threading.Thread(target=run_simulation, daemon=True).start()
-    return socketio
+        socketio_instance.start_background_task(run_simulation, app)
+
+    return socketio_instance
