@@ -11,7 +11,9 @@ logger = logger_utils.setup_logger(__name__)
 def register_socketio_events(app):
     global simulation_loop_started
 
-    socketio_instance = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+    socketio_instance = SocketIO(
+        app, cors_allowed_origins="*", async_mode="threading"
+    )  # Alterar para Eventlet na produção e desativar o debug
     app.config["socketio"] = socketio_instance
 
     @socketio_instance.on("connect")
