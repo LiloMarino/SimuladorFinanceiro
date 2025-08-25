@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from flask import request
 from flask_socketio import SocketIO
 
 from backend import logger_utils
@@ -20,12 +21,16 @@ simulation_loop_started = False
 
 @socketio.on("connect")
 def on_connect():
+    # Envia só para o cliente conectado
+    sid = request.sid
+    logger.info(f"Conectado: {sid}")
     simulation = get_simulation()
     socketio.emit(
         "simulation_update",
         {"current_date": simulation.get_current_date_formatted()},
+        to=sid,
     )
-    socketio.emit("speed_update", {"speed": simulation.get_speed()})
+    socketio.emit("speed_update", {"speed": simulation.get_speed()}, to=sid)
 
 
 def run_simulation(app: Flask):
@@ -35,13 +40,20 @@ def run_simulation(app: Flask):
             if simulation.get_speed() > 0:
                 try:
                     simulation.next_day()
+
+                    # Envia data da simulação
                     socketio.emit(
                         "simulation_update",
                         {"current_date": simulation.get_current_date_formatted()},
                     )
-                    socketio.emit("speed_update", {"speed": simulation.get_speed()})
+
+                    # Envia cotações do dia
+                    stocks = simulation.get_stocks()
+                    socketio.emit("stocks_update", {"stocks": stocks})
+
                 except StopIteration:
                     break
+
             socketio.sleep(1 / max(simulation.get_speed(), 1))
 
 
