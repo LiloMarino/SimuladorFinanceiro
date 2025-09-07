@@ -1,5 +1,6 @@
 import logging
 import os
+from logging.handlers import RotatingFileHandler
 
 LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -23,8 +24,11 @@ def setup_logger(
         logger.addHandler(console_handler)
 
         # File handler
-        file_handler = logging.FileHandler(
-            os.path.join(LOG_DIR, log_file), encoding="utf-8"
+        file_handler = RotatingFileHandler(
+            os.path.join(LOG_DIR, log_file),
+            maxBytes=1_000_000,  # ~1MB por arquivo
+            backupCount=5,  # mantém 5 arquivos circulares
+            encoding="utf-8",
         )
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
