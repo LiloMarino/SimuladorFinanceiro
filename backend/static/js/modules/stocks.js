@@ -23,24 +23,28 @@ function createStockCard(stock) {
 
 // Atualiza todos os cards
 function updateStocks(stocks) {
-    container.innerHTML = ""; // limpa cards antigos
     stocks.forEach(stock => {
-        const card = createStockCard(stock);
-        container.appendChild(card);
+        let card = container.querySelector(`[data-ticker="${stock.ticker}"]`);
+        
+        if (!card) {
+            // se não existir, cria novo card com data-ticker
+            card = createStockCard(stock);
+            container.appendChild(card);
+        } else {
+            // atualiza valores no card já existente
+            card.querySelector(".price").innerText = "R$ " + stock.price.toFixed(2);
+            card.querySelector(".low").innerText = "R$ " + stock.low.toFixed(2);
+            card.querySelector(".high").innerText = "R$ " + stock.high.toFixed(2);
+            const changeElem = card.querySelector(".change");
+            changeElem.innerText = stock.change_pct;
+            changeElem.className = stock.change_pct.includes("-")
+                ? "change text-red-500 text-sm font-medium"
+                : "change text-green-500 text-sm font-medium";
+        }
     });
 }
 
 // Escuta os eventos do backend
 socket.on("stocks_update", (data) => {
     updateStocks(data.stocks);
-});
-
-socket.on("simulation_update", (data) => {
-    const dateElem = document.getElementById("current-date");
-    if (dateElem) dateElem.innerText = data.current_date;
-});
-
-socket.on("speed_update", (data) => {
-    const speedElem = document.getElementById("speed");
-    if (speedElem) speedElem.innerText = data.speed + "x";
 });
