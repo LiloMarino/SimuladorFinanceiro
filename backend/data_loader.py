@@ -20,14 +20,25 @@ logger = setup_logger(__name__)
 def from_yfinance(
     ticker: str, start: Optional[str] = None, end: Optional[str] = None
 ) -> pd.DataFrame:
-    logger.info(f"Baixando dados do YFinance para {ticker}...")
-    df = yf.download(
-        ticker,
-        start=start,
-        end=end or datetime.today().strftime("%Y-%m-%d"),
-        auto_adjust=True,
-        multi_level_index=False,
-    )
+    if start:
+        logger.info(
+            f"Baixando dados do YFinance para {ticker} de {start} a {end or datetime.today().strftime("%Y-%m-%d")}"
+        )
+        df = yf.download(
+            ticker,
+            start=start,
+            end=end or datetime.today().strftime("%Y-%m-%d"),
+            auto_adjust=True,
+            multi_level_index=False,
+        )
+    else:
+        logger.info(f"Baixando dados do YFinance para {ticker} (Periodo completo)")
+        df = yf.download(
+            ticker,
+            period="max",
+            auto_adjust=True,
+            multi_level_index=False,
+        )
     if df is None or df.empty:
         logger.warning(f"Nenhum dado retornado para {ticker}.")
         raise ValueError(f"Nenhum dado retornado para {ticker}.")
