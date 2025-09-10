@@ -54,43 +54,66 @@ class Simulation:
                             "price": ph.close,
                             "low": ph.low,
                             "high": ph.high,
-                            "change": round(ph.close - ph.open, 2),
-                            "change_pct": f"{(ph.close - ph.open) / ph.open * 100:+.2f}%",
+                            "volume": ph.volume,
+                            "open": ph.open,  # <-- precisa estar aqui!
+                            "date": ph.time.isoformat(),
                         }
                     )
             return stocks
 
     def get_stock_details(self, ticker: str) -> dict | None:
-        """Consulta o banco e retorna os dados de um ativo específico no dia atual."""
         with SessionLocal() as session:
             ativo = session.query(Ativos).filter_by(ticker=ticker).first()
             if not ativo:
                 return None
 
-            ph = (
+            # Histórico até a data atual
+            history = (
                 session.query(PrecoHistorico)
-                .filter_by(ativos_id=ativo.ativos_id, time=self.__current_date)
-                .first()
+                .filter(PrecoHistorico.ativos_id == ativo.ativos_id)
+                .filter(PrecoHistorico.time <= self.__current_date)
+                .order_by(PrecoHistorico.time)
+                .all()
             )
-            if not ph:
-                return None
+
+            hist_list = [
+                {
+                    "time": ph.time.isoformat(),
+                    "close": ph.close,
+                    "open": ph.open,
+                    "low": ph.low,
+                    "high": ph.high,
+                    "volume": ph.volume,
+                }
+                for ph in history
+            ]
+
+            # Último preço do dia atual
+            ph_today = hist_list[-1] if hist_list else None
 
             return {
                 "ticker": ativo.ticker,
                 "name": ativo.nome,
-                "price": ph.close,
-                "low": ph.low,
-                "high": ph.high,
-                "volume": ph.volume,
-                "change": round(ph.close - ph.open, 2),
-                "change_pct": f"{(ph.close - ph.open) / ph.open * 100:+.2f}%",
+                "price": ph_today["close"] if ph_today else 0,
+                "low": ph_today["low"] if ph_today else 0,
+                "high": ph_today["high"] if ph_today else 0,
+                "volume": ph_today["volume"] if ph_today else 0,
+                "change": (
+                    round(ph_today["close"] - ph_today["open"], 2) if ph_today else 0
+                ),
+                "change_pct": (
+                    f"{((ph_today['close'] - ph_today['open']) / ph_today['open'] * 100):+.2f}%"
+                    if ph_today
+                    else "0.00%"
+                ),
+                "history": hist_list,
             }
 
 
 def get_simulation() -> Simulation:
     if "simulation" not in current_app.config:
         # Define datas iniciais da simulação
-        from_date = datetime(2025, 7, 22)
+        from_date = datetime(2023, 1, 1)
         to_date = datetime(2026, 8, 18)
         current_app.config["simulation"] = Simulation(from_date, to_date)
     return current_app.config["simulation"]

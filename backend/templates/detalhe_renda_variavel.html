@@ -28,9 +28,8 @@
                     <button class="time-scale-btn px-3 py-1 text-sm" data-scale="all">TUDO</button>
                 </div>
             </div>
-            <div class="h-64 bg-gray-100 rounded flex items-center justify-center">
-                <p class="text-gray-500">Gráfico do histórico de preços aqui</p>
-            </div>
+            <div id="stock-graph" class="h-64"></div>
+
         </div>
 
         <!-- Key Metrics -->
@@ -41,7 +40,7 @@
             </div>
             <div class="border rounded p-4">
                 <p class="text-gray-600 text-sm">Variação Dia</p>
-                <p class="font-bold {{ 'text-red-500' if stock.change < 0 else 'text-green-500' }}">
+                <p id="stock-change" class="font-bold {{ 'text-red-500' if stock.change < 0 else 'text-green-500' }}">
                     {{ stock.change_pct }}
                 </p>
             </div>
@@ -86,4 +85,20 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<!-- Plotly.js CDN -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<!-- SocketIO CDN -->
+<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+
+<!-- Passa dados iniciais -->
+<script type="module">
+    window.initialStockData = {{ stock.history|tojson }};
+    window.stockTicker = "{{ stock.ticker }}";
+</script>
+
+<script type="module" src="{{ url_for('static', filename='js/modules/stocks-details.js') }}"></script>
 {% endblock %}
