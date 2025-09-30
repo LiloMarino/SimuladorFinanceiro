@@ -1,31 +1,37 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Example from "@/pages/example";
+import MainLayout from "@/layouts/main-layout";
+import { 
+  faChartLine, 
+  faCoins, 
+  faWallet, 
+  faFileImport, 
+  faRobot, 
+  faTrophy, 
+  faDoorOpen, 
+  faCog 
+} from "@fortawesome/free-solid-svg-icons";
+import type { NavItem } from "@/types";
 
-function App() {
-  const [count, setCount] = useState(0);
+const navItems: NavItem[] = [
+  { key: "variable_income", label: "Renda Variável", endpoint: "/variable_income", icon: faChartLine },
+  { key: "fixed_income", label: "Renda Fixa", endpoint: "/fixed_income", icon: faCoins },
+  { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: faWallet },
+  { key: "import_assets", label: "Importar Ativos", endpoint: "/import_assets", icon: faFileImport },
+  { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: faRobot },
+  { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: faTrophy },
+  { key: "lobby", label: "Sala Multiplayer", endpoint: "/lobby", icon: faDoorOpen },
+  { key: "settings", label: "Configurações", endpoint: "/settings", icon: faCog },
+];
 
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
-    </>
+    <BrowserRouter>
+      <MainLayout navItems={navItems} simulationTime="00/00/0000">
+        <Routes>
+          <Route path="/" element={<Example />} />
+        </Routes>
+      </MainLayout>
+    </BrowserRouter>
   );
 }
-
-export default App;
