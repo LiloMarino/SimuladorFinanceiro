@@ -14,10 +14,10 @@ import {
 import type { NavItem } from "@/types";
 
 const navItems: NavItem[] = [
-  { key: "variable_income", label: "Renda Variável", endpoint: "/variable_income", icon: faChartLine },
-  { key: "fixed_income", label: "Renda Fixa", endpoint: "/fixed_income", icon: faCoins },
+  { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
+  { key: "fixed-income", label: "Renda Fixa", endpoint: "/fixed-income", icon: faCoins },
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: faWallet },
-  { key: "import_assets", label: "Importar Ativos", endpoint: "/import_assets", icon: faFileImport },
+  { key: "import-assets", label: "Importar Ativos", endpoint: "/import-assets", icon: faFileImport },
   { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: faRobot },
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: faTrophy },
   { key: "lobby", label: "Sala Multiplayer", endpoint: "/lobby", icon: faDoorOpen },
