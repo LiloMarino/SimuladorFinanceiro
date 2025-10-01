@@ -1,17 +1,18 @@
 import { useState } from "react";
 import type { ZodType } from "zod";
 
-interface UseMutationApiOptions<T = unknown> {
+interface UseMutationApiOptions<T, B> {
   method?: "POST" | "PUT" | "DELETE";
   headers?: Record<string, string>;
-  zodSchema?: ZodType<T>;
+  bodySchema?: ZodType<B>; // Schema para validar o body
+  responseSchema?: ZodType<T>; // Schema para validar a resposta
   onSuccess?: (data: T) => void;
   onError?: (error: Error) => void;
 }
 
-export function useMutationApi<T = unknown, B = unknown>(
+export function useMutationApi<T, B = unknown>(
   url: string,
-  options?: UseMutationApiOptions<T>
+  options?: UseMutationApiOptions<T, B>
 ) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -21,16 +22,19 @@ export function useMutationApi<T = unknown, B = unknown>(
     setError(null);
 
     try {
+      // Valida o body antes de enviar
+      const validatedBody = options?.bodySchema?.parse(body) ?? body;
+
       const res = await fetch(url, {
         method: options?.method || "POST",
         headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
-        body: JSON.stringify(body),
+        body: JSON.stringify(validatedBody),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
 
-      const data = options?.zodSchema ? options.zodSchema.parse(json) : (json as T);
+      const data = options?.responseSchema?.parse(json) ?? (json as T);
       options?.onSuccess?.(data);
 
       return data;
