@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
 import StockCard from "@/components/stock-card";
+import type { Stock } from "@/types";
 // import socket from "@/services/socket"; // placeholder para socket futuro
-
-interface Stock {
-  ticker: string;
-  name: string;
-  price: number;
-  low: number;
-  high: number;
-  change_pct: string;
-}
 
 interface VariableIncomePageProps {
   initialStocks?: Stock[];

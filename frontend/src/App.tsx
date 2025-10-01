@@ -12,7 +12,8 @@ import {
   faCog 
 } from "@fortawesome/free-solid-svg-icons";
 import type { NavItem } from "@/types";
-import VariableIncomePage from "./pages/variable-income";
+import VariableIncomePage from "@/pages/variable-income";
+import StockDetailPage from "@/pages/stock-details";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -32,6 +33,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Example />} />
           <Route path="/variable-income" element={<VariableIncomePage />} />
+          <Route path="/variable-income/:ticker" element={<StockDetailPage />} />
         </Routes>
       </MainLayout>
     </BrowserRouter>
