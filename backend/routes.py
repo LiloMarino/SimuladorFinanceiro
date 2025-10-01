@@ -136,7 +136,7 @@ def settings():
 # -----------
 
 
-@routes.route("/api/set_speed", methods=["POST"])
+@routes.route("/api/set-speed", methods=["POST"])
 def set_speed():
     data = request.get_json()
     speed = data.get("speed", 0)
@@ -149,4 +149,4 @@ def set_speed():
     if socketio:
         socketio.emit("speed_update", {"speed": simulation.get_speed()})
 
-    return jsonify({"status": "ok", "speed": simulation.get_speed()})
+    return jsonify({"speed": simulation.get_speed()})

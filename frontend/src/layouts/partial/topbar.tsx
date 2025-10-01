@@ -1,5 +1,6 @@
 import { useState } from "react";
 import clsx from "clsx";
+import { useMutationApi } from "@/hooks/useMutationApi";
 
 interface TopbarProps {
   pageLabel: string;
@@ -11,12 +12,24 @@ const SPEED_OPTIONS = [0, 1, 2, 4, 10];
 export default function Topbar({ pageLabel, simulationTime }: TopbarProps) {
   const [speed, setSpeed] = useState(0);
 
-  const handleSpeedChange = (newSpeed: number) => {
-    setSpeed(newSpeed);
-    console.log("Velocidade selecionada:", newSpeed);
+  // Mutation para alterar a velocidade via REST API
+  const { mutate: setSpeedApi, loading } = useMutationApi<{ speed: number }>("/api/set-speed", {
+    onSuccess: (data) => {
+      // Atualiza o estado local com a velocidade confirmada pelo servidor
+      setSpeed(data.speed);
+      console.log("Velocidade atualizada no servidor:", data.speed);
+    },
+    onError: (err) => {
+      console.error("Erro ao alterar velocidade:", err);
+    },
+  });
 
-    // Aqui você pode adicionar fetch ou socket
-    // fetch("/api/set_speed", { ... })
+  const handleSpeedChange = (newSpeed: number) => {
+    // Evita enviar requisição duplicada
+    if (newSpeed === speed) return;
+
+    // Chama a mutation
+    setSpeedApi({ speed: newSpeed });
   };
 
   return (
@@ -32,11 +45,11 @@ export default function Topbar({ pageLabel, simulationTime }: TopbarProps) {
               <button
                 key={option}
                 onClick={() => handleSpeedChange(option)}
+                disabled={loading}
                 className={clsx(
                   "px-3 py-1 text-sm transition-colors duration-200",
-                  speed === option
-                    ? "bg-blue-700 text-white"
-                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  speed === option ? "bg-blue-700 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300",
+                  loading && "opacity-70 cursor-not-allowed"
                 )}
               >
                 {option === 0 ? "Pausar" : `${option}x`}
