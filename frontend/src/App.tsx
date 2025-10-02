@@ -15,6 +15,7 @@ import type { NavItem } from "@/types";
 import VariableIncomePage from "@/pages/variable-income";
 import StockDetailPage from "@/pages/stock-details";
 import PortfolioPage from "./pages/portfolio";
+import SettingsPage from "./pages/settings";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/variable-income" element={<VariableIncomePage />} />
           <Route path="/variable-income/:ticker" element={<StockDetailPage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </MainLayout>
     </BrowserRouter>
