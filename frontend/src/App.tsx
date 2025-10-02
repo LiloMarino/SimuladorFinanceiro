@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Example from "@/pages/example";
 import MainLayout from "@/layouts/main-layout";
 import { 
   faChartLine, 
@@ -39,7 +38,7 @@ export default function App() {
     <BrowserRouter>
       <MainLayout navItems={navItems} simulationTime="00/00/0000">
         <Routes>
-          <Route path="/" element={<Example />} />
+          <Route path="/" element={<PortfolioPage />} />
           <Route path="/variable-income" element={<VariableIncomePage />} />
           <Route path="/variable-income/:ticker" element={<StockDetailPage />} />
           <Route path="/fixed-income" element={<FixedIncomePage />} />
