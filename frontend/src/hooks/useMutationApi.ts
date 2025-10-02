@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ZodType } from "zod";
 
-interface UseMutationApiOptions<T, B> {
+interface UseMutationApiOptions<T = unknown, B = unknown> {
   method?: "POST" | "PUT" | "DELETE";
   headers?: Record<string, string>;
   bodySchema?: ZodType<B>; // Schema para validar o body
@@ -10,10 +10,7 @@ interface UseMutationApiOptions<T, B> {
   onError?: (error: Error) => void;
 }
 
-export function useMutationApi<T, B = unknown>(
-  url: string,
-  options?: UseMutationApiOptions<T, B>
-) {
+export function useMutationApi<T = unknown, B = unknown>(url: string, options?: UseMutationApiOptions<T, B>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -22,7 +19,7 @@ export function useMutationApi<T, B = unknown>(
     setError(null);
 
     try {
-      // Valida o body antes de enviar
+      // Valida o body se houver schema
       const validatedBody = options?.bodySchema?.parse(body) ?? body;
 
       const res = await fetch(url, {
@@ -34,6 +31,7 @@ export function useMutationApi<T, B = unknown>(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
 
+      // Valida a resposta se houver schema
       const data = options?.responseSchema?.parse(json) ?? (json as T);
       options?.onSuccess?.(data);
 
