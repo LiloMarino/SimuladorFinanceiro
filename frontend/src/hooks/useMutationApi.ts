@@ -10,6 +10,11 @@ interface UseMutationApiOptions<T = unknown, B = unknown> {
   onError?: (error: Error) => void;
 }
 
+/**
+ * Hook para **ações de escrita** (POST/PUT/DELETE).
+ * 
+ * 👉 Use quando precisar enviar dados ou alterar estado no backend.
+ */
 export function useMutationApi<T = unknown, B = unknown>(url: string, options?: UseMutationApiOptions<T, B>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);

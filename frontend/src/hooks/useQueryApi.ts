@@ -3,9 +3,14 @@ import type { ZodType } from "zod";
 
 interface UseFetchApiOptions<T> {
   headers?: Record<string, string>;
-  zodSchema?: ZodType<T>;
+  responseSchema?: ZodType<T>;
 }
 
+/**
+ * Hook para **consultas pontuais** (GET).
+ * 
+ * 👉 Use quando precisar buscar dados sob demanda.
+ */
 export function useQueryApi<T = unknown>(
   url: string,
   options?: UseFetchApiOptions<T>
@@ -25,8 +30,8 @@ export function useQueryApi<T = unknown>(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const json = await res.json();
-      if (options?.zodSchema) {
-        const parsed = options.zodSchema.parse(json);
+      if (options?.responseSchema) {
+        const parsed = options.responseSchema.parse(json);
         setData(parsed);
         return parsed;
       }

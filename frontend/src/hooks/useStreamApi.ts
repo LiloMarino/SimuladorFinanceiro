@@ -7,6 +7,11 @@ interface UseStreamApiOptions<T> {
   responseSchema?: ZodType<T>; // validação da resposta
 }
 
+/**
+ * Hook para **streams contínuos** (SSE).
+ * 
+ * 👉 Use quando precisar receber eventos em tempo real do backend.
+ */
 export function useStreamApi<T = unknown>(
   url: string,
   options?: UseStreamApiOptions<T>
