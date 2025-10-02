@@ -12,7 +12,7 @@ export default function StockCard({ stock }: StockCardProps) {
 
   return (
     <div
-      className="bg-white rounded-lg shadow-md overflow-hidden card-hover transition-all duration-200"
+      className="bg-white rounded-lg shadow-md overflow-hidden transition-transform transform hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200"
       data-ticker={stock.ticker}
     >
       {/* Header */}
