@@ -16,138 +16,228 @@ from backend.sse_manager import SSEManager
 routes = Blueprint("routes", __name__)
 sse = SSEManager()
 
-# ----------
-# Páginas
-# ----------
+
+# --------------------------------------------------
+# 🔹 Helper padrão de resposta JSON
+# --------------------------------------------------
 
 
-@routes.route("/", methods=["GET"])
-def index():
-    return redirect(url_for("routes.portfolio"))
-
-
-@routes.route("/renda-variavel", methods=["GET"])
-def variable_income():
-    simulation = get_simulation()
-    return render_template(
-        "renda_variavel.html",
-        stocks=simulation.get_stocks(),
-        active_page=variable_income.__name__,
+def make_response(success: bool, message: str, data=None, status_code: int = 200):
+    return (
+        jsonify(
+            {
+                "status": "success" if success else "error",
+                "message": message,
+                "data": data,
+            }
+        ),
+        status_code,
     )
 
 
-@routes.route("/renda-fixa", methods=["GET"])
-def fixed_income():
-    return render_template("renda_fixa.html", active_page=fixed_income.__name__)
+# --------------------------------------------------
+# REST API Endpoints
+# --------------------------------------------------
+
+# --------------------------------------------------
+# 🔹 Renda Variável
+# --------------------------------------------------
 
 
-@routes.route("/carteira", methods=["GET"])
-def portfolio():
-    return render_template("carteira.html", active_page=portfolio.__name__)
+@routes.route("/api/renda-variavel", methods=["GET"])
+def get_variable_income():
+    """Retorna lista de ações (antes renderizadas em 'renda_variavel.html')."""
+    try:
+        simulation = get_simulation()
+        stocks = simulation.get_stocks()
+        return make_response(True, "Ações carregadas com sucesso.", stocks)
+    except Exception as e:
+        return make_response(False, f"Erro ao carregar ações: {e}", status_code=500)
 
 
-@routes.route("/importar-ativos", methods=["GET", "POST"])
-def import_assets():
-    if request.method == "POST":
-        action = request.form.get("action")
-        overwrite = request.form.get("overwrite") == "on"
-
-        try:
-            if action == "yfinance":
-                ticker = request.form.get("ticker")
-                if not ticker:
-                    flash("Você precisa fornecer o código do ativo!", "warning")
-                else:
-                    update_from_yfinance(ticker, overwrite=overwrite)
-                    flash(
-                        f"Ativo '{ticker}' importado com sucesso!"
-                        + (" (sobrescrito)" if overwrite else ""),
-                        "success",
-                    )
-
-            elif action == "csv":
-                ticker = request.form.get("ticker")
-                file = request.files.get("csv_file")
-
-                if not ticker:
-                    flash("Você precisa fornecer o nome do ativo!", "warning")
-                elif not file:
-                    flash("Você precisa selecionar um arquivo CSV!", "warning")
-                else:
-                    update_from_csv(file, ticker, overwrite=overwrite)
-                    flash(
-                        f"Arquivo CSV do ativo '{ticker}' importado com sucesso!"
-                        + (" (sobrescrito)" if overwrite else ""),
-                        "success",
-                    )
-
-            else:
-                flash("Ação inválida.", "danger")
-
-        except Exception as e:
-            flash(f"Erro ao importar: {str(e)}", "danger")
-
-        return redirect(url_for("routes.import_assets"))
-
-    return render_template("importar_ativos.html", active_page=import_assets.__name__)
-
-
-@routes.route("/renda-variavel/<string:ativo>", methods=["GET"])
-def variable_income_details(ativo):
+@routes.route("/api/renda-variavel/<string:ativo>", methods=["GET"])
+def get_variable_income_details(ativo):
+    """Retorna detalhes de um ativo específico de renda variável."""
     simulation = get_simulation()
     stock = simulation.get_stock_details(ativo)
     if not stock:
-        return "Ativo não encontrado", 404
-
-    return render_template(
-        "detalhe_renda_variavel.html",
-        stock=stock,
-        active_page=variable_income.__name__,
-    )
+        return make_response(False, "Ativo não encontrado.", status_code=404)
+    return make_response(True, "Detalhes do ativo carregados.", stock)
 
 
-@routes.route("/renda-fixa/<string:ativo>", methods=["GET"])
-def fixed_income_details(ativo):
-    return render_template(
-        "detalhe_renda_fixa.html", ativo=ativo, active_page=fixed_income.__name__
-    )
+# --------------------------------------------------
+# 🔹 Renda Fixa
+# --------------------------------------------------
 
 
-@routes.route("/estrategia", methods=["GET"])
-def strategies():
-    return render_template("estrategias.html", active_page=strategies.__name__)
+@routes.route("/api/renda-fixa", methods=["GET"])
+def get_fixed_income():
+    """Retorna lista de ativos de renda fixa."""
+    try:
+        # Supondo que exista algo similar a simulation.get_fixed_assets()
+        simulation = get_simulation()
+        fixed = (
+            simulation.get_fixed_assets()
+            if hasattr(simulation, "get_fixed_assets")
+            else []
+        )
+        return make_response(True, "Ativos de renda fixa carregados.", fixed)
+    except Exception as e:
+        return make_response(
+            False, f"Erro ao carregar renda fixa: {e}", status_code=500
+        )
 
 
-@routes.route("/estatisticas", methods=["GET"])
-def statistics():
-    return render_template("estatisticas.html", active_page=statistics.__name__)
+@routes.route("/api/renda-fixa/<string:ativo>", methods=["GET"])
+def get_fixed_income_details(ativo):
+    """Retorna detalhes de um ativo de renda fixa."""
+    try:
+        simulation = get_simulation()
+        details = (
+            simulation.get_fixed_asset_details(ativo)
+            if hasattr(simulation, "get_fixed_asset_details")
+            else None
+        )
+        if not details:
+            return make_response(False, "Ativo não encontrado.", status_code=404)
+        return make_response(True, "Detalhes do ativo carregados.", details)
+    except Exception as e:
+        return make_response(False, f"Erro ao obter detalhes: {e}", status_code=500)
 
 
-@routes.route("/lobby", methods=["GET"])
-def lobby():
-    return render_template("lobby.html", active_page=lobby.__name__)
+# --------------------------------------------------
+# 🔹 Carteira
+# --------------------------------------------------
 
 
-@routes.route("/configuracoes", methods=["GET"])
-def settings():
-    return render_template("configs.html", active_page=settings.__name__)
+@routes.route("/api/carteira", methods=["GET"])
+def get_portfolio():
+    """Retorna composição da carteira atual."""
+    try:
+        simulation = get_simulation()
+        portfolio_data = (
+            simulation.get_portfolio() if hasattr(simulation, "get_portfolio") else {}
+        )
+        return make_response(True, "Carteira carregada com sucesso.", portfolio_data)
+    except Exception as e:
+        return make_response(False, f"Erro ao carregar carteira: {e}", status_code=500)
 
 
-# ----------
-# SSE
-# ----------
+# --------------------------------------------------
+# 🔹 Importar Ativos
+# --------------------------------------------------
 
 
-@routes.route("/api/stream")
-def stream():
-    # Cliente informa um "contexto" opcional, ex: página atual
-    client_id = request.args.get("client_id", str(id(request)))
-    return sse.connect(client_id)
+@routes.route("/api/importar-ativos", methods=["POST"])
+def import_assets():
+    """Importa ativos via yfinance ou CSV."""
+    data = request.get_json() or {}
+    action = data.get("action")
+    overwrite = data.get("overwrite", False)
+
+    try:
+        if action == "yfinance":
+            ticker = data.get("ticker")
+            if not ticker:
+                return make_response(False, "Ticker é obrigatório.", status_code=400)
+            update_from_yfinance(ticker, overwrite=overwrite)
+            return make_response(True, f"Ativo '{ticker}' importado com sucesso.")
+
+        elif action == "csv":
+            ticker = data.get("ticker")
+            file = request.files.get("csv_file")
+            if not ticker or not file:
+                return make_response(
+                    False, "Ticker e arquivo CSV são obrigatórios.", status_code=400
+                )
+            update_from_csv(file, ticker, overwrite=overwrite)
+            return make_response(True, f"Arquivo CSV '{ticker}' importado com sucesso.")
+
+        else:
+            return make_response(False, "Ação inválida.", status_code=400)
+
+    except Exception as e:
+        return make_response(False, f"Erro ao importar ativos: {e}", status_code=500)
 
 
-# -----------
-# REST API
-# -----------
+# --------------------------------------------------
+# 🔹 Estratégias / Estatísticas / Lobby / Configurações
+# --------------------------------------------------
+
+
+@routes.route("/api/estrategias", methods=["GET"])
+def get_strategies():
+    """Retorna estratégias disponíveis."""
+    try:
+        simulation = get_simulation()
+        strategies = (
+            simulation.get_strategies() if hasattr(simulation, "get_strategies") else []
+        )
+        return make_response(True, "Estratégias carregadas com sucesso.", strategies)
+    except Exception as e:
+        return make_response(
+            False, f"Erro ao carregar estratégias: {e}", status_code=500
+        )
+
+
+@routes.route("/api/estatisticas", methods=["GET"])
+def get_statistics():
+    """Retorna estatísticas de desempenho."""
+    try:
+        simulation = get_simulation()
+        stats = (
+            simulation.get_statistics() if hasattr(simulation, "get_statistics") else {}
+        )
+        return make_response(True, "Estatísticas carregadas.", stats)
+    except Exception as e:
+        return make_response(
+            False, f"Erro ao carregar estatísticas: {e}", status_code=500
+        )
+
+
+@routes.route("/api/lobby", methods=["GET"])
+def get_lobby():
+    """Dados do lobby ou status da simulação."""
+    try:
+        simulation = get_simulation()
+        state = simulation.get_state() if hasattr(simulation, "get_state") else {}
+        return make_response(True, "Lobby carregado com sucesso.", state)
+    except Exception as e:
+        return make_response(False, f"Erro ao carregar lobby: {e}", status_code=500)
+
+
+@routes.route("/api/configuracoes", methods=["GET", "PUT"])
+def get_or_update_settings():
+    """Consulta ou atualiza configurações."""
+    simulation = get_simulation()
+    if request.method == "GET":
+        try:
+            settings = (
+                simulation.get_settings() if hasattr(simulation, "get_settings") else {}
+            )
+            return make_response(True, "Configurações carregadas.", settings)
+        except Exception as e:
+            return make_response(
+                False, f"Erro ao carregar configurações: {e}", status_code=500
+            )
+    else:
+        try:
+            data = request.get_json() or {}
+            simulation.update_settings(data)
+            return make_response(
+                True,
+                "Configurações atualizadas com sucesso.",
+                simulation.get_settings(),
+            )
+        except Exception as e:
+            return make_response(
+                False, f"Erro ao atualizar configurações: {e}", status_code=500
+            )
+
+
+# --------------------------------------------------
+# 🔹 Velocidade
+# --------------------------------------------------
 
 
 @routes.route("/api/set-speed", methods=["POST"])
@@ -164,3 +254,15 @@ def set_speed():
         socketio.emit("speed_update", {"speed": simulation.get_speed()})
 
     return jsonify({"speed": simulation.get_speed()})
+
+
+# --------------------------------------------------
+# SSE API Endpoints
+# --------------------------------------------------
+
+
+@routes.route("/api/stream")
+def stream():
+    # Cliente informa um "contexto" opcional, ex: página atual
+    client_id = request.args.get("client_id", str(id(request)))
+    return sse.connect(client_id)
