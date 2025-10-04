@@ -100,3 +100,59 @@ O projeto detecta automaticamente qual banco usar (MySQL ou SQLite) com base nas
 ```python
 Base.metadata.create_all(bind=engine)
 ```
+
+## 📡 Conexão Stream
+
+### 🔄 Arquitetura de Comunicação em Tempo Real
+
+```mermaid
+classDiagram
+    class IRealtimeManager {
+        <<interface>>
+        +broadcast(event, data, topic)
+        +send_to(client_id, event, data)
+        +register_client(client_id, meta)
+        +remove_client(client_id)
+    }
+
+    class SSEManager {
+        +clients : dict
+        +broadcast(event, data, topic)
+        +send_to(client_id, event, data)
+        +register_client(client_id, meta)
+        +remove_client(client_id)
+        +listen(client_id)
+    }
+
+    class SocketManager {
+        +socketio : SocketIO
+        +broadcast(event, data, topic)
+        +send_to(client_id, event, data)
+        +register_client(client_id, meta)
+        +remove_client(client_id)
+    }
+
+    class Simulation {
+        +update_market()
+        +notify_realtime()
+    }
+
+    class FlaskApp {
+        +config["realtime"]
+        +routes()
+    }
+
+    class Frontend {
+        +useStreamApi()
+        +useSocketApi()
+        +EventSource()
+        +SocketClient()
+    }
+
+    IRealtimeManager <|.. SSEManager
+    IRealtimeManager <|.. SocketManager
+    FlaskApp --> IRealtimeManager : injeta
+    Simulation --> IRealtimeManager : publica eventos
+    Frontend --> FlaskApp : via REST/SSE/WS
+    Frontend --> IRealtimeManager : via WS
+```
