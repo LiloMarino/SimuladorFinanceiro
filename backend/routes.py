@@ -11,8 +11,10 @@ from flask import (
 
 from backend.data_loader import update_from_csv, update_from_yfinance
 from backend.simulation import get_simulation
+from backend.sse_manager import SSEManager
 
 routes = Blueprint("routes", __name__)
+sse = SSEManager()
 
 # ----------
 # Páginas
@@ -129,6 +131,18 @@ def lobby():
 @routes.route("/configuracoes", methods=["GET"])
 def settings():
     return render_template("configs.html", active_page=settings.__name__)
+
+
+# ----------
+# SSE
+# ----------
+
+
+@routes.route("/api/stream")
+def stream():
+    # Cliente informa um "contexto" opcional, ex: página atual
+    client_id = request.args.get("client_id", str(id(request)))
+    return sse.connect(client_id)
 
 
 # -----------

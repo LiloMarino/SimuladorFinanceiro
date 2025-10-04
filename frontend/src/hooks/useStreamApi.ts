@@ -2,20 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import type { ZodType } from "zod";
 
 interface UseStreamApiOptions<T> {
-  onMessage?: (data: T) => void;
+  onMessage?: (data: T, event?: MessageEvent) => void;
   onError?: (error: Event) => void;
-  responseSchema?: ZodType<T>; // validação da resposta
+  responseSchema?: ZodType<T>;
 }
 
 /**
  * Hook para **streams contínuos** (SSE).
- * 
+ *
  * 👉 Use quando precisar receber eventos em tempo real do backend.
  */
-export function useStreamApi<T = unknown>(
-  url: string,
-  options?: UseStreamApiOptions<T>
-) {
+export function useStreamApi<T = unknown>(url: string, options?: UseStreamApiOptions<T>) {
   const [data, setData] = useState<T | null>(null);
   const [connected, setConnected] = useState(false);
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -24,19 +21,14 @@ export function useStreamApi<T = unknown>(
     const es = new EventSource(url);
     eventSourceRef.current = es;
 
-    es.onopen = () => {
-      setConnected(true);
-    };
+    es.onopen = () => setConnected(true);
 
     es.onmessage = (event) => {
       try {
         const parsed = JSON.parse(event.data);
-        const validated = options?.responseSchema
-          ? options.responseSchema.parse(parsed)
-          : (parsed as T);
-
+        const validated = options?.responseSchema ? options.responseSchema.parse(parsed) : (parsed as T);
         setData(validated);
-        options?.onMessage?.(validated);
+        options?.onMessage?.(validated, event);
       } catch (err) {
         console.error("Erro ao processar SSE:", err);
       }
@@ -46,7 +38,6 @@ export function useStreamApi<T = unknown>(
       setConnected(false);
       options?.onError?.(err);
       console.error("SSE error:", err);
-      // se quiser encerrar ao erro
       // es.close();
     };
 
@@ -56,5 +47,9 @@ export function useStreamApi<T = unknown>(
     };
   }, [url, options]);
 
-  return { data, connected, close: () => eventSourceRef.current?.close() };
+  return {
+    data,
+    connected,
+    close: () => eventSourceRef.current?.close(),
+  };
 }
