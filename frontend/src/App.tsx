@@ -1,14 +1,14 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "@/layouts/main-layout";
-import { 
-  faChartLine, 
-  faCoins, 
-  faWallet, 
-  faFileImport, 
-  faRobot, 
-  faTrophy, 
-  faDoorOpen, 
-  faCog 
+import {
+  faChartLine,
+  faCoins,
+  faWallet,
+  faFileImport,
+  faRobot,
+  faTrophy,
+  faDoorOpen,
+  faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/pages/variable-income";
@@ -21,6 +21,7 @@ import StrategiesPage from "./pages/strategies";
 import StatisticsPage from "./pages/statistics";
 import LobbyPage from "./pages/lobby";
 import ImportAssetsPage from "./pages/import-assets";
+import { RealtimeProvider } from "./context/RealtimeProvider";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -35,22 +36,24 @@ const navItems: NavItem[] = [
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <MainLayout navItems={navItems} simulationTime="00/00/0000">
-        <Routes>
-          <Route path="/" element={<PortfolioPage />} />
-          <Route path="/variable-income" element={<VariableIncomePage />} />
-          <Route path="/variable-income/:ticker" element={<StockDetailPage />} />
-          <Route path="/fixed-income" element={<FixedIncomePage />} />
-          <Route path="/fixed-income/:product" element={<FixedIncomeDetailPage />} />
-          <Route path="/portfolio" element={<PortfolioPage />} />
-          <Route path="/strategies" element={<StrategiesPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/statistics" element={<StatisticsPage />} />
-          <Route path="/lobby" element={<LobbyPage />} />
-          <Route path="/import-assets" element={<ImportAssetsPage />} />
-        </Routes>
-      </MainLayout>
-    </BrowserRouter>
+    <RealtimeProvider mode="sse">
+      <BrowserRouter>
+        <MainLayout navItems={navItems} simulationTime="00/00/0000">
+          <Routes>
+            <Route path="/" element={<PortfolioPage />} />
+            <Route path="/variable-income" element={<VariableIncomePage />} />
+            <Route path="/variable-income/:ticker" element={<StockDetailPage />} />
+            <Route path="/fixed-income" element={<FixedIncomePage />} />
+            <Route path="/fixed-income/:product" element={<FixedIncomeDetailPage />} />
+            <Route path="/portfolio" element={<PortfolioPage />} />
+            <Route path="/strategies" element={<StrategiesPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/statistics" element={<StatisticsPage />} />
+            <Route path="/lobby" element={<LobbyPage />} />
+            <Route path="/import-assets" element={<ImportAssetsPage />} />
+          </Routes>
+        </MainLayout>
+      </BrowserRouter>
+    </RealtimeProvider>
   );
 }
