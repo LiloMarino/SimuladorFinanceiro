@@ -10,8 +10,8 @@ from flask import (
 )
 
 from backend.data_loader import update_from_csv, update_from_yfinance
+from backend.realtime.sse_manager import SSEManager
 from backend.simulation import get_simulation
-from backend.sse_manager import SSEManager
 
 routes = Blueprint("routes", __name__)
 sse = SSEManager()
