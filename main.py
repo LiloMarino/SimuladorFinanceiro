@@ -23,7 +23,7 @@ from flask import Flask
 
 from backend import logger_utils
 from backend.database import engine
-from backend.routes import routes
+from backend.routes import register_routes
 from backend.websocket import init_socketio, socketio
 
 BACKEND_DIR = Path("backend")
@@ -47,7 +47,7 @@ def create_app():
         static_folder=BACKEND_DIR / "static",
     )
     app.secret_key = get_secret_key()
-    app.register_blueprint(routes)
+    register_routes(app)
     return app
 
 
