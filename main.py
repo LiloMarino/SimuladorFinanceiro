@@ -20,19 +20,24 @@ import secrets
 from pathlib import Path
 
 from flask import Flask
+from flask_socketio import SocketIO
 
 from backend import logger_utils
 from backend.database import engine
+from backend.realtime.sse_manager import SSEManager
+from backend.realtime.ws_manager import SocketManager
 from backend.routes import register_routes
-from backend.websocket import init_socketio, socketio
+from backend.simulation_loop import start_simulation_loop
 
 BACKEND_DIR = Path("backend")
 SECRET_PATH = Path("secret.key")
+USE_SSE = True
 
 logger = logger_utils.setup_logger(__name__)
 
 
 def get_secret_key():
+    """Garante a persistência de uma secret key local."""
     if SECRET_PATH.exists():
         return SECRET_PATH.read_text()
     secret_key = secrets.token_hex(16)
@@ -41,6 +46,7 @@ def get_secret_key():
 
 
 def create_app():
+    """Cria e configura a aplicação Flask."""
     app = Flask(
         __name__,
         template_folder=BACKEND_DIR / "templates",
@@ -56,5 +62,28 @@ if __name__ == "__main__":
     logger.info(f"Banco de dados em uso: {backend.upper()} ({engine.url})")
 
     app = create_app()
-    init_socketio(app)
-    socketio.run(app, debug=True)
+
+    # ------------------------------------------------------------
+    # 🔌 Modo SocketIO (WebSocket)
+    # ------------------------------------------------------------
+    if not USE_SSE:
+        socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
+        socketio.init_app(app)
+
+        manager = SocketManager(socketio)
+        app.config["realtime_manager"] = manager
+
+        start_simulation_loop(app, manager)
+        logger.info("Rodando em modo WebSocket (SocketIO).")
+        socketio.run(app, debug=True)
+
+    # ------------------------------------------------------------
+    # 🌐 Modo SSE (Server-Sent Events)
+    # ------------------------------------------------------------
+    else:
+        manager = SSEManager()
+        app.config["realtime_manager"] = manager
+
+        start_simulation_loop(app, manager)
+        logger.info("Rodando em modo SSE (Server-Sent Events).")
+        app.run(debug=True, threaded=True)
