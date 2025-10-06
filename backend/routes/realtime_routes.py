@@ -1,5 +1,8 @@
 from flask import Blueprint, current_app, jsonify, request
 
+from backend.realtime import get_realtime_manager
+from backend.simulation import get_simulation
+
 realtime_bp = Blueprint("realtime", __name__)
 
 
@@ -28,3 +31,18 @@ def update_subscription():
 
     manager.update_subscription(client_id, topics)
     return jsonify({"status": "ok", "client_id": client_id, "topics": topics})
+
+
+@realtime_bp.route("/api/set-speed", methods=["POST"])
+def set_speed():
+    data = request.get_json()
+    speed = data.get("speed", 0)
+
+    simulation = get_simulation()
+    simulation.set_speed(speed)
+
+    # Envia a atualização de velocidade via WebSocket para todos
+    manager = get_realtime_manager()
+    # manager.broadcast("speed_update", {"speed": simulation.get_speed()})
+
+    return jsonify({"speed": simulation.get_speed()})
