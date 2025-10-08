@@ -5,7 +5,7 @@ import traceback
 
 from flask import Flask
 
-from backend.realtime.realtime_base import RealtimeManagerBase
+from backend.realtime import notify
 from backend.simulation import get_simulation
 
 logger = logging.getLogger(__name__)
@@ -18,11 +18,10 @@ class SimulationLoopController:
         self._thread: threading.Thread | None = None
         self._running = False
 
-    def start(self, app: Flask, manager: RealtimeManagerBase):
+    def start(self, app: Flask):
         if self._running:
             logger.warning("Loop de simulação já está em execução.")
             return
-        self.manager = manager
         self._running = True
 
         def _loop():
@@ -39,11 +38,11 @@ class SimulationLoopController:
                                 stocks = simulation.get_stocks()
 
                                 # Broadcast genérico (SSE ou WS)
-                                manager.broadcast(
+                                notify(
                                     "simulation_update",
                                     {"current_date": current_date},
                                 )
-                                manager.broadcast("stocks_update", {"stocks": stocks})
+                                notify("stocks_update", {"stocks": stocks})
 
                             except StopIteration:
                                 logger.info("Fim da simulação.")
@@ -88,9 +87,9 @@ class SimulationLoopController:
 _controller = SimulationLoopController()
 
 
-def start_simulation_loop(app: Flask, manager: RealtimeManagerBase):
+def start_simulation_loop(app: Flask):
     """Inicia o loop global da simulação."""
-    _controller.start(app, manager)
+    _controller.start(app)
 
 
 def stop_simulation_loop():

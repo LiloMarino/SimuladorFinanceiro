@@ -24,8 +24,8 @@ from flask_socketio import SocketIO
 
 from backend import logger_utils
 from backend.database import engine
-from backend.realtime.sse_manager import SSEManager
-from backend.realtime.ws_manager import SocketManager
+from backend.realtime.sse_broker import SSEBroker
+from backend.realtime.ws_broker import SocketBroker
 from backend.routes import register_routes
 from backend.simulation_loop import start_simulation_loop
 
@@ -69,11 +69,8 @@ if __name__ == "__main__":
     if not USE_SSE:
         socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
         socketio.init_app(app)
-
-        manager = SocketManager(socketio)
-        app.config["realtime_manager"] = manager
-
-        start_simulation_loop(app, manager)
+        app.config["realtime_broker"] = SocketBroker(socketio)
+        start_simulation_loop(app)
         logger.info("Rodando em modo WebSocket (SocketIO).")
         socketio.run(app, debug=True)
 
@@ -81,9 +78,7 @@ if __name__ == "__main__":
     # 🌐 Modo SSE (Server-Sent Events)
     # ------------------------------------------------------------
     else:
-        manager = SSEManager()
-        app.config["realtime_manager"] = manager
-
-        start_simulation_loop(app, manager)
+        app.config["realtime_broker"] = SSEBroker()
+        start_simulation_loop(app)
         logger.info("Rodando em modo SSE (Server-Sent Events).")
         app.run(debug=True, threaded=True)

@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app, jsonify, request
 
-from backend.realtime import get_realtime_manager
+from backend.realtime import notify
 from backend.simulation import get_simulation
 
 realtime_bp = Blueprint("realtime", __name__)
@@ -42,7 +42,6 @@ def set_speed():
     simulation.set_speed(speed)
 
     # Envia a atualização de velocidade via WebSocket para todos
-    manager = get_realtime_manager()
-    # manager.broadcast("speed_update", {"speed": simulation.get_speed()})
+    notify("speed_update", {"speed": simulation.get_speed()})
 
     return jsonify({"speed": simulation.get_speed()})
