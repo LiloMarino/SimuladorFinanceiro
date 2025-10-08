@@ -20,86 +20,83 @@ class SSEBroker(RealtimeBroker):
     """
 
     def __init__(self):
-        self._clients: Dict[str, Dict[str, Any]] = {}
+        self._subscriptions: Dict[str, set[str]] = {}  # event -> set(client_id)
+        self._clients: Dict[str, Queue] = {}  # client_id -> Queue
         self._lock = Lock()
 
     # --------------------------------------------------------------------- #
     # Subscription Management
     # --------------------------------------------------------------------- #
-    def register_client(self, client_id: Optional[str] = None, **meta) -> str:
+    def register_client(self, client_id: Optional[str] = None) -> str:
         if client_id is None:
             client_id = str(uuid.uuid4())
 
         with self._lock:
-            if client_id in self._clients:
-                # Atualiza metadata sem recriar a fila existente
-                self._clients[client_id]["meta"].update(meta)
-            else:
-                q = Queue()
-                self._clients[client_id] = {
-                    "queue": q,
-                    "events": set(meta.get("events", [])),
-                    "meta": meta,
-                }
+            if client_id not in self._clients:
+                self._clients[client_id] = Queue()
 
-        logger.debug("SSEBroker.register_client %s meta=%s", client_id, meta)
+        logger.debug("SSEBroker.register_client %s", client_id)
         return client_id
 
     def remove_client(self, client_id: str) -> None:
         with self._lock:
             self._clients.pop(client_id, None)
+            # Remove de todas as assinaturas
+            for subscribers in self._subscriptions.values():
+                subscribers.discard(client_id)
+
         logger.debug("SSEBroker.remove_client %s", client_id)
 
     def update_subscription(self, client_id: str, events: Iterable[str]) -> None:
         with self._lock:
-            if client_id in self._clients:
-                self._clients[client_id]["events"] = set(events)
-                logger.debug(
-                    "SSEBroker.update_subscription %s -> %s", client_id, events
-                )
+            # Remove de todos os eventos atuais
+            for subscribers in self._subscriptions.values():
+                subscribers.discard(client_id)
+            # Adiciona para os novos eventos
+            for event in events:
+                self._subscriptions.setdefault(event, set()).add(client_id)
+
+        logger.debug("SSEBroker.update_subscription %s -> %s", client_id, events)
 
     # --------------------------------------------------------------------- #
     # Publish
     # --------------------------------------------------------------------- #
     def notify(self, event: str, payload: Any) -> None:
-        """Publica um evento para todos os clientes interessados."""
-        message = {"event": event, "payload": payload}
-        blob = json.dumps(message)
-        packet = f"event: {event}\ndata: {blob}\n\n"
+        """Envia payload para todos os clientes inscritos neste evento."""
+        packet = f"event: {event}\ndata: {json.dumps({'event': event, 'payload': payload})}\n\n"
 
         with self._lock:
-            for cid, info in list(self._clients.items()):
-                events = info.get("events")
-                if not events or event in events:
+            for cid in self._subscriptions.get(event, set()):
+                q = self._clients.get(cid)
+                if q:
                     try:
-                        info["queue"].put(packet)
+                        q.put(packet)
                     except Exception as e:
                         logger.exception(
                             "Erro ao enfileirar mensagem para %s: %s", cid, e
                         )
 
     # --------------------------------------------------------------------- #
-    # Connection handler (for Flask route)
+    # Connection handler
     # --------------------------------------------------------------------- #
     def connect(self):
-        """Cria um cliente SSE e retorna um Response que streama os eventos."""
+        """Rota SSE: cria client e retorna Response que streama eventos."""
         client_id = request.args.get("client_id")
         events = request.args.getlist("event")
-        meta = {}
 
-        client_id = self.register_client(client_id=client_id, events=events, meta=meta)
+        client_id = self.register_client(client_id)
+        self.update_subscription(client_id, events)
+
         return Response(
             stream_with_context(self._listen_generator(client_id)),
             mimetype="text/event-stream",
         )
 
     def _listen_generator(self, client_id: str):
-        """Generator que entrega pacotes do Queue ao cliente conectado."""
         with self._lock:
-            info = self._clients.get(client_id)
-            if not info:
+            q = self._clients.get(client_id)
+            if not q:
                 return
-            q = info["queue"]
 
         yield f"event: connected\ndata: {json.dumps({'client_id': client_id})}\n\n"
 

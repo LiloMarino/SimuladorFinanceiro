@@ -13,7 +13,7 @@ class RealtimeBroker(ABC):
     """
 
     @abstractmethod
-    def register_client(self, client_id: Optional[str] = None, **meta) -> str:
+    def register_client(self, client_id: Optional[str] = None) -> str:
         """Registra um cliente (subscriber)."""
         raise NotImplementedError
 
