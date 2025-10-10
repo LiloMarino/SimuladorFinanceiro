@@ -1,7 +1,7 @@
-import { useState } from "react";
 import clsx from "clsx";
 import { useMutationApi } from "@/hooks/useMutationApi";
 import { useRealtime } from "@/hooks/useRealtime";
+import { useQueryApi } from "@/hooks/useQueryApi";
 
 interface TopbarProps {
   pageLabel: string;
@@ -10,30 +10,30 @@ interface TopbarProps {
 const SPEED_OPTIONS = [0, 1, 2, 4, 10];
 
 export default function Topbar({ pageLabel }: TopbarProps) {
-  const [speed, setSpeed] = useState(0);
-  const [simulationTime, setSimulationTime] = useState("00/00/0000");
+  // Estado inicial da simulação (tempo + velocidade)
+  const { data: simData, setData: setSimData } = useQueryApi<{ currentDate?: string; speed?: number }>(
+    "/api/get-simulation-state",
+    { initialFetch: true }
+  );
 
-  // Mutation para alterar a velocidade via REST API
+  // Atualiza quando o backend emite eventos realtime
+  useRealtime("simulation_update", (update) => {
+    setSimData((prev) => ({ ...prev, ...update }));
+  });
+
+  // Mutações de velocidade
   const { mutate: setSpeedApi, loading } = useMutationApi<{ speed: number }>("/api/set-speed", {
     onSuccess: (data) => {
-      // Atualiza o estado local com a velocidade confirmada pelo servidor
-      setSpeed(data.speed);
-      console.log("Velocidade atualizada no servidor:", data.speed);
+      setSimData((prev) => ({ ...prev, speed: data.speed }));
+      console.log("Velocidade atualizada:", data);
     },
     onError: (err) => {
       console.error("Erro ao alterar velocidade:", err);
     },
   });
 
-  useRealtime("simulation_update", (data) => {
-    setSimulationTime(data.currentDate);
-  });
-
   const handleSpeedChange = (newSpeed: number) => {
-    // Evita enviar requisição duplicada
-    if (newSpeed === speed) return;
-
-    // Chama a mutation
+    if (newSpeed === simData?.speed) return;
     setSpeedApi({ speed: newSpeed });
   };
 
@@ -53,7 +53,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
                 disabled={loading}
                 className={clsx(
                   "px-3 py-1 text-sm transition-colors duration-200",
-                  speed === option ? "bg-blue-700 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300",
+                  simData?.speed === option ? "bg-blue-700 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300",
                   loading && "opacity-70 cursor-not-allowed"
                 )}
               >
@@ -64,7 +64,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
 
           <div className="ml-4 flex items-center">
             <span className="text-sm text-gray-600 mr-2">Simulação:</span>
-            <span className="font-medium">{simulationTime}</span>
+            <span className="font-medium">{simData?.currentDate ?? "--/--/----"}</span>
           </div>
         </div>
       </div>

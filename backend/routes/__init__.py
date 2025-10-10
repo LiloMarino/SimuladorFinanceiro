@@ -5,6 +5,7 @@ from backend.routes.income_routes import income_bp
 from backend.routes.portfolio_routes import portfolio_bp
 from backend.routes.realtime_routes import realtime_bp
 from backend.routes.settings_routes import settings_bp
+from backend.routes.timespeed_routes import timespeed_bp
 
 
 def register_routes(app: Flask):
@@ -14,3 +15,4 @@ def register_routes(app: Flask):
     app.register_blueprint(settings_bp)
     app.register_blueprint(import_bp)
     app.register_blueprint(realtime_bp)
+    app.register_blueprint(timespeed_bp)

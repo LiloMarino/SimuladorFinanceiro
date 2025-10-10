@@ -1,9 +1,8 @@
 from flask import Blueprint, request
 
 from backend import logger_utils
-from backend.realtime import get_broker, notify
+from backend.realtime import get_broker
 from backend.routes.helpers import make_response
-from backend.simulation import get_simulation
 
 realtime_bp = Blueprint("realtime", __name__)
 
@@ -38,17 +37,3 @@ def update_subscription():
     except Exception as e:
         logger.exception("Erro ao atualizar subscription: %s", e)
         return make_response(False, "Internal server error", status_code=500)
-
-
-@realtime_bp.route("/api/set-speed", methods=["POST"])
-def set_speed():
-    data = request.get_json()
-    speed = data.get("speed", 0)
-
-    simulation = get_simulation()
-    simulation.set_speed(speed)
-    speed = simulation.get_speed()
-
-    # Envia a atualização de velocidade para todos os clientes
-    notify("speed_update", {"speed": speed})
-    return make_response(True, "Speed updated", {"speed": speed})
