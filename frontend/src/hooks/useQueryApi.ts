@@ -1,3 +1,4 @@
+import { ApiResponseSchema } from "@/schemas/api";
 import { useState } from "react";
 import type { ZodType } from "zod";
 
@@ -8,13 +9,10 @@ interface UseFetchApiOptions<T> {
 
 /**
  * Hook para **consultas pontuais** (GET).
- * 
+ *
  * 👉 Use quando precisar buscar dados sob demanda.
  */
-export function useQueryApi<T = unknown>(
-  url: string,
-  options?: UseFetchApiOptions<T>
-) {
+export function useQueryApi<T = unknown>(url: string, options?: UseFetchApiOptions<T>) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
@@ -27,20 +25,18 @@ export function useQueryApi<T = unknown>(
       const res = await fetch(url, {
         headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
       });
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
       const json = await res.json();
-      if (options?.responseSchema) {
-        const parsed = options.responseSchema.parse(json);
-        setData(parsed);
-        return parsed;
-      }
+      const response = ApiResponseSchema.parse(json);
+      const data: T = options?.responseSchema ? options.responseSchema.parse(response.data) : response.data;
 
-      setData(json);
-      return json;
+      setData(data);
+      return data;
     } catch (err) {
-      setError(err as Error);
-      throw err;
+      const e = err as Error;
+      setError(e);
+      throw e;
     } finally {
       setLoading(false);
     }

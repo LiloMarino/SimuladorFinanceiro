@@ -1,3 +1,4 @@
+import { ApiResponseSchema } from "@/schemas/api";
 import { useState } from "react";
 import type { ZodType } from "zod";
 
@@ -12,7 +13,7 @@ interface UseMutationApiOptions<T = unknown, B = unknown> {
 
 /**
  * Hook para **ações de escrita** (POST/PUT/DELETE).
- * 
+ *
  * 👉 Use quando precisar enviar dados ou alterar estado no backend.
  */
 export function useMutationApi<T = unknown, B = unknown>(url: string, options?: UseMutationApiOptions<T, B>) {
@@ -35,9 +36,8 @@ export function useMutationApi<T = unknown, B = unknown>(url: string, options?: 
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
-
-      // Valida a resposta se houver schema
-      const data = options?.responseSchema?.parse(json) ?? (json as T);
+      const response = ApiResponseSchema.parse(json);
+      const data: T = options?.responseSchema ? options.responseSchema.parse(response.data) : response.data;
       options?.onSuccess?.(data);
 
       return data;
