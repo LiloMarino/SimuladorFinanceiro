@@ -3,12 +3,12 @@ import { useState } from "react";
 import type { ZodType } from "zod";
 
 interface UseMutationApiOptions<T = unknown, B = unknown> {
-  method?: "POST" | "PUT" | "DELETE";
-  headers?: Record<string, string>;
-  bodySchema?: ZodType<B>; // Schema para validar o body
-  responseSchema?: ZodType<T>; // Schema para validar a resposta
-  onSuccess?: (data: T) => void;
-  onError?: (error: Error) => void;
+  readonly method?: "POST" | "PUT" | "DELETE";
+  readonly headers?: Record<string, string>;
+  readonly bodySchema?: ZodType<B>; // Schema para validar o body
+  readonly responseSchema?: ZodType<T>; // Schema para validar a resposta
+  readonly onSuccess?: (data: T) => void;
+  readonly onError?: (error: Error) => void;
 }
 
 /**
@@ -16,7 +16,7 @@ interface UseMutationApiOptions<T = unknown, B = unknown> {
  *
  * 👉 Use quando precisar enviar dados ou alterar estado no backend.
  */
-export function useMutationApi<T = unknown, B = unknown>(url: string, options?: UseMutationApiOptions<T, B>) {
+export function useMutationApi<T = unknown, B = unknown>(url: string, options?: Readonly<UseMutationApiOptions<T, B>>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
