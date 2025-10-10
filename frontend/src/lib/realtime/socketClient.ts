@@ -1,37 +1,35 @@
 import { io, Socket } from "socket.io-client";
+import type { SubscriberRealtime } from "./subscriberRealtime";
 
-type Callback = (data: any) => void;
+export class SocketClient<TEvents extends Record<string, unknown> = Record<string, unknown>>
+  implements SubscriberRealtime<TEvents>
+{
+  private socket: Socket | null = null;
+  private listeners = new Map<keyof TEvents, Set<(data: TEvents[keyof TEvents]) => void>>();
 
-let socket: Socket | null = null;
-const listeners: Map<string, Set<Callback>> = new Map();
+  connect(url = "/") {
+    if (this.socket) return;
+    this.socket = io(url, { autoConnect: true });
 
-export function startSocket(url = "/") {
-  if (socket) return socket;
-  socket = io(url, { autoConnect: true });
+    this.socket.onAny((event, payload) => {
+      this.listeners.get(event as keyof TEvents)?.forEach((cb) => cb(payload));
+    });
 
-  socket.onAny((event: string, payload: any) => {
-    const set = listeners.get(event);
-    if (set) set.forEach((cb) => cb(payload));
-  });
+    this.socket.on("connect", () => console.debug("[SocketClient] connected"));
+    this.socket.on("disconnect", () => console.debug("[SocketClient] disconnected"));
+  }
 
-  socket.on("connect", () => {
-    console.debug("[socketClient] connected", socket?.id);
-  });
+  subscribe<K extends keyof TEvents>(event: K, cb: (data: TEvents[K]) => void) {
+    if (!this.listeners.has(event)) this.listeners.set(event, new Set());
+    this.listeners.get(event)!.add(cb as (data: TEvents[keyof TEvents]) => void);
+    return () => this.unsubscribe(event, cb);
+  }
 
-  socket.on("disconnect", (reason) => {
-    console.debug("[socketClient] disconnected", reason);
-  });
+  unsubscribe<K extends keyof TEvents>(event: K, cb: (data: TEvents[K]) => void) {
+    this.listeners.get(event)?.delete(cb as (data: TEvents[keyof TEvents]) => void);
+  }
 
-  return socket;
-}
-
-export function subscribe(event: string, cb: Callback) {
-  if (!listeners.has(event)) listeners.set(event, new Set());
-  listeners.get(event)!.add(cb);
-  return () => listeners.get(event)!.delete(cb);
-}
-
-// helper to emit (if needed)
-export function emit(event: string, payload?: any) {
-  socket?.emit(event, payload);
+  emit<K extends keyof TEvents>(event: K, payload?: TEvents[K]) {
+    this.socket?.emit(event as string, payload);
+  }
 }

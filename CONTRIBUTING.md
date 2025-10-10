@@ -138,7 +138,7 @@ class RealtimeBroker {
   +connect()
 }
 
-class Subscriber {
+class SubscriberRealtime {
   <<interface>>
   +connect()
   +subscribe(cb)
@@ -176,7 +176,7 @@ class SocketClient {
 
 %% Provider + Hook
 class RealtimeProvider {
-  +value: Subscriber
+  +value: SubscriberRealtime
 }
 
 class useRealtime {
@@ -187,13 +187,13 @@ class useRealtime {
 %% Relações de implementação
 RealtimeBroker <|.. SSEBroker
 RealtimeBroker <|.. SocketBroker
-Subscriber <|.. SSEClient
-Subscriber <|.. SocketClient
+SubscriberRealtime <|.. SSEClient
+SubscriberRealtime <|.. SocketClient
 
 %% Relações frontend
-RealtimeProvider o-- Subscriber : contém / injeta instância singleton
+RealtimeProvider o-- SubscriberRealtime : contém / injeta instância singleton
 useRealtime --> RealtimeProvider : consome Provider (dependency)
-useRealtime --> Subscriber : chama subscribe/unsubscribe (dependency)
+useRealtime --> SubscriberRealtime : chama subscribe/unsubscribe (dependency)
 
 %% Comunicação pub/sub entre front e back
 SSEBroker --> SSEClient : Pub/Sub SSE (dependency)

@@ -21,7 +21,7 @@ import StrategiesPage from "./pages/strategies";
 import StatisticsPage from "./pages/statistics";
 import LobbyPage from "./pages/lobby";
 import ImportAssetsPage from "./pages/import-assets";
-import { RealtimeProvider } from "./context/RealtimeProvider";
+import { RealtimeProvider } from "@/context/realtime";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },

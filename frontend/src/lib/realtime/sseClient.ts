@@ -1,76 +1,38 @@
-type Callback = (data: any, ev?: MessageEvent) => void;
+import type { SubscriberRealtime } from "./subscriberRealtime";
 
-const listeners: Map<string, Set<Callback>> = new Map();
-let es: EventSource | null = null;
-let connected = false;
-const STORAGE_KEY = "realtime_client_id";
+export class SSEClient<TEvents extends Record<string, unknown> = Record<string, unknown>>
+  implements SubscriberRealtime<TEvents>
+{
+  private es: EventSource | null = null;
+  private listeners = new Map<keyof TEvents, Set<(data: TEvents[keyof TEvents]) => void>>();
 
-export function startEventSource(url = "/api/stream") {
-  if (es) return es;
-  es = new EventSource(url);
+  connect(url = "/api/stream") {
+    if (this.es) return;
+    this.es = new EventSource(url);
 
-  es.onopen = () => {
-    connected = true;
-    console.debug("[sseClient] connected");
-  };
-
-  es.onmessage = (ev) => {
-    try {
-      // Ev.data pode ser o blob {event, payload} ou server-sent event type
-      const parsed = JSON.parse(ev.data);
-      // If server sends {event, payload} inside data
-      const type = parsed.event ?? parsed.type ?? "message";
-      const payload = parsed.payload ?? parsed;
-
-      // store client_id if it's the connected handshake
-      if (type === "connected" && payload?.client_id) {
-        try {
-          localStorage.setItem(STORAGE_KEY, payload.client_id);
-        } catch {
-          /* ignore storage problems */
-        }
+    this.es.onmessage = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.data);
+        const type = parsed.event ?? "message";
+        const payload = parsed.payload ?? parsed;
+        this.listeners.get(type as keyof TEvents)?.forEach((cb) => cb(payload));
+      } catch (err) {
+        console.error("[SSEClient] parse error", err);
       }
+    };
 
-      const set = listeners.get(type);
-      if (set) {
-        set.forEach((cb) => cb(payload, ev));
-      }
-    } catch (err) {
-      console.error("[sseClient] parse error", err);
-    }
-  };
-
-  es.onerror = (ev) => {
-    connected = false;
-    console.error("[sseClient] error", ev);
-    // ES automatic reconnect, no need to reopen
-  };
-
-  return es;
-}
-
-export function subscribe(eventType: string, cb: Callback) {
-  if (!listeners.has(eventType)) listeners.set(eventType, new Set());
-  listeners.get(eventType)!.add(cb);
-  return () => {
-    listeners.get(eventType)!.delete(cb);
-  };
-}
-
-export function getClientId(): string | null {
-  try {
-    return localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return null;
+    this.es.onerror = (err) => {
+      console.error("[SSEClient] error", err);
+    };
   }
-}
 
-export async function updateSubscriptionOnServer(topics: string[]) {
-  const client_id = getClientId();
-  if (!client_id) return null;
-  await fetch("/api/update-subscription", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ client_id, topics }),
-  });
+  subscribe<K extends keyof TEvents>(event: K, cb: (data: TEvents[K]) => void) {
+    if (!this.listeners.has(event)) this.listeners.set(event, new Set());
+    this.listeners.get(event)!.add(cb as (data: TEvents[keyof TEvents]) => void);
+    return () => this.unsubscribe(event, cb);
+  }
+
+  unsubscribe<K extends keyof TEvents>(event: K, cb: (data: TEvents[K]) => void) {
+    this.listeners.get(event)?.delete(cb as (data: TEvents[keyof TEvents]) => void);
+  }
 }
