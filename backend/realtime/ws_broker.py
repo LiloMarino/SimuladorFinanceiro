@@ -20,6 +20,7 @@ class SocketBroker(RealtimeBroker):
         self._subscriptions: dict[str, set[str]] = {}  # event -> set(client_id)
 
     def register_client(self, client_id: Optional[str] = None) -> str:
+        logger.info("Cliente conectado: %s", client_id)
         if client_id:
             self._clients.add(client_id)
         return client_id or ""
@@ -28,16 +29,16 @@ class SocketBroker(RealtimeBroker):
         self._clients.discard(client_id)
         for subscribers in self._subscriptions.values():
             subscribers.discard(client_id)
+        logger.info("Cliente desconectado: %s", client_id)
 
     def update_subscription(self, client_id: str, events: Iterable[str]) -> None:
+        logger.info("Atualizando assinaturas: %s -> %s", client_id, events)
         # Remove de todos os eventos atuais
         for subscribers in self._subscriptions.values():
             subscribers.discard(client_id)
         # Adiciona para os novos eventos
         for event in events:
             self._subscriptions.setdefault(event, set()).add(client_id)
-
-        logger.debug("SocketBroker.update_subscription %s -> %s", client_id, events)
 
     def notify(self, event: str, payload: Any) -> None:
         """Envia payload apenas para clientes inscritos neste evento."""

@@ -38,6 +38,7 @@ class SimulationLoopController:
                                 stocks = simulation.get_stocks()
 
                                 # Broadcast genérico (SSE ou WS)
+                                logger.info("Notificando clientes...")
                                 notify(
                                     "simulation_update",
                                     {"current_date": current_date},

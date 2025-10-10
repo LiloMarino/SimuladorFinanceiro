@@ -7,7 +7,7 @@ export class SocketClient<TEvents extends Record<string, unknown> = Record<strin
   private socket: Socket | null = null;
   private listeners = new Map<keyof TEvents, Set<(data: TEvents[keyof TEvents]) => void>>();
 
-  connect(url = "/") {
+  connect(url = "/realtime") {
     if (this.socket) return;
     this.socket = io(url, { autoConnect: true });
 

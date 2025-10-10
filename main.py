@@ -72,9 +72,9 @@ if __name__ == "__main__":
         socketio.init_app(app)
         app.config["realtime_broker"] = SocketBroker(socketio)
         logger.info("Rodando em modo WebSocket (SocketIO).")
-        socketio.run(app, debug=True)
         register_ws_handlers(socketio)
         start_simulation_loop(app)
+        socketio.run(app, debug=True)
 
     # ------------------------------------------------------------
     # 🌐 Modo SSE (Server-Sent Events)
@@ -82,5 +82,5 @@ if __name__ == "__main__":
     else:
         app.config["realtime_broker"] = SSEBroker()
         logger.info("Rodando em modo SSE (Server-Sent Events).")
-        app.run(debug=True, threaded=True)
         start_simulation_loop(app)
+        app.run(debug=True, threaded=True)
