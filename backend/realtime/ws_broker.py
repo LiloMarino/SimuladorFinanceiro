@@ -47,3 +47,6 @@ class SocketBroker(RealtimeBroker):
                     self.socketio.emit(event, payload, to=cid)
                 except Exception as e:
                     logger.exception("Erro emitindo para %s: %s", cid, e)
+
+    def connect(self) -> None:
+        raise NotImplementedError("SocketBroker não implementa connect()")

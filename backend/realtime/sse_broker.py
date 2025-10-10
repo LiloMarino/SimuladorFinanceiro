@@ -110,10 +110,3 @@ class SSEBroker(RealtimeBroker):
         except GeneratorExit:
             self.remove_client(client_id)
             logger.debug("SSEBroker: cliente desconectado %s", client_id)
-
-    # --------------------------------------------------------------------- #
-    # Utilities
-    # --------------------------------------------------------------------- #
-    def get_active_clients(self):
-        with self._lock:
-            return list(self._clients.keys())

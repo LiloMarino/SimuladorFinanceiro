@@ -26,12 +26,13 @@ from backend import logger_utils
 from backend.database import engine
 from backend.realtime.sse_broker import SSEBroker
 from backend.realtime.ws_broker import SocketBroker
+from backend.realtime.ws_handlers import register_ws_handlers
 from backend.routes import register_routes
 from backend.simulation_loop import start_simulation_loop
 
 BACKEND_DIR = Path("backend")
 SECRET_PATH = Path("secret.key")
-USE_SSE = True
+USE_SSE = False
 
 logger = logger_utils.setup_logger(__name__)
 
@@ -70,15 +71,16 @@ if __name__ == "__main__":
         socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
         socketio.init_app(app)
         app.config["realtime_broker"] = SocketBroker(socketio)
-        start_simulation_loop(app)
         logger.info("Rodando em modo WebSocket (SocketIO).")
         socketio.run(app, debug=True)
+        register_ws_handlers(socketio)
+        start_simulation_loop(app)
 
     # ------------------------------------------------------------
     # 🌐 Modo SSE (Server-Sent Events)
     # ------------------------------------------------------------
     else:
         app.config["realtime_broker"] = SSEBroker()
-        start_simulation_loop(app)
         logger.info("Rodando em modo SSE (Server-Sent Events).")
         app.run(debug=True, threaded=True)
+        start_simulation_loop(app)

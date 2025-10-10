@@ -31,3 +31,8 @@ class RealtimeBroker(ABC):
     def notify(self, event: str, payload: Any) -> None:
         """Publica um evento para todos os assinantes interessados."""
         raise NotImplementedError
+
+    @abstractmethod
+    def connect(self):
+        """Retorna Response streaming SSE (só SSE)"""
+        raise NotImplementedError
