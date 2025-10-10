@@ -101,58 +101,137 @@ O projeto detecta automaticamente qual banco usar (MySQL ou SQLite) com base nas
 Base.metadata.create_all(bind=engine)
 ```
 
-## 📡 Conexão Stream
+## 📖 Overview da Arquitetura Realtime
 
-### 🔄 Arquitetura de Comunicação em Tempo Real
+Esta seção documenta a arquitetura de comunicação realtime do SimuladorFinanceiro, usando **Pub/Sub** e mantendo consistência entre backend e frontend.
+
+### Estrutura
+
+* **Backend**
+
+  * `RealtimeBroker` (interface)
+  * `SSEBroker` / `SocketBroker` (implementações concretas)
+  * Singleton do broker (`current_app.config["realtime_broker"]`)
+  * Função `notify(event, payload)` para publicar eventos
+
+* **Frontend**
+
+  * `Subscriber` (interface comum)
+  * `SSEClient` / `SocketClient` (implementações concretas)
+  * `RealtimeProvider` (Provider do React)
+  * `useRealtime()` (hook genérico)
+  * Componentes consomem `useRealtime()` sem se importar com implementação concreta
+
+---
+
+### Diagrama UML em Mermaid
 
 ```mermaid
 classDiagram
-    class IRealtimeManager {
-        <<interface>>
-        +broadcast(event, data, topic)
-        +send_to(client_id, event, data)
-        +register_client(client_id, meta)
-        +remove_client(client_id)
-    }
+%% Interfaces
+class RealtimeBroker {
+  <<interface>>
+  +register_client(client_id)
+  +remove_client(client_id)
+  +update_subscription(client_id, events)
+  +notify(event, payload)
+  +connect()
+}
 
-    class SSEManager {
-        +clients : dict
-        +broadcast(event, data, topic)
-        +send_to(client_id, event, data)
-        +register_client(client_id, meta)
-        +remove_client(client_id)
-        +listen(client_id)
-    }
+class Subscriber {
+  <<interface>>
+  +connect()
+  +subscribe(cb)
+  +unsubscribe(cb)
+}
 
-    class SocketManager {
-        +socketio : SocketIO
-        +broadcast(event, data, topic)
-        +send_to(client_id, event, data)
-        +register_client(client_id, meta)
-        +remove_client(client_id)
-    }
+%% Implementações backend
+class SSEBroker {
+  +register_client()
+  +remove_client()
+  +update_subscription()
+  +notify()
+  +connect()
+}
 
-    class Simulation {
-        +update_market()
-        +notify_realtime()
-    }
+class SocketBroker {
+  +register_client()
+  +remove_client()
+  +update_subscription()
+  +notify()
+}
 
-    class FlaskApp {
-        +config["realtime"]
-        +routes()
-    }
+%% Implementações frontend
+class SSEClient {
+  +connect()
+  +subscribe()
+  +unsubscribe()
+}
 
-    class Frontend {
-        +useStreamApi()
-        +useSocketApi()
-        +EventSource()
-        +SocketClient()
-    }
+class SocketClient {
+  +connect()
+  +subscribe()
+  +unsubscribe()
+}
 
-    IRealtimeManager <|.. SSEManager
-    IRealtimeManager <|.. SocketManager
-    FlaskApp --> IRealtimeManager : injeta
-    Simulation --> IRealtimeManager : publica eventos
-    Frontend --> FlaskApp : via REST/SSE/WS
-    Frontend --> IRealtimeManager : via WS
+%% Provider + Hook
+class RealtimeProvider {
+  +value: Subscriber
+}
+
+class useRealtime {
+  +subscribe(cb)
+  +unsubscribe(cb)
+}
+
+%% Relações de implementação
+RealtimeBroker <|.. SSEBroker
+RealtimeBroker <|.. SocketBroker
+Subscriber <|.. SSEClient
+Subscriber <|.. SocketClient
+
+%% Relações frontend
+RealtimeProvider o-- Subscriber : contém / injeta instância singleton
+useRealtime --> RealtimeProvider : consome Provider (dependency)
+useRealtime --> Subscriber : chama subscribe/unsubscribe (dependency)
+
+%% Comunicação pub/sub entre front e back
+SSEBroker --> SSEClient : Pub/Sub SSE (dependency)
+SocketBroker --> SocketClient : Pub/Sub WS (dependency)
+
+
 ```
+
+---
+
+### Explicação
+
+1. **Frontend**
+
+   * O `Subscriber` define o contrato comum que qualquer implementação concreta (SSE ou WebSocket) deve seguir.
+   * `RealtimeProvider` injeta **uma instância singleton** de `Subscriber` na árvore de componentes.
+   * `useRealtime()` consome o Provider e gerencia subscribe/unsubscribe, atualizando `state` dos componentes.
+   * Componentes (`Dashboard`, `Notifications`, etc.) usam `useRealtime()` sem conhecer se é SSE ou WS.
+
+2. **Backend**
+
+   * `RealtimeBroker` define a interface Pub/Sub para qualquer broker realtime.
+   * `SSEBroker` implementa SSE, expondo `connect()` para streaming HTTP.
+   * `SocketBroker` implementa WebSocket, sem `connect()` (conexão é gerenciada pelo SocketIO).
+   * Singleton no Flask (`current_app.config["realtime_broker"]`) garante **uma única instância compartilhada** para todos os endpoints.
+
+3. **Comunicação**
+
+   * O frontend recebe eventos do backend via SSE ou WebSocket.
+   * Backend publica eventos com `notify(event, payload)` para todos os subscribers registrados.
+   * Frontend atualiza estado e re-renderiza componentes automaticamente.
+
+---
+
+💡 **Vantagens desta arquitetura**
+
+* Coerência entre backend e frontend (interface comum + singleton + pub/sub).
+* Flexível: troca de SSE por WebSocket ou mocks de teste apenas alterando o Provider.
+* Seguro: TypeScript e Python garantem que as implementações concretas seguem os contratos.
+* Reutilizável: múltiplos componentes podem usar o mesmo hook sem criar novas conexões.
+* Evita memory leaks: subscribe/unsubscribe gerenciados pelo hook.
