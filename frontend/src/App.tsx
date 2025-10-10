@@ -36,9 +36,9 @@ const navItems: NavItem[] = [
 
 export default function App() {
   return (
-    <RealtimeProvider mode="sse">
+    <RealtimeProvider mode="ws">
       <BrowserRouter>
-        <MainLayout navItems={navItems} simulationTime="00/00/0000">
+        <MainLayout navItems={navItems}>
           <Routes>
             <Route path="/" element={<PortfolioPage />} />
             <Route path="/variable-income" element={<VariableIncomePage />} />

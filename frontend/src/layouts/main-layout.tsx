@@ -6,10 +6,9 @@ import useActivePage from "@/hooks/useActivePage";
 interface LayoutProps {
   children: React.ReactNode;
   navItems: NavItem[];
-  simulationTime: string;
 }
 
-export default function MainLayout({ children, navItems, simulationTime }: LayoutProps) {
+export default function MainLayout({ children, navItems }: LayoutProps) {
   const activePage = useActivePage();
   const pageLabel = navItems.find((item) => item.key === activePage)?.label || "Example";
 
@@ -17,7 +16,7 @@ export default function MainLayout({ children, navItems, simulationTime }: Layou
     <div className="flex h-screen overflow-hidden">
       <Sidebar navItems={navItems} activePage={activePage} />
       <div className="flex-1 overflow-auto">
-        <Topbar pageLabel={pageLabel} simulationTime={simulationTime} />
+        <Topbar pageLabel={pageLabel} />
         <main className="p-6">{children}</main>
       </div>
     </div>

@@ -15,3 +15,7 @@ export interface Stock {
   high: number;
   change_pct: string; // ex: "+1.23%" ou "-0.45%"
 }
+
+export type SimulationEvents = {
+  simulation_update: { currentDate: string };
+};

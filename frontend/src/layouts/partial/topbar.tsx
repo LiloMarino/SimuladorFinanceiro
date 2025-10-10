@@ -1,16 +1,17 @@
 import { useState } from "react";
 import clsx from "clsx";
 import { useMutationApi } from "@/hooks/useMutationApi";
+import { useRealtime } from "@/hooks/useRealtime";
 
 interface TopbarProps {
   pageLabel: string;
-  simulationTime: string;
 }
 
 const SPEED_OPTIONS = [0, 1, 2, 4, 10];
 
-export default function Topbar({ pageLabel, simulationTime }: TopbarProps) {
+export default function Topbar({ pageLabel }: TopbarProps) {
   const [speed, setSpeed] = useState(0);
+  const [simulationTime, setSimulationTime] = useState("00/00/0000");
 
   // Mutation para alterar a velocidade via REST API
   const { mutate: setSpeedApi, loading } = useMutationApi<{ speed: number }>("/api/set-speed", {
@@ -22,6 +23,10 @@ export default function Topbar({ pageLabel, simulationTime }: TopbarProps) {
     onError: (err) => {
       console.error("Erro ao alterar velocidade:", err);
     },
+  });
+
+  useRealtime("simulation_update", (data) => {
+    setSimulationTime(data.currentDate);
   });
 
   const handleSpeedChange = (newSpeed: number) => {
