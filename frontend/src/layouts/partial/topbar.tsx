@@ -10,18 +10,17 @@ interface TopbarProps {
 const SPEED_OPTIONS = [0, 1, 2, 4, 10];
 
 export default function Topbar({ pageLabel }: TopbarProps) {
-  // Estado inicial da simulação (tempo + velocidade)
   const { data: simData, setData: setSimData } = useQueryApi<{ currentDate?: string; speed?: number }>(
     "/api/get-simulation-state",
     { initialFetch: true }
   );
 
-  // Atualiza quando o backend emite eventos realtime
+  // Realtime Current Date Update
   useRealtime("simulation_update", (update) => {
     setSimData((prev) => ({ ...prev, ...update }));
   });
 
-  // Mutações de velocidade
+  // Toggle Speed
   const { mutate: setSpeedApi, loading } = useMutationApi<{ speed: number }>("/api/set-speed", {
     onSuccess: (data) => {
       setSimData((prev) => ({ ...prev, speed: data.speed }));

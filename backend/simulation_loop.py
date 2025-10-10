@@ -1,14 +1,15 @@
-import logging
 import threading
 import time
 import traceback
 
 from flask import Flask
 
-from backend.realtime import notify
+from backend import logger_utils
+from backend.realtime import get_broker, notify
+from backend.realtime.ws_broker import SocketBroker
 from backend.simulation import get_simulation
 
-logger = logging.getLogger(__name__)
+logger = logger_utils.setup_logger(__name__)
 
 
 class SimulationLoopController:
@@ -73,10 +74,10 @@ class SimulationLoopController:
     # ------------------------
     def _non_blocking_sleep(self, speed: float):
         delay = 1 / max(speed, 1)
-        manager = getattr(self, "manager", None)
+        broker = get_broker()
         try:
-            if manager and hasattr(manager, "socketio"):
-                manager.socketio.sleep(delay)
+            if isinstance(broker, SocketBroker):
+                broker.socketio.sleep(delay)
             else:
                 time.sleep(delay)
         except Exception as e:

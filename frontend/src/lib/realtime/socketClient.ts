@@ -7,16 +7,17 @@ export class SocketClient<TEvents extends Record<string, unknown> = Record<strin
   private socket: Socket | null = null;
   private listeners = new Map<keyof TEvents, Set<(data: TEvents[keyof TEvents]) => void>>();
 
-  connect(url = "/realtime") {
+  connect() {
     if (this.socket) return;
-    this.socket = io(url, { autoConnect: true });
+    const url = `http://localhost:5000/`;
+    this.socket = io(url, { autoConnect: true, path: "/socket.io" });
 
     this.socket.onAny((event, payload) => {
       this.listeners.get(event as keyof TEvents)?.forEach((cb) => cb(payload));
     });
 
-    this.socket.on("connect", () => console.debug("[SocketClient] connected"));
-    this.socket.on("disconnect", () => console.debug("[SocketClient] disconnected"));
+    this.socket.on("connect", () => console.info("[SocketClient] connected"));
+    this.socket.on("disconnect", () => console.info("[SocketClient] disconnected"));
   }
 
   subscribe<K extends keyof TEvents>(event: K, cb: (data: TEvents[K]) => void) {
