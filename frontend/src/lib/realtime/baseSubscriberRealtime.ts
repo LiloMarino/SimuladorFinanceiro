@@ -40,7 +40,7 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
    *
    * @param url - Endereço da fonte de eventos (opcional)
    */
-  abstract connect(url?: string): void;
+  public abstract connect(url?: string): void;
 
   /**
    * Registra um novo callback para um determinado tipo de evento.
@@ -90,17 +90,8 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
     this.listeners.get(event)?.forEach((cb) => (cb as EventCallback<TEvents, K>)(data));
   }
 
-  /** Informa o backend sobre os eventos que este cliente está inscrito */
-  protected async updateBackendSubscription(): Promise<void> {
-    const events = Array.from(this.listeners.keys());
-    try {
-      await fetch("/api/update-subscription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ client_id: this.clientId, events }),
-      });
-    } catch (err) {
-      console.error("[BaseSubscriberRealtime] failed to update backend subscription", err);
-    }
-  }
+  /**
+   * Informa o backend sobre os eventos que este cliente está inscrito
+   */
+  protected abstract updateBackendSubscription(): Promise<void>;
 }

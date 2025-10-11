@@ -82,11 +82,10 @@ class SSEBroker(RealtimeBroker):
     def connect(self):
         """Rota SSE: cria client e retorna Response que streama eventos."""
         client_id = request.args.get("client_id")
-        events = request.args.getlist("event")
 
         client_id = self.register_client(client_id)
-        self.update_subscription(client_id, events)
-
+        self.update_subscription(client_id, [])
+        logger.info("Cliente conectado: %s", client_id)
         return Response(
             stream_with_context(self._listen_generator(client_id)),
             mimetype="text/event-stream",

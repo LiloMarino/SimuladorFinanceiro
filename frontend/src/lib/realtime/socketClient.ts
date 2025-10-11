@@ -16,5 +16,15 @@ export class SocketClient<
 
     this.socket.on("connect", () => console.info("[SocketClient] connected"));
     this.socket.on("disconnect", () => console.info("[SocketClient] disconnected"));
+
+    this.socket.on("subscribed", (payload) => {
+      console.info("[SocketClient] subscription confirmed", payload);
+    });
+  }
+
+  protected async updateBackendSubscription(): Promise<void> {
+    if (!this.socket) return;
+    const events = Array.from(this.listeners.keys());
+    this.socket.emit("subscribe", { events });
   }
 }

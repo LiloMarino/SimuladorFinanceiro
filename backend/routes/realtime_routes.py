@@ -31,6 +31,7 @@ def update_subscription():
             return make_response(False, "client_id required", status_code=400)
 
         broker.update_subscription(client_id, events)
+        logger.info("Updating subscription: %s -> %s", client_id, events)
         return make_response(
             True, "Subscription updated", {"client_id": client_id, "events": events}
         )

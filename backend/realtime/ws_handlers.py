@@ -26,6 +26,6 @@ def register_ws_handlers(socketio: SocketIO):
     def on_subscribe(data):
         broker = get_broker()
         client_id: str = getattr(request, "sid")
-        topics = data.get("topics", [])
-        broker.update_subscription(client_id, topics)
-        emit("subscribed", {"topics": topics})
+        events = data.get("events", [])  # Recebido do frontend
+        broker.update_subscription(client_id, events)
+        emit("subscribed", {"events": events})
