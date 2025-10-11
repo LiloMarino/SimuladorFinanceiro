@@ -6,9 +6,13 @@ export class SocketClient<
 > extends BaseSubscriberRealtime<TEvents> {
   private socket: Socket | null = null;
 
-  connect(url = "http://localhost:5000") {
+  connect(url?: string) {
+    const baseUrl = url || (typeof window !== "undefined" ? window.location.origin : "http://localhost:5173");
+
+    console.log(baseUrl);
     if (this.socket) return;
-    this.socket = io(url, { autoConnect: true, path: "/socket.io" });
+
+    this.socket = io(baseUrl, { autoConnect: true, path: "/socket.io", transports: ["websocket"] });
 
     this.socket.onAny((event: string, payload: unknown) => {
       console.info("[SocketClient] event", event, payload);
