@@ -42,7 +42,7 @@ class SimulationLoopController:
                                 logger.info("Notificando clientes...")
                                 notify(
                                     "simulation_update",
-                                    {"current_date": current_date},
+                                    {"currentDate": current_date},
                                 )
                                 notify("stocks_update", {"stocks": stocks})
 

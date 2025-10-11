@@ -11,6 +11,7 @@ export class SocketClient<
     this.socket = io(url, { autoConnect: true, path: "/socket.io" });
 
     this.socket.onAny((event: string, payload: unknown) => {
+      console.info("[SocketClient] event", event, payload);
       this.notify(event as keyof TEvents, payload as TEvents[keyof TEvents]);
     });
 

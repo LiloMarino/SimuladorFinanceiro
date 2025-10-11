@@ -20,6 +20,10 @@ export default function Topbar({ pageLabel }: TopbarProps) {
     setSimData((prev) => ({ ...prev, ...update }));
   });
 
+  useRealtime("speed_update", (update) => {
+    setSimData((prev) => ({ ...prev, ...update }));
+  });
+
   // Toggle Speed
   const { mutate: setSpeedApi, loading } = useMutationApi<{ speed: number }>("/api/set-speed", {
     onSuccess: (data) => {
