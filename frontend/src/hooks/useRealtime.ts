@@ -2,17 +2,8 @@ import { useEffect } from "react";
 import { useRealtimeContext } from "@/hooks/useRealtimeContext";
 import type { SimulationEvents } from "@/types";
 
-type RealtimeSubscriber<TEvents extends Record<string, unknown>> = {
-  subscribe<K extends keyof TEvents>(event: K, callback: (data: TEvents[K]) => void): () => void;
-};
-
-export function useRealtime<
-  TEvents extends Record<string, unknown> = SimulationEvents,
-  K extends keyof TEvents = keyof TEvents
->(event: K, callback: (data: TEvents[K]) => void) {
-  const { subscriber } = useRealtimeContext() as {
-    subscriber: RealtimeSubscriber<TEvents>;
-  };
+export function useRealtime<K extends keyof SimulationEvents>(event: K, callback: (data: SimulationEvents[K]) => void) {
+  const { subscriber } = useRealtimeContext<SimulationEvents>();
 
   useEffect(() => {
     const unsubscribe = subscriber.subscribe(event, callback);

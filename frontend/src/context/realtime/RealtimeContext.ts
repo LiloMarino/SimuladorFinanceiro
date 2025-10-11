@@ -1,8 +1,8 @@
 import { createContext } from "react";
-import type { SubscriberRealtime } from "@/lib/realtime/subscriberRealtime";
+import type { BaseSubscriberRealtime } from "@/lib/realtime/baseSubscriberRealtime";
 
-export interface RealtimeContextValue {
-  subscriber: SubscriberRealtime;
+export interface RealtimeContextValue<TEvents extends Record<string, unknown> = Record<string, unknown>> {
+  subscriber: BaseSubscriberRealtime<TEvents>;
 }
 
 export const RealtimeContext = createContext<RealtimeContextValue | null>(null);

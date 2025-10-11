@@ -25,14 +25,14 @@ def update_subscription():
         broker = get_broker()
         data = request.get_json(force=True)
         client_id = data.get("client_id")
-        topics = data.get("topics", [])
+        events = data.get("events", [])
 
         if not client_id:
             return make_response(False, "client_id required", status_code=400)
 
-        broker.update_subscription(client_id, topics)
+        broker.update_subscription(client_id, events)
         return make_response(
-            True, "Subscription updated", {"client_id": client_id, "topics": topics}
+            True, "Subscription updated", {"client_id": client_id, "events": events}
         )
     except Exception as e:
         logger.exception("Erro ao atualizar subscription: %s", e)

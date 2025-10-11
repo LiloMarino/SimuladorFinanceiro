@@ -1,36 +1,20 @@
-import { io, Socket } from "socket.io-client";
-import type { SubscriberRealtime } from "./subscriberRealtime";
+import { io, type Socket } from "socket.io-client";
+import { BaseSubscriberRealtime } from "./baseSubscriberRealtime";
 
-export class SocketClient<TEvents extends Record<string, unknown> = Record<string, unknown>>
-  implements SubscriberRealtime<TEvents>
-{
+export class SocketClient<
+  TEvents extends Record<string, unknown> = Record<string, unknown>
+> extends BaseSubscriberRealtime<TEvents> {
   private socket: Socket | null = null;
-  private listeners = new Map<keyof TEvents, Set<(data: TEvents[keyof TEvents]) => void>>();
 
-  connect() {
+  connect(url = "http://localhost:5000") {
     if (this.socket) return;
-    const url = `http://localhost:5000/`;
     this.socket = io(url, { autoConnect: true, path: "/socket.io" });
 
-    this.socket.onAny((event, payload) => {
-      this.listeners.get(event as keyof TEvents)?.forEach((cb) => cb(payload));
+    this.socket.onAny((event: string, payload: unknown) => {
+      this.notify(event as keyof TEvents, payload as TEvents[keyof TEvents]);
     });
 
     this.socket.on("connect", () => console.info("[SocketClient] connected"));
     this.socket.on("disconnect", () => console.info("[SocketClient] disconnected"));
-  }
-
-  subscribe<K extends keyof TEvents>(event: K, cb: (data: TEvents[K]) => void) {
-    if (!this.listeners.has(event)) this.listeners.set(event, new Set());
-    this.listeners.get(event)!.add(cb as (data: TEvents[keyof TEvents]) => void);
-    return () => this.unsubscribe(event, cb);
-  }
-
-  unsubscribe<K extends keyof TEvents>(event: K, cb: (data: TEvents[K]) => void) {
-    this.listeners.get(event)?.delete(cb as (data: TEvents[keyof TEvents]) => void);
-  }
-
-  emit<K extends keyof TEvents>(event: K, payload?: TEvents[K]) {
-    this.socket?.emit(event as string, payload);
   }
 }
