@@ -1,209 +1,227 @@
-import React, { useState, useRef } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileCsv, faChartLine, faCloudUploadAlt, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 
+// -------------------------
+// Zod Schemas
+// -------------------------
+const csvSchema = z.object({
+  ticker: z.string().min(1, "Informe o nome do ativo"),
+  csv_file: z.any().refine((file) => file instanceof File, "Selecione um arquivo CSV válido"),
+  overwrite: z.boolean(),
+});
+
+const ySchema = z.object({
+  ticker: z.string().min(1, "Informe o código do ativo"),
+  overwrite: z.boolean(),
+});
+
+type CsvFormData = z.infer<typeof csvSchema>;
+type YFormData = z.infer<typeof ySchema>;
+
+// -------------------------
+// Componente Principal
+// -------------------------
 export default function ImportAssetsPage() {
-  const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [csvTicker, setCsvTicker] = useState("");
-  const [csvOverwrite, setCsvOverwrite] = useState(false);
-  const [yTicker, setYTicker] = useState("");
-  const [yOverwrite, setYOverwrite] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [currentAction, setCurrentAction] = useState<"csv" | "yfinance" | null>(null);
 
-  const csvFormRef = useRef<HTMLFormElement>(null);
-  const yFormRef = useRef<HTMLFormElement>(null);
+  // Forms separados
+  const csvForm = useForm<CsvFormData>({
+    resolver: zodResolver(csvSchema),
+    defaultValues: { ticker: "", csv_file: null, overwrite: false },
+  });
 
-  // Drag & Drop
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setCsvFile(e.dataTransfer.files[0]);
+  const yForm = useForm<YFormData>({
+    resolver: zodResolver(ySchema),
+    defaultValues: { ticker: "", overwrite: false },
+  });
+
+  // Submissão final após confirmar
+  const handleConfirm = async () => {
+    const form = currentAction === "csv" ? csvForm : yForm;
+    const values = form.getValues();
+
+    // Você pode adaptar conforme o backend espera:
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(values)) {
+      formData.append(key, value as any);
     }
-  };
+    formData.append("action", currentAction!);
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
+    await fetch("/import-assets", {
+      method: "POST",
+      body: formData,
+    });
 
-  // Abrir modal
-  const openModal = (action: "csv" | "yfinance") => {
-    setCurrentAction(action);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
+    setDialogOpen(false);
     setCurrentAction(null);
-  };
-
-  // Confirmar ação
-  const handleConfirm = () => {
-    let form: HTMLFormElement | null = null;
-
-    if (currentAction === "csv") form = csvFormRef.current;
-    else if (currentAction === "yfinance") form = yFormRef.current;
-
-    if (form && currentAction) {
-      // Adiciona input hidden com action (como no JS antigo)
-      const actionInput = document.createElement("input");
-      actionInput.type = "hidden";
-      actionInput.name = "action";
-      actionInput.value = currentAction;
-      form.appendChild(actionInput);
-
-      form.submit();
-    }
-
-    closeModal();
   };
 
   return (
     <section id="import-assets" className="section-content p-4">
-      {/* Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 text-center">
-            <h2 className="text-xl font-semibold mb-4">Confirmar Importação</h2>
-            <p className="text-gray-700 mb-6">Deseja realmente importar os dados selecionados?</p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={handleConfirm}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-              >
-                Sim
-              </button>
-              <button
-                onClick={closeModal}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal de confirmação */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar Importação</DialogTitle>
+          </DialogHeader>
+          <p className="text-gray-700 mb-4">Deseja realmente importar os dados selecionados?</p>
+          <DialogFooter className="flex justify-end space-x-2">
+            <Button onClick={handleConfirm}>Sim</Button>
+            <Button variant="secondary" onClick={() => setDialogOpen(false)}>
+              Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="bg-white rounded-lg shadow p-6 space-y-8">
         <h2 className="text-xl font-semibold mb-6">Importar Ativos</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* CSV Form */}
-          <form ref={csvFormRef} method="POST" action="/import-assets" encType="multipart/form-data">
-            <div className="border rounded-lg p-6">
+          {/* --- CSV FORM --- */}
+          <Form {...csvForm}>
+            <form
+              onSubmit={csvForm.handleSubmit(() => {
+                setCurrentAction("csv");
+                setDialogOpen(true);
+              })}
+              className="border rounded-lg p-6 space-y-4"
+            >
               <div className="flex items-center mb-4">
                 <FontAwesomeIcon icon={faFileCsv} className="text-blue-500 text-2xl mr-3" />
                 <h3 className="text-lg font-medium">Importar via CSV</h3>
               </div>
               <p className="text-gray-600 mb-4">Faça upload de um arquivo CSV com os dados históricos do ativo.</p>
 
-              <div className="mb-4">
-                <label htmlFor="asset-name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Nome do Ativo
-                </label>
-                <input
-                  type="text"
-                  id="asset-name"
-                  name="ticker"
-                  className="w-full p-2 border rounded-md"
-                  placeholder="Digite o nome do ativo"
-                  value={csvTicker}
-                  onChange={(e) => setCsvTicker(e.target.value)}
-                />
-              </div>
+              <FormField
+                control={csvForm.control}
+                name="ticker"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome do Ativo</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Digite o nome do ativo" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div
-                id="drop-area"
-                className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center mb-4 transition-colors cursor-pointer"
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onClick={() => document.getElementById("csv-upload")?.click()}
-              >
-                <input
-                  type="file"
-                  id="csv-upload"
-                  name="csv_file"
-                  className="hidden"
-                  accept=".csv"
-                  onChange={(e) => e.target.files && setCsvFile(e.target.files[0])}
-                  required
-                />
-                <FontAwesomeIcon icon={faCloudUploadAlt} className="text-3xl text-gray-400 mb-2" />
-                <p className="text-sm text-gray-500">Arraste e solte ou clique para selecionar</p>
-                <p className="mt-2 text-sm text-gray-700">{csvFile?.name}</p>
-              </div>
+              <FormField
+                control={csvForm.control}
+                name="csv_file"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Arquivo CSV</FormLabel>
+                    <FormControl>
+                      <div
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const file = e.dataTransfer.files?.[0];
+                          if (file) field.onChange(file);
+                        }}
+                        onClick={() => document.getElementById("csv-upload")?.click()}
+                        className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center cursor-pointer transition-colors"
+                      >
+                        <input
+                          id="csv-upload"
+                          type="file"
+                          accept=".csv"
+                          className="hidden"
+                          onChange={(e) => e.target.files && field.onChange(e.target.files[0])}
+                        />
+                        <FontAwesomeIcon icon={faCloudUploadAlt} className="text-3xl text-gray-400 mb-2" />
+                        <p className="text-sm text-gray-500">Arraste e solte ou clique para selecionar</p>
+                        {field.value && <p className="mt-2 text-sm text-gray-700">{(field.value as File)?.name}</p>}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div className="mb-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    checked={csvOverwrite}
-                    onChange={(e) => setCsvOverwrite(e.target.checked)}
-                  />
-                  <span className="text-sm text-gray-700">Sobrescrever dados existentes</span>
-                </label>
-              </div>
+              <FormField
+                control={csvForm.control}
+                name="overwrite"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel className="text-sm">Sobrescrever dados existentes</FormLabel>
+                  </FormItem>
+                )}
+              />
 
-              <button
-                type="button"
-                onClick={() => openModal("csv")}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md"
-              >
+              <Button type="submit" className="w-full">
                 Importar CSV
-              </button>
-            </div>
-          </form>
+              </Button>
+            </form>
+          </Form>
 
-          {/* yFinance Form */}
-          <form ref={yFormRef} method="POST" action="/import-assets">
-            <div className="border rounded-lg p-6">
+          {/* --- YFINANCE FORM --- */}
+          <Form {...yForm}>
+            <form
+              onSubmit={yForm.handleSubmit(() => {
+                setCurrentAction("yfinance");
+                setDialogOpen(true);
+              })}
+              className="border rounded-lg p-6 space-y-4"
+            >
               <div className="flex items-center mb-4">
                 <FontAwesomeIcon icon={faChartLine} className="text-yellow-500 text-2xl mr-3" />
                 <h3 className="text-lg font-medium">Buscar via yFinance</h3>
               </div>
               <p className="text-gray-600 mb-4">Busque ativos usando a API do yFinance.</p>
 
-              <div className="mb-4 relative">
-                <label htmlFor="ticker" className="block text-sm font-medium text-gray-700 mb-1">
-                  Código do Ativo
-                </label>
-                <input
-                  type="text"
-                  id="ticker"
-                  name="ticker"
-                  placeholder="Ex: PETR4, VALE3, BTC-USD"
-                  className="w-full p-2 border rounded-md"
-                  value={yTicker}
-                  onChange={(e) => setYTicker(e.target.value)}
-                  required
-                />
-                <button className="absolute right-2 top-2 text-gray-500">
-                  <FontAwesomeIcon icon={faSearch} />
-                </button>
-              </div>
+              <FormField
+                control={yForm.control}
+                name="ticker"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Código do Ativo</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input placeholder="Ex: PETR4, VALE3, BTC-USD" {...field} />
+                        <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1">
+                          <FontAwesomeIcon icon={faSearch} />
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div className="mb-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    className="mr-2"
-                    checked={yOverwrite}
-                    onChange={(e) => setYOverwrite(e.target.checked)}
-                  />
-                  <span className="text-sm text-gray-700">Sobrescrever dados existentes</span>
-                </label>
-              </div>
+              <FormField
+                control={yForm.control}
+                name="overwrite"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel className="text-sm">Sobrescrever dados existentes</FormLabel>
+                  </FormItem>
+                )}
+              />
 
-              <button
-                type="button"
-                onClick={() => openModal("yfinance")}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md"
-              >
+              <Button type="submit" className="w-full">
                 Buscar e Importar
-              </button>
-            </div>
-          </form>
+              </Button>
+            </form>
+          </Form>
         </div>
       </div>
     </section>
