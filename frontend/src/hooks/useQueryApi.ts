@@ -1,4 +1,4 @@
-import { ApiResponseSchema } from "@/schemas/api";
+import { ApiResponseSchema } from "@/lib/schemas/api";
 import { useCallback, useEffect, useState } from "react";
 import type { ZodType } from "zod";
 
