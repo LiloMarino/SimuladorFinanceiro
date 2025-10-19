@@ -8,11 +8,14 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-// -------------------------
-// Zod Schemas
-// -------------------------
 const csvSchema = z.object({
   ticker: z.string().min(1, "Informe o nome do ativo"),
   csv_file: z.any().refine((file) => file instanceof File, "Selecione um arquivo CSV válido"),
@@ -25,32 +28,26 @@ const ySchema = z.object({
 });
 
 type CsvFormData = z.infer<typeof csvSchema>;
-type YFormData = z.infer<typeof ySchema>;
+type YFinanceFormData = z.infer<typeof ySchema>;
 
-// -------------------------
-// Componente Principal
-// -------------------------
 export default function ImportAssetsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentAction, setCurrentAction] = useState<"csv" | "yfinance" | null>(null);
 
-  // Forms separados
   const csvForm = useForm<CsvFormData>({
     resolver: zodResolver(csvSchema),
     defaultValues: { ticker: "", csv_file: null, overwrite: false },
   });
 
-  const yForm = useForm<YFormData>({
+  const yForm = useForm<YFinanceFormData>({
     resolver: zodResolver(ySchema),
     defaultValues: { ticker: "", overwrite: false },
   });
 
-  // Submissão final após confirmar
   const handleConfirm = async () => {
     const form = currentAction === "csv" ? csvForm : yForm;
     const values = form.getValues();
 
-    // Você pode adaptar conforme o backend espera:
     const formData = new FormData();
     for (const [key, value] of Object.entries(values)) {
       formData.append(key, value as any);
@@ -67,28 +64,30 @@ export default function ImportAssetsPage() {
   };
 
   return (
-    <section id="import-assets" className="section-content p-4">
-      {/* Modal de confirmação */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmar Importação</DialogTitle>
-          </DialogHeader>
+    <section className="section-content p-4">
+      {/* AlertDialog de confirmação */}
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Importação</AlertDialogTitle>
+          </AlertDialogHeader>
           <p className="text-gray-700 mb-4">Deseja realmente importar os dados selecionados?</p>
-          <DialogFooter className="flex justify-end space-x-2">
-            <Button onClick={handleConfirm}>Sim</Button>
+          <AlertDialogFooter className="flex justify-end space-x-2">
+            <Button variant="blue" onClick={handleConfirm}>
+              Sim
+            </Button>
             <Button variant="secondary" onClick={() => setDialogOpen(false)}>
               Cancelar
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="bg-white rounded-lg shadow p-6 space-y-8">
         <h2 className="text-xl font-semibold mb-6">Importar Ativos</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* --- CSV FORM --- */}
+          {/* CSV FORM */}
           <Form {...csvForm}>
             <form
               onSubmit={csvForm.handleSubmit(() => {
@@ -135,7 +134,6 @@ export default function ImportAssetsPage() {
                         className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center cursor-pointer transition-colors"
                       >
                         <input
-                          id="csv-upload"
                           type="file"
                           accept=".csv"
                           className="hidden"
@@ -164,13 +162,13 @@ export default function ImportAssetsPage() {
                 )}
               />
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" variant="blue" className="w-full">
                 Importar CSV
               </Button>
             </form>
           </Form>
 
-          {/* --- YFINANCE FORM --- */}
+          {/* YFINANCE FORM */}
           <Form {...yForm}>
             <form
               onSubmit={yForm.handleSubmit(() => {
@@ -192,12 +190,7 @@ export default function ImportAssetsPage() {
                   <FormItem>
                     <FormLabel>Código do Ativo</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input placeholder="Ex: PETR4, VALE3, BTC-USD" {...field} />
-                        <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1">
-                          <FontAwesomeIcon icon={faSearch} />
-                        </Button>
-                      </div>
+                      <Input placeholder="Ex: PETR4, VALE3, BTC-USD" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -217,7 +210,7 @@ export default function ImportAssetsPage() {
                 )}
               />
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" variant="blue" className="w-full">
                 Buscar e Importar
               </Button>
             </form>
