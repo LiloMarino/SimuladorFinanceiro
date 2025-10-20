@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Union
+from typing import Union
 
 from flask import Blueprint, request
 from werkzeug.datastructures import FileStorage
@@ -17,37 +17,41 @@ def str_to_bool(value: Union[str, bool, None]) -> bool:
     return False
 
 
-@import_bp.route("/api/import-assets", methods=["POST"])
-def import_assets() -> Any:
-    data: Dict[str, Any]
-    file: Optional[FileStorage] = None
+def handle_yfinance(data: dict):
+    ticker = data.get("ticker")
+    overwrite = str_to_bool(data.get("overwrite"))
+    if not ticker:
+        return make_response(False, "Ticker is required.", 400)
+    update_from_yfinance(ticker, overwrite)
+    return make_response(True, f"Asset '{ticker}' imported successfully.")
 
+
+def handle_csv(data: dict, file: FileStorage | None):
+    ticker = data.get("ticker")
+    overwrite = str_to_bool(data.get("overwrite"))
+    if not ticker or not file:
+        return make_response(False, "Ticker and CSV file are required.", 400)
+    update_from_csv(file, ticker, overwrite)
+    return make_response(True, f"CSV '{ticker}' imported successfully.")
+
+
+@import_bp.route("/api/import-assets", methods=["POST"])
+def import_assets():
     if request.content_type and "multipart/form-data" in request.content_type:
         data = request.form
         file = request.files.get("csv_file")
     else:
         data = request.get_json() or {}
+        file = None
 
-    action: Optional[str] = data.get("action")
-    ticker: Optional[str] = data.get("ticker")
-    overwrite: bool = str_to_bool(data.get("overwrite"))
+    action = data.get("action")
+
     try:
         if action == "yfinance":
-            if not ticker:
-                return make_response(False, "Ticker is required.", status_code=400)
-            update_from_yfinance(ticker, overwrite=overwrite)
-            return make_response(True, f"Asset '{ticker}' imported successfully.")
-
+            return handle_yfinance(data)
         elif action == "csv":
-            if not ticker or not file:
-                return make_response(
-                    False, "Ticker and CSV file are required.", status_code=400
-                )
-            update_from_csv(file, ticker, overwrite=overwrite)
-            return make_response(True, f"CSV file '{ticker}' imported successfully.")
-
+            return handle_csv(data, file)
         else:
-            return make_response(False, "Invalid action.", status_code=400)
-
+            return make_response(False, "Invalid action.", 400)
     except Exception as e:
-        return make_response(False, f"Error importing assets: {e}", status_code=500)
+        return make_response(False, f"Error importing assets: {e}", 500)

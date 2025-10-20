@@ -36,14 +36,13 @@ export default function ImportAssetsPage() {
       );
 
       if (pendingImport.type === "csv") {
-        const formData = new FormData();
         const { csv_file, ticker, overwrite } = pendingImport.data;
-        formData.append("action", "csv");
-        formData.append("ticker", ticker);
-        formData.append("overwrite", String(overwrite ?? false));
-        formData.append("csv_file", csv_file);
-
-        await csvMutation.mutate(formData);
+        await csvMutation.mutate({
+          action: "csv",
+          ticker,
+          overwrite,
+          csv_file,
+        });
         toast.success("Importação CSV concluída!", { id: toastId });
       } else {
         await yFinanceMutation.mutate({

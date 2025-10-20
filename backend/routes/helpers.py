@@ -1,7 +1,12 @@
 from flask import jsonify
 
 
-def make_response(success: bool, message: str, data=None, status_code: int = 200):
+def make_response(
+    success: bool,
+    message: str,
+    status_code: int = 200,
+    data=None,
+):
     """Utility for standardized JSON API responses."""
     return (
         jsonify(
