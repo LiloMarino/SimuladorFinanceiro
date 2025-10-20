@@ -9,7 +9,6 @@ export class SocketClient<
   connect(url?: string) {
     const baseUrl = url || (typeof window !== "undefined" ? window.location.origin : "http://localhost:5173");
 
-    console.log(baseUrl);
     if (this.socket) return;
 
     this.socket = io(baseUrl, { autoConnect: true, path: "/socket.io", transports: ["websocket"] });
