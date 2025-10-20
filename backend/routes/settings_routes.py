@@ -16,7 +16,7 @@ def get_strategies():
         )
         return make_response(True, "Strategies loaded successfully.", strategies)
     except Exception as e:
-        return make_response(False, f"Error loading strategies: {e}", status_code=500)
+        return make_response(False, f"Error loading strategies: {e}", 500)
 
 
 @settings_bp.route("/api/statistics", methods=["GET"])
@@ -29,7 +29,7 @@ def get_statistics():
         )
         return make_response(True, "Statistics loaded successfully.", stats)
     except Exception as e:
-        return make_response(False, f"Error loading statistics: {e}", status_code=500)
+        return make_response(False, f"Error loading statistics: {e}", 500)
 
 
 @settings_bp.route("/api/lobby", methods=["GET"])

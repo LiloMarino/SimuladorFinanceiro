@@ -18,7 +18,7 @@ def set_speed():
 
     # Envia a atualização de velocidade para todos os clientes
     notify("speed_update", {"speed": speed})
-    return make_response(True, "Speed updated", {"speed": speed})
+    return make_response(True, "Speed updated", data={"speed": speed})
 
 
 @timespeed_bp.route("/api/get-simulation-state", methods=["GET"])
@@ -27,5 +27,5 @@ def get_simulation_state():
     current_date = simulation.get_current_date_formatted()
     speed = simulation.get_speed()
     return make_response(
-        True, "Simulation state", {"currentDate": current_date, "speed": speed}
+        True, "Simulation state", data={"currentDate": current_date, "speed": speed}
     )

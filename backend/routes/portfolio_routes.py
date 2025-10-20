@@ -14,6 +14,8 @@ def get_portfolio():
         portfolio_data = (
             simulation.get_portfolio() if hasattr(simulation, "get_portfolio") else {}
         )
-        return make_response(True, "Portfolio loaded successfully.", portfolio_data)
+        return make_response(
+            True, "Portfolio loaded successfully.", data=portfolio_data
+        )
     except Exception as e:
-        return make_response(False, f"Error loading portfolio: {e}", status_code=500)
+        return make_response(False, f"Error loading portfolio: {e}", 500)

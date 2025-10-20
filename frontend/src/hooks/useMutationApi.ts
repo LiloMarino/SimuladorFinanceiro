@@ -1,5 +1,5 @@
-import { ApiResponseSchema } from "@/lib/schemas/api";
 import { useState } from "react";
+import { handleApiResponse } from "@/lib/utils/api";
 import type { ZodType } from "zod";
 
 interface UseMutationApiOptions<R = unknown, B = unknown> {
@@ -34,15 +34,11 @@ export function useMutationApi<R = unknown, B = unknown>(url: string, options?: 
         body: JSON.stringify(validatedBody),
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      const response = ApiResponseSchema.parse(json);
-      const data: R = options?.responseSchema ? options.responseSchema.parse(response.data) : response.data;
+      const data = await handleApiResponse<R>(res, options?.responseSchema);
       options?.onSuccess?.(data);
-
       return data;
     } catch (err) {
-      const e = err as Error;
+      const e = err instanceof Error ? err : new Error(String(err));
       setError(e);
       options?.onError?.(e);
       throw e;

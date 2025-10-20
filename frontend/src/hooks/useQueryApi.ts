@@ -1,10 +1,10 @@
-import { ApiResponseSchema } from "@/lib/schemas/api";
 import { useCallback, useEffect, useState } from "react";
+import { handleApiResponse } from "@/lib/utils/api";
 import type { ZodType } from "zod";
 
-interface UseFetchApiOptions<T> {
+interface UseQueryApiOptions<R> {
   readonly headers?: Record<string, string>;
-  readonly responseSchema?: ZodType<T>;
+  readonly responseSchema?: ZodType<R>;
   readonly initialFetch?: boolean;
 }
 
@@ -12,14 +12,14 @@ interface UseFetchApiOptions<T> {
  * Hook para **consultas pontuais** (GET).
  *
  * 👉 Use quando precisar buscar dados sob demanda
- *     ou automaticamente ao montar o componente (`autoFetch`).
+ *     ou automaticamente ao montar o componente (`initialFetch`).
  */
-export function useQueryApi<T = unknown>(url: string, options?: Readonly<UseFetchApiOptions<T>>) {
-  const [data, setData] = useState<T | null>(null);
+export function useQueryApi<R = unknown>(url: string, options?: Readonly<UseQueryApiOptions<R>>) {
+  const [data, setData] = useState<R | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchData = useCallback(async (): Promise<T> => {
+  const fetchData = useCallback(async (): Promise<R> => {
     setLoading(true);
     setError(null);
 
@@ -28,16 +28,11 @@ export function useQueryApi<T = unknown>(url: string, options?: Readonly<UseFetc
         headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const json = await res.json();
-      const response = ApiResponseSchema.parse(json);
-      const validatedData: T = options?.responseSchema ? options.responseSchema.parse(response.data) : response.data;
-
+      const validatedData = await handleApiResponse<R>(res, options?.responseSchema);
       setData(validatedData);
       return validatedData;
     } catch (err) {
-      const e = err as Error;
+      const e = err instanceof Error ? err : new Error(String(err));
       setError(e);
       throw e;
     } finally {

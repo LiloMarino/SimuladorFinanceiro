@@ -16,7 +16,7 @@ def stream():
         return broker.connect()
     except Exception as e:
         logger.exception("Erro ao abrir SSE stream: %s", e)
-        return make_response(False, "Internal server error", status_code=500)
+        return make_response(False, "Internal server error", 500)
 
 
 @realtime_bp.route("/api/update-subscription", methods=["POST"])
@@ -28,13 +28,15 @@ def update_subscription():
         events = data.get("events", [])
 
         if not client_id:
-            return make_response(False, "client_id required", status_code=400)
+            return make_response(False, "client_id required", 400)
 
         broker.update_subscription(client_id, events)
         logger.info("Updating subscription: %s -> %s", client_id, events)
         return make_response(
-            True, "Subscription updated", {"client_id": client_id, "events": events}
+            True,
+            "Subscription updated",
+            data={"client_id": client_id, "events": events},
         )
     except Exception as e:
         logger.exception("Erro ao atualizar subscription: %s", e)
-        return make_response(False, "Internal server error", status_code=500)
+        return make_response(False, "Internal server error", 500)

@@ -21,7 +21,7 @@ def handle_yfinance(data: dict):
     ticker = data.get("ticker")
     overwrite = str_to_bool(data.get("overwrite"))
     if not ticker:
-        return make_response(False, "Ticker is required.", 400)
+        return make_response(False, "Ticker is required.", 422)
     update_from_yfinance(ticker, overwrite)
     return make_response(True, f"Asset '{ticker}' imported successfully.")
 
@@ -30,7 +30,7 @@ def handle_csv(data: dict, file: FileStorage | None):
     ticker = data.get("ticker")
     overwrite = str_to_bool(data.get("overwrite"))
     if not ticker or not file:
-        return make_response(False, "Ticker and CSV file are required.", 400)
+        return make_response(False, "Ticker and CSV file are required.", 422)
     update_from_csv(file, ticker, overwrite)
     return make_response(True, f"CSV '{ticker}' imported successfully.")
 
@@ -47,6 +47,7 @@ def import_assets():
     action = data.get("action")
 
     try:
+        raise NotImplementedError
         if action == "yfinance":
             return handle_yfinance(data)
         elif action == "csv":

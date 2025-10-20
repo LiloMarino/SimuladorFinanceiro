@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ApiResponseSchema } from "@/lib/schemas/api";
+import { handleApiResponse } from "@/lib/utils/api";
 import type { ZodType } from "zod";
 
 interface UseFormDataMutationOptions<R = unknown> {
@@ -35,23 +35,19 @@ export function useFormDataMutation<R = unknown>(url: string, options?: Readonly
     setLoading(true);
     setError(null);
 
-    const formData = toFormData(payload);
-
     try {
+      const formData = toFormData(payload);
+
       const res = await fetch(url, {
         method: options?.method || "POST",
         body: formData,
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      const parsed = ApiResponseSchema.parse(json);
-      const data: R = options?.responseSchema ? options.responseSchema.parse(parsed.data) : parsed.data;
+      const data = await handleApiResponse<R>(res, options?.responseSchema);
       options?.onSuccess?.(data);
-
       return data;
     } catch (err) {
-      const e = err as Error;
+      const e = err instanceof Error ? err : new Error(String(err));
       setError(e);
       options?.onError?.(e);
       throw e;

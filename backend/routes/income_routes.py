@@ -12,9 +12,9 @@ def get_variable_income():
     try:
         simulation = get_simulation()
         stocks = simulation.get_stocks()
-        return make_response(True, "Stocks loaded successfully.", stocks)
+        return make_response(True, "Stocks loaded successfully.", data=stocks)
     except Exception as e:
-        return make_response(False, f"Error loading stocks: {e}", status_code=500)
+        return make_response(False, f"Error loading stocks: {e}", 500)
 
 
 @income_bp.route("/api/variable-income/<string:asset>", methods=["GET"])
@@ -23,8 +23,8 @@ def get_variable_income_details(asset):
     simulation = get_simulation()
     stock = simulation.get_stock_details(asset)
     if not stock:
-        return make_response(False, "Asset not found.", status_code=404)
-    return make_response(True, "Asset details loaded.", stock)
+        return make_response(False, "Asset not found.", 404)
+    return make_response(True, "Asset details loaded.", data=stock)
 
 
 @income_bp.route("/api/fixed-income", methods=["GET"])
@@ -37,9 +37,9 @@ def get_fixed_income():
             if hasattr(simulation, "get_fixed_assets")
             else []
         )
-        return make_response(True, "Fixed income assets loaded.", fixed)
+        return make_response(True, "Fixed income assets loaded.", data=fixed)
     except Exception as e:
-        return make_response(False, f"Error loading fixed income: {e}", status_code=500)
+        return make_response(False, f"Error loading fixed income: {e}", 500)
 
 
 @income_bp.route("/api/fixed-income/<string:asset>", methods=["GET"])
@@ -53,7 +53,7 @@ def get_fixed_income_details(asset):
             else None
         )
         if not details:
-            return make_response(False, "Asset not found.", status_code=404)
+            return make_response(False, "Asset not found.", 404)
         return make_response(True, "Asset details loaded.", details)
     except Exception as e:
-        return make_response(False, f"Error getting details: {e}", status_code=500)
+        return make_response(False, f"Error getting details: {e}", 500)
