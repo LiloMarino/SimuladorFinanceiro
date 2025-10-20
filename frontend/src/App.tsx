@@ -53,7 +53,7 @@ export default function App() {
             <Route path="/lobby" element={<LobbyPage />} />
             <Route path="/import-assets" element={<ImportAssetsPage />} />
           </Routes>
-          <Toaster position="bottom-right" />
+          <Toaster position="bottom-right" richColors />
         </MainLayout>
       </BrowserRouter>
     </RealtimeProvider>

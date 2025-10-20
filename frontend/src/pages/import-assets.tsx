@@ -20,43 +20,44 @@ export default function ImportAssetsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingImport, setPendingImport] = useState<ImportFormData | null>(null);
 
-  const csvMutation = useFormDataMutation("/api/import-assets", {
-    onSuccess: () => toast.success("Importação CSV concluída!"),
-    onError: (err) => toast.error(err.message),
-  });
-
-  const yFinanceMutation = useMutationApi("/api/import-assets", {
-    onSuccess: () => toast.success("Importação via YFinance concluída!"),
-    onError: (err) => toast.error(err.message),
-  });
+  const csvMutation = useFormDataMutation("/api/import-assets");
+  const yFinanceMutation = useMutationApi("/api/import-assets");
 
   const handleConfirm = async () => {
     if (!pendingImport) return;
 
-    switch (pendingImport.type) {
-      case "csv": {
-        setDialogOpen(false);
+    setDialogOpen(false);
+    let toastId: string | number | undefined;
+
+    try {
+      // Mostra o toast de loading
+      toastId = toast.loading(
+        pendingImport.type === "csv" ? "Importando arquivo CSV..." : "Baixando dados via YFinance..."
+      );
+
+      if (pendingImport.type === "csv") {
         const formData = new FormData();
         const { csv_file, ticker, overwrite } = pendingImport.data;
         formData.append("action", "csv");
         formData.append("ticker", ticker);
         formData.append("overwrite", String(overwrite ?? false));
         formData.append("csv_file", csv_file);
-        await csvMutation.mutate(formData);
-        break;
-      }
 
-      case "yfinance": {
-        setDialogOpen(false);
+        await csvMutation.mutate(formData);
+        toast.success("Importação CSV concluída!", { id: toastId });
+      } else {
         await yFinanceMutation.mutate({
           action: "yfinance",
           ticker: pendingImport.data.ticker,
           overwrite: pendingImport.data.overwrite ?? false,
         });
-        break;
+        toast.success("Importação via YFinance concluída!", { id: toastId });
       }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao realizar a importação.", { id: toastId });
+    } finally {
+      setPendingImport(null);
     }
-    setPendingImport(null);
   };
 
   return (
