@@ -1,50 +1,33 @@
-import { useEffect, useState } from "react";
 import StockCard from "@/components/stock-card";
+import { Spinner } from "@/components/ui/spinner";
+import { useQueryApi } from "@/hooks/useQueryApi";
 import type { Stock } from "@/types";
-// import socket from "@/services/socket"; // placeholder para socket futuro
 
-interface VariableIncomePageProps {
-  initialStocks?: Stock[];
-}
+export default function VariableIncomePage() {
+  const { data: stocks, loading } = useQueryApi<Stock[]>("/api/variable-income", {
+    initialFetch: true,
+  });
 
-export default function VariableIncomePage({ initialStocks = [] }: VariableIncomePageProps) {
-  initialStocks.push({
-    change_pct: "0.00%",
-    high: 0,
-    low: 0,
-    name: "Apple Inc.",
-    price: 0,
-    ticker: "AAPL",
-  })
-  const [stocks, setStocks] = useState<Stock[]>(initialStocks);
-
-  useEffect(() => {
-    // Aqui você poderia fazer:
-    // socket.on("stocks_update", (data) => setStocks(data.stocks));
-
-    // Simulação de atualização periódica
-    const interval = setInterval(() => {
-      setStocks((prev) =>
-        prev.map((s) => ({
-          ...s,
-          price: s.price + (Math.random() - 0.5), // preço flutuando aleatório
-          low: s.low + (Math.random() - 0.5),
-          high: s.high + (Math.random() - 0.5),
-          change_pct: `${((Math.random() - 0.5) * 2).toFixed(2)}%`,
-        }))
-      );
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
+  console.log(stocks);
+  if (loading) {
+    return (
+      <section className="flex min-h-[80vh] items-center justify-center">
+        <Spinner className="h-8 w-8 text-muted-foreground" />
+      </section>
+    );
+  }
 
   return (
-    <section id="variable-income" className="section-content p-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {stocks.map((stock) => (
-          <StockCard key={stock.ticker} stock={stock} />
-        ))}
-      </div>
+    <section className="section-content p-4 ">
+      {stocks && stocks.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {stocks.map((stock) => (
+            <StockCard key={stock.ticker} stock={stock} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex justify-center items-center h-full text-muted-foreground">Nenhum ativo encontrado.</div>
+      )}
     </section>
   );
 }

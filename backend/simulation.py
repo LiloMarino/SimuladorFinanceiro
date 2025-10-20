@@ -47,6 +47,8 @@ class Simulation:
                     .first()
                 )
                 if ph:
+                    change = ph.close - ph.open
+                    change_pct = (change / ph.open * 100) if ph.open != 0 else 0
                     stocks.append(
                         {
                             "ticker": ph.ativos.ticker,
@@ -55,8 +57,10 @@ class Simulation:
                             "low": ph.low,
                             "high": ph.high,
                             "volume": ph.volume,
-                            "open": ph.open,  # <-- precisa estar aqui!
+                            "open": ph.open,
                             "date": ph.time.isoformat(),
+                            "change": round(change, 2),
+                            "change_pct": f"{change_pct:+.2f}%",
                         }
                     )
             return stocks

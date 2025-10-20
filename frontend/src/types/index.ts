@@ -13,6 +13,10 @@ export interface Stock {
   price: number;
   low: number;
   high: number;
+  volume: number;
+  open: number;
+  date: string;
+  change: number;
   change_pct: string; // ex: "+1.23%" ou "-0.45%"
 }
 
