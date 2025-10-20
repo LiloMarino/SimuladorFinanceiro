@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import CSVForm, { type CsvFormData } from "@/components/import-assets/csv-form";
 import YFinanceForm, { type YFinanceFormData } from "@/components/import-assets/yfinance-form";
+import { useMutationApi } from "@/hooks/useMutationApi";
+import { useFormDataMutation } from "@/hooks/useFormDataMutation";
+import { toast } from "sonner";
 
 type ImportFormData = { type: "csv"; data: CsvFormData } | { type: "yfinance"; data: YFinanceFormData };
 
@@ -17,20 +20,42 @@ export default function ImportAssetsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingImport, setPendingImport] = useState<ImportFormData | null>(null);
 
+  const csvMutation = useFormDataMutation("/api/import-assets", {
+    onSuccess: () => toast.success("Importação CSV concluída!"),
+    onError: (err) => toast.error(err.message),
+  });
+
+  const yFinanceMutation = useMutationApi("/api/import-assets", {
+    onSuccess: () => toast.success("Importação via YFinance concluída!"),
+    onError: (err) => toast.error(err.message),
+  });
+
   const handleConfirm = async () => {
     if (!pendingImport) return;
 
     switch (pendingImport.type) {
-      case "csv":
-        console.log("Enviando CSV:", pendingImport.data);
-        // await uploadCsv(pendingImport.data)
+      case "csv": {
+        setDialogOpen(false);
+        const formData = new FormData();
+        const { csv_file, ticker, overwrite } = pendingImport.data;
+        formData.append("action", "csv");
+        formData.append("ticker", ticker);
+        formData.append("overwrite", String(overwrite ?? false));
+        formData.append("csv_file", csv_file);
+        await csvMutation.mutate(formData);
         break;
-      case "yfinance":
-        console.log("Buscando via yFinance:", pendingImport.data);
-        // await importFromYFinance(pendingImport.data)
+      }
+
+      case "yfinance": {
+        setDialogOpen(false);
+        await yFinanceMutation.mutate({
+          action: "yfinance",
+          ticker: pendingImport.data.ticker,
+          overwrite: pendingImport.data.overwrite ?? false,
+        });
         break;
+      }
     }
-    setDialogOpen(false);
     setPendingImport(null);
   };
 

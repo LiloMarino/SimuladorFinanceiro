@@ -2,12 +2,12 @@ import { ApiResponseSchema } from "@/lib/schemas/api";
 import { useState } from "react";
 import type { ZodType } from "zod";
 
-interface UseMutationApiOptions<T = unknown, B = unknown> {
+interface UseMutationApiOptions<R = unknown, B = unknown> {
   readonly method?: "POST" | "PUT" | "DELETE";
   readonly headers?: Record<string, string>;
   readonly bodySchema?: ZodType<B>; // Schema para validar o body
-  readonly responseSchema?: ZodType<T>; // Schema para validar a resposta
-  readonly onSuccess?: (data: T) => void;
+  readonly responseSchema?: ZodType<R>; // Schema para validar a resposta
+  readonly onSuccess?: (data: R) => void;
   readonly onError?: (error: Error) => void;
 }
 
@@ -16,11 +16,11 @@ interface UseMutationApiOptions<T = unknown, B = unknown> {
  *
  * 👉 Use quando precisar enviar dados ou alterar estado no backend.
  */
-export function useMutationApi<T = unknown, B = unknown>(url: string, options?: Readonly<UseMutationApiOptions<T, B>>) {
+export function useMutationApi<R = unknown, B = unknown>(url: string, options?: Readonly<UseMutationApiOptions<R, B>>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const mutate = async (body: B): Promise<T> => {
+  const mutate = async (body: B): Promise<R> => {
     setLoading(true);
     setError(null);
 
@@ -37,7 +37,7 @@ export function useMutationApi<T = unknown, B = unknown>(url: string, options?: 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       const response = ApiResponseSchema.parse(json);
-      const data: T = options?.responseSchema ? options.responseSchema.parse(response.data) : response.data;
+      const data: R = options?.responseSchema ? options.responseSchema.parse(response.data) : response.data;
       options?.onSuccess?.(data);
 
       return data;

@@ -8,12 +8,12 @@ import { Button } from "../ui/button";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const ySchema = z.object({
+const yFinanceSchema = z.object({
   ticker: z.string().min(1, "Informe o código do ativo"),
   overwrite: z.boolean(),
 });
 
-export type YFinanceFormData = z.infer<typeof ySchema>;
+export type YFinanceFormData = z.infer<typeof yFinanceSchema>;
 
 interface YFinanceFormProps {
   onSubmit: (data: YFinanceFormData) => void;
@@ -21,7 +21,7 @@ interface YFinanceFormProps {
 
 export default function YFinanceForm({ onSubmit }: YFinanceFormProps) {
   const yForm = useForm<YFinanceFormData>({
-    resolver: zodResolver(ySchema),
+    resolver: zodResolver(yFinanceSchema),
     defaultValues: { ticker: "", overwrite: false },
   });
 

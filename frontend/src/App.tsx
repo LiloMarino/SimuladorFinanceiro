@@ -22,6 +22,7 @@ import StatisticsPage from "./pages/statistics";
 import LobbyPage from "./pages/lobby";
 import ImportAssetsPage from "./pages/import-assets";
 import { RealtimeProvider } from "@/context/realtime";
+import { Toaster } from "./components/ui/sonner";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -52,6 +53,7 @@ export default function App() {
             <Route path="/lobby" element={<LobbyPage />} />
             <Route path="/import-assets" element={<ImportAssetsPage />} />
           </Routes>
+          <Toaster position="bottom-right" />
         </MainLayout>
       </BrowserRouter>
     </RealtimeProvider>
