@@ -23,4 +23,5 @@ export interface Stock {
 export type SimulationEvents = {
   simulation_update: { currentDate: string };
   speed_update: { speed: number };
+  stocks_update: { stocks: Stock[] };
 };

@@ -1,14 +1,22 @@
 import StockCard from "@/components/stock-card";
 import { Spinner } from "@/components/ui/spinner";
 import { useQueryApi } from "@/hooks/useQueryApi";
+import { useRealtime } from "@/hooks/useRealtime";
 import type { Stock } from "@/types";
 
 export default function VariableIncomePage() {
-  const { data: stocks, loading } = useQueryApi<Stock[]>("/api/variable-income", {
+  const {
+    data: stocks,
+    setData: setStocks,
+    loading,
+  } = useQueryApi<Stock[]>("/api/variable-income", {
     initialFetch: true,
   });
 
-  console.log(stocks);
+  useRealtime("stocks_update", (data) => {
+    setStocks(data.stocks);
+  });
+
   if (loading) {
     return (
       <section className="flex min-h-[80vh] items-center justify-center">
