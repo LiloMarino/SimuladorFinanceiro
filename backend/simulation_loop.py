@@ -37,6 +37,10 @@ class SimulationLoopController:
                                 simulation.next_day()
                                 current_date = simulation.get_current_date_formatted()
                                 stocks = simulation.get_stocks()
+                                # TODO: Avaliar performance
+                                for stock in stocks:
+                                    ticker = stock["ticker"]
+                                    notify(f"stock_update:{ticker}", {"stock": stock})
 
                                 # Broadcast genérico (SSE ou WS)
                                 logger.info("Notificando clientes...")

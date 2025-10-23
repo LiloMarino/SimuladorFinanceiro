@@ -1,25 +1,42 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import clsx from "clsx";
 import { useParams } from "react-router-dom";
+import { useQueryApi } from "@/hooks/useQueryApi";
 import type { Stock } from "@/types";
+import { Spinner } from "@/components/ui/spinner";
+import { useRealtime } from "@/hooks/useRealtime";
 
 const TIME_SCALES = ["1w", "1m", "3m", "1y", "all"];
 
-export default function StockDetailPage() {
+export default function VariableIncomeDetailPage() {
   const { ticker } = useParams<{ ticker: string }>();
-  console.log("Ticker selecionado:", ticker);
   const [selectedScale, setSelectedScale] = useState("1w");
   const [quantity, setQuantity] = useState<number>(0);
-  const [stock, setStock] = useState<Stock | null>(null);
 
-  useEffect(() => {
-    if (!ticker) return;
+  const {
+    data: stock,
+    setData: setStock,
+    loading,
+  } = useQueryApi<Stock>(`/api/variable-income/${ticker}`, { initialFetch: true });
 
-    // Aqui você buscaria os dados da API ou socket
-    fetch(`/api/stocks/${ticker}`)
-      .then((res) => res.json())
-      .then((data) => setStock(data));
-  }, [ticker]);
+  // TODO: Avaliar performance
+  //   useRealtime("stocks_update", (data) => {
+  //   const stock = data.stocks.find((s) => s.ticker === ticker);
+  //   if (stock) setStock(stock);
+  // });
+  useRealtime(`stock_update:${ticker}`, (data) => {
+    setStock(data.stock);
+  });
+
+  if (loading) {
+    return (
+      <section className="flex min-h-[80vh] items-center justify-center">
+        <Spinner className="h-8 w-8 text-muted-foreground" />
+      </section>
+    );
+  } else if (!stock) {
+    return <div>Stock not found</div>;
+  }
 
   const handleBuy = () => {
     console.log(`Comprar ${quantity} ações de ${stock.ticker}`);
@@ -30,7 +47,6 @@ export default function StockDetailPage() {
     console.log(`Vender ${quantity} ações de ${stock.ticker}`);
     // integrar com API ou socket
   };
-
   return (
     <section id="stock-detail" className="section-content p-4">
       <div className="bg-white rounded-lg shadow p-6">

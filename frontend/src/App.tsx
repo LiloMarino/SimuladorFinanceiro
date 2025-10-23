@@ -12,7 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/pages/variable-income";
-import StockDetailPage from "@/pages/stock-details";
+import VariableIncomeDetailPage from "@/pages/variable-income-details";
 import PortfolioPage from "./pages/portfolio";
 import SettingsPage from "./pages/settings";
 import FixedIncomePage from "./pages/fixed-income";
@@ -43,7 +43,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<PortfolioPage />} />
             <Route path="/variable-income" element={<VariableIncomePage />} />
-            <Route path="/variable-income/:ticker" element={<StockDetailPage />} />
+            <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
             <Route path="/fixed-income" element={<FixedIncomePage />} />
             <Route path="/fixed-income/:product" element={<FixedIncomeDetailPage />} />
             <Route path="/portfolio" element={<PortfolioPage />} />

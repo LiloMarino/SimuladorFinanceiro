@@ -34,7 +34,7 @@ class Simulation:
     def get_speed(self) -> int:
         return self.__speed
 
-    def get_stocks(self) -> list[PrecoHistorico]:
+    def get_stocks(self) -> list:
         """Consulta o banco e retorna todos os ativos do dia atual."""
         with SessionLocal() as session:
             # Consulta todos os ativos
