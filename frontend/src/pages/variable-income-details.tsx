@@ -1,21 +1,16 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import clsx from "clsx";
 import { useParams } from "react-router-dom";
 import { useQueryApi } from "@/hooks/useQueryApi";
 import type { StockDetails } from "@/types";
 import { Spinner } from "@/components/ui/spinner";
 import { useRealtime } from "@/hooks/useRealtime";
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Area, AreaChart } from "recharts";
-import { format } from "date-fns";
+import { Card } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Plus, Minus } from "lucide-react";
-
-const TIME_SCALES = ["1s", "1m", "3m", "1a", "3a", "5a", "MAX"] as const;
-type TimeScale = (typeof TIME_SCALES)[number];
+import { StockChart } from "@/components/stock-chart";
 
 export default function VariableIncomeDetailPage() {
   const { ticker } = useParams<{ ticker: string }>();
-  const [selectedScale, setSelectedScale] = useState<TimeScale>("1s");
   const [quantity, setQuantity] = useState<number>(0);
 
   const {
@@ -27,19 +22,6 @@ export default function VariableIncomeDetailPage() {
   useRealtime(`stock_update:${ticker}`, (data) => {
     setStock(data.stock);
   });
-
-  const chartData = useMemo(
-    () =>
-      stock?.history?.map((h) => ({
-        time: h.date,
-        close: h.close,
-        formattedDate: format(new Date(h.date), "dd/MM"),
-      })) ?? [],
-    [stock?.history]
-  );
-
-  const chartMin = useMemo(() => (chartData.length ? Math.min(...chartData.map((d) => d.close)) : 0), [chartData]);
-  const chartMax = useMemo(() => (chartData.length ? Math.max(...chartData.map((d) => d.close)) : 0), [chartData]);
 
   if (loading) {
     return (
@@ -81,64 +63,7 @@ export default function VariableIncomeDetailPage() {
         </div>
 
         {/* Chart */}
-        <Card className="mb-8">
-          <CardHeader className="flex flex-row justify-between items-center">
-            <CardTitle className="text-base font-semibold">Histórico de Preços</CardTitle>
-            <div className="flex  divide-x divide-gray-300 rounded-md overflow-hidden">
-              {TIME_SCALES.map((scale) => (
-                <button
-                  key={scale}
-                  onClick={() => setSelectedScale(scale)}
-                  className={clsx(
-                    "px-3 py-1 text-sm transition-colors duration-200",
-                    selectedScale === scale ? "bg-blue-700 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                  )}
-                >
-                  {scale.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </CardHeader>
-
-          <CardContent className="h-64">
-            {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorClose" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="formattedDate" stroke="#888" />
-                  <YAxis stroke="#888" domain={[chartMin * 0.98, chartMax * 1.02]} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "var(--background)",
-                      border: "1px solid var(--border)",
-                      borderRadius: "0.5rem",
-                    }}
-                    formatter={(value: number) => [`R$ ${value.toFixed(2)}`, "Fechamento"]}
-                    labelFormatter={(label) => `Data: ${label}`}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="close"
-                    stroke="#3b82f6"
-                    strokeWidth={2}
-                    fill="url(#colorClose)"
-                    activeDot={{ r: 5, fill: "#3b82f6" }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground">
-                Nenhum dado de histórico disponível.
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <StockChart data={stock.history} />
 
         {/* Mini Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
