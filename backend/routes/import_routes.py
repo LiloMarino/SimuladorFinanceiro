@@ -47,7 +47,6 @@ def import_assets():
     action = data.get("action")
 
     try:
-        raise NotImplementedError
         if action == "yfinance":
             return handle_yfinance(data)
         elif action == "csv":

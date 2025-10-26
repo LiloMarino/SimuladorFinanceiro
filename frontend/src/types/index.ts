@@ -1,5 +1,6 @@
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
+/** Item de navegação (menu lateral, abas etc.) */
 export interface NavItem {
   key: string;
   label: string;
@@ -7,7 +8,8 @@ export interface NavItem {
   icon: IconDefinition;
 }
 
-export interface Stock {
+/** Dados de um ativo retornado na listagem geral */
+export type Stock = {
   ticker: string;
   name: string;
   price: number;
@@ -15,15 +17,39 @@ export interface Stock {
   high: number;
   volume: number;
   open: number;
-  date: string;
+  date: string; // ISO
   change: number;
-  change_pct: string; // ex: "+1.23%" ou "-0.45%"
-}
+  change_pct: string; // "+1.23%"
+};
 
+/** Registro histórico de preço (candlestick) */
+export type StockCandle = {
+  time: string; // ISO datetime
+  close: number;
+  open: number;
+  low: number;
+  high: number;
+  volume: number;
+};
+
+/** Detalhamento completo de um ativo (para a página individual) */
+export type StockDetails = {
+  ticker: string;
+  name: string;
+  price: number;
+  low: number;
+  high: number;
+  volume: number;
+  change: number;
+  change_pct: string; // corrigido para string
+  history: StockCandle[];
+};
+
+/** Eventos emitidos pelo servidor via WebSocket ou SSE */
 export type SimulationEvents = {
   simulation_update: { currentDate: string };
   speed_update: { speed: number };
   stocks_update: { stocks: Stock[] };
 } & {
-  [K in `stock_update:${string}`]: { stock: Stock };
+  [K in `stock_update:${string}`]: { stock: StockDetails };
 };
