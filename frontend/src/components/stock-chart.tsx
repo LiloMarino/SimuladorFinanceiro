@@ -18,16 +18,57 @@ export function StockChart({ data }: StockChartProps) {
   const [chartType, setChartType] = useState<ChartType>("line");
   const chartRef = useRef<HTMLDivElement>(null);
 
-  // Aqui você poderia filtrar `data` conforme selectedScale se quiser
-  const chartData = useMemo(() => data, [data]);
+  // Filtra os dados conforme selectedScale usando datas reais
+  const chartData = useMemo(() => {
+    if (!data || data.length === 0) return [];
+
+    const now = new Date(data[data.length - 1].date);
+    let fromDate: Date | null = null;
+
+    switch (selectedScale) {
+      case "1s":
+        fromDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 dias
+        break;
+      case "1m":
+        fromDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // ~1 mês
+        break;
+      case "3m":
+        fromDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000); // ~3 meses
+        break;
+      case "1a":
+        fromDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000); // 1 ano
+        break;
+      case "3a":
+        fromDate = new Date(now.getTime() - 3 * 365 * 24 * 60 * 60 * 1000); // 3 anos
+        break;
+      case "5a":
+        fromDate = new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000); // 5 anos
+        break;
+      case "MAX":
+        fromDate = null;
+        break;
+    }
+
+    if (!fromDate) return data;
+
+    return data.filter((d) => {
+      const candleDate = new Date(d.date);
+      return candleDate >= fromDate!;
+    });
+  }, [data, selectedScale]);
 
   useEffect(() => {
     if (!chartRef.current || chartData.length === 0) return;
 
     const chart = createChart(chartRef.current);
 
+    // Adiciona série de acordo com o tipo
     if (chartType === "line") {
-      const areaSeries = chart.addSeries(AreaSeries);
+      const areaSeries = chart.addSeries(AreaSeries, {
+        lineColor: "#2563eb", // azul principal (Tailwind blue-600)
+        topColor: "rgba(37, 99, 235, 0.3)", // azul claro com transparência
+        bottomColor: "rgba(37, 99, 235, 0.0)", // gradiente que some
+      });
       areaSeries.setData(chartData.map((d) => ({ time: d.date.split("T")[0], value: d.close })));
     } else {
       const candleSeries = chart.addSeries(CandlestickSeries);
@@ -42,6 +83,9 @@ export function StockChart({ data }: StockChartProps) {
       );
     }
 
+    // Ajusta a visualização para caber todos os dados filtrados
+    chart.timeScale().fitContent();
+
     return () => chart.remove();
   }, [chartData, chartType]);
 
@@ -52,7 +96,7 @@ export function StockChart({ data }: StockChartProps) {
 
         <div className="flex items-center gap-2">
           {/* TimeScale */}
-          <div className="flex  divide-x divide-gray-300 rounded-md overflow-hidden">
+          <div className="flex divide-x divide-gray-300 rounded-md overflow-hidden">
             {TIME_SCALES.map((scale) => (
               <button
                 key={scale}

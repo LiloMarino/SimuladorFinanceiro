@@ -4,13 +4,31 @@
     // Para obter mais informações, acesse: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
             "name": "Depurador do Python: Arquivo Atual",
             "type": "debugpy",
             "request": "launch",
             "program": "main.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug Vite App in Chrome",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/frontend/src",
+            "sourceMaps": true,
+            "skipFiles": [
+                "node_modules/**"
+            ]
+        },
+        {
+            "name": "Attach to Vite (Chrome)",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "webRoot": "${workspaceFolder}/frontend/src",
+            "sourceMaps": true
         }
     ]
 }
