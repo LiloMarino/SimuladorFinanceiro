@@ -24,7 +24,7 @@ export type Stock = {
 
 /** Registro histórico de preço (candlestick) */
 export type StockCandle = {
-  time: string; // ISO datetime
+  date: string; // ISO
   close: number;
   open: number;
   low: number;

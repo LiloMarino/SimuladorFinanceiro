@@ -82,7 +82,7 @@ class Simulation:
 
             hist_list = [
                 {
-                    "time": ph.time.isoformat(),
+                    "date": ph.time.isoformat(),
                     "close": ph.close,
                     "open": ph.open,
                     "low": ph.low,

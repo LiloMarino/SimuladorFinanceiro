@@ -31,9 +31,9 @@ export default function VariableIncomeDetailPage() {
   const chartData = useMemo(
     () =>
       stock?.history?.map((h) => ({
-        time: h.time,
+        time: h.date,
         close: h.close,
-        formattedDate: format(new Date(h.time), "dd/MM"),
+        formattedDate: format(new Date(h.date), "dd/MM"),
       })) ?? [],
     [stock?.history]
   );
