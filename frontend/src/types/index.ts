@@ -51,5 +51,5 @@ export type SimulationEvents = {
   speed_update: { speed: number };
   stocks_update: { stocks: Stock[] };
 } & {
-  [K in `stock_update:${string}`]: { stock: StockDetails };
+  [K in `stock_update:${string}`]: { stock: Stock };
 };

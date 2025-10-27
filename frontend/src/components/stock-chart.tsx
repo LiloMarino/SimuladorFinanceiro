@@ -1,32 +1,110 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import clsx from "clsx";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { AreaSeries, CandlestickSeries, createChart, CrosshairMode, LineStyle } from "lightweight-charts";
-import type { StockCandle } from "@/types";
+import {
+  AreaSeries,
+  CandlestickSeries,
+  createChart,
+  CrosshairMode,
+  LineStyle,
+  type AreaData,
+  type AreaSeriesOptions,
+  type AreaStyleOptions,
+  type CandlestickData,
+  type CandlestickSeriesOptions,
+  type CandlestickStyleOptions,
+  type DeepPartial,
+  type IChartApi,
+  type ISeriesApi,
+  type SeriesOptionsCommon,
+  type Time,
+  type WhitespaceData,
+} from "lightweight-charts";
 import { AreaChart, CandlestickChart } from "lucide-react";
 import { formatPrice } from "@/lib/utils/formatting";
+import { useRealtime } from "@/hooks/useRealtime";
+import type { StockCandle } from "@/types";
 
 const TIME_SCALES = ["1s", "1m", "3m", "1a", "3a", "5a", "MAX"] as const;
 type TimeScale = (typeof TIME_SCALES)[number];
 type ChartType = "line" | "candle";
+type AreaSeriesRef = ISeriesApi<
+  "Area",
+  Time,
+  AreaData<Time> | WhitespaceData<Time>,
+  AreaSeriesOptions,
+  DeepPartial<AreaStyleOptions & SeriesOptionsCommon>
+>;
+type CandlestickSeriesRef = ISeriesApi<
+  "Candlestick",
+  Time,
+  WhitespaceData<Time> | CandlestickData<Time>,
+  CandlestickSeriesOptions,
+  DeepPartial<CandlestickStyleOptions & SeriesOptionsCommon>
+>;
 
 interface StockChartProps {
-  data: StockCandle[];
+  ticker: string;
+  initialData: StockCandle[];
 }
 
-export function StockChart({ data }: StockChartProps) {
-  const [selectedScale, setSelectedScale] = useState<TimeScale>("1s");
+export function StockChart({ ticker, initialData }: StockChartProps) {
+  const [selectedScale, setSelectedScale] = useState<TimeScale>("1m");
   const [chartType, setChartType] = useState<ChartType>("line");
+  const chartInstance = useRef<IChartApi>(null);
   const chartRef = useRef<HTMLDivElement>(null);
+  const seriesRef = useRef<AreaSeriesRef | CandlestickSeriesRef | null>(null);
+  const historyRef = useRef<StockCandle[]>([...initialData]);
+
+  useRealtime(`stock_update:${ticker}`, ({ stock }) => {
+    const newCandle: StockCandle = {
+      date: stock.date,
+      open: stock.open,
+      close: stock.price,
+      low: stock.low,
+      high: stock.high,
+      volume: stock.volume,
+    };
+
+    const lastCandle = historyRef.current[historyRef.current.length - 1];
+
+    if (lastCandle?.date === newCandle.date) {
+      // Atualiza o último candle
+      historyRef.current[historyRef.current.length - 1] = newCandle;
+      seriesRef.current?.update(
+        chartType === "line"
+          ? { time: newCandle.date.split("T")[0], value: newCandle.close }
+          : {
+              time: newCandle.date.split("T")[0],
+              open: newCandle.open,
+              high: newCandle.high,
+              low: newCandle.low,
+              close: newCandle.close,
+            }
+      );
+    } else {
+      // Adiciona novo candle
+      historyRef.current.push(newCandle);
+      seriesRef.current?.update(
+        chartType === "line"
+          ? { time: newCandle.date.split("T")[0], value: newCandle.close }
+          : {
+              time: newCandle.date.split("T")[0],
+              open: newCandle.open,
+              high: newCandle.high,
+              low: newCandle.low,
+              close: newCandle.close,
+            }
+      );
+    }
+  });
 
   // Filtra os dados conforme selectedScale usando datas reais
-  const chartData = useMemo(() => {
-    if (!data || data.length === 0) return [];
-
-    const now = new Date(data[data.length - 1].date);
+  function getFilteredData(scale: TimeScale) {
+    const now = new Date(historyRef.current[historyRef.current.length - 1]?.date);
     let fromDate: Date | null = null;
 
-    switch (selectedScale) {
+    switch (scale) {
       case "1s":
         fromDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 dias
         break;
@@ -50,44 +128,43 @@ export function StockChart({ data }: StockChartProps) {
         break;
     }
 
-    if (!fromDate) return data;
-
-    return data.filter((d) => {
-      const candleDate = new Date(d.date);
-      return candleDate >= fromDate!;
-    });
-  }, [data, selectedScale]);
+    return fromDate ? historyRef.current.filter((d) => new Date(d.date) >= fromDate) : historyRef.current;
+  }
 
   useEffect(() => {
-    if (!chartRef.current || chartData.length === 0) return;
+    if (!chartRef.current) return;
 
-    const chart = createChart(chartRef.current, {
-      localization: {
-        priceFormatter: formatPrice,
-      },
+    chartInstance.current = createChart(chartRef.current, {
+      localization: { priceFormatter: formatPrice },
       crosshair: {
         mode: CrosshairMode.MagnetOHLC,
-        vertLine: {
-          style: LineStyle.Solid,
-        },
+        vertLine: { style: LineStyle.Solid },
       },
     });
+
+    // Filtra os dados conforme selectedScale
+    const filteredData = getFilteredData(selectedScale);
 
     // Adiciona série de acordo com o tipo
     if (chartType === "line") {
-      const areaSeries = chart.addSeries(AreaSeries, {
-        lineColor: "#2563eb", // azul principal (Tailwind blue-600)
-        topColor: "rgba(37, 99, 235, 0.3)", // azul claro com transparência
-        bottomColor: "rgba(37, 99, 235, 0.0)", // gradiente que some
+      const areaSeries = chartInstance.current.addSeries(AreaSeries, {
+        lineColor: "#2563eb",
+        topColor: "rgba(37, 99, 235, 0.3)",
+        bottomColor: "rgba(37, 99, 235, 0.0)",
       });
       areaSeries.priceScale().applyOptions({
         autoScale: false, // Desativa a escala automática no preço para manter a visualização fixa
       });
-      areaSeries.setData(chartData.map((d) => ({ time: d.date.split("T")[0], value: d.close })));
+      seriesRef.current = areaSeries;
+      areaSeries.setData(filteredData.map((d) => ({ time: d.date.split("T")[0], value: d.close })));
     } else {
-      const candleSeries = chart.addSeries(CandlestickSeries);
+      const candleSeries = chartInstance.current.addSeries(CandlestickSeries);
+      candleSeries.priceScale().applyOptions({
+        autoScale: false, // Desativa a escala automática no preço para manter a visualização fixa
+      });
+      seriesRef.current = candleSeries;
       candleSeries.setData(
-        chartData.map((d) => ({
+        filteredData.map((d) => ({
           time: d.date.split("T")[0],
           open: d.open,
           high: d.high,
@@ -95,16 +172,13 @@ export function StockChart({ data }: StockChartProps) {
           close: d.close,
         }))
       );
-      candleSeries.priceScale().applyOptions({
-        autoScale: false, // Desativa a escala automática no preço para manter a visualização fixa
-      });
     }
 
     // Ajusta a visualização para caber todos os dados filtrados
-    chart.timeScale().fitContent();
+    chartInstance.current.timeScale().fitContent();
 
-    return () => chart.remove();
-  }, [chartData, chartType]);
+    return () => chartInstance.current?.remove();
+  }, [chartType, selectedScale]);
 
   return (
     <Card className="mb-8">
@@ -155,7 +229,7 @@ export function StockChart({ data }: StockChartProps) {
       </CardHeader>
 
       <CardContent className="h-100">
-        {chartData.length > 0 ? (
+        {historyRef.current.length > 0 ? (
           <div ref={chartRef} className="w-full h-full" />
         ) : (
           <div className="h-full flex items-center justify-center text-muted-foreground">

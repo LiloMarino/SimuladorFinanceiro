@@ -28,7 +28,6 @@ export default function Topbar({ pageLabel }: TopbarProps) {
   const { mutate: setSpeedApi, loading } = useMutationApi<{ speed: number }>("/api/set-speed", {
     onSuccess: (data) => {
       setSimData((prev) => ({ ...prev, speed: data.speed }));
-      console.log("Velocidade atualizada:", data);
     },
     onError: (err) => {
       console.error("Erro ao alterar velocidade:", err);

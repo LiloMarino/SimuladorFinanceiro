@@ -14,15 +14,15 @@ export class SocketClient<
     this.socket = io(baseUrl, { autoConnect: true, path: "/socket.io", transports: ["websocket"] });
 
     this.socket.onAny((event: string, payload: unknown) => {
-      console.info("[SocketClient] event", event, payload);
+      console.debug("[SocketClient] event", event, payload);
       this.notify(event as keyof TEvents, payload as TEvents[keyof TEvents]);
     });
 
-    this.socket.on("connect", () => console.info("[SocketClient] connected"));
-    this.socket.on("disconnect", () => console.info("[SocketClient] disconnected"));
+    this.socket.on("connect", () => console.debug("[SocketClient] connected"));
+    this.socket.on("disconnect", () => console.debug("[SocketClient] disconnected"));
 
     this.socket.on("subscribed", (payload) => {
-      console.info("[SocketClient] subscription confirmed", payload);
+      console.debug("[SocketClient] subscription confirmed", payload);
     });
   }
 

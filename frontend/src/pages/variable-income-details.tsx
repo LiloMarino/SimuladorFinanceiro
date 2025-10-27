@@ -19,8 +19,8 @@ export default function VariableIncomeDetailPage() {
     loading,
   } = useQueryApi<StockDetails>(`/api/variable-income/${ticker}`, { initialFetch: true });
 
-  useRealtime(`stock_update:${ticker}`, (data) => {
-    setStock(data.stock);
+  useRealtime(`stock_update:${ticker}`, ({ stock }) => {
+    setStock((prev) => ({ ...prev, ...stock }));
   });
 
   if (loading) {
@@ -63,7 +63,7 @@ export default function VariableIncomeDetailPage() {
         </div>
 
         {/* Chart */}
-        <StockChart data={stock.history} />
+        <StockChart ticker={stock.ticker} initialData={stock.history} />
 
         {/* Mini Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
