@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import clsx from "clsx";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { AreaSeries, CandlestickSeries, createChart } from "lightweight-charts";
+import { AreaSeries, CandlestickSeries, createChart, CrosshairMode, LineStyle } from "lightweight-charts";
 import type { StockCandle } from "@/types";
 import { AreaChart, CandlestickChart } from "lucide-react";
+import { formatPrice } from "@/lib/utils/formatting";
 
 const TIME_SCALES = ["1s", "1m", "3m", "1a", "3a", "5a", "MAX"] as const;
 type TimeScale = (typeof TIME_SCALES)[number];
@@ -60,7 +61,17 @@ export function StockChart({ data }: StockChartProps) {
   useEffect(() => {
     if (!chartRef.current || chartData.length === 0) return;
 
-    const chart = createChart(chartRef.current);
+    const chart = createChart(chartRef.current, {
+      localization: {
+        priceFormatter: formatPrice,
+      },
+      crosshair: {
+        mode: CrosshairMode.MagnetOHLC,
+        vertLine: {
+          style: LineStyle.Solid,
+        },
+      },
+    });
 
     // Adiciona série de acordo com o tipo
     if (chartType === "line") {
@@ -68,6 +79,9 @@ export function StockChart({ data }: StockChartProps) {
         lineColor: "#2563eb", // azul principal (Tailwind blue-600)
         topColor: "rgba(37, 99, 235, 0.3)", // azul claro com transparência
         bottomColor: "rgba(37, 99, 235, 0.0)", // gradiente que some
+      });
+      areaSeries.priceScale().applyOptions({
+        autoScale: false, // Desativa a escala automática no preço para manter a visualização fixa
       });
       areaSeries.setData(chartData.map((d) => ({ time: d.date.split("T")[0], value: d.close })));
     } else {
@@ -81,6 +95,9 @@ export function StockChart({ data }: StockChartProps) {
           close: d.close,
         }))
       );
+      candleSeries.priceScale().applyOptions({
+        autoScale: false, // Desativa a escala automática no preço para manter a visualização fixa
+      });
     }
 
     // Ajusta a visualização para caber todos os dados filtrados
@@ -137,7 +154,7 @@ export function StockChart({ data }: StockChartProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="h-64">
+      <CardContent className="h-100">
         {chartData.length > 0 ? (
           <div ref={chartRef} className="w-full h-full" />
         ) : (
