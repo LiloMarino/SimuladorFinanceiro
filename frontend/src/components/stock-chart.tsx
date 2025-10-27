@@ -26,6 +26,16 @@ import { useRealtime } from "@/hooks/useRealtime";
 import type { StockCandle } from "@/types";
 
 const TIME_SCALES = ["1s", "1m", "3m", "1a", "3a", "5a", "MAX"] as const;
+const SCALE_DAYS: Record<TimeScale, number | null> = {
+  "1s": 7, // 7 dias
+  "1m": 30, // 1 mês
+  "3m": 90, // 3 meses
+  "1a": 365, // 1 ano
+  "3a": 3 * 365,
+  "5a": 5 * 365,
+  MAX: null, // Tudo
+} as const;
+
 type TimeScale = (typeof TIME_SCALES)[number];
 type ChartType = "line" | "candle";
 type AreaSeriesRef = ISeriesApi<
@@ -96,33 +106,14 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
   // Filtra os dados conforme selectedScale usando datas reais
   function getFilteredData(scale: TimeScale) {
     const now = new Date(historyRef.current[historyRef.current.length - 1]?.date);
-    let fromDate: Date | null = null;
+    const days = SCALE_DAYS[scale];
 
-    switch (scale) {
-      case "1s":
-        fromDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 dias
-        break;
-      case "1m":
-        fromDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // ~1 mês
-        break;
-      case "3m":
-        fromDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000); // ~3 meses
-        break;
-      case "1a":
-        fromDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000); // 1 ano
-        break;
-      case "3a":
-        fromDate = new Date(now.getTime() - 3 * 365 * 24 * 60 * 60 * 1000); // 3 anos
-        break;
-      case "5a":
-        fromDate = new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000); // 5 anos
-        break;
-      case "MAX":
-        fromDate = null;
-        break;
-    }
+    if (days === null) return historyRef.current;
 
-    return fromDate ? historyRef.current.filter((d) => new Date(d.date) >= fromDate) : historyRef.current;
+    const fromDate = new Date(now);
+    fromDate.setDate(now.getDate() - days);
+
+    return historyRef.current.filter((d) => new Date(d.date) >= fromDate);
   }
 
   useEffect(() => {
