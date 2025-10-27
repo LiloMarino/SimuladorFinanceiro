@@ -3,7 +3,7 @@ from typing import Union
 from flask import Blueprint, request
 from werkzeug.datastructures import FileStorage
 
-from backend.data_loader import update_from_csv, update_from_yfinance
+from backend.data_importer import update_from_csv, update_from_yfinance
 from backend.routes.helpers import make_response
 
 import_bp = Blueprint("import", __name__)
