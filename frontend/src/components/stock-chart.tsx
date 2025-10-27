@@ -219,6 +219,15 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
               <CandlestickChart className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Botão Realtime */}
+          <button
+            onClick={() => chartInstance.current?.timeScale().scrollToRealTime()}
+            className="ml-2 px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+            title="Ir para o realtime"
+          >
+            Realtime
+          </button>
         </div>
       </CardHeader>
 
