@@ -20,7 +20,11 @@ export default function VariableIncomeDetailPage() {
   } = useQueryApi<StockDetails>(`/api/variable-income/${ticker}`, { initialFetch: true });
 
   useRealtime(`stock_update:${ticker}`, ({ stock }) => {
-    setStock((prev) => ({ ...prev, ...stock }));
+    setStock((prev) => ({
+      ...prev,
+      ...stock,
+      history: prev?.history ?? [],
+    }));
   });
 
   if (loading) {

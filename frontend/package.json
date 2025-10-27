@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --build --noEmit",
     "check": "npm run lint && npm run type-check"
   },
   "dependencies": {

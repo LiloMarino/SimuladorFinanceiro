@@ -71,31 +71,25 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
     if (lastCandle?.date === newCandle.date) {
       // Atualiza o último candle
       historyRef.current[historyRef.current.length - 1] = newCandle;
-      seriesRef.current?.update(
-        chartType === "line"
-          ? { time: newCandle.date.split("T")[0], value: newCandle.close }
-          : {
-              time: newCandle.date.split("T")[0],
-              open: newCandle.open,
-              high: newCandle.high,
-              low: newCandle.low,
-              close: newCandle.close,
-            }
-      );
     } else {
       // Adiciona novo candle
       historyRef.current.push(newCandle);
-      seriesRef.current?.update(
-        chartType === "line"
-          ? { time: newCandle.date.split("T")[0], value: newCandle.close }
-          : {
-              time: newCandle.date.split("T")[0],
-              open: newCandle.open,
-              high: newCandle.high,
-              low: newCandle.low,
-              close: newCandle.close,
-            }
-      );
+    }
+
+    // Atualiza a série com tipagem correta
+    if (chartType === "line") {
+      (seriesRef.current as AreaSeriesRef)?.update({
+        time: newCandle.date.split("T")[0],
+        value: newCandle.close,
+      });
+    } else {
+      (seriesRef.current as CandlestickSeriesRef)?.update({
+        time: newCandle.date.split("T")[0],
+        open: newCandle.open,
+        high: newCandle.high,
+        low: newCandle.low,
+        close: newCandle.close,
+      });
     }
   });
 
