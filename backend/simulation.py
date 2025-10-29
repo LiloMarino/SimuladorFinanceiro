@@ -1,9 +1,16 @@
 from datetime import datetime, timedelta
 
+import backtrader as bt
 from flask import current_app
 
 from backend import logger_utils
-from backend.data_provider import get_stock_details, get_stocks
+from backend.data_provider import (
+    get_all_tickers,
+    get_feed,
+    get_stock_details,
+    get_stocks,
+)
+from backend.strategy.manual import ManualStrategy
 
 logger = logger_utils.setup_logger(__name__)
 
@@ -13,6 +20,13 @@ class Simulation:
         self.__speed = 0
         self.__current_date = start_date
         self.__end_date = end_date
+        self.cerebro = bt.Cerebro()
+        tickers = get_all_tickers()
+        for ticker in tickers:
+            feed = get_feed(ticker, start_date, end_date)
+            self.cerebro.adddata(feed, name=ticker)
+        self.cerebro.broker.setcash(10000)
+        self.cerebro.addstrategy(ManualStrategy)
 
     def next_day(self):
         """Avança um dia na simulação."""

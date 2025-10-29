@@ -1,7 +1,13 @@
 from datetime import datetime
 
+import backtrader as bt
+import pandas as pd
+
 from backend.database import SessionLocal
+from backend.logger_utils import setup_logger
 from backend.models.models import Ativos, PrecoHistorico
+
+logger = setup_logger(__name__)
 
 
 def get_stocks(current_date: datetime) -> list:
@@ -82,3 +88,69 @@ def get_stock_details(ticker: str, current_date: datetime) -> dict | None:
             ),
             "history": hist_list,
         }
+
+
+def get_feed(
+    ticker: str,
+    start_date: datetime,
+    end_date: datetime,
+) -> bt.feeds.PandasData:
+    with SessionLocal() as session:
+        # Buscar o ID do ativo
+        ativo = session.query(Ativos).filter_by(ticker=ticker).first()
+        if not ativo:
+            raise ValueError(f"Ativo '{ticker}' não encontrado.")
+
+        # Consultar o histórico de preços
+        query = (
+            session.query(PrecoHistorico)
+            .filter(PrecoHistorico.ativos_id == ativo.ativos_id)
+            .filter(PrecoHistorico.time >= start_date)
+            .filter(PrecoHistorico.time <= end_date)
+            .order_by(PrecoHistorico.time.asc())
+        )
+
+        registros = query.all()
+        if not registros:
+            raise ValueError(f"Nenhum dado encontrado para {ticker} nesse período.")
+
+        # Converter para DataFrame
+        df = pd.DataFrame(
+            [
+                {
+                    "datetime": r.time,
+                    "open": float(r.open),
+                    "high": float(r.high),
+                    "low": float(r.low),
+                    "close": float(r.close),
+                    "volume": int(r.volume),
+                }
+                for r in registros
+            ]
+        )
+
+        # Ajustar índice
+        df.set_index("datetime", inplace=True)
+        df.sort_index(inplace=True)
+
+        #  Criar feed do Backtrader
+        data_feed = bt.feeds.PandasData(
+            dataname=df,
+            fromdate=start_date,
+            todate=end_date,
+        )
+
+        return data_feed
+
+
+def get_all_tickers() -> list[str]:
+    """
+    Retorna uma lista com todos os tickers cadastrados no banco de dados.
+
+    Returns:
+        List[str]: Lista de tickers, ex: ["PETR4", "VALE3", "ITUB4", ...]
+    """
+    with SessionLocal() as session:
+        tickers = [ativo.ticker for ativo in session.query(Ativos.ticker).all()]
+        logger.info(f"{len(tickers)} tickers carregados do banco de dados.")
+        return tickers
