@@ -18,7 +18,6 @@ class Simulation:
         self.__speed = 0
         self.__current_date = start_date
         self.__end_date = end_date
-        self._orders: list[tuple[str, str, int]] = []  # (action, ticker, quantity)
 
         # Configura o Cerebro
         self.cerebro = CustomCerebro()
@@ -52,12 +51,3 @@ class Simulation:
 
     def get_stock_details(self, ticker: str) -> dict | None:
         return get_stock_details(ticker, self.__current_date)
-
-    def queue_order(self, action: str, ticker: str, quantity: int):
-        logger.info(f"Ordem enfileirada: {action} {quantity}x {ticker}")
-        self._orders.append((action, ticker, quantity))
-
-    def pop_orders(self) -> list[tuple[str, str, int]]:
-        orders = self._orders[:]
-        self._orders.clear()
-        return orders

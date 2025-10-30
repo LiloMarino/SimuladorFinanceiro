@@ -2,6 +2,7 @@ from flask import Blueprint, request
 
 from backend.routes.helpers import make_response
 from backend.simulation import get_simulation
+from backend.strategy.manual import ManualStrategy
 
 operation_bp = Blueprint("operation", __name__)
 
@@ -33,8 +34,7 @@ def buy_stock(asset):
     quantity = data.get("quantity")
     if not quantity:
         return make_response(False, "Quantity is required.", 422)
-    simulation = get_simulation()
-    simulation.queue_order("buy", asset, quantity)
+    ManualStrategy.queue_order("buy", asset, quantity)
     return make_response(True, "Order queued successfully.")
 
 
@@ -44,8 +44,7 @@ def sell_stock(asset):
     quantity = data.get("quantity")
     if not quantity:
         return make_response(False, "Quantity is required.", 422)
-    simulation = get_simulation()
-    simulation.queue_order("sell", asset, quantity)
+    ManualStrategy.queue_order("sell", asset, quantity)
     return make_response(True, "Order queued successfully.")
 
 
