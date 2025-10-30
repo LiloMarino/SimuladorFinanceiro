@@ -34,7 +34,7 @@ class SimulationLoopController:
                         speed = simulation.get_speed()
                         if speed > 0:
                             try:
-                                simulation.next_day()
+                                simulation.next_tick()
                                 current_date = simulation.get_current_date_formatted()
                                 stocks = simulation.get_stocks()
                                 # TODO: Avaliar performance

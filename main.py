@@ -28,7 +28,7 @@ from backend.realtime.sse_broker import SSEBroker
 from backend.realtime.ws_broker import SocketBroker
 from backend.realtime.ws_handlers import register_ws_handlers
 from backend.routes import register_routes
-from backend.simulation import get_simulation
+from backend.simulation_loop import start_simulation_loop
 
 BACKEND_DIR = Path("backend")
 SECRET_PATH = Path("secret.key")
@@ -73,9 +73,7 @@ if __name__ == "__main__":
         app.config["realtime_broker"] = SocketBroker(socketio)
         logger.info("Rodando em modo WebSocket (SocketIO).")
         register_ws_handlers(socketio)
-        with app.app_context():
-            sim = get_simulation()
-            sim.start()
+        start_simulation_loop(app)
         socketio.run(app, debug=True)
 
     # ------------------------------------------------------------
@@ -84,7 +82,5 @@ if __name__ == "__main__":
     else:
         app.config["realtime_broker"] = SSEBroker()
         logger.info("Rodando em modo SSE (Server-Sent Events).")
-        with app.app_context():
-            sim = get_simulation()
-            sim.start()
+        start_simulation_loop(app)
         app.run(debug=True, threaded=True)
