@@ -29,7 +29,6 @@ from backend.realtime.ws_broker import SocketBroker
 from backend.realtime.ws_handlers import register_ws_handlers
 from backend.routes import register_routes
 from backend.simulation import get_simulation
-from backend.simulation_loop import start_simulation_loop
 
 BACKEND_DIR = Path("backend")
 SECRET_PATH = Path("secret.key")
