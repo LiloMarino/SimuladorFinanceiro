@@ -8,14 +8,23 @@ portfolio_bp = Blueprint("portfolio", __name__)
 
 @portfolio_bp.route("/api/portfolio", methods=["GET"])
 def get_portfolio():
-    """Return portfolio composition."""
     try:
         simulation = get_simulation()
-        portfolio_data = (
-            simulation.get_portfolio() if hasattr(simulation, "get_portfolio") else {}
-        )
+        portfolio_data = simulation.get_portfolio()
         return make_response(
             True, "Portfolio loaded successfully.", data=portfolio_data
         )
     except Exception as e:
         return make_response(False, f"Error loading portfolio: {e}", 500)
+
+
+@portfolio_bp.route("/api/portfolio/cash", methods=["GET"])
+def get_cash():
+    try:
+        simulation = get_simulation()
+        cash = simulation.get_cash()
+        return make_response(
+            True, "Cash balance loaded successfully.", data={"cash": cash}
+        )
+    except Exception as e:
+        return make_response(False, f"Error loading cash balance: {e}", 500)

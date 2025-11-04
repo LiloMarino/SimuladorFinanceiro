@@ -48,3 +48,19 @@ class Simulation:
 
     def get_stock_details(self, ticker: str) -> dict | None:
         return get_stock_details(ticker, self._current_date)
+
+    def get_portfolio(self) -> list[dict]:
+        positions = self._engine.get_positions()
+        portfolio = []
+        for ticker, pos in positions.items():
+            portfolio.append(
+                {
+                    "ticker": pos.ticker,
+                    "size": pos.size,
+                    "avg_price": pos.avg_price,
+                }
+            )
+        return portfolio
+
+    def get_cash(self) -> float:
+        return self._engine.get_cash()
