@@ -8,6 +8,8 @@ import { useRealtime } from "@/hooks/useRealtime";
 import { Card } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Plus, Minus } from "lucide-react";
 import { StockChart } from "@/components/stock-chart";
+import { useMutationApi } from "@/hooks/useMutationApi";
+import { toast } from "sonner";
 
 export default function VariableIncomeDetailPage() {
   const { ticker } = useParams<{ ticker: string }>();
@@ -27,6 +29,26 @@ export default function VariableIncomeDetailPage() {
     }));
   });
 
+  const buyMutation = useMutationApi(`/api/variable-income/${ticker}/buy`, {
+    onSuccess: () => {
+      toast.success("Ordem de compra enviada com sucesso!");
+      setQuantity(0);
+    },
+    onError: (err) => {
+      toast.error(`Erro ao enviar ordem de compra: ${err.message}`);
+    },
+  });
+
+  const sellMutation = useMutationApi(`/api/variable-income/${ticker}/sell`, {
+    onSuccess: () => {
+      toast.success("Ordem de venda enviada com sucesso!");
+      setQuantity(0);
+    },
+    onError: (err) => {
+      toast.error(`Erro ao enviar ordem de venda: ${err.message}`);
+    },
+  });
+
   if (loading) {
     return (
       <section className="flex min-h-[80vh] items-center justify-center">
@@ -37,10 +59,23 @@ export default function VariableIncomeDetailPage() {
     return <div>Stock not found</div>;
   }
 
-  const handleBuy = () => console.log(`Comprar ${quantity} ações de ${stock.ticker}`);
-  const handleSell = () => console.log(`Vender ${quantity} ações de ${stock.ticker}`);
+  const handleBuy = async () => {
+    if (!quantity || quantity <= 0) {
+      toast.warning("Informe uma quantidade válida para comprar.");
+      return;
+    }
+    await buyMutation.mutate({ quantity });
+  };
+
+  const handleSell = async () => {
+    if (!quantity || quantity <= 0) {
+      toast.warning("Informe uma quantidade válida para vender.");
+      return;
+    }
+    await sellMutation.mutate({ quantity });
+  };
   const isPositive = stock.change >= 0;
-  const totalCompra = quantity > 0 ? quantity * stock.price : 0;
+  const totalOperation = quantity > 0 ? quantity * stock.price : 0;
 
   return (
     <section id="stock-detail" className="section-content p-4">
@@ -95,27 +130,47 @@ export default function VariableIncomeDetailPage() {
                   type="number"
                   placeholder="Quantidade"
                   value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  min={0}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    setQuantity(value >= 0 ? value : 0);
+                  }}
                   className="flex-1 p-2 border rounded-md"
                 />
                 <button
-                  className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md flex items-center justify-center gap-1"
+                  className={clsx(
+                    "bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md flex items-center justify-center gap-1",
+                    buyMutation.loading && "opacity-70 cursor-not-allowed"
+                  )}
                   onClick={handleBuy}
+                  disabled={buyMutation.loading}
                 >
-                  <Plus className="w-4 h-4" /> Comprar
+                  {buyMutation.loading ? <Spinner className="h-4 w-4 text-white" /> : <Plus className="w-4 h-4" />}
+                  Comprar
                 </button>
+
                 <button
-                  className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md flex items-center justify-center gap-1"
+                  className={clsx(
+                    "bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md flex items-center justify-center gap-1",
+                    sellMutation.loading && "opacity-70 cursor-not-allowed"
+                  )}
                   onClick={handleSell}
+                  disabled={sellMutation.loading}
                 >
-                  <Minus className="w-4 h-4" /> Vender
+                  {sellMutation.loading ? <Spinner className="h-4 w-4 text-white" /> : <Minus className="w-4 h-4" />}
+                  Vender
                 </button>
               </div>
 
-              {/* Total da compra atual */}
-              <div className="flex justify-between items-center text-sm border-t pt-3 mt-2">
-                <span className="text-muted-foreground">Total da compra atual:</span>
-                <span className="font-semibold">R$ {totalCompra.toFixed(2)}</span>
+              {/* Total estimado */}
+              <div className="flex flex-col gap-1 border-t pt-3 mt-2 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Total estimado da operação:</span>
+                  <span className="font-semibold">R$ {totalOperation.toFixed(2)}</span>
+                </div>
+                <p className="text-xs text-muted-foreground italic">
+                  * O preço pode variar do mostrado, conforme atualização do mercado.
+                </p>
               </div>
             </div>
           </Card>
