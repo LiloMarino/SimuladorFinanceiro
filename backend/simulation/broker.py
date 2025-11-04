@@ -1,0 +1,67 @@
+from dataclasses import dataclass
+from typing import Dict
+
+
+@dataclass
+class Position:
+    """Representa uma posição aberta em um ativo."""
+
+    ticker: str
+    size: int = 0
+    avg_price: float = 0.0
+
+    def update_buy(self, price: float, size: int):
+        """Atualiza posição após uma compra."""
+        if self.size + size == 0:
+            self.avg_price = price
+        else:
+            total_cost = self.avg_price * self.size + price * size
+            self.size += size
+            self.avg_price = total_cost / self.size
+
+    def update_sell(self, size: int):
+        """Atualiza posição após uma venda."""
+        self.size -= size
+        if self.size < 0:
+            raise ValueError("Venda excede posição disponível.")
+
+
+class Broker:
+    def __init__(self, starting_cash: float = 10000.0):
+        self._cash: float = starting_cash
+        self._positions: Dict[str, Position] = {}
+
+    def get_cash(self) -> float:
+        return self._cash
+
+    def set_cash(self, cash: float):
+        self._cash = cash
+
+    def get_positions(self) -> Dict[str, Position]:
+        return self._positions
+
+    def buy(self, ticker: str, price: float, size: int):
+        cost = price * size
+        if self._cash < cost:
+            raise ValueError(f"Saldo insuficiente para comprar {ticker}")
+
+        self._cash -= cost
+        pos = self._positions.get(ticker, Position(ticker))
+        pos.update_buy(price, size)
+        self._positions[ticker] = pos
+
+    def sell(self, ticker: str, price: float, size: int):
+        if ticker not in self._positions:
+            raise ValueError(f"Sem posição em {ticker} para vender")
+
+        pos = self._positions[ticker]
+        if pos.size < size:
+            raise ValueError(f"Sem quantidade suficiente de {ticker} para vender")
+
+        self._cash += price * size
+        pos.update_sell(size)
+
+        if pos.size == 0:
+            del self._positions[ticker]
+        else:
+            self._positions[ticker] = pos
