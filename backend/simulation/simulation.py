@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from backend import logger_utils
 from backend.data_provider import get_stock_details, get_stocks
+from backend.simulation.entities.position import Position
 from backend.simulation.simulation_engine import SimulationEngine
 from backend.strategy.manual import ManualStrategy
 
@@ -61,6 +62,10 @@ class Simulation:
                 }
             )
         return portfolio
+
+    def get_portfolio_ticker(self, ticker: str) -> Position | None:
+        positions = self._engine.get_positions()
+        return positions.get(ticker)
 
     def get_cash(self) -> float:
         return self._engine.get_cash()

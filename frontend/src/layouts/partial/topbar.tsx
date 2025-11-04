@@ -2,15 +2,11 @@ import clsx from "clsx";
 import { useMutationApi } from "@/hooks/useMutationApi";
 import { useRealtime } from "@/hooks/useRealtime";
 import { useQueryApi } from "@/hooks/useQueryApi";
+import type { SimulationState } from "@/types";
+import { formatCash } from "@/lib/utils/formatting";
 
 interface TopbarProps {
   pageLabel: string;
-}
-
-interface SimulationState {
-  currentDate?: string;
-  speed?: number;
-  cash?: number;
 }
 
 const SPEED_OPTIONS = [0, 1, 2, 4, 10];
@@ -46,14 +42,6 @@ export default function Topbar({ pageLabel }: TopbarProps) {
   const handleSpeedChange = (newSpeed: number) => {
     if (newSpeed === simData?.speed) return;
     setSpeedApi({ speed: newSpeed });
-  };
-
-  const formatCash = (cash?: number) => {
-    if (cash === undefined) return "--";
-    return cash.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
   };
 
   return (

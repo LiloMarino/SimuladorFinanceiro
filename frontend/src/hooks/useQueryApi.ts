@@ -19,7 +19,7 @@ export function useQueryApi<R = unknown>(url: string, options?: Readonly<UseQuer
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchData = useCallback(async (): Promise<R> => {
+  const query = useCallback(async (): Promise<R> => {
     setLoading(true);
     setError(null);
 
@@ -42,9 +42,9 @@ export function useQueryApi<R = unknown>(url: string, options?: Readonly<UseQuer
 
   useEffect(() => {
     if (options?.initialFetch) {
-      void fetchData();
+      void query();
     }
-  }, [fetchData, options?.initialFetch]);
+  }, [query, options?.initialFetch]);
 
-  return { data, setData, error, loading, fetchData };
+  return { data, setData, error, loading, query };
 }

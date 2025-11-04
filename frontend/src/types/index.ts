@@ -45,6 +45,18 @@ export type StockDetails = {
   history: StockCandle[];
 };
 
+export type Position = {
+  ticker: string;
+  size: number;
+  avg_price: number;
+};
+
+export type SimulationState = {
+  currentDate?: string;
+  speed?: number;
+  cash?: number;
+};
+
 /** Eventos emitidos pelo servidor via WebSocket ou SSE */
 export type SimulationEvents = {
   simulation_update: { currentDate: string };

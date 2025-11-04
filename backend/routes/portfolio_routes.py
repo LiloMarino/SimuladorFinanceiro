@@ -18,6 +18,31 @@ def get_portfolio():
         return make_response(False, f"Error loading portfolio: {e}", 500)
 
 
+@portfolio_bp.route("/api/portfolio/<string:ticker>", methods=["GET"])
+def get_portfolio_ticker(ticker):
+    try:
+        simulation = get_simulation()
+        position = simulation.get_portfolio_ticker(ticker)
+
+        if not position:
+            return make_response(
+                False, f"Ticker '{ticker}' não encontrado no portfólio.", 404
+            )
+
+        data = {
+            "ticker": position.ticker,
+            "size": position.size,
+            "avg_price": position.avg_price,
+        }
+
+        return make_response(
+            True, "Portfolio ticker data loaded successfully.", data=data
+        )
+
+    except Exception as e:
+        return make_response(False, f"Error loading portfolio ticker data: {e}", 500)
+
+
 @portfolio_bp.route("/api/portfolio/cash", methods=["GET"])
 def get_cash():
     try:

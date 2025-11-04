@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import clsx from "clsx";
 import { useParams } from "react-router-dom";
 import { useQueryApi } from "@/hooks/useQueryApi";
-import type { StockDetails } from "@/types";
+import type { Position, SimulationState, StockDetails } from "@/types";
 import { Spinner } from "@/components/ui/spinner";
 import { useRealtime } from "@/hooks/useRealtime";
 import { Card } from "@/components/ui/card";
@@ -10,10 +10,12 @@ import { TrendingUp, TrendingDown, Plus, Minus } from "lucide-react";
 import { StockChart } from "@/components/stock-chart";
 import { useMutationApi } from "@/hooks/useMutationApi";
 import { toast } from "sonner";
+import { formatCash, formatPrice } from "@/lib/utils/formatting";
 
 export default function VariableIncomeDetailPage() {
   const { ticker } = useParams<{ ticker: string }>();
   const [quantity, setQuantity] = useState<number>(0);
+  const shouldRefreshPosition = useRef(false);
 
   const {
     data: stock,
@@ -21,18 +23,31 @@ export default function VariableIncomeDetailPage() {
     loading,
   } = useQueryApi<StockDetails>(`/api/variable-income/${ticker}`, { initialFetch: true });
 
+  const positionQuery = useQueryApi<Position>(`/api/portfolio/${ticker}`, {
+    initialFetch: true,
+  });
+
+  const { data: simData } = useQueryApi<SimulationState>("/api/get-simulation-state", {
+    initialFetch: true,
+  });
+
   useRealtime(`stock_update:${ticker}`, ({ stock }) => {
     setStock((prev) => ({
       ...prev,
       ...stock,
       history: prev?.history ?? [],
     }));
+    if (shouldRefreshPosition.current) {
+      positionQuery.query();
+      shouldRefreshPosition.current = false;
+    }
   });
 
   const buyMutation = useMutationApi(`/api/variable-income/${ticker}/buy`, {
     onSuccess: () => {
       toast.success("Ordem de compra enviada com sucesso!");
       setQuantity(0);
+      shouldRefreshPosition.current = true;
     },
     onError: (err) => {
       toast.error(`Erro ao enviar ordem de compra: ${err.message}`);
@@ -43,6 +58,7 @@ export default function VariableIncomeDetailPage() {
     onSuccess: () => {
       toast.success("Ordem de venda enviada com sucesso!");
       setQuantity(0);
+      shouldRefreshPosition.current = true;
     },
     onError: (err) => {
       toast.error(`Erro ao enviar ordem de venda: ${err.message}`);
@@ -74,8 +90,11 @@ export default function VariableIncomeDetailPage() {
     }
     await sellMutation.mutate({ quantity });
   };
+
+  const position = positionQuery.data;
+  const size = position?.size ?? 0;
+  const avgPrice = position?.avg_price ?? 0;
   const isPositive = stock.change >= 0;
-  const totalOperation = quantity > 0 ? quantity * stock.price : 0;
 
   return (
     <section id="stock-detail" className="section-content p-4">
@@ -166,7 +185,7 @@ export default function VariableIncomeDetailPage() {
               <div className="flex flex-col gap-1 border-t pt-3 mt-2 text-sm">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Total estimado da operação:</span>
-                  <span className="font-semibold">R$ {totalOperation.toFixed(2)}</span>
+                  <span className="font-semibold">{formatPrice(quantity * stock.price)}</span>
                 </div>
                 <p className="text-xs text-muted-foreground italic">
                   * O preço pode variar do mostrado, conforme atualização do mercado.
@@ -181,19 +200,28 @@ export default function VariableIncomeDetailPage() {
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <p className="text-muted-foreground">Você possui</p>
-                <p className="font-bold">450 ações (R$ 14.602,50)</p>
+                <p className="font-bold">
+                  {size} ações ({formatPrice(size * stock.price)})
+                </p>
               </div>
               <div>
                 <p className="text-muted-foreground">Preço médio</p>
-                <p className="font-bold">R$ 28,50</p>
+                <p className="font-bold">{formatPrice(avgPrice)}</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Lucro / Prejuízo</p>
-                <p className="font-bold text-green-600">+R$ 1.780,50</p>
+                <p
+                  className={clsx(
+                    "font-bold",
+                    size > 0 && stock.price - avgPrice >= 0 ? "text-green-600" : "text-red-600"
+                  )}
+                >
+                  {formatPrice(size * (stock.price - avgPrice))}
+                </p>
               </div>
               <div>
                 <p className="text-muted-foreground">Saldo em conta</p>
-                <p className="font-bold">R$ 8.240,00</p>
+                <p className="font-bold">{formatCash(simData?.cash)}</p>
               </div>
             </div>
           </Card>
