@@ -31,6 +31,8 @@ class Simulation:
 
         logger.info(f"Avançando para {self.get_current_date_formatted()}")
         self._current_date += timedelta(days=1)
+        while self._current_date.weekday() >= 5:
+            self._current_date += timedelta(days=1)
 
         return stocks
 
