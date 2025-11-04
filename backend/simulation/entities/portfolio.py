@@ -10,3 +10,4 @@ class Portfolio:
     cash: float
     variable_income: List[Position]
     fixed_income: List[FixedIncomeAsset]
+    patrimonial_history: List[float]

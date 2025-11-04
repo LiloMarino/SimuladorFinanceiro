@@ -60,6 +60,7 @@ class SimulationEngine:
             cash=self.__cash,
             variable_income=list(self._broker.get_positions().values()),
             fixed_income=list(self._fixed_broker.get_assets().values()),
+            patrimonial_history=[],
         )
 
     def next(self):

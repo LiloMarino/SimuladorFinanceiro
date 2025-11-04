@@ -6,30 +6,9 @@ import { Button } from "@/components/ui/button";
 import { useQueryApi } from "@/hooks/useQueryApi";
 import { Spinner } from "@/components/ui/spinner";
 import { SummaryCard } from "@/components/summary-card";
-
-interface Position {
-  ticker: string;
-  quantity?: number | string;
-  averagePrice?: number;
-  investedValue?: number;
-  currentValue: number;
-  rate?: string;
-  portfolioPercent: string;
-  returnValue?: number;
-  returnPercent: string;
-}
-
-interface PortfolioPageProps {
-  portfolioValue: number;
-  variableIncome: number;
-  fixedIncome: number;
-  profit: number;
-  variableIncomePct: number;
-  fixedIncomePct: number;
-  profitPct?: string;
-  variablePositions: Position[];
-  fixedPositions: Position[];
-}
+import usePageLabel from "@/hooks/usePageLabel";
+import type { PortfolioState } from "@/types";
+import { formatPrice } from "@/lib/utils/formatting";
 
 type EconomicIndicators = {
   cdi: number;
@@ -37,27 +16,53 @@ type EconomicIndicators = {
   ipca: number;
 };
 
-export default function PortfolioPage({
-  portfolioValue = 0,
-  variableIncome = 0,
-  fixedIncome = 0,
-  profit = 0,
-  variableIncomePct = 0,
-  fixedIncomePct = 0,
-  profitPct = "Últimos 12 meses",
-  variablePositions = [],
-  fixedPositions = [],
-}: PortfolioPageProps) {
-  const { data: economicIndicatorsData, loading: economicIndicatorsLoading } = useQueryApi<EconomicIndicators>(
-    "/api/economic-indicators",
-    {
-      initialFetch: true,
-    }
-  );
+export default function PortfolioPage() {
+  usePageLabel("Carteira");
 
-  const { data: portfolioData, loading: portfolioLoading } = useQueryApi("/api/portfolio", {
+  const { data: portfolioData, loading: portfolioLoading } = useQueryApi<PortfolioState>("/api/portfolio", {
     initialFetch: true,
   });
+
+  const { data: economicIndicatorsData, loading: economicIndicatorsLoading } = useQueryApi<EconomicIndicators>(
+    "/api/economic-indicators",
+    { initialFetch: true }
+  );
+
+  if (portfolioLoading) {
+    return (
+      <section className="flex min-h-[80vh] items-center justify-center">
+        <Spinner className="h-8 w-8 text-muted-foreground" />
+      </section>
+    );
+  } else if (!portfolioData) {
+    return <div>Falha ao carregar carteira</div>;
+  }
+
+  const { cash, variable_income, fixed_income } = portfolioData;
+
+  const variableIncomeValue = variable_income.reduce(
+    (total, position) => total + position.avg_price * position.size,
+    0
+  );
+  const fixedIncomeValue = 0; // ❌ Não é possível inferir com os dados atuais
+  const portfolioValue = variableIncomeValue + fixedIncomeValue;
+  const variableIncomePct = ((variableIncomeValue / portfolioValue) * 100).toFixed(1);
+  const fixedIncomePct = ((fixedIncomeValue / portfolioValue) * 100).toFixed(1);
+  const dividend = 0; // ❌ Não é possível inferir com os dados atuais
+  const portfolioPct = 0; // ❌ Não é possível inferir com os dados atuais
+
+  const variablePositions = variable_income.map((pos) => ({
+    ticker: pos.ticker,
+    averagePrice: pos.avg_price,
+    quantity: pos.size,
+    currentValue: pos.avg_price * pos.size, // usando preço médio
+    portfolioPercent: (((pos.avg_price * pos.size) / portfolioValue) * 100).toFixed(2) + "%",
+    returnValue: "N/D", // ❌ requer preço atual
+    returnPercent: "N/D", // ❌ requer preço atual
+  }));
+
+  const fixedPositions: unknown[] = []; // ❌ fixed_income é unknown[]
+
   console.log(portfolioData);
 
   return (
@@ -67,14 +72,14 @@ export default function PortfolioPage({
         <SummaryCard
           title="Valor Total"
           value={portfolioValue}
-          subtitle="+12,3% desde o início"
+          subtitle={`${portfolioPct}% desde o início`}
           icon={faWallet}
           iconBg="bg-green-100"
           color="text-green-600"
         />
         <SummaryCard
           title="Renda Variável"
-          value={variableIncome}
+          value={variableIncomeValue}
           subtitle={`${variableIncomePct}% da carteira`}
           icon={faChartLine}
           iconBg="bg-blue-100"
@@ -82,7 +87,7 @@ export default function PortfolioPage({
         />
         <SummaryCard
           title="Renda Fixa"
-          value={fixedIncome}
+          value={fixedIncomeValue}
           subtitle={`${fixedIncomePct}% da carteira`}
           icon={faCoins}
           iconBg="bg-yellow-100"
@@ -90,8 +95,8 @@ export default function PortfolioPage({
         />
         <SummaryCard
           title="Proventos"
-          value={profit}
-          subtitle={profitPct}
+          value={dividend}
+          subtitle="Últimos 12 meses"
           icon={faMoneyBillWave}
           iconBg="bg-purple-100"
           color="text-purple-600"
@@ -161,26 +166,22 @@ export default function PortfolioPage({
                     "Retorno (%)",
                     "Ações",
                   ].map((h) => (
-                    <TableHead key={h}>{h}</TableHead>
+                    <TableHead className="text-center" key={h}>
+                      {h}
+                    </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {variablePositions.map((pos) => (
-                  <TableRow key={pos.ticker}>
+                  <TableRow className="text-center" key={pos.ticker}>
                     <TableCell>{pos.ticker}</TableCell>
-                    <TableCell>
-                      {pos.averagePrice?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) ?? "-"}
-                    </TableCell>
+                    <TableCell>{formatPrice(pos.averagePrice)}</TableCell>
                     <TableCell>{pos.quantity}</TableCell>
-                    <TableCell>R$ {pos.currentValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
+                    <TableCell>{formatPrice(pos.currentValue)}</TableCell>
                     <TableCell>{pos.portfolioPercent}</TableCell>
-                    <TableCell>
-                      {pos.returnValue?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) ?? "-"}
-                    </TableCell>
-                    <TableCell className={pos.returnPercent.startsWith("-") ? "text-red-600" : "text-green-600"}>
-                      {pos.returnPercent}
-                    </TableCell>
+                    <TableCell>{pos.returnValue}</TableCell>
+                    <TableCell>{pos.returnPercent}</TableCell>
                     <TableCell>
                       <Button variant="link" onClick={() => alert(`Detalhes do ativo ${pos.ticker}`)}>
                         <FontAwesomeIcon icon={faEye} /> Detalhes

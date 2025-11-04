@@ -7,7 +7,7 @@ interface PageLabelProviderProps {
 }
 
 export function PageLabelProvider({ children, routeLabels }: PageLabelProviderProps) {
-  const [label, setLabel] = useState<string>("Example");
+  const [label, setLabel] = useState<string>("Untitled");
 
   return <PageLabelContext.Provider value={{ label, setLabel, routeLabels }}>{children}</PageLabelContext.Provider>;
 }
