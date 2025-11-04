@@ -26,6 +26,9 @@ def get_simulation_state():
     simulation = get_simulation()
     current_date = simulation.get_current_date_formatted()
     speed = simulation.get_speed()
+    cash = simulation.get_cash()
     return make_response(
-        True, "Simulation state", data={"currentDate": current_date, "speed": speed}
+        True,
+        "Simulation state",
+        data={"currentDate": current_date, "speed": speed, "cash": cash},
     )

@@ -1,6 +1,7 @@
 from typing import Callable, Dict
 
 from backend import logger_utils
+from backend.realtime import notify
 from backend.simulation.entities.position import Position
 
 logger = logger_utils.setup_logger(__name__)
@@ -20,6 +21,10 @@ class Broker:
     def set_cash(self, cash: float):
         self._cash = cash
 
+    def add_cash(self, cash: float):
+        self._cash += cash
+        notify("cash_update", {"cash": self._cash})
+
     def get_positions(self) -> Dict[str, Position]:
         return self._positions
 
@@ -29,7 +34,7 @@ class Broker:
         if self._cash < cost:
             raise ValueError(f"Saldo insuficiente para comprar {ticker}")
 
-        self._cash -= cost
+        self.add_cash(-cost)
         pos = self._positions.get(ticker, Position(ticker))
         pos.update_buy(price, size)
         self._positions[ticker] = pos
@@ -46,7 +51,7 @@ class Broker:
             raise ValueError(f"Sem quantidade suficiente de {ticker} para vender")
 
         price = self._get_market_price(ticker)
-        self._cash += price * size
+        self.add_cash(price * size)
         pos.update_sell(size)
 
         if pos.size == 0:
