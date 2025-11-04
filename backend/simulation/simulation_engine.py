@@ -1,5 +1,6 @@
 from backend.simulation.broker import Broker
 from backend.simulation.data_buffer import DataBuffer
+from backend.simulation.entities.candle import Candle
 
 
 class SimulationEngine:
@@ -27,11 +28,20 @@ class SimulationEngine:
         candles = self._data_buffer.get_recent(ticker)
         if not candles:
             raise ValueError(f"Nenhum preço disponível para {ticker}")
-        return candles[-1]["price"]
+        return candles[-1].price
 
     def update_market_data(self, stocks: list[dict]):
-        for stock in stocks:
-            self._data_buffer.add_candle(stock["ticker"], stock)
+        for s in stocks:
+            candle = Candle(
+                ticker=s["ticker"],
+                date=s["date"],
+                open=s["open"],
+                high=s["high"],
+                low=s["low"],
+                close=s["price"],
+                volume=s["volume"],
+            )
+            self._data_buffer.add_candle(candle)
 
     def next(self):
         if not self._strategy:
