@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import clsx from "clsx";
 import { useParams } from "react-router-dom";
 import { useQueryApi } from "@/hooks/useQueryApi";
-import type { Position, SimulationState, StockDetails } from "@/types";
+import type { Position, StockDetails } from "@/types";
 import { Spinner } from "@/components/ui/spinner";
 import { useRealtime } from "@/hooks/useRealtime";
 import { Card } from "@/components/ui/card";
@@ -27,9 +27,10 @@ export default function VariableIncomeDetailPage() {
     initialFetch: true,
   });
 
-  const { data: simData } = useQueryApi<SimulationState>("/api/get-simulation-state", {
+  const { data: cashData, setData: setCash } = useQueryApi<{ cash: number }>("/api/portfolio/cash", {
     initialFetch: true,
   });
+  const { cash = 0 } = cashData ?? {};
 
   useRealtime(`stock_update:${ticker}`, ({ stock }) => {
     setStock((prev) => ({
@@ -41,6 +42,10 @@ export default function VariableIncomeDetailPage() {
       positionQuery.query();
       shouldRefreshPosition.current = false;
     }
+  });
+
+  useRealtime("cash_update", ({ cash }) => {
+    setCash({ cash });
   });
 
   const buyMutation = useMutationApi(`/api/variable-income/${ticker}/buy`, {
@@ -220,7 +225,7 @@ export default function VariableIncomeDetailPage() {
               </div>
               <div>
                 <p className="text-muted-foreground">Saldo em conta</p>
-                <p className="font-bold">{formatCash(simData?.cash)}</p>
+                <p className="font-bold">{formatCash(cash)}</p>
               </div>
             </div>
           </Card>

@@ -78,9 +78,9 @@ class Simulation:
             )
         return portfolio
 
-    def get_portfolio_ticker(self, ticker: str) -> Position | None:
+    def get_portfolio_ticker(self, ticker: str) -> Position:
         positions = self._engine.get_positions()
-        return positions.get(ticker)
+        return positions.get(ticker, Position(ticker))
 
     def get_cash(self) -> float:
         return self._engine.get_cash()

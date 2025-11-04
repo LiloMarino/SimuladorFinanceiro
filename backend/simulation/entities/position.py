@@ -11,12 +11,9 @@ class Position:
 
     def update_buy(self, price: float, size: int):
         """Atualiza posição após uma compra."""
-        if self.size == 0:
-            self.avg_price = price
-        else:
-            total_cost = self.avg_price * self.size + price * size
-            self.size += size
-            self.avg_price = total_cost / self.size
+        total_cost = self.avg_price * self.size + price * size
+        self.size += size
+        self.avg_price = total_cost / self.size
 
     def update_sell(self, size: int):
         """Atualiza posição após uma venda."""

@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 from flask import Blueprint
 
 from backend.routes.helpers import make_response
@@ -24,19 +26,8 @@ def get_portfolio_ticker(ticker):
         simulation = get_simulation()
         position = simulation.get_portfolio_ticker(ticker)
 
-        if not position:
-            return make_response(
-                False, f"Ticker '{ticker}' não encontrado no portfólio.", 404
-            )
-
-        data = {
-            "ticker": position.ticker,
-            "size": position.size,
-            "avg_price": position.avg_price,
-        }
-
         return make_response(
-            True, "Portfolio ticker data loaded successfully.", data=data
+            True, "Portfolio ticker data loaded successfully.", data=asdict(position)
         )
 
     except Exception as e:
