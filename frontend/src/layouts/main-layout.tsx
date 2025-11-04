@@ -1,7 +1,8 @@
+import useActivePage from "@/hooks/useActivePage";
+import usePageLabel from "@/hooks/usePageLabel";
 import Sidebar from "@/layouts/partial/sidebar";
 import Topbar from "@/layouts/partial/topbar";
 import type { NavItem } from "@/types";
-import useActivePage from "@/hooks/useActivePage";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,7 +11,7 @@ interface LayoutProps {
 
 export default function MainLayout({ children, navItems }: LayoutProps) {
   const activePage = useActivePage();
-  const pageLabel = navItems.find((item) => item.key === activePage)?.label || "Example";
+  const { label: pageLabel } = usePageLabel();
 
   return (
     <div className="flex h-screen overflow-hidden">

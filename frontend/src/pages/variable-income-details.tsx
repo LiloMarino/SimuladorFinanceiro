@@ -11,8 +11,10 @@ import { StockChart } from "@/components/stock-chart";
 import { useMutationApi } from "@/hooks/useMutationApi";
 import { toast } from "sonner";
 import { formatCash, formatPrice } from "@/lib/utils/formatting";
+import usePageLabel from "@/hooks/usePageLabel";
 
 export default function VariableIncomeDetailPage() {
+  usePageLabel("Detalhes Renda Variável");
   const { ticker } = useParams<{ ticker: string }>();
   const [quantity, setQuantity] = useState<number>(0);
   const shouldRefreshPosition = useRef(false);
