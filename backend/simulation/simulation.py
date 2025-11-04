@@ -38,10 +38,10 @@ class Simulation:
 
     def set_speed(self, speed: int):
         logger.info(f"Velocidade da simulação alterada para {speed}x")
-        self.__speed = speed
+        self._speed = speed
 
     def get_speed(self) -> int:
-        return self.__speed
+        return self._speed
 
     def get_stocks(self) -> list:
         return get_stocks(self._current_date)
