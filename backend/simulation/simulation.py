@@ -16,14 +16,22 @@ class Simulation:
         self._engine = SimulationEngine()
         self._engine.set_strategy(ManualStrategy)
 
-    def next_tick(self):
+    def next_tick(self) -> list[dict]:
         if self._current_date >= self._end_date:
             logger.info("Fim da simulação")
             raise StopIteration()
 
-        self._current_date += timedelta(days=1)
+        # Obtém os dados do dia atual e atualiza o buffer
+        stocks = get_stocks(self._current_date)
+        self._engine.update_market_data(stocks)
+
+        # Executa a estratégia
         self._engine.next()
+
         logger.info(f"Avançando para {self.get_current_date_formatted()}")
+        self._current_date += timedelta(days=1)
+
+        return stocks
 
     def get_current_date_formatted(self) -> str:
         return self._current_date.strftime("%d/%m/%Y")

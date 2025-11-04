@@ -1,5 +1,9 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Callable, Dict
+
+from backend import logger_utils
+
+logger = logger_utils.setup_logger(__name__)
 
 
 @dataclass
@@ -27,9 +31,12 @@ class Position:
 
 
 class Broker:
-    def __init__(self, starting_cash: float = 10000.0):
+    def __init__(
+        self, get_market_price: Callable[[str], float], starting_cash: float = 10000.0
+    ):
         self._cash: float = starting_cash
         self._positions: Dict[str, Position] = {}
+        self._get_market_price = get_market_price
 
     def get_cash(self) -> float:
         return self._cash
@@ -40,7 +47,8 @@ class Broker:
     def get_positions(self) -> Dict[str, Position]:
         return self._positions
 
-    def buy(self, ticker: str, price: float, size: int):
+    def buy(self, ticker: str, size: int):
+        price = self._get_market_price(ticker)
         cost = price * size
         if self._cash < cost:
             raise ValueError(f"Saldo insuficiente para comprar {ticker}")
@@ -49,8 +57,11 @@ class Broker:
         pos = self._positions.get(ticker, Position(ticker))
         pos.update_buy(price, size)
         self._positions[ticker] = pos
+        logger.info(
+            f"Executado compra {size}x {ticker} (a mercado) no preço R$ {price}"
+        )
 
-    def sell(self, ticker: str, price: float, size: int):
+    def sell(self, ticker: str, size: int):
         if ticker not in self._positions:
             raise ValueError(f"Sem posição em {ticker} para vender")
 
@@ -58,6 +69,7 @@ class Broker:
         if pos.size < size:
             raise ValueError(f"Sem quantidade suficiente de {ticker} para vender")
 
+        price = self._get_market_price(ticker)
         self._cash += price * size
         pos.update_sell(size)
 
@@ -65,3 +77,4 @@ class Broker:
             del self._positions[ticker]
         else:
             self._positions[ticker] = pos
+        logger.info(f"Executado venda {size}x {ticker} (a mercado) no preço R$ {price}")

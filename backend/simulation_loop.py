@@ -34,16 +34,13 @@ class SimulationLoopController:
                         speed = simulation.get_speed()
                         if speed > 0:
                             try:
-                                simulation.next_tick()
+                                stocks = simulation.next_tick()
                                 current_date = simulation.get_current_date_formatted()
-                                stocks = simulation.get_stocks()
                                 # TODO: Avaliar performance
+                                logger.info("Notificando clientes...")
                                 for stock in stocks:
                                     ticker = stock["ticker"]
                                     notify(f"stock_update:{ticker}", {"stock": stock})
-
-                                # Broadcast genérico (SSE ou WS)
-                                logger.info("Notificando clientes...")
                                 notify(
                                     "simulation_update",
                                     {"currentDate": current_date},

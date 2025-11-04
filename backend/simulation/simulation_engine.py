@@ -4,7 +4,7 @@ from backend.simulation.data_buffer import DataBuffer
 
 class SimulationEngine:
     def __init__(self):
-        self._broker = Broker()
+        self._broker = Broker(self.get_market_price)
         self._data_buffer = DataBuffer()
         self._strategy = None
 
@@ -23,8 +23,17 @@ class SimulationEngine:
     def get_positions(self):
         return self._broker.get_positions()
 
+    def get_market_price(self, ticker: str) -> float:
+        candles = self._data_buffer.get_recent(ticker)
+        if not candles:
+            raise ValueError(f"Nenhum preço disponível para {ticker}")
+        return candles[-1]["price"]
+
+    def update_market_data(self, stocks: list[dict]):
+        for stock in stocks:
+            self._data_buffer.add_candle(stock["ticker"], stock)
+
     def next(self):
-        """Executa um passo da simulação (tick)."""
         if not self._strategy:
             raise RuntimeError("Nenhuma estratégia configurada")
         self._strategy.next()
