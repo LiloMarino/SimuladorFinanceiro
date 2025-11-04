@@ -146,12 +146,11 @@ export default function VariableIncomeDetailPage() {
             <div className="flex flex-col gap-3">
               <div className="flex flex-col sm:flex-row gap-2">
                 <input
-                  type="number"
                   placeholder="Quantidade"
                   value={quantity}
                   min={0}
                   onChange={(e) => {
-                    const value = Number(e.target.value);
+                    const value = e.target.value === "" ? 0 : Number(e.target.value);
                     setQuantity(value >= 0 ? value : 0);
                   }}
                   className="flex-1 p-2 border rounded-md"
