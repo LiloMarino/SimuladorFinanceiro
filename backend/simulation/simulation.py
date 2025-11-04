@@ -9,6 +9,7 @@ from backend.data_provider import (
     get_stocks,
 )
 from backend.realtime import notify
+from backend.simulation.entities.portfolio import Portfolio
 from backend.simulation.entities.position import Position
 from backend.simulation.simulation_engine import SimulationEngine
 from backend.strategy.manual import ManualStrategy
@@ -71,18 +72,8 @@ class Simulation:
     def get_stock_details(self, ticker: str) -> dict | None:
         return get_stock_details(ticker, self._current_date)
 
-    def get_portfolio(self) -> list[dict]:
-        positions = self._engine.get_positions()
-        portfolio = []
-        for ticker, pos in positions.items():
-            portfolio.append(
-                {
-                    "ticker": pos.ticker,
-                    "size": pos.size,
-                    "avg_price": pos.avg_price,
-                }
-            )
-        return portfolio
+    def get_portfolio(self) -> Portfolio:
+        return self._engine.get_portfolio()
 
     def get_portfolio_ticker(self, ticker: str) -> Position:
         positions = self._engine.get_positions()

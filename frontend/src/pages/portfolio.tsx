@@ -5,6 +5,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Button } from "@/components/ui/button";
 import { useQueryApi } from "@/hooks/useQueryApi";
 import { Spinner } from "@/components/ui/spinner";
+import { SummaryCard } from "@/components/summary-card";
 
 interface Position {
   ticker: string;
@@ -54,65 +55,47 @@ export default function PortfolioPage({
     }
   );
 
-  const summaryCards = [
-    {
-      title: "Valor Total",
-      value: portfolioValue,
-      icon: faWallet,
-      iconBg: "bg-green-100",
-      iconColor: "text-green-600",
-      subtitle: "+12,3% desde o início",
-      subtitleColor: "text-green-600",
-    },
-    {
-      title: "Renda Variável",
-      value: variableIncome,
-      icon: faChartLine,
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600",
-      subtitle: `${variableIncomePct}% da carteira`,
-      subtitleColor: "text-blue-600",
-    },
-    {
-      title: "Renda Fixa",
-      value: fixedIncome,
-      icon: faCoins,
-      iconBg: "bg-yellow-100",
-      iconColor: "text-yellow-600",
-      subtitle: `${fixedIncomePct}% da carteira`,
-      subtitleColor: "text-yellow-600",
-    },
-    {
-      title: "Proventos",
-      value: profit,
-      icon: faMoneyBillWave,
-      iconBg: "bg-purple-100",
-      iconColor: "text-purple-600",
-      subtitle: profitPct,
-      subtitleColor: "text-purple-600",
-    },
-  ];
+  const { data: portfolioData, loading: portfolioLoading } = useQueryApi("/api/portfolio", {
+    initialFetch: true,
+  });
+  console.log(portfolioData);
 
   return (
     <section className="p-4 space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {summaryCards.map((card) => (
-          <Card key={card.title} className="p-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-gray-600">{card.title}</p>
-                <h3 className="text-2xl font-bold">
-                  R$ {card.value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </h3>
-                <p className={`${card.subtitleColor} mt-1`}>{card.subtitle}</p>
-              </div>
-              <div className={`${card.iconBg} w-12 h-12 flex items-center justify-center rounded-full`}>
-                <FontAwesomeIcon icon={card.icon} className={card.iconColor} />
-              </div>
-            </div>
-          </Card>
-        ))}
+        <SummaryCard
+          title="Valor Total"
+          value={portfolioValue}
+          subtitle="+12,3% desde o início"
+          icon={faWallet}
+          iconBg="bg-green-100"
+          color="text-green-600"
+        />
+        <SummaryCard
+          title="Renda Variável"
+          value={variableIncome}
+          subtitle={`${variableIncomePct}% da carteira`}
+          icon={faChartLine}
+          iconBg="bg-blue-100"
+          color="text-blue-600"
+        />
+        <SummaryCard
+          title="Renda Fixa"
+          value={fixedIncome}
+          subtitle={`${fixedIncomePct}% da carteira`}
+          icon={faCoins}
+          iconBg="bg-yellow-100"
+          color="text-yellow-600"
+        />
+        <SummaryCard
+          title="Proventos"
+          value={profit}
+          subtitle={profitPct}
+          icon={faMoneyBillWave}
+          iconBg="bg-purple-100"
+          color="text-purple-600"
+        />
       </div>
 
       {/* Charts Row */}
