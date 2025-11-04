@@ -41,7 +41,7 @@ export type StockDetails = {
   high: number;
   volume: number;
   change: number;
-  change_pct: string; // corrigido para string
+  change_pct: string;
   history: StockCandle[];
 };
 

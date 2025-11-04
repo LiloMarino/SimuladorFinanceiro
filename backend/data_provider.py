@@ -87,26 +87,13 @@ def get_stock_details(ticker: str, current_date: datetime) -> dict | None:
         }
 
 
-def get_all_tickers() -> list[str]:
-    """
-    Retorna uma lista com todos os tickers cadastrados no banco de dados.
-
-    Returns:
-        List[str]: Lista de tickers, ex: ["PETR4", "VALE3", "ITUB4", ...]
-    """
-    with SessionLocal() as session:
-        tickers = [ativo.ticker for ativo in session.query(Ativos.ticker).all()]
-        logger.info(f"{len(tickers)} tickers carregados do banco de dados.")
-        return tickers
-
-
 def get_selic_rate() -> float:
-    return 0.0
+    return 15.0
 
 
 def get_ipca_rate() -> float:
-    return 0.0
+    return 5.17
 
 
 def get_cdi_rate() -> float:
-    return 0.0
+    return 13.71

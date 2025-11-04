@@ -1,7 +1,13 @@
 from datetime import datetime, timedelta
 
 from backend import logger_utils
-from backend.data_provider import get_stock_details, get_stocks
+from backend.data_provider import (
+    get_cdi_rate,
+    get_ipca_rate,
+    get_selic_rate,
+    get_stock_details,
+    get_stocks,
+)
 from backend.realtime import notify
 from backend.simulation.entities.position import Position
 from backend.simulation.simulation_engine import SimulationEngine
@@ -84,3 +90,10 @@ class Simulation:
 
     def get_cash(self) -> float:
         return self._engine.get_cash()
+
+    def get_economic_indicators(self):
+        return {
+            "ipca": get_ipca_rate(),
+            "selic": get_selic_rate(),
+            "cdi": get_cdi_rate(),
+        }

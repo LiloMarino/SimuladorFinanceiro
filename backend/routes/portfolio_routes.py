@@ -44,3 +44,15 @@ def get_cash():
         )
     except Exception as e:
         return make_response(False, f"Error loading cash balance: {e}", 500)
+
+
+@portfolio_bp.route("/api/economic-indicators", methods=["GET"])
+def get_economic_indicators():
+    try:
+        simulation = get_simulation()
+        indicators = simulation.get_economic_indicators()
+        return make_response(
+            True, "Economic indicators loaded successfully.", data=indicators
+        )
+    except Exception as e:
+        return make_response(False, f"Error loading economic indicators: {e}", 500)

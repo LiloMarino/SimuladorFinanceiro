@@ -3,6 +3,8 @@ import { faWallet, faChartLine, faCoins, faMoneyBillWave, faEye } from "@fortawe
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { useQueryApi } from "@/hooks/useQueryApi";
+import { Spinner } from "@/components/ui/spinner";
 
 interface Position {
   ticker: string;
@@ -26,8 +28,13 @@ interface PortfolioPageProps {
   profitPct?: string;
   variablePositions: Position[];
   fixedPositions: Position[];
-  economicIndicators: { label: string; value: string }[];
 }
+
+type EconomicIndicators = {
+  cdi: number;
+  selic: number;
+  ipca: number;
+};
 
 export default function PortfolioPage({
   portfolioValue = 0,
@@ -39,12 +46,14 @@ export default function PortfolioPage({
   profitPct = "Últimos 12 meses",
   variablePositions = [],
   fixedPositions = [],
-  economicIndicators = [
-    { label: "CDI", value: "11,65%" },
-    { label: "SELIC", value: "11,25%" },
-    { label: "IPCA (12m)", value: "4,50%" },
-  ],
 }: PortfolioPageProps) {
+  const { data: economicIndicatorsData, loading: economicIndicatorsLoading } = useQueryApi<EconomicIndicators>(
+    "/api/economic-indicators",
+    {
+      initialFetch: true,
+    }
+  );
+
   const summaryCards = [
     {
       title: "Valor Total",
@@ -125,15 +134,27 @@ export default function PortfolioPage({
 
       {/* Economic Indicators */}
       <Card className="p-6">
-        <h3 className="font-semibold">Indicadores Econômicos</h3>
-        <div className="flex flex-wrap gap-4">
-          {economicIndicators.map((ind) => (
-            <div key={ind.label} className="flex-1 min-w-[120px] border rounded p-4 text-center">
-              <p className="text-gray-600 text-sm">{ind.label}</p>
-              <p className="font-bold">{ind.value}</p>
+        <h3 className="font-semibold mb-4">Indicadores Econômicos</h3>
+        {economicIndicatorsLoading || !economicIndicatorsData ? (
+          <div className="flex items-center justify-center h-32">
+            <Spinner className="h-8 w-8 text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[120px] border rounded p-4 text-center">
+              <p className="text-gray-600 text-sm">CDI</p>
+              <p className="font-bold">{economicIndicatorsData.cdi.toFixed(2)}%</p>
             </div>
-          ))}
-        </div>
+            <div className="flex-1 min-w-[120px] border rounded p-4 text-center">
+              <p className="text-gray-600 text-sm">SELIC</p>
+              <p className="font-bold">{economicIndicatorsData.selic.toFixed(2)}%</p>
+            </div>
+            <div className="flex-1 min-w-[120px] border rounded p-4 text-center">
+              <p className="text-gray-600 text-sm">IPCA (12m)</p>
+              <p className="font-bold">{economicIndicatorsData.ipca.toFixed(2)}%</p>
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* Positions Tables */}
