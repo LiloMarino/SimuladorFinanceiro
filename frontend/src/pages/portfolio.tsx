@@ -9,6 +9,7 @@ import { SummaryCard } from "@/components/summary-card";
 import usePageLabel from "@/hooks/usePageLabel";
 import type { PortfolioState } from "@/types";
 import { formatPrice } from "@/lib/utils/formatting";
+import { Link } from "react-router-dom";
 
 type EconomicIndicators = {
   cdi: number;
@@ -174,7 +175,7 @@ export default function PortfolioPage() {
               </TableHeader>
               <TableBody>
                 {variablePositions.map((pos) => (
-                  <TableRow className="text-center" key={pos.ticker}>
+                  <TableRow className="text-center [&>td]:py-4" key={pos.ticker}>
                     <TableCell>{pos.ticker}</TableCell>
                     <TableCell>{formatPrice(pos.averagePrice)}</TableCell>
                     <TableCell>{pos.quantity}</TableCell>
@@ -183,9 +184,13 @@ export default function PortfolioPage() {
                     <TableCell>{pos.returnValue}</TableCell>
                     <TableCell>{pos.returnPercent}</TableCell>
                     <TableCell>
-                      <Button variant="link" onClick={() => alert(`Detalhes do ativo ${pos.ticker}`)}>
-                        <FontAwesomeIcon icon={faEye} /> Detalhes
-                      </Button>
+                      <Link
+                        to={`/variable-income/${pos.ticker}`}
+                        className="text-blue-600 hover:text-blue-800 text-sm flex items-center justify-center"
+                      >
+                        <FontAwesomeIcon icon={faEye} className="mr-1" />
+                        Detalhes
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}
