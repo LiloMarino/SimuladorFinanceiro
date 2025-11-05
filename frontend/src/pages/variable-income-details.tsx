@@ -19,19 +19,11 @@ export default function VariableIncomeDetailPage() {
   const [quantity, setQuantity] = useState<number>(0);
   const shouldRefreshPosition = useRef(false);
 
-  const {
-    data: stock,
-    setData: setStock,
-    loading,
-  } = useQueryApi<StockDetails>(`/api/variable-income/${ticker}`, { initialFetch: true });
+  const { data: stock, setData: setStock, loading } = useQueryApi<StockDetails>(`/api/variable-income/${ticker}`);
 
-  const positionQuery = useQueryApi<Position>(`/api/portfolio/${ticker}`, {
-    initialFetch: true,
-  });
+  const positionQuery = useQueryApi<Position>(`/api/portfolio/${ticker}`);
 
-  const { data: cashData, setData: setCash } = useQueryApi<{ cash: number }>("/api/portfolio/cash", {
-    initialFetch: true,
-  });
+  const { data: cashData, setData: setCash } = useQueryApi<{ cash: number }>("/api/portfolio/cash");
   const { cash = 0 } = cashData ?? {};
 
   useRealtime(`stock_update:${ticker}`, ({ stock }) => {

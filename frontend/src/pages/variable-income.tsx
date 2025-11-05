@@ -5,13 +5,7 @@ import { useRealtime } from "@/hooks/useRealtime";
 import type { Stock } from "@/types";
 
 export default function VariableIncomePage() {
-  const {
-    data: stocks,
-    setData: setStocks,
-    loading,
-  } = useQueryApi<Stock[]>("/api/variable-income", {
-    initialFetch: true,
-  });
+  const { data: stocks, setData: setStocks, loading } = useQueryApi<Stock[]>("/api/variable-income");
 
   useRealtime("stocks_update", (data) => {
     setStocks(data.stocks);

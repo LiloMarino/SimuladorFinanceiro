@@ -21,20 +21,14 @@ type EconomicIndicators = {
 export default function PortfolioPage() {
   usePageLabel("Carteira");
   // Busca dados da carteira
-  const { data: portfolioData, loading: portfolioLoading } = useQueryApi<PortfolioState>("/api/portfolio", {
-    initialFetch: true,
-  });
+  const { data: portfolioData, loading: portfolioLoading } = useQueryApi<PortfolioState>("/api/portfolio");
 
   // Busca dados econômicos
-  const { data: economicIndicatorsData, loading: economicIndicatorsLoading } = useQueryApi<EconomicIndicators>(
-    "/api/economic-indicators",
-    { initialFetch: true }
-  );
+  const { data: economicIndicatorsData, loading: economicIndicatorsLoading } =
+    useQueryApi<EconomicIndicators>("/api/economic-indicators");
 
   // Busca os valores das ações e os atualiza em tempo real
-  const { data: stocks, setData: setStocks } = useQueryApi<Stock[]>("/api/variable-income", {
-    initialFetch: true,
-  });
+  const { data: stocks, setData: setStocks } = useQueryApi<Stock[]>("/api/variable-income");
   useRealtime("stocks_update", (data) => {
     setStocks(data.stocks);
   });

@@ -12,9 +12,7 @@ interface TopbarProps {
 const SPEED_OPTIONS = [0, 1, 2, 4, 10];
 
 export default function Topbar({ pageLabel }: TopbarProps) {
-  const { data: simData, setData: setSimData } = useQueryApi<SimulationState>("/api/get-simulation-state", {
-    initialFetch: true,
-  });
+  const { data: simData, setData: setSimData } = useQueryApi<SimulationState>("/api/get-simulation-state");
 
   // Realtime updates
   useRealtime("simulation_update", (update) => {

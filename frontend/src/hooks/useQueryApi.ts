@@ -41,7 +41,7 @@ export function useQueryApi<R = unknown>(url: string, options?: Readonly<UseQuer
   }, [url, options?.headers, options?.responseSchema]);
 
   useEffect(() => {
-    if (options?.initialFetch) {
+    if (options?.initialFetch ?? true) {
       void query();
     }
   }, [query, options?.initialFetch]);
