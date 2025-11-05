@@ -7,9 +7,10 @@ import { useQueryApi } from "@/hooks/useQueryApi";
 import { Spinner } from "@/components/ui/spinner";
 import { SummaryCard } from "@/components/summary-card";
 import usePageLabel from "@/hooks/usePageLabel";
-import type { PortfolioState } from "@/types";
+import type { PortfolioState, Stock } from "@/types";
 import { formatPrice } from "@/lib/utils/formatting";
 import { Link } from "react-router-dom";
+import { useRealtime } from "@/hooks/useRealtime";
 
 type EconomicIndicators = {
   cdi: number;
@@ -19,15 +20,24 @@ type EconomicIndicators = {
 
 export default function PortfolioPage() {
   usePageLabel("Carteira");
-
+  // Busca dados da carteira
   const { data: portfolioData, loading: portfolioLoading } = useQueryApi<PortfolioState>("/api/portfolio", {
     initialFetch: true,
   });
 
+  // Busca dados econômicos
   const { data: economicIndicatorsData, loading: economicIndicatorsLoading } = useQueryApi<EconomicIndicators>(
     "/api/economic-indicators",
     { initialFetch: true }
   );
+
+  // Busca os valores das ações e os atualiza em tempo real
+  const { data: stocks, setData: setStocks } = useQueryApi<Stock[]>("/api/variable-income", {
+    initialFetch: true,
+  });
+  useRealtime("stocks_update", (data) => {
+    setStocks(data.stocks);
+  });
 
   if (portfolioLoading) {
     return (
@@ -39,30 +49,44 @@ export default function PortfolioPage() {
     return <div>Falha ao carregar carteira</div>;
   }
 
+  function getCurrentPrice(ticker: string): number | undefined {
+    return stocks?.find((s) => s.ticker === ticker)?.price;
+  }
+
   const { cash, variable_income, fixed_income } = portfolioData;
 
-  const variableIncomeValue = variable_income.reduce(
-    (total, position) => total + position.avg_price * position.size,
-    0
-  );
+  const variablePositions = variable_income.map((pos) => {
+    const currentPrice = getCurrentPrice(pos.ticker) ?? pos.avg_price;
+    const investedValue = pos.avg_price * pos.size;
+    const currentValue = currentPrice * pos.size;
+    const returnValue = currentValue - investedValue;
+    const returnPercent = ((returnValue / investedValue) * 100).toFixed(2) + "%";
+
+    return {
+      ticker: pos.ticker,
+      averagePrice: pos.avg_price,
+      quantity: pos.size,
+      currentPrice,
+      investedValue,
+      currentValue,
+      portfolioPercent: "0%", // definido depois
+      returnValue,
+      returnPercent,
+    };
+  });
+  const fixedPositions: unknown[] = []; // ❌ fixed_income é unknown[]
+
+  const variableIncomeValue = variablePositions.reduce((sum, p) => sum + p.currentValue, 0);
   const fixedIncomeValue = 0; // ❌ Não é possível inferir com os dados atuais
   const portfolioValue = variableIncomeValue + fixedIncomeValue;
+  variablePositions.forEach((pos) => {
+    pos.portfolioPercent = ((pos.currentValue / portfolioValue) * 100).toFixed(2) + "%";
+  });
+
   const variableIncomePct = ((variableIncomeValue / portfolioValue) * 100).toFixed(1);
   const fixedIncomePct = ((fixedIncomeValue / portfolioValue) * 100).toFixed(1);
   const dividend = 0; // ❌ Não é possível inferir com os dados atuais
   const portfolioPct = 0; // ❌ Não é possível inferir com os dados atuais
-
-  const variablePositions = variable_income.map((pos) => ({
-    ticker: pos.ticker,
-    averagePrice: pos.avg_price,
-    quantity: pos.size,
-    currentValue: pos.avg_price * pos.size, // usando preço médio
-    portfolioPercent: (((pos.avg_price * pos.size) / portfolioValue) * 100).toFixed(2) + "%",
-    returnValue: "N/D", // ❌ requer preço atual
-    returnPercent: "N/D", // ❌ requer preço atual
-  }));
-
-  const fixedPositions: unknown[] = []; // ❌ fixed_income é unknown[]
 
   console.log(portfolioData);
 
@@ -160,6 +184,7 @@ export default function PortfolioPage() {
                   {[
                     "Ativo",
                     "Preço Médio",
+                    "Preço Atual",
                     "Quantidade",
                     "Valor Total",
                     "% Carteira",
@@ -178,11 +203,16 @@ export default function PortfolioPage() {
                   <TableRow className="text-center [&>td]:py-4" key={pos.ticker}>
                     <TableCell>{pos.ticker}</TableCell>
                     <TableCell>{formatPrice(pos.averagePrice)}</TableCell>
+                    <TableCell>{formatPrice(pos.currentPrice)}</TableCell>
                     <TableCell>{pos.quantity}</TableCell>
                     <TableCell>{formatPrice(pos.currentValue)}</TableCell>
                     <TableCell>{pos.portfolioPercent}</TableCell>
-                    <TableCell>{pos.returnValue}</TableCell>
-                    <TableCell>{pos.returnPercent}</TableCell>
+                    <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
+                      {formatPrice(pos.returnValue)}
+                    </TableCell>
+                    <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
+                      {pos.returnPercent}
+                    </TableCell>
                     <TableCell>
                       <Link
                         to={`/variable-income/${pos.ticker}`}
