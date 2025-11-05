@@ -53,11 +53,7 @@ def get_fixed_income():
     """Return list of fixed-income assets."""
     try:
         simulation = get_simulation()
-        fixed = (
-            simulation.get_fixed_assets()
-            if hasattr(simulation, "get_fixed_assets")
-            else []
-        )
+        fixed = simulation.get_fixed_assets()
         return make_response(True, "Fixed income assets loaded.", data=fixed)
     except Exception as e:
         return make_response(False, f"Error loading fixed income: {e}", 500)

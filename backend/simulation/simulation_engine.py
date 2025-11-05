@@ -1,9 +1,12 @@
+from datetime import datetime
+
 from backend.realtime import notify
 from backend.simulation.broker import Broker
 from backend.simulation.data_buffer import DataBuffer
 from backend.simulation.entities.candle import Candle
 from backend.simulation.entities.portfolio import Portfolio
 from backend.simulation.fixed_broker import FixedBroker
+from backend.simulation.fixed_income_market import FixedIncomeMarket
 
 
 class SimulationEngine:
@@ -12,6 +15,7 @@ class SimulationEngine:
         self.__cash: float = starting_cash
         self._broker = Broker(self, self.get_market_price)
         self._fixed_broker = FixedBroker(self)
+        self._fixed_income_market = FixedIncomeMarket()
         self._strategy = None
 
     def set_strategy(self, strategy_cls, *args, **kwargs):
@@ -25,6 +29,9 @@ class SimulationEngine:
 
     def get_data_buffer(self) -> DataBuffer:
         return self._data_buffer
+
+    def get_fixed_income_market(self) -> FixedIncomeMarket:
+        return self._fixed_income_market
 
     def get_cash(self) -> float:
         return self.__cash
@@ -63,7 +70,9 @@ class SimulationEngine:
             patrimonial_history=[],
         )
 
-    def next(self):
+    def next(self, current_date: datetime):
+        self._fixed_income_market.refresh_assets(current_date)
+
         # Aplica juros dos ativos de renda fixa
         self._fixed_broker.apply_daily_interest()
 

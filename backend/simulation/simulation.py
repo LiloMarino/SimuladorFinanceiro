@@ -44,7 +44,7 @@ class Simulation:
         self._engine.update_market_data(stocks)
 
         # Executa a estratégia
-        self._engine.next()
+        self._engine.next(self._current_date)
 
         logger.info(f"Dia atual: {self.get_current_date_formatted()}")
 
@@ -78,6 +78,9 @@ class Simulation:
     def get_portfolio_ticker(self, ticker: str) -> Position:
         positions = self._engine.get_positions()
         return positions.get(ticker, Position(ticker))
+
+    def get_fixed_assets(self) -> list:
+        return self._engine.get_fixed_income_market().get_available_assets()
 
     def get_cash(self) -> float:
         return self._engine.get_cash()
