@@ -10,7 +10,7 @@ import { TrendingUp, TrendingDown, Plus, Minus } from "lucide-react";
 import { StockChart } from "@/components/stock-chart";
 import { useMutationApi } from "@/hooks/useMutationApi";
 import { toast } from "sonner";
-import { formatCash, formatPrice } from "@/lib/utils/formatting";
+import { formatMoney } from "@/lib/utils/formatting";
 import usePageLabel from "@/hooks/usePageLabel";
 
 export default function VariableIncomeDetailPage() {
@@ -183,7 +183,7 @@ export default function VariableIncomeDetailPage() {
               <div className="flex flex-col gap-1 border-t pt-3 mt-2 text-sm">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Total estimado da operação:</span>
-                  <span className="font-semibold">{formatPrice(quantity * stock.price)}</span>
+                  <span className="font-semibold">{formatMoney(quantity * stock.price)}</span>
                 </div>
                 <p className="text-xs text-muted-foreground italic">
                   * O preço pode variar do mostrado, conforme atualização do mercado.
@@ -199,12 +199,12 @@ export default function VariableIncomeDetailPage() {
               <div>
                 <p className="text-muted-foreground">Você possui</p>
                 <p className="font-bold">
-                  {size} ações ({formatPrice(size * stock.price)})
+                  {size} ações ({formatMoney(size * stock.price)})
                 </p>
               </div>
               <div>
                 <p className="text-muted-foreground">Preço médio</p>
-                <p className="font-bold">{formatPrice(avgPrice)}</p>
+                <p className="font-bold">{formatMoney(avgPrice)}</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Lucro / Prejuízo</p>
@@ -214,12 +214,12 @@ export default function VariableIncomeDetailPage() {
                     size > 0 && stock.price - avgPrice >= 0 ? "text-green-600" : "text-red-600"
                   )}
                 >
-                  {formatPrice(size * (stock.price - avgPrice))}
+                  {formatMoney(size * (stock.price - avgPrice))}
                 </p>
               </div>
               <div>
                 <p className="text-muted-foreground">Saldo em conta</p>
-                <p className="font-bold">{formatCash(cash)}</p>
+                <p className="font-bold">{formatMoney(cash)}</p>
               </div>
             </div>
           </Card>

@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { SummaryCard } from "@/components/summary-card";
 import usePageLabel from "@/hooks/usePageLabel";
 import type { PortfolioState, Stock } from "@/types";
-import { formatPrice } from "@/lib/utils/formatting";
+import { formatMoney } from "@/lib/utils/formatting";
 import { Link } from "react-router-dom";
 import { useRealtime } from "@/hooks/useRealtime";
 
@@ -196,13 +196,13 @@ export default function PortfolioPage() {
                 {variablePositions.map((pos) => (
                   <TableRow className="text-center [&>td]:py-4" key={pos.ticker}>
                     <TableCell>{pos.ticker}</TableCell>
-                    <TableCell>{formatPrice(pos.averagePrice)}</TableCell>
-                    <TableCell>{formatPrice(pos.currentPrice)}</TableCell>
+                    <TableCell>{formatMoney(pos.averagePrice)}</TableCell>
+                    <TableCell>{formatMoney(pos.currentPrice)}</TableCell>
                     <TableCell>{pos.quantity}</TableCell>
-                    <TableCell>{formatPrice(pos.currentValue)}</TableCell>
+                    <TableCell>{formatMoney(pos.currentValue)}</TableCell>
                     <TableCell>{pos.portfolioPercent}</TableCell>
                     <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
-                      {formatPrice(pos.returnValue)}
+                      {formatMoney(pos.returnValue)}
                     </TableCell>
                     <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
                       {pos.returnPercent}

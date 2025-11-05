@@ -21,7 +21,7 @@ import {
   type WhitespaceData,
 } from "lightweight-charts";
 import { AreaChart, CandlestickChart } from "lucide-react";
-import { formatPrice } from "@/lib/utils/formatting";
+import { formatMoney } from "@/lib/utils/formatting";
 import { useRealtime } from "@/hooks/useRealtime";
 import type { StockCandle } from "@/types";
 
@@ -120,7 +120,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
     if (!chartRef.current) return;
 
     chartInstance.current = createChart(chartRef.current, {
-      localization: { priceFormatter: formatPrice },
+      localization: { priceFormatter: formatMoney },
       crosshair: {
         mode: CrosshairMode.MagnetOHLC,
         vertLine: { style: LineStyle.Solid },
