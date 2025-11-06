@@ -1,5 +1,4 @@
 import random
-from datetime import datetime, timedelta
 
 from backend.simulation.entities.fixed_income_asset import (
     FixedIncomeAsset,
@@ -32,41 +31,41 @@ class FixedIncomeFactory:
         return cls._registry[asset_type]
 
     @classmethod
-    def generate_assets(cls, n: int, seed: int | None = None) -> list[FixedIncomeAsset]:
+    def generate_assets(
+        cls, n: int, seed: int | None = None
+    ) -> dict[str, FixedIncomeAsset]:
         if seed is not None:
             random.seed(seed)
 
-        combinations: list[tuple[FixedIncomeType, RateIndexType]] = []
-        for asset_type, factory in cls._registry.items():
-            for index in factory.valid_indexes:
-                combinations.append((asset_type, index))
-
+        combinations: list[tuple[FixedIncomeType, RateIndexType]] = [
+            (atype, idx)
+            for atype, factory in cls._registry.items()
+            for idx in factory.valid_indexes
+        ]
         total_combos = len(combinations)
+
+        # Garante distribuição balanceada
         base_count = n // total_combos
         remainder = n % total_combos
 
-        generated: list[FixedIncomeAsset] = []
-        names_seen: set[str] = set()
+        generated: dict[str, FixedIncomeAsset] = {}
 
-        # Distribui uniformemente
+        # Cria número fixo por combinação
         for asset_type, rate_index in combinations:
             factory = cls._registry[asset_type]
             for _ in range(base_count):
                 asset = factory.create_asset(rate_index)
-                # garante unicidade
-                while asset.name in names_seen:
+                # Garante unicidade via dict
+                while asset.name in generated:
                     asset = factory.create_asset(rate_index)
-                names_seen.add(asset.name)
-                generated.append(asset)
+                generated[asset.name] = asset
 
-        # Distribui o restante aleatoriamente
+        # Restante aleatório porém balanceado
         extras = random.sample(combinations, remainder)
         for asset_type, rate_index in extras:
             factory = cls._registry[asset_type]
             asset = factory.create_asset(rate_index)
-            while asset.name in names_seen:
-                asset = factory.create_asset(rate_index)
-            names_seen.add(asset.name)
-            generated.append(asset)
+            if asset.name not in generated:
+                generated[asset.name] = asset
 
         return generated

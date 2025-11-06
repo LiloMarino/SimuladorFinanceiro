@@ -8,6 +8,14 @@ from backend.simulation.fixed_income_factory.abstract_factory import (
 
 
 class LCIFactory(AbstractFixedIncomeFactory):
+    @property
+    def _strategies(self):
+        return {
+            RateIndexType.CDI: self.create_cdi,
+            RateIndexType.IPCA: self.create_ipca,
+            RateIndexType.PREFIXADO: self.create_prefixado,
+        }
+
     def create_cdi(self) -> FixedIncomeAsset:
         pass
 
@@ -16,10 +24,3 @@ class LCIFactory(AbstractFixedIncomeFactory):
 
     def create_prefixado(self) -> FixedIncomeAsset:
         pass
-
-    def create_selic(self) -> FixedIncomeAsset:
-        raise NotImplementedError
-
-    @property
-    def valid_indexes(self) -> list[RateIndexType]:
-        return [RateIndexType.CDI, RateIndexType.IPCA, RateIndexType.PREFIXADO]

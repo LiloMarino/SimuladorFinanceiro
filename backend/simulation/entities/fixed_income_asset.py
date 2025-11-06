@@ -22,7 +22,7 @@ class RateIndexType(Enum):
 @dataclass
 class FixedIncomeAsset:
     name: str
-    invested_amount: float
+    issuer: str
     interest_rate: float | None
     rate_index: RateIndexType
     investment_type: FixedIncomeType
