@@ -16,7 +16,7 @@ class RateIndexType(Enum):
     CDI = "CDI"
     IPCA = "IPCA"
     SELIC = "SELIC"
-    PREFIXADO = "PREFIXADO"
+    PREFIXADO = "Prefixado"
 
 
 @dataclass
