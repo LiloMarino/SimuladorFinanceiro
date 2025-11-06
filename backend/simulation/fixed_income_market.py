@@ -26,5 +26,13 @@ class FixedIncomeMarket:
         return list(self._assets.values())
 
     def _generate_assets(self):
-        self._assets = FixedIncomeFactory.generate_assets(10)
+        if self._current_month is None:
+            return
+
+        year, month = self._current_month
+        current_date = datetime(year, month, 1)
+
+        self._assets = FixedIncomeFactory.generate_assets(
+            current_date=current_date, n=10
+        )
         logger.info(f"Gerados {len(self._assets)} ativos de renda fixa")

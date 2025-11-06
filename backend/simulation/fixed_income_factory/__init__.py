@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 
 from backend.simulation.entities.fixed_income_asset import (
     FixedIncomeAsset,
@@ -32,7 +33,7 @@ class FixedIncomeFactory:
 
     @classmethod
     def generate_assets(
-        cls, n: int, seed: int | None = None
+        cls, current_date: datetime, n: int, seed: int | None = None
     ) -> dict[str, FixedIncomeAsset]:
         if seed is not None:
             random.seed(seed)
@@ -54,17 +55,17 @@ class FixedIncomeFactory:
         for asset_type, rate_index in combinations:
             factory = cls._registry[asset_type]
             for _ in range(base_count):
-                asset = factory.create_asset(rate_index)
+                asset = factory.create_asset(rate_index, current_date)
                 # Garante unicidade via dict
                 while asset.name in generated:
-                    asset = factory.create_asset(rate_index)
+                    asset = factory.create_asset(rate_index, current_date)
                 generated[asset.name] = asset
 
         # Restante aleatório porém balanceado
         extras = random.sample(combinations, remainder)
         for asset_type, rate_index in extras:
             factory = cls._registry[asset_type]
-            asset = factory.create_asset(rate_index)
+            asset = factory.create_asset(rate_index, current_date)
             if asset.name not in generated:
                 generated[asset.name] = asset
 
