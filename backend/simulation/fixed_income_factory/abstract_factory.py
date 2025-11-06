@@ -28,6 +28,17 @@ class AbstractFixedIncomeFactory(ABC):
         """Mapeia indexadores para funções de criação de ativos."""
         pass
 
+    def _generate_rate(
+        self,
+        base_value: float,
+        delta: float,
+        multiplier: float = 1.0,
+        round_digits: int = 4,
+    ) -> float:
+        """Gera uma taxa de juros aleatória em torno de base ± delta, com multiplicador opcional."""
+        rate = random.uniform(base_value - delta, base_value + delta)
+        return round(rate * multiplier, round_digits)
+
     def _generate_maturity(
         self, current_date: datetime, min_years: int, max_years: int
     ) -> datetime:

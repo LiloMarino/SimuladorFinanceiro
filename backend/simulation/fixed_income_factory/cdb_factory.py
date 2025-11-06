@@ -23,7 +23,7 @@ class CDBFactory(AbstractFixedIncomeFactory):
 
     def create_cdi(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 1, 5)
-        rate = round(random.uniform(1.05, 1.20), 4)
+        rate = self._generate_rate(base_value=1.05, delta=0.15)
         issuer = "Banco XPTO"
 
         return FixedIncomeAsset(
@@ -37,17 +37,14 @@ class CDBFactory(AbstractFixedIncomeFactory):
 
     def create_ipca(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 2, 8)
-
-        # Oscila em torno da diferença CDI - IPCA (0.5 p.p.)
-        delta = 0.005  # 0.5%
-        selic_base = get_cdi_rate() - get_ipca_rate()
-        spread = round(random.uniform(selic_base - delta, selic_base + delta), 4)
-
+        base_diff = get_cdi_rate() - get_ipca_rate()
+        rate = self._generate_rate(base_value=base_diff, delta=0.005)
         issuer = "Banco XPTO"
+
         return FixedIncomeAsset(
-            name=f"CDB {issuer} IPCA+ {spread*100:.2f}%",
+            name=f"CDB {issuer} IPCA+ {rate*100:.2f}%",
             issuer=issuer,
-            interest_rate=spread,
+            interest_rate=rate,
             rate_index=RateIndexType.IPCA,
             investment_type=FixedIncomeType.CDB,
             maturity_date=maturity_date,
@@ -55,11 +52,8 @@ class CDBFactory(AbstractFixedIncomeFactory):
 
     def create_prefixado(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 2, 6)
-        cdi = get_cdi_rate()
-
-        # Oscila em torno da SELIC (0.5 p.p.)
-        delta = 0.005  # 0.5%
-        rate = round(random.uniform(cdi - delta, cdi + delta), 4)
+        base = get_cdi_rate()
+        rate = self._generate_rate(base_value=base, delta=0.005)
         issuer = "Banco XPTO"
 
         return FixedIncomeAsset(

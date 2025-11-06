@@ -23,8 +23,9 @@ class LCAFactory(AbstractFixedIncomeFactory):
 
     def create_cdi(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 2, 6)
-        rate = round(random.uniform(1.00, 1.20), 4) * 0.85
+        rate = self._generate_rate(base_value=1.0, delta=0.20, multiplier=0.85)
         issuer = "Banco Agro"
+
         return FixedIncomeAsset(
             name=f"LCA {issuer} {rate*100:.2f}% CDI",
             issuer=issuer,
@@ -36,14 +37,14 @@ class LCAFactory(AbstractFixedIncomeFactory):
 
     def create_ipca(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 3, 8)
-        delta = 0.004  # 0.4%
         base_diff = (get_cdi_rate() - get_ipca_rate()) * 0.85
-        spread = round(random.uniform(base_diff - delta, base_diff + delta), 4)
+        rate = self._generate_rate(base_value=base_diff, delta=0.004)
         issuer = "Banco Agro"
+
         return FixedIncomeAsset(
-            name=f"LCA {issuer} IPCA+ {spread*100:.2f}%",
+            name=f"LCA {issuer} IPCA+ {rate*100:.2f}%",
             issuer=issuer,
-            interest_rate=spread,
+            interest_rate=rate,
             rate_index=RateIndexType.IPCA,
             investment_type=FixedIncomeType.LCA,
             maturity_date=maturity_date,
@@ -51,10 +52,10 @@ class LCAFactory(AbstractFixedIncomeFactory):
 
     def create_prefixado(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 2, 5)
-        delta = 0.005
         base = get_cdi_rate()
-        rate = round(random.uniform(base - delta, base + delta), 4) * 0.85
+        rate = self._generate_rate(base_value=base, delta=0.005, multiplier=0.85)
         issuer = "Banco Agro"
+
         return FixedIncomeAsset(
             name=f"LCA {issuer} Prefixado {rate*100:.2f}%",
             issuer=issuer,
