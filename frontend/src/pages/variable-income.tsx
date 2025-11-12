@@ -1,4 +1,4 @@
-import StockCard from "@/components/stock-card";
+import StockCard from "@/components/cards/stock-card";
 import { Spinner } from "@/components/ui/spinner";
 import { useQueryApi } from "@/hooks/useQueryApi";
 import { useRealtime } from "@/hooks/useRealtime";

@@ -1,4 +1,4 @@
-import FixedIncomeCard from "@/components/fixed-income-card";
+import FixedIncomeCard from "@/components/cards/fixed-income-card";
 import type { FixedIncomeAsset } from "@/types";
 
 export default function FixedIncomePage() {
