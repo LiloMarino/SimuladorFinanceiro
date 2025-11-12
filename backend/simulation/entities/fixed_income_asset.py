@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
 
@@ -56,3 +56,12 @@ class FixedIncomeAsset:
                     return self.interest_rate
                 else:
                     raise ValueError("Taxa de prefixado não definida")
+
+    def to_dict(self):
+        data = asdict(self)
+        data["rate_index"] = self.rate_index.value
+        data["investment_type"] = self.investment_type.value
+        data["maturity_date"] = (
+            self.maturity_date.isoformat() if self.maturity_date else None
+        )
+        return data

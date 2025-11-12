@@ -74,13 +74,11 @@ export type SimulationEvents = {
   [K in `stock_update:${string}`]: { stock: Stock };
 };
 
-export interface FixedIncomeAsset {
+export interface FixedIncomeAssetApi {
   name: string;
   issuer: string;
-  interestRate: number;
-  rateIndex: "CDI" | "IPCA" | "SELIC" | "PREFIXADO";
-  investmentType: "CDB" | "LCI" | "LCA" | "TESOURO";
-  maturityDate: string; // ISO
-  daysToMaturity: number;
-  incomeTax: string | null;
+  interest_rate: number;
+  rate_index: "CDI" | "IPCA" | "SELIC" | "Prefixado";
+  investment_type: "CDB" | "LCI" | "LCA" | "Tesouro Direto";
+  maturity_date: string;
 }

@@ -9,6 +9,7 @@ from backend.data_provider import (
     get_stocks,
 )
 from backend.realtime import notify
+from backend.simulation.entities.fixed_income_asset import FixedIncomeAsset
 from backend.simulation.entities.portfolio import Portfolio
 from backend.simulation.entities.position import Position
 from backend.simulation.simulation_engine import SimulationEngine
@@ -79,7 +80,7 @@ class Simulation:
         positions = self._engine.get_positions()
         return positions.get(ticker, Position(ticker))
 
-    def get_fixed_assets(self) -> list:
+    def get_fixed_assets(self) -> list[FixedIncomeAsset]:
         return self._engine.get_fixed_income_market().get_available_assets()
 
     def get_cash(self) -> float:

@@ -1,23 +1,12 @@
-import type { FixedIncomeAsset } from "@/types";
 import BaseCard from "./base-card";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import type { FixedIncomeAsset } from "@/models/fixed-income-asset";
 
 interface FixedIncomeCardProps {
   asset: FixedIncomeAsset;
 }
 
 export default function FixedIncomeCard({ asset }: FixedIncomeCardProps) {
-  const maturityDate = asset.maturityDate ? format(new Date(asset.maturityDate), "dd/MM/yyyy", { locale: ptBR }) : "—";
-  const daysLabel = asset.daysToMaturity ? ` (${asset.daysToMaturity} dias)` : "";
-  const rateLabel =
-    asset.rateIndex === "PREFIXADO"
-      ? `${asset.interestRate?.toFixed(2)}% a.a.`
-      : asset.interestRate
-      ? `${asset.interestRate}% ${asset.rateIndex}`
-      : asset.rateIndex;
-
   return (
     <BaseCard
       header={{
@@ -29,17 +18,17 @@ export default function FixedIncomeCard({ asset }: FixedIncomeCardProps) {
         ),
         badge: (
           <Badge variant="outline" className="text-green-600 border-green-300 font-medium">
-            {rateLabel}
+            {asset.rateLabel}
           </Badge>
         ),
       }}
       fields={[
-        { label: "Vencimento:", value: maturityDate + daysLabel },
+        { label: "Vencimento:", value: asset.formattedMaturity },
         { label: "Índice:", value: asset.rateIndex },
-        { label: "IR:", value: asset.incomeTax ?? "—" },
+        { label: "IR:", value: asset.formattedIncomeTax },
       ]}
       footer={{
-        linkTo: `/fixed-income/${asset.name.toLowerCase()}`,
+        linkTo: asset.detailsLink,
         label: "Adicionar",
       }}
     />

@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 from flask import Blueprint, request
 
 from backend.routes.helpers import make_response
@@ -54,7 +56,8 @@ def get_fixed_income():
     try:
         simulation = get_simulation()
         fixed = simulation.get_fixed_assets()
-        return make_response(True, "Fixed income assets loaded.", data=fixed)
+        fixed_json = [asset.to_dict() for asset in fixed]
+        return make_response(True, "Fixed income assets loaded.", data=fixed_json)
     except Exception as e:
         return make_response(False, f"Error loading fixed income: {e}", 500)
 
