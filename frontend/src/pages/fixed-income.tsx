@@ -1,11 +1,18 @@
 import FixedIncomeCard from "@/components/cards/fixed-income-card";
 import { Spinner } from "@/components/ui/spinner";
 import { useQueryApi } from "@/hooks/useQueryApi";
+import { useRealtime } from "@/hooks/useRealtime";
 import { FixedIncomeAsset } from "@/models/fixed-income-asset";
-import type { FixedIncomeAssetApi } from "@/types";
+import type { FixedIncomeAssetApi, SimulationState } from "@/types";
+import { parse } from "date-fns";
 
 export default function FixedIncomePage() {
   const { data: assets, loading } = useQueryApi<FixedIncomeAssetApi[]>("/api/fixed-income");
+  const { data: simData, setData: setSimData } = useQueryApi<SimulationState>("/api/get-simulation-state");
+
+  useRealtime("simulation_update", (update) => {
+    setSimData((prev) => ({ ...prev, ...update }));
+  });
 
   if (loading) {
     return (
@@ -15,12 +22,14 @@ export default function FixedIncomePage() {
     );
   }
 
+  const currentDate = parse(simData?.currentDate ?? "", "dd/MM/yyyy", new Date());
+
   return (
     <section className="p-4">
       {assets && assets.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {assets.map((asset) => (
-            <FixedIncomeCard key={asset.name} asset={new FixedIncomeAsset(asset)} />
+            <FixedIncomeCard key={asset.name} asset={new FixedIncomeAsset(asset, currentDate)} />
           ))}
         </div>
       ) : (
