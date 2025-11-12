@@ -62,18 +62,14 @@ def get_fixed_income():
         return make_response(False, f"Error loading fixed income: {e}", 500)
 
 
-@operation_bp.route("/api/fixed-income/<string:asset>", methods=["GET"])
-def get_fixed_income_details(asset):
+@operation_bp.route("/api/fixed-income/<string:asset_uuid>", methods=["GET"])
+def get_fixed_income_details(asset_uuid):
     """Return details of a fixed-income asset."""
     try:
         simulation = get_simulation()
-        details = (
-            simulation.get_fixed_asset_details(asset)
-            if hasattr(simulation, "get_fixed_asset_details")
-            else None
-        )
-        if not details:
+        fixed = simulation.get_fixed_asset(asset_uuid)
+        if not fixed:
             return make_response(False, "Asset not found.", 404)
-        return make_response(True, "Asset details loaded.", details)
+        return make_response(True, "Asset details loaded.", data=fixed)
     except Exception as e:
         return make_response(False, f"Error getting details: {e}", 500)

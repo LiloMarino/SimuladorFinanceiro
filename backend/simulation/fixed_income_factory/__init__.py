@@ -56,17 +56,13 @@ class FixedIncomeFactory:
             factory = cls._registry[asset_type]
             for _ in range(base_count):
                 asset = factory.create_asset(rate_index, current_date)
-                # Garante unicidade via dict
-                while asset.name in generated:
-                    asset = factory.create_asset(rate_index, current_date)
-                generated[asset.name] = asset
+                generated[asset.uuid] = asset
 
         # Restante aleatório porém balanceado
         extras = random.sample(combinations, remainder)
         for asset_type, rate_index in extras:
             factory = cls._registry[asset_type]
             asset = factory.create_asset(rate_index, current_date)
-            if asset.name not in generated:
-                generated[asset.name] = asset
+            generated[asset.uuid] = asset
 
         return generated

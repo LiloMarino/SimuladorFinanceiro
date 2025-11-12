@@ -1,4 +1,5 @@
-from dataclasses import asdict, dataclass
+import uuid
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 
@@ -27,6 +28,7 @@ class FixedIncomeAsset:
     rate_index: RateIndexType
     investment_type: FixedIncomeType
     maturity_date: datetime | None = None
+    uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     def apply_daily_interest(self):
         """

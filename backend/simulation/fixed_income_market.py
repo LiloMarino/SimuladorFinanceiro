@@ -26,6 +26,9 @@ class FixedIncomeMarket:
     def get_available_assets(self) -> list[FixedIncomeAsset]:
         return list(self._assets.values())
 
+    def get_asset(self, uuid: str) -> FixedIncomeAsset | None:
+        return self._assets.get(uuid)
+
     def _generate_assets(self):
         if self._current_month is None:
             return

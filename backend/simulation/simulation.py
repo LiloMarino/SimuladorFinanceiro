@@ -80,6 +80,12 @@ class Simulation:
         positions = self._engine.get_positions()
         return positions.get(ticker, Position(ticker))
 
+    def get_fixed_asset(self, uuid: str) -> dict | None:
+        asset = self._engine.get_fixed_income_market().get_asset(uuid)
+        if asset:
+            return asset.to_dict()
+        return None
+
     def get_fixed_assets(self) -> list[FixedIncomeAsset]:
         return self._engine.get_fixed_income_market().get_available_assets()
 

@@ -3,6 +3,7 @@ import { differenceInDays, parseISO, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export class FixedIncomeAsset {
+  readonly uuid: string;
   readonly name: string;
   readonly issuer: string;
   readonly interestRate: number;
@@ -12,6 +13,7 @@ export class FixedIncomeAsset {
   readonly currentDate: Date;
 
   constructor(apiData: FixedIncomeAssetApi, currentDate: Date) {
+    this.uuid = apiData.uuid;
     this.name = apiData.name;
     this.issuer = apiData.issuer;
     this.interestRate = apiData.interest_rate;
@@ -59,6 +61,6 @@ export class FixedIncomeAsset {
 
   /** Gera o link detalhado */
   get detailsLink(): string {
-    return `/fixed-income/${this.name.toLowerCase()}`;
+    return `/fixed-income/${this.uuid}`;
   }
 }
