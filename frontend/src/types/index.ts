@@ -88,3 +88,9 @@ export type FixedIncomeAssetApi = {
   investment_type: InvestmentType;
   maturity_date: string;
 };
+
+export type EconomicIndicators = {
+  cdi: number;
+  selic: number;
+  ipca: number;
+};

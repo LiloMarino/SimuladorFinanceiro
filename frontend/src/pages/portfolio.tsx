@@ -7,16 +7,10 @@ import { useQueryApi } from "@/hooks/useQueryApi";
 import { Spinner } from "@/components/ui/spinner";
 import { SummaryCard } from "@/components/summary-card";
 import usePageLabel from "@/hooks/usePageLabel";
-import type { PortfolioState, Stock } from "@/types";
+import type { EconomicIndicators, PortfolioState, Stock } from "@/types";
 import { formatMoney } from "@/lib/utils/formatting";
 import { Link } from "react-router-dom";
 import { useRealtime } from "@/hooks/useRealtime";
-
-type EconomicIndicators = {
-  cdi: number;
-  selic: number;
-  ipca: number;
-};
 
 export default function PortfolioPage() {
   usePageLabel("Carteira");
