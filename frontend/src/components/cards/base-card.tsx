@@ -19,7 +19,7 @@ interface BaseCardProps {
 
 export default function BaseCard({ header, fields, footer }: BaseCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform transform hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform transform hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b">
         <div className="flex justify-between items-center">
@@ -30,7 +30,7 @@ export default function BaseCard({ header, fields, footer }: BaseCardProps) {
       </div>
 
       {/* Body */}
-      <div className="p-4">
+      <div className="p-4 flex-1">
         {fields.map((field, index) => (
           <div key={index} className={`flex justify-between text-sm ${index < fields.length - 1 ? "mb-2" : ""}`}>
             <span className="text-gray-500">{field.label}</span>
@@ -40,7 +40,7 @@ export default function BaseCard({ header, fields, footer }: BaseCardProps) {
       </div>
 
       {/* Footer */}
-      <div className="bg-gray-50 px-4 py-2 flex justify-end">
+      <div className="bg-gray-50 px-4 py-2 flex justify-end mt-auto">
         <Link to={footer.linkTo} className="text-blue-600 text-sm font-medium hover:text-blue-800">
           {footer.label}
         </Link>

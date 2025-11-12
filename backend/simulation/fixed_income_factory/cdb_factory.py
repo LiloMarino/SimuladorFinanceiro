@@ -27,7 +27,7 @@ class CDBFactory(AbstractFixedIncomeFactory):
         issuer = "Banco XPTO"
 
         return FixedIncomeAsset(
-            name=f"CDB {issuer} {rate*100}% CDI",
+            name=f"CDB {issuer} {rate*100:.2f}% CDI",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.CDI,
@@ -42,7 +42,7 @@ class CDBFactory(AbstractFixedIncomeFactory):
         issuer = "Banco XPTO"
 
         return FixedIncomeAsset(
-            name=f"CDB {issuer} IPCA+ {rate*100:.2f}%",
+            name=f"CDB {issuer} IPCA+ {rate:.2f}%",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.IPCA,
@@ -57,7 +57,7 @@ class CDBFactory(AbstractFixedIncomeFactory):
         issuer = "Banco XPTO"
 
         return FixedIncomeAsset(
-            name=f"CDB {issuer} Prefixado {rate*100:.2f}%",
+            name=f"CDB {issuer} Prefixado {rate:.2f}%",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.PREFIXADO,

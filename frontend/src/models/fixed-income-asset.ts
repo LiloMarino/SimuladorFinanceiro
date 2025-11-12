@@ -1,4 +1,4 @@
-import type { FixedIncomeAssetApi } from "@/types";
+import type { FixedIncomeAssetApi, InvestmentType, RateIndex } from "@/types";
 import { differenceInDays, parseISO, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -6,8 +6,8 @@ export class FixedIncomeAsset {
   readonly name: string;
   readonly issuer: string;
   readonly interestRate: number;
-  readonly rateIndex: string;
-  readonly investmentType: string;
+  readonly rateIndex: RateIndex;
+  readonly investmentType: InvestmentType;
   readonly maturityDate: string;
   readonly currentDate: Date;
 
@@ -23,10 +23,16 @@ export class FixedIncomeAsset {
 
   /** Retorna taxa formatada */
   get rateLabel(): string {
-    if (this.rateIndex === "PREFIXADO") {
-      return `${this.interestRate.toFixed(2)}% a.a.`;
+    switch (this.rateIndex) {
+      case "CDI":
+        return `${(this.interestRate * 100).toFixed(2)}% CDI`;
+      case "IPCA":
+        return `IPCA + ${this.interestRate.toFixed(2)}% `;
+      case "SELIC":
+        return `SELIC + ${(this.interestRate * 100).toFixed(2)}% `;
+      case "Prefixado":
+        return `${this.interestRate.toFixed(2)}% a.a`;
     }
-    return `${this.interestRate}% ${this.rateIndex}`;
   }
 
   /** Retorna a data de vencimento formatada */

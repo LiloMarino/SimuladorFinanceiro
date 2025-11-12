@@ -42,7 +42,7 @@ class LCAFactory(AbstractFixedIncomeFactory):
         issuer = "Banco Agro"
 
         return FixedIncomeAsset(
-            name=f"LCA {issuer} IPCA+ {rate*100:.2f}%",
+            name=f"LCA {issuer} IPCA+ {rate:.2f}%",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.IPCA,
@@ -57,7 +57,7 @@ class LCAFactory(AbstractFixedIncomeFactory):
         issuer = "Banco Agro"
 
         return FixedIncomeAsset(
-            name=f"LCA {issuer} Prefixado {rate*100:.2f}%",
+            name=f"LCA {issuer} Prefixado {rate:.2f}%",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.PREFIXADO,

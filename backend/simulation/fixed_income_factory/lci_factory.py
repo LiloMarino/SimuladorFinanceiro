@@ -42,7 +42,7 @@ class LCIFactory(AbstractFixedIncomeFactory):
         issuer = "Banco Imobiliário"
 
         return FixedIncomeAsset(
-            name=f"LCI {issuer} IPCA+ {rate*100:.2f}%",
+            name=f"LCI {issuer} IPCA+ {rate:.2f}%",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.IPCA,
@@ -57,7 +57,7 @@ class LCIFactory(AbstractFixedIncomeFactory):
         issuer = "Banco Imobiliário"
 
         return FixedIncomeAsset(
-            name=f"LCI {issuer} Prefixado {rate*100:.2f}%",
+            name=f"LCI {issuer} Prefixado {rate:.2f}%",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.PREFIXADO,
