@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from backend import logger_utils
+from backend.realtime import notify
 from backend.simulation.entities.fixed_income_asset import FixedIncomeAsset
 from backend.simulation.fixed_income_factory import FixedIncomeFactory
 
@@ -34,5 +35,9 @@ class FixedIncomeMarket:
 
         self._assets = FixedIncomeFactory.generate_assets(
             current_date=current_date, n=10
+        )
+        notify(
+            "fixed_assets_update",
+            {"assets": [asset.to_dict() for asset in self.get_available_assets()]},
         )
         logger.info(f"Gerados {len(self._assets)} ativos de renda fixa")

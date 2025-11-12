@@ -7,11 +7,15 @@ import type { FixedIncomeAssetApi, SimulationState } from "@/types";
 import { parse } from "date-fns";
 
 export default function FixedIncomePage() {
-  const { data: assets, loading } = useQueryApi<FixedIncomeAssetApi[]>("/api/fixed-income");
+  const { data: assets, setData: setAssets, loading } = useQueryApi<FixedIncomeAssetApi[]>("/api/fixed-income");
   const { data: simData, setData: setSimData } = useQueryApi<SimulationState>("/api/get-simulation-state");
 
   useRealtime("simulation_update", (update) => {
     setSimData((prev) => ({ ...prev, ...update }));
+  });
+
+  useRealtime("fixed_assets_update", ({ assets }) => {
+    setAssets(assets);
   });
 
   if (loading) {

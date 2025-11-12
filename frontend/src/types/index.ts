@@ -70,6 +70,7 @@ export type SimulationEvents = {
   speed_update: { speed: number };
   cash_update: { cash: number };
   stocks_update: { stocks: Stock[] };
+  fixed_assets_update: { assets: FixedIncomeAssetApi[] };
 } & {
   [K in `stock_update:${string}`]: { stock: Stock };
 };
