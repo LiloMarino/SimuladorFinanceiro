@@ -52,7 +52,7 @@ export default function App() {
               <Route path="/variable-income" element={<VariableIncomePage />} />
               <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
               <Route path="/fixed-income" element={<FixedIncomePage />} />
-              <Route path="/fixed-income/:product" element={<FixedIncomeDetailPage />} />
+              <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
               <Route path="/portfolio" element={<PortfolioPage />} />
               <Route path="/strategies" element={<StrategiesPage />} />
               <Route path="/settings" element={<SettingsPage />} />
