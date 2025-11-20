@@ -37,13 +37,15 @@ export class FixedIncomeAsset {
   get rateLabel(): string {
     switch (this.rateIndex) {
       case "CDI":
-        return `${(this.interestRate * 100).toFixed(2)}% do CDI`;
+        return `${(this.interestRate * 100).toFixed(2)}% CDI`;
       case "IPCA":
-        return `IPCA + ${(this.interestRate * 100).toFixed(2)}%`;
+        return `IPCA + ${this.interestRate.toFixed(2)}%`;
       case "SELIC":
         return `SELIC + ${(this.interestRate * 100).toFixed(2)}%`;
+      case "Prefixado":
+        return `${this.interestRate.toFixed(2)}% a.a.`;
       default:
-        return `${(this.interestRate * 100).toFixed(2)}% a.a.`;
+        return "Invalid";
     }
   }
 
