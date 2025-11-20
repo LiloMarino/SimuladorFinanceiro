@@ -1,22 +1,78 @@
 .gitignore: Arquivos e pastas a serem ignorados pelo Git
-backend/: Lógica do backend em Flask
-backend/base.html: Layout principal (topbar + sidebar)
-backend/database.py: Configuração do banco de dados
-backend/logger_utils.py: Utilitários para logging
-backend/models/: Modelos ORM
-backend/models/models.py: Definição dos modelos de dados
-backend/routes.py: Rotas de navegação (páginas)
-backend/data_loader.py: Importação de dados históricos
-backend/simulation.py: Classe Simulation
-backend/templates: HTML com Jinja2
-backend/websocket.py: Comunicação real-time com JS no front
 CONTRIBUTING.md: Guia para contribuir com o projeto
-data/: Arquivos de dados de entrada
+LICENSE: Licença do projeto
+README.md: README do projeto
+backend/: Lógica do backend em Python+Flask
+backend/data_importer.py: Importação de dados históricos a partir do yFinance ou de CSV
+backend/data_provider.py: Funções soltas para consulta ao banco de dados
+backend/database.py: Configuração e conexão com banco de dados
+backend/logger_utils.py: Gerador de logger personalizado
+backend/models/models.py: Definição dos modelos ORM
+backend/realtime/__init__.py: Singleton Pub/Sub ativo (SSE, WebSocket, etc.)
+backend/realtime/realtime_broker.py: Classe abstrata de um broker de comunicação realtime (Pub/Sub)
+backend/realtime/sse_broker.py: Broker concreto de comunicação SSE
+backend/realtime/ws_broker.py: Broker concreto de comunicação WebSocket
+backend/realtime/ws_handlers.py: Funções de manipulação de eventos WebSocket
+backend/routes/__init__.py: Configuração e registo de rotas Flask
+backend/routes/helpers.py: Funções auxiliares para construção de respostas HTTP padronizadas REST
+backend/routes/import_routes.py: Rotas de importação de dados
+backend/routes/operation_routes.py: Rotas de negociação manual
+backend/routes/portfolio_routes.py: Rotas de portfólio
+backend/routes/realtime_routes.py: Rotas de comunicação realtime
+backend/routes/settings_routes.py: Rotas de configuração
+backend/routes/timespeed_routes.py: Rotas de configuração de velocidade
+backend/simulation/__init__.py: Singleton do simulador
+backend/simulation/broker.py: Broker de negociação de ações
+backend/simulation/data_buffer.py: Buffer de dados de ações
+backend/simulation/entities/candle.py: Dataclass de um candle de mercado
+backend/simulation/entities/fixed_income_asset.py: Dataclass de um ativo de renda fixa
+backend/simulation/entities/order.py: Dataclass de uma ordem de compra ou venda
+backend/simulation/entities/portfolio.py: Dataclass de um portfólio
+backend/simulation/entities/position.py: Dataclass de uma posição de uma ação
+backend/simulation/fixed_broker.py: Broker de negociação de renda fixa
+backend/simulation/fixed_income_factory/: Implementação de abstract factory para renda fixa
+backend/simulation/fixed_income_factory/__init__.py: Factory randômico de ativos de renda fixa (integra todos os factories disponíveis)
+backend/simulation/fixed_income_factory/abstract_factory.py: Classe abstrata de factory de ativos de renda fixa
+backend/simulation/fixed_income_factory/cdb_factory.py: Factory de CDBs
+backend/simulation/fixed_income_factory/lca_factory.py: Factory de LCAs
+backend/simulation/fixed_income_factory/lci_factory.py: Factory de LCIs
+backend/simulation/fixed_income_factory/tesouro_factory.py: Factory de Tesouros Diretos
+backend/simulation/fixed_income_market.py: Gera e mantém o hall de ativos de renda fixa disponíveis
+backend/simulation/simulation.py: Classe principal do simulador
+backend/simulation/simulation_engine.py: Classe principal do motor do simulador
+backend/simulation_loop.py: Loop global da simulação
+backend/strategy/base_strategy.py: Classe base para estratégias
+backend/strategy/manual.py: Estratégia de negociação manual
 data/simulador_financeiro.mwb: Modelo visual do banco (MySQL Workbench)
 example.env: Exemplo de variáveis de ambiente
-LICENSE: Licença de uso do projeto
-main.py: Ponto de entrada da aplicação Flask
-README.md: Documentação principal
-requirements.txt: Lista de dependências do projeto
-scripts/: Scripts auxiliares
+frontend/README.md: README gerado automaticamente pelo Vite
+frontend/components.json: Configuração do Shadcn UI
+frontend/src/App.tsx: Componente principal da aplicação
+frontend/src/context/page-label/PageLabelContext.ts: Contexto do nome da página
+frontend/src/context/page-label/PageLabelProvider.tsx: Provider do nome da página
+frontend/src/context/page-label/index.ts: Exporta o provider e o context
+frontend/src/context/realtime/RealtimeContext.ts: Contexto de comunicação realtime
+frontend/src/context/realtime/RealtimeProvider.tsx: Provider de comunicação realtime
+frontend/src/context/realtime/index.ts: Exporta o provider e o context
+frontend/src/hooks/useActivePage.ts: Hook para obter a página ativa
+frontend/src/hooks/useFormDataMutation.ts: Hook para mutação de formulários
+frontend/src/hooks/useMutationApi.ts: Hook para mutação de REST API
+frontend/src/hooks/usePageLabel.ts: Hook para obter o nome da página
+frontend/src/hooks/useQueryApi.ts: Hook para consulta de REST API
+frontend/src/hooks/useRealtime.ts: Hook para comunicação realtime
+frontend/src/hooks/useRealtimeContext.ts: Hook para obter o contexto de comunicação realtime
+frontend/src/layouts/main-layout.tsx: Layout principal da aplicação
+frontend/src/layouts/partial/sidebar.tsx: Parte do sidebar da aplicação
+frontend/src/layouts/partial/topbar.tsx: Parte do topbar da aplicação
+frontend/src/lib/realtime/baseSubscriberRealtime.ts: Classe base para clientes de comunicação realtime
+frontend/src/lib/realtime/socketClient.ts: Implementação concreta do cliente de comunicação realtime WebSocket
+frontend/src/lib/realtime/sseClient.ts: Implementação concreta do cliente de comunicação realtime Server-Sent Events
+frontend/src/lib/schemas/: Schemas Zod
+frontend/src/lib/utils/formatting.ts: Funções de formatação
+frontend/src/models/fixed-income-asset.ts: Classe para ajudar a modelar um ativo de renda fixa
+frontend/src/pages/: Páginas da aplicação
+frontend/src/types/index.ts: Tipos usados na aplicação
+main.py: Main do backend (Flask)
+scripts: Scripts auxiliares
 scripts/tree.py: Geração da árvore do projeto
+scripts/tree_descriptions.yaml: Descrições da árvore do projeto

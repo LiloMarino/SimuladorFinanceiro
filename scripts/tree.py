@@ -137,13 +137,41 @@ def print_tree(d: dict, descriptions: dict[str, str] | None = None) -> None:
             print(line_text)
 
 
+def save_descriptions_template(paths: list[str], output_path: Path):
+    """
+    Cria e salva um dicionário de todos os caminhos em um arquivo YAML,
+    usando strings vazias como valores iniciais para preenchimento.
+    """
+    # 1. Cria um dicionário de caminhos com valores vazios ("")
+    #    Normaliza as chaves, pois é assim que elas são lidas na função load_descriptions
+    template_data = {path.replace("\\", "/").rstrip("/"): "" for path in paths}
+
+    # 2. Ordena as chaves para melhor legibilidade
+    sorted_data = dict(sorted(template_data.items()))
+
+    # 3. Salva no arquivo YAML
+    with open(output_path, "w", encoding="utf-8") as f:
+        # Usa o Dumper padrão do YAML com sort_keys=False para manter a ordem
+        yaml.dump(sorted_data, f, default_flow_style=False, sort_keys=False)
+
+    print(f"✅ Esqueleto de descrições gerado em: {output_path}")
+    print("Preencha as strings vazias com suas descrições.")
+
+
 if __name__ == "__main__":
     # 1) Obtém a lista de arquivos versionados no Git (respeita .gitignore)
     with os.popen("git ls-files") as f:
         files = [line.strip() for line in f if line.strip()]
 
-    # 2) Lê as descrições do arquivo YAML, se existir
     desc_path = Path(__file__).parent / "tree_descriptions.yaml"
+    if not desc_path.exists():
+        save_descriptions_template(files, desc_path)
+        print(
+            "\nAgora, preencha as descrições em 'tree_descriptions.yaml' e execute novamente."
+        )
+        exit(0)
+
+    # 2) Lê as descrições do arquivo YAML, se existir
     descriptions = load_descriptions(desc_path) if desc_path.exists() else {}
 
     # 3) Monta a árvore de diretórios/arquivos
@@ -151,7 +179,7 @@ if __name__ == "__main__":
 
     # 4) Captura o nome da pasta atual (nome do repositório)
     repo_name = os.path.basename(os.getcwd())
-    print(f"/{repo_name}")
+    print(f"{repo_name}/")
 
     # 5) Imprime a árvore com comentários alinhados
     print_tree(tree, descriptions=descriptions)
