@@ -1,19 +1,19 @@
 from datetime import datetime, timedelta
 
-from backend.features.realtime import notify
-from backend.features.simulation.entities.fixed_income_asset import FixedIncomeAsset
-from backend.features.simulation.entities.portfolio import Portfolio
-from backend.features.simulation.entities.position import Position
-from backend.features.simulation.simulation_engine import SimulationEngine
-from backend.features.strategy.manual import ManualStrategy
-from backend.shared.utils.data_provider import (
+from backend.core.logger import setup_logger
+from backend.core.utils.data_provider import (
     get_cdi_rate,
     get_ipca_rate,
     get_selic_rate,
     get_stock_details,
     get_stocks,
 )
-from backend.shared.utils.logger import setup_logger
+from backend.features.realtime import notify
+from backend.features.simulation.entities.fixed_income_asset import FixedIncomeAsset
+from backend.features.simulation.entities.portfolio import Portfolio
+from backend.features.simulation.entities.position import Position
+from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.strategy.manual import ManualStrategy
 
 logger = setup_logger(__name__)
 

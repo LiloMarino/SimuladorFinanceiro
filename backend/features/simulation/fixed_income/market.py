@@ -1,9 +1,9 @@
 from datetime import datetime
 
+from backend.core.logger import setup_logger
 from backend.features.realtime import notify
 from backend.features.simulation.entities.fixed_income_asset import FixedIncomeAsset
 from backend.features.simulation.fixed_income.factory import FixedIncomeFactory
-from backend.shared.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

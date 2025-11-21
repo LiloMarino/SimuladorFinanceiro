@@ -1,8 +1,8 @@
 from flask import request
 from flask_socketio import SocketIO, emit
 
+from backend.core.logger import setup_logger
 from backend.features.realtime import get_broker
-from backend.shared.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

@@ -3,11 +3,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 
-from backend.shared.utils.data_provider import (
-    get_cdi_rate,
-    get_ipca_rate,
-    get_selic_rate,
-)
+from backend.core.utils.data_provider import get_cdi_rate, get_ipca_rate, get_selic_rate
 
 
 class FixedIncomeType(Enum):

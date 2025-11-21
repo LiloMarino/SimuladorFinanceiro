@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from backend.database import SessionLocal
-from backend.shared.models.models import Ativos, PrecoHistorico
-from backend.shared.utils.logger import setup_logger
+from backend.core.database import SessionLocal
+from backend.core.logger import setup_logger
+from backend.core.models.models import Ativos, PrecoHistorico
 
 logger = setup_logger(__name__)
 

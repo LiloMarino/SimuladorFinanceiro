@@ -13,9 +13,16 @@ SimuladorFinanceiro/
 ├── LICENSE                                       # Licença do projeto.
 ├── README.md                                     # Descrição geral do projeto.
 ├── backend/                                      # Código-fonte do servidor Python. Organizado por domínios (features), rotas e utilidades compartilhadas.
-│   ├── data_importer.py                          # Entrada principal para importação manual de dados externos.
-│   ├── database.py                               # Conexão e inicialização do SQLite/MySQL.
+│   ├── core/                                     # Infraestrutura central: database, logger, modelos e utilidades de baixo nível.
+│   │   ├── database.py                           # Configuração da conexão com o banco e inicialização do ORM.
+│   │   ├── logger.py                             # Logger global configurado para todo o backend.
+│   │   ├── models/                               # Modelos persistentes usados pelo ORM.
+│   │   │   └── models.py                         # Definições base de modelos SQLAlchemy.
+│   │   └── utils/                                # Funções utilitárias genéricas de infraestrutura (puras, pequenas e sem domínio).
+│   │       └── data_provider.py                  # Fornece acesso unificado aos dados.
 │   ├── features/                                 # Implementações separadas por domínio funcional (DDD): realtime, simulation e strategy.
+│   │   ├── import_data/                          # Lógica de ingestão de dados externos para o sistema.
+│   │   │   └── importer_service.py               # Serviço responsável por importar, validar e transformar dados.
 │   │   ├── realtime/                             # Módulo responsável por comunicação em tempo real.
 │   │   │   ├── __init__.py
 │   │   │   ├── realtime_broker.py                # Classe abstrata de um broker de comunicação realtime (Pub/Sub).
@@ -56,12 +63,6 @@ SimuladorFinanceiro/
 │   │   ├── realtime_routes.py                    # Rotas de realtime SSE.
 │   │   ├── settings_routes.py                    # Configurações da simulação.
 │   │   └── timespeed_routes.py                   # Ajuste de velocidade da simulação.
-│   ├── shared/                                   # Módulo compartilhado reaproveitado entre features.
-│   │   ├── models/                               # Modelos gerais do sistema sem pertencer a um domínio específico.
-│   │   │   └── models.py                         # Model do SQLAlchemy.
-│   │   └── utils/                                # Funções utilitárias que não pertencem a nenhuma feature.
-│   │       ├── data_provider.py                  # Fornece acesso unificado aos dados.
-│   │       └── logger.py                         # Logger configurado do projeto.
 │   └── simulation_loop.py                        # Lógica de loop principal da simulação.
 ├── data/                                         # Dados externos do projeto.
 │   └── simulador_financeiro.mwb                  # Esquema do banco MySQL Workbench.
@@ -182,7 +183,7 @@ SimuladorFinanceiro/
 A árvore da estrutura do projeto é mantido automaticamente com o script
 
 ```bash
-python .\scripts\tree.py
+python -X utf8 .\scripts\tree.py > arvore.md
 ```
 
 As descrições exibidas ao lado dos arquivos e pastas na árvore são carregadas automaticamente do arquivo
@@ -202,10 +203,11 @@ data/: Arquivos de dados de entrada
 Após salvar, execute novamente:
 
 ```bash
-python .\scripts\tree.py
+python -X utf8 .\scripts\tree.py > arvore.md
 ```
 
-para gerar a estrutura atualizada com os comentários alinhados.
+para gerar a estrutura atualizada com os comentários alinhados. 
+Após isso copie o conteúdo para o arquivo `CONTRIBUTING.md` e exclua o arquivo `arvore.md`.
 
 ## 🔁 Ciclo de Desenvolvimento com Banco de Dados
 

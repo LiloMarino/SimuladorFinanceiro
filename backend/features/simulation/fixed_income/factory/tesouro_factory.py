@@ -1,6 +1,7 @@
 import random
 from datetime import datetime
 
+from backend.core.utils.data_provider import get_ipca_rate, get_selic_rate
 from backend.features.simulation.entities.fixed_income_asset import (
     FixedIncomeAsset,
     FixedIncomeType,
@@ -9,7 +10,6 @@ from backend.features.simulation.entities.fixed_income_asset import (
 from backend.features.simulation.fixed_income.factory.abstract_factory import (
     AbstractFixedIncomeFactory,
 )
-from backend.shared.utils.data_provider import get_ipca_rate, get_selic_rate
 
 
 class TesouroFactory(AbstractFixedIncomeFactory):

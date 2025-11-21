@@ -1,7 +1,7 @@
 import threading
 
+from backend.core.logger import setup_logger
 from backend.features.strategy.base_strategy import BaseStrategy
-from backend.shared.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

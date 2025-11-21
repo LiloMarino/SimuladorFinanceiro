@@ -8,10 +8,18 @@ README.md: "Descrição geral do projeto."
 
 backend/: "Código-fonte do servidor Python. Organizado por domínios (features), rotas e utilidades compartilhadas."
 
-backend/data_importer.py: "Entrada principal para importação manual de dados externos."
-backend/database.py: "Conexão e inicialização do SQLite/MySQL."
+backend/core/: "Infraestrutura central: database, logger, modelos e utilidades de baixo nível."
+backend/core/database.py: "Configuração da conexão com o banco e inicialização do ORM."
+backend/core/logger.py: "Logger global configurado para todo o backend."
+backend/core/models/: "Modelos persistentes usados pelo ORM."
+backend/core/models/models.py: "Definições base de modelos SQLAlchemy."
+
+backend/core/utils/: "Funções utilitárias genéricas de infraestrutura (puras, pequenas e sem domínio)."
+backend/core/utils/data_provider.py: "Fornece acesso unificado aos dados."
 
 backend/features/: "Implementações separadas por domínio funcional (DDD): realtime, simulation e strategy."
+backend/features/import_data/: "Lógica de ingestão de dados externos para o sistema."
+backend/features/import_data/importer_service.py: "Serviço responsável por importar, validar e transformar dados."
 
 backend/features/realtime/: "Módulo responsável por comunicação em tempo real."
 backend/features/realtime/realtime_broker.py: "Classe abstrata de um broker de comunicação realtime (Pub/Sub)."
@@ -54,13 +62,6 @@ backend/routes/portfolio_routes.py: "Rotas da carteira."
 backend/routes/realtime_routes.py: "Rotas de realtime SSE."
 backend/routes/settings_routes.py: "Configurações da simulação."
 backend/routes/timespeed_routes.py: "Ajuste de velocidade da simulação."
-
-backend/shared/: "Módulo compartilhado reaproveitado entre features."
-backend/shared/models/: "Modelos gerais do sistema sem pertencer a um domínio específico."
-backend/shared/models/models.py: "Model do SQLAlchemy."
-backend/shared/utils/: "Funções utilitárias que não pertencem a nenhuma feature."
-backend/shared/utils/data_provider.py: "Fornece acesso unificado aos dados."
-backend/shared/utils/logger.py: "Logger configurado do projeto."
 
 backend/simulation_loop.py: "Lógica de loop principal da simulação."
 

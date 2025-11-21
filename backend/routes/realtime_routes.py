@@ -1,8 +1,8 @@
 from flask import Blueprint, request
 
+from backend.core.logger import setup_logger
 from backend.features.realtime import get_broker
 from backend.routes.helpers import make_response
-from backend.shared.utils.logger import setup_logger
 
 realtime_bp = Blueprint("realtime", __name__)
 

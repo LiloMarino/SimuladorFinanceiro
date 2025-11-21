@@ -4,10 +4,10 @@ import traceback
 
 from flask import Flask
 
+from backend.core.logger import setup_logger
 from backend.features.realtime import get_broker
 from backend.features.realtime.ws_broker import SocketBroker
 from backend.features.simulation import get_simulation
-from backend.shared.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

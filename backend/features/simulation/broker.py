@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable, Dict
 
+from backend.core.logger import setup_logger
 from backend.features.simulation.entities.position import Position
-from backend.shared.utils.logger import setup_logger
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
