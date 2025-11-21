@@ -6,160 +6,177 @@
 
 ```plaintext
 SimuladorFinanceiro/
-├── .gitignore                                # Arquivos e pastas a serem ignorados pelo Git
-├── .vscode/
-│   └── launch.json
-├── CONTRIBUTING.md                           # Guia para contribuir com o projeto
-├── LICENSE                                   # Licença do projeto
-├── README.md                                 # README do projeto
-├── backend/                                  # Lógica do backend em Python+Flask
-│   ├── data_importer.py                      # Importação de dados históricos a partir do yFinance ou de CSV
-│   ├── data_provider.py                      # Funções soltas para consulta ao banco de dados
-│   ├── database.py                           # Configuração e conexão com banco de dados
-│   ├── logger_utils.py                       # Gerador de logger personalizado
-│   ├── models/
-│   │   └── models.py                         # Definição dos modelos ORM
-│   ├── realtime/
-│   │   ├── __init__.py                       # Singleton Pub/Sub ativo (SSE, WebSocket, etc.)
-│   │   ├── realtime_broker.py                # Classe abstrata de um broker de comunicação realtime (Pub/Sub)
-│   │   ├── sse_broker.py                     # Broker concreto de comunicação SSE
-│   │   ├── ws_broker.py                      # Broker concreto de comunicação WebSocket
-│   │   └── ws_handlers.py                    # Funções de manipulação de eventos WebSocket
-│   ├── routes/
-│   │   ├── __init__.py                       # Configuração e registo de rotas Flask
-│   │   ├── helpers.py                        # Funções auxiliares para construção de respostas HTTP padronizadas REST
-│   │   ├── import_routes.py                  # Rotas de importação de dados
-│   │   ├── operation_routes.py               # Rotas de negociação manual
-│   │   ├── portfolio_routes.py               # Rotas de portfólio
-│   │   ├── realtime_routes.py                # Rotas de comunicação realtime
-│   │   ├── settings_routes.py                # Rotas de configuração
-│   │   └── timespeed_routes.py               # Rotas de configuração de velocidade
-│   ├── simulation/
-│   │   ├── __init__.py                       # Singleton do simulador
-│   │   ├── broker.py                         # Broker de negociação de ações
-│   │   ├── data_buffer.py                    # Buffer de dados de ações
-│   │   ├── entities/
-│   │   │   ├── candle.py                     # Dataclass de um candle de mercado
-│   │   │   ├── fixed_income_asset.py         # Dataclass de um ativo de renda fixa
-│   │   │   ├── order.py                      # Dataclass de uma ordem de compra ou venda
-│   │   │   ├── portfolio.py                  # Dataclass de um portfólio
-│   │   │   └── position.py                   # Dataclass de uma posição de uma ação
-│   │   ├── fixed_broker.py                   # Broker de negociação de renda fixa
-│   │   ├── fixed_income_factory/             # Implementação de abstract factory para renda fixa
-│   │   │   ├── __init__.py                   # Factory randômico de ativos de renda fixa (integra todos os factories disponíveis)
-│   │   │   ├── abstract_factory.py           # Classe abstrata de factory de ativos de renda fixa
-│   │   │   ├── cdb_factory.py                # Factory de CDBs
-│   │   │   ├── lca_factory.py                # Factory de LCAs
-│   │   │   ├── lci_factory.py                # Factory de LCIs
-│   │   │   └── tesouro_factory.py            # Factory de Tesouros Diretos
-│   │   ├── fixed_income_market.py            # Gera e mantém o hall de ativos de renda fixa disponíveis
-│   │   ├── simulation.py                     # Classe principal do simulador
-│   │   └── simulation_engine.py              # Classe principal do motor do simulador
-│   ├── simulation_loop.py                    # Loop global da simulação
-│   └── strategy/
-│       ├── base_strategy.py                  # Classe base para estratégias
-│       └── manual.py                         # Estratégia de negociação manual
-├── data/
-│   └── simulador_financeiro.mwb              # Modelo visual do banco (MySQL Workbench)
-├── example.env                               # Exemplo de variáveis de ambiente
-├── frontend/
-│   ├── README.md                             # README gerado automaticamente pelo Vite
-│   ├── components.json                       # Configuração do Shadcn UI
+├── .gitignore                                    # Ignora arquivos desnecessários do Git.
+├── .vscode/                                      # Configurações específicas do VSCode.
+│   └── launch.json                               # Configurações de debug do VSCode.
+├── CONTRIBUTING.md                               # Guia para contribuidores.
+├── LICENSE                                       # Licença do projeto.
+├── README.md                                     # Descrição geral do projeto.
+├── backend/                                      # Código-fonte do servidor Python. Organizado por domínios (features), rotas e utilidades compartilhadas.
+│   ├── data_importer.py                          # Entrada principal para importação manual de dados externos.
+│   ├── database.py                               # Conexão e inicialização do SQLite/MySQL.
+│   ├── features/                                 # Implementações separadas por domínio funcional (DDD): realtime, simulation e strategy.
+│   │   ├── realtime/                             # Módulo responsável por comunicação em tempo real.
+│   │   │   ├── __init__.py
+│   │   │   ├── realtime_broker.py                # Classe abstrata de um broker de comunicação realtime (Pub/Sub).
+│   │   │   ├── sse_broker.py                     # Broker concreto de comunicação SSE.
+│   │   │   ├── ws_broker.py                      # Broker concreto de comunicação WebSocket.
+│   │   │   └── ws_handlers.py                    # Callbacks de eventos WebSocket.
+│   │   ├── simulation/                           # Núcleo da engine de simulação do mercado financeiro.
+│   │   │   ├── __init__.py
+│   │   │   ├── broker.py                         # Broker de negociação de ações.
+│   │   │   ├── data_buffer.py                    # Buffer interno para caching de dados durante a simulação.
+│   │   │   ├── entities/                         # Modelos/entidades da simulação.
+│   │   │   │   ├── candle.py                     # Representa candles OHLCV.
+│   │   │   │   ├── fixed_income_asset.py         # Representa ativo de renda fixa.
+│   │   │   │   ├── order.py                      # Ordem de compra/venda.
+│   │   │   │   ├── portfolio.py                  # Carteira completa.
+│   │   │   │   └── position.py                   # Posição de um único ativo de renda varíavel.
+│   │   │   ├── fixed_broker.py                   # Broker de negociação de renda fixa.
+│   │   │   ├── fixed_income/                     # Módulo de lógica de renda fixa e produtos.
+│   │   │   │   ├── factory/                      # Factories de criação de ativos financeiros de renda fixa.
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── abstract_factory.py       # Interface base para factories.
+│   │   │   │   │   ├── cdb_factory.py            # Factory para CDB.
+│   │   │   │   │   ├── lca_factory.py            # Factory LCA.
+│   │   │   │   │   ├── lci_factory.py            # Factory LCI.
+│   │   │   │   │   └── tesouro_factory.py        # Factory Tesouro Direto.
+│   │   │   │   └── market.py                     # Mercado de renda fixa.
+│   │   │   ├── simulation.py                     # Módulo de lógica da simulação.
+│   │   │   └── simulation_engine.py              # Engine de simulação.
+│   │   └── strategy/                             # Algoritmos de estratégia de investimento.
+│   │       ├── base_strategy.py                  # Interface base.
+│   │       └── manual.py                         # Estratégia manual usada pelo usuário.
+│   ├── routes/                                   # Blueprints/routers do backend (FastAPI/Flask).
+│   │   ├── __init__.py
+│   │   ├── helpers.py                            # Helpers REST — padronização de responses.
+│   │   ├── import_routes.py                      # Rotas de importação.
+│   │   ├── operation_routes.py                   # Operações (compra/venda).
+│   │   ├── portfolio_routes.py                   # Rotas da carteira.
+│   │   ├── realtime_routes.py                    # Rotas de realtime SSE.
+│   │   ├── settings_routes.py                    # Configurações da simulação.
+│   │   └── timespeed_routes.py                   # Ajuste de velocidade da simulação.
+│   ├── shared/                                   # Módulo compartilhado reaproveitado entre features.
+│   │   ├── models/                               # Modelos gerais do sistema sem pertencer a um domínio específico.
+│   │   │   └── models.py                         # Model do SQLAlchemy.
+│   │   └── utils/                                # Funções utilitárias que não pertencem a nenhuma feature.
+│   │       ├── data_provider.py                  # Fornece acesso unificado aos dados.
+│   │       └── logger.py                         # Logger configurado do projeto.
+│   └── simulation_loop.py                        # Lógica de loop principal da simulação.
+├── data/                                         # Dados externos do projeto.
+│   └── simulador_financeiro.mwb                  # Esquema do banco MySQL Workbench.
+├── example.env                                   # Exemplo de variáveis de ambiente.
+├── frontend/                                     # Aplicação React + Vite. Estrutura Feature-Based + Domain Segmentation.
+│   ├── components.json                           # Configuração do shadcn/ui.
 │   ├── eslint.config.js
 │   ├── index.html
 │   ├── package.json
 │   ├── pnpm-lock.yaml
-│   ├── public/
+│   ├── public/                                   # Imagens e assets estáticos do Vite.
 │   │   └── vite.svg
-│   ├── src/
-│   │   ├── App.tsx                           # Componente principal da aplicação
+│   ├── src/                                      # Código-fonte principal do frontend.
+│   │   ├── App.tsx
 │   │   ├── assets/
 │   │   │   └── react.svg
-│   │   ├── components/
-│   │   │   ├── cards/
-│   │   │   │   ├── base-card.tsx
-│   │   │   │   ├── fixed-income-card.tsx
-│   │   │   │   └── stock-card.tsx
-│   │   │   ├── import-assets/
-│   │   │   │   ├── csv-form.tsx
-│   │   │   │   └── yfinance-form.tsx
-│   │   │   ├── stock-chart.tsx
-│   │   │   ├── summary-card.tsx
-│   │   │   └── ui/
-│   │   │       ├── alert-dialog.tsx
-│   │   │       ├── badge.tsx
-│   │   │       ├── button.tsx
-│   │   │       ├── card.tsx
-│   │   │       ├── chart.tsx
-│   │   │       ├── checkbox.tsx
-│   │   │       ├── dialog.tsx
-│   │   │       ├── form.tsx
-│   │   │       ├── input.tsx
-│   │   │       ├── label.tsx
-│   │   │       ├── sonner.tsx
-│   │   │       ├── spinner.tsx
-│   │   │       └── table.tsx
-│   │   ├── context/
-│   │   │   ├── page-label/
-│   │   │   │   ├── PageLabelContext.ts       # Contexto do nome da página
-│   │   │   │   ├── PageLabelProvider.tsx     # Provider do nome da página
-│   │   │   │   └── index.ts                  # Exporta o provider e o context
-│   │   │   └── realtime/
-│   │   │       ├── RealtimeContext.ts        # Contexto de comunicação realtime
-│   │   │       ├── RealtimeProvider.tsx      # Provider de comunicação realtime
-│   │   │       └── index.ts                  # Exporta o provider e o context
-│   │   ├── hooks/
-│   │   │   ├── useActivePage.ts              # Hook para obter a página ativa
-│   │   │   ├── useFormDataMutation.ts        # Hook para mutação de formulários
-│   │   │   ├── useMutationApi.ts             # Hook para mutação de REST API
-│   │   │   ├── usePageLabel.ts               # Hook para obter o nome da página
-│   │   │   ├── useQueryApi.ts                # Hook para consulta de REST API
-│   │   │   ├── useRealtime.ts                # Hook para comunicação realtime
-│   │   │   └── useRealtimeContext.ts         # Hook para obter o contexto de comunicação realtime
+│   │   ├── features/                             # Funcionalidades agrupadas por domínio (DDD no frontend).
+│   │   │   ├── fixed-income/                     # Feature de renda fixa.
+│   │   │   │   └── components/
+│   │   │   │       ├── base-card.tsx
+│   │   │   │       └── fixed-income-card.tsx
+│   │   │   ├── import-assets/                    # Tela e lógica de importação.
+│   │   │   │   └── components/
+│   │   │   │       ├── csv-form.tsx
+│   │   │   │       └── yfinance-form.tsx
+│   │   │   ├── portfolio/                        # Feature do portfólio.
+│   │   │   │   └── components/
+│   │   │   │       └── summary-card.tsx
+│   │   │   └── variable-income/                  # Feature de renda variável.
+│   │   │       └── components/
+│   │   │           ├── stock-card.tsx
+│   │   │           └── stock-chart.tsx
 │   │   ├── index.css
-│   │   ├── layouts/
-│   │   │   ├── main-layout.tsx               # Layout principal da aplicação
-│   │   │   └── partial/
-│   │   │       ├── sidebar.tsx               # Parte do sidebar da aplicação
-│   │   │       └── topbar.tsx                # Parte do topbar da aplicação
-│   │   ├── lib/
-│   │   │   ├── realtime/
-│   │   │   │   ├── baseSubscriberRealtime.ts # Classe base para clientes de comunicação realtime
-│   │   │   │   ├── socketClient.ts           # Implementação concreta do cliente de comunicação realtime WebSocket
-│   │   │   │   └── sseClient.ts              # Implementação concreta do cliente de comunicação realtime Server-Sent Events
-│   │   │   ├── schemas/                      # Schemas Zod
-│   │   │   │   └── api.ts
-│   │   │   ├── utils/
-│   │   │   │   ├── api.ts
-│   │   │   │   └── formatting.ts             # Funções de formatação
-│   │   │   └── utils.ts
+│   │   ├── layouts/                              # Layouts que compõem a estrutura geral da UI.
+│   │   │   ├── main-layout.tsx                   # Layout base.
+│   │   │   └── partial/                          # Partes do layout (sidebar, topbar).
+│   │   │       ├── sidebar.tsx
+│   │   │       └── topbar.tsx
 │   │   ├── main.tsx
-│   │   ├── models/
-│   │   │   └── fixed-income-asset.ts         # Classe para ajudar a modelar um ativo de renda fixa
-│   │   ├── pages/                            # Páginas da aplicação
+│   │   ├── models/                               # Factories e classes (modelo orientado a objetos).
+│   │   │   └── fixed-income-asset.ts
+│   │   ├── pages/                                # Páginas completas do app.
 │   │   │   ├── fixed-income-details.tsx
-│   │   │   ├── fixed-income.tsx
+│   │   │   ├── fixed-income.tsx                  # Página principal da renda fixa.
 │   │   │   ├── import-assets.tsx
 │   │   │   ├── lobby.tsx
-│   │   │   ├── portfolio.tsx
-│   │   │   ├── settings.tsx
-│   │   │   ├── statistics.tsx
-│   │   │   ├── strategies.tsx
+│   │   │   ├── portfolio.tsx                     # Página do portfólio.
+│   │   │   ├── settings.tsx                      # Tela de configurações.
+│   │   │   ├── statistics.tsx                    # Tela de estatísticas.
+│   │   │   ├── strategies.tsx                    # Tela de estratégias.
 │   │   │   ├── variable-income-details.tsx
-│   │   │   └── variable-income.tsx
-│   │   ├── types/
-│   │   │   └── index.ts                      # Tipos usados na aplicação
+│   │   │   └── variable-income.tsx               # Página principal da renda variável.
+│   │   ├── shared/                               # Código compartilhado entre features.
+│   │   │   ├── components/                       # Componentes reutilizáveis.
+│   │   │   │   └── ui/                           # Componentes de UI do shadcn/ui.
+│   │   │   │       ├── alert-dialog.tsx
+│   │   │   │       ├── badge.tsx
+│   │   │   │       ├── button.tsx
+│   │   │   │       ├── card.tsx
+│   │   │   │       ├── chart.tsx
+│   │   │   │       ├── checkbox.tsx
+│   │   │   │       ├── dialog.tsx
+│   │   │   │       ├── form.tsx
+│   │   │   │       ├── input.tsx
+│   │   │   │       ├── label.tsx
+│   │   │   │       ├── sonner.tsx
+│   │   │   │       ├── spinner.tsx
+│   │   │   │       └── table.tsx
+│   │   │   ├── context/                          # Contextos globais de estado.
+│   │   │   │   ├── page-label/
+│   │   │   │   │   ├── PageLabelContext.ts
+│   │   │   │   │   ├── PageLabelProvider.tsx
+│   │   │   │   │   └── index.ts
+│   │   │   │   └── realtime/
+│   │   │   │       ├── RealtimeContext.ts
+│   │   │   │       ├── RealtimeProvider.tsx
+│   │   │   │       └── index.ts
+│   │   │   ├── hooks/                            # Hooks reutilizáveis (useQueryApi etc).
+│   │   │   │   ├── useActivePage.ts
+│   │   │   │   ├── useFormDataMutation.ts
+│   │   │   │   ├── useMutationApi.ts
+│   │   │   │   ├── usePageLabel.ts
+│   │   │   │   ├── useQueryApi.ts
+│   │   │   │   ├── useRealtime.ts
+│   │   │   │   └── useRealtimeContext.ts
+│   │   │   └── lib/                              # Bibliotecas internas.
+│   │   │       ├── realtime/                     # Lógica para SSE/WS.
+│   │   │       │   ├── baseSubscriberRealtime.ts
+│   │   │       │   ├── socketClient.ts
+│   │   │       │   └── sseClient.ts
+│   │   │       ├── schemas/                      # Zod schemas da API.
+│   │   │       │   └── api.ts
+│   │   │       ├── utils/                        # Funções auxiliares (formatting, api).
+│   │   │       │   ├── api.ts
+│   │   │       │   └── formatting.ts
+│   │   │       └── utils.ts
+│   │   ├── types/                                # Definições TypeScript de tipos por domínio.
+│   │   │   ├── base.ts                           # Tipos universais.
+│   │   │   ├── economic.ts                       # Tipos de indicadores.
+│   │   │   ├── fixed-income.ts                   # Tipos de renda fixa.
+│   │   │   ├── index.ts
+│   │   │   ├── portfolio.ts                      # Tipos da carteira.
+│   │   │   ├── simulation.ts                     # Tipos de simulação.
+│   │   │   └── stock.ts                          # Tipos de renda variável.
 │   │   └── vite-env.d.ts
 │   ├── tsconfig.app.json
 │   ├── tsconfig.json
 │   ├── tsconfig.node.json
-│   └── vite.config.ts
-├── main.py                                   # Main do backend (Flask)
-├── requirements.txt
-└── scripts/                                  # Scripts auxiliares
-    ├── fix_model.py
-    ├── tree.py                               # Geração da árvore do projeto
-    └── tree_descriptions.yaml                # Descrições da árvore do projeto
+│   └── vite.config.ts                            # Configuração do Vite.
+├── main.py                                       # Entrada da API/backend.
+├── requirements.txt                              # Dependências do backend Python.
+└── scripts/                                      # Scripts utilitários para desenvolvimento.
+    ├── fix_model.py                              # Script para arrumar models automaticamente.
+    ├── tree.py                                   # Gera a árvore de diretórios.
+    └── tree_descriptions.yaml                    # Arquivo de descrição da estrutura (este arquivo).
 ```
 
 A árvore da estrutura do projeto é mantido automaticamente com o script
