@@ -1,4 +1,4 @@
-import BaseCard from "@/features/fixed-income/components/base-card";
+import BaseCard from "@/shared/components/base-card";
 import type { Stock } from "@/types";
 
 interface StockCardProps {

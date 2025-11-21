@@ -11,15 +11,15 @@ import {
   faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import type { NavItem } from "@/types";
-import VariableIncomePage from "@/pages/variable-income";
-import VariableIncomeDetailPage from "@/pages/variable-income-details";
-import PortfolioPage from "./pages/portfolio";
+import VariableIncomePage from "@/features/variable-income/pages/variable-income";
+import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
+import PortfolioPage from "./features/portfolio/pages/portfolio";
 import SettingsPage from "./pages/settings";
-import FixedIncomePage from "./pages/fixed-income";
-import FixedIncomeDetailPage from "./pages/fixed-income-details";
+import FixedIncomePage from "./features/fixed-income/pages/fixed-income";
+import FixedIncomeDetailPage from "./features/fixed-income/pages/fixed-income-details";
 import StrategiesPage from "./pages/strategies";
 import LobbyPage from "./pages/lobby";
-import ImportAssetsPage from "./pages/import-assets";
+import ImportAssetsPage from "./features/import-assets/pages/import-assets";
 import { RealtimeProvider } from "@/shared/context/realtime";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { PageLabelProvider } from "@/shared/context/page-label";
