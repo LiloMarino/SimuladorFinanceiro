@@ -1,16 +1,16 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWallet, faChartLine, faCoins, faMoneyBillWave, faEye } from "@fortawesome/free-solid-svg-icons";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { useQueryApi } from "@/hooks/useQueryApi";
-import { Spinner } from "@/components/ui/spinner";
-import { SummaryCard } from "@/components/summary-card";
-import usePageLabel from "@/hooks/usePageLabel";
+import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/shared/components/ui/table";
+import { Button } from "@/shared/components/ui/button";
+import { useQueryApi } from "@/shared/hooks/useQueryApi";
+import { Spinner } from "@/shared/components/ui/spinner";
+import usePageLabel from "@/shared/hooks/usePageLabel";
 import type { EconomicIndicators, PortfolioState, Stock } from "@/types";
-import { formatMoney } from "@/lib/utils/formatting";
+import { formatMoney } from "@/shared/lib/utils/formatting";
 import { Link } from "react-router-dom";
-import { useRealtime } from "@/hooks/useRealtime";
+import { useRealtime } from "@/shared/hooks/useRealtime";
+import { SummaryCard } from "@/features/portfolio/components/summary-card";
 
 export default function PortfolioPage() {
   usePageLabel("Carteira");

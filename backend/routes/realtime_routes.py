@@ -1,12 +1,12 @@
 from flask import Blueprint, request
 
-from backend import logger_utils
-from backend.realtime import get_broker
+from backend.features.realtime import get_broker
 from backend.routes.helpers import make_response
+from backend.shared.utils.logger import setup_logger
 
 realtime_bp = Blueprint("realtime", __name__)
 
-logger = logger_utils.setup_logger(__name__)
+logger = setup_logger(__name__)
 
 
 @realtime_bp.route("/api/stream")

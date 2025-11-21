@@ -18,12 +18,12 @@ import SettingsPage from "./pages/settings";
 import FixedIncomePage from "./pages/fixed-income";
 import FixedIncomeDetailPage from "./pages/fixed-income-details";
 import StrategiesPage from "./pages/strategies";
-import StatisticsPage from "./pages/statistics";
 import LobbyPage from "./pages/lobby";
 import ImportAssetsPage from "./pages/import-assets";
-import { RealtimeProvider } from "@/context/realtime";
-import { Toaster } from "./components/ui/sonner";
-import { PageLabelProvider } from "./context/page-label";
+import { RealtimeProvider } from "@/shared/context/realtime";
+import { Toaster } from "@/shared/components/ui/sonner";
+import { PageLabelProvider } from "@/shared/context/page-label";
+import StatisticsPage from "./pages/statistics";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },

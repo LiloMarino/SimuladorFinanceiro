@@ -2,9 +2,9 @@ from dataclasses import asdict
 
 from flask import Blueprint, request
 
+from backend.features.simulation import get_simulation
+from backend.features.strategy.manual import ManualStrategy
 from backend.routes.helpers import make_response
-from backend.simulation import get_simulation
-from backend.strategy.manual import ManualStrategy
 
 operation_bp = Blueprint("operation", __name__)
 

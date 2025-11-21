@@ -1,5 +1,5 @@
-import useActivePage from "@/hooks/useActivePage";
-import usePageLabel from "@/hooks/usePageLabel";
+import useActivePage from "@/shared/hooks/useActivePage";
+import usePageLabel from "@/shared/hooks/usePageLabel";
 import Sidebar from "@/layouts/partial/sidebar";
 import Topbar from "@/layouts/partial/topbar";
 import type { NavItem } from "@/types";

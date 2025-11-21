@@ -1,17 +1,17 @@
 import { useRef, useState } from "react";
 import clsx from "clsx";
 import { useParams } from "react-router-dom";
-import { useQueryApi } from "@/hooks/useQueryApi";
+import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import type { Position, StockDetails } from "@/types";
-import { Spinner } from "@/components/ui/spinner";
-import { useRealtime } from "@/hooks/useRealtime";
-import { Card } from "@/components/ui/card";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { useRealtime } from "@/shared/hooks/useRealtime";
+import { Card } from "@/shared/components/ui/card";
 import { TrendingUp, TrendingDown, Plus, Minus } from "lucide-react";
-import { StockChart } from "@/components/stock-chart";
-import { useMutationApi } from "@/hooks/useMutationApi";
+import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { toast } from "sonner";
-import { formatMoney } from "@/lib/utils/formatting";
-import usePageLabel from "@/hooks/usePageLabel";
+import { formatMoney } from "@/shared/lib/utils/formatting";
+import usePageLabel from "@/shared/hooks/usePageLabel";
+import { StockChart } from "@/features/variable-income/components/stock-chart";
 
 export default function VariableIncomeDetailPage() {
   usePageLabel("Detalhes Renda Variável");

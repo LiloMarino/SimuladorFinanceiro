@@ -1,8 +1,8 @@
 from flask import Blueprint, request
 
-from backend.realtime import notify
+from backend.features.realtime import notify
+from backend.features.simulation import get_simulation
 from backend.routes.helpers import make_response
-from backend.simulation import get_simulation
 
 timespeed_bp = Blueprint("timespeed_bp", __name__)
 

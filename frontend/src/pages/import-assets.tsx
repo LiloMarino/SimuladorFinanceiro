@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -7,12 +7,15 @@ import {
   AlertDialogFooter,
   AlertDialogTitle,
   AlertDialogDescription,
-} from "@/components/ui/alert-dialog";
-import CSVForm, { type CsvFormData } from "@/components/import-assets/csv-form";
-import YFinanceForm, { type YFinanceFormData } from "@/components/import-assets/yfinance-form";
-import { useMutationApi } from "@/hooks/useMutationApi";
-import { useFormDataMutation } from "@/hooks/useFormDataMutation";
+} from "@/shared/components/ui/alert-dialog";
+
+import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { useFormDataMutation } from "@/shared/hooks/useFormDataMutation";
 import { toast } from "sonner";
+import type { CsvFormData } from "@/features/import-assets/components/csv-form";
+import type { YFinanceFormData } from "@/features/import-assets/components/yfinance-form";
+import CSVForm from "@/features/import-assets/components/csv-form";
+import YFinanceForm from "@/features/import-assets/components/yfinance-form";
 
 type ImportFormData = { type: "csv"; data: CsvFormData } | { type: "yfinance"; data: YFinanceFormData };
 

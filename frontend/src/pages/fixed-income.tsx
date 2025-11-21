@@ -1,10 +1,10 @@
-import FixedIncomeCard from "@/components/cards/fixed-income-card";
-import { Spinner } from "@/components/ui/spinner";
-import { useQueryApi } from "@/hooks/useQueryApi";
-import { useRealtime } from "@/hooks/useRealtime";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { useQueryApi } from "@/shared/hooks/useQueryApi";
+import { useRealtime } from "@/shared/hooks/useRealtime";
 import { FixedIncomeAsset } from "@/models/fixed-income-asset";
 import type { FixedIncomeAssetApi, SimulationState } from "@/types";
 import { parse } from "date-fns";
+import FixedIncomeCard from "@/features/fixed-income/components/fixed-income-card";
 
 export default function FixedIncomePage() {
   const { data: assets, setData: setAssets, loading } = useQueryApi<FixedIncomeAssetApi[]>("/api/fixed-income");

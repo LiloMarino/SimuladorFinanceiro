@@ -22,19 +22,19 @@ from pathlib import Path
 from flask import Flask
 from flask_socketio import SocketIO
 
-from backend import logger_utils
 from backend.database import engine
-from backend.realtime.sse_broker import SSEBroker
-from backend.realtime.ws_broker import SocketBroker
-from backend.realtime.ws_handlers import register_ws_handlers
+from backend.features.realtime.sse_broker import SSEBroker
+from backend.features.realtime.ws_broker import SocketBroker
+from backend.features.realtime.ws_handlers import register_ws_handlers
 from backend.routes import register_routes
+from backend.shared.utils.logger import setup_logger
 from backend.simulation_loop import start_simulation_loop
 
 BACKEND_DIR = Path("backend")
 SECRET_PATH = Path("secret.key")
 USE_SSE = False
 
-logger = logger_utils.setup_logger(__name__)
+logger = setup_logger(__name__)
 
 
 def get_secret_key():

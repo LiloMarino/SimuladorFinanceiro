@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSyncAlt, faRobot, faHandPaper, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
@@ -123,10 +123,7 @@ export default function StrategiesPage() {
         <div className="border rounded-lg p-4">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-medium">Log de Execução</h3>
-            <button
-              className="text-gray-500 hover:text-gray-700"
-              onClick={handleClearLog}
-            >
+            <button className="text-gray-500 hover:text-gray-700" onClick={handleClearLog}>
               <FontAwesomeIcon icon={faTrashAlt} />
             </button>
           </div>

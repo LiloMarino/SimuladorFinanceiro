@@ -2,8 +2,8 @@ from dataclasses import asdict
 
 from flask import Blueprint
 
+from backend.features.simulation import get_simulation
 from backend.routes.helpers import make_response
-from backend.simulation import get_simulation
 
 portfolio_bp = Blueprint("portfolio", __name__)
 

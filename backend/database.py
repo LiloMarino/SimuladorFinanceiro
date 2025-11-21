@@ -7,13 +7,13 @@ from sqlalchemy.engine.url import make_url
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session, sessionmaker
 
-from backend import logger_utils
-from backend.models.models import Base
+from backend.shared.models.models import Base
+from backend.shared.utils.logger import setup_logger
 
 DB_PATH = Path("data/simulador_financeiro.db")
 load_dotenv()
 
-logger = logger_utils.setup_logger(__name__)
+logger = setup_logger(__name__)
 
 
 def get_engine():

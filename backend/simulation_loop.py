@@ -4,12 +4,12 @@ import traceback
 
 from flask import Flask
 
-from backend import logger_utils
-from backend.realtime import get_broker, notify
-from backend.realtime.ws_broker import SocketBroker
-from backend.simulation import get_simulation
+from backend.features.realtime import get_broker
+from backend.features.realtime.ws_broker import SocketBroker
+from backend.features.simulation import get_simulation
+from backend.shared.utils.logger import setup_logger
 
-logger = logger_utils.setup_logger(__name__)
+logger = setup_logger(__name__)
 
 
 class SimulationLoopController:

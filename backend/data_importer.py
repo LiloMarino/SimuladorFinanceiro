@@ -7,8 +7,8 @@ import pandas as pd
 import yfinance as yf
 
 from backend.database import SessionLocal
-from backend.logger_utils import setup_logger
-from backend.models.models import Ativos, PrecoHistorico
+from backend.shared.models.models import Ativos, PrecoHistorico
+from backend.shared.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 

@@ -1,7 +1,7 @@
-import StockCard from "@/components/cards/stock-card";
-import { Spinner } from "@/components/ui/spinner";
-import { useQueryApi } from "@/hooks/useQueryApi";
-import { useRealtime } from "@/hooks/useRealtime";
+import StockCard from "@/features/variable-income/components/stock-card";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { useQueryApi } from "@/shared/hooks/useQueryApi";
+import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { Stock } from "@/types";
 
 export default function VariableIncomePage() {

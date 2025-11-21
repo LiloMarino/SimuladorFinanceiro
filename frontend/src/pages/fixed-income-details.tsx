@@ -1,11 +1,14 @@
 import { useMemo, useState } from "react";
 import { FixedIncomeAsset } from "@/models/fixed-income-asset";
-import { useQueryApi } from "@/hooks/useQueryApi";
-import { Spinner } from "@/components/ui/spinner";
+import { useQueryApi } from "@/shared/hooks/useQueryApi";
+import { Spinner } from "@/shared/components/ui/spinner";
 import { useParams } from "react-router-dom";
-import { useRealtime } from "@/hooks/useRealtime";
+import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { EconomicIndicators, FixedIncomeAssetApi, SimulationState } from "@/types";
-import usePageLabel from "@/hooks/usePageLabel";
+import usePageLabel from "@/shared/hooks/usePageLabel";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
+import { Button } from "@/shared/components/ui/button";
 
 export default function FixedIncomeDetailPage() {
   usePageLabel("Detalhes Renda Fixa");

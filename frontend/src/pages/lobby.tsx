@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy, faShareAlt, faUser, faPlay } from "@fortawesome/free-solid-svg-icons";
 
@@ -98,16 +98,8 @@ export default function LobbyPage({
               <div className="flex-1">
                 <label className="block text-sm text-gray-600 mb-1">IP do Host</label>
                 <div className="flex">
-                  <input
-                    type="text"
-                    value={hostIP}
-                    className="flex-1 p-2 border rounded-l-md bg-white"
-                    readOnly
-                  />
-                  <button
-                    onClick={copyHostIP}
-                    className="bg-gray-200 hover:bg-gray-300 px-3 rounded-r-md"
-                  >
+                  <input type="text" value={hostIP} className="flex-1 p-2 border rounded-l-md bg-white" readOnly />
+                  <button onClick={copyHostIP} className="bg-gray-200 hover:bg-gray-300 px-3 rounded-r-md">
                     <FontAwesomeIcon icon={faCopy} />
                   </button>
                 </div>
@@ -132,17 +124,9 @@ export default function LobbyPage({
             <div className="border rounded-lg overflow-hidden">
               <div className="divide-y divide-gray-200">
                 {players.map((p) => (
-                  <div
-                    key={p.name}
-                    className={`p-3 flex items-center justify-between ${
-                      p.isYou ? "bg-green-50" : ""
-                    }`}
-                  >
+                  <div key={p.name} className={`p-3 flex items-center justify-between ${p.isYou ? "bg-green-50" : ""}`}>
                     <div className="flex items-center">
-                      <FontAwesomeIcon
-                        icon={faUser}
-                        className={`mr-2 text-${p.color}-600`}
-                      />
+                      <FontAwesomeIcon icon={faUser} className={`mr-2 text-${p.color}-600`} />
                       <span className={p.isYou ? "font-medium" : ""}>{p.name}</span>
                     </div>
                     <span className="text-sm text-gray-500">{p.status}</span>

@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 
+from backend.features.simulation import get_simulation
 from backend.routes.helpers import make_response
-from backend.simulation import get_simulation
 
 settings_bp = Blueprint("settings", __name__)
 

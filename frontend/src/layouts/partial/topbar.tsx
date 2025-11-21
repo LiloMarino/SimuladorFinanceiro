@@ -1,9 +1,9 @@
 import clsx from "clsx";
-import { useMutationApi } from "@/hooks/useMutationApi";
-import { useRealtime } from "@/hooks/useRealtime";
-import { useQueryApi } from "@/hooks/useQueryApi";
+import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { useRealtime } from "@/shared/hooks/useRealtime";
+import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import type { SimulationState } from "@/types";
-import { formatMoney } from "@/lib/utils/formatting";
+import { formatMoney } from "@/shared/lib/utils/formatting";
 
 interface TopbarProps {
   pageLabel: string;
