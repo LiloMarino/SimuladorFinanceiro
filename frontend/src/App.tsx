@@ -18,7 +18,7 @@ import SettingsPage from "./pages/settings";
 import FixedIncomePage from "./features/fixed-income/pages/fixed-income";
 import FixedIncomeDetailPage from "./features/fixed-income/pages/fixed-income-details";
 import StrategiesPage from "./pages/strategies";
-import LobbyPage from "./pages/lobby";
+import { LobbyClientPage, LobbyHostPage } from "./pages/lobby";
 import ImportAssetsPage from "./features/import-assets/pages/import-assets";
 import { RealtimeProvider } from "@/shared/context/realtime";
 import { Toaster } from "@/shared/components/ui/sonner";
@@ -57,7 +57,8 @@ export default function App() {
               <Route path="/strategies" element={<StrategiesPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/statistics" element={<StatisticsPage />} />
-              <Route path="/lobby" element={<LobbyPage />} />
+              <Route path="/lobby/host" element={<LobbyHostPage />} />
+              <Route path="/lobby/client" element={<LobbyClientPage />} />
               <Route path="/import-assets" element={<ImportAssetsPage />} />
             </Routes>
             <Toaster position="bottom-right" richColors />
