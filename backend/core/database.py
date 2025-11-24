@@ -2,69 +2,136 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from sqlalchemy import URL, create_engine, text
-from sqlalchemy.engine.url import make_url
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine.url import URL, make_url
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session, sessionmaker
 
 from backend.core.logger import setup_logger
 from backend.core.models.models import Base
 
-DB_PATH = Path("data/simulador_financeiro.db")
 load_dotenv()
-
 logger = setup_logger(__name__)
 
 
+# -----------------------------------
+#  HELPERS
+# -----------------------------------
+
+
+def create_database_postgres(url_obj):
+    """Cria database no PostgreSQL se não existir."""
+    db_name = url_obj.database
+
+    admin_url = URL.create(
+        drivername=url_obj.drivername,
+        username=url_obj.username,
+        password=url_obj.password,
+        host=url_obj.host,
+        port=url_obj.port,
+        database="postgres",  # banco de administração
+        query=url_obj.query,
+    )
+
+    admin_engine = create_engine(admin_url, isolation_level="AUTOCOMMIT")
+
+    with admin_engine.connect() as conn:
+        exists = conn.execute(
+            text("SELECT 1 FROM pg_database WHERE datname = :db"), {"db": db_name}
+        ).scalar()
+
+        if not exists:
+            logger.info(f"Criando database PostgreSQL: {db_name}")
+            conn.execute(text(f"CREATE DATABASE {db_name}"))
+
+    admin_engine.dispose()
+
+
+def create_database_mysql(url_obj):
+    """Cria database no MySQL se não existir."""
+    db_name = url_obj.database
+
+    admin_url = URL.create(
+        drivername=url_obj.drivername,
+        username=url_obj.username,
+        password=url_obj.password,
+        host=url_obj.host,
+        port=url_obj.port,
+        database=None,  # conecta sem DB
+        query=url_obj.query,
+    )
+
+    admin_engine = create_engine(admin_url)
+
+    with admin_engine.connect() as conn:
+        conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {db_name}"))
+
+    admin_engine.dispose()
+
+
+# -----------------------------------
+#  MAIN ENGINE FACTORY
+# -----------------------------------
+
+
 def get_engine():
+    pg_url = os.getenv("POSTGRES_DATABASE_URL")
     mysql_url = os.getenv("MYSQL_DATABASE_URL")
     sqlite_url = os.getenv(
         "SQLITE_DATABASE_URL", "sqlite:///./data/simulador_financeiro.db"
     )
 
-    if mysql_url:
+    # -----------------------------------
+    # PostgreSQL FIRST
+    # -----------------------------------
+    if pg_url:
         try:
-            # Extrai info da URL
-            url_obj = make_url(mysql_url)
-            db_name = url_obj.database
+            url_obj = make_url(pg_url)
 
-            # Conecta sem schema
-            url_no_db = URL.create(
-                drivername=url_obj.drivername,
-                username=url_obj.username,
-                password=url_obj.password,
-                host=url_obj.host,
-                port=url_obj.port,
-                database=None,
-                query=url_obj.query,
-            )
-            tmp_engine = create_engine(url_no_db, echo=False, pool_pre_ping=True)
+            # Cria banco se não existir
+            create_database_postgres(url_obj)
 
-            # Cria schema se não existir
-            with tmp_engine.connect() as conn:
-                conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {db_name}"))
+            # Conecta no banco certo
+            engine = create_engine(pg_url, pool_pre_ping=True)
+            Base.metadata.create_all(engine)
 
-            tmp_engine.dispose()
-
-            # Agora conecta no schema correto
-            engine = create_engine(mysql_url, echo=False, pool_pre_ping=True)
-
-            # Cria tabelas
-            Base.metadata.create_all(bind=engine)
+            logger.info("Conectado ao PostgreSQL.")
             return engine
 
-        except OperationalError as e:
-            logger.error(f"Erro ao conectar ao MySQL: {str(e)}")
-            logger.warning("MySQL indisponível, fallback para SQLite...")
+        except Exception as e:
+            logger.error(f"Erro ao conectar no PostgreSQL: {e}")
 
-    # Se não deu MySQL, usa SQLite
-    engine = create_engine(sqlite_url, echo=False, pool_pre_ping=True)
-    Base.metadata.create_all(bind=engine)
+    # -----------------------------------
+    # MYSQL SECOND
+    # -----------------------------------
+    if mysql_url:
+        try:
+            url_obj = make_url(mysql_url)
+
+            # Cria database se não existir
+            create_database_mysql(url_obj)
+
+            # Conecta no DB correto
+            engine = create_engine(mysql_url, pool_pre_ping=True)
+            Base.metadata.create_all(engine)
+
+            logger.info("Conectado ao MySQL.")
+            return engine
+
+        except Exception as e:
+            logger.error(f"Erro ao conectar no MySQL: {e}")
+
+    # -----------------------------------
+    # SQLITE FALLBACK
+    # -----------------------------------
+    engine = create_engine(sqlite_url, pool_pre_ping=True)
+    Base.metadata.create_all(engine)
+    logger.warning("Conectado ao SQLite (fallback).")
     return engine
 
 
 engine = get_engine()
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 
 def get_session() -> Session:
