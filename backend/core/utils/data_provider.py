@@ -2,7 +2,7 @@ from datetime import datetime
 
 from backend.core.database import SessionLocal
 from backend.core.logger import setup_logger
-from backend.core.models.models import Ativos, PrecoHistorico
+from backend.core.models.models import Stock, StockPriceHistory
 
 logger = setup_logger(__name__)
 
@@ -10,52 +10,52 @@ logger = setup_logger(__name__)
 def get_stocks(current_date: datetime) -> list:
     with SessionLocal() as session:
         # Consulta todos os ativos
-        ativos = session.query(Ativos).all()
-        stocks = []
-        for ativo in ativos:
+        stocks = session.query(Stock).all()
+        stocks_with_history = []
+        for stock in stocks:
             ph = (
-                session.query(PrecoHistorico)
-                .filter_by(ativos_id=ativo.ativos_id, time=current_date)
+                session.query(StockPriceHistory)
+                .filter_by(stock_id=stock.id, time=current_date)
                 .first()
             )
             if ph:
                 change = ph.close - ph.open
                 change_pct = (change / ph.open * 100) if ph.open != 0 else 0
-                stocks.append(
+                stocks_with_history.append(
                     {
-                        "ticker": ph.ativos.ticker,
-                        "name": ph.ativos.nome,
+                        "ticker": ph.stock.ticker,
+                        "name": ph.stock.name,
                         "price": ph.close,
                         "low": ph.low,
                         "high": ph.high,
                         "volume": ph.volume,
                         "open": ph.open,
-                        "date": ph.time.isoformat(),
+                        "date": ph.price_date.isoformat(),
                         "change": round(change, 2),
                         "change_pct": f"{change_pct:+.2f}%",
                     }
                 )
-        return stocks
+        return stocks_with_history
 
 
 def get_stock_details(ticker: str, current_date: datetime) -> dict | None:
     with SessionLocal() as session:
-        ativo = session.query(Ativos).filter_by(ticker=ticker).first()
-        if not ativo:
+        stock = session.query(Stock).filter_by(ticker=ticker).first()
+        if not stock:
             return None
 
         # Histórico até a data atual
         history = (
-            session.query(PrecoHistorico)
-            .filter(PrecoHistorico.ativos_id == ativo.ativos_id)
-            .filter(PrecoHistorico.time <= current_date)
-            .order_by(PrecoHistorico.time)
+            session.query(StockPriceHistory)
+            .filter(StockPriceHistory.stock_id == stock.id)
+            .filter(StockPriceHistory.price_date <= current_date)
+            .order_by(StockPriceHistory.price_date)
             .all()
         )
 
         hist_list = [
             {
-                "date": ph.time.isoformat(),
+                "date": ph.price_date.isoformat(),
                 "close": ph.close,
                 "open": ph.open,
                 "low": ph.low,
@@ -69,8 +69,8 @@ def get_stock_details(ticker: str, current_date: datetime) -> dict | None:
         ph_today = hist_list[-1] if hist_list else None
 
         return {
-            "ticker": ativo.ticker,
-            "name": ativo.nome,
+            "ticker": stock.ticker,
+            "name": stock.name,
             "price": ph_today["close"] if ph_today else 0,
             "low": ph_today["low"] if ph_today else 0,
             "high": ph_today["high"] if ph_today else 0,

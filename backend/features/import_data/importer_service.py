@@ -8,7 +8,7 @@ import yfinance as yf
 
 from backend.core.database import SessionLocal
 from backend.core.logger import setup_logger
-from backend.core.models.models import Ativos, PrecoHistorico
+from backend.core.models.models import Stock, StockPriceHistory
 
 logger = setup_logger(__name__)
 
@@ -105,8 +105,8 @@ def from_csv(file, fillzero: bool = True) -> pd.DataFrame:
 def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
     with SessionLocal() as session:
         # 1. Garante que o ativo existe
-        ativo = session.query(Ativos).filter_by(ticker=ticker).first()
-        if not ativo:
+        stock = session.query(Stock).filter_by(ticker=ticker).first()
+        if not stock:
             try:
                 yf_ticker = yf.Ticker(ticker)
                 info = yf_ticker.info
@@ -117,35 +117,35 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
                 )
                 nome = ticker
 
-            ativo = Ativos(ticker=ticker, nome=nome)
-            session.add(ativo)
+            stock = Stock(ticker=ticker, nome=nome)
+            session.add(stock)
             session.commit()
             logger.info(f"Ativo '{ticker}' ({nome}) criado no banco.")
 
         # 2. Lógica de sobrescrever
         if overwrite:
             logger.info(f"Sobrescrevendo dados de '{ticker}'...")
-            session.query(PrecoHistorico).filter_by(ativos_id=ativo.ativos_id).delete()
+            session.query(StockPriceHistory).filter_by(stock_id=stock.id).delete()
             session.commit()
 
         # 3. Inserção incremental
         else:
             ultima_data = (
-                session.query(PrecoHistorico)
-                .filter_by(ativos_id=ativo.ativos_id)
-                .order_by(PrecoHistorico.time.desc())
+                session.query(StockPriceHistory)
+                .filter_by(Stock_id=stock.id)
+                .order_by(StockPriceHistory.price_date.desc())
                 .first()
             )
             if ultima_data:
-                df = df[df.index > ultima_data.time]
+                df = df[df.index > ultima_data.price_date]
                 if df.empty:
                     logger.info(f"'{ticker}' já está atualizado.")
                     return
 
         # 4. Inserir dados no banco
         registros = [
-            PrecoHistorico(
-                ativos_id=ativo.ativos_id,
+            StockPriceHistory(
+                Stock_id=stock.id,
                 time=index,
                 open=row["Open"],
                 high=row["High"],
