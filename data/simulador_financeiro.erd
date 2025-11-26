@@ -4,8 +4,8 @@
   "settings": {
     "width": 3000,
     "height": 3000,
-    "scrollTop": -744,
-    "scrollLeft": -1524,
+    "scrollTop": -1177,
+    "scrollLeft": -1468,
     "zoomLevel": 1,
     "show": 511,
     "database": 16,
@@ -125,7 +125,7 @@
       },
       "KOG0uUJjPExfmAbauIsNA": {
         "id": "KOG0uUJjPExfmAbauIsNA",
-        "name": "user",
+        "name": "users",
         "comment": "",
         "columnIds": [
           "Z35DyO0A-y_7V-4YuWhlZ",
@@ -151,7 +151,7 @@
           "color": ""
         },
         "meta": {
-          "updateAt": 1763994368766,
+          "updateAt": 1764164623433,
           "createAt": 1763949726413
         }
       },
@@ -934,7 +934,7 @@
       "F39pOXicQhLI5Ndn1aMqk": {
         "id": "F39pOXicQhLI5Ndn1aMqk",
         "tableId": "siWWP_UjqGN01sX-O4Gmg",
-        "name": "uuid",
+        "name": "asset_uuid",
         "comment": "",
         "dataType": "uuid",
         "default": "",
@@ -947,7 +947,7 @@
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1763994055015,
+          "updateAt": 1764165981707,
           "createAt": 1763949726414
         }
       },
