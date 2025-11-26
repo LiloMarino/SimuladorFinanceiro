@@ -216,7 +216,7 @@ Após isso copie o conteúdo para o arquivo `CONTRIBUTING.md` e exclua o arquivo
 3. 🧬 **Gerar ORM com sqlacodegen**  
 
 ```bash
-   sqlacodegen mysql+pymysql://usuario:senha@localhost/simulador_financeiro > backend/models/models.py
+   sqlacodegen postgresql+psycopg://postgres:<senha>@localhost:5432/simulador_financeiro > backend/core/models/models.py
 ```
 4. 🛠️ **Compatibilizar com múltiplos bancos (MySQL/SQLite)**
 
