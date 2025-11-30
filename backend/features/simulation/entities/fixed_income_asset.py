@@ -1,6 +1,6 @@
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import date
 from enum import Enum
 
 from backend.core.repository import RepositoryManager
@@ -27,10 +27,10 @@ class FixedIncomeAsset:
     interest_rate: float | None
     rate_index: RateIndexType
     investment_type: FixedIncomeType
-    maturity_date: datetime | None = None
+    maturity_date: date | None = None
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
-    def apply_daily_interest(self):
+    def apply_daily_interest(self, current_date: date):
         """
         Aplica juros diários. Para prefixado usa interest_rate,
         para pós-fixado precisa de uma função que retorne a taxa atual do índice.
@@ -40,19 +40,19 @@ class FixedIncomeAsset:
                 raise ValueError("Taxa de prefixado não definida")
             daily_rate = self.interest_rate / 252
         else:
-            annual_rate = self.get_index_rate(self.rate_index)
+            annual_rate = self.get_index_rate(current_date, self.rate_index)
             daily_rate = annual_rate / 252
 
         self.invested_amount *= 1 + daily_rate
 
-    def get_index_rate(self, rate_index: RateIndexType) -> float:
+    def get_index_rate(self, current_date: date, rate_index: RateIndexType) -> float:
         match rate_index:
             case RateIndexType.CDI:
-                return RepositoryManager.economic.get_cdi_rate()
+                return RepositoryManager.economic.get_cdi_rate(current_date)
             case RateIndexType.IPCA:
-                return RepositoryManager.economic.get_ipca_rate()
+                return RepositoryManager.economic.get_ipca_rate(current_date)
             case RateIndexType.SELIC:
-                return RepositoryManager.economic.get_selic_rate()
+                return RepositoryManager.economic.get_selic_rate(current_date)
             case RateIndexType.PREFIXADO:
                 if self.interest_rate is not None:
                     return self.interest_rate

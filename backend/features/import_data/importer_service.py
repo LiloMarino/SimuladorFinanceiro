@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 import pandas as pd
 import yfinance as yf
@@ -18,11 +17,11 @@ logger = setup_logger(__name__)
 
 
 def from_yfinance(
-    ticker: str, start: Optional[str] = None, end: Optional[str] = None
+    ticker: str, start: str | None = None, end: str | None = None
 ) -> pd.DataFrame:
     if start:
         logger.info(
-            f"Baixando dados do YFinance para {ticker} de {start} a {end or datetime.today().strftime("%Y-%m-%d")}"
+            f"Baixando dados do YFinance para {ticker} de {start} a {end or datetime.today().strftime('%Y-%m-%d')}"
         )
         df = yf.download(
             ticker,
@@ -137,7 +136,7 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
                 .first()
             )
             if ultima_data:
-                df = df[df.index > ultima_data.price_date]
+                df = pd.DataFrame(df[df.index > ultima_data.price_date])
                 if df.empty:
                     logger.info(f"'{ticker}' já está atualizado.")
                     return

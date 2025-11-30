@@ -1,3 +1,4 @@
+# type: ignore
 from flask import Blueprint, request
 
 from backend.features.simulation import get_simulation

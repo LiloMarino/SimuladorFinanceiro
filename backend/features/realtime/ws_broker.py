@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Iterable, Optional
+from collections.abc import Iterable
+from typing import Any
 
 from flask_socketio import SocketIO
 
@@ -19,7 +20,7 @@ class SocketBroker(RealtimeBroker):
         self._clients = set()  # set de client_ids conectados
         self._subscriptions: dict[str, set[str]] = {}  # event -> set(client_id)
 
-    def register_client(self, client_id: Optional[str] = None) -> str:
+    def register_client(self, client_id: str | None = None) -> str:
         logger.info("Cliente conectado: %s", client_id)
         if client_id:
             self._clients.add(client_id)

@@ -66,7 +66,7 @@ class SimulationLoopController:
         broker = get_broker()
         try:
             if isinstance(broker, SocketBroker):
-                broker.socketio.sleep(delay)
+                broker.socketio.sleep(delay)  # type: ignore
             else:
                 time.sleep(delay)
         except Exception as e:

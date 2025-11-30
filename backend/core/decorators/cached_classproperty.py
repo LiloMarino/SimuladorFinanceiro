@@ -1,9 +1,7 @@
-from typing import Callable, Generic, TypeVar
-
-T = TypeVar("T")
+from collections.abc import Callable
 
 
-class cached_classproperty(Generic[T]):
+class cached_classproperty[T]:  # noqa: N801
     def __init__(self, func: Callable[..., T]):
         self.func = func
         self.attr_name = f"__cached_{func.__name__}"

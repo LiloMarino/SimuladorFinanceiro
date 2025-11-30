@@ -5,9 +5,9 @@ from backend.core.repository.stock import StockRepository
 
 class RepositoryManager:
     @cached_classproperty
-    def stock(cls):
+    def stock(self):
         return StockRepository()
 
     @cached_classproperty
-    def economic(cls):
+    def economic(self):
         return EconomicRepository()

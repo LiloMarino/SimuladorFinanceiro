@@ -1,9 +1,10 @@
 import json
 import logging
 import uuid
+from collections.abc import Iterable
 from queue import Empty, Queue
 from threading import Lock
-from typing import Any, Dict, Iterable, Optional
+from typing import Any
 
 from flask import Response, request, stream_with_context
 
@@ -20,14 +21,14 @@ class SSEBroker(RealtimeBroker):
     """
 
     def __init__(self):
-        self._subscriptions: Dict[str, set[str]] = {}  # event -> set(client_id)
-        self._clients: Dict[str, Queue] = {}  # client_id -> Queue
+        self._subscriptions: dict[str, set[str]] = {}  # event -> set(client_id)
+        self._clients: dict[str, Queue] = {}  # client_id -> Queue
         self._lock = Lock()
 
     # --------------------------------------------------------------------- #
     # Subscription Management
     # --------------------------------------------------------------------- #
-    def register_client(self, client_id: Optional[str] = None) -> str:
+    def register_client(self, client_id: str | None = None) -> str:
         if client_id is None:
             client_id = str(uuid.uuid4())
 

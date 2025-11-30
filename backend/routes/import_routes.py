@@ -1,5 +1,3 @@
-from typing import Union
-
 from flask import Blueprint, request
 from werkzeug.datastructures import FileStorage
 
@@ -12,7 +10,7 @@ from backend.routes.helpers import make_response
 import_bp = Blueprint("import", __name__)
 
 
-def str_to_bool(value: Union[str, bool, None]) -> bool:
+def str_to_bool(value: str | bool | None) -> bool:
     if isinstance(value, bool):
         return value
     if isinstance(value, str):

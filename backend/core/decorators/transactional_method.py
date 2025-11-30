@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable, Concatenate, ParamSpec, TypeVar
+from typing import Concatenate, ParamSpec, TypeVar
 
 from sqlalchemy.orm import Session
 
@@ -13,7 +14,6 @@ R = TypeVar("R")
 def transactional(
     func: Callable[Concatenate[T, Session, P], R],
 ) -> Callable[Concatenate[T, P], R]:
-
     @wraps(func)
     def wrapper(self: T, *args: P.args, **kwargs: P.kwargs) -> R:
         session = SessionLocal()

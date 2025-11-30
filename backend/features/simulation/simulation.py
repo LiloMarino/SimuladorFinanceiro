@@ -35,7 +35,7 @@ class Simulation:
             raise StopIteration()
 
         # Obtém os dados do dia atual e atualiza o buffer
-        stocks = RepositoryManager.stock.get_stocks(self._current_date)
+        stocks = RepositoryManager.stock.get_stocks_by_date(self._current_date)
         self._engine.update_market_data(stocks)
 
         # Executa a estratégia
@@ -88,7 +88,7 @@ class Simulation:
 
     def get_economic_indicators(self):
         return {
-            "ipca": RepositoryManager.economic.get_ipca_rate(),
-            "selic": RepositoryManager.economic.get_selic_rate(),
-            "cdi": RepositoryManager.economic.get_cdi_rate(),
+            "ipca": RepositoryManager.economic.get_ipca_rate(self._current_date),
+            "selic": RepositoryManager.economic.get_selic_rate(self._current_date),
+            "cdi": RepositoryManager.economic.get_cdi_rate(self._current_date),
         }

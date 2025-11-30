@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Dict
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from backend.core.logger import setup_logger
 from backend.features.simulation.entities.position import Position
@@ -18,10 +19,10 @@ class Broker:
         get_market_price: Callable[[str], float],
     ):
         self._simulation_engine = simulation_engine
-        self._positions: Dict[str, Position] = {}
+        self._positions: dict[str, Position] = {}
         self._get_market_price = get_market_price
 
-    def get_positions(self) -> Dict[str, Position]:
+    def get_positions(self) -> dict[str, Position]:
         return self._positions
 
     def buy(self, ticker: str, size: int):

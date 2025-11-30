@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Dict
+from datetime import date
+from typing import TYPE_CHECKING
 
 from backend.features.simulation.entities.fixed_income_asset import FixedIncomeAsset
 
@@ -16,7 +17,7 @@ class FixedBroker:
 
     def __init__(self, simulation_engine: SimulationEngine):
         self._simulation_engine = simulation_engine
-        self._assets: Dict[str, FixedIncomeAsset] = {}
+        self._assets: dict[str, FixedIncomeAsset] = {}
 
     def invest(self, asset: FixedIncomeAsset, value: float):
         if value <= 0:
@@ -43,9 +44,9 @@ class FixedBroker:
             f"Investido {value:.2f} em {asset.name} ({asset.investment_type.value})"
         )
 
-    def apply_daily_interest(self):
+    def apply_daily_interest(self, current_date: date):
         for asset in self._assets.values():
-            asset.apply_daily_interest()
+            asset.apply_daily_interest(current_date)
 
-    def get_assets(self) -> Dict[str, FixedIncomeAsset]:
+    def get_assets(self) -> dict[str, FixedIncomeAsset]:
         return self._assets

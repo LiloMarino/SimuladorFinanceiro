@@ -1,4 +1,3 @@
-import random
 from datetime import datetime
 
 from backend.core.repository import RepositoryManager
@@ -27,7 +26,7 @@ class CDBFactory(AbstractFixedIncomeFactory):
         issuer = "Banco XPTO"
 
         return FixedIncomeAsset(
-            name=f"CDB {issuer} {rate*100:.2f}% CDI",
+            name=f"CDB {issuer} {rate * 100:.2f}% CDI",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.CDI,
@@ -37,10 +36,9 @@ class CDBFactory(AbstractFixedIncomeFactory):
 
     def create_ipca(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 2, 8)
-        base_diff = (
-            RepositoryManager.economic.get_cdi_rate()
-            - RepositoryManager.economic.get_ipca_rate()
-        )
+        base_diff = RepositoryManager.economic.get_cdi_rate(
+            current_date
+        ) - RepositoryManager.economic.get_ipca_rate(current_date)
         rate = self._generate_rate(base_value=base_diff, delta=0.005)
         issuer = "Banco XPTO"
 
@@ -55,7 +53,7 @@ class CDBFactory(AbstractFixedIncomeFactory):
 
     def create_prefixado(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 2, 6)
-        base = RepositoryManager.economic.get_cdi_rate()
+        base = RepositoryManager.economic.get_cdi_rate(current_date)
         rate = self._generate_rate(base_value=base, delta=0.005)
         issuer = "Banco XPTO"
 

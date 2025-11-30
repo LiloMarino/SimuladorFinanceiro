@@ -1,4 +1,3 @@
-import random
 from datetime import datetime
 
 from backend.core.repository import RepositoryManager

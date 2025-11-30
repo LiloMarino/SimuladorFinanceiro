@@ -1,8 +1,13 @@
 [tool.ruff]
 line-length = 88
 target-version = "py313"
-select = ["E", "F", "W", "I", "N", "B", "UP", "ANN"]
-ignore = []
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "B", "UP", "SIM", "PERF"]
+ignore = [
+    "E501",  # line too long
+    "UP047", # pyupgrade
+]
 
 [tool.ruff.format]
 quote-style = "double"

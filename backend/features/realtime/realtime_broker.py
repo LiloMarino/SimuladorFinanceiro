@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Iterable, Optional
+from collections.abc import Iterable
+from typing import Any
 
 
 class RealtimeBroker(ABC):
@@ -13,7 +14,7 @@ class RealtimeBroker(ABC):
     """
 
     @abstractmethod
-    def register_client(self, client_id: Optional[str] = None) -> str:
+    def register_client(self, client_id: str | None = None) -> str:
         """Registra um cliente (subscriber)."""
         raise NotImplementedError
 

@@ -19,7 +19,10 @@ def build_tree(paths: list[str]) -> dict:
     """
     Constrói uma árvore (dicionários aninhados) a partir de uma lista de caminhos.
     """
-    tree = lambda: defaultdict(tree)
+
+    def tree():
+        return defaultdict(tree)
+
     root = tree()
 
     for path in paths:

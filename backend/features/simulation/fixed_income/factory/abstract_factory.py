@@ -1,7 +1,7 @@
 import random
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Callable
 
 from backend.features.simulation.entities.fixed_income_asset import (
     FixedIncomeAsset,
@@ -15,10 +15,10 @@ class AbstractFixedIncomeFactory(ABC):
     ) -> FixedIncomeAsset:
         try:
             return self._strategies[rate_index](current_date)
-        except KeyError:
+        except KeyError as e:
             raise ValueError(
                 f"Indexador {rate_index} não suportado por {self.__class__.__name__}"
-            )
+            ) from e
 
     @property
     @abstractmethod

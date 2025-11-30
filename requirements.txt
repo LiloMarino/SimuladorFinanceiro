@@ -34,6 +34,7 @@ python-dotenv==1.2.1
 python-engineio==4.12.3
 python-socketio==5.15.0
 pytz==2025.2
+PyYAML==6.0.3
 requests==2.32.5
 ruff==0.14.7
 simple-websocket==1.1.0
