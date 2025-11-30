@@ -1,15 +1,14 @@
-from datetime import datetime
+from datetime import date
 
-from backend.core.database import SessionLocal
-from backend.core.logger import setup_logger
+from sqlalchemy.orm import Session
+
+from backend.core.decorators.transactional_class import transactional_class
 from backend.core.models.models import Stock, StockPriceHistory
 
-logger = setup_logger(__name__)
 
-
-def get_stocks(current_date: datetime) -> list:
-    with SessionLocal() as session:
-        # Consulta todos os ativos
+@transactional_class
+class StockRepository:
+    def get_stocks_by_date(self, session: Session, current_date: date):
         stocks = session.query(Stock).all()
         stocks_with_history = []
         for stock in stocks:
@@ -37,9 +36,7 @@ def get_stocks(current_date: datetime) -> list:
                 )
         return stocks_with_history
 
-
-def get_stock_details(ticker: str, current_date: datetime) -> dict | None:
-    with SessionLocal() as session:
+    def get_stock_details(self, session: Session, ticker: str, current_date: date):
         stock = session.query(Stock).filter_by(ticker=ticker).first()
         if not stock:
             return None
@@ -85,15 +82,3 @@ def get_stock_details(ticker: str, current_date: datetime) -> dict | None:
             ),
             "history": hist_list,
         }
-
-
-def get_selic_rate() -> float:
-    return 15.0
-
-
-def get_ipca_rate() -> float:
-    return 5.17
-
-
-def get_cdi_rate() -> float:
-    return 13.71
