@@ -1,7 +1,7 @@
 import random
 from datetime import datetime
 
-from backend.core.utils.data_provider import get_ipca_rate, get_selic_rate
+from backend.core.repository import RepositoryManager
 from backend.features.simulation.entities.fixed_income_asset import (
     FixedIncomeAsset,
     FixedIncomeType,
@@ -24,7 +24,9 @@ class TesouroFactory(AbstractFixedIncomeFactory):
     def create_ipca(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 3, 15)
         maturity_year = maturity_date.year
-        base_diff = get_selic_rate() - get_ipca_rate()
+        base_diff = RepositoryManager.economic.get_selic_rate(
+            current_date
+        ) - RepositoryManager.economic.get_ipca_rate(current_date)
         rate = self._generate_rate(base_value=base_diff, delta=0.005)
 
         return FixedIncomeAsset(
@@ -39,7 +41,9 @@ class TesouroFactory(AbstractFixedIncomeFactory):
     def create_prefixado(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 3, 7)
         maturity_year = maturity_date.year
-        selic_base = get_selic_rate() - 0.01  # Redução de 1% devido ao longo prazo
+        selic_base = (
+            RepositoryManager.economic.get_selic_rate(current_date) - 0.01
+        )  # Redução de 1% devido ao longo prazo
         rate = self._generate_rate(base_value=selic_base, delta=0.005)
 
         return FixedIncomeAsset(

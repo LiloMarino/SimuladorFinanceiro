@@ -1,7 +1,7 @@
 import random
 from datetime import datetime
 
-from backend.core.utils.data_provider import get_cdi_rate, get_ipca_rate
+from backend.core.repository import RepositoryManager
 from backend.features.simulation.entities.fixed_income_asset import (
     FixedIncomeAsset,
     FixedIncomeType,
@@ -37,7 +37,10 @@ class LCIFactory(AbstractFixedIncomeFactory):
 
     def create_ipca(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 3, 8)
-        base_diff = (get_cdi_rate() - get_ipca_rate()) * 0.85
+        base_diff = (
+            RepositoryManager.economic.get_cdi_rate()
+            - RepositoryManager.economic.get_ipca_rate()
+        ) * 0.85
         rate = self._generate_rate(base_value=base_diff, delta=0.004)
         issuer = "Banco Imobiliário"
 
@@ -52,7 +55,7 @@ class LCIFactory(AbstractFixedIncomeFactory):
 
     def create_prefixado(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 2, 5)
-        base = get_cdi_rate()
+        base = RepositoryManager.economic.get_cdi_rate()
         rate = self._generate_rate(base_value=base, delta=0.005, multiplier=0.85)
         issuer = "Banco Imobiliário"
 
