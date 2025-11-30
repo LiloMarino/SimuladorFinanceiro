@@ -8,13 +8,25 @@ from backend.core.models.models import Stock, StockPriceHistory
 
 class StockRepository:
     @transactional
+    def add_stock(self, session: Session, ticker: str, name: str) -> Stock:
+        stock = Stock(ticker=ticker, name=name)
+        session.add(stock)
+        return stock
+
+    @transactional
+    def add_stock_price_history(
+        self, session: Session, stock_price_history: list[StockPriceHistory]
+    ):
+        session.add_all(stock_price_history)
+
+    @transactional
     def get_stocks_by_date(self, session: Session, current_date: date):
         stocks = session.query(Stock).all()
         stocks_with_history = []
         for stock in stocks:
             ph = (
                 session.query(StockPriceHistory)
-                .filter_by(stock_id=stock.id, time=current_date)
+                .filter_by(stock_id=stock.id, price_date=current_date)
                 .first()
             )
             if ph:
@@ -83,3 +95,22 @@ class StockRepository:
             ),
             "history": hist_list,
         }
+
+    @transactional
+    def get_by_ticker(self, session: Session, ticker: str) -> Stock | None:
+        return session.query(Stock).filter_by(ticker=ticker).first()
+
+    @transactional
+    def get_last_stock_price_history(
+        self, session: Session, stock_id: int
+    ) -> StockPriceHistory | None:
+        return (
+            session.query(StockPriceHistory)
+            .filter_by(stock_id=stock_id)
+            .order_by(StockPriceHistory.price_date.desc())
+            .first()
+        )
+
+    @transactional
+    def delete_stock_price_history(self, session: Session, stock_id: int):
+        session.query(StockPriceHistory).filter_by(stock_id=stock_id).delete()

@@ -5,9 +5,9 @@ from datetime import datetime
 import pandas as pd
 import yfinance as yf
 
-from backend.core.database import SessionLocal
 from backend.core.logger import setup_logger
-from backend.core.models.models import Stock, StockPriceHistory
+from backend.core.models.models import StockPriceHistory
+from backend.core.repository import RepositoryManager
 
 logger = setup_logger(__name__)
 
@@ -102,62 +102,52 @@ def from_csv(file, fillzero: bool = True) -> pd.DataFrame:
 
 
 def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
-    with SessionLocal() as session:
-        # 1. Garante que o ativo existe
-        stock = session.query(Stock).filter_by(ticker=ticker).first()
-        if not stock:
-            try:
-                yf_ticker = yf.Ticker(ticker)
-                info = yf_ticker.info
-                nome = info.get("longName") or info.get("shortName") or ticker
-            except Exception as e:
-                logger.warning(
-                    f"Não foi possível obter nome de '{ticker}' no yfinance: {e}"
-                )
-                nome = ticker
-
-            stock = Stock(ticker=ticker, nome=nome)
-            session.add(stock)
-            session.commit()
-            logger.info(f"Ativo '{ticker}' ({nome}) criado no banco.")
-
-        # 2. Lógica de sobrescrever
-        if overwrite:
-            logger.info(f"Sobrescrevendo dados de '{ticker}'...")
-            session.query(StockPriceHistory).filter_by(stock_id=stock.id).delete()
-            session.commit()
-
-        # 3. Inserção incremental
-        else:
-            ultima_data = (
-                session.query(StockPriceHistory)
-                .filter_by(Stock_id=stock.id)
-                .order_by(StockPriceHistory.price_date.desc())
-                .first()
+    # 1. Garante que o ativo existe
+    stock = RepositoryManager.stock.get_by_ticker(ticker)
+    if not stock:
+        try:
+            yf_ticker = yf.Ticker(ticker)
+            info = yf_ticker.info
+            nome = info.get("longName") or info.get("shortName") or ticker
+        except Exception as e:
+            logger.warning(
+                f"Não foi possível obter nome de '{ticker}' no yfinance: {e}"
             )
-            if ultima_data:
-                df = pd.DataFrame(df[df.index > ultima_data.price_date])
-                if df.empty:
-                    logger.info(f"'{ticker}' já está atualizado.")
-                    return
+            nome = ticker
 
-        # 4. Inserir dados no banco
-        registros = [
-            StockPriceHistory(
-                Stock_id=stock.id,
-                time=index,
-                open=row["Open"],
-                high=row["High"],
-                low=row["Low"],
-                close=row["Close"],
-                volume=row["Volume"],
-            )
-            for index, row in df.iterrows()
-        ]
+        stock = RepositoryManager.stock.add_stock(ticker, nome)
+        logger.info(f"Ativo '{ticker}' ({nome}) criado no banco.")
 
-        session.add_all(registros)
-        session.commit()
-        logger.info(f"{len(registros)} registros inseridos para '{ticker}'.")
+    # 2. Lógica de sobrescrever
+    if overwrite:
+        logger.info(f"Sobrescrevendo dados de '{ticker}'...")
+        RepositoryManager.stock.delete_stock_price_history(stock.id)
+
+    # 3. Inserção incremental
+    else:
+        last_date = RepositoryManager.stock.get_last_stock_price_history(stock.id)
+        if last_date:
+            df = pd.DataFrame(df[df.index > last_date.price_date])
+            if df.empty:
+                logger.info(f"'{ticker}' já está atualizado.")
+                return
+
+    # 4. Inserir dados no banco
+    registros = [
+        StockPriceHistory(
+            stock_id=stock.id,
+            price_date=index,
+            open=row["Open"],
+            high=row["High"],
+            low=row["Low"],
+            close=row["Close"],
+            volume=row["Volume"],
+        )
+        for index, row in df.iterrows()
+    ]
+
+    RepositoryManager.stock.add_stock_price_history(registros)
+    logger.info(f"{len(registros)} registros inseridos para '{ticker}'.")
 
 
 # -------------------
