@@ -10,7 +10,7 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
-def transactional_method(
+def transactional(
     func: Callable[Concatenate[T, Session, P], R],
 ) -> Callable[Concatenate[T, P], R]:
 

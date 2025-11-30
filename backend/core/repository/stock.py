@@ -2,12 +2,12 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 
-from backend.core.decorators.transactional_method import transactional_method
+from backend.core.decorators.transactional_method import transactional
 from backend.core.models.models import Stock, StockPriceHistory
 
 
 class StockRepository:
-    @transactional_method
+    @transactional
     def get_stocks_by_date(self, session: Session, current_date: date):
         stocks = session.query(Stock).all()
         stocks_with_history = []
@@ -36,7 +36,7 @@ class StockRepository:
                 )
         return stocks_with_history
 
-    @transactional_method
+    @transactional
     def get_stock_details(self, session: Session, ticker: str, current_date: date):
         stock = session.query(Stock).filter_by(ticker=ticker).first()
         if not stock:
