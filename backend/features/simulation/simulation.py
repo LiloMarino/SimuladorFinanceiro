@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
+from backend.core import repository
 from backend.core.logger import setup_logger
-from backend.core.repository import RepositoryManager
 from backend.features.realtime import notify
 from backend.features.simulation.entities.fixed_income_asset import FixedIncomeAsset
 from backend.features.simulation.entities.portfolio import Portfolio
@@ -35,7 +35,7 @@ class Simulation:
             raise StopIteration()
 
         # Obtém os dados do dia atual e atualiza o buffer
-        stocks = RepositoryManager.stock.get_stocks_by_date(self._current_date)
+        stocks = repository.stock.get_stocks_by_date(self._current_date)
         self._engine.update_market_data(stocks)
 
         # Executa a estratégia
@@ -62,10 +62,10 @@ class Simulation:
         return self._speed
 
     def get_stocks(self) -> list:
-        return RepositoryManager.stock.get_stocks_by_date(self._current_date)
+        return repository.stock.get_stocks_by_date(self._current_date)
 
     def get_stock_details(self, ticker: str) -> dict | None:
-        return RepositoryManager.stock.get_stock_details(ticker, self._current_date)
+        return repository.stock.get_stock_details(ticker, self._current_date)
 
     def get_portfolio(self) -> Portfolio:
         return self._engine.get_portfolio()
@@ -88,7 +88,7 @@ class Simulation:
 
     def get_economic_indicators(self):
         return {
-            "ipca": RepositoryManager.economic.get_ipca_rate(self._current_date),
-            "selic": RepositoryManager.economic.get_selic_rate(self._current_date),
-            "cdi": RepositoryManager.economic.get_cdi_rate(self._current_date),
+            "ipca": repository.economic.get_ipca_rate(self._current_date),
+            "selic": repository.economic.get_selic_rate(self._current_date),
+            "cdi": repository.economic.get_cdi_rate(self._current_date),
         }

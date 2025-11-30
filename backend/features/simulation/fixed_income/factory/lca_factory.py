@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from backend.core.repository import RepositoryManager
+from backend.core import repository
 from backend.features.simulation.entities.fixed_income_asset import (
     FixedIncomeAsset,
     FixedIncomeType,
@@ -37,8 +37,8 @@ class LCAFactory(AbstractFixedIncomeFactory):
     def create_ipca(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 3, 8)
         base_diff = (
-            RepositoryManager.economic.get_cdi_rate(current_date)
-            - RepositoryManager.economic.get_ipca_rate(current_date)
+            repository.economic.get_cdi_rate(current_date)
+            - repository.economic.get_ipca_rate(current_date)
         ) * 0.85
         rate = self._generate_rate(base_value=base_diff, delta=0.004)
         issuer = "Banco Agro"
@@ -54,7 +54,7 @@ class LCAFactory(AbstractFixedIncomeFactory):
 
     def create_prefixado(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 2, 5)
-        base = RepositoryManager.economic.get_cdi_rate(current_date)
+        base = repository.economic.get_cdi_rate(current_date)
         rate = self._generate_rate(base_value=base, delta=0.005, multiplier=0.85)
         issuer = "Banco Agro"
 

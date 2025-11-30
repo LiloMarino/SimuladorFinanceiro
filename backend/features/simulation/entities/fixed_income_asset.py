@@ -3,7 +3,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import date
 from enum import Enum
 
-from backend.core.repository import RepositoryManager
+from backend.core import repository
 
 
 class FixedIncomeType(Enum):
@@ -48,11 +48,11 @@ class FixedIncomeAsset:
     def get_index_rate(self, current_date: date, rate_index: RateIndexType) -> float:
         match rate_index:
             case RateIndexType.CDI:
-                return RepositoryManager.economic.get_cdi_rate(current_date)
+                return repository.economic.get_cdi_rate(current_date)
             case RateIndexType.IPCA:
-                return RepositoryManager.economic.get_ipca_rate(current_date)
+                return repository.economic.get_ipca_rate(current_date)
             case RateIndexType.SELIC:
-                return RepositoryManager.economic.get_selic_rate(current_date)
+                return repository.economic.get_selic_rate(current_date)
             case RateIndexType.PREFIXADO:
                 if self.interest_rate is not None:
                     return self.interest_rate
