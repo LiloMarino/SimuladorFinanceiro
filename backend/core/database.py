@@ -80,7 +80,3 @@ def get_engine():
 
 engine = get_engine()
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
-
-
-def get_session() -> Session:
-    return SessionLocal()
