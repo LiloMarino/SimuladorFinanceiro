@@ -1,0 +1,17 @@
+{
+    "include": [
+        "backend",
+        "scripts",
+        "main.py"
+    ],
+    "exclude": [
+        "venv",
+        "__pycache__"
+    ],
+    "pythonVersion": "3.13",
+    "typeCheckingMode": "basic",
+    "reportMissingImports": "error",
+    "reportUnusedVariable": "error",
+    "reportUnusedFunction": "warning",
+    "reportUnnecessaryComparison": "warning"
+}
