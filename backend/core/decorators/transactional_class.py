@@ -1,9 +1,21 @@
+from warnings import deprecated
+
 from backend.core.decorators.transactional_method import transactional_method
 
 
+@deprecated(
+    "Use transactional_method for each method instead",
+)
 def transactional_class(cls):
-    for attr_name, attr_value in cls.__dict__.items():
-        # Só decora métodos públicos normais
-        if callable(attr_value) and not attr_name.startswith("_"):
-            setattr(cls, attr_name, transactional_method(attr_value))
+    for name in dir(cls):
+        if name.startswith("_"):
+            continue
+
+        attr = getattr(cls, name)
+
+        # Só decora métodos de instância públicos
+        if callable(attr):
+            decorated = transactional_method(attr)
+            setattr(cls, name, decorated)
+
     return cls

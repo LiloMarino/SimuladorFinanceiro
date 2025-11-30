@@ -62,7 +62,7 @@ class Simulation:
         return self._speed
 
     def get_stocks(self) -> list:
-        return RepositoryManager.stock.get_stocks(self._current_date)
+        return RepositoryManager.stock.get_stocks_by_date(self._current_date)
 
     def get_stock_details(self, ticker: str) -> dict | None:
         return RepositoryManager.stock.get_stock_details(ticker, self._current_date)

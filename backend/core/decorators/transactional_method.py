@@ -1,16 +1,25 @@
 from functools import wraps
+from typing import Callable, Concatenate, ParamSpec, TypeVar
+
+from sqlalchemy.orm import Session
 
 from backend.core.database import SessionLocal
 
+T = TypeVar("T")
+P = ParamSpec("P")
+R = TypeVar("R")
 
-def transactional_method(func):
+
+def transactional_method(
+    func: Callable[Concatenate[T, Session, P], R],
+) -> Callable[Concatenate[T, P], R]:
+
     @wraps(func)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self: T, *args: P.args, **kwargs: P.kwargs) -> R:
         session = SessionLocal()
         try:
             result = func(self, session, *args, **kwargs)
 
-            # Commit somente em alterações (UPDATE/INSERT/DELETE)
             if session.dirty or session.new or session.deleted:
                 session.commit()
 
