@@ -22,13 +22,11 @@ def transactional(
 
             if session.dirty or session.new or session.deleted:
                 session.commit()
-
-            return result
-
         except Exception:
             session.rollback()
             raise
-
+        else:
+            return result
         finally:
             session.close()
 

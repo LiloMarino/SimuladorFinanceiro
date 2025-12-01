@@ -1,5 +1,7 @@
 import random
+from collections.abc import Mapping
 from datetime import datetime
+from types import MappingProxyType
 
 from backend.features.simulation.entities.fixed_income_asset import (
     FixedIncomeAsset,
@@ -18,12 +20,14 @@ from backend.features.simulation.fixed_income.factory.tesouro_factory import (
 
 
 class FixedIncomeFactory:
-    _registry: dict[FixedIncomeType, AbstractFixedIncomeFactory] = {
-        FixedIncomeType.CDB: CDBFactory(),
-        FixedIncomeType.LCI: LCIFactory(),
-        FixedIncomeType.LCA: LCAFactory(),
-        FixedIncomeType.TESOURO_DIRETO: TesouroFactory(),
-    }
+    _registry: Mapping[FixedIncomeType, AbstractFixedIncomeFactory] = MappingProxyType(
+        {
+            FixedIncomeType.CDB: CDBFactory(),
+            FixedIncomeType.LCI: LCIFactory(),
+            FixedIncomeType.LCA: LCAFactory(),
+            FixedIncomeType.TESOURO_DIRETO: TesouroFactory(),
+        }
+    )
 
     @classmethod
     def available_types(cls):

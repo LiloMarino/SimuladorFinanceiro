@@ -57,7 +57,7 @@ class TesouroFactory(AbstractFixedIncomeFactory):
     def create_selic(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 3, 7)
         maturity_year = maturity_date.year
-        rate = self._generate_rate(base_value=0.00125, delta=0.00075)  # 0.0005–0.002
+        rate = self._generate_rate(base_value=0.00125, delta=0.00075)  # 0.0005-0.002
 
         return FixedIncomeAsset(
             name=f"Tesouro Selic {maturity_year}",

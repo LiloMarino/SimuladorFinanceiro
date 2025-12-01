@@ -72,10 +72,8 @@ class SSEBroker(RealtimeBroker):
                 if q:
                     try:
                         q.put(packet)
-                    except Exception as e:
-                        logger.exception(
-                            "Erro ao enfileirar mensagem para %s: %s", cid, e
-                        )
+                    except Exception:
+                        logger.exception("Erro ao enfileirar mensagem para %s", cid)
 
     # --------------------------------------------------------------------- #
     # Connection handler

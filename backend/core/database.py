@@ -63,10 +63,11 @@ def get_engine():
             Base.metadata.create_all(engine)
 
             logger.info("Conectado ao PostgreSQL.")
-            return engine
 
-        except Exception as e:
-            logger.error(f"Erro ao conectar no PostgreSQL: {e}")
+        except Exception:
+            logger.exception("Erro ao conectar no PostgreSQL")
+        else:
+            return engine
 
     # ================================
     # SQLite (fallback automático)

@@ -1,6 +1,5 @@
 import threading
 import time
-import traceback
 
 from flask import Flask
 
@@ -42,9 +41,7 @@ class SimulationLoopController:
                         # Usar um método de sleep que NÃO bloqueie o servidor
                         self._non_blocking_sleep(speed)
                 except Exception:
-                    logger.error(
-                        "Erro no loop da simulação:\n%s", traceback.format_exc()
-                    )
+                    logger.exception("Erro no loop da simulação")
                 finally:
                     self._running = False
                     logger.info("Loop de simulação encerrado.")

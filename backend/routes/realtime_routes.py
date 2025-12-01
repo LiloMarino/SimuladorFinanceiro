@@ -14,8 +14,8 @@ def stream():
     try:
         broker = get_broker()
         return broker.connect()
-    except Exception as e:
-        logger.exception("Erro ao abrir SSE stream: %s", e)
+    except Exception:
+        logger.exception("Erro ao abrir SSE stream")
         return make_response(False, "Internal server error", 500)
 
 
@@ -37,6 +37,6 @@ def update_subscription():
             "Subscription updated",
             data={"client_id": client_id, "events": events},
         )
-    except Exception as e:
-        logger.exception("Erro ao atualizar subscription: %s", e)
+    except Exception:
+        logger.exception("Erro ao atualizar subscription")
         return make_response(False, "Internal server error", 500)

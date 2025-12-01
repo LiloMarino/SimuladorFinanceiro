@@ -160,8 +160,8 @@ def update_from_yfinance(ticker: str, overwrite: bool = False):
         df = from_yfinance(ticker)
         if not df.empty:
             upsert_dataframe(df, ticker, overwrite=overwrite)
-    except Exception as e:
-        logger.error(f"Erro ao baixar dados do YFinance: {str(e)}")
+    except Exception:
+        logger.exception("Erro ao baixar dados do YFinance")
         raise
 
 
@@ -170,6 +170,6 @@ def update_from_csv(file, ticker: str, overwrite: bool = False):
         df = from_csv(file)
         if not df.empty:
             upsert_dataframe(df, ticker, overwrite=overwrite)
-    except Exception as e:
-        logger.error(f"Erro ao ler arquivo CSV: {str(e)}")
+    except Exception:
+        logger.exception("Erro ao ler arquivo CSV")
         raise

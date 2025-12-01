@@ -1,9 +1,13 @@
-check:
-	ruff check
-	pyright
+check: lint typecheck
 
 lint:
 	ruff check
+	
+typecheck:
+	pyright
+
+check-fix:
+	ruff check --fix
 
 lint-fix:
 	ruff check --fix
@@ -11,5 +15,3 @@ lint-fix:
 format:
 	ruff format
 
-typecheck:
-	pyright

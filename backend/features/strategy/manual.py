@@ -1,4 +1,5 @@
 import threading
+from typing import ClassVar
 
 from backend.core.logger import setup_logger
 from backend.features.strategy.base_strategy import BaseStrategy
@@ -8,7 +9,7 @@ logger = setup_logger(__name__)
 
 class ManualStrategy(BaseStrategy):
     _orders_lock = threading.Lock()
-    _orders: list[tuple[str, str, int]] = []  # (ação, ticker, quantidade)
+    _orders: ClassVar[list[tuple[str, str, int]]] = []  # (ação, ticker, quantidade)
 
     @classmethod
     def queue_order(cls, action: str, ticker: str, size: int):
@@ -32,5 +33,5 @@ class ManualStrategy(BaseStrategy):
                     self.broker.sell(ticker, size)
                 else:
                     logger.warning(f"Ação inválida: {action}")
-            except Exception as e:
-                logger.error(f"Erro executando ordem {action} {ticker}: {e}")
+            except Exception:
+                logger.exception(f"Erro executando ordem {action} {ticker} {size}")
