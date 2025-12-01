@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime
 
+from backend.core.dto.stock import StockDTO
 from backend.features.realtime import notify
 from backend.features.simulation.broker import Broker
 from backend.features.simulation.data_buffer import DataBuffer
@@ -49,16 +50,16 @@ class SimulationEngine:
             raise ValueError(f"Nenhum preço disponível para {ticker}")
         return candles[-1].price
 
-    def update_market_data(self, stocks: list[dict]):
+    def update_market_data(self, stocks: list[StockDTO]):
         for s in stocks:
             candle = Candle(
-                ticker=s["ticker"],
-                date=s["date"],
-                open=s["open"],
-                high=s["high"],
-                low=s["low"],
-                close=s["price"],
-                volume=s["volume"],
+                ticker=s.ticker,
+                date=datetime.fromisoformat(s.date),
+                open=s.open,
+                high=s.high,
+                low=s.low,
+                close=s.price,
+                volume=s.volume,
             )
             self._data_buffer.add_candle(candle)
 

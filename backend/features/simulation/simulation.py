@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from backend.core import repository
+from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.logger import setup_logger
 from backend.features.realtime import notify
 from backend.features.simulation.entities.fixed_income_asset import FixedIncomeAsset
@@ -45,7 +46,7 @@ class Simulation:
 
         # Emite notificações
         for stock in stocks:
-            ticker = stock["ticker"]
+            ticker = stock.ticker
             notify(f"stock_update:{ticker}", {"stock": stock})
 
         notify("simulation_update", {"currentDate": self.get_current_date_formatted()})
@@ -64,7 +65,7 @@ class Simulation:
     def get_stocks(self) -> list:
         return repository.stock.get_stocks_by_date(self._current_date)
 
-    def get_stock_details(self, ticker: str) -> dict | None:
+    def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
         return repository.stock.get_stock_details(ticker, self._current_date)
 
     def get_portfolio(self) -> Portfolio:
