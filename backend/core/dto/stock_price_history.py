@@ -9,7 +9,6 @@ from backend.core.models.models import StockPriceHistory
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class StockPriceHistoryDTO(BaseDTO):
-    stock_id: int
     price_date: datetime.date
     open: float
     high: float
@@ -20,7 +19,6 @@ class StockPriceHistoryDTO(BaseDTO):
     @staticmethod
     def from_model(m: StockPriceHistory) -> StockPriceHistoryDTO:
         return StockPriceHistoryDTO(
-            stock_id=m.stock_id,
             price_date=m.price_date,
             open=m.open,
             high=m.high,

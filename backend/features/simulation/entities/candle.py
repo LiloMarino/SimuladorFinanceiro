@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date
 
 
 @dataclass
@@ -7,7 +7,7 @@ class Candle:
     """Representa um candle de mercado."""
 
     ticker: str
-    date: datetime
+    price_date: date
     open: float
     high: float
     low: float

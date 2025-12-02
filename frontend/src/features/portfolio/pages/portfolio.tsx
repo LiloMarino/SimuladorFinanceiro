@@ -38,7 +38,7 @@ export default function PortfolioPage() {
   }
 
   function getCurrentPrice(ticker: string): number | undefined {
-    return stocks?.find((s) => s.ticker === ticker)?.price;
+    return stocks?.find((s) => s.ticker === ticker)?.close;
   }
 
   const { cash, variable_income, fixed_income } = portfolioData;

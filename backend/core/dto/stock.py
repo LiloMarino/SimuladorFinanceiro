@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import date
 
 from backend.core.dto.base import BaseDTO
 
@@ -10,8 +11,8 @@ class StockDTO(BaseDTO):
     open: float
     high: float
     low: float
-    price: float
+    close: float
     volume: int
-    date: str
+    price_date: date
     change: float
     change_pct: str

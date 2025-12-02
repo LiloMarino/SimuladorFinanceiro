@@ -2,35 +2,27 @@
 export type Stock = {
   ticker: string;
   name: string;
-  price: number;
-  low: number;
-  high: number;
-  volume: number;
   open: number;
-  date: string; // ISO
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  price_date: string; // ISO
   change: number;
-  change_pct: string; // "+1.23%"
+  change_pct: string;
 };
 
 /** Registro histórico de preço (candlestick) */
 export type StockCandle = {
-  date: string; // ISO
-  close: number;
+  price_date: string; // ISO
   open: number;
-  low: number;
   high: number;
+  low: number;
+  close: number;
   volume: number;
 };
 
 /** Detalhamento completo de um ativo (para a página individual) */
-export type StockDetails = {
-  ticker: string;
-  name: string;
-  price: number;
-  low: number;
-  high: number;
-  volume: number;
-  change: number;
-  change_pct: string;
+export type StockDetails = Stock & {
   history: StockCandle[];
 };

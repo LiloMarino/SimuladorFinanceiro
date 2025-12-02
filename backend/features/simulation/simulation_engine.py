@@ -54,11 +54,11 @@ class SimulationEngine:
         for s in stocks:
             candle = Candle(
                 ticker=s.ticker,
-                date=datetime.fromisoformat(s.date),
+                price_date=s.price_date,
                 open=s.open,
                 high=s.high,
                 low=s.low,
-                close=s.price,
+                close=s.close,
                 volume=s.volume,
             )
             self._data_buffer.add_candle(candle)

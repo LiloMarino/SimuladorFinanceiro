@@ -41,12 +41,12 @@ class StockRepository:
                     StockDTO(
                         ticker=ph.stock.ticker,
                         name=ph.stock.name,
-                        price=ph.close,
+                        close=ph.close,
                         low=ph.low,
                         high=ph.high,
                         volume=ph.volume,
                         open=ph.open,
-                        date=ph.price_date.isoformat(),
+                        price_date=ph.price_date,
                         change=round(change, 2),
                         change_pct=f"{change_pct:+.2f}%",
                     )
@@ -76,10 +76,12 @@ class StockRepository:
         return StockDetailsDTO(
             ticker=stock.ticker,
             name=stock.name,
-            price=ph_today.close if ph_today else 0,
+            open=ph_today.open if ph_today else 0,
+            close=ph_today.close if ph_today else 0,
             low=ph_today.low if ph_today else 0,
             high=ph_today.high if ph_today else 0,
             volume=ph_today.volume if ph_today else 0,
+            price_date=ph_today.price_date if ph_today else current_date,
             change=round(ph_today.close - ph_today.open, 2) if ph_today else 0,
             change_pct=(
                 f"{((ph_today.close - ph_today.open) / ph_today.open * 100):+.2f}%"

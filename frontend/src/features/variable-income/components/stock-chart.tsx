@@ -68,9 +68,9 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
 
   useRealtime(`stock_update:${ticker}`, ({ stock }) => {
     const newCandle: StockCandle = {
-      date: stock.date,
+      price_date: stock.price_date,
       open: stock.open,
-      close: stock.price,
+      close: stock.close,
       low: stock.low,
       high: stock.high,
       volume: stock.volume,
@@ -78,7 +78,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
 
     const lastCandle = historyRef.current[historyRef.current.length - 1];
 
-    if (lastCandle?.date === newCandle.date) {
+    if (lastCandle?.price_date === newCandle.price_date) {
       // Atualiza o último candle
       historyRef.current[historyRef.current.length - 1] = newCandle;
     } else {
@@ -89,12 +89,12 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
     // Atualiza a série com tipagem correta
     if (chartType === "line") {
       (seriesRef.current as AreaSeriesRef)?.update({
-        time: newCandle.date.split("T")[0],
+        time: newCandle.price_date.split("T")[0],
         value: newCandle.close,
       });
     } else {
       (seriesRef.current as CandlestickSeriesRef)?.update({
-        time: newCandle.date.split("T")[0],
+        time: newCandle.price_date.split("T")[0],
         open: newCandle.open,
         high: newCandle.high,
         low: newCandle.low,
@@ -105,7 +105,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
 
   // Filtra os dados conforme selectedScale usando datas reais
   function getFilteredData(scale: TimeScale) {
-    const now = new Date(historyRef.current[historyRef.current.length - 1]?.date);
+    const now = new Date(historyRef.current[historyRef.current.length - 1]?.price_date);
     const days = SCALE_DAYS[scale];
 
     if (days === null) return historyRef.current;
@@ -113,7 +113,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
     const fromDate = new Date(now);
     fromDate.setDate(now.getDate() - days);
 
-    return historyRef.current.filter((d) => new Date(d.date) >= fromDate);
+    return historyRef.current.filter((d) => new Date(d.price_date) >= fromDate);
   }
 
   useEffect(() => {
@@ -141,7 +141,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
         autoScale: false, // Desativa a escala automática no preço para manter a visualização fixa
       });
       seriesRef.current = areaSeries;
-      areaSeries.setData(filteredData.map((d) => ({ time: d.date.split("T")[0], value: d.close })));
+      areaSeries.setData(filteredData.map((d) => ({ time: d.price_date.split("T")[0], value: d.close })));
     } else {
       const candleSeries = chartInstance.current.addSeries(CandlestickSeries);
       candleSeries.priceScale().applyOptions({
@@ -150,7 +150,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
       seriesRef.current = candleSeries;
       candleSeries.setData(
         filteredData.map((d) => ({
-          time: d.date.split("T")[0],
+          time: d.price_date.split("T")[0],
           open: d.open,
           high: d.high,
           low: d.low,

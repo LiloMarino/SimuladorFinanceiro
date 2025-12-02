@@ -105,7 +105,7 @@ export default function VariableIncomeDetailPage() {
             <p className="text-muted-foreground">{stock.name}</p>
           </div>
           <div className="text-right">
-            <h3 className="text-3xl font-bold text-gray-800 dark:text-gray-100">R$ {stock.price.toFixed(2)}</h3>
+            <h3 className="text-3xl font-bold text-gray-800 dark:text-gray-100">R$ {stock.close.toFixed(2)}</h3>
             <div
               className={clsx(
                 "flex items-center justify-end gap-1 font-medium",
@@ -183,7 +183,7 @@ export default function VariableIncomeDetailPage() {
               <div className="flex flex-col gap-1 border-t pt-3 mt-2 text-sm">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Total estimado da operação:</span>
-                  <span className="font-semibold">{formatMoney(quantity * stock.price)}</span>
+                  <span className="font-semibold">{formatMoney(quantity * stock.close)}</span>
                 </div>
                 <p className="text-xs text-muted-foreground italic">
                   * O preço pode variar do mostrado, conforme atualização do mercado.
@@ -199,7 +199,7 @@ export default function VariableIncomeDetailPage() {
               <div>
                 <p className="text-muted-foreground">Você possui</p>
                 <p className="font-bold">
-                  {size} ações ({formatMoney(size * stock.price)})
+                  {size} ações ({formatMoney(size * stock.close)})
                 </p>
               </div>
               <div>
@@ -211,10 +211,10 @@ export default function VariableIncomeDetailPage() {
                 <p
                   className={clsx(
                     "font-bold",
-                    size > 0 && stock.price - avgPrice >= 0 ? "text-green-600" : "text-red-600"
+                    size > 0 && stock.close - avgPrice >= 0 ? "text-green-600" : "text-red-600"
                   )}
                 >
-                  {formatMoney(size * (stock.price - avgPrice))}
+                  {formatMoney(size * (stock.close - avgPrice))}
                 </p>
               </div>
               <div>
