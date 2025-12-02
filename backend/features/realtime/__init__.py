@@ -1,8 +1,7 @@
-from typing import Any
-
 from flask import current_app
 
 from backend.features.realtime.realtime_broker import RealtimeBroker
+from backend.types import JSONValue
 
 
 def get_broker() -> RealtimeBroker:
@@ -16,7 +15,7 @@ def get_broker() -> RealtimeBroker:
     return broker
 
 
-def notify(event: str, payload: Any) -> None:
+def notify(event: str, payload: JSONValue) -> None:
     """
     API pública para publicar eventos realtime (Pub/Sub).
     Pode ser chamada de qualquer parte do backend.

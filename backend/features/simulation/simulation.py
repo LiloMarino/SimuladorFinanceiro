@@ -47,10 +47,10 @@ class Simulation:
         # Emite notificações
         for stock in stocks:
             ticker = stock.ticker
-            notify(f"stock_update:{ticker}", {"stock": stock})
+            notify(f"stock_update:{ticker}", {"stock": stock.to_json()})
 
         notify("simulation_update", {"currentDate": self.get_current_date_formatted()})
-        notify("stocks_update", {"stocks": stocks})
+        notify("stocks_update", {"stocks": [s.to_json() for s in stocks]})
 
     def get_current_date_formatted(self) -> str:
         return self._current_date.strftime("%d/%m/%Y")

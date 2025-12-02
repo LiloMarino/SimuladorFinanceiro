@@ -14,7 +14,7 @@ def get_portfolio():
         simulation = get_simulation()
         portfolio_data = simulation.get_portfolio()
         return make_response(
-            True, "Portfolio loaded successfully.", data=portfolio_data
+            True, "Portfolio loaded successfully.", data=asdict(portfolio_data)
         )
     except Exception as e:
         return make_response(False, f"Error loading portfolio: {e}", 500)

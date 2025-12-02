@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 
+from backend.core.dto.base import BaseDTO
 
-@dataclass(frozen=True, slots=True)
-class StockDTO:
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class StockDTO(BaseDTO):
     ticker: str
     name: str
     open: float

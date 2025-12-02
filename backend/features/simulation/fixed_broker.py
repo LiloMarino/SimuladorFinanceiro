@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-import logging
 from datetime import date
 from typing import TYPE_CHECKING
 
+from backend.core.logger import setup_logger
 from backend.features.simulation.entities.fixed_income_asset import FixedIncomeAsset
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
 
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
 
 class FixedBroker:

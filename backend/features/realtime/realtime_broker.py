@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import Any
+
+from backend.types import JSONValue
 
 
 class RealtimeBroker(ABC):
@@ -29,7 +30,7 @@ class RealtimeBroker(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def notify(self, event: str, payload: Any) -> None:
+    def notify(self, event: str, payload: JSONValue) -> None:
         """Publica um evento para todos os assinantes interessados."""
         raise NotImplementedError
 

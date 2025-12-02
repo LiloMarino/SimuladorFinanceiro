@@ -1,3 +1,4 @@
+
 from flask import Blueprint, request
 
 from backend.features.simulation import get_simulation
@@ -25,7 +26,7 @@ def get_variable_income_details(asset):
     stock = simulation.get_stock_details(asset)
     if not stock:
         return make_response(False, "Asset not found.", 404)
-    return make_response(True, "Asset details loaded.", data=stock)
+    return make_response(True, "Asset details loaded.", data=stock.to_json())
 
 
 @operation_bp.route("/api/variable-income/<string:asset>/buy", methods=["POST"])

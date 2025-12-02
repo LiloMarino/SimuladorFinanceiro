@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
+from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 from backend.core.models.models import Stock, StockPriceHistory
 
 
@@ -85,7 +86,7 @@ class StockRepository:
                 if ph_today
                 else "0.00%"
             ),
-            history=history,
+            history=[StockPriceHistoryDTO.from_model(h) for h in history],
         )
 
     @transactional

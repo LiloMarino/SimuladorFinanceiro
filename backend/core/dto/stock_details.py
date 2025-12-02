@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
-from backend.core.models.models import StockPriceHistory
+from backend.core.dto.base import BaseDTO
+from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 
 
-@dataclass(frozen=True, slots=True)
-class StockDetailsDTO:
+@dataclass(frozen=True, slots=True, kw_only=True)
+class StockDetailsDTO(BaseDTO):
     ticker: str
     name: str
     price: float
@@ -13,4 +14,4 @@ class StockDetailsDTO:
     volume: int
     change: float
     change_pct: str
-    history: list[StockPriceHistory]
+    history: list[StockPriceHistoryDTO]

@@ -1,12 +1,13 @@
-import logging
 from collections.abc import Iterable
-from typing import Any
 
 from flask_socketio import SocketIO
 
+from backend.core.logger import setup_logger
+from backend.types import JSONValue
+
 from .realtime_broker import RealtimeBroker
 
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
 
 class SocketBroker(RealtimeBroker):
@@ -41,7 +42,7 @@ class SocketBroker(RealtimeBroker):
         for event in events:
             self._subscriptions.setdefault(event, set()).add(client_id)
 
-    def notify(self, event: str, payload: Any) -> None:
+    def notify(self, event: str, payload: JSONValue) -> None:
         """Envia payload apenas para clientes inscritos neste evento."""
         for cid in self._subscriptions.get(event, set()):
             if cid in self._clients:

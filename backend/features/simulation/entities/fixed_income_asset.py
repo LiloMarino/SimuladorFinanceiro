@@ -4,6 +4,7 @@ from datetime import date
 from enum import Enum
 
 from backend.core import repository
+from backend.types import JSONValue
 
 
 class FixedIncomeType(Enum):
@@ -59,7 +60,7 @@ class FixedIncomeAsset:
                 else:
                     raise ValueError("Taxa de prefixado não definida")
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, JSONValue]:
         data = asdict(self)
         data["rate_index"] = self.rate_index.value
         data["investment_type"] = self.investment_type.value

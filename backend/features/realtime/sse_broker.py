@@ -1,16 +1,17 @@
 import json
-import logging
 import uuid
 from collections.abc import Iterable
 from queue import Empty, Queue
 from threading import Lock
-from typing import Any
 
 from flask import Response, request, stream_with_context
 
+from backend.core.logger import setup_logger
+from backend.types import JSONValue
+
 from .realtime_broker import RealtimeBroker
 
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
 
 class SSEBroker(RealtimeBroker):
@@ -62,7 +63,7 @@ class SSEBroker(RealtimeBroker):
     # --------------------------------------------------------------------- #
     # Publish
     # --------------------------------------------------------------------- #
-    def notify(self, event: str, payload: Any) -> None:
+    def notify(self, event: str, payload: JSONValue) -> None:
         """Envia payload para todos os clientes inscritos neste evento."""
         packet = f"event: {event}\ndata: {json.dumps({'event': event, 'payload': payload})}\n\n"
 
