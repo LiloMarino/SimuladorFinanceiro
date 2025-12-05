@@ -47,12 +47,9 @@ def import_assets():
 
     action = data.get("action")
 
-    try:
-        if action == "yfinance":
-            return handle_yfinance(data)
-        elif action == "csv":
-            return handle_csv(data, file)
-        else:
-            return make_response(False, "Invalid action.", 400)
-    except Exception as e:
-        return make_response(False, f"Error importing assets: {e}", 500)
+    if action == "yfinance":
+        return handle_yfinance(data)
+    elif action == "csv":
+        return handle_csv(data, file)
+    else:
+        return make_response(False, "Invalid action.", 400)

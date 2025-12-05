@@ -42,9 +42,7 @@ class SimulationLoopController:
                         self._non_blocking_sleep(speed)
                 except Exception:
                     logger.exception("Erro no loop da simulação")
-                finally:
                     self._running = False
-                    logger.info("Loop de simulação encerrado.")
 
         self._thread = threading.Thread(target=_loop, daemon=True)
         self._thread.start()
@@ -61,13 +59,9 @@ class SimulationLoopController:
     def _non_blocking_sleep(self, speed: float):
         delay = 1 / max(speed, 1)
         broker = get_broker()
-        try:
-            if isinstance(broker, SocketBroker):
-                broker.socketio.sleep(delay)  # type: ignore
-            else:
-                time.sleep(delay)
-        except Exception as e:
-            logger.debug(f"Erro no sleep: {e}")
+        if isinstance(broker, SocketBroker):
+            broker.socketio.sleep(delay)  # type: ignore
+        else:
             time.sleep(delay)
 
 

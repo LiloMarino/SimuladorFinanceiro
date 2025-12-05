@@ -1,4 +1,3 @@
-
 from flask import Blueprint, request
 
 from backend.features.simulation import get_simulation
@@ -11,12 +10,11 @@ operation_bp = Blueprint("operation", __name__)
 @operation_bp.route("/api/variable-income", methods=["GET"])
 def get_variable_income():
     """Return list of stocks."""
-    try:
-        simulation = get_simulation()
-        stocks = simulation.get_stocks()
-        return make_response(True, "Stocks loaded successfully.", data=stocks)
-    except Exception as e:
-        return make_response(False, f"Error loading stocks: {e}", 500)
+    simulation = get_simulation()
+    stocks = simulation.get_stocks()
+    return make_response(
+        True, "Stocks loaded successfully.", data=[s.to_json() for s in stocks]
+    )
 
 
 @operation_bp.route("/api/variable-income/<string:asset>", methods=["GET"])
@@ -52,23 +50,17 @@ def sell_stock(asset):
 @operation_bp.route("/api/fixed-income", methods=["GET"])
 def get_fixed_income():
     """Return list of fixed-income assets."""
-    try:
-        simulation = get_simulation()
-        fixed = simulation.get_fixed_assets()
-        fixed_json = [asset.to_dict() for asset in fixed]
-        return make_response(True, "Fixed income assets loaded.", data=fixed_json)
-    except Exception as e:
-        return make_response(False, f"Error loading fixed income: {e}", 500)
+    simulation = get_simulation()
+    fixed = simulation.get_fixed_assets()
+    fixed_json = [asset.to_dict() for asset in fixed]
+    return make_response(True, "Fixed income assets loaded.", data=fixed_json)
 
 
 @operation_bp.route("/api/fixed-income/<string:asset_uuid>", methods=["GET"])
 def get_fixed_income_details(asset_uuid):
     """Return details of a fixed-income asset."""
-    try:
-        simulation = get_simulation()
-        fixed = simulation.get_fixed_asset(asset_uuid)
-        if not fixed:
-            return make_response(False, "Asset not found.", 404)
-        return make_response(True, "Asset details loaded.", data=fixed)
-    except Exception as e:
-        return make_response(False, f"Error getting details: {e}", 500)
+    simulation = get_simulation()
+    fixed = simulation.get_fixed_asset(asset_uuid)
+    if not fixed:
+        return make_response(False, "Asset not found.", 404)
+    return make_response(True, "Asset details loaded.", data=fixed)

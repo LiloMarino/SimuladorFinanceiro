@@ -46,10 +46,7 @@ class SocketBroker(RealtimeBroker):
         """Envia payload apenas para clientes inscritos neste evento."""
         for cid in self._subscriptions.get(event, set()):
             if cid in self._clients:
-                try:
-                    self.socketio.emit(event, payload, to=cid)
-                except Exception:
-                    logger.exception("Erro emitindo para %s", cid)
+                self.socketio.emit(event, payload, to=cid)
 
     def connect(self) -> None:
         raise NotImplementedError("SocketBroker não implementa connect()")

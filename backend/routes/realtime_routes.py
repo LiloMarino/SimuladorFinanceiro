@@ -21,22 +21,18 @@ def stream():
 
 @realtime_bp.route("/api/update-subscription", methods=["POST"])
 def update_subscription():
-    try:
-        broker = get_broker()
-        data = request.get_json(force=True)
-        client_id = data.get("client_id")
-        events = data.get("events", [])
+    broker = get_broker()
+    data = request.get_json(force=True)
+    client_id = data.get("client_id")
+    events = data.get("events", [])
 
-        if not client_id:
-            return make_response(False, "client_id required", 400)
+    if not client_id:
+        return make_response(False, "client_id required", 400)
 
-        broker.update_subscription(client_id, events)
-        logger.info("Updating subscription: %s -> %s", client_id, events)
-        return make_response(
-            True,
-            "Subscription updated",
-            data={"client_id": client_id, "events": events},
-        )
-    except Exception:
-        logger.exception("Erro ao atualizar subscription")
-        return make_response(False, "Internal server error", 500)
+    broker.update_subscription(client_id, events)
+    logger.info("Updating subscription: %s -> %s", client_id, events)
+    return make_response(
+        True,
+        "Subscription updated",
+        data={"client_id": client_id, "events": events},
+    )

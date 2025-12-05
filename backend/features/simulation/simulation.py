@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from backend.core import repository
+from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.logger import setup_logger
 from backend.features.realtime import notify
@@ -62,7 +63,7 @@ class Simulation:
     def get_speed(self) -> int:
         return self._speed
 
-    def get_stocks(self) -> list:
+    def get_stocks(self) -> list[StockDTO]:
         return repository.stock.get_stocks_by_date(self._current_date)
 
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
