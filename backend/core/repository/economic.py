@@ -8,11 +8,11 @@ from backend.core.decorators.transactional_method import transactional
 class EconomicRepository:
     @transactional
     def get_cdi_rate(self, session: Session, date: date):
-        return 13.71
+        return 14.9
 
     @transactional
     def get_ipca_rate(self, session: Session, date: date):
-        return 5.17
+        return 4.68
 
     @transactional
     def get_selic_rate(self, session: Session, date: date):

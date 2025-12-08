@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FixedIncomeAsset } from "@/features/fixed-income/models/fixed-income-asset";
+import { FixedIncomeAsset, TAX_TABLE } from "@/features/fixed-income/models/fixed-income-asset";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { useParams } from "react-router-dom";
@@ -11,17 +11,18 @@ import { Label } from "@/shared/components/ui/label";
 import { Button } from "@/shared/components/ui/button";
 import { Table } from "lucide-react";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { formatPercent } from "@/shared/lib/utils/formatting";
 
 export default function FixedIncomeDetailPage() {
   usePageLabel("Detalhes Renda Fixa");
   const { id } = useParams<{ id: string }>();
   const { data: assetData, loading: isAssetLoading } = useQueryApi<FixedIncomeAssetApi>(`/api/fixed-income/${id}`);
+  const { data: rates, loading: isRatesLoading } = useQueryApi<EconomicIndicators>("/api/economic-indicators");
   const {
     data: simData,
     setData: setSimData,
     loading: isSimLoading,
   } = useQueryApi<SimulationState>("/api/get-simulation-state");
-  const { data: rates, loading: isRatesLoading } = useQueryApi<EconomicIndicators>("/api/economic-indicators");
   const [investmentAmount, setInvestmentAmount] = useState<string>("1000");
 
   useRealtime("simulation_update", (update) => {
@@ -29,15 +30,9 @@ export default function FixedIncomeDetailPage() {
   });
 
   const asset = useMemo(() => {
-    if (!assetData || !simData?.currentDate) return null;
-    return new FixedIncomeAsset(assetData, new Date(simData.currentDate));
-  }, [assetData, simData?.currentDate]);
-
-  const calculations = useMemo(() => {
-    if (!asset) return null;
-    const amount = Number.parseFloat(investmentAmount) || 0;
-    return asset.calculateInvestment(amount);
-  }, [asset, investmentAmount]);
+    if (!assetData || !simData?.currentDate || !rates) return null;
+    return new FixedIncomeAsset(assetData, new Date(simData.currentDate), rates);
+  }, [assetData, simData?.currentDate, rates]);
 
   if (isAssetLoading || isRatesLoading || isSimLoading) {
     return (
@@ -47,7 +42,7 @@ export default function FixedIncomeDetailPage() {
     );
   }
 
-  if (!assetData) {
+  if (!asset) {
     return <div className="p-6 text-center text-gray-500">Ativo não encontrado.</div>;
   }
 
@@ -61,15 +56,13 @@ export default function FixedIncomeDetailPage() {
               <div>
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-900">{asset.name}</h2>
                 <p className="text-slate-600 mt-1">
-                  {getInvestmentTypeLabel(asset.investment_type)} - {asset.issuer}
+                  {asset.investmentType} - {asset.issuer}
                 </p>
               </div>
               <div className="text-right">
-                <h3 className="text-3xl md:text-4xl font-bold text-slate-800">
-                  {getRateLabel(asset.rate_index, asset.interest_rate)}
-                </h3>
+                <h3 className="text-3xl md:text-4xl font-bold text-slate-800">{asset.rateLabel}</h3>
                 <span className="text-green-600 font-medium inline-block mt-2">
-                  Retorno esperado: {calculations.grossReturnPct.toFixed(2)}% no período
+                  Retorno esperado: {formatPercent(asset.expectedReturn)} no período
                 </span>
               </div>
             </div>
@@ -83,35 +76,27 @@ export default function FixedIncomeDetailPage() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-600">Tipo de Investimento</span>
-                  <span className="font-medium text-slate-900">{getInvestmentTypeLabel(asset.investment_type)}</span>
+                  <span className="font-medium text-slate-900">a</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Tipo de Rentabilidade</span>
-                  <span className="font-medium text-slate-900">{getReturnType(asset.rate_index)}</span>
+                  <span className="font-medium text-slate-900">a</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Vencimento</span>
-                  <span className="font-medium text-slate-900">{formattedMaturity}</span>
+                  <span className="font-medium text-slate-900">a</span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-slate-100">
-                  <span className="text-slate-600">Taxa {asset.rate_index} Atual</span>
-                  <span className="font-medium text-slate-900">
-                    {asset.rate_index === "CDI"
-                      ? `${(rates.CDI * 100).toFixed(2)}% a.a.`
-                      : asset.rate_index === "IPCA"
-                      ? `${(rates.IPCA * 100).toFixed(2)}% a.a.`
-                      : `${(rates.SELIC * 100).toFixed(2)}% a.a.`}
-                  </span>
+                  <span className="text-slate-600">Taxa a Atual</span>
+                  <span className="font-medium text-slate-900">a</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Taxa</span>
-                  <span className="font-medium text-slate-900">
-                    {getRateLabel(asset.rate_index, asset.interest_rate)}
-                  </span>
+                  <span className="font-medium text-slate-900">a</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Alíquota de IR</span>
-                  <span className="font-medium text-slate-900">{getTaxInfo(asset.investment_type)}</span>
+                  <span className="font-medium text-slate-900">a</span>
                 </div>
               </div>
             </div>
@@ -122,31 +107,23 @@ export default function FixedIncomeDetailPage() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-600">Retorno Anual Esperado (% a.a.)</span>
-                  <span className="font-medium text-slate-900">
-                    {asset.rate_index === "CDI"
-                      ? `${(rates.CDI * asset.interest_rate * 100).toFixed(2)}%`
-                      : asset.rate_index === "IPCA"
-                      ? `${((rates.IPCA + asset.interest_rate) * 100).toFixed(2)}%`
-                      : `${((rates.SELIC + asset.interest_rate) * 100).toFixed(2)}%`}
-                  </span>
+                  <span className="font-medium text-slate-900">{formatPercent(asset.annualRate)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Rendimento Bruto Total (%)</span>
-                  <span className="font-medium text-green-700">{calculations.grossReturnPct.toFixed(2)}%</span>
+                  <span className="font-medium text-green-700">{formatPercent(asset.expectedReturn)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Rendimento Líquido Total (%)</span>
-                  <span className="font-medium text-green-700">{calculations.netReturnPct.toFixed(2)}%</span>
+                  <span className="font-medium text-green-700">a%</span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-slate-100">
                   <span className="text-slate-600">Alíquota de IR no período</span>
-                  <span className="font-medium text-slate-900">
-                    {calculations.taxRate > 0 ? `${(calculations.taxRate * 100).toFixed(1)}%` : "Isento"}
-                  </span>
+                  <span className="font-medium text-slate-900">a</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Dias até vencimento</span>
-                  <span className="font-medium text-slate-900">{daysToMaturity} dias</span>
+                  <span className="font-medium text-slate-900">{asset.daysToMaturity} dias</span>
                 </div>
               </div>
             </div>
@@ -194,21 +171,21 @@ export default function FixedIncomeDetailPage() {
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">
                       Rendimento Bruto
                     </p>
-                    <p className="text-2xl font-bold text-green-600">R$ {calculations.grossReturn.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-green-600">R$ a</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">Imposto (IR)</p>
-                    <p className="text-2xl font-bold text-red-600">- R$ {calculations.tax.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-red-600">- R$ a</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">
                       Valor de resgate
                     </p>
-                    <p className="text-2xl font-bold text-green-700">R$ {calculations.netAmount.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-green-700">R$ a</p>
                   </div>
                 </div>
                 <p className="text-xs text-slate-500 mt-6 pt-4 border-t border-slate-300">
-                  * Valores projetados considerando taxa atual e vencimento em {formattedMaturity}
+                  * Valores projetados considerando taxa atual e vencimento em a
                 </p>
               </div>
             </div>
@@ -231,54 +208,46 @@ export default function FixedIncomeDetailPage() {
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Valor Aplicado</TableCell>
                         <TableCell className="text-right font-medium text-slate-900">
-                          R$ {calculations.amount.toFixed(2)}
+                          R$ calculations.amount.toFixed(2)
                         </TableCell>
                         <TableCell className="text-right font-medium text-slate-900">100,00%</TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Resultado Bruto (R$)</TableCell>
                         <TableCell className="text-right font-bold text-green-700">
-                          R$ {calculations.grossAmount.toFixed(2)}
+                          R$ calculations.grossAmount.toFixed(2)
                         </TableCell>
                         <TableCell className="text-right font-bold text-green-700">
-                          {calculations.grossReturnPct.toFixed(2)}%
+                          calculations.grossReturnPct.toFixed(2)%
                         </TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700">Rendimento Bruto (R$)</TableCell>
                         <TableCell className="text-right font-medium text-slate-900">
-                          R$ {calculations.grossReturn.toFixed(2)}
+                          R$ calculations.grossReturn.toFixed(2)
                         </TableCell>
                         <TableCell className="text-right font-medium text-slate-900">
-                          {calculations.grossReturnPct.toFixed(2)}%
+                          calculations.grossReturnPct.toFixed(2)%
                         </TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Imposto sobre Rendimento (R$)</TableCell>
                         <TableCell className="text-right font-bold text-red-600">
-                          - R$ {calculations.tax.toFixed(2)}
+                          - R$ calculations.tax.toFixed(2)
                         </TableCell>
-                        <TableCell className="text-right font-bold text-red-600">
-                          {calculations.taxRate > 0 ? `${(calculations.taxRate * 100).toFixed(1)}%` : "0%"}
-                        </TableCell>
+                        <TableCell className="text-right font-bold text-red-600">a</TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Resultado Líquido (R$)</TableCell>
                         <TableCell className="text-right font-bold text-green-600">
-                          R$ {calculations.netAmount.toFixed(2)}
+                          R$ calculations.netAmount.toFixed(2)
                         </TableCell>
-                        <TableCell className="text-right font-bold text-green-600">
-                          {((calculations.netAmount / calculations.amount) * 100).toFixed(2)}%
-                        </TableCell>
+                        <TableCell className="text-right font-bold text-green-600">a</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell className="text-slate-700 font-medium">Rendimento Líquido (R$)</TableCell>
-                        <TableCell className="text-right font-medium text-slate-900">
-                          R$ {calculations.netReturn.toFixed(2)}
-                        </TableCell>
-                        <TableCell className="text-right font-medium text-slate-900">
-                          {calculations.netReturnPct.toFixed(2)}%
-                        </TableCell>
+                        <TableCell className="text-right font-medium text-slate-900">R$ a</TableCell>
+                        <TableCell className="text-right font-medium text-slate-900">a%</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
@@ -286,53 +255,49 @@ export default function FixedIncomeDetailPage() {
               </div>
 
               {/* Tax Table Section - 1 column */}
-              {asset.investment_type !== "LCI" && asset.investment_type !== "LCA" && (
-                <div className="lg:col-span-1">
-                  <h4 className="font-semibold text-slate-900 mb-4">Tabela Regressiva de IR</h4>
-                  <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                    <Table className="text-sm">
-                      <TableHeader>
-                        <TableRow className="bg-slate-100 hover:bg-slate-100">
-                          <TableHead className="text-slate-900 font-semibold">Prazo (dias)</TableHead>
-                          <TableHead className="text-right text-slate-900 font-semibold">Alíquota</TableHead>
-                          <TableHead className="text-center text-slate-900 font-semibold">Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {TAX_TABLE.map((row, idx) => {
-                          const isActive = daysToMaturity >= row.days;
-                          return (
-                            <TableRow
-                              key={idx}
-                              className={
-                                isActive ? "bg-green-50 border-b border-slate-200" : "border-b border-slate-200"
-                              }
-                            >
-                              <TableCell className="text-slate-700 font-medium">
-                                {row.days === 0 ? "Até 180" : `Acima de ${row.days}`}
-                              </TableCell>
-                              <TableCell className="text-right font-semibold text-slate-900">
-                                {(row.rate * 100).toFixed(1)}%
-                              </TableCell>
-                              <TableCell className="text-center">
-                                {isActive ? (
-                                  <span className="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded">
-                                    Aplicável
-                                  </span>
-                                ) : (
-                                  <span className="inline-block px-2 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded">
-                                    -
-                                  </span>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
+              <div className="lg:col-span-1">
+                <h4 className="font-semibold text-slate-900 mb-4">Tabela Regressiva de IR</h4>
+                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                  <Table className="text-sm">
+                    <TableHeader>
+                      <TableRow className="bg-slate-100 hover:bg-slate-100">
+                        <TableHead className="text-slate-900 font-semibold">Prazo (dias)</TableHead>
+                        <TableHead className="text-right text-slate-900 font-semibold">Alíquota</TableHead>
+                        <TableHead className="text-center text-slate-900 font-semibold">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {TAX_TABLE.map((row, idx) => {
+                        const isActive = false;
+                        return (
+                          <TableRow
+                            key={idx}
+                            className={isActive ? "bg-green-50 border-b border-slate-200" : "border-b border-slate-200"}
+                          >
+                            <TableCell className="text-slate-700 font-medium">
+                              {row.days === 0 ? "Até 180" : `Acima de ${row.days}`}
+                            </TableCell>
+                            <TableCell className="text-right font-semibold text-slate-900">
+                              {(row.rate * 100).toFixed(1)}%
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {isActive ? (
+                                <span className="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded">
+                                  Aplicável
+                                </span>
+                              ) : (
+                                <span className="inline-block px-2 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded">
+                                  -
+                                </span>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>

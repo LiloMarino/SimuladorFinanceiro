@@ -25,7 +25,7 @@ export default function FixedIncomeCard({ asset }: FixedIncomeCardProps) {
       fields={[
         { label: "Vencimento:", value: asset.formattedMaturity },
         { label: "Índice:", value: asset.rateIndex },
-        { label: "IR:", value: asset.incomeTax },
+        { label: "IR:", value: asset.incomeTaxLabel },
       ]}
       footer={{
         linkTo: asset.detailsLink,
