@@ -2,11 +2,11 @@ import { differenceInDays, parseISO } from "date-fns";
 import type { FixedIncomeAssetApi, RateIndex, InvestmentType, EconomicIndicators } from "@/types";
 import { formatDate } from "@/shared/lib/utils/formatting";
 
-export const TAX_TABLE: readonly { days: number; rate: number }[] = [
-  { days: 180, rate: 0.225 },
-  { days: 360, rate: 0.2 },
-  { days: 720, rate: 0.175 },
-  { days: Infinity, rate: 0.15 },
+export const TAX_TABLE = [
+  { label: "Até 180 dias", min: 0, max: 180, rate: 0.225 },
+  { label: "De 181 a 360 dias", min: 181, max: 360, rate: 0.2 },
+  { label: "De 361 a 720 dias", min: 361, max: 720, rate: 0.175 },
+  { label: "Acima de 720 dias", min: 721, max: Infinity, rate: 0.15 },
 ] as const;
 
 export class FixedIncomeAsset {
@@ -75,7 +75,7 @@ export class FixedIncomeAsset {
     const d = this.daysToMaturity;
 
     // Encontra o primeiro item cuja regra de dias é satisfeita
-    const entry = TAX_TABLE.find((row) => d <= row.days);
+    const entry = TAX_TABLE.find((row) => d >= row.min && d <= row.max);
 
     return entry?.rate ?? 0;
   }

@@ -10,8 +10,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/shared/components/ui/form";
 
 import { Button } from "@/shared/components/ui/button";
-import { Table } from "lucide-react";
-import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { formatDate, formatMoney, formatPercent } from "@/shared/lib/utils/formatting";
 import { parse } from "date-fns";
 import { useForm } from "react-hook-form";
@@ -294,18 +293,19 @@ export default function FixedIncomeDetailPage() {
                     </TableHeader>
                     <TableBody>
                       {TAX_TABLE.map((row, idx) => {
-                        const isActive = false;
+                        const isActive = asset.incomeTaxRate === row.rate;
+
                         return (
                           <TableRow
                             key={idx}
                             className={isActive ? "bg-green-50 border-b border-slate-200" : "border-b border-slate-200"}
                           >
-                            <TableCell className="text-slate-700 font-medium">
-                              {row.days === 0 ? "Até 180" : `Acima de ${row.days}`}
-                            </TableCell>
+                            <TableCell className="text-slate-700 font-medium">{row.label}</TableCell>
+
                             <TableCell className="text-right font-semibold text-slate-900">
                               {(row.rate * 100).toFixed(1)}%
                             </TableCell>
+
                             <TableCell className="text-center">
                               {isActive ? (
                                 <span className="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded">
