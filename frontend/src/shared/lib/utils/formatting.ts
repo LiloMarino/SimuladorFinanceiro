@@ -13,3 +13,13 @@ export function formatPercent(value: number, digits = 2) {
     maximumFractionDigits: digits,
   }).format(value);
 }
+
+export function formatDate(date: Date | string) {
+  const d = typeof date === "string" ? new Date(date) : date;
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(d);
+}

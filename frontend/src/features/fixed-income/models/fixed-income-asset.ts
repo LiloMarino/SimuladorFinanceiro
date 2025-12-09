@@ -1,6 +1,6 @@
-import { differenceInDays, parseISO, format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { differenceInDays, parseISO } from "date-fns";
 import type { FixedIncomeAssetApi, RateIndex, InvestmentType, EconomicIndicators } from "@/types";
+import { formatDate } from "@/shared/lib/utils/formatting";
 
 export const TAX_TABLE: readonly { days: number; rate: number }[] = [
   { days: 0, rate: 0.225 },
@@ -71,8 +71,28 @@ export class FixedIncomeAsset {
   }
 
   get formattedMaturity(): string {
-    const formatted = format(this.maturityDate, "dd/MM/yyyy", { locale: ptBR });
+    const formatted = formatDate(this.maturityDate);
     return `${formatted} (${this.daysToMaturity} dias)`;
+  }
+
+  get indexTypeLabel(): string {
+    return this.rateIndex === "Prefixado" ? "Pré-fixado" : "Pós-fixado";
+  }
+
+  get currentRateLabel(): string {
+    switch (this.rateIndex) {
+      case "CDI":
+        return `${(this.rates.cdi).toFixed(2)}% a.a.`;
+
+      case "IPCA":
+        return `${(this.rates.ipca).toFixed(2)}% a.a.`;
+
+      case "SELIC":
+        return `${(this.rates.selic).toFixed(2)}% a.a.`;
+
+      default:
+        return "";
+    }
   }
 
   get rateLabel(): string {

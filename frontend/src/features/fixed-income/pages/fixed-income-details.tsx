@@ -11,7 +11,7 @@ import { Label } from "@/shared/components/ui/label";
 import { Button } from "@/shared/components/ui/button";
 import { Table } from "lucide-react";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { formatPercent } from "@/shared/lib/utils/formatting";
+import { formatDate, formatPercent } from "@/shared/lib/utils/formatting";
 
 export default function FixedIncomeDetailPage() {
   usePageLabel("Detalhes Renda Fixa");
@@ -76,27 +76,29 @@ export default function FixedIncomeDetailPage() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-600">Tipo de Investimento</span>
-                  <span className="font-medium text-slate-900">a</span>
+                  <span className="font-medium text-slate-900">{asset.investmentType}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Tipo de Rentabilidade</span>
-                  <span className="font-medium text-slate-900">a</span>
+                  <span className="font-medium text-slate-900">{asset.indexTypeLabel}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Vencimento</span>
-                  <span className="font-medium text-slate-900">a</span>
+                  <span className="font-medium text-slate-900">{formatDate(asset.maturityDate)}</span>
                 </div>
-                <div className="flex justify-between pt-2 border-t border-slate-100">
-                  <span className="text-slate-600">Taxa a Atual</span>
-                  <span className="font-medium text-slate-900">a</span>
-                </div>
+                {asset.rateIndex !== "Prefixado" && (
+                  <div className="flex justify-between pt-2 border-t border-slate-100">
+                    <span className="text-slate-600">Taxa {asset.rateIndex} Atual</span>
+                    <span className="font-medium text-slate-900">{asset.currentRateLabel}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-slate-600">Taxa</span>
-                  <span className="font-medium text-slate-900">a</span>
+                  <span className="font-medium text-slate-900">{asset.rateLabel}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Alíquota de IR</span>
-                  <span className="font-medium text-slate-900">a</span>
+                  <span className="font-medium text-slate-900">{asset.incomeTaxLabel}</span>
                 </div>
               </div>
             </div>
