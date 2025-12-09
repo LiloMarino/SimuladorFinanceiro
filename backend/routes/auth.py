@@ -80,17 +80,41 @@ def user_register():
     Cria um usuário anônimo NO BD associado ao client_id já existente.
     """
 
+    data = request.get_json()
+    nickname = data.get("nickname")
+
+    if not nickname:
+        return make_response(False, "Nickname is required.", 422)
+
     client_id = request.cookies.get("client_id")
 
     if not client_id:
         return make_response(False, "Session not initialized.", 401)
 
-    user = register_user(client_id)
+    # Verificar se já existe usuário vinculado ao client_id
+    existing_user = repository.user.get_by_client_id(client_id)
+    if existing_user:
+        return make_response(False, "User already registered for this client.", 409)
 
+    # Criar novo usuário
+    try:
+        new_user = repository.user.create_user(client_id, nickname)
+    except Exception as e:
+        # Provável erro de UNIQUE (nickname já usado)
+        if "users_nickname_key" in str(e):
+            return make_response(False, "Nickname already taken.", 409)
+        raise  # outro erro → deixa Flask logar
+
+    # Construir resposta
     return make_response(
         True,
         "User registered successfully.",
-        data={"client_id": client_id, "user_id": user.id},
+        data={
+            "user": {
+                "id": new_user.id,
+                "nickname": new_user.nickname,
+            }
+        },
     )
 
 

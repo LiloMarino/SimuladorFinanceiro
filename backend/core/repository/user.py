@@ -17,3 +17,18 @@ class UserRepository:
             client_id=user.client_id,
             nickname=user.nickname,
         )
+
+    @transactional
+    def create_user(self, session: Session, client_id: str, nickname: str) -> UserDTO:
+        user = Users(
+            client_id=client_id,
+            nickname=nickname,
+        )
+        session.add(user)
+        session.flush()
+
+        return UserDTO(
+            id=user.id,
+            client_id=user.client_id,
+            nickname=user.nickname,
+        )
