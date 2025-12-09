@@ -4,3 +4,4 @@ export * from "./simulation";
 export * from "./portfolio";
 export * from "./fixed-income";
 export * from "./economic";
+export * from "./user";
