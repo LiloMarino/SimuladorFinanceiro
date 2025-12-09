@@ -1,0 +1,11 @@
+import { Navigate, Outlet } from "react-router-dom";
+
+export const AuthenticatedLayout = () => {
+  const { loading, user } = useAuth();
+
+  if (loading) return <div>Carregando...</div>;
+
+  if (!user) return <Navigate to="/login" replace />;
+
+  return <Outlet />;
+};

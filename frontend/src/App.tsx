@@ -25,6 +25,8 @@ import { Toaster } from "@/shared/components/ui/sonner";
 import { PageLabelProvider } from "@/shared/context/page-label";
 import StatisticsPage from "./pages/statistics";
 import { LoginPage } from "./features/auth/pages/login";
+import { AuthenticatedLayout } from "./layouts/authenticated-layout";
+import { AuthLayout } from "./layouts/auth-layout";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -47,23 +49,28 @@ export default function App() {
     <RealtimeProvider mode="ws">
       <PageLabelProvider routeLabels={routeLabels}>
         <BrowserRouter>
-          <MainLayout navItems={navItems}>
-            <Routes>
-              <Route path="/" element={<PortfolioPage />} />
-              <Route path="/variable-income" element={<VariableIncomePage />} />
-              <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
-              <Route path="/fixed-income" element={<FixedIncomePage />} />
-              <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
-              <Route path="/portfolio" element={<PortfolioPage />} />
-              <Route path="/strategies" element={<StrategiesPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/statistics" element={<StatisticsPage />} />
-              <Route path="/lobby/host" element={<LobbyHostPage />} />
-              <Route path="/lobby/client" element={<LoginPage />} />
-              <Route path="/import-assets" element={<ImportAssetsPage />} />
-            </Routes>
-            <Toaster position="bottom-right" richColors />
-          </MainLayout>
+          <Routes>
+            {/* Login / anon */}
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<LoginPage />} />
+            </Route>
+            <Route element={<AuthenticatedLayout />}>
+              <Route element={<MainLayout navItems={navItems} />}>
+                <Route path="/" element={<PortfolioPage />} />
+                <Route path="/variable-income" element={<VariableIncomePage />} />
+                <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
+                <Route path="/fixed-income" element={<FixedIncomePage />} />
+                <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
+                <Route path="/portfolio" element={<PortfolioPage />} />
+                <Route path="/strategies" element={<StrategiesPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/statistics" element={<StatisticsPage />} />
+                <Route path="/lobby/host" element={<LobbyHostPage />} />
+                <Route path="/import-assets" element={<ImportAssetsPage />} />
+              </Route>
+            </Route>
+          </Routes>
+          <Toaster position="bottom-right" richColors />
         </BrowserRouter>
       </PageLabelProvider>
     </RealtimeProvider>
