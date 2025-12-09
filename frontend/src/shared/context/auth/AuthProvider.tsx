@@ -15,21 +15,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     data: meData,
     query: fetchMe,
     loading: meLoading,
-  } = useQueryApi<{ user: User | null }>("/session/me", { initialFetch: false });
+  } = useQueryApi<{ user: User | null }>("api/session/me", { initialFetch: false });
   const { mutate: initSessionApi, loading: initSessionLoading } = useMutationApi<{ client_id: string }>(
-    "/session/init",
+    "api/session/init",
     { method: "POST" }
   );
   const { mutate: registerNicknameApi, loading: registerNicknameLoading } = useMutationApi<
     { user: User },
     { nickname: string }
-  >("/user/register", {
+  >("api/user/register", {
     method: "POST",
   });
   const { mutate: claimNicknameApi, loading: claimNicknameLoading } = useMutationApi<
     { user: User },
     { nickname: string }
-  >("/user/claim", {
+  >("api/user/claim", {
     method: "POST",
   });
 

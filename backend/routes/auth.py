@@ -1,3 +1,5 @@
+import uuid
+
 from flask import Blueprint, request
 
 from backend.routes.helpers import make_response
@@ -5,27 +7,35 @@ from backend.routes.helpers import make_response
 auth_bp = Blueprint("auth", __name__)
 
 
-# -------------------------------------------------------
-# 1) SESSION INIT  (POST /api/session/init)
-# -------------------------------------------------------
 @auth_bp.route("/api/session/init", methods=["POST"])
 def session_init():
     """
-    Cria o client_id no cookie SE ele ainda não existe.
-    Não retorna usuário, apenas (created: bool).
+    Garante que o cliente possua um client_id persistido no cookie.
+    Se já existir → retorna o existente.
+    Se não existir → cria um novo, salva no cookie e retorna.
     """
 
     client_id = request.cookies.get("client_id")
 
     if client_id:
-        # Cookie já existe → não cria novo
-        return make_response(True, "Session already exists.", data={"created": False})
+        # Já possui sessão
+        return make_response(
+            True, "Session already exists.", data={"client_id": client_id}
+        )
 
     # Criar nova sessão anônima
-    new_client_id = create_anonymous_session()
+    new_client_id = str(uuid.uuid4())
+    resp, status = make_response(
+        True, "Session created.", data={"client_id": new_client_id}
+    )
 
-    resp, status = make_response(True, "Session initialized.", data={"created": True})
-    resp.set_cookie("client_id", new_client_id, httponly=True, samesite="Lax")
+    # Seta cookie HttpOnly
+    resp.set_cookie(
+        "client_id",
+        new_client_id,
+        httponly=True,
+        samesite="Lax",
+    )
 
     return resp, status
 
