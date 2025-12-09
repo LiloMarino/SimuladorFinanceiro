@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { FixedIncomeAsset, TAX_TABLE } from "@/features/fixed-income/models/fixed-income-asset";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { Spinner } from "@/shared/components/ui/spinner";
@@ -7,12 +7,16 @@ import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { EconomicIndicators, FixedIncomeAssetApi, SimulationState } from "@/types";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/shared/components/ui/form";
+
 import { Button } from "@/shared/components/ui/button";
 import { Table } from "lucide-react";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { formatDate, formatMoney, formatPercent } from "@/shared/lib/utils/formatting";
 import { parse } from "date-fns";
+import { useForm } from "react-hook-form";
+import { investmentFormSchema, type InvestmentFormSchema } from "../schemas/investment-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function FixedIncomeDetailPage() {
   usePageLabel("Detalhes Renda Fixa");
@@ -24,7 +28,12 @@ export default function FixedIncomeDetailPage() {
     setData: setSimData,
     loading: isSimLoading,
   } = useQueryApi<SimulationState>("/api/get-simulation-state");
-  const [investmentAmount, setInvestmentAmount] = useState<string>("1000");
+  const form = useForm<InvestmentFormSchema>({
+    resolver: zodResolver(investmentFormSchema),
+    defaultValues: {
+      amount: "1000",
+    },
+  });
 
   useRealtime("simulation_update", (update) => {
     setSimData((prev) => ({ ...prev, ...update }));
@@ -42,13 +51,16 @@ export default function FixedIncomeDetailPage() {
       </section>
     );
   }
+  const onSubmit = (values: InvestmentFormSchema) => {
+    console.log("Investindo...", values.amount);
+  };
 
   if (!asset) {
     return <div className="p-6 text-center text-gray-500">Ativo não encontrado.</div>;
   }
 
-  const simulation = asset.getSimulation(Number(investmentAmount || 0));
-
+  const amount = form.watch("amount");
+  const simulation = asset.getSimulation(Number(amount));
   return (
     <main className="min-h-screen bg-slate-50 p-4 md:p-8">
       <div className="mx-auto max-w-6xl">
@@ -141,30 +153,37 @@ export default function FixedIncomeDetailPage() {
             <h3 className="text-lg font-semibold text-slate-900 mb-6">Investir neste ativo</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-              {/* Input Section - Smaller column */}
-              <div className="lg:col-span-1">
-                <Label htmlFor="investment-value" className="block text-sm font-medium text-slate-700 mb-2">
-                  Valor do Investimento
-                </Label>
-                <div className="relative mb-6">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-600 font-medium">
-                    R$
-                  </span>
-                  <Input
-                    id="investment-value"
-                    type="number"
-                    placeholder="0,00"
-                    value={investmentAmount}
-                    onChange={(e) => setInvestmentAmount(e.target.value)}
-                    className="pl-10"
-                    min="0"
-                    step="100"
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Valor do investimento</FormLabel>
+                        <div className="relative ">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 font-medium">
+                            R$
+                          </span>
+
+                          <FormControl>
+                            <Input type="number" min="0" step="100" className="pl-10" placeholder="0,00" {...field} />
+                          </FormControl>
+                        </div>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-base font-semibold rounded-lg">
-                  Investir agora
-                </Button>
-              </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-base font-semibold rounded-lg"
+                  >
+                    Investir agora
+                  </Button>
+                </form>
+              </Form>
 
               {/* Summary Section - Larger column spanning 2 */}
               <div className="lg:col-span-2 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
