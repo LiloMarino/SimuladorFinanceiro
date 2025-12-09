@@ -1,3 +1,4 @@
+import { useAuth } from "@/shared/hooks/useAuth";
 import { Navigate, Outlet } from "react-router-dom";
 
 export const AuthenticatedLayout = () => {

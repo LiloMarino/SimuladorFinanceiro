@@ -27,6 +27,7 @@ import StatisticsPage from "./pages/statistics";
 import { LoginPage } from "./features/auth/pages/login";
 import { AuthenticatedLayout } from "./layouts/authenticated-layout";
 import { AuthLayout } from "./layouts/auth-layout";
+import { AuthProvider } from "./shared/context/auth";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -47,32 +48,34 @@ const routeLabels = navItems.reduce<Record<string, string>>((acc, item) => {
 export default function App() {
   return (
     <RealtimeProvider mode="ws">
-      <PageLabelProvider routeLabels={routeLabels}>
-        <BrowserRouter>
-          <Routes>
-            {/* Login / anon */}
-            <Route element={<AuthLayout />}>
-              <Route path="/login" element={<LoginPage />} />
-            </Route>
-            <Route element={<AuthenticatedLayout />}>
-              <Route element={<MainLayout navItems={navItems} />}>
-                <Route path="/" element={<PortfolioPage />} />
-                <Route path="/variable-income" element={<VariableIncomePage />} />
-                <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
-                <Route path="/fixed-income" element={<FixedIncomePage />} />
-                <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
-                <Route path="/portfolio" element={<PortfolioPage />} />
-                <Route path="/strategies" element={<StrategiesPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/statistics" element={<StatisticsPage />} />
-                <Route path="/lobby/host" element={<LobbyHostPage />} />
-                <Route path="/import-assets" element={<ImportAssetsPage />} />
+      <AuthProvider>
+        <PageLabelProvider routeLabels={routeLabels}>
+          <BrowserRouter>
+            <Routes>
+              {/* Login / anon */}
+              <Route element={<AuthLayout />}>
+                <Route path="/login" element={<LoginPage />} />
               </Route>
-            </Route>
-          </Routes>
-          <Toaster position="bottom-right" richColors />
-        </BrowserRouter>
-      </PageLabelProvider>
+              <Route element={<AuthenticatedLayout />}>
+                <Route element={<MainLayout navItems={navItems} />}>
+                  <Route path="/" element={<PortfolioPage />} />
+                  <Route path="/variable-income" element={<VariableIncomePage />} />
+                  <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
+                  <Route path="/fixed-income" element={<FixedIncomePage />} />
+                  <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
+                  <Route path="/portfolio" element={<PortfolioPage />} />
+                  <Route path="/strategies" element={<StrategiesPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/statistics" element={<StatisticsPage />} />
+                  <Route path="/lobby/host" element={<LobbyHostPage />} />
+                  <Route path="/import-assets" element={<ImportAssetsPage />} />
+                </Route>
+              </Route>
+            </Routes>
+            <Toaster position="bottom-right" richColors />
+          </BrowserRouter>
+        </PageLabelProvider>
+      </AuthProvider>
     </RealtimeProvider>
   );
 }
