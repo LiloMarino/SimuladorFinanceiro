@@ -95,26 +95,31 @@ export class FixedIncomeAsset {
   }
 
   getSimulation(amount: number) {
-    const invested = amount || 0;
+    // bruto
+    const grossAmount = amount * (1 + this.grossReturn);
+    const grossReturn = grossAmount - amount;
+    const grossReturnPct = this.grossReturn;
 
-    const grossRate = this.grossReturn; // percentual decimal
-    const netRate = this.netReturn; // percentual decimal
+    // imposto
     const taxRate = this.incomeTaxRate;
+    const tax = grossReturn * taxRate;
+    const taxPct = tax / amount;
 
-    const grossIncome = invested * grossRate;
-    const netIncome = invested * netRate;
-    const taxAmount = grossIncome - netIncome;
-    const finalAmount = invested + netIncome;
+    // líquido
+    const netAmount = grossAmount - tax;
+    const netReturn = netAmount - amount;
+    const netReturnPct = netReturn / amount;
 
     return {
-      invested,
-      grossIncome,
-      taxAmount,
-      finalAmount,
-      maturityLabel: this.formattedMaturity,
-      grossRate,
-      netRate,
-      taxRate,
+      amount,
+      grossAmount,
+      grossReturn,
+      grossReturnPct,
+      tax,
+      taxPct,
+      netAmount,
+      netReturn,
+      netReturnPct,
     };
   }
 

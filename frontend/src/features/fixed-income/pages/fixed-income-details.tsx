@@ -190,27 +190,27 @@ export default function FixedIncomeDetailPage() {
                 <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">Valor investido</p>
-                    <p className="text-2xl font-bold text-slate-900"> {formatMoney(simulation.invested)}</p>
+                    <p className="text-2xl font-bold text-slate-900">{formatMoney(simulation.amount)}</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">
                       Rendimento Bruto
                     </p>
-                    <p className="text-2xl font-bold text-green-600">{formatMoney(simulation.grossIncome)}</p>
+                    <p className="text-2xl font-bold text-green-600">{formatMoney(simulation.grossReturn)}</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">Imposto (IR)</p>
-                    <p className="text-2xl font-bold text-red-600">{formatMoney(simulation.taxAmount)}</p>
+                    <p className="text-2xl font-bold text-red-600">{formatMoney(simulation.tax)}</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">
                       Valor de resgate
                     </p>
-                    <p className="text-2xl font-bold text-green-700">{formatMoney(simulation.finalAmount)}</p>
+                    <p className="text-2xl font-bold text-green-700">{formatMoney(simulation.netAmount)}</p>
                   </div>
                 </div>
                 <p className="text-xs text-slate-500 mt-6 pt-4 border-t border-slate-300">
-                  * Valores projetados considerando taxa atual e vencimento em {simulation.maturityLabel}
+                  * Valores projetados considerando taxa atual e vencimento em {asset.formattedMaturity}.
                 </p>
               </div>
             </div>
@@ -233,46 +233,54 @@ export default function FixedIncomeDetailPage() {
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Valor Aplicado</TableCell>
                         <TableCell className="text-right font-medium text-slate-900">
-                          R$ calculations.amount.toFixed(2)
+                          {formatMoney(simulation.amount)}
                         </TableCell>
-                        <TableCell className="text-right font-medium text-slate-900">100,00%</TableCell>
+                        <TableCell className="text-right font-medium text-slate-900">{formatPercent(1)}</TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Resultado Bruto (R$)</TableCell>
                         <TableCell className="text-right font-bold text-green-700">
-                          R$ calculations.grossAmount.toFixed(2)
+                          {formatMoney(simulation.grossAmount)}
                         </TableCell>
                         <TableCell className="text-right font-bold text-green-700">
-                          calculations.grossReturnPct.toFixed(2)%
+                          {formatPercent(simulation.grossReturnPct)}
                         </TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
-                        <TableCell className="text-slate-700">Rendimento Bruto (R$)</TableCell>
+                        <TableCell className="text-slate-700 font-medium">Rendimento Bruto (R$)</TableCell>
                         <TableCell className="text-right font-medium text-slate-900">
-                          R$ calculations.grossReturn.toFixed(2)
+                          {formatMoney(simulation.grossReturn)}
                         </TableCell>
                         <TableCell className="text-right font-medium text-slate-900">
-                          calculations.grossReturnPct.toFixed(2)%
+                          {formatPercent(simulation.grossReturnPct)}
                         </TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Imposto sobre Rendimento (R$)</TableCell>
                         <TableCell className="text-right font-bold text-red-600">
-                          - R$ calculations.tax.toFixed(2)
+                          - {formatMoney(simulation.tax)}
                         </TableCell>
-                        <TableCell className="text-right font-bold text-red-600">a</TableCell>
+                        <TableCell className="text-right font-bold text-red-600">
+                          {formatPercent(simulation.taxPct)}
+                        </TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Resultado Líquido (R$)</TableCell>
                         <TableCell className="text-right font-bold text-green-600">
-                          R$ calculations.netAmount.toFixed(2)
+                          {formatMoney(simulation.netAmount)}
                         </TableCell>
-                        <TableCell className="text-right font-bold text-green-600">a</TableCell>
+                        <TableCell className="text-right font-bold text-green-600">
+                          {formatPercent(simulation.netReturnPct)}
+                        </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell className="text-slate-700 font-medium">Rendimento Líquido (R$)</TableCell>
-                        <TableCell className="text-right font-medium text-slate-900">R$ a</TableCell>
-                        <TableCell className="text-right font-medium text-slate-900">a%</TableCell>
+                        <TableCell className="text-right font-medium text-slate-900">
+                          {formatMoney(simulation.netReturn)}
+                        </TableCell>
+                        <TableCell className="text-right font-medium text-slate-900">
+                          {formatPercent(simulation.netReturnPct)}
+                        </TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
