@@ -21,7 +21,7 @@ class CDBFactory(AbstractFixedIncomeFactory):
         }
 
     def create_cdi(self, current_date: datetime) -> FixedIncomeAsset:
-        maturity_date = self._generate_maturity(current_date, 1, 5)
+        maturity_date = self._generate_maturity(current_date, 0, 5)
         rate = self._generate_rate(base_value=1.05, delta=0.15)
         issuer = "Banco XPTO"
 
@@ -35,7 +35,7 @@ class CDBFactory(AbstractFixedIncomeFactory):
         )
 
     def create_ipca(self, current_date: datetime) -> FixedIncomeAsset:
-        maturity_date = self._generate_maturity(current_date, 2, 8)
+        maturity_date = self._generate_maturity(current_date, 0, 8)
         base_diff = repository.economic.get_cdi_rate(
             current_date
         ) - repository.economic.get_ipca_rate(current_date)
@@ -52,7 +52,7 @@ class CDBFactory(AbstractFixedIncomeFactory):
         )
 
     def create_prefixado(self, current_date: datetime) -> FixedIncomeAsset:
-        maturity_date = self._generate_maturity(current_date, 2, 6)
+        maturity_date = self._generate_maturity(current_date, 0, 6)
         base = repository.economic.get_cdi_rate(current_date)
         rate = self._generate_rate(base_value=base, delta=0.005)
         issuer = "Banco XPTO"

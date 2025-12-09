@@ -12,6 +12,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Table } from "lucide-react";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { formatDate, formatPercent } from "@/shared/lib/utils/formatting";
+import { parse } from "date-fns";
 
 export default function FixedIncomeDetailPage() {
   usePageLabel("Detalhes Renda Fixa");
@@ -31,7 +32,7 @@ export default function FixedIncomeDetailPage() {
 
   const asset = useMemo(() => {
     if (!assetData || !simData?.currentDate || !rates) return null;
-    return new FixedIncomeAsset(assetData, new Date(simData.currentDate), rates);
+    return new FixedIncomeAsset(assetData, parse(simData.currentDate, "dd/MM/yyyy", new Date()), rates);
   }, [assetData, simData?.currentDate, rates]);
 
   if (isAssetLoading || isRatesLoading || isSimLoading) {
@@ -62,7 +63,7 @@ export default function FixedIncomeDetailPage() {
               <div className="text-right">
                 <h3 className="text-3xl md:text-4xl font-bold text-slate-800">{asset.rateLabel}</h3>
                 <span className="text-green-600 font-medium inline-block mt-2">
-                  Retorno esperado: {formatPercent(asset.expectedReturn)} no período
+                  Retorno esperado: {formatPercent(asset.grossReturn)} no período
                 </span>
               </div>
             </div>
@@ -113,15 +114,17 @@ export default function FixedIncomeDetailPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Rendimento Bruto Total (%)</span>
-                  <span className="font-medium text-green-700">{formatPercent(asset.expectedReturn)}</span>
+                  <span className="font-medium text-green-700">{formatPercent(asset.grossReturn)}</span>
                 </div>
+
                 <div className="flex justify-between">
                   <span className="text-slate-600">Rendimento Líquido Total (%)</span>
-                  <span className="font-medium text-green-700">a%</span>
+                  <span className="font-medium text-green-700">{formatPercent(asset.netReturn)}</span>
                 </div>
+
                 <div className="flex justify-between pt-2 border-t border-slate-100">
                   <span className="text-slate-600">Alíquota de IR no período</span>
-                  <span className="font-medium text-slate-900">a</span>
+                  <span className="font-medium text-slate-900">{formatPercent(asset.incomeTaxRate)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Dias até vencimento</span>

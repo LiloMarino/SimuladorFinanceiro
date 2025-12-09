@@ -3,11 +3,11 @@ import type { FixedIncomeAssetApi, RateIndex, InvestmentType, EconomicIndicators
 import { formatDate } from "@/shared/lib/utils/formatting";
 
 export const TAX_TABLE: readonly { days: number; rate: number }[] = [
-  { days: 0, rate: 0.225 },
-  { days: 181, rate: 0.2 },
-  { days: 361, rate: 0.175 },
-  { days: 721, rate: 0.15 },
-];
+  { days: 180, rate: 0.225 },
+  { days: 360, rate: 0.2 },
+  { days: 720, rate: 0.175 },
+  { days: Infinity, rate: 0.15 },
+] as const;
 
 export class FixedIncomeAsset {
   readonly uuid: string;
@@ -34,10 +34,13 @@ export class FixedIncomeAsset {
     this.rates = rates ?? { cdi: 0, ipca: 0, selic: 0 };
   }
 
-  get expectedReturn(): number {
+  get grossReturn(): number {
     const t = this.daysToMaturity / 365;
-    // Juros compostos
     return Math.pow(1 + this.annualRate, t) - 1;
+  }
+
+  get netReturn(): number {
+    return this.grossReturn * (1 - this.incomeTaxRate);
   }
 
   get annualRate(): number {
@@ -57,12 +60,24 @@ export class FixedIncomeAsset {
         break;
 
       case "SELIC":
-        annualPercent = this.rates.selic + (this.interestRate * 100);
+        annualPercent = this.rates.selic + this.interestRate * 100;
         break;
     }
 
     // Converte % para decimal
     return annualPercent / 100;
+  }
+
+  get incomeTaxRate(): number {
+    // LCI/LCA -> isento
+    if (["LCI", "LCA"].includes(this.investmentType)) return 0;
+
+    const d = this.daysToMaturity;
+
+    // Encontra o primeiro item cuja regra de dias é satisfeita
+    const entry = TAX_TABLE.find((row) => d <= row.days);
+
+    return entry?.rate ?? 0;
   }
 
   get daysToMaturity(): number {
@@ -82,13 +97,13 @@ export class FixedIncomeAsset {
   get currentRateLabel(): string {
     switch (this.rateIndex) {
       case "CDI":
-        return `${(this.rates.cdi).toFixed(2)}% a.a.`;
+        return `${this.rates.cdi.toFixed(2)}% a.a.`;
 
       case "IPCA":
-        return `${(this.rates.ipca).toFixed(2)}% a.a.`;
+        return `${this.rates.ipca.toFixed(2)}% a.a.`;
 
       case "SELIC":
-        return `${(this.rates.selic).toFixed(2)}% a.a.`;
+        return `${this.rates.selic.toFixed(2)}% a.a.`;
 
       default:
         return "";
@@ -117,5 +132,4 @@ export class FixedIncomeAsset {
   get detailsLink(): string {
     return `/fixed-income/${this.uuid}`;
   }
-
 }
