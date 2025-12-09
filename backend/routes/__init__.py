@@ -1,6 +1,7 @@
 from flask import Flask
 
 from backend.core.logger import setup_logger
+from backend.routes.auth import auth_bp
 from backend.routes.helpers import make_response
 from backend.routes.import_routes import import_bp
 from backend.routes.operation_routes import operation_bp
@@ -20,6 +21,7 @@ def register_routes(app: Flask):
     app.register_blueprint(import_bp)
     app.register_blueprint(realtime_bp)
     app.register_blueprint(timespeed_bp)
+    app.register_blueprint(auth_bp)
 
     @app.errorhandler(Exception)
     def handle_error(e):  # type: ignore
