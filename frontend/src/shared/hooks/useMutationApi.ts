@@ -31,6 +31,7 @@ export function useMutationApi<R = unknown, B = unknown>(url: string, options?: 
       const res = await fetch(url, {
         method: options?.method || "POST",
         headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
+        credentials: "include",
         body: JSON.stringify(validatedBody),
       });
 

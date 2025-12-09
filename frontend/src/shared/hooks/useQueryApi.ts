@@ -26,6 +26,7 @@ export function useQueryApi<R = unknown>(url: string, options?: Readonly<UseQuer
     try {
       const res = await fetch(url, {
         headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
+        credentials: "include",
       });
 
       const validatedData = await handleApiResponse<R>(res, options?.responseSchema);
