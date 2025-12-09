@@ -11,7 +11,7 @@ import { Label } from "@/shared/components/ui/label";
 import { Button } from "@/shared/components/ui/button";
 import { Table } from "lucide-react";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { formatDate, formatPercent } from "@/shared/lib/utils/formatting";
+import { formatDate, formatMoney, formatPercent } from "@/shared/lib/utils/formatting";
 import { parse } from "date-fns";
 
 export default function FixedIncomeDetailPage() {
@@ -46,6 +46,8 @@ export default function FixedIncomeDetailPage() {
   if (!asset) {
     return <div className="p-6 text-center text-gray-500">Ativo não encontrado.</div>;
   }
+
+  const simulation = asset.getSimulation(Number(investmentAmount || 0));
 
   return (
     <main className="min-h-screen bg-slate-50 p-4 md:p-8">
@@ -170,27 +172,27 @@ export default function FixedIncomeDetailPage() {
                 <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">Valor investido</p>
-                    <p className="text-2xl font-bold text-slate-900">R$ {Number(investmentAmount || 0).toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-slate-900"> {formatMoney(simulation.invested)}</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">
                       Rendimento Bruto
                     </p>
-                    <p className="text-2xl font-bold text-green-600">R$ a</p>
+                    <p className="text-2xl font-bold text-green-600">{formatMoney(simulation.grossIncome)}</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">Imposto (IR)</p>
-                    <p className="text-2xl font-bold text-red-600">- R$ a</p>
+                    <p className="text-2xl font-bold text-red-600">{formatMoney(simulation.taxAmount)}</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">
                       Valor de resgate
                     </p>
-                    <p className="text-2xl font-bold text-green-700">R$ a</p>
+                    <p className="text-2xl font-bold text-green-700">{formatMoney(simulation.finalAmount)}</p>
                   </div>
                 </div>
                 <p className="text-xs text-slate-500 mt-6 pt-4 border-t border-slate-300">
-                  * Valores projetados considerando taxa atual e vencimento em a
+                  * Valores projetados considerando taxa atual e vencimento em {simulation.maturityLabel}
                 </p>
               </div>
             </div>

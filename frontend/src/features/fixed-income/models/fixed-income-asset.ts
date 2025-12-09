@@ -94,6 +94,30 @@ export class FixedIncomeAsset {
     return this.rateIndex === "Prefixado" ? "Pré-fixado" : "Pós-fixado";
   }
 
+  getSimulation(amount: number) {
+    const invested = amount || 0;
+
+    const grossRate = this.grossReturn; // percentual decimal
+    const netRate = this.netReturn; // percentual decimal
+    const taxRate = this.incomeTaxRate;
+
+    const grossIncome = invested * grossRate;
+    const netIncome = invested * netRate;
+    const taxAmount = grossIncome - netIncome;
+    const finalAmount = invested + netIncome;
+
+    return {
+      invested,
+      grossIncome,
+      taxAmount,
+      finalAmount,
+      maturityLabel: this.formattedMaturity,
+      grossRate,
+      netRate,
+      taxRate,
+    };
+  }
+
   get currentRateLabel(): string {
     switch (this.rateIndex) {
       case "CDI":
