@@ -1,6 +1,7 @@
 import { useCallback, useState, type ReactNode, useEffect } from "react";
 import Cookies from "js-cookie";
-import { AuthContext, type User } from "./AuthContext";
+import { AuthContext } from "./AuthContext";
+import type { User, Session } from "@/types/user";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 
@@ -12,21 +13,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [clientId, setClientId] = useState<string | null>(null);
 
   const {
-    data: meData,
+    data: sessionData,
     query: fetchMe,
     loading: meLoading,
-  } = useQueryApi<{ user: User | null }>("api/session/me", { initialFetch: false });
+  } = useQueryApi<Session>("api/session/me", { initialFetch: false });
+
   const { mutate: initSessionApi, loading: initSessionLoading } = useMutationApi<{ client_id: string }>(
     "api/session/init"
   );
-  const { mutate: registerNicknameApi, loading: registerNicknameLoading } = useMutationApi<
-    { user: User },
-    { nickname: string }
-  >("api/user/register");
-  const { mutate: claimNicknameApi, loading: claimNicknameLoading } = useMutationApi<
-    { user: User },
-    { nickname: string }
-  >("api/user/claim");
+
+  const { mutate: registerNicknameApi, loading: registerNicknameLoading } = useMutationApi<User, { nickname: string }>(
+    "api/user/register"
+  );
+
+  const { mutate: claimNicknameApi, loading: claimNicknameLoading } = useMutationApi<User, { nickname: string }>(
+    "api/user/claim"
+  );
 
   const refresh = useCallback(async () => {
     await fetchMe();
@@ -62,7 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   return (
     <AuthContext.Provider
       value={{
-        user: meData?.user ?? null,
+        user: sessionData?.user ?? null,
         clientId,
         loading: meLoading || initSessionLoading || registerNicknameLoading || claimNicknameLoading,
         registerNickname,
