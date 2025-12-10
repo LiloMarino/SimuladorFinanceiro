@@ -1,6 +1,6 @@
 import BaseCard from "@/shared/components/base-card";
 import { Badge } from "@/shared/components/ui/badge";
-import type { FixedIncomeAsset } from "@/features/fixed-income/models/fixed-income-asset";
+import type { FixedIncomeAsset } from "@/features/fixed-income/models/FixedIncomeAsset";
 
 interface FixedIncomeCardProps {
   asset: FixedIncomeAsset;

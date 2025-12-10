@@ -1,5 +1,6 @@
 import { ApiResponseSchema } from "@/shared/lib/schemas/api";
 import type { ZodType } from "zod";
+import { ApiError } from "../models/apiError";
 
 /**
  * Retorna o nome amigável padrão para um código HTTP.
@@ -41,7 +42,8 @@ export async function handleApiResponse<R>(res: Response, responseSchema?: ZodTy
   if (!res.ok) {
     const message =
       (json as Record<string, unknown> | null)?.message ?? getHttpStatusText(res.status) ?? "Unexpected error";
-    throw new Error(`${message} (${res.status} – ${getHttpStatusText(res.status)})`);
+
+    throw new ApiError(`${message} (${res.status} – ${getHttpStatusText(res.status)})`, res.status, json);
   }
 
   const parsed = ApiResponseSchema.parse(json);

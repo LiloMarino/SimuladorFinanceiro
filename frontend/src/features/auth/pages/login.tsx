@@ -2,10 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
-import type { Player } from "@/types";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
@@ -17,6 +14,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
+import { useAuth } from "@/shared/hooks/useAuth";
+import ApiError from "@/shared/lib/models/apiError";
 
 // Validação com Zod
 const nicknameSchema = z.object({
@@ -25,31 +24,31 @@ const nicknameSchema = z.object({
 
 type NicknameForm = z.infer<typeof nicknameSchema>;
 
-export function LoginPage({
-  players = [
-    { name: "TraderPro", status: "Conectado", color: "blue" },
-    { name: "InvestAnjo", status: "Conectado", color: "purple" },
-  ],
-}: {
-  players: Player[];
-}) {
+export function LoginPage() {
+  const { registerNickname, claimNickname, loading } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
-  const [nicknameToClaim, setNicknameToClaim] = useState("");
 
   const form = useForm<NicknameForm>({
     resolver: zodResolver(nicknameSchema),
     defaultValues: { nickname: "" },
   });
 
-  const onSubmit = (values: NicknameForm) => {
-    setNicknameToClaim(values.nickname);
-    setModalOpen(true);
+  const onSubmit = async (values: NicknameForm) => {
+    try {
+      await registerNickname(values.nickname);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setModalOpen(true);
+        return;
+      }
+      throw err;
+    }
   };
 
-  const confirmClaim = () => {
+  const confirmClaim = async () => {
+    const nickname = form.getValues("nickname");
+    await claimNickname(nickname);
     setModalOpen(false);
-    alert(`Entrando como ${nicknameToClaim}!`);
-    // Aqui chamaria API para registrar/claimar nickname
   };
 
   return (
@@ -69,45 +68,29 @@ export function LoginPage({
                   <FormItem>
                     <FormLabel>Seu Nickname</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite seu nickname" {...field} />
+                      <Input placeholder="Digite seu nickname" {...field} disabled={loading} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
                 Entrar
               </Button>
             </form>
           </Form>
-
-          <h3 className="font-medium mb-3">Jogadores na Sala</h3>
-          <div className="border rounded-lg overflow-hidden">
-            {players.length === 0 && <p className="p-3 text-gray-400">Nenhum jogador ainda...</p>}
-
-            <div className="divide-y divide-gray-200">
-              {players.map((p) => (
-                <div key={p.name} className="p-3 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <FontAwesomeIcon icon={faUser} className={`mr-2 text-${p.color}-600`} />
-                    <span>{p.name}</span>
-                  </div>
-                  <span className="text-sm text-gray-500">{p.status}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </CardContent>
       </Card>
 
+      {/* Modal de Claim */}
       <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Nickname</AlertDialogTitle>
+            <AlertDialogTitle>Nickname já existe</AlertDialogTitle>
           </AlertDialogHeader>
 
           <p>
-            O usuário <strong>{nicknameToClaim}</strong> já existe. Deseja clamar este nickname?
+            O usuário <strong>{form.getValues("nickname")}</strong> já existe. Deseja clamar este nickname?
           </p>
 
           <div className="flex justify-end gap-3 mt-4">

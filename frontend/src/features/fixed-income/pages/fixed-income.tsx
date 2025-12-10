@@ -1,7 +1,7 @@
 import { Spinner } from "@/shared/components/ui/spinner";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { useRealtime } from "@/shared/hooks/useRealtime";
-import { FixedIncomeAsset } from "@/features/fixed-income/models/fixed-income-asset";
+import { FixedIncomeAsset } from "@/features/fixed-income/models/FixedIncomeAsset";
 import type { FixedIncomeAssetApi, SimulationState } from "@/types";
 import { parse } from "date-fns";
 import FixedIncomeCard from "@/features/fixed-income/components/fixed-income-card";

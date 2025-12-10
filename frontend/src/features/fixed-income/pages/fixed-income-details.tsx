@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { FixedIncomeAsset, TAX_TABLE } from "@/features/fixed-income/models/fixed-income-asset";
+import { FixedIncomeAsset, TAX_TABLE } from "@/features/fixed-income/models/FixedIncomeAsset";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { useParams } from "react-router-dom";
