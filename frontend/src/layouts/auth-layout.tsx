@@ -1,9 +1,10 @@
 import { Spinner } from "@/shared/components/ui/spinner";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { Navigate, Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export const AuthLayout = () => {
   const { loading, user } = useAuth();
+  const navigate = useNavigate();
 
   if (loading)
     return (
@@ -12,7 +13,9 @@ export const AuthLayout = () => {
       </div>
     );
 
-  if (user) return <Navigate to="/" replace />;
+  if (user) {
+    navigate("/", { replace: true });
+  }
 
   return <Outlet />;
 };
