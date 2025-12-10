@@ -1,7 +1,7 @@
-import { useCallback, useState, type ReactNode, useEffect } from "react";
+import { useCallback, type ReactNode, useEffect } from "react";
 import Cookies from "js-cookie";
 import { AuthContext } from "./AuthContext";
-import type { Session } from "@/types/user";
+import type { Session, User } from "@/types/user";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 
@@ -10,39 +10,43 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [clientId, setClientId] = useState<string | null>(null);
+  // Consulta a sessão atual
+  const { query: fetchSession, loading: sessionLoading } = useQueryApi<Session>("api/session/me", {
+    initialFetch: false,
+  });
 
-  const {
-    data: sessionData,
-    query: fetchMe,
-    loading: meLoading,
-  } = useQueryApi<Session>("api/session/me", { initialFetch: false });
-
-  const { mutate: initSessionApi, loading: initSessionLoading } = useMutationApi<{ client_id: string }>(
-    "api/session/init"
-  );
-  const refresh = useCallback(async () => {
-    await fetchMe();
-  }, [fetchMe]);
+  // Inicializa a sessão
+  const { mutate: initSessionApi, loading: initLoading } = useMutationApi<{ client_id: string }>("api/session/init");
 
   const initSession = useCallback(async () => {
-    const data = await initSessionApi({});
-    setClientId(data.client_id);
-    Cookies.set("client_id", data.client_id, { expires: 365 });
-    await refresh();
-  }, [initSessionApi, refresh]);
+    const initData = await initSessionApi({});
+    Cookies.set("client_id", initData.client_id, { expires: 365 });
+    return fetchSession();
+  }, [initSessionApi, fetchSession]);
+
+  const getSession = useCallback(async (): Promise<Session> => {
+    return fetchSession();
+  }, [fetchSession]);
+
+  const getUser = useCallback(async (): Promise<User | null> => {
+    const session = await fetchSession();
+    return session.user ?? null;
+  }, [fetchSession]);
+
+  const logout = useCallback(() => {
+    Cookies.remove("client_id");
+  }, []);
 
   useEffect(() => {
     void initSession();
   }, [initSession]);
-
   return (
     <AuthContext.Provider
       value={{
-        user: sessionData?.user ?? null,
-        clientId,
-        loading: meLoading || initSessionLoading,
-        refresh,
+        getSession,
+        getUser,
+        logout,
+        loading: sessionLoading || initLoading,
       }}
     >
       {children}

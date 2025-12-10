@@ -1,7 +1,19 @@
 import { useAuth } from "@/shared/hooks/useAuth";
+import type { User } from "@/types";
+import { useEffect, useState } from "react";
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { getUser } = useAuth();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await getUser();
+      setUser(user);
+    };
+    fetchUser();
+  }, [getUser]);
+
   return (
     <section id="settings" className="section-content p-4">
       <div className="bg-white rounded-lg shadow p-6">

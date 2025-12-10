@@ -1,11 +1,11 @@
 import { createContext } from "react";
-import type { User } from "@/types/user";
+import type { Session, User } from "@/types/user";
 
 export interface AuthContextValue {
-  user: User | null;
-  clientId: string | null;
+  getSession: () => Promise<Session>;
+  getUser: () => Promise<User | null>;
+  logout: () => void;
   loading: boolean;
-  refresh: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);

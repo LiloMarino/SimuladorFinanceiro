@@ -27,7 +27,7 @@ const nicknameSchema = z.object({
 type NicknameForm = z.infer<typeof nicknameSchema>;
 
 export function LoginPage() {
-  const { refresh } = useAuth();
+  const { getSession } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
 
   const { mutate: registerNickname, loading: registerNicknameLoading } = useMutationApi<User, { nickname: string }>(
@@ -46,7 +46,7 @@ export function LoginPage() {
   const onSubmit = async (values: NicknameForm) => {
     try {
       await registerNickname(values);
-      await refresh();
+      await getSession();
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         setModalOpen(true);
@@ -59,7 +59,7 @@ export function LoginPage() {
   const confirmClaim = async () => {
     const nickname = form.getValues("nickname");
     await claimNickname({ nickname });
-    await refresh();
+    await getSession();
     setModalOpen(false);
   };
 
