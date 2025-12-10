@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
 import { useAuth } from "@/shared/hooks/useAuth";
-import ApiError from "@/shared/lib/models/apiError";
+import ApiError from "@/shared/lib/models/ApiError";
 
 // Validação com Zod
 const nicknameSchema = z.object({

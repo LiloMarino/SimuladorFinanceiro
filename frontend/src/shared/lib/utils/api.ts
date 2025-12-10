@@ -1,6 +1,6 @@
 import { ApiResponseSchema } from "@/shared/lib/schemas/api";
 import type { ZodType } from "zod";
-import { ApiError } from "../models/apiError";
+import ApiError from "../models/ApiError";
 
 /**
  * Retorna o nome amigável padrão para um código HTTP.

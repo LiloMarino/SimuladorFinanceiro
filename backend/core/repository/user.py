@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -13,9 +14,9 @@ class UserRepository:
         user = Users(
             client_id=client_id,
             nickname=nickname,
+            created_at=datetime.now(UTC),
         )
         session.add(user)
-        session.flush()
 
         return UserDTO(
             id=user.id,

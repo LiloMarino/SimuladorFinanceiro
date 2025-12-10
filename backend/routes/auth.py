@@ -86,8 +86,8 @@ def user_register():
     if not client_id:
         return make_response(False, "Session not initialized.", 401)
 
-    # Verificar se já existe usuário vinculado ao client_id
-    existing_user = repository.user.get_by_client_id(client_id)
+    # Verificar se já existe usuário com esse nickname
+    existing_user = repository.user.get_by_nickname(nickname)
     if existing_user:
         return make_response(False, "User already registered for this client.", 409)
 
