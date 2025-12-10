@@ -1,13 +1,13 @@
 from datetime import datetime
 
 from backend.core.dto.stock import StockDTO
+from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
 from backend.features.simulation.broker import Broker
 from backend.features.simulation.data_buffer import DataBuffer
 from backend.features.simulation.entities.candle import Candle
 from backend.features.simulation.entities.portfolio import Portfolio
 from backend.features.simulation.fixed_broker import FixedBroker
-from backend.features.simulation.fixed_income.market import FixedIncomeMarket
 
 
 class SimulationEngine:

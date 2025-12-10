@@ -1,17 +1,17 @@
 from datetime import datetime
 
 from backend.core import repository
+from backend.features.fixed_income.factory.abstract_factory import (
+    AbstractFixedIncomeFactory,
+)
 from backend.features.simulation.entities.fixed_income_asset import (
     FixedIncomeAsset,
     FixedIncomeType,
     RateIndexType,
 )
-from backend.features.simulation.fixed_income.factory.abstract_factory import (
-    AbstractFixedIncomeFactory,
-)
 
 
-class LCIFactory(AbstractFixedIncomeFactory):
+class CDBFactory(AbstractFixedIncomeFactory):
     @property
     def _strategies(self):
         return {
@@ -21,48 +21,47 @@ class LCIFactory(AbstractFixedIncomeFactory):
         }
 
     def create_cdi(self, current_date: datetime) -> FixedIncomeAsset:
-        maturity_date = self._generate_maturity(current_date, 0, 6)
-        rate = self._generate_rate(base_value=1.0, delta=0.20, multiplier=0.85)
-        issuer = "Banco Imobiliário"
+        maturity_date = self._generate_maturity(current_date, 0, 5)
+        rate = self._generate_rate(base_value=1.05, delta=0.15)
+        issuer = "Banco XPTO"
 
         return FixedIncomeAsset(
-            name=f"LCI {issuer} {rate * 100:.2f}% CDI",
+            name=f"CDB {issuer} {rate * 100:.2f}% CDI",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.CDI,
-            investment_type=FixedIncomeType.LCI,
+            investment_type=FixedIncomeType.CDB,
             maturity_date=maturity_date,
         )
 
     def create_ipca(self, current_date: datetime) -> FixedIncomeAsset:
         maturity_date = self._generate_maturity(current_date, 0, 8)
-        base_diff = (
-            repository.economic.get_cdi_rate(current_date)
-            - repository.economic.get_ipca_rate(current_date)
-        ) * 0.85
-        rate = self._generate_rate(base_value=base_diff, delta=0.004)
-        issuer = "Banco Imobiliário"
+        base_diff = repository.economic.get_cdi_rate(
+            current_date
+        ) - repository.economic.get_ipca_rate(current_date)
+        rate = self._generate_rate(base_value=base_diff, delta=0.005)
+        issuer = "Banco XPTO"
 
         return FixedIncomeAsset(
-            name=f"LCI {issuer} IPCA+ {rate:.2f}%",
+            name=f"CDB {issuer} IPCA+ {rate:.2f}%",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.IPCA,
-            investment_type=FixedIncomeType.LCI,
+            investment_type=FixedIncomeType.CDB,
             maturity_date=maturity_date,
         )
 
     def create_prefixado(self, current_date: datetime) -> FixedIncomeAsset:
-        maturity_date = self._generate_maturity(current_date, 0, 5)
+        maturity_date = self._generate_maturity(current_date, 0, 6)
         base = repository.economic.get_cdi_rate(current_date)
-        rate = self._generate_rate(base_value=base, delta=0.005, multiplier=0.85)
-        issuer = "Banco Imobiliário"
+        rate = self._generate_rate(base_value=base, delta=0.005)
+        issuer = "Banco XPTO"
 
         return FixedIncomeAsset(
-            name=f"LCI {issuer} Prefixado {rate:.2f}%",
+            name=f"CDB {issuer} Prefixado {rate:.2f}%",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.PREFIXADO,
-            investment_type=FixedIncomeType.LCI,
+            investment_type=FixedIncomeType.CDB,
             maturity_date=maturity_date,
         )
