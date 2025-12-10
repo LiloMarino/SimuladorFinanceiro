@@ -3,12 +3,12 @@ from flask import Flask
 from backend.core.logger import setup_logger
 from backend.routes.auth import auth_bp
 from backend.routes.helpers import make_response
-from backend.routes.import_routes import import_bp
-from backend.routes.operation_routes import operation_bp
-from backend.routes.portfolio_routes import portfolio_bp
-from backend.routes.realtime_routes import realtime_bp
-from backend.routes.settings_routes import settings_bp
-from backend.routes.timespeed_routes import timespeed_bp
+from backend.routes.importer import import_bp
+from backend.routes.operation import operation_bp
+from backend.routes.portfolio import portfolio_bp
+from backend.routes.realtime import realtime_bp
+from backend.routes.settings import settings_bp
+from backend.routes.timespeed import timespeed_bp
 
 logger = setup_logger(__name__)
 
