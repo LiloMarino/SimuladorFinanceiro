@@ -14,8 +14,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
-import { useAuth } from "@/shared/hooks/useAuth";
 import ApiError from "@/shared/lib/models/ApiError";
+import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import type { User } from "@/types";
+import { useAuth } from "@/shared/hooks/useAuth";
 
 // Validação com Zod
 const nicknameSchema = z.object({
@@ -25,8 +27,16 @@ const nicknameSchema = z.object({
 type NicknameForm = z.infer<typeof nicknameSchema>;
 
 export function LoginPage() {
-  const { registerNickname, claimNickname, loading } = useAuth();
+  const { refresh } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
+
+  const { mutate: registerNickname, loading: registerNicknameLoading } = useMutationApi<User, { nickname: string }>(
+    "api/user/register"
+  );
+
+  const { mutate: claimNickname, loading: claimNicknameLoading } = useMutationApi<User, { nickname: string }>(
+    "api/user/claim"
+  );
 
   const form = useForm<NicknameForm>({
     resolver: zodResolver(nicknameSchema),
@@ -35,22 +45,25 @@ export function LoginPage() {
 
   const onSubmit = async (values: NicknameForm) => {
     try {
-      await registerNickname(values.nickname);
+      await registerNickname(values);
+      await refresh();
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         setModalOpen(true);
-        return;
+      } else {
+        throw err;
       }
-      throw err;
     }
   };
 
   const confirmClaim = async () => {
     const nickname = form.getValues("nickname");
-    await claimNickname(nickname);
+    await claimNickname({ nickname });
+    await refresh();
     setModalOpen(false);
   };
 
+  const loading = registerNicknameLoading || claimNicknameLoading;
   return (
     <section className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-xl">

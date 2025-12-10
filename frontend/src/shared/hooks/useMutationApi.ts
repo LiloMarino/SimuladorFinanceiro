@@ -41,10 +41,9 @@ export function useMutationApi<R = unknown, B = unknown>(url: string, options?: 
         onSuccess?.(data);
         return data;
       } catch (err) {
-        const e = err instanceof Error ? err : new Error(String(err));
-        setError(e);
-        onError?.(e);
-        throw e;
+        setError(err as Error);
+        onError?.(err as Error);
+        throw err;
       } finally {
         setLoading(false);
       }

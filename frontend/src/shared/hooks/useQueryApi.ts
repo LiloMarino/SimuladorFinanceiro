@@ -34,9 +34,8 @@ export function useQueryApi<R = unknown>(url: string, options?: Readonly<UseQuer
       setData(validatedData);
       return validatedData;
     } catch (err) {
-      const e = err instanceof Error ? err : new Error(String(err));
-      setError(e);
-      throw e;
+      setError(err as Error);
+      throw err;
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,7 @@
 import { useCallback, useState, type ReactNode, useEffect } from "react";
 import Cookies from "js-cookie";
 import { AuthContext } from "./AuthContext";
-import type { User, Session } from "@/types/user";
+import type { Session } from "@/types/user";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 
@@ -21,15 +21,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const { mutate: initSessionApi, loading: initSessionLoading } = useMutationApi<{ client_id: string }>(
     "api/session/init"
   );
-
-  const { mutate: registerNicknameApi, loading: registerNicknameLoading } = useMutationApi<User, { nickname: string }>(
-    "api/user/register"
-  );
-
-  const { mutate: claimNicknameApi, loading: claimNicknameLoading } = useMutationApi<User, { nickname: string }>(
-    "api/user/claim"
-  );
-
   const refresh = useCallback(async () => {
     await fetchMe();
   }, [fetchMe]);
@@ -41,22 +32,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await refresh();
   }, [initSessionApi, refresh]);
 
-  const registerNickname = useCallback(
-    async (nickname: string) => {
-      await registerNicknameApi({ nickname });
-      await refresh();
-    },
-    [registerNicknameApi, refresh]
-  );
-
-  const claimNickname = useCallback(
-    async (nickname: string) => {
-      await claimNicknameApi({ nickname });
-      await refresh();
-    },
-    [claimNicknameApi, refresh]
-  );
-
   useEffect(() => {
     void initSession();
   }, [initSession]);
@@ -66,9 +41,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       value={{
         user: sessionData?.user ?? null,
         clientId,
-        loading: meLoading || initSessionLoading || registerNicknameLoading || claimNicknameLoading,
-        registerNickname,
-        claimNickname,
+        loading: meLoading || initSessionLoading,
         refresh,
       }}
     >
