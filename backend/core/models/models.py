@@ -44,16 +44,17 @@ class FixedIncomeAsset(Base):
         ),
         primary_key=True,
     )
-    asset_uuid: Mapped[uuid.UUID] = mapped_column(Uuid)
-    name: Mapped[str] = mapped_column(Text)
-    issuer: Mapped[str] = mapped_column(Text)
+    asset_uuid: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    issuer: Mapped[str] = mapped_column(Text, nullable=False)
     investment_type: Mapped[str] = mapped_column(
-        Enum("CDB", "LCI", "LCA", "TESOURO_DIRETO", name="investment_type")
+        Enum("CDB", "LCI", "LCA", "TESOURO_DIRETO", name="investment_type"),
+        nullable=False,
     )
     rate_type: Mapped[str] = mapped_column(
-        Enum("SELIC", "IPCA", "CDI", "PREFIXADO", name="rate_type")
+        Enum("SELIC", "IPCA", "CDI", "PREFIXADO", name="rate_type"), nullable=False
     )
-    maturity_date: Mapped[datetime.date] = mapped_column(Date)
+    maturity_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     interest_rate: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
 
     event_fixed_income: Mapped[list["EventFixedIncome"]] = relationship(
@@ -66,7 +67,7 @@ class IpcaHistory(Base):
     __table_args__ = (PrimaryKeyConstraint("ref_month", name="ipca_history_pkey"),)
 
     ref_month: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
-    rate_value: Mapped[decimal.Decimal] = mapped_column(Numeric(10, 6))
+    rate_value: Mapped[decimal.Decimal] = mapped_column(Numeric(10, 6), nullable=False)
 
 
 class SelicHistory(Base):
@@ -74,7 +75,7 @@ class SelicHistory(Base):
     __table_args__ = (PrimaryKeyConstraint("rate_date", name="selic_history_pkey"),)
 
     rate_date: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
-    rate_value: Mapped[decimal.Decimal] = mapped_column(Numeric(10, 6))
+    rate_value: Mapped[decimal.Decimal] = mapped_column(Numeric(10, 6), nullable=False)
 
 
 class Stock(Base):
@@ -98,8 +99,8 @@ class Stock(Base):
         ),
         primary_key=True,
     )
-    ticker: Mapped[str] = mapped_column(Text)
-    name: Mapped[str] = mapped_column(Text)
+    ticker: Mapped[str] = mapped_column(Text, nullable=False)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
 
     event_equity: Mapped[list["EventEquity"]] = relationship(
         "EventEquity", back_populates="stock"
@@ -130,9 +131,11 @@ class Users(Base):
         ),
         primary_key=True,
     )
-    client_id: Mapped[uuid.UUID] = mapped_column(Uuid)
-    nickname: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime(True))
+    client_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    nickname: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
 
     event_cashflow: Mapped[list["EventCashflow"]] = relationship(
         "EventCashflow", back_populates="user"
@@ -174,13 +177,16 @@ class EventCashflow(Base):
         ),
         primary_key=True,
     )
-    user_id: Mapped[int] = mapped_column(Integer)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
     event_type: Mapped[str] = mapped_column(
-        Enum("DEPOSIT", "WITHDRAW", "DIVIDEND", name="cashflow_event_type")
+        Enum("DEPOSIT", "WITHDRAW", "DIVIDEND", name="cashflow_event_type"),
+        nullable=False,
     )
-    amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6))
-    event_date: Mapped[datetime.date] = mapped_column(Date)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime(True))
+    amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
 
     user: Mapped["Users"] = relationship("Users", back_populates="event_cashflow")
 
@@ -218,15 +224,17 @@ class EventEquity(Base):
         ),
         primary_key=True,
     )
-    user_id: Mapped[int] = mapped_column(Integer)
-    stock_id: Mapped[int] = mapped_column(Integer)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    stock_id: Mapped[int] = mapped_column(Integer, nullable=False)
     event_type: Mapped[str] = mapped_column(
-        Enum("BUY", "SELL", name="equity_event_type")
+        Enum("BUY", "SELL", name="equity_event_type"), nullable=False
     )
-    quantity: Mapped[int] = mapped_column(Integer)
-    price: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6))
-    event_date: Mapped[datetime.date] = mapped_column(Date)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime(True))
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    price: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
 
     stock: Mapped["Stock"] = relationship("Stock", back_populates="event_equity")
     user: Mapped["Users"] = relationship("Users", back_populates="event_equity")
@@ -265,14 +273,16 @@ class EventFixedIncome(Base):
         ),
         primary_key=True,
     )
-    user_id: Mapped[int] = mapped_column(Integer)
-    asset_id: Mapped[int] = mapped_column(BigInteger)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    asset_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     event_type: Mapped[str] = mapped_column(
-        Enum("BUY", "REDEEM", name="fixed_income_event_type")
+        Enum("BUY", "REDEEM", name="fixed_income_event_type"), nullable=False
     )
-    amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6))
-    event_date: Mapped[datetime.date] = mapped_column(Date)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime(True))
+    amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
 
     asset: Mapped["FixedIncomeAsset"] = relationship(
         "FixedIncomeAsset", back_populates="event_fixed_income"
@@ -295,11 +305,17 @@ class Snapshots(Base):
 
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     snapshot_date: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
-    total_equity: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6))
-    total_fixed: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6))
-    total_cash: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6))
-    total_networth: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6))
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime(True))
+    total_equity: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
+    total_fixed: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    total_cash: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    total_networth: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
 
     user: Mapped["Users"] = relationship("Users", back_populates="snapshots")
 
@@ -319,10 +335,10 @@ class StockPriceHistory(Base):
 
     stock_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     price_date: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
-    open: Mapped[float] = mapped_column(Double(53))
-    high: Mapped[float] = mapped_column(Double(53))
-    low: Mapped[float] = mapped_column(Double(53))
-    close: Mapped[float] = mapped_column(Double(53))
-    volume: Mapped[int] = mapped_column(BigInteger)
+    open: Mapped[float] = mapped_column(Double(53), nullable=False)
+    high: Mapped[float] = mapped_column(Double(53), nullable=False)
+    low: Mapped[float] = mapped_column(Double(53), nullable=False)
+    close: Mapped[float] = mapped_column(Double(53), nullable=False)
+    volume: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
     stock: Mapped["Stock"] = relationship("Stock", back_populates="stock_price_history")

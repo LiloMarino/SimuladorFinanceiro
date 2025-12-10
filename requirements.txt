@@ -13,9 +13,11 @@ frozendict==2.4.7
 greenlet==3.2.4
 h11==0.16.0
 idna==3.11
+inflect==7.5.0
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.3
+more-itertools==10.8.0
 multitasking==0.0.12
 nodeenv==1.9.1
 nodejs-wheel-binaries==24.11.1
@@ -40,7 +42,9 @@ ruff==0.14.7
 simple-websocket==1.1.0
 six==1.17.0
 soupsieve==2.8
+sqlacodegen==3.2.0
 SQLAlchemy==2.0.44
+typeguard==4.4.4
 typing_extensions==4.15.0
 tzdata==2025.2
 urllib3==2.5.0
