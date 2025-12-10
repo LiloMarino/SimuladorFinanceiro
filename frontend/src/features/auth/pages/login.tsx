@@ -8,6 +8,7 @@ import type { Player } from "@/types";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,37 +53,38 @@ export function LoginPage({
   };
 
   return (
-    <section className="section-content p-4">
-      <div className="bg-white rounded-lg shadow p-6 max-w-xl mx-auto space-y-6">
-        <h2 className="text-2xl font-semibold text-center mb-4">Entrar na Sala</h2>
+    <section className="min-h-screen flex items-center justify-center p-4">
+      <Card className="w-full max-w-xl">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl">Entrar na Sala</CardTitle>
+        </CardHeader>
 
-        {/* FORM */}
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="nickname"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Seu Nickname</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Digite seu nickname" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-              Entrar
-            </Button>
-          </form>
-        </Form>
+        <CardContent className="space-y-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="nickname"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Seu Nickname</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Digite seu nickname" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+                Entrar
+              </Button>
+            </form>
+          </Form>
 
-        {/* LISTA DE JOGADORES */}
-        <div>
           <h3 className="font-medium mb-3">Jogadores na Sala</h3>
           <div className="border rounded-lg overflow-hidden">
             {players.length === 0 && <p className="p-3 text-gray-400">Nenhum jogador ainda...</p>}
+
             <div className="divide-y divide-gray-200">
               {players.map((p) => (
                 <div key={p.name} className="p-3 flex items-center justify-between">
@@ -95,22 +97,24 @@ export function LoginPage({
               ))}
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* MODAL / ALERTDIALOG */}
       <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Nickname</AlertDialogTitle>
           </AlertDialogHeader>
+
           <p>
-            O usuário <strong>{nicknameToClaim}</strong> já existe, você deseja clamar o nickname?
+            O usuário <strong>{nicknameToClaim}</strong> já existe. Deseja clamar este nickname?
           </p>
+
           <div className="flex justify-end gap-3 mt-4">
             <AlertDialogCancel asChild>
               <Button variant="secondary">Cancelar</Button>
             </AlertDialogCancel>
+
             <AlertDialogAction asChild>
               <Button onClick={confirmClaim}>Sim</Button>
             </AlertDialogAction>
