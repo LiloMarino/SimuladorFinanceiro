@@ -54,7 +54,6 @@ class UserRepository:
     ) -> UserDTO:
         user = session.query(Users).filter_by(id=user_id).one()
         user.client_id = new_client_id
-        session.flush()
 
         return UserDTO(
             id=user.id,
