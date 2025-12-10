@@ -1,20 +1,14 @@
 import { useAuth } from "@/shared/hooks/useAuth";
 import { Navigate, Outlet } from "react-router-dom";
 import { Spinner } from "@/shared/components/ui/spinner";
-import type { User } from "@/types";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export function AuthenticatedLayout() {
-  const { loading, getUser } = useAuth();
-  const [user, setUser] = useState<User | null>(null);
+  const { loading, refresh, getSession } = useAuth();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const user = await getUser();
-      setUser(user);
-    };
-    fetchUser();
-  }, [getUser]);
+    refresh();
+  }, [refresh]);
 
   if (loading)
     return (
@@ -23,7 +17,7 @@ export function AuthenticatedLayout() {
       </div>
     );
 
-  if (!user) {
+  if (!getSession()?.authenticated) {
     return <Navigate to="/login" replace />;
   }
 
