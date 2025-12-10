@@ -17,21 +17,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loading: meLoading,
   } = useQueryApi<{ user: User | null }>("api/session/me", { initialFetch: false });
   const { mutate: initSessionApi, loading: initSessionLoading } = useMutationApi<{ client_id: string }>(
-    "api/session/init",
-    { method: "POST" }
+    "api/session/init"
   );
   const { mutate: registerNicknameApi, loading: registerNicknameLoading } = useMutationApi<
     { user: User },
     { nickname: string }
-  >("api/user/register", {
-    method: "POST",
-  });
+  >("api/user/register");
   const { mutate: claimNicknameApi, loading: claimNicknameLoading } = useMutationApi<
     { user: User },
     { nickname: string }
-  >("api/user/claim", {
-    method: "POST",
-  });
+  >("api/user/claim");
 
   const refresh = useCallback(async () => {
     await fetchMe();

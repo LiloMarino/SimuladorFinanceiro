@@ -18,6 +18,7 @@ export function useQueryApi<R = unknown>(url: string, options?: Readonly<UseQuer
   const [data, setData] = useState<R | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
+  const { headers, responseSchema, initialFetch = true } = options ?? {};
 
   const query = useCallback(async (): Promise<R> => {
     setLoading(true);
@@ -25,11 +26,11 @@ export function useQueryApi<R = unknown>(url: string, options?: Readonly<UseQuer
 
     try {
       const res = await fetch(url, {
-        headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
+        headers: { "Content-Type": "application/json", ...(headers ?? {}) },
         credentials: "include",
       });
 
-      const validatedData = await handleApiResponse<R>(res, options?.responseSchema);
+      const validatedData = await handleApiResponse<R>(res, responseSchema);
       setData(validatedData);
       return validatedData;
     } catch (err) {
@@ -39,13 +40,13 @@ export function useQueryApi<R = unknown>(url: string, options?: Readonly<UseQuer
     } finally {
       setLoading(false);
     }
-  }, [url, options?.headers, options?.responseSchema]);
+  }, [url, headers, responseSchema]);
 
   useEffect(() => {
-    if (options?.initialFetch ?? true) {
+    if (initialFetch) {
       void query();
     }
-  }, [query, options?.initialFetch]);
+  }, [query, initialFetch]);
 
   return { data, setData, error, loading, query };
 }

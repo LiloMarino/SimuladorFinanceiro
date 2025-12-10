@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { handleApiResponse } from "@/shared/lib/utils/api";
 import type { ZodType } from "zod";
 
@@ -19,34 +19,38 @@ interface UseMutationApiOptions<R = unknown, B = unknown> {
 export function useMutationApi<R = unknown, B = unknown>(url: string, options?: Readonly<UseMutationApiOptions<R, B>>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const { method = "POST", headers, bodySchema, responseSchema, onSuccess, onError } = options ?? {};
 
-  const mutate = async (body: B): Promise<R> => {
-    setLoading(true);
-    setError(null);
+  const mutate = useCallback(
+    async (body: B): Promise<R> => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      // Valida o body se houver schema
-      const validatedBody = options?.bodySchema?.parse(body) ?? body;
+      try {
+        // Valida o body se houver schema
+        const validatedBody = bodySchema?.parse(body) ?? body;
 
-      const res = await fetch(url, {
-        method: options?.method || "POST",
-        headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
-        credentials: "include",
-        body: JSON.stringify(validatedBody),
-      });
+        const res = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json", ...(headers ?? {}) },
+          credentials: "include",
+          body: JSON.stringify(validatedBody),
+        });
 
-      const data = await handleApiResponse<R>(res, options?.responseSchema);
-      options?.onSuccess?.(data);
-      return data;
-    } catch (err) {
-      const e = err instanceof Error ? err : new Error(String(err));
-      setError(e);
-      options?.onError?.(e);
-      throw e;
-    } finally {
-      setLoading(false);
-    }
-  };
+        const data = await handleApiResponse<R>(res, responseSchema);
+        onSuccess?.(data);
+        return data;
+      } catch (err) {
+        const e = err instanceof Error ? err : new Error(String(err));
+        setError(e);
+        onError?.(e);
+        throw e;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [url, method, headers, bodySchema, responseSchema, onSuccess, onError]
+  );
 
   return { mutate, loading, error };
 }
