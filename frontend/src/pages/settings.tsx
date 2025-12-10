@@ -1,13 +1,7 @@
 import { useAuth } from "@/shared/hooks/useAuth";
-import { useEffect } from "react";
 
 export default function SettingsPage() {
-  const { refresh, getUser } = useAuth();
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
+  const { getUser } = useAuth();
   return (
     <section id="settings" className="section-content p-4">
       <div className="bg-white rounded-lg shadow p-6">
