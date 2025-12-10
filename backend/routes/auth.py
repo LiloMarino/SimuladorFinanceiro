@@ -71,23 +71,18 @@ def session_me():
     )
 
 
-# -------------------------------------------------------
-# 3) REGISTER (POST /api/user/register)
-# -------------------------------------------------------
 @auth_bp.route("/api/user/register", methods=["POST"])
 def user_register():
     """
-    Cria um usuário anônimo NO BD associado ao client_id já existente.
+    Cria um usuário para o client_id atual.
     """
-
     data = request.get_json()
-    nickname = data.get("nickname")
 
+    nickname = data.get("nickname")
     if not nickname:
         return make_response(False, "Nickname is required.", 422)
 
     client_id = request.cookies.get("client_id")
-
     if not client_id:
         return make_response(False, "Session not initialized.", 401)
 
@@ -96,54 +91,43 @@ def user_register():
     if existing_user:
         return make_response(False, "User already registered for this client.", 409)
 
-    # Criar novo usuário
-    try:
-        new_user = repository.user.create_user(client_id, nickname)
-    except Exception as e:
-        # Provável erro de UNIQUE (nickname já usado)
-        if "users_nickname_key" in str(e):
-            return make_response(False, "Nickname already taken.", 409)
-        raise  # outro erro → deixa Flask logar
+    # Cria novo usuário
+    new_user = repository.user.create_user(client_id, nickname)
 
-    # Construir resposta
     return make_response(
         True,
         "User registered successfully.",
-        data={
-            "user": {
-                "id": new_user.id,
-                "nickname": new_user.nickname,
-            }
-        },
+        data=new_user.to_json(),
     )
 
 
-# -------------------------------------------------------
-# 4) CLAIM NICKNAME  (POST /api/user/claim)
-# -------------------------------------------------------
 @auth_bp.route("/api/user/claim", methods=["POST"])
 def user_claim():
     """
-    O usuário escolhe um nickname.
-    Valida se está livre, associa ao user.
+    Permite que o usuário recupere seu nickname após limpar navegador.
     """
+    data = request.get_json()
 
-    data = request.get_json(force=True)
     nickname = data.get("nickname")
-
     if not nickname:
         return make_response(False, "Nickname is required.", 422)
 
     client_id = request.cookies.get("client_id")
-
     if not client_id:
         return make_response(False, "Session not initialized.", 401)
 
-    success, message = claim_nickname(client_id, nickname)
+    # Verificar se nickname existe
+    existing_user = repository.user.get_by_nickname(nickname)
+    if not existing_user:
+        return make_response(False, "Nickname does not exist.", 404)
 
-    if not success:
-        return make_response(False, message, 409)
+    # Atualizar client_id do usuário para o novo navegador
+    updated_user = repository.user.update_client_id(
+        existing_user.id, uuid.UUID(client_id)
+    )
 
     return make_response(
-        True, "Nickname claimed successfully.", data={"nickname": nickname}
+        True,
+        "Nickname claimed successfully.",
+        data=updated_user.to_json(),
     )
