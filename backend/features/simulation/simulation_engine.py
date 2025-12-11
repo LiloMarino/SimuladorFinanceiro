@@ -1,5 +1,7 @@
+from collections import defaultdict
 from datetime import datetime
 
+from backend import config
 from backend.core.dto.stock import StockDTO
 from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
@@ -11,9 +13,11 @@ from backend.features.simulation.fixed_broker import FixedBroker
 
 
 class SimulationEngine:
-    def __init__(self, starting_cash: float = 10000.0):
+    def __init__(self):
         self._data_buffer = DataBuffer()
-        self.__cash: float = starting_cash
+        self._cash: dict[str, float] = defaultdict(
+            lambda: config.toml.simulation.starting_cash
+        )
         self._broker = Broker(self, self.get_market_price)
         self._fixed_broker = FixedBroker(self)
         self._fixed_income_market = FixedIncomeMarket()
@@ -34,12 +38,12 @@ class SimulationEngine:
     def get_fixed_income_market(self) -> FixedIncomeMarket:
         return self._fixed_income_market
 
-    def get_cash(self) -> float:
-        return self.__cash
+    def get_cash(self, client_id: str) -> float:
+        return self._cash[client_id]
 
-    def add_cash(self, cash: float):
-        self.__cash += cash
-        notify("cash_update", {"cash": self.__cash})
+    def add_cash(self, client_id: str, cash: float):
+        self._cash[client_id] += cash
+        notify("cash_update", {"cash": self._cash[client_id]})
 
     def get_positions(self):
         return self._broker.get_positions()
@@ -65,7 +69,7 @@ class SimulationEngine:
 
     def get_portfolio(self) -> Portfolio:
         return Portfolio(
-            cash=self.__cash,
+            cash=self._cash,
             variable_income=list(self._broker.get_positions().values()),
             fixed_income=list(self._fixed_broker.get_assets().values()),
             patrimonial_history=[],
