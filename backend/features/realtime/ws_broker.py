@@ -1,9 +1,11 @@
+from collections import defaultdict
 from collections.abc import Iterable
+from threading import Lock
 
 from flask_socketio import SocketIO
 
 from backend.core.logger import setup_logger
-from backend.types import JSONValue
+from backend.types import SID, ClientID, Event, JSONValue
 
 from .realtime_broker import RealtimeBroker
 
@@ -18,35 +20,39 @@ class SocketBroker(RealtimeBroker):
 
     def __init__(self, socketio: SocketIO):
         self.socketio = socketio
-        self._clients = set()  # set de client_ids conectados
-        self._subscriptions: dict[str, set[str]] = {}  # event -> set(client_id)
+        self._lock = Lock()
+        self._subscriptions: dict[Event, set[ClientID]] = defaultdict(
+            set
+        )  # event -> set(client_id)
+        self._client_to_sids: dict[ClientID, set[SID]] = defaultdict(
+            set
+        )  # client_id -> sids
 
-    def register_client(self, client_id: str | None = None) -> str:
-        logger.info("Cliente conectado: %s", client_id)
-        if client_id:
-            self._clients.add(client_id)
-        return client_id or ""
+    def register_client(self, client_id: ClientID, sid: SID) -> None:
+        with self._lock:
+            self._client_to_sids[client_id].add(sid)
 
-    def remove_client(self, client_id: str) -> None:
-        self._clients.discard(client_id)
-        for subscribers in self._subscriptions.values():
-            subscribers.discard(client_id)
-        logger.info("Cliente desconectado: %s", client_id)
+    def remove_client(self, client_id: ClientID, sid: SID) -> None:
+        with self._lock:
+            sids = self._client_to_sids.get(client_id)
+            if sids:
+                sids.discard(sid)
+                if not sids:
+                    del self._client_to_sids[client_id]
 
-    def update_subscription(self, client_id: str, events: Iterable[str]) -> None:
-        logger.info("Atualizando assinaturas: %s -> %s", client_id, events)
-        # Remove de todos os eventos atuais
-        for subscribers in self._subscriptions.values():
-            subscribers.discard(client_id)
-        # Adiciona para os novos eventos
-        for event in events:
-            self._subscriptions.setdefault(event, set()).add(client_id)
+            for subscribers in self._subscriptions.values():
+                subscribers.discard(client_id)
 
-    def notify(self, event: str, payload: JSONValue) -> None:
-        """Envia payload apenas para clientes inscritos neste evento."""
-        for cid in self._subscriptions.get(event, set()):
-            if cid in self._clients:
-                self.socketio.emit(event, payload, to=cid)
+    def update_subscription(self, client_id: ClientID, events: Iterable[Event]) -> None:
+        with self._lock:
+            for subscribers in self._subscriptions.values():
+                subscribers.discard(client_id)
+            for event in events:
+                self._subscriptions[event].add(client_id)
 
-    def connect(self) -> None:
-        raise NotImplementedError("SocketBroker não implementa connect()")
+    def notify(self, event: Event, payload: JSONValue) -> None:
+        with self._lock:
+            for client_id in self._subscriptions.get(event, set()):
+                sids = self._client_to_sids.get(client_id, set())
+                for sid in sids:
+                    self.socketio.emit(event, payload, to=sid)

@@ -7,3 +7,8 @@ type JSONValue = JSONPrimitive | JSONArray | JSONObject
 
 type JSONObject = Mapping[str, JSONValue]
 type JSONArray = Sequence[JSONValue]
+
+# Realtime types
+type Event = str
+type ClientID = str
+type SID = str

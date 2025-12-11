@@ -1,5 +1,5 @@
 import json
-import uuid
+from collections import defaultdict
 from collections.abc import Iterable
 from queue import Empty, Queue
 from threading import Lock
@@ -7,7 +7,8 @@ from threading import Lock
 from flask import Response, request, stream_with_context
 
 from backend.core.logger import setup_logger
-from backend.types import JSONValue
+from backend.features.users.user_manager import UserManager
+from backend.types import ClientID, Event, JSONValue
 
 from .realtime_broker import RealtimeBroker
 
@@ -22,70 +23,68 @@ class SSEBroker(RealtimeBroker):
     """
 
     def __init__(self):
-        self._subscriptions: dict[str, set[str]] = {}  # event -> set(client_id)
+        self._subscriptions: dict[str, set[str]] = defaultdict(
+            set
+        )  # event -> set(client_id)
         self._clients: dict[str, Queue] = {}  # client_id -> Queue
         self._lock = Lock()
 
-    # --------------------------------------------------------------------- #
-    # Subscription Management
-    # --------------------------------------------------------------------- #
-    def register_client(self, client_id: str | None = None) -> str:
-        if client_id is None:
-            client_id = str(uuid.uuid4())
-
+    def register_client(self, client_id: ClientID) -> None:
         with self._lock:
             if client_id not in self._clients:
                 self._clients[client_id] = Queue()
+        UserManager.register(client_id)
+        logger.info("SSE conectado: %s", client_id)
 
-        logger.debug("SSEBroker.register_client %s", client_id)
-        return client_id
-
-    def remove_client(self, client_id: str) -> None:
+    def remove_client(self, client_id: ClientID) -> None:
         with self._lock:
             self._clients.pop(client_id, None)
+
             # Remove de todas as assinaturas
             for subscribers in self._subscriptions.values():
                 subscribers.discard(client_id)
+        UserManager.unregister(client_id)
+        logger.info("SSE desconectado: %s", client_id)
 
-        logger.debug("SSEBroker.remove_client %s", client_id)
-
-    def update_subscription(self, client_id: str, events: Iterable[str]) -> None:
+    def update_subscription(self, client_id: ClientID, events: Iterable[Event]) -> None:
         with self._lock:
             # Remove de todos os eventos atuais
             for subscribers in self._subscriptions.values():
                 subscribers.discard(client_id)
+
             # Adiciona para os novos eventos
             for event in events:
-                self._subscriptions.setdefault(event, set()).add(client_id)
+                self._subscriptions[event].add(client_id)
 
-        logger.debug("SSEBroker.update_subscription %s -> %s", client_id, events)
-
-    # --------------------------------------------------------------------- #
-    # Publish
-    # --------------------------------------------------------------------- #
-    def notify(self, event: str, payload: JSONValue) -> None:
-        """Envia payload para todos os clientes inscritos neste evento."""
-        packet = f"event: {event}\ndata: {json.dumps({'event': event, 'payload': payload})}\n\n"
+    def notify(self, event: Event, payload: JSONValue) -> None:
+        """Envia payload para todos os clientes inscritos."""
+        packet = (
+            f"event: {event}\n"
+            f"data: {json.dumps({'event': event, 'payload': payload})}\n\n"
+        )
 
         with self._lock:
-            for cid in self._subscriptions.get(event, set()):
-                q = self._clients.get(cid)
-                if q:
-                    try:
-                        q.put(packet)
-                    except Exception:
-                        logger.exception("Erro ao enfileirar mensagem para %s", cid)
+            target_clients = self._subscriptions.get(event, set()).copy()
+
+        for cid in target_clients:
+            q = self._clients.get(cid)
+            if q:
+                try:
+                    q.put(packet)
+                except Exception:
+                    logger.exception("Erro ao enfileirar mensagem para %s", cid)
 
     # --------------------------------------------------------------------- #
     # Connection handler
     # --------------------------------------------------------------------- #
     def connect(self):
         """Rota SSE: cria client e retorna Response que streama eventos."""
-        client_id = request.args.get("client_id")
+        client_id = request.cookies.get("client_id")
+        if not client_id:
+            return Response("Unauthorized", status=401)
 
-        client_id = self.register_client(client_id)
+        self.register_client(client_id)
         self.update_subscription(client_id, [])
-        logger.info("Cliente conectado: %s", client_id)
         return Response(
             stream_with_context(self._listen_generator(client_id)),
             mimetype="text/event-stream",
@@ -97,7 +96,8 @@ class SSEBroker(RealtimeBroker):
             if not q:
                 return
 
-        yield f"event: connected\ndata: {json.dumps({'client_id': client_id})}\n\n"
+        # Mensagem inicial
+        yield (f"event: connected\ndata: {json.dumps({'client_id': client_id})}\n\n")
 
         try:
             while True:
@@ -105,7 +105,7 @@ class SSEBroker(RealtimeBroker):
                     packet = q.get(timeout=15)
                     yield packet
                 except Empty:
+                    # Mantém conexão viva
                     continue
         except GeneratorExit:
             self.remove_client(client_id)
-            logger.debug("SSEBroker: cliente desconectado %s", client_id)

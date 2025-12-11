@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 
 from backend.core.logger import setup_logger
-from backend.features.realtime import get_broker
+from backend.features.realtime import get_broker, get_sse_broker
 from backend.routes.helpers import make_response
 
 realtime_bp = Blueprint("realtime", __name__)
@@ -11,12 +11,8 @@ logger = setup_logger(__name__)
 
 @realtime_bp.route("/api/stream")
 def stream():
-    try:
-        broker = get_broker()
-        return broker.connect()
-    except Exception:
-        logger.exception("Erro ao abrir SSE stream")
-        return make_response(False, "Internal server error", 500)
+    broker = get_sse_broker()
+    return broker.connect()
 
 
 @realtime_bp.route("/api/update-subscription", methods=["POST"])

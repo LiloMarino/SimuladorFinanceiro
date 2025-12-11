@@ -1,6 +1,8 @@
 from flask import current_app
 
 from backend.features.realtime.realtime_broker import RealtimeBroker
+from backend.features.realtime.sse_broker import SSEBroker
+from backend.features.realtime.ws_broker import SocketBroker
 from backend.types import JSONValue
 
 
@@ -12,6 +14,20 @@ def get_broker() -> RealtimeBroker:
     broker = current_app.config.get("realtime_broker")
     if not broker:
         raise RuntimeError("Realtime broker not configured in current_app")
+    return broker
+
+
+def get_socket_broker() -> SocketBroker:
+    broker = get_broker()
+    if not isinstance(broker, SocketBroker):
+        raise TypeError("Broker is not SocketBroker")
+    return broker
+
+
+def get_sse_broker() -> SSEBroker:
+    broker = get_broker()
+    if not isinstance(broker, SSEBroker):
+        raise TypeError("Broker is not SSEBroker")
     return broker
 
 

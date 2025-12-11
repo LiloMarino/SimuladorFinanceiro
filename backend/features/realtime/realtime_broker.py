@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 
-from backend.types import JSONValue
+from backend.types import ClientID, Event, JSONValue
 
 
 class RealtimeBroker(ABC):
@@ -15,26 +15,11 @@ class RealtimeBroker(ABC):
     """
 
     @abstractmethod
-    def register_client(self, client_id: str | None = None) -> str:
-        """Registra um cliente (subscriber)."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def remove_client(self, client_id: str) -> None:
-        """Remove um cliente (quando desconecta)."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def update_subscription(self, client_id: str, events: Iterable[str]) -> None:
+    def update_subscription(self, client_id: ClientID, events: Iterable[Event]) -> None:
         """Atualiza os eventos de interesse do cliente."""
         raise NotImplementedError
 
     @abstractmethod
-    def notify(self, event: str, payload: JSONValue) -> None:
+    def notify(self, event: Event, payload: JSONValue) -> None:
         """Publica um evento para todos os assinantes interessados."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def connect(self):
-        """Retorna Response streaming SSE (só SSE)"""
         raise NotImplementedError
