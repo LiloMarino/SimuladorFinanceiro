@@ -11,8 +11,8 @@ class BaseStrategy:
 
     def __init__(self, engine: SimulationEngine):
         self.engine = engine
-        self.broker = engine.get_broker()
-        self.data_buffer = engine.get_data_buffer()
+        self.broker = engine.broker
+        self.data_buffer = engine.data_buffer
 
     def next(self):
         """Executa a lógica da estratégia a cada tick."""

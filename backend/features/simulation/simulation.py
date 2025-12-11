@@ -5,7 +5,6 @@ from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.logger import setup_logger
 from backend.features.realtime import notify
-from backend.features.simulation.entities.fixed_income_asset import FixedIncomeAsset
 from backend.features.simulation.entities.portfolio import Portfolio
 from backend.features.simulation.entities.position import Position
 from backend.features.simulation.simulation_engine import SimulationEngine
@@ -21,6 +20,12 @@ class Simulation:
         self._end_date = end_date
         self._engine = SimulationEngine()
         self._engine.set_strategy(ManualStrategy)
+
+        # Configura os alias
+        self.get_cash = self._engine.get_cash
+        self.get_fixed_assets = self._engine.fixed_income_market.get_available_assets
+
+        # Roda o primeiro tick para a inicialização
         self.next_tick()
 
     def next_tick(self):
@@ -78,16 +83,10 @@ class Simulation:
         return positions.get(ticker, Position(ticker))
 
     def get_fixed_asset(self, uuid: str) -> dict | None:
-        asset = self._engine.get_fixed_income_market().get_asset(uuid)
+        asset = self._engine.fixed_income_market.get_asset(uuid)
         if asset:
             return asset.to_dict()
         return None
-
-    def get_fixed_assets(self) -> list[FixedIncomeAsset]:
-        return self._engine.get_fixed_income_market().get_available_assets()
-
-    def get_cash(self) -> float:
-        return self._engine.get_cash()
 
     def get_economic_indicators(self):
         return {
