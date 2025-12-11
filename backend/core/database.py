@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine.url import URL, make_url
 from sqlalchemy.orm import sessionmaker
@@ -69,6 +71,8 @@ def get_engine():
     # ================================
     # SQLite (fallback automático)
     # ================================
+    sqlite_path = sqlite_url.replace("sqlite:///", "")
+    Path(sqlite_path).parent.mkdir(parents=True, exist_ok=True)
     engine = create_engine(sqlite_url, pool_pre_ping=True)
     Base.metadata.create_all(engine)
     logger.warning("Conectado ao SQLite (fallback).")

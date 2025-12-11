@@ -54,7 +54,7 @@ def gather_lines(
         connector = "└── " if is_last else "├── "
         extension = "    " if is_last else "│   "
 
-        full_path = os.path.join(base_path, key) if base_path else key
+        full_path = Path(base_path) / key if base_path else key
         full_path = full_path.replace("\\", "/").rstrip("/")
 
         comment = (
@@ -140,5 +140,5 @@ if __name__ == "__main__":
     descriptions = load_descriptions(desc_path)
     tree = build_tree(files)
 
-    print(f"{os.path.basename(os.getcwd())}/")
+    print(f"{Path.cwd().name}/")
     print_tree(tree, descriptions)

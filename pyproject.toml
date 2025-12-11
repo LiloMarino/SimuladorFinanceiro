@@ -3,7 +3,20 @@ line-length = 88
 target-version = "py313"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "B", "UP", "SIM", "PERF", "RUF", "TRY"]
+select = [
+    "E",
+    "F",
+    "W",
+    "I",
+    "N",
+    "B",
+    "UP",
+    "SIM",
+    "PERF",
+    "RUF",
+    "TRY",
+    "PTH",
+]
 ignore = [
     "E501",   # line too long
     "UP047",  # pyupgrade

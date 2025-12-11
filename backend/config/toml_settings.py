@@ -9,18 +9,10 @@ from backend.core.logger import setup_logger
 logger = setup_logger(__package__ if __package__ else __name__)
 
 CONFIG_PATH = Path("config.toml")
-DEFAULT_TOML_CONTENT = {
-    "simulation": {
-        "starting_cash": 10000,
-    },
-    "realtime": {
-        "use_sse": False,
-    },
-}
 
 
 class SimulationConfig(BaseModel):
-    starting_cash: int
+    starting_cash: int = 10000
 
 
 class RealtimeConfig(BaseModel):
@@ -28,15 +20,20 @@ class RealtimeConfig(BaseModel):
 
 
 class TomlSettings(BaseModel):
-    simulation: SimulationConfig
-    realtime: RealtimeConfig
+    simulation: SimulationConfig = SimulationConfig()
+    realtime: RealtimeConfig = RealtimeConfig()
 
 
 def load_toml_settings() -> TomlSettings:
     if not CONFIG_PATH.exists():
+        defaults = TomlSettings().model_dump()
+
         with CONFIG_PATH.open("w") as f:
-            toml.dump(DEFAULT_TOML_CONTENT, f)
-        logger.info("config.toml created with defaults")
+            toml.dump(defaults, f)
+
+        logger.info("config.toml criado com defaults")
+
+        return TomlSettings()
 
     with CONFIG_PATH.open("rb") as f:
         data = tomllib.load(f)

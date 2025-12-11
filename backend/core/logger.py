@@ -1,9 +1,9 @@
 import logging
-import os
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
-LOG_DIR = "logs"
-os.makedirs(LOG_DIR, exist_ok=True)
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def setup_logger(
@@ -25,7 +25,7 @@ def setup_logger(
 
         # File handler
         file_handler = RotatingFileHandler(
-            os.path.join(LOG_DIR, log_file),
+            LOG_DIR / log_file,
             maxBytes=1_000_000,  # ~1MB por arquivo
             backupCount=5,  # mantém 5 arquivos circulares
             encoding="utf-8",

@@ -69,3 +69,4 @@ lerna-debug.log*
 *.bak
 secret.key
 config.toml
+*.db

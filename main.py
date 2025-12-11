@@ -22,7 +22,7 @@ from pathlib import Path
 from flask import Flask
 from flask_socketio import SocketIO
 
-from backend.config import settings
+from backend import config
 from backend.core.database import engine
 from backend.core.logger import setup_logger
 from backend.features.realtime.sse_broker import SSEBroker
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     # ------------------------------------------------------------
     # 🔌 Modo SocketIO (WebSocket)
     # ------------------------------------------------------------
-    if not settings.toml.realtime.use_sse:
+    if not config.toml.realtime.use_sse:
         socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
         socketio.init_app(app)
         app.config["realtime_broker"] = SocketBroker(socketio)
