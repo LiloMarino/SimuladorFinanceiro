@@ -17,6 +17,7 @@ idna==3.11
 inflect==7.5.0
 itsdangerous==2.2.0
 Jinja2==3.1.6
+mando==0.7.1
 MarkupSafe==3.0.3
 more-itertools==10.8.0
 multitasking==0.0.12
@@ -32,6 +33,7 @@ psycopg-binary==3.2.13
 psycopg-pool==3.2.8
 pycparser==2.23
 pydantic==2.12.5
+pydantic-settings==2.12.0
 pydantic_core==2.41.5
 pyright==1.1.407
 python-dateutil==2.9.0.post0
@@ -40,6 +42,7 @@ python-engineio==4.12.3
 python-socketio==5.15.0
 pytz==2025.2
 PyYAML==6.0.3
+radon==6.0.1
 requests==2.32.5
 ruff==0.14.7
 simple-websocket==1.1.0
@@ -47,6 +50,7 @@ six==1.17.0
 soupsieve==2.8
 sqlacodegen==3.2.0
 SQLAlchemy==2.0.44
+toml==0.10.2
 typeguard==4.4.4
 typing-inspection==0.4.2
 typing_extensions==4.15.0
