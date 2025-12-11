@@ -17,10 +17,11 @@ logger = setup_logger(__name__)
 class Simulation:
     def __init__(self, start_date: datetime, end_date: datetime):
         self._speed = 0
-        self._current_date = start_date
+        self._current_date = start_date - timedelta(days=1)
         self._end_date = end_date
         self._engine = SimulationEngine()
         self._engine.set_strategy(ManualStrategy)
+        self.next_tick()
 
     def next_tick(self):
         # Verifica se a simulação terminou
