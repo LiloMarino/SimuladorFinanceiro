@@ -18,7 +18,7 @@ import SettingsPage from "./pages/settings";
 import FixedIncomePage from "./features/fixed-income/pages/fixed-income";
 import FixedIncomeDetailPage from "./features/fixed-income/pages/fixed-income-details";
 import StrategiesPage from "./pages/strategies";
-import { LobbyHostPage } from "./pages/lobby";
+import { LobbyPage } from "./pages/lobby";
 import ImportAssetsPage from "./features/import-assets/pages/import-assets";
 import { RealtimeProvider } from "@/shared/context/realtime";
 import { Toaster } from "@/shared/components/ui/sonner";
@@ -57,7 +57,7 @@ export default function App() {
                 <Route path="/login" element={<LoginPage />} />
               </Route>
               <Route element={<AuthenticatedLayout />}>
-                <Route path="/lobby" element={<LobbyHostPage />} />
+                <Route path="/lobby" element={<LobbyPage />} />
                 <Route element={<MainLayout navItems={navItems} />}>
                   <Route path="/" element={<PortfolioPage />} />
                   <Route path="/variable-income" element={<VariableIncomePage />} />

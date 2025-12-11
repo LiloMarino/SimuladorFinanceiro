@@ -8,7 +8,7 @@ interface LobbyHostProps {
   players?: Player[];
 }
 
-export function LobbyHostPage({
+export function LobbyPage({
   maxPlayers = 8,
   players = [
     { name: "Você", status: "Pronto", color: "green", isYou: true },
@@ -30,7 +30,7 @@ export function LobbyHostPage({
   };
 
   return (
-    <section className="section-content p-4">
+    <section className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow p-6 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* COLUNA 1 - LOBBY */}
         <div>
