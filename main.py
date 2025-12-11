@@ -22,6 +22,7 @@ from pathlib import Path
 from flask import Flask
 from flask_socketio import SocketIO
 
+from backend.config import settings
 from backend.core.database import engine
 from backend.core.logger import setup_logger
 from backend.features.realtime.sse_broker import SSEBroker
@@ -32,7 +33,6 @@ from backend.simulation_loop import start_simulation_loop
 
 BACKEND_DIR = Path("backend")
 SECRET_PATH = Path("secret.key")
-USE_SSE = False
 
 logger = setup_logger(__name__)
 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     # ------------------------------------------------------------
     # 🔌 Modo SocketIO (WebSocket)
     # ------------------------------------------------------------
-    if not USE_SSE:
+    if not settings.toml.realtime.use_sse:
         socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
         socketio.init_app(app)
         app.config["realtime_broker"] = SocketBroker(socketio)

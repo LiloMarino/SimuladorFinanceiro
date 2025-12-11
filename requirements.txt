@@ -1,3 +1,4 @@
+annotated-types==0.7.0
 beautifulsoup4==4.14.3
 bidict==0.23.1
 blinker==1.9.0
@@ -30,6 +31,8 @@ psycopg==3.2.13
 psycopg-binary==3.2.13
 psycopg-pool==3.2.8
 pycparser==2.23
+pydantic==2.12.5
+pydantic_core==2.41.5
 pyright==1.1.407
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
@@ -45,6 +48,7 @@ soupsieve==2.8
 sqlacodegen==3.2.0
 SQLAlchemy==2.0.44
 typeguard==4.4.4
+typing-inspection==0.4.2
 typing_extensions==4.15.0
 tzdata==2025.2
 urllib3==2.5.0

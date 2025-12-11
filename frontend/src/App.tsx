@@ -57,6 +57,7 @@ export default function App() {
                 <Route path="/login" element={<LoginPage />} />
               </Route>
               <Route element={<AuthenticatedLayout />}>
+                <Route path="/lobby" element={<LobbyHostPage />} />
                 <Route element={<MainLayout navItems={navItems} />}>
                   <Route path="/" element={<PortfolioPage />} />
                   <Route path="/variable-income" element={<VariableIncomePage />} />
@@ -67,7 +68,6 @@ export default function App() {
                   <Route path="/strategies" element={<StrategiesPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/statistics" element={<StatisticsPage />} />
-                  <Route path="/lobby/host" element={<LobbyHostPage />} />
                   <Route path="/import-assets" element={<ImportAssetsPage />} />
                 </Route>
               </Route>

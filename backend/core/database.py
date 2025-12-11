@@ -1,14 +1,11 @@
-import os
-
-from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine.url import URL, make_url
 from sqlalchemy.orm import sessionmaker
 
+from backend.config.env_settings import load_env_settings
 from backend.core.logger import setup_logger
 from backend.core.models.models import Base
 
-load_dotenv()
 logger = setup_logger(__name__)
 
 
@@ -45,10 +42,10 @@ def create_database_postgres(url_obj):
 # Factory do Engine
 # -----------------------------------
 def get_engine():
-    pg_url = os.getenv("POSTGRES_DATABASE_URL")
-    sqlite_url = os.getenv(
-        "SQLITE_DATABASE_URL", "sqlite:///./data/simulador_financeiro.db"
-    )
+    settings = load_env_settings()
+
+    pg_url = settings.postgres_url
+    sqlite_url = settings.sqlite_url
 
     # ================================
     # PostgreSQL (prioritário)
