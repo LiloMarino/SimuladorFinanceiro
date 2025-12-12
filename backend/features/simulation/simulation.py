@@ -5,7 +5,6 @@ from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.logger import setup_logger
 from backend.features.realtime import notify
-from backend.features.simulation.entities.portfolio import Portfolio
 from backend.features.simulation.entities.position import Position
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.strategy.manual import ManualStrategy
@@ -24,6 +23,7 @@ class Simulation:
         # Configura os alias
         self.get_cash = self._engine.get_cash
         self.get_fixed_assets = self._engine.fixed_income_market.get_available_assets
+        self.get_portfolio = self._engine.get_portfolio
 
         # Roda o primeiro tick para a inicialização
         self.next_tick()
@@ -74,9 +74,6 @@ class Simulation:
 
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
         return repository.stock.get_stock_details(ticker, self._current_date)
-
-    def get_portfolio(self) -> Portfolio:
-        return self._engine.get_portfolio()
 
     def get_portfolio_ticker(self, ticker: str) -> Position:
         positions = self._engine.get_positions()

@@ -1,8 +1,8 @@
-from collections import defaultdict
 from datetime import datetime
 
-from backend import config
+from backend.core import repository
 from backend.core.dto.stock import StockDTO
+from backend.core.utils.lazy_dict import LazyDict
 from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
 from backend.features.simulation.broker import Broker
@@ -18,8 +18,8 @@ class SimulationEngine:
         self.fixed_broker = FixedBroker(self)
         self.fixed_income_market = FixedIncomeMarket()
         self.data_buffer = DataBuffer()
-        self._cash: dict[str, float] = defaultdict(
-            lambda: config.toml.simulation.starting_cash
+        self._cash: dict[str, float] = LazyDict(
+            lambda client_id: repository.user.get_user_balance(client_id)
         )
         self._strategy = None
 
@@ -55,9 +55,9 @@ class SimulationEngine:
             )
             self.data_buffer.add_candle(candle)
 
-    def get_portfolio(self) -> Portfolio:
+    def get_portfolio(self, client_id: str) -> Portfolio:
         return Portfolio(
-            cash=self._cash,
+            cash=self._cash[client_id],
             variable_income=list(self.broker.get_positions().values()),
             fixed_income=list(self.fixed_broker.get_assets().values()),
             patrimonial_history=[],
