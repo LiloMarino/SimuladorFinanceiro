@@ -2,6 +2,7 @@ from dataclasses import asdict
 
 from flask import Blueprint
 
+from backend.core.decorators.cookie import require_client_id
 from backend.features.simulation import get_simulation
 from backend.routes.helpers import make_response
 
@@ -9,9 +10,10 @@ portfolio_bp = Blueprint("portfolio", __name__)
 
 
 @portfolio_bp.route("/api/portfolio", methods=["GET"])
-def get_portfolio():
+@require_client_id
+def get_portfolio(client_id: str):
     simulation = get_simulation()
-    portfolio_data = simulation.get_portfolio()
+    portfolio_data = simulation.get_portfolio(client_id)
     return make_response(
         True, "Portfolio loaded successfully.", data=asdict(portfolio_data)
     )
@@ -28,9 +30,10 @@ def get_portfolio_ticker(ticker):
 
 
 @portfolio_bp.route("/api/portfolio/cash", methods=["GET"])
-def get_cash():
+@require_client_id
+def get_cash(client_id: str):
     simulation = get_simulation()
-    cash = simulation.get_cash()
+    cash = simulation.get_cash(client_id)
     return make_response(True, "Cash balance loaded successfully.", data={"cash": cash})
 
 

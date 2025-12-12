@@ -61,7 +61,8 @@ def session_me(client_id: str):
 
 
 @auth_bp.route("/api/user/register", methods=["POST"])
-def user_register():
+@require_client_id
+def user_register(client_id: str):
     """
     Cria um usuário para o client_id atual.
     """
@@ -70,10 +71,6 @@ def user_register():
     nickname = data.get("nickname")
     if not nickname:
         return make_response(False, "Nickname is required.", 422)
-
-    client_id = request.cookies.get("client_id")
-    if not client_id:
-        return make_response(False, "Session not initialized.", 401)
 
     # Verificar se já existe usuário com esse nickname
     existing_user = repository.user.get_by_nickname(nickname)
@@ -91,7 +88,8 @@ def user_register():
 
 
 @auth_bp.route("/api/user/claim", methods=["POST"])
-def user_claim():
+@require_client_id
+def user_claim(client_id: str):
     """
     Permite que o usuário recupere seu nickname após limpar navegador.
     """
@@ -100,10 +98,6 @@ def user_claim():
     nickname = data.get("nickname")
     if not nickname:
         return make_response(False, "Nickname is required.", 422)
-
-    client_id = request.cookies.get("client_id")
-    if not client_id:
-        return make_response(False, "Session not initialized.", 401)
 
     # Verificar se nickname existe
     existing_user = repository.user.get_by_nickname(nickname)
