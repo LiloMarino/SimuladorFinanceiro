@@ -3,6 +3,7 @@ import uuid
 from flask import Blueprint, request
 
 from backend.core import repository
+from backend.core.decorators.cookie import require_client_id
 from backend.core.dto.session import SessionDTO
 from backend.routes.helpers import make_response
 
@@ -43,20 +44,8 @@ def session_init():
 
 
 @auth_bp.route("/api/session/me", methods=["GET"])
-def session_me():
-    """
-    Retorna informações da sessão atual.
-    """
-
-    client_id = request.cookies.get("client_id")
-
-    if not client_id:
-        return make_response(
-            False,
-            "Session not initialized.",
-            status_code=401,
-        )
-
+@require_client_id
+def session_me(client_id: str):
     # Busca informações do usuário
     user_dto = repository.user.get_by_client_id(client_id)
     session_dto = SessionDTO(

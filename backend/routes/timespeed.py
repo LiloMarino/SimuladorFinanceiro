@@ -23,10 +23,14 @@ def set_speed():
 
 @timespeed_bp.route("/api/get-simulation-state", methods=["GET"])
 def get_simulation_state():
+    client_id = request.cookies.get("client_id")
+    if not client_id:
+        return make_response(False, "Session not initialized.", 401)
+
     simulation = get_simulation()
     current_date = simulation.get_current_date_formatted()
     speed = simulation.get_speed()
-    cash = simulation.get_cash()
+    cash = simulation.get_cash(client_id)
     return make_response(
         True,
         "Simulation state",

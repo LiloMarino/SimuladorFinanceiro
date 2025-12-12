@@ -1,5 +1,6 @@
 from flask import Flask
 
+from backend.core.decorators.cookie import SessionNotInitializedError
 from backend.core.logger import setup_logger
 from backend.routes.auth import auth_bp
 from backend.routes.helpers import make_response
@@ -27,3 +28,11 @@ def register_routes(app: Flask):
     def handle_error(e):  # type: ignore
         logger.exception(f"{e.__class__.__name__}: {e}")
         return make_response(False, str(e), 500)
+
+    @app.errorhandler(SessionNotInitializedError)
+    def handle_session_not_initialized(e):  # type: ignore
+        return make_response(
+            False,
+            "Session not initialized.",
+            status_code=401,
+        )
