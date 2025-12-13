@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
+from backend.core.decorators.cookie import get_client_id
 from backend.core.logger import setup_logger
 from backend.features.simulation.entities.position import Position
 
@@ -30,10 +31,10 @@ class Broker:
             raise ValueError("Quantidade para compra deve ser maior que zero")
         price = self._get_market_price(ticker)
         cost = price * size
-        if self._simulation_engine.get_cash() < cost:
+        if self._simulation_engine.get_cash(get_client_id()) < cost:
             raise ValueError(f"Saldo insuficiente para comprar {ticker}")
 
-        self._simulation_engine.add_cash(-cost)
+        self._simulation_engine.add_cash(get_client_id(), -cost)
         if ticker not in self._positions:
             self._positions[ticker] = Position(ticker)
         self._positions[ticker].update_buy(price, size)
@@ -53,7 +54,7 @@ class Broker:
             raise ValueError(f"Sem quantidade suficiente de {ticker} para vender")
 
         price = self._get_market_price(ticker)
-        self._simulation_engine.add_cash(price * size)
+        self._simulation_engine.add_cash(get_client_id(), price * size)
         pos.update_sell(size)
 
         if pos.size == 0:

@@ -2,7 +2,7 @@ from collections.abc import Callable
 from functools import wraps
 from typing import Concatenate, ParamSpec, TypeVar
 
-from flask import request
+from flask import g, request
 
 
 class SessionNotInitializedError(Exception):
@@ -30,6 +30,12 @@ def require_client_id(
         if not client_id:
             raise SessionNotInitializedError()
 
+        g.client_id = client_id
+
         return func(client_id, *args, **kwargs)
 
     return wrapper
+
+
+def get_client_id() -> str:
+    return g.client_id
