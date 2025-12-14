@@ -18,8 +18,15 @@ export class SocketClient<
       this.notify(event as keyof TEvents, payload as TEvents[keyof TEvents]);
     });
 
-    this.socket.on("connect", () => console.debug("[SocketClient] connected"));
-    this.socket.on("disconnect", () => console.debug("[SocketClient] disconnected"));
+    this.socket.on("connect", () => {
+      console.debug("[SocketClient] connected");
+      this.setConnected(true);
+    });
+
+    this.socket.on("disconnect", () => {
+      console.debug("[SocketClient] disconnected");
+      this.setConnected(false);
+    });
 
     this.socket.on("subscribed", (payload) => {
       console.debug("[SocketClient] subscription confirmed", payload);

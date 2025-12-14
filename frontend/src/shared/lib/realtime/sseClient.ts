@@ -9,8 +9,12 @@ export class SSEClient<
     if (this.es) return;
 
     // Passa o clientId como query string
-    const fullUrl = `${url}?client_id=${this.clientId}`;
-    this.es = new EventSource(fullUrl);
+    this.es = new EventSource(url);
+
+    this.es.onopen = () => {
+      console.debug("[SSEClient] connected");
+      this.setConnected(true);
+    };
 
     this.es.onmessage = (ev) => {
       try {
@@ -23,7 +27,10 @@ export class SSEClient<
       }
     };
 
-    this.es.onerror = (err) => console.error("[SSEClient] error", err);
+    this.es.onerror = (err) => {
+      console.error("[SSEClient] error", err);
+      this.setConnected(false);
+    };
   }
 
   protected async updateBackendSubscription(): Promise<void> {
@@ -32,7 +39,8 @@ export class SSEClient<
       await fetch("/api/update-subscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ client_id: this.clientId, events }),
+        body: JSON.stringify({ events }),
+        credentials: "include",
       });
     } catch (err) {
       console.error("[SSEClient] failed to update subscription", err);

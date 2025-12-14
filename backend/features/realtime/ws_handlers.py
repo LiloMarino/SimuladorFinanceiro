@@ -45,3 +45,4 @@ def register_ws_handlers(socketio: SocketIO):
         events = data.get("events", [])
         broker.update_subscription(client_id, events)
         emit("subscribed", {"events": events})
+        logger.info(f"WS client subscribed: {client_id} -> {events}")

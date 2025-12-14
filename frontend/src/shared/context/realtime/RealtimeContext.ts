@@ -3,6 +3,7 @@ import type { BaseSubscriberRealtime } from "@/shared/lib/realtime/baseSubscribe
 
 export interface RealtimeContextValue<TEvents extends Record<string, unknown> = Record<string, unknown>> {
   subscriber: BaseSubscriberRealtime<TEvents>;
+  connected: boolean;
 }
 
 export const RealtimeContext = createContext<RealtimeContextValue | null>(null);

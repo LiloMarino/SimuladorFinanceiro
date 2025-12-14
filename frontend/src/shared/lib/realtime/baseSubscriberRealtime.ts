@@ -32,14 +32,46 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
    * A escolha por `Set` evita duplicação de callbacks e facilita a remoção.
    */
   protected listeners = new Map<EventKey<TEvents>, Set<EventCallback<TEvents, EventKey<TEvents>>>>();
-  protected clientId: string = crypto.randomUUID();
 
   /**
-   * Responsável por abrir a conexão com o servidor (ex: via WebSocket ou SSE)
-   * e acionar `notify(event, data)` sempre que uma nova mensagem for recebida.
-   *
-   * @param url - Endereço da fonte de eventos (opcional)
+   * Event listeners para conexão e desconexão.
    */
+  private connected = false;
+  private connectListeners = new Set<() => void>();
+  private disconnectListeners = new Set<() => void>();
+
+  /**
+   *  Registra um callback para ser executado quando o cliente se conectar ao backend.
+   *
+   * @param cb Callback a ser executado
+   */
+  public onConnect(cb: () => void) {
+    this.connectListeners.add(cb);
+  }
+
+  /**
+   * Registra um callback para ser executado quando o cliente se desconectar do backend.
+   *
+   * @param  cb Callback a ser executado
+   */
+  public onDisconnect(cb: () => void) {
+    this.disconnectListeners.add(cb);
+  }
+
+  /**
+   *  Atualiza o status de conexão e avisa todos os listeners de conexão ou desconexão.
+   *
+   *  @param value Novo status
+   */
+  protected setConnected(value: boolean) {
+    if (this.connected === value) return;
+    this.connected = value;
+
+    const listeners = value ? this.connectListeners : this.disconnectListeners;
+
+    listeners.forEach((cb) => cb());
+  }
+
   public abstract connect(url?: string): void;
 
   /**
