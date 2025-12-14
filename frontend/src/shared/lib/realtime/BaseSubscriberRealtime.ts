@@ -1,3 +1,4 @@
+import { isSameSet } from "@/shared/lib/utils";
 import { RealtimeConnectionManager } from "./RealtimeConnectionManager";
 
 /** Representa uma chave válida de evento (ex: "price_update", "user_joined") */
@@ -34,8 +35,21 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
    * A escolha por `Set` evita duplicação de callbacks e facilita a remoção.
    */
   protected listeners = new Map<EventKey<TEvents>, Set<EventCallback<TEvents, EventKey<TEvents>>>>();
+
+  /** Último conjunto de eventos enviado ao backend */
+  private lastSyncedEvents = new Set<EventKey<TEvents>>();
+
+  /** Indica se há atualização pendente */
+  private syncScheduled = false;
+
+  /** Gerenciador de conexão */
   protected readonly connection = new RealtimeConnectionManager();
 
+  /**
+   * Estabelece uma conexão com o backend.
+   *
+   * @param url Endpoint do backend
+   */
   public abstract connect(url?: string): void;
 
   /**
@@ -55,7 +69,7 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
     this.listeners.get(event)?.add(cb as EventCallback<TEvents, EventKey<TEvents>>);
 
     // Atualiza backend sobre os eventos atuais
-    this.updateBackendSubscription();
+    this.scheduleBackendSubscriptionUpdate();
 
     // Retorna função para desinscrição
     return () => this.unsubscribe(event, cb);
@@ -69,10 +83,17 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
    */
   public unsubscribe<K extends EventKey<TEvents>>(event: K, cb: EventCallback<TEvents, K>): void {
     // Remove o callback correspondente do conjunto de ouvintes do evento
-    this.listeners.get(event)?.delete(cb as EventCallback<TEvents, EventKey<TEvents>>);
+    const callbacks = this.listeners.get(event);
+    if (!callbacks) return;
+
+    callbacks.delete(cb as EventCallback<TEvents, EventKey<TEvents>>);
+
+    if (callbacks.size === 0) {
+      this.listeners.delete(event);
+    }
 
     // Atualiza backend sobre os eventos atuais
-    this.updateBackendSubscription();
+    this.scheduleBackendSubscriptionUpdate();
   }
 
   /**
@@ -87,9 +108,37 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
   }
 
   /**
+   * Retorna os eventos que o cliente esta inscrito
+   */
+  protected getSubscribedEvents(): Set<EventKey<TEvents>> {
+    return new Set(this.listeners.keys());
+  }
+
+  /**
    * Informa o backend sobre os eventos que este cliente está inscrito
    */
   protected abstract updateBackendSubscription(): Promise<void>;
+
+  protected scheduleBackendSubscriptionUpdate(): void {
+    if (this.syncScheduled) return;
+
+    this.syncScheduled = true;
+
+    queueMicrotask(async () => {
+      this.syncScheduled = false;
+
+      const currentEvents = this.getSubscribedEvents();
+
+      // Verifica se houve mudança real
+      if (isSameSet(currentEvents, this.lastSyncedEvents)) {
+        return;
+      }
+
+      this.lastSyncedEvents = currentEvents;
+
+      await this.updateBackendSubscription();
+    });
+  }
 
   /**
    *  Registra um callback para ser executado quando o cliente se conectar ao backend.
