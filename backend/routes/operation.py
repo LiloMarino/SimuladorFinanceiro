@@ -1,6 +1,8 @@
 from flask import Blueprint, request
 
+from backend.core.decorators.cookie import require_client_id
 from backend.features.simulation import get_simulation
+from backend.features.simulation.entities.order import OrderAction
 from backend.features.strategy.manual import ManualStrategy
 from backend.routes.helpers import make_response
 
@@ -28,22 +30,24 @@ def get_variable_income_details(asset):
 
 
 @operation_bp.route("/api/variable-income/<string:asset>/buy", methods=["POST"])
-def buy_stock(asset):
+@require_client_id
+def buy_stock(client_id, asset):
     data = request.get_json(silent=True) or {}
     quantity = data.get("quantity")
     if not quantity:
         return make_response(False, "Quantity is required.", 422)
-    ManualStrategy.queue_order("buy", asset, quantity)
+    ManualStrategy.queue_order(client_id, OrderAction.BUY, asset, quantity)
     return make_response(True, "Order queued successfully.")
 
 
 @operation_bp.route("/api/variable-income/<string:asset>/sell", methods=["POST"])
-def sell_stock(asset):
+@require_client_id
+def sell_stock(client_id, asset):
     data = request.get_json(silent=True) or {}
     quantity = data.get("quantity")
     if not quantity:
         return make_response(False, "Quantity is required.", 422)
-    ManualStrategy.queue_order("sell", asset, quantity)
+    ManualStrategy.queue_order(client_id, OrderAction.SELL, asset, quantity)
     return make_response(True, "Order queued successfully.")
 
 

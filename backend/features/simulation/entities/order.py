@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from datetime import datetime
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from enum import Enum
 
 
@@ -23,10 +23,11 @@ class OrderStatus(Enum):
 class Order:
     """Representa uma ordem de compra ou venda executada ou pendente."""
 
+    client_id: str
     ticker: str
     size: int
-    price: float
-    timestamp: datetime
     action: OrderAction
     order_type: OrderType
+    price: float | None = None
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: OrderStatus = OrderStatus.PENDING
