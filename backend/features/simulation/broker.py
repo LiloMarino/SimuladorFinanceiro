@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from backend.core.logger import setup_logger
+from backend.features.simulation.data_buffer import DataBuffer
 from backend.features.simulation.entities.position import Position
 
 if TYPE_CHECKING:
@@ -16,19 +16,24 @@ class Broker:
     def __init__(
         self,
         simulation_engine: SimulationEngine,
-        get_market_price: Callable[[str], float],
     ):
+        self.data_buffer = DataBuffer()
         self._simulation_engine = simulation_engine
         self._positions: dict[str, Position] = {}
-        self._get_market_price = get_market_price
 
     def get_positions(self) -> dict[str, Position]:
         return self._positions
 
+    def get_market_price(self, ticker: str) -> float:
+        candles = self.data_buffer.get_recent(ticker)
+        if not candles:
+            raise ValueError(f"Nenhum preço disponível para {ticker}")
+        return candles[-1].price
+
     def buy(self, client_id: str, ticker: str, size: int):
         if size <= 0:
             raise ValueError("Quantidade para compra deve ser maior que zero")
-        price = self._get_market_price(ticker)
+        price = self.get_market_price(ticker)
         cost = price * size
         if self._simulation_engine.get_cash(client_id) < cost:
             raise ValueError(f"Saldo insuficiente para comprar {ticker}")
@@ -52,7 +57,7 @@ class Broker:
         if pos.size < size:
             raise ValueError(f"Sem quantidade suficiente de {ticker} para vender")
 
-        price = self._get_market_price(ticker)
+        price = self.get_market_price(ticker)
         self._simulation_engine.add_cash(client_id, price * size)
         pos.update_sell(size)
 

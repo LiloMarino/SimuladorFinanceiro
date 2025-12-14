@@ -3,16 +3,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from backend.features.simulation.simulation_engine import SimulationEngine
+    from backend.features.simulation.broker import Broker
 
 
 class BaseStrategy:
     """Classe base para estratégias. Deve ser herdada por todas as estratégias."""
 
-    def __init__(self, engine: SimulationEngine):
-        self.engine = engine
-        self.broker = engine.broker
-        self.data_buffer = engine.data_buffer
+    def __init__(self, broker: Broker):
+        self.broker = broker
+        self.data_buffer = broker.data_buffer
 
     def next(self):
         """Executa a lógica da estratégia a cada tick."""

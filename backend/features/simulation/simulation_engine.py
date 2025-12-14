@@ -6,18 +6,17 @@ from backend.core.utils.lazy_dict import LazyDict
 from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
 from backend.features.simulation.broker import Broker
-from backend.features.simulation.data_buffer import DataBuffer
 from backend.features.simulation.entities.candle import Candle
 from backend.features.simulation.entities.portfolio import Portfolio
 from backend.features.simulation.fixed_broker import FixedBroker
+from backend.features.strategy.base_strategy import BaseStrategy
 
 
 class SimulationEngine:
     def __init__(self):
-        self.broker = Broker(self, self.get_market_price)
+        self.broker = Broker(self)
         self.fixed_broker = FixedBroker(self)
         self.fixed_income_market = FixedIncomeMarket()
-        self.data_buffer = DataBuffer()
         self._cash: dict[str, float] = LazyDict(
             lambda client_id: repository.user.get_user_balance(client_id)
         )
@@ -26,8 +25,8 @@ class SimulationEngine:
         # Configura os alias
         self.get_positions = self.broker.get_positions
 
-    def set_strategy(self, strategy_cls, *args, **kwargs):
-        self._strategy = strategy_cls(self, *args, **kwargs)
+    def set_strategy(self, strategy_cls: type[BaseStrategy], *args, **kwargs):
+        self._strategy = strategy_cls(self.broker, *args, **kwargs)
 
     def get_cash(self, client_id: str) -> float:
         return self._cash[client_id]
@@ -35,12 +34,6 @@ class SimulationEngine:
     def add_cash(self, client_id: str, cash: float):
         self._cash[client_id] += cash
         notify("cash_update", {"cash": self._cash[client_id]})
-
-    def get_market_price(self, ticker: str) -> float:
-        candles = self.data_buffer.get_recent(ticker)
-        if not candles:
-            raise ValueError(f"Nenhum preço disponível para {ticker}")
-        return candles[-1].price
 
     def update_market_data(self, stocks: list[StockDTO]):
         for s in stocks:
@@ -53,7 +46,7 @@ class SimulationEngine:
                 close=s.close,
                 volume=s.volume,
             )
-            self.data_buffer.add_candle(candle)
+            self.broker.data_buffer.add_candle(candle)
 
     def get_portfolio(self, client_id: str) -> Portfolio:
         return Portfolio(
