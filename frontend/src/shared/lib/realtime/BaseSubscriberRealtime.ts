@@ -1,3 +1,5 @@
+import { RealtimeConnectionManager } from "./RealtimeConnectionManager";
+
 /** Representa uma chave válida de evento (ex: "price_update", "user_joined") */
 type EventKey<T> = keyof T;
 
@@ -32,45 +34,7 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
    * A escolha por `Set` evita duplicação de callbacks e facilita a remoção.
    */
   protected listeners = new Map<EventKey<TEvents>, Set<EventCallback<TEvents, EventKey<TEvents>>>>();
-
-  /**
-   * Event listeners para conexão e desconexão.
-   */
-  private connected = false;
-  private connectListeners = new Set<() => void>();
-  private disconnectListeners = new Set<() => void>();
-
-  /**
-   *  Registra um callback para ser executado quando o cliente se conectar ao backend.
-   *
-   * @param cb Callback a ser executado
-   */
-  public onConnect(cb: () => void) {
-    this.connectListeners.add(cb);
-  }
-
-  /**
-   * Registra um callback para ser executado quando o cliente se desconectar do backend.
-   *
-   * @param  cb Callback a ser executado
-   */
-  public onDisconnect(cb: () => void) {
-    this.disconnectListeners.add(cb);
-  }
-
-  /**
-   *  Atualiza o status de conexão e avisa todos os listeners de conexão ou desconexão.
-   *
-   *  @param value Novo status
-   */
-  protected setConnected(value: boolean) {
-    if (this.connected === value) return;
-    this.connected = value;
-
-    const listeners = value ? this.connectListeners : this.disconnectListeners;
-
-    listeners.forEach((cb) => cb());
-  }
+  protected readonly connection = new RealtimeConnectionManager();
 
   public abstract connect(url?: string): void;
 
@@ -126,4 +90,31 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
    * Informa o backend sobre os eventos que este cliente está inscrito
    */
   protected abstract updateBackendSubscription(): Promise<void>;
+
+  /**
+   *  Registra um callback para ser executado quando o cliente se conectar ao backend.
+   *
+   * @param cb Callback a ser executado
+   */
+  public onConnect(cb: () => void) {
+    return this.connection.onConnect(cb);
+  }
+
+  /**
+   * Registra um callback para ser executado quando o cliente se desconectar do backend.
+   *
+   * @param  cb Callback a ser executado
+   */
+  public onDisconnect(cb: () => void) {
+    return this.connection.onDisconnect(cb);
+  }
+
+  /**
+   *  Atualiza o status de conexão e avisa todos os listeners de conexão ou desconexão.
+   *
+   *  @param value Novo status
+   */
+  protected setConnected(value: boolean) {
+    this.connection.setConnected(value);
+  }
 }

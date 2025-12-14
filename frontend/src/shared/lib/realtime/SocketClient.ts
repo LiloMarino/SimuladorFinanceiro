@@ -1,5 +1,5 @@
 import { io, type Socket } from "socket.io-client";
-import { BaseSubscriberRealtime } from "./baseSubscriberRealtime";
+import { BaseSubscriberRealtime } from "./BaseSubscriberRealtime";
 
 export class SocketClient<
   TEvents extends Record<string, unknown> = Record<string, unknown>

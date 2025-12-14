@@ -1,4 +1,4 @@
-import { BaseSubscriberRealtime } from "./baseSubscriberRealtime";
+import { BaseSubscriberRealtime } from "./BaseSubscriberRealtime";
 
 export class SSEClient<
   TEvents extends Record<string, unknown> = Record<string, unknown>

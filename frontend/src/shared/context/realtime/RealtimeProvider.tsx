@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { SSEClient } from "@/shared/lib/realtime/sseClient";
-import { SocketClient } from "@/shared/lib/realtime/socketClient";
+import { SSEClient } from "@/shared/lib/realtime/SSEClient";
+import { SocketClient } from "@/shared/lib/realtime/SocketClient";
 import { RealtimeContext } from "./RealtimeContext";
 
 type Mode = "sse" | "ws";
