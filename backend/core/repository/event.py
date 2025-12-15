@@ -43,7 +43,7 @@ class EventRepository:
             )
             for e in cashflow_events
         ]
-        session.bulk_save_objects(cashflow_models)
+        session.add_all(cashflow_models)
 
     def _insert_equities(
         self, session: Session, equity_events: list[EquityEventDTO]
@@ -60,7 +60,7 @@ class EventRepository:
             )
             for e in equity_events
         ]
-        session.bulk_save_objects(equity_models)
+        session.add_all(equity_models)
 
     def _insert_fixed_income(
         self, session: Session, fixed_income_events: list[FixedIncomeEventDTO]
@@ -76,4 +76,4 @@ class EventRepository:
             )
             for e in fixed_income_events
         ]
-        session.bulk_save_objects(fixed_income_models)
+        session.add_all(fixed_income_models)
