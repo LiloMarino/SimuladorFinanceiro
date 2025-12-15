@@ -1,7 +1,11 @@
 from datetime import datetime
+from decimal import Decimal
 
 from backend.core import repository
+from backend.core.dto.events.cashflow import CashflowEventDTO, CashflowEventType
 from backend.core.dto.stock import StockDTO
+from backend.core.runtime.event_manager import EventManager
+from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
@@ -17,8 +21,8 @@ class SimulationEngine:
         self.broker = Broker(self)
         self.fixed_broker = FixedBroker(self)
         self.fixed_income_market = FixedIncomeMarket()
-        self._cash: dict[str, float] = LazyDict(
-            lambda client_id: repository.user.get_user_balance(client_id)
+        self._cash: LazyDict[str, float] = LazyDict(
+            loader=repository.user.get_user_balance
         )
         self._strategy = None
 
@@ -33,6 +37,16 @@ class SimulationEngine:
 
     def add_cash(self, client_id: str, cash: float):
         self._cash[client_id] += cash
+        EventManager.push_event(
+            CashflowEventDTO(
+                user_id=UserManager.get_user_id(client_id),
+                event_type=CashflowEventType.DEPOSIT
+                if cash > 0
+                else CashflowEventType.WITHDRAW,
+                amount=Decimal(cash),
+                event_date=datetime.now().date(),
+            )
+        )
         notify("cash_update", {"cash": self._cash[client_id]})
 
     def update_market_data(self, stocks: list[StockDTO]):
