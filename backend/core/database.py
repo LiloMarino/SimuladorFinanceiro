@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine.url import URL, make_url
 from sqlalchemy.orm import sessionmaker
 
-from backend.config.env_settings import load_env_settings
+from backend import config
 from backend.core.logger import setup_logger
 from backend.core.models.models import Base
 
@@ -44,10 +44,8 @@ def create_database_postgres(url_obj):
 # Factory do Engine
 # -----------------------------------
 def get_engine():
-    settings = load_env_settings()
-
-    pg_url = settings.postgres_url
-    sqlite_url = settings.sqlite_url
+    pg_url = config.env.postgres_url
+    sqlite_url = config.env.sqlite_url
 
     # ================================
     # PostgreSQL (prioritário)
@@ -58,7 +56,9 @@ def get_engine():
 
             create_database_postgres(url_obj)
 
-            engine = create_engine(pg_url, pool_pre_ping=True)
+            engine = create_engine(
+                pg_url, pool_pre_ping=True, echo=config.toml.database.echo_sql
+            )
             Base.metadata.create_all(engine)
 
             logger.info("Conectado ao PostgreSQL.")

@@ -11,6 +11,10 @@ logger = setup_logger(__package__ if __package__ else __name__)
 CONFIG_PATH = Path("config.toml")
 
 
+class DatabaseConfig(BaseModel):
+    echo_sql: bool = False
+
+
 class SimulationConfig(BaseModel):
     starting_cash: int = 10000
 
@@ -20,6 +24,7 @@ class RealtimeConfig(BaseModel):
 
 
 class TomlSettings(BaseModel):
+    database: DatabaseConfig = DatabaseConfig()
     simulation: SimulationConfig = SimulationConfig()
     realtime: RealtimeConfig = RealtimeConfig()
 
