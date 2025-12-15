@@ -2,8 +2,8 @@ from flask import request
 from flask_socketio import SocketIO, emit
 
 from backend.core.logger import setup_logger
+from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import get_socket_broker
-from backend.features.users.user_manager import UserManager
 
 logger = setup_logger(__name__)
 

@@ -7,7 +7,7 @@ from threading import Lock
 from flask import Response, request, stream_with_context
 
 from backend.core.logger import setup_logger
-from backend.features.users.user_manager import UserManager
+from backend.core.runtime.user_manager import UserManager
 from backend.types import ClientID, Event, JSONValue
 
 from .realtime_broker import RealtimeBroker
