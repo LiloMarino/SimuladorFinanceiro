@@ -43,7 +43,7 @@ class SimulationEngine:
                 event_type=CashflowEventType.DEPOSIT
                 if cash > 0
                 else CashflowEventType.WITHDRAW,
-                amount=Decimal(cash),
+                amount=Decimal(abs(cash)),
                 event_date=datetime.now().date(),
             )
         )
