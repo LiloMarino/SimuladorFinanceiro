@@ -4,6 +4,7 @@ from backend.core import repository
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.logger import setup_logger
+from backend.core.runtime.event_manager import EventManager
 from backend.features.realtime import notify
 from backend.features.simulation.entities.position import Position
 from backend.features.simulation.simulation_engine import SimulationEngine
@@ -19,6 +20,9 @@ class Simulation:
         self._end_date = end_date
         self._engine = SimulationEngine()
         self._engine.set_strategy(ManualStrategy)
+
+        # Controle de snapshot
+        self._last_snapshot_month: tuple[int, int] | None = None
 
         # Configura os alias
         self.get_cash = self._engine.get_cash
@@ -49,13 +53,18 @@ class Simulation:
         # Executa a estratégia
         self._engine.next(self._current_date)
 
-        logger.info(f"Dia atual: {self.get_current_date_formatted()}")
+        # Persiste os eventos
+        EventManager.flush()
+
+        # Cria snapshot mensal
+        if self._has_month_changed():
+            repository.snapshot.create_snapshot(self._current_date)
 
         # Emite notificações
+        logger.info(f"Dia atual: {self.get_current_date_formatted()}")
         for stock in stocks:
             ticker = stock.ticker
             notify(f"stock_update:{ticker}", {"stock": stock.to_json()})
-
         notify("simulation_update", {"currentDate": self.get_current_date_formatted()})
         notify("stocks_update", {"stocks": [s.to_json() for s in stocks]})
 
@@ -91,3 +100,12 @@ class Simulation:
             "selic": repository.economic.get_selic_rate(self._current_date),
             "cdi": repository.economic.get_cdi_rate(self._current_date),
         }
+
+    def _has_month_changed(self) -> bool:
+        current_month = (self._current_date.year, self._current_date.month)
+
+        if self._last_snapshot_month != current_month:
+            self._last_snapshot_month = current_month
+            return True
+
+        return False
