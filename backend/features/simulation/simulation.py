@@ -18,7 +18,7 @@ class Simulation:
         self._speed = 0
         self._current_date = start_date - timedelta(days=1)
         self._end_date = end_date
-        self._engine = SimulationEngine()
+        self._engine = SimulationEngine(self._current_date)
         self._engine.set_strategy(ManualStrategy)
 
         # Controle de snapshot

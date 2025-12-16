@@ -17,7 +17,7 @@ from backend.features.strategy.base_strategy import BaseStrategy
 
 
 class SimulationEngine:
-    def __init__(self):
+    def __init__(self, current_date):
         self.broker = Broker(self)
         self.fixed_broker = FixedBroker(self)
         self.fixed_income_market = FixedIncomeMarket()
@@ -25,6 +25,7 @@ class SimulationEngine:
             loader=repository.user.get_user_balance
         )
         self._strategy = None
+        self.current_date: datetime = current_date
 
         # Configura os alias
         self.get_positions = self.broker.get_positions
@@ -44,7 +45,7 @@ class SimulationEngine:
                 if cash > 0
                 else CashflowEventType.WITHDRAW,
                 amount=Decimal(abs(cash)),
-                event_date=datetime.now().date(),
+                event_date=self.current_date.date(),
             )
         )
         notify("cash_update", {"cash": self._cash[client_id]})
@@ -71,6 +72,8 @@ class SimulationEngine:
         )
 
     def next(self, current_date: datetime):
+        self.current_date = current_date
+
         self.fixed_income_market.refresh_assets(current_date)
 
         # Aplica juros dos ativos de renda fixa

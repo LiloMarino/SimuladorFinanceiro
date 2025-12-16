@@ -7,7 +7,12 @@ from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.events.fixed_income import FixedIncomeEventDTO
-from backend.core.models.models import EventCashflow, EventEquity, EventFixedIncome
+from backend.core.models.models import (
+    EventCashflow,
+    EventEquity,
+    EventFixedIncome,
+    Stock,
+)
 
 
 class EventRepository:
@@ -48,10 +53,15 @@ class EventRepository:
     def _insert_equities(
         self, session: Session, equity_events: list[EquityEventDTO]
     ) -> None:
+        tickers = {e.ticker for e in equity_events}
+
+        stocks = session.query(Stock).filter(Stock.ticker.in_(tickers)).all()
+        stock_map = {s.ticker: s.id for s in stocks}
+
         equity_models = [
             EventEquity(
                 user_id=e.user_id,
-                stock_id=e.stock_id,
+                stock_id=stock_map[e.ticker],
                 event_type=e.event_type.value,
                 quantity=e.quantity,
                 price=e.price,

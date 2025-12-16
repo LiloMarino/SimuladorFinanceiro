@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
+from backend.core.dto.events.equity import EquityEventDTO, EquityEventType
 from backend.core.logger import setup_logger
+from backend.core.runtime.event_manager import EventManager
+from backend.core.runtime.user_manager import UserManager
 from backend.features.simulation.data_buffer import DataBuffer
 from backend.features.simulation.entities.position import Position
 
@@ -42,6 +46,16 @@ class Broker:
         if ticker not in self._positions:
             self._positions[ticker] = Position(ticker)
         self._positions[ticker].update_buy(price, size)
+        EventManager.push_event(
+            EquityEventDTO(
+                user_id=UserManager.get_user_id(client_id),
+                event_type=EquityEventType.BUY,
+                ticker=ticker,
+                quantity=size,
+                price=Decimal(price),
+                event_date=self._simulation_engine.current_date.date(),
+            )
+        )
         logger.info(
             f"Executado compra {size}x {ticker} (a mercado) no preço R$ {price}"
         )
@@ -60,7 +74,16 @@ class Broker:
         price = self.get_market_price(ticker)
         self._simulation_engine.add_cash(client_id, price * size)
         pos.update_sell(size)
-
+        EventManager.push_event(
+            EquityEventDTO(
+                user_id=UserManager.get_user_id(client_id),
+                event_type=EquityEventType.SELL,
+                ticker=ticker,
+                quantity=size,
+                price=Decimal(price),
+                event_date=self._simulation_engine.current_date.date(),
+            )
+        )
         if pos.size == 0:
             del self._positions[ticker]
         logger.info(f"Executado venda {size}x {ticker} (a mercado) no preço R$ {price}")

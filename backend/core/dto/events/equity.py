@@ -12,7 +12,7 @@ class EquityEventType(Enum):
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class EquityEventDTO(BaseEventDTO):
-    stock_id: int
+    ticker: str
     event_type: EquityEventType
     quantity: int
     price: Decimal
