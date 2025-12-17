@@ -1,6 +1,8 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
+from line_profiler import profile
+from sqlalchemy import Case, func
 from sqlalchemy.orm import Session
 
 from backend import config
@@ -61,11 +63,12 @@ class UserRepository:
         )
 
     @transactional
+    @profile
     def get_user_balance(self, session: Session, client_id: str) -> float:
         user = session.query(Users).filter_by(client_id=client_id).one()
         user_id = user.id
 
-        # Busca o último snapshot
+        # Último snapshot
         last_snapshot = (
             session.query(Snapshots)
             .filter_by(user_id=user_id)
@@ -73,37 +76,30 @@ class UserRepository:
             .first()
         )
 
-        if last_snapshot:
-            # Começamos a partir do valor do snapshot
-            balance = float(last_snapshot.total_cash)
+        balance = float(last_snapshot.total_cash) if last_snapshot else 0.0
+        snapshot_date = last_snapshot.snapshot_date if last_snapshot else None
 
-            snapshot_date = last_snapshot.snapshot_date
+        # Soma eventos após snapshot
+        event_sum_query = session.query(
+            func.coalesce(
+                func.sum(
+                    Case(
+                        (EventCashflow.event_type == "DEPOSIT", EventCashflow.amount),
+                        (EventCashflow.event_type == "DIVIDEND", EventCashflow.amount),
+                        (EventCashflow.event_type == "WITHDRAW", -EventCashflow.amount),
+                        else_=0,
+                    )
+                ),
+                0,
+            )
+        ).filter(EventCashflow.user_id == user_id)
 
-            # Buscar apenas eventos depois do snapshot
-            events = (
-                session.query(EventCashflow)
-                .filter(
-                    EventCashflow.user_id == user_id,
-                    EventCashflow.event_date > snapshot_date,
-                )
-                .all()
+        if snapshot_date:
+            event_sum_query = event_sum_query.filter(
+                EventCashflow.event_date > snapshot_date
             )
 
-        else:
-            # Nenhum snapshot -> reconstrução completa desde o início
-            balance = 0.0
-            events = session.query(EventCashflow).filter_by(user_id=user_id).all()
-
-        # Aplicar todos os eventos selecionados
-        for e in events:
-            amt = float(e.amount)
-
-            if e.event_type == "DEPOSIT":
-                balance += amt
-            elif e.event_type == "WITHDRAW":
-                balance -= amt
-            elif e.event_type == "DIVIDEND":
-                balance += amt
+        balance += float(event_sum_query.scalar())
 
         return balance
 
