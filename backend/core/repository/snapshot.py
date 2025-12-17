@@ -1,7 +1,7 @@
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
-from sqlalchemy import func, select
+from sqlalchemy import Case, func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -52,7 +52,7 @@ class SnapshotRepository:
                 select(
                     func.coalesce(
                         func.sum(
-                            func.case(
+                            Case(
                                 (
                                     EventCashflow.event_type == "DEPOSIT",
                                     EventCashflow.amount,
@@ -85,7 +85,7 @@ class SnapshotRepository:
                 select(
                     func.coalesce(
                         func.sum(
-                            func.case(
+                            Case(
                                 (
                                     EventEquity.event_type == "BUY",
                                     EventEquity.quantity * EventEquity.price,
@@ -114,7 +114,7 @@ class SnapshotRepository:
                 select(
                     func.coalesce(
                         func.sum(
-                            func.case(
+                            Case(
                                 (
                                     EventFixedIncome.event_type == "BUY",
                                     EventFixedIncome.amount,
