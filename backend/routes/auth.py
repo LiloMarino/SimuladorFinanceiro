@@ -5,6 +5,7 @@ from flask import Blueprint, request
 from backend.core import repository
 from backend.core.decorators.cookie import require_client_id
 from backend.core.dto.session import SessionDTO
+from backend.features.simulation import get_simulation
 from backend.routes.helpers import make_response
 
 auth_bp = Blueprint("auth", __name__)
@@ -78,7 +79,8 @@ def user_register(client_id: str):
         return make_response(False, "User already registered for this client.", 409)
 
     # Cria novo usuário
-    new_user = repository.user.create_user(client_id, nickname)
+    simulation = get_simulation()
+    new_user = simulation.create_user(client_id, nickname)
 
     return make_response(
         True,

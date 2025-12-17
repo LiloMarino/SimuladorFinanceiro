@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from backend.core import repository
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
+from backend.core.dto.user import UserDTO
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.features.realtime import notify
@@ -70,6 +71,9 @@ class Simulation:
 
     def get_current_date_formatted(self) -> str:
         return self._current_date.strftime("%d/%m/%Y")
+
+    def create_user(self, client_id: str, nickname: str) -> UserDTO:
+        return repository.user.create_user(client_id, nickname, self._current_date)
 
     def set_speed(self, speed: int):
         logger.info(f"Velocidade da simulação alterada para {speed}x")
