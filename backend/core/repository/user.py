@@ -1,7 +1,8 @@
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
+from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import Case, func
+from sqlalchemy import Case, func, select
 from sqlalchemy.orm import Session
 
 from backend import config
@@ -63,43 +64,65 @@ class UserRepository:
 
     @transactional
     def get_user_balance(self, session: Session, client_id: str) -> float:
-        user = session.query(Users).filter_by(client_id=client_id).one()
-        user_id = user.id
+        # --------------------------------------------------
+        # 1. Usuário
+        # --------------------------------------------------
+        user = session.execute(
+            select(Users).where(Users.client_id == client_id)
+        ).scalar_one()
 
-        # Último snapshot
-        last_snapshot = (
-            session.query(Snapshots)
-            .filter_by(user_id=user_id)
+        snapshot_date: date | None = None
+
+        # --------------------------------------------------
+        # 2. Último snapshot
+        # --------------------------------------------------
+        last_snapshot = session.execute(
+            select(Snapshots)
+            .where(Snapshots.user_id == user.id)
             .order_by(Snapshots.snapshot_date.desc())
-            .first()
-        )
+            .limit(1)
+        ).scalar_one_or_none()
 
-        balance = float(last_snapshot.total_cash) if last_snapshot else 0.0
-        snapshot_date = last_snapshot.snapshot_date if last_snapshot else None
+        if last_snapshot:
+            base_cash = last_snapshot.total_cash
+            snapshot_date = last_snapshot.snapshot_date
+        else:
+            base_cash = Decimal("0")
 
-        # Soma eventos após snapshot
-        event_sum_query = session.query(
-            func.coalesce(
-                func.sum(
-                    Case(
-                        (EventCashflow.event_type == "DEPOSIT", EventCashflow.amount),
-                        (EventCashflow.event_type == "DIVIDEND", EventCashflow.amount),
-                        (EventCashflow.event_type == "WITHDRAW", -EventCashflow.amount),
-                        else_=0,
-                    )
-                ),
-                0,
+        # --------------------------------------------------
+        # 3. CASHFLOW incremental
+        # --------------------------------------------------
+        cash_delta = session.execute(
+            select(
+                func.coalesce(
+                    func.sum(
+                        Case(
+                            (
+                                EventCashflow.event_type == "DEPOSIT",
+                                EventCashflow.amount,
+                            ),
+                            (
+                                EventCashflow.event_type == "DIVIDEND",
+                                EventCashflow.amount,
+                            ),
+                            (
+                                EventCashflow.event_type == "WITHDRAW",
+                                -EventCashflow.amount,
+                            ),
+                            else_=Decimal("0"),
+                        )
+                    ),
+                    0,
+                )
+            ).where(
+                EventCashflow.user_id == user.id,
+                *([EventCashflow.event_date > snapshot_date] if snapshot_date else []),
             )
-        ).filter(EventCashflow.user_id == user_id)
+        ).scalar_one()
 
-        if snapshot_date:
-            event_sum_query = event_sum_query.filter(
-                EventCashflow.event_date > snapshot_date
-            )
+        total_cash = base_cash + Decimal(cash_delta)
 
-        balance += float(event_sum_query.scalar())
-
-        return balance
+        return float(total_cash)
 
     @transactional
     def update_client_id(
