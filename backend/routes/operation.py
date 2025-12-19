@@ -68,3 +68,20 @@ def get_fixed_income_details(asset_uuid):
     if not fixed:
         return make_response(False, "Asset not found.", 404)
     return make_response(True, "Asset details loaded.", data=fixed)
+
+
+@operation_bp.route("/api/fixed-income/<string:asset_uuid>/buy", methods=["POST"])
+@require_client_id
+def buy_fixed_income(client_id, asset_uuid):
+    simulation = get_simulation()
+    fixed = simulation.get_fixed_asset(asset_uuid)
+    if not fixed:
+        return make_response(False, "Asset not found.", 404)
+
+    data = request.get_json(silent=True) or {}
+    quantity = data.get("quantity")
+    if not quantity:
+        return make_response(False, "Quantity is required.", 422)
+
+    # TODO: implement fixed-income buying
+    return make_response(True, "Asset details loaded.", data=fixed)

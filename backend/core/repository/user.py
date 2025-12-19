@@ -1,7 +1,6 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from line_profiler import profile
 from sqlalchemy import Case, func
 from sqlalchemy.orm import Session
 
@@ -63,7 +62,6 @@ class UserRepository:
         )
 
     @transactional
-    @profile
     def get_user_balance(self, session: Session, client_id: str) -> float:
         user = session.query(Users).filter_by(client_id=client_id).one()
         user_id = user.id

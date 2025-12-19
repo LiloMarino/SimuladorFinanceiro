@@ -19,14 +19,14 @@ class FixedBroker:
         self._simulation_engine = simulation_engine
         self._assets: dict[str, FixedIncomeAsset] = {}
 
-    def invest(self, asset: FixedIncomeAsset, value: float):
+    def buy(self, client_id: str, asset: FixedIncomeAsset, value: float):
         if value <= 0:
             raise ValueError("Valor do investimento deve ser maior que zero")
 
-        if self._simulation_engine.get_cash() < value:
+        if self._simulation_engine.get_cash(client_id) < value:
             raise ValueError(f"Saldo insuficiente para investir em {asset.name}")
 
-        self._simulation_engine.add_cash(-value)
+        self._simulation_engine.add_cash(client_id, -value)
 
         if asset.name in self._assets:
             self._assets[asset.name].invested_amount += value
