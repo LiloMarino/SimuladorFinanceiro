@@ -1,7 +1,7 @@
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
-from sqlalchemy import Case, func, select
+from sqlalchemy import Case, func, select, true
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -10,6 +10,7 @@ from backend.core.models.models import (
     EventEquity,
     EventFixedIncome,
     Snapshots,
+    StockPriceHistory,
     Users,
 )
 
@@ -36,12 +37,10 @@ class SnapshotRepository:
 
             if last_snapshot:
                 base_cash = last_snapshot.total_cash
-                base_equity = last_snapshot.total_equity
                 base_fixed = last_snapshot.total_fixed
                 from_date = last_snapshot.snapshot_date
             else:
                 base_cash = Decimal("0")
-                base_equity = Decimal("0")
                 base_fixed = Decimal("0")
                 from_date = None
 
@@ -79,33 +78,50 @@ class SnapshotRepository:
             total_cash = base_cash + Decimal(cash_delta)
 
             # --------------------------------------------------
-            # 3. EQUITY (incremental)
+            # 3. EQUITY (MARK-TO-MARKET)
             # --------------------------------------------------
-            equity_delta = session.execute(
+            positions = (
                 select(
-                    func.coalesce(
-                        func.sum(
-                            Case(
-                                (
-                                    EventEquity.event_type == "BUY",
-                                    EventEquity.quantity * EventEquity.price,
-                                ),
-                                (
-                                    EventEquity.event_type == "SELL",
-                                    -EventEquity.quantity * EventEquity.price,
-                                ),
-                                else_=Decimal("0"),
-                            )
-                        ),
-                        0,
-                    )
-                ).where(
+                    EventEquity.stock_id,
+                    func.sum(
+                        Case(
+                            (EventEquity.event_type == "BUY", EventEquity.quantity),
+                            (EventEquity.event_type == "SELL", -EventEquity.quantity),
+                            else_=0,
+                        )
+                    ).label("quantity"),
+                )
+                .where(
                     EventEquity.user_id == user.id,
                     EventEquity.event_date <= snapshot_date,
-                    *([EventEquity.event_date > from_date] if from_date else []),
                 )
-            ).scalar_one()
-            total_equity = base_equity + Decimal(equity_delta)
+                .group_by(EventEquity.stock_id)
+            ).subquery()
+
+            price_lateral = (
+                select(StockPriceHistory.close)
+                .where(
+                    StockPriceHistory.stock_id == positions.c.stock_id,
+                    StockPriceHistory.price_date <= snapshot_date,
+                )
+                .order_by(StockPriceHistory.price_date.desc())
+                .limit(1)
+                .lateral()
+            )
+
+            total_equity = Decimal(
+                session.execute(
+                    select(
+                        func.coalesce(
+                            func.sum(positions.c.quantity * price_lateral.c.close),
+                            0,
+                        )
+                    )
+                    .select_from(positions)
+                    .join(price_lateral, true())
+                    .where(positions.c.quantity != 0)
+                ).scalar_one()
+            )
 
             # --------------------------------------------------
             # 4. FIXED INCOME (incremental)
