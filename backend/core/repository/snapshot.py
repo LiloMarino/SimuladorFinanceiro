@@ -28,12 +28,7 @@ class SnapshotRepository:
             # --------------------------------------------------
             # 1. Buscar último snapshot
             # --------------------------------------------------
-            last_snapshot = session.execute(
-                select(Snapshots)
-                .where(Snapshots.user_id == user.id)
-                .order_by(Snapshots.snapshot_date.desc())
-                .limit(1)
-            ).scalar_one_or_none()
+            last_snapshot = self.get_last_snapshot(session, user.id)
 
             if last_snapshot:
                 base_cash = last_snapshot.total_cash
@@ -170,3 +165,12 @@ class SnapshotRepository:
                 created_at=datetime.now(UTC),
             )
             session.merge(snapshot)
+
+    def get_last_snapshot(self, session: Session, user_id: int):
+        snapshot = session.execute(
+            select(Snapshots)
+            .where(Snapshots.user_id == user_id)
+            .order_by(Snapshots.snapshot_date.desc())
+            .limit(1)
+        ).scalar_one_or_none()
+        return snapshot

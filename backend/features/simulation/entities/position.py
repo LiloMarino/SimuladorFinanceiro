@@ -7,16 +7,20 @@ class Position:
 
     ticker: str
     size: int = 0
-    avg_price: float = 0.0
+    total_cost: float = 0
+
+    @property
+    def avg_price(self) -> float:
+        return self.total_cost / self.size if self.size > 0 else 0.0
 
     def update_buy(self, price: float, size: int):
         """Atualiza posição após uma compra."""
-        total_cost = self.avg_price * self.size + price * size
+        self.total_cost += price * size
         self.size += size
-        self.avg_price = total_cost / self.size
 
     def update_sell(self, size: int):
         """Atualiza posição após uma venda."""
+        self.total_cost -= self.avg_price * size
         self.size -= size
         if self.size < 0:
             raise ValueError("Venda excede posição disponível.")
