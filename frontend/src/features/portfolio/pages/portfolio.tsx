@@ -11,7 +11,7 @@ import { formatMoney } from "@/shared/lib/utils/formatting";
 import { Link } from "react-router-dom";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { SummaryCard } from "@/features/portfolio/components/summary-card";
-
+import { PortfolioCharts } from "../components/portfolio-charts";
 export default function PortfolioPage() {
   usePageLabel("Carteira");
   // Busca dados da carteira
@@ -75,6 +75,10 @@ export default function PortfolioPage() {
   const fixedIncomePct = ((fixedIncomeValue / portfolioValue) * 100).toFixed(1);
   const dividend = 0; // ❌ Não é possível inferir com os dados atuais
   const portfolioPct = 0; // ❌ Não é possível inferir com os dados atuais
+  const pieData = variablePositions.map((pos) => ({
+    name: pos.ticker,
+    value: pos.currentValue,
+  }));
 
   console.log(portfolioData);
 
@@ -116,22 +120,8 @@ export default function PortfolioPage() {
         />
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h3 className="font-semibold">Evolução do Patrimônio</h3>
-          <div className="h-64 bg-gray-100 rounded flex items-center justify-center">
-            <p className="text-gray-500">Gráfico de evolução do patrimônio</p>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="font-semibold">Distribuição da Carteira</h3>
-          <div className="h-64 bg-gray-100 rounded flex items-center justify-center">
-            <p className="text-gray-500">Gráfico de distribuição por setor/ativo</p>
-          </div>
-        </Card>
-      </div>
+      {/* Charts */}
+      <PortfolioCharts pieData={pieData} />
 
       {/* Economic Indicators */}
       <Card className="p-6">
