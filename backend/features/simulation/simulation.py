@@ -7,6 +7,7 @@ from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
+from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.strategy.manual import ManualStrategy
@@ -59,7 +60,18 @@ class Simulation:
 
         # Cria snapshot mensal
         if self._has_month_changed():
-            repository.snapshot.create_snapshot(self._current_date)
+            users = repository.user.get_all_users()
+            for user in users:
+                snapshot = repository.snapshot.create_snapshot(
+                    user_id=user.id,
+                    current_date=self._current_date,
+                )
+
+                notify(
+                    event="snapshot_update",
+                    payload={"snapshot": snapshot.to_json()},
+                    to=str(user.client_id),
+                )
 
         # Emite notificações
         logger.info(f"Dia atual: {self.get_current_date_formatted()}")

@@ -124,6 +124,19 @@ class UserRepository:
         return float(total_cash)
 
     @transactional
+    def get_all_users(self, session: Session) -> list[UserDTO]:
+        users = session.execute(select(Users)).scalars().all()
+
+        return [
+            UserDTO(
+                id=user.id,
+                client_id=user.client_id,
+                nickname=user.nickname,
+            )
+            for user in users
+        ]
+
+    @transactional
     def update_client_id(
         self, session: Session, user_id: int, new_client_id: UUID
     ) -> UserDTO:
