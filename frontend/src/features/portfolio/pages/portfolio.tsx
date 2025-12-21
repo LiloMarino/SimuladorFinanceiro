@@ -15,7 +15,37 @@ import { PortfolioCharts } from "../components/portfolio-charts";
 export default function PortfolioPage() {
   usePageLabel("Carteira");
   // Busca dados da carteira
-  const { data: portfolioData, loading: portfolioLoading } = useQueryApi<PortfolioState>("/api/portfolio");
+  const {
+    data: portfolioData,
+    setData: setPortfolioData,
+    loading: portfolioLoading,
+  } = useQueryApi<PortfolioState>("/api/portfolio");
+
+  // Atualiza o histórico patrimonial em tempo real
+  useRealtime("snapshot_update", ({ snapshot }) => {
+    setPortfolioData((prev) => {
+      if (!prev) return prev;
+
+      // evita duplicação
+      const exists = prev.patrimonial_history.some((h) => h.snapshot_date === snapshot.snapshot_date);
+
+      if (exists) return prev;
+
+      return {
+        ...prev,
+        patrimonial_history: [
+          ...prev.patrimonial_history,
+          {
+            snapshot_date: snapshot.snapshot_date,
+            total_networth: snapshot.total_networth,
+            total_equity: snapshot.total_equity,
+            total_fixed: snapshot.total_fixed,
+            total_cash: snapshot.total_cash,
+          },
+        ],
+      };
+    });
+  });
 
   // Busca dados econômicos
   const { data: economicIndicatorsData, loading: economicIndicatorsLoading } =

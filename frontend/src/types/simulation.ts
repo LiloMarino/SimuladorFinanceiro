@@ -1,4 +1,5 @@
 import type { FixedIncomeAssetApi } from "./fixed-income";
+import type { Snapshot } from "./snapshot";
 import type { Stock } from "./stock";
 
 /** Eventos emitidos pelo servidor via WebSocket ou SSE */
@@ -8,6 +9,7 @@ export type SimulationEvents = {
   cash_update: { cash: number };
   stocks_update: { stocks: Stock[] };
   fixed_assets_update: { assets: FixedIncomeAssetApi[] };
+  snapshot_update: { snapshot: Snapshot };
 } & {
   [K in `stock_update:${string}`]: { stock: Stock };
 };
