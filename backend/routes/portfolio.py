@@ -1,5 +1,3 @@
-from dataclasses import asdict
-
 from flask import Blueprint
 
 from backend.core.decorators.cookie import require_client_id
@@ -15,7 +13,7 @@ def get_portfolio(client_id: str):
     simulation = get_simulation()
     portfolio_data = simulation.get_portfolio(client_id)
     return make_response(
-        True, "Portfolio loaded successfully.", data=asdict(portfolio_data)
+        True, "Portfolio loaded successfully.", data=portfolio_data.to_json()
     )
 
 

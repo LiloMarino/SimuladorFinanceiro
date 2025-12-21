@@ -2,14 +2,38 @@ from sqlalchemy import Case, func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
+from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.position import PositionDTO
-from backend.core.models.models import EventEquity, Stock
+from backend.core.models.models import EventEquity, Snapshots, Stock
 
 
 class PortfolioRepository:
     @transactional
-    def get_portfolio(self, session: Session, client_id: str):
-        pass
+    def get_patrimonial_history(
+        self, session: Session, user_id: int
+    ) -> list[PatrimonialHistoryDTO]:
+        rows = session.execute(
+            select(
+                Snapshots.snapshot_date,
+                Snapshots.total_networth,
+                Snapshots.total_equity,
+                Snapshots.total_fixed,
+                Snapshots.total_cash,
+            )
+            .where(Snapshots.user_id == user_id)
+            .order_by(Snapshots.snapshot_date)
+        )
+
+        return [
+            PatrimonialHistoryDTO(
+                snapshot_date=row.snapshot_date,
+                total_networth=row.total_networth,
+                total_equity=row.total_equity,
+                total_fixed=row.total_fixed,
+                total_cash=row.total_cash,
+            )
+            for row in rows
+        ]
 
     @transactional
     def get_equity_positions(self, session: Session, user_id: int) -> list[PositionDTO]:

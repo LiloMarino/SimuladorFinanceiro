@@ -3,6 +3,8 @@ from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.events.cashflow import CashflowEventDTO, CashflowEventType
+from backend.core.dto.portfolio import PortfolioDTO
+from backend.core.dto.position import PositionDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -11,7 +13,6 @@ from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
 from backend.features.simulation.broker import Broker
 from backend.features.simulation.entities.candle import Candle
-from backend.features.simulation.entities.portfolio import Portfolio
 from backend.features.simulation.fixed_broker import FixedBroker
 from backend.features.strategy.base_strategy import BaseStrategy
 
@@ -63,12 +64,27 @@ class SimulationEngine:
             )
             self.broker.data_buffer.add_candle(candle)
 
-    def get_portfolio(self, client_id: str) -> Portfolio:
-        return Portfolio(
+    def get_portfolio(self, client_id: str) -> PortfolioDTO:
+        positions = self.broker.get_positions(client_id).values()
+
+        variable_income = [
+            PositionDTO(
+                ticker=pos.ticker,
+                size=pos.size,
+                total_cost=pos.total_cost,
+                avg_price=pos.avg_price,
+            )
+            for pos in positions
+            if pos.size > 0
+        ]
+
+        return PortfolioDTO(
             cash=self._cash[client_id],
-            variable_income=list(self.broker.get_positions(client_id).values()),
-            fixed_income=list(self.fixed_broker.get_assets().values()),
-            patrimonial_history=[],
+            variable_income=variable_income,
+            # fixed_income=list(self.fixed_broker.get_assets().values()),
+            patrimonial_history=repository.portfolio.get_patrimonial_history(
+                UserManager.get_user_id(client_id)
+            ),
         )
 
     def next(self, current_date: datetime):
