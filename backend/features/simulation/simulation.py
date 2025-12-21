@@ -100,7 +100,7 @@ class Simulation:
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
         return repository.stock.get_stock_details(ticker, self._current_date)
 
-    def get_portfolio_ticker(self, client_id: str, ticker: str) -> PositionDTO | None:
+    def get_portfolio_ticker(self, client_id: str, ticker: str) -> PositionDTO:
         positions = self._engine.get_positions(client_id)
         position = positions.get(ticker)
         return (
@@ -111,7 +111,12 @@ class Simulation:
                 avg_price=position.avg_price,
             )
             if position
-            else None
+            else PositionDTO(
+                ticker=ticker,
+                size=0,
+                total_cost=0,
+                avg_price=0,
+            )
         )
 
     def get_fixed_asset(self, uuid: str) -> dict | None:
