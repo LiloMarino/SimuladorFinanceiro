@@ -66,7 +66,7 @@ class SimulationEngine:
     def get_portfolio(self, client_id: str) -> Portfolio:
         return Portfolio(
             cash=self._cash[client_id],
-            variable_income=list(self.broker.get_positions().values()),
+            variable_income=list(self.broker.get_positions(client_id).values()),
             fixed_income=list(self.fixed_broker.get_assets().values()),
             patrimonial_history=[],
         )

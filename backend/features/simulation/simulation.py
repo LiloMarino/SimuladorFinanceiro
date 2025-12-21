@@ -88,8 +88,8 @@ class Simulation:
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
         return repository.stock.get_stock_details(ticker, self._current_date)
 
-    def get_portfolio_ticker(self, ticker: str) -> Position:
-        positions = self._engine.get_positions()
+    def get_portfolio_ticker(self, client_id: str, ticker: str) -> Position:
+        positions = self._engine.get_positions(client_id)
         return positions.get(ticker, Position(ticker))
 
     def get_fixed_asset(self, uuid: str) -> dict | None:

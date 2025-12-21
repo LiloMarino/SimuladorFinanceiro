@@ -20,9 +20,10 @@ def get_portfolio(client_id: str):
 
 
 @portfolio_bp.route("/api/portfolio/<string:ticker>", methods=["GET"])
-def get_portfolio_ticker(ticker):
+@require_client_id
+def get_portfolio_ticker(client_id, ticker):
     simulation = get_simulation()
-    position = simulation.get_portfolio_ticker(ticker)
+    position = simulation.get_portfolio_ticker(client_id, ticker)
 
     return make_response(
         True, "Portfolio ticker data loaded successfully.", data=asdict(position)

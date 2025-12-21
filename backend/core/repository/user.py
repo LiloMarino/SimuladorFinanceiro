@@ -8,8 +8,7 @@ from sqlalchemy.orm import Session
 from backend import config
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.user import UserDTO
-from backend.core.models.models import EventCashflow, Users
-from backend.core.repository import snapshot
+from backend.core.models.models import EventCashflow, Snapshots, Users
 
 
 class UserRepository:
@@ -77,7 +76,12 @@ class UserRepository:
         # --------------------------------------------------
         # 2. Último snapshot
         # --------------------------------------------------
-        last_snapshot = snapshot.get_last_snapshot(session, user.id)
+        last_snapshot = session.execute(
+            select(Snapshots)
+            .where(Snapshots.user_id == user.id)
+            .order_by(Snapshots.snapshot_date.desc())
+            .limit(1)
+        ).scalar_one_or_none()
         if last_snapshot:
             base_cash = last_snapshot.total_cash
             snapshot_date = last_snapshot.snapshot_date
