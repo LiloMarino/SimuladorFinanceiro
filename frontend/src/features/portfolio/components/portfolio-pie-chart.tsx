@@ -16,37 +16,40 @@ interface PortfolioPieChartProps {
 export function PortfolioPieChart({ title, data }: PortfolioPieChartProps) {
   if (!data.length) {
     return (
-      <Card className="p-6">
+      <Card className="p-6 flex flex-col">
         <h3 className="font-semibold">{title}</h3>
-        <div className="h-64 flex items-center justify-center text-muted-foreground">Sem dados</div>
+        <div className="flex-1 flex items-center justify-center text-muted-foreground">Sem dados</div>
       </Card>
     );
   }
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 flex flex-col">
       <h3 className="font-semibold mb-4">{title}</h3>
 
-      <div className="h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
-            >
-              {data.map((entry) => (
-                <Cell key={entry.name} fill={stringToColor(entry.name)} />
-              ))}
-            </Pie>
+      {/* flex-1 faz ocupar a altura restante do card */}
+      <div className="flex-1 flex items-center justify-center">
+        <div className="h-64 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+              >
+                {data.map((entry) => (
+                  <Cell key={entry.name} fill={stringToColor(entry.name)} />
+                ))}
+              </Pie>
 
-            <Tooltip formatter={(value: number) => formatMoney(value)} />
-          </PieChart>
-        </ResponsiveContainer>
+              <Tooltip formatter={(value: number) => formatMoney(value)} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </Card>
   );

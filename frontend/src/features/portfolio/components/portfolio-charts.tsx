@@ -12,7 +12,7 @@ interface PortfolioChartsProps {
 
 export function PortfolioCharts({ pieData, historyData }: PortfolioChartsProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
       <PortfolioLineChart data={historyData} />
       <PortfolioPieChart title="Distribuição da Carteira" data={pieData} />
     </div>

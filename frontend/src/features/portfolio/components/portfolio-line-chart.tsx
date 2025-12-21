@@ -20,7 +20,7 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
       <div className="h-[420px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+            <CartesianGrid />
 
             <XAxis
               dataKey="timestamp"
