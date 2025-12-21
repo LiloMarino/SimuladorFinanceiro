@@ -49,7 +49,7 @@ class SimulationEngine:
                 event_date=self.current_date.date(),
             )
         )
-        notify("cash_update", {"cash": self._cash[client_id]})
+        notify("cash_update", {"cash": self._cash[client_id]}, to=client_id)
 
     def update_market_data(self, stocks: list[StockDTO]):
         for s in stocks:

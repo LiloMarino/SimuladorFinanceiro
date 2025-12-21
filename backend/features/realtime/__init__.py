@@ -42,4 +42,4 @@ def notify(event: Event, payload: JSONValue, to: ClientID | None = None) -> None
         notify("trade_update", {"id": 1, "price": 100})
     ```
     """
-    get_broker().notify(event, payload)
+    get_broker().notify(event, payload, to)
