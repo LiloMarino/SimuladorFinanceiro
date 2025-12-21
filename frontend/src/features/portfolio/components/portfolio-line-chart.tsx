@@ -8,6 +8,15 @@ interface PortfolioLineChartProps {
 }
 
 export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
+  if (!data.length) {
+    return (
+      <Card className="p-6 flex flex-col">
+        <h3 className="font-semibold">Evolução do Patrimônio</h3>
+        <div className="flex-1 flex items-center justify-center text-muted-foreground">Sem dados</div>
+      </Card>
+    );
+  }
+
   const chartData = data.map((item) => ({
     ...item,
     timestamp: new Date(`${item.snapshot_date}T00:00:00`).getTime(),
