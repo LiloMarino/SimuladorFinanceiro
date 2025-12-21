@@ -56,7 +56,12 @@ class SSEBroker(RealtimeBroker):
             for event in events:
                 self._subscriptions[event].add(client_id)
 
-    def notify(self, event: Event, payload: JSONValue) -> None:
+    def notify(
+        self,
+        event: Event,
+        payload: JSONValue,
+        to: ClientID | None = None,
+    ) -> None:
         """Envia payload para todos os clientes inscritos."""
         packet = (
             f"event: {event}\n"

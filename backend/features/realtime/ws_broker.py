@@ -50,9 +50,22 @@ class SocketBroker(RealtimeBroker):
             for event in events:
                 self._subscriptions[event].add(client_id)
 
-    def notify(self, event: Event, payload: JSONValue) -> None:
+    def notify(
+        self,
+        event: Event,
+        payload: JSONValue,
+        to: ClientID | None = None,
+    ) -> None:
         with self._lock:
-            for client_id in self._subscriptions.get(event, set()):
+            subscribers = self._subscriptions.get(event, set())
+            if to is not None:
+                if to not in subscribers:
+                    return
+                target_clients = {to}
+            else:
+                target_clients = subscribers
+
+            for client_id in target_clients:
                 sids = self._client_to_sids.get(client_id, set())
                 for sid in sids:
                     self.socketio.emit(event, payload, to=sid)

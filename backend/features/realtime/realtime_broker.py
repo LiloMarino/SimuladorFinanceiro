@@ -20,6 +20,11 @@ class RealtimeBroker(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def notify(self, event: Event, payload: JSONValue) -> None:
+    def notify(
+        self,
+        event: Event,
+        payload: JSONValue,
+        to: ClientID | None = None,
+    ) -> None:
         """Publica um evento para todos os assinantes interessados."""
         raise NotImplementedError
