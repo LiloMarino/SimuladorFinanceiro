@@ -6,7 +6,7 @@ export type Position = {
 };
 
 export type PatrimonialHistory = {
-  date: string; // ISO
+  snapshot_date: string; // ISO
   total_networth: number;
   total_equity: number;
   total_fixed: number;
