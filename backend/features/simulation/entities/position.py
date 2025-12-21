@@ -22,4 +22,4 @@ class Position:
             raise ValueError("Venda excede posição disponível.")
         self.total_cost -= self.avg_price * size
         self.size -= size
-        self.avg_price = self.total_cost / self.size
+        self.avg_price = (self.total_cost / self.size) if self.size > 0 else 0
