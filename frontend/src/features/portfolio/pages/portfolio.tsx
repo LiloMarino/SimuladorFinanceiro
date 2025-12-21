@@ -41,7 +41,7 @@ export default function PortfolioPage() {
     return stocks?.find((s) => s.ticker === ticker)?.close;
   }
 
-  const { cash, variable_income, fixed_income } = portfolioData;
+  const { cash, variable_income, fixed_income, patrimonial_history } = portfolioData;
 
   const variablePositions = variable_income.map((pos) => {
     const currentPrice = getCurrentPrice(pos.ticker) ?? pos.avg_price;
@@ -121,7 +121,7 @@ export default function PortfolioPage() {
       </div>
 
       {/* Charts */}
-      <PortfolioCharts pieData={pieData} />
+      <PortfolioCharts pieData={pieData} historyData={patrimonial_history} />
 
       {/* Economic Indicators */}
       <Card className="p-6">

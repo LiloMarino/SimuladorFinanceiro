@@ -1,23 +1,19 @@
-import { Card } from "@/shared/components/ui/card";
 import { PortfolioPieChart } from "./portfolio-pie-chart";
+import { PortfolioLineChart } from "./portfolio-line-chart";
+import type { PatrimonialHistory } from "@/types";
 
 interface PortfolioChartsProps {
   pieData: {
     name: string;
     value: number;
   }[];
+  historyData: PatrimonialHistory[];
 }
 
-export function PortfolioCharts({ pieData }: PortfolioChartsProps) {
+export function PortfolioCharts({ pieData, historyData }: PortfolioChartsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card className="p-6">
-        <h3 className="font-semibold">Evolução do Patrimônio</h3>
-        <div className="h-64 bg-gray-100 rounded flex items-center justify-center">
-          <p className="text-gray-500">Gráfico de evolução do patrimônio</p>
-        </div>
-      </Card>
-
+      <PortfolioLineChart data={historyData} />
       <PortfolioPieChart title="Distribuição da Carteira" data={pieData} />
     </div>
   );
