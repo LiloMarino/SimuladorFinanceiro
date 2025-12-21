@@ -8,3 +8,4 @@ class PositionDTO(BaseDTO):
     ticker: str
     size: int
     total_cost: float
+    avg_price: float

@@ -30,6 +30,7 @@ def load_positions(client_id: str) -> dict[str, Position]:
             ticker=dto.ticker,
             size=dto.size,
             total_cost=dto.total_cost,
+            avg_price=dto.avg_price,
         )
 
     return positions

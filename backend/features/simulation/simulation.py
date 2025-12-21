@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 
 from backend.core import repository
+from backend.core.dto.position import PositionDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.features.realtime import notify
-from backend.features.simulation.entities.position import Position
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.strategy.manual import ManualStrategy
 
@@ -88,9 +88,19 @@ class Simulation:
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
         return repository.stock.get_stock_details(ticker, self._current_date)
 
-    def get_portfolio_ticker(self, client_id: str, ticker: str) -> Position:
+    def get_portfolio_ticker(self, client_id: str, ticker: str) -> PositionDTO | None:
         positions = self._engine.get_positions(client_id)
-        return positions.get(ticker, Position(ticker))
+        position = positions.get(ticker)
+        return (
+            PositionDTO(
+                ticker=ticker,
+                size=position.size,
+                total_cost=position.total_cost,
+                avg_price=position.avg_price,
+            )
+            if position
+            else None
+        )
 
     def get_fixed_asset(self, uuid: str) -> dict | None:
         asset = self._engine.fixed_income_market.get_asset(uuid)

@@ -24,9 +24,11 @@ def get_portfolio(client_id: str):
 def get_portfolio_ticker(client_id, ticker):
     simulation = get_simulation()
     position = simulation.get_portfolio_ticker(client_id, ticker)
+    if not position:
+        return make_response(False, "Position not found.", 404)
 
     return make_response(
-        True, "Portfolio ticker data loaded successfully.", data=asdict(position)
+        True, "Portfolio ticker data loaded successfully.", data=position.to_json()
     )
 
 
