@@ -69,12 +69,12 @@ class FixedBroker:
             self._assets[client_id][asset.name] = FixedIncomePosition(
                 asset=asset, total_applied=value
             )
-        db_asset = repository.fixed_income.get_or_create_asset(asset)
+        asset_id = repository.fixed_income.get_or_create_asset(asset)
         EventManager.push_event(
             FixedIncomeEventDTO(
                 user_id=UserManager.get_user_id(client_id),
                 event_type=FixedIncomeEventType.BUY,
-                asset_id=db_asset.id,
+                asset_id=asset_id,
                 amount=Decimal(value),
                 event_date=self._simulation_engine.current_date.date(),
             )

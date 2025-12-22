@@ -19,9 +19,7 @@ def transactional(
         session = SessionLocal()
         try:
             result = func(self, session, *args, **kwargs)
-
-            if session.dirty or session.new or session.deleted:
-                session.commit()
+            session.commit()
         except Exception:
             session.rollback()
             raise

@@ -8,17 +8,14 @@ from backend.core.models.models import FixedIncomeAsset
 
 class FixedIncomeRepository:
     @transactional
-    def get_or_create_asset(
-        self, session: Session, asset: FixedIncomeAssetDTO
-    ) -> FixedIncomeAsset:
+    def get_or_create_asset(self, session: Session, asset: FixedIncomeAssetDTO) -> int:
         # Verifica se o ativo existe
-        stmt = select(FixedIncomeAsset).where(
+        stmt = select(FixedIncomeAsset.id).where(
             FixedIncomeAsset.asset_uuid == asset.asset_uuid
         )
-        existing = session.scalar(stmt)
-        if existing:
-            return existing
-
+        existing_id = session.scalar(stmt)
+        if existing_id:
+            return existing_id
         # Cria o ativo e retorna
         db_asset = FixedIncomeAsset(
             asset_uuid=asset.asset_uuid,
@@ -30,4 +27,6 @@ class FixedIncomeRepository:
             interest_rate=asset.interest_rate,
         )
         session.add(db_asset)
-        return db_asset
+        session.flush()
+
+        return db_asset.id
