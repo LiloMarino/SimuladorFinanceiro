@@ -57,6 +57,7 @@ class Broker:
     def buy(self, client_id: str, ticker: str, size: int):
         if size <= 0:
             raise ValueError("Quantidade para compra deve ser maior que zero")
+
         price = self.get_market_price(ticker)
         cost = price * size
         if self._simulation_engine.get_cash(client_id) < cost:

@@ -1,5 +1,6 @@
 from backend.core.repository.economic import EconomicRepository
 from backend.core.repository.event import EventRepository
+from backend.core.repository.fixed_income import FixedIncomeRepository
 from backend.core.repository.portfolio import PortfolioRepository
 from backend.core.repository.snapshot import SnapshotRepository
 from backend.core.repository.stock import StockRepository
@@ -11,3 +12,4 @@ user = UserRepository()
 event = EventRepository()
 snapshot = SnapshotRepository()
 portfolio = PortfolioRepository()
+fixed_income = FixedIncomeRepository()
