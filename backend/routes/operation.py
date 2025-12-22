@@ -83,5 +83,5 @@ def buy_fixed_income(client_id, asset_uuid):
     if not quantity:
         return make_response(False, "Quantity is required.", 422)
 
-    # TODO: implement fixed-income buying
-    return make_response(True, "Asset details loaded.", data=fixed)
+    simulation._engine.fixed_broker.buy(client_id, asset_uuid, quantity)
+    return make_response(True, "Investment queued successfully.")

@@ -4,7 +4,6 @@ from datetime import date
 from typing import TYPE_CHECKING
 
 from backend.core import repository
-from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.logger import setup_logger
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
@@ -43,7 +42,11 @@ class FixedBroker:
             load_fixed_assets
         )
 
-    def buy(self, client_id: str, asset: FixedIncomeAssetDTO, value: float):
+    def buy(self, client_id: str, asset_uuid: str, value: float):
+        asset = self._simulation_engine.fixed_income_market.get_asset(asset_uuid)
+        if asset is None:
+            raise ValueError(f"Asset {asset_uuid} not found")
+
         if value <= 0:
             raise ValueError("Valor do investimento deve ser maior que zero")
 
