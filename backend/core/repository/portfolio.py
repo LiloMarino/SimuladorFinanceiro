@@ -11,7 +11,6 @@ from backend.core.models.models import (
     FixedIncomeAsset,
     Snapshots,
     Stock,
-    Users,
 )
 
 

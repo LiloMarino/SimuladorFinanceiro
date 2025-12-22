@@ -1,10 +1,7 @@
 from dataclasses import dataclass
-from datetime import date
-from decimal import Decimal
 from enum import Enum
-from uuid import UUID
 
-from backend.core.dto.base import BaseDTO
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 
 
 class RateIndexType(Enum):
@@ -22,13 +19,5 @@ class FixedIncomeType(Enum):
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class FixedIncomePositionDTO(BaseDTO):
-    asset_uuid: UUID
-    name: str
-    issuer: str
-    investment_type: FixedIncomeType
-    rate_index: RateIndexType
-    maturity_date: date
-    interest_rate: Decimal | None
-
-    total_applied: Decimal
+class FixedIncomePositionDTO(FixedIncomeAssetDTO):
+    total_applied: float
