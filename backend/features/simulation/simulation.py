@@ -28,6 +28,7 @@ class Simulation:
         # Configura os alias
         self.get_cash = self._engine.get_cash
         self.get_fixed_assets = self._engine.fixed_income_market.get_available_assets
+        self.get_fixed_asset = self._engine.fixed_income_market.get_asset
         self.get_portfolio = self._engine.get_portfolio
 
         # Roda o primeiro tick para a inicialização
@@ -117,12 +118,6 @@ class Simulation:
                 avg_price=0,
             )
         )
-
-    def get_fixed_asset(self, uuid: str) -> dict | None:
-        asset = self._engine.fixed_income_market.get_asset(uuid)
-        if asset:
-            return asset.to_dict()
-        return None
 
     def get_economic_indicators(self):
         return {

@@ -1,7 +1,6 @@
 import uuid
 from dataclasses import dataclass, field
 from datetime import date
-from decimal import Decimal
 from uuid import UUID
 
 from backend.core.dto.base import BaseDTO
@@ -16,4 +15,4 @@ class FixedIncomeAssetDTO(BaseDTO):
     investment_type: FixedIncomeType
     rate_index: RateIndexType
     maturity_date: date
-    interest_rate: Decimal | None
+    interest_rate: float | None

@@ -3,10 +3,14 @@ from __future__ import annotations
 from datetime import date
 from typing import TYPE_CHECKING
 
+from backend.core import repository
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.logger import setup_logger
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
-from backend.features.simulation.entities.fixed_income_asset import FixedIncomeAsset
+from backend.features.simulation.entities.fixed_income_position import (
+    FixedIncomePosition,
+)
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
@@ -14,8 +18,26 @@ if TYPE_CHECKING:
 logger = setup_logger(__name__)
 
 
-def load_fixed_assets(client_id: str) -> dict[str, FixedIncomeAsset]:
+def load_fixed_assets(client_id: str) -> dict[str, FixedIncomePosition]:
     user_id = UserManager.get_user_id(client_id)
+
+    dtos = repository.portfolio.get_fixed_income_positions(user_id)
+
+    assets: dict[str, FixedIncomePosition] = {}
+
+    for dto in dtos:
+        assets[dto.name] = FixedIncomePosition(
+            uuid=str(dto.asset_uuid),
+            name=dto.name,
+            issuer=dto.issuer,
+            interest_rate=dto.interest_rate,
+            rate_index=dto.rate_index,
+            investment_type=dto.investment_type,
+            maturity_date=dto.maturity_date,
+            total_applied=dto.total_applied,
+        )
+
+    return assets
 
 
 class FixedBroker:
@@ -23,11 +45,11 @@ class FixedBroker:
 
     def __init__(self, simulation_engine: SimulationEngine):
         self._simulation_engine = simulation_engine
-        self._assets: LazyDict[str, dict[str, FixedIncomeAsset]] = LazyDict(
+        self._assets: LazyDict[str, dict[str, FixedIncomePosition]] = LazyDict(
             load_fixed_assets
         )
 
-    def buy(self, client_id: str, asset: FixedIncomeAsset, value: float):
+    def buy(self, client_id: str, asset: FixedIncomeAssetDTO, value: float):
         if value <= 0:
             raise ValueError("Valor do investimento deve ser maior que zero")
 
@@ -39,14 +61,8 @@ class FixedBroker:
         if asset.name in self._assets:
             self._assets[asset.name].invested_amount += value
         else:
-            self._assets[asset.name] = FixedIncomeAsset(
-                name=asset.name,
-                issuer=asset.issuer,
-                interest_rate=asset.interest_rate,
-                rate_index=asset.rate_index,
-                investment_type=asset.investment_type,
-                maturity_date=asset.maturity_date,
-                uuid=asset.uuid,
+            self._assets[asset.name] = FixedIncomePosition(
+                asset=asset, invested_amount=value
             )
 
         logger.info(
@@ -57,5 +73,5 @@ class FixedBroker:
         for asset in self._assets.values():
             asset.apply_daily_interest(current_date)
 
-    def get_assets(self) -> dict[str, FixedIncomeAsset]:
+    def get_assets(self) -> dict[str, FixedIncomeAssetDTO]:
         return self._assets

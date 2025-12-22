@@ -3,16 +3,14 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from datetime import datetime, timedelta
 
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_position import RateIndexType
-from backend.features.simulation.entities.fixed_income_asset import (
-    FixedIncomeAsset,
-)
 
 
 class AbstractFixedIncomeFactory(ABC):
     def create_asset(
         self, rate_index: RateIndexType, current_date: datetime
-    ) -> FixedIncomeAsset:
+    ) -> FixedIncomeAssetDTO:
         try:
             return self._strategies[rate_index](current_date)
         except KeyError as e:
@@ -24,7 +22,7 @@ class AbstractFixedIncomeFactory(ABC):
     @abstractmethod
     def _strategies(
         self,
-    ) -> dict[RateIndexType, Callable[[datetime], FixedIncomeAsset]]:
+    ) -> dict[RateIndexType, Callable[[datetime], FixedIncomeAssetDTO]]:
         """Mapeia indexadores para funções de criação de ativos."""
         pass
 

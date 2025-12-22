@@ -3,6 +3,7 @@ from collections.abc import Mapping
 from datetime import datetime
 from types import MappingProxyType
 
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_position import FixedIncomeType, RateIndexType
 from backend.features.fixed_income.factory.abstract_factory import (
     AbstractFixedIncomeFactory,
@@ -12,9 +13,6 @@ from backend.features.fixed_income.factory.lca_factory import LCAFactory
 from backend.features.fixed_income.factory.lci_factory import LCIFactory
 from backend.features.fixed_income.factory.tesouro_factory import (
     TesouroFactory,
-)
-from backend.features.simulation.entities.fixed_income_asset import (
-    FixedIncomeAsset,
 )
 
 
@@ -39,7 +37,7 @@ class FixedIncomeFactory:
     @classmethod
     def generate_assets(
         cls, current_date: datetime, n: int, seed: int | None = None
-    ) -> dict[str, FixedIncomeAsset]:
+    ) -> dict[str, FixedIncomeAssetDTO]:
         if seed is not None:
             random.seed(seed)
 
@@ -54,20 +52,20 @@ class FixedIncomeFactory:
         base_count = n // total_combos
         remainder = n % total_combos
 
-        generated: dict[str, FixedIncomeAsset] = {}
+        generated: dict[str, FixedIncomeAssetDTO] = {}
 
         # Cria número fixo por combinação
         for asset_type, rate_index in combinations:
             factory = cls._registry[asset_type]
             for _ in range(base_count):
                 asset = factory.create_asset(rate_index, current_date)
-                generated[asset.uuid] = asset
+                generated[str(asset.asset_uuid)] = asset
 
         # Restante aleatório porém balanceado
         extras = random.sample(combinations, remainder)
         for asset_type, rate_index in extras:
             factory = cls._registry[asset_type]
             asset = factory.create_asset(rate_index, current_date)
-            generated[asset.uuid] = asset
+            generated[str(asset.asset_uuid)] = asset
 
         return generated

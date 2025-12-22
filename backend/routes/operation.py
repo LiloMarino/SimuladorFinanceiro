@@ -56,7 +56,7 @@ def get_fixed_income():
     """Return list of fixed-income assets."""
     simulation = get_simulation()
     fixed = simulation.get_fixed_assets()
-    fixed_json = [asset.to_dict() for asset in fixed]
+    fixed_json = [asset.to_json() for asset in fixed]
     return make_response(True, "Fixed income assets loaded.", data=fixed_json)
 
 
@@ -67,7 +67,7 @@ def get_fixed_income_details(asset_uuid):
     fixed = simulation.get_fixed_asset(asset_uuid)
     if not fixed:
         return make_response(False, "Asset not found.", 404)
-    return make_response(True, "Asset details loaded.", data=fixed)
+    return make_response(True, "Asset details loaded.", data=fixed.to_json())
 
 
 @operation_bp.route("/api/fixed-income/<string:asset_uuid>/buy", methods=["POST"])
