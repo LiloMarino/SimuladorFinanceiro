@@ -26,23 +26,19 @@ export default function PortfolioPage() {
     setPortfolioData((prev) => {
       if (!prev) return prev;
 
-      // evita duplicação
-      const exists = prev.patrimonial_history.some((h) => h.snapshot_date === snapshot.snapshot_date);
+      const map = new Map(prev.patrimonial_history.map((h) => [h.snapshot_date, h]));
 
-      if (exists) return prev;
+      map.set(snapshot.snapshot_date, {
+        snapshot_date: snapshot.snapshot_date,
+        total_networth: snapshot.total_networth,
+        total_equity: snapshot.total_equity,
+        total_fixed: snapshot.total_fixed,
+        total_cash: snapshot.total_cash,
+      });
 
       return {
         ...prev,
-        patrimonial_history: [
-          ...prev.patrimonial_history,
-          {
-            snapshot_date: snapshot.snapshot_date,
-            total_networth: snapshot.total_networth,
-            total_equity: snapshot.total_equity,
-            total_fixed: snapshot.total_fixed,
-            total_cash: snapshot.total_cash,
-          },
-        ],
+        patrimonial_history: Array.from(map.values()).sort((a, b) => a.snapshot_date.localeCompare(b.snapshot_date)),
       };
     });
   });
