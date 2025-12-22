@@ -1,24 +1,10 @@
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import date
-from enum import Enum
 
 from backend.core import repository
+from backend.core.dto.fixed_income_asset import FixedIncomeType, RateIndexType
 from backend.types import JSONValue
-
-
-class FixedIncomeType(Enum):
-    CDB = "CDB"
-    LCI = "LCI"
-    LCA = "LCA"
-    TESOURO_DIRETO = "Tesouro Direto"
-
-
-class RateIndexType(Enum):
-    CDI = "CDI"
-    IPCA = "IPCA"
-    SELIC = "SELIC"
-    PREFIXADO = "Prefixado"
 
 
 @dataclass

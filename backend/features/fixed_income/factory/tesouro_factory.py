@@ -1,13 +1,12 @@
 from datetime import datetime
 
 from backend.core import repository
+from backend.core.dto.fixed_income_asset import FixedIncomeType, RateIndexType
 from backend.features.fixed_income.factory.abstract_factory import (
     AbstractFixedIncomeFactory,
 )
 from backend.features.simulation.entities.fixed_income_asset import (
     FixedIncomeAsset,
-    FixedIncomeType,
-    RateIndexType,
 )
 
 

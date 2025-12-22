@@ -33,11 +33,12 @@ class FixedBroker:
         else:
             self._assets[asset.name] = FixedIncomeAsset(
                 name=asset.name,
-                invested_amount=value,
+                issuer=asset.issuer,
                 interest_rate=asset.interest_rate,
                 rate_index=asset.rate_index,
                 investment_type=asset.investment_type,
                 maturity_date=asset.maturity_date,
+                uuid=asset.uuid,
             )
 
         logger.info(
