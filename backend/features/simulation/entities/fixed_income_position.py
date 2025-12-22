@@ -9,16 +9,24 @@ from backend.core.dto.fixed_income_position import RateIndexType
 @dataclass
 class FixedIncomePosition:
     asset: FixedIncomeAssetDTO
-    total_applied: float
-    current_value: float = field(init=False)
+    total_applied: float  # Capital inicial (C)
+    current_value: float = field(init=False)  # Montante (M)
+
+    def __post_init__(self):
+        self.current_value = self.total_applied
 
     def invest(self, value: float):
+        """
+        Aporta mais capital:
+        - aumenta o capital aplicado (C)
+        - aumenta o montante (M)
+        """
         self.total_applied += value
+        self.current_value += value
 
     def apply_daily_interest(self, current_date: date):
         """
-        Aplica juros diários. Para prefixado usa interest_rate,
-        para pós-fixado precisa de uma função que retorne a taxa atual do índice.
+        Aplica juros diários sobre o montante (M).
         """
         if self.asset.rate_index == RateIndexType.PREFIXADO:
             if self.asset.interest_rate is None:
@@ -28,7 +36,7 @@ class FixedIncomePosition:
             annual_rate = self.get_index_rate(current_date, self.asset.rate_index)
             daily_rate = annual_rate / 252
 
-        self.invested_amount *= 1 + daily_rate
+        self.current_value *= 1 + daily_rate
 
     def get_index_rate(self, current_date: date, rate_index: RateIndexType) -> float:
         match rate_index:
@@ -41,5 +49,4 @@ class FixedIncomePosition:
             case RateIndexType.PREFIXADO:
                 if self.asset.interest_rate is not None:
                     return self.asset.interest_rate
-                else:
-                    raise ValueError("Taxa de prefixado não definida")
+                raise ValueError("Taxa de prefixado não definida")
