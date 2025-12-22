@@ -21,8 +21,8 @@ class FixedIncomeRepository:
             asset_uuid=asset.asset_uuid,
             name=asset.name,
             issuer=asset.issuer,
-            investment_type=asset.investment_type.value,
-            rate_type=asset.rate_index.value,
+            investment_type=asset.investment_type.db_value,
+            rate_type=asset.rate_index.db_value,
             maturity_date=asset.maturity_date,
             interest_rate=asset.interest_rate,
         )

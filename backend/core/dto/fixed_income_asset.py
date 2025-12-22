@@ -13,12 +13,30 @@ class RateIndexType(Enum):
     SELIC = "SELIC"
     PREFIXADO = "Prefixado"
 
+    @property
+    def db_value(self) -> str:
+        return {
+            RateIndexType.CDI: "CDI",
+            RateIndexType.IPCA: "IPCA",
+            RateIndexType.SELIC: "SELIC",
+            RateIndexType.PREFIXADO: "PREFIXADO",
+        }[self]
+
 
 class FixedIncomeType(Enum):
     CDB = "CDB"
     LCI = "LCI"
     LCA = "LCA"
     TESOURO_DIRETO = "Tesouro Direto"
+
+    @property
+    def db_value(self) -> str:
+        return {
+            FixedIncomeType.CDB: "CDB",
+            FixedIncomeType.LCI: "LCI",
+            FixedIncomeType.LCA: "LCA",
+            FixedIncomeType.TESOURO_DIRETO: "TESOURO_DIRETO",
+        }[self]
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
