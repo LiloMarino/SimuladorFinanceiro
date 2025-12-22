@@ -1,6 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
-from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
@@ -10,9 +9,11 @@ from backend.core.dto.fixed_income_position import RateIndexType
 @dataclass
 class FixedIncomePosition:
     asset: FixedIncomeAssetDTO
-    total_applied: Decimal
-    current_value: Decimal
-    last_update: date
+    total_applied: float
+    current_value: float = field(init=False)
+
+    def invest(self, value: float):
+        self.total_applied += value
 
     def apply_daily_interest(self, current_date: date):
         """

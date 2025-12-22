@@ -26,14 +26,8 @@ def load_fixed_assets(client_id: str) -> dict[str, FixedIncomePosition]:
     assets: dict[str, FixedIncomePosition] = {}
 
     for dto in dtos:
-        assets[dto.name] = FixedIncomePosition(
-            uuid=str(dto.asset_uuid),
-            name=dto.name,
-            issuer=dto.issuer,
-            interest_rate=dto.interest_rate,
-            rate_index=dto.rate_index,
-            investment_type=dto.investment_type,
-            maturity_date=dto.maturity_date,
+        assets[dto.asset.name] = FixedIncomePosition(
+            asset=dto.asset,
             total_applied=dto.total_applied,
         )
 
@@ -59,10 +53,10 @@ class FixedBroker:
         self._simulation_engine.add_cash(client_id, -value)
 
         if asset.name in self._assets:
-            self._assets[asset.name].invested_amount += value
+            self._assets[client_id][asset.name].invest(value)
         else:
-            self._assets[asset.name] = FixedIncomePosition(
-                asset=asset, invested_amount=value
+            self._assets[client_id][asset.name] = FixedIncomePosition(
+                asset=asset, total_applied=value
             )
 
         logger.info(
@@ -70,8 +64,9 @@ class FixedBroker:
         )
 
     def apply_daily_interest(self, current_date: date):
-        for asset in self._assets.values():
-            asset.apply_daily_interest(current_date)
+        for assets_by_client in self._assets.values():
+            for position in assets_by_client.values():
+                position.apply_daily_interest(current_date)
 
-    def get_assets(self) -> dict[str, FixedIncomeAssetDTO]:
-        return self._assets
+    def get_assets(self, client_id: str) -> dict[str, FixedIncomePosition]:
+        return self._assets[client_id]

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
+from backend.core.dto.base import BaseDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 
 
@@ -19,5 +20,6 @@ class FixedIncomeType(Enum):
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class FixedIncomePositionDTO(FixedIncomeAssetDTO):
+class FixedIncomePositionDTO(BaseDTO):
+    asset: FixedIncomeAssetDTO
     total_applied: float

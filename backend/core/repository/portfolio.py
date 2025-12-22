@@ -2,6 +2,7 @@ from sqlalchemy import Case, func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.position import PositionDTO
@@ -120,13 +121,15 @@ class PortfolioRepository:
 
         return [
             FixedIncomePositionDTO(
-                asset_uuid=row.asset_uuid,
-                name=row.name,
-                issuer=row.issuer,
-                investment_type=row.investment_type,
-                rate_index=row.rate_type,
-                maturity_date=row.maturity_date,
-                interest_rate=row.interest_rate,
+                asset=FixedIncomeAssetDTO(
+                    asset_uuid=row.asset_uuid,
+                    name=row.name,
+                    issuer=row.issuer,
+                    investment_type=row.investment_type,
+                    rate_index=row.rate_type,
+                    maturity_date=row.maturity_date,
+                    interest_rate=row.interest_rate,
+                ),
                 total_applied=row.total_applied,
             )
             for row in rows
