@@ -94,43 +94,49 @@ class PortfolioRepository:
     def get_fixed_income_positions(
         self, session: Session, user_id: int
     ) -> list[FixedIncomePositionDTO]:
-        total_applied_expr = func.sum(
-            Case(
-                (EventFixedIncome.event_type == "BUY", EventFixedIncome.amount),
-                (EventFixedIncome.event_type == "REDEEM", -EventFixedIncome.amount),
-                else_=0,
+        total_applied_subq = (
+            select(
+                EventFixedIncome.asset_id.label("asset_id"),
+                func.sum(
+                    Case(
+                        (EventFixedIncome.event_type == "BUY", EventFixedIncome.amount),
+                        (
+                            EventFixedIncome.event_type == "REDEEM",
+                            -EventFixedIncome.amount,
+                        ),
+                        else_=0,
+                    )
+                ).label("total_applied"),
             )
+            .where(EventFixedIncome.user_id == user_id)
+            .group_by(EventFixedIncome.asset_id)
+            .subquery()
         )
 
         rows = session.execute(
             select(
-                FixedIncomeAsset.asset_uuid,
-                FixedIncomeAsset.name,
-                FixedIncomeAsset.issuer,
-                FixedIncomeAsset.investment_type,
-                FixedIncomeAsset.rate_type,
-                FixedIncomeAsset.maturity_date,
-                FixedIncomeAsset.interest_rate,
-                total_applied_expr.label("total_applied"),
+                FixedIncomeAsset,
+                total_applied_subq.c.total_applied,
             )
-            .join(EventFixedIncome, EventFixedIncome.asset_id == FixedIncomeAsset.id)
-            .where(EventFixedIncome.user_id == user_id)
-            .group_by(FixedIncomeAsset.asset_uuid)
-            .having(total_applied_expr > 0)
+            .join(
+                total_applied_subq,
+                total_applied_subq.c.asset_id == FixedIncomeAsset.id,
+            )
+            .where(total_applied_subq.c.total_applied > 0)
         )
 
         return [
             FixedIncomePositionDTO(
                 asset=FixedIncomeAssetDTO(
-                    asset_uuid=row.asset_uuid,
-                    name=row.name,
-                    issuer=row.issuer,
-                    investment_type=row.investment_type,
-                    rate_index=row.rate_type,
-                    maturity_date=row.maturity_date,
-                    interest_rate=row.interest_rate,
+                    asset_uuid=asset.asset_uuid,
+                    name=asset.name,
+                    issuer=asset.issuer,
+                    investment_type=asset.investment_type,
+                    rate_index=asset.rate_type,
+                    maturity_date=asset.maturity_date,
+                    interest_rate=asset.interest_rate,
                 ),
-                total_applied=row.total_applied,
+                total_applied=total_applied,
             )
-            for row in rows
+            for asset, total_applied in rows
         ]
