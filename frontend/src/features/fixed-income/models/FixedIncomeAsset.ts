@@ -23,7 +23,7 @@ export class FixedIncomeAsset {
   constructor(apiData: FixedIncomeAssetApi, currentDate: Date);
   constructor(apiData: FixedIncomeAssetApi, currentDate: Date, rates: EconomicIndicators);
   constructor(apiData: FixedIncomeAssetApi, currentDate: Date, rates?: EconomicIndicators) {
-    this.uuid = apiData.uuid;
+    this.uuid = apiData.asset_uuid;
     this.name = apiData.name;
     this.issuer = apiData.issuer;
     this.interestRate = apiData.interest_rate;

@@ -16,6 +16,8 @@ import { parse } from "date-fns";
 import { useForm } from "react-hook-form";
 import { investmentFormSchema, type InvestmentFormSchema } from "../schemas/investment-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { toast } from "sonner";
 
 export default function FixedIncomeDetailPage() {
   usePageLabel("Detalhes Renda Fixa");
@@ -38,6 +40,15 @@ export default function FixedIncomeDetailPage() {
     setSimData((prev) => ({ ...prev, ...update }));
   });
 
+  const buyMutation = useMutationApi<{ quantity: number }>(`/api/fixed-income/${id}/buy`, {
+    onSuccess: () => {
+      toast.success("Investido com sucesso!");
+    },
+    onError: (err) => {
+      toast.error(`Erro ao investir: ${err.message}`);
+    },
+  });
+
   const asset = useMemo(() => {
     if (!assetData || !simData?.currentDate || !rates) return null;
     return new FixedIncomeAsset(assetData, parse(simData.currentDate, "dd/MM/yyyy", new Date()), rates);
@@ -50,8 +61,13 @@ export default function FixedIncomeDetailPage() {
       </section>
     );
   }
-  const onSubmit = (values: InvestmentFormSchema) => {
-    console.log("Investindo...", values.amount);
+
+  const onSubmit = async (values: InvestmentFormSchema) => {
+    const quantity = Number(values.amount);
+
+    await buyMutation.mutate({
+      quantity,
+    });
   };
 
   if (!asset) {
@@ -189,7 +205,9 @@ export default function FixedIncomeDetailPage() {
                 <h4 className="font-semibold text-slate-900 mb-6">Resumo da Operação</h4>
                 <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">Valor investido</p>
+                    <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">
+                      Valor a ser investido
+                    </p>
                     <p className="text-2xl font-bold text-slate-900">{formatMoney(simulation.amount)}</p>
                   </div>
                   <div>
