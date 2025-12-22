@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.events.cashflow import CashflowEventDTO, CashflowEventType
+from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.stock import StockDTO
@@ -66,7 +67,6 @@ class SimulationEngine:
 
     def get_portfolio(self, client_id: str) -> PortfolioDTO:
         positions = self.broker.get_positions(client_id).values()
-
         variable_income = [
             PositionDTO(
                 ticker=pos.ticker,
@@ -78,10 +78,21 @@ class SimulationEngine:
             if pos.size > 0
         ]
 
+        fixed_income_positions = self.fixed_broker.get_fixed_positions(
+            client_id
+        ).values()
+        fixed_income = [
+            FixedIncomePositionDTO(
+                asset=pos.asset,
+                total_applied=pos.total_applied,
+            )
+            for pos in fixed_income_positions
+        ]
+
         return PortfolioDTO(
             cash=self._cash[client_id],
             variable_income=variable_income,
-            # fixed_income=list(self.fixed_broker.get_assets().values()),
+            fixed_income=fixed_income,
             patrimonial_history=repository.portfolio.get_patrimonial_history(
                 UserManager.get_user_id(client_id)
             ),

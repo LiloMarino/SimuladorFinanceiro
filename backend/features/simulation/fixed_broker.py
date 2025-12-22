@@ -48,7 +48,7 @@ class FixedBroker:
             load_fixed_assets
         )
 
-    def get_assets(self, client_id: str) -> dict[str, FixedIncomePosition]:
+    def get_fixed_positions(self, client_id: str) -> dict[str, FixedIncomePosition]:
         return self._assets[client_id]
 
     def buy(self, client_id: str, asset_uuid: str, value: float):
