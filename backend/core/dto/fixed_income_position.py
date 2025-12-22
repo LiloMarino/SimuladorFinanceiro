@@ -22,11 +22,13 @@ class FixedIncomeType(Enum):
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class FixedIncomeAssetDTO(BaseDTO):
+class FixedIncomePositionDTO(BaseDTO):
     asset_uuid: UUID
     name: str
     issuer: str
-    rate_index: RateIndexType
     investment_type: FixedIncomeType
+    rate_index: RateIndexType
     maturity_date: date
     interest_rate: Decimal | None
+
+    total_applied: Decimal

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from datetime import datetime, timedelta
 
-from backend.core.dto.fixed_income_asset import RateIndexType
+from backend.core.dto.fixed_income_position import RateIndexType
 from backend.features.simulation.entities.fixed_income_asset import (
     FixedIncomeAsset,
 )

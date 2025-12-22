@@ -3,7 +3,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import date
 
 from backend.core import repository
-from backend.core.dto.fixed_income_asset import FixedIncomeType, RateIndexType
+from backend.core.dto.fixed_income_position import FixedIncomeType, RateIndexType
 from backend.types import JSONValue
 
 

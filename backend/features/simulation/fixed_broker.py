@@ -4,6 +4,8 @@ from datetime import date
 from typing import TYPE_CHECKING
 
 from backend.core.logger import setup_logger
+from backend.core.runtime.user_manager import UserManager
+from backend.core.utils.lazy_dict import LazyDict
 from backend.features.simulation.entities.fixed_income_asset import FixedIncomeAsset
 
 if TYPE_CHECKING:
@@ -12,12 +14,18 @@ if TYPE_CHECKING:
 logger = setup_logger(__name__)
 
 
+def load_fixed_assets(client_id: str) -> dict[str, FixedIncomeAsset]:
+    user_id = UserManager.get_user_id(client_id)
+
+
 class FixedBroker:
     """Gerencia ativos de renda fixa e cálculo de juros"""
 
     def __init__(self, simulation_engine: SimulationEngine):
         self._simulation_engine = simulation_engine
-        self._assets: dict[str, FixedIncomeAsset] = {}
+        self._assets: LazyDict[str, dict[str, FixedIncomeAsset]] = LazyDict(
+            load_fixed_assets
+        )
 
     def buy(self, client_id: str, asset: FixedIncomeAsset, value: float):
         if value <= 0:

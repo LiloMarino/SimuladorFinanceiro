@@ -2,9 +2,17 @@ from sqlalchemy import Case, func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
+from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.position import PositionDTO
-from backend.core.models.models import EventEquity, Snapshots, Stock
+from backend.core.models.models import (
+    EventEquity,
+    EventFixedIncome,
+    FixedIncomeAsset,
+    Snapshots,
+    Stock,
+    Users,
+)
 
 
 class PortfolioRepository:
@@ -83,5 +91,44 @@ class PortfolioRepository:
         ]
 
     @transactional
-    def get_fixed_income_positions(self, session: Session, client_id: str):
-        pass
+    def get_fixed_income_positions(
+        self, session: Session, user_id: int
+    ) -> list[FixedIncomePositionDTO]:
+        total_applied_expr = func.sum(
+            Case(
+                (EventFixedIncome.event_type == "BUY", EventFixedIncome.amount),
+                (EventFixedIncome.event_type == "REDEEM", -EventFixedIncome.amount),
+                else_=0,
+            )
+        )
+
+        rows = session.execute(
+            select(
+                FixedIncomeAsset.asset_uuid,
+                FixedIncomeAsset.name,
+                FixedIncomeAsset.issuer,
+                FixedIncomeAsset.investment_type,
+                FixedIncomeAsset.rate_type,
+                FixedIncomeAsset.maturity_date,
+                FixedIncomeAsset.interest_rate,
+                total_applied_expr.label("total_applied"),
+            )
+            .join(EventFixedIncome, EventFixedIncome.asset_id == FixedIncomeAsset.id)
+            .where(EventFixedIncome.user_id == user_id)
+            .group_by(FixedIncomeAsset.asset_uuid)
+            .having(total_applied_expr > 0)
+        )
+
+        return [
+            FixedIncomePositionDTO(
+                asset_uuid=row.asset_uuid,
+                name=row.name,
+                issuer=row.issuer,
+                investment_type=row.investment_type,
+                rate_index=row.rate_type,
+                maturity_date=row.maturity_date,
+                interest_rate=row.interest_rate,
+                total_applied=row.total_applied,
+            )
+            for row in rows
+        ]
