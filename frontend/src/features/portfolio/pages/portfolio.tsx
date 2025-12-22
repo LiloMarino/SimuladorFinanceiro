@@ -2,7 +2,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWallet, faChartLine, faCoins, faMoneyBillWave, faEye } from "@fortawesome/free-solid-svg-icons";
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/shared/components/ui/table";
-import { Button } from "@/shared/components/ui/button";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { Spinner } from "@/shared/components/ui/spinner";
 import usePageLabel from "@/shared/hooks/usePageLabel";
@@ -67,7 +66,7 @@ export default function PortfolioPage() {
     return stocks?.find((s) => s.ticker === ticker)?.close;
   }
 
-  const { cash, variable_income, fixed_income, patrimonial_history } = portfolioData;
+  const { variable_income, fixed_income, patrimonial_history } = portfolioData;
 
   const variablePositions = variable_income.map((pos) => {
     const currentPrice = getCurrentPrice(pos.ticker) ?? pos.avg_price;
@@ -88,25 +87,50 @@ export default function PortfolioPage() {
       returnPercent,
     };
   });
-  const fixedPositions: unknown[] = []; // ❌ fixed_income é unknown[]
+  const fixedPositions = fixed_income.map((pos) => {
+    const investedValue = pos.total_applied;
+    const currentValue = pos.current_value;
+    const returnValue = currentValue - investedValue;
+    const returnPercent = investedValue > 0 ? ((returnValue / investedValue) * 100).toFixed(2) + "%" : "0%";
 
-  const variableIncomeValue = variablePositions.reduce((sum, p) => sum + p.currentValue, 0);
-  const fixedIncomeValue = 0; // ❌ Não é possível inferir com os dados atuais
-  const portfolioValue = variableIncomeValue + fixedIncomeValue;
-  variablePositions.forEach((pos) => {
-    pos.portfolioPercent = ((pos.currentValue / portfolioValue) * 100).toFixed(2) + "%";
+    return {
+      uuid: pos.asset.asset_uuid,
+      name: pos.asset.name,
+      issuer: pos.asset.issuer,
+      rateIndex: pos.asset.rate_index,
+      interestRate: pos.asset.interest_rate,
+      investedValue,
+      currentValue,
+      returnValue,
+      returnPercent,
+      portfolioPercent: "0%", // definido depois
+    };
   });
 
-  const variableIncomePct = ((variableIncomeValue / portfolioValue) * 100).toFixed(1);
-  const fixedIncomePct = ((fixedIncomeValue / portfolioValue) * 100).toFixed(1);
+  const variableIncomeValue = variablePositions.reduce((sum, p) => sum + p.currentValue, 0);
+  const fixedIncomeValue = fixedPositions.reduce((sum, p) => sum + p.currentValue, 0);
+  const portfolioValue = variableIncomeValue + fixedIncomeValue;
+  variablePositions.forEach((pos) => {
+    pos.portfolioPercent = portfolioValue > 0 ? ((pos.currentValue / portfolioValue) * 100).toFixed(2) + "%" : "0%";
+  });
+  fixedPositions.forEach((pos) => {
+    pos.portfolioPercent = portfolioValue > 0 ? ((pos.currentValue / portfolioValue) * 100).toFixed(2) + "%" : "0%";
+  });
+
+  const variableIncomePct = portfolioValue > 0 ? ((variableIncomeValue / portfolioValue) * 100).toFixed(1) : "0";
+  const fixedIncomePct = portfolioValue > 0 ? ((fixedIncomeValue / portfolioValue) * 100).toFixed(1) : "0";
   const dividend = 0; // ❌ Não é possível inferir com os dados atuais
   const portfolioPct = 0; // ❌ Não é possível inferir com os dados atuais
-  const pieData = variablePositions.map((pos) => ({
-    name: pos.ticker,
-    value: pos.currentValue,
-  }));
-
-  console.log(portfolioData);
+  const pieData = [
+    ...variablePositions.map((pos) => ({
+      name: pos.ticker,
+      value: pos.currentValue,
+    })),
+    ...fixedPositions.map((pos) => ({
+      name: pos.name,
+      value: pos.currentValue,
+    })),
+  ];
 
   return (
     <section className="p-4 space-y-6">
@@ -252,30 +276,36 @@ export default function PortfolioPage() {
                     "Retorno (%)",
                     "Ações",
                   ].map((h) => (
-                    <TableHead key={h}>{h}</TableHead>
+                    <TableHead className="text-center" key={h}>
+                      {h}
+                    </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {fixedPositions.map((pos) => (
-                  <TableRow key={pos.ticker}>
-                    <TableCell>{pos.ticker}</TableCell>
+                  <TableRow className="text-center [&>td]:py-4" key={pos.name}>
+                    <TableCell>{pos.name}</TableCell>
+                    <TableCell>{formatMoney(pos.investedValue)}</TableCell>
+                    <TableCell>{formatMoney(pos.currentValue)}</TableCell>
                     <TableCell>
-                      R$ {pos.investedValue?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) ?? "-"}
+                      {pos.interestRate ? `${pos.interestRate.toFixed(2)}% ${pos.rateIndex}` : pos.rateIndex}
                     </TableCell>
-                    <TableCell>R$ {pos.currentValue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
-                    <TableCell>{pos.rate ?? "-"}</TableCell>
                     <TableCell>{pos.portfolioPercent}</TableCell>
-                    <TableCell>
-                      {pos.returnValue?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) ?? "-"}
+                    <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
+                      {formatMoney(pos.returnValue)}
                     </TableCell>
-                    <TableCell className={pos.returnPercent.startsWith("-") ? "text-red-600" : "text-green-600"}>
+                    <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
                       {pos.returnPercent}
                     </TableCell>
                     <TableCell>
-                      <Button variant="link" onClick={() => alert(`Detalhes do ativo ${pos.ticker}`)}>
-                        <FontAwesomeIcon icon={faEye} /> Detalhes
-                      </Button>
+                      <Link
+                        to={`/fixed-income/${pos.uuid}`}
+                        className="text-blue-600 hover:text-blue-800 text-sm flex items-center justify-center"
+                      >
+                        <FontAwesomeIcon icon={faEye} className="mr-1" />
+                        Detalhes
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}
