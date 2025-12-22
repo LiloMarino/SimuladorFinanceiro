@@ -3,11 +3,11 @@ export type RateIndex = "CDI" | "IPCA" | "SELIC" | "Prefixado";
 export type InvestmentType = "CDB" | "LCI" | "LCA" | "Tesouro Direto";
 
 export type FixedIncomeAssetApi = {
-  asset_uuid: string;
+  asset_uuid: string; // UUID como string
   name: string;
   issuer: string;
-  interest_rate: number;
+  interest_rate: number | null;
   rate_index: RateIndex;
   investment_type: InvestmentType;
-  maturity_date: string;
+  maturity_date: string; // ISO date
 };

@@ -8,3 +8,4 @@ from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 class FixedIncomePositionDTO(BaseDTO):
     asset: FixedIncomeAssetDTO
     total_applied: float
+    current_value: float

@@ -1,3 +1,5 @@
+import type { FixedIncomeAssetApi } from "./fixed-income";
+
 export type Position = {
   ticker: string;
   size: number;
@@ -13,9 +15,15 @@ export type PatrimonialHistory = {
   total_cash: number;
 };
 
+export type FixedIncomePosition = {
+  asset: FixedIncomeAssetApi;
+  total_applied: number;
+  current_value: number;
+};
+
 export type PortfolioState = {
   cash: number;
   variable_income: Position[];
-  fixed_income: unknown[];
+  fixed_income: FixedIncomePosition[];
   patrimonial_history: PatrimonialHistory[];
 };

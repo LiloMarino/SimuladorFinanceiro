@@ -85,6 +85,7 @@ class SimulationEngine:
             FixedIncomePositionDTO(
                 asset=pos.asset,
                 total_applied=pos.total_applied,
+                current_value=pos.current_value,
             )
             for pos in fixed_income_positions
         ]
@@ -104,7 +105,7 @@ class SimulationEngine:
         self.fixed_income_market.refresh_assets(current_date)
 
         # Aplica juros dos ativos de renda fixa
-        self.fixed_broker.apply_daily_interest(current_date)
+        # self.fixed_broker.apply_daily_interest(current_date)
 
         # Executa a estratégia
         if not self._strategy:

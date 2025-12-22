@@ -137,6 +137,7 @@ class PortfolioRepository:
                     interest_rate=asset.interest_rate,
                 ),
                 total_applied=total_applied,
+                current_value=total_applied,
             )
             for asset, total_applied in rows
         ]
