@@ -2,8 +2,7 @@ from dataclasses import dataclass, field
 from datetime import date
 
 from backend.core import repository
-from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.dto.fixed_income_position import RateIndexType
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, RateIndexType
 
 
 @dataclass

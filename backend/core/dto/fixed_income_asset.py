@@ -1,10 +1,24 @@
 import uuid
 from dataclasses import dataclass, field
 from datetime import date
+from enum import Enum
 from uuid import UUID
 
 from backend.core.dto.base import BaseDTO
-from backend.core.dto.fixed_income_position import FixedIncomeType, RateIndexType
+
+
+class RateIndexType(Enum):
+    CDI = "CDI"
+    IPCA = "IPCA"
+    SELIC = "SELIC"
+    PREFIXADO = "Prefixado"
+
+
+class FixedIncomeType(Enum):
+    CDB = "CDB"
+    LCI = "LCI"
+    LCA = "LCA"
+    TESOURO_DIRETO = "Tesouro Direto"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

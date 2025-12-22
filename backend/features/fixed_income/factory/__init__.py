@@ -3,8 +3,11 @@ from collections.abc import Mapping
 from datetime import datetime
 from types import MappingProxyType
 
-from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.dto.fixed_income_position import FixedIncomeType, RateIndexType
+from backend.core.dto.fixed_income_asset import (
+    FixedIncomeAssetDTO,
+    FixedIncomeType,
+    RateIndexType,
+)
 from backend.features.fixed_income.factory.abstract_factory import (
     AbstractFixedIncomeFactory,
 )
