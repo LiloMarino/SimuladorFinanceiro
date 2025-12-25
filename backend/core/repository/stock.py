@@ -3,6 +3,7 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
+from backend.core.dto.candle import CandleDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
@@ -11,10 +12,15 @@ from backend.core.models.models import Stock, StockPriceHistory
 
 class StockRepository:
     @transactional
-    def add_stock(self, session: Session, ticker: str, name: str) -> Stock:
+    def add_stock(self, session: Session, ticker: str, name: str) -> StockDTO:
         stock = Stock(ticker=ticker, name=name)
         session.add(stock)
-        return stock
+        session.flush()
+        return StockDTO(
+            id=stock.id,
+            ticker=stock.ticker,
+            name=stock.name,
+        )
 
     @transactional
     def add_stock_price_history(
@@ -25,9 +31,9 @@ class StockRepository:
     @transactional
     def get_stocks_by_date(
         self, session: Session, current_date: date
-    ) -> list[StockDTO]:
+    ) -> list[CandleDTO]:
         stocks = session.query(Stock).all()
-        stocks_with_history: list[StockDTO] = []
+        stocks_with_history: list[CandleDTO] = []
         for stock in stocks:
             ph = (
                 session.query(StockPriceHistory)
@@ -38,7 +44,8 @@ class StockRepository:
                 change = ph.close - ph.open
                 change_pct = (change / ph.open * 100) if ph.open != 0 else 0
                 stocks_with_history.append(
-                    StockDTO(
+                    CandleDTO(
+                        id=ph.stock.id,
                         ticker=ph.stock.ticker,
                         name=ph.stock.name,
                         close=ph.close,
@@ -74,6 +81,7 @@ class StockRepository:
         ph_today = history[-1] if history else None
 
         return StockDetailsDTO(
+            id=stock.id,
             ticker=stock.ticker,
             name=stock.name,
             open=ph_today.open if ph_today else 0,
@@ -92,19 +100,25 @@ class StockRepository:
         )
 
     @transactional
-    def get_by_ticker(self, session: Session, ticker: str) -> Stock | None:
-        return session.query(Stock).filter_by(ticker=ticker).first()
+    def get_by_ticker(self, session: Session, ticker: str) -> StockDTO | None:
+        stock = session.query(Stock).filter_by(ticker=ticker).first()
+        return (
+            StockDTO(id=stock.id, ticker=stock.ticker, name=stock.name)
+            if stock
+            else None
+        )
 
     @transactional
     def get_last_stock_price_history(
         self, session: Session, stock_id: int
-    ) -> StockPriceHistory | None:
-        return (
+    ) -> StockPriceHistoryDTO | None:
+        price_history = (
             session.query(StockPriceHistory)
             .filter_by(stock_id=stock_id)
             .order_by(StockPriceHistory.price_date.desc())
             .first()
         )
+        return StockPriceHistoryDTO.from_model(price_history) if price_history else None
 
     @transactional
     def delete_stock_price_history(self, session: Session, stock_id: int):

@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
 from backend.core import repository
+from backend.core.dto.candle import CandleDTO
 from backend.core.dto.position import PositionDTO
-from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
 from backend.core.logger import setup_logger
@@ -94,7 +94,7 @@ class Simulation:
     def get_speed(self) -> int:
         return self._speed
 
-    def get_stocks(self) -> list[StockDTO]:
+    def get_stocks(self) -> list[CandleDTO]:
         return repository.stock.get_stocks_by_date(self._current_date)
 
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
