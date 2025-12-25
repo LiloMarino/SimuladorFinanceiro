@@ -5,9 +5,8 @@ from types import MappingProxyType
 
 from backend.core.dto.fixed_income_asset import (
     FixedIncomeAssetDTO,
-    FixedIncomeType,
-    RateIndexType,
 )
+from backend.core.enum import FixedIncomeType, RateIndexType
 from backend.features.fixed_income.factory.abstract_factory import (
     AbstractFixedIncomeFactory,
 )

@@ -1,13 +1,8 @@
 from dataclasses import dataclass
 from decimal import Decimal
-from enum import Enum
 
 from backend.core.dto.events.base_event import BaseEventDTO
-
-
-class FixedIncomeEventType(str, Enum):
-    BUY = "BUY"
-    REDEEM = "REDEEM"
+from backend.core.enum import FixedIncomeEventType
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

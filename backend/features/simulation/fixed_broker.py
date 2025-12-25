@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 from backend.core import repository
 from backend.core.dto.events.fixed_income import (
     FixedIncomeEventDTO,
-    FixedIncomeEventType,
 )
+from backend.core.enum import FixedIncomeEventType
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager

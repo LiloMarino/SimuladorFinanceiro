@@ -4,7 +4,8 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from backend.core import repository
-from backend.core.dto.events.equity import EquityEventDTO, EquityEventType
+from backend.core.dto.events.equity import EquityEventDTO
+from backend.core.enum import EquityEventType
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager

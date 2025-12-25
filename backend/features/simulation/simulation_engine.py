@@ -2,11 +2,12 @@ from datetime import datetime
 from decimal import Decimal
 
 from backend.core import repository
-from backend.core.dto.events.cashflow import CashflowEventDTO, CashflowEventType
+from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.stock import StockDTO
+from backend.core.enum import CashflowEventType
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
