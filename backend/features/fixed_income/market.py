@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.logger import setup_logger
 from backend.features.fixed_income.factory import FixedIncomeFactory
@@ -27,7 +28,12 @@ class FixedIncomeMarket:
         return list(self._assets.values())
 
     def get_asset(self, uuid: str) -> FixedIncomeAssetDTO | None:
-        return self._assets.get(uuid)
+        asset = self._assets.get(uuid)
+        if asset:
+            return asset
+
+        asset = repository.fixed_income.get_asset_by_uuid(uuid)
+        return asset
 
     def _generate_assets(self):
         if self._current_month is None:
