@@ -51,7 +51,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
           {/* Saldo */}
           <div className="flex items-center">
             <span className="text-sm text-gray-600 mr-2">Saldo:</span>
-            <span className="font-medium">{simData?.cash ? formatMoney(simData.cash) : "--"}</span>
+            <span className="font-medium">{simData?.cash !== undefined ? formatMoney(simData.cash) : "--"}</span>
           </div>
 
           {/* Velocidade */}
