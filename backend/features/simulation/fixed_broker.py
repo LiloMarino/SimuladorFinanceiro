@@ -84,6 +84,40 @@ class FixedBroker:
         )
 
     def apply_daily_interest(self, current_date: date):
-        for assets_by_client in self._assets.values():
-            for position in assets_by_client.values():
+        for client_id, assets_by_client in list(self._assets.items()):
+            user_id = UserManager.get_user_id(client_id)
+            for asset_name, position in list(assets_by_client.items()):
                 position.apply_daily_interest(current_date)
+
+                if current_date >= position.asset.maturity_date:
+                    self.redeem_position(
+                        current_date,
+                        client_id,
+                        user_id,
+                        asset_name,
+                        position,
+                    )
+                    del assets_by_client[asset_name]
+
+    def redeem_position(
+        self,
+        current_date: date,
+        client_id: str,
+        user_id: int,
+        asset_name: str,
+        position: FixedIncomePosition,
+    ) -> None:
+        redeem_value = position.current_value
+
+        self._simulation_engine.add_cash(client_id, redeem_value)
+        asset_id = repository.fixed_income.get_or_create_asset(position.asset)
+        EventManager.push_event(
+            FixedIncomeEventDTO(
+                user_id=user_id,
+                event_type=FixedIncomeEventType.REDEEM,
+                asset_id=asset_id,
+                amount=Decimal(redeem_value),
+                event_date=current_date,
+            )
+        )
+        logger.info(f"REDEEM de {redeem_value:.2f} em {asset_name} (maturity)")
