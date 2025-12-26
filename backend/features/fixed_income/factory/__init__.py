@@ -1,6 +1,6 @@
 import random
 from collections.abc import Mapping
-from datetime import datetime
+from datetime import date
 from types import MappingProxyType
 
 from backend.core.dto.fixed_income_asset import (
@@ -38,7 +38,7 @@ class FixedIncomeFactory:
 
     @classmethod
     def generate_assets(
-        cls, current_date: datetime, n: int, seed: int | None = None
+        cls, current_date: date, n: int, seed: int | None = None
     ) -> dict[str, FixedIncomeAssetDTO]:
         if seed is not None:
             random.seed(seed)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import datetime
 from dataclasses import dataclass
+from datetime import date
 
 from backend.core.dto.base import BaseDTO
 from backend.core.models.models import StockPriceHistory
@@ -9,7 +9,7 @@ from backend.core.models.models import StockPriceHistory
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class StockPriceHistoryDTO(BaseDTO):
-    price_date: datetime.date
+    price_date: date
     open: float
     high: float
     low: float

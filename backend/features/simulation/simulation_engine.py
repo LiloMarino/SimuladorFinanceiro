@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from decimal import Decimal
 
 from backend.core import repository
@@ -28,7 +28,7 @@ class SimulationEngine:
             loader=repository.user.get_user_balance
         )
         self._strategy = None
-        self.current_date: datetime = current_date
+        self.current_date: date = current_date
 
         # Configura os alias
         self.get_positions = self.broker.get_positions
@@ -48,7 +48,7 @@ class SimulationEngine:
                 if cash > 0
                 else CashflowEventType.WITHDRAW,
                 amount=Decimal(abs(cash)),
-                event_date=self.current_date.date(),
+                event_date=self.current_date,
             )
         )
         notify("cash_update", {"cash": self._cash[client_id]}, to=client_id)
@@ -100,7 +100,7 @@ class SimulationEngine:
             ),
         )
 
-    def next(self, current_date: datetime):
+    def next(self, current_date: date):
         self.current_date = current_date
 
         self.fixed_income_market.refresh_assets(current_date)

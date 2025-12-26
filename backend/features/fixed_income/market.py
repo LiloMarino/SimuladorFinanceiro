@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
@@ -16,7 +16,7 @@ class FixedIncomeMarket:
         self._current_month: tuple[int, int] | None = None
         self._assets: dict[str, FixedIncomeAssetDTO] = {}
 
-    def refresh_assets(self, current_date: datetime):
+    def refresh_assets(self, current_date: date):
         current_month = (current_date.year, current_date.month)
         if self._current_month == current_month:
             return
@@ -40,7 +40,7 @@ class FixedIncomeMarket:
             return
 
         year, month = self._current_month
-        current_date = datetime(year, month, 1)
+        current_date = date(year, month, 1)
 
         self._assets = FixedIncomeFactory.generate_assets(
             current_date=current_date, n=10

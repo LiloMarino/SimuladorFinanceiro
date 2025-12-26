@@ -14,7 +14,7 @@ from backend.core.models.models import EventCashflow, Snapshots, Users
 class UserRepository:
     @transactional
     def create_user(
-        self, session: Session, client_id: str, nickname: str, event_date: datetime
+        self, session: Session, client_id: str, nickname: str, event_date: date
     ) -> UserDTO:
         user = Users(
             client_id=client_id,
@@ -27,7 +27,7 @@ class UserRepository:
             user_id=user.id,
             event_type="DEPOSIT",
             amount=config.toml.simulation.starting_cash,
-            event_date=event_date.date(),
+            event_date=event_date,
             created_at=datetime.now(UTC),
         )
         session.add(cash_event)

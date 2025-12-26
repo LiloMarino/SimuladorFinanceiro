@@ -1,7 +1,7 @@
 import random
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.enum import RateIndexType
@@ -9,7 +9,7 @@ from backend.core.enum import RateIndexType
 
 class AbstractFixedIncomeFactory(ABC):
     def create_asset(
-        self, rate_index: RateIndexType, current_date: datetime
+        self, rate_index: RateIndexType, current_date: date
     ) -> FixedIncomeAssetDTO:
         try:
             return self._strategies[rate_index](current_date)
@@ -22,7 +22,7 @@ class AbstractFixedIncomeFactory(ABC):
     @abstractmethod
     def _strategies(
         self,
-    ) -> dict[RateIndexType, Callable[[datetime], FixedIncomeAssetDTO]]:
+    ) -> dict[RateIndexType, Callable[[date], FixedIncomeAssetDTO]]:
         """Mapeia indexadores para funções de criação de ativos."""
         pass
 
@@ -38,8 +38,8 @@ class AbstractFixedIncomeFactory(ABC):
         return round(rate * multiplier, round_digits)
 
     def _generate_maturity(
-        self, current_date: datetime, min_years: int, max_years: int
-    ) -> datetime:
+        self, current_date: date, min_years: int, max_years: int
+    ) -> date:
         """Gera uma data de vencimento aleatória entre N e M anos."""
         delta_years = random.randint(min_years, max_years)
         days_extra = random.randint(0, 365)

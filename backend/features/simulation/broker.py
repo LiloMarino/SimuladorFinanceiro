@@ -75,7 +75,7 @@ class Broker:
                 ticker=ticker,
                 quantity=size,
                 price=Decimal(price),
-                event_date=self._simulation_engine.current_date.date(),
+                event_date=self._simulation_engine.current_date,
             )
         )
         logger.info(
@@ -103,7 +103,7 @@ class Broker:
                 ticker=ticker,
                 quantity=size,
                 price=Decimal(price),
-                event_date=self._simulation_engine.current_date.date(),
+                event_date=self._simulation_engine.current_date,
             )
         )
         if pos.size == 0:

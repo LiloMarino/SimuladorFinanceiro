@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
@@ -15,7 +15,7 @@ logger = setup_logger(__name__)
 
 
 class Simulation:
-    def __init__(self, start_date: datetime, end_date: datetime):
+    def __init__(self, start_date: date, end_date: date):
         self._speed = 0
         self._current_date = start_date - timedelta(days=1)
         self._end_date = end_date
@@ -64,7 +64,7 @@ class Simulation:
             for user in users:
                 snapshot = repository.snapshot.create_snapshot(
                     user_id=user.id,
-                    current_date=self._current_date,
+                    snapshot_date=self._current_date,
                 )
 
                 notify(

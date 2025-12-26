@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 from backend.core import repository
 from backend.core.dto.fixed_income_asset import (
@@ -19,7 +19,7 @@ class LCIFactory(AbstractFixedIncomeFactory):
             RateIndexType.PREFIXADO: self.create_prefixado,
         }
 
-    def create_cdi(self, current_date: datetime) -> FixedIncomeAssetDTO:
+    def create_cdi(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 0, 6)
         rate = self._generate_rate(base_value=1.0, delta=0.20, multiplier=0.85)
         issuer = "Banco Imobiliário"
@@ -33,7 +33,7 @@ class LCIFactory(AbstractFixedIncomeFactory):
             maturity_date=maturity_date,
         )
 
-    def create_ipca(self, current_date: datetime) -> FixedIncomeAssetDTO:
+    def create_ipca(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 0, 8)
         base_diff = (
             repository.economic.get_cdi_rate(current_date)
@@ -51,7 +51,7 @@ class LCIFactory(AbstractFixedIncomeFactory):
             maturity_date=maturity_date,
         )
 
-    def create_prefixado(self, current_date: datetime) -> FixedIncomeAssetDTO:
+    def create_prefixado(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 0, 5)
         base = repository.economic.get_cdi_rate(current_date)
         rate = self._generate_rate(base_value=base, delta=0.005, multiplier=0.85)

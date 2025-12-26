@@ -59,7 +59,7 @@ class FixedBroker:
         if value <= 0:
             raise ValueError("Valor do investimento deve ser maior que zero")
 
-        if self._simulation_engine.current_date.date() >= asset.maturity_date:
+        if self._simulation_engine.current_date >= asset.maturity_date:
             raise FixedIncomeExpiredAssetError(
                 f"Ativo {asset.name} já venceu em {asset.maturity_date}"
             )
@@ -81,7 +81,7 @@ class FixedBroker:
                 event_type=FixedIncomeEventType.BUY,
                 asset_id=asset_id,
                 amount=Decimal(value),
-                event_date=self._simulation_engine.current_date.date(),
+                event_date=self._simulation_engine.current_date,
             )
         )
         logger.info(

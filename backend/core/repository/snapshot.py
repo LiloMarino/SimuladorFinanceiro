@@ -21,13 +21,11 @@ class SnapshotRepository:
         self,
         session: Session,
         user_id: int,
-        current_date: datetime,
+        snapshot_date: date,
     ) -> SnapshotDTO:
         """
         Snapshot(N) = Snapshot(N-1) + Eventos ocorridos após o último snapshot
         """
-        snapshot_date: date = current_date.date()
-
         # --------------------------------------------------
         # 1. Buscar último snapshot do usuário
         # --------------------------------------------------
