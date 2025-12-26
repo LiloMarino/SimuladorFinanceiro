@@ -9,12 +9,14 @@ from backend.core.dto.events.fixed_income import (
     FixedIncomeEventDTO,
 )
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
+from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.enum import FixedIncomeEventType
 from backend.core.exceptions import FixedIncomeExpiredAssetError
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
+from backend.features.realtime import notify
 from backend.features.simulation.entities.fixed_income_position import (
     FixedIncomePosition,
 )
@@ -57,8 +59,7 @@ class FixedBroker:
         if value <= 0:
             raise ValueError("Valor do investimento deve ser maior que zero")
 
-        today = self._simulation_engine.current_date.date()
-        if today >= asset.maturity_date:
+        if self._simulation_engine.current_date.date() >= asset.maturity_date:
             raise FixedIncomeExpiredAssetError(
                 f"Ativo {asset.name} já venceu em {asset.maturity_date}"
             )
@@ -90,9 +91,9 @@ class FixedBroker:
     def apply_daily_interest(self, current_date: date):
         for client_id, assets_by_client in list(self._assets.items()):
             user_id = UserManager.get_user_id(client_id)
+            updates: list[FixedIncomePositionDTO] = []
             for asset_name, position in list(assets_by_client.items()):
                 position.apply_daily_interest(current_date)
-
                 if current_date >= position.asset.maturity_date:
                     self.redeem_position(
                         current_date,
@@ -102,6 +103,22 @@ class FixedBroker:
                         position,
                     )
                     del assets_by_client[asset_name]
+                    continue
+
+                updates.append(
+                    FixedIncomePositionDTO(
+                        asset=position.asset,
+                        total_applied=position.total_applied,
+                        current_value=position.current_value,
+                    )
+                )
+
+            if updates:
+                notify(
+                    "fixed_income_position_update",
+                    {"positions": [update.to_json() for update in updates]},
+                    client_id,
+                )
 
     def redeem_position(
         self,

@@ -20,6 +20,10 @@ export default function PortfolioPage() {
     loading: portfolioLoading,
   } = useQueryApi<PortfolioState>("/api/portfolio");
 
+  // Busca dados econômicos
+  const { data: economicIndicatorsData, loading: economicIndicatorsLoading } =
+    useQueryApi<EconomicIndicators>("/api/economic-indicators");
+
   // Atualiza o histórico patrimonial em tempo real
   useRealtime("snapshot_update", ({ snapshot }) => {
     setPortfolioData((prev) => {
@@ -42,14 +46,33 @@ export default function PortfolioPage() {
     });
   });
 
-  // Busca dados econômicos
-  const { data: economicIndicatorsData, loading: economicIndicatorsLoading } =
-    useQueryApi<EconomicIndicators>("/api/economic-indicators");
-
   // Busca os valores das ações e os atualiza em tempo real
   const { data: stocks, setData: setStocks } = useQueryApi<Stock[]>("/api/variable-income");
   useRealtime("stocks_update", (data) => {
     setStocks(data.stocks);
+  });
+
+  // Atualiza os valores da renda fixa em tempo real
+  useRealtime("fixed_income_position_update", (data) => {
+    console.log(data);
+    setPortfolioData((prev) => {
+      if (!prev) return prev;
+
+      // Mapa por asset_uuid para merge rápido
+      const map = new Map(prev.fixed_income.map((pos) => [pos.asset.asset_uuid, pos]));
+
+      for (const updated of data.positions) {
+        map.set(updated.asset.asset_uuid, {
+          ...map.get(updated.asset.asset_uuid),
+          ...updated,
+        });
+      }
+
+      return {
+        ...prev,
+        fixed_income: Array.from(map.values()),
+      };
+    });
   });
 
   if (portfolioLoading) {
