@@ -92,6 +92,7 @@ class FixedBroker:
         for client_id, assets_by_client in list(self._assets.items()):
             user_id = UserManager.get_user_id(client_id)
             updates: list[FixedIncomePositionDTO] = []
+            has_expired = False
             for asset_name, position in list(assets_by_client.items()):
                 position.apply_daily_interest(current_date)
                 if current_date >= position.asset.maturity_date:
@@ -103,6 +104,7 @@ class FixedBroker:
                         position,
                     )
                     del assets_by_client[asset_name]
+                    has_expired = True
                     continue
 
                 updates.append(
@@ -113,7 +115,7 @@ class FixedBroker:
                     )
                 )
 
-            if updates:
+            if updates or has_expired:
                 notify(
                     "fixed_income_position_update",
                     {"positions": [update.to_json() for update in updates]},

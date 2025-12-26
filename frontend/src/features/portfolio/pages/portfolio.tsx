@@ -54,23 +54,12 @@ export default function PortfolioPage() {
 
   // Atualiza os valores da renda fixa em tempo real
   useRealtime("fixed_income_position_update", (data) => {
-    console.log(data);
     setPortfolioData((prev) => {
       if (!prev) return prev;
 
-      // Mapa por asset_uuid para merge rápido
-      const map = new Map(prev.fixed_income.map((pos) => [pos.asset.asset_uuid, pos]));
-
-      for (const updated of data.positions) {
-        map.set(updated.asset.asset_uuid, {
-          ...map.get(updated.asset.asset_uuid),
-          ...updated,
-        });
-      }
-
       return {
         ...prev,
-        fixed_income: Array.from(map.values()),
+        fixed_income: data.positions,
       };
     });
   });
