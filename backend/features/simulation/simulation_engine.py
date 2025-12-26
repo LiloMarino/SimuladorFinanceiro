@@ -106,7 +106,7 @@ class SimulationEngine:
         self.fixed_income_market.refresh_assets(current_date)
 
         # Aplica juros dos ativos de renda fixa
-        # self.fixed_broker.apply_daily_interest(current_date)
+        self.fixed_broker.apply_daily_interest(current_date)
 
         # Executa a estratégia
         if not self._strategy:
