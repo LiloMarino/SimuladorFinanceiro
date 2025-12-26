@@ -1,0 +1,2 @@
+class FixedIncomeExpiredAssetError(Exception):
+    pass

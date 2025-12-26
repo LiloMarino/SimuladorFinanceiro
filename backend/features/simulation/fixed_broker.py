@@ -8,7 +8,9 @@ from backend.core import repository
 from backend.core.dto.events.fixed_income import (
     FixedIncomeEventDTO,
 )
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.enum import FixedIncomeEventType
+from backend.core.exceptions import FixedIncomeExpiredAssetError
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -51,13 +53,15 @@ class FixedBroker:
     def get_fixed_positions(self, client_id: str) -> dict[str, FixedIncomePosition]:
         return self._assets[client_id]
 
-    def buy(self, client_id: str, asset_uuid: str, value: float):
+    def buy(self, client_id: str, asset: FixedIncomeAssetDTO, value: float):
         if value <= 0:
             raise ValueError("Valor do investimento deve ser maior que zero")
 
-        asset = self._simulation_engine.fixed_income_market.get_asset(asset_uuid)
-        if asset is None:
-            raise ValueError(f"Asset {asset_uuid} not found")
+        today = self._simulation_engine.current_date.date()
+        if today >= asset.maturity_date:
+            raise FixedIncomeExpiredAssetError(
+                f"Ativo {asset.name} já venceu em {asset.maturity_date}"
+            )
 
         if self._simulation_engine.get_cash(client_id) < value:
             raise ValueError(f"Saldo insuficiente para investir em {asset.name}")

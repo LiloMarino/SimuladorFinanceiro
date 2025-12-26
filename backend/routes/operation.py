@@ -1,6 +1,7 @@
 from flask import Blueprint, request
 
 from backend.core.decorators.cookie import require_client_id
+from backend.core.exceptions import FixedIncomeExpiredAssetError
 from backend.features.simulation import get_simulation
 from backend.features.simulation.entities.order import OrderAction
 from backend.features.strategy.manual import ManualStrategy
@@ -83,5 +84,11 @@ def buy_fixed_income(client_id, asset_uuid):
     if not quantity:
         return make_response(False, "Quantity is required.", 422)
 
-    simulation._engine.fixed_broker.buy(client_id, asset_uuid, quantity)
+    try:
+        simulation._engine.fixed_broker.buy(client_id, fixed, quantity)
+    except FixedIncomeExpiredAssetError as e:
+        return make_response(False, str(e), 409)
+    except ValueError as e:
+        return make_response(False, str(e), 400)
+
     return make_response(True, "Investment queued successfully.")
