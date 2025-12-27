@@ -11,6 +11,8 @@ import { Link } from "react-router-dom";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { SummaryCard } from "@/features/portfolio/components/summary-card";
 import { PortfolioCharts } from "../components/portfolio-charts";
+import { useMemo } from "react";
+import { calculatePortfolioView } from "../lib/portfolio-calculator";
 export default function PortfolioPage() {
   usePageLabel("Carteira");
   // Busca dados da carteira
@@ -64,6 +66,11 @@ export default function PortfolioPage() {
     });
   });
 
+  const view = useMemo(() => {
+    if (!portfolioData) return null;
+    return calculatePortfolioView(portfolioData, stocks);
+  }, [portfolioData, stocks]);
+
   if (portfolioLoading) {
     return (
       <section className="flex min-h-[80vh] items-center justify-center">
@@ -74,75 +81,20 @@ export default function PortfolioPage() {
     return <div>Falha ao carregar carteira</div>;
   }
 
-  function getCurrentPrice(ticker: string): number | undefined {
-    return stocks?.find((s) => s.ticker === ticker)?.close;
-  }
-
-  const { variable_income, fixed_income, patrimonial_history } = portfolioData;
-
-  const variablePositions = variable_income.map((pos) => {
-    const currentPrice = getCurrentPrice(pos.ticker) ?? pos.avg_price;
-    const investedValue = pos.avg_price * pos.size;
-    const currentValue = currentPrice * pos.size;
-    const returnValue = currentValue - investedValue;
-    const returnPercent = ((returnValue / investedValue) * 100).toFixed(2) + "%";
-
-    return {
-      ticker: pos.ticker,
-      averagePrice: pos.avg_price,
-      quantity: pos.size,
-      currentPrice,
-      investedValue,
-      currentValue,
-      portfolioPercent: "0%", // definido depois
-      returnValue,
-      returnPercent,
-    };
-  });
-  const fixedPositions = fixed_income.map((pos) => {
-    const investedValue = pos.total_applied;
-    const currentValue = pos.current_value;
-    const returnValue = currentValue - investedValue;
-    const returnPercent = investedValue > 0 ? ((returnValue / investedValue) * 100).toFixed(2) + "%" : "0%";
-
-    return {
-      uuid: pos.asset.asset_uuid,
-      name: pos.asset.name,
-      issuer: pos.asset.issuer,
-      rateIndex: pos.asset.rate_index,
-      interestRate: pos.asset.interest_rate,
-      investedValue,
-      currentValue,
-      returnValue,
-      returnPercent,
-      portfolioPercent: "0%", // definido depois
-    };
-  });
-
-  const variableIncomeValue = variablePositions.reduce((sum, p) => sum + p.currentValue, 0);
-  const fixedIncomeValue = fixedPositions.reduce((sum, p) => sum + p.currentValue, 0);
-  const portfolioValue = variableIncomeValue + fixedIncomeValue;
-  variablePositions.forEach((pos) => {
-    pos.portfolioPercent = portfolioValue > 0 ? ((pos.currentValue / portfolioValue) * 100).toFixed(2) + "%" : "0%";
-  });
-  fixedPositions.forEach((pos) => {
-    pos.portfolioPercent = portfolioValue > 0 ? ((pos.currentValue / portfolioValue) * 100).toFixed(2) + "%" : "0%";
-  });
-
-  const variableIncomePct = portfolioValue > 0 ? ((variableIncomeValue / portfolioValue) * 100).toFixed(1) : "0";
-  const fixedIncomePct = portfolioValue > 0 ? ((fixedIncomeValue / portfolioValue) * 100).toFixed(1) : "0";
-  const dividend = 0; // ❌ Não é possível inferir com os dados atuais
-  const portfolioPct = 0; // ❌ Não é possível inferir com os dados atuais
-  const pieData = [
-    ...variablePositions.map((pos) => ({
-      name: pos.ticker,
-      value: pos.currentValue,
-    })),
-    ...fixedPositions.map((pos) => ({
-      name: pos.name,
-      value: pos.currentValue,
-    })),
-  ];
+  if (!view) return null;
+  const { patrimonial_history } = portfolioData;
+  const {
+    variablePositions,
+    fixedPositions,
+    variableIncomeValue,
+    fixedIncomeValue,
+    portfolioValue,
+    variableIncomePct,
+    fixedIncomePct,
+    dividend,
+    portfolioPct,
+    pieData,
+  } = view;
 
   return (
     <section className="p-4 space-y-6">
