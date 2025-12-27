@@ -1,37 +1,47 @@
 import type { PortfolioState, Stock } from "@/types";
 
-export function calculatePortfolioView(portfolioData: PortfolioState, stocks: Stock[] | null) {
-  function getCurrentPrice(ticker: string): number | undefined {
-    return stocks?.find((s) => s.ticker === ticker)?.close;
-  }
+function calculateReturnMetrics(
+  investedValue: number,
+  currentValue: number
+): {
+  investedValue: number;
+  currentValue: number;
+  returnValue: number;
+  returnPercent: number;
+} {
+  const returnValue = currentValue - investedValue;
+  const returnPercent = investedValue > 0 ? returnValue / investedValue : 0;
 
-  const { variable_income, fixed_income } = portfolioData;
+  return {
+    investedValue,
+    currentValue,
+    returnValue,
+    returnPercent,
+  };
+}
 
-  const variablePositions = variable_income.map((pos) => {
+function calculateVariablePositions(variableIncome: PortfolioState["variable_income"], stocks: Stock[] | null) {
+  const getCurrentPrice = (ticker: string) => stocks?.find((s) => s.ticker === ticker)?.close;
+
+  return variableIncome.map((pos) => {
     const currentPrice = getCurrentPrice(pos.ticker) ?? pos.avg_price;
-    const investedValue = pos.avg_price * pos.size;
-    const currentValue = currentPrice * pos.size;
-    const returnValue = currentValue - investedValue;
-    const returnPercent = investedValue > 0 ? returnValue / investedValue : 0;
+
+    const metrics = calculateReturnMetrics(pos.avg_price * pos.size, currentPrice * pos.size);
 
     return {
       ticker: pos.ticker,
       averagePrice: pos.avg_price,
       quantity: pos.size,
       currentPrice,
-      investedValue,
-      currentValue,
-      portfolioPercent: 0, // ratio
-      returnValue,
-      returnPercent, // ratio
+      ...metrics,
+      portfolioPercent: 0,
     };
   });
+}
 
-  const fixedPositions = fixed_income.map((pos) => {
-    const investedValue = pos.total_applied;
-    const currentValue = pos.current_value;
-    const returnValue = currentValue - investedValue;
-    const returnPercent = investedValue > 0 ? returnValue / investedValue : 0;
+function calculateFixedPositions(fixedIncome: PortfolioState["fixed_income"]) {
+  return fixedIncome.map((pos) => {
+    const metrics = calculateReturnMetrics(pos.total_applied, pos.current_value);
 
     return {
       uuid: pos.asset.asset_uuid,
@@ -39,33 +49,34 @@ export function calculatePortfolioView(portfolioData: PortfolioState, stocks: St
       issuer: pos.asset.issuer,
       rateIndex: pos.asset.rate_index,
       interestRate: pos.asset.interest_rate,
-      investedValue,
-      currentValue,
-      returnValue,
-      returnPercent, // ratio
-      portfolioPercent: 0, // ratio
+      ...metrics,
+      portfolioPercent: 0,
     };
   });
+}
+
+function applyPortfolioPercent<T extends { currentValue: number; portfolioPercent: number }>(
+  positions: T[],
+  portfolioValue: number
+) {
+  positions.forEach((pos) => {
+    pos.portfolioPercent = portfolioValue > 0 ? pos.currentValue / portfolioValue : 0;
+  });
+}
+
+export function calculatePortfolioView(portfolioData: PortfolioState, stocks: Stock[] | null) {
+  const variablePositions = calculateVariablePositions(portfolioData.variable_income, stocks);
+
+  const fixedPositions = calculateFixedPositions(portfolioData.fixed_income);
 
   const variableIncomeValue = variablePositions.reduce((sum, p) => sum + p.currentValue, 0);
+
   const fixedIncomeValue = fixedPositions.reduce((sum, p) => sum + p.currentValue, 0);
 
   const portfolioValue = variableIncomeValue + fixedIncomeValue;
 
-  variablePositions.forEach((pos) => {
-    pos.portfolioPercent = portfolioValue > 0 ? pos.currentValue / portfolioValue : 0;
-  });
-
-  fixedPositions.forEach((pos) => {
-    pos.portfolioPercent = portfolioValue > 0 ? pos.currentValue / portfolioValue : 0;
-  });
-
-  const variableIncomePct = portfolioValue > 0 ? variableIncomeValue / portfolioValue : 0;
-
-  const fixedIncomePct = portfolioValue > 0 ? fixedIncomeValue / portfolioValue : 0;
-
-  const dividend = 0;
-  const portfolioPct = 0;
+  applyPortfolioPercent(variablePositions, portfolioValue);
+  applyPortfolioPercent(fixedPositions, portfolioValue);
 
   return {
     variablePositions,
@@ -73,9 +84,9 @@ export function calculatePortfolioView(portfolioData: PortfolioState, stocks: St
     variableIncomeValue,
     fixedIncomeValue,
     portfolioValue,
-    variableIncomePct,
-    fixedIncomePct,
-    dividend,
-    portfolioPct,
+    variableIncomePct: portfolioValue > 0 ? variableIncomeValue / portfolioValue : 0,
+    fixedIncomePct: portfolioValue > 0 ? fixedIncomeValue / portfolioValue : 0,
+    dividend: 0,
+    portfolioPct: 0,
   };
 }
