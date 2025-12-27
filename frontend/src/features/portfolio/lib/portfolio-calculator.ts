@@ -1,14 +1,13 @@
 import type { PortfolioState, Stock } from "@/types";
 
-function calculateReturnMetrics(
-  investedValue: number,
-  currentValue: number
-): {
+type ReturnMetrics = {
   investedValue: number;
   currentValue: number;
   returnValue: number;
   returnPercent: number;
-} {
+};
+
+function calculateReturnMetrics(investedValue: number, currentValue: number): ReturnMetrics {
   const returnValue = currentValue - investedValue;
   const returnPercent = investedValue > 0 ? returnValue / investedValue : 0;
 
@@ -78,15 +77,21 @@ export function calculatePortfolioView(portfolioData: PortfolioState, stocks: St
   applyPortfolioPercent(variablePositions, portfolioValue);
   applyPortfolioPercent(fixedPositions, portfolioValue);
 
+  const variableIncomePct = portfolioValue > 0 ? variableIncomeValue / portfolioValue : 0;
+  const fixedIncomePct = portfolioValue > 0 ? fixedIncomeValue / portfolioValue : 0;
+
+  const initialCapital = portfolioData.starting_cash;
+  const totalReturnPct = initialCapital > 0 ? (portfolioValue - initialCapital) / initialCapital : 0;
+
   return {
     variablePositions,
     fixedPositions,
     variableIncomeValue,
     fixedIncomeValue,
     portfolioValue,
-    variableIncomePct: portfolioValue > 0 ? variableIncomeValue / portfolioValue : 0,
-    fixedIncomePct: portfolioValue > 0 ? fixedIncomeValue / portfolioValue : 0,
-    dividend: 0,
-    portfolioPct: 0,
+    variableIncomePct,
+    fixedIncomePct,
+    dividend: 0, // placeholder futuro
+    totalReturnPct,
   };
 }

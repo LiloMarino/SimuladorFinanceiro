@@ -8,6 +8,7 @@ from backend.core.dto.position import PositionDTO
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class PortfolioDTO(BaseDTO):
+    starting_cash: float
     cash: float
     variable_income: list[PositionDTO]
     fixed_income: list[FixedIncomePositionDTO]

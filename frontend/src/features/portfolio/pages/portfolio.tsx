@@ -92,7 +92,7 @@ export default function PortfolioPage() {
     variableIncomePct,
     fixedIncomePct,
     dividend,
-    portfolioPct,
+    totalReturnPct,
   } = view;
 
   return (
@@ -102,7 +102,7 @@ export default function PortfolioPage() {
         <SummaryCard
           title="Valor Total"
           value={portfolioValue}
-          subtitle={`${portfolioPct}% desde o início`}
+          subtitle={`${totalReturnPct}% desde o início`}
           icon={faWallet}
           iconBg="bg-green-100"
           color="text-green-600"
