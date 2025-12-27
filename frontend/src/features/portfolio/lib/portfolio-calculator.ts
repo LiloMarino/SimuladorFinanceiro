@@ -56,42 +56,46 @@ function calculateFixedPositions(fixedIncome: PortfolioState["fixed_income"]) {
 
 function applyPortfolioPercent<T extends { currentValue: number; portfolioPercent: number }>(
   positions: T[],
-  portfolioValue: number
+  total: number
 ) {
   positions.forEach((pos) => {
-    pos.portfolioPercent = portfolioValue > 0 ? pos.currentValue / portfolioValue : 0;
+    pos.portfolioPercent = total > 0 ? pos.currentValue / total : 0;
   });
 }
 
 export function calculatePortfolioView(portfolioData: PortfolioState, stocks: Stock[] | null) {
+  // Obtém as posições com suas métricas
   const variablePositions = calculateVariablePositions(portfolioData.variable_income, stocks);
-
   const fixedPositions = calculateFixedPositions(portfolioData.fixed_income);
 
+  // Obtém os valores totais
   const variableIncomeValue = variablePositions.reduce((sum, p) => sum + p.currentValue, 0);
-
   const fixedIncomeValue = fixedPositions.reduce((sum, p) => sum + p.currentValue, 0);
+  const investedValue = variableIncomeValue + fixedIncomeValue;
+  const cashValue = portfolioData.cash;
+  const totalNetWorth = investedValue + cashValue;
 
-  const portfolioValue = variableIncomeValue + fixedIncomeValue;
+  applyPortfolioPercent(variablePositions, investedValue);
+  applyPortfolioPercent(fixedPositions, investedValue);
 
-  applyPortfolioPercent(variablePositions, portfolioValue);
-  applyPortfolioPercent(fixedPositions, portfolioValue);
-
-  const variableIncomePct = portfolioValue > 0 ? variableIncomeValue / portfolioValue : 0;
-  const fixedIncomePct = portfolioValue > 0 ? fixedIncomeValue / portfolioValue : 0;
-
+  // Calcula os percentuais
+  const variableIncomePct = investedValue > 0 ? variableIncomeValue / investedValue : 0;
+  const fixedIncomePct = investedValue > 0 ? fixedIncomeValue / investedValue : 0;
+  const investedPct = totalNetWorth > 0 ? investedValue / totalNetWorth : 0;
   const initialCapital = portfolioData.starting_cash;
-  const totalReturnPct = initialCapital > 0 ? (portfolioValue - initialCapital) / initialCapital : 0;
+  const totalReturnPct = initialCapital > 0 ? (totalNetWorth - initialCapital) / initialCapital : 0;
 
   return {
     variablePositions,
     fixedPositions,
     variableIncomeValue,
     fixedIncomeValue,
-    portfolioValue,
+    investedValue,
+    cashValue,
+    totalNetWorth,
     variableIncomePct,
     fixedIncomePct,
-    dividend: 0, // placeholder futuro
+    investedPct,
     totalReturnPct,
   };
 }
