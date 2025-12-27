@@ -67,17 +67,6 @@ export function calculatePortfolioView(portfolioData: PortfolioState, stocks: St
   const dividend = 0;
   const portfolioPct = 0;
 
-  const pieData = [
-    ...variablePositions.map((pos) => ({
-      name: pos.ticker,
-      value: pos.currentValue,
-    })),
-    ...fixedPositions.map((pos) => ({
-      name: pos.name,
-      value: pos.currentValue,
-    })),
-  ];
-
   return {
     variablePositions,
     fixedPositions,
@@ -88,6 +77,5 @@ export function calculatePortfolioView(portfolioData: PortfolioState, stocks: St
     fixedIncomePct,
     dividend,
     portfolioPct,
-    pieData,
   };
 }

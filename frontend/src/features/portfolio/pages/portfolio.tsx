@@ -93,7 +93,6 @@ export default function PortfolioPage() {
     fixedIncomePct,
     dividend,
     portfolioPct,
-    pieData,
   } = view;
 
   return (
@@ -135,7 +134,11 @@ export default function PortfolioPage() {
       </div>
 
       {/* Charts */}
-      <PortfolioCharts pieData={pieData} historyData={patrimonial_history} />
+      <PortfolioCharts
+        variablePositions={variablePositions}
+        fixedPositions={fixedPositions}
+        patrimonialHistory={patrimonial_history}
+      />
 
       {/* Economic Indicators */}
       <Card className="p-6">
