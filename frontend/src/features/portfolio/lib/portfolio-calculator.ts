@@ -1,10 +1,35 @@
-import type { PortfolioState, Stock } from "@/types";
+import type { FixedIncomePosition, PortfolioState, Position, RateIndex, Stock } from "@/types";
 
 type ReturnMetrics = {
   investedValue: number;
   currentValue: number;
   returnValue: number;
   returnPercent: number;
+};
+
+export type VariablePosition = {
+  portfolioPercent: number;
+  investedValue: number;
+  currentValue: number;
+  returnValue: number;
+  returnPercent: number;
+  ticker: string;
+  averagePrice: number;
+  quantity: number;
+  currentPrice: number;
+};
+
+export type FixedPosition = {
+  portfolioPercent: number;
+  investedValue: number;
+  currentValue: number;
+  returnValue: number;
+  returnPercent: number;
+  uuid: string;
+  name: string;
+  issuer: string;
+  rateIndex: RateIndex;
+  interestRate: number | null;
 };
 
 function calculateReturnMetrics(investedValue: number, currentValue: number): ReturnMetrics {
@@ -19,7 +44,7 @@ function calculateReturnMetrics(investedValue: number, currentValue: number): Re
   };
 }
 
-function calculateVariablePositions(variableIncome: PortfolioState["variable_income"], stocks: Stock[] | null) {
+function calculateVariablePositions(variableIncome: Position[], stocks: Stock[] | null): VariablePosition[] {
   const getCurrentPrice = (ticker: string) => stocks?.find((s) => s.ticker === ticker)?.close;
 
   return variableIncome.map((pos) => {
@@ -38,7 +63,7 @@ function calculateVariablePositions(variableIncome: PortfolioState["variable_inc
   });
 }
 
-function calculateFixedPositions(fixedIncome: PortfolioState["fixed_income"]) {
+function calculateFixedPositions(fixedIncome: FixedIncomePosition[]): FixedPosition[] {
   return fixedIncome.map((pos) => {
     const metrics = calculateReturnMetrics(pos.total_applied, pos.current_value);
 
