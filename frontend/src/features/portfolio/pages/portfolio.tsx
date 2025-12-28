@@ -6,7 +6,7 @@ import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { Spinner } from "@/shared/components/ui/spinner";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import type { EconomicIndicators, PortfolioState, Stock } from "@/types";
-import { formatMoney } from "@/shared/lib/utils/formatting";
+import { formatMoney, formatPercent } from "@/shared/lib/utils/formatting";
 import { Link } from "react-router-dom";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { SummaryCard } from "@/features/portfolio/components/summary-card";
@@ -103,7 +103,7 @@ export default function PortfolioPage() {
         <SummaryCard
           title="Patrimônio Total"
           value={totalNetWorth}
-          subtitle={`${(totalReturnPct * 100).toFixed(2)}% desde o início`}
+          subtitle={`${formatPercent(totalReturnPct)} desde o início`}
           icon={faWallet}
           iconBg="bg-green-100"
           color="text-green-600"
@@ -112,7 +112,7 @@ export default function PortfolioPage() {
         <SummaryCard
           title="Total Investido"
           value={investedValue}
-          subtitle={`${(investedPct * 100).toFixed(2)}% do patrimônio`}
+          subtitle={`${formatPercent(investedPct)} do patrimônio`}
           icon={faMoneyBillWave}
           iconBg="bg-purple-100"
           color="text-purple-600"
@@ -121,7 +121,7 @@ export default function PortfolioPage() {
         <SummaryCard
           title="Renda Variável"
           value={variableIncomeValue}
-          subtitle={`${(variableIncomePct * 100).toFixed(2)}% da carteira`}
+          subtitle={`${formatPercent(variableIncomePct)} da carteira`}
           icon={faChartLine}
           iconBg="bg-blue-100"
           color="text-blue-600"
@@ -130,7 +130,7 @@ export default function PortfolioPage() {
         <SummaryCard
           title="Renda Fixa"
           value={fixedIncomeValue}
-          subtitle={`${(fixedIncomePct * 100).toFixed(2)}% da carteira`}
+          subtitle={`${formatPercent(fixedIncomePct)} da carteira`}
           icon={faCoins}
           iconBg="bg-yellow-100"
           color="text-yellow-600"
@@ -155,15 +155,15 @@ export default function PortfolioPage() {
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[120px] border rounded p-4 text-center">
               <p className="text-gray-600 text-sm">CDI</p>
-              <p className="font-bold">{economicIndicatorsData.cdi.toFixed(2)}%</p>
+              <p className="font-bold">{formatPercent(economicIndicatorsData.cdi / 100)}</p>
             </div>
             <div className="flex-1 min-w-[120px] border rounded p-4 text-center">
               <p className="text-gray-600 text-sm">SELIC</p>
-              <p className="font-bold">{economicIndicatorsData.selic.toFixed(2)}%</p>
+              <p className="font-bold">{formatPercent(economicIndicatorsData.selic / 100)}</p>
             </div>
             <div className="flex-1 min-w-[120px] border rounded p-4 text-center">
               <p className="text-gray-600 text-sm">IPCA (12m)</p>
-              <p className="font-bold">{economicIndicatorsData.ipca.toFixed(2)}%</p>
+              <p className="font-bold">{formatPercent(economicIndicatorsData.ipca / 100)}</p>
             </div>
           </div>
         )}
@@ -205,12 +205,12 @@ export default function PortfolioPage() {
                     <TableCell>{formatMoney(pos.currentPrice)}</TableCell>
                     <TableCell>{pos.quantity}</TableCell>
                     <TableCell>{formatMoney(pos.currentValue)}</TableCell>
-                    <TableCell>{pos.portfolioPercent}</TableCell>
+                    <TableCell>{formatPercent(pos.portfolioPercent)}</TableCell>
                     <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
                       {formatMoney(pos.returnValue)}
                     </TableCell>
                     <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
-                      {pos.returnPercent}
+                      {formatPercent(pos.returnPercent)}
                     </TableCell>
                     <TableCell>
                       <Link
@@ -262,12 +262,12 @@ export default function PortfolioPage() {
                     <TableCell>
                       {pos.interestRate ? `${pos.interestRate.toFixed(2)}% ${pos.rateIndex}` : pos.rateIndex}
                     </TableCell>
-                    <TableCell>{pos.portfolioPercent}</TableCell>
+                    <TableCell>{formatPercent(pos.portfolioPercent)}</TableCell>
                     <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
                       {formatMoney(pos.returnValue)}
                     </TableCell>
                     <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
-                      {pos.returnPercent}
+                      {formatPercent(pos.returnPercent)}
                     </TableCell>
                     <TableCell>
                       <Link
