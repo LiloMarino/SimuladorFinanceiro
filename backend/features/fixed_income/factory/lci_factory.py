@@ -5,6 +5,7 @@ from backend.core.dto.fixed_income_asset import (
     FixedIncomeAssetDTO,
 )
 from backend.core.enum import FixedIncomeType, RateIndexType
+from backend.core.utils import format_percent
 from backend.features.fixed_income.factory.abstract_factory import (
     AbstractFixedIncomeFactory,
 )
@@ -21,11 +22,11 @@ class LCIFactory(AbstractFixedIncomeFactory):
 
     def create_cdi(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 0, 6)
-        rate = self._generate_rate(base_value=1.0, delta=0.20, multiplier=0.85)
+        rate = self._generate_cdi_rate(multiplier=0.85)
         issuer = "Banco Imobiliário"
 
         return FixedIncomeAssetDTO(
-            name=f"LCI {issuer} {rate * 100:.2f}% CDI",
+            name=f"LCI {issuer} {format_percent(rate)} CDI",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.CDI,
@@ -35,17 +36,17 @@ class LCIFactory(AbstractFixedIncomeFactory):
 
     def create_ipca(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 0, 8)
-        base_diff = (
-            repository.economic.get_cdi_rate(current_date)
-            - repository.economic.get_ipca_rate(current_date)
-        ) * 0.85
-        rate = self._generate_rate(base_value=base_diff, delta=0.004)
+        spread = self._generate_ipca_spread(
+            current_date,
+            spread_index=repository.economic.get_cdi_rate,
+            multiplier=0.85,
+        )
         issuer = "Banco Imobiliário"
 
         return FixedIncomeAssetDTO(
-            name=f"LCI {issuer} IPCA+ {rate:.2f}%",
+            name=f"LCI {issuer} IPCA+ {format_percent(spread)}",
             issuer=issuer,
-            interest_rate=rate,
+            interest_rate=spread,
             rate_index=RateIndexType.IPCA,
             investment_type=FixedIncomeType.LCI,
             maturity_date=maturity_date,
@@ -53,12 +54,13 @@ class LCIFactory(AbstractFixedIncomeFactory):
 
     def create_prefixado(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 0, 5)
-        base = repository.economic.get_cdi_rate(current_date)
-        rate = self._generate_rate(base_value=base, delta=0.005, multiplier=0.85)
+        rate = self._generate_prefixado_rate(
+            current_date, base_index=repository.economic.get_cdi_rate, multiplier=0.85
+        )
         issuer = "Banco Imobiliário"
 
         return FixedIncomeAssetDTO(
-            name=f"LCI {issuer} Prefixado {rate:.2f}%",
+            name=f"LCI {issuer} Prefixado {format_percent(rate)}",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.PREFIXADO,

@@ -3,10 +3,10 @@ from datetime import date
 
 class EconomicRepository:
     def get_cdi_rate(self, date: date):
-        return 14.9
+        return 0.149
 
     def get_ipca_rate(self, date: date):
-        return 4.68
+        return 0.0468
 
     def get_selic_rate(self, date: date):
-        return 15.0
+        return 0.150

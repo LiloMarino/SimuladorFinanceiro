@@ -30,7 +30,7 @@ export function EconomicIndicatorsCard({ loading, data }: EconomicIndicatorsCard
         {indicators.map((i) => (
           <div key={i.label} className="flex-1 min-w-[120px] border rounded p-4 text-center">
             <p className="text-gray-600 text-sm">{i.label}</p>
-            <p className="font-bold">{formatPercent(i.value / 100)}</p>
+            <p className="font-bold">{formatPercent(i.value)}</p>
           </div>
         ))}
       </div>

@@ -1,6 +1,6 @@
 import { differenceInDays, parseISO } from "date-fns";
 import type { FixedIncomeAssetApi, RateIndex, InvestmentType, EconomicIndicators } from "@/types";
-import { formatDate } from "@/shared/lib/utils/formatting";
+import { formatDate, formatPercent } from "@/shared/lib/utils/formatting";
 
 export const TAX_TABLE = [
   { label: "Até 180 dias", min: 0, max: 180, rate: 0.225 },
@@ -60,12 +60,11 @@ export class FixedIncomeAsset {
         break;
 
       case "SELIC":
-        annualPercent = this.rates.selic + this.interestRate * 100;
+        annualPercent = this.rates.selic + this.interestRate;
         break;
     }
 
-    // Converte % para decimal
-    return annualPercent / 100;
+    return annualPercent;
   }
 
   get incomeTaxRate(): number {
@@ -126,13 +125,13 @@ export class FixedIncomeAsset {
   get currentRateLabel(): string {
     switch (this.rateIndex) {
       case "CDI":
-        return `${this.rates.cdi.toFixed(2)}% a.a.`;
+        return `${formatPercent(this.rates.cdi)} a.a.`;
 
       case "IPCA":
-        return `${this.rates.ipca.toFixed(2)}% a.a.`;
+        return `${formatPercent(this.rates.ipca)} a.a.`;
 
       case "SELIC":
-        return `${this.rates.selic.toFixed(2)}% a.a.`;
+        return `${formatPercent(this.rates.selic)} a.a.`;
 
       default:
         return "";
@@ -142,13 +141,13 @@ export class FixedIncomeAsset {
   get rateLabel(): string {
     switch (this.rateIndex) {
       case "CDI":
-        return `${(this.interestRate * 100).toFixed(2)}% do CDI`;
+        return `${formatPercent(this.interestRate)} do CDI`;
       case "IPCA":
-        return `IPCA + ${this.interestRate.toFixed(2)}%`;
+        return `IPCA + ${formatPercent(this.interestRate)}`;
       case "SELIC":
-        return `SELIC + ${(this.interestRate * 100).toFixed(2)}%`;
+        return `SELIC + ${formatPercent(this.interestRate)}`;
       case "Prefixado":
-        return `${this.interestRate.toFixed(2)}% a.a.`;
+        return `${formatPercent(this.interestRate)} a.a.`;
       default:
         return "N/A";
     }

@@ -22,15 +22,15 @@ class TesouroFactory(AbstractFixedIncomeFactory):
     def create_ipca(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 3, 15)
         maturity_year = maturity_date.year
-        base_diff = repository.economic.get_selic_rate(
-            current_date
-        ) - repository.economic.get_ipca_rate(current_date)
-        rate = self._generate_rate(base_value=base_diff, delta=0.005)
+        spread = self._generate_ipca_spread(
+            current_date,
+            spread_index=repository.economic.get_selic_rate,
+        )
 
         return FixedIncomeAssetDTO(
             name=f"Tesouro IPCA+ {maturity_year}",
             issuer="Tesouro Nacional",
-            interest_rate=rate,
+            interest_rate=spread,
             rate_index=RateIndexType.IPCA,
             investment_type=FixedIncomeType.TESOURO_DIRETO,
             maturity_date=maturity_date,
@@ -39,10 +39,13 @@ class TesouroFactory(AbstractFixedIncomeFactory):
     def create_prefixado(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 3, 7)
         maturity_year = maturity_date.year
-        selic_base = (
-            repository.economic.get_selic_rate(current_date) - 0.01
-        )  # Redução de 1% devido ao longo prazo
-        rate = self._generate_rate(base_value=selic_base, delta=0.005)
+        rate = self._generate_prefixado_rate(
+            current_date,
+            base_index=lambda current_date: repository.economic.get_selic_rate(
+                current_date
+            )
+            - 0.01,  # Redução de 1% devido ao longo prazo
+        )
 
         return FixedIncomeAssetDTO(
             name=f"Tesouro Prefixado {maturity_year}",
@@ -56,12 +59,12 @@ class TesouroFactory(AbstractFixedIncomeFactory):
     def create_selic(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 3, 7)
         maturity_year = maturity_date.year
-        rate = self._generate_rate(base_value=0.00125, delta=0.00075)  # 0.0005-0.002
+        spread = self._generate_selic_spread()
 
         return FixedIncomeAssetDTO(
             name=f"Tesouro Selic {maturity_year}",
             issuer="Tesouro Nacional",
-            interest_rate=rate,
+            interest_rate=spread,
             rate_index=RateIndexType.SELIC,
             investment_type=FixedIncomeType.TESOURO_DIRETO,
             maturity_date=maturity_date,
