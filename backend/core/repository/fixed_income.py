@@ -48,7 +48,5 @@ class FixedIncomeRepository:
             investment_type=FixedIncomeType.from_db(asset.investment_type),
             rate_index=RateIndexType.from_db(asset.rate_type),
             maturity_date=asset.maturity_date,
-            interest_rate=(
-                float(asset.interest_rate) if asset.interest_rate is not None else None
-            ),
+            interest_rate=(float(asset.interest_rate)),
         )

@@ -55,7 +55,9 @@ class FixedIncomeAsset(Base):
         Enum("SELIC", "IPCA", "CDI", "PREFIXADO", name="rate_type"), nullable=False
     )
     maturity_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
-    interest_rate: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    interest_rate: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
 
     event_fixed_income: Mapped[list["EventFixedIncome"]] = relationship(
         "EventFixedIncome", back_populates="asset"

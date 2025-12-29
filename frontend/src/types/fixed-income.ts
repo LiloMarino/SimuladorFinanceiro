@@ -6,7 +6,7 @@ export type FixedIncomeAssetApi = {
   asset_uuid: string; // UUID como string
   name: string;
   issuer: string;
-  interest_rate: number | null;
+  interest_rate: number;
   rate_index: RateIndex;
   investment_type: InvestmentType;
   maturity_date: string; // ISO date

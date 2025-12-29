@@ -29,8 +29,6 @@ class FixedIncomePosition:
         Aplica juros diários sobre o montante (M).
         """
         if self.asset.rate_index == RateIndexType.PREFIXADO:
-            if self.asset.interest_rate is None:
-                raise ValueError("Taxa de prefixado não definida")
             daily_rate = self.asset.interest_rate / 252
         else:
             annual_rate = self.get_index_rate(current_date, self.asset.rate_index)
@@ -47,6 +45,4 @@ class FixedIncomePosition:
             case RateIndexType.SELIC:
                 return repository.economic.get_selic_rate(current_date)
             case RateIndexType.PREFIXADO:
-                if self.asset.interest_rate is not None:
-                    return self.asset.interest_rate
-                raise ValueError("Taxa de prefixado não definida")
+                return self.asset.interest_rate

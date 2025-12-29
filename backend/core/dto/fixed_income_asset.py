@@ -15,4 +15,4 @@ class FixedIncomeAssetDTO(BaseDTO):
     investment_type: FixedIncomeType
     rate_index: RateIndexType
     maturity_date: date
-    interest_rate: float | None
+    interest_rate: float
