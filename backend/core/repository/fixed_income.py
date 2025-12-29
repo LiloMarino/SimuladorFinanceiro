@@ -1,10 +1,13 @@
+from datetime import UTC, date, datetime
+from decimal import Decimal
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.enum import FixedIncomeType, RateIndexType
-from backend.core.models.models import FixedIncomeAsset
+from backend.core.models.models import FixedIncomeAsset, FixedIncomePosition
 
 
 class FixedIncomeRepository:
@@ -50,3 +53,40 @@ class FixedIncomeRepository:
             maturity_date=asset.maturity_date,
             interest_rate=(float(asset.interest_rate)),
         )
+
+    @transactional
+    def upsert_position(
+        self,
+        session: Session,
+        user_id: int,
+        asset_id: int,
+        total_applied: Decimal,
+        current_value: Decimal,
+        accrual_date: date,
+    ) -> None:
+        stmt = select(FixedIncomePosition).where(
+            FixedIncomePosition.user_id == user_id,
+            FixedIncomePosition.asset_id == asset_id,
+        )
+
+        position = session.scalar(stmt)
+        now = datetime.now(UTC)
+
+        if position is None:
+            # INSERT
+            position = FixedIncomePosition(
+                user_id=user_id,
+                asset_id=asset_id,
+                total_applied=total_applied,
+                current_value=current_value,
+                last_accrual_date=accrual_date,
+                created_at=now,
+                updated_at=now,
+            )
+            session.add(position)
+        else:
+            # UPDATE
+            position.total_applied = total_applied
+            position.current_value = current_value
+            position.last_accrual_date = accrual_date
+            position.updated_at = now

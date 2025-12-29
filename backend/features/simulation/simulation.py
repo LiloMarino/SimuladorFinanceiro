@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
@@ -29,6 +30,7 @@ class Simulation:
         self.get_cash = self._engine.get_cash
         self.get_fixed_assets = self._engine.fixed_income_market.get_available_assets
         self.get_fixed_asset = self._engine.fixed_income_market.get_asset
+        self.get_fixed_positions = self._engine.fixed_broker.get_fixed_positions
         self.get_portfolio = self._engine.get_portfolio
 
         # Roda o primeiro tick para a inicialização
@@ -62,15 +64,32 @@ class Simulation:
         if self._has_month_changed():
             users = repository.user.get_all_users()
             for user in users:
+                # Obtém as posições de renda fixa antes do snapshot
+                client_id = str(user.client_id)
+
+                fixed_positions = self.get_fixed_positions(client_id)
+
+                for position in fixed_positions.values():
+                    asset_id = repository.fixed_income.get_or_create_asset(
+                        position.asset
+                    )
+                    repository.fixed_income.upsert_position(
+                        user_id=user.id,
+                        asset_id=asset_id,
+                        total_applied=Decimal(position.total_applied),
+                        current_value=Decimal(position.current_value),
+                        accrual_date=self._current_date,
+                    )
+
+                # Cria o snapshot
                 snapshot = repository.snapshot.create_snapshot(
                     user_id=user.id,
                     snapshot_date=self._current_date,
                 )
-
                 notify(
                     event="snapshot_update",
                     payload={"snapshot": snapshot.to_json()},
-                    to=str(user.client_id),
+                    to=client_id,
                 )
 
         # Emite notificações
