@@ -9,7 +9,7 @@ from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.models.models import (
     EventCashflow,
     EventEquity,
-    EventFixedIncome,
+    FixedIncomePosition,
     Snapshots,
     StockPriceHistory,
 )
@@ -38,11 +38,9 @@ class SnapshotRepository:
 
         if last_snapshot:
             base_cash = last_snapshot.total_cash
-            base_fixed = last_snapshot.total_fixed
             from_date = last_snapshot.snapshot_date
         else:
             base_cash = Decimal("0")
-            base_fixed = Decimal("0")
             from_date = None
 
         # --------------------------------------------------
@@ -126,34 +124,18 @@ class SnapshotRepository:
         )
 
         # --------------------------------------------------
-        # 4. FIXED INCOME (incremental)
+        # 4. FIXED INCOME (MARK-TO-MARKET)
         # --------------------------------------------------
-        fixed_delta = session.execute(
-            select(
-                func.coalesce(
-                    func.sum(
-                        Case(
-                            (
-                                EventFixedIncome.event_type == "BUY",
-                                EventFixedIncome.amount,
-                            ),
-                            (
-                                EventFixedIncome.event_type == "REDEEM",
-                                -EventFixedIncome.amount,
-                            ),
-                            else_=Decimal("0"),
-                        )
-                    ),
-                    0,
-                )
-            ).where(
-                EventFixedIncome.user_id == user_id,
-                EventFixedIncome.event_date <= snapshot_date,
-                *([EventFixedIncome.event_date > from_date] if from_date else []),
-            )
-        ).scalar_one()
-
-        total_fixed = base_fixed + Decimal(fixed_delta)
+        total_fixed = Decimal(
+            session.execute(
+                select(
+                    func.coalesce(
+                        func.sum(FixedIncomePosition.current_value),
+                        0,
+                    )
+                ).where(FixedIncomePosition.user_id == user_id)
+            ).scalar_one()
+        )
 
         # --------------------------------------------------
         # 5. NET WORTH
