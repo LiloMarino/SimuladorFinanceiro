@@ -47,10 +47,22 @@ class AbstractFixedIncomeFactory(ABC):
         base_value: float,
         delta: float,
         multiplier: float = 1.0,
+        step: float | None = None,
+        precision: int = 4,
     ) -> float:
-        """Gera uma taxa de juros aleatória em torno de base ± delta, com multiplicador opcional."""
-        rate = random.uniform(base_value - delta, base_value + delta)
-        return round(rate * multiplier, 4)
+        """
+        Gera uma taxa aleatória em torno de base ± delta.
+
+        - step: se informado, força múltiplos (ex: 0.05)
+        - precision: casas decimais finais
+        """
+        raw = random.uniform(base_value - delta, base_value + delta)
+        rate = raw * multiplier
+
+        if step is not None:
+            rate = round(rate / step) * step
+
+        return round(rate, precision)
 
     # =========================================================
     # ======== GERADORES POR INDEXADOR (alto nível)
@@ -59,16 +71,15 @@ class AbstractFixedIncomeFactory(ABC):
         self,
         multiplier: float = 1.0,
     ) -> float:
-        """
-        Retorna percentual do CDI (ex: 1.10 = 110% do CDI)
-        """
         upper_bound = 1.2
         lower_bound = 1.0
         base_value = (upper_bound + lower_bound) / 2
+
         return self._random_rate(
             base_value=base_value,
             delta=base_value - lower_bound,
             multiplier=multiplier,
+            step=0.005,
         )
 
     def _generate_ipca_spread(
@@ -96,7 +107,7 @@ class AbstractFixedIncomeFactory(ABC):
         """
         base_rate = base_index(current_date)
 
-        return self._random_rate(base_rate, 0.01, multiplier)
+        return self._random_rate(base_rate, 0.01, multiplier, step=0.0005)
 
     def _generate_selic_spread(
         self,
@@ -104,4 +115,6 @@ class AbstractFixedIncomeFactory(ABC):
         """
         Retorna o spread da SELIC (ex: 0.0005 = SELIC + 0.005%)
         """
-        return self._random_rate(base_value=0.00125, delta=0.00075)  # 0.0005-0.002
+        return self._random_rate(
+            base_value=0.00125, delta=0.00075, precision=6
+        )  # 0.0005-0.002
