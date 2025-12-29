@@ -62,6 +62,9 @@ class FixedIncomeAsset(Base):
     event_fixed_income: Mapped[list["EventFixedIncome"]] = relationship(
         "EventFixedIncome", back_populates="asset"
     )
+    fixed_income_position: Mapped[list["FixedIncomePosition"]] = relationship(
+        "FixedIncomePosition", back_populates="asset"
+    )
 
 
 class IpcaHistory(Base):
@@ -147,6 +150,9 @@ class Users(Base):
     )
     event_fixed_income: Mapped[list["EventFixedIncome"]] = relationship(
         "EventFixedIncome", back_populates="user"
+    )
+    fixed_income_position: Mapped[list["FixedIncomePosition"]] = relationship(
+        "FixedIncomePosition", back_populates="user"
     )
     snapshots: Mapped[list["Snapshots"]] = relationship(
         "Snapshots", back_populates="user"
@@ -290,6 +296,50 @@ class EventFixedIncome(Base):
         "FixedIncomeAsset", back_populates="event_fixed_income"
     )
     user: Mapped["Users"] = relationship("Users", back_populates="event_fixed_income")
+
+
+class FixedIncomePosition(Base):
+    __tablename__ = "fixed_income_position"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["asset_id"],
+            ["fixed_income_asset.id"],
+            ondelete="RESTRICT",
+            onupdate="CASCADE",
+            name="fixed_income_position_asset_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fixed_income_position_user_fkey",
+        ),
+        PrimaryKeyConstraint("user_id", "asset_id", name="fixed_income_position_pkey"),
+    )
+
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    asset_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    total_applied: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
+    current_value: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
+    last_accrual_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+
+    asset: Mapped["FixedIncomeAsset"] = relationship(
+        "FixedIncomeAsset", back_populates="fixed_income_position"
+    )
+    user: Mapped["Users"] = relationship(
+        "Users", back_populates="fixed_income_position"
+    )
 
 
 class Snapshots(Base):
