@@ -1,4 +1,4 @@
-import { differenceInDays, parseISO } from "date-fns";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 import type { FixedIncomeAssetApi, RateIndex, InvestmentType, EconomicIndicators } from "@/types";
 import { formatDate, formatPercent } from "@/shared/lib/utils/formatting";
 
@@ -35,7 +35,8 @@ export class FixedIncomeAsset {
   }
 
   get grossReturn(): number {
-    const t = this.daysToMaturity / 365;
+    const N = this.capitalizingBusinessDays();
+    const t = N / 252;
     return Math.pow(1 + this.annualRate, t) - 1;
   }
 
@@ -79,8 +80,31 @@ export class FixedIncomeAsset {
     return entry?.rate ?? 0;
   }
 
+  capitalizingBusinessDays(): number {
+    const start = this.currentDate;
+    const end = this.maturityDate;
+    if (end < start) return 0;
+
+    // Cálculo de dias úteis
+    const diffDays = differenceInCalendarDays(end, start) + 1; // Inclusivo: Vencimento rende juros
+
+    const fullWeeks = Math.floor(diffDays / 7);
+    let businessDays = fullWeeks * 5;
+
+    let remaining = diffDays % 7;
+    let day = start.getDay();
+
+    while (remaining > 0) {
+      if (day !== 0 && day !== 6) businessDays++;
+      day = (day + 1) % 7;
+      remaining--;
+    }
+
+    return businessDays;
+  }
+
   get daysToMaturity(): number {
-    const days = Math.max(differenceInDays(this.maturityDate, this.currentDate), 0);
+    const days = Math.max(differenceInCalendarDays(this.maturityDate, this.currentDate), 0);
     return days;
   }
 

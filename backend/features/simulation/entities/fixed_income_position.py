@@ -29,11 +29,11 @@ class FixedIncomePosition:
         Aplica juros diários sobre o montante (M).
         """
         if self.asset.rate_index == RateIndexType.PREFIXADO:
-            daily_rate = self.asset.interest_rate / 252
+            annual_rate = self.asset.interest_rate
         else:
             annual_rate = self.get_index_rate(current_date, self.asset.rate_index)
-            daily_rate = annual_rate / 252
 
+        daily_rate = self.annual_to_daily_rate(annual_rate)
         self.current_value *= 1 + daily_rate
 
     def get_index_rate(self, current_date: date, rate_index: RateIndexType) -> float:
@@ -46,3 +46,6 @@ class FixedIncomePosition:
                 return repository.economic.get_selic_rate(current_date)
             case RateIndexType.PREFIXADO:
                 return self.asset.interest_rate
+
+    def annual_to_daily_rate(self, annual_rate: float) -> float:
+        return (1 + annual_rate) ** (1 / 252) - 1
