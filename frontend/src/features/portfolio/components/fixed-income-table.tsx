@@ -44,9 +44,7 @@ export function FixedIncomeTable({ fixedPositions }: FixedIncomeTableProps) {
                 <TableCell>{pos.name}</TableCell>
                 <TableCell>{formatMoney(pos.investedValue)}</TableCell>
                 <TableCell>{formatMoney(pos.currentValue)}</TableCell>
-                <TableCell>
-                  {pos.interestRate ? `${pos.interestRate.toFixed(2)}% ${pos.rateIndex}` : pos.rateIndex}
-                </TableCell>
+                <TableCell>{pos.rateLabel}</TableCell>
                 <TableCell>{formatPercent(pos.portfolioPercent)}</TableCell>
                 <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
                   {formatMoney(pos.returnValue)}

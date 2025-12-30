@@ -1,4 +1,5 @@
 import type { FixedIncomePosition, PortfolioState, Position, RateIndex, Stock } from "@/types";
+import { formatPercent } from "@/shared/lib/utils/formatting";
 
 type ReturnMetrics = {
   investedValue: number;
@@ -29,7 +30,8 @@ export type FixedPosition = {
   name: string;
   issuer: string;
   rateIndex: RateIndex;
-  interestRate: number | null;
+  interestRate: number;
+  rateLabel: string;
 };
 
 function calculateReturnMetrics(investedValue: number, currentValue: number): ReturnMetrics {
@@ -67,12 +69,31 @@ function calculateFixedPositions(fixedIncome: FixedIncomePosition[]): FixedPosit
   return fixedIncome.map((pos) => {
     const metrics = calculateReturnMetrics(pos.total_applied, pos.current_value);
 
+    const r = pos.asset.interest_rate;
+    const idx = pos.asset.rate_index;
+
+    const rateLabel = (() => {
+      switch (idx) {
+        case "CDI":
+          return `${formatPercent(r)} do CDI`;
+        case "IPCA":
+          return `IPCA + ${formatPercent(r)}`;
+        case "SELIC":
+          return `SELIC + ${formatPercent(r)}`;
+        case "Prefixado":
+          return `${formatPercent(r)} a.a.`;
+        default:
+          return "N/A";
+      }
+    })();
+
     return {
       uuid: pos.asset.asset_uuid,
       name: pos.asset.name,
       issuer: pos.asset.issuer,
       rateIndex: pos.asset.rate_index,
       interestRate: pos.asset.interest_rate,
+      rateLabel,
       ...metrics,
       portfolioPercent: 0,
     };
