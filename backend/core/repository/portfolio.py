@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from sqlalchemy import Case, func, select
 from sqlalchemy.orm import Session
 
@@ -6,6 +8,7 @@ from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.position import PositionDTO
+from backend.core.enum import FixedIncomeType, RateIndexType
 from backend.core.models.models import (
     EventEquity,
     EventFixedIncome,
@@ -96,7 +99,7 @@ class PortfolioRepository:
     ) -> list[FixedIncomePositionDTO]:
         total_applied_subq = (
             select(
-                EventFixedIncome.asset_id.label("asset_id"),
+                EventFixedIncome.asset_id,
                 func.sum(
                     Case(
                         (EventFixedIncome.event_type == "BUY", EventFixedIncome.amount),
@@ -113,16 +116,24 @@ class PortfolioRepository:
             .subquery()
         )
 
-        rows = session.execute(
-            select(
-                FixedIncomeAsset,
-                total_applied_subq.c.total_applied,
-            )
+        assets = session.scalars(
+            select(FixedIncomeAsset)
             .join(
                 total_applied_subq,
                 total_applied_subq.c.asset_id == FixedIncomeAsset.id,
             )
             .where(total_applied_subq.c.total_applied > 0)
+        ).all()
+
+        totals: dict[int, Decimal] = dict(
+            session.execute(
+                select(
+                    total_applied_subq.c.asset_id,
+                    total_applied_subq.c.total_applied,
+                )
+            )
+            .tuples()
+            .all()
         )
 
         return [
@@ -131,13 +142,13 @@ class PortfolioRepository:
                     asset_uuid=asset.asset_uuid,
                     name=asset.name,
                     issuer=asset.issuer,
-                    investment_type=asset.investment_type,
-                    rate_index=asset.rate_type,
+                    investment_type=FixedIncomeType.from_db(asset.investment_type),
+                    rate_index=RateIndexType.from_db(asset.rate_type),
                     maturity_date=asset.maturity_date,
-                    interest_rate=asset.interest_rate,
+                    interest_rate=float(asset.interest_rate),
                 ),
-                total_applied=total_applied,
-                current_value=total_applied,
+                total_applied=float(totals[asset.id]),
+                current_value=float(totals[asset.id]),
             )
-            for asset, total_applied in rows
+            for asset in assets
         ]

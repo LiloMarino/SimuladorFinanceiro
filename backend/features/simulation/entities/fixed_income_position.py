@@ -28,11 +28,7 @@ class FixedIncomePosition:
         """
         Aplica juros diários sobre o montante (M).
         """
-        if self.asset.rate_index == RateIndexType.PREFIXADO:
-            annual_rate = self.asset.interest_rate
-        else:
-            annual_rate = self.get_index_rate(current_date, self.asset.rate_index)
-
+        annual_rate = self.get_index_rate(current_date, self.asset.rate_index)
         daily_rate = self.annual_to_daily_rate(annual_rate)
         self.current_value *= 1 + daily_rate
 
