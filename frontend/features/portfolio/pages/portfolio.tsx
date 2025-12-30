@@ -66,6 +66,18 @@ export default function PortfolioPage() {
     });
   });
 
+  // Atualiza o saldo em tempo real (ex.: resgates)
+  useRealtime("cash_update", ({ cash }) => {
+    setPortfolioData((prev) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        cash,
+      };
+    });
+  });
+
   const view = useMemo(() => {
     if (!portfolioData) return null;
     return calculatePortfolioView(portfolioData, stocks);
