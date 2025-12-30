@@ -143,4 +143,5 @@ class FixedBroker:
                 event_date=current_date,
             )
         )
+        repository.fixed_income.delete_position(user_id=user_id, asset_id=asset_id)
         logger.info(f"REDEEM de {redeem_value:.2f} em {asset_name} (maturity)")

@@ -1,7 +1,7 @@
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -90,3 +90,17 @@ class FixedIncomeRepository:
             position.current_value = current_value
             position.last_accrual_date = accrual_date
             position.updated_at = now
+
+    @transactional
+    def delete_position(
+        self,
+        session: Session,
+        user_id: int,
+        asset_id: int,
+    ) -> None:
+        session.execute(
+            delete(FixedIncomePosition).where(
+                FixedIncomePosition.user_id == user_id,
+                FixedIncomePosition.asset_id == asset_id,
+            )
+        )
