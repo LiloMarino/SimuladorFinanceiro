@@ -1,5 +1,5 @@
 import { Card } from "@/shared/components/ui/card";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { formatDate, formatMoney, formatMonthYear } from "@/shared/lib/utils/formatting";
 import type { PatrimonialHistory } from "@/types";
 
@@ -44,6 +44,8 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
 
             <Tooltip labelFormatter={(label) => formatDate(new Date(label))} formatter={formatMoney} />
 
+            <Legend verticalAlign="top" align="right" />
+
             <Line
               type="monotone"
               dataKey="total_networth"
@@ -52,6 +54,26 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
               strokeWidth={2}
               dot={false}
             />
+
+            <Line
+              type="monotone"
+              dataKey="total_equity"
+              name="Renda Variável"
+              stroke="#10B981"
+              strokeWidth={2}
+              dot={false}
+            />
+
+            <Line
+              type="monotone"
+              dataKey="total_fixed"
+              name="Renda Fixa"
+              stroke="#F59E0B"
+              strokeWidth={2}
+              dot={false}
+            />
+
+            <Line type="monotone" dataKey="total_cash" name="Caixa" stroke="#6B7280" strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
