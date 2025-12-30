@@ -1,4 +1,5 @@
 import { Card } from "@/shared/components/ui/card";
+import { useState } from "react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { formatDate, formatMoney, formatMonthYear } from "@/shared/lib/utils/formatting";
 import type { PatrimonialHistory } from "@/types";
@@ -22,6 +23,48 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
     timestamp: new Date(`${item.snapshot_date}T00:00:00`).getTime(),
   }));
 
+  // Controle de visibilidade das séries: por padrão só mostramos o patrimônio total
+  const [visible, setVisible] = useState<Record<string, boolean>>({
+    total_networth: true,
+    total_equity: false,
+    total_fixed: false,
+    total_cash: false,
+  });
+
+  const toggle = (key: string) => {
+    setVisible((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // Legenda customizável para permitir toggle das séries
+  function CustomLegend({ payload }: any) {
+    if (!payload) return null;
+
+    return (
+      <div className="flex justify-end gap-3 mb-2 flex-wrap">
+        {payload.map((entry: any) => {
+          const isActive = visible[entry.dataKey];
+          return (
+            <button
+              key={entry.dataKey}
+              onClick={() => toggle(entry.dataKey)}
+              aria-pressed={isActive}
+              className={`flex items-center space-x-2 px-2 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+                isActive ? "" : "opacity-40"
+              }`}
+            >
+              <span
+                className="w-3 h-3 rounded-sm"
+                style={{ background: entry.color || entry.payload?.stroke || "#000" }}
+              />
+
+              <span className="text-sm">{entry.value}</span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <Card className="p-6">
       <h3 className="font-semibold mb-4">Evolução do Patrimônio</h3>
@@ -44,7 +87,7 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
 
             <Tooltip labelFormatter={(label) => formatDate(new Date(label))} formatter={formatMoney} />
 
-            <Legend verticalAlign="top" align="right" />
+            <Legend content={(props) => <CustomLegend {...props} />} />
 
             <Line
               type="monotone"
@@ -53,6 +96,7 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
               stroke="#2563eb"
               strokeWidth={2}
               dot={false}
+              hide={!visible.total_networth}
             />
 
             <Line
@@ -62,6 +106,7 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
               stroke="#10B981"
               strokeWidth={2}
               dot={false}
+              hide={!visible.total_equity}
             />
 
             <Line
@@ -71,9 +116,18 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
               stroke="#F59E0B"
               strokeWidth={2}
               dot={false}
+              hide={!visible.total_fixed}
             />
 
-            <Line type="monotone" dataKey="total_cash" name="Caixa" stroke="#6B7280" strokeWidth={2} dot={false} />
+            <Line
+              type="monotone"
+              dataKey="total_cash"
+              name="Caixa"
+              stroke="#6B7280"
+              strokeWidth={2}
+              dot={false}
+              hide={!visible.total_cash}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
