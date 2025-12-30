@@ -1,13 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-
 import { formatMoney, formatMonthYear } from "@/shared/lib/utils/formatting";
 import type { PatrimonialHistory } from "@/types";
 import { PortfolioLineTooltip } from "./chart-tooltip";
-import { PortfolioLineEmpty } from "./chart-empty";
 import { useStaticChartVisibility } from "../../hooks/useStaticChartVisibility";
 import { PORTFOLIO_LINE_SERIES } from "./line-series";
 import { PortfolioLineLegend } from "./chart-legend";
+import { ChartEmptyCard } from "@/features/portfolio/components/shared/chart-empty-card";
 
 interface PortfolioLineChartProps {
   data: PatrimonialHistory[];
@@ -22,7 +21,7 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
   }));
 
   if (!data.length) {
-    return <PortfolioLineEmpty />;
+    return <ChartEmptyCard title="Evolução do Patrimônio" icon="📈" message="Nenhum dado disponível ainda" />;
   }
 
   return (

@@ -3,11 +3,11 @@ import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { formatMoney } from "@/shared/lib/utils/formatting";
 import { stringToColor } from "@/shared/lib/utils";
 import { useState } from "react";
-import { PortfolioPieEmpty } from "./chart-empty";
 import { PortfolioPieTooltip } from "./chart-tooltip";
 import { PortfolioPieLegend } from "./chart-legend";
 import type { PieDataItem } from "./chart-legend";
 import { useDynamicChartVisibility } from "../../hooks/useDynamicChartVisibility";
+import { ChartEmptyCard } from "@/features/portfolio/components/shared/chart-empty-card";
 
 interface PortfolioPieChartProps {
   title: string;
@@ -19,7 +19,7 @@ export function PortfolioPieChart({ title, data }: PortfolioPieChartProps) {
   const { hidden, visibleData, toggle } = useDynamicChartVisibility(data);
 
   if (!data.length) {
-    return <PortfolioPieEmpty title={title} />;
+    return <ChartEmptyCard title={title} />;
   }
 
   const total = visibleData.reduce((sum, item) => sum + item.value, 0);
