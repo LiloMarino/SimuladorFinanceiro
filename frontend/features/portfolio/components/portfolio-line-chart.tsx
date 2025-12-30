@@ -1,8 +1,18 @@
-"use client";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { useState } from "react";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Legend,
+  type TooltipProps,
+  type LegendProps,
+} from "recharts";
+
 import { formatDate, formatMoney, formatMonthYear } from "@/shared/lib/utils/formatting";
 import type { PatrimonialHistory } from "@/types";
 
@@ -10,20 +20,22 @@ interface PortfolioLineChartProps {
   data: PatrimonialHistory[];
 }
 
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label }: TooltipProps<number, string>) {
   if (!active || !payload || !payload.length) return null;
+
+  const entries = payload as Array<{ dataKey?: string; name?: string; color?: string; value?: number }>;
 
   return (
     <div className="bg-background border border-border rounded-lg shadow-lg p-4 min-w-[200px]">
       <p className="font-semibold mb-2 text-sm text-foreground">{formatDate(new Date(label))}</p>
       <div className="space-y-1.5">
-        {payload.map((entry: any) => (
+        {entries.map((entry) => (
           <div key={entry.dataKey} className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
               <span className="text-sm text-muted-foreground">{entry.name}</span>
             </div>
-            <span className="text-sm font-semibold text-foreground">{formatMoney(entry.value)}</span>
+            <span className="text-sm font-semibold text-foreground">{formatMoney(entry.value ?? 0)}</span>
           </div>
         ))}
       </div>
@@ -39,7 +51,7 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
     total_cash: false,
   });
 
-  const toggle = (key: string) => {
+  const toggle = (key: keyof typeof visible) => {
     setVisible((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
@@ -64,17 +76,20 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
     );
   }
 
-  function CustomLegend({ payload }: any) {
+  function CustomLegend({ payload, wrapperStyle }: LegendProps) {
     if (!payload) return null;
 
     return (
-      <div className="flex justify-center lg:justify-end gap-2 mb-3 flex-wrap">
-        {payload.map((entry: any) => {
-          const isActive = visible[entry.dataKey];
+      <div className="flex justify-center lg:justify-end gap-2 mb-3 flex-wrap" style={wrapperStyle}>
+        {payload.map((entry) => {
+          const dataKey = String(entry.dataKey) as keyof typeof visible | undefined;
+          const isActive = dataKey ? visible[dataKey] : false;
+          const btnKey = entry.dataKey ?? entry.value?.toString() ?? "";
+
           return (
             <button
-              key={entry.dataKey}
-              onClick={() => toggle(entry.dataKey)}
+              key={btnKey}
+              onClick={() => dataKey && toggle(dataKey)}
               aria-pressed={isActive}
               aria-label={`${isActive ? "Ocultar" : "Mostrar"} ${entry.value}`}
               className={`
@@ -158,7 +173,7 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
 
               <Tooltip content={<CustomTooltip />} />
 
-              <Legend content={(props) => <CustomLegend {...props} />} />
+              <Legend content={<CustomLegend />} />
 
               <Area
                 type="monotone"

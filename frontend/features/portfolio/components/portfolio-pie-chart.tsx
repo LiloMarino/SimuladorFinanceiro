@@ -1,5 +1,5 @@
 import { Card } from "@/shared/components/ui/card";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, type TooltipProps } from "recharts";
 import { formatMoney } from "@/shared/lib/utils/formatting";
 import { stringToColor } from "@/shared/lib/utils";
 import { useState } from "react";
@@ -44,16 +44,16 @@ export function PortfolioPieChart({ title, data }: PortfolioPieChartProps) {
     });
   };
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     if (!active || !payload || !payload.length) return null;
 
-    const data = payload[0];
-    const percentage = ((data.value / total) * 100).toFixed(1);
+    const data = payload[0] as { name?: string; value?: number };
+    const percentage = ((data.value! / total) * 100).toFixed(1);
 
     return (
       <div className="bg-background border border-border rounded-lg shadow-lg p-3 backdrop-blur-sm">
         <p className="font-semibold text-sm mb-1">{data.name}</p>
-        <p className="text-lg font-bold text-primary">{formatMoney(data.value)}</p>
+        <p className="text-lg font-bold text-primary">{formatMoney(data.value ?? 0)}</p>
         <p className="text-xs text-muted-foreground mt-1">{percentage}% do total</p>
       </div>
     );
