@@ -28,6 +28,7 @@ import { LoginPage } from "./features/auth/pages/login";
 import { AuthenticatedLayout } from "./layouts/authenticated-layout";
 import { AuthLayout } from "./layouts/auth-layout";
 import { AuthProvider } from "./shared/context/auth";
+import { ErrorPage } from "./pages/error";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -71,6 +72,9 @@ export default function App() {
                   <Route path="/import-assets" element={<ImportAssetsPage />} />
                 </Route>
               </Route>
+
+              {/* 404 */}
+              <Route path="*" element={<ErrorPage />} />
             </Routes>
             <Toaster position="bottom-right" richColors />
           </BrowserRouter>

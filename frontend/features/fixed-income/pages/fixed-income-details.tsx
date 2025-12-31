@@ -18,6 +18,7 @@ import { investmentFormSchema, type InvestmentFormSchema } from "../schemas/inve
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { toast } from "sonner";
+import { ErrorPage } from "@/pages/error";
 
 export default function FixedIncomeDetailPage() {
   usePageLabel("Detalhes Renda Fixa");
@@ -71,7 +72,14 @@ export default function FixedIncomeDetailPage() {
   };
 
   if (!asset) {
-    return <div className="p-6 text-center text-gray-500">Ativo não encontrado.</div>;
+    return (
+      <ErrorPage
+        code="404"
+        title="Ativo de renda fixa não encontrado"
+        actionHref="/fixed-income"
+        actionLabel="Voltar para a Renda Fixa"
+      />
+    );
   }
 
   const amount = form.watch("amount");

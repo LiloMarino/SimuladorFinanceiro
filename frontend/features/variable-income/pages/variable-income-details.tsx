@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { formatMoney } from "@/shared/lib/utils/formatting";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { StockChart } from "@/features/variable-income/components/stock-chart";
+import { ErrorPage } from "@/pages/error";
 
 export default function VariableIncomeDetailPage() {
   usePageLabel("Detalhes Renda Variável");
@@ -71,7 +72,14 @@ export default function VariableIncomeDetailPage() {
       </section>
     );
   } else if (!stock) {
-    return <div>Stock not found</div>;
+    return (
+      <ErrorPage
+        code="404"
+        title="Ativo de renda variável não encontrado"
+        actionHref="/variable-income"
+        actionLabel="Voltar para a Renda Variável"
+      />
+    );
   }
 
   const handleBuy = async () => {
