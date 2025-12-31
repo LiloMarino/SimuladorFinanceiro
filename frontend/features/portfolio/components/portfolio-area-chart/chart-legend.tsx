@@ -1,17 +1,17 @@
 import type { LegendProps } from "recharts";
-import { PORTFOLIO_LINE_SERIES, type PortfolioSeriesKey } from "./series";
+import { PORTFOLIO_AREA_SERIES, type PortfolioSeriesKey } from "./series";
 
 interface ChartLegendProps extends LegendProps {
   visible: Record<PortfolioSeriesKey, boolean>;
   toggle: (key: PortfolioSeriesKey) => void;
 }
 
-export function PortfolioLineLegend({ payload, visible, toggle }: ChartLegendProps) {
+export function PortfolioAreaLegend({ payload, visible, toggle }: ChartLegendProps) {
   if (!payload) return null;
 
   return (
     <div className="flex justify-center gap-3 flex-wrap">
-      {PORTFOLIO_LINE_SERIES.map((series) => {
+      {PORTFOLIO_AREA_SERIES.map((series) => {
         const isActive = visible[series.key];
 
         return (

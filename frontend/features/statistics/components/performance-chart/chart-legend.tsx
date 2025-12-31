@@ -21,8 +21,16 @@ export function PerformanceChartLegend({ series, visible, toggle }: Props) {
               ${isActive ? "bg-primary/10 border-primary/20" : "opacity-50"}
             `}
           >
-            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: isActive ? s.color : "#9CA3AF" }} />
-            <span className="text-xs font-medium">{s.label}</span>
+            <span
+              className="w-3 h-3 rounded-full"
+              style={{
+                backgroundColor: isActive ? s.color : "#9CA3AF",
+                transform: isActive ? "scale(1)" : "scale(0.85)",
+              }}
+            />
+            <span className={`text-xs font-medium ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
+              {s.label}
+            </span>
           </button>
         );
       })}

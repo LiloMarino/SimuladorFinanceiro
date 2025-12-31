@@ -1,5 +1,5 @@
 import { PortfolioPieChart } from "./portfolio-pie-chart";
-import { PortfolioLineChart } from "./portfolio-line-chart";
+import { PortfolioAreaChart } from "./portfolio-area-chart";
 import type { PatrimonialHistory } from "@/types";
 
 interface VariablePositionForChart {
@@ -31,7 +31,7 @@ export function PortfolioCharts({ variablePositions, fixedPositions, patrimonial
   ];
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-      <PortfolioLineChart data={patrimonialHistory} />
+      <PortfolioAreaChart data={patrimonialHistory} />
       <PortfolioPieChart title="Distribuição da Carteira" data={pieData} />
     </div>
   );

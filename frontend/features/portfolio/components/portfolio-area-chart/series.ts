@@ -1,4 +1,4 @@
-export const PORTFOLIO_LINE_SERIES = [
+export const PORTFOLIO_AREA_SERIES = [
   {
     key: "total_networth",
     label: "Patrimônio Total",
@@ -29,4 +29,4 @@ export const PORTFOLIO_LINE_SERIES = [
   },
 ] as const;
 
-export type PortfolioSeriesKey = (typeof PORTFOLIO_LINE_SERIES)[number]["key"];
+export type PortfolioSeriesKey = (typeof PORTFOLIO_AREA_SERIES)[number]["key"];

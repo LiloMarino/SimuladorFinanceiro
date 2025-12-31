@@ -1,4 +1,5 @@
 import { stringToColor } from "@/shared/lib/utils";
+import type { PlayerHistory } from "@/types";
 
 export interface PlayerSeries {
   key: string;
@@ -7,7 +8,7 @@ export interface PlayerSeries {
   defaultVisible: boolean;
 }
 
-export function buildPlayerSeries(players: { playerId: string; playerName: string }[]): PlayerSeries[] {
+export function buildPlayerSeries(players: PlayerHistory[]): PlayerSeries[] {
   return players.map((p) => ({
     key: p.playerId,
     label: p.playerName,

@@ -2,18 +2,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { formatMoney, formatMonthYear } from "@/shared/lib/utils/formatting";
 import type { PatrimonialHistory } from "@/types";
-import { PortfolioLineTooltip } from "./chart-tooltip";
+import { PortfolioAreaTooltip } from "./chart-tooltip";
 import { useStaticChartVisibility } from "../../../../shared/hooks/useStaticChartVisibility";
-import { PORTFOLIO_LINE_SERIES } from "./series";
-import { PortfolioLineLegend } from "./chart-legend";
+import { PORTFOLIO_AREA_SERIES } from "./series";
+import { PortfolioAreaLegend } from "./chart-legend";
 import { ChartEmptyCard } from "@/features/portfolio/components/shared/chart-empty-card";
 
-interface PortfolioLineChartProps {
+interface PortfolioAreaChartProps {
   data: PatrimonialHistory[];
 }
 
-export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
-  const { visible, toggle } = useStaticChartVisibility(PORTFOLIO_LINE_SERIES);
+export function PortfolioAreaChart({ data }: PortfolioAreaChartProps) {
+  const { visible, toggle } = useStaticChartVisibility(PORTFOLIO_AREA_SERIES);
 
   const chartData = data.map((item) => ({
     ...item,
@@ -41,7 +41,7 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
               }}
             >
               <defs>
-                {PORTFOLIO_LINE_SERIES.map((s) => (
+                {PORTFOLIO_AREA_SERIES.map((s) => (
                   <linearGradient key={s.gradientId} id={s.gradientId} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={s.color} stopOpacity={0.15} />
                     <stop offset="95%" stopColor={s.color} stopOpacity={0} />
@@ -77,11 +77,11 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
                 axisLine={{ stroke: "#374151" }}
               />
 
-              <Tooltip content={<PortfolioLineTooltip />} />
+              <Tooltip content={<PortfolioAreaTooltip />} />
 
-              <Legend content={<PortfolioLineLegend visible={visible} toggle={toggle} />} />
+              <Legend content={<PortfolioAreaLegend visible={visible} toggle={toggle} />} />
 
-              {PORTFOLIO_LINE_SERIES.map((s) => (
+              {PORTFOLIO_AREA_SERIES.map((s) => (
                 <Area
                   type="monotone"
                   dataKey={s.key}

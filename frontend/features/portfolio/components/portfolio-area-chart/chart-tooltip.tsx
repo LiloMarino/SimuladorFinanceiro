@@ -1,7 +1,7 @@
 import type { TooltipProps } from "recharts";
 import { formatDate, formatMoney } from "@/shared/lib/utils/formatting";
 
-export function PortfolioLineTooltip({ active, payload, label }: TooltipProps<number, string>) {
+export function PortfolioAreaTooltip({ active, payload, label }: TooltipProps<number, string>) {
   if (!active || !payload || !payload.length) return null;
 
   const entries = payload as Array<{
