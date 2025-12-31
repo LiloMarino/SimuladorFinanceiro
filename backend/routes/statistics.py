@@ -11,4 +11,8 @@ def get_statistics():
     """Return performance statistics."""
     simulation = get_simulation()
     stats = simulation.get_statistics()
-    return make_response(True, "Statistics loaded successfully.", stats)
+    return make_response(
+        True,
+        "Statistics loaded successfully.",
+        data=[stat.to_json() for stat in stats],
+    )

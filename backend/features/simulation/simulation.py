@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
+from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
@@ -145,8 +146,8 @@ class Simulation:
             "cdi": repository.economic.get_cdi_rate(self._current_date),
         }
 
-    def get_statistics(self):
-        pass
+    def get_statistics(self) -> list[PlayerHistoryDTO]:
+        return repository.statistics.get_players_history()
 
     def _has_month_changed(self) -> bool:
         current_month = (self._current_date.year, self._current_date.month)
