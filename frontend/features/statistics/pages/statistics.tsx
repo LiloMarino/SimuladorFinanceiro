@@ -1,6 +1,7 @@
 import { MatchSummaryCard } from "../components/match-summary-card";
 import { PlayersRankingTable, type PlayerStat } from "../components/players-ranking-table";
 import { PerformanceChart } from "../components/performance-chart";
+import type { PlayerHistory } from "@/types";
 
 export default function StatisticsPage() {
   const playersMock: PlayerStat[] = [
@@ -11,12 +12,14 @@ export default function StatisticsPage() {
     { position: 5, name: "Pedro_Bolsa", totalNetWorth: 87670.15, returnPercent: 0.5, returnValue: 87670.15 },
   ];
 
+  const performanceMock: PlayerHistory[] = [];
+
   return (
     <section className="p-4 space-y-6">
       <PlayersRankingTable players={playersMock} />
 
       {/* Card principal */}
-      <PerformanceChart />
+      <PerformanceChart players={performanceMock} />
 
       {/* Resumo compacto */}
       <MatchSummaryCard

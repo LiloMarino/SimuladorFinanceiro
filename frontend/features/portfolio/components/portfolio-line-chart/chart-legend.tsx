@@ -1,5 +1,5 @@
 import type { LegendProps } from "recharts";
-import { PORTFOLIO_LINE_SERIES, type PortfolioSeriesKey } from "./line-series";
+import { PORTFOLIO_LINE_SERIES, type PortfolioSeriesKey } from "./series";
 
 interface ChartLegendProps extends LegendProps {
   visible: Record<PortfolioSeriesKey, boolean>;

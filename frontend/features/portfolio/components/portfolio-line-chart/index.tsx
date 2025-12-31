@@ -4,7 +4,7 @@ import { formatMoney, formatMonthYear } from "@/shared/lib/utils/formatting";
 import type { PatrimonialHistory } from "@/types";
 import { PortfolioLineTooltip } from "./chart-tooltip";
 import { useStaticChartVisibility } from "../../hooks/useStaticChartVisibility";
-import { PORTFOLIO_LINE_SERIES } from "./line-series";
+import { PORTFOLIO_LINE_SERIES } from "./series";
 import { PortfolioLineLegend } from "./chart-legend";
 import { ChartEmptyCard } from "@/features/portfolio/components/shared/chart-empty-card";
 
