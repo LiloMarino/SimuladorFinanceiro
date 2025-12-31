@@ -7,23 +7,22 @@ import {
   faFileImport,
   faRobot,
   faTrophy,
-  faDoorOpen,
   faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
 import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
 import PortfolioPage from "./features/portfolio/pages/portfolio";
-import SettingsPage from "./pages/settings";
+import SettingsPage from "./features/settings/pages/settings";
 import FixedIncomePage from "./features/fixed-income/pages/fixed-income";
 import FixedIncomeDetailPage from "./features/fixed-income/pages/fixed-income-details";
-import StrategiesPage from "./pages/strategies";
-import { LobbyPage } from "./pages/lobby";
+import StrategiesPage from "./features/strategies/pages/strategies";
+import { LobbyPage } from "./features/lobby/pages/lobby";
 import ImportAssetsPage from "./features/import-assets/pages/import-assets";
 import { RealtimeProvider } from "@/shared/context/realtime";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { PageLabelProvider } from "@/shared/context/page-label";
-import StatisticsPage from "./pages/statistics";
+import StatisticsPage from "./features/statistics/pages/statistics";
 import { LoginPage } from "./features/auth/pages/login";
 import { AuthenticatedLayout } from "./layouts/authenticated-layout";
 import { AuthLayout } from "./layouts/auth-layout";
@@ -37,7 +36,6 @@ const navItems: NavItem[] = [
   { key: "import-assets", label: "Importar Ativos", endpoint: "/import-assets", icon: faFileImport },
   { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: faRobot },
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: faTrophy },
-  { key: "lobby", label: "Sala Multiplayer", endpoint: "/lobby", icon: faDoorOpen },
   { key: "settings", label: "Configurações", endpoint: "/settings", icon: faCog },
 ];
 
