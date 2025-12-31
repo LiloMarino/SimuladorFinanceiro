@@ -17,14 +17,6 @@ def get_strategies():
     return make_response(True, "Strategies loaded successfully.", strategies)
 
 
-@settings_bp.route("/api/statistics", methods=["GET"])
-def get_statistics():
-    """Return performance statistics."""
-    simulation = get_simulation()
-    stats = simulation.get_statistics() if hasattr(simulation, "get_statistics") else {}
-    return make_response(True, "Statistics loaded successfully.", stats)
-
-
 @settings_bp.route("/api/lobby", methods=["GET"])
 def get_lobby():
     """Return lobby or simulation status."""

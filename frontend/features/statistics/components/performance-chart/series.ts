@@ -10,9 +10,9 @@ export interface PlayerSeries {
 
 export function buildPlayerSeries(players: PlayerHistory[]): PlayerSeries[] {
   return players.map((p) => ({
-    key: p.playerId,
-    label: p.playerName,
-    color: stringToColor(p.playerId),
+    key: p.player_id,
+    label: p.player_nickname,
+    color: stringToColor(p.player_id),
     defaultVisible: true,
   }));
 }

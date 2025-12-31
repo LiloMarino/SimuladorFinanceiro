@@ -145,6 +145,9 @@ class Simulation:
             "cdi": repository.economic.get_cdi_rate(self._current_date),
         }
 
+    def get_statistics(self):
+        pass
+
     def _has_month_changed(self) -> bool:
         current_month = (self._current_date.year, self._current_date.month)
 

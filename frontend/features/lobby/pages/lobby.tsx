@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy, faUser, faPlay } from "@fortawesome/free-solid-svg-icons";
-import type { Player } from "@/types";
+
+type Player = {
+  name: string;
+  status: string;
+  color: string;
+  isYou?: boolean;
+};
 
 interface LobbyHostProps {
   maxPlayers?: number;
