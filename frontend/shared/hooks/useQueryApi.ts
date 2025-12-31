@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { handleApiResponse } from "@/shared/lib/utils/api";
 import type { ZodType } from "zod";
+import ApiError from "@/shared/lib/models/ApiError";
 
 interface UseQueryApiOptions<R> {
   readonly headers?: Record<string, string>;
@@ -16,7 +17,7 @@ interface UseQueryApiOptions<R> {
  */
 export function useQueryApi<R = unknown>(url: string, options?: Readonly<UseQueryApiOptions<R>>) {
   const [data, setData] = useState<R | null>(null);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
   const [loading, setLoading] = useState(false);
   const { headers, responseSchema, initialFetch = true } = options ?? {};
 
@@ -34,7 +35,11 @@ export function useQueryApi<R = unknown>(url: string, options?: Readonly<UseQuer
       setData(validatedData);
       return validatedData;
     } catch (err) {
-      setError(err as Error);
+      if (err instanceof ApiError) {
+        setError(err);
+      } else {
+        setError(new ApiError("Unexpected error", 0, err));
+      }
       throw err;
     } finally {
       setLoading(false);

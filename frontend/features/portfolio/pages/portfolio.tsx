@@ -12,6 +12,7 @@ import { calculatePortfolioView } from "../lib/portfolio-calculator";
 import { EconomicIndicatorsCard } from "../components/economic-indicators-card";
 import { VariableIncomeTable } from "../components/variable-income-table";
 import { FixedIncomeTable } from "../components/fixed-income-table";
+import { ErrorPage } from "@/pages/error";
 
 export default function PortfolioPage() {
   usePageLabel("Carteira");
@@ -20,6 +21,7 @@ export default function PortfolioPage() {
     data: portfolioData,
     setData: setPortfolioData,
     loading: portfolioLoading,
+    error: portfolioError,
   } = useQueryApi<PortfolioState>("/api/portfolio");
 
   // Busca dados econômicos
@@ -90,7 +92,13 @@ export default function PortfolioPage() {
       </section>
     );
   } else if (!portfolioData || !view) {
-    return <div>Falha ao carregar carteira</div>;
+    return (
+      <ErrorPage
+        code={String(portfolioError?.status) || "500"}
+        title="Erro ao carregar carteira"
+        message={String(portfolioError?.message)}
+      />
+    );
   }
 
   const { patrimonial_history } = portfolioData;

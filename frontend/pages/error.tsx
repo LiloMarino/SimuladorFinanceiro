@@ -57,11 +57,12 @@ export function ErrorPage({
   code = "404",
   title = "Página não encontrada",
   message = "Parece que você tentou acessar algo que não existe.",
-  actionLabel = "Voltar para o início",
-  actionHref = "/",
+  actionLabel,
+  actionHref,
   className,
 }: ErrorStateProps) {
   const visual = resolveErrorVisual(code);
+  const hasPrimaryAction = actionHref && actionLabel;
 
   return (
     <motion.div
@@ -84,13 +85,13 @@ export function ErrorPage({
             </div>
 
             <div className="mt-4 flex gap-2">
-              {actionHref && (
+              {hasPrimaryAction && (
                 <Button asChild>
                   <Link to={actionHref}>{actionLabel}</Link>
                 </Button>
               )}
-              <Button variant="outline" asChild>
-                <Link to="/portfolio">Ir para o dashboard</Link>
+              <Button asChild variant={hasPrimaryAction ? "outline" : "default"}>
+                <Link to="/">Voltar para o Início</Link>
               </Button>
             </div>
           </div>

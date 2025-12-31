@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { handleApiResponse } from "@/shared/lib/utils/api";
 import type { ZodType } from "zod";
+import ApiError from "@/shared/lib/models/ApiError";
 
 interface UseFormDataMutationOptions<R = unknown> {
   readonly method?: "POST" | "PUT" | "DELETE";
@@ -27,7 +28,8 @@ function toFormData(obj: Record<string, string | number | boolean | File | Blob 
  */
 export function useFormDataMutation<R = unknown>(url: string, options?: Readonly<UseFormDataMutationOptions<R>>) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
+  const { method = "POST", responseSchema, onSuccess, onError } = options ?? {};
 
   const mutate = async (
     payload: Record<string, string | number | boolean | File | Blob | null | undefined>
@@ -39,18 +41,18 @@ export function useFormDataMutation<R = unknown>(url: string, options?: Readonly
       const formData = toFormData(payload);
 
       const res = await fetch(url, {
-        method: options?.method || "POST",
+        method,
         body: formData,
       });
 
-      const data = await handleApiResponse<R>(res, options?.responseSchema);
-      options?.onSuccess?.(data);
+      const data = await handleApiResponse<R>(res, responseSchema);
+      onSuccess?.(data);
       return data;
     } catch (err) {
-      const e = err instanceof Error ? err : new Error(String(err));
-      setError(e);
-      options?.onError?.(e);
-      throw e;
+      const apiError = err instanceof ApiError ? err : new ApiError("Unexpected error", 0, err);
+      setError(apiError);
+      onError?.(apiError);
+      throw apiError;
     } finally {
       setLoading(false);
     }
