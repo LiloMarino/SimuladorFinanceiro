@@ -1,8 +1,8 @@
 import { useAuth } from "@/shared/hooks/useAuth";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { Spinner } from "@/shared/components/ui/spinner";
 import { useEffect } from "react";
 import type { AuthRedirectState } from "./auth-layout";
+import { LoadingPage } from "@/pages/loading";
 
 export function AuthenticatedLayout() {
   const { loading, refresh, getSession } = useAuth();
@@ -15,11 +15,7 @@ export function AuthenticatedLayout() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        <Spinner className="h-8 w-8 text-muted-foreground" />
-      </div>
-    );
+    return <LoadingPage variant="fullscreen" />;
   }
 
   if (!getSession()?.authenticated) {

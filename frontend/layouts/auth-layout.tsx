@@ -1,4 +1,4 @@
-import { Spinner } from "@/shared/components/ui/spinner";
+import { LoadingPage } from "@/pages/loading";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
@@ -20,11 +20,7 @@ export function AuthLayout() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        <Spinner className="h-8 w-8 text-muted-foreground" />
-      </div>
-    );
+    return <LoadingPage variant="fullscreen" />;
   }
 
   if (getSession()?.authenticated) {

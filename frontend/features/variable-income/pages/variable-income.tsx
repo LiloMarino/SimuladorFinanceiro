@@ -1,5 +1,5 @@
 import StockCard from "@/features/variable-income/components/stock-card";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { LoadingPage } from "@/pages/loading";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { Stock } from "@/types";
@@ -12,11 +12,7 @@ export default function VariableIncomePage() {
   });
 
   if (loading) {
-    return (
-      <section className="flex min-h-[80vh] items-center justify-center">
-        <Spinner className="h-8 w-8 text-muted-foreground" />
-      </section>
-    );
+    return <LoadingPage />;
   }
 
   return (

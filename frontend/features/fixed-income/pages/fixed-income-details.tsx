@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { FixedIncomeAsset, TAX_TABLE } from "@/features/fixed-income/models/FixedIncomeAsset";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
-import { Spinner } from "@/shared/components/ui/spinner";
 import { useParams } from "react-router-dom";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { EconomicIndicators, FixedIncomeAssetApi, SimulationState } from "@/types";
@@ -19,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { toast } from "sonner";
 import { ErrorPage } from "@/pages/error";
+import { LoadingPage } from "@/pages/loading";
 
 export default function FixedIncomeDetailPage() {
   usePageLabel("Detalhes Renda Fixa");
@@ -56,11 +56,7 @@ export default function FixedIncomeDetailPage() {
   }, [assetData, simData?.currentDate, rates]);
 
   if (isAssetLoading || isRatesLoading || isSimLoading) {
-    return (
-      <section className="flex min-h-[80vh] items-center justify-center">
-        <Spinner className="h-8 w-8 text-muted-foreground" />
-      </section>
-    );
+    return <LoadingPage />;
   }
 
   const onSubmit = async (values: InvestmentFormSchema) => {

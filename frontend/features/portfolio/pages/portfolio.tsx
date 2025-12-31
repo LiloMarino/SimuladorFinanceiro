@@ -1,6 +1,5 @@
 import { faWallet, faChartLine, faCoins, faMoneyBillWave } from "@fortawesome/free-solid-svg-icons";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
-import { Spinner } from "@/shared/components/ui/spinner";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import type { EconomicIndicators, PortfolioState, Stock } from "@/types";
 import { formatPercent } from "@/shared/lib/utils/formatting";
@@ -13,6 +12,7 @@ import { EconomicIndicatorsCard } from "../components/economic-indicators-card";
 import { VariableIncomeTable } from "../components/variable-income-table";
 import { FixedIncomeTable } from "../components/fixed-income-table";
 import { ErrorPage } from "@/pages/error";
+import { LoadingPage } from "@/pages/loading";
 
 export default function PortfolioPage() {
   usePageLabel("Carteira");
@@ -86,11 +86,7 @@ export default function PortfolioPage() {
   }, [portfolioData, stocks]);
 
   if (portfolioLoading) {
-    return (
-      <section className="flex min-h-[80vh] items-center justify-center">
-        <Spinner className="h-8 w-8 text-muted-foreground" />
-      </section>
-    );
+    return <LoadingPage />;
   } else if (!portfolioData || !view) {
     return (
       <ErrorPage

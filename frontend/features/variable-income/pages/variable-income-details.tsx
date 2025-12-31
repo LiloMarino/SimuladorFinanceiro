@@ -13,6 +13,7 @@ import { formatMoney } from "@/shared/lib/utils/formatting";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { StockChart } from "@/features/variable-income/components/stock-chart";
 import { ErrorPage } from "@/pages/error";
+import { LoadingPage } from "@/pages/loading";
 
 export default function VariableIncomeDetailPage() {
   usePageLabel("Detalhes Renda Variável");
@@ -66,11 +67,7 @@ export default function VariableIncomeDetailPage() {
   });
 
   if (loading) {
-    return (
-      <section className="flex min-h-[80vh] items-center justify-center">
-        <Spinner className="h-8 w-8 text-muted-foreground" />
-      </section>
-    );
+    return <LoadingPage />;
   } else if (!stock) {
     return (
       <ErrorPage
