@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSyncAlt, faRobot, faHandPaper, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { ErrorPage } from "@/pages/error";
 
 interface Strategy {
   value: string;
@@ -49,7 +50,7 @@ export default function StrategiesPage() {
   };
 
   const handleClearLog = () => setLog([]);
-
+  return <ErrorPage code="501" title="Página em desenvolvimento" message="Em breve..." />;
   return (
     <section id="strategies" className="section-content p-4">
       <div className="bg-white rounded-lg shadow p-6 space-y-6">
