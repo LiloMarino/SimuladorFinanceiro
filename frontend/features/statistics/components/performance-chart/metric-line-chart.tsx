@@ -1,6 +1,6 @@
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { formatMoney, formatMonthYear } from "@/shared/lib/utils/formatting";
-import { useStaticChartVisibility } from "@/features/portfolio/hooks/useStaticChartVisibility";
+import { useStaticChartVisibility } from "@/shared/hooks/useStaticChartVisibility";
 import { PerformanceChartLegend } from "./chart-legend";
 import { PerformanceChartTooltip } from "./chart-tooltip";
 import { buildChartData } from "./utils";

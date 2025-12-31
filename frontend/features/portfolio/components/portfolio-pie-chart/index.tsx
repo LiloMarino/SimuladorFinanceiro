@@ -6,7 +6,7 @@ import { useState } from "react";
 import { PortfolioPieTooltip } from "./chart-tooltip";
 import { PortfolioPieLegend } from "./chart-legend";
 import type { PieDataItem } from "./chart-legend";
-import { useDynamicChartVisibility } from "../../hooks/useDynamicChartVisibility";
+import { useDynamicChartVisibility } from "@/shared/hooks/useDynamicChartVisibility";
 import { ChartEmptyCard } from "@/features/portfolio/components/shared/chart-empty-card";
 
 interface PortfolioPieChartProps {
