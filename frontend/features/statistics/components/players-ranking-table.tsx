@@ -11,10 +11,10 @@ export interface PlayerStat {
 }
 
 interface Props {
-  players: PlayerStat[];
+  playersStats: PlayerStat[];
 }
 
-export function PlayersRankingTable({ players }: Props) {
+export function PlayersRankingTable({ playersStats }: Props) {
   return (
     <Card>
       <CardHeader>
@@ -34,7 +34,7 @@ export function PlayersRankingTable({ players }: Props) {
           </TableHeader>
 
           <TableBody>
-            {players.map((player) => (
+            {playersStats.map((player) => (
               <TableRow key={player.position} className="text-center [&>td]:py-4">
                 <TableCell>{player.position}</TableCell>
                 <TableCell>{player.name}</TableCell>

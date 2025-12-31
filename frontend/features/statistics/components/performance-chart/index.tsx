@@ -11,10 +11,10 @@ const TABS: { key: PerformanceMetric; label: string }[] = [
 ] as const;
 
 interface PerformanceChartProps {
-  players: PlayerHistory[];
+  playersHistory: PlayerHistory[];
 }
 
-export function PerformanceChart({ players }: PerformanceChartProps) {
+export function PerformanceChart({ playersHistory }: PerformanceChartProps) {
   return (
     <Card>
       <CardHeader className="space-y-4">
@@ -31,7 +31,7 @@ export function PerformanceChart({ players }: PerformanceChartProps) {
 
           {TABS.map((t) => (
             <TabsContent key={t.key} value={t.key}>
-              <MetricLineChart metric={t.key} players={players} />
+              <MetricLineChart metric={t.key} players={playersHistory} />
             </TabsContent>
           ))}
         </Tabs>

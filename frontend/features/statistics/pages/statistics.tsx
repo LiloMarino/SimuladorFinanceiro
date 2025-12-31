@@ -1,36 +1,40 @@
 import { MatchSummaryCard } from "../components/match-summary-card";
-import { PlayersRankingTable, type PlayerStat } from "../components/players-ranking-table";
+import { PlayersRankingTable } from "../components/players-ranking-table";
 import { PerformanceChart } from "../components/performance-chart";
 import type { PlayerHistory } from "@/types";
+import { useQueryApi } from "@/shared/hooks/useQueryApi";
+import { LoadingPage } from "@/pages/loading";
+import { buildMatchSummary } from "../lib/build-match-summary";
+import { buildPlayersRanking } from "../lib/build-ranking";
+import { ErrorPage } from "@/pages/error";
 
 export default function StatisticsPage() {
-  const playersMock: PlayerStat[] = [
-    { position: 1, name: "Você", totalNetWorth: 125430.65, returnPercent: 0.5, returnValue: 125430.65 },
-    { position: 2, name: "Ana_Silva", totalNetWorth: 118540.2, returnPercent: -0.5, returnValue: -118540.2 },
-    { position: 3, name: "Carlos_Invest", totalNetWorth: 107890.75, returnPercent: 0.5, returnValue: 107890.75 },
-    { position: 4, name: "Bia_Trader", totalNetWorth: 98450.3, returnPercent: -0.5, returnValue: -98450.3 },
-    { position: 5, name: "Pedro_Bolsa", totalNetWorth: 87670.15, returnPercent: 0.5, returnValue: 87670.15 },
-  ];
+  const { data: statistics, loading, error } = useQueryApi<PlayerHistory[]>("/api/statistics");
 
-  const performanceMock: PlayerHistory[] = [];
+  if (loading) {
+    return <LoadingPage />;
+  } else if (!statistics) {
+    return (
+      <ErrorPage
+        code={String(error?.status) || "500"}
+        title="Erro ao carregar estatísticas"
+        message={String(error?.message)}
+      />
+    );
+  }
+
+  const ranking = buildPlayersRanking(statistics);
+  const summary = buildMatchSummary(ranking, "Você");
 
   return (
     <section className="p-4 space-y-6">
-      <PlayersRankingTable players={playersMock} />
+      <PlayersRankingTable playersStats={ranking} />
 
       {/* Card principal */}
-      <PerformanceChart players={performanceMock} />
+      <PerformanceChart playersHistory={statistics} />
 
       {/* Resumo compacto */}
-      <MatchSummaryCard
-        summary={{
-          position: 1,
-          playerReturn: "+12.3%",
-          averageReturn: "+5.4%",
-          bestReturn: "+12.3%",
-          worstReturn: "-2.1%",
-        }}
-      />
+      <MatchSummaryCard summary={summary} />
     </section>
   );
 }
