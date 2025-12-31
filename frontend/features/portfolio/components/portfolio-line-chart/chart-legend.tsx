@@ -10,7 +10,7 @@ export function PortfolioLineLegend({ payload, visible, toggle }: ChartLegendPro
   if (!payload) return null;
 
   return (
-    <div className="flex justify-center lg:justify-end gap-2 mb-3 flex-wrap">
+    <div className="flex justify-center gap-3 flex-wrap">
       {PORTFOLIO_LINE_SERIES.map((series) => {
         const isActive = visible[series.key];
 

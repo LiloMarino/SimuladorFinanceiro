@@ -33,7 +33,13 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
       <CardContent>
         <div className="h-[380px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData}>
+            <AreaChart
+              data={chartData}
+              margin={{
+                top: 12,
+                right: 16,
+              }}
+            >
               <defs>
                 {PORTFOLIO_LINE_SERIES.map((s) => (
                   <linearGradient key={s.gradientId} id={s.gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -52,17 +58,23 @@ export function PortfolioLineChart({ data }: PortfolioLineChartProps) {
                 domain={["dataMin", "dataMax"]}
                 tickFormatter={(value) => formatMonthYear(new Date(value))}
                 minTickGap={40}
-                stroke="#9CA3AF"
-                style={{ fontSize: "12px" }}
-                tickLine={{ stroke: "#e5e7eb" }}
+                tick={{
+                  fontSize: 13,
+                  fill: "#374151",
+                  fontWeight: 500,
+                }}
+                axisLine={{ stroke: "#374151" }}
               />
 
               <YAxis
                 tickFormatter={formatMoney}
-                width={110}
-                stroke="#9CA3AF"
-                style={{ fontSize: "12px" }}
-                tickLine={{ stroke: "#e5e7eb" }}
+                width={80}
+                tick={{
+                  fontSize: 13,
+                  fill: "#374151",
+                  fontWeight: 500,
+                }}
+                axisLine={{ stroke: "#374151" }}
               />
 
               <Tooltip content={<PortfolioLineTooltip />} />
