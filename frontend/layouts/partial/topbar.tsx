@@ -9,7 +9,7 @@ interface TopbarProps {
   pageLabel: string;
 }
 
-const SPEED_OPTIONS = [0, 1, 2, 4, 10];
+const SPEED_OPTIONS = [0, 1, 2, 4, 10, 100];
 
 export default function Topbar({ pageLabel }: TopbarProps) {
   const { data: simData, setData: setSimData } = useQueryApi<SimulationState>("/api/get-simulation-state");

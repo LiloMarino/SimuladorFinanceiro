@@ -33,9 +33,9 @@ const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
   { key: "fixed-income", label: "Renda Fixa", endpoint: "/fixed-income", icon: faCoins },
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: faWallet },
-  { key: "import-assets", label: "Importar Ativos", endpoint: "/import-assets", icon: faFileImport },
-  { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: faRobot },
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: faTrophy },
+  { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: faRobot },
+  { key: "import-assets", label: "Importar Ativos", endpoint: "/import-assets", icon: faFileImport },
   { key: "settings", label: "Configurações", endpoint: "/settings", icon: faCog },
 ];
 

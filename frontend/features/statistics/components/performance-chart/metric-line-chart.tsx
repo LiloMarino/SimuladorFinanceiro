@@ -28,7 +28,15 @@ export function MetricLineChart({ metric, players }: MetricLineChartProps) {
   return (
     <div className="h-[380px]">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 12, right: 16 }}>
+        <LineChart
+          data={data}
+          margin={{
+            top: 12,
+            right: 16,
+            left: 24,
+            bottom: 8,
+          }}
+        >
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
 
           <XAxis
@@ -37,9 +45,10 @@ export function MetricLineChart({ metric, players }: MetricLineChartProps) {
             scale="time"
             domain={["dataMin", "dataMax"]}
             tickFormatter={(v) => formatMonthYear(new Date(v))}
+            minTickGap={40}
           />
 
-          <YAxis tickFormatter={formatMoney} width={80} />
+          <YAxis tickFormatter={formatMoney} width={96} />
 
           <Tooltip content={<PerformanceChartTooltip />} />
 
