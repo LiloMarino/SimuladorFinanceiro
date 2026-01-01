@@ -63,6 +63,7 @@ class Simulation:
 
         # Cria snapshot mensal
         if self._has_month_changed():
+            snapshots_payload = []
             users = repository.user.get_all_users()
             for user in users:
                 # Obtém as posições de renda fixa antes do snapshot
@@ -87,11 +88,26 @@ class Simulation:
                     user_id=user.id,
                     snapshot_date=self._current_date,
                 )
+
+                # Portfolio (individual)
                 notify(
                     event="snapshot_update",
                     payload={"snapshot": snapshot.to_json()},
                     to=client_id,
                 )
+
+                # Statistics (global)
+                snapshots_payload.append(
+                    {
+                        "player_nickname": user.nickname,
+                        "snapshot": snapshot.to_json(),
+                    }
+                )
+
+            notify(
+                event="statistics_snapshot_update",
+                payload={"snapshots": snapshots_payload},
+            )
 
         # Emite notificações
         logger.info(f"Dia atual: {self.get_current_date_formatted()}")

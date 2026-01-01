@@ -2,6 +2,7 @@ import type { FixedIncomeAssetApi } from "./fixed-income";
 import type { FixedIncomePosition } from "./portfolio";
 import type { Snapshot } from "./snapshot";
 import type { Stock } from "./stock";
+import type { PatrimonialHistory } from "./portfolio";
 
 /** Eventos emitidos pelo servidor via WebSocket ou SSE */
 export type SimulationEvents = {
@@ -12,6 +13,12 @@ export type SimulationEvents = {
   fixed_assets_update: { assets: FixedIncomeAssetApi[] };
   snapshot_update: { snapshot: Snapshot };
   fixed_income_position_update: { positions: FixedIncomePosition[] };
+  statistics_snapshot_update: {
+    snapshots: {
+      player_nickname: string;
+      snapshot: PatrimonialHistory;
+    }[];
+  };
 } & {
   [K in `stock_update:${string}`]: { stock: Stock };
 };
