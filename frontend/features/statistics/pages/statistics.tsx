@@ -7,13 +7,16 @@ import { LoadingPage } from "@/pages/loading";
 import { buildMatchSummary } from "../lib/build-match-summary";
 import { buildPlayersRanking } from "../lib/build-ranking";
 import { ErrorPage } from "@/pages/error";
+import { useAuth } from "@/shared/hooks/useAuth";
 
 export default function StatisticsPage() {
   const { data: statistics, loading, error } = useQueryApi<PlayerHistory[]>("/api/statistics");
+  const { getUser } = useAuth();
+  const currentUser = getUser();
 
   if (loading) {
     return <LoadingPage />;
-  } else if (!statistics) {
+  } else if (!statistics || !currentUser) {
     return (
       <ErrorPage
         code={String(error?.status) || "500"}
@@ -23,17 +26,17 @@ export default function StatisticsPage() {
     );
   }
 
+  const currentNickname = currentUser.nickname;
+
   const ranking = buildPlayersRanking(statistics);
-  const summary = buildMatchSummary(ranking, "Você");
+  const summary = buildMatchSummary(ranking, currentNickname);
 
   return (
     <section className="p-4 space-y-6">
-      <PlayersRankingTable playersStats={ranking} />
+      <PlayersRankingTable playersStats={ranking} currentPlayerName={currentNickname} />
 
-      {/* Card principal */}
       <PerformanceChart playersHistory={statistics} />
 
-      {/* Resumo compacto */}
       <MatchSummaryCard summary={summary} />
     </section>
   );

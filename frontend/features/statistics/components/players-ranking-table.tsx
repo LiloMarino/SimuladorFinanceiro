@@ -12,9 +12,10 @@ export interface PlayerStat {
 
 interface Props {
   playersStats: PlayerStat[];
+  currentPlayerName: string;
 }
 
-export function PlayersRankingTable({ playersStats }: Props) {
+export function PlayersRankingTable({ playersStats, currentPlayerName }: Props) {
   return (
     <Card>
       <CardHeader>
@@ -34,19 +35,33 @@ export function PlayersRankingTable({ playersStats }: Props) {
           </TableHeader>
 
           <TableBody>
-            {playersStats.map((player) => (
-              <TableRow key={player.position} className="text-center [&>td]:py-4">
-                <TableCell>{player.position}</TableCell>
-                <TableCell>{player.name}</TableCell>
-                <TableCell>{formatMoney(player.totalNetWorth)}</TableCell>
-                <TableCell className={player.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
-                  {formatMoney(player.returnValue)}
-                </TableCell>
-                <TableCell className={player.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
-                  {formatPercent(player.returnPercent)}
-                </TableCell>
-              </TableRow>
-            ))}
+            {playersStats.map((player) => {
+              const isCurrentPlayer = player.name === currentPlayerName;
+
+              return (
+                <TableRow
+                  key={player.position}
+                  className={`
+                    text-center [&>td]:py-4
+                    ${isCurrentPlayer ? "bg-primary/5 font-semibold" : ""}
+                  `}
+                >
+                  <TableCell>{player.position}</TableCell>
+
+                  <TableCell>{player.name}</TableCell>
+
+                  <TableCell>{formatMoney(player.totalNetWorth)}</TableCell>
+
+                  <TableCell className={player.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
+                    {formatMoney(player.returnValue)}
+                  </TableCell>
+
+                  <TableCell className={player.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
+                    {formatPercent(player.returnPercent)}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </CardContent>
