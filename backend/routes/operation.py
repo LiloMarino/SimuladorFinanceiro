@@ -52,6 +52,46 @@ def sell_stock(client_id, asset):
     return make_response(True, "Order queued successfully.")
 
 
+# New unified orders endpoints
+@operation_bp.route("/api/variable-income/<string:asset>/orders", methods=["GET"])
+def list_orders(asset):
+    """Retorna ordens (pendentes e histórico) para um ativo específico."""
+    from backend.core import repository
+
+    orders = ManualStrategy.get_orders(asset)
+
+    # Convert orders to json-friendly dicts
+    def _to_json(o):
+        user = repository.user.get_by_client_id(o.client_id)
+        nickname = user.nickname if user else None
+        return {
+            "id": o.id,
+            "client_id": o.client_id,
+            "nickname": nickname,
+            "ticker": o.ticker,
+            "size": o.size,
+            "action": o.action.value,
+            "order_type": o.order_type.value,
+            "price": o.price,
+            "timestamp": o.timestamp.isoformat(),
+            "status": o.status.value,
+        }
+
+    return make_response(True, "Orders loaded.", data=[_to_json(o) for o in orders])
+
+
+@operation_bp.route(
+    "/api/variable-income/<string:asset>/orders/<string:order_id>/cancel",
+    methods=["POST"],
+)
+@require_client_id
+def cancel_order(client_id, asset, order_id):
+    canceled = ManualStrategy.cancel_order(client_id, order_id)
+    if not canceled:
+        return make_response(False, "Order not found or cannot be canceled.", 404)
+    return make_response(True, "Order canceled successfully.")
+
+
 @operation_bp.route("/api/fixed-income", methods=["GET"])
 def get_fixed_income():
     """Return list of fixed-income assets."""

@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
@@ -15,6 +16,7 @@ class OrderAction(Enum):
 
 class OrderStatus(Enum):
     EXECUTED = "executed"
+    PARTIAL = "partial"
     PENDING = "pending"
     CANCELED = "canceled"
 
@@ -29,5 +31,6 @@ class Order:
     action: OrderAction
     order_type: OrderType
     price: float | None = None
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: OrderStatus = OrderStatus.PENDING
