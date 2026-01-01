@@ -49,14 +49,11 @@ class StatisticsRepository:
                 for s in user_snaps
             ]
 
-            last_snapshot = history[-1]
             players_history.append(
                 PlayerHistoryDTO(
-                    player_id=str(user.client_id),
                     player_nickname=user.nickname,
                     starting_cash=config.toml.simulation.starting_cash,
                     history=history,
-                    last_snapshot=last_snapshot,
                 )
             )
 

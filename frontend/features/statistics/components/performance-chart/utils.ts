@@ -11,7 +11,7 @@ export function buildChartData(players: PlayerHistory[], metric: PerformanceMetr
         map.set(timestamp, { timestamp });
       }
 
-      map.get(timestamp)![player.player_id] = h[metric];
+      map.get(timestamp)![player.player_nickname] = h[metric];
     });
   });
 
