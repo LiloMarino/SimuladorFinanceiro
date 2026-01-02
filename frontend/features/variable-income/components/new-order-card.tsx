@@ -4,7 +4,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/shared/components/ui/form";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
-import { formatMoney } from "@/shared/lib/utils/formatting";
+import { displayMoney } from "@/shared/lib/utils/display";
 import type { OrderOperation, OrderType, StockDetails } from "@/types";
 import clsx from "clsx";
 import { Minus, Plus } from "lucide-react";
@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
+import { normalizeNumberString } from "@/shared/lib/utils";
 
 const newOrderSchema = z
   .object({
@@ -26,7 +28,7 @@ const newOrderSchema = z
   .refine(
     (data) => {
       if (data.type === "limit") {
-        return !!data.limit_price && Number(data.limit_price) > 0;
+        return !!data.limit_price && Number(normalizeNumberString(data.limit_price)) > 0;
       }
       return true;
     },
@@ -75,7 +77,7 @@ export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: Ne
 
   const type = form.watch("type");
   const quantity = Number(form.watch("quantity"));
-  const limitPrice = Number(form.watch("limit_price"));
+  const limitPrice = Number(normalizeNumberString(form.watch("limit_price")));
 
   const estimatedPrice = type === "market" ? stock.close : limitPrice;
   const estimatedTotal = quantity * estimatedPrice;
@@ -86,7 +88,7 @@ export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: Ne
       type: values.type,
       quantity: Number(values.quantity),
       ...(values.type === "limit" && {
-        limit_price: Number(values.limit_price),
+        limit_price: Number(normalizeNumberString(values.limit_price)),
       }),
     };
 
@@ -154,7 +156,12 @@ export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: Ne
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input inputMode="numeric" placeholder="Quantidade" {...field} />
+                  <Input
+                    {...field}
+                    inputMode="numeric"
+                    placeholder="Quantidade"
+                    onChange={(e) => field.onChange(formatPositiveInteger(e.target.value))}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -169,7 +176,12 @@ export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: Ne
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input inputMode="decimal" placeholder="Preço desejado (R$)" {...field} />
+                    <Input
+                      {...field}
+                      inputMode="decimal"
+                      placeholder="Preço desejado (R$)"
+                      onChange={(e) => field.onChange(formatMoney(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -199,12 +211,12 @@ export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: Ne
           <div className="border-t pt-3 text-sm space-y-1">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Total estimado:</span>
-              <span className="font-semibold">{formatMoney(estimatedTotal)}</span>
+              <span className="font-semibold">{displayMoney(estimatedTotal)}</span>
             </div>
 
             {type === "limit" && (
               <p className="text-xs text-muted-foreground italic">
-                * Ordem será executada quando o preço atingir R$ {limitPrice.toFixed(2)}
+                * Ordem será executada quando o preço atingir {displayMoney(limitPrice)}
               </p>
             )}
 
