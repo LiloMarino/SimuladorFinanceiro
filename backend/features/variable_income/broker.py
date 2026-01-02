@@ -10,6 +10,7 @@ from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
+from backend.features.variable_income.entities.order import OrderAction
 from backend.features.variable_income.entities.position import Position
 
 if TYPE_CHECKING:
@@ -47,22 +48,22 @@ class Broker:
     def get_positions(self, client_id: str) -> dict[str, Position]:
         return self._positions[client_id]
 
-    def execute_trade(
+    def execute_order(
         self,
         *,
         client_id: str,
         ticker: str,
         size: int,
         price: float,
-        action: EquityEventType,
+        action: OrderAction,
     ):
         if size <= 0:
             raise ValueError("Quantidade deve ser maior que zero")
 
         match action:
-            case EquityEventType.BUY:
+            case OrderAction.BUY:
                 self._execute_buy(client_id, ticker, size, price)
-            case EquityEventType.SELL:
+            case OrderAction.SELL:
                 self._execute_sell(client_id, ticker, size, price)
 
     def _execute_buy(self, client_id: str, ticker: str, size: int, price: float):
