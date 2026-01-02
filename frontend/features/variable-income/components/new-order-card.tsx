@@ -1,32 +1,70 @@
 import { Card } from "@/shared/components/ui/card";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/shared/components/ui/form";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { formatMoney } from "@/shared/lib/utils/formatting";
-import type { StockDetails } from "@/types";
+import type { OrderOperation, OrderType, StockDetails } from "@/types";
 import clsx from "clsx";
 import { Minus, Plus } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
-export function NewOrderCard({
-  stock,
-  refetchOrders,
-  shouldRefreshPosition,
-}: {
+const newOrderSchema = z
+  .object({
+    operation: z.enum(["buy", "sell"]),
+    type: z.enum(["market", "limit"]),
+    quantity: z
+      .string()
+      .min(1, "Informe a quantidade")
+      .refine((val) => Number(val) > 0, "Quantidade deve ser maior que zero"),
+    limit_price: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.type === "limit") {
+        return !!data.limit_price && Number(data.limit_price) > 0;
+      }
+      return true;
+    },
+    {
+      path: ["limit_price"],
+      message: "Informe um preço válido para ordem limitada",
+    }
+  );
+
+type NewOrderFormInput = z.input<typeof newOrderSchema>;
+type NewOrderFormOutput = {
+  operation: OrderOperation;
+  type: OrderType;
+  quantity: number;
+  limit_price?: number;
+};
+
+interface NewOrderCardProps {
   stock: StockDetails;
   refetchOrders: () => void;
   shouldRefreshPosition: React.RefObject<boolean>;
-}) {
-  const [operationType, setOperationType] = useState<"buy" | "sell">("buy");
-  const [orderType, setOrderType] = useState<"market" | "limit">("market");
-  const [limitPrice, setLimitPrice] = useState<number>(0);
-  const [quantity, setQuantity] = useState<number>(0);
+}
+
+export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: NewOrderCardProps) {
+  const form = useForm<NewOrderFormInput>({
+    resolver: zodResolver(newOrderSchema),
+    defaultValues: {
+      operation: "buy",
+      type: "market",
+      quantity: "",
+      limit_price: "",
+    },
+  });
 
   const executeOrderMutation = useMutationApi(`/api/variable-income/${stock.ticker}/order`, {
     onSuccess: () => {
       toast.success("Ordem enviada com sucesso!");
-      setQuantity(0);
-      setLimitPrice(0);
+      form.reset();
       shouldRefreshPosition.current = true;
       refetchOrders();
     },
@@ -35,159 +73,147 @@ export function NewOrderCard({
     },
   });
 
-  const handleExecuteOrder = async () => {
-    if (!quantity || quantity <= 0) {
-      toast.warning("Informe uma quantidade válida.");
-      return;
-    }
+  const type = form.watch("type");
+  const quantity = Number(form.watch("quantity"));
+  const limitPrice = Number(form.watch("limit_price"));
 
-    if (orderType === "limit" && (!limitPrice || limitPrice <= 0)) {
-      toast.warning("Informe um preço válido para ordem limitada.");
-      return;
-    }
-
-    await executeOrderMutation.mutate({
-      operation: operationType,
-      type: orderType,
-      quantity,
-      ...(orderType === "limit" && { limit_price: limitPrice }),
-    });
-  };
-
-  const estimatedPrice = orderType === "market" ? stock.close : limitPrice;
+  const estimatedPrice = type === "market" ? stock.close : limitPrice;
   const estimatedTotal = quantity * estimatedPrice;
+
+  const onSubmit = async (values: NewOrderFormInput) => {
+    const payload: NewOrderFormOutput = {
+      operation: values.operation,
+      type: values.type,
+      quantity: Number(values.quantity),
+      ...(values.type === "limit" && {
+        limit_price: Number(values.limit_price),
+      }),
+    };
+
+    await executeOrderMutation.mutate(payload);
+  };
 
   return (
     <Card className="flex-1 bg-muted/40 p-4">
-      <h3 className="font-medium">Nova Ordem</h3>
-      <div className="flex flex-col gap-4">
-        {/* Tipo de Operação */}
-        <div>
-          <label className="text-sm font-medium mb-2 block">Tipo de Operação</label>
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="operation"
-                value="buy"
-                checked={operationType === "buy"}
-                onChange={(e) => setOperationType(e.target.value as "buy")}
-                className="w-4 h-4 text-green-600 accent-green-600"
-              />
-              <span className="text-sm">Compra</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="operation"
-                value="sell"
-                checked={operationType === "sell"}
-                onChange={(e) => setOperationType(e.target.value as "sell")}
-                className="w-4 h-4 text-red-600 accent-red-600"
-              />
-              <span className="text-sm">Venda</span>
-            </label>
-          </div>
-        </div>
+      <h3 className="font-medium mb-4">Nova Ordem</h3>
 
-        {/* Tipo de Ordem */}
-        <div>
-          <label className="text-sm font-medium mb-2 block">Tipo de Ordem</label>
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="orderType"
-                value="market"
-                checked={orderType === "market"}
-                onChange={(e) => setOrderType(e.target.value as "market")}
-                className="w-4 h-4"
-              />
-              <span className="text-sm">À Mercado</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="orderType"
-                value="limit"
-                checked={orderType === "limit"}
-                onChange={(e) => setOrderType(e.target.value as "limit")}
-                className="w-4 h-4"
-              />
-              <span className="text-sm">Limitada</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Inputs */}
-        <div className="flex flex-col gap-2">
-          <input
-            type="number"
-            placeholder="Quantidade"
-            value={quantity || ""}
-            min={0}
-            onChange={(e) => {
-              const value = e.target.value === "" ? 0 : Number(e.target.value);
-              setQuantity(value >= 0 ? value : 0);
-            }}
-            className="flex-1 p-2 border rounded-md bg-background"
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          {/* Operação */}
+          <FormField
+            control={form.control}
+            name="operation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipo de Operação</FormLabel>
+                <div className="flex gap-4">
+                  {["buy", "sell"].map((op) => (
+                    <label key={op} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        checked={field.value === op}
+                        onChange={() => field.onChange(op)}
+                        className={clsx("w-4 h-4", op === "buy" ? "accent-green-600" : "accent-red-600")}
+                      />
+                      <span className="text-sm">{op === "buy" ? "Compra" : "Venda"}</span>
+                    </label>
+                  ))}
+                </div>
+              </FormItem>
+            )}
           />
 
-          {/* Campo condicional para preço limitado */}
-          {orderType === "limit" && (
-            <input
-              type="number"
-              placeholder="Preço desejado (R$)"
-              value={limitPrice || ""}
-              min={0}
-              step={0.01}
-              onChange={(e) => {
-                const value = e.target.value === "" ? 0 : Number(e.target.value);
-                setLimitPrice(value >= 0 ? value : 0);
-              }}
-              className="flex-1 p-2 border rounded-md bg-background"
+          {/* Tipo de Ordem */}
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipo de Ordem</FormLabel>
+                <div className="flex gap-4">
+                  {["market", "limit"].map((t) => (
+                    <label key={t} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        checked={field.value === t}
+                        onChange={() => field.onChange(t)}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm">{t === "market" ? "À Mercado" : "Limitada"}</span>
+                    </label>
+                  ))}
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Quantidade */}
+          <FormField
+            control={form.control}
+            name="quantity"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input inputMode="numeric" placeholder="Quantidade" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Preço Limitado */}
+          {type === "limit" && (
+            <FormField
+              control={form.control}
+              name="limit_price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input inputMode="decimal" placeholder="Preço desejado (R$)" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           )}
 
-          {/* Botão único para executar */}
-          <button
-            className={clsx(
-              "py-2 px-4 rounded-md font-medium text-white flex items-center justify-center gap-2 transition-colors",
-              operationType === "buy" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700",
-              executeOrderMutation.loading && "opacity-70 cursor-not-allowed"
-            )}
-            onClick={handleExecuteOrder}
+          {/* Botão */}
+          <Button
+            type="submit"
             disabled={executeOrderMutation.loading}
+            className={clsx(
+              form.watch("operation") === "buy" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
+            )}
           >
             {executeOrderMutation.loading ? (
-              <Spinner className="h-4 w-4 text-white" />
+              <Spinner className="h-4 w-4" />
             ) : (
               <>
-                {operationType === "buy" ? <Plus className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
-                Executar {operationType === "buy" ? "Compra" : "Venda"}
+                {form.watch("operation") === "buy" ? <Plus className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                Executar {form.watch("operation") === "buy" ? "Compra" : "Venda"}
               </>
             )}
-          </button>
-        </div>
+          </Button>
 
-        {/* Total estimado */}
-        <div className="flex flex-col gap-1 border-t pt-3 text-sm">
-          <div className="flex justify-between items-center">
-            <span className="text-muted-foreground">Total estimado:</span>
-            <span className="font-semibold">{formatMoney(estimatedTotal)}</span>
+          {/* Total estimado */}
+          <div className="border-t pt-3 text-sm space-y-1">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Total estimado:</span>
+              <span className="font-semibold">{formatMoney(estimatedTotal)}</span>
+            </div>
+
+            {type === "limit" && (
+              <p className="text-xs text-muted-foreground italic">
+                * Ordem será executada quando o preço atingir R$ {limitPrice.toFixed(2)}
+              </p>
+            )}
+
+            {type === "market" && (
+              <p className="text-xs text-muted-foreground italic">* O preço pode variar conforme o mercado.</p>
+            )}
           </div>
-          {orderType === "limit" && (
-            <p className="text-xs text-muted-foreground italic">
-              * Ordem será executada quando o preço atingir R$ {limitPrice.toFixed(2)}
-            </p>
-          )}
-          {orderType === "market" && (
-            <p className="text-xs text-muted-foreground italic">
-              * O preço pode variar conforme atualização do mercado.
-            </p>
-          )}
-        </div>
-      </div>
+        </form>
+      </Form>
     </Card>
   );
 }
