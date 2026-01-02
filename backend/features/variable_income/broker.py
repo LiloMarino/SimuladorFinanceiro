@@ -10,7 +10,6 @@ from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
-from backend.features.variable_income.data_buffer import DataBuffer
 from backend.features.variable_income.entities.position import Position
 
 if TYPE_CHECKING:
@@ -42,32 +41,43 @@ class Broker:
         self,
         simulation_engine: SimulationEngine,
     ):
-        self.data_buffer = DataBuffer()
         self._simulation_engine = simulation_engine
         self._positions: LazyDict[str, dict[str, Position]] = LazyDict(load_positions)
 
     def get_positions(self, client_id: str) -> dict[str, Position]:
         return self._positions[client_id]
 
-    def get_market_price(self, ticker: str) -> float:
-        candles = self.data_buffer.get_recent(ticker)
-        if not candles:
-            raise ValueError(f"Nenhum preço disponível para {ticker}")
-        return candles[-1].price
-
-    def buy(self, client_id: str, ticker: str, size: int):
+    def execute_trade(
+        self,
+        *,
+        client_id: str,
+        ticker: str,
+        size: int,
+        price: float,
+        action: EquityEventType,
+    ):
         if size <= 0:
-            raise ValueError("Quantidade para compra deve ser maior que zero")
+            raise ValueError("Quantidade deve ser maior que zero")
 
-        price = self.get_market_price(ticker)
+        match action:
+            case EquityEventType.BUY:
+                self._execute_buy(client_id, ticker, size, price)
+            case EquityEventType.SELL:
+                self._execute_sell(client_id, ticker, size, price)
+
+    def _execute_buy(self, client_id: str, ticker: str, size: int, price: float):
         cost = price * size
+
         if self._simulation_engine.get_cash(client_id) < cost:
-            raise ValueError(f"Saldo insuficiente para comprar {ticker}")
+            raise ValueError("Saldo insuficiente")
 
         self._simulation_engine.add_cash(client_id, -cost)
+
         if ticker not in self._positions[client_id]:
             self._positions[client_id][ticker] = Position(ticker)
+
         self._positions[client_id][ticker].update_buy(price, size)
+
         EventManager.push_event(
             EquityEventDTO(
                 user_id=UserManager.get_user_id(client_id),
@@ -78,24 +88,20 @@ class Broker:
                 event_date=self._simulation_engine.current_date,
             )
         )
-        logger.info(
-            f"Executado compra {size}x {ticker} (a mercado) no preço R$ {price}"
-        )
 
-    def sell(self, client_id: str, ticker: str, size: int):
-        if size <= 0:
-            raise ValueError("Quantidade para venda deve ser maior que zero")
+        logger.info(f"Executado BUY {size}x {ticker} @ R$ {price}")
 
+    def _execute_sell(self, client_id: str, ticker: str, size: int, price: float):
         if ticker not in self._positions[client_id]:
-            raise ValueError(f"Sem posição em {ticker} para vender")
+            raise ValueError(f"Sem posição em {ticker}")
 
         pos = self._positions[client_id][ticker]
         if pos.size < size:
-            raise ValueError(f"Sem quantidade suficiente de {ticker} para vender")
+            raise ValueError("Quantidade insuficiente")
 
-        price = self.get_market_price(ticker)
         self._simulation_engine.add_cash(client_id, price * size)
         pos.update_sell(size)
+
         EventManager.push_event(
             EquityEventDTO(
                 user_id=UserManager.get_user_id(client_id),
@@ -106,6 +112,8 @@ class Broker:
                 event_date=self._simulation_engine.current_date,
             )
         )
+
         if pos.size == 0:
             del self._positions[client_id][ticker]
-        logger.info(f"Executado venda {size}x {ticker} (a mercado) no preço R$ {price}")
+
+        logger.info(f"Executado SELL {size}x {ticker} @ R$ {price}")
