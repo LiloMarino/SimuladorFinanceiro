@@ -1,5 +1,5 @@
 import type { TooltipProps } from "recharts";
-import { formatDate, formatMoney } from "@/shared/lib/utils/formatting";
+import { displayDate, displayMoney } from "@/shared/lib/utils/display";
 
 export function PortfolioAreaTooltip({ active, payload, label }: TooltipProps<number, string>) {
   if (!active || !payload || !payload.length) return null;
@@ -13,7 +13,7 @@ export function PortfolioAreaTooltip({ active, payload, label }: TooltipProps<nu
 
   return (
     <div className="bg-background border border-border rounded-lg shadow-lg p-4 min-w-[200px]">
-      <p className="font-semibold mb-2 text-sm text-foreground">{formatDate(new Date(label))}</p>
+      <p className="font-semibold mb-2 text-sm text-foreground">{displayDate(new Date(label))}</p>
 
       <div className="space-y-1.5">
         {entries.map((entry) => (
@@ -23,7 +23,7 @@ export function PortfolioAreaTooltip({ active, payload, label }: TooltipProps<nu
               <span className="text-sm text-muted-foreground">{entry.name}</span>
             </div>
 
-            <span className="text-sm font-semibold text-foreground">{formatMoney(entry.value ?? 0)}</span>
+            <span className="text-sm font-semibold text-foreground">{displayMoney(entry.value ?? 0)}</span>
           </div>
         ))}
       </div>

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { formatMoney, formatPercent } from "@/shared/lib/utils/formatting";
+import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
@@ -43,16 +43,16 @@ export function VariableIncomeTable({ variablePositions }: VariableIncomeTablePr
             {variablePositions.map((pos) => (
               <TableRow key={pos.ticker} className="text-center [&>td]:py-4">
                 <TableCell>{pos.ticker}</TableCell>
-                <TableCell>{formatMoney(pos.averagePrice)}</TableCell>
-                <TableCell>{formatMoney(pos.currentPrice)}</TableCell>
+                <TableCell>{displayMoney(pos.averagePrice)}</TableCell>
+                <TableCell>{displayMoney(pos.currentPrice)}</TableCell>
                 <TableCell>{pos.quantity}</TableCell>
-                <TableCell>{formatMoney(pos.currentValue)}</TableCell>
-                <TableCell>{formatPercent(pos.portfolioPercent)}</TableCell>
+                <TableCell>{displayMoney(pos.currentValue)}</TableCell>
+                <TableCell>{displayPercent(pos.portfolioPercent)}</TableCell>
                 <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
-                  {formatMoney(pos.returnValue)}
+                  {displayMoney(pos.returnValue)}
                 </TableCell>
                 <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
-                  {formatPercent(pos.returnPercent)}
+                  {displayPercent(pos.returnPercent)}
                 </TableCell>
                 <TableCell>
                   <Link

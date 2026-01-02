@@ -1,5 +1,5 @@
 import type { FixedIncomePosition, PortfolioState, Position, RateIndex, Stock } from "@/types";
-import { formatPercent } from "@/shared/lib/utils/formatting";
+import { displayPercent } from "@/shared/lib/utils/display";
 
 type ReturnMetrics = {
   investedValue: number;
@@ -75,13 +75,13 @@ function calculateFixedPositions(fixedIncome: FixedIncomePosition[]): FixedPosit
     const rateLabel = (() => {
       switch (idx) {
         case "CDI":
-          return `${formatPercent(r)} do CDI`;
+          return `${displayPercent(r)} do CDI`;
         case "IPCA":
-          return `IPCA + ${formatPercent(r)}`;
+          return `IPCA + ${displayPercent(r)}`;
         case "SELIC":
-          return `SELIC + ${formatPercent(r)}`;
+          return `SELIC + ${displayPercent(r)}`;
         case "Prefixado":
-          return `${formatPercent(r)} a.a.`;
+          return `${displayPercent(r)} a.a.`;
         default:
           return "N/A";
       }

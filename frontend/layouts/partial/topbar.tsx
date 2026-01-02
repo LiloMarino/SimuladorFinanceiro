@@ -3,7 +3,7 @@ import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import type { SimulationState } from "@/types";
-import { formatMoney } from "@/shared/lib/utils/formatting";
+import { displayMoney } from "@/shared/lib/utils/display";
 
 interface TopbarProps {
   pageLabel: string;
@@ -51,7 +51,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
           {/* Saldo */}
           <div className="flex items-center">
             <span className="text-sm text-gray-600 mr-2">Saldo:</span>
-            <span className="font-medium">{simData?.cash !== undefined ? formatMoney(simData.cash) : "--"}</span>
+            <span className="font-medium">{simData?.cash !== undefined ? displayMoney(simData.cash) : "--"}</span>
           </div>
 
           {/* Velocidade */}

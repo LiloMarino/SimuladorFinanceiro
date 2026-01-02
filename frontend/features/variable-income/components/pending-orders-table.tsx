@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { Card } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { Badge } from "@/shared/components/ui/badge";
-import { formatMoney } from "@/shared/lib/utils/formatting";
+import { displayMoney } from "@/shared/lib/utils/display";
 import type { PendingOrder } from "@/types";
 import { FileText } from "lucide-react";
 
@@ -81,7 +81,7 @@ export function PendingOrdersCard({ pendingOrders, onCancelOrder, cancelLoading 
                 <TableCell className="font-medium">{order.quantity}</TableCell>
 
                 <TableCell className="font-medium">
-                  {order.type === "limit" && order.limit_price ? formatMoney(order.limit_price) : "Mercado"}
+                  {order.type === "limit" && order.limit_price ? displayMoney(order.limit_price) : "Mercado"}
                 </TableCell>
 
                 <TableCell>

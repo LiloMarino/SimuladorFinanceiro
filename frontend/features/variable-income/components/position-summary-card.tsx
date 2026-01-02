@@ -1,5 +1,5 @@
 import { Card } from "@/shared/components/ui/card";
-import { formatMoney } from "@/shared/lib/utils/formatting";
+import { displayMoney } from "@/shared/lib/utils/display";
 import type { Position, StockDetails } from "@/types";
 import clsx from "clsx";
 
@@ -21,22 +21,22 @@ export function PositionSummaryCard({
         <div>
           <p className="text-muted-foreground">Você possui</p>
           <p className="font-bold">
-            {size} ações ({formatMoney(size * stock.close)})
+            {size} ações ({displayMoney(size * stock.close)})
           </p>
         </div>
         <div>
           <p className="text-muted-foreground">Preço médio</p>
-          <p className="font-bold">{formatMoney(avgPrice)}</p>
+          <p className="font-bold">{displayMoney(avgPrice)}</p>
         </div>
         <div>
           <p className="text-muted-foreground">Lucro / Prejuízo</p>
           <p className={clsx("font-bold", size > 0 && stock.close - avgPrice >= 0 ? "text-green-600" : "text-red-600")}>
-            {formatMoney(size * (stock.close - avgPrice))}
+            {displayMoney(size * (stock.close - avgPrice))}
           </p>
         </div>
         <div>
           <p className="text-muted-foreground">Saldo em conta</p>
-          <p className="font-bold">{formatMoney(cash)}</p>
+          <p className="font-bold">{displayMoney(cash)}</p>
         </div>
       </div>
     </Card>

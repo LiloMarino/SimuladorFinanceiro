@@ -2,7 +2,7 @@ import { faWallet, faChartLine, faCoins, faMoneyBillWave } from "@fortawesome/fr
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import type { EconomicIndicators, PortfolioState, Stock } from "@/types";
-import { formatPercent } from "@/shared/lib/utils/formatting";
+import { displayPercent } from "@/shared/lib/utils/display";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { SummaryCard } from "@/features/portfolio/components/summary-card";
 import { PortfolioCharts } from "../components/portfolio-charts";
@@ -118,7 +118,7 @@ export default function PortfolioPage() {
         <SummaryCard
           title="Patrimônio Total"
           value={totalNetWorth}
-          subtitle={`${formatPercent(totalReturnPct)} desde o início`}
+          subtitle={`${displayPercent(totalReturnPct)} desde o início`}
           icon={faWallet}
           iconBg="bg-green-100"
           color="text-green-600"
@@ -127,7 +127,7 @@ export default function PortfolioPage() {
         <SummaryCard
           title="Total Investido"
           value={investedValue}
-          subtitle={`${formatPercent(investedPct)} do patrimônio`}
+          subtitle={`${displayPercent(investedPct)} do patrimônio`}
           icon={faMoneyBillWave}
           iconBg="bg-purple-100"
           color="text-purple-600"
@@ -136,7 +136,7 @@ export default function PortfolioPage() {
         <SummaryCard
           title="Renda Variável"
           value={variableIncomeValue}
-          subtitle={`${formatPercent(variableIncomePct)} da carteira`}
+          subtitle={`${displayPercent(variableIncomePct)} da carteira`}
           icon={faChartLine}
           iconBg="bg-blue-100"
           color="text-blue-600"
@@ -145,7 +145,7 @@ export default function PortfolioPage() {
         <SummaryCard
           title="Renda Fixa"
           value={fixedIncomeValue}
-          subtitle={`${formatPercent(fixedIncomePct)} da carteira`}
+          subtitle={`${displayPercent(fixedIncomePct)} da carteira`}
           icon={faCoins}
           iconBg="bg-yellow-100"
           color="text-yellow-600"

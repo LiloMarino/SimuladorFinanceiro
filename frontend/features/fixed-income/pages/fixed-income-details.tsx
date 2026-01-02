@@ -10,7 +10,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 
 import { Button } from "@/shared/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { formatDate, formatMoney, formatPercent } from "@/shared/lib/utils/formatting";
+import { displayDate, displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import { parse } from "date-fns";
 import { useForm } from "react-hook-form";
 import { investmentFormSchema, type InvestmentFormSchema } from "../schemas/investment-form";
@@ -96,7 +96,7 @@ export default function FixedIncomeDetailPage() {
               <div className="text-right">
                 <h3 className="text-3xl md:text-4xl font-bold text-slate-800">{asset.rateLabel}</h3>
                 <span className="text-green-600 font-medium inline-block mt-2">
-                  Retorno esperado: {formatPercent(asset.grossReturn)} no período
+                  Retorno esperado: {displayPercent(asset.grossReturn)} no período
                 </span>
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function FixedIncomeDetailPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Vencimento</span>
-                  <span className="font-medium text-slate-900">{formatDate(asset.maturityDate)}</span>
+                  <span className="font-medium text-slate-900">{displayDate(asset.maturityDate)}</span>
                 </div>
                 {asset.rateIndex !== "Prefixado" && (
                   <div className="flex justify-between pt-2 border-t border-slate-100">
@@ -143,21 +143,21 @@ export default function FixedIncomeDetailPage() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-600">Retorno Anual Esperado (% a.a.)</span>
-                  <span className="font-medium text-slate-900">{formatPercent(asset.annualRate)}</span>
+                  <span className="font-medium text-slate-900">{displayPercent(asset.annualRate)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Rendimento Bruto Total (%)</span>
-                  <span className="font-medium text-green-700">{formatPercent(asset.grossReturn)}</span>
+                  <span className="font-medium text-green-700">{displayPercent(asset.grossReturn)}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="text-slate-600">Rendimento Líquido Total (%)</span>
-                  <span className="font-medium text-green-700">{formatPercent(asset.netReturn)}</span>
+                  <span className="font-medium text-green-700">{displayPercent(asset.netReturn)}</span>
                 </div>
 
                 <div className="flex justify-between pt-2 border-t border-slate-100">
                   <span className="text-slate-600">Alíquota de IR no período</span>
-                  <span className="font-medium text-slate-900">{formatPercent(asset.incomeTaxRate)}</span>
+                  <span className="font-medium text-slate-900">{displayPercent(asset.incomeTaxRate)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Dias até vencimento</span>
@@ -212,23 +212,23 @@ export default function FixedIncomeDetailPage() {
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">
                       Valor a ser investido
                     </p>
-                    <p className="text-2xl font-bold text-slate-900">{formatMoney(simulation.amount)}</p>
+                    <p className="text-2xl font-bold text-slate-900">{displayMoney(simulation.amount)}</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">
                       Rendimento Bruto
                     </p>
-                    <p className="text-2xl font-bold text-green-600">{formatMoney(simulation.grossReturn)}</p>
+                    <p className="text-2xl font-bold text-green-600">{displayMoney(simulation.grossReturn)}</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">Imposto (IR)</p>
-                    <p className="text-2xl font-bold text-red-600">{formatMoney(simulation.tax)}</p>
+                    <p className="text-2xl font-bold text-red-600">{displayMoney(simulation.tax)}</p>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">
                       Valor de resgate
                     </p>
-                    <p className="text-2xl font-bold text-green-700">{formatMoney(simulation.netAmount)}</p>
+                    <p className="text-2xl font-bold text-green-700">{displayMoney(simulation.netAmount)}</p>
                   </div>
                 </div>
                 <p className="text-xs text-slate-500 mt-6 pt-4 border-t border-slate-300">
@@ -255,53 +255,53 @@ export default function FixedIncomeDetailPage() {
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Valor Aplicado</TableCell>
                         <TableCell className="text-right font-medium text-slate-900">
-                          {formatMoney(simulation.amount)}
+                          {displayMoney(simulation.amount)}
                         </TableCell>
-                        <TableCell className="text-right font-medium text-slate-900">{formatPercent(1)}</TableCell>
+                        <TableCell className="text-right font-medium text-slate-900">{displayPercent(1)}</TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Resultado Bruto (R$)</TableCell>
                         <TableCell className="text-right font-bold text-green-700">
-                          {formatMoney(simulation.grossAmount)}
+                          {displayMoney(simulation.grossAmount)}
                         </TableCell>
                         <TableCell className="text-right font-bold text-green-700">
-                          {formatPercent(simulation.grossReturnPct)}
+                          {displayPercent(simulation.grossReturnPct)}
                         </TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Rendimento Bruto (R$)</TableCell>
                         <TableCell className="text-right font-medium text-slate-900">
-                          {formatMoney(simulation.grossReturn)}
+                          {displayMoney(simulation.grossReturn)}
                         </TableCell>
                         <TableCell className="text-right font-medium text-slate-900">
-                          {formatPercent(simulation.grossReturnPct)}
+                          {displayPercent(simulation.grossReturnPct)}
                         </TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Imposto sobre Rendimento (R$)</TableCell>
                         <TableCell className="text-right font-bold text-red-600">
-                          - {formatMoney(simulation.tax)}
+                          - {displayMoney(simulation.tax)}
                         </TableCell>
                         <TableCell className="text-right font-bold text-red-600">
-                          {formatPercent(simulation.taxPct)}
+                          {displayPercent(simulation.taxPct)}
                         </TableCell>
                       </TableRow>
                       <TableRow className="border-b border-slate-200">
                         <TableCell className="text-slate-700 font-medium">Resultado Líquido (R$)</TableCell>
                         <TableCell className="text-right font-bold text-green-600">
-                          {formatMoney(simulation.netAmount)}
+                          {displayMoney(simulation.netAmount)}
                         </TableCell>
                         <TableCell className="text-right font-bold text-green-600">
-                          {formatPercent(simulation.netReturnPct)}
+                          {displayPercent(simulation.netReturnPct)}
                         </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell className="text-slate-700 font-medium">Rendimento Líquido (R$)</TableCell>
                         <TableCell className="text-right font-medium text-slate-900">
-                          {formatMoney(simulation.netReturn)}
+                          {displayMoney(simulation.netReturn)}
                         </TableCell>
                         <TableCell className="text-right font-medium text-slate-900">
-                          {formatPercent(simulation.netReturnPct)}
+                          {displayPercent(simulation.netReturnPct)}
                         </TableCell>
                       </TableRow>
                     </TableBody>

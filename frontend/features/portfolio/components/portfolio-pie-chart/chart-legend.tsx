@@ -1,4 +1,4 @@
-import { formatMoney } from "@/shared/lib/utils/formatting";
+import { displayMoney } from "@/shared/lib/utils/display";
 import { stringToColor } from "@/shared/lib/utils";
 
 export type PieDataItem = {
@@ -41,7 +41,7 @@ export function PortfolioPieLegend({ data, hiddenItems, toggleItem, setActiveInd
               <span className={`text-sm font-medium text-left ${isHidden ? "line-through" : ""}`}>{item.name}</span>
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-sm font-semibold">{formatMoney(item.value)}</span>
+              <span className="text-sm font-semibold">{displayMoney(item.value)}</span>
               <span className="text-xs text-muted-foreground">{percentage}%</span>
             </div>
           </button>

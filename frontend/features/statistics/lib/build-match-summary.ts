@@ -1,4 +1,4 @@
-import { formatPercent } from "@/shared/lib/utils/formatting";
+import { displayPercent } from "@/shared/lib/utils/display";
 import type { PlayerStat } from "../components/players-ranking-table";
 
 export function buildMatchSummary(ranking: PlayerStat[], currentPlayerName: string) {
@@ -11,9 +11,9 @@ export function buildMatchSummary(ranking: PlayerStat[], currentPlayerName: stri
 
   return {
     position: current?.position ?? 0,
-    playerReturn: formatPercent(current?.returnPercent ?? 0),
-    averageReturn: formatPercent(averageReturn),
-    bestReturn: formatPercent(bestReturn),
-    worstReturn: formatPercent(worstReturn),
+    playerReturn: displayPercent(current?.returnPercent ?? 0),
+    averageReturn: displayPercent(averageReturn),
+    bestReturn: displayPercent(bestReturn),
+    worstReturn: displayPercent(worstReturn),
   };
 }

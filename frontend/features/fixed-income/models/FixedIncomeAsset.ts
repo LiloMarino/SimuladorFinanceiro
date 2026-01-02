@@ -1,6 +1,6 @@
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import type { FixedIncomeAssetApi, RateIndex, InvestmentType, EconomicIndicators } from "@/types";
-import { formatDate, formatPercent } from "@/shared/lib/utils/formatting";
+import { displayDate, displayPercent } from "@/shared/lib/utils/display";
 
 export const TAX_TABLE = [
   { label: "Até 180 dias", min: 0, max: 180, rate: 0.225 },
@@ -109,7 +109,7 @@ export class FixedIncomeAsset {
   }
 
   get formattedMaturity(): string {
-    const formatted = formatDate(this.maturityDate);
+    const formatted = displayDate(this.maturityDate);
     return `${formatted} (${this.daysToMaturity} dias)`;
   }
 
@@ -149,13 +149,13 @@ export class FixedIncomeAsset {
   get currentRateLabel(): string {
     switch (this.rateIndex) {
       case "CDI":
-        return `${formatPercent(this.rates.cdi)} a.a.`;
+        return `${displayPercent(this.rates.cdi)} a.a.`;
 
       case "IPCA":
-        return `${formatPercent(this.rates.ipca)} a.a.`;
+        return `${displayPercent(this.rates.ipca)} a.a.`;
 
       case "SELIC":
-        return `${formatPercent(this.rates.selic)} a.a.`;
+        return `${displayPercent(this.rates.selic)} a.a.`;
 
       default:
         return "";
@@ -165,13 +165,13 @@ export class FixedIncomeAsset {
   get rateLabel(): string {
     switch (this.rateIndex) {
       case "CDI":
-        return `${formatPercent(this.interestRate)} do CDI`;
+        return `${displayPercent(this.interestRate)} do CDI`;
       case "IPCA":
-        return `IPCA + ${formatPercent(this.interestRate)}`;
+        return `IPCA + ${displayPercent(this.interestRate)}`;
       case "SELIC":
-        return `SELIC + ${formatPercent(this.interestRate)}`;
+        return `SELIC + ${displayPercent(this.interestRate)}`;
       case "Prefixado":
-        return `${formatPercent(this.interestRate)} a.a.`;
+        return `${displayPercent(this.interestRate)} a.a.`;
       default:
         return "N/A";
     }

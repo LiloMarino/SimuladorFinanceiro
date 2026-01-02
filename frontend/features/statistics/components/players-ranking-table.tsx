@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { formatMoney, formatPercent } from "@/shared/lib/utils/formatting";
+import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
 
 export interface PlayerStat {
   position: number;
@@ -50,14 +50,14 @@ export function PlayersRankingTable({ playersStats, currentPlayerName }: Props) 
 
                   <TableCell>{player.name}</TableCell>
 
-                  <TableCell>{formatMoney(player.totalNetWorth)}</TableCell>
+                  <TableCell>{displayMoney(player.totalNetWorth)}</TableCell>
 
                   <TableCell className={player.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
-                    {formatMoney(player.returnValue)}
+                    {displayMoney(player.returnValue)}
                   </TableCell>
 
                   <TableCell className={player.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
-                    {formatPercent(player.returnPercent)}
+                    {displayPercent(player.returnPercent)}
                   </TableCell>
                 </TableRow>
               );

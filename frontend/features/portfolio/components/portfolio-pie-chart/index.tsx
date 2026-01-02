@@ -1,6 +1,6 @@
 import { Card } from "@/shared/components/ui/card";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
-import { formatMoney } from "@/shared/lib/utils/formatting";
+import { displayMoney } from "@/shared/lib/utils/display";
 import { stringToColor } from "@/shared/lib/utils";
 import { useState } from "react";
 import { PortfolioPieTooltip } from "./chart-tooltip";
@@ -71,7 +71,7 @@ export function PortfolioPieChart({ title, data }: PortfolioPieChartProps) {
 
       <div className="mt-4 pt-4 border-t border-border flex justify-between items-center">
         <span className="text-sm text-muted-foreground">Total</span>
-        <span className="text-lg font-bold">{formatMoney(total)}</span>
+        <span className="text-lg font-bold">{displayMoney(total)}</span>
       </div>
     </Card>
   );
