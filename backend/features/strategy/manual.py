@@ -39,11 +39,4 @@ class ManualStrategy(BaseStrategy):
 
     def next(self):
         for order in self.pop_orders():
-            try:
-                match order.action:
-                    case OrderAction.BUY:
-                        self.broker.buy(order.client_id, order.ticker, order.size)
-                    case OrderAction.SELL:
-                        self.broker.sell(order.client_id, order.ticker, order.size)
-            except Exception:
-                logger.exception(f"Erro executando ordem: {order}")
+            self.matching_engine.submit(order)

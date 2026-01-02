@@ -3,7 +3,7 @@ from collections import deque
 from backend.features.variable_income.entities.candle import Candle
 
 
-class DataBuffer:
+class MarketData:
     def __init__(self, maxlen: int = 30):
         self._buffers: dict[str, deque[Candle]] = {}
         self._maxlen = maxlen
