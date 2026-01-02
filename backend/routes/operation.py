@@ -3,8 +3,8 @@ from flask import Blueprint, request
 from backend.core.decorators.cookie import require_client_id
 from backend.core.exceptions import FixedIncomeExpiredAssetError
 from backend.features.simulation import get_simulation
-from backend.features.simulation.entities.order import OrderAction
 from backend.features.strategy.manual import ManualStrategy
+from backend.features.variable_income.entities.order import OrderAction
 from backend.routes.helpers import make_response
 
 operation_bp = Blueprint("operation", __name__)

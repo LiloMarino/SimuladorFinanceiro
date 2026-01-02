@@ -1,6 +1,6 @@
 from collections import deque
 
-from backend.features.simulation.entities.candle import Candle
+from backend.features.variable_income.entities.candle import Candle
 
 
 class DataBuffer:

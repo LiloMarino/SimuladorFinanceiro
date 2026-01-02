@@ -2,8 +2,12 @@ import threading
 from typing import ClassVar
 
 from backend.core.logger import setup_logger
-from backend.features.simulation.entities.order import Order, OrderAction, OrderType
 from backend.features.strategy.base_strategy import BaseStrategy
+from backend.features.variable_income.entities.order import (
+    Order,
+    OrderAction,
+    OrderType,
+)
 
 logger = setup_logger(__name__)
 

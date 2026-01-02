@@ -10,8 +10,8 @@ from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
-from backend.features.simulation.data_buffer import DataBuffer
-from backend.features.simulation.entities.position import Position
+from backend.features.variable_income.data_buffer import DataBuffer
+from backend.features.variable_income.entities.position import Position
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine

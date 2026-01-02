@@ -12,12 +12,12 @@ from backend.core.enum import CashflowEventType
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
+from backend.features.fixed_income.fixed_broker import FixedBroker
 from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
-from backend.features.simulation.broker import Broker
-from backend.features.simulation.entities.candle import Candle
-from backend.features.simulation.fixed_broker import FixedBroker
 from backend.features.strategy.base_strategy import BaseStrategy
+from backend.features.variable_income.broker import Broker
+from backend.features.variable_income.entities.candle import Candle
 
 
 class SimulationEngine:

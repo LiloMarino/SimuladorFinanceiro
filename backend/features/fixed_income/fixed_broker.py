@@ -16,10 +16,10 @@ from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
-from backend.features.realtime import notify
-from backend.features.simulation.entities.fixed_income_position import (
+from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
+from backend.features.realtime import notify
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
