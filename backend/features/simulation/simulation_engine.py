@@ -18,6 +18,7 @@ from backend.features.realtime import notify
 from backend.features.strategy.base_strategy import BaseStrategy
 from backend.features.variable_income.broker import Broker
 from backend.features.variable_income.entities.candle import Candle
+from backend.features.variable_income.matching_engine import MatchingEngine
 
 
 class SimulationEngine:
@@ -25,6 +26,7 @@ class SimulationEngine:
         self.broker = Broker(self)
         self.fixed_broker = FixedBroker(self)
         self.fixed_income_market = FixedIncomeMarket()
+        self.matching_engine = MatchingEngine(self.broker)
         self._cash: LazyDict[str, float] = LazyDict(
             loader=repository.user.get_user_balance
         )
@@ -35,7 +37,7 @@ class SimulationEngine:
         self.get_positions = self.broker.get_positions
 
     def set_strategy(self, strategy_cls: type[BaseStrategy], *args, **kwargs):
-        self._strategy = strategy_cls(self.broker, *args, **kwargs)
+        self._strategy = strategy_cls(self.matching_engine, *args, **kwargs)
 
     def get_cash(self, client_id: str) -> float:
         return self._cash[client_id]
@@ -65,7 +67,8 @@ class SimulationEngine:
                 close=s.close,
                 volume=s.volume,
             )
-            self.broker.data_buffer.add_candle(candle)
+            self.matching_engine.market_data.add_candle(candle)
+            self.matching_engine.on_tick(s.ticker)
 
     def get_portfolio(self, client_id: str) -> PortfolioDTO:
         positions = self.broker.get_positions(client_id).values()

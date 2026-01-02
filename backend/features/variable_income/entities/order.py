@@ -31,11 +31,10 @@ class Order:
     action: OrderAction
     order_type: OrderType
     price: float | None = None
-    remaining: int | None = None
+    remaining: int = field(init=False)
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: OrderStatus = OrderStatus.PENDING
 
     def __post_init__(self):
-        if self.remaining is None:
-            self.remaining = self.size
+        self.remaining = self.size
