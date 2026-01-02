@@ -20,6 +20,9 @@ class MatchingEngine:
         - MARKET: executa imediatamente contra o mercado
         - LIMIT: adiciona ao order book
         """
+        if order.status != OrderStatus.PENDING:
+            raise ValueError("Ordem inválida")
+
         if order.order_type == OrderType.MARKET:
             self._execute_market_order(order)
         else:
@@ -54,6 +57,29 @@ class MatchingEngine:
             if candle.high >= order.price:
                 self._execute_limit_order(order, order.price)
                 self.order_book.remove(order)
+
+    def cancel(self, *, order_id: str, client_id: str) -> bool:
+        """
+        Cancela uma ordem pendente ou parcialmente executada.
+        Retorna True se cancelada, False se não encontrada.
+        """
+        order = self.order_book.find(order_id)
+
+        if not order:
+            return False
+
+        if order.client_id != client_id:
+            raise PermissionError("Ordem não pertence ao cliente")
+
+        if order.status not in (OrderStatus.PENDING, OrderStatus.PARTIAL):
+            raise ValueError("Ordem não pode ser cancelada")
+
+        self.order_book.remove_by_id(order_id)
+
+        order.status = OrderStatus.CANCELED
+        order.remaining = 0
+
+        return True
 
     def _execute_market_order(self, order: Order) -> None:
         """
