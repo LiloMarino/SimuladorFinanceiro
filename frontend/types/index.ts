@@ -6,3 +6,4 @@ export * from "./fixed-income";
 export * from "./economic";
 export * from "./user";
 export * from "./statistics";
+export * from "./order";
