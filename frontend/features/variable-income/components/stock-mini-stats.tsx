@@ -1,3 +1,4 @@
+import { displayMoney } from "@/shared/lib/utils/display";
 import type { StockDetails } from "@/types";
 import clsx from "clsx";
 
@@ -8,8 +9,8 @@ export function StockMiniStats({ stock }: { stock: StockDetails }) {
       {[
         { label: "Volume", value: stock.volume.toLocaleString() },
         { label: "Variação Dia", value: stock.change_pct, color: isPositive ? "text-green-600" : "text-red-600" },
-        { label: "Mín. do Dia", value: `R$ ${stock.low.toFixed(2)}` },
-        { label: "Máx. do Dia", value: `R$ ${stock.high.toFixed(2)}` },
+        { label: "Mín. do Dia", value: displayMoney(stock.low) },
+        { label: "Máx. do Dia", value: displayMoney(stock.high) },
       ].map((item, idx) => (
         <div key={idx} className="border rounded-lg p-4 bg-background hover:shadow-sm transition-shadow">
           <p className="text-muted-foreground text-sm">{item.label}</p>

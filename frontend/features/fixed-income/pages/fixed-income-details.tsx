@@ -333,7 +333,7 @@ export default function FixedIncomeDetailPage() {
                             <TableCell className="text-slate-700 font-medium">{row.label}</TableCell>
 
                             <TableCell className="text-right font-semibold text-slate-900">
-                              {(row.rate * 100).toFixed(1)}%
+                              {displayPercent(row.rate)}
                             </TableCell>
 
                             <TableCell className="text-center">

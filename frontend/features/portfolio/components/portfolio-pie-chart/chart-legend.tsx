@@ -1,4 +1,4 @@
-import { displayMoney } from "@/shared/lib/utils/display";
+import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import { stringToColor } from "@/shared/lib/utils";
 
 export type PieDataItem = {
@@ -19,7 +19,6 @@ export function PortfolioPieLegend({ data, hiddenItems, toggleItem, setActiveInd
     <div className="w-full lg:w-1/2 space-y-2">
       {data.map((item, index) => {
         const isHidden = hiddenItems.has(item.name);
-        const percentage = ((item.value / total) * 100).toFixed(1);
 
         return (
           <button
@@ -42,7 +41,7 @@ export function PortfolioPieLegend({ data, hiddenItems, toggleItem, setActiveInd
             </div>
             <div className="flex flex-col items-end">
               <span className="text-sm font-semibold">{displayMoney(item.value)}</span>
-              <span className="text-xs text-muted-foreground">{percentage}%</span>
+              <span className="text-xs text-muted-foreground">{displayPercent(item.value / total)}</span>
             </div>
           </button>
         );
