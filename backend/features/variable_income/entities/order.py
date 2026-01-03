@@ -26,8 +26,12 @@ class Order(ABC):
     size: int
     action: OrderAction
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    remaining: int = field(init=False)
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: OrderStatus = OrderStatus.PENDING
+
+    def __post_init__(self):
+        self.remaining = self.size
 
 
 @dataclass(kw_only=True)
@@ -38,7 +42,3 @@ class MarketOrder(Order):
 @dataclass(kw_only=True)
 class LimitOrder(Order):
     price: float
-    remaining: int = field(init=False)
-
-    def __post_init__(self):
-        self.remaining = self.size

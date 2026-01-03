@@ -26,15 +26,15 @@ class MatchingEngine:
         if order.status != OrderStatus.PENDING:
             raise ValueError("Ordem inválida")
 
-        # 1. Tenta casar contra players
+        # Tenta casar contra players
         self._match_players(order)
 
-        # 2. MARKET executa direto no mercado
+        # Se ainda sobrou MarketOrder, executa contra mercado
         if isinstance(order, MarketOrder):
             self._execute_market(order)
             return
 
-        # 3. LIMIT vai pro book
+        # Se ainda sobrou LimitOrder, adiciona ao book
         if isinstance(order, LimitOrder):
             self.order_book.add(order)
             return
@@ -53,14 +53,16 @@ class MatchingEngine:
         candle = candles[-1]
 
         # BUY LIMIT → low <= price
-        for order in list(self.order_book.buy_orders(ticker)):
-            if candle.low <= order.price:
-                self._execute_limit(order, order.price)
+        order = self.order_book.best_buy(ticker)
+        while order and order.price <= candle.low:
+            self._execute_limit(order, order.price)
+            order = self.order_book.best_buy(ticker)
 
         # SELL LIMIT → high >= price
-        for order in list(self.order_book.sell_orders(ticker)):
-            if candle.high >= order.price:
-                self._execute_limit(order, order.price)
+        order = self.order_book.best_sell(ticker)
+        while order and order.price >= candle.high:
+            self._execute_limit(order, order.price)
+            order = self.order_book.best_sell(ticker)
 
     def cancel(self, *, order_id: str, client_id: str) -> bool:
         """
@@ -108,7 +110,7 @@ class MatchingEngine:
         """
         Executa efetivamente a ordem via Broker.
         """
-        qty = order.remaining if isinstance(order, LimitOrder) else order.size
+        qty = order.remaining
 
         self.broker.execute_order(
             client_id=order.client_id,
@@ -118,10 +120,9 @@ class MatchingEngine:
             action=order.action,
         )
 
-        if isinstance(order, LimitOrder):
-            order.remaining = 0
-
-        order.status = OrderStatus.EXECUTED
+        order.remaining -= qty
+        if order.remaining == 0:
+            order.status = OrderStatus.EXECUTED
 
     # =========================
     # Player x Player
@@ -134,26 +135,38 @@ class MatchingEngine:
             self._match_player_sell(order)
 
     def _match_player_buy(self, buy: Order):
-        for sell in list(self.order_book.sell_orders(buy.ticker)):
-            if isinstance(buy, LimitOrder) and (
-                buy.remaining == 0 or sell.price > buy.price
-            ):
+        """
+        Match de BUY (Market ou Limit) contra ordens SELL do book.
+        """
+        while buy.remaining > 0:
+            sell = self.order_book.best_sell(buy.ticker)
+            if not sell:
+                break
+
+            # Para LimitOrder, checa se preço é compatível
+            if isinstance(buy, LimitOrder) and sell.price > buy.price:
                 break
 
             self._execute_player_trade(buy, sell, sell.price)
 
     def _match_player_sell(self, sell: Order):
-        for buy in list(self.order_book.buy_orders(sell.ticker)):
-            if isinstance(sell, LimitOrder) and (
-                sell.remaining == 0 or buy.price < sell.price
-            ):
+        """
+        Match de SELL (Market ou Limit) contra ordens BUY do book.
+        """
+        while sell.remaining > 0:
+            buy = self.order_book.best_buy(sell.ticker)
+            if not buy:
+                break
+
+            # Para LimitOrder, checa se preço é compatível
+            if isinstance(sell, LimitOrder) and buy.price < sell.price:
                 break
 
             self._execute_player_trade(buy, sell, buy.price)
 
     def _execute_player_trade(self, buy: Order, sell: Order, price: float):
-        buy_qty = buy.remaining if isinstance(buy, LimitOrder) else buy.size
-        sell_qty = sell.remaining if isinstance(sell, LimitOrder) else sell.size
+        buy_qty = buy.remaining
+        sell_qty = sell.remaining
 
         qty = min(buy_qty, sell_qty)
 
@@ -172,18 +185,13 @@ class MatchingEngine:
             action=sell.action,
         )
 
-        if isinstance(buy, LimitOrder):
-            buy.remaining -= qty
-            buy.status = (
-                OrderStatus.EXECUTED if buy.remaining == 0 else OrderStatus.PARTIAL
-            )
-            if buy.remaining == 0:
-                self.order_book.remove(buy)
-
-        if isinstance(sell, LimitOrder):
-            sell.remaining -= qty
-            sell.status = (
-                OrderStatus.EXECUTED if sell.remaining == 0 else OrderStatus.PARTIAL
-            )
-            if sell.remaining == 0:
-                self.order_book.remove(sell)
+        buy.remaining -= qty
+        sell.remaining -= qty
+        buy.status = OrderStatus.EXECUTED if buy.remaining == 0 else OrderStatus.PARTIAL
+        sell.status = (
+            OrderStatus.EXECUTED if sell.remaining == 0 else OrderStatus.PARTIAL
+        )
+        if isinstance(buy, LimitOrder) and buy.remaining == 0:
+            self.order_book.remove(buy)
+        if isinstance(sell, LimitOrder) and sell.remaining == 0:
+            self.order_book.remove(sell)
