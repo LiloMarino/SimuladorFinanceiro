@@ -92,8 +92,8 @@ export function NewOrderCard({ stock }: NewOrderCardProps) {
   };
 
   return (
-    <Card className="flex-1 bg-muted/40 p-4">
-      <h3 className="font-medium mb-4">Nova Ordem</h3>
+    <Card className="flex-1 bg-muted/40 p-4 gap-4">
+      <h3 className="font-medium">Nova Ordem</h3>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
