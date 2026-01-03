@@ -9,7 +9,7 @@
     "lint": "eslint",
     "preview": "vite preview",
     "typecheck": "tsc --build --noEmit",
-    "check": "eslint && tsc --noEmit",
+    "check": "eslint && tsc --build --noEmit",
     "fta": "npx fta-cli . --format table",
     "fta:json": "npx fta-cli . --json > metrics.json"
   },

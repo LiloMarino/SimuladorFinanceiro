@@ -48,11 +48,11 @@ const routeLabels = navItems.reduce<Record<string, string>>((acc, item) => {
 
 export default function App() {
   return (
-    <NotificationSettingsProvider>
-      <RealtimeProvider mode="ws">
-        {/* Listeners globais de notificações */}
-        <GlobalNotifications />
-        <AuthProvider>
+    <RealtimeProvider mode="ws">
+      <AuthProvider>
+        <NotificationSettingsProvider>
+          {/* Listeners globais de notificações */}
+          <GlobalNotifications />
           <PageLabelProvider routeLabels={routeLabels}>
             <BrowserRouter>
               <Routes>
@@ -82,8 +82,8 @@ export default function App() {
               <Toaster position="bottom-right" richColors />
             </BrowserRouter>
           </PageLabelProvider>
-        </AuthProvider>
-      </RealtimeProvider>
-    </NotificationSettingsProvider>
+        </NotificationSettingsProvider>
+      </AuthProvider>
+    </RealtimeProvider>
   );
 }
