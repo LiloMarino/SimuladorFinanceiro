@@ -30,11 +30,15 @@ class UserManager:
 
     @classmethod
     def get_user(cls, client_id: str) -> UserDTO | None:
-        return cls._user_id_map[client_id]
+        user = cls._user_id_map[client_id]
+        if user is None:
+            cls._user_id_map.pop(client_id, None)
+            return None
+        return user
 
     @classmethod
     def get_user_id(cls, client_id: str) -> int:
-        user = cls._user_id_map[client_id]
+        user = cls.get_user(client_id)
         if user is None:
             raise RuntimeError(f"User não encontrado para client_id={client_id}")
         return user.id
