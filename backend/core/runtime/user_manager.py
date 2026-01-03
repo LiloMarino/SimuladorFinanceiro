@@ -29,6 +29,10 @@ class UserManager:
             cls._active_users.discard(client_id)
 
     @classmethod
+    def get_user(cls, client_id: str) -> UserDTO | None:
+        return cls._user_id_map[client_id]
+
+    @classmethod
     def get_user_id(cls, client_id: str) -> int:
         user = cls._user_id_map[client_id]
         if user is None:

@@ -4,10 +4,12 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from backend.core.dto.base import BaseDTO
+from backend.core.runtime.user_manager import UserManager
 from backend.features.variable_income.entities.order import (
     LimitOrder,
     Order,
     OrderAction,
+    OrderStatus,
     OrderType,
 )
 
@@ -15,29 +17,29 @@ from backend.features.variable_income.entities.order import (
 @dataclass(frozen=True, slots=True, kw_only=True)
 class OrderDTO(BaseDTO):
     id: str
-    client_id: str
-    ticker: str
+    player_nickname: str
     action: OrderAction
     order_type: OrderType
-    price: float | None
+    status: OrderStatus
     size: int
     remaining: int
-    status: str
-    timestamp: datetime
+    limit_price: float | None
+    created_at: datetime
 
     @staticmethod
     def from_model(order: Order) -> OrderDTO:
+        user = UserManager.get_user(order.client_id)
+        nickname = "Unknown" if user is None else user.nickname
         return OrderDTO(
             id=order.id,
-            client_id=order.client_id,
-            ticker=order.ticker,
+            player_nickname=nickname,
             action=order.action,
             order_type=OrderType.LIMIT
             if isinstance(order, LimitOrder)
             else OrderType.MARKET,
-            price=getattr(order, "price", None),
+            limit_price=getattr(order, "price", None),
             size=order.size,
             remaining=order.remaining,
-            status=order.status.value,
-            timestamp=order.timestamp,
+            status=order.status,
+            created_at=order.created_at,
         )

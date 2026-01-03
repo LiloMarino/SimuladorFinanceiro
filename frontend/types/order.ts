@@ -1,14 +1,15 @@
-export type OrderOperation = "buy" | "sell";
+export type OrderAction = "buy" | "sell";
 export type OrderType = "market" | "limit";
-export type OrderStatus = "pending" | "partial" | "filled";
+export type OrderStatus = "pending" | "partial" | "executed" | "canceled";
 
-export type PendingOrder = {
+export type Order = {
   id: string;
-  created_at: string;
-  operation: "buy" | "sell";
-  type: "market" | "limit";
-  quantity: number;
-  limit_price?: number;
+  player_nickname: string;
+  action: OrderAction;
+  order_type: OrderType;
   status: OrderStatus;
-  user_name: string;
+  size: number;
+  remaining: number;
+  limit_price: number | null;
+  created_at: string;
 };

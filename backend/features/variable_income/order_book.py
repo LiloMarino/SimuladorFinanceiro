@@ -31,11 +31,11 @@ class OrderBook:
         """
         if order.action == OrderAction.BUY:
             heapq.heappush(
-                self._buy_heap[order.ticker], (-order.price, order.timestamp, order)
+                self._buy_heap[order.ticker], (-order.price, order.created_at, order)
             )
         else:
             heapq.heappush(
-                self._sell_heap[order.ticker], (order.price, order.timestamp, order)
+                self._sell_heap[order.ticker], (order.price, order.created_at, order)
             )
 
         self._orders_by_id[order.id] = order  # O(1)

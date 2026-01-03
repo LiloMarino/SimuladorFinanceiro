@@ -32,7 +32,7 @@ class Order(ABC):
     action: OrderAction
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     remaining: int = field(init=False)
-    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: OrderStatus = OrderStatus.PENDING
 
     def __post_init__(self):

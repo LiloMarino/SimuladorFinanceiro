@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
-import type { PendingOrder, Position, StockDetails } from "@/types";
+import type { Order, Position, StockDetails } from "@/types";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { Card } from "@/shared/components/ui/card";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
@@ -29,9 +29,7 @@ export default function VariableIncomeDetailPage() {
   const { data: cashData, setData: setCash } = useQueryApi<{ cash: number }>("/api/portfolio/cash");
   const { cash = 0 } = cashData ?? {};
 
-  const { data: pendingOrders, query: refetchOrders } = useQueryApi<PendingOrder[]>(
-    `/api/variable-income/${ticker}/orders`
-  );
+  const { data: pendingOrders, query: refetchOrders } = useQueryApi<Order[]>(`/api/variable-income/${ticker}/orders`);
 
   useRealtime(`stock_update:${ticker}`, ({ stock }) => {
     setStock((prev) => ({

@@ -5,7 +5,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/shared/components/ui/form";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { displayMoney } from "@/shared/lib/utils/display";
-import type { OrderOperation, OrderType, StockDetails } from "@/types";
+import type { OrderAction, OrderType, StockDetails } from "@/types";
 import clsx from "clsx";
 import { Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -40,7 +40,7 @@ const newOrderSchema = z
 
 type NewOrderFormInput = z.input<typeof newOrderSchema>;
 type NewOrderFormOutput = {
-  operation: OrderOperation;
+  operation: OrderAction;
   type: OrderType;
   quantity: number;
   limit_price?: number;

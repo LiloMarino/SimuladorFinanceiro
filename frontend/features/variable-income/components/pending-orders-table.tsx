@@ -3,11 +3,11 @@ import { Card } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { Badge } from "@/shared/components/ui/badge";
 import { displayMoney } from "@/shared/lib/utils/display";
-import type { PendingOrder } from "@/types";
+import type { Order } from "@/types";
 import { FileText } from "lucide-react";
 
 interface PendingOrdersCardProps {
-  pendingOrders?: PendingOrder[] | null;
+  pendingOrders?: Order[] | null;
   onCancelOrder: (orderId: string) => void;
   cancelLoading?: boolean;
 }
@@ -63,25 +63,25 @@ export function PendingOrdersCard({ pendingOrders, onCancelOrder, cancelLoading 
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Badge
-                      variant={order.operation === "buy" ? "default" : "destructive"}
+                      variant={order.action === "buy" ? "default" : "destructive"}
                       className={clsx(
-                        order.operation === "buy"
+                        order.action === "buy"
                           ? "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400"
                           : "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400"
                       )}
                     >
-                      {order.operation === "buy" ? "Compra" : "Venda"}
+                      {order.action === "buy" ? "Compra" : "Venda"}
                     </Badge>
                     <Badge variant="outline" className="bg-background">
-                      {order.type === "market" ? "Mercado" : "Limitada"}
+                      {order.order_type === "market" ? "Mercado" : "Limitada"}
                     </Badge>
                   </div>
                 </TableCell>
 
-                <TableCell className="font-medium">{order.quantity}</TableCell>
+                <TableCell className="font-medium">{order.size}</TableCell>
 
                 <TableCell className="font-medium">
-                  {order.type === "limit" && order.limit_price ? displayMoney(order.limit_price) : "Mercado"}
+                  {order.order_type === "limit" && order.limit_price ? displayMoney(order.limit_price) : "Mercado"}
                 </TableCell>
 
                 <TableCell>
@@ -100,7 +100,7 @@ export function PendingOrdersCard({ pendingOrders, onCancelOrder, cancelLoading 
                   </Badge>
                 </TableCell>
 
-                <TableCell className="text-muted-foreground">{order.user_name}</TableCell>
+                <TableCell className="text-muted-foreground">{order.player_nickname}</TableCell>
 
                 <TableCell>
                   {order.status !== "filled" && (
