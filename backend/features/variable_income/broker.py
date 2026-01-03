@@ -93,8 +93,12 @@ class Broker:
         )
 
         notify(
-            f"position_update:{ticker}",
-            PositionDTO.from_model(self._positions[client_id][ticker]).to_json(),
+            event=f"position_update:{ticker}",
+            payload={
+                "position": PositionDTO.from_model(
+                    self._positions[client_id][ticker]
+                ).to_json()
+            },
             to=client_id,
         )
         logger.info(f"Executado BUY {size}x {ticker} @ R$ {price}")
@@ -122,8 +126,12 @@ class Broker:
         )
 
         notify(
-            f"position_update:{ticker}",
-            PositionDTO.from_model(self._positions[client_id][ticker]).to_json(),
+            event=f"position_update:{ticker}",
+            payload={
+                "position": PositionDTO.from_model(
+                    self._positions[client_id][ticker]
+                ).to_json()
+            },
             to=client_id,
         )
         if pos.size == 0:

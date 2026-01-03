@@ -26,7 +26,9 @@ export default function VariableIncomeDetailPage() {
   const { data: cashData, setData: setCash } = useQueryApi<{ cash: number }>("/api/portfolio/cash");
   const { cash = 0 } = cashData ?? {};
 
-  const { data: pendingOrders, query: refetchOrders } = useQueryApi<Order[]>(`/api/variable-income/${ticker}/orders`);
+  const { data: pendingOrders, setData: setPendingOrders } = useQueryApi<Order[]>(
+    `/api/variable-income/${ticker}/orders`
+  );
 
   useRealtime(`stock_update:${ticker}`, ({ stock }) => {
     setStock((prev) => ({
@@ -36,7 +38,7 @@ export default function VariableIncomeDetailPage() {
     }));
   });
 
-  useRealtime(`position_update:${ticker}`, (position) => {
+  useRealtime(`position_update:${ticker}`, ({ position }) => {
     setPosition(position);
   });
 
@@ -44,11 +46,29 @@ export default function VariableIncomeDetailPage() {
     setCash({ cash });
   });
 
+  useRealtime(`order_added:${ticker}`, ({ order }) => {
+    setPendingOrders((prev) => {
+      if (!prev) return [order];
+
+      if (prev.some((o) => o.id === order.id)) {
+        return prev;
+      }
+
+      return [...prev, order];
+    });
+  });
+
+  useRealtime(`order_updated:${ticker}`, ({ order }) => {
+    setPendingOrders((prev) => {
+      if (!prev) return prev;
+      return prev.map((o) => (o.id === order.id ? order : o));
+    });
+  });
+
   const cancelOrderMutation = useMutationApi(`/api/variable-income/${ticker}/orders`, {
     method: "DELETE",
     onSuccess: () => {
-      toast.success("Ordem cancelada com sucesso!");
-      refetchOrders();
+      toast.info("Ordem cancelada com sucesso!");
     },
     onError: (err) => {
       toast.error(`Erro ao cancelar ordem: ${err.message}`);
@@ -84,7 +104,7 @@ export default function VariableIncomeDetailPage() {
         {/* Ações + Resumo */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           {/* Ações */}
-          <NewOrderCard stock={stock} refetchOrders={refetchOrders} />
+          <NewOrderCard stock={stock} />
 
           {/* Resumo */}
           <PositionSummaryCard position={position} stock={stock} cash={cash} />

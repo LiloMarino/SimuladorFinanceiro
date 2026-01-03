@@ -48,10 +48,9 @@ type NewOrderFormOutput = {
 
 interface NewOrderCardProps {
   stock: StockDetails;
-  refetchOrders: () => void;
 }
 
-export function NewOrderCard({ stock, refetchOrders }: NewOrderCardProps) {
+export function NewOrderCard({ stock }: NewOrderCardProps) {
   const form = useForm<NewOrderFormInput>({
     resolver: zodResolver(newOrderSchema),
     defaultValues: {
@@ -66,7 +65,6 @@ export function NewOrderCard({ stock, refetchOrders }: NewOrderCardProps) {
     onSuccess: () => {
       toast.success("Ordem enviada com sucesso!");
       form.reset();
-      refetchOrders();
     },
     onError: (err) => {
       toast.error(`Erro ao enviar ordem: ${err.message}`);

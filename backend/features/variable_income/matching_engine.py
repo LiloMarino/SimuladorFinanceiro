@@ -1,3 +1,4 @@
+from backend.core.dto.order import OrderDTO
 from backend.features.realtime import notify
 from backend.features.variable_income.broker import Broker
 from backend.features.variable_income.entities.order import (
@@ -17,30 +18,37 @@ class MatchingEngine:
         self.market_data = MarketData()
         self.order_book = OrderBook()
 
+    # =========================
+    # API pública
+    # =========================
+
     def submit(self, order: Order) -> None:
         """
         Recebe uma nova ordem:
-        - Tenta casar contra ordens do book
-        - MARKET: executa saldo no mercado
+        - Tenta casar contra players
+        - MARKET: executa resto no mercado
         - LIMIT: saldo vai pro book
         """
         if order.status != OrderStatus.PENDING:
             raise ValueError("Ordem inválida")
 
-        # Tenta casar contra players
+        # Tenta casar contra outros players
         self._match_players(order)
 
         # Se ainda sobrou MarketOrder, executa contra mercado
-        if isinstance(order, MarketOrder):
+        if isinstance(order, MarketOrder) and order.remaining > 0:
             self._execute_market(order)
             return
 
         # Se ainda sobrou LimitOrder, adiciona ao book
-        if isinstance(order, LimitOrder):
+        if isinstance(order, LimitOrder) and order.remaining > 0:
             self.order_book.add(order)
-            return
-
-        raise TypeError("Tipo de ordem desconhecido")
+            notify(
+                event=f"order_added:{order.ticker}",
+                payload={
+                    "order": OrderDTO.from_model(order).to_json(),
+                },
+            )
 
     def on_tick(self, ticker: str) -> None:
         """
@@ -68,7 +76,6 @@ class MatchingEngine:
     def cancel(self, *, order_id: str, client_id: str) -> bool:
         """
         Cancela uma ordem pendente ou parcialmente executada.
-        Retorna True se cancelada, False se não encontrada.
         """
         order = self.order_book.find(order_id)
         if not order:
@@ -80,9 +87,15 @@ class MatchingEngine:
         if order.status not in (OrderStatus.PENDING, OrderStatus.PARTIAL):
             raise ValueError("Ordem não pode ser cancelada")
 
-        self.order_book.remove(order)
         order.status = OrderStatus.CANCELED
         order.remaining = 0
+        notify(
+            event=f"order_updated:{order.ticker}",
+            payload={
+                "order": OrderDTO.from_model(order).to_json(),
+            },
+        )
+        self.order_book.remove(order)
         return True
 
     # =========================
@@ -122,15 +135,11 @@ class MatchingEngine:
         )
 
         order.remaining -= qty
-        if order.remaining == 0:
-            order.status = OrderStatus.EXECUTED
-        else:
-            order.status = OrderStatus.PARTIAL
-        self._notify_execution(
-            order=order,
-            price=price,
-            quantity=qty,
+        order.status = (
+            OrderStatus.EXECUTED if order.remaining == 0 else OrderStatus.PARTIAL
         )
+
+        self._notify_execution(order, price, qty)
 
     # =========================
     # Player x Player
@@ -173,10 +182,7 @@ class MatchingEngine:
             self._execute_player_trade(buy, sell, buy.price)
 
     def _execute_player_trade(self, buy: Order, sell: Order, price: float):
-        buy_qty = buy.remaining
-        sell_qty = sell.remaining
-
-        qty = min(buy_qty, sell_qty)
+        qty = min(buy.remaining, sell.remaining)
 
         self.broker.execute_order(
             client_id=buy.client_id,
@@ -195,24 +201,25 @@ class MatchingEngine:
 
         buy.remaining -= qty
         sell.remaining -= qty
+
         buy.status = OrderStatus.EXECUTED if buy.remaining == 0 else OrderStatus.PARTIAL
         sell.status = (
             OrderStatus.EXECUTED if sell.remaining == 0 else OrderStatus.PARTIAL
         )
-        self._notify_execution(order=buy, price=price, quantity=qty)
-        self._notify_execution(order=sell, price=price, quantity=qty)
+
+        self._notify_execution(buy, price, qty)
+        self._notify_execution(sell, price, qty)
+
         if isinstance(buy, LimitOrder) and buy.remaining == 0:
             self.order_book.remove(buy)
         if isinstance(sell, LimitOrder) and sell.remaining == 0:
             self.order_book.remove(sell)
 
-    def _notify_execution(
-        self,
-        *,
-        order: Order,
-        price: float,
-        quantity: int,
-    ):
+    # =========================
+    # Notificações
+    # =========================
+
+    def _notify_execution(self, order: Order, price: float, quantity: int):
         if order.remaining == 0:
             notify(
                 event="order_executed",
@@ -237,4 +244,12 @@ class MatchingEngine:
                     "remaining": order.remaining,
                 },
                 to=order.client_id,
+            )
+
+        if isinstance(order, LimitOrder):
+            notify(
+                event=f"order_updated:{order.ticker}",
+                payload={
+                    "order": OrderDTO.from_model(order).to_json(),
+                },
             )
