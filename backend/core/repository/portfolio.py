@@ -86,8 +86,8 @@ class PortfolioRepository:
             PositionDTO(
                 ticker=row.ticker,
                 size=row.size,
-                total_cost=row.total_cost,
-                avg_price=row.avg_price,
+                total_cost=float(row.total_cost),
+                avg_price=float(row.avg_price),
             )
             for row in rows
             if row.size != 0
