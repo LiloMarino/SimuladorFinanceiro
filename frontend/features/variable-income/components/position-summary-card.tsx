@@ -1,17 +1,17 @@
 import { Card } from "@/shared/components/ui/card";
+import { useQueryApi } from "@/shared/hooks/useQueryApi";
+import { useRealtime } from "@/shared/hooks/useRealtime";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { Position, StockDetails } from "@/types";
 import clsx from "clsx";
 
-export function PositionSummaryCard({
-  position,
-  stock,
-  cash,
-}: {
-  position: Position | null;
-  stock: StockDetails;
-  cash: number;
-}) {
+export function PositionSummaryCard({ stock, cash }: { stock: StockDetails; cash: number }) {
+  const { data: position, setData: setPosition } = useQueryApi<Position>(`/api/portfolio/${stock.ticker}`);
+
+  useRealtime(`position_update:${stock.ticker}`, ({ position }) => {
+    setPosition(position);
+  });
+
   const size = position?.size ?? 0;
   const avgPrice = position?.avg_price ?? 0;
   return (

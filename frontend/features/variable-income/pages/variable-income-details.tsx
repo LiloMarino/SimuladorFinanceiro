@@ -1,10 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
-import type { Order, Position, StockDetails } from "@/types";
+import type { StockDetails } from "@/types";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { Card } from "@/shared/components/ui/card";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
-import { toast } from "sonner";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { StockChart } from "@/features/variable-income/components/stock-chart";
 import { LoadingPage } from "@/pages/loading";
@@ -18,17 +16,9 @@ import { NewOrderCard } from "../components/new-order-card";
 export default function VariableIncomeDetailPage() {
   usePageLabel("Detalhes Renda Variável");
   const { ticker } = useParams<{ ticker: string }>();
-
   const { data: stock, setData: setStock, loading } = useQueryApi<StockDetails>(`/api/variable-income/${ticker}`);
-
-  const { data: position, setData: setPosition } = useQueryApi<Position>(`/api/portfolio/${ticker}`);
-
   const { data: cashData, setData: setCash } = useQueryApi<{ cash: number }>("/api/portfolio/cash");
   const { cash = 0 } = cashData ?? {};
-
-  const { data: pendingOrders, setData: setPendingOrders } = useQueryApi<Order[]>(
-    `/api/variable-income/${ticker}/orders`
-  );
 
   useRealtime(`stock_update:${ticker}`, ({ stock }) => {
     setStock((prev) => ({
@@ -38,46 +28,13 @@ export default function VariableIncomeDetailPage() {
     }));
   });
 
-  useRealtime(`position_update:${ticker}`, ({ position }) => {
-    setPosition(position);
-  });
-
   useRealtime("cash_update", ({ cash }) => {
     setCash({ cash });
   });
 
-  useRealtime(`order_added:${ticker}`, ({ order }) => {
-    setPendingOrders((prev) => {
-      if (!prev) return [order];
-
-      if (prev.some((o) => o.id === order.id)) {
-        return prev;
-      }
-
-      return [...prev, order];
-    });
-  });
-
-  useRealtime(`order_updated:${ticker}`, ({ order }) => {
-    setPendingOrders((prev) => {
-      if (!prev) return prev;
-      return prev.map((o) => (o.id === order.id ? order : o));
-    });
-  });
-
-  const cancelOrderMutation = useMutationApi(`/api/variable-income/${ticker}/orders`, {
-    method: "DELETE",
-    onSuccess: () => {
-      toast.info("Ordem cancelada com sucesso!");
-    },
-    onError: (err) => {
-      toast.error(`Erro ao cancelar ordem: ${err.message}`);
-    },
-  });
-
   if (loading) {
     return <LoadingPage />;
-  } else if (!stock || !position) {
+  } else if (!stock) {
     return (
       <ErrorPage
         code="404"
@@ -87,10 +44,6 @@ export default function VariableIncomeDetailPage() {
       />
     );
   }
-
-  const handleCancelOrder = async (orderId: string) => {
-    await cancelOrderMutation.mutate({ order_id: orderId });
-  };
 
   return (
     <section className="section-content p-4">
@@ -107,14 +60,10 @@ export default function VariableIncomeDetailPage() {
           <NewOrderCard stock={stock} />
 
           {/* Resumo */}
-          <PositionSummaryCard position={position} stock={stock} cash={cash} />
+          <PositionSummaryCard stock={stock} cash={cash} />
         </div>
 
-        <PendingOrdersCard
-          pendingOrders={pendingOrders}
-          onCancelOrder={handleCancelOrder}
-          cancelLoading={cancelOrderMutation.loading}
-        />
+        <PendingOrdersCard ticker={stock.ticker} />
       </Card>
     </section>
   );

@@ -6,14 +6,53 @@ import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type { Order } from "@/types";
 import { FileText, XCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import { useQueryApi } from "@/shared/hooks/useQueryApi";
+import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { toast } from "sonner";
+import { useRealtime } from "@/shared/hooks/useRealtime";
 
 interface PendingOrdersCardProps {
-  pendingOrders?: Order[] | null;
-  onCancelOrder: (orderId: string) => void;
-  cancelLoading?: boolean;
+  ticker: string;
 }
 
-export function PendingOrdersCard({ pendingOrders, onCancelOrder, cancelLoading = false }: PendingOrdersCardProps) {
+export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
+  const { data: pendingOrders, setData: setPendingOrders } = useQueryApi<Order[]>(
+    `/api/variable-income/${ticker}/orders`
+  );
+
+  useRealtime(`order_added:${ticker}`, ({ order }) => {
+    setPendingOrders((prev) => {
+      if (!prev) return [order];
+
+      if (prev.some((o) => o.id === order.id)) {
+        return prev;
+      }
+
+      return [...prev, order];
+    });
+  });
+
+  useRealtime(`order_updated:${ticker}`, ({ order }) => {
+    setPendingOrders((prev) => {
+      if (!prev) return prev;
+      return prev.map((o) => (o.id === order.id ? order : o));
+    });
+  });
+
+  const cancelOrderMutation = useMutationApi(`/api/variable-income/${ticker}/orders`, {
+    method: "DELETE",
+    onSuccess: () => {
+      toast.info("Ordem cancelada com sucesso!");
+    },
+    onError: (err) => {
+      toast.error(`Erro ao cancelar ordem: ${err.message}`);
+    },
+  });
+
+  const handleCancelOrder = async (orderId: string) => {
+    await cancelOrderMutation.mutate({ order_id: orderId });
+  };
+
   if (!pendingOrders || pendingOrders.length === 0) {
     return (
       <Card className="p-4 bg-background border">
@@ -124,8 +163,8 @@ export function PendingOrdersCard({ pendingOrders, onCancelOrder, cancelLoading 
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
-                            onClick={() => canCancel && onCancelOrder(order.id)}
-                            disabled={!canCancel || cancelLoading}
+                            onClick={() => handleCancelOrder(order.id)}
+                            disabled={!canCancel || cancelOrderMutation.loading}
                             className={clsx(
                               "p-1 rounded transition-colors",
                               canCancel
