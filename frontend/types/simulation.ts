@@ -1,5 +1,5 @@
 import type { FixedIncomeAssetApi } from "./fixed-income";
-import type { FixedIncomePosition } from "./portfolio";
+import type { FixedIncomePosition, Position } from "./portfolio";
 import type { Snapshot } from "./snapshot";
 import type { Stock } from "./stock";
 import type { PatrimonialHistory } from "./portfolio";
@@ -24,6 +24,8 @@ export type SimulationEvents = {
   order_partial_executed: OrderPartialExecutedEvent;
 } & {
   [K in `stock_update:${string}`]: { stock: Stock };
+} & {
+  [K in `position_update:${string}`]: Position;
 };
 
 export type SimulationState = {

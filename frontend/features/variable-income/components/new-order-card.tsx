@@ -49,10 +49,9 @@ type NewOrderFormOutput = {
 interface NewOrderCardProps {
   stock: StockDetails;
   refetchOrders: () => void;
-  shouldRefreshPosition: React.RefObject<boolean>;
 }
 
-export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: NewOrderCardProps) {
+export function NewOrderCard({ stock, refetchOrders }: NewOrderCardProps) {
   const form = useForm<NewOrderFormInput>({
     resolver: zodResolver(newOrderSchema),
     defaultValues: {
@@ -67,7 +66,6 @@ export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: Ne
     onSuccess: () => {
       toast.success("Ordem enviada com sucesso!");
       form.reset();
-      shouldRefreshPosition.current = true;
       refetchOrders();
     },
     onError: (err) => {

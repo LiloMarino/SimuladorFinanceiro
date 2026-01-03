@@ -5,11 +5,13 @@ from typing import TYPE_CHECKING
 
 from backend.core import repository
 from backend.core.dto.events.equity import EquityEventDTO
+from backend.core.dto.position import PositionDTO
 from backend.core.enum import EquityEventType
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
+from backend.features.realtime import notify
 from backend.features.variable_income.entities.order import OrderAction
 from backend.features.variable_income.entities.position import Position
 
@@ -90,6 +92,11 @@ class Broker:
             )
         )
 
+        notify(
+            f"position_update:{ticker}",
+            PositionDTO.from_model(self._positions[client_id][ticker]).to_json(),
+            to=client_id,
+        )
         logger.info(f"Executado BUY {size}x {ticker} @ R$ {price}")
 
     def _execute_sell(self, client_id: str, ticker: str, size: int, price: float):
@@ -114,6 +121,11 @@ class Broker:
             )
         )
 
+        notify(
+            f"position_update:{ticker}",
+            PositionDTO.from_model(self._positions[client_id][ticker]).to_json(),
+            to=client_id,
+        )
         if pos.size == 0:
             del self._positions[client_id][ticker]
 

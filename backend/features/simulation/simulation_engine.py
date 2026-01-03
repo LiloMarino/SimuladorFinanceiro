@@ -73,14 +73,7 @@ class SimulationEngine:
     def get_portfolio(self, client_id: str) -> PortfolioDTO:
         positions = self.broker.get_positions(client_id).values()
         variable_income = [
-            PositionDTO(
-                ticker=pos.ticker,
-                size=pos.size,
-                total_cost=pos.total_cost,
-                avg_price=pos.avg_price,
-            )
-            for pos in positions
-            if pos.size > 0
+            PositionDTO.from_model(pos) for pos in positions if pos.size > 0
         ]
 
         fixed_income_positions = self.fixed_broker.get_fixed_positions(

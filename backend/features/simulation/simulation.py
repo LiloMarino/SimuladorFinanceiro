@@ -143,12 +143,7 @@ class Simulation:
         positions = self._engine.get_positions(client_id)
         position = positions.get(ticker)
         return (
-            PositionDTO(
-                ticker=ticker,
-                size=position.size,
-                total_cost=position.total_cost,
-                avg_price=position.avg_price,
-            )
+            PositionDTO.from_model(position)
             if position
             else PositionDTO(
                 ticker=ticker,

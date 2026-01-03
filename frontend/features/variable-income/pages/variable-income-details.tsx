@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import type { Order, Position, StockDetails } from "@/types";
@@ -20,11 +19,9 @@ export default function VariableIncomeDetailPage() {
   usePageLabel("Detalhes Renda Variável");
   const { ticker } = useParams<{ ticker: string }>();
 
-  const shouldRefreshPosition = useRef(false);
-
   const { data: stock, setData: setStock, loading } = useQueryApi<StockDetails>(`/api/variable-income/${ticker}`);
 
-  const { data: position, query: positionQuery } = useQueryApi<Position>(`/api/portfolio/${ticker}`);
+  const { data: position, setData: setPosition } = useQueryApi<Position>(`/api/portfolio/${ticker}`);
 
   const { data: cashData, setData: setCash } = useQueryApi<{ cash: number }>("/api/portfolio/cash");
   const { cash = 0 } = cashData ?? {};
@@ -37,10 +34,10 @@ export default function VariableIncomeDetailPage() {
       ...stock,
       history: prev?.history ?? [],
     }));
-    if (shouldRefreshPosition.current) {
-      positionQuery();
-      shouldRefreshPosition.current = false;
-    }
+  });
+
+  useRealtime(`position_update:${ticker}`, (position) => {
+    setPosition(position);
   });
 
   useRealtime("cash_update", ({ cash }) => {
@@ -87,7 +84,7 @@ export default function VariableIncomeDetailPage() {
         {/* Ações + Resumo */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           {/* Ações */}
-          <NewOrderCard stock={stock} refetchOrders={refetchOrders} shouldRefreshPosition={shouldRefreshPosition} />
+          <NewOrderCard stock={stock} refetchOrders={refetchOrders} />
 
           {/* Resumo */}
           <PositionSummaryCard position={position} stock={stock} cash={cash} />
