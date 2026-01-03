@@ -5,19 +5,20 @@ import { useNotificationSettings } from "@/shared/hooks/useNotificationSettings"
 export function GlobalNotifications() {
   const { preferences } = useNotificationSettings();
 
-  useRealtime("order_executed", (event) => {
-    if (!preferences.orders.executed) return;
+  useRealtime(
+    "order_executed",
+    (event) => {
+      const { ticker, action, quantity, price, status } = event;
 
-    const { ticker, action, quantity, price, status } = event;
+      if (status === "PARTIAL" && !preferences.orders.partial) return;
+      if (status === "EXECUTED" && !preferences.orders.executed) return;
 
-    if (status === "PARTIAL" && !preferences.orders.partial) {
-      return;
-    }
-
-    toast.success(`${action === "BUY" ? "Compra" : "Venda"} executada`, {
-      description: `${quantity}x ${ticker} @ R$ ${price.toFixed(2)}${status === "PARTIAL" ? " (parcial)" : ""}`,
-    });
-  });
+      toast.success(`${action === "BUY" ? "Compra" : "Venda"} executada`, {
+        description: `${quantity}x ${ticker} @ R$ ${price.toFixed(2)}${status === "PARTIAL" ? " (parcial)" : ""}`,
+      });
+    },
+    preferences.orders.executed
+  );
 
   return null;
 }

@@ -3,16 +3,20 @@ import { useRealtimeContext } from "@/shared/hooks/useRealtimeContext";
 import { useAuth } from "@/shared/hooks/useAuth";
 import type { SimulationEvents } from "@/types";
 
-export function useRealtime<K extends keyof SimulationEvents>(event: K, callback: (data: SimulationEvents[K]) => void) {
+export function useRealtime<K extends keyof SimulationEvents>(
+  event: K,
+  callback: (data: SimulationEvents[K]) => void,
+  enabled: boolean = true
+) {
   const { subscriber, connected } = useRealtimeContext<SimulationEvents>();
   const { getSession } = useAuth();
   const session = getSession();
   const callbackRef = useRef(callback);
 
-  // Atualiza a referência sempre que o callback mudar
   callbackRef.current = callback;
 
   useEffect(() => {
+    if (!enabled) return;
     if (!session?.authenticated) return;
     if (!connected) return;
 
@@ -23,5 +27,5 @@ export function useRealtime<K extends keyof SimulationEvents>(event: K, callback
     return () => {
       unsubscribe();
     };
-  }, [subscriber, event, connected, session]);
+  }, [subscriber, event, connected, session, enabled]);
 }
