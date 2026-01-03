@@ -1,6 +1,7 @@
 from backend.features.variable_income.broker import Broker
 from backend.features.variable_income.entities.order import (
     Order,
+    OrderAction,
     OrderStatus,
     OrderType,
 )
@@ -22,6 +23,9 @@ class MatchingEngine:
         """
         if order.status != OrderStatus.PENDING:
             raise ValueError("Ordem inválida")
+
+        # Tenta executar a ordem entre os players
+        self._match_players_orders(order)
 
         if order.order_type == OrderType.MARKET:
             self._execute_market_order(order)
@@ -98,6 +102,50 @@ class MatchingEngine:
         """
         self._execute_trade(order, price)
 
+    def _execute_player_trade(
+        self,
+        *,
+        buy: Order,
+        sell: Order,
+        price: float,
+    ):
+        """
+        Executa uma ordem de compra e uma ordem de venda entre dois players.
+        """
+        qty = min(buy.remaining, sell.remaining)
+
+        # executa BUY
+        self.broker.execute_order(
+            client_id=buy.client_id,
+            ticker=buy.ticker,
+            size=qty,
+            price=price,
+            action=buy.action,
+        )
+
+        # executa SELL
+        self.broker.execute_order(
+            client_id=sell.client_id,
+            ticker=sell.ticker,
+            size=qty,
+            price=price,
+            action=sell.action,
+        )
+
+        buy.remaining -= qty
+        sell.remaining -= qty
+
+        buy.status = OrderStatus.EXECUTED if buy.remaining == 0 else OrderStatus.PARTIAL
+        sell.status = (
+            OrderStatus.EXECUTED if sell.remaining == 0 else OrderStatus.PARTIAL
+        )
+
+        if buy.remaining == 0:
+            self.order_book.remove(buy)
+
+        if sell.remaining == 0:
+            self.order_book.remove(sell)
+
     def _execute_trade(self, order: Order, price: float) -> None:
         """
         Executa efetivamente a ordem via Broker.
@@ -111,3 +159,35 @@ class MatchingEngine:
         )
         order.remaining = 0
         order.status = OrderStatus.EXECUTED
+
+    def _match_players_orders(self, order: Order):
+        if order.action == OrderAction.BUY:
+            self._match_player_buy(order)
+        else:
+            self._match_player_sell(order)
+
+    def _match_player_buy(self, buy: Order):
+        sells = self.order_book.sell_orders(buy.ticker)
+
+        for sell in list(sells):
+            if buy.remaining == 0:
+                break
+
+            if buy.order_type == OrderType.LIMIT and sell.price > buy.price:
+                break
+
+            trade_price = sell.price
+            self._execute_player_trade(buy=buy, sell=sell, price=trade_price)
+
+    def _match_player_sell(self, sell: Order):
+        buys = self.order_book.buy_orders(sell.ticker)
+
+        for buy in list(buys):
+            if sell.remaining == 0:
+                break
+
+            if sell.order_type == OrderType.LIMIT and buy.price < sell.price:
+                break
+
+            trade_price = buy.price
+            self._execute_player_trade(buy=buy, sell=sell, price=trade_price)
