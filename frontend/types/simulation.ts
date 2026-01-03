@@ -3,6 +3,7 @@ import type { FixedIncomePosition } from "./portfolio";
 import type { Snapshot } from "./snapshot";
 import type { Stock } from "./stock";
 import type { PatrimonialHistory } from "./portfolio";
+import type { OrderExecutedEvent, OrderPartialExecutedEvent } from "./order";
 
 /** Eventos emitidos pelo servidor via WebSocket ou SSE */
 export type SimulationEvents = {
@@ -19,6 +20,8 @@ export type SimulationEvents = {
       snapshot: PatrimonialHistory;
     }[];
   };
+  order_executed: OrderExecutedEvent;
+  order_partial_executed: OrderPartialExecutedEvent;
 } & {
   [K in `stock_update:${string}`]: { stock: Stock };
 };

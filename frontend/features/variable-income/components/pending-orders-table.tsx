@@ -88,13 +88,13 @@ export function PendingOrdersCard({ pendingOrders, onCancelOrder, cancelLoading 
                   <Badge
                     variant="outline"
                     className={clsx(
-                      order.status === "filled" && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+                      order.status === "executed" && "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
                       order.status === "partial" &&
                         "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
                       order.status === "pending" && "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
                     )}
                   >
-                    {order.status === "filled" && "Efetivada"}
+                    {order.status === "executed" && "Efetivada"}
                     {order.status === "partial" && "Parcial"}
                     {order.status === "pending" && "Pendente"}
                   </Badge>
@@ -103,7 +103,7 @@ export function PendingOrdersCard({ pendingOrders, onCancelOrder, cancelLoading 
                 <TableCell className="text-muted-foreground">{order.player_nickname}</TableCell>
 
                 <TableCell>
-                  {order.status !== "filled" && (
+                  {order.status !== "executed" && (
                     <button
                       onClick={() => onCancelOrder(order.id)}
                       disabled={cancelLoading}

@@ -16,7 +16,7 @@ const notificationLabels: NotificationLabels = {
     label: "Ordens",
     items: {
       executed: "Ordem executada",
-      partial: "Execução parcial",
+      partial: "Ordem parcialmente executada",
     },
   },
 } as const;

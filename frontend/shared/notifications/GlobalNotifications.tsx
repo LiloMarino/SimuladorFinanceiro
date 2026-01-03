@@ -1,6 +1,7 @@
 import { toast } from "sonner";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useNotificationSettings } from "@/shared/hooks/useNotificationSettings";
+import { displayMoney } from "../lib/utils/display";
 
 export function GlobalNotifications() {
   const { preferences } = useNotificationSettings();
@@ -8,16 +9,25 @@ export function GlobalNotifications() {
   useRealtime(
     "order_executed",
     (event) => {
-      const { ticker, action, quantity, price, status } = event;
+      if (!preferences.orders.executed) return;
 
-      if (status === "PARTIAL" && !preferences.orders.partial) return;
-      if (status === "EXECUTED" && !preferences.orders.executed) return;
-
-      toast.success(`${action === "BUY" ? "Compra" : "Venda"} executada`, {
-        description: `${quantity}x ${ticker} @ R$ ${price.toFixed(2)}${status === "PARTIAL" ? " (parcial)" : ""}`,
+      toast.info(`${event.action === "buy" ? "Compra" : "Venda"} executada`, {
+        description: `${event.quantity}x ${event.ticker} @ ${displayMoney(event.price)}`,
       });
     },
     preferences.orders.executed
+  );
+
+  useRealtime(
+    "order_partial_executed",
+    (event) => {
+      if (!preferences.orders.partial) return;
+
+      toast.info(`${event.action === "buy" ? "Compra" : "Venda"} parcial`, {
+        description: `${event.quantity}x ${event.ticker} @ ${displayMoney(event.price)} (restam ${event.remaining})`,
+      });
+    },
+    preferences.orders.partial
   );
 
   return null;

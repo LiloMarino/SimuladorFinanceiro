@@ -1,3 +1,4 @@
+from backend.features.realtime import notify
 from backend.features.variable_income.broker import Broker
 from backend.features.variable_income.entities.order import (
     LimitOrder,
@@ -123,6 +124,13 @@ class MatchingEngine:
         order.remaining -= qty
         if order.remaining == 0:
             order.status = OrderStatus.EXECUTED
+        else:
+            order.status = OrderStatus.PARTIAL
+        self._notify_execution(
+            order=order,
+            price=price,
+            quantity=qty,
+        )
 
     # =========================
     # Player x Player
@@ -191,7 +199,42 @@ class MatchingEngine:
         sell.status = (
             OrderStatus.EXECUTED if sell.remaining == 0 else OrderStatus.PARTIAL
         )
+        self._notify_execution(order=buy, price=price, quantity=qty)
+        self._notify_execution(order=sell, price=price, quantity=qty)
         if isinstance(buy, LimitOrder) and buy.remaining == 0:
             self.order_book.remove(buy)
         if isinstance(sell, LimitOrder) and sell.remaining == 0:
             self.order_book.remove(sell)
+
+    def _notify_execution(
+        self,
+        *,
+        order: Order,
+        price: float,
+        quantity: int,
+    ):
+        if order.remaining == 0:
+            notify(
+                event="order_executed",
+                payload={
+                    "order_id": order.id,
+                    "ticker": order.ticker,
+                    "action": order.action.value,
+                    "price": price,
+                    "quantity": quantity,
+                },
+                to=order.client_id,
+            )
+        else:
+            notify(
+                event="order_partial_executed",
+                payload={
+                    "order_id": order.id,
+                    "ticker": order.ticker,
+                    "action": order.action.value,
+                    "price": price,
+                    "quantity": quantity,
+                    "remaining": order.remaining,
+                },
+                to=order.client_id,
+            )

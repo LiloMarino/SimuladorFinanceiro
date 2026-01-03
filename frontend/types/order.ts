@@ -13,3 +13,20 @@ export type Order = {
   limit_price: number | null;
   created_at: string;
 };
+
+export type OrderExecutedEvent = {
+  order_id: string;
+  ticker: string;
+  action: OrderAction;
+  price: number;
+  quantity: number;
+};
+
+export type OrderPartialExecutedEvent = {
+  order_id: string;
+  ticker: string;
+  action: OrderAction;
+  price: number;
+  quantity: number;
+  remaining: number;
+};
