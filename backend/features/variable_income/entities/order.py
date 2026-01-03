@@ -5,6 +5,11 @@ from datetime import UTC, datetime
 from enum import Enum
 
 
+class OrderType(Enum):
+    MARKET = "market"
+    LIMIT = "limit"
+
+
 class OrderAction(Enum):
     BUY = "buy"
     SELL = "sell"

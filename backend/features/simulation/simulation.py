@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
+from backend.core.dto.order import OrderDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.stock_details import StockDetailsDTO
@@ -33,6 +34,8 @@ class Simulation:
         self.get_fixed_asset = self._engine.fixed_income_market.get_asset
         self.get_fixed_positions = self._engine.fixed_broker.get_fixed_positions
         self.get_portfolio = self._engine.get_portfolio
+        self.create_order = self._engine.matching_engine.submit
+        self.cancel_order = self._engine.matching_engine.cancel
 
         # Roda o primeiro tick para a inicialização
         self.next_tick()
@@ -164,6 +167,10 @@ class Simulation:
 
     def get_statistics(self) -> list[PlayerHistoryDTO]:
         return repository.statistics.get_players_history()
+
+    def get_orders(self, ticker: str) -> list[OrderDTO]:
+        orders = self._engine.matching_engine.order_book.get_orders(ticker)
+        return [OrderDTO.from_model(o) for o in orders]
 
     def _has_month_changed(self) -> bool:
         current_month = (self._current_date.year, self._current_date.month)

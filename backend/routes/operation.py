@@ -3,8 +3,12 @@ from flask import Blueprint, request
 from backend.core.decorators.cookie import require_client_id
 from backend.core.exceptions import FixedIncomeExpiredAssetError
 from backend.features.simulation import get_simulation
-from backend.features.strategy.manual import ManualStrategy
-from backend.features.variable_income.entities.order import OrderAction
+from backend.features.variable_income.entities.order import (
+    LimitOrder,
+    MarketOrder,
+    OrderAction,
+    OrderType,
+)
 from backend.routes.helpers import make_response
 
 operation_bp = Blueprint("operation", __name__)
@@ -30,66 +34,79 @@ def get_variable_income_details(asset):
     return make_response(True, "Asset details loaded.", data=stock.to_json())
 
 
-@operation_bp.route("/api/variable-income/<string:asset>/buy", methods=["POST"])
+@operation_bp.route("/api/variable-income/<string:asset>/orders", methods=["POST"])
 @require_client_id
-def buy_stock(client_id, asset):
+def submit_order(client_id, asset):
     data = request.get_json(silent=True) or {}
-    quantity = data.get("quantity")
-    if not quantity:
+    size = data.get("quantity")
+    order_type: str = data.get("order_type", "").lower()
+    action: str = data.get("action", "").lower()
+
+    # Valida os parâmetros
+    if not size:
         return make_response(False, "Quantity is required.", 422)
-    ManualStrategy.queue_order(client_id, OrderAction.BUY, asset, quantity)
-    return make_response(True, "Order queued successfully.")
+    try:
+        action_enum = OrderAction(action.lower())
+    except ValueError:
+        return make_response(False, "Invalid action.", 422)
+    try:
+        order_type_enum = OrderType(order_type.lower())
+    except ValueError:
+        return make_response(False, "Invalid order_type.", 422)
 
+    if order_type_enum == OrderType.MARKET:
+        order = MarketOrder(
+            client_id=client_id, ticker=asset, size=size, action=action_enum
+        )
+    else:
+        price = data.get("price")
+        if price is None:
+            return make_response(False, "Price required for limit orders.", 422)
+        order = LimitOrder(
+            client_id=client_id,
+            ticker=asset,
+            size=size,
+            action=action_enum,
+            price=price,
+        )
 
-@operation_bp.route("/api/variable-income/<string:asset>/sell", methods=["POST"])
-@require_client_id
-def sell_stock(client_id, asset):
-    data = request.get_json(silent=True) or {}
-    quantity = data.get("quantity")
-    if not quantity:
-        return make_response(False, "Quantity is required.", 422)
-    ManualStrategy.queue_order(client_id, OrderAction.SELL, asset, quantity)
-    return make_response(True, "Order queued successfully.")
-
-
-# New unified orders endpoints
-@operation_bp.route("/api/variable-income/<string:asset>/orders", methods=["GET"])
-def list_orders(asset):
-    """Retorna ordens (pendentes e histórico) para um ativo específico."""
-    from backend.core import repository
-
-    orders = ManualStrategy.get_orders(asset)
-
-    # Convert orders to json-friendly dicts
-    def _to_json(o):
-        user = repository.user.get_by_client_id(o.client_id)
-        nickname = user.nickname if user else None
-        return {
-            "id": o.id,
-            "client_id": o.client_id,
-            "nickname": nickname,
-            "ticker": o.ticker,
-            "size": o.size,
-            "action": o.action.value,
-            "order_type": o.order_type.value,
-            "price": o.price,
-            "timestamp": o.timestamp.isoformat(),
-            "status": o.status.value,
-        }
-
-    return make_response(True, "Orders loaded.", data=[_to_json(o) for o in orders])
+    simulation = get_simulation()
+    simulation.create_order(order)
+    return make_response(
+        True,
+        "Order submitted successfully.",
+        data={"order_id": order.id, "status": order.status.name},
+    )
 
 
 @operation_bp.route(
-    "/api/variable-income/<string:asset>/orders/<string:order_id>/cancel",
-    methods=["POST"],
+    "/api/variable-income/<string:asset>/orders/<string:order_id>",
+    methods=["DELETE"],
 )
 @require_client_id
 def cancel_order(client_id, asset, order_id):
-    canceled = ManualStrategy.cancel_order(client_id, order_id)
-    if not canceled:
-        return make_response(False, "Order not found or cannot be canceled.", 404)
+    simulation = get_simulation()
+    try:
+        canceled = simulation.cancel_order(order_id=order_id, client_id=client_id)
+        if not canceled:
+            return make_response(False, "Order not found", 404)
+    except PermissionError as e:
+        return make_response(False, str(e), 403)
+    except ValueError as e:
+        return make_response(False, str(e), 400)
     return make_response(True, "Order canceled successfully.")
+
+
+@operation_bp.route("/api/variable-income/<string:asset>/orders", methods=["GET"])
+def list_order_book(asset):
+    """Lista todas as ordens (BUY + SELL) no book para o ativo"""
+    simulation = get_simulation()
+    orders = simulation.get_orders(asset)
+    return make_response(
+        True,
+        "Order book loaded.",
+        data=[o.to_json() for o in orders],
+    )
 
 
 @operation_bp.route("/api/fixed-income", methods=["GET"])
