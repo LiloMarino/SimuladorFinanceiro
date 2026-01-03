@@ -47,7 +47,8 @@ export default function VariableIncomeDetailPage() {
     setCash({ cash });
   });
 
-  const cancelOrderMutation = useMutationApi(`/api/variable-income/${ticker}/cancel-order`, {
+  const cancelOrderMutation = useMutationApi(`/api/variable-income/${ticker}/orders`, {
+    method: "DELETE",
     onSuccess: () => {
       toast.success("Ordem cancelada com sucesso!");
       refetchOrders();

@@ -39,7 +39,7 @@ def get_variable_income_details(asset):
 def submit_order(client_id, asset):
     data = request.get_json(silent=True) or {}
     size = data.get("quantity")
-    order_type: str = data.get("order_type", "").lower()
+    order_type: str = data.get("type", "").lower()
     action: str = data.get("action", "").lower()
 
     # Valida os parâmetros
@@ -59,7 +59,7 @@ def submit_order(client_id, asset):
             client_id=client_id, ticker=asset, size=size, action=action_enum
         )
     else:
-        price = data.get("price")
+        price = data.get("limit_price")
         if price is None:
             return make_response(False, "Price required for limit orders.", 422)
         order = LimitOrder(
@@ -80,11 +80,15 @@ def submit_order(client_id, asset):
 
 
 @operation_bp.route(
-    "/api/variable-income/<string:asset>/orders/<string:order_id>",
+    "/api/variable-income/<string:asset>/orders",
     methods=["DELETE"],
 )
 @require_client_id
-def cancel_order(client_id, asset, order_id):
+def cancel_order(client_id, asset):
+    data = request.get_json(silent=True) or {}
+    order_id = data.get("order_id")
+    if not order_id:
+        return make_response(False, "Order ID is required.", 422)
     simulation = get_simulation()
     try:
         canceled = simulation.cancel_order(order_id=order_id, client_id=client_id)

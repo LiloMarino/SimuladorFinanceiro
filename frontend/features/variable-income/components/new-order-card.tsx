@@ -17,7 +17,7 @@ import { normalizeNumberString } from "@/shared/lib/utils";
 
 const newOrderSchema = z
   .object({
-    operation: z.enum(["buy", "sell"]),
+    action: z.enum(["buy", "sell"]),
     type: z.enum(["market", "limit"]),
     quantity: z
       .string()
@@ -40,7 +40,7 @@ const newOrderSchema = z
 
 type NewOrderFormInput = z.input<typeof newOrderSchema>;
 type NewOrderFormOutput = {
-  operation: OrderAction;
+  action: OrderAction;
   type: OrderType;
   quantity: number;
   limit_price?: number;
@@ -56,14 +56,14 @@ export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: Ne
   const form = useForm<NewOrderFormInput>({
     resolver: zodResolver(newOrderSchema),
     defaultValues: {
-      operation: "buy",
+      action: "buy",
       type: "market",
       quantity: "",
       limit_price: "",
     },
   });
 
-  const executeOrderMutation = useMutationApi(`/api/variable-income/${stock.ticker}/order`, {
+  const executeOrderMutation = useMutationApi(`/api/variable-income/${stock.ticker}/orders`, {
     onSuccess: () => {
       toast.success("Ordem enviada com sucesso!");
       form.reset();
@@ -84,7 +84,7 @@ export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: Ne
 
   const onSubmit = async (values: NewOrderFormInput) => {
     const payload: NewOrderFormOutput = {
-      operation: values.operation,
+      action: values.action,
       type: values.type,
       quantity: Number(values.quantity),
       ...(values.type === "limit" && {
@@ -104,7 +104,7 @@ export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: Ne
           {/* Operação */}
           <FormField
             control={form.control}
-            name="operation"
+            name="action"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tipo de Operação</FormLabel>
@@ -194,15 +194,15 @@ export function NewOrderCard({ stock, refetchOrders, shouldRefreshPosition }: Ne
             type="submit"
             disabled={executeOrderMutation.loading}
             className={clsx(
-              form.watch("operation") === "buy" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
+              form.watch("action") === "buy" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
             )}
           >
             {executeOrderMutation.loading ? (
               <Spinner className="h-4 w-4" />
             ) : (
               <>
-                {form.watch("operation") === "buy" ? <Plus className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
-                Executar {form.watch("operation") === "buy" ? "Compra" : "Venda"}
+                {form.watch("action") === "buy" ? <Plus className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
+                Executar {form.watch("action") === "buy" ? "Compra" : "Venda"}
               </>
             )}
           </Button>
