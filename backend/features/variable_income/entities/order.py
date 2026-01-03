@@ -1,12 +1,8 @@
 import uuid
+from abc import ABC
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
-
-
-class OrderType(Enum):
-    MARKET = "market"
-    LIMIT = "limit"
 
 
 class OrderAction(Enum):
@@ -21,20 +17,28 @@ class OrderStatus(Enum):
     CANCELED = "canceled"
 
 
-@dataclass
-class Order:
+@dataclass(kw_only=True)
+class Order(ABC):
     """Representa uma ordem de compra ou venda executada ou pendente."""
 
     client_id: str
     ticker: str
     size: int
     action: OrderAction
-    order_type: OrderType
-    price: float | None = None
-    remaining: int = field(init=False)
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: OrderStatus = OrderStatus.PENDING
+
+
+@dataclass(kw_only=True)
+class MarketOrder(Order):
+    pass
+
+
+@dataclass(kw_only=True)
+class LimitOrder(Order):
+    price: float
+    remaining: int = field(init=False)
 
     def __post_init__(self):
         self.remaining = self.size
