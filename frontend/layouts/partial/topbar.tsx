@@ -43,7 +43,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
   };
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="sticky top-0 z-30 bg-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between p-4 gap-4">
         <h1 className="text-xl font-semibold text-gray-800">{pageLabel}</h1>
 
