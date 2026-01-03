@@ -28,6 +28,8 @@ import { AuthenticatedLayout } from "./layouts/authenticated-layout";
 import { AuthLayout } from "./layouts/auth-layout";
 import { AuthProvider } from "./shared/context/auth";
 import { ErrorPage } from "./pages/error";
+import { NotificationSettingsProvider } from "@/shared/context/notifications-settings";
+import { GlobalNotifications } from "./shared/notifications";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -46,38 +48,42 @@ const routeLabels = navItems.reduce<Record<string, string>>((acc, item) => {
 
 export default function App() {
   return (
-    <RealtimeProvider mode="ws">
-      <AuthProvider>
-        <PageLabelProvider routeLabels={routeLabels}>
-          <BrowserRouter>
-            <Routes>
-              {/* Login / anon */}
-              <Route element={<AuthLayout />}>
-                <Route path="/login" element={<LoginPage />} />
-              </Route>
-              <Route element={<AuthenticatedLayout />}>
-                <Route path="/lobby" element={<LobbyPage />} />
-                <Route element={<MainLayout navItems={navItems} />}>
-                  <Route path="/" element={<PortfolioPage />} />
-                  <Route path="/variable-income" element={<VariableIncomePage />} />
-                  <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
-                  <Route path="/fixed-income" element={<FixedIncomePage />} />
-                  <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
-                  <Route path="/portfolio" element={<PortfolioPage />} />
-                  <Route path="/strategies" element={<StrategiesPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/statistics" element={<StatisticsPage />} />
-                  <Route path="/import-assets" element={<ImportAssetsPage />} />
+    <NotificationSettingsProvider>
+      <RealtimeProvider mode="ws">
+        {/* Listeners globais de notificações */}
+        <GlobalNotifications />
+        <AuthProvider>
+          <PageLabelProvider routeLabels={routeLabels}>
+            <BrowserRouter>
+              <Routes>
+                {/* Login / anon */}
+                <Route element={<AuthLayout />}>
+                  <Route path="/login" element={<LoginPage />} />
                 </Route>
-              </Route>
+                <Route element={<AuthenticatedLayout />}>
+                  <Route path="/lobby" element={<LobbyPage />} />
+                  <Route element={<MainLayout navItems={navItems} />}>
+                    <Route path="/" element={<PortfolioPage />} />
+                    <Route path="/variable-income" element={<VariableIncomePage />} />
+                    <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
+                    <Route path="/fixed-income" element={<FixedIncomePage />} />
+                    <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
+                    <Route path="/portfolio" element={<PortfolioPage />} />
+                    <Route path="/strategies" element={<StrategiesPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/statistics" element={<StatisticsPage />} />
+                    <Route path="/import-assets" element={<ImportAssetsPage />} />
+                  </Route>
+                </Route>
 
-              {/* 404 */}
-              <Route path="*" element={<ErrorPage />} />
-            </Routes>
-            <Toaster position="bottom-right" richColors />
-          </BrowserRouter>
-        </PageLabelProvider>
-      </AuthProvider>
-    </RealtimeProvider>
+                {/* 404 */}
+                <Route path="*" element={<ErrorPage />} />
+              </Routes>
+              <Toaster position="bottom-right" richColors />
+            </BrowserRouter>
+          </PageLabelProvider>
+        </AuthProvider>
+      </RealtimeProvider>
+    </NotificationSettingsProvider>
   );
 }

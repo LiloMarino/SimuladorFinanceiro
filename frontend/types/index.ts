@@ -7,3 +7,4 @@ export * from "./economic";
 export * from "./user";
 export * from "./statistics";
 export * from "./order";
+export * from "./notification";
