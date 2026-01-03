@@ -1,44 +1,41 @@
-# type: ignore
 from flask import Blueprint, request
 
-from backend.features.simulation import get_simulation
+from backend.core import repository
+from backend.core.decorators.cookie import require_client_id
+from backend.core.runtime.user_manager import UserManager
 from backend.routes.helpers import make_response
 
 settings_bp = Blueprint("settings", __name__)
 
 
-@settings_bp.route("/api/strategies", methods=["GET"])
-def get_strategies():
-    """Return available strategies."""
-    simulation = get_simulation()
-    strategies = (
-        simulation.get_strategies() if hasattr(simulation, "get_strategies") else []
+@settings_bp.route("/api/settings", methods=["GET"])
+@require_client_id
+def get_settings(client_id):
+    settings = repository.settings.get_by_user_id(UserManager.get_user_id(client_id))
+    return make_response(
+        True,
+        "Settings loaded successfully.",
+        200,
+        settings,
     )
-    return make_response(True, "Strategies loaded successfully.", strategies)
 
 
-@settings_bp.route("/api/lobby", methods=["GET"])
-def get_lobby():
-    """Return lobby or simulation status."""
-    simulation = get_simulation()
-    state = simulation.get_state() if hasattr(simulation, "get_state") else {}
-    return make_response(True, "Lobby loaded successfully.", state)
+@settings_bp.route("/api/settings", methods=["PUT"])
+@require_client_id
+def update_settings(client_id):
+    data = request.get_json()
 
+    if not isinstance(data, dict):
+        return make_response(False, "Invalid settings payload.", 400)
 
-@settings_bp.route("/api/settings", methods=["GET", "PUT"])
-def get_or_update_settings():
-    """Retrieve or update configuration settings."""
-    simulation = get_simulation()
-    if request.method == "GET":
-        settings = (
-            simulation.get_settings() if hasattr(simulation, "get_settings") else {}
-        )
-        return make_response(True, "Settings loaded successfully.", settings)
-    else:
-        data = request.get_json() or {}
-        simulation.update_settings(data)
-        return make_response(
-            True,
-            "Settings updated successfully.",
-            simulation.get_settings(),
-        )
+    user_id = UserManager.get_user_id(client_id)
+
+    repository.settings.update_by_user_id(user_id, data)
+    settings = repository.settings.get_by_user_id(user_id)
+
+    return make_response(
+        True,
+        "Settings updated successfully.",
+        200,
+        settings,
+    )
