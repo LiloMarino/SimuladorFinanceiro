@@ -5,6 +5,7 @@ from flask import Blueprint, request
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.realtime import notify
+from backend.features.simulation.simulation_loop import controller
 from backend.routes.helpers import make_response
 
 simulation_bp = Blueprint(
@@ -53,9 +54,9 @@ def create_simulation():
 
     sim = SimulationManager.create_simulation(start_date, end_date)
     data = sim.simulation_data
+    controller.trigger_start()
 
     notify("simulation_created", data.to_json())
-
     return make_response(
         True,
         "Simulation created.",

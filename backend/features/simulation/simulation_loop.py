@@ -12,52 +12,97 @@ logger = setup_logger(__name__)
 
 
 class SimulationLoopController:
-    """Gerencia o loop da simulação (thread-safe, independente de WS/SSE)."""
+    """Controla o loop da simulação de forma event-driven (sem polling)."""
 
     def __init__(self):
+        self._app: Flask | None = None
         self._thread: threading.Thread | None = None
-        self._running = False
+        self._start_event = threading.Event()
+        self._stop_event = threading.Event()
+        self._lock = threading.Lock()
 
-    def start(self, app: Flask):
-        if self._running:
-            logger.warning("Loop de simulação já está em execução.")
-            return
-        self._running = True
+    # --------------------------------------------------
+    # 🔗 Bind do Flask app (feito UMA vez no boot)
+    # --------------------------------------------------
+    def bind_app(self, app: Flask):
+        self._app = app
 
-        def _loop():
-            with app.app_context():
-                simulation = SimulationManager.get_active_simulation()
-                logger.info("Loop de simulação iniciado.")
-                try:
-                    while self._running:
-                        speed = simulation.get_speed()
-                        if speed > 0:
-                            try:
-                                simulation.next_tick()
-                            except StopIteration:
-                                logger.info("Fim da simulação.")
-                                break
+    # --------------------------------------------------
+    # 🚀 Cria a thread (mas ela dorme bloqueada)
+    # --------------------------------------------------
+    def start_loop(self):
+        with self._lock:
+            if self._thread and self._thread.is_alive():
+                return
 
-                        # Usar um método de sleep que NÃO bloqueie o servidor
-                        self._non_blocking_sleep(speed)
-                except Exception:
-                    logger.exception("Erro no loop da simulação")
-                    self._running = False
+            if not self._app:
+                raise RuntimeError("SimulationLoopController: app não foi bindado.")
 
-        self._thread = threading.Thread(target=_loop, daemon=True)
-        self._thread.start()
+            self._thread = threading.Thread(
+                target=self._run,
+                daemon=True,
+                name="simulation-loop",
+            )
+            self._thread.start()
 
+    # --------------------------------------------------
+    # ▶️ Start
+    # --------------------------------------------------
+    def trigger_start(self):
+        logger.info("Evento de início da simulação recebido.")
+        self._start_event.set()
+
+    # --------------------------------------------------
+    # ⛔ Stop
+    # --------------------------------------------------
     def stop(self):
-        """Interrompe o loop de simulação."""
-        self._running = False
-        if self._thread and self._thread.is_alive():
-            self._thread.join(timeout=2)
+        self._stop_event.set()
+        self._start_event.set()  # libera caso esteja bloqueado
 
-    # ------------------------
-    # 🔧 Solução para o freeze
-    # ------------------------
-    def _non_blocking_sleep(self, speed: float):
-        delay = 1 / max(speed, 1)
+    # --------------------------------------------------
+    # 🔁 Loop interno
+    # --------------------------------------------------
+    def _run(self):
+        assert self._app is not None
+
+        with self._app.app_context():
+            logger.info("Thread da simulação criada. Aguardando evento de start...")
+            self._start_event.wait()  # Bloqueia a thread enquanto aguarda o start
+
+            if self._stop_event.is_set():
+                return
+
+            simulation = SimulationManager.get_active_simulation()
+            if not simulation:
+                logger.warning("Start recebido, mas nenhuma simulação ativa.")
+                return
+
+            logger.info("Simulação iniciada.")
+
+            try:
+                while not self._stop_event.is_set():
+                    speed = simulation.get_speed()
+
+                    if speed <= 0:
+                        self._sleep(0.1)
+                        continue
+
+                    try:
+                        simulation.next_tick()
+                    except StopIteration:
+                        logger.info("Simulação finalizada.")
+                        SimulationManager.clear_simulation()
+                        break
+
+                    self._sleep(1 / speed)
+
+            except Exception:
+                logger.critical("Erro fatal no loop da simulação.", stack_info=True)
+
+    # --------------------------------------------------
+    # 💤 Sleep compatível com WS / SSE
+    # --------------------------------------------------
+    def _sleep(self, delay: float):
         broker = get_broker()
         if isinstance(broker, SocketBroker):
             broker.socketio.sleep(delay)  # type: ignore
@@ -65,15 +110,7 @@ class SimulationLoopController:
             time.sleep(delay)
 
 
-# Instância global do controlador
-_controller = SimulationLoopController()
-
-
-def start_simulation_loop(app: Flask):
-    """Inicia o loop global da simulação."""
-    _controller.start(app)
-
-
-def stop_simulation_loop():
-    """Para o loop global da simulação."""
-    _controller.stop()
+# --------------------------------------------------
+# 🌍 Instância global
+# --------------------------------------------------
+controller = SimulationLoopController()

@@ -28,7 +28,7 @@ from backend.core.logger import setup_logger
 from backend.features.realtime.sse_broker import SSEBroker
 from backend.features.realtime.ws_broker import SocketBroker
 from backend.features.realtime.ws_handlers import register_ws_handlers
-from backend.features.simulation.simulation_loop import start_simulation_loop
+from backend.features.simulation.simulation_loop import controller
 from backend.routes import register_routes
 
 BACKEND_DIR = Path("backend")
@@ -63,6 +63,8 @@ if __name__ == "__main__":
     logger.info(f"Banco de dados em uso: {backend.upper()} ({engine.url})")
 
     app = create_app()
+    controller.bind_app(app)
+    controller.start_loop()
 
     # ------------------------------------------------------------
     # 🔌 Modo SocketIO (WebSocket)
@@ -73,7 +75,6 @@ if __name__ == "__main__":
         app.config["realtime_broker"] = SocketBroker(socketio)
         logger.info("Rodando em modo WebSocket (SocketIO).")
         register_ws_handlers(socketio)
-        start_simulation_loop(app)
         socketio.run(app, debug=True)
 
     # ------------------------------------------------------------
@@ -82,5 +83,4 @@ if __name__ == "__main__":
     else:
         app.config["realtime_broker"] = SSEBroker()
         logger.info("Rodando em modo SSE (Server-Sent Events).")
-        start_simulation_loop(app)
         app.run(debug=True, threaded=True)
