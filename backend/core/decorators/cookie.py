@@ -4,12 +4,7 @@ from typing import Concatenate, ParamSpec, TypeVar
 
 from flask import g, request
 
-
-class SessionNotInitializedError(Exception):
-    """Raised when client_id cookie is missing."""
-
-    pass
-
+from backend.core.exceptions import SessionNotInitializedError
 
 P = ParamSpec("P")
 R = TypeVar("R")

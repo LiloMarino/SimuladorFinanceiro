@@ -1,6 +1,6 @@
 from flask import Flask
 
-from backend.core.decorators.cookie import SessionNotInitializedError
+from backend.core.exceptions import SessionNotInitializedError
 from backend.core.logger import setup_logger
 from backend.routes.auth import auth_bp
 from backend.routes.helpers import make_response
