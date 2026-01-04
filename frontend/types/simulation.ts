@@ -41,3 +41,13 @@ export type SimulationState = {
   speed?: number;
   cash?: number;
 };
+
+export type SimulationData = {
+  start_date: string;
+  end_date: string;
+};
+
+export type SimulationInfo = {
+  active: boolean;
+  simulation?: SimulationData;
+};

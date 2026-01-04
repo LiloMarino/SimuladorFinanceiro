@@ -59,7 +59,5 @@ def create_simulation():
         True,
         "Simulation created.",
         status_code=201,
-        data={
-            "simulation": data.to_json(),
-        },
+        data=data.to_json(),
     )
