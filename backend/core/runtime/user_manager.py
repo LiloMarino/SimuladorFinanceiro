@@ -5,34 +5,68 @@ from backend.core import repository
 from backend.core.dto.user import UserDTO
 from backend.core.logger import setup_logger
 from backend.core.utils.lazy_dict import LazyDict
+from backend.features.realtime import notify
 
 logger = setup_logger(__name__)
 
 
 class UserManager:
-    _active_users: ClassVar[set[str]] = set()
-    _user_id_map: LazyDict[str, UserDTO | None] = LazyDict(
+    # 🔹 Apenas players autenticados (presença)
+    _active_players: ClassVar[dict[str, UserDTO]] = {}
+
+    # 🔹 Cache lazy client_id -> UserDTO (independente de presença)
+    _client_user_cache: LazyDict[str, UserDTO | None] = LazyDict(
         loader=repository.user.get_by_client_id
     )
+
     _lock = Lock()
+
+    # =========================
+    # Conexão
+    # =========================
 
     @classmethod
     def register(cls, client_id: str):
         logger.info(f"User connected: {client_id}")
-        with cls._lock:
-            cls._active_users.add(client_id)
 
     @classmethod
     def unregister(cls, client_id: str):
         logger.info(f"User disconnected: {client_id}")
+
         with cls._lock:
-            cls._active_users.discard(client_id)
+            player = cls._active_players.pop(client_id, None)
+
+        if player:
+            cls._emit_player_exit(player)
+
+    # =========================
+    # Autenticação
+    # =========================
+
+    @classmethod
+    def player_auth(cls, client_id: str) -> UserDTO | None:
+        user = cls.get_user(client_id)
+        if user is None:
+            return None
+
+        with cls._lock:
+            if client_id in cls._active_players:
+                return user
+
+            cls._active_players[client_id] = user
+
+        cls._emit_player_join(user)
+        return user
+
+    # =========================
+    # Queries
+    # =========================
 
     @classmethod
     def get_user(cls, client_id: str) -> UserDTO | None:
-        user = cls._user_id_map[client_id]
+        user = cls._client_user_cache[client_id]
         if user is None:
-            cls._user_id_map.pop(client_id, None)
+            cls._client_user_cache.pop(client_id, None)
             return None
         return user
 
@@ -44,17 +78,20 @@ class UserManager:
         return user.id
 
     @classmethod
-    def list_active_users(cls):
+    def list_active_players(cls) -> list[UserDTO]:
         with cls._lock:
-            return list(cls._active_users)
+            return list(cls._active_players.values())
+
+    # =========================
+    # Eventos
+    # =========================
 
     @classmethod
-    def list_active_users_nicknames(cls) -> list[dict[str, str]]:
-        active_users = cls.list_active_users()
-        users = [cls.get_user(client_id) for client_id in active_users]
-        return [{"nickname": user.nickname} for user in users if user is not None]
+    def _emit_player_join(cls, user: UserDTO):
+        logger.info(f"Player joined: {user.nickname}")
+        notify("player_join", {"nickname": user.nickname})
 
     @classmethod
-    def is_active(cls, client_id: str):
-        with cls._lock:
-            return client_id in cls._active_users
+    def _emit_player_exit(cls, user: UserDTO):
+        logger.info(f"Player exited: {user.nickname}")
+        notify("player_exit", {"nickname": user.nickname})

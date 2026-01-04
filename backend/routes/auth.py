@@ -6,6 +6,7 @@ from backend.core import repository
 from backend.core.decorators.cookie import require_client_id
 from backend.core.decorators.simulation import require_simulation
 from backend.core.dto.session import SessionDTO
+from backend.core.runtime.user_manager import UserManager
 from backend.features.simulation.simulation import Simulation
 from backend.routes.helpers import make_response
 
@@ -48,8 +49,8 @@ def session_init():
 @auth_bp.route("/api/session/me", methods=["GET"])
 @require_client_id
 def session_me(client_id: str):
-    # Busca informações do usuário
-    user_dto = repository.user.get_by_client_id(client_id)
+    user_dto = UserManager.player_auth(client_id)
+
     session_dto = SessionDTO(
         authenticated=user_dto is not None,
         user=user_dto,
@@ -107,7 +108,16 @@ def user_claim(client_id: str):
     if not existing_user:
         return make_response(False, "Nickname does not exist.", 404)
 
-    # Atualizar client_id do usuário para o novo navegador
+    # Verifica se usuário já está ativo em outro client
+    active_players = UserManager.list_active_players()
+    if any(u.id == existing_user.id for u in active_players):
+        return make_response(
+            False,
+            "User is currently active and cannot be claimed.",
+            409,
+        )
+
+    # Atualizar client_id do usuário
     updated_user = repository.user.update_client_id(
         existing_user.id, uuid.UUID(client_id)
     )

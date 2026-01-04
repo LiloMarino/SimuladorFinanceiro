@@ -68,8 +68,9 @@ def create_simulation():
 
 @simulation_bp.route("/players", methods=["GET"])
 def get_active_players():
+    active_players = UserManager.list_active_players()
     return make_response(
         True,
         "Players loaded successfully.",
-        data=UserManager.list_active_users_nicknames(),
+        data=[{"nickname": p.nickname} for p in active_players],
     )
