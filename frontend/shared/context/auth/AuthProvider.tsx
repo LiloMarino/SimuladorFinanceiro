@@ -1,15 +1,11 @@
-import { useCallback, type ReactNode, useEffect } from "react";
+import { useCallback, useEffect, type PropsWithChildren } from "react";
 import Cookies from "js-cookie";
 import { AuthContext } from "./AuthContext";
 import type { Session } from "@/types/user";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children }: PropsWithChildren) {
   // Consulta a sessão atual
   const {
     data: session,

@@ -1,13 +1,8 @@
 import { LoadingPage } from "@/pages/loading";
 import { useAuth } from "@/shared/hooks/useAuth";
+import type { RedirectState } from "@/types";
 import { useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-
-export type AuthRedirectState = {
-  from?: {
-    pathname: string;
-  };
-};
 
 export function AuthLayout() {
   const { loading, getSession, refresh } = useAuth();
@@ -24,7 +19,7 @@ export function AuthLayout() {
   }
 
   if (getSession()?.authenticated) {
-    const state = location.state as AuthRedirectState | null;
+    const state = location.state as RedirectState | null;
     const redirectTo = state?.from?.pathname ?? "/";
 
     return <Navigate to={redirectTo} replace />;

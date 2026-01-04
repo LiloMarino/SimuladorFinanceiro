@@ -11,7 +11,7 @@ const DEFAULT_SIMULATION: SimulationInfo = {
 
 export function SimulationProvider({ children }: PropsWithChildren) {
   const [simulation, setSimulation] = useState<SimulationInfo>(DEFAULT_SIMULATION);
-  const { data } = useQueryApi<SimulationInfo>("/api/simulation/status");
+  const { data, loading } = useQueryApi<SimulationInfo>("/api/simulation/status");
 
   // 🔹 Sincroniza backend → frontend
   useEffect(() => {
@@ -39,6 +39,7 @@ export function SimulationProvider({ children }: PropsWithChildren) {
     <SimulationContext.Provider
       value={{
         simulation,
+        loading,
       }}
     >
       {children}

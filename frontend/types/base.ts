@@ -8,3 +8,9 @@ export interface NavItem {
   endpoint: string;
   icon: IconDefinition;
 }
+
+export type RedirectState = {
+  from?: {
+    pathname: string;
+  };
+};

@@ -30,6 +30,7 @@ import { AuthProvider } from "./shared/context/auth";
 import { ErrorPage } from "./pages/error";
 import { NotificationSettingsProvider } from "@/shared/context/notifications-settings";
 import { GlobalNotifications } from "./shared/notifications";
+import { SimulationLayout } from "./layouts/simulation-layout";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -62,17 +63,19 @@ export default function App() {
                 </Route>
                 <Route element={<AuthenticatedLayout />}>
                   <Route path="/lobby" element={<LobbyPage />} />
-                  <Route element={<MainLayout navItems={navItems} />}>
-                    <Route path="/" element={<PortfolioPage />} />
-                    <Route path="/variable-income" element={<VariableIncomePage />} />
-                    <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
-                    <Route path="/fixed-income" element={<FixedIncomePage />} />
-                    <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
-                    <Route path="/portfolio" element={<PortfolioPage />} />
-                    <Route path="/strategies" element={<StrategiesPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/statistics" element={<StatisticsPage />} />
-                    <Route path="/import-assets" element={<ImportAssetsPage />} />
+                  <Route element={<SimulationLayout />}>
+                    <Route element={<MainLayout navItems={navItems} />}>
+                      <Route path="/" element={<PortfolioPage />} />
+                      <Route path="/variable-income" element={<VariableIncomePage />} />
+                      <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
+                      <Route path="/fixed-income" element={<FixedIncomePage />} />
+                      <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
+                      <Route path="/portfolio" element={<PortfolioPage />} />
+                      <Route path="/strategies" element={<StrategiesPage />} />
+                      <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/statistics" element={<StatisticsPage />} />
+                      <Route path="/import-assets" element={<ImportAssetsPage />} />
+                    </Route>
                   </Route>
                 </Route>
 

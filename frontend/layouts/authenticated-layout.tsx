@@ -1,8 +1,8 @@
 import { useAuth } from "@/shared/hooks/useAuth";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import type { AuthRedirectState } from "./auth-layout";
 import { LoadingPage } from "@/pages/loading";
+import type { RedirectState } from "@/types";
 
 export function AuthenticatedLayout() {
   const { loading, refresh, getSession } = useAuth();
@@ -26,7 +26,7 @@ export function AuthenticatedLayout() {
         state={
           {
             from: { pathname: location.pathname },
-          } satisfies AuthRedirectState
+          } satisfies RedirectState
         }
       />
     );
