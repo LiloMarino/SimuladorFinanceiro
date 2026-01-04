@@ -18,6 +18,7 @@ import ApiError from "@/shared/lib/models/ApiError";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import type { User } from "@/types";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { toast } from "sonner";
 
 // Validação com Zod
 const nicknameSchema = z.object({
@@ -31,11 +32,27 @@ export function LoginPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const { mutate: registerNickname, loading: registerNicknameLoading } = useMutationApi<User, { nickname: string }>(
-    "api/user/register"
+    "api/user/register",
+    {
+      onSuccess: () => {
+        toast.success("Nickname registrado!");
+      },
+      onError: (err) => {
+        toast.error(`Erro ao registrar: ${err.message}`);
+      },
+    }
   );
 
   const { mutate: claimNickname, loading: claimNicknameLoading } = useMutationApi<User, { nickname: string }>(
-    "api/user/claim"
+    "api/user/claim",
+    {
+      onSuccess: () => {
+        toast.success("Nickname recuperado!");
+      },
+      onError: (err) => {
+        toast.error(`Erro ao clamar nickname: ${err.message}`);
+      },
+    }
   );
 
   const form = useForm<NicknameForm>({
