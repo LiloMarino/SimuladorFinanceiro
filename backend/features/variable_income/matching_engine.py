@@ -63,13 +63,13 @@ class MatchingEngine:
 
         # BUY LIMIT → low <= price
         order = self.order_book.best_buy(ticker)
-        while order and order.price <= candle.low:
+        while order and candle.low <= order.price:
             self._execute_limit(order, order.price)
             order = self.order_book.best_buy(ticker)
 
         # SELL LIMIT → high >= price
         order = self.order_book.best_sell(ticker)
-        while order and order.price >= candle.high:
+        while order and candle.high >= order.price:
             self._execute_limit(order, order.price)
             order = self.order_book.best_sell(ticker)
 

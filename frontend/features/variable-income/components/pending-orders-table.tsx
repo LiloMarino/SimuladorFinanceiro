@@ -79,11 +79,11 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Data</TableHead>
+                <TableHead>Usuário</TableHead>
                 <TableHead>Tipo da Operação</TableHead>
                 <TableHead>Quantidade</TableHead>
                 <TableHead>Preço</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Usuário</TableHead>
                 <TableHead>Ação</TableHead>
               </TableRow>
             </TableHeader>
@@ -102,6 +102,8 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
                         minute: "2-digit",
                       })}
                     </TableCell>
+
+                    <TableCell className="text-muted-foreground">{order.player_nickname}</TableCell>
 
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -156,8 +158,6 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
                         {order.status === "canceled" && "Cancelada"}
                       </Badge>
                     </TableCell>
-
-                    <TableCell className="text-muted-foreground">{order.player_nickname}</TableCell>
 
                     <TableCell>
                       <Tooltip>
