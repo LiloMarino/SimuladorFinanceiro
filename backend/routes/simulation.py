@@ -1,0 +1,65 @@
+from datetime import datetime
+
+from flask import Blueprint, request
+
+from backend.core.exceptions import NoActiveSimulationError
+from backend.core.runtime.simulation_manager import SimulationManager
+from backend.routes.helpers import make_response
+
+simulation_bp = Blueprint(
+    "simulation",
+    __name__,
+    url_prefix="/api/simulation",
+)
+
+
+@simulation_bp.route("/status", methods=["GET"])
+def simulation_status():
+    try:
+        sim = SimulationManager.get_active_simulation()
+        data = sim.simulation_data
+        return make_response(
+            True,
+            "Simulation active.",
+            data={
+                "active": True,
+                "simulation": data.to_json(),
+            },
+        )
+    except NoActiveSimulationError:
+        return make_response(
+            True,
+            "No active simulation.",
+            data={
+                "active": False,
+            },
+        )
+
+
+@simulation_bp.route("/create", methods=["POST"])
+def create_simulation():
+    data = request.get_json(force=True)
+
+    try:
+        start_date = datetime.strptime(data["start_date"], "%Y-%m-%d").date()
+        end_date = datetime.strptime(data["end_date"], "%Y-%m-%d").date()
+    except Exception:
+        return make_response(
+            False,
+            "Invalid start_date or end_date.",
+            status_code=422,
+        )
+
+    sim = SimulationManager.create_simulation(start_date, end_date)
+    data = sim.simulation_data
+    # 🔔 AQUI depois você vai disparar o WS:
+    # realtime_broker.broadcast("SIMULATION_STARTED", {...})
+
+    return make_response(
+        True,
+        "Simulation created.",
+        status_code=201,
+        data={
+            "simulation": data.to_json(),
+        },
+    )

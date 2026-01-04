@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import timedelta
 from decimal import Decimal
 
 from backend.core import repository
@@ -6,6 +6,7 @@ from backend.core.dto.candle import CandleDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.position import PositionDTO
+from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
 from backend.core.logger import setup_logger
@@ -18,10 +19,10 @@ logger = setup_logger(__name__)
 
 
 class Simulation:
-    def __init__(self, start_date: date, end_date: date):
+    def __init__(self, simulation_data: SimulationDTO):
         self._speed = 0
-        self._current_date = start_date - timedelta(days=1)
-        self._end_date = end_date
+        self.simulation_data = simulation_data
+        self._current_date = self.simulation_data.start_date - timedelta(days=1)
         self._engine = SimulationEngine(self._current_date)
         self._engine.set_strategy(ManualStrategy)
 
@@ -42,7 +43,7 @@ class Simulation:
 
     def next_tick(self):
         # Verifica se a simulação terminou
-        if self._current_date > self._end_date:
+        if self._current_date > self.simulation_data.end_date:
             logger.info("Fim da simulação")
             raise StopIteration()
 
@@ -50,7 +51,7 @@ class Simulation:
         self._current_date += timedelta(days=1)
         while self._current_date.weekday() >= 5:
             self._current_date += timedelta(days=1)
-        if self._current_date > self._end_date:
+        if self._current_date > self.simulation_data.end_date:
             logger.info("Fim da simulação")
             raise StopIteration()
 

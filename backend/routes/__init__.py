@@ -9,6 +9,7 @@ from backend.routes.operation import operation_bp
 from backend.routes.portfolio import portfolio_bp
 from backend.routes.realtime import realtime_bp
 from backend.routes.settings import settings_bp
+from backend.routes.simulation import simulation_bp
 from backend.routes.statistics import statistics_bp
 from backend.routes.timespeed import timespeed_bp
 
@@ -25,6 +26,7 @@ def register_routes(app: Flask):
     app.register_blueprint(timespeed_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(statistics_bp)
+    app.register_blueprint(simulation_bp)
 
     @app.errorhandler(Exception)
     def handle_error(e):  # type: ignore

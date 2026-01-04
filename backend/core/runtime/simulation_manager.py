@@ -3,6 +3,7 @@ from threading import Lock
 
 from flask import current_app
 
+from backend.core.dto.simulation import SimulationDTO
 from backend.core.exceptions import NoActiveSimulationError
 from backend.features.simulation.simulation import Simulation
 
@@ -32,7 +33,8 @@ class SimulationManager:
         Substitui qualquer simulação existente.
         """
         with cls._lock:
-            sim = Simulation(start_date, end_date)
+            data = SimulationDTO(start_date=start_date, end_date=end_date)
+            sim = Simulation(data)
             current_app.config["simulation"] = sim
             return sim
 
