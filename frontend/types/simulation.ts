@@ -7,6 +7,7 @@ import type { Order, OrderExecutedEvent, OrderPartialExecutedEvent } from "./ord
 
 /** Eventos emitidos pelo servidor via WebSocket ou SSE */
 export type SimulationEvents = {
+  simulation_created: SimulationInfo;
   simulation_update: { currentDate: string };
   speed_update: { speed: number };
   cash_update: { cash: number };
