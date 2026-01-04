@@ -28,8 +28,8 @@ from backend.core.logger import setup_logger
 from backend.features.realtime.sse_broker import SSEBroker
 from backend.features.realtime.ws_broker import SocketBroker
 from backend.features.realtime.ws_handlers import register_ws_handlers
+from backend.features.simulation.simulation_loop import start_simulation_loop
 from backend.routes import register_routes
-from backend.simulation_loop import start_simulation_loop
 
 BACKEND_DIR = Path("backend")
 SECRET_PATH = Path("secret.key")
