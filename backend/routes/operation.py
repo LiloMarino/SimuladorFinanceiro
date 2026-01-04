@@ -1,8 +1,9 @@
 from flask import Blueprint, request
 
 from backend.core.decorators.cookie import require_client_id
+from backend.core.decorators.simulation import require_simulation
 from backend.core.exceptions import FixedIncomeExpiredAssetError
-from backend.features.simulation import get_simulation
+from backend.features.simulation.simulation import Simulation
 from backend.features.variable_income.entities.order import (
     LimitOrder,
     MarketOrder,
@@ -15,9 +16,9 @@ operation_bp = Blueprint("operation", __name__)
 
 
 @operation_bp.route("/api/variable-income", methods=["GET"])
-def get_variable_income():
+@require_simulation
+def get_variable_income(simulation: Simulation):
     """Return list of stocks."""
-    simulation = get_simulation()
     stocks = simulation.get_stocks()
     return make_response(
         True, "Stocks loaded successfully.", data=[s.to_json() for s in stocks]
@@ -25,9 +26,9 @@ def get_variable_income():
 
 
 @operation_bp.route("/api/variable-income/<string:asset>", methods=["GET"])
-def get_variable_income_details(asset):
+@require_simulation
+def get_variable_income_details(simulation: Simulation, asset: str):
     """Return details of a specific stock."""
-    simulation = get_simulation()
     stock = simulation.get_stock_details(asset)
     if not stock:
         return make_response(False, "Asset not found.", 404)
@@ -36,7 +37,8 @@ def get_variable_income_details(asset):
 
 @operation_bp.route("/api/variable-income/<string:asset>/orders", methods=["POST"])
 @require_client_id
-def submit_order(client_id, asset):
+@require_simulation
+def submit_order(simulation: Simulation, client_id: str, asset: str):
     data = request.get_json(silent=True) or {}
     size = data.get("quantity")
     order_type: str = data.get("type", "").lower()
@@ -70,7 +72,6 @@ def submit_order(client_id, asset):
             price=price,
         )
 
-    simulation = get_simulation()
     simulation.create_order(order)
     return make_response(
         True,
@@ -84,12 +85,12 @@ def submit_order(client_id, asset):
     methods=["DELETE"],
 )
 @require_client_id
-def cancel_order(client_id, asset):
+@require_simulation
+def cancel_order(simulation: Simulation, client_id: str, asset: str):
     data = request.get_json(silent=True) or {}
     order_id = data.get("order_id")
     if not order_id:
         return make_response(False, "Order ID is required.", 422)
-    simulation = get_simulation()
     try:
         canceled = simulation.cancel_order(order_id=order_id, client_id=client_id)
         if not canceled:
@@ -102,9 +103,9 @@ def cancel_order(client_id, asset):
 
 
 @operation_bp.route("/api/variable-income/<string:asset>/orders", methods=["GET"])
-def list_order_book(asset):
+@require_simulation
+def list_order_book(simulation: Simulation, asset: str):
     """Lista todas as ordens (BUY + SELL) no book para o ativo"""
-    simulation = get_simulation()
     orders = simulation.get_orders(asset)
     return make_response(
         True,
@@ -114,18 +115,18 @@ def list_order_book(asset):
 
 
 @operation_bp.route("/api/fixed-income", methods=["GET"])
-def get_fixed_income():
+@require_simulation
+def get_fixed_income(simulation: Simulation):
     """Return list of fixed-income assets."""
-    simulation = get_simulation()
     fixed = simulation.get_fixed_assets()
     fixed_json = [asset.to_json() for asset in fixed]
     return make_response(True, "Fixed income assets loaded.", data=fixed_json)
 
 
 @operation_bp.route("/api/fixed-income/<string:asset_uuid>", methods=["GET"])
-def get_fixed_income_details(asset_uuid):
+@require_simulation
+def get_fixed_income_details(simulation: Simulation, asset_uuid: str):
     """Return details of a fixed-income asset."""
-    simulation = get_simulation()
     fixed = simulation.get_fixed_asset(asset_uuid)
     if not fixed:
         return make_response(False, "Asset not found.", 404)
@@ -134,8 +135,8 @@ def get_fixed_income_details(asset_uuid):
 
 @operation_bp.route("/api/fixed-income/<string:asset_uuid>/buy", methods=["POST"])
 @require_client_id
-def buy_fixed_income(client_id, asset_uuid):
-    simulation = get_simulation()
+@require_simulation
+def buy_fixed_income(simulation: Simulation, client_id: str, asset_uuid: str):
     fixed = simulation.get_fixed_asset(asset_uuid)
     if not fixed:
         return make_response(False, "Asset not found.", 404)

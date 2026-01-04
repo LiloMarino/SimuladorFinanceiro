@@ -1,19 +1,20 @@
 from flask import Blueprint, request
 
 from backend.core.decorators.cookie import require_client_id
+from backend.core.decorators.simulation import require_simulation
 from backend.features.realtime import notify
-from backend.features.simulation import get_simulation
+from backend.features.simulation.simulation import Simulation
 from backend.routes.helpers import make_response
 
 timespeed_bp = Blueprint("timespeed_bp", __name__)
 
 
 @timespeed_bp.route("/api/set-speed", methods=["POST"])
-def set_speed():
+@require_simulation
+def set_speed(simulation: Simulation):
     data = request.get_json()
     speed = data.get("speed", 0)
 
-    simulation = get_simulation()
     simulation.set_speed(speed)
     speed = simulation.get_speed()
 
@@ -24,8 +25,8 @@ def set_speed():
 
 @timespeed_bp.route("/api/get-simulation-state", methods=["GET"])
 @require_client_id
-def get_simulation_state(client_id: str):
-    simulation = get_simulation()
+@require_simulation
+def get_simulation_state(client_id: str, simulation: Simulation):
     current_date = simulation.get_current_date_formatted()
     speed = simulation.get_speed()
     cash = simulation.get_cash(client_id)

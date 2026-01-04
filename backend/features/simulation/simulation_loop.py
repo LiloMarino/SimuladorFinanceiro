@@ -4,9 +4,9 @@ import time
 from flask import Flask
 
 from backend.core.logger import setup_logger
+from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.realtime import get_broker
 from backend.features.realtime.ws_broker import SocketBroker
-from backend.features.simulation import get_simulation
 
 logger = setup_logger(__name__)
 
@@ -26,7 +26,7 @@ class SimulationLoopController:
 
         def _loop():
             with app.app_context():
-                simulation = get_simulation()
+                simulation = SimulationManager.get_active_simulation()
                 logger.info("Loop de simulação iniciado.")
                 try:
                     while self._running:

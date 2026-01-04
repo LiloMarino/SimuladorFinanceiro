@@ -4,8 +4,9 @@ from flask import Blueprint, request
 
 from backend.core import repository
 from backend.core.decorators.cookie import require_client_id
+from backend.core.decorators.simulation import require_simulation
 from backend.core.dto.session import SessionDTO
-from backend.features.simulation import get_simulation
+from backend.features.simulation.simulation import Simulation
 from backend.routes.helpers import make_response
 
 auth_bp = Blueprint("auth", __name__)
@@ -63,7 +64,8 @@ def session_me(client_id: str):
 
 @auth_bp.route("/api/user/register", methods=["POST"])
 @require_client_id
-def user_register(client_id: str):
+@require_simulation
+def user_register(client_id: str, simulation: Simulation):
     """
     Cria um usuário para o client_id atual.
     """
@@ -79,7 +81,6 @@ def user_register(client_id: str):
         return make_response(False, "User already registered for this client.", 409)
 
     # Cria novo usuário
-    simulation = get_simulation()
     new_user = simulation.create_user(client_id, nickname)
 
     return make_response(
