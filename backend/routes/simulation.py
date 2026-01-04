@@ -4,6 +4,7 @@ from flask import Blueprint, request
 
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.runtime.simulation_manager import SimulationManager
+from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
 from backend.features.simulation.simulation_loop import controller
 from backend.routes.helpers import make_response
@@ -62,4 +63,13 @@ def create_simulation():
         "Simulation created.",
         status_code=201,
         data=data.to_json(),
+    )
+
+
+@simulation_bp.route("/players", methods=["GET"])
+def get_active_players():
+    return make_response(
+        True,
+        "Players loaded successfully.",
+        data=UserManager.list_active_users_nicknames(),
     )

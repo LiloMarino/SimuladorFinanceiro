@@ -49,6 +49,12 @@ class UserManager:
             return list(cls._active_users)
 
     @classmethod
+    def list_active_users_nicknames(cls) -> list[dict[str, str]]:
+        active_users = cls.list_active_users()
+        users = [cls.get_user(client_id) for client_id in active_users]
+        return [{"nickname": user.nickname} for user in users if user is not None]
+
+    @classmethod
     def is_active(cls, client_id: str):
         with cls._lock:
             return client_id in cls._active_users

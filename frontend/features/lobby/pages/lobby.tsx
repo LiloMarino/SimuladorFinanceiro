@@ -6,19 +6,8 @@ import type { SimulationInfo } from "@/types";
 import { LobbyPlayersList } from "../components/lobby-player-list";
 import { LobbySimulationForm } from "../components/lobby-simulation-form";
 
-type LobbyPlayer = {
-  nickname: string;
-  client_id: string;
-};
-
 export function LobbyPage() {
   const navigate = useNavigate();
-  const [players, setPlayers] = useState<LobbyPlayer[]>([]);
-  const maxPlayers = 8;
-
-  useRealtime("lobby_players_update", (data) => {
-    setPlayers(data.players);
-  });
 
   useRealtime("simulation_created", (simulation) => {
     navigate(`/simulation/${simulation.id}`);
@@ -42,7 +31,7 @@ export function LobbyPage() {
   return (
     <section className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow p-6 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-        <LobbyPlayersList players={players} maxPlayers={maxPlayers} />
+        <LobbyPlayersList maxPlayers={8} />
 
         <LobbySimulationForm onStart={handleStart} loading={loading} />
       </div>

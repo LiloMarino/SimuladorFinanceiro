@@ -23,11 +23,11 @@ export type SimulationEvents = {
   };
   order_executed: OrderExecutedEvent;
   order_partial_executed: OrderPartialExecutedEvent;
-  lobby_players_update: {
-    players: {
-      nickname: string;
-      client_id: string;
-    }[];
+  player_join: {
+    nickname: string;
+  };
+  player_exit: {
+    nickname: string;
   };
 } & {
   [K in `stock_update:${string}`]: { stock: Stock };
