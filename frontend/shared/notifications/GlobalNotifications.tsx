@@ -30,5 +30,13 @@ export function GlobalNotifications() {
     preferences.orders.partial
   );
 
+  useRealtime("player_join", (nickname) => {
+    toast.info(`${nickname} entrou na partida`);
+  });
+
+  useRealtime("player_exit", (nickname) => {
+    toast.info(`${nickname} saiu da partida`);
+  });
+
   return null;
 }
