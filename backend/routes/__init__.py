@@ -1,6 +1,10 @@
 from flask import Flask
 
-from backend.core.exceptions import NoActiveSimulationError, SessionNotInitializedError
+from backend.core.exceptions import (
+    NoActiveSimulationError,
+    PermissionDeniedError,
+    SessionNotInitializedError,
+)
 from backend.core.logger import setup_logger
 from backend.routes.auth import auth_bp
 from backend.routes.helpers import make_response
@@ -46,5 +50,13 @@ def register_routes(app: Flask):
         return make_response(
             False,
             "No active simulation.",
+            status_code=403,
+        )
+
+    @app.errorhandler(PermissionDeniedError)
+    def handle_permission_denied(e):  # type: ignore
+        return make_response(
+            False,
+            str(e) or "Permission denied.",
             status_code=403,
         )

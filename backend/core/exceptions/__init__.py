@@ -14,3 +14,9 @@ class SessionNotInitializedError(Exception):
     """Raised when client_id cookie is missing."""
 
     pass
+
+
+class PermissionDeniedError(Exception):
+    """Raised when user lacks permission to access a resource."""
+
+    pass

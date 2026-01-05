@@ -23,10 +23,15 @@ class RealtimeConfig(BaseModel):
     use_sse: bool = False
 
 
+class HostConfig(BaseModel):
+    nickname: str = "host"
+
+
 class TomlSettings(BaseModel):
     database: DatabaseConfig = DatabaseConfig()
     simulation: SimulationConfig = SimulationConfig()
     realtime: RealtimeConfig = RealtimeConfig()
+    host: HostConfig = HostConfig()
 
 
 def load_toml_settings() -> TomlSettings:

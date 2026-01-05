@@ -2,6 +2,7 @@ from datetime import datetime
 
 from flask import Blueprint, request
 
+from backend.core.decorators.host import require_host
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
@@ -40,6 +41,7 @@ def simulation_status():
 
 
 @simulation_bp.route("/create", methods=["POST"])
+@require_host
 def create_simulation():
     data = request.get_json(force=True)
 
