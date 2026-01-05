@@ -116,9 +116,19 @@ class MatchingEngine:
         """
         Executa ordem limitada usando o preço do candle.
         """
-        self._execute_trade(order, price)
-        if order.remaining == 0:
+        try:
+            self._execute_trade(order, price)
+            if order.remaining == 0:
+                self.order_book.remove(order)
+        except ValueError:
+            order.status = OrderStatus.CANCELED
             self.order_book.remove(order)
+            notify(
+                event=f"order_updated:{order.ticker}",
+                payload={
+                    "order": OrderDTO.from_model(order).to_json(),
+                },
+            )
 
     def _execute_trade(self, order: Order, price: float) -> None:
         """
