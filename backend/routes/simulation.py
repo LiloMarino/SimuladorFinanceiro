@@ -2,6 +2,8 @@ from datetime import datetime
 
 from flask import Blueprint, request
 
+from backend import config
+from backend.core.decorators.cookie import require_client_id
 from backend.core.decorators.host import require_host
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.exceptions import NoActiveSimulationError
@@ -90,12 +92,21 @@ def get_active_players():
 
 
 @simulation_bp.route("/api/simulation/settings", methods=["GET"])
-def get_simulation_settings():
+@require_client_id
+def get_simulation_settings(client_id: str):
+    user = UserManager.get_user(client_id)
+    if user is None:
+        return make_response(False, "User not found.", status_code=404)
+    host_nickname = config.toml.host.nickname
+
     settings = SimulationManager.get_settings()
     return make_response(
         True,
         "Simulation settings loaded.",
-        data=settings.to_json(),
+        data={
+            "is_host": user.nickname == host_nickname,
+            "simulation": settings.to_json(),
+        },
     )
 
 

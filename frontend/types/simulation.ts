@@ -55,6 +55,11 @@ export type SimulationData = {
   end_date: string;
 };
 
+export type SimulationSettings = {
+  is_host: boolean;
+  simulation: SimulationData;
+};
+
 export type SimulationInfo = {
   active: boolean;
   simulation?: SimulationData;
