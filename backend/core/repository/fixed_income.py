@@ -63,6 +63,7 @@ class FixedIncomeRepository:
         total_applied: Decimal,
         current_value: Decimal,
         accrual_date: date,
+        first_applied_date: date | None = None,
     ) -> None:
         stmt = select(FixedIncomePosition).where(
             FixedIncomePosition.user_id == user_id,
@@ -80,6 +81,7 @@ class FixedIncomeRepository:
                 total_applied=total_applied,
                 current_value=current_value,
                 last_accrual_date=accrual_date,
+                first_applied_date=first_applied_date,
                 created_at=now,
                 updated_at=now,
             )

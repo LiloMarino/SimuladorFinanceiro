@@ -97,7 +97,8 @@ class SimulationLoopController:
                     self._sleep(1 / speed)
 
             except Exception:
-                logger.critical("Erro fatal no loop da simulação.", stack_info=True)
+                logger.critical("Erro fatal no loop da simulação.")
+                logger.exception("Erro fatal no loop da simulação.")
 
     # --------------------------------------------------
     # 💤 Sleep compatível com WS / SSE

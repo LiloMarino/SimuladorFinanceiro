@@ -87,6 +87,7 @@ class Simulation:
                         total_applied=Decimal(position.total_applied),
                         current_value=Decimal(position.current_value),
                         accrual_date=self._current_date,
+                        first_applied_date=position.first_applied_date,
                     )
 
                 # Cria o snapshot
