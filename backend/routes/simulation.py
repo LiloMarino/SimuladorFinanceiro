@@ -57,12 +57,21 @@ def create_simulation():
     data = sim.simulation_data
     controller.trigger_start()
 
-    notify("simulation_created", data.to_json())
+    notify(
+        "simulation_created",
+        {
+            "active": True,
+            "simulation": data.to_json(),
+        },
+    )
     return make_response(
         True,
         "Simulation created.",
         status_code=201,
-        data=data.to_json(),
+        data={
+            "active": True,
+            "simulation": data.to_json(),
+        },
     )
 
 

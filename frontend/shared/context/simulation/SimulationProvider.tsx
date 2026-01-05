@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import type { PropsWithChildren } from "react";
 import { SimulationContext } from "./SimulationContext";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
