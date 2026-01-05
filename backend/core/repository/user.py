@@ -8,14 +8,19 @@ from sqlalchemy.orm import Session
 from backend import config
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.user import UserDTO
-from backend.core.models.models import EventCashflow, Snapshots, Users
+from backend.core.models.models import (
+    EventCashflow,
+    EventEquity,
+    EventFixedIncome,
+    FixedIncomePosition,
+    Snapshots,
+    Users,
+)
 
 
 class UserRepository:
     @transactional
-    def create_user(
-        self, session: Session, client_id: str, nickname: str, event_date: date
-    ) -> UserDTO:
+    def create_user(self, session: Session, client_id: str, nickname: str) -> UserDTO:
         user = Users(
             client_id=client_id,
             nickname=nickname,
@@ -23,15 +28,6 @@ class UserRepository:
         )
         session.add(user)
         session.flush()
-        cash_event = EventCashflow(
-            user_id=user.id,
-            event_type="DEPOSIT",
-            amount=config.toml.simulation.starting_cash,
-            event_date=event_date,
-            created_at=datetime.now(UTC),
-        )
-        session.add(cash_event)
-
         return UserDTO(
             id=user.id,
             client_id=user.client_id,
@@ -148,3 +144,28 @@ class UserRepository:
             client_id=user.client_id,
             nickname=user.nickname,
         )
+
+    @transactional
+    def reset_users_data(self, session: Session, event_date: date) -> None:
+        users = session.query(Users).all()
+
+        # Deleta todos os dados anteriores
+        session.query(EventCashflow).delete(synchronize_session=False)
+        session.query(EventEquity).delete(synchronize_session=False)
+        session.query(EventFixedIncome).delete(synchronize_session=False)
+        session.query(FixedIncomePosition).delete(synchronize_session=False)
+        session.query(Snapshots).delete(synchronize_session=False)
+
+        # Cria um novo cashflow de depósito inicial para cada usuário
+        now = datetime.now(UTC)
+        new_cashflows = [
+            EventCashflow(
+                user_id=user.id,
+                event_type="DEPOSIT",
+                amount=config.toml.simulation.starting_cash,
+                event_date=event_date,
+                created_at=now,
+            )
+            for user in users
+        ]
+        session.add_all(new_cashflows)

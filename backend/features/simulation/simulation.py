@@ -8,7 +8,6 @@ from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.stock_details import StockDetailsDTO
-from backend.core.dto.user import UserDTO
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.features.realtime import notify
@@ -37,6 +36,9 @@ class Simulation:
         self.get_portfolio = self._engine.get_portfolio
         self.create_order = self._engine.matching_engine.submit
         self.cancel_order = self._engine.matching_engine.cancel
+
+        # Reseta os dados dos usuários
+        self.reset_user_data()
 
         # Roda o primeiro tick para a inicialização
         self.next_tick()
@@ -124,8 +126,8 @@ class Simulation:
     def get_current_date_formatted(self) -> str:
         return self._current_date.strftime("%d/%m/%Y")
 
-    def create_user(self, client_id: str, nickname: str) -> UserDTO:
-        return repository.user.create_user(client_id, nickname, self._current_date)
+    def reset_user_data(self):
+        repository.user.reset_users_data(self._current_date)
 
     def set_speed(self, speed: int):
         logger.info(f"Velocidade da simulação alterada para {speed}x")
