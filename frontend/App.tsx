@@ -32,6 +32,7 @@ import { NotificationSettingsProvider } from "@/shared/context/notifications-set
 import { GlobalNotifications } from "./shared/notifications";
 import { SimulationLayout } from "./layouts/simulation-layout";
 import { SimulationProvider } from "./shared/context/simulation";
+import { NoSimulationLayout } from "./layouts/no-simulation-layout";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -64,7 +65,9 @@ export default function App() {
                     <Route path="/login" element={<LoginPage />} />
                   </Route>
                   <Route element={<AuthenticatedLayout />}>
-                    <Route path="/lobby" element={<LobbyPage />} />
+                    <Route element={<NoSimulationLayout />}>
+                      <Route path="/lobby" element={<LobbyPage />} />
+                    </Route>
                     <Route element={<SimulationLayout />}>
                       <Route element={<MainLayout navItems={navItems} />}>
                         <Route path="/" element={<PortfolioPage />} />
