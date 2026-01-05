@@ -1,14 +1,13 @@
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { LoadingPage } from "@/pages/loading";
-import { SimulationProvider } from "@/shared/context/simulation";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import type { RedirectState } from "@/types";
 
-function SimulationGate() {
+export function SimulationLayout() {
   const { simulation, loading } = useSimulation();
   const location = useLocation();
 
-  if (loading) {
+  if (loading || !simulation) {
     return <LoadingPage variant="fullscreen" />;
   }
 
@@ -27,12 +26,4 @@ function SimulationGate() {
   }
 
   return <Outlet />;
-}
-
-export function SimulationLayout() {
-  return (
-    <SimulationProvider>
-      <SimulationGate />
-    </SimulationProvider>
-  );
 }

@@ -2,7 +2,7 @@ import type { SimulationInfo } from "@/types";
 import { createContext } from "react";
 
 export interface SimulationContextValue {
-  simulation: SimulationInfo;
+  simulation: SimulationInfo | null;
   loading: boolean;
 }
 

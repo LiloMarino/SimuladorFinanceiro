@@ -31,6 +31,7 @@ import { ErrorPage } from "./pages/error";
 import { NotificationSettingsProvider } from "@/shared/context/notifications-settings";
 import { GlobalNotifications } from "./shared/notifications";
 import { SimulationLayout } from "./layouts/simulation-layout";
+import { SimulationProvider } from "./shared/context/simulation";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -55,35 +56,37 @@ export default function App() {
           {/* Listeners globais de notificações */}
           <GlobalNotifications />
           <PageLabelProvider routeLabels={routeLabels}>
-            <BrowserRouter>
-              <Routes>
-                {/* Login / anon */}
-                <Route element={<AuthLayout />}>
-                  <Route path="/login" element={<LoginPage />} />
-                </Route>
-                <Route element={<AuthenticatedLayout />}>
-                  <Route path="/lobby" element={<LobbyPage />} />
-                  <Route element={<SimulationLayout />}>
-                    <Route element={<MainLayout navItems={navItems} />}>
-                      <Route path="/" element={<PortfolioPage />} />
-                      <Route path="/variable-income" element={<VariableIncomePage />} />
-                      <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
-                      <Route path="/fixed-income" element={<FixedIncomePage />} />
-                      <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
-                      <Route path="/portfolio" element={<PortfolioPage />} />
-                      <Route path="/strategies" element={<StrategiesPage />} />
-                      <Route path="/settings" element={<SettingsPage />} />
-                      <Route path="/statistics" element={<StatisticsPage />} />
-                      <Route path="/import-assets" element={<ImportAssetsPage />} />
+            <SimulationProvider>
+              <BrowserRouter>
+                <Routes>
+                  {/* Login / anon */}
+                  <Route element={<AuthLayout />}>
+                    <Route path="/login" element={<LoginPage />} />
+                  </Route>
+                  <Route element={<AuthenticatedLayout />}>
+                    <Route path="/lobby" element={<LobbyPage />} />
+                    <Route element={<SimulationLayout />}>
+                      <Route element={<MainLayout navItems={navItems} />}>
+                        <Route path="/" element={<PortfolioPage />} />
+                        <Route path="/variable-income" element={<VariableIncomePage />} />
+                        <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
+                        <Route path="/fixed-income" element={<FixedIncomePage />} />
+                        <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
+                        <Route path="/portfolio" element={<PortfolioPage />} />
+                        <Route path="/strategies" element={<StrategiesPage />} />
+                        <Route path="/settings" element={<SettingsPage />} />
+                        <Route path="/statistics" element={<StatisticsPage />} />
+                        <Route path="/import-assets" element={<ImportAssetsPage />} />
+                      </Route>
                     </Route>
                   </Route>
-                </Route>
 
-                {/* 404 */}
-                <Route path="*" element={<ErrorPage />} />
-              </Routes>
-              <Toaster position="bottom-right" richColors />
-            </BrowserRouter>
+                  {/* 404 */}
+                  <Route path="*" element={<ErrorPage />} />
+                </Routes>
+                <Toaster position="bottom-right" richColors />
+              </BrowserRouter>
+            </SimulationProvider>
           </PageLabelProvider>
         </NotificationSettingsProvider>
       </AuthProvider>
