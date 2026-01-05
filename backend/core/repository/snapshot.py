@@ -23,59 +23,36 @@ class SnapshotRepository:
         user_id: int,
         snapshot_date: date,
     ) -> SnapshotDTO:
-        """
-        Snapshot(N) = Snapshot(N-1) + Eventos ocorridos após o último snapshot
-        """
         # --------------------------------------------------
-        # 1. Buscar último snapshot do usuário
+        # 2. CASHFLOW (TOTAL)
         # --------------------------------------------------
-        last_snapshot = session.execute(
-            select(Snapshots)
-            .where(Snapshots.user_id == user_id)
-            .order_by(Snapshots.snapshot_date.desc())
-            .limit(1)
-        ).scalar_one_or_none()
-
-        if last_snapshot:
-            base_cash = last_snapshot.total_cash
-            from_date = last_snapshot.snapshot_date
-        else:
-            base_cash = Decimal("0")
-            from_date = None
-
-        # --------------------------------------------------
-        # 2. CASHFLOW (incremental)
-        # --------------------------------------------------
-        cash_delta = session.execute(
-            select(
-                func.coalesce(
-                    func.sum(
-                        Case(
-                            (
-                                EventCashflow.event_type == "DEPOSIT",
-                                EventCashflow.amount,
-                            ),
-                            (
-                                EventCashflow.event_type == "DIVIDEND",
-                                EventCashflow.amount,
-                            ),
-                            (
-                                EventCashflow.event_type == "WITHDRAW",
-                                -EventCashflow.amount,
-                            ),
-                            else_=Decimal("0"),
-                        )
-                    ),
-                    0,
+        total_cash = Decimal(
+            session.execute(
+                select(
+                    func.coalesce(
+                        func.sum(
+                            Case(
+                                (
+                                    EventCashflow.event_type.in_(
+                                        ["DEPOSIT", "DIVIDEND"]
+                                    ),
+                                    EventCashflow.amount,
+                                ),
+                                (
+                                    EventCashflow.event_type == "WITHDRAW",
+                                    -EventCashflow.amount,
+                                ),
+                                else_=Decimal("0"),
+                            )
+                        ),
+                        0,
+                    )
+                ).where(
+                    EventCashflow.user_id == user_id,
+                    EventCashflow.event_date <= snapshot_date,
                 )
-            ).where(
-                EventCashflow.user_id == user_id,
-                EventCashflow.event_date <= snapshot_date,
-                *([EventCashflow.event_date > from_date] if from_date else []),
-            )
-        ).scalar_one()
-
-        total_cash = base_cash + Decimal(cash_delta)
+            ).scalar_one()
+        )
 
         # --------------------------------------------------
         # 3. EQUITY (MARK-TO-MARKET)
