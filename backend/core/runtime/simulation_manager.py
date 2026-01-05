@@ -3,46 +3,57 @@ from threading import Lock
 
 from flask import current_app
 
+from backend import config
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.exceptions import NoActiveSimulationError
 from backend.features.simulation.simulation import Simulation
 
 
 class SimulationManager:
-    """
-    Ponto único de acesso à simulação ativa.
-    Thread-safe para criação/limpeza.
-    """
-
     _lock = Lock()
+    _pending_settings: SimulationDTO | None = None
+
+    # =========================
+    # Settings (pré-simulação)
+    # =========================
 
     @classmethod
-    def get_active_simulation(cls) -> Simulation:
-        """
-        Retorna a simulação ativa ou lança NoActiveSimulation.
-        """
-        sim = current_app.config.get("simulation")
-        if not sim:
-            raise NoActiveSimulationError("Não existe simulação ativa no momento.")
-        return sim
-
-    @classmethod
-    def create_simulation(cls, start_date: date, end_date: date) -> Simulation:
-        """
-        Cria uma nova simulação e salva no Flask current_app.config.
-        Substitui qualquer simulação existente.
-        """
+    def get_settings(cls) -> SimulationDTO:
         with cls._lock:
-            data = SimulationDTO(start_date=start_date, end_date=end_date)
-            sim = Simulation(data)
+            if cls._pending_settings:
+                return cls._pending_settings
+
+            cls._pending_settings = SimulationDTO(
+                start_date=date.fromisoformat(config.toml.simulation.start_date),
+                end_date=date.fromisoformat(config.toml.simulation.end_date),
+            )
+            return cls._pending_settings
+
+    @classmethod
+    def update_settings(cls, simulation_settings: SimulationDTO) -> SimulationDTO:
+        with cls._lock:
+            cls._pending_settings = simulation_settings
+            return cls._pending_settings
+
+    # =========================
+    # Simulation lifecycle
+    # =========================
+
+    @classmethod
+    def create_simulation(cls, simulation_settings: SimulationDTO) -> Simulation:
+        with cls._lock:
+            sim = Simulation(simulation_settings)
             current_app.config["simulation"] = sim
             return sim
 
     @classmethod
+    def get_active_simulation(cls) -> Simulation:
+        sim = current_app.config.get("simulation")
+        if not sim:
+            raise NoActiveSimulationError("Não existe simulação ativa.")
+        return sim
+
+    @classmethod
     def clear_simulation(cls) -> None:
-        """
-        Limpa a simulação ativa.
-        """
         with cls._lock:
-            if "simulation" in current_app.config:
-                del current_app.config["simulation"]
+            current_app.config.pop("simulation", None)

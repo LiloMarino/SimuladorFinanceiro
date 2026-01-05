@@ -29,6 +29,7 @@ export type SimulationEvents = {
   player_exit: {
     nickname: string;
   };
+  simulation_settings_update: SimulationData;
 } & {
   [K in `stock_update:${string}`]: { stock: Stock };
 } & {
