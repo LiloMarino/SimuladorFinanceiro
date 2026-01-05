@@ -5,9 +5,10 @@ import type { FixedIncomeAssetApi, SimulationState } from "@/types";
 import { parse } from "date-fns";
 import FixedIncomeCard from "@/features/fixed-income/components/fixed-income-card";
 import { LoadingPage } from "@/pages/loading";
+import { ErrorPage } from "@/pages/error";
 
 export default function FixedIncomePage() {
-  const { data: assets, setData: setAssets, loading } = useQueryApi<FixedIncomeAssetApi[]>("/api/fixed-income");
+  const { data: assets, setData: setAssets, loading, error } = useQueryApi<FixedIncomeAssetApi[]>("/api/fixed-income");
   const { data: simData, setData: setSimData } = useQueryApi<SimulationState>("/api/get-simulation-state");
 
   useRealtime("simulation_update", (update) => {
@@ -22,18 +23,28 @@ export default function FixedIncomePage() {
     return <LoadingPage />;
   }
 
+  if (!assets) {
+    return (
+      <ErrorPage
+        code={String(error?.status) || "500"}
+        title="Erro ao carregar ativos"
+        message={String(error?.message)}
+      />
+    );
+  }
+
   const currentDate = parse(simData?.currentDate ?? "", "dd/MM/yyyy", new Date());
 
   return (
     <section className="p-4">
-      {assets && assets.length > 0 ? (
+      {assets.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {assets.map((asset) => (
             <FixedIncomeCard key={asset.name} asset={new FixedIncomeAsset(asset, currentDate)} />
           ))}
         </div>
       ) : (
-        <div className="flex justify-center items-center h-full text-muted-foreground">Nenhum ativo encontrado.</div>
+        <div className="flex justify-center items-center h-full text-muted-foreground">Nenhum ativo disponível.</div>
       )}
     </section>
   );
