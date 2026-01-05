@@ -338,6 +338,7 @@ class FixedIncomePosition(Base):
     updated_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )
+    first_applied_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
 
     asset: Mapped["FixedIncomeAsset"] = relationship(
         "FixedIncomeAsset", back_populates="fixed_income_position"

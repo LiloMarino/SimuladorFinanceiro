@@ -11,6 +11,7 @@ class FixedIncomePosition:
     asset: FixedIncomeAssetDTO
     total_applied: float  # Capital inicial (C)
     current_value: float = field(init=False)  # Montante (M)
+    first_applied_date: date  # Data do primeiro aporte
 
     def __post_init__(self):
         self.current_value = self.total_applied
@@ -45,3 +46,18 @@ class FixedIncomePosition:
 
     def annual_to_daily_rate(self, annual_rate: float) -> float:
         return (1 + annual_rate) ** (1 / 252) - 1
+
+    def calculate_ir(self, current_date: date) -> float:
+        days = (current_date - self.first_applied_date).days
+
+        if days <= 180:
+            rate = 0.225
+        elif days <= 360:
+            rate = 0.20
+        elif days <= 720:
+            rate = 0.175
+        else:
+            rate = 0.15
+
+        profit = self.current_value - self.total_applied
+        return profit * rate

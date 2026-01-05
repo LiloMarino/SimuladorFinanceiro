@@ -38,6 +38,7 @@ def load_fixed_assets(client_id: str) -> dict[str, FixedIncomePosition]:
         assets[dto.asset.name] = FixedIncomePosition(
             asset=dto.asset,
             total_applied=dto.total_applied,
+            first_applied_date=dto.first_applied_date,
         )
 
     return assets
@@ -68,12 +69,16 @@ class FixedBroker:
             raise ValueError(f"Saldo insuficiente para investir em {asset.name}")
 
         self._simulation_engine.add_cash(client_id, -value)
-        if asset.name in self._assets:
+
+        if asset.name in self._assets[client_id]:
             self._assets[client_id][asset.name].invest(value)
         else:
             self._assets[client_id][asset.name] = FixedIncomePosition(
-                asset=asset, total_applied=value
+                asset=asset,
+                total_applied=value,
+                first_applied_date=self._simulation_engine.current_date,
             )
+
         asset_id = repository.fixed_income.get_or_create_asset(asset)
         EventManager.push_event(
             FixedIncomeEventDTO(
@@ -112,6 +117,7 @@ class FixedBroker:
                         asset=position.asset,
                         total_applied=position.total_applied,
                         current_value=position.current_value,
+                        first_applied_date=position.first_applied_date,
                     )
                 )
 
@@ -130,7 +136,8 @@ class FixedBroker:
         asset_name: str,
         position: FixedIncomePosition,
     ) -> None:
-        redeem_value = position.current_value
+        ir_amount = position.calculate_ir(current_date)
+        redeem_value = position.current_value - ir_amount
 
         self._simulation_engine.add_cash(client_id, redeem_value)
         asset_id = repository.fixed_income.get_or_create_asset(position.asset)
@@ -144,4 +151,6 @@ class FixedBroker:
             )
         )
         repository.fixed_income.delete_position(user_id=user_id, asset_id=asset_id)
-        logger.info(f"REDEEM de {redeem_value:.2f} em {asset_name} (maturity)")
+        logger.info(
+            f"REDEEM de {redeem_value:.2f} em {asset_name} (maturity, IR={ir_amount:.2f})"
+        )

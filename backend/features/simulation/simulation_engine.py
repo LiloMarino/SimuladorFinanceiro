@@ -84,6 +84,7 @@ class SimulationEngine:
                 asset=pos.asset,
                 total_applied=pos.total_applied,
                 current_value=pos.current_value,
+                first_applied_date=pos.first_applied_date,
             )
             for pos in fixed_income_positions
         ]

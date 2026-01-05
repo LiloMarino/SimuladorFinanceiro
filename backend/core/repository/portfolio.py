@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+from datetime import date
 from decimal import Decimal
 
 from sqlalchemy import Case, func, select
@@ -97,6 +99,7 @@ class PortfolioRepository:
     def get_fixed_income_positions(
         self, session: Session, user_id: int
     ) -> list[FixedIncomePositionDTO]:
+        # Subquery para somar BUYs e subtrair REDEEMs
         total_applied_subq = (
             select(
                 EventFixedIncome.asset_id,
@@ -110,6 +113,14 @@ class PortfolioRepository:
                         else_=0,
                     )
                 ).label("total_applied"),
+                func.min(
+                    Case(
+                        (
+                            EventFixedIncome.event_type == "BUY",
+                            EventFixedIncome.event_date,
+                        )
+                    )
+                ).label("first_applied_date"),  # Data do primeiro aporte
             )
             .where(EventFixedIncome.user_id == user_id)
             .group_by(EventFixedIncome.asset_id)
@@ -125,16 +136,22 @@ class PortfolioRepository:
             .where(total_applied_subq.c.total_applied > 0)
         ).all()
 
-        totals: dict[int, Decimal] = dict(
+        # Converter totals para dict usando asset_id como chave
+        totals_seq: Sequence[tuple[int, Decimal, date]] = (
             session.execute(
                 select(
                     total_applied_subq.c.asset_id,
                     total_applied_subq.c.total_applied,
+                    total_applied_subq.c.first_applied_date,
                 )
             )
             .tuples()
             .all()
         )
+        totals: dict[int, tuple[Decimal, date]] = {
+            asset_id: (total_applied, first_applied_date)
+            for asset_id, total_applied, first_applied_date in totals_seq
+        }
 
         return [
             FixedIncomePositionDTO(
@@ -147,8 +164,9 @@ class PortfolioRepository:
                     maturity_date=asset.maturity_date,
                     interest_rate=float(asset.interest_rate),
                 ),
-                total_applied=float(totals[asset.id]),
-                current_value=float(totals[asset.id]),
+                total_applied=float(totals[asset.id][0]),
+                current_value=float(totals[asset.id][0]),
+                first_applied_date=totals[asset.id][1],
             )
             for asset in assets
         ]
