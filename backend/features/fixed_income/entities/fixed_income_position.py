@@ -3,7 +3,7 @@ from datetime import date
 
 from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.enum import RateIndexType
+from backend.core.enum import FixedIncomeType, RateIndexType
 
 
 @dataclass
@@ -48,6 +48,9 @@ class FixedIncomePosition:
         return (1 + annual_rate) ** (1 / 252) - 1
 
     def calculate_ir(self, current_date: date) -> float:
+        if self.asset.investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA):
+            return 0
+
         days = (current_date - self.first_applied_date).days
 
         if days <= 180:
