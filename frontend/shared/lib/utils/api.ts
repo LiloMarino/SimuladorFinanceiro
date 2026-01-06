@@ -43,7 +43,7 @@ export async function handleApiResponse<R>(res: Response, responseSchema?: ZodTy
     const message =
       (json as Record<string, unknown> | null)?.message ?? getHttpStatusText(res.status) ?? "Unexpected error";
 
-    throw new ApiError(`${message} (${res.status} – ${getHttpStatusText(res.status)})`, res.status, json);
+    throw new ApiError(`${message}`, res.status, json);
   }
 
   const parsed = ApiResponseSchema.parse(json);
