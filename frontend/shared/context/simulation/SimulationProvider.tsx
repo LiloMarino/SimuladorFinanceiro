@@ -8,7 +8,7 @@ export function SimulationProvider({ children }: PropsWithChildren) {
   const { data: simulation, setData: setSimulation, loading } = useQueryApi<SimulationInfo>("/api/simulation/status");
 
   useRealtime(
-    "simulation_created",
+    "simulation_started",
     (payload) => {
       if (payload?.active) {
         setSimulation(payload);

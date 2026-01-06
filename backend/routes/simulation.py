@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import Blueprint, request
 
 from backend import config
+from backend.core import repository
 from backend.core.decorators.cookie import require_client_id
 from backend.core.decorators.host import require_host
 from backend.core.dto.simulation import SimulationDTO
@@ -54,6 +55,7 @@ def create_simulation():
             status_code=422,
         )
 
+    repository.user.reset_users_data(start_date)
     sim = SimulationManager.create_simulation(
         SimulationDTO(
             start_date=start_date,
@@ -64,7 +66,7 @@ def create_simulation():
     controller.trigger_start()
 
     notify(
-        "simulation_created",
+        "simulation_started",
         {
             "active": True,
             "simulation": data.to_json(),
@@ -77,6 +79,59 @@ def create_simulation():
         data={
             "active": True,
             "simulation": data.to_json(),
+        },
+    )
+
+
+@simulation_bp.route("/api/simulation/continue", methods=["POST"])
+@require_host
+def continue_simulation():
+    """Continua a simulação a partir do último snapshot"""
+
+    data = request.get_json(force=True)
+
+    try:
+        end_date = datetime.strptime(data["end_date"], "%Y-%m-%d").date()
+    except Exception:
+        return make_response(False, "Invalid end_date.", status_code=422)
+
+    last_snapshot_date = repository.snapshot.get_last_snapshot_date()
+    if not last_snapshot_date:
+        return make_response(
+            False, "No snapshots found to continue simulation.", status_code=404
+        )
+
+    if last_snapshot_date >= end_date:
+        return make_response(
+            False,
+            "Last snapshot date is after or equal to the target end date.",
+            status_code=422,
+        )
+
+    sim = SimulationManager.create_simulation(
+        SimulationDTO(
+            start_date=last_snapshot_date,
+            end_date=end_date,
+        )
+    )
+
+    controller.trigger_start()
+
+    notify(
+        "simulation_started",
+        {
+            "active": True,
+            "simulation": sim.simulation_data.to_json(),
+        },
+    )
+
+    return make_response(
+        True,
+        "Simulation continued from last snapshot.",
+        status_code=201,
+        data={
+            "active": True,
+            "simulation": sim.simulation_data.to_json(),
         },
     )
 

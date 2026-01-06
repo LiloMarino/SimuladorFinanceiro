@@ -11,7 +11,7 @@ export function LobbyPage() {
   const navigate = useNavigate();
   const { data: settings, loading, error } = useQueryApi<SimulationSettings>("/api/simulation/settings");
 
-  useRealtime("simulation_created", (simulation) => {
+  useRealtime("simulation_started", (simulation) => {
     if (simulation.active) {
       navigate("/", { replace: true });
     }

@@ -143,3 +143,11 @@ class SnapshotRepository:
             total_networth=total_networth,
             created_at=datetime.now(UTC),
         )
+
+    @transactional
+    def get_last_snapshot_date(self, session: Session) -> date | None:
+        """Retorna a última data de snapshot registrada"""
+        last_date = session.execute(
+            select(func.max(Snapshots.snapshot_date))
+        ).scalar_one_or_none()
+        return last_date

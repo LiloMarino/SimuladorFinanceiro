@@ -42,7 +42,8 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
     debounceMs: 400,
   });
 
-  const { mutate: createSimulation, loading } = useMutationApi<
+  // Mutação de criação
+  const { mutate: createSimulation, loading: loadingCreate } = useMutationApi<
     SimulationInfo,
     { start_date: string; end_date: string }
   >("/api/simulation/create", {
@@ -54,25 +55,31 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
     },
   });
 
+  // Mutação de continuação
+  const { mutate: continueSimulation, loading: loadingContinue } = useMutationApi<
+    SimulationInfo,
+    { end_date?: string }
+  >("/api/simulation/continue", {
+    onSuccess: () => {
+      toast.success("Simulação continuada com sucesso!");
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
   const copyHostIP = () => {
     navigator.clipboard.writeText(hostIP);
     toast.success("IP do host copiado!");
   };
 
-  const onSubmit = (values: SimulationFormValues) => {
-    createSimulation({
-      start_date: values.startDate,
-      end_date: values.endDate,
-    });
-  };
-
-  const disableFields = loading || !isHost;
+  const disableFields = loadingCreate || loadingContinue || !isHost;
   return (
     <div className="space-y-6 border-t md:border-l md:border-t-0 border-gray-300 pt-6 md:pt-0 md:pl-6">
       <h2 className="text-lg font-semibold">Configurações da Simulação</h2>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -114,10 +121,30 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
             </div>
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full bg-green-600 hover:bg-green-700">
-            <FontAwesomeIcon icon={faPlay} className="mr-2" />
-            Iniciar Partida
-          </Button>
+          {/* Botões */}
+          <div className="space-y-2">
+            <Button
+              type="button"
+              disabled={disableFields}
+              className="w-full bg-green-600 hover:bg-green-700"
+              onClick={() =>
+                createSimulation({ start_date: form.getValues("startDate"), end_date: form.getValues("endDate") })
+              }
+            >
+              <FontAwesomeIcon icon={faPlay} className="mr-2" />
+              Iniciar Simulação
+            </Button>
+
+            <Button
+              type="button"
+              disabled={disableFields}
+              className="w-full bg-blue-600 hover:bg-blue-700"
+              onClick={() => continueSimulation({ end_date: form.getValues("endDate") })}
+            >
+              <FontAwesomeIcon icon={faPlay} className="mr-2" />
+              Continuar Simulação
+            </Button>
+          </div>
         </form>
       </Form>
     </div>

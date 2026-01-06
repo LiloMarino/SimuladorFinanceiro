@@ -37,9 +37,6 @@ class Simulation:
         self.create_order = self._engine.matching_engine.submit
         self.cancel_order = self._engine.matching_engine.cancel
 
-        # Reseta os dados dos usuários
-        self.reset_user_data()
-
         # Roda o primeiro tick para a inicialização
         self.next_tick()
 
@@ -126,9 +123,6 @@ class Simulation:
 
     def get_current_date_formatted(self) -> str:
         return self._current_date.strftime("%d/%m/%Y")
-
-    def reset_user_data(self):
-        repository.user.reset_users_data(self._current_date)
 
     def set_speed(self, speed: int):
         logger.info(f"Velocidade da simulação alterada para {speed}x")
