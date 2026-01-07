@@ -1,4 +1,8 @@
 from backend.core.dto.order import OrderDTO
+from backend.core.exceptions.http_exceptions import (
+    ForbiddenError,
+    UnprocessableEntityError,
+)
 from backend.features.realtime import notify
 from backend.features.variable_income.broker import Broker
 from backend.features.variable_income.entities.order import (
@@ -30,7 +34,7 @@ class MatchingEngine:
         - LIMIT: saldo vai pro book
         """
         if order.status != OrderStatus.PENDING:
-            raise ValueError("Ordem inválida")
+            raise UnprocessableEntityError("Ordem inválida")
 
         # Tenta casar contra outros players
         self._match_players(order)
@@ -82,10 +86,10 @@ class MatchingEngine:
             return False
 
         if order.client_id != client_id:
-            raise PermissionError("Ordem não pertence ao cliente")
+            raise ForbiddenError("Ordem não pertence ao cliente")
 
         if order.status not in (OrderStatus.PENDING, OrderStatus.PARTIAL):
-            raise ValueError("Ordem não pode ser cancelada")
+            raise ForbiddenError("Ordem não pode ser cancelada")
 
         order.status = OrderStatus.CANCELED
         order.remaining = 0
@@ -121,6 +125,7 @@ class MatchingEngine:
             if order.remaining == 0:
                 self.order_book.remove(order)
         except ValueError:
+            # TODO: #63 Tratar melhor os erros de _execute_trade
             order.status = OrderStatus.CANCELED
             self.order_book.remove(order)
             notify(

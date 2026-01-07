@@ -11,7 +11,7 @@ from backend.core.dto.events.fixed_income import (
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.enum import FixedIncomeEventType
-from backend.core.exceptions import FixedIncomeExpiredAssetError
+from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -61,7 +61,7 @@ class FixedBroker:
             raise ValueError("Valor do investimento deve ser maior que zero")
 
         if self._simulation_engine.current_date >= asset.maturity_date:
-            raise FixedIncomeExpiredAssetError(
+            raise ConflictError(
                 f"Ativo {asset.name} já venceu em {asset.maturity_date}"
             )
 

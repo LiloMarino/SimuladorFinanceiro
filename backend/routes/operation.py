@@ -2,7 +2,10 @@ from flask import Blueprint, request
 
 from backend.core.decorators.cookie import require_client_id
 from backend.core.decorators.simulation import require_simulation
-from backend.core.exceptions import FixedIncomeExpiredAssetError
+from backend.core.exceptions.http_exceptions import (
+    NotFoundError,
+    UnprocessableEntityError,
+)
 from backend.features.simulation.simulation import Simulation
 from backend.features.variable_income.entities.order import (
     LimitOrder,
@@ -46,15 +49,15 @@ def submit_order(simulation: Simulation, client_id: str, asset: str):
 
     # Valida os parâmetros
     if not size:
-        return make_response(False, "Quantity is required.", 422)
+        raise UnprocessableEntityError("Quantidade é obrigatória")
     try:
         action_enum = OrderAction(action.lower())
-    except ValueError:
-        return make_response(False, "Invalid action.", 422)
+    except ValueError as e:
+        raise UnprocessableEntityError("Ação inválida") from e
     try:
         order_type_enum = OrderType(order_type.lower())
-    except ValueError:
-        return make_response(False, "Invalid order_type.", 422)
+    except ValueError as e:
+        raise UnprocessableEntityError("Tipo de ordem inválido") from e
 
     if order_type_enum == OrderType.MARKET:
         order = MarketOrder(
@@ -63,7 +66,9 @@ def submit_order(simulation: Simulation, client_id: str, asset: str):
     else:
         price = data.get("limit_price")
         if price is None:
-            return make_response(False, "Price required for limit orders.", 422)
+            raise UnprocessableEntityError(
+                "limit_price é obrigatório para ordem limitada"
+            )
         order = LimitOrder(
             client_id=client_id,
             ticker=asset,
@@ -90,15 +95,11 @@ def cancel_order(simulation: Simulation, client_id: str, asset: str):
     data = request.get_json(silent=True) or {}
     order_id = data.get("order_id")
     if not order_id:
-        return make_response(False, "Order ID is required.", 422)
-    try:
-        canceled = simulation.cancel_order(order_id=order_id, client_id=client_id)
-        if not canceled:
-            return make_response(False, "Order not found", 404)
-    except PermissionError as e:
-        return make_response(False, str(e), 403)
-    except ValueError as e:
-        return make_response(False, str(e), 400)
+        raise UnprocessableEntityError("order_id é obrigatório")
+
+    canceled = simulation.cancel_order(order_id=order_id, client_id=client_id)
+    if not canceled:
+        raise NotFoundError("Ordem não encontrada")
     return make_response(True, "Order canceled successfully.")
 
 
@@ -139,18 +140,13 @@ def get_fixed_income_details(simulation: Simulation, asset_uuid: str):
 def buy_fixed_income(simulation: Simulation, client_id: str, asset_uuid: str):
     fixed = simulation.get_fixed_asset(asset_uuid)
     if not fixed:
-        return make_response(False, "Asset not found.", 404)
+        raise NotFoundError("Ativo de renda fixa não encontrado")
 
     data = request.get_json(silent=True) or {}
     quantity = data.get("quantity")
     if not quantity:
-        return make_response(False, "Quantity is required.", 422)
+        raise UnprocessableEntityError("Quantidade é obrigatória")
 
-    try:
-        simulation._engine.fixed_broker.buy(client_id, fixed, quantity)
-    except FixedIncomeExpiredAssetError as e:
-        return make_response(False, str(e), 409)
-    except ValueError as e:
-        return make_response(False, str(e), 400)
+    simulation._engine.fixed_broker.buy(client_id, fixed, quantity)
 
     return make_response(True, "Investment queued successfully.")

@@ -30,11 +30,17 @@ def register_routes(app: Flask):
 
     @app.errorhandler(Exception)
     def handle_error(e):  # type: ignore
+        """
+        Exceções normais do python serão tratadas como Internal Server Error
+        """
         logger.exception(f"{e.__class__.__name__}: {e}")
         return make_response(False, str(e), 500)
 
     @app.errorhandler(HTTPException)
-    def handle_http_exception(e: HTTPException):
+    def handle_http_exception(e: HTTPException):  # type: ignore
+        """
+        Exceções HTTP serão tratadas devidamente com seus respetivos status code
+        """
         return make_response(
             False,
             e.description or e.name,

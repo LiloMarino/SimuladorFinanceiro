@@ -2,7 +2,6 @@ from werkzeug.exceptions import (
     BadRequest,
     Conflict,
     Forbidden,
-    InternalServerError,
     NotFound,
     Unauthorized,
     UnprocessableEntity,
@@ -45,11 +44,5 @@ class ConflictError(Conflict):
 
 class UnprocessableEntityError(UnprocessableEntity):
     """422 Unprocessable Entity"""
-
-    pass
-
-
-class InternalServerErrorError(InternalServerError):
-    """500 Internal Server Error"""
 
     pass

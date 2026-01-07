@@ -19,7 +19,9 @@ class Position:
     def update_sell(self, size: int):
         """Atualiza posição após uma venda."""
         if self.size - size < 0:
-            raise ValueError("Venda excede posição disponível.")
+            raise ValueError(
+                "Venda excede posição disponível."
+            )  # TODO: Criar exception customizada
         self.total_cost -= self.avg_price * size
         self.size -= size
         self.avg_price = (self.total_cost / self.size) if self.size > 0 else 0

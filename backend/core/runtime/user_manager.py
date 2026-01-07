@@ -3,6 +3,7 @@ from typing import ClassVar
 
 from backend.core import repository
 from backend.core.dto.user import UserDTO
+from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.logger import setup_logger
 from backend.core.utils.lazy_dict import LazyDict
 
@@ -73,7 +74,7 @@ class UserManager:
     def get_user_id(cls, client_id: str) -> int:
         user = cls.get_user(client_id)
         if user is None:
-            raise RuntimeError(f"User não encontrado para client_id={client_id}")
+            raise NotFoundError(f"Usuário não encontrado para client_id={client_id}")
         return user.id
 
     @classmethod

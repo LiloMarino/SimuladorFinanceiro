@@ -4,9 +4,9 @@ from flask import request
 
 from backend.config.toml_settings import load_toml_settings
 from backend.core.exceptions import (
-    PermissionDeniedError,
     SessionNotInitializedError,
 )
+from backend.core.exceptions.http_exceptions import ForbiddenError, NotFoundError
 from backend.core.runtime.user_manager import UserManager
 
 
@@ -28,13 +28,13 @@ def require_host(func):
 
         user = UserManager.get_user(client_id)
         if user is None:
-            raise PermissionDeniedError("Usuário não autenticado.")
+            raise NotFoundError("Usuário não encontrado.")
 
         settings = load_toml_settings()
         host_nickname = settings.host.nickname
 
         if user.nickname != host_nickname:
-            raise PermissionDeniedError("Apenas o host pode executar essa ação.")
+            raise ForbiddenError("Apenas o host pode executar essa ação.")
 
         return func(*args, **kwargs)
 

@@ -13,21 +13,21 @@ def get_broker() -> RealtimeBroker:
     """
     broker = current_app.config.get("realtime_broker")
     if not broker:
-        raise RuntimeError("Realtime broker not configured in current_app")
+        raise RuntimeError("RealtimeBroker não está inicializado")
     return broker
 
 
 def get_socket_broker() -> SocketBroker:
     broker = get_broker()
     if not isinstance(broker, SocketBroker):
-        raise TypeError("Broker is not SocketBroker")
+        raise TypeError("Broker não é SocketBroker")
     return broker
 
 
 def get_sse_broker() -> SSEBroker:
     broker = get_broker()
     if not isinstance(broker, SSEBroker):
-        raise TypeError("Broker is not SSEBroker")
+        raise TypeError("Broker não é SSEBroker")
     return broker
 
 

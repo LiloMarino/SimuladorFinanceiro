@@ -36,7 +36,9 @@ class SimulationLoopController:
                 return
 
             if not self._app:
-                raise RuntimeError("SimulationLoopController: app não foi bindado.")
+                raise RuntimeError(
+                    "Flask App não foi bindado no SimulationLoopController."
+                )
 
             self._thread = threading.Thread(
                 target=self._run,

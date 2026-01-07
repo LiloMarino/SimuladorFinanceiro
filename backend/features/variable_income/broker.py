@@ -72,7 +72,7 @@ class Broker:
         cost = price * size
 
         if self._simulation_engine.get_cash(client_id) < cost:
-            raise ValueError("Saldo insuficiente")
+            raise ValueError("Saldo insuficiente")  # TODO: Criar exception customizada
 
         self._simulation_engine.add_cash(client_id, -cost)
 
@@ -105,11 +105,15 @@ class Broker:
 
     def _execute_sell(self, client_id: str, ticker: str, size: int, price: float):
         if ticker not in self._positions[client_id]:
-            raise ValueError(f"Sem posição em {ticker}")
+            raise ValueError(
+                f"Sem posição em {ticker}"
+            )  # TODO: Criar exception customizada
 
         pos = self._positions[client_id][ticker]
         if pos.size < size:
-            raise ValueError("Quantidade insuficiente")
+            raise ValueError(
+                "Quantidade insuficiente"
+            )  # TODO: Criar exception customizada
 
         self._simulation_engine.add_cash(client_id, price * size)
         pos.update_sell(size)

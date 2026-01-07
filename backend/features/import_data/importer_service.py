@@ -6,6 +6,7 @@ import pandas as pd
 import yfinance as yf
 
 from backend.core import repository
+from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.logger import setup_logger
 from backend.core.models.models import StockPriceHistory
 
@@ -40,7 +41,7 @@ def from_yfinance(
         )
     if df is None or df.empty:
         logger.warning(f"Nenhum dado retornado para {ticker}.")
-        raise ValueError(f"Nenhum dado retornado para {ticker}.")
+        raise NotFoundError(f"Nenhum dado retornado para {ticker}.")
     return df
 
 
