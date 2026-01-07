@@ -12,8 +12,7 @@ import { useRealtime } from "@/shared/hooks/useRealtime";
 
 export default function StatisticsPage() {
   const { data: statistics, setData: setStatistics, loading, error } = useQueryApi<PlayerHistory[]>("/api/statistics");
-  const { getUser } = useAuth();
-  const currentUser = getUser();
+  const { user: currentUser } = useAuth();
 
   useRealtime("statistics_snapshot_update", ({ snapshots }) => {
     setStatistics((prev) => {

@@ -5,7 +5,7 @@ import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  // Consulta sessão atual
+  // Sessão atual
   const {
     data: session,
     setData: setSession,
@@ -15,7 +15,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     initialFetch: false,
   });
 
-  // Inicializa sessão
+  // Inicializa uma nova sessão
   const { mutate: initSessionApi, loading: initLoading } = useMutationApi("api/session/init");
 
   // Logout
@@ -26,16 +26,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
     return fetchSessionApi();
   }, [initSessionApi, fetchSessionApi]);
 
-  const refresh = useCallback(async () => {
-    return fetchSessionApi();
-  }, [fetchSessionApi]);
-
   const logout = useCallback(async () => {
     await logoutApi({});
     setSession(null);
   }, [logoutApi, setSession]);
 
-  // Inicializa sessão ao montar
+  // Inicializa sessão apenas uma vez
   useEffect(() => {
     void initSession();
   }, [initSession]);
@@ -43,9 +39,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
   return (
     <AuthContext.Provider
       value={{
-        getSession: () => session,
-        getUser: () => session?.user ?? null,
-        refresh,
+        session,
+        user: session?.user ?? null,
+        refresh: fetchSessionApi,
         logout,
         loading: sessionLoading || initLoading || logoutLoading,
       }}

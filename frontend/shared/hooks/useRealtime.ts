@@ -9,8 +9,7 @@ export function useRealtime<K extends keyof SimulationEvents>(
   enabled: boolean = true
 ) {
   const { subscriber, connected } = useRealtimeContext<SimulationEvents>();
-  const { getSession } = useAuth();
-  const session = getSession();
+  const { session } = useAuth();
   const callbackRef = useRef(callback);
 
   callbackRef.current = callback;

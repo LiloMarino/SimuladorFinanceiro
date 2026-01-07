@@ -4,8 +4,7 @@ import { NotificationSettingsForm } from "../components/notifications-settings-f
 import { SettingsSection } from "../components/settings-section";
 
 export default function SettingsPage() {
-  const { getUser } = useAuth();
-  const user = getUser();
+  const { user } = useAuth();
 
   return (
     <section className="section-content p-4">

@@ -2,9 +2,9 @@ import { createContext } from "react";
 import type { Session, User } from "@/types/user";
 
 export interface AuthContextValue {
-  getSession: () => Session | null;
-  getUser: () => User | null;
-  refresh: () => Promise<Session>;
+  session: Session | null;
+  user: User | null;
+  refresh: () => Promise<Session | null>;
   logout: () => Promise<void>;
   loading: boolean;
 }

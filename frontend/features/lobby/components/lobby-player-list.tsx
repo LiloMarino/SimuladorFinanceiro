@@ -10,8 +10,7 @@ interface LobbyPlayersListProps {
 }
 
 export function LobbyPlayersList({ maxPlayers }: LobbyPlayersListProps) {
-  const { getUser } = useAuth();
-  const user = getUser();
+  const { user } = useAuth();
   const { data: players, setData: setPlayers } = useQueryApi<{ nickname: string }[]>("/api/simulation/players");
 
   // 🔹 Player entrou

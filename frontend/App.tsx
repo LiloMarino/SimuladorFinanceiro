@@ -24,15 +24,12 @@ import { Toaster } from "@/shared/components/ui/sonner";
 import { PageLabelProvider } from "@/shared/context/page-label";
 import StatisticsPage from "./features/statistics/pages/statistics";
 import { LoginPage } from "./features/auth/pages/login";
-import { AuthenticatedLayout } from "./layouts/authenticated-layout";
-import { AuthLayout } from "./layouts/auth-layout";
 import { AuthProvider } from "./shared/context/auth";
 import { ErrorPage } from "./pages/error";
 import { NotificationSettingsProvider } from "@/shared/context/notifications-settings";
 import { GlobalNotifications } from "./shared/notifications";
-import { SimulationLayout } from "./layouts/simulation-layout";
 import { SimulationProvider } from "./shared/context/simulation";
-import { NoSimulationLayout } from "./layouts/no-simulation-layout";
+import { GuardLayout } from "./layouts/guard-layout";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -60,30 +57,22 @@ export default function App() {
             <SimulationProvider>
               <BrowserRouter>
                 <Routes>
-                  {/* Login / anon */}
-                  <Route element={<AuthLayout />}>
+                  <Route element={<GuardLayout />}>
                     <Route path="/login" element={<LoginPage />} />
-                  </Route>
-                  <Route element={<AuthenticatedLayout />}>
-                    <Route element={<NoSimulationLayout />}>
-                      <Route path="/lobby" element={<LobbyPage />} />
-                    </Route>
-                    <Route element={<SimulationLayout />}>
-                      <Route element={<MainLayout navItems={navItems} />}>
-                        <Route path="/" element={<PortfolioPage />} />
-                        <Route path="/variable-income" element={<VariableIncomePage />} />
-                        <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
-                        <Route path="/fixed-income" element={<FixedIncomePage />} />
-                        <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
-                        <Route path="/portfolio" element={<PortfolioPage />} />
-                        <Route path="/strategies" element={<StrategiesPage />} />
-                        <Route path="/settings" element={<SettingsPage />} />
-                        <Route path="/statistics" element={<StatisticsPage />} />
-                        <Route path="/import-assets" element={<ImportAssetsPage />} />
-                      </Route>
+                    <Route path="/lobby" element={<LobbyPage />} />
+                    <Route element={<MainLayout navItems={navItems} />}>
+                      <Route path="/" element={<PortfolioPage />} />
+                      <Route path="/variable-income" element={<VariableIncomePage />} />
+                      <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
+                      <Route path="/fixed-income" element={<FixedIncomePage />} />
+                      <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
+                      <Route path="/portfolio" element={<PortfolioPage />} />
+                      <Route path="/strategies" element={<StrategiesPage />} />
+                      <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/statistics" element={<StatisticsPage />} />
+                      <Route path="/import-assets" element={<ImportAssetsPage />} />
                     </Route>
                   </Route>
-
                   {/* 404 */}
                   <Route path="*" element={<ErrorPage />} />
                 </Routes>
