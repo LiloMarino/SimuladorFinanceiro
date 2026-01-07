@@ -21,7 +21,7 @@ simulation_bp = Blueprint("simulation", __name__)
 def simulation_status():
     try:
         sim = SimulationManager.get_active_simulation()
-        data = sim.simulation_data
+        data = sim.settings
         return make_response(
             True,
             "Simulation active.",
@@ -62,7 +62,7 @@ def create_simulation():
             end_date=end_date,
         )
     )
-    data = sim.simulation_data
+    data = sim.settings
     controller.trigger_start()
 
     notify(
@@ -121,7 +121,7 @@ def continue_simulation():
         "simulation_started",
         {
             "active": True,
-            "simulation": sim.simulation_data.to_json(),
+            "simulation": sim.settings.to_json(),
         },
     )
 
@@ -131,7 +131,7 @@ def continue_simulation():
         status_code=201,
         data={
             "active": True,
-            "simulation": sim.simulation_data.to_json(),
+            "simulation": sim.settings.to_json(),
         },
     )
 

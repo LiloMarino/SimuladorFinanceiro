@@ -18,10 +18,10 @@ logger = setup_logger(__name__)
 
 
 class Simulation:
-    def __init__(self, simulation_data: SimulationDTO):
+    def __init__(self, settings: SimulationDTO):
         self._speed = 0
-        self.simulation_data = simulation_data
-        self._current_date = self.simulation_data.start_date - timedelta(days=1)
+        self.settings = settings
+        self._current_date = self.settings.start_date - timedelta(days=1)
         self._engine = SimulationEngine(self._current_date)
         self._engine.set_strategy(ManualStrategy)
 
@@ -42,7 +42,7 @@ class Simulation:
 
     def next_tick(self):
         # Verifica se a simulação terminou
-        if self._current_date > self.simulation_data.end_date:
+        if self._current_date > self.settings.end_date:
             logger.info("Fim da simulação")
             raise StopIteration()
 
@@ -50,7 +50,7 @@ class Simulation:
         self._current_date += timedelta(days=1)
         while self._current_date.weekday() >= 5:
             self._current_date += timedelta(days=1)
-        if self._current_date > self.simulation_data.end_date:
+        if self._current_date > self.settings.end_date:
             logger.info("Fim da simulação")
             raise StopIteration()
 
