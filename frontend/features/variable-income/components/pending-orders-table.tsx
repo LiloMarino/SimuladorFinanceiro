@@ -45,7 +45,7 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
       toast.info("Ordem cancelada com sucesso!");
     },
     onError: (err) => {
-      toast.error(`Erro ao cancelar ordem: ${err.message}`);
+      toast.error(err.message);
     },
   });
 

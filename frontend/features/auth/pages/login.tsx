@@ -38,7 +38,7 @@ export function LoginPage() {
         toast.success("Nickname registrado!");
       },
       onError: (err) => {
-        toast.error(`Erro ao registrar: ${err.message}`);
+        toast.error(err.message);
       },
     }
   );
@@ -50,7 +50,7 @@ export function LoginPage() {
         toast.success("Nickname recuperado!");
       },
       onError: (err) => {
-        toast.error(`Erro ao clamar nickname: ${err.message}`);
+        toast.error(err.message);
       },
     }
   );

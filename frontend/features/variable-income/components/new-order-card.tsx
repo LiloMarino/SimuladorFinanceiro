@@ -67,7 +67,7 @@ export function NewOrderCard({ stock }: NewOrderCardProps) {
       form.reset();
     },
     onError: (err) => {
-      toast.error(`Erro ao enviar ordem: ${err.message}`);
+      toast.error(err.message);
     },
   });
 

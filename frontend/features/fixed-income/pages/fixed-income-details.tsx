@@ -46,7 +46,7 @@ export default function FixedIncomeDetailPage() {
       toast.success("Investido com sucesso!");
     },
     onError: (err) => {
-      toast.error(`Erro ao investir: ${err.message}`);
+      toast.error(err.message);
     },
   });
 
