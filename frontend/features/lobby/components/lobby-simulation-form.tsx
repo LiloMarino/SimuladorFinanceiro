@@ -125,7 +125,6 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
           <div className="space-y-2">
             <Button
               type="button"
-              disabled={disableFields}
               className="w-full bg-green-600 hover:bg-green-700"
               onClick={() =>
                 createSimulation({ start_date: form.getValues("startDate"), end_date: form.getValues("endDate") })
@@ -137,7 +136,6 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
 
             <Button
               type="button"
-              disabled={disableFields}
               className="w-full bg-blue-600 hover:bg-blue-700"
               onClick={() => continueSimulation({ end_date: form.getValues("endDate") })}
             >

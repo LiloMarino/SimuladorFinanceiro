@@ -4,6 +4,7 @@ import { NotificationSettingsContext } from "./NotificationSettingsContext";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import type { NotificationPreferences } from "@/types";
+import { toast } from "sonner";
 
 const DEFAULT_PREFERENCES: NotificationPreferences = {
   orders: {
@@ -17,6 +18,9 @@ export function NotificationSettingsProvider({ children }: PropsWithChildren) {
   const { data } = useQueryApi<NotificationPreferences>("/api/settings");
   const { mutate } = useMutationApi<NotificationPreferences, NotificationPreferences>("/api/settings", {
     method: "PUT",
+    onError: (err) => {
+      toast.error(err.message);
+    },
   });
 
   // 🔹 Sincroniza backend → frontend

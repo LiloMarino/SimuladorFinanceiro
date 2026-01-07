@@ -1,10 +1,6 @@
 from flask import Flask
+from werkzeug.exceptions import HTTPException
 
-from backend.core.exceptions import (
-    NoActiveSimulationError,
-    PermissionDeniedError,
-    SessionNotInitializedError,
-)
 from backend.core.logger import setup_logger
 from backend.routes.auth import auth_bp
 from backend.routes.helpers import make_response
@@ -37,26 +33,10 @@ def register_routes(app: Flask):
         logger.exception(f"{e.__class__.__name__}: {e}")
         return make_response(False, str(e), 500)
 
-    @app.errorhandler(SessionNotInitializedError)
-    def handle_session_not_initialized(e):  # type: ignore
+    @app.errorhandler(HTTPException)
+    def handle_http_exception(e: HTTPException):
         return make_response(
             False,
-            "Session not initialized.",
-            status_code=401,
-        )
-
-    @app.errorhandler(NoActiveSimulationError)
-    def handle_no_active_simulation(e):  # type: ignore
-        return make_response(
-            False,
-            "No active simulation.",
-            status_code=403,
-        )
-
-    @app.errorhandler(PermissionDeniedError)
-    def handle_permission_denied(e):  # type: ignore
-        return make_response(
-            False,
-            str(e) or "Permission denied.",
-            status_code=403,
+            e.description or e.name,
+            status_code=e.code or 500,
         )

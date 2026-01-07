@@ -1,22 +1,25 @@
-class FixedIncomeExpiredAssetError(Exception):
+from werkzeug.exceptions import Conflict, Forbidden, Unauthorized
+
+
+class FixedIncomeExpiredAssetError(Conflict):
     """Exceção lançada quando um ativo de renda fixa expirou."""
 
     pass
 
 
-class NoActiveSimulationError(Exception):
-    """Exceção lançada quando não há simulação ativa."""
+class NoActiveSimulationError(Forbidden):
+    """Não existe uma simulação ativa."""
 
-    pass
-
-
-class SessionNotInitializedError(Exception):
-    """Raised when client_id cookie is missing."""
-
-    pass
+    description = "Não existe uma simulação ativa"
 
 
-class PermissionDeniedError(Exception):
-    """Raised when user lacks permission to access a resource."""
+class SessionNotInitializedError(Unauthorized):
+    """Sessão do usuário não iniciada."""
 
-    pass
+    description = "Sessão não iniciada"
+
+
+class PermissionDeniedError(Forbidden):
+    """Usuário sem permissão para executar a ação."""
+
+    description = "Permissão negada"

@@ -50,7 +50,7 @@ class SimulationManager:
     def get_active_simulation(cls) -> Simulation:
         sim = current_app.config.get("simulation")
         if not sim:
-            raise NoActiveSimulationError("Não existe simulação ativa.")
+            raise NoActiveSimulationError()
         return sim
 
     @classmethod
