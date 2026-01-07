@@ -1,12 +1,11 @@
 import { useCallback, useEffect, type PropsWithChildren } from "react";
-import Cookies from "js-cookie";
 import { AuthContext } from "./AuthContext";
 import type { Session } from "@/types/user";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  // Consulta a sessão atual
+  // Consulta sessão atual
   const {
     data: session,
     setData: setSession,
@@ -16,24 +15,25 @@ export function AuthProvider({ children }: PropsWithChildren) {
     initialFetch: false,
   });
 
-  // Inicializa a sessão
-  const { mutate: initSessionApi, loading: initLoading } = useMutationApi<{ client_id: string }>("api/session/init");
+  // Inicializa sessão
+  const { mutate: initSessionApi, loading: initLoading } = useMutationApi("api/session/init");
+
+  // Logout
+  const { mutate: logoutApi, loading: logoutLoading } = useMutationApi("api/session/logout");
 
   const initSession = useCallback(async () => {
-    const initData = await initSessionApi({});
-    Cookies.set("client_id", initData.client_id, { expires: 365 });
+    await initSessionApi({});
     return fetchSessionApi();
   }, [initSessionApi, fetchSessionApi]);
 
   const refresh = useCallback(async () => {
-    const fetchedSession = await fetchSessionApi();
-    return fetchedSession;
+    return fetchSessionApi();
   }, [fetchSessionApi]);
 
-  const logout = useCallback(() => {
-    Cookies.remove("client_id");
+  const logout = useCallback(async () => {
+    await logoutApi({});
     setSession(null);
-  }, [setSession]);
+  }, [logoutApi, setSession]);
 
   // Inicializa sessão ao montar
   useEffect(() => {
@@ -45,9 +45,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
       value={{
         getSession: () => session,
         getUser: () => session?.user ?? null,
-        logout,
         refresh,
-        loading: sessionLoading || initLoading,
+        logout,
+        loading: sessionLoading || initLoading || logoutLoading,
       }}
     >
       {children}

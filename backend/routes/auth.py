@@ -47,6 +47,9 @@ def session_init():
 @auth_bp.route("/api/session/me", methods=["GET"])
 @require_client_id
 def session_me(client_id: str):
+    """
+    Retorna os dados da sessão atual.
+    """
     user_dto = UserManager.player_auth(client_id)
 
     session_dto = SessionDTO(
@@ -59,6 +62,24 @@ def session_me(client_id: str):
         "Session data loaded.",
         data=session_dto.to_json(),
     )
+
+
+@auth_bp.route("/api/session/logout", methods=["POST"])
+def session_logout():
+    """
+    Remove o cookie de sessão atual.
+    """
+    resp, status = make_response(True, "Session logged out.")
+
+    resp.set_cookie(
+        "client_id",
+        "",
+        expires=0,
+        httponly=True,
+        samesite="Lax",
+    )
+
+    return resp, status
 
 
 @auth_bp.route("/api/user/register", methods=["POST"])

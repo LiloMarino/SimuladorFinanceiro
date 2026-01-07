@@ -5,7 +5,7 @@ export interface AuthContextValue {
   getSession: () => Session | null;
   getUser: () => User | null;
   refresh: () => Promise<Session>;
-  logout: () => void;
+  logout: () => Promise<void>;
   loading: boolean;
 }
 
