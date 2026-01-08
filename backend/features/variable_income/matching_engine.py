@@ -1,5 +1,6 @@
 from backend.core.dto.order import OrderDTO
 from backend.core.exceptions.http_exceptions import (
+    ConflictError,
     ForbiddenError,
     UnprocessableEntityError,
 )
@@ -13,13 +14,21 @@ from backend.features.variable_income.entities.order import (
     OrderStatus,
 )
 from backend.features.variable_income.market_data import MarketData
-from backend.features.variable_income.market_liquidity import (
-    MarketLiquidity,
-)
+from backend.features.variable_income.market_liquidity import MarketLiquidity
 from backend.features.variable_income.order_book import OrderBook
 
 
 class MatchingEngine:
+    """
+    Engine de matching baseada exclusivamente em OrderBook.
+
+    Regras:
+    - TODA ordem tenta consumir o book
+    - MARKET → consome tudo ou falha
+    - LIMIT → consome até o limite, resto entra no book
+    - Candle NÃO executa ordens, apenas injeta liquidez
+    """
+
     def __init__(self, broker: Broker):
         self.broker = broker
         self.market_data = MarketData()
@@ -31,24 +40,17 @@ class MatchingEngine:
     # =========================
 
     def submit(self, order: Order) -> None:
-        """
-        Recebe uma nova ordem:
-        - Tenta casar contra players
-        - MARKET: executa resto no mercado
-        - LIMIT: saldo vai pro book
-        """
         if order.status != OrderStatus.PENDING:
             raise UnprocessableEntityError("Ordem inválida")
 
-        # Tenta casar contra outros players
-        self._match_players(order)
+        # Toda ordem tenta consumir o book
+        self._consume_book(order)
 
-        # Se ainda sobrou MarketOrder, executa contra mercado
+        # MARKET que sobrou → erro
         if isinstance(order, MarketOrder) and order.remaining > 0:
-            self._execute_market(order)
-            return
+            raise ConflictError("Sem liquidez no mercado")
 
-        # Se ainda sobrou LimitOrder, adiciona ao book
+        # LIMIT que sobrou → entra no book
         if isinstance(order, LimitOrder) and order.remaining > 0:
             self.order_book.add(order)
             notify(
@@ -60,35 +62,15 @@ class MatchingEngine:
 
     def on_tick(self, ticker: str) -> None:
         """
-        Chamado a cada novo candle.
-        Executa LIMITs quando o candle atinge o preço
+        Candle injeta liquidez sintética no book.
         """
-        candles = self.market_data.get_recent(ticker)
-        if not candles:
+        candle = self.market_data.get_last(ticker)
+        if not candle:
             return
-        candle = candles[-1]
+
         self.market_liquidity.refresh(candle)
 
-        # =========================
-        # Execução de LIMITs
-        # =========================
-
-        # BUY LIMIT → low <= price
-        order = self.order_book.best_buy(ticker)
-        while order and candle.low <= order.price:
-            self._execute_limit(order, order.price)
-            order = self.order_book.best_buy(ticker)
-
-        # SELL LIMIT → high >= price
-        order = self.order_book.best_sell(ticker)
-        while order and candle.high >= order.price:
-            self._execute_limit(order, order.price)
-            order = self.order_book.best_sell(ticker)
-
     def cancel(self, *, order_id: str, client_id: str) -> bool:
-        """
-        Cancela uma ordem pendente ou parcialmente executada.
-        """
         order = self.order_book.find(order_id)
         if not order:
             return False
@@ -111,163 +93,95 @@ class MatchingEngine:
         return True
 
     # =========================
-    # Execução
+    # Core matching
     # =========================
 
-    def _execute_market(self, order: MarketOrder) -> None:
+    def _consume_book(self, order: Order) -> None:
         """
-        Executa ordem a mercado usando o último preço disponível.
+        Consome o book respeitando:
+        - preço (se LIMIT)
+        - melhor preço disponível
+        - price-time priority
         """
-        candles = self.market_data.get_recent(order.ticker)
-        if not candles:
-            raise ValueError(f"Sem dados de mercado para {order.ticker}")
-
-        self._execute_trade(order, candles[-1].price)
-
-    def _execute_limit(self, order: LimitOrder, price: float) -> None:
-        """
-        Executa ordem limitada usando o preço do candle.
-        """
-        try:
-            self._execute_trade(order, price)
-            if order.remaining == 0:
-                self.order_book.remove(order)
-        except ValueError:
-            # TODO: #63 Tratar melhor os erros de _execute_trade
-            order.status = OrderStatus.CANCELED
-            self.order_book.remove(order)
-            notify(
-                event=f"order_updated:{order.ticker}",
-                payload={
-                    "order": OrderDTO.from_model(order).to_json(),
-                },
+        while order.remaining > 0:
+            counter = (
+                self.order_book.best_sell(order.ticker)
+                if order.action == OrderAction.BUY
+                else self.order_book.best_buy(order.ticker)
             )
 
-    def _execute_trade(self, order: Order, price: float) -> None:
+            if not counter:
+                break
+
+            # LIMIT → checa compatibilidade de preço
+            if isinstance(order, LimitOrder):
+                if order.action == OrderAction.BUY and counter.price > order.price:
+                    break
+                if order.action == OrderAction.SELL and counter.price < order.price:
+                    break
+
+            self._execute_trade(
+                order, counter, counter.price
+            )  # TODO: #63 Tratar melhor os erros de _execute_trade
+
+    def _execute_trade(self, taker: Order, maker: LimitOrder, price: float):
         """
-        Executa efetivamente a ordem via Broker.
+        Executa trade entre taker (ordem ativa) e maker (ordem do book).
         """
-        qty = order.remaining
+        qty = min(taker.remaining, maker.remaining)
 
         self.broker.execute_order(
-            client_id=order.client_id,
-            ticker=order.ticker,
+            client_id=taker.client_id,
+            ticker=taker.ticker,
             size=qty,
             price=price,
-            action=order.action,
+            action=taker.action,
+        )
+        if maker.client_id != MarketLiquidity.MARKET_CLIENT_ID:
+            self.broker.execute_order(
+                client_id=maker.client_id,
+                ticker=maker.ticker,
+                size=qty,
+                price=price,
+                action=maker.action,
+            )
+
+        taker.remaining -= qty
+        maker.remaining -= qty
+
+        taker.status = (
+            OrderStatus.EXECUTED if taker.remaining == 0 else OrderStatus.PARTIAL
+        )
+        maker.status = (
+            OrderStatus.EXECUTED if maker.remaining == 0 else OrderStatus.PARTIAL
         )
 
-        order.remaining -= qty
-        order.status = (
-            OrderStatus.EXECUTED if order.remaining == 0 else OrderStatus.PARTIAL
-        )
+        self._notify_execution(taker, price, qty)
+        if maker.client_id != MarketLiquidity.MARKET_CLIENT_ID:
+            self._notify_execution(maker, price, qty)
 
-        self._notify_execution(order, price, qty)
-
-    # =========================
-    # Player x Player
-    # =========================
-
-    def _match_players(self, order: Order) -> None:
-        if order.action == OrderAction.BUY:
-            self._match_player_buy(order)
-        else:
-            self._match_player_sell(order)
-
-    def _match_player_buy(self, buy: Order):
-        """
-        Match de BUY (Market ou Limit) contra ordens SELL do book.
-        """
-        while buy.remaining > 0:
-            sell = self.order_book.best_sell(buy.ticker)
-            if not sell:
-                break
-
-            # Para LimitOrder, checa se preço é compatível
-            if isinstance(buy, LimitOrder) and sell.price > buy.price:
-                break
-
-            self._execute_player_trade(buy, sell, sell.price)
-
-    def _match_player_sell(self, sell: Order):
-        """
-        Match de SELL (Market ou Limit) contra ordens BUY do book.
-        """
-        while sell.remaining > 0:
-            buy = self.order_book.best_buy(sell.ticker)
-            if not buy:
-                break
-
-            # Para LimitOrder, checa se preço é compatível
-            if isinstance(sell, LimitOrder) and buy.price < sell.price:
-                break
-
-            self._execute_player_trade(buy, sell, buy.price)
-
-    def _execute_player_trade(self, buy: Order, sell: Order, price: float):
-        qty = min(buy.remaining, sell.remaining)
-
-        self.broker.execute_order(
-            client_id=buy.client_id,
-            ticker=buy.ticker,
-            size=qty,
-            price=price,
-            action=buy.action,
-        )
-        self.broker.execute_order(
-            client_id=sell.client_id,
-            ticker=sell.ticker,
-            size=qty,
-            price=price,
-            action=sell.action,
-        )
-
-        buy.remaining -= qty
-        sell.remaining -= qty
-
-        buy.status = OrderStatus.EXECUTED if buy.remaining == 0 else OrderStatus.PARTIAL
-        sell.status = (
-            OrderStatus.EXECUTED if sell.remaining == 0 else OrderStatus.PARTIAL
-        )
-
-        self._notify_execution(buy, price, qty)
-        self._notify_execution(sell, price, qty)
-
-        if isinstance(buy, LimitOrder) and buy.remaining == 0:
-            self.order_book.remove(buy)
-        if isinstance(sell, LimitOrder) and sell.remaining == 0:
-            self.order_book.remove(sell)
+        if maker.remaining == 0:
+            self.order_book.remove(maker)
 
     # =========================
     # Notificações
     # =========================
 
     def _notify_execution(self, order: Order, price: float, quantity: int):
-        if order.remaining == 0:
-            notify(
-                event="order_executed",
-                payload={
-                    "order_id": order.id,
-                    "ticker": order.ticker,
-                    "action": order.action.value,
-                    "price": price,
-                    "quantity": quantity,
-                },
-                to=order.client_id,
-            )
-        else:
-            notify(
-                event="order_partial_executed",
-                payload={
-                    "order_id": order.id,
-                    "ticker": order.ticker,
-                    "action": order.action.value,
-                    "price": price,
-                    "quantity": quantity,
-                    "remaining": order.remaining,
-                },
-                to=order.client_id,
-            )
+        event = "order_executed" if order.remaining == 0 else "order_partial_executed"
+
+        payload = {
+            "order_id": order.id,
+            "ticker": order.ticker,
+            "action": order.action.value,
+            "price": price,
+            "quantity": quantity,
+        }
+
+        if order.remaining > 0:
+            payload["remaining"] = order.remaining
+
+        notify(event=event, payload=payload, to=order.client_id)
 
         if isinstance(order, LimitOrder):
             notify(

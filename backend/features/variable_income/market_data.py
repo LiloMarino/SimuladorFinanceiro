@@ -15,3 +15,9 @@ class MarketData:
 
     def get_recent(self, ticker: str) -> list[Candle]:
         return list(self._buffers.get(ticker, []))
+
+    def get_last(self, ticker: str) -> Candle | None:
+        buffer = self._buffers.get(ticker)
+        if not buffer:
+            return None
+        return buffer[-1]
