@@ -13,6 +13,9 @@ from backend.features.variable_income.entities.order import (
     OrderStatus,
 )
 from backend.features.variable_income.market_data import MarketData
+from backend.features.variable_income.market_liquidity import (
+    MarketLiquidity,
+)
 from backend.features.variable_income.order_book import OrderBook
 
 
@@ -21,6 +24,7 @@ class MatchingEngine:
         self.broker = broker
         self.market_data = MarketData()
         self.order_book = OrderBook()
+        self.market_liquidity = MarketLiquidity(order_book=self.order_book)
 
     # =========================
     # API pública
@@ -62,8 +66,12 @@ class MatchingEngine:
         candles = self.market_data.get_recent(ticker)
         if not candles:
             return
-
         candle = candles[-1]
+        self.market_liquidity.refresh(candle)
+
+        # =========================
+        # Execução de LIMITs
+        # =========================
 
         # BUY LIMIT → low <= price
         order = self.order_book.best_buy(ticker)
