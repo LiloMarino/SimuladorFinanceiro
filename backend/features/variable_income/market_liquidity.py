@@ -5,6 +5,9 @@ from backend.features.variable_income.entities.order import LimitOrder, OrderAct
 from backend.features.variable_income.liquidity.beta_distribution import (
     BetaLiquidityDistribution,
 )
+from backend.features.variable_income.liquidity.liquidity_distribution import (
+    LiquidityDistribution,
+)
 from backend.features.variable_income.order_book import OrderBook
 
 
@@ -24,21 +27,14 @@ class MarketLiquidity:
         self,
         *,
         order_book: OrderBook,
-        levels: int = 30,
-        tick_size: float = 0.01,
-        alpha: float = 4.0,
-        beta: float = 4.0,
+        distribution: LiquidityDistribution | None = None,
     ):
         self.order_book = order_book
-
-        self.distribution = BetaLiquidityDistribution(
-            levels=levels,
-            tick_size=tick_size,
-            alpha=alpha,
-            beta=beta,
+        self.distribution: LiquidityDistribution = (
+            distribution or BetaLiquidityDistribution()
         )
 
-        # rastreia ordens do mercado por ticker
+        # Rastreia ordens do mercado por ticker
         self._market_orders: dict[str, list[str]] = {}
 
     # =========================
@@ -70,17 +66,12 @@ class MarketLiquidity:
 
         center = self._typical_price(candle)
 
-        levels = self.distribution.generate(
-            low=candle.low,
-            high=candle.high,
-        )
+        levels = self.distribution.generate(candle)
 
         orders: list[LimitOrder] = []
-        half_volume = candle.volume // 2
 
         for level in levels:
-            size = int(half_volume * level.weight)
-            if size <= 0:
+            if level.volume <= 0:
                 continue
 
             if level.price < center:
@@ -88,15 +79,16 @@ class MarketLiquidity:
             elif level.price > center:
                 action = OrderAction.SELL
             else:
-                continue  # evita cruzamento no centro
+                # Evita cruzamento artificial exatamente no centro
+                continue
 
             orders.append(
                 LimitOrder(
                     client_id=self.MARKET_CLIENT_ID,
                     ticker=candle.ticker,
-                    size=size,
-                    action=action,
                     price=level.price,
+                    size=level.volume,
+                    action=action,
                 )
             )
 

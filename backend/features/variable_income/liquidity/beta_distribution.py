@@ -1,49 +1,77 @@
-from dataclasses import dataclass
+from backend.features.variable_income.entities.candle import Candle
+from backend.features.variable_income.liquidity.liquidity_distribution import (
+    LiquidityDistribution,
+    PriceLevel,
+)
 
 
-@dataclass(slots=True, frozen=True, kw_only=True)
-class PriceLevel:
-    price: float
-    weight: float
+class BetaLiquidityDistribution(LiquidityDistribution):
+    """
+    Gera uma distribuição de liquidez sintética usando uma distribuição Beta.
 
+    Conceito:
+    - Candle define range e volume total
+    - Typical Price define o centro semântico
+    - Distribuição Beta define a densidade relativa
+    """
 
-class BetaLiquidityDistribution:
     def __init__(
         self,
         *,
         levels: int = 30,
         tick_size: float = 0.01,
-        alpha: float = 4,
-        beta: float = 4,
+        alpha: float = 4.0,
+        beta: float = 4.0,
     ):
+        if levels < 2:
+            raise ValueError("levels must be >= 2")
+
         self.levels = levels
         self.tick_size = tick_size
         self.alpha = alpha
         self.beta = beta
 
-    def generate(
-        self,
-        *,
-        low: float,
-        high: float,
-    ) -> list[PriceLevel]:
-        if high <= low:
+    # =========================
+    # Public API
+    # =========================
+
+    def generate(self, candle: Candle) -> list[PriceLevel]:
+        if candle.high <= candle.low or candle.volume <= 0:
             return []
 
-        prices = self._price_levels(low, high)
-        weights = [self._beta_pdf(p, low, high) for p in prices]
+        prices = self._price_levels(candle.low, candle.high)
+        pdf = [self._beta_pdf(p, candle.low, candle.high) for p in prices]
 
-        total = sum(weights)
-        if total == 0:
+        total_density = sum(pdf)
+        if total_density == 0:
             return []
 
-        return [
-            PriceLevel(price=p, weight=w / total)
-            for p, w in zip(prices, weights, strict=False)
-        ]
+        # Converte densidade em volume absoluto
+        raw_volumes = [candle.volume * d / total_density for d in pdf]
+
+        # Arredondamento conservador
+        volumes = [int(v) for v in raw_volumes]
+
+        # Ajuste de erro de arredondamento
+        delta = candle.volume - sum(volumes)
+        if delta != 0:
+            volumes[self._center_index()] += delta
+
+        levels: list[PriceLevel] = []
+        for price, volume in zip(prices, volumes, strict=False):
+            if volume <= 0:
+                continue
+            levels.append(
+                PriceLevel(
+                    price=price,
+                    volume=volume,
+                )
+            )
+
+        return levels
 
     # =========================
-    # Helpers
+    # Helpers técnicos
     # =========================
 
     def _price_levels(self, low: float, high: float) -> list[float]:
@@ -61,3 +89,9 @@ class BetaLiquidityDistribution:
 
     def _round_tick(self, price: float) -> float:
         return round(price / self.tick_size) * self.tick_size
+
+    def _center_index(self) -> int:
+        """
+        Índice central da distribuição (usado para correção de rounding).
+        """
+        return self.levels // 2
