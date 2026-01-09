@@ -4,11 +4,10 @@ FastAPI dependencies to replace Flask decorators.
 
 from typing import Annotated
 
-from fastapi import Cookie, Depends, HTTPException, Request, status
+from fastapi import Cookie, Depends, HTTPException, status
 
 from backend.config.toml_settings import load_toml_settings
-from backend.core.exceptions import NoActiveSimulationError, SessionNotInitializedError
-from backend.core.exceptions.http_exceptions import ForbiddenError, NotFoundError
+from backend.core.exceptions import NoActiveSimulationError
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.simulation.simulation import Simulation

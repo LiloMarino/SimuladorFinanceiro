@@ -57,8 +57,8 @@ class SocketBrokerASGI(RealtimeBroker):
         to: ClientID | None = None,
     ) -> None:
         """
-        Note: This is synchronous but will be called from sync context.
-        The actual emission is async and handled by socketio.
+        Synchronous notify that schedules async emissions.
+        This is safe to call from synchronous code (e.g., simulation loop).
         """
         with self._lock:
             subscribers = self._subscriptions.get(event, set())
@@ -72,18 +72,30 @@ class SocketBrokerASGI(RealtimeBroker):
             for client_id in target_clients:
                 sids = self._client_to_sids.get(client_id, set())
                 for sid in sids:
-                    # Note: emit is async but can be called from sync context
-                    # socketio handles this internally
+                    # Schedule the async emission in a thread-safe way
+                    # socketio.AsyncServer.emit handles this internally
+                    import asyncio
+
                     try:
-                        import asyncio
-                        loop = asyncio.get_event_loop()
-                        if loop.is_running():
-                            asyncio.create_task(self.socketio.emit(event, payload, to=sid))
-                        else:
-                            loop.run_until_complete(self.socketio.emit(event, payload, to=sid))
+                        # Try to get the running loop
+                        loop = asyncio.get_running_loop()
+                        # Create a task in the running loop
+                        asyncio.create_task(self.socketio.emit(event, payload, to=sid))
                     except RuntimeError:
-                        # No event loop, use background task
-                        import threading
-                        threading.Thread(
-                            target=lambda: asyncio.run(self.socketio.emit(event, payload, to=sid))
-                        ).start()
+                        # No running loop - we're in sync context
+                        # socketio will handle this via background tasks
+                        # Use start_background_task if available
+                        if hasattr(self.socketio, "start_background_task"):
+                            self.socketio.start_background_task(
+                                self.socketio.emit, event, payload, to=sid
+                            )
+                        else:
+                            # Fallback: schedule in new thread
+                            import threading
+
+                            threading.Thread(
+                                target=lambda: asyncio.run(
+                                    self.socketio.emit(event, payload, to=sid)
+                                ),
+                                daemon=True,
+                            ).start()

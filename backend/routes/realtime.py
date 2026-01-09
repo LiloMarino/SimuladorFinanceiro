@@ -1,5 +1,4 @@
 from fastapi import APIRouter, status
-from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from backend.core.logger import setup_logger

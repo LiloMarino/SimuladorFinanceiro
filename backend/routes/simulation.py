@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Body, status
+from fastapi import APIRouter, status
 from pydantic import BaseModel
 
 from backend import config

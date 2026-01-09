@@ -22,7 +22,7 @@ async def import_assets(
     action: str = Form(...),
     ticker: str = Form(...),
     overwrite: str | bool = Form(False),
-    csv_file: UploadFile | None = File(None),
+    csv_file: UploadFile | None = None,
 ):
     overwrite_bool = str_to_bool(overwrite)
 

@@ -1,5 +1,4 @@
 from fastapi import APIRouter, status
-from pydantic import BaseModel
 
 from backend.core import repository
 from backend.core.runtime.user_manager import UserManager
