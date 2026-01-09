@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from backend.core.exceptions import InsufficentPositionError
+
 
 @dataclass
 class Position:
@@ -19,9 +21,7 @@ class Position:
     def update_sell(self, size: int):
         """Atualiza posição após uma venda."""
         if self.size - size < 0:
-            raise ValueError(
-                "Venda excede posição disponível."
-            )  # TODO: Criar exception customizada
+            raise InsufficentPositionError()
         self.total_cost -= self.avg_price * size
         self.size -= size
         self.avg_price = (self.total_cost / self.size) if self.size > 0 else 0

@@ -23,6 +23,7 @@ export type SimulationEvents = {
   };
   order_executed: OrderExecutedEvent;
   order_partial_executed: OrderPartialExecutedEvent;
+  order_rejected: { reason: string };
   player_join: {
     nickname: string;
   };

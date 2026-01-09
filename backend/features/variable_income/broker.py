@@ -7,6 +7,7 @@ from backend.core import repository
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.enum import EquityEventType
+from backend.core.exceptions import InsufficentCashError, InsufficentPositionError
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -72,7 +73,7 @@ class Broker:
         cost = price * size
 
         if self._simulation_engine.get_cash(client_id) < cost:
-            raise ValueError("Saldo insuficiente")  # TODO: Criar exception customizada
+            raise InsufficentCashError()
 
         self._simulation_engine.add_cash(client_id, -cost)
 
@@ -105,15 +106,11 @@ class Broker:
 
     def _execute_sell(self, client_id: str, ticker: str, size: int, price: float):
         if ticker not in self._positions[client_id]:
-            raise ValueError(
-                f"Sem posição em {ticker}"
-            )  # TODO: Criar exception customizada
+            raise InsufficentPositionError()
 
         pos = self._positions[client_id][ticker]
         if pos.size < size:
-            raise ValueError(
-                "Quantidade insuficiente"
-            )  # TODO: Criar exception customizada
+            raise InsufficentPositionError()
 
         self._simulation_engine.add_cash(client_id, price * size)
         pos.update_sell(size)

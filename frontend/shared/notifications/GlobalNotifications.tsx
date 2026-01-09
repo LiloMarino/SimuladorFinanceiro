@@ -30,6 +30,12 @@ export function GlobalNotifications() {
     preferences.orders.partial
   );
 
+  useRealtime("order_rejected", (event) => {
+    toast.error(`Ordem rejeitada`, {
+      description: event.reason,
+    });
+  });
+
   useRealtime("player_join", ({ nickname }) => {
     toast.info(`${nickname} entrou na partida`);
   });

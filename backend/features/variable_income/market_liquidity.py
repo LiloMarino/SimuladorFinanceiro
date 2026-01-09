@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Callable
+from collections.abc import Callable
 
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.order import LimitOrder, OrderAction

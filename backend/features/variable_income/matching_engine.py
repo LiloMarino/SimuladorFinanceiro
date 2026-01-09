@@ -1,4 +1,5 @@
 from backend.core.dto.order import OrderDTO
+from backend.core.exceptions import InsufficentCashError, InsufficentPositionError
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     ForbiddenError,
@@ -164,13 +165,27 @@ class MatchingEngine:
                 action=taker.action,
             )
         if maker.client_id != MarketLiquidity.MARKET_CLIENT_ID:
-            self.broker.execute_order(
-                client_id=maker.client_id,
-                ticker=maker.ticker,
-                size=qty,
-                price=price,
-                action=maker.action,
-            )
+            try:
+                self.broker.execute_order(
+                    client_id=maker.client_id,
+                    ticker=maker.ticker,
+                    size=qty,
+                    price=price,
+                    action=maker.action,
+                )
+            except InsufficentCashError:
+                self.order_book.remove(maker)
+                self._notify_rejection(
+                    maker, f"Saldo insuficiente para executar a ordem em {maker.ticker}"
+                )
+                return
+            except InsufficentPositionError:
+                self.order_book.remove(maker)
+                self._notify_rejection(
+                    maker,
+                    f"Posição insuficiente em {maker.ticker} para executar a ordem",
+                )
+                return
 
         taker.remaining -= qty
         maker.remaining -= qty
@@ -216,3 +231,12 @@ class MatchingEngine:
                     "order": OrderDTO.from_model(order).to_json(),
                 },
             )
+
+    def _notify_rejection(self, order: Order, reason: str):
+        notify(
+            event="order_rejected",
+            payload={
+                "reason": reason,
+            },
+            to=order.client_id,
+        )

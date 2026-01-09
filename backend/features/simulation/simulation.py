@@ -41,7 +41,6 @@ class Simulation:
         self.next_tick()
 
     def next_tick(self):
-        # TODO: Corrigir verificação duplicada
         # Verifica se a simulação terminou
         if self._current_date > self.settings.end_date:
             logger.info("Fim da simulação")
