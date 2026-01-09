@@ -11,15 +11,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
     setData: setSession,
     query: fetchSessionApi,
     loading: sessionLoading,
-  } = useQueryApi<Session>("api/session/me", {
+  } = useQueryApi<Session>("/api/session/me", {
     initialFetch: false,
   });
 
   // Inicializa uma nova sessão
-  const { mutate: initSessionApi, loading: initLoading } = useMutationApi("api/session/init");
+  const { mutate: initSessionApi, loading: initLoading } = useMutationApi("/api/session/init");
 
   // Logout
-  const { mutate: logoutApi, loading: logoutLoading } = useMutationApi("api/session/logout");
+  const { mutate: logoutApi, loading: logoutLoading } = useMutationApi("/api/session/logout");
 
   const initSession = useCallback(async () => {
     await initSessionApi({});

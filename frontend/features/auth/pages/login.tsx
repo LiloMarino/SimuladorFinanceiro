@@ -32,7 +32,7 @@ export function LoginPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const { mutate: registerNickname, loading: registerNicknameLoading } = useMutationApi<User, { nickname: string }>(
-    "api/user/register",
+    "/api/user/register",
     {
       onSuccess: () => {
         toast.success("Nickname registrado!");
@@ -44,7 +44,7 @@ export function LoginPage() {
   );
 
   const { mutate: claimNickname, loading: claimNicknameLoading } = useMutationApi<User, { nickname: string }>(
-    "api/user/claim",
+    "/api/user/claim",
     {
       onSuccess: () => {
         toast.success("Nickname recuperado!");
