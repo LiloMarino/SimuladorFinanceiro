@@ -13,9 +13,9 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api": "http://localhost:5000", // qualquer /api vai para o Flask
+      "/api": "http://localhost:8000", // FastAPI backend
       "/socket.io": {
-        target: "http://localhost:5000",
+        target: "http://localhost:8000",
         ws: true,
         changeOrigin: true,
       },

@@ -115,15 +115,36 @@ if __name__ == "__main__":
     controller.start_loop()
 
     # ------------------------------------------------------------
-    # 🔌 Modo SocketIO (WebSocket) - TODO: Implement ASGI version
+    # 🔌 Modo SocketIO (WebSocket) - ASGI Implementation
     # ------------------------------------------------------------
     if not config.toml.realtime.use_sse:
-        # Placeholder - will be implemented in Phase 4
-        logger.warning(
-            "WebSocket mode with FastAPI not yet implemented. Using SSE mode temporarily."
+        import socketio
+
+        from backend.features.realtime.async_ws_broker import AsyncSocketBroker
+        from backend.features.realtime.async_ws_handlers import (
+            register_async_ws_handlers,
         )
-        RealtimeBrokerManager.set_broker(SSEBroker())
-        logger.info("Rodando em modo SSE (Server-Sent Events) - temporário.")
+
+        # Create ASGI socketio server
+        sio = socketio.AsyncServer(
+            async_mode="asgi",
+            cors_allowed_origins="*",
+            logger=False,
+            engineio_logger=False,
+        )
+
+        # Create broker and register handlers
+        broker = AsyncSocketBroker(sio)
+        RealtimeBrokerManager.set_broker(broker)
+        register_async_ws_handlers(sio, broker)
+
+        # Mount socketio to FastAPI app
+        socket_app = socketio.ASGIApp(sio, app)
+
+        logger.info("Rodando em modo WebSocket (ASGI SocketIO).")
+
+        # Run with uvicorn
+        uvicorn.run(socket_app, host="0.0.0.0", port=8000, log_level="info")
 
     # ------------------------------------------------------------
     # 🌐 Modo SSE (Server-Sent Events)
@@ -132,5 +153,5 @@ if __name__ == "__main__":
         RealtimeBrokerManager.set_broker(SSEBroker())
         logger.info("Rodando em modo SSE (Server-Sent Events).")
 
-    # Run with uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+        # Run with uvicorn
+        uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
