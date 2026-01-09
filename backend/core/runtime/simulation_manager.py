@@ -1,8 +1,6 @@
 from datetime import date
 from threading import Lock
 
-from flask import current_app
-
 from backend import config
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.exceptions import NoActiveSimulationError
@@ -12,6 +10,7 @@ from backend.features.simulation.simulation import Simulation
 class SimulationManager:
     _lock = Lock()
     _pending_settings: SimulationDTO | None = None
+    _active_simulation: Simulation | None = None
 
     # =========================
     # Settings (pré-simulação)
@@ -43,12 +42,12 @@ class SimulationManager:
     def create_simulation(cls, simulation_settings: SimulationDTO) -> Simulation:
         with cls._lock:
             sim = Simulation(simulation_settings)
-            current_app.config["simulation"] = sim
+            cls._active_simulation = sim
             return sim
 
     @classmethod
     def get_active_simulation(cls) -> Simulation:
-        sim = current_app.config.get("simulation")
+        sim = cls._active_simulation
         if not sim:
             raise NoActiveSimulationError()
         return sim
@@ -56,4 +55,4 @@ class SimulationManager:
     @classmethod
     def clear_simulation(cls) -> None:
         with cls._lock:
-            current_app.config.pop("simulation", None)
+            cls._active_simulation = None

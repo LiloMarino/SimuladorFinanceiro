@@ -1,5 +1,4 @@
-from flask import current_app
-
+from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.features.realtime.realtime_broker import RealtimeBroker
 from backend.features.realtime.sse_broker import SSEBroker
 from backend.features.realtime.ws_broker import SocketBroker
@@ -9,12 +8,8 @@ from backend.types import ClientID, Event, JSONValue
 def get_broker() -> RealtimeBroker:
     """
     Retorna o broker Singleton Pub/Sub ativo (SSE, WebSocket, etc.).
-    Configurado na inicialização da app Flask.
     """
-    broker = current_app.config.get("realtime_broker")
-    if not broker:
-        raise RuntimeError("RealtimeBroker não está inicializado")
-    return broker
+    return RealtimeBrokerManager.get_broker()
 
 
 def get_socket_broker() -> SocketBroker:

@@ -25,6 +25,7 @@ from flask_socketio import SocketIO
 from backend import config
 from backend.core.database import engine
 from backend.core.logger import setup_logger
+from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.features.realtime.sse_broker import SSEBroker
 from backend.features.realtime.ws_broker import SocketBroker
 from backend.features.realtime.ws_handlers import register_ws_handlers
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     if not config.toml.realtime.use_sse:
         socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
         socketio.init_app(app)
-        app.config["realtime_broker"] = SocketBroker(socketio)
+        RealtimeBrokerManager.set_broker(SocketBroker(socketio))
         logger.info("Rodando em modo WebSocket (SocketIO).")
         register_ws_handlers(socketio)
         socketio.run(app, debug=True)
@@ -80,6 +81,6 @@ if __name__ == "__main__":
     # 🌐 Modo SSE (Server-Sent Events)
     # ------------------------------------------------------------
     else:
-        app.config["realtime_broker"] = SSEBroker()
+        RealtimeBrokerManager.set_broker(SSEBroker())
         logger.info("Rodando em modo SSE (Server-Sent Events).")
         app.run(debug=True, threaded=True)
