@@ -152,41 +152,33 @@ class MatchingEngine:
 
     def _execute_trade(self, taker: Order, maker: LimitOrder, price: float):
         """
-        Executa trade entre taker (ordem ativa) e maker (ordem do book).
+        Executa trade atomicamente entre taker (ordem ativa) e maker (ordem do book).
+        Se falhar, maker é removido do book e notificado com rejeição.
         """
         qty = min(taker.remaining, maker.remaining)
 
-        if taker.client_id != MarketLiquidity.MARKET_CLIENT_ID:
-            self.broker.execute_order(
-                client_id=taker.client_id,
+        try:
+            self.broker.execute_trade_atomic(
+                taker_client_id=taker.client_id,
+                maker_client_id=maker.client_id,
                 ticker=taker.ticker,
                 size=qty,
                 price=price,
-                action=taker.action,
+                taker_action=taker.action,
+                maker_action=maker.action,
             )
-        if maker.client_id != MarketLiquidity.MARKET_CLIENT_ID:
-            try:
-                self.broker.execute_order(
-                    client_id=maker.client_id,
-                    ticker=maker.ticker,
-                    size=qty,
-                    price=price,
-                    action=maker.action,
-                )
-            except InsufficentCashError:
-                self.order_book.remove(maker)
-                self._notify_rejection(
-                    maker, f"Saldo insuficiente para executar a ordem em {maker.ticker}"
-                )
-                return
-            except InsufficentPositionError:
-                self.order_book.remove(maker)
-                self._notify_rejection(
-                    maker,
-                    f"Posição insuficiente em {maker.ticker} para executar a ordem",
-                )
-                return
+        except (InsufficentCashError, InsufficentPositionError) as e:
+            # Trade não pode ser executado remove maker do book e notifica rejeição
+            self.order_book.remove(maker)
+            reason = (
+                f"Saldo insuficiente para executar a ordem em {maker.ticker}"
+                if isinstance(e, InsufficentCashError)
+                else f"Posição insuficiente em {maker.ticker} para executar a ordem"
+            )
+            self._notify_rejection(maker, reason)
+            return
 
+        # Trade bem-sucedido atualiza estados e notifica
         taker.remaining -= qty
         maker.remaining -= qty
 
