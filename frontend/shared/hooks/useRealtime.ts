@@ -11,12 +11,13 @@ export function useRealtime<K extends keyof SimulationEvents>(
   const { subscriber, connected } = useRealtimeContext<SimulationEvents>();
   const { session } = useAuth();
   const callbackRef = useRef(callback);
+  const isAuthenticated = session?.authenticated ?? false;
 
   callbackRef.current = callback;
 
   useEffect(() => {
     if (!enabled) return;
-    if (!session?.authenticated) return;
+    if (!isAuthenticated) return;
     if (!connected) return;
 
     const unsubscribe = subscriber.subscribe(event, (data) => {
@@ -26,5 +27,5 @@ export function useRealtime<K extends keyof SimulationEvents>(
     return () => {
       unsubscribe();
     };
-  }, [subscriber, event, connected, session, enabled]);
+  }, [subscriber, event, connected, isAuthenticated, enabled]);
 }
