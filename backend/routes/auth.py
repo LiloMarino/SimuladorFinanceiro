@@ -2,9 +2,12 @@ import uuid
 
 from flask import Blueprint, request
 
+from backend import config
 from backend.core import repository
 from backend.core.decorators.cookie import require_client_id
 from backend.core.dto.session import SessionDTO
+from backend.core.exceptions import NoActiveSimulationError
+from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.routes.helpers import make_response
 
@@ -101,6 +104,16 @@ def user_register(client_id: str):
 
     # Cria novo usuário
     new_user = repository.user.create_user(client_id, nickname)
+
+    # Se houver uma simulação ativa, concede o depósito inicial usando o SimulationEngine
+    try:
+        sim = SimulationManager.get_active_simulation()
+    except NoActiveSimulationError:
+        sim = None
+
+    if sim:
+        starting = float(config.toml.simulation.starting_cash)
+        sim._engine.add_cash(str(new_user.client_id), starting)
 
     return make_response(
         True,
