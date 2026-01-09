@@ -51,6 +51,13 @@ def create_app() -> FastAPI:
         version="1.0.0",
     )
 
+    # Import and register routers
+    from backend.routes.fastapi_auth import router as auth_router
+    from backend.routes.fastapi_simulation import router as simulation_router
+
+    app.include_router(auth_router)
+    app.include_router(simulation_router)
+
     # Exception handlers
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):
