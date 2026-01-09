@@ -53,9 +53,23 @@ def create_app() -> FastAPI:
 
     # Import and register routers
     from backend.routes.fastapi_auth import router as auth_router
+    from backend.routes.fastapi_importer import router as importer_router
+    from backend.routes.fastapi_operation import router as operation_router
+    from backend.routes.fastapi_portfolio import router as portfolio_router
+    from backend.routes.fastapi_realtime import router as realtime_router
+    from backend.routes.fastapi_settings import router as settings_router
     from backend.routes.fastapi_simulation import router as simulation_router
+    from backend.routes.fastapi_statistics import router as statistics_router
+    from backend.routes.fastapi_timespeed import router as timespeed_router
 
+    app.include_router(operation_router)
+    app.include_router(portfolio_router)
+    app.include_router(settings_router)
+    app.include_router(importer_router)
+    app.include_router(realtime_router)
+    app.include_router(timespeed_router)
     app.include_router(auth_router)
+    app.include_router(statistics_router)
     app.include_router(simulation_router)
 
     # Exception handlers
