@@ -1,8 +1,6 @@
 import threading
 import time
 
-from flask import Flask
-
 from backend.core.logger import setup_logger
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.realtime import get_broker
@@ -15,17 +13,10 @@ class SimulationLoopController:
     """Controla o loop da simulação de forma event-driven (sem polling)."""
 
     def __init__(self):
-        self._app: Flask | None = None
         self._thread: threading.Thread | None = None
         self._start_event = threading.Event()
         self._stop_event = threading.Event()
         self._lock = threading.Lock()
-
-    # --------------------------------------------------
-    # 🔗 Bind do Flask app (feito UMA vez no boot)
-    # --------------------------------------------------
-    def bind_app(self, app: Flask):
-        self._app = app
 
     # --------------------------------------------------
     # 🚀 Cria a thread (mas ela dorme bloqueada)
@@ -34,11 +25,6 @@ class SimulationLoopController:
         with self._lock:
             if self._thread and self._thread.is_alive():
                 return
-
-            if not self._app:
-                raise RuntimeError(
-                    "Flask App não foi bindado no SimulationLoopController."
-                )
 
             self._thread = threading.Thread(
                 target=self._run,
@@ -65,42 +51,39 @@ class SimulationLoopController:
     # 🔁 Loop interno
     # --------------------------------------------------
     def _run(self):
-        assert self._app is not None
+        logger.info("Thread da simulação criada. Aguardando evento de start...")
+        self._start_event.wait()  # Bloqueia a thread enquanto aguarda o start
 
-        with self._app.app_context():
-            logger.info("Thread da simulação criada. Aguardando evento de start...")
-            self._start_event.wait()  # Bloqueia a thread enquanto aguarda o start
+        if self._stop_event.is_set():
+            return
 
-            if self._stop_event.is_set():
-                return
+        simulation = SimulationManager.get_active_simulation()
+        if not simulation:
+            logger.warning("Start recebido, mas nenhuma simulação ativa.")
+            return
 
-            simulation = SimulationManager.get_active_simulation()
-            if not simulation:
-                logger.warning("Start recebido, mas nenhuma simulação ativa.")
-                return
+        logger.info("Simulação iniciada.")
 
-            logger.info("Simulação iniciada.")
+        try:
+            while not self._stop_event.is_set():
+                speed = simulation.get_speed()
 
-            try:
-                while not self._stop_event.is_set():
-                    speed = simulation.get_speed()
+                if speed <= 0:
+                    self._sleep(0.1)
+                    continue
 
-                    if speed <= 0:
-                        self._sleep(0.1)
-                        continue
+                try:
+                    simulation.next_tick()
+                except StopIteration:
+                    logger.info("Simulação finalizada.")
+                    SimulationManager.clear_simulation()
+                    break
 
-                    try:
-                        simulation.next_tick()
-                    except StopIteration:
-                        logger.info("Simulação finalizada.")
-                        SimulationManager.clear_simulation()
-                        break
+                self._sleep(1 / speed)
 
-                    self._sleep(1 / speed)
-
-            except Exception:
-                logger.critical("Erro fatal no loop da simulação.")
-                logger.exception("Erro fatal no loop da simulação.")
+        except Exception:
+            logger.critical("Erro fatal no loop da simulação.")
+            logger.exception("Erro fatal no loop da simulação.")
 
     # --------------------------------------------------
     # 💤 Sleep compatível com WS / SSE

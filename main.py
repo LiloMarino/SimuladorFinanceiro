@@ -63,7 +63,6 @@ if __name__ == "__main__":
     logger.info(f"Banco de dados em uso: {backend.upper()} ({engine.url})")
 
     app = create_app()
-    controller.bind_app(app)
     controller.start_loop()
 
     # ------------------------------------------------------------
