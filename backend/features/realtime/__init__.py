@@ -1,49 +1,25 @@
 from backend.features.realtime.realtime_broker import RealtimeBroker
 from backend.features.realtime.sse_broker import SSEBroker
-from backend.features.realtime.ws_broker import SocketBroker
+from backend.features.realtime.ws_broker_asgi import SocketBrokerASGI
 from backend.types import ClientID, Event, JSONValue
 
 
 def get_broker() -> RealtimeBroker:
     """
     Retorna o broker Singleton Pub/Sub ativo (SSE, WebSocket, etc.).
-    Tries FastAPI first, then falls back to Flask.
+    Configurado na inicialização da app FastAPI.
     """
-    # Try FastAPI first
-    try:
-        from main_fastapi import get_broker as get_fastapi_broker
+    from main_fastapi import get_broker as get_fastapi_broker
 
-        return get_fastapi_broker()
-    except (ImportError, RuntimeError):
-        pass
-
-    # Fall back to Flask
-    try:
-        from flask import current_app
-
-        broker = current_app.config.get("realtime_broker")
-        if not broker:
-            raise RuntimeError("RealtimeBroker não está inicializado")
-        return broker
-    except (ImportError, RuntimeError) as e:
-        raise RuntimeError("RealtimeBroker não está inicializado") from e
+    return get_fastapi_broker()
 
 
-def get_socket_broker() -> SocketBroker:
+def get_socket_broker() -> SocketBrokerASGI:
+    """Get the socket broker (FastAPI ASGI version)."""
     broker = get_broker()
-    # Import both types
-    try:
-        from backend.features.realtime.ws_broker_asgi import SocketBrokerASGI
-
-        if isinstance(broker, (SocketBroker, SocketBrokerASGI)):
-            return broker
-    except ImportError:
-        pass
-
-    if isinstance(broker, SocketBroker):
-        return broker
-
-    raise TypeError("Broker não é SocketBroker")
+    if not isinstance(broker, SocketBrokerASGI):
+        raise TypeError("Broker não é SocketBrokerASGI")
+    return broker
 
 
 def get_sse_broker() -> SSEBroker:

@@ -1,12 +1,8 @@
 import threading
 import time
 
-from flask import Flask
-
 from backend.core.logger import setup_logger
 from backend.core.runtime.simulation_manager import SimulationManager
-from backend.features.realtime import get_broker
-from backend.features.realtime.ws_broker import SocketBroker
 
 logger = setup_logger(__name__)
 
@@ -15,16 +11,17 @@ class SimulationLoopController:
     """Controla o loop da simulação de forma event-driven (sem polling)."""
 
     def __init__(self):
-        self._app: Flask | None = None
+        self._app = None  # FastAPI app
         self._thread: threading.Thread | None = None
         self._start_event = threading.Event()
         self._stop_event = threading.Event()
         self._lock = threading.Lock()
 
     # --------------------------------------------------
-    # 🔗 Bind do Flask app (feito UMA vez no boot)
+    # 🔗 Bind do app (feito UMA vez no boot)
     # --------------------------------------------------
-    def bind_app(self, app: Flask):
+    def bind_app(self, app):
+        """Bind FastAPI app."""
         self._app = app
 
     # --------------------------------------------------
@@ -106,11 +103,11 @@ class SimulationLoopController:
     # 💤 Sleep compatível com WS / SSE
     # --------------------------------------------------
     def _sleep(self, delay: float):
-        broker = get_broker()
-        if isinstance(broker, SocketBroker):
-            broker.socketio.sleep(delay)  # type: ignore
-        else:
-            time.sleep(delay)
+        """
+        Sleep method compatible with both WebSocket and SSE brokers.
+        For ASGI brokers, use regular time.sleep since the loop runs in a thread.
+        """
+        time.sleep(delay)
 
 
 # --------------------------------------------------
