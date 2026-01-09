@@ -7,7 +7,7 @@ from backend.core.dto.base import BaseDTO
 from backend.core.enum import FixedIncomeType, RateIndexType
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class FixedIncomeAssetDTO(BaseDTO):
     asset_uuid: UUID = field(default_factory=uuid.uuid4)
     name: str

@@ -4,7 +4,7 @@ from uuid import UUID
 from backend.core.dto.base import BaseDTO
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class UserDTO(BaseDTO):
     id: int
     client_id: UUID

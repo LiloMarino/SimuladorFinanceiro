@@ -14,7 +14,7 @@ from backend.features.variable_income.entities.order import (
 )
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class OrderDTO(BaseDTO):
     id: str
     player_nickname: str

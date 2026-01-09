@@ -7,7 +7,7 @@ from backend.core.dto.base import BaseDTO
 from backend.core.models.models import StockPriceHistory
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class StockPriceHistoryDTO(BaseDTO):
     price_date: date
     open: float

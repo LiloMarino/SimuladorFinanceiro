@@ -5,7 +5,7 @@ from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.enum import EquityEventType
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class EquityEventDTO(BaseEventDTO):
     ticker: str
     event_type: EquityEventType

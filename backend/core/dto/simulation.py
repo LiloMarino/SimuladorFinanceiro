@@ -4,7 +4,7 @@ from datetime import date
 from backend.core.dto.base import BaseDTO
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class SimulationDTO(BaseDTO):
     start_date: date
     end_date: date

@@ -5,7 +5,7 @@ from backend.core.dto.base import BaseDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class FixedIncomePositionDTO(BaseDTO):
     asset: FixedIncomeAssetDTO
     total_applied: float

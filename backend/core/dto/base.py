@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, fields, is_dataclass
+from dataclasses import fields, is_dataclass
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 
+from pydantic.dataclasses import dataclass
+
 from backend.types import JSONValue
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, kw_only=True, config={"arbitrary_types_allowed": True})
 class BaseDTO:
     def to_json(self) -> dict[str, JSONValue]:
         def convert(value):

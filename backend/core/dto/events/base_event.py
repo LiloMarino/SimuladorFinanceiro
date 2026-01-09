@@ -4,7 +4,7 @@ from datetime import UTC, date, datetime
 from backend.core.dto.base import BaseDTO
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class BaseEventDTO(BaseDTO):
     """
     Base para qualquer evento financeiro.

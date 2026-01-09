@@ -6,7 +6,7 @@ from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.position import PositionDTO
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class PortfolioDTO(BaseDTO):
     starting_cash: float
     cash: float

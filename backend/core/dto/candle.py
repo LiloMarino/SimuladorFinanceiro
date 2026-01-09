@@ -4,7 +4,7 @@ from datetime import date
 from backend.core.dto.stock import StockDTO
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, kw_only=True)
 class CandleDTO(StockDTO):
     open: float
     high: float
