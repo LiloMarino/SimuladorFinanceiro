@@ -61,8 +61,11 @@ class MarketLiquidity:
     # =========================
 
     def _generate_orders(self, candle: Candle) -> list[LimitOrder]:
-        if candle.high <= candle.low or candle.volume <= 0:
+        if candle.high < candle.low or candle.volume <= 0:
             return []
+
+        if candle.high == candle.low:
+            return self._generate_flat_market(candle)
 
         center = self._typical_price(candle)
 
@@ -93,6 +96,36 @@ class MarketLiquidity:
             )
 
         return orders
+
+    def _generate_flat_market(self, candle: Candle) -> list[LimitOrder]:
+        """
+        Mercado com alto volume concentrado em um único preço.
+        Criamos spread técnico mínimo para permitir matching.
+        """
+        price = candle.close
+        tick = 0.01
+
+        half_volume = candle.volume // 2
+
+        if half_volume <= 0:
+            return []
+
+        return [
+            LimitOrder(
+                client_id=self.MARKET_CLIENT_ID,
+                ticker=candle.ticker,
+                price=price - tick,
+                size=half_volume,
+                action=OrderAction.BUY,
+            ),
+            LimitOrder(
+                client_id=self.MARKET_CLIENT_ID,
+                ticker=candle.ticker,
+                price=price + tick,
+                size=candle.volume - half_volume,
+                action=OrderAction.SELL,
+            ),
+        ]
 
     # =========================
     # Helpers semânticos

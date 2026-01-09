@@ -28,8 +28,11 @@ class OrderDTO(BaseDTO):
 
     @staticmethod
     def from_model(order: Order) -> OrderDTO:
-        user = UserManager.get_user(order.client_id)
-        nickname = "Unknown" if user is None else user.nickname
+        if order.client_id == "__MARKET__":
+            nickname = "Mercado"
+        else:
+            user = UserManager.get_user(order.client_id)
+            nickname = "Unknown" if user is None else user.nickname
         return OrderDTO(
             id=order.id,
             player_nickname=nickname,
