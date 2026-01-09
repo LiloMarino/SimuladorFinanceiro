@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from collections import defaultdict
+from typing import Callable
+
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.order import LimitOrder, OrderAction
 from backend.features.variable_income.liquidity.beta_distribution import (
@@ -35,13 +38,15 @@ class MarketLiquidity:
         )
 
         # Rastreia ordens do mercado por ticker
-        self._market_orders: dict[str, list[str]] = {}
+        self._market_orders: dict[str, list[str]] = defaultdict(list)
 
     # =========================
     # Public API
     # =========================
 
-    def refresh(self, candle: Candle) -> None:
+    def refresh(
+        self, candle: Candle, process_order: Callable[[LimitOrder], bool]
+    ) -> None:
         """
         - Remove liquidez antiga
         - Gera nova liquidez baseada no candle
@@ -51,10 +56,12 @@ class MarketLiquidity:
 
         orders = self._generate_orders(candle)
 
-        self._market_orders[candle.ticker] = []
         for order in orders:
-            self.order_book.add(order)
-            self._market_orders[candle.ticker].append(order.id)
+            added = process_order(order)
+            if added:
+                self._market_orders[candle.ticker].append(order.id)
+
+        return None
 
     # =========================
     # Geração de liquidez

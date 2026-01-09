@@ -68,7 +68,8 @@ class MatchingEngine:
         if not candle:
             return
 
-        self.market_liquidity.refresh(candle)
+        self.market_liquidity.refresh(candle, self._process_market_order)
+
         notify(
             event=f"order_book_snapshot:{candle.ticker}",
             payload={
@@ -101,6 +102,23 @@ class MatchingEngine:
         self.order_book.remove(order)
         return True
 
+    def _process_market_order(self, mo: LimitOrder) -> bool:
+        """Callback usado por MarketLiquidity.refresh.
+
+        Retorna True se a ordem foi adicionada ao book (resting), False caso
+        contrário. Evita criar listas auxiliares no caller.
+        """
+        if mo.remaining <= 0:
+            return False
+
+        self._consume_book(mo)
+
+        if mo.remaining > 0:
+            self.order_book.add(mo)
+            return True
+
+        return False
+
     # =========================
     # Core matching
     # =========================
@@ -129,9 +147,7 @@ class MatchingEngine:
                 if order.action == OrderAction.SELL and counter.price < order.price:
                     break
 
-            self._execute_trade(
-                order, counter, counter.price
-            )  # TODO: #63 Tratar melhor os erros de _execute_trade
+            self._execute_trade(order, counter, counter.price)
 
     def _execute_trade(self, taker: Order, maker: LimitOrder, price: float):
         """
@@ -139,13 +155,14 @@ class MatchingEngine:
         """
         qty = min(taker.remaining, maker.remaining)
 
-        self.broker.execute_order(
-            client_id=taker.client_id,
-            ticker=taker.ticker,
-            size=qty,
-            price=price,
-            action=taker.action,
-        )
+        if taker.client_id != MarketLiquidity.MARKET_CLIENT_ID:
+            self.broker.execute_order(
+                client_id=taker.client_id,
+                ticker=taker.ticker,
+                size=qty,
+                price=price,
+                action=taker.action,
+            )
         if maker.client_id != MarketLiquidity.MARKET_CLIENT_ID:
             self.broker.execute_order(
                 client_id=maker.client_id,
