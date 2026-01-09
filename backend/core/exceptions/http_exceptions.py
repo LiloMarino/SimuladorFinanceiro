@@ -1,48 +1,56 @@
-from werkzeug.exceptions import (
-    BadRequest,
-    Conflict,
-    Forbidden,
-    NotFound,
-    Unauthorized,
-    UnprocessableEntity,
-)
+from fastapi import HTTPException, status
 
 """
-Wrappers das exceções do werkzeug para auto-complete da IDE
+FastAPI-compatible HTTP exceptions.
+These replace the Werkzeug exceptions used in Flask.
 """
 
 
-class BadRequestError(BadRequest):
+class HTTPError(HTTPException):
+    """Base class for all HTTP errors - used for exception handler"""
+
+    pass
+
+
+class BadRequestError(HTTPError):
     """400 Bad Request"""
 
-    pass
+    def __init__(self, detail: str = "Bad Request"):
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
 
 
-class UnauthorizedError(Unauthorized):
+class UnauthorizedError(HTTPError):
     """401 Unauthorized"""
 
-    pass
+    def __init__(self, detail: str = "Unauthorized"):
+        super().__init__(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail)
 
 
-class ForbiddenError(Forbidden):
+class ForbiddenError(HTTPError):
     """403 Forbidden"""
 
-    pass
+    def __init__(self, detail: str = "Forbidden"):
+        super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail=detail)
 
 
-class NotFoundError(NotFound):
+class NotFoundError(HTTPError):
     """404 Not Found"""
 
-    pass
+    def __init__(self, detail: str = "Not Found"):
+        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
 
 
-class ConflictError(Conflict):
+class ConflictError(HTTPError):
     """409 Conflict"""
 
-    pass
+    def __init__(self, detail: str = "Conflict"):
+        super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)
 
 
-class UnprocessableEntityError(UnprocessableEntity):
+class UnprocessableEntityError(HTTPError):
     """422 Unprocessable Entity"""
 
-    pass
+    def __init__(self, detail: str = "Unprocessable Entity"):
+        super().__init__(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=detail
+        )
