@@ -39,6 +39,10 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
     });
   });
 
+  useRealtime(`order_book_snapshot:${ticker}`, ({ orders }) => {
+    setPendingOrders(orders);
+  });
+
   const cancelOrderMutation = useMutationApi(`/api/variable-income/${ticker}/orders`, {
     method: "DELETE",
     onSuccess: () => {
@@ -69,6 +73,11 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
     );
   }
 
+  const sortedPendingOrders = [...pendingOrders].sort((a, b) => {
+    const priceA = a.limit_price ?? 0;
+    const priceB = b.limit_price ?? 0;
+    return priceA - priceB;
+  });
   return (
     <Card className="p-4 bg-background border">
       <TooltipProvider>
@@ -79,7 +88,7 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Data</TableHead>
-                <TableHead>Usuário</TableHead>
+                <TableHead>Emissor</TableHead>
                 <TableHead>Tipo da Operação</TableHead>
                 <TableHead>Quantidade</TableHead>
                 <TableHead>Preço</TableHead>
@@ -89,7 +98,7 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
             </TableHeader>
 
             <TableBody>
-              {pendingOrders.map((order) => {
+              {sortedPendingOrders.map((order) => {
                 const canCancel = order.status === "pending";
                 return (
                   <TableRow key={order.id}>

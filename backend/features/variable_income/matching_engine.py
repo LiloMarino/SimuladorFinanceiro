@@ -69,6 +69,15 @@ class MatchingEngine:
             return
 
         self.market_liquidity.refresh(candle)
+        notify(
+            event=f"order_book_snapshot:{candle.ticker}",
+            payload={
+                "orders": [
+                    OrderDTO.from_model(o).to_json()
+                    for o in self.order_book.get_orders(candle.ticker)
+                ]
+            },
+        )
 
     def cancel(self, *, order_id: str, client_id: str) -> bool:
         order = self.order_book.find(order_id)
@@ -157,8 +166,7 @@ class MatchingEngine:
         )
 
         self._notify_execution(taker, price, qty)
-        if maker.client_id != MarketLiquidity.MARKET_CLIENT_ID:
-            self._notify_execution(maker, price, qty)
+        self._notify_execution(maker, price, qty)
 
         if maker.remaining == 0:
             self.order_book.remove(maker)
@@ -181,7 +189,8 @@ class MatchingEngine:
         if order.remaining > 0:
             payload["remaining"] = order.remaining
 
-        notify(event=event, payload=payload, to=order.client_id)
+        if order.client_id != MarketLiquidity.MARKET_CLIENT_ID:
+            notify(event=event, payload=payload, to=order.client_id)
 
         if isinstance(order, LimitOrder):
             notify(

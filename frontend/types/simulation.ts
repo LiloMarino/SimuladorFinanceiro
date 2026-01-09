@@ -42,6 +42,10 @@ export type SimulationEvents = {
   [K in `order_updated:${string}`]: {
     order: Order;
   };
+} & {
+  [K in `order_book_snapshot:${string}`]: {
+    orders: Order[];
+  };
 };
 
 export type SimulationState = {
