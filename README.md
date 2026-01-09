@@ -39,15 +39,47 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 ## 🛠️ Tecnologias Utilizadas  
 
 - **[Backtrader](https://www.backtrader.com/)** → Motor de backtesting e simulação.  
-- **[Flask](https://flask.palletsprojects.com/)** → Backend da aplicação.  
+- **[FastAPI](https://fastapi.tiangolo.com/)** → Backend moderno e rápido com OpenAPI automático.  
 - **[Dash](https://dash.plotly.com/)** → Framework para interface gráfica interativa.  
 - **[Plotly](https://plotly.com/python/)** → Gráficos dinâmicos para acompanhamento do portfólio.  
 - **[yfinance](https://pypi.org/project/yfinance/)** → Dados do mercado financeiro.  
 - **[SQLAlchemy](https://www.sqlalchemy.org/)** → ORM para banco de dados.  
 - **Banco de Dados** → **MySQL e SQLite** para armazenamento de históricos e portfólio.  
-- **WebSockets** → Comunicação em tempo real para atualização de gráficos e multiplayer (back -> front).
+- **WebSockets (ASGI)** → Comunicação em tempo real para atualização de gráficos e multiplayer (back -> front).
 - **REST** → Comunicação em eventos e dados externos (front -> back).
-- **PyInstaller** → Empacotamento da aplicação como executável (.exe).  
+- **PyInstaller** → Empacotamento da aplicação como executável (.exe).
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+- Python 3.12+
+- Node.js 18+ (para o frontend)
+
+### Backend (FastAPI)
+```bash
+# Instalar dependências
+pip install -r requirements.txt
+
+# Executar servidor FastAPI
+python main_fastapi.py
+
+# O servidor estará disponível em http://localhost:8000
+# Documentação interativa da API: http://localhost:8000/docs
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## 📚 Documentação da API
+
+Com FastAPI, a documentação interativa da API está disponível automaticamente em:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+- **OpenAPI JSON**: http://localhost:8000/openapi.json  
 
 ## 📜 Licença
 
