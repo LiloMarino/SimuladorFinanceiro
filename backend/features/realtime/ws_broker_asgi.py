@@ -72,30 +72,19 @@ class SocketBrokerASGI(RealtimeBroker):
             for client_id in target_clients:
                 sids = self._client_to_sids.get(client_id, set())
                 for sid in sids:
-                    # Schedule the async emission in a thread-safe way
-                    # socketio.AsyncServer.emit handles this internally
+                    # Schedule the async emission
+                    # python-socketio's AsyncServer handles this via background tasks
                     import asyncio
 
                     try:
-                        # Try to get the running loop
+                        # Try to get the running loop and schedule emission
                         loop = asyncio.get_running_loop()
                         # Create a task in the running loop
                         asyncio.create_task(self.socketio.emit(event, payload, to=sid))
                     except RuntimeError:
-                        # No running loop - we're in sync context
-                        # socketio will handle this via background tasks
-                        # Use start_background_task if available
+                        # No running loop - socketio will queue this internally
+                        # AsyncServer.emit can be called from sync context safely
                         if hasattr(self.socketio, "start_background_task"):
                             self.socketio.start_background_task(
                                 self.socketio.emit, event, payload, to=sid
                             )
-                        else:
-                            # Fallback: schedule in new thread
-                            import threading
-
-                            threading.Thread(
-                                target=lambda: asyncio.run(
-                                    self.socketio.emit(event, payload, to=sid)
-                                ),
-                                daemon=True,
-                            ).start()

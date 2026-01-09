@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Response, status
+from fastapi import APIRouter, HTTPException, Response, status
 from pydantic import BaseModel
 
 from backend import config
@@ -32,14 +32,15 @@ def session_init(response: Response, client_id: str | None = None):
     Se não existir → cria um novo, salva no cookie e retorna.
     """
     # Try to get client_id from cookie
-    try:
-        client_id = get_client_id_from_cookie(client_id)
-        # Já possui sessão
-        return make_response(
-            True, "Session already exists.", data={"client_id": client_id}
-        )
-    except Exception:
-        pass
+    if client_id:
+        try:
+            client_id = get_client_id_from_cookie(client_id)
+            # Já possui sessão
+            return make_response(
+                True, "Session already exists.", data={"client_id": client_id}
+            )
+        except HTTPException:
+            pass  # Cookie não válido, criar nova sessão
 
     # Criar nova sessão anônima
     new_client_id = str(uuid.uuid4())

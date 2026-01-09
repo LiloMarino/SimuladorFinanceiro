@@ -42,8 +42,14 @@ async def import_assets(
                 "Ticker and CSV file are required.",
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             )
-        # Convert UploadFile to FileStorage-like object for compatibility
-        update_from_csv(csv_file.file, ticker, overwrite_bool)
+        # Read file content and create a BytesIO object for compatibility
+        import io
+
+        content = await csv_file.read()
+        file_obj = io.BytesIO(content)
+        file_obj.name = csv_file.filename or "upload.csv"
+        
+        update_from_csv(file_obj, ticker, overwrite_bool)
         return make_response(True, f"CSV '{ticker}' imported successfully.")
     else:
         return make_response(
