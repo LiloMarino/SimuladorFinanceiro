@@ -70,6 +70,7 @@ def create_app():
         __name__,
         template_folder=BACKEND_DIR / "templates",
         static_folder=BACKEND_DIR / "static",
+        static_url_path="",  # Serve static files from root path
     )
     app.secret_key = get_secret_key()
     register_routes(app)

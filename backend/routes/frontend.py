@@ -4,8 +4,7 @@ Frontend serving routes.
 This module provides routes to serve the React frontend application.
 """
 
-from flask import Blueprint, render_template, send_from_directory
-from pathlib import Path
+from flask import Blueprint, render_template
 
 frontend_bp = Blueprint("frontend", __name__)
 
@@ -15,12 +14,11 @@ frontend_bp = Blueprint("frontend", __name__)
 def serve_frontend(path: str):
     """
     Serve o frontend React para todas as rotas que não são da API.
-    Isso permite que o React Router funcione corretamente.
+    
+    Flask automaticamente serve arquivos estáticos (assets/, vite.svg) de
+    static_folder devido à configuração static_url_path="" em main.py.
+    
+    Esta rota serve index.html para todas as outras rotas, permitindo que
+    o React Router funcione corretamente (SPA).
     """
-    # Se o caminho é um arquivo estático (assets), serve diretamente
-    static_folder = Path("backend/static")
-    if path and (static_folder / path).exists():
-        return send_from_directory(str(static_folder), path)
-
-    # Caso contrário, serve o index.html (SPA)
     return render_template("index.html")
