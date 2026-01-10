@@ -17,6 +17,7 @@ junto com este programa. Caso não, veja <https://www.gnu.org/licenses/>.
 """
 
 import secrets
+import sys
 from pathlib import Path
 
 from flask import Flask
@@ -32,8 +33,26 @@ from backend.features.realtime.ws_handlers import register_ws_handlers
 from backend.features.simulation.simulation_loop import controller
 from backend.routes import register_routes
 
-BACKEND_DIR = Path("backend")
-SECRET_PATH = Path("secret.key")
+
+def get_base_path() -> Path:
+    """
+    Retorna o caminho base do aplicativo.
+    Quando rodando via PyInstaller, usa _MEIPASS.
+    Caso contrário, usa o diretório atual.
+    """
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        # Rodando como executável PyInstaller
+        # _MEIPASS é um atributo dinâmico adicionado pelo PyInstaller
+        base_path = getattr(sys, "_MEIPASS")
+        return Path(base_path)
+    else:
+        # Rodando como script Python normal
+        return Path(__file__).parent.resolve()
+
+
+BASE_PATH = get_base_path()
+BACKEND_DIR = BASE_PATH / "backend"
+SECRET_PATH = Path("secret.key")  # Sempre relativo ao diretório de trabalho
 
 logger = setup_logger(__name__)
 
@@ -53,6 +72,7 @@ def create_app():
         __name__,
         template_folder=BACKEND_DIR / "templates",
         static_folder=BACKEND_DIR / "static",
+        static_url_path="",  # Serve static files from root path
     )
     app.secret_key = get_secret_key()
     register_routes(app)
