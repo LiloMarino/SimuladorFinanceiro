@@ -8,11 +8,12 @@ from backend.core import repository
 from backend.core.dependencies import ClientID
 from backend.core.dto.session import SessionDTO
 from backend.core.exceptions import NoActiveSimulationError
+from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.routes.helpers import make_response
 
-auth_router = APIRouter()
+auth_router = APIRouter(prefix="/api", tags=["Authentication"])
 
 
 class UserRegisterRequest(BaseModel):
@@ -23,7 +24,7 @@ class UserClaimRequest(BaseModel):
     nickname: str
 
 
-@auth_router.post("/api/session/init")
+@auth_router.post("/session/init")
 def session_init(request: Request, response: Response):
     """
     Garante que o cliente possua um client_id persistido no cookie.
@@ -57,7 +58,7 @@ def session_init(request: Request, response: Response):
     )
 
 
-@auth_router.get("/api/session/me")
+@auth_router.get("/session/me")
 def session_me(client_id: ClientID):
     """
     Retorna os dados da sessão atual.
@@ -76,7 +77,7 @@ def session_me(client_id: ClientID):
     )
 
 
-@auth_router.post("/api/session/logout")
+@auth_router.post("/session/logout")
 def session_logout(response: Response):
     """
     Remove o cookie de sessão atual.
@@ -90,7 +91,7 @@ def session_logout(response: Response):
     return make_response(True, "Session logged out.")
 
 
-@auth_router.post("/api/user/register")
+@auth_router.post("/user/register")
 def user_register(payload: UserRegisterRequest, client_id: ClientID):
     """
     Cria um usuário para o client_id atual.
@@ -100,7 +101,7 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
     # Verificar se já existe usuário com esse nickname
     existing_user = repository.user.get_by_nickname(nickname)
     if existing_user:
-        return make_response(False, "User already registered for this client.", 409)
+        raise ConflictError("User already registered for this client.")
 
     # Cria novo usuário
     new_user = repository.user.create_user(client_id, nickname)
@@ -122,7 +123,7 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
     )
 
 
-@auth_router.post("/api/user/claim")
+@auth_router.post("/user/claim")
 def user_claim(payload: UserClaimRequest, client_id: ClientID):
     """
     Permite que o usuário recupere seu nickname após limpar navegador.
@@ -132,16 +133,12 @@ def user_claim(payload: UserClaimRequest, client_id: ClientID):
     # Verificar se nickname existe
     existing_user = repository.user.get_by_nickname(nickname)
     if not existing_user:
-        return make_response(False, "Nickname does not exist.", 404)
+        raise NotFoundError("Nickname does not exist.")
 
     # Verifica se usuário já está ativo em outro client
     active_players = UserManager.list_active_players()
     if any(u.id == existing_user.id for u in active_players):
-        return make_response(
-            False,
-            "User is currently active and cannot be claimed.",
-            409,
-        )
+        raise ConflictError("User is currently active and cannot be claimed.")
 
     # Atualizar client_id do usuário
     updated_user = repository.user.update_client_id(

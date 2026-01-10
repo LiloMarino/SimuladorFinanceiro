@@ -14,7 +14,7 @@ from backend.features.variable_income.entities.order import (
 )
 from backend.routes.helpers import make_response
 
-operation_router = APIRouter()
+operation_router = APIRouter(prefix="/api", tags=["Operations"])
 
 
 class SubmitOrderRequest(BaseModel):
@@ -32,7 +32,7 @@ class BuyFixedIncomeRequest(BaseModel):
     quantity: int
 
 
-@operation_router.get("/api/variable-income")
+@operation_router.get("/variable-income")
 def get_variable_income(simulation: ActiveSimulation):
     """Return list of stocks."""
     stocks = simulation.get_stocks()
@@ -41,16 +41,16 @@ def get_variable_income(simulation: ActiveSimulation):
     )
 
 
-@operation_router.get("/api/variable-income/{asset}")
+@operation_router.get("/variable-income/{asset}")
 def get_variable_income_details(simulation: ActiveSimulation, asset: str):
     """Return details of a specific stock."""
     stock = simulation.get_stock_details(asset)
     if not stock:
-        return make_response(False, "Asset not found.", 404)
+        raise NotFoundError("Asset not found.")
     return make_response(True, "Asset details loaded.", data=stock.to_json())
 
 
-@operation_router.post("/api/variable-income/{asset}/orders")
+@operation_router.post("/variable-income/{asset}/orders")
 def submit_order(
     simulation: ActiveSimulation,
     client_id: ClientID,
@@ -97,7 +97,7 @@ def submit_order(
     )
 
 
-@operation_router.delete("/api/variable-income/{asset}/orders")
+@operation_router.delete("/variable-income/{asset}/orders")
 def cancel_order(
     simulation: ActiveSimulation,
     client_id: ClientID,
@@ -112,7 +112,7 @@ def cancel_order(
     return make_response(True, "Order canceled successfully.")
 
 
-@operation_router.get("/api/variable-income/{asset}/orders")
+@operation_router.get("/variable-income/{asset}/orders")
 def list_order_book(simulation: ActiveSimulation, asset: str):
     """Lista todas as ordens (BUY + SELL) no book para o ativo"""
     orders = simulation.get_orders(asset)
@@ -123,7 +123,7 @@ def list_order_book(simulation: ActiveSimulation, asset: str):
     )
 
 
-@operation_router.get("/api/fixed-income")
+@operation_router.get("/fixed-income")
 def get_fixed_income(simulation: ActiveSimulation):
     """Return list of fixed-income assets."""
     fixed = simulation.get_fixed_assets()
@@ -131,16 +131,16 @@ def get_fixed_income(simulation: ActiveSimulation):
     return make_response(True, "Fixed income assets loaded.", data=fixed_json)
 
 
-@operation_router.get("/api/fixed-income/{asset_uuid}")
+@operation_router.get("/fixed-income/{asset_uuid}")
 def get_fixed_income_details(simulation: ActiveSimulation, asset_uuid: str):
     """Return details of a fixed-income asset."""
     fixed = simulation.get_fixed_asset(asset_uuid)
     if not fixed:
-        return make_response(False, "Asset not found.", 404)
+        raise NotFoundError("Asset not found.")
     return make_response(True, "Asset details loaded.", data=fixed.to_json())
 
 
-@operation_router.post("/api/fixed-income/{asset_uuid}/buy")
+@operation_router.post("/fixed-income/{asset_uuid}/buy")
 def buy_fixed_income(
     simulation: ActiveSimulation,
     client_id: ClientID,

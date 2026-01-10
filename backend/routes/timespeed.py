@@ -5,14 +5,14 @@ from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.features.realtime import notify
 from backend.routes.helpers import make_response
 
-timespeed_router = APIRouter()
+timespeed_router = APIRouter(prefix="/api", tags=["Simulation Control"])
 
 
 class SetSpeedRequest(BaseModel):
     speed: int = 0
 
 
-@timespeed_router.post("/api/set-speed")
+@timespeed_router.post("/set-speed")
 def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
     speed = payload.speed
 
@@ -24,7 +24,7 @@ def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
     return make_response(True, "Speed updated", data={"speed": speed})
 
 
-@timespeed_router.get("/api/get-simulation-state")
+@timespeed_router.get("/get-simulation-state")
 def get_simulation_state(client_id: ClientID, simulation: ActiveSimulation):
     current_date = simulation.get_current_date_formatted()
     speed = simulation.get_speed()

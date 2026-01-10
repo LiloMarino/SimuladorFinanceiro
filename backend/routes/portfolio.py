@@ -3,10 +3,10 @@ from fastapi import APIRouter
 from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.routes.helpers import make_response
 
-portfolio_router = APIRouter()
+portfolio_router = APIRouter(prefix="/api/portfolio", tags=["Portfolio"])
 
 
-@portfolio_router.get("/api/portfolio")
+@portfolio_router.get("")
 def get_portfolio(client_id: ClientID, simulation: ActiveSimulation):
     portfolio_data = simulation.get_portfolio(client_id)
     return make_response(
@@ -14,7 +14,7 @@ def get_portfolio(client_id: ClientID, simulation: ActiveSimulation):
     )
 
 
-@portfolio_router.get("/api/portfolio/{ticker}")
+@portfolio_router.get("/{ticker}")
 def get_portfolio_ticker(
     client_id: ClientID, simulation: ActiveSimulation, ticker: str
 ):
@@ -24,15 +24,7 @@ def get_portfolio_ticker(
     )
 
 
-@portfolio_router.get("/api/portfolio/cash")
+@portfolio_router.get("/cash")
 def get_cash(client_id: ClientID, simulation: ActiveSimulation):
     cash = simulation.get_cash(client_id)
     return make_response(True, "Cash balance loaded successfully.", data={"cash": cash})
-
-
-@portfolio_router.get("/api/economic-indicators")
-def get_statistics(simulation: ActiveSimulation):
-    indicators = simulation.get_economic_indicators()
-    return make_response(
-        True, "Economic indicators loaded successfully.", data=indicators
-    )

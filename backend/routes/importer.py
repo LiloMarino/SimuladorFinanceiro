@@ -9,7 +9,7 @@ from backend.features.import_data.importer_service import (
 )
 from backend.routes.helpers import make_response
 
-import_router = APIRouter()
+import_router = APIRouter(prefix="/api/import-assets", tags=["Import Assets"])
 
 
 def str_to_bool(value: str | bool | None) -> bool:
@@ -25,7 +25,7 @@ class ImportYFinanceRequest(BaseModel):
     overwrite: bool = False
 
 
-@import_router.post("/import-assets/yfinance")
+@import_router.post("/yfinance")
 def import_assets_json(request: ImportYFinanceRequest):
     """Import assets from yfinance (JSON payload)."""
     ticker = request.ticker
@@ -34,7 +34,7 @@ def import_assets_json(request: ImportYFinanceRequest):
     return make_response(True, f"Asset '{ticker}' imported successfully.")
 
 
-@import_router.post("/import-assets/csv")
+@import_router.post("/csv")
 def import_assets_csv(
     ticker: Annotated[str, Form(...)],
     csv_file: Annotated[UploadFile, File(...)],
