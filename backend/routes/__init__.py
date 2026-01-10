@@ -1,48 +1,43 @@
-from flask import Flask
-from werkzeug.exceptions import HTTPException
+from fastapi import FastAPI, HTTPException, Request
 
 from backend.core.logger import setup_logger
-from backend.routes.auth import auth_bp
+from backend.routes.auth import auth_router
 from backend.routes.helpers import make_response
-from backend.routes.importer import import_bp
-from backend.routes.operation import operation_bp
-from backend.routes.portfolio import portfolio_bp
-from backend.routes.realtime import realtime_bp
-from backend.routes.settings import settings_bp
-from backend.routes.simulation import simulation_bp
-from backend.routes.statistics import statistics_bp
-from backend.routes.timespeed import timespeed_bp
+from backend.routes.importer import import_router
+from backend.routes.operation import operation_router
+from backend.routes.portfolio import portfolio_router
+from backend.routes.realtime import realtime_router
+from backend.routes.settings import settings_router
+from backend.routes.simulation import simulation_router
+from backend.routes.statistics import statistics_router
+from backend.routes.timespeed import timespeed_router
 
 logger = setup_logger(__name__)
 
 
-def register_routes(app: Flask):
-    """Register all route blueprints."""
-    app.register_blueprint(operation_bp)
-    app.register_blueprint(portfolio_bp)
-    app.register_blueprint(settings_bp)
-    app.register_blueprint(import_bp)
-    app.register_blueprint(realtime_bp)
-    app.register_blueprint(timespeed_bp)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(statistics_bp)
-    app.register_blueprint(simulation_bp)
+def register_routes(app: FastAPI):
+    """Register all FastAPI routers and exception handlers."""
+    app.include_router(operation_router)
+    app.include_router(portfolio_router)
+    app.include_router(settings_router)
+    app.include_router(import_router)
+    app.include_router(realtime_router)
+    app.include_router(timespeed_router)
+    app.include_router(auth_router)
+    app.include_router(statistics_router)
+    app.include_router(simulation_router)
 
-    @app.errorhandler(Exception)
-    def handle_error(e):  # type: ignore
+    @app.exception_handler(Exception)
+    async def handle_error(request: Request, e: Exception):  # type: ignore
         """
         Exceções normais do python serão tratadas como Internal Server Error
         """
         logger.exception(f"{e.__class__.__name__}: {e}")
         return make_response(False, str(e), 500)
 
-    @app.errorhandler(HTTPException)
-    def handle_http_exception(e: HTTPException):  # type: ignore
+    @app.exception_handler(HTTPException)
+    async def handle_http_exception(request: Request, e: HTTPException):  # type: ignore
         """
         Exceções HTTP serão tratadas devidamente com seus respetivos status code
         """
-        return make_response(
-            False,
-            e.description or e.name,
-            status_code=e.code or 500,
-        )
+        return make_response(False, e.detail, status_code=e.status_code)

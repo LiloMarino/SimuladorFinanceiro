@@ -1,55 +1,65 @@
 import uuid
 
-from flask import Blueprint, request
+from fastapi import APIRouter, Request, Response
+from pydantic import BaseModel
 
 from backend import config
 from backend.core import repository
-from backend.core.decorators.cookie import require_client_id
+from backend.core.dependencies import ClientID
 from backend.core.dto.session import SessionDTO
 from backend.core.exceptions import NoActiveSimulationError
+from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.routes.helpers import make_response
 
-auth_bp = Blueprint("auth", __name__)
+auth_router = APIRouter(prefix="/api", tags=["Authentication"])
 
 
-@auth_bp.route("/api/session/init", methods=["POST"])
-def session_init():
+class UserRegisterRequest(BaseModel):
+    nickname: str
+
+
+class UserClaimRequest(BaseModel):
+    nickname: str
+
+
+@auth_router.post("/session/init")
+def session_init(request: Request, response: Response):
     """
     Garante que o cliente possua um client_id persistido no cookie.
     Se já existir → retorna o existente.
     Se não existir → cria um novo, salva no cookie e retorna.
     """
-
     client_id = request.cookies.get("client_id")
 
     if client_id:
         # Já possui sessão
         return make_response(
-            True, "Session already exists.", data={"client_id": client_id}
+            True,
+            "Session already exists.",
+            data={"client_id": client_id},
         )
 
     # Criar nova sessão anônima
     new_client_id = str(uuid.uuid4())
-    resp, status = make_response(
-        True, "Session created.", data={"client_id": new_client_id}
-    )
 
-    # Seta cookie HttpOnly
-    resp.set_cookie(
-        "client_id",
-        new_client_id,
+    response.set_cookie(
+        key="client_id",
+        value=new_client_id,
         httponly=True,
-        samesite="Lax",
+        samesite="lax",
     )
 
-    return resp, status
+    return make_response(
+        True,
+        "Session created.",
+        data={"client_id": new_client_id},
+    )
 
 
-@auth_bp.route("/api/session/me", methods=["GET"])
-@require_client_id
-def session_me(client_id: str):
+@auth_router.get("/session/me")
+def session_me(client_id: ClientID):
     """
     Retorna os dados da sessão atual.
     """
@@ -67,40 +77,31 @@ def session_me(client_id: str):
     )
 
 
-@auth_bp.route("/api/session/logout", methods=["POST"])
-def session_logout():
+@auth_router.post("/session/logout")
+def session_logout(response: Response):
     """
     Remove o cookie de sessão atual.
     """
-    resp, status = make_response(True, "Session logged out.")
-
-    resp.set_cookie(
-        "client_id",
-        "",
-        expires=0,
+    response.delete_cookie(
+        key="client_id",
         httponly=True,
-        samesite="Lax",
+        samesite="lax",
     )
 
-    return resp, status
+    return make_response(True, "Session logged out.")
 
 
-@auth_bp.route("/api/user/register", methods=["POST"])
-@require_client_id
-def user_register(client_id: str):
+@auth_router.post("/user/register")
+def user_register(payload: UserRegisterRequest, client_id: ClientID):
     """
     Cria um usuário para o client_id atual.
     """
-    data = request.get_json()
-
-    nickname = data.get("nickname")
-    if not nickname:
-        return make_response(False, "Nickname is required.", 422)
+    nickname = payload.nickname
 
     # Verificar se já existe usuário com esse nickname
     existing_user = repository.user.get_by_nickname(nickname)
     if existing_user:
-        return make_response(False, "User already registered for this client.", 409)
+        raise ConflictError("User already registered for this client.")
 
     # Cria novo usuário
     new_user = repository.user.create_user(client_id, nickname)
@@ -122,31 +123,22 @@ def user_register(client_id: str):
     )
 
 
-@auth_bp.route("/api/user/claim", methods=["POST"])
-@require_client_id
-def user_claim(client_id: str):
+@auth_router.post("/user/claim")
+def user_claim(payload: UserClaimRequest, client_id: ClientID):
     """
     Permite que o usuário recupere seu nickname após limpar navegador.
     """
-    data = request.get_json()
-
-    nickname = data.get("nickname")
-    if not nickname:
-        return make_response(False, "Nickname is required.", 422)
+    nickname = payload.nickname
 
     # Verificar se nickname existe
     existing_user = repository.user.get_by_nickname(nickname)
     if not existing_user:
-        return make_response(False, "Nickname does not exist.", 404)
+        raise NotFoundError("Nickname does not exist.")
 
     # Verifica se usuário já está ativo em outro client
     active_players = UserManager.list_active_players()
     if any(u.id == existing_user.id for u in active_players):
-        return make_response(
-            False,
-            "User is currently active and cannot be claimed.",
-            409,
-        )
+        raise ConflictError("User is currently active and cannot be claimed.")
 
     # Atualizar client_id do usuário
     updated_user = repository.user.update_client_id(
