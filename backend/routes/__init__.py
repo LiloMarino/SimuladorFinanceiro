@@ -3,6 +3,7 @@ from werkzeug.exceptions import HTTPException
 
 from backend.core.logger import setup_logger
 from backend.routes.auth import auth_bp
+from backend.routes.frontend import frontend_bp
 from backend.routes.helpers import make_response
 from backend.routes.importer import import_bp
 from backend.routes.operation import operation_bp
@@ -18,6 +19,7 @@ logger = setup_logger(__name__)
 
 def register_routes(app: Flask):
     """Register all route blueprints."""
+    # API routes
     app.register_blueprint(operation_bp)
     app.register_blueprint(portfolio_bp)
     app.register_blueprint(settings_bp)
@@ -27,6 +29,9 @@ def register_routes(app: Flask):
     app.register_blueprint(auth_bp)
     app.register_blueprint(statistics_bp)
     app.register_blueprint(simulation_bp)
+
+    # Frontend routes (deve ser registrado por último para catch-all funcionar)
+    app.register_blueprint(frontend_bp)
 
     @app.errorhandler(Exception)
     def handle_error(e):  # type: ignore

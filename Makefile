@@ -1,6 +1,29 @@
 EXEC=main.py
 CPROFILE_OUT = cprofile.prof
 LINEPROFILE_OUT = lineprofile.lprof
+BUILD_DIR = dist
+SPEC_FILE = SimuladorFinanceiro.spec
+
+# --------------------------------------------------------------
+# Build & Package
+# --------------------------------------------------------------
+build: build-frontend build-exe
+
+build-frontend:
+	@echo "=== Compilando Frontend ==="
+	python build.py
+
+build-exe:
+	@echo "=== Compilando Executável com PyInstaller ==="
+	pyinstaller $(SPEC_FILE) --clean --noconfirm
+
+build-clean:
+	@echo "=== Limpando arquivos de build ==="
+	@if exist "backend\static" rmdir /S /Q backend\static
+	@if exist "backend\templates" rmdir /S /Q backend\templates
+	@if exist "build" rmdir /S /Q build
+	@if exist "dist" rmdir /S /Q dist
+	@echo "Build limpo!"
 
 # --------------------------------------------------------------
 # Lint
