@@ -81,10 +81,8 @@ def session_logout(response: Response):
     """
     Remove o cookie de sessão atual.
     """
-    response.set_cookie(
-        "client_id",
-        "",
-        expires=0,
+    response.delete_cookie(
+        key="client_id",
         httponly=True,
         samesite="lax",
     )
