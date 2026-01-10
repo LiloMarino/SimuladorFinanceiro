@@ -49,6 +49,23 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 - **REST** → Comunicação em eventos e dados externos (front -> back).
 - **PyInstaller** → Empacotamento da aplicação como executável (.exe).  
 
+## 🔨 Compilação e Build
+
+Para instruções completas sobre como compilar o projeto e gerar o executável, consulte o **[BUILD.md](BUILD.md)**.
+
+Resumo rápido:
+```bash
+# Instalar dependências
+pip install -r requirements.txt
+
+# Build completo (frontend + executável)
+make build
+
+# Executar o programa compilado
+cd dist/SimuladorFinanceiro
+./SimuladorFinanceiro.exe
+```  
+
 ## 📜 Licença
 
 Este projeto está licenciado sob os termos da [Licença Pública Geral GNU, versão 3 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html).
