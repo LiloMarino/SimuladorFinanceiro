@@ -1,29 +1,31 @@
-from flask import Blueprint, request
+from fastapi import APIRouter
+from pydantic import BaseModel
 
 from backend.core.logger import setup_logger
 from backend.features.realtime import get_broker, get_sse_broker
 from backend.routes.helpers import make_response
 
-realtime_bp = Blueprint("realtime", __name__)
+realtime_router = APIRouter()
 
 logger = setup_logger(__name__)
 
 
-@realtime_bp.route("/api/stream")
+class UpdateSubscriptionRequest(BaseModel):
+    client_id: str
+    events: list[str] = []
+
+
+@realtime_router.get("/api/stream")
 def stream():
     broker = get_sse_broker()
     return broker.connect()
 
 
-@realtime_bp.route("/api/update-subscription", methods=["POST"])
-def update_subscription():
+@realtime_router.post("/api/update-subscription")
+def update_subscription(payload: UpdateSubscriptionRequest):
     broker = get_broker()
-    data = request.get_json(force=True)
-    client_id = data.get("client_id")
-    events = data.get("events", [])
-
-    if not client_id:
-        return make_response(False, "client_id required", 400)
+    client_id = payload.client_id
+    events = payload.events
 
     broker.update_subscription(client_id, events)
     logger.info("Updating subscription: %s -> %s", client_id, events)

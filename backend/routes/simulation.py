@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from flask import Blueprint, request
+from fastapi import APIRouter
+from pydantic import BaseModel
 
 from backend import config
 from backend.core import repository
-from backend.core.decorators.cookie import require_client_id
-from backend.core.decorators.host import require_host
+from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -14,10 +14,24 @@ from backend.features.realtime import notify
 from backend.features.simulation.simulation_loop import controller
 from backend.routes.helpers import make_response
 
-simulation_bp = Blueprint("simulation", __name__)
+simulation_router = APIRouter()
 
 
-@simulation_bp.route("/api/simulation/status", methods=["GET"])
+class CreateSimulationRequest(BaseModel):
+    start_date: str
+    end_date: str
+
+
+class ContinueSimulationRequest(BaseModel):
+    end_date: str
+
+
+class UpdateSettingsRequest(BaseModel):
+    start_date: str
+    end_date: str
+
+
+@simulation_router.get("/api/simulation/status")
 def simulation_status():
     try:
         sim = SimulationManager.get_active_simulation()
@@ -40,14 +54,11 @@ def simulation_status():
         )
 
 
-@simulation_bp.route("/api/simulation/create", methods=["POST"])
-@require_host
-def create_simulation():
-    data = request.get_json(force=True)
-
+@simulation_router.post("/api/simulation/create", status_code=201)
+def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     try:
-        start_date = datetime.strptime(data["start_date"], "%Y-%m-%d").date()
-        end_date = datetime.strptime(data["end_date"], "%Y-%m-%d").date()
+        start_date = datetime.strptime(payload.start_date, "%Y-%m-%d").date()
+        end_date = datetime.strptime(payload.end_date, "%Y-%m-%d").date()
     except Exception:
         return make_response(
             False,
@@ -83,15 +94,12 @@ def create_simulation():
     )
 
 
-@simulation_bp.route("/api/simulation/continue", methods=["POST"])
-@require_host
-def continue_simulation():
+@simulation_router.post("/api/simulation/continue", status_code=201)
+def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
     """Continua a simulação a partir do último snapshot"""
 
-    data = request.get_json(force=True)
-
     try:
-        end_date = datetime.strptime(data["end_date"], "%Y-%m-%d").date()
+        end_date = datetime.strptime(payload.end_date, "%Y-%m-%d").date()
     except Exception:
         return make_response(False, "Invalid end_date.", status_code=422)
 
@@ -136,7 +144,7 @@ def continue_simulation():
     )
 
 
-@simulation_bp.route("/api/simulation/players", methods=["GET"])
+@simulation_router.get("/api/simulation/players")
 def get_active_players():
     active_players = UserManager.list_active_players()
     return make_response(
@@ -146,9 +154,8 @@ def get_active_players():
     )
 
 
-@simulation_bp.route("/api/simulation/settings", methods=["GET"])
-@require_client_id
-def get_simulation_settings(client_id: str):
+@simulation_router.get("/api/simulation/settings")
+def get_simulation_settings(client_id: ClientID):
     user = UserManager.get_user(client_id)
     if user is None:
         return make_response(False, "User not found.", status_code=404)
@@ -165,14 +172,11 @@ def get_simulation_settings(client_id: str):
     )
 
 
-@simulation_bp.route("/api/simulation/settings", methods=["PUT"])
-@require_host
-def update_simulation_settings():
-    payload = request.get_json(force=True)
-
+@simulation_router.put("/api/simulation/settings")
+def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
     try:
-        start_date = datetime.strptime(payload["start_date"], "%Y-%m-%d").date()
-        end_date = datetime.strptime(payload["end_date"], "%Y-%m-%d").date()
+        start_date = datetime.strptime(payload.start_date, "%Y-%m-%d").date()
+        end_date = datetime.strptime(payload.end_date, "%Y-%m-%d").date()
     except Exception:
         return make_response(False, "Invalid payload.", status_code=422)
 

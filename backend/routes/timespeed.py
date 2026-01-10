@@ -1,19 +1,20 @@
-from flask import Blueprint, request
+from fastapi import APIRouter
+from pydantic import BaseModel
 
-from backend.core.decorators.cookie import require_client_id
-from backend.core.decorators.simulation import require_simulation
+from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.features.realtime import notify
-from backend.features.simulation.simulation import Simulation
 from backend.routes.helpers import make_response
 
-timespeed_bp = Blueprint("timespeed_bp", __name__)
+timespeed_router = APIRouter()
 
 
-@timespeed_bp.route("/api/set-speed", methods=["POST"])
-@require_simulation
-def set_speed(simulation: Simulation):
-    data = request.get_json()
-    speed = data.get("speed", 0)
+class SetSpeedRequest(BaseModel):
+    speed: int = 0
+
+
+@timespeed_router.post("/api/set-speed")
+def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
+    speed = payload.speed
 
     simulation.set_speed(speed)
     speed = simulation.get_speed()
@@ -23,10 +24,8 @@ def set_speed(simulation: Simulation):
     return make_response(True, "Speed updated", data={"speed": speed})
 
 
-@timespeed_bp.route("/api/get-simulation-state", methods=["GET"])
-@require_client_id
-@require_simulation
-def get_simulation_state(client_id: str, simulation: Simulation):
+@timespeed_router.get("/api/get-simulation-state")
+def get_simulation_state(client_id: ClientID, simulation: ActiveSimulation):
     current_date = simulation.get_current_date_formatted()
     speed = simulation.get_speed()
     cash = simulation.get_cash(client_id)

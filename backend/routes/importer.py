@@ -1,5 +1,7 @@
-from flask import Blueprint, request
-from werkzeug.datastructures import FileStorage
+from typing import Annotated
+
+from fastapi import APIRouter, File, Form, UploadFile
+from pydantic import BaseModel
 
 from backend.features.import_data.importer_service import (
     update_from_csv,
@@ -7,7 +9,7 @@ from backend.features.import_data.importer_service import (
 )
 from backend.routes.helpers import make_response
 
-import_bp = Blueprint("import", __name__)
+import_router = APIRouter()
 
 
 def str_to_bool(value: str | bool | None) -> bool:
@@ -18,38 +20,27 @@ def str_to_bool(value: str | bool | None) -> bool:
     return False
 
 
-def handle_yfinance(data: dict):
-    ticker = data.get("ticker")
-    overwrite = str_to_bool(data.get("overwrite"))
-    if not ticker:
-        return make_response(False, "Ticker is required.", 422)
+class ImportYFinanceRequest(BaseModel):
+    ticker: str
+    overwrite: bool = False
+
+
+@import_router.post("/import-assets/yfinance")
+def import_assets_json(request: ImportYFinanceRequest):
+    """Import assets from yfinance (JSON payload)."""
+    ticker = request.ticker
+    overwrite = request.overwrite
     update_from_yfinance(ticker, overwrite)
     return make_response(True, f"Asset '{ticker}' imported successfully.")
 
 
-def handle_csv(data: dict, file: FileStorage | None):
-    ticker = data.get("ticker")
-    overwrite = str_to_bool(data.get("overwrite"))
-    if not ticker or not file:
-        return make_response(False, "Ticker and CSV file are required.", 422)
-    update_from_csv(file, ticker, overwrite)
+@import_router.post("/import-assets/csv")
+def import_assets_csv(
+    ticker: Annotated[str, Form(...)],
+    csv_file: Annotated[UploadFile, File(...)],
+    overwrite: Annotated[bool, Form(False)] = False,
+):
+    """Import assets from CSV (multipart/form-data)."""
+    overwrite_bool = str_to_bool(overwrite)
+    update_from_csv(csv_file.file, ticker, overwrite_bool)
     return make_response(True, f"CSV '{ticker}' imported successfully.")
-
-
-@import_bp.route("/api/import-assets", methods=["POST"])
-def import_assets():
-    if request.content_type and "multipart/form-data" in request.content_type:
-        data = request.form
-        file = request.files.get("csv_file")
-    else:
-        data = request.get_json() or {}
-        file = None
-
-    action = data.get("action")
-
-    if action == "yfinance":
-        return handle_yfinance(data)
-    elif action == "csv":
-        return handle_csv(data, file)
-    else:
-        return make_response(False, "Invalid action.", 400)

@@ -23,8 +23,8 @@ export default function ImportAssetsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingImport, setPendingImport] = useState<ImportFormData | null>(null);
 
-  const csvMutation = useFormDataMutation("/api/import-assets");
-  const yFinanceMutation = useMutationApi("/api/import-assets");
+  const csvMutation = useFormDataMutation("/api/import-assets/csv");
+  const yFinanceMutation = useMutationApi("/api/import-assets/yfinance");
 
   const handleConfirm = async () => {
     if (!pendingImport) return;
@@ -41,7 +41,6 @@ export default function ImportAssetsPage() {
       if (pendingImport.type === "csv") {
         const { csv_file, ticker, overwrite } = pendingImport.data;
         await csvMutation.mutate({
-          action: "csv",
           ticker,
           overwrite,
           csv_file,
@@ -49,7 +48,6 @@ export default function ImportAssetsPage() {
         toast.success("Importação CSV concluída!", { id: toastId });
       } else {
         await yFinanceMutation.mutate({
-          action: "yfinance",
           ticker: pendingImport.data.ticker,
           overwrite: pendingImport.data.overwrite ?? false,
         });
