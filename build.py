@@ -49,7 +49,12 @@ def clean_build_dirs() -> None:
 
 
 def build_frontend() -> bool:
-    """Compila o frontend React com Vite."""
+    """
+    Compila o frontend React com Vite.
+    
+    Tenta usar npm primeiro, se falhar tenta pnpm como fallback.
+    Isso permite suporte para projetos que usam qualquer gerenciador.
+    """
     print("\n[INFO] === Compilando Frontend ===")
 
     # Verifica se o diretório do frontend existe

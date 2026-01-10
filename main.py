@@ -42,7 +42,9 @@ def get_base_path() -> Path:
     """
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
         # Rodando como executável PyInstaller
-        return Path(sys._MEIPASS)  # type: ignore
+        # _MEIPASS é um atributo dinâmico adicionado pelo PyInstaller
+        base_path = getattr(sys, "_MEIPASS")
+        return Path(base_path)
     else:
         # Rodando como script Python normal
         return Path(__file__).parent.resolve()

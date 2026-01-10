@@ -52,10 +52,13 @@ python build.py
 
 Isso irá:
 - Instalar dependências do frontend (se necessário)
-- Compilar o React app com Vite
+- Compilar o React app com Vite (tenta npm primeiro, depois pnpm como fallback)
 - Copiar os arquivos compilados para:
   - `backend/static/` - Arquivos estáticos (JS, CSS, imagens)
   - `backend/templates/` - index.html
+
+**Nota**: O script suporta tanto npm quanto pnpm. Se você usa pnpm exclusivamente, 
+o script detectará automaticamente quando npm não estiver disponível.
 
 ### 2. Gerar Executável
 
