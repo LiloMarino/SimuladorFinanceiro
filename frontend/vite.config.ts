@@ -3,7 +3,6 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -13,9 +12,9 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api": "http://localhost:5000", // qualquer /api vai para o Flask
+      "/api": "http://localhost:8000",
       "/socket.io": {
-        target: "http://localhost:5000",
+        target: "http://localhost:8000",
         ws: true,
         changeOrigin: true,
       },
