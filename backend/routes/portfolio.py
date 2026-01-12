@@ -14,6 +14,12 @@ def get_portfolio(client_id: ClientID, simulation: ActiveSimulation):
     )
 
 
+@portfolio_router.get("/cash")
+def get_cash(client_id: ClientID, simulation: ActiveSimulation):
+    cash = simulation.get_cash(client_id)
+    return make_response(True, "Cash balance loaded successfully.", data={"cash": cash})
+
+
 @portfolio_router.get("/{ticker}")
 def get_portfolio_ticker(
     client_id: ClientID, simulation: ActiveSimulation, ticker: str
@@ -22,9 +28,3 @@ def get_portfolio_ticker(
     return make_response(
         True, "Portfolio ticker data loaded successfully.", data=position.to_json()
     )
-
-
-@portfolio_router.get("/cash")
-def get_cash(client_id: ClientID, simulation: ActiveSimulation):
-    cash = simulation.get_cash(client_id)
-    return make_response(True, "Cash balance loaded successfully.", data={"cash": cash})

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.exceptions.http_exceptions import (
@@ -18,7 +18,7 @@ operation_router = APIRouter(prefix="/api", tags=["Operations"])
 
 
 class SubmitOrderRequest(BaseModel):
-    quantity: int
+    quantity: int = Field(..., gt=0)
     type: str
     action: str
     limit_price: float | None = None
@@ -29,7 +29,7 @@ class CancelOrderRequest(BaseModel):
 
 
 class BuyFixedIncomeRequest(BaseModel):
-    quantity: int
+    quantity: int = Field(..., gt=0)
 
 
 @operation_router.get("/variable-income")

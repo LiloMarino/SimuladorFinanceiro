@@ -38,7 +38,7 @@ def import_assets_json(request: ImportYFinanceRequest):
 def import_assets_csv(
     ticker: Annotated[str, Form(...)],
     csv_file: Annotated[UploadFile, File(...)],
-    overwrite: Annotated[bool, Form(False)] = False,
+    overwrite: Annotated[str, Form(...)] = "false",
 ):
     """Import assets from CSV (multipart/form-data)."""
     overwrite_bool = str_to_bool(overwrite)
