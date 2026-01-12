@@ -15,7 +15,7 @@ from backend.core.exceptions.http_exceptions import (
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
-from backend.features.simulation.simulation_loop import controller
+from backend.features.simulation.simulation_loop import simulation_controller
 from backend.routes.helpers import make_response
 
 simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
@@ -74,7 +74,7 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
         )
     )
     data = sim.settings
-    controller.trigger_start()
+    simulation_controller.trigger_start()
 
     notify(
         "simulation_started",
@@ -119,7 +119,7 @@ def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
         )
     )
 
-    controller.trigger_start()
+    simulation_controller.trigger_start()
 
     notify(
         "simulation_started",

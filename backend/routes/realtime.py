@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
 from backend.core.logger import setup_logger
@@ -16,13 +16,15 @@ class UpdateSubscriptionRequest(BaseModel):
 
 
 @realtime_router.get("/stream")
-def stream():
+def stream(request: Request):
+    """SSE stream endpoint - retorna eventos em tempo real."""
     broker = get_sse_broker()
-    return broker.connect()
+    return broker.connect(request)
 
 
 @realtime_router.post("/update-subscription")
 def update_subscription(payload: UpdateSubscriptionRequest):
+    """Atualiza os eventos que um cliente está inscrito."""
     broker = get_broker()
     client_id = payload.client_id
     events = payload.events

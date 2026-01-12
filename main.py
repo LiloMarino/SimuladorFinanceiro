@@ -16,11 +16,12 @@ Você deve ter recebido uma cópia da Licença Pública Geral GNU
 junto com este programa. Caso não, veja <https://www.gnu.org/licenses/>.
 """
 
-import secrets
-from pathlib import Path
+from contextlib import asynccontextmanager
 
-from flask import Flask
-from flask_socketio import SocketIO
+import socketio
+import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend import config
 from backend.core.database import engine
@@ -29,58 +30,88 @@ from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.features.realtime.sse_broker import SSEBroker
 from backend.features.realtime.ws_broker import SocketBroker
 from backend.features.realtime.ws_handlers import register_ws_handlers
-from backend.features.simulation.simulation_loop import controller
+from backend.features.simulation.simulation_loop import simulation_controller
 from backend.routes import register_routes
-
-BACKEND_DIR = Path("backend")
-SECRET_PATH = Path("secret.key")
 
 logger = setup_logger(__name__)
 
 
-def get_secret_key():
-    """Garante a persistência de uma secret key local."""
-    if SECRET_PATH.exists():
-        return SECRET_PATH.read_text()
-    secret_key = secrets.token_hex(16)
-    SECRET_PATH.write_text(secret_key)
-    return secret_key
+# ---------------------------------------------------------------------
+# Lifespan
+# ---------------------------------------------------------------------
 
 
-def create_app():
-    """Cria e configura a aplicação Flask."""
-    app = Flask(
-        __name__,
-        template_folder=BACKEND_DIR / "templates",
-        static_folder=BACKEND_DIR / "static",
-    )
-    app.secret_key = get_secret_key()
-    register_routes(app)
-    return app
-
-
-if __name__ == "__main__":
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     backend = engine.url.get_backend_name()
     logger.info(f"Banco de dados em uso: {backend.upper()} ({engine.url})")
 
-    app = create_app()
-    controller.start_loop()
+    simulation_controller.start_loop()
+    yield
+    simulation_controller.stop_loop()
+    logger.info("Aplicação finalizada.")
+
+
+# ---------------------------------------------------------------------
+# Criação da aplicação
+# ---------------------------------------------------------------------
+
+
+def create_app():
+    app = FastAPI(
+        title="Simulador Financeiro",
+        version="1.0.0",
+        lifespan=lifespan,
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    register_routes(app)
 
     # ------------------------------------------------------------
-    # 🔌 Modo SocketIO (WebSocket)
+    # 🔌 WebSocket (Socket.IO)
     # ------------------------------------------------------------
     if not config.toml.realtime.use_sse:
-        socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
-        socketio.init_app(app)
-        RealtimeBrokerManager.set_broker(SocketBroker(socketio))
-        logger.info("Rodando em modo WebSocket (SocketIO).")
-        register_ws_handlers(socketio)
-        socketio.run(app, debug=True)
+        logger.info("Rodando em modo WebSocket (Socket.IO).")
+
+        sio = socketio.AsyncServer(
+            async_mode="asgi",
+            cors_allowed_origins="*",
+        )
+
+        register_ws_handlers(sio)
+        RealtimeBrokerManager.set_broker(SocketBroker(sio))
+
+        return socketio.ASGIApp(
+            sio,
+            other_asgi_app=app,
+        )
 
     # ------------------------------------------------------------
-    # 🌐 Modo SSE (Server-Sent Events)
+    # 🌐 SSE
     # ------------------------------------------------------------
     else:
-        RealtimeBrokerManager.set_broker(SSEBroker())
         logger.info("Rodando em modo SSE (Server-Sent Events).")
-        app.run(debug=True, threaded=True)
+        RealtimeBrokerManager.set_broker(SSEBroker())
+        return app
+
+
+# ---------------------------------------------------------------------
+# Entry point (equivalente ao socketio.run / app.run)
+# ---------------------------------------------------------------------
+
+if __name__ == "__main__":
+    asgi_app = create_app()
+
+    uvicorn.run(
+        asgi_app,
+        host="0.0.0.0",
+        port=8000,
+        reload=True,  # DEV ONLY
+    )

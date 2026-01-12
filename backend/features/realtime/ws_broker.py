@@ -2,10 +2,10 @@ from collections import defaultdict
 from collections.abc import Iterable
 from threading import Lock
 
-from flask_socketio import SocketIO
+from socketio import AsyncServer
 
 from backend.core.logger import setup_logger
-from backend.types import SID, ClientID, Event, JSONValue
+from backend.types import ClientID, Event, JSONValue
 
 from .realtime_broker import RealtimeBroker
 
@@ -14,39 +14,52 @@ logger = setup_logger(__name__)
 
 class SocketBroker(RealtimeBroker):
     """
-    Implementação do broker Pub/Sub usando Flask-SocketIO.
+    Implementação do broker Pub/Sub usando python-socketio com ASGI.
     Permite notificar clientes conectados via WebSocket.
     """
 
-    def __init__(self, socketio: SocketIO):
-        self.socketio = socketio
+    def __init__(self, sio: AsyncServer):
+        self.sio = sio
         self._lock = Lock()
         self._subscriptions: dict[Event, set[ClientID]] = defaultdict(
             set
         )  # event -> set(client_id)
-        self._client_to_sids: dict[ClientID, set[SID]] = defaultdict(
+        self._client_to_sids: dict[ClientID, set[str]] = defaultdict(
             set
         )  # client_id -> sids
+        self._sid_to_client: dict[str, ClientID] = {}  # sid -> client_id
 
-    def register_client(self, client_id: ClientID, sid: SID) -> None:
+    def register_client(self, client_id: ClientID, sid: str) -> None:
+        """Registra um novo cliente WebSocket."""
         with self._lock:
             self._client_to_sids[client_id].add(sid)
+            self._sid_to_client[sid] = client_id
 
-    def remove_client(self, client_id: ClientID, sid: SID) -> None:
+    def remove_client(self, client_id: ClientID, sid: str) -> None:
+        """Remove um cliente desconectado."""
         with self._lock:
-            sids = self._client_to_sids.get(client_id)
-            if sids:
-                sids.discard(sid)
-                if not sids:
-                    del self._client_to_sids[client_id]
+            self._sid_to_client.pop(sid, None)
 
-            for subscribers in self._subscriptions.values():
-                subscribers.discard(client_id)
+            sids = self._client_to_sids.get(client_id)
+            if not sids:
+                return
+
+            sids.discard(sid)
+
+            if not sids:
+                del self._client_to_sids[client_id]
+                for subs in self._subscriptions.values():
+                    subs.discard(client_id)
+
+    def get_client_id_by_sid(self, sid: str) -> ClientID | None:
+        with self._lock:
+            return self._sid_to_client.get(sid)
 
     def update_subscription(self, client_id: ClientID, events: Iterable[Event]) -> None:
+        """Atualiza os eventos que o cliente está inscrito."""
         with self._lock:
-            for subscribers in self._subscriptions.values():
-                subscribers.discard(client_id)
+            for subs in self._subscriptions.values():
+                subs.discard(client_id)
             for event in events:
                 self._subscriptions[event].add(client_id)
 
@@ -57,15 +70,17 @@ class SocketBroker(RealtimeBroker):
         to: ClientID | None = None,
     ) -> None:
         with self._lock:
-            subscribers = self._subscriptions.get(event, set())
+            subscribers = self._subscriptions.get(event, set()).copy()
             if to is not None:
-                if to not in subscribers:
-                    return
-                target_clients = {to}
+                target_clients = {to} if to in subscribers else set()
             else:
                 target_clients = subscribers
 
-            for client_id in target_clients:
-                sids = self._client_to_sids.get(client_id, set())
-                for sid in sids:
-                    self.socketio.emit(event, payload, to=sid)
+            targets = {
+                sid
+                for cid in target_clients
+                for sid in self._client_to_sids.get(cid, set())
+            }
+
+        for sid in targets:
+            self.sio.start_background_task(self.sio.emit, event, payload, to=sid)
