@@ -4,7 +4,6 @@ from collections.abc import Iterable
 from queue import Empty, Queue
 from threading import Lock
 
-from fastapi import Request
 from fastapi.responses import StreamingResponse
 
 from backend.core.logger import setup_logger
@@ -83,12 +82,8 @@ class SSEBroker(RealtimeBroker):
     # --------------------------------------------------------------------- #
     # Connection handler
     # --------------------------------------------------------------------- #
-    def connect(self, request: Request) -> StreamingResponse:
+    def connect(self, client_id: str) -> StreamingResponse:
         """Rota SSE: cria client e retorna Response que streama eventos."""
-        client_id = request.cookies.get("client_id")
-        if not client_id:
-            return StreamingResponse("Unauthorized", status_code=401)
-
         self.register_client(client_id)
 
         return StreamingResponse(
