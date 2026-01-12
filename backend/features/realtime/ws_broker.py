@@ -5,7 +5,7 @@ from threading import Lock
 from socketio import AsyncServer
 
 from backend.core.logger import setup_logger
-from backend.types import ClientID, Event, JSONValue
+from backend.types import SID, ClientID, Event, JSONValue
 
 from .realtime_broker import RealtimeBroker
 
@@ -24,18 +24,18 @@ class SocketBroker(RealtimeBroker):
         self._subscriptions: dict[Event, set[ClientID]] = defaultdict(
             set
         )  # event -> set(client_id)
-        self._client_to_sids: dict[ClientID, set[str]] = defaultdict(
+        self._client_to_sids: dict[ClientID, set[SID]] = defaultdict(
             set
         )  # client_id -> sids
-        self._sid_to_client: dict[str, ClientID] = {}  # sid -> client_id
+        self._sid_to_client: dict[SID, ClientID] = {}  # sid -> client_id
 
-    def register_client(self, client_id: ClientID, sid: str) -> None:
+    def register_client(self, client_id: ClientID, sid: SID) -> None:
         """Registra um novo cliente WebSocket."""
         with self._lock:
             self._client_to_sids[client_id].add(sid)
             self._sid_to_client[sid] = client_id
 
-    def remove_client(self, client_id: ClientID, sid: str) -> None:
+    def remove_client(self, client_id: ClientID, sid: SID) -> None:
         """Remove um cliente desconectado."""
         with self._lock:
             self._sid_to_client.pop(sid, None)
@@ -51,7 +51,7 @@ class SocketBroker(RealtimeBroker):
                 for subs in self._subscriptions.values():
                     subs.discard(client_id)
 
-    def get_client_id_by_sid(self, sid: str) -> ClientID | None:
+    def get_client_id_by_sid(self, sid: SID) -> ClientID | None:
         with self._lock:
             return self._sid_to_client.get(sid)
 
