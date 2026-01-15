@@ -43,7 +43,6 @@ def main():
 
     # Verificar arquivos principais
     print("[1] Verificando arquivos principais...")
-    all_ok &= check_file_exists(project_root / "build.py", "Script de build")
     all_ok &= check_file_exists(
         project_root / "SimuladorFinanceiro.spec", "Spec PyInstaller"
     )

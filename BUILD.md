@@ -31,7 +31,7 @@ make build
 ```
 
 Este comando executa:
-1. `python build.py` - Compila o frontend React e copia para backend/static
+1. `cd frontend && npm run build` - Compila o frontend React diretamente para backend/static e backend/templates
 2. `pyinstaller SimuladorFinanceiro.spec` - Gera o executável
 
 ## 📦 Build por Etapas
@@ -44,21 +44,21 @@ Para compilar apenas o frontend React:
 make build-frontend
 ```
 
-Ou diretamente:
+Ou diretamente no diretório frontend:
 
 ```bash
-python build.py
+cd frontend
+npm run build
+# ou
+pnpm run build
 ```
 
-Isso irá:
-- Instalar dependências do frontend (se necessário)
-- Compilar o React app com Vite (tenta npm primeiro, depois pnpm como fallback)
-- Copiar os arquivos compilados para:
-  - `backend/static/` - Arquivos estáticos (JS, CSS, imagens)
-  - `backend/templates/` - index.html
+O Vite está configurado para:
+- Compilar o React app
+- Gerar os arquivos no diretório `backend/static/`
+- Mover automaticamente o `index.html` para `backend/templates/`
 
-**Nota**: O script suporta tanto npm quanto pnpm. Se você usa pnpm exclusivamente, 
-o script detectará automaticamente quando npm não estiver disponível.
+**Nota**: O build do Vite já está configurado no `vite.config.ts` para apontar para os diretórios corretos do backend.
 
 ### 2. Gerar Executável
 
@@ -138,16 +138,17 @@ Edite `SimuladorFinanceiro.spec` para:
 
 #### Configurar Build do Frontend
 
-Edite `build.py` para:
-- Mudar comandos de build
-- Adicionar etapas de pós-processamento
-- Customizar cópia de arquivos
+Edite `frontend/vite.config.ts` para:
+- Mudar diretório de output
+- Adicionar plugins customizados
+- Ajustar configurações de build do Vite
 
 ### Troubleshooting
 
-#### Erro: "Frontend dist não encontrado"
+#### Erro: "Backend static/templates não encontrado"
 - Certifique-se de que Node.js e npm estão instalados
-- Execute `npm install` no diretório `frontend/`
+- Execute `cd frontend && npm install`
+- Execute `cd frontend && npm run build`
 
 #### Erro: "PyInstaller não encontrado"
 - Execute `pip install pyinstaller`
@@ -157,7 +158,7 @@ Edite `build.py` para:
 - Execute em modo console para ver erros: edite `.spec` e defina `console=True`
 
 #### Arquivos estáticos não carregam
-- Verifique se `backend/static/` e `backend/templates/` existem
+- Verifique se `backend/static/` e `backend/templates/` existem após executar `npm run build` no frontend
 - Execute `make build-frontend` novamente
 
 ## 📝 Notas Importantes

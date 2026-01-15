@@ -3,9 +3,9 @@
 ## ✅ Funcionalidades Implementadas
 
 ### 1. Sistema de Build Automatizado
-- ✅ Script `build.py` que compila o frontend React automaticamente
-- ✅ Copia arquivos compilados para backend/static e backend/templates
-- ✅ Suporte para npm e pnpm (com fallback automático)
+- ✅ Vite configurado para build direto para backend/static e backend/templates
+- ✅ Plugin customizado no vite.config.ts para mover index.html para templates
+- ✅ Makefile simplificado com comando `make build-frontend`
 - ✅ Validação de dependências e estrutura do projeto
 
 ### 2. Configuração PyInstaller
@@ -74,7 +74,6 @@ make build-clean
 
 ```
 SimuladorFinanceiro/
-├── build.py                      ← Script de build do frontend
 ├── SimuladorFinanceiro.spec      ← Configuração PyInstaller
 ├── validate_build.py             ← Validação de pré-requisitos
 ├── BUILD.md                      ← Documentação completa
@@ -87,7 +86,7 @@ SimuladorFinanceiro/
 │   ├── static/                   ← Gerado pelo build (gitignored)
 │   └── templates/                ← Gerado pelo build (gitignored)
 ├── frontend/
-│   ├── dist/                     ← Saída temporária do Vite (gitignored)
+│   ├── vite.config.ts            ← Configurado para build direto no backend
 │   └── ...
 └── dist/                         ← Executável final (gitignored)
     └── SimuladorFinanceiro/
@@ -100,11 +99,11 @@ SimuladorFinanceiro/
 ```
 1. make build
    │
-   ├─> python build.py
+   ├─> cd frontend && npm run build
    │   │
-   │   ├─> npm install (se necessário)
-   │   ├─> npm run build (compila React)
-   │   └─> Copia para backend/static e backend/templates
+   │   ├─> vite build (compila React)
+   │   ├─> Gera arquivos em backend/static
+   │   └─> Move index.html para backend/templates
    │
    └─> pyinstaller SimuladorFinanceiro.spec
        │

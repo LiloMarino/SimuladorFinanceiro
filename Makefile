@@ -15,7 +15,7 @@ build: build-frontend build-exe
 
 build-frontend:
 	@echo "=== Compilando Frontend ==="
-	python build.py
+	cd frontend && npm run build
 
 build-exe:
 	@echo "=== Compilando Executável com PyInstaller ==="
