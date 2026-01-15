@@ -8,7 +8,7 @@ import { defineConfig, type Plugin } from "vite";
 function moveIndexHtmlPlugin(): Plugin {
   return {
     name: "move-index-html",
-    closeBundle() {
+    writeBundle() {
       const staticDir = path.resolve(__dirname, "../backend/static");
       const templatesDir = path.resolve(__dirname, "../backend/templates");
       const indexSource = path.join(staticDir, "index.html");
@@ -24,7 +24,9 @@ function moveIndexHtmlPlugin(): Plugin {
         unlinkSync(indexSource);
         console.log("✓ index.html movido para backend/templates");
       } catch (error) {
-        console.error("✗ Erro ao mover index.html:", error);
+        const errorMessage = `Erro ao mover index.html: ${error}`;
+        console.error(`✗ ${errorMessage}`);
+        throw new Error(errorMessage);
       }
     },
   };
