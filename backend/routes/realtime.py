@@ -12,7 +12,6 @@ logger = setup_logger(__name__)
 
 
 class UpdateSubscriptionRequest(BaseModel):
-    client_id: str
     events: list[str] = []
 
 
@@ -24,10 +23,9 @@ def stream(client_id: ClientID):
 
 
 @realtime_router.post("/update-subscription")
-def update_subscription(payload: UpdateSubscriptionRequest):
+def update_subscription(client_id: ClientID, payload: UpdateSubscriptionRequest):
     """Atualiza os eventos que um cliente está inscrito."""
     broker = get_broker()
-    client_id = payload.client_id
     events = payload.events
 
     broker.update_subscription(client_id, events)
