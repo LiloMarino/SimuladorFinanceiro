@@ -7,6 +7,33 @@ Este documento descreve como compilar o Simulador Financeiro em um executável �
 - Python 3.12+
 - Node.js e npm (para compilar o frontend)
 - Dependências Python instaladas: `pip install -r requirements.txt`
+- Make (Linux/Mac) ou alternativa para Windows (ver seção de compatibilidade)
+
+## Compatibilidade de Plataforma
+
+Este sistema de build foi projetado principalmente para **Linux/Mac**. 
+
+### Windows
+
+Para usuários Windows, há duas opções:
+
+1. **Usar WSL (Windows Subsystem for Linux)** - Recomendado
+   - Instale o WSL2 e uma distribuição Linux (Ubuntu recomendado)
+   - Execute todos os comandos dentro do WSL
+
+2. **Executar comandos manualmente**:
+   ```powershell
+   # Compilar frontend
+   cd frontend
+   npm run build
+   cd ..
+   
+   # Copiar frontend
+   python scripts/copy_frontend.py
+   
+   # Gerar executável
+   pyinstaller SimuladorFinanceiro.spec --clean --noconfirm
+   ```
 
 ## Como Compilar
 
