@@ -43,7 +43,7 @@ class SimulationLoopController:
     # --------------------------------------------------
     # ⛔ Stop
     # --------------------------------------------------
-    def stop(self):
+    def stop_loop(self):
         self._stop_event.set()
         self._start_event.set()  # libera caso esteja bloqueado
 
@@ -99,4 +99,4 @@ class SimulationLoopController:
 # --------------------------------------------------
 # 🌍 Instância global
 # --------------------------------------------------
-controller = SimulationLoopController()
+simulation_controller = SimulationLoopController()
