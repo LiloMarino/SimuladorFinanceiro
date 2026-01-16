@@ -49,6 +49,23 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 - **REST** → Comunicação em eventos e dados externos (front -> back).
 - **PyInstaller** → Empacotamento da aplicação como executável (.exe).  
 
+## 📦 Como Compilar o Executável
+
+Para compilar o projeto em um executável único que inclui frontend e backend:
+
+```bash
+make build
+```
+
+Isso irá:
+1. Compilar o frontend React/TypeScript
+2. Copiar os arquivos para o backend
+3. Gerar o executável com PyInstaller
+
+O executável será gerado em `dist/SimuladorFinanceiro.exe` (Windows) ou `dist/SimuladorFinanceiro` (Linux/Mac).
+
+Para mais detalhes, consulte a [documentação de build](docs/BUILD.md).
+
 ## 📜 Licença
 
 Este projeto está licenciado sob os termos da [Licença Pública Geral GNU, versão 3 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html).
