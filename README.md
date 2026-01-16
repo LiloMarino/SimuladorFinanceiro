@@ -30,7 +30,7 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 ✅ **Análise de desempenho**: Retorno, drawdown, índice de Sharpe, etc.  
 ✅ **Eventos econômicos dinâmicos**: Crises, mudanças nos juros e inflação.  
 ✅ **Gráficos interativos** em **Plotly + Dash** para acompanhar a evolução do portfólio.  
-✅ **Interface Web personalizada** via **Flask + Dash + CSS**.  
+✅ **Interface Web personalizada** via **React + FastAPI + CSS**.  
 ✅ **Suporte a múltiplas fontes de dados** (Yahoo Finance, MySQL, SQLite).  
 ✅ **Modo Multiplayer** com servidor cliente-servidor via **WebSockets**.  
 ✅ **Atualizações em tempo real** simulando ticks do mercado.  
@@ -39,8 +39,8 @@ O objetivo é oferecer um ambiente dinâmico para experimentação de estratégi
 ## 🛠️ Tecnologias Utilizadas  
 
 - **[Backtrader](https://www.backtrader.com/)** → Motor de backtesting e simulação.  
-- **[Flask](https://flask.palletsprojects.com/)** → Backend da aplicação.  
-- **[Dash](https://dash.plotly.com/)** → Framework para interface gráfica interativa.  
+- **[FastAPI](https://fastapi.tiangolo.com/)** → Backend da aplicação.  
+- **[React](https://react.dev/)** → Framework para interface gráfica interativa.  
 - **[Plotly](https://plotly.com/python/)** → Gráficos dinâmicos para acompanhamento do portfólio.  
 - **[yfinance](https://pypi.org/project/yfinance/)** → Dados do mercado financeiro.  
 - **[SQLAlchemy](https://www.sqlalchemy.org/)** → ORM para banco de dados.  

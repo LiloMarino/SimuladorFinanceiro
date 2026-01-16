@@ -10,13 +10,13 @@
 
 ### 2. Configuração PyInstaller
 - ✅ Arquivo `.spec` configurado para incluir frontend e backend
-- ✅ Hidden imports para Flask, SocketIO, SQLAlchemy e outras dependências
+- ✅ Hidden imports para FastAPI, Uvicorn, SocketIO, SQLAlchemy e outras dependências
 - ✅ Detecção de ambiente "frozen" no main.py para ajuste de caminhos
 - ✅ Geração de executável standalone
 
 ### 3. Integração Backend-Frontend
 - ✅ Nova rota em `backend/routes/frontend.py` para servir o SPA React
-- ✅ Configuração do Flask com `static_url_path=""` para servir assets da raiz
+- ✅ Configuração do FastAPI com `StaticFiles` para servir assets
 - ✅ Catch-all route que permite React Router funcionar corretamente
 - ✅ Separação clara entre rotas de API (/api/*) e frontend
 
@@ -121,9 +121,9 @@ Ao executar `make build`, o usuário obtém:
 3. **Tudo empacotado**: Basta distribuir a pasta dist/SimuladorFinanceiro/
 
 Quando o usuário executa o .exe:
-- Backend Flask inicia automaticamente
+- Backend FastAPI inicia automaticamente via Uvicorn
 - Frontend é servido pelo backend
-- Aplicação acessível em http://localhost:5000
+- Aplicação acessível em http://localhost:8000
 - Tudo funciona sem precisar instalar Python ou Node.js
 
 ## 🧪 Testes Realizados
@@ -140,10 +140,10 @@ Quando o usuário executa o .exe:
 
 ### Decisões Técnicas
 
-1. **Flask static_url_path=""**: Permite servir assets do frontend na raiz (/, /assets/)
+1. **FastAPI StaticFiles**: Monta diretórios estáticos do frontend para servir assets
 2. **Catch-all route**: Registrada por último para não interferir com rotas de API
 3. **Cross-platform Makefile**: Usa Python para operações de arquivo (funciona em todos OS)
-4. **npm/pnpm fallback**: Suporta ambos os gerenciadores automaticamente
+4. **Vite build config**: Build direto para backend/ sem script intermediário
 5. **PyInstaller ONEDIR**: Mais fácil de debugar que ONEFILE, permite atualizações parciais
 
 ### Compatibilidade
