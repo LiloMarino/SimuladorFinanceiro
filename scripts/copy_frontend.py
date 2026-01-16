@@ -48,11 +48,27 @@ def main():
     else:
         print("⚠️  Aviso: pasta assets não encontrada no dist")
 
-    # Copia outros arquivos estáticos (favicon, etc.)
+    # Copia outros arquivos estáticos comuns (favicon, manifests, etc.)
+    # Lista de extensões permitidas para arquivos estáticos
+    allowed_extensions = {
+        ".ico",
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".svg",
+        ".txt",
+        ".json",
+        ".xml",
+        ".webmanifest",
+    }
+
     for item in frontend_dist.iterdir():
         if item.is_file() and item.name != "index.html":
-            print(f"📋 Copiando {item.name}...")
-            shutil.copy2(item, backend_static / item.name)
+            if item.suffix.lower() in allowed_extensions:
+                print(f"📋 Copiando {item.name}...")
+                shutil.copy2(item, backend_static / item.name)
+            else:
+                print(f"⏭️  Ignorando {item.name} (extensão não permitida)")
 
     print("✅ Frontend copiado com sucesso!")
     print(f"   - Templates: {backend_templates}")

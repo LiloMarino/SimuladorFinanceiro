@@ -29,8 +29,8 @@ spec:
 	pyinstaller $(EXEC) \
 		--onefile \
 		--name $(APP_NAME) \
-		--add-data "backend/static;backend/static" \
-		--add-data "backend/templates;backend/templates"
+		--add-data "backend/static:backend/static" \
+		--add-data "backend/templates:backend/templates"
 
 # --------------------------------------------------------------
 # Lint
@@ -78,7 +78,7 @@ cprofile:
 	snakeviz $(CPROFILE_OUT)
 
 lineprofile:
-	set LINE_PROFILE=1 && python $(EXEC)
+	LINE_PROFILE=1 python $(EXEC)
 
 lineprofile-view:
 	python -m line_profiler $(LINEPROFILE_OUT)
