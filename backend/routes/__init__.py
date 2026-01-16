@@ -1,5 +1,9 @@
+import sys
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from backend.core.logger import setup_logger
 from backend.routes.auth import auth_router
@@ -41,3 +45,60 @@ def register_routes(app: FastAPI):
         Exceções HTTP serão tratadas devidamente com seus respetivos status code
         """
         return JSONResponse(status_code=e.status_code, content={"message": e.detail})
+
+    # ------------------------------------------------------------
+    # Servir frontend estático (para o executável)
+    # ------------------------------------------------------------
+    # Detecta se está rodando em um executável PyInstaller
+    if getattr(sys, "frozen", False):
+        # Rodando no executável
+        base_path = Path(sys._MEIPASS)  # type: ignore
+    else:
+        # Rodando em desenvolvimento
+        base_path = Path(__file__).parent.parent.parent
+
+    static_dir = base_path / "backend" / "static"
+    templates_dir = base_path / "backend" / "templates"
+
+    if static_dir.exists() and templates_dir.exists():
+        logger.info(f"Servindo frontend estático de: {static_dir}")
+
+        # Serve os arquivos estáticos (CSS, JS, imagens, etc.)
+        app.mount(
+            "/assets", StaticFiles(directory=str(static_dir / "assets")), name="assets"
+        )
+
+        # Serve o index.html na raiz
+        @app.get("/")
+        async def serve_spa():
+            index_path = templates_dir / "index.html"
+            if index_path.exists():
+                return FileResponse(index_path)
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "message": "Frontend não encontrado. Execute 'make build-frontend' primeiro."
+                },
+            )
+
+        # Captura todas as outras rotas não-API e serve o index.html (para SPA routing)
+        @app.get("/{full_path:path}")
+        async def serve_spa_routes(full_path: str):
+            # Ignora rotas que começam com /api, /socket.io, /assets
+            if full_path.startswith(("api/", "socket.io/", "assets/")):
+                return JSONResponse(status_code=404, content={"message": "Not Found"})
+
+            index_path = templates_dir / "index.html"
+            if index_path.exists():
+                return FileResponse(index_path)
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "message": "Frontend não encontrado. Execute 'make build-frontend' primeiro."
+                },
+            )
+    else:
+        logger.warning(
+            f"Diretórios de frontend não encontrados. "
+            f"Static: {static_dir.exists()}, Templates: {templates_dir.exists()}"
+        )
