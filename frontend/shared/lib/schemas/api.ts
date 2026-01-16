@@ -1,7 +1,8 @@
 import { z } from "zod";
 
-export const ApiResponseSchema = z.object({
-  status: z.enum(["success", "error"]),
+// Schema para respostas de erro da API
+export const ApiErrorSchema = z.object({
   message: z.string(),
-  data: z.any(),
 });
+
+export type ApiError = z.infer<typeof ApiErrorSchema>;

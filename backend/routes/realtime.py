@@ -1,34 +1,33 @@
-from flask import Blueprint, request
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
+from backend.core.dependencies import ClientID
 from backend.core.logger import setup_logger
 from backend.features.realtime import get_broker, get_sse_broker
-from backend.routes.helpers import make_response
 
-realtime_bp = Blueprint("realtime", __name__)
+realtime_router = APIRouter(prefix="/api", tags=["Realtime"])
 
 logger = setup_logger(__name__)
 
 
-@realtime_bp.route("/api/stream")
-def stream():
+class UpdateSubscriptionRequest(BaseModel):
+    events: list[str] = []
+
+
+@realtime_router.get("/stream")
+def stream(client_id: ClientID):
+    """SSE stream endpoint - retorna eventos em tempo real."""
     broker = get_sse_broker()
-    return broker.connect()
+    return broker.connect(client_id)
 
 
-@realtime_bp.route("/api/update-subscription", methods=["POST"])
-def update_subscription():
+@realtime_router.post("/update-subscription")
+def update_subscription(client_id: ClientID, payload: UpdateSubscriptionRequest):
+    """Atualiza os eventos que um cliente está inscrito."""
     broker = get_broker()
-    data = request.get_json(force=True)
-    client_id = data.get("client_id")
-    events = data.get("events", [])
-
-    if not client_id:
-        return make_response(False, "client_id required", 400)
+    events = payload.events
 
     broker.update_subscription(client_id, events)
     logger.info("Updating subscription: %s -> %s", client_id, events)
-    return make_response(
-        True,
-        "Subscription updated",
-        data={"client_id": client_id, "events": events},
-    )
+    return JSONResponse(content={"client_id": client_id, "events": events})

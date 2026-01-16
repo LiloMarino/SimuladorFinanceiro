@@ -4,7 +4,7 @@ from collections.abc import Iterable
 from queue import Empty, Queue
 from threading import Lock
 
-from flask import Response, request, stream_with_context
+from fastapi.responses import StreamingResponse
 
 from backend.core.logger import setup_logger
 from backend.core.runtime.user_manager import UserManager
@@ -23,16 +23,15 @@ class SSEBroker(RealtimeBroker):
     """
 
     def __init__(self):
-        self._subscriptions: dict[str, set[str]] = defaultdict(
+        self._subscriptions: dict[Event, set[ClientID]] = defaultdict(
             set
         )  # event -> set(client_id)
-        self._clients: dict[str, Queue] = {}  # client_id -> Queue
+        self._clients: dict[ClientID, Queue[str]] = {}  # client_id -> Queue
         self._lock = Lock()
 
     def register_client(self, client_id: ClientID) -> None:
         with self._lock:
-            if client_id not in self._clients:
-                self._clients[client_id] = Queue()
+            self._clients.setdefault(client_id, Queue())
         UserManager.register(client_id)
         logger.info("SSE conectado: %s", client_id)
 
@@ -62,55 +61,51 @@ class SSEBroker(RealtimeBroker):
         payload: JSONValue,
         to: ClientID | None = None,
     ) -> None:
-        """Envia payload para todos os clientes inscritos."""
+        """Envia payload para todos os clientes inscritos (thread-safe)."""
         packet = (
             f"event: {event}\n"
             f"data: {json.dumps({'event': event, 'payload': payload})}\n\n"
         )
 
         with self._lock:
-            target_clients = self._subscriptions.get(event, set()).copy()
+            subscribers = self._subscriptions.get(event, set()).copy()
+            if to is not None:
+                target_clients = {to} if to in subscribers else set()
+            else:
+                target_clients = subscribers
 
         for cid in target_clients:
             q = self._clients.get(cid)
             if q:
-                try:
-                    q.put(packet)
-                except Exception:
-                    logger.exception("Erro ao enfileirar mensagem para %s", cid)
+                q.put(packet)
 
     # --------------------------------------------------------------------- #
     # Connection handler
     # --------------------------------------------------------------------- #
-    def connect(self):
+    def connect(self, client_id: str) -> StreamingResponse:
         """Rota SSE: cria client e retorna Response que streama eventos."""
-        client_id = request.cookies.get("client_id")
-        if not client_id:
-            return Response("Unauthorized", status=401)
-
         self.register_client(client_id)
-        self.update_subscription(client_id, [])
-        return Response(
-            stream_with_context(self._listen_generator(client_id)),
-            mimetype="text/event-stream",
+
+        return StreamingResponse(
+            self._listen_generator(client_id),
+            media_type="text/event-stream",
         )
 
     def _listen_generator(self, client_id: str):
+        """Generator que yields eventos SSE para o cliente."""
         with self._lock:
             q = self._clients.get(client_id)
             if not q:
                 return
 
         # Mensagem inicial
-        yield (f"event: connected\ndata: {json.dumps({'client_id': client_id})}\n\n")
+        yield f"event: connected\ndata: {json.dumps({'client_id': client_id})}\n\n"
 
         try:
             while True:
                 try:
-                    packet = q.get(timeout=15)
-                    yield packet
+                    yield q.get(timeout=15)
                 except Empty:
-                    # Mantém conexão viva
-                    continue
-        except GeneratorExit:
+                    yield ": heartbeat\n\n"
+        finally:
             self.remove_client(client_id)

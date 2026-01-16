@@ -1,25 +1,29 @@
-from werkzeug.exceptions import Forbidden, Unauthorized
+from backend.core.exceptions.http_exceptions import ForbiddenError, UnauthorizedError
 
 
-class NoActiveSimulationError(Forbidden):
+class NoActiveSimulationError(ForbiddenError):
     """Não existe uma simulação ativa."""
 
-    description = "Não existe uma simulação ativa"
+    def __init__(self, detail: str = "Não existe uma simulação ativa"):
+        super().__init__(detail=detail)
 
 
-class SessionNotInitializedError(Unauthorized):
+class SessionNotInitializedError(UnauthorizedError):
     """Sessão do usuário não iniciada."""
 
-    description = "Sessão não iniciada"
+    def __init__(self, detail: str = "Sessão não iniciada"):
+        super().__init__(detail=detail)
 
 
-class InsufficentCashError(Forbidden):
+class InsufficentCashError(ForbiddenError):
     """O usuário não possui saldo suficiente para completar a operação."""
 
-    description = "Saldo insuficiente para completar a operação"
+    def __init__(self, detail: str = "Saldo insuficiente para completar a operação"):
+        super().__init__(detail=detail)
 
 
-class InsufficentPositionError(Forbidden):
+class InsufficentPositionError(ForbiddenError):
     """O usuário não possui posição suficiente para completar a operação."""
 
-    description = "Posição insuficiente para completar a operação"
+    def __init__(self, detail: str = "Posição insuficiente para completar a operação"):
+        super().__init__(detail=detail)

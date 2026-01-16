@@ -1,5 +1,6 @@
-from flask import request
-from flask_socketio import SocketIO, emit
+from http.cookies import SimpleCookie
+
+from socketio import AsyncServer
 
 from backend.core.logger import setup_logger
 from backend.core.runtime.user_manager import UserManager
@@ -8,41 +9,49 @@ from backend.features.realtime import get_socket_broker
 logger = setup_logger(__name__)
 
 
-def register_ws_handlers(socketio: SocketIO):
-    @socketio.on("connect")
-    def on_connect():  # type: ignore
-        broker = get_socket_broker()
-        client_id = request.cookies.get("client_id")
-        sid = request.sid  # type: ignore[attr-defined]
+def register_ws_handlers(sio: AsyncServer):
+    async def _extract_client_id(environ) -> str | None:
+        cookies = SimpleCookie(environ.get("HTTP_COOKIE", ""))
+        client = cookies.get("client_id")
+        return client.value if client else None
 
+    @sio.event
+    async def connect(sid, environ):  # type: ignore
+        broker = get_socket_broker()
+        if broker._loop is None:
+            broker.bind_event_loop()
+        client_id = await _extract_client_id(environ)
         # Recusa conexão se não tiver client_id
         if not client_id:
+            logger.warning("WS connection rejected (no client_id)")
             return False
 
         broker.register_client(client_id, sid)
         UserManager.register(client_id)
-        logger.info(f"WS client connected: {client_id} (sid={sid})")
 
-    @socketio.on("disconnect")
-    def on_disconnect():  # type: ignore
+        logger.info(f"WS client connected: {client_id} (sid={sid})")
+        return True
+
+    @sio.event
+    async def disconnect(sid):  # type: ignore
         broker = get_socket_broker()
-        client_id = request.cookies.get("client_id")
-        sid = request.sid  # type: ignore[attr-defined]
+        client_id = broker.get_client_id_by_sid(sid)
 
         if client_id:
             broker.remove_client(client_id, sid)
             UserManager.unregister(client_id)
             logger.info(f"WS client disconnected: {client_id} (sid={sid})")
 
-    @socketio.on("subscribe")
-    def on_subscribe(data):  # type: ignore
+    @sio.event
+    async def subscribe(sid, data):  # type: ignore
         broker = get_socket_broker()
-        client_id = request.cookies.get("client_id")
+        client_id = broker.get_client_id_by_sid(sid)
 
         if not client_id:
             return
 
         events = data.get("events", [])
         broker.update_subscription(client_id, events)
-        emit("subscribed", {"events": events})
+
+        await sio.emit("subscribed", {"events": events}, to=sid)
         logger.info(f"WS client subscribed: {client_id} -> {events}")

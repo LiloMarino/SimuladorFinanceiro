@@ -3,8 +3,6 @@ import time
 
 from backend.core.logger import setup_logger
 from backend.core.runtime.simulation_manager import SimulationManager
-from backend.features.realtime import get_broker
-from backend.features.realtime.ws_broker import SocketBroker
 
 logger = setup_logger(__name__)
 
@@ -43,7 +41,7 @@ class SimulationLoopController:
     # --------------------------------------------------
     # ⛔ Stop
     # --------------------------------------------------
-    def stop(self):
+    def stop_loop(self):
         self._stop_event.set()
         self._start_event.set()  # libera caso esteja bloqueado
 
@@ -69,7 +67,7 @@ class SimulationLoopController:
                 speed = simulation.get_speed()
 
                 if speed <= 0:
-                    self._sleep(0.1)
+                    time.sleep(0.1)
                     continue
 
                 try:
@@ -79,24 +77,14 @@ class SimulationLoopController:
                     SimulationManager.clear_simulation()
                     break
 
-                self._sleep(1 / speed)
+                time.sleep(1 / speed)
 
         except Exception:
             logger.critical("Erro fatal no loop da simulação.")
             logger.exception("Erro fatal no loop da simulação.")
 
-    # --------------------------------------------------
-    # 💤 Sleep compatível com WS / SSE
-    # --------------------------------------------------
-    def _sleep(self, delay: float):
-        broker = get_broker()
-        if isinstance(broker, SocketBroker):
-            broker.socketio.sleep(delay)  # type: ignore
-        else:
-            time.sleep(delay)
-
 
 # --------------------------------------------------
 # 🌍 Instância global
 # --------------------------------------------------
-controller = SimulationLoopController()
+simulation_controller = SimulationLoopController()

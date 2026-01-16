@@ -1,19 +1,20 @@
-from flask import Blueprint
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
-from backend.core.decorators.simulation import require_simulation
-from backend.features.simulation.simulation import Simulation
-from backend.routes.helpers import make_response
+from backend.core.dependencies import ActiveSimulation
 
-statistics_bp = Blueprint("statistics", __name__)
+statistics_router = APIRouter(prefix="/api", tags=["Statistics"])
 
 
-@statistics_bp.route("/api/statistics", methods=["GET"])
-@require_simulation
-def get_statistics(simulation: Simulation):
+@statistics_router.get("/statistics")
+def get_statistics(simulation: ActiveSimulation):
     """Return performance statistics."""
     stats = simulation.get_statistics()
-    return make_response(
-        True,
-        "Statistics loaded successfully.",
-        data=[stat.to_json() for stat in stats],
-    )
+    return JSONResponse(content=[stat.to_json() for stat in stats])
+
+
+@statistics_router.get("/economic-indicators")
+def get_economic_indicators(simulation: ActiveSimulation):
+    """Return economic indicators."""
+    indicators = simulation.get_economic_indicators()
+    return JSONResponse(content=indicators)

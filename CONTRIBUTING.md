@@ -359,3 +359,33 @@ SocketBroker --> SocketClient : Pub/Sub WS (dependency)
 * Seguro: TypeScript e Python garantem que as implementações concretas seguem os contratos.
 * Reutilizável: múltiplos componentes podem usar o mesmo hook sem criar novas conexões.
 * Evita memory leaks: subscribe/unsubscribe gerenciados pelo hook.
+
+## ⚡ Diretrizes Async vs Sync
+
+Esta seção explica onde usar código assíncrono (`async`) e onde manter código síncrono (`def`) neste projeto. O objetivo é evitar mudanças desnecessárias e incidentes ao misturar threads e event loops.
+
+- **Domínio e engine (mantenha síncrono):** A lógica central da simulação — `backend/features/simulation/*`, `Simulation`, `SimulationEngine`, e a maior parte dos repositórios/DAO — deve permanecer síncrona. Essas camadas fazem muitas operações síncronas (acesso ao banco, cálculos complexos) e são executadas em threads dedicadas quando necessário.
+
+- **Loop da simulação (thread dedicada):** A `SimulationLoopController` roda em uma `thread` separada e deve usar `time.sleep()`/bloqueios de thread. Não transforme o loop em um coroutine a menos que o core também mude para async.
+
+- **Camada de transporte (async):** Transporte Web e WebSocket (FastAPI/ASGI, `socketio.AsyncServer`, handlers async) devem permanecer assíncronos. Handlers, middlewares e integrações com ASGI serão `async def`.
+
+- **`notify()` (interface pública do broker):** Recomenda-se manter a função `notify(event, payload, to=None)` síncrona (fire-and-forget). Isso permite que o domínio (simulação, engines) chame `notify()` sem precisar virar `async` — evitando uma grande migração de callsites.
+
+- **Entrega de eventos (implementação interna do broker):** A entrega real aos clientes (emit no `SocketBroker`) deve ser feita de forma não bloqueante: o broker pode agendar corrotinas no event loop (por exemplo, com `asyncio.run_coroutine_threadsafe`) ou usar `sio.start_background_task`. Assim, `notify()` continua síncrona, mas não bloqueia a thread que o chamou.
+
+- **Locks e sincronização:**
+  - Se a maioria dos callers do broker já for assíncrona e você migrar o core para async, passe a usar `asyncio.Lock` e torne os métodos do broker `async def`.
+  - Se mantiver o core síncrono, use locks de thread (`threading.Lock`) internamente e agende emissões no loop assíncrono; isso evita bloquear o event loop em chamadas originadas por threads.
+
+- **Quando migrar para 100% async:** Só faça a migração completa (tornar `notify` async e transformar callsites em `await`) se:
+  1. A maior parte do código que chama `notify` já for async; e
+  2. O domínio (acesso a I/O, repos) também for migrado para async; e
+  3. Você precisa de maior escala/concurrency que não seja possível com o modelo atual.
+
+- **Boas práticas rápidas:**
+  - Do thread -> asyncio: use `asyncio.run_coroutine_threadsafe(coro, loop)` para emitir eventos com segurança.
+  - Não chame `await` em handlers que são executados em threads; agende ou use background tasks.
+  - Teste a integração thread->async em ambiente local antes de deploy.
+
+Adicionar essas diretrizes no `CONTRIBUTING.md` ajuda a deixar claro o contrato arquitetural do projeto e evita decisões ad-hoc que possam introduzir deadlocks, bloqueios do event loop ou código difícil de manter.
