@@ -24,8 +24,11 @@ class UserClaimRequest(BaseModel):
     nickname: str
 
 
-@auth_router.post("/session/init")
-def session_init(request: Request, response: Response):
+@auth_router.post(
+    "/session/init",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def session_init(request: Request):
     """
     Garante que o cliente possua um client_id persistido no cookie.
     Se já existir → retorna o existente.
@@ -34,20 +37,18 @@ def session_init(request: Request, response: Response):
     client_id = request.cookies.get("client_id")
 
     if client_id:
-        # Já possui sessão
-        return JSONResponse(content={"client_id": client_id})
+        return
 
-    # Criar nova sessão anônima
-    new_client_id = str(uuid.uuid4())
+    response = Response(status_code=status.HTTP_204_NO_CONTENT)
 
     response.set_cookie(
         key="client_id",
-        value=new_client_id,
+        value=str(uuid.uuid4()),
         httponly=True,
         samesite="lax",
     )
 
-    return JSONResponse(content={"client_id": new_client_id})
+    return response
 
 
 @auth_router.get("/session/me")
@@ -65,18 +66,18 @@ def session_me(client_id: ClientID):
     return JSONResponse(content=session_dto.to_json())
 
 
-@auth_router.post("/session/logout")
-def session_logout(response: Response):
+@auth_router.post("/session/logout", status_code=status.HTTP_204_NO_CONTENT)
+def session_logout():
     """
     Remove o cookie de sessão atual.
     """
+    response = Response(status_code=status.HTTP_204_NO_CONTENT)
     response.delete_cookie(
         key="client_id",
         httponly=True,
         samesite="lax",
     )
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return response
 
 
 @auth_router.post("/user/register")
