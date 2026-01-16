@@ -1,24 +1,43 @@
 """
-Frontend serving routes.
+Frontend serving routes for FastAPI.
 
 This module provides routes to serve the React frontend application.
 """
 
-from flask import Blueprint, render_template
+from pathlib import Path
 
-frontend_bp = Blueprint("frontend", __name__)
+from fastapi import APIRouter
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+frontend_router = APIRouter()
+
+# Diretórios do backend (ajustados para PyInstaller)
+import sys
+if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+    # Rodando como executável PyInstaller
+    base_path = Path(getattr(sys, "_MEIPASS"))
+else:
+    # Rodando como script Python normal
+    base_path = Path(__file__).parent.parent.parent.resolve()
+
+BACKEND_DIR = base_path / "backend"
+STATIC_DIR = BACKEND_DIR / "static"
+TEMPLATES_DIR = BACKEND_DIR / "templates"
 
 
-@frontend_bp.route("/", defaults={"path": ""})
-@frontend_bp.route("/<path:path>")
-def serve_frontend(path: str):
+@frontend_router.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
     """
     Serve o frontend React para todas as rotas que não são da API.
     
-    Flask automaticamente serve arquivos estáticos (assets/, vite.svg) de
-    static_folder devido à configuração static_url_path="" em main.py.
-    
+    FastAPI automaticamente serve arquivos estáticos montados via StaticFiles.
     Esta rota serve index.html para todas as outras rotas, permitindo que
     o React Router funcione corretamente (SPA).
     """
-    return render_template("index.html")
+    # Serve index.html para permitir React Router
+    index_path = TEMPLATES_DIR / "index.html"
+    if index_path.exists():
+        return FileResponse(index_path)
+    else:
+        return FileResponse(STATIC_DIR / "index.html")
