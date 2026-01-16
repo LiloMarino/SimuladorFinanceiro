@@ -18,12 +18,9 @@ datas = []
 
 # Adiciona o frontend compilado se existir
 static_dir = project_root / "backend" / "static"
-templates_dir = project_root / "backend" / "templates"
 
 if static_dir.exists():
     datas.append((str(static_dir), "backend/static"))
-if templates_dir.exists():
-    datas.append((str(templates_dir), "backend/templates"))
 
 # Coleta todos os módulos do backend
 hiddenimports = [

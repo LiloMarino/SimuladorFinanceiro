@@ -32,9 +32,8 @@ share/python-wheels/
 *.manifest
 *.exe
 
-# Backend static/templates (gerados pelo build)
+# Backend static (gerado pelo build)
 backend/static/
-backend/templates/
 
 # Banco local / instância
 instance/

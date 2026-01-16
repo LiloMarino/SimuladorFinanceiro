@@ -44,8 +44,7 @@ make build
 
 Este comando irá:
 1. Compilar o frontend React/TypeScript com Vite
-2. Automaticamente copiar os arquivos para `backend/static` e `backend/templates` usando plugin customizado do Vite
-3. Gerar o executável usando PyInstaller
+2. Gerar o executável usando PyInstaller
 
 ### 2. Compilação em Etapas
 
@@ -65,8 +64,7 @@ Após a compilação:
 
 - `dist/SimuladorFinanceiro.exe` - O executável final (Windows)
 - `dist/SimuladorFinanceiro` - O executável final (Linux/Mac)
-- `backend/static/` - Arquivos estáticos do frontend (CSS, JS, imagens)
-- `backend/templates/` - Template HTML do frontend (index.html)
+- `backend/static/` - Arquivos estáticos do frontend (index.html, CSS, JS, imagens)
 
 ## Como Executar
 
@@ -90,7 +88,7 @@ O executável irá:
 Para limpar os arquivos de build:
 
 ```bash
-# Limpar apenas arquivos de build (dist, build, backend/static, backend/templates)
+# Limpar apenas arquivos de build (dist, build, backend/static)
 make build-clean
 
 # Limpar apenas artefatos auxiliares (*.prof, *.lprof, etc.)
@@ -112,8 +110,8 @@ make spec
 ### Frontend não aparece no executável
 
 Certifique-se de que:
-1. O frontend foi compilado: `cd frontend && pnpm run build` (já copia automaticamente os arquivos)
-2. As pastas `backend/static` e `backend/templates` existem e contêm os arquivos
+1. O frontend foi compilado: `cd frontend && pnpm run build`
+2. A pasta `backend/static` existe e contém `index.html` e `assets/`
 
 ### Erro ao executar o .exe
 
@@ -132,10 +130,9 @@ pip install -r requirements.txt
 
 ### Como Funciona
 
-1. **Frontend**: O Vite compila o React/TypeScript em arquivos estáticos otimizados
-2. **Plugin Customizado**: Um plugin Vite customizado (`moveIndexHtmlPlugin`) automaticamente move o `index.html` para `backend/templates/` enquanto outros assets ficam em `backend/static/` - tudo isso acontece durante o `pnpm build` sem necessidade de scripts Python
-3. **Backend**: FastAPI serve os arquivos estáticos e o index.html, detectando automaticamente se está rodando no executável ou em modo desenvolvimento
-4. **PyInstaller**: Empacota tudo (Python + frontend) em um único executável usando o arquivo `.spec`
+1. **Frontend**: O Vite compila o React/TypeScript em arquivos estáticos otimizados diretamente em `backend/static/`
+2. **Backend**: FastAPI serve todos os arquivos de `backend/static/`, incluindo `index.html`, detectando automaticamente se está rodando no executável ou em modo desenvolvimento
+3. **PyInstaller**: Empacota tudo (Python + frontend) em um único executável usando o arquivo `.spec`
 
 ### Rotas da Aplicação
 

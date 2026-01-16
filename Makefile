@@ -27,8 +27,7 @@ spec:
 	pyinstaller $(EXEC) \
 		--onefile \
 		--name $(APP_NAME) \
-		--add-data "backend/static:backend/static" \
-		--add-data "backend/templates:backend/templates"
+		--add-data "backend/static:backend/static"
 
 # --------------------------------------------------------------
 # Lint
@@ -90,7 +89,7 @@ snakeviz:
 
 build-clean:
 	@echo "=== Limpando arquivos de build ==="
-	python -c "import shutil; from pathlib import Path; dirs=['backend/static','backend/templates','build','dist']; [shutil.rmtree(d) if Path(d).exists() else None for d in dirs]"
+	python -c "import shutil; from pathlib import Path; dirs=['backend/static','build','dist']; [shutil.rmtree(d) if Path(d).exists() else None for d in dirs]"
 	@echo "Build limpo!"
 
 clean:
