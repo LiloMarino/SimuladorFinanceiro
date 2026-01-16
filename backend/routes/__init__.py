@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 
 from backend.core.logger import setup_logger
 from backend.routes.auth import auth_router
-from backend.routes.helpers import make_response
 from backend.routes.importer import import_router
 from backend.routes.operation import operation_router
 from backend.routes.portfolio import portfolio_router
@@ -33,11 +33,11 @@ def register_routes(app: FastAPI):
         Exceções normais do python serão tratadas como Internal Server Error
         """
         logger.exception(f"{e.__class__.__name__}: {e}")
-        return make_response(False, str(e), 500)
+        return JSONResponse(status_code=500, content={"message": str(e)})
 
     @app.exception_handler(HTTPException)
     async def handle_http_exception(request: Request, e: HTTPException):  # type: ignore
         """
         Exceções HTTP serão tratadas devidamente com seus respetivos status code
         """
-        return make_response(False, e.detail, status_code=e.status_code)
+        return JSONResponse(status_code=e.status_code, content={"message": e.detail})

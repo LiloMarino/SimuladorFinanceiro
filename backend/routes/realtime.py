@@ -1,10 +1,10 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from backend.core.dependencies import ClientID
 from backend.core.logger import setup_logger
 from backend.features.realtime import get_broker, get_sse_broker
-from backend.routes.helpers import make_response
 
 realtime_router = APIRouter(prefix="/api", tags=["Realtime"])
 
@@ -32,8 +32,4 @@ def update_subscription(payload: UpdateSubscriptionRequest):
 
     broker.update_subscription(client_id, events)
     logger.info("Updating subscription: %s -> %s", client_id, events)
-    return make_response(
-        True,
-        "Subscription updated",
-        data={"client_id": client_id, "events": events},
-    )
+    return JSONResponse(content={"data": {"client_id": client_id, "events": events}})

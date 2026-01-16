@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from backend import config
@@ -16,7 +17,6 @@ from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
 from backend.features.simulation.simulation_loop import simulation_controller
-from backend.routes.helpers import make_response
 
 simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
 
@@ -40,22 +40,11 @@ def simulation_status():
     try:
         sim = SimulationManager.get_active_simulation()
         data = sim.settings
-        return make_response(
-            True,
-            "Simulation active.",
-            data={
-                "active": True,
-                "simulation": data.to_json(),
-            },
+        return JSONResponse(
+            content={"data": {"active": True, "simulation": data.to_json()}}
         )
     except NoActiveSimulationError:
-        return make_response(
-            True,
-            "No active simulation.",
-            data={
-                "active": False,
-            },
-        )
+        return JSONResponse(content={"data": {"active": False}})
 
 
 @simulation_router.post("/create", status_code=201)
@@ -83,14 +72,9 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
             "simulation": data.to_json(),
         },
     )
-    return make_response(
-        True,
-        "Simulation created.",
+    return JSONResponse(
         status_code=201,
-        data={
-            "active": True,
-            "simulation": data.to_json(),
-        },
+        content={"data": {"active": True, "simulation": data.to_json()}},
     )
 
 
@@ -129,24 +113,17 @@ def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
         },
     )
 
-    return make_response(
-        True,
-        "Simulation continued from last snapshot.",
+    return JSONResponse(
         status_code=201,
-        data={
-            "active": True,
-            "simulation": sim.settings.to_json(),
-        },
+        content={"data": {"active": True, "simulation": sim.settings.to_json()}},
     )
 
 
 @simulation_router.get("/players")
 def get_active_players():
     active_players = UserManager.list_active_players()
-    return make_response(
-        True,
-        "Players loaded successfully.",
-        data=[{"nickname": p.nickname} for p in active_players],
+    return JSONResponse(
+        content={"data": [{"nickname": p.nickname} for p in active_players]}
     )
 
 
@@ -158,13 +135,13 @@ def get_simulation_settings(client_id: ClientID):
     host_nickname = config.toml.host.nickname
 
     settings = SimulationManager.get_settings()
-    return make_response(
-        True,
-        "Simulation settings loaded.",
-        data={
-            "is_host": user.nickname == host_nickname,
-            "simulation": settings.to_json(),
-        },
+    return JSONResponse(
+        content={
+            "data": {
+                "is_host": user.nickname == host_nickname,
+                "simulation": settings.to_json(),
+            }
+        }
     )
 
 
@@ -188,8 +165,4 @@ def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
 
     notify("simulation_settings_update", settings.to_json())
 
-    return make_response(
-        True,
-        "Simulation settings updated.",
-        data=settings.to_json(),
-    )
+    return JSONResponse(content={"data": settings.to_json()})

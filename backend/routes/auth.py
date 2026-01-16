@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Request, Response
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from backend import config
@@ -11,7 +12,6 @@ from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
-from backend.routes.helpers import make_response
 
 auth_router = APIRouter(prefix="/api", tags=["Authentication"])
 
@@ -35,11 +35,7 @@ def session_init(request: Request, response: Response):
 
     if client_id:
         # Já possui sessão
-        return make_response(
-            True,
-            "Session already exists.",
-            data={"client_id": client_id},
-        )
+        return JSONResponse(content={"data": {"client_id": client_id}})
 
     # Criar nova sessão anônima
     new_client_id = str(uuid.uuid4())
@@ -51,11 +47,7 @@ def session_init(request: Request, response: Response):
         samesite="lax",
     )
 
-    return make_response(
-        True,
-        "Session created.",
-        data={"client_id": new_client_id},
-    )
+    return JSONResponse(content={"data": {"client_id": new_client_id}})
 
 
 @auth_router.get("/session/me")
@@ -70,11 +62,7 @@ def session_me(client_id: ClientID):
         user=user_dto,
     )
 
-    return make_response(
-        True,
-        "Session data loaded.",
-        data=session_dto.to_json(),
-    )
+    return JSONResponse(content={"data": session_dto.to_json()})
 
 
 @auth_router.post("/session/logout")
@@ -88,7 +76,7 @@ def session_logout(response: Response):
         samesite="lax",
     )
 
-    return make_response(True, "Session logged out.")
+    return JSONResponse(content={"data": None})
 
 
 @auth_router.post("/user/register")
@@ -116,11 +104,7 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
         starting = float(config.toml.simulation.starting_cash)
         sim._engine.add_cash(str(new_user.client_id), starting)
 
-    return make_response(
-        True,
-        "User registered successfully.",
-        data=new_user.to_json(),
-    )
+    return JSONResponse(content={"data": new_user.to_json()})
 
 
 @auth_router.post("/user/claim")
@@ -145,8 +129,4 @@ def user_claim(payload: UserClaimRequest, client_id: ClientID):
         existing_user.id, uuid.UUID(client_id)
     )
 
-    return make_response(
-        True,
-        "Nickname claimed successfully.",
-        data=updated_user.to_json(),
-    )
+    return JSONResponse(content={"data": updated_user.to_json()})
