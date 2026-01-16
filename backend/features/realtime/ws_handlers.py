@@ -18,6 +18,8 @@ def register_ws_handlers(sio: AsyncServer):
     @sio.event
     async def connect(sid, environ):  # type: ignore
         broker = get_socket_broker()
+        if broker._loop is None:
+            broker.bind_event_loop()
         client_id = await _extract_client_id(environ)
         # Recusa conexão se não tiver client_id
         if not client_id:

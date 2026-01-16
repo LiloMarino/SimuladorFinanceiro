@@ -1,3 +1,4 @@
+import asyncio
 from collections import defaultdict
 from collections.abc import Iterable
 from threading import Lock
@@ -21,6 +22,7 @@ class SocketBroker(RealtimeBroker):
     def __init__(self, sio: AsyncServer):
         self.sio = sio
         self._lock = Lock()
+        self._loop: asyncio.AbstractEventLoop | None = None
         self._subscriptions: dict[Event, set[ClientID]] = defaultdict(
             set
         )  # event -> set(client_id)
@@ -28,6 +30,10 @@ class SocketBroker(RealtimeBroker):
             set
         )  # client_id -> sids
         self._sid_to_client: dict[SID, ClientID] = {}  # sid -> client_id
+
+    def bind_event_loop(self) -> None:
+        """Deve ser chamado de dentro do loop ASGI."""
+        self._loop = asyncio.get_running_loop()
 
     def register_client(self, client_id: ClientID, sid: SID) -> None:
         """Registra um novo cliente WebSocket."""
@@ -82,5 +88,11 @@ class SocketBroker(RealtimeBroker):
                 for sid in self._client_to_sids.get(cid, set())
             }
 
+        if self._loop is None:
+            raise RuntimeError("Event loop não está vinculado ao SocketBroker")
+
         for sid in targets:
-            self.sio.start_background_task(self.sio.emit, event, payload, to=sid)
+            asyncio.run_coroutine_threadsafe(
+                self.sio.emit(event, payload, to=sid),
+                self._loop,
+            )
