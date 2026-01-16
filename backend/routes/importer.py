@@ -1,7 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, File, Form, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, File, Form, Response, UploadFile, status
 from pydantic import BaseModel
 
 from backend.features.import_data.importer_service import (
@@ -31,7 +30,7 @@ def import_assets_json(request: ImportYFinanceRequest):
     ticker = request.ticker
     overwrite = request.overwrite
     update_from_yfinance(ticker, overwrite)
-    return JSONResponse(content={"data": None})
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @import_router.post("/csv")
@@ -43,4 +42,4 @@ def import_assets_csv(
     """Import assets from CSV (multipart/form-data)."""
     overwrite_bool = str_to_bool(overwrite)
     update_from_csv(csv_file.file, ticker, overwrite_bool)
-    return JSONResponse(content={"data": None})
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

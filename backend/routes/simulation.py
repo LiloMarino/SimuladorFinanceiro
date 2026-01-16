@@ -40,11 +40,9 @@ def simulation_status():
     try:
         sim = SimulationManager.get_active_simulation()
         data = sim.settings
-        return JSONResponse(
-            content={"data": {"active": True, "simulation": data.to_json()}}
-        )
+        return JSONResponse(content={"active": True, "simulation": data.to_json()})
     except NoActiveSimulationError:
-        return JSONResponse(content={"data": {"active": False}})
+        return JSONResponse(content={"active": False})
 
 
 @simulation_router.post("/create", status_code=201)
@@ -74,7 +72,7 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     )
     return JSONResponse(
         status_code=201,
-        content={"data": {"active": True, "simulation": data.to_json()}},
+        content={"active": True, "simulation": data.to_json()},
     )
 
 
@@ -115,16 +113,14 @@ def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
 
     return JSONResponse(
         status_code=201,
-        content={"data": {"active": True, "simulation": sim.settings.to_json()}},
+        content={"active": True, "simulation": sim.settings.to_json()},
     )
 
 
 @simulation_router.get("/players")
 def get_active_players():
     active_players = UserManager.list_active_players()
-    return JSONResponse(
-        content={"data": [{"nickname": p.nickname} for p in active_players]}
-    )
+    return JSONResponse(content=[{"nickname": p.nickname} for p in active_players])
 
 
 @simulation_router.get("/settings")
@@ -137,10 +133,8 @@ def get_simulation_settings(client_id: ClientID):
     settings = SimulationManager.get_settings()
     return JSONResponse(
         content={
-            "data": {
-                "is_host": user.nickname == host_nickname,
-                "simulation": settings.to_json(),
-            }
+            "is_host": user.nickname == host_nickname,
+            "simulation": settings.to_json(),
         }
     )
 
@@ -165,4 +159,4 @@ def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
 
     notify("simulation_settings_update", settings.to_json())
 
-    return JSONResponse(content={"data": settings.to_json()})
+    return JSONResponse(content=settings.to_json())

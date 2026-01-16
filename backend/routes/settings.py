@@ -23,7 +23,7 @@ class SettingsRequest(BaseModel):
 @settings_router.get("")
 def get_settings(client_id: ClientID):
     settings = repository.settings.get_by_user_id(UserManager.get_user_id(client_id))
-    return JSONResponse(content={"data": settings})
+    return JSONResponse(content=settings)
 
 
 @settings_router.put("")
@@ -33,4 +33,4 @@ def update_settings(client_id: ClientID, data: SettingsRequest):
     repository.settings.update_by_user_id(user_id, data.model_dump())
     settings = repository.settings.get_by_user_id(user_id)
 
-    return JSONResponse(content={"data": settings})
+    return JSONResponse(content=settings)

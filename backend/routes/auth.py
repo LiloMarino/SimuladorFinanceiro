@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Request, Response, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -35,7 +35,7 @@ def session_init(request: Request, response: Response):
 
     if client_id:
         # Já possui sessão
-        return JSONResponse(content={"data": {"client_id": client_id}})
+        return JSONResponse(content={"client_id": client_id})
 
     # Criar nova sessão anônima
     new_client_id = str(uuid.uuid4())
@@ -47,7 +47,7 @@ def session_init(request: Request, response: Response):
         samesite="lax",
     )
 
-    return JSONResponse(content={"data": {"client_id": new_client_id}})
+    return JSONResponse(content={"client_id": new_client_id})
 
 
 @auth_router.get("/session/me")
@@ -62,7 +62,7 @@ def session_me(client_id: ClientID):
         user=user_dto,
     )
 
-    return JSONResponse(content={"data": session_dto.to_json()})
+    return JSONResponse(content=session_dto.to_json())
 
 
 @auth_router.post("/session/logout")
@@ -76,7 +76,7 @@ def session_logout(response: Response):
         samesite="lax",
     )
 
-    return JSONResponse(content={"data": None})
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @auth_router.post("/user/register")
@@ -104,7 +104,7 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
         starting = float(config.toml.simulation.starting_cash)
         sim._engine.add_cash(str(new_user.client_id), starting)
 
-    return JSONResponse(content={"data": new_user.to_json()})
+    return JSONResponse(content=new_user.to_json())
 
 
 @auth_router.post("/user/claim")
@@ -129,4 +129,4 @@ def user_claim(payload: UserClaimRequest, client_id: ClientID):
         existing_user.id, uuid.UUID(client_id)
     )
 
-    return JSONResponse(content={"data": updated_user.to_json()})
+    return JSONResponse(content=updated_user.to_json())

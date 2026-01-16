@@ -21,7 +21,7 @@ def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
 
     # Envia a atualização de velocidade para todos os clientes
     notify("speed_update", {"speed": speed})
-    return JSONResponse(content={"data": {"speed": speed}})
+    return JSONResponse(content={"speed": speed})
 
 
 @timespeed_router.get("/get-simulation-state")
@@ -30,5 +30,5 @@ def get_simulation_state(client_id: ClientID, simulation: ActiveSimulation):
     speed = simulation.get_speed()
     cash = simulation.get_cash(client_id)
     return JSONResponse(
-        content={"data": {"currentDate": current_date, "speed": speed, "cash": cash}}
+        content={"currentDate": current_date, "speed": speed, "cash": cash}
     )

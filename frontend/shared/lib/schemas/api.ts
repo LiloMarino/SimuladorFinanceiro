@@ -1,5 +1,8 @@
 import { z } from "zod";
 
-export const ApiResponseSchema = z.object({
-  data: z.any(),
+// Schema para respostas de erro da API
+export const ApiErrorSchema = z.object({
+  message: z.string(),
 });
+
+export type ApiError = z.infer<typeof ApiErrorSchema>;

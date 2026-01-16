@@ -32,4 +32,4 @@ def update_subscription(payload: UpdateSubscriptionRequest):
 
     broker.update_subscription(client_id, events)
     logger.info("Updating subscription: %s -> %s", client_id, events)
-    return JSONResponse(content={"data": {"client_id": client_id, "events": events}})
+    return JSONResponse(content={"client_id": client_id, "events": events})

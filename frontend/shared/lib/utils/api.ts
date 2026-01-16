@@ -1,4 +1,4 @@
-import { ApiResponseSchema } from "@/shared/lib/schemas/api";
+import { ApiErrorSchema } from "@/shared/lib/schemas/api";
 import type { ZodType } from "zod";
 import ApiError from "../models/ApiError";
 
@@ -28,7 +28,7 @@ function getHttpStatusText(status: number): string {
 
 /**
  * Centraliza o parsing e tratamento de respostas da API.
- * Inclui mensagens padronizadas com código HTTP e descrição legível.
+ * Valida erros com schema Zod e retorna conteúdo direto em sucesso.
  */
 export async function handleApiResponse<R>(res: Response, responseSchema?: ZodType<R>): Promise<R> {
   let json: unknown = null;
@@ -37,15 +37,23 @@ export async function handleApiResponse<R>(res: Response, responseSchema?: ZodTy
     json = await res.json();
   } catch {
     // Pode acontecer em respostas sem corpo (ex: 204 No Content)
+    if (res.ok) {
+      // Retorna undefined para casos sem payload
+      return undefined as R;
+    }
+
+    // Se não tem corpo mas é erro, usa status code
+    throw new ApiError(getHttpStatusText(res.status), res.status, null);
   }
 
   if (!res.ok) {
-    const message =
-      (json as Record<string, unknown> | null)?.message ?? getHttpStatusText(res.status) ?? "Unexpected error";
+    // Valida schema de erro
+    const errorData = ApiErrorSchema.safeParse(json);
+    const message = errorData.success ? errorData.data.message : getHttpStatusText(res.status);
 
-    throw new ApiError(`${message}`, res.status, json);
+    throw new ApiError(message, res.status, json);
   }
 
-  const parsed = ApiResponseSchema.parse(json);
-  return responseSchema ? responseSchema.parse(parsed.data) : parsed.data;
+  // Retorna o conteúdo diretamente
+  return responseSchema ? responseSchema.parse(json) : (json as R);
 }
