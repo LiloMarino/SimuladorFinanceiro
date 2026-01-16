@@ -14,8 +14,6 @@ build: build-frontend build-exe
 build-frontend:
 	@echo "=== Compilando Frontend ==="
 	cd frontend && npm run build
-	@echo "=== Copiando Frontend para Backend ==="
-	python scripts/copy_frontend.py
 
 build-exe:
 	@echo "=== Gerando executável (.exe) ==="

@@ -5,7 +5,7 @@ Este documento descreve como compilar o Simulador Financeiro em um executável �
 ## Pré-requisitos
 
 - Python 3.12+
-- Node.js e npm (para compilar o frontend)
+- Node.js e pnpm (para compilar o frontend)
 - Dependências Python instaladas: `pip install -r requirements.txt`
 - Make (Linux/Mac) ou alternativa para Windows (ver seção de compatibilidade)
 
@@ -23,13 +23,10 @@ Para usuários Windows, há duas opções:
 
 2. **Executar comandos manualmente**:
    ```powershell
-   # Compilar frontend
+   # Compilar frontend (build automático copia arquivos)
    cd frontend
-   npm run build
+   pnpm run build
    cd ..
-   
-   # Copiar frontend
-   python scripts/copy_frontend.py
    
    # Gerar executável
    pyinstaller SimuladorFinanceiro.spec --clean --noconfirm
@@ -47,7 +44,7 @@ make build
 
 Este comando irá:
 1. Compilar o frontend React/TypeScript com Vite
-2. Copiar os arquivos compilados para `backend/static` e `backend/templates`
+2. Automaticamente copiar os arquivos para `backend/static` e `backend/templates` usando plugin customizado do Vite
 3. Gerar o executável usando PyInstaller
 
 ### 2. Compilação em Etapas
@@ -115,9 +112,8 @@ make spec
 ### Frontend não aparece no executável
 
 Certifique-se de que:
-1. O frontend foi compilado: `cd frontend && npm run build`
-2. Os arquivos foram copiados: `python scripts/copy_frontend.py`
-3. As pastas `backend/static` e `backend/templates` existem e contêm os arquivos
+1. O frontend foi compilado: `cd frontend && pnpm run build` (já copia automaticamente os arquivos)
+2. As pastas `backend/static` e `backend/templates` existem e contêm os arquivos
 
 ### Erro ao executar o .exe
 
@@ -136,8 +132,8 @@ pip install -r requirements.txt
 
 ### Como Funciona
 
-1. **Frontend**: O Vite compila o React/TypeScript em arquivos estáticos otimizados em `frontend/dist`
-2. **Copy Script**: `scripts/copy_frontend.py` copia esses arquivos para `backend/static` e `backend/templates`
+1. **Frontend**: O Vite compila o React/TypeScript em arquivos estáticos otimizados
+2. **Plugin Customizado**: Um plugin Vite customizado (`moveIndexHtmlPlugin`) automaticamente move o `index.html` para `backend/templates/` enquanto outros assets ficam em `backend/static/` - tudo isso acontece durante o `pnpm build` sem necessidade de scripts Python
 3. **Backend**: FastAPI serve os arquivos estáticos e o index.html, detectando automaticamente se está rodando no executável ou em modo desenvolvimento
 4. **PyInstaller**: Empacota tudo (Python + frontend) em um único executável usando o arquivo `.spec`
 
