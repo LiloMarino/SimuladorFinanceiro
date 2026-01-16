@@ -10,6 +10,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "."),
     },
   },
+  build: {
+    outDir: path.resolve(__dirname, "../backend/static"),
+    emptyOutDir: true,
+  },
   server: {
     proxy: {
       "/api": "http://localhost:8000",

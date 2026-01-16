@@ -27,6 +27,14 @@ var/
 wheels/
 share/python-wheels/
 
+# PyInstaller
+*.spec.bak
+*.manifest
+*.exe
+
+# Backend static (gerado pelo build)
+backend/static/
+
 # Banco local / instância
 instance/
 db.sqlite3

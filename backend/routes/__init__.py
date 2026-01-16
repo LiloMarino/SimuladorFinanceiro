@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 
 from backend.core.logger import setup_logger
 from backend.routes.auth import auth_router
+from backend.routes.frontend import register_frontend_routes
 from backend.routes.importer import import_router
 from backend.routes.operation import operation_router
 from backend.routes.portfolio import portfolio_router
@@ -26,6 +27,9 @@ def register_routes(app: FastAPI):
     app.include_router(auth_router)
     app.include_router(statistics_router)
     app.include_router(simulation_router)
+
+    # SPA FRONTEND (sempre por último para pegar todas as rotas não mapeadas)
+    register_frontend_routes(app)
 
     @app.exception_handler(Exception)
     async def handle_error(request: Request, e: Exception):  # type: ignore

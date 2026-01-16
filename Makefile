@@ -1,6 +1,33 @@
 EXEC=main.py
 CPROFILE_OUT = cprofile.prof
 LINEPROFILE_OUT = lineprofile.lprof
+APP_NAME = SimuladorFinanceiro
+BUILD_DIR = build
+DIST_DIR = dist
+SPEC_FILE = SimuladorFinanceiro.spec
+
+# --------------------------------------------------------------
+# Build
+# --------------------------------------------------------------
+build: build-frontend build-exe
+
+build-frontend:
+	@echo "=== Compilando Frontend ==="
+	cd frontend && npm run build
+
+build-exe:
+	@echo "=== Gerando executável (.exe) ==="
+	pyinstaller $(SPEC_FILE) --clean --noconfirm
+
+# --------------------------------------------------------------
+# Geração inicial do spec (rodar só uma vez)
+# --------------------------------------------------------------
+spec:
+	@echo "=== Gerando arquivo .spec ==="
+	pyinstaller $(EXEC) \
+		--onefile \
+		--name $(APP_NAME) \
+		--add-data "backend/static:backend/static"
 
 # --------------------------------------------------------------
 # Lint
@@ -48,7 +75,7 @@ cprofile:
 	snakeviz $(CPROFILE_OUT)
 
 lineprofile:
-	set LINE_PROFILE=1 && python $(EXEC)
+	LINE_PROFILE=1 python $(EXEC)
 
 lineprofile-view:
 	python -m line_profiler $(LINEPROFILE_OUT)
@@ -59,8 +86,12 @@ snakeviz:
 # --------------------------------------------------------------
 # Limpeza
 # --------------------------------------------------------------
+
+build-clean:
+	@echo "=== Limpando arquivos de build ==="
+	python -c "import shutil; from pathlib import Path; dirs=['backend/static','build','dist']; [shutil.rmtree(d) if Path(d).exists() else None for d in dirs]"
+	@echo "Build limpo!"
+
 clean:
-	del /Q *.prof *.lprof 2>nul
-	del cc.json 2>nul
-	del mi.json 2>nul
-	del hal.json 2>nul
+	@echo "=== Limpando artefatos auxiliares ==="
+	python -c "import os; from pathlib import Path; files=['*.prof','*.lprof','cc.json','mi.json','hal.json']; [os.remove(f) if Path(f).exists() else None for pattern in files for f in Path('.').glob(pattern)]"
