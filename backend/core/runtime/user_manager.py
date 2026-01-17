@@ -6,7 +6,6 @@ from backend.core.dto.user import UserDTO
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.logger import setup_logger
 from backend.core.utils.lazy_dict import LazyDict
-from backend.features.realtime import notify
 
 logger = setup_logger(__name__)
 
@@ -89,10 +88,14 @@ class UserManager:
 
     @classmethod
     def _emit_player_join(cls, user: UserDTO):
+        from backend.features.realtime import notify  # noqa: PLC0415
+
         logger.info(f"Player joined: {user.nickname}")
         notify("player_join", {"nickname": user.nickname})
 
     @classmethod
     def _emit_player_exit(cls, user: UserDTO):
+        from backend.features.realtime import notify  # noqa: PLC0415
+
         logger.info(f"Player exited: {user.nickname}")
         notify("player_exit", {"nickname": user.nickname})
