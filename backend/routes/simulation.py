@@ -1,12 +1,12 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
 from backend import config
 from backend.core import repository
-from backend.core.dependencies import ClientID, HostVerified
+from backend.core.dependencies import ActiveSimulation, ClientID, HostVerified
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import (
@@ -22,17 +22,32 @@ simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
 
 
 class CreateSimulationRequest(BaseModel):
-    start_date: str
-    end_date: str
+    start_date: date
+    end_date: date
+    starting_cash: float = Field(gt=0)
+
+    @model_validator(mode="after")
+    def validate_dates(self):
+        if self.start_date > self.end_date:
+            raise ValueError("Data de início deve ser antes da data de fim.")
+        return self
 
 
 class ContinueSimulationRequest(BaseModel):
-    end_date: str
+    end_date: date
+    starting_cash: float = Field(gt=0)
 
 
 class UpdateSettingsRequest(BaseModel):
-    start_date: str
-    end_date: str
+    start_date: date
+    end_date: date
+    starting_cash: float = Field(gt=0)
+
+    @model_validator(mode="after")
+    def validate_dates(self):
+        if self.start_date > self.end_date:
+            raise ValueError("Data de início deve ser antes da data de fim.")
+        return self
 
 
 @simulation_router.get("/status")
@@ -47,57 +62,13 @@ def simulation_status():
 
 @simulation_router.post("/create", status_code=201)
 def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
-    try:
-        start_date = datetime.strptime(payload.start_date, "%Y-%m-%d").date()
-        end_date = datetime.strptime(payload.end_date, "%Y-%m-%d").date()
-    except Exception as e:
-        raise UnprocessableEntityError("Invalid start_date or end_date.") from e
-
-    repository.user.reset_users_data(start_date)
-    sim = SimulationManager.create_simulation(
-        SimulationDTO(
-            start_date=start_date,
-            end_date=end_date,
-        )
-    )
-    data = sim.settings
-    simulation_controller.trigger_start()
-
-    notify(
-        "simulation_started",
-        {
-            "active": True,
-            "simulation": data.to_json(),
-        },
-    )
-    return JSONResponse(
-        status_code=201,
-        content={"active": True, "simulation": data.to_json()},
-    )
-
-
-@simulation_router.post("/continue", status_code=201)
-def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
-    """Continua a simulação a partir do último snapshot"""
-
-    try:
-        end_date = datetime.strptime(payload.end_date, "%Y-%m-%d").date()
-    except Exception as e:
-        raise UnprocessableEntityError("Invalid end_date.") from e
-
-    last_snapshot_date = repository.snapshot.get_last_snapshot_date()
-    if not last_snapshot_date:
-        raise NotFoundError("No snapshots found to continue simulation.")
-
-    if last_snapshot_date >= end_date:
-        raise UnprocessableEntityError(
-            "Last snapshot date is after or equal to the target end date."
-        )
+    repository.user.reset_users_data(payload.start_date, payload.starting_cash)
 
     sim = SimulationManager.create_simulation(
         SimulationDTO(
-            start_date=last_snapshot_date,
-            end_date=end_date,
+            start_date=payload.start_date,
+            end_date=payload.end_date,
+            starting_cash=payload.starting_cash,
         )
     )
 
@@ -111,10 +82,63 @@ def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
         },
     )
 
-    return JSONResponse(
-        status_code=201,
-        content={"active": True, "simulation": sim.settings.to_json()},
+    return {
+        "active": True,
+        "simulation": sim.settings.to_json(),
+    }
+
+
+@simulation_router.post("/continue", status_code=201)
+def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
+    last_snapshot_date = repository.snapshot.get_last_snapshot_date()
+    if not last_snapshot_date:
+        raise NotFoundError("No snapshots found to continue simulation.")
+
+    if last_snapshot_date >= payload.end_date:
+        raise UnprocessableEntityError(
+            "Last snapshot date is after or equal to the target end date."
+        )
+
+    sim = SimulationManager.create_simulation(
+        SimulationDTO(
+            start_date=last_snapshot_date,
+            end_date=payload.end_date,
+            starting_cash=payload.starting_cash,
+        )
     )
+
+    simulation_controller.trigger_start()
+
+    notify(
+        "simulation_started",
+        {
+            "active": True,
+            "simulation": sim.settings.to_json(),
+        },
+    )
+
+    return {
+        "active": True,
+        "simulation": sim.settings.to_json(),
+    }
+
+
+@simulation_router.post("/stop", status_code=204)
+def stop_simulation(simulation: ActiveSimulation, _: HostVerified):
+    """Encerra a simulação manualmente"""
+    current_date = simulation.get_current_date()
+    SimulationManager.clear_simulation()
+    simulation_controller.reset_start_event()
+
+    notify(
+        "simulation_ended",
+        {
+            "reason": "stopped_by_host",
+            "final_date": current_date.isoformat(),
+        },
+    )
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @simulation_router.get("/players")
@@ -141,22 +165,13 @@ def get_simulation_settings(client_id: ClientID):
 
 @simulation_router.put("/settings")
 def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
-    try:
-        start_date = datetime.strptime(payload.start_date, "%Y-%m-%d").date()
-        end_date = datetime.strptime(payload.end_date, "%Y-%m-%d").date()
-    except Exception as e:
-        raise UnprocessableEntityError("Invalid payload.") from e
-
-    if start_date > end_date:
-        raise UnprocessableEntityError("start_date must be before end_date.")
-
     settings = SimulationManager.update_settings(
         SimulationDTO(
-            start_date=start_date,
-            end_date=end_date,
+            start_date=payload.start_date,
+            end_date=payload.end_date,
+            starting_cash=payload.starting_cash,
         )
     )
 
     notify("simulation_settings_update", settings.to_json())
-
-    return JSONResponse(content=settings.to_json())
+    return settings.to_json()

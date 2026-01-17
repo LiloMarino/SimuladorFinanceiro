@@ -22,7 +22,7 @@ from backend.features.variable_income.matching_engine import MatchingEngine
 
 
 class SimulationEngine:
-    def __init__(self, current_date):
+    def __init__(self, current_date, starting_cash: float):
         self.broker = Broker(self)
         self.fixed_broker = FixedBroker(self)
         self.fixed_income_market = FixedIncomeMarket()
@@ -32,6 +32,7 @@ class SimulationEngine:
         )
         self._strategy = None
         self.current_date: date = current_date
+        self.starting_cash = starting_cash
 
         # Configura os alias
         self.get_positions = self.broker.get_positions
@@ -90,7 +91,7 @@ class SimulationEngine:
         ]
 
         return PortfolioDTO(
-            starting_cash=config.toml.simulation.starting_cash,
+            starting_cash=self.starting_cash,
             cash=self._cash[client_id],
             variable_income=variable_income,
             fixed_income=fixed_income,
