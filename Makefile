@@ -22,7 +22,7 @@ build-exe:
 # --------------------------------------------------------------
 # Geração inicial do spec (rodar só uma vez)
 # --------------------------------------------------------------
-spec:
+spec: build-frontend
 	@echo "=== Gerando arquivo .spec ==="
 	pyinstaller $(EXEC) \
 		--onefile \
