@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core import repository
@@ -22,7 +22,7 @@ class Simulation:
         self._speed = 0
         self.settings = settings
         self._current_date = self.settings.start_date - timedelta(days=1)
-        self._engine = SimulationEngine(self._current_date)
+        self._engine = SimulationEngine(self._current_date, settings.starting_cash)
         self._engine.set_strategy(ManualStrategy)
 
         # Controle de snapshot
@@ -121,6 +121,9 @@ class Simulation:
         notify("simulation_update", {"currentDate": self.get_current_date_formatted()})
         notify("stocks_update", {"stocks": [s.to_json() for s in stocks]})
 
+    def get_current_date(self) -> date:
+        return self._current_date
+
     def get_current_date_formatted(self) -> str:
         return self._current_date.strftime("%d/%m/%Y")
 
@@ -159,7 +162,7 @@ class Simulation:
         }
 
     def get_statistics(self) -> list[PlayerHistoryDTO]:
-        return repository.statistics.get_players_history()
+        return repository.statistics.get_players_history(self.settings.starting_cash)
 
     def get_orders(self, ticker: str) -> list[OrderDTO]:
         orders = self._engine.matching_engine.order_book.get_orders(ticker)

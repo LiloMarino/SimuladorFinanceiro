@@ -11,7 +11,9 @@ from backend.core.models.models import Snapshots, Users
 
 class StatisticsRepository:
     @transactional
-    def get_players_history(self, session: Session) -> list[PlayerHistoryDTO]:
+    def get_players_history(
+        self, session: Session, starting_cash: float
+    ) -> list[PlayerHistoryDTO]:
         # 1. Busca todos os usuários
         users = session.query(Users).all()
 
@@ -52,7 +54,7 @@ class StatisticsRepository:
             players_history.append(
                 PlayerHistoryDTO(
                     player_nickname=user.nickname,
-                    starting_cash=config.toml.simulation.starting_cash,
+                    starting_cash=starting_cash,
                     history=history,
                 )
             )

@@ -15,6 +15,7 @@ const simulationFormSchema = z
   .object({
     startDate: z.string().min(1, "Selecione a data inicial"),
     endDate: z.string().min(1, "Selecione a data final"),
+    startingCash: z.number().positive("O saldo inicial deve ser maior que 0"),
   })
   .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
     message: "A data final deve ser maior que a data inicial",
@@ -32,6 +33,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
     defaultValues: {
       startDate: simulationData.start_date,
       endDate: simulationData.end_date,
+      startingCash: simulationData.starting_cash,
     },
   });
 
@@ -45,7 +47,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
   // Mutação de criação
   const { mutate: createSimulation, loading: loadingCreate } = useMutationApi<
     SimulationInfo,
-    { start_date: string; end_date: string }
+    { start_date: string; end_date: string; starting_cash: number }
   >("/api/simulation/create", {
     onSuccess: () => {
       toast.success("Simulação criada com sucesso!");
@@ -58,7 +60,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
   // Mutação de continuação
   const { mutate: continueSimulation, loading: loadingContinue } = useMutationApi<
     SimulationInfo,
-    { end_date?: string }
+    { end_date: string; starting_cash: number }
   >("/api/simulation/continue", {
     onSuccess: () => {
       toast.success("Simulação continuada com sucesso!");
@@ -110,6 +112,26 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
             />
           </div>
 
+          <FormField
+            control={form.control}
+            name="startingCash"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Saldo Inicial (R$)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value === "" ? 0 : parseFloat(e.target.value))}
+                    disabled={disableFields}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           {/* Host IP */}
           <div>
             <FormLabel>IP do Host</FormLabel>
@@ -127,7 +149,11 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
               type="button"
               className="w-full bg-green-600 hover:bg-green-700"
               onClick={() =>
-                createSimulation({ start_date: form.getValues("startDate"), end_date: form.getValues("endDate") })
+                createSimulation({
+                  start_date: form.getValues("startDate"),
+                  end_date: form.getValues("endDate"),
+                  starting_cash: form.getValues("startingCash"),
+                })
               }
             >
               <FontAwesomeIcon icon={faPlay} className="mr-2" />
@@ -137,7 +163,12 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
             <Button
               type="button"
               className="w-full bg-blue-600 hover:bg-blue-700"
-              onClick={() => continueSimulation({ end_date: form.getValues("endDate") })}
+              onClick={() =>
+                continueSimulation({
+                  end_date: form.getValues("endDate"),
+                  starting_cash: form.getValues("startingCash"),
+                })
+              }
             >
               <FontAwesomeIcon icon={faPlay} className="mr-2" />
               Continuar Simulação

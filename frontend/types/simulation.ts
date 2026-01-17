@@ -8,6 +8,10 @@ import type { Order, OrderExecutedEvent, OrderPartialExecutedEvent } from "./ord
 /** Eventos emitidos pelo servidor via WebSocket ou SSE */
 export type SimulationEvents = {
   simulation_started: SimulationInfo;
+  simulation_ended: {
+    reason: "completed" | "stopped_by_host";
+    final_date: string;
+  };
   simulation_update: { currentDate: string };
   speed_update: { speed: number };
   cash_update: { cash: number };
@@ -58,6 +62,7 @@ export type SimulationState = {
 export type SimulationData = {
   start_date: string;
   end_date: string;
+  starting_cash: number;
 };
 
 export type SimulationSettings = {

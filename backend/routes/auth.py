@@ -102,7 +102,7 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
         sim = None
 
     if sim:
-        starting = float(config.toml.simulation.starting_cash)
+        starting = sim.settings.starting_cash
         sim._engine.add_cash(str(new_user.client_id), starting)
 
     return JSONResponse(content=new_user.to_json())
@@ -131,3 +131,24 @@ def user_claim(payload: UserClaimRequest, client_id: ClientID):
     )
 
     return JSONResponse(content=updated_user.to_json())
+
+
+@auth_router.delete("/user", status_code=status.HTTP_204_NO_CONTENT)
+def user_delete(client_id: ClientID):
+    """
+    Remove o usuário atual permanentemente.
+    Todos os dados relacionados serão deletados em cascade.
+    """
+    user = UserManager.get_user(client_id)
+    if not user:
+        raise NotFoundError("User not found.")
+
+    repository.user.delete_user(user.id)
+
+    response = Response(status_code=status.HTTP_204_NO_CONTENT)
+    response.delete_cookie(
+        key="client_id",
+        httponly=True,
+        samesite="lax",
+    )
+    return response

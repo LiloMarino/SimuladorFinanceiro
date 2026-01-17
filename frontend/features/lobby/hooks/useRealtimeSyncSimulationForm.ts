@@ -22,18 +22,18 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
   const lock = useAsyncLock();
   const lastSentRef = useRef<SimulationData | null>(initial);
 
-  const { mutate: updateSettings } = useMutationApi<SimulationData, { start_date: string; end_date: string }>(
-    "/api/simulation/settings",
-    {
-      method: "PUT",
-      onSuccess: () => {
-        toast.success("Configurações sincronizadas");
-      },
-      onError: (err) => {
-        toast.error(err.message);
-      },
-    }
-  );
+  const { mutate: updateSettings } = useMutationApi<
+    SimulationData,
+    { start_date: string; end_date: string; starting_cash: number }
+  >("/api/simulation/settings", {
+    method: "PUT",
+    onSuccess: () => {
+      toast.success("Configurações sincronizadas");
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
 
   /** 🔹 Realtime → Form */
   useRealtime(
@@ -43,10 +43,11 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
         form.reset({
           startDate: data.start_date,
           endDate: data.end_date,
+          startingCash: data.starting_cash,
         } as TForm);
       });
     },
-    !isHost
+    !isHost,
   );
 
   /** 🔹 Form → API */
@@ -59,16 +60,16 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
     if (!debouncedValues) return;
     if (lock.isLocked()) return;
 
-    const { startDate, endDate } = debouncedValues;
+    const { startDate, endDate, startingCash } = debouncedValues;
 
     // Descarta duplicatas
-    const current = { start_date: startDate, end_date: endDate };
+    const current = { start_date: startDate, end_date: endDate, starting_cash: startingCash };
     const last = lastSentRef.current;
     if (last && JSON.stringify(last) === JSON.stringify(current)) return;
     lastSentRef.current = current;
 
     void lock.runExclusive(async () => {
-      await updateSettings({ start_date: startDate, end_date: endDate });
+      await updateSettings({ start_date: startDate, end_date: endDate, starting_cash: startingCash });
     });
   }, [debouncedValues, isHost, updateSettings, form.formState.isValid, lock]);
 }
