@@ -16,6 +16,7 @@ Você deve ter recebido uma cópia da Licença Pública Geral GNU
 junto com este programa. Caso não, veja <https://www.gnu.org/licenses/>.
 """
 
+import asyncio
 from contextlib import asynccontextmanager
 
 import socketio
@@ -45,6 +46,15 @@ logger = setup_logger(__name__)
 async def lifespan(app: FastAPI):
     backend = engine.url.get_backend_name()
     logger.info(f"Banco de dados em uso: {backend.upper()} ({engine.url})")
+
+    # Vincula o event loop ao broker de WebSocket antes de qualquer notificação
+    try:
+        broker = RealtimeBrokerManager.get_broker()
+        if isinstance(broker, SocketBroker):
+            broker.bind_event_loop(asyncio.get_running_loop())
+            logger.info("Event loop vinculado ao SocketBroker.")
+    except Exception as e:
+        logger.warning(f"Não foi possível vincular o event loop ao SocketBroker: {e}")
 
     simulation_controller.start_loop()
     yield

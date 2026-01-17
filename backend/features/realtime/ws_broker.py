@@ -31,9 +31,9 @@ class SocketBroker(RealtimeBroker):
         )  # client_id -> sids
         self._sid_to_client: dict[SID, ClientID] = {}  # sid -> client_id
 
-    def bind_event_loop(self) -> None:
-        """Deve ser chamado de dentro do loop ASGI."""
-        self._loop = asyncio.get_running_loop()
+    def bind_event_loop(self, loop: asyncio.AbstractEventLoop) -> None:
+        """Associa o event loop principal para execuções thread-safe."""
+        self._loop = loop
 
     def register_client(self, client_id: ClientID, sid: SID) -> None:
         """Registra um novo cliente WebSocket."""
