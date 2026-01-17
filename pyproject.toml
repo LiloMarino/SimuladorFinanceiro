@@ -16,6 +16,7 @@ select = [
     "RUF",
     "TRY",
     "PTH",
+    "PLC0415",
 ]
 ignore = [
     "E501",   # line too long
