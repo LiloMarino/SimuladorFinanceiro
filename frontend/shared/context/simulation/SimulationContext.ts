@@ -3,6 +3,7 @@ import { createContext } from "react";
 
 export interface SimulationContextValue {
   simulation: SimulationInfo | null;
+  simulationActive: boolean;
   loading: boolean;
 }
 

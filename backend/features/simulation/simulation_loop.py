@@ -3,6 +3,7 @@ import time
 
 from backend.core.logger import setup_logger
 from backend.core.runtime.simulation_manager import SimulationManager
+from backend.features.realtime import notify
 
 logger = setup_logger(__name__)
 
@@ -37,6 +38,14 @@ class SimulationLoopController:
     def trigger_start(self):
         logger.info("Evento de início da simulação recebido.")
         self._start_event.set()
+
+    # --------------------------------------------------
+    # 🗑️ Reset (permite reiniciar)
+    # --------------------------------------------------
+    def reset_start_event(self):
+        """Reseta o start_event para permitir reiniciar a simulação."""
+        logger.info("Resetando start_event para permitir novo início.")
+        self._start_event.clear()
 
     # --------------------------------------------------
     # ⛔ Stop
@@ -74,7 +83,16 @@ class SimulationLoopController:
                     simulation.next_tick()
                 except StopIteration:
                     logger.info("Simulação finalizada.")
+                    end_date = simulation.settings.end_date
                     SimulationManager.clear_simulation()
+                    self.reset_start_event()
+                    notify(
+                        "simulation_ended",
+                        {
+                            "reason": "completed",
+                            "final_date": end_date.isoformat(),
+                        },
+                    )
                     break
 
                 time.sleep(1 / speed)

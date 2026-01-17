@@ -126,7 +126,14 @@ class UserRepository:
         )
 
     @transactional
-    def reset_users_data(self, session: Session, event_date: date) -> None:
+    def delete_user(self, session: Session, user_id: int) -> None:
+        user = session.query(Users).filter_by(id=user_id).one()
+        session.delete(user)
+
+    @transactional
+    def reset_users_data(
+        self, session: Session, event_date: date, starting_cash: float
+    ) -> None:
         users = session.query(Users).all()
 
         # Deleta todos os dados anteriores
@@ -142,7 +149,7 @@ class UserRepository:
             EventCashflow(
                 user_id=user.id,
                 event_type="DEPOSIT",
-                amount=config.toml.simulation.starting_cash,
+                amount=starting_cash,
                 event_date=event_date,
                 created_at=now,
             )
