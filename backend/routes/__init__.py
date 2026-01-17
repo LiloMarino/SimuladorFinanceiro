@@ -28,6 +28,9 @@ def register_routes(app: FastAPI):
     app.include_router(statistics_router)
     app.include_router(simulation_router)
 
+    # SPA FRONTEND (sempre por último para pegar todas as rotas não mapeadas)
+    register_frontend_routes(app)
+
     @app.exception_handler(Exception)
     async def handle_error(request: Request, e: Exception):  # type: ignore
         """
@@ -42,6 +45,3 @@ def register_routes(app: FastAPI):
         Exceções HTTP serão tratadas devidamente com seus respetivos status code
         """
         return JSONResponse(status_code=e.status_code, content={"message": e.detail})
-
-    # Frontend SPA (registrar por último para catch-all funcionar)
-    register_frontend_routes(app)
