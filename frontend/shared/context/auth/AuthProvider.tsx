@@ -29,7 +29,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const logout = useCallback(async () => {
     await logoutApi({});
     setSession(null);
-  }, [logoutApi, setSession]);
+
+    // Garante novo client_id após logout
+    await initSessionApi({});
+  }, [initSessionApi, logoutApi, setSession]);
 
   // Inicializa sessão apenas uma vez
   useEffect(() => {

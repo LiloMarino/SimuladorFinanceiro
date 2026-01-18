@@ -66,10 +66,13 @@ def session_me(client_id: ClientID):
 
 
 @auth_router.post("/session/logout", status_code=status.HTTP_204_NO_CONTENT)
-def session_logout():
+def session_logout(client_id: ClientID):
     """
-    Remove o cookie de sessão atual.
+    Logout:
+    - Remove presença
+    - Invalida sessão no navegador
     """
+    UserManager.player_logout(client_id)
     response = Response(status_code=status.HTTP_204_NO_CONTENT)
     response.delete_cookie(
         key="client_id",

@@ -58,6 +58,21 @@ class UserManager:
         cls._emit_player_join(user)
         return user
 
+    @classmethod
+    def player_logout(cls, client_id: str):
+        with cls._lock:
+            # Remove presença ativa (se existir)
+            user = cls._active_players.pop(client_id, None)
+
+        # Emite evento de saída se o usuário estava ativo
+        if user:
+            cls._emit_player_exit(user)
+
+        # Limpa cache lazy (força sessão a virar "guest")
+        cls._client_user_cache.pop(client_id, None)
+
+        logger.info(f"User logged out: client_id={client_id}")
+
     # =========================
     # Queries
     # =========================
