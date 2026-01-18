@@ -10,7 +10,6 @@ export type SimulationEvents = {
   simulation_started: SimulationInfo;
   simulation_ended: {
     reason: "completed" | "stopped_by_host";
-    final_date: string;
   };
   simulation_update: { currentDate: string };
   speed_update: { speed: number };
