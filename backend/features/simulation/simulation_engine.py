@@ -1,7 +1,6 @@
 from datetime import date
 from decimal import Decimal
 
-from backend import config
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.events.cashflow import CashflowEventDTO

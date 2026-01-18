@@ -2,7 +2,6 @@ from collections import defaultdict
 
 from sqlalchemy.orm import Session
 
-from backend import config
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
