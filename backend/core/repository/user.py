@@ -5,7 +5,6 @@ from uuid import UUID
 from sqlalchemy import Case, func, select
 from sqlalchemy.orm import Session
 
-from backend import config
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.user import UserDTO
 from backend.core.models.models import (

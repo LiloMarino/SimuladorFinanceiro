@@ -4,7 +4,6 @@ from fastapi import APIRouter, Request, Response, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID
 from backend.core.dto.session import SessionDTO
