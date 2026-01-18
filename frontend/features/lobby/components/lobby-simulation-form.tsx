@@ -21,6 +21,9 @@ const simulationFormSchema = z
       .string()
       .min(1, "O saldo inicial deve ser maior que 0")
       .refine((val) => Number(normalizeNumberString(val)) > 0, "O saldo inicial deve ser maior que 0"),
+    monthlyContribution: z
+      .string()
+      .refine((val) => Number(normalizeNumberString(val)) >= 0, "O aporte mensal não pode ser negativo"),
   })
   .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
     message: "A data final deve ser maior que a data inicial",
@@ -39,6 +42,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
       startDate: simulationData.start_date,
       endDate: simulationData.end_date,
       startingCash: formatMoney(String(simulationData.starting_cash * 100)),
+      monthlyContribution: formatMoney(String(simulationData.monthly_contribution * 100)),
     },
   });
 
@@ -52,7 +56,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
   // Mutação de criação
   const { mutate: createSimulation, loading: loadingCreate } = useMutationApi<
     SimulationInfo,
-    { start_date: string; end_date: string; starting_cash: number }
+    { start_date: string; end_date: string; starting_cash: number; monthly_contribution: number }
   >("/api/simulation/create", {
     onSuccess: () => {
       toast.success("Simulação criada com sucesso!");
@@ -65,7 +69,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
   // Mutação de continuação
   const { mutate: continueSimulation, loading: loadingContinue } = useMutationApi<
     SimulationInfo,
-    { end_date: string; starting_cash: number }
+    { end_date: string; starting_cash: number; monthly_contribution: number }
   >("/api/simulation/continue", {
     onSuccess: () => {
       toast.success("Simulação continuada com sucesso!");
@@ -137,6 +141,26 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="monthlyContribution"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Aporte Mensal (R$)</FormLabel>
+                <FormControl>
+                  <Input
+                    inputMode="decimal"
+                    placeholder="Aporte mensal da simulação"
+                    {...field}
+                    onChange={(e) => field.onChange(formatMoney(e.target.value))}
+                    disabled={disableFields}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           {/* Host IP */}
           <div>
             <FormLabel>IP do Host</FormLabel>
@@ -158,6 +182,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
                   start_date: form.getValues("startDate"),
                   end_date: form.getValues("endDate"),
                   starting_cash: Number(normalizeNumberString(form.getValues("startingCash"))),
+                  monthly_contribution: Number(normalizeNumberString(form.getValues("monthlyContribution"))),
                 })
               }
             >
@@ -172,6 +197,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
                 continueSimulation({
                   end_date: form.getValues("endDate"),
                   starting_cash: Number(normalizeNumberString(form.getValues("startingCash"))),
+                  monthly_contribution: Number(normalizeNumberString(form.getValues("monthlyContribution"))),
                 })
               }
             >

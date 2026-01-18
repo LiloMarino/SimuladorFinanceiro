@@ -62,6 +62,7 @@ export type SimulationData = {
   start_date: string;
   end_date: string;
   starting_cash: number;
+  monthly_contribution: number;
 };
 
 export type SimulationSettings = {

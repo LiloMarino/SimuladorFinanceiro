@@ -28,7 +28,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
 
   const { mutate: updateSettings } = useMutationApi<
     SimulationData,
-    { start_date: string; end_date: string; starting_cash: number }
+    { start_date: string; end_date: string; starting_cash: number; monthly_contribution: number }
   >("/api/simulation/settings", {
     method: "PUT",
     onSuccess: () => {
@@ -48,6 +48,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
           startDate: data.start_date,
           endDate: data.end_date,
           startingCash: displayMoney(data.starting_cash),
+          monthlyContribution: displayMoney(data.monthly_contribution),
         } as TForm);
       });
     },
@@ -64,12 +65,13 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
     if (!debouncedValues) return;
     if (lock.isLocked()) return;
 
-    const { startDate, endDate, startingCash } = debouncedValues;
+    const { startDate, endDate, startingCash, monthlyContribution } = debouncedValues;
 
     const payload = {
       start_date: startDate,
       end_date: endDate,
       starting_cash: Number(normalizeNumberString(startingCash)),
+      monthly_contribution: Number(normalizeNumberString(monthlyContribution)),
     };
 
     // Descarta duplicatas reais

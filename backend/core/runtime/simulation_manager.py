@@ -26,6 +26,7 @@ class SimulationManager:
                 start_date=date.fromisoformat(config.toml.simulation.start_date),
                 end_date=date.fromisoformat(config.toml.simulation.end_date),
                 starting_cash=config.toml.simulation.starting_cash,
+                monthly_contribution=config.toml.simulation.monthly_contribution,
             )
             return cls._pending_settings
 

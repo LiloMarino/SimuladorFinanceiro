@@ -25,6 +25,7 @@ class CreateSimulationRequest(BaseModel):
     start_date: date
     end_date: date
     starting_cash: float = Field(gt=0)
+    monthly_contribution: float = Field(ge=0, default=0.0)
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -36,12 +37,14 @@ class CreateSimulationRequest(BaseModel):
 class ContinueSimulationRequest(BaseModel):
     end_date: date
     starting_cash: float = Field(gt=0)
+    monthly_contribution: float = Field(ge=0, default=0.0)
 
 
 class UpdateSettingsRequest(BaseModel):
     start_date: date
     end_date: date
     starting_cash: float = Field(gt=0)
+    monthly_contribution: float = Field(ge=0, default=0.0)
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -69,6 +72,7 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
             start_date=payload.start_date,
             end_date=payload.end_date,
             starting_cash=payload.starting_cash,
+            monthly_contribution=payload.monthly_contribution,
         )
     )
 
@@ -104,6 +108,7 @@ def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
             start_date=last_snapshot_date,
             end_date=payload.end_date,
             starting_cash=payload.starting_cash,
+            monthly_contribution=payload.monthly_contribution,
         )
     )
 
@@ -167,6 +172,7 @@ def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
             start_date=payload.start_date,
             end_date=payload.end_date,
             starting_cash=payload.starting_cash,
+            monthly_contribution=payload.monthly_contribution,
         )
     )
 
