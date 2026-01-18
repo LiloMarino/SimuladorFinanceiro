@@ -1,75 +1,21 @@
 import { useAuth } from "@/shared/hooks/useAuth";
 import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
 import { NotificationSettingsForm } from "../components/notifications-settings-form";
+import { AccountSettings } from "../components/account-settings";
+import { SimulationControl } from "../components/simulation-control";
 import { SettingsSection } from "../components/settings-section";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
-import { toast } from "sonner";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSimulation } from "@/shared/hooks/useSimulation";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import type { SimulationSettings } from "@/types";
+import { useQueryApi } from "@/shared/hooks/useQueryApi";
 
 export default function SettingsPage() {
-  const { user, logout } = useAuth();
-  const { simulationActive } = useSimulation();
-  const navigate = useNavigate();
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showStopConfirm, setShowStopConfirm] = useState(false);
-
+  const { user } = useAuth();
+  
   // Verificar se o usuário é host
   const { data: settings } = useQueryApi<SimulationSettings>("/api/simulation/settings", {
     initialFetch: true,
   });
 
   const isHost = settings?.is_host ?? false;
-
-  // Mutação para deletar conta
-  const { mutate: deleteAccount, loading: deletingAccount } = useMutationApi("/api/user", {
-    method: "DELETE",
-    onSuccess: () => {
-      toast.success("Conta excluída com sucesso!");
-      handleLogout();
-    },
-    onError: (err) => {
-      toast.error(err.message);
-    },
-  });
-
-  // Mutação para encerrar simulação
-  const { mutate: stopSimulation, loading: stoppingSimulation } = useMutationApi("/api/simulation/stop", {
-    method: "POST",
-    onSuccess: () => {
-      toast.success("Simulação encerrada com sucesso!");
-      setShowStopConfirm(false);
-    },
-    onError: (err) => {
-      toast.error(err.message);
-    },
-  });
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
-  };
-
-  const handleDeleteAccount = () => {
-    if (!showDeleteConfirm) {
-      setShowDeleteConfirm(true);
-      return;
-    }
-    deleteAccount({});
-  };
-
-  const handleStopSimulation = () => {
-    if (!showStopConfirm) {
-      setShowStopConfirm(true);
-      return;
-    }
-    stopSimulation({});
-  };
-
   return (
     <section className="section-content p-4">
       <div className="bg-white rounded-lg shadow p-6 space-y-8">
@@ -91,69 +37,12 @@ export default function SettingsPage() {
         </SettingsSection>
 
         <SettingsSection title="Conta" bordered>
-          <div className="max-w-sm space-y-4">
-            <div>
-              <Button onClick={handleLogout} variant="outline" className="w-full">
-                Sair da Conta
-              </Button>
-              <p className="text-xs text-gray-500 mt-2">Você será desconectado do simulador.</p>
-            </div>
-
-            <div>
-              <Button
-                onClick={handleDeleteAccount}
-                variant={showDeleteConfirm ? "destructive" : "outline"}
-                className="w-full"
-                disabled={deletingAccount}
-              >
-                {showDeleteConfirm ? "Confirmar Exclusão" : "Excluir Conta"}
-              </Button>
-              {showDeleteConfirm && (
-                <div className="mt-2 space-y-2">
-                  <p className="text-xs text-red-600 font-semibold">
-                    ⚠️ Esta ação é irreversível! Todos os seus dados serão perdidos.
-                  </p>
-                  <Button onClick={() => setShowDeleteConfirm(false)} variant="ghost" size="sm" className="w-full">
-                    Cancelar
-                  </Button>
-                </div>
-              )}
-              {!showDeleteConfirm && (
-                <p className="text-xs text-gray-500 mt-2">Esta ação é permanente e não pode ser desfeita.</p>
-              )}
-            </div>
-          </div>
+          <AccountSettings />
         </SettingsSection>
 
-        {simulationActive && isHost && (
+        {isHost && (
           <SettingsSection title="Controle da Simulação" bordered>
-            <div className="max-w-sm space-y-4">
-              <div>
-                <Button
-                  onClick={handleStopSimulation}
-                  variant={showStopConfirm ? "destructive" : "outline"}
-                  className="w-full"
-                  disabled={stoppingSimulation}
-                >
-                  {showStopConfirm ? "Confirmar Encerramento" : "Encerrar Simulação"}
-                </Button>
-                {showStopConfirm && (
-                  <div className="mt-2 space-y-2">
-                    <p className="text-xs text-orange-600 font-semibold">
-                      ⚠️ Todos os jogadores serão redirecionados para o lobby.
-                    </p>
-                    <Button onClick={() => setShowStopConfirm(false)} variant="ghost" size="sm" className="w-full">
-                      Cancelar
-                    </Button>
-                  </div>
-                )}
-                {!showStopConfirm && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    Encerra a simulação atual e retorna todos os jogadores ao lobby.
-                  </p>
-                )}
-              </div>
-            </div>
+            <SimulationControl />
           </SettingsSection>
         )}
       </div>
