@@ -33,6 +33,7 @@ export function SimulationProvider({ children }: PropsWithChildren) {
       toast.info(reason);
 
       // Redireciona para o lobby
+      // TODO: melhorar isso com invalidateQuery quando tivermos #54
       navigate("/lobby");
     },
     true,
