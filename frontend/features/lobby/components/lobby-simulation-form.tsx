@@ -3,6 +3,8 @@ import { faCopy, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { formatMoney } from "@/shared/lib/utils/format";
+import { normalizeNumberString } from "@/shared/lib/utils";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
@@ -15,7 +17,10 @@ const simulationFormSchema = z
   .object({
     startDate: z.string().min(1, "Selecione a data inicial"),
     endDate: z.string().min(1, "Selecione a data final"),
-    startingCash: z.number().positive("O saldo inicial deve ser maior que 0"),
+    startingCash: z
+      .string()
+      .min(1, "O saldo inicial deve ser maior que 0")
+      .refine((val) => Number(normalizeNumberString(val)) > 0, "O saldo inicial deve ser maior que 0"),
   })
   .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
     message: "A data final deve ser maior que a data inicial",
@@ -33,7 +38,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
     defaultValues: {
       startDate: simulationData.start_date,
       endDate: simulationData.end_date,
-      startingCash: simulationData.starting_cash,
+      startingCash: formatMoney(String(simulationData.starting_cash)),
     },
   });
 
@@ -120,10 +125,10 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
                 <FormLabel>Saldo Inicial (R$)</FormLabel>
                 <FormControl>
                   <Input
-                    type="number"
-                    step="0.01"
+                    inputMode="decimal"
+                    placeholder="Saldo inicial da simulação"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value === "" ? 0 : parseFloat(e.target.value))}
+                    onChange={(e) => field.onChange(formatMoney(e.target.value))}
                     disabled={disableFields}
                   />
                 </FormControl>
@@ -150,10 +155,10 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
               className="w-full bg-green-600 hover:bg-green-700"
               onClick={() =>
                 createSimulation({
-                  start_date: form.getValues("startDate"),
-                  end_date: form.getValues("endDate"),
-                  starting_cash: form.getValues("startingCash"),
-                })
+                    start_date: form.getValues("startDate"),
+                    end_date: form.getValues("endDate"),
+                    starting_cash: Number(normalizeNumberString(form.getValues("startingCash"))),
+                  })
               }
             >
               <FontAwesomeIcon icon={faPlay} className="mr-2" />
@@ -166,7 +171,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
               onClick={() =>
                 continueSimulation({
                   end_date: form.getValues("endDate"),
-                  starting_cash: form.getValues("startingCash"),
+                  starting_cash: Number(normalizeNumberString(form.getValues("startingCash"))),
                 })
               }
             >

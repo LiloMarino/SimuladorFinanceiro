@@ -7,6 +7,8 @@ import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { toast } from "sonner";
 import type { SimulationFormValues } from "../components/lobby-simulation-form";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
+import { normalizeNumberString } from "@/shared/lib/utils";
+import { displayMoney } from "@/shared/lib/utils/display";
 
 export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues>({
   form,
@@ -20,6 +22,8 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
   debounceMs: number;
 }) {
   const lock = useAsyncLock();
+
+  /** Mantém o último payload REAL enviado à API */
   const lastSentRef = useRef<SimulationData | null>(initial);
 
   const { mutate: updateSettings } = useMutationApi<
@@ -43,7 +47,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
         form.reset({
           startDate: data.start_date,
           endDate: data.end_date,
-          startingCash: data.starting_cash,
+          startingCash: displayMoney(data.starting_cash),
         } as TForm);
       });
     },
@@ -62,14 +66,19 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
 
     const { startDate, endDate, startingCash } = debouncedValues;
 
-    // Descarta duplicatas
-    const current = { start_date: startDate, end_date: endDate, starting_cash: startingCash };
+    const payload = {
+      start_date: startDate,
+      end_date: endDate,
+      starting_cash: Number(normalizeNumberString(startingCash)),
+    };
+
+    // Descarta duplicatas reais
     const last = lastSentRef.current;
-    if (last && JSON.stringify(last) === JSON.stringify(current)) return;
-    lastSentRef.current = current;
+    if (last && JSON.stringify(last) === JSON.stringify(payload)) return;
+    lastSentRef.current = payload;
 
     void lock.runExclusive(async () => {
-      await updateSettings({ start_date: startDate, end_date: endDate, starting_cash: startingCash });
+      await updateSettings(payload);
     });
   }, [debouncedValues, isHost, updateSettings, form.formState.isValid, lock]);
 }
