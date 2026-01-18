@@ -38,7 +38,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
     defaultValues: {
       startDate: simulationData.start_date,
       endDate: simulationData.end_date,
-      startingCash: formatMoney(String(simulationData.starting_cash)),
+      startingCash: formatMoney(String(simulationData.starting_cash * 100)),
     },
   });
 
@@ -155,10 +155,10 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
               className="w-full bg-green-600 hover:bg-green-700"
               onClick={() =>
                 createSimulation({
-                    start_date: form.getValues("startDate"),
-                    end_date: form.getValues("endDate"),
-                    starting_cash: Number(normalizeNumberString(form.getValues("startingCash"))),
-                  })
+                  start_date: form.getValues("startDate"),
+                  end_date: form.getValues("endDate"),
+                  starting_cash: Number(normalizeNumberString(form.getValues("startingCash"))),
+                })
               }
             >
               <FontAwesomeIcon icon={faPlay} className="mr-2" />

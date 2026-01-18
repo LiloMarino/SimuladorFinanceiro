@@ -25,7 +25,7 @@ class SimulationManager:
             cls._pending_settings = SimulationDTO(
                 start_date=date.fromisoformat(config.toml.simulation.start_date),
                 end_date=date.fromisoformat(config.toml.simulation.end_date),
-                starting_cash=float(config.toml.simulation.starting_cash),
+                starting_cash=config.toml.simulation.starting_cash,
             )
             return cls._pending_settings
 
