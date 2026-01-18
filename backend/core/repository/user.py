@@ -2,7 +2,7 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import Case, func, select
+from sqlalchemy import Case, delete, func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -126,8 +126,7 @@ class UserRepository:
 
     @transactional
     def delete_user(self, session: Session, user_id: int) -> None:
-        user = session.query(Users).filter_by(id=user_id).one()
-        session.delete(user)
+        session.execute(delete(Users).where(Users.id == user_id))
 
     @transactional
     def reset_users_data(
