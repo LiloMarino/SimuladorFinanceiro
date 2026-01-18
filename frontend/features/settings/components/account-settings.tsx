@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -17,7 +16,6 @@ import {
 
 export function AccountSettings() {
   const { logout } = useAuth();
-  const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { mutate: deleteAccount, loading: deletingAccount } = useMutationApi("/api/user", {
@@ -33,7 +31,6 @@ export function AccountSettings() {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/");
   };
 
   const handleDeleteAccount = () => {
