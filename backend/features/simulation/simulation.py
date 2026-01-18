@@ -110,7 +110,9 @@ class Simulation:
 
                 # Aplica aporte mensal
                 if self.settings.monthly_contribution > 0:
-                    self._engine.add_cash(client_id, self.settings.monthly_contribution)
+                    self._engine.add_contribution(
+                        client_id, self.settings.monthly_contribution
+                    )
 
             notify(
                 event="statistics_snapshot_update",

@@ -128,8 +128,13 @@ export function calculatePortfolioView(portfolioData: PortfolioState, stocks: St
   const variableIncomePct = investedValue > 0 ? variableIncomeValue / investedValue : 0;
   const fixedIncomePct = investedValue > 0 ? fixedIncomeValue / investedValue : 0;
   const investedPct = totalNetWorth > 0 ? investedValue / totalNetWorth : 0;
-  const initialCapital = portfolioData.starting_cash;
-  const totalReturnPct = initialCapital > 0 ? (totalNetWorth - initialCapital) / initialCapital : 0;
+
+  // Calcula retorno (descontando aportes)
+  const lastSnapshot = portfolioData.patrimonial_history[portfolioData.patrimonial_history.length - 1];
+  const totalContributions = lastSnapshot?.total_contribution ?? 0;
+  const capitalProvided = portfolioData.starting_cash + totalContributions;
+  const totalReturnValue = totalNetWorth - capitalProvided;
+  const totalReturnPct = capitalProvided > 0 ? totalReturnValue / capitalProvided : 0;
 
   return {
     variablePositions,

@@ -13,6 +13,7 @@ export type PatrimonialHistory = {
   total_equity: number;
   total_fixed: number;
   total_cash: number;
+  total_contribution: number;
 };
 
 export type FixedIncomePosition = {

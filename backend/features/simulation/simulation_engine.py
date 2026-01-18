@@ -56,6 +56,19 @@ class SimulationEngine:
         )
         notify("cash_update", {"cash": self._cash[client_id]}, to=client_id)
 
+    def add_contribution(self, client_id: str, amount: float):
+        """Adiciona aporte mensal (não conta como retorno de investimento)"""
+        self._cash[client_id] += amount
+        EventManager.push_event(
+            CashflowEventDTO(
+                user_id=UserManager.get_user_id(client_id),
+                event_type=CashflowEventType.CONTRIBUTION,
+                amount=Decimal(amount),
+                event_date=self.current_date,
+            )
+        )
+        notify("cash_update", {"cash": self._cash[client_id]}, to=client_id)
+
     def update_market_data(self, stocks: list[CandleDTO]):
         for s in stocks:
             candle = Candle(

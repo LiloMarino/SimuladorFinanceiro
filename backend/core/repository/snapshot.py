@@ -34,7 +34,7 @@ class SnapshotRepository:
                             Case(
                                 (
                                     EventCashflow.event_type.in_(
-                                        ["DEPOSIT", "DIVIDEND"]
+                                        ["DEPOSIT", "DIVIDEND", "CONTRIBUTION"]
                                     ),
                                     EventCashflow.amount,
                                 ),
@@ -49,6 +49,24 @@ class SnapshotRepository:
                     )
                 ).where(
                     EventCashflow.user_id == user_id,
+                    EventCashflow.event_date <= snapshot_date,
+                )
+            ).scalar_one()
+        )
+
+        # --------------------------------------------------
+        # 2.5. TOTAL CONTRIBUTIONS
+        # --------------------------------------------------
+        total_contribution = Decimal(
+            session.execute(
+                select(
+                    func.coalesce(
+                        func.sum(EventCashflow.amount),
+                        0,
+                    )
+                ).where(
+                    EventCashflow.user_id == user_id,
+                    EventCashflow.event_type == "CONTRIBUTION",
                     EventCashflow.event_date <= snapshot_date,
                 )
             ).scalar_one()
@@ -128,6 +146,7 @@ class SnapshotRepository:
             total_equity=total_equity,
             total_fixed=total_fixed,
             total_cash=total_cash,
+            total_contribution=total_contribution,
             total_networth=total_networth,
             created_at=datetime.now(UTC),
         )
@@ -140,6 +159,7 @@ class SnapshotRepository:
             total_equity=total_equity,
             total_fixed=total_fixed,
             total_cash=total_cash,
+            total_contribution=total_contribution,
             total_networth=total_networth,
             created_at=datetime.now(UTC),
         )

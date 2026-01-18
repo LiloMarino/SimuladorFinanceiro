@@ -192,7 +192,13 @@ class EventCashflow(Base):
     )
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
     event_type: Mapped[str] = mapped_column(
-        Enum("DEPOSIT", "WITHDRAW", "DIVIDEND", name="cashflow_event_type"),
+        Enum(
+            "DEPOSIT",
+            "WITHDRAW",
+            "DIVIDEND",
+            "CONTRIBUTION",
+            name="cashflow_event_type",
+        ),
         nullable=False,
     )
     amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
@@ -368,6 +374,9 @@ class Snapshots(Base):
     )
     total_fixed: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     total_cash: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    total_contribution: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
     total_networth: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
     )

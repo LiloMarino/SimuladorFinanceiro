@@ -41,6 +41,7 @@ export default function PortfolioPage() {
         total_equity: snapshot.total_equity,
         total_fixed: snapshot.total_fixed,
         total_cash: snapshot.total_cash,
+        total_contribution: snapshot.total_contribution,
       });
 
       return {

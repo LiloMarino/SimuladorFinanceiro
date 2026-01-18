@@ -12,5 +12,6 @@ class SnapshotDTO(BaseDTO):
     total_equity: Decimal
     total_fixed: Decimal
     total_cash: Decimal
+    total_contribution: Decimal
     total_networth: Decimal
     created_at: datetime

@@ -57,6 +57,7 @@ class CashflowEventType(Enum):
     DEPOSIT = "DEPOSIT"
     WITHDRAW = "WITHDRAW"
     DIVIDEND = "DIVIDEND"
+    CONTRIBUTION = "CONTRIBUTION"
 
 
 class EquityEventType(Enum):
