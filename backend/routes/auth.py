@@ -144,7 +144,9 @@ def user_delete(client_id: ClientID):
     user = UserManager.get_user(client_id)
     if not user:
         raise NotFoundError("User not found.")
+    UserManager.player_logout(client_id)
 
+    # Deleta usuário do banco de dados
     repository.user.delete_user(user.id)
 
     response = Response(status_code=status.HTTP_204_NO_CONTENT)

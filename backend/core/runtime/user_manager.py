@@ -3,6 +3,7 @@ from typing import ClassVar
 
 from backend.core import repository
 from backend.core.dto.user import UserDTO
+from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.logger import setup_logger
 from backend.core.utils.lazy_dict import LazyDict
@@ -60,9 +61,20 @@ class UserManager:
 
     @classmethod
     def player_logout(cls, client_id: str):
+        from backend.core.runtime.simulation_manager import (  # noqa: PLC0415
+            SimulationManager,
+        )
+
         with cls._lock:
             # Remove presença ativa (se existir)
             user = cls._active_players.pop(client_id, None)
+
+        # Limpa caches da simulação (se houver simulação ativa)
+        try:
+            sim = SimulationManager.get_active_simulation()
+            sim.clear_user_cache(client_id)
+        except NoActiveSimulationError:
+            pass
 
         # Emite evento de saída se o usuário estava ativo
         if user:

@@ -6,6 +6,7 @@ export interface AuthContextValue {
   user: User | null;
   refresh: () => Promise<Session | null>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   loading: boolean;
 }
 
