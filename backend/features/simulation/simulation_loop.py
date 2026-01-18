@@ -22,6 +22,7 @@ class SimulationLoopController:
     def __init__(self):
         self._thread: threading.Thread | None = None
         self._stop_event = threading.Event()
+        self._pause_event = threading.Event()
         self._lock = threading.Lock()
         self._state = SimulationState.STOPPED
 
@@ -49,6 +50,14 @@ class SimulationLoopController:
             self._thread.start()
             logger.info("Thread da simulação iniciada.")
 
+    def pause(self):
+        logger.info("Simulação pausada.")
+        self._pause_event.clear()
+
+    def unpause(self):
+        logger.info("Simulação retomada.")
+        self._pause_event.set()
+
     def stop(self) -> date | None:
         """Encerra a simulação em execução e retorna a data final."""
         with self._lock:
@@ -56,6 +65,7 @@ class SimulationLoopController:
                 raise ValueError("Nenhuma simulação está em execução.")
 
             self._stop_event.set()
+            self._pause_event.set()
 
         if self._thread and self._thread.is_alive():
             logger.info("Aguardando thread da simulação encerrar...")
@@ -84,8 +94,9 @@ class SimulationLoopController:
             while not self._stop_event.is_set():
                 speed = simulation.get_speed()
 
+                # 🔸 PAUSE (speed == 0)
                 if speed <= 0:
-                    time.sleep(0.1)
+                    self._pause_event.wait()  # bloqueia até unpause ou stop
                     continue
 
                 try:
