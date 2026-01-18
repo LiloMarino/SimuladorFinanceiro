@@ -18,7 +18,7 @@ class DatabaseConfig(BaseModel):
 class SimulationConfig(BaseModel):
     start_date: str = "2000-01-01"
     end_date: str = "2026-01-01"
-    starting_cash: int = 10000
+    starting_cash: float = 10000.00
 
 
 class RealtimeConfig(BaseModel):
