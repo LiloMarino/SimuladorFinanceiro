@@ -21,6 +21,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
   // Logout
   const { mutate: logoutApi, loading: logoutLoading } = useMutationApi("/api/session/logout");
 
+  // Delete account
+  const { mutate: deleteAccountApi, loading: deleteLoading } = useMutationApi("/api/user", {
+    method: "DELETE",
+  });
+
   const initSession = useCallback(async () => {
     await initSessionApi({});
     return fetchSessionApi();
@@ -34,6 +39,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
     await initSessionApi({});
   }, [initSessionApi, logoutApi, setSession]);
 
+  const deleteAccount = useCallback(async () => {
+    await deleteAccountApi({});
+    setSession(null);
+
+    // Garante novo client_id após exclusão
+    await initSessionApi({});
+  }, [deleteAccountApi, setSession, initSessionApi]);
+
   // Inicializa sessão apenas uma vez
   useEffect(() => {
     void initSession();
@@ -46,7 +59,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
         user: session?.user ?? null,
         refresh: fetchSessionApi,
         logout,
-        loading: sessionLoading || initLoading || logoutLoading,
+        deleteAccount,
+        loading: sessionLoading || initLoading || logoutLoading || deleteLoading,
       }}
     >
       {children}

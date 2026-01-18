@@ -168,6 +168,14 @@ class Simulation:
         orders = self._engine.matching_engine.order_book.get_orders(ticker)
         return [OrderDTO.from_model(o) for o in orders]
 
+    def clear_user_cache(self, client_id: str) -> None:
+        # Remove saldo em cache
+        self._engine._cash.pop(client_id, None)
+        # Remove posições de renda variável em cache
+        self._engine.broker._positions.pop(client_id, None)
+        # Remove ativos de renda fixa em cache
+        self._engine.fixed_broker._assets.pop(client_id, None)
+
     def _has_month_changed(self) -> bool:
         current_month = (self._current_date.year, self._current_date.month)
 

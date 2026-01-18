@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -15,27 +14,21 @@ import {
 } from "@/shared/components/ui/alert-dialog";
 
 export function AccountSettings() {
-  const { logout } = useAuth();
+  const { logout, deleteAccount, loading } = useAuth();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  const { mutate: deleteAccount, loading: deletingAccount } = useMutationApi("/api/user", {
-    method: "DELETE",
-    onSuccess: () => {
-      toast.success("Conta excluída com sucesso!");
-      handleLogout();
-    },
-    onError: (err) => {
-      toast.error(err.message);
-    },
-  });
 
   const handleLogout = async () => {
     await logout();
   };
 
-  const handleDeleteAccount = () => {
-    deleteAccount({});
-    setShowDeleteConfirm(false);
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteAccount();
+      toast.success("Conta excluída com sucesso!");
+      setShowDeleteConfirm(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao excluir conta");
+    }
   };
 
   return (
@@ -55,7 +48,7 @@ export function AccountSettings() {
             onClick={() => setShowDeleteConfirm(true)}
             variant="destructive"
             className="w-full"
-            disabled={deletingAccount}
+            disabled={loading}
           >
             Excluir Conta
           </Button>
@@ -75,7 +68,7 @@ export function AccountSettings() {
               <Button variant="outline">Cancelar</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
-              <Button variant="destructive" onClick={handleDeleteAccount} disabled={deletingAccount}>
+              <Button variant="destructive" onClick={handleDeleteAccount} disabled={loading}>
                 Confirmar Exclusão
               </Button>
             </AlertDialogAction>
