@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from backend import config
 from backend.core import repository
-from backend.core.dependencies import ActiveSimulation, ClientID, HostVerified
+from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import (
@@ -72,7 +72,7 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
         )
     )
 
-    simulation_controller.trigger_start()
+    simulation_controller.start()
 
     notify(
         "simulation_started",
@@ -107,7 +107,7 @@ def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
         )
     )
 
-    simulation_controller.trigger_start()
+    simulation_controller.start()
 
     notify(
         "simulation_started",
@@ -124,17 +124,14 @@ def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
 
 
 @simulation_router.post("/stop", status_code=204)
-def stop_simulation(simulation: ActiveSimulation, _: HostVerified):
+def stop_simulation(_: HostVerified):
     """Encerra a simulação manualmente"""
-    current_date = simulation.get_current_date()
-    SimulationManager.clear_simulation()
-    simulation_controller.reset_start_event()
+    simulation_controller.stop()
 
     notify(
         "simulation_ended",
         {
             "reason": "stopped_by_host",
-            "final_date": current_date.isoformat(),
         },
     )
 
