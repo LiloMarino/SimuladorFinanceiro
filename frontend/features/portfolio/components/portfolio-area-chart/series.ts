@@ -27,6 +27,13 @@ export const PORTFOLIO_AREA_SERIES = [
     gradientId: "colorCash",
     defaultVisible: false,
   },
+  {
+    key: "total_contribution",
+    label: "Total Aportado",
+    color: "#8B5CF6",
+    gradientId: "colorContribution",
+    defaultVisible: false,
+  },
 ] as const;
 
 export type PortfolioSeriesKey = (typeof PORTFOLIO_AREA_SERIES)[number]["key"];

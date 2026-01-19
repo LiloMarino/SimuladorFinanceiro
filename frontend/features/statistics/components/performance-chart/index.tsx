@@ -8,6 +8,7 @@ const TABS: { key: PerformanceMetric; label: string }[] = [
   { key: "total_equity", label: "Renda Variável" },
   { key: "total_fixed", label: "Renda Fixa" },
   { key: "total_cash", label: "Caixa" },
+  { key: "total_contribution", label: "Total Aportado" },
 ] as const;
 
 interface PerformanceChartProps {
