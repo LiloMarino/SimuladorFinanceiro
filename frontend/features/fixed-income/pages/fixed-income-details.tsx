@@ -17,6 +17,8 @@ import { FixedIncomeInvestmentForm } from "../components/fixed-income-investment
 import { FixedIncomeOperationSummary } from "../components/fixed-income-operation-summary";
 import { FixedIncomeCalculationDetails } from "../components/fixed-income-calculation-details";
 import { FixedIncomeTaxTable } from "../components/fixed-income-tax-table";
+import { formatMoney } from "@/shared/lib/utils/format";
+import { normalizeNumberString } from "@/shared/lib/utils";
 
 export default function FixedIncomeDetailPage() {
   usePageLabel("Detalhes Renda Fixa");
@@ -32,7 +34,7 @@ export default function FixedIncomeDetailPage() {
   const form = useForm<InvestmentFormSchema>({
     resolver: zodResolver(investmentFormSchema),
     defaultValues: {
-      amount: "1000",
+      amount: formatMoney("0"),
     },
   });
 
@@ -61,7 +63,7 @@ export default function FixedIncomeDetailPage() {
   }
 
   const amount = form.watch("amount");
-  const simulation = asset.getSimulation(Number(amount));
+  const simulation = asset.getSimulation(Number(normalizeNumberString(amount)));
   return (
     <main className="min-h-screen bg-slate-50 p-4 md:p-8">
       <div className="mx-auto max-w-6xl">

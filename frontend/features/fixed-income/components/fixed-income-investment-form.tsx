@@ -5,6 +5,8 @@ import type { InvestmentFormSchema } from "../schemas/investment-form";
 import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { formatMoney } from "@/shared/lib/utils/format";
+import { normalizeNumberString } from "@/shared/lib/utils";
 
 interface FixedIncomeInvestmentFormProps {
   form: UseFormReturn<InvestmentFormSchema>;
@@ -22,8 +24,7 @@ export function FixedIncomeInvestmentForm({ form, id }: FixedIncomeInvestmentFor
   });
 
   const onSubmit = async (values: InvestmentFormSchema) => {
-    const quantity = Number(values.amount);
-
+    const quantity = Number(normalizeNumberString(values.amount));
     await buyMutation.mutate({
       quantity,
     });
@@ -38,14 +39,14 @@ export function FixedIncomeInvestmentForm({ form, id }: FixedIncomeInvestmentFor
           render={({ field }) => (
             <FormItem>
               <FormLabel>Valor do investimento</FormLabel>
-              <div className="relative ">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 font-medium">R$</span>
-
-                <FormControl>
-                  <Input type="number" min="0" step="100" className="pl-10" placeholder="0,00" {...field} />
-                </FormControl>
-              </div>
-
+              <FormControl>
+                <Input
+                  inputMode="decimal"
+                  placeholder="0,00"
+                  {...field}
+                  onChange={(e) => field.onChange(formatMoney(e.target.value))}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
