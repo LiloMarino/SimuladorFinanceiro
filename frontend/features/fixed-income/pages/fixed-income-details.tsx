@@ -76,7 +76,7 @@ export default function FixedIncomeDetailPage() {
             <h3 className="text-lg font-semibold text-slate-900 mb-6">Investir neste ativo</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-              <FixedIncomeInvestmentForm form={form} id={id} />
+              <FixedIncomeInvestmentForm form={form} id={id} availableCash={simData?.cash ?? 0} />
               <FixedIncomeOperationSummary asset={asset} simulation={simulation} />
             </div>
 

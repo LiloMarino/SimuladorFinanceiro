@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
-import type { StockDetails } from "@/types";
+import type { Position, StockDetails } from "@/types";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { Card } from "@/shared/components/ui/card";
 import usePageLabel from "@/shared/hooks/usePageLabel";
@@ -32,6 +32,12 @@ export default function VariableIncomeDetailPage() {
     setCash({ cash });
   });
 
+  const { data: position, setData: setPosition } = useQueryApi<Position>(`/api/portfolio/${ticker}`);
+
+  useRealtime(`position_update:${ticker}`, ({ position }) => {
+    setPosition(position);
+  });
+
   if (loading) {
     return <LoadingPage />;
   } else if (!stock) {
@@ -57,10 +63,10 @@ export default function VariableIncomeDetailPage() {
         {/* Ações + Resumo */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           {/* Ações */}
-          <NewOrderCard stock={stock} />
+          <NewOrderCard stock={stock} cash={cash} position={position} />
 
           {/* Resumo */}
-          <PositionSummaryCard stock={stock} cash={cash} />
+          <PositionSummaryCard stock={stock} cash={cash} position={position} />
         </div>
 
         <PendingOrdersCard ticker={stock.ticker} />

@@ -11,9 +11,10 @@ import { normalizeNumberString } from "@/shared/lib/utils";
 interface FixedIncomeInvestmentFormProps {
   form: UseFormReturn<InvestmentFormSchema>;
   id: string | undefined;
+  availableCash: number;
 }
 
-export function FixedIncomeInvestmentForm({ form, id }: FixedIncomeInvestmentFormProps) {
+export function FixedIncomeInvestmentForm({ form, id, availableCash }: FixedIncomeInvestmentFormProps) {
   const buyMutation = useMutationApi<{ quantity: number }>(`/api/fixed-income/${id}/buy`, {
     onSuccess: () => {
       toast.success("Investido com sucesso!");
@@ -29,7 +30,6 @@ export function FixedIncomeInvestmentForm({ form, id }: FixedIncomeInvestmentFor
       quantity,
     });
   };
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -39,14 +39,31 @@ export function FixedIncomeInvestmentForm({ form, id }: FixedIncomeInvestmentFor
           render={({ field }) => (
             <FormItem>
               <FormLabel>Valor do investimento</FormLabel>
-              <FormControl>
-                <Input
-                  inputMode="decimal"
-                  placeholder="0,00"
-                  {...field}
-                  onChange={(e) => field.onChange(formatMoney(e.target.value))}
-                />
-              </FormControl>
+
+              <div className="flex items-center gap-2">
+                <FormControl className="flex-1">
+                  <Input
+                    inputMode="decimal"
+                    placeholder="0,00"
+                    {...field}
+                    onChange={(e) => field.onChange(formatMoney(e.target.value))}
+                  />
+                </FormControl>
+
+                <Button
+                  type="button"
+                  variant="gray"
+                  className="shrink-0 px-3"
+                  disabled={availableCash === 0}
+                  onClick={() => {
+                    const maxAmount = formatMoney(String(Math.round(availableCash * 100)));
+                    form.setValue("amount", maxAmount);
+                  }}
+                >
+                  MÁX
+                </Button>
+              </div>
+
               <FormMessage />
             </FormItem>
           )}

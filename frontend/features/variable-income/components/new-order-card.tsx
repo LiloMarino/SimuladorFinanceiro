@@ -5,7 +5,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/shared/components/ui/form";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { displayMoney } from "@/shared/lib/utils/display";
-import type { OrderAction, OrderType, StockDetails } from "@/types";
+import type { OrderAction, OrderType, StockDetails, Position } from "@/types";
 import clsx from "clsx";
 import { Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -35,7 +35,7 @@ const newOrderSchema = z
     {
       path: ["limit_price"],
       message: "Informe um preço válido para ordem limitada",
-    }
+    },
   );
 
 type NewOrderFormInput = z.input<typeof newOrderSchema>;
@@ -48,9 +48,11 @@ type NewOrderFormOutput = {
 
 interface NewOrderCardProps {
   stock: StockDetails;
+  cash: number;
+  position: Position | null;
 }
 
-export function NewOrderCard({ stock }: NewOrderCardProps) {
+export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
   const form = useForm<NewOrderFormInput>({
     resolver: zodResolver(newOrderSchema),
     defaultValues: {
@@ -72,11 +74,28 @@ export function NewOrderCard({ stock }: NewOrderCardProps) {
   });
 
   const type = form.watch("type");
+  const action = form.watch("action");
   const quantity = Number(form.watch("quantity"));
   const limitPrice = Number(normalizeNumberString(form.watch("limit_price")));
 
   const estimatedPrice = type === "market" ? stock.close : limitPrice;
   const estimatedTotal = quantity * estimatedPrice;
+
+  // Calcular quantidade máxima para compra
+  const maxQuantityForBuy = (() => {
+    if (type === "market") {
+      // Ordem à mercado: cash / preço atual
+      return Math.floor(cash / stock.close);
+    } else {
+      // Ordem limitada: cash / preço desejado
+      const price = limitPrice || stock.close;
+      return Math.floor(cash / price);
+    }
+  })();
+
+  // Quantidade máxima para venda = quantidade em posição
+  const positionSize = position?.size ?? 0;
+  const maxQuantityForSell = positionSize;
 
   const onSubmit = async (values: NewOrderFormInput) => {
     const payload: NewOrderFormOutput = {
@@ -151,14 +170,33 @@ export function NewOrderCard({ stock }: NewOrderCardProps) {
             name="quantity"
             render={({ field }) => (
               <FormItem>
-                <FormControl>
-                  <Input
-                    {...field}
-                    inputMode="numeric"
-                    placeholder="Quantidade"
-                    onChange={(e) => field.onChange(formatPositiveInteger(e.target.value))}
-                  />
-                </FormControl>
+                <FormLabel>Quantidade</FormLabel>
+
+                <div className="flex gap-2 items-center">
+                  <FormControl className="flex-1">
+                    <Input
+                      {...field}
+                      inputMode="numeric"
+                      placeholder="Quantidade"
+                      onChange={(e) => field.onChange(formatPositiveInteger(e.target.value))}
+                    />
+                  </FormControl>
+
+                  <Button
+                    type="button"
+                    variant="gray"
+                    size="sm"
+                    onClick={() => {
+                      const maxQty = action === "buy" ? maxQuantityForBuy : maxQuantityForSell;
+                      form.setValue("quantity", String(maxQty));
+                    }}
+                    disabled={action === "buy" ? cash === 0 : positionSize === 0}
+                    className="shrink-0 px-3"
+                  >
+                    Máx
+                  </Button>
+                </div>
+
                 <FormMessage />
               </FormItem>
             )}
@@ -190,7 +228,7 @@ export function NewOrderCard({ stock }: NewOrderCardProps) {
             type="submit"
             disabled={executeOrderMutation.loading}
             className={clsx(
-              form.watch("action") === "buy" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
+              form.watch("action") === "buy" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700",
             )}
           >
             {executeOrderMutation.loading ? (
