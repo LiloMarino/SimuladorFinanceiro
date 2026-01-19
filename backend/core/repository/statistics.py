@@ -46,6 +46,7 @@ class StatisticsRepository:
                     total_fixed=s.total_fixed,
                     total_cash=s.total_cash,
                     total_networth=s.total_networth,
+                    total_contribution=s.total_contribution,
                 )
                 for s in user_snaps
             ]

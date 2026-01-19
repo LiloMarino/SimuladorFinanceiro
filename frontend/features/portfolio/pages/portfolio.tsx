@@ -119,7 +119,7 @@ export default function PortfolioPage() {
         <SummaryCard
           title="Patrimônio Total"
           value={totalNetWorth}
-          subtitle={`${displayPercent(totalReturnPct)} desde o início`}
+          subtitle={`Rentabilidade de ${displayPercent(totalReturnPct)}`}
           icon={faWallet}
           iconBg="bg-green-100"
           color="text-green-600"

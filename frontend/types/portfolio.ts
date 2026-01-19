@@ -24,6 +24,7 @@ export type FixedIncomePosition = {
 
 export type PortfolioState = {
   starting_cash: number;
+  total_contribution: number;
   cash: number;
   variable_income: Position[];
   fixed_income: FixedIncomePosition[];

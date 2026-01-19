@@ -8,6 +8,7 @@ from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.stock_details import StockDetailsDTO
+from backend.core.dto.user import UserDTO
 from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.features.realtime import notify
@@ -61,63 +62,20 @@ class Simulation:
         # Executa a estratégia
         self._engine.next(self._current_date)
 
-        # Persiste os eventos
-        EventManager.flush()
-
-        # Cria snapshot mensal
         if self._has_month_changed():
-            snapshots_payload = []
             users = repository.user.get_all_users()
-            for user in users:
-                # Obtém as posições de renda fixa antes do snapshot
-                client_id = str(user.client_id)
 
-                fixed_positions = self.get_fixed_positions(client_id)
+            # Processa eventos mensais antes de persistir
+            self._apply_monthly_contributions(users)
 
-                for position in fixed_positions.values():
-                    asset_id = repository.fixed_income.get_or_create_asset(
-                        position.asset
-                    )
-                    repository.fixed_income.upsert_position(
-                        user_id=user.id,
-                        asset_id=asset_id,
-                        total_applied=Decimal(position.total_applied),
-                        current_value=Decimal(position.current_value),
-                        accrual_date=self._current_date,
-                        first_applied_date=position.first_applied_date,
-                    )
+            # Persiste os eventos
+            EventManager.flush()
 
-                # Cria o snapshot
-                snapshot = repository.snapshot.create_snapshot(
-                    user_id=user.id,
-                    snapshot_date=self._current_date,
-                )
-
-                # Portfolio (individual)
-                notify(
-                    event="snapshot_update",
-                    payload={"snapshot": snapshot.to_json()},
-                    to=client_id,
-                )
-
-                # Statistics (global)
-                snapshots_payload.append(
-                    {
-                        "player_nickname": user.nickname,
-                        "snapshot": snapshot.to_json(),
-                    }
-                )
-
-                # Aplica aporte mensal
-                if self.settings.monthly_contribution > 0:
-                    self._engine.add_contribution(
-                        client_id, self.settings.monthly_contribution
-                    )
-
-            notify(
-                event="statistics_snapshot_update",
-                payload={"snapshots": snapshots_payload},
-            )
+            # Cria snapshot mensal
+            self._create_monthly_snapshots(users)
+        else:
+            # Persiste os eventos
+            EventManager.flush()
 
         # Emite notificações
         logger.info(f"Dia atual: {self.get_current_date_formatted()}")
@@ -190,3 +148,57 @@ class Simulation:
             return True
 
         return False
+
+    def _apply_monthly_contributions(self, users: list[UserDTO]):
+        if self.settings.monthly_contribution <= 0:
+            return
+
+        for user in users:
+            client_id = str(user.client_id)
+            self._engine.add_contribution(client_id, self.settings.monthly_contribution)
+
+    def _create_monthly_snapshots(self, users: list[UserDTO]):
+        snapshots_payload = []
+
+        for user in users:
+            client_id = str(user.client_id)
+
+            # Obtém as posições de renda fixa antes do snapshot
+            fixed_positions = self.get_fixed_positions(client_id)
+
+            for position in fixed_positions.values():
+                asset_id = repository.fixed_income.get_or_create_asset(position.asset)
+                repository.fixed_income.upsert_position(
+                    user_id=user.id,
+                    asset_id=asset_id,
+                    total_applied=Decimal(position.total_applied),
+                    current_value=Decimal(position.current_value),
+                    accrual_date=self._current_date,
+                    first_applied_date=position.first_applied_date,
+                )
+
+            # Cria o snapshot
+            snapshot = repository.snapshot.create_snapshot(
+                user_id=user.id,
+                snapshot_date=self._current_date,
+            )
+
+            # Portfolio (individual)
+            notify(
+                event="snapshot_update",
+                payload={"snapshot": snapshot.to_json()},
+                to=client_id,
+            )
+
+            # Statistics (global)
+            snapshots_payload.append(
+                {
+                    "player_nickname": user.nickname,
+                    "snapshot": snapshot.to_json(),
+                }
+            )
+
+        notify(
+            event="statistics_snapshot_update",
+            payload={"snapshots": snapshots_payload},
+        )

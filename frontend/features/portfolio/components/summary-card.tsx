@@ -21,14 +21,17 @@ export function SummaryCard({
   iconBg = "bg-gray-100",
 }: SummaryCardProps) {
   return (
-    <Card key={title} className="p-6">
-      <div className="flex justify-between items-center">
-        <div>
+    <Card className="p-6">
+      <div className="flex justify-between items-center gap-4">
+        {/* Texto */}
+        <div className="min-w-0">
           <p className="text-gray-600">{title}</p>
           <h3 className="text-2xl font-bold">{displayMoney(value)}</h3>
           <p className={`${color} mt-1`}>{subtitle}</p>
         </div>
-        <div className={`${iconBg} w-12 h-12 flex items-center justify-center rounded-full`}>
+
+        {/* Ícone */}
+        <div className={`${iconBg} w-12 h-12 flex items-center justify-center rounded-full flex-shrink-0`}>
           <FontAwesomeIcon icon={icon} className={color} />
         </div>
       </div>

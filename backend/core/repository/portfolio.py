@@ -25,17 +25,11 @@ class PortfolioRepository:
     def get_patrimonial_history(
         self, session: Session, user_id: int
     ) -> list[PatrimonialHistoryDTO]:
-        rows = session.execute(
-            select(
-                Snapshots.snapshot_date,
-                Snapshots.total_networth,
-                Snapshots.total_equity,
-                Snapshots.total_fixed,
-                Snapshots.total_cash,
-            )
+        rows = session.scalars(
+            select(Snapshots)
             .where(Snapshots.user_id == user_id)
             .order_by(Snapshots.snapshot_date)
-        )
+        ).all()
 
         return [
             PatrimonialHistoryDTO(
@@ -44,6 +38,7 @@ class PortfolioRepository:
                 total_equity=row.total_equity,
                 total_fixed=row.total_fixed,
                 total_cash=row.total_cash,
+                total_contribution=row.total_contribution,
             )
             for row in rows
         ]

@@ -16,10 +16,8 @@ class SetSpeedRequest(BaseModel):
 @timespeed_router.post("/set-speed")
 def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
     speed = payload.speed
-
     simulation.set_speed(speed)
     speed = simulation.get_speed()
-    simulation.set_speed(speed)
     if speed <= 0:
         simulation_controller.pause()
     else:
