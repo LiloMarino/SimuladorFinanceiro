@@ -81,21 +81,8 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
   const estimatedPrice = type === "market" ? stock.close : limitPrice;
   const estimatedTotal = quantity * estimatedPrice;
 
-  // Calcular quantidade máxima para compra
-  const maxQuantityForBuy = (() => {
-    if (type === "market") {
-      // Ordem à mercado: cash / preço atual
-      return Math.floor(cash / stock.close);
-    } else {
-      // Ordem limitada: cash / preço desejado
-      const price = limitPrice || stock.close;
-      return Math.floor(cash / price);
-    }
-  })();
-
-  // Quantidade máxima para venda = quantidade em posição
+  // Quantidade em posição
   const positionSize = position?.size ?? 0;
-  const maxQuantityForSell = positionSize;
 
   const onSubmit = async (values: NewOrderFormInput) => {
     const payload: NewOrderFormOutput = {
@@ -187,7 +174,20 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
                     variant="gray"
                     size="sm"
                     onClick={() => {
-                      const maxQty = action === "buy" ? maxQuantityForBuy : maxQuantityForSell;
+                      let maxQty = 0;
+                      if (action === "buy") {
+                        if (type === "market") {
+                          // Ordem à mercado: cash / preço atual
+                          maxQty = Math.floor(cash / stock.close);
+                        } else {
+                          // Ordem limitada: cash / preço desejado
+                          const price = limitPrice || stock.close;
+                          maxQty = Math.floor(cash / price);
+                        }
+                      } else {
+                        // Venda: só pode vender o que tem na posição
+                        maxQty = positionSize;
+                      }
                       form.setValue("quantity", String(maxQty));
                     }}
                     disabled={action === "buy" ? cash === 0 : positionSize === 0}
