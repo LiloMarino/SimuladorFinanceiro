@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { faCopy, faPlay, faLink } from "@fortawesome/free-solid-svg-icons";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +12,7 @@ import type { SimulationInfo, SimulationData } from "@/types";
 import { toast } from "sonner";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
+import { useTunnel } from "@/shared/hooks/useTunnel";
 
 const simulationFormSchema = z
   .object({
@@ -33,7 +34,11 @@ const simulationFormSchema = z
 export type SimulationFormValues = z.infer<typeof simulationFormSchema>;
 
 export function LobbySimulationForm({ simulationData, isHost }: { simulationData: SimulationData; isHost: boolean }) {
-  const hostIP = window.location.host;
+  const localIP = window.location.host;
+  const { status: tunnelStatus, startTunnel, loading: tunnelLoading } = useTunnel();
+
+  // Usa URL do túnel se ativo, senão usa IP local
+  const shareableLink = tunnelStatus?.active && tunnelStatus.url ? tunnelStatus.url : `http://${localIP}`;
 
   const form = useForm<SimulationFormValues>({
     resolver: zodResolver(simulationFormSchema),
@@ -80,8 +85,8 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
   });
 
   const copyHostIP = () => {
-    navigator.clipboard.writeText(hostIP);
-    toast.success("IP do host copiado!");
+    navigator.clipboard.writeText(shareableLink);
+    toast.success("Link copiado!");
   };
 
   const disableFields = loadingCreate || loadingContinue || !isHost;
@@ -161,16 +166,27 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
             )}
           />
 
-          {/* Host IP */}
+          {/* Link Compartilhável */}
           <div>
-            <FormLabel>IP do Host</FormLabel>
+            <FormLabel>{tunnelStatus?.active ? "Link Compartilhável (Túnel Ativo)" : "IP do Host (Local)"}</FormLabel>
             <div className="flex mt-1">
-              <Input value={hostIP} readOnly className="rounded-r-none bg-gray-50" />
+              <Input value={shareableLink} readOnly className="rounded-r-none bg-gray-50" />
               <Button type="button" variant="secondary" onClick={copyHostIP} className="rounded-l-none">
                 <FontAwesomeIcon icon={faCopy} />
               </Button>
             </div>
+            {tunnelStatus?.active && (
+              <p className="text-xs text-green-600 mt-1">✅ Túnel ativo via {tunnelStatus.provider}</p>
+            )}
           </div>
+
+          {/* Botão de Gerar Link Compartilhável (apenas host) */}
+          {isHost && tunnelStatus?.enabled && !tunnelStatus.active && (
+            <Button type="button" variant="outline" className="w-full" onClick={startTunnel} disabled={tunnelLoading}>
+              <FontAwesomeIcon icon={faLink} className="mr-2" />
+              {tunnelLoading ? "Gerando..." : "Gerar Link Compartilhável"}
+            </Button>
+          )}
 
           {/* Botões */}
           <div className="space-y-2">

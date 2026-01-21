@@ -2,9 +2,10 @@ import tomllib
 from pathlib import Path
 
 import toml
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from backend.core.logger import setup_logger
+from backend.features.tunnel.providers import AVAILABLE_PROVIDERS
 
 logger = setup_logger(__package__ if __package__ else __name__)
 
@@ -30,11 +31,31 @@ class HostConfig(BaseModel):
     nickname: str = "host"
 
 
+class TunnelConfig(BaseModel):
+    enabled: bool = False
+    provider: str = "placeholder"
+    port: int = 8000
+    auto_start: bool = False
+
+    @field_validator("provider")
+    @classmethod
+    def validate_provider(cls, v: str) -> str:
+        """Valida se o provider especificado está disponível."""
+
+        if v not in AVAILABLE_PROVIDERS:
+            available = ", ".join(AVAILABLE_PROVIDERS.keys())
+            raise ValueError(
+                f"Provider '{v}' não é válido. Providers disponíveis: {available}"
+            )
+        return v
+
+
 class TomlSettings(BaseModel):
     database: DatabaseConfig = DatabaseConfig()
     simulation: SimulationConfig = SimulationConfig()
     realtime: RealtimeConfig = RealtimeConfig()
     host: HostConfig = HostConfig()
+    tunnel: TunnelConfig = TunnelConfig()
 
 
 def load_toml_settings() -> TomlSettings:

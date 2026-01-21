@@ -12,6 +12,7 @@ from backend.routes.settings import settings_router
 from backend.routes.simulation import simulation_router
 from backend.routes.statistics import statistics_router
 from backend.routes.timespeed import timespeed_router
+from backend.routes.tunnel import tunnel_router
 
 logger = setup_logger(__name__)
 
@@ -27,6 +28,7 @@ def register_routes(app: FastAPI):
     app.include_router(auth_router)
     app.include_router(statistics_router)
     app.include_router(simulation_router)
+    app.include_router(tunnel_router)
 
     # SPA FRONTEND (sempre por último para pegar todas as rotas não mapeadas)
     register_frontend_routes(app)
