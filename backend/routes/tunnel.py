@@ -3,7 +3,7 @@
 from fastapi import APIRouter
 
 from backend.core.dependencies import HostVerified
-from backend.features.tunnel.tunnel_manager import TunnelManager
+from backend.core.runtime.tunnel_manager import TunnelManager
 
 tunnel_router = APIRouter(prefix="/api/tunnel", tags=["Tunnel"])
 
