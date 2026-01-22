@@ -1,44 +1,17 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { toast } from "sonner";
 import { useMutationApi } from "./useMutationApi";
 import { useQueryApi } from "./useQueryApi";
-import { useRealtime } from "./useRealtime";
 
-/**
- * Status do túnel retornado pelo backend
- */
 export type TunnelStatus = {
     active: boolean;
     url: string | null;
     provider: string | null;
 };
 
-/**
- * Hook para gerenciar túnel de rede.
- * 
- * Funcionalidades:
- * - Consulta status do túnel
- * - Inicia/para túnel (apenas host)
- * - Escuta eventos realtime (tunnel_started, tunnel_stopped, tunnel_error)
- * - Exibe toasts automáticos em caso de erro
- * 
- * @example
- * ```tsx
- * const { status, startTunnel, stopTunnel, loading } = useTunnel();
- * 
- * if (status?.active) {
- *   console.log("Túnel ativo:", status.url);
- * }
- * 
- * // Iniciar túnel
- * await startTunnel();
- * ```
- */
 export function useTunnel() {
-    const [status, setStatus] = useState<TunnelStatus | null>(null);
-
     // Query para obter status inicial
-    const { data: initialStatus, query: refetchStatus } = useQueryApi<TunnelStatus>("/api/tunnel/status", {
+    const { data: status, setData: setStatus, query: refetchStatus } = useQueryApi<TunnelStatus>("/api/tunnel/status", {
         initialFetch: true,
     });
 
@@ -78,43 +51,11 @@ export function useTunnel() {
         },
     });
 
-    // Atualiza status local quando query retorna
-    useEffect(() => {
-        if (initialStatus) {
-            setStatus(initialStatus);
-        }
-    }, [initialStatus]);
-
-    // Escuta evento tunnel_started via realtime
-    useRealtime("tunnel_started", (event) => {
-        setStatus({
-            active: true,
-            url: event.url,
-            provider: event.provider,
-        });
-    });
-
-    // Escuta evento tunnel_stopped via realtime
-    useRealtime("tunnel_stopped", () => {
-        setStatus({
-            active: false,
-            url: null,
-            provider: null,
-        });
-    });
-
-    // Escuta evento tunnel_error via realtime e exibe toast
-    useRealtime("tunnel_error", (event) => {
-        toast.error(`Erro no túnel: ${event.message}`);
-    });
-
-    const loading = startingTunnel || stoppingTunnel;
-
     return {
         status,
         startTunnel: useCallback(() => startTunnel({}), [startTunnel]),
         stopTunnel: useCallback(() => stopTunnel({}), [stopTunnel]),
         refetchStatus,
-        loading,
+        loading: startingTunnel || stoppingTunnel,
     };
 }

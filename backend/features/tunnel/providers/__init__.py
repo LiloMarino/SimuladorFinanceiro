@@ -1,5 +1,4 @@
 from backend.features.tunnel.providers.example_provider import ExampleProvider
-
 from backend.features.tunnel.providers.lan_provider import LANProvider
 
 # Providers disponíveis para túneis de rede

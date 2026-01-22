@@ -34,14 +34,6 @@ export type SimulationEvents = {
     nickname: string;
   };
   simulation_settings_update: SimulationData;
-  tunnel_started: {
-    url: string;
-    provider: string;
-  };
-  tunnel_stopped: Record<string, never>;
-  tunnel_error: {
-    message: string;
-  };
 } & {
   [K in `stock_update:${string}`]: { stock: Stock };
 } & {
