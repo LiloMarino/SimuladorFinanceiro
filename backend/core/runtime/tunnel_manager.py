@@ -24,7 +24,7 @@ class TunnelManager:
     """
 
     _provider: ClassVar[TunnelProvider | None] = None
-    _config = config.toml.tunnel
+    _config = config.toml.server
     _lock: ClassVar[asyncio.Lock] = asyncio.Lock()
 
     @classmethod

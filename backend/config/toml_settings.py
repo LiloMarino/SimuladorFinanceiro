@@ -31,9 +31,9 @@ class HostConfig(BaseModel):
     nickname: str = "host"
 
 
-class TunnelConfig(BaseModel):
-    provider: str = "lan"
+class ServerConfig(BaseModel):
     port: int = 8000
+    provider: str = "lan"
 
     @field_validator("provider")
     @classmethod
@@ -53,7 +53,7 @@ class TomlSettings(BaseModel):
     simulation: SimulationConfig = SimulationConfig()
     realtime: RealtimeConfig = RealtimeConfig()
     host: HostConfig = HostConfig()
-    tunnel: TunnelConfig = TunnelConfig()
+    server: ServerConfig = ServerConfig()
 
 
 def load_toml_settings() -> TomlSettings:
