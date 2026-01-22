@@ -1,5 +1,6 @@
+from backend.features.tunnel.providers.example_provider import ExampleProvider
+
 from backend.features.tunnel.providers.lan_provider import LANProvider
-from backend.features.tunnel.providers.placeholder_provider import PlaceholderProvider
 
 # Providers disponíveis para túneis de rede
 # - "lan": Conexão direta via LAN/VPN (Radmin, Hamachi, Tailscale)
@@ -8,5 +9,5 @@ from backend.features.tunnel.providers.placeholder_provider import PlaceholderPr
 # - "zrok": Túnel open-source (em desenvolvimento)
 AVAILABLE_PROVIDERS = {
     "lan": LANProvider,
-    "placeholder": PlaceholderProvider,
+    "example": ExampleProvider,
 }
