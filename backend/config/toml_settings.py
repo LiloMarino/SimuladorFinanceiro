@@ -32,10 +32,8 @@ class HostConfig(BaseModel):
 
 
 class TunnelConfig(BaseModel):
-    enabled: bool = False
-    provider: str = "placeholder"
+    provider: str = "lan"
     port: int = 8000
-    auto_start: bool = False
 
     @field_validator("provider")
     @classmethod

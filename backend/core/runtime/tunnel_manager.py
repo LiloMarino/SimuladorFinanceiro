@@ -2,9 +2,11 @@ import asyncio
 from typing import ClassVar
 
 from backend import config
+from backend.core.dto.tunnel_status import TunnelStatus
 from backend.core.logger import setup_logger
 from backend.features.realtime import notify
 from backend.features.tunnel.providers import AVAILABLE_PROVIDERS
+from backend.features.tunnel.providers.lan_provider import LANProvider
 from backend.features.tunnel.tunnel_provider import TunnelProvider
 
 logger = setup_logger(__name__)
@@ -39,20 +41,25 @@ class TunnelManager:
         return provider_class()
 
     @classmethod
-    async def start_tunnel(cls) -> dict[str, str]:
-        """Inicia o túnel usando o provider configurado."""
+    async def start_tunnel(cls) -> TunnelStatus:
+        """
+        Inicia o túnel usando o provider configurado.
+
+        Returns:
+            TunnelStart com URL e provider
+        """
         async with cls._lock:
-            if not cls._config.enabled:
-                raise RuntimeError(
-                    "Túnel não está habilitado. Configure tunnel.enabled = true em config.toml"
+            if cls._config.provider == "lan":
+                raise ValueError(
+                    "Provider LAN não suporta essa operação. "
+                    "Configure um provider ativo em config.toml "
+                    "(localtunnel, playit, zrok)"
                 )
 
             if cls._provider is not None and cls._provider.is_active():
                 logger.warning("Túnel já está ativo")
-                return {
-                    "url": cls._provider.get_public_url() or "",
-                    "provider": cls._provider.name,
-                }
+                url = cls._provider.get_public_url() or ""
+                return TunnelStatus(active=True, url=url, provider=cls._provider.name)
 
             try:
                 # Instancia provider se necessário
@@ -80,14 +87,23 @@ class TunnelManager:
                     },
                 )
 
-                return {"url": url, "provider": cls._provider.name}
+                return TunnelStatus(active=True, url=url, provider=cls._provider.name)
 
     @classmethod
-    async def stop_tunnel(cls) -> None:
-        """Para o túnel ativo."""
+    async def stop_tunnel(cls):
+        """
+        Para o túnel ativo.
+        """
         async with cls._lock:
+            if cls._config.provider == "lan":
+                raise ValueError(
+                    "Provider LAN não suporta essa operação. "
+                    "Configure um provider ativo em config.toml "
+                    "(localtunnel, playit, zrok)"
+                )
+
             if cls._provider is None or not cls._provider.is_active():
-                raise RuntimeError("Nenhum túnel ativo para parar")
+                raise ValueError("Nenhum túnel ativo para parar")
 
             try:
                 await cls._provider.stop()
@@ -101,20 +117,36 @@ class TunnelManager:
                 raise
 
     @classmethod
-    def get_status(cls) -> dict:
-        """Retorna status atual do túnel."""
+    def get_status(cls) -> TunnelStatus:
+        """
+        Retorna status atual do túnel.
+
+        Para LAN: inicializa detecção de IPs ao primeiro acesso.
+
+        Returns:
+            TunnelStatus com status atual, URL e provider
+        """
+        # Garante que provider LAN está inicializado para detectar IPs
+        if cls._provider is None and cls._config.provider == "lan":
+            cls._provider = cls._get_provider("lan")
+
+            # Inicializa IPs se for LANProvider
+            if isinstance(cls._provider, LANProvider):
+                cls._provider._initialize_ips()
+                cls._provider._port = cls._config.port
+                cls._provider._initialized = True
+
         is_active = cls._provider is not None and cls._provider.is_active()
 
-        return {
-            "active": is_active,
-            "url": cls._provider.get_public_url()
-            if cls._provider is not None and is_active
-            else None,
-            "provider": cls._provider.name
-            if cls._provider is not None and is_active
-            else None,
-            "enabled": cls._config.enabled,
-        }
+        provider_url = None
+        if is_active and cls._provider is not None:
+            provider_url = cls._provider.get_public_url()
+
+        return TunnelStatus(
+            active=is_active,
+            url=provider_url,
+            provider=cls._provider.name if cls._provider is not None else None,
+        )
 
     @classmethod
     def get_public_url(cls) -> str | None:
