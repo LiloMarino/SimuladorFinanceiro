@@ -5,6 +5,7 @@ import toml
 from pydantic import BaseModel, field_validator
 
 from backend.core.logger import setup_logger
+from backend.features.tunnel.network_utils.network_types import NetworkType
 from backend.features.tunnel.providers import AVAILABLE_PROVIDERS
 
 logger = setup_logger(__package__ if __package__ else __name__)
@@ -34,12 +35,11 @@ class HostConfig(BaseModel):
 class ServerConfig(BaseModel):
     port: int = 8000
     provider: str = "lan"
+    preferred_vpn: NetworkType | None = None
 
     @field_validator("provider")
     @classmethod
     def validate_provider(cls, v: str) -> str:
-        """Valida se o provider especificado está disponível."""
-
         if v not in AVAILABLE_PROVIDERS:
             available = ", ".join(AVAILABLE_PROVIDERS.keys())
             raise ValueError(

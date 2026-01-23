@@ -1,11 +1,11 @@
 import asyncio
+import contextlib
 from typing import ClassVar
 
 from backend import config
 from backend.core.dto.tunnel_status import TunnelStatus
 from backend.core.logger import setup_logger
 from backend.features.tunnel.providers import AVAILABLE_PROVIDERS
-from backend.features.tunnel.providers.lan_provider import LANProvider
 from backend.features.tunnel.tunnel_provider import TunnelProvider
 
 logger = setup_logger(__name__)
@@ -25,19 +25,11 @@ class TunnelManager:
     _config = config.toml.server
     _provider: TunnelProvider = AVAILABLE_PROVIDERS[_config.provider]()
     _lock: ClassVar[asyncio.Lock] = asyncio.Lock()
+    _task: asyncio.Task | None = None
 
     @classmethod
     async def start_tunnel(cls) -> TunnelStatus:
-        """
-        Inicia o túnel usando o provider configurado.
-        """
         async with cls._lock:
-            if cls._config.provider == "lan":
-                raise ValueError(
-                    "Provider LAN não suporta essa operação. "
-                    "Configure um provider ativo em config.toml "
-                )
-
             if cls._provider.is_active():
                 return TunnelStatus(
                     active=True,
@@ -50,16 +42,7 @@ class TunnelManager:
 
     @classmethod
     async def stop_tunnel(cls):
-        """
-        Para o túnel ativo.
-        """
         async with cls._lock:
-            if cls._config.provider == "lan":
-                raise ValueError(
-                    "Provider LAN não suporta essa operação. "
-                    "Configure um provider ativo em config.toml "
-                )
-
             if not cls._provider.is_active():
                 raise ValueError("Nenhum túnel ativo para parar")
 
@@ -67,15 +50,6 @@ class TunnelManager:
 
     @classmethod
     def get_status(cls) -> TunnelStatus:
-        """
-        Retorna status atual do túnel.
-        """
-        # Garante que provider LAN está inicializado para detectar IPs
-        if isinstance(cls._provider, LANProvider):
-            cls._provider._initialize_ips()
-            cls._provider._port = cls._config.port
-            cls._provider._initialized = True
-
         return TunnelStatus(
             active=cls._provider.is_active(),
             url=cls._provider.get_public_url(),

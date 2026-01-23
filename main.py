@@ -28,6 +28,7 @@ from backend import config
 from backend.core.database import engine
 from backend.core.logger import setup_logger
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
+from backend.core.runtime.tunnel_manager import TunnelManager
 from backend.features.realtime.sse_broker import SSEBroker
 from backend.features.realtime.ws_broker import SocketBroker
 from backend.features.realtime.ws_handlers import register_ws_handlers
@@ -47,7 +48,16 @@ async def lifespan(app: FastAPI):
     backend = engine.url.get_backend_name()
     logger.info(f"Banco de dados em uso: {backend.upper()} ({engine.url})")
 
-    # Vincula o event loop ao broker de WebSocket antes de qualquer notificação
+    # --------------------------------------------------
+    # 🔌 Inicialização do TunnelProvider (LAN)
+    # --------------------------------------------------
+    if config.toml.server.provider == "lan":
+        logger.info("🌐 Inicializando LANProvider no startup...")
+        await TunnelManager._provider.start(config.toml.server.port)
+
+    # --------------------------------------------------
+    # 🔌 Vincula o event loop ao broker WS
+    # --------------------------------------------------
     try:
         broker = RealtimeBrokerManager.get_broker()
         if isinstance(broker, SocketBroker):
@@ -57,6 +67,10 @@ async def lifespan(app: FastAPI):
         logger.warning(f"Não foi possível vincular o event loop ao SocketBroker: {e}")
 
     yield
+
+    # --------------------------------------------------
+    # Shutdown
+    # --------------------------------------------------
     simulation_controller.shutdown()
     logger.info("Aplicação finalizada.")
 
@@ -120,7 +134,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         asgi_app,
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=config.toml.server.port,
         reload=False,
     )

@@ -37,8 +37,9 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
   const localIP = window.location.host;
   const { status: tunnelStatus, startTunnel, loading: tunnelLoading } = useTunnel();
 
-  // Usa URL do túnel se ativo, senão usa IP local
-  const shareableLink = tunnelStatus?.active && tunnelStatus.url ? tunnelStatus.url : `http://${localIP}`;
+  // Definir link compartilhável e nome do provedor
+  const shareableLink = tunnelStatus?.url ? tunnelStatus.url : `http://${localIP}`;
+  const providerName = tunnelStatus?.provider ? tunnelStatus.provider.toUpperCase() : "LOCAL";
 
   const form = useForm<SimulationFormValues>({
     resolver: zodResolver(simulationFormSchema),
@@ -168,20 +169,17 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
 
           {/* Link Compartilhável */}
           <div>
-            <FormLabel>{tunnelStatus?.active ? "Link Compartilhável (Túnel Ativo)" : "IP do Host (Local)"}</FormLabel>
+            <FormLabel>Link Compartilhável (Via {providerName})</FormLabel>
             <div className="flex mt-1">
               <Input value={shareableLink} readOnly className="rounded-r-none bg-gray-50" />
               <Button type="button" variant="secondary" onClick={copyHostIP} className="rounded-l-none">
                 <FontAwesomeIcon icon={faCopy} />
               </Button>
             </div>
-            {tunnelStatus?.active && (
-              <p className="text-xs text-green-600 mt-1">✅ Túnel ativo via {tunnelStatus.provider}</p>
-            )}
           </div>
 
           {/* Botão de Gerar Link Compartilhável (apenas host) */}
-          {isHost && tunnelStatus?.enabled && !tunnelStatus.active && (
+          {isHost && tunnelStatus && !tunnelStatus.active && (
             <Button type="button" variant="outline" className="w-full" onClick={startTunnel} disabled={tunnelLoading}>
               <FontAwesomeIcon icon={faLink} className="mr-2" />
               {tunnelLoading ? "Gerando..." : "Gerar Link Compartilhável"}
