@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
+from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.position import PositionDTO
@@ -118,12 +119,12 @@ class Simulation:
             )
         )
 
-    def get_economic_indicators(self):
-        return {
-            "ipca": repository.economic.get_ipca_rate(self._current_date),
-            "selic": repository.economic.get_selic_rate(self._current_date),
-            "cdi": repository.economic.get_cdi_rate(self._current_date),
-        }
+    def get_economic_indicators(self) -> EconomicIndicatorsDTO:
+        return EconomicIndicatorsDTO(
+            ipca=repository.economic.get_ipca_rate(self._current_date),
+            selic=repository.economic.get_selic_rate(self._current_date),
+            cdi=repository.economic.get_cdi_rate(self._current_date),
+        )
 
     def get_statistics(self) -> list[PlayerHistoryDTO]:
         return repository.statistics.get_players_history(self.settings.starting_cash)

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import datetime
 
 from backend.core.dto.base import BaseDTO
@@ -14,7 +13,6 @@ from backend.features.variable_income.entities.order import (
 )
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
 class OrderDTO(BaseDTO):
     id: str
     player_nickname: str

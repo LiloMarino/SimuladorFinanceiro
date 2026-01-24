@@ -66,6 +66,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Não foi possível vincular o event loop ao SocketBroker: {e}")
 
+    logger.info("Acesse localmente: http://localhost:8000")
     yield
 
     # --------------------------------------------------

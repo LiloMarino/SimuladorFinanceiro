@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Response, status
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, status
 from pydantic import BaseModel, Field
 
 from backend.core.dependencies import ActiveSimulation, ClientID
+from backend.core.dto.candle import CandleDTO
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
+from backend.core.dto.order import OrderDTO
+from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
@@ -32,23 +35,30 @@ class BuyFixedIncomeRequest(BaseModel):
     quantity: int = Field(..., gt=0)
 
 
-@operation_router.get("/variable-income")
+class SubmitOrderResponse(BaseModel):
+    order_id: str
+    status: str
+
+
+@operation_router.get("/variable-income", response_model=list[CandleDTO])
 def get_variable_income(simulation: ActiveSimulation):
     """Return list of stocks."""
     stocks = simulation.get_stocks()
-    return JSONResponse(content=[s.to_json() for s in stocks])
+    return stocks
 
 
-@operation_router.get("/variable-income/{asset}")
+@operation_router.get("/variable-income/{asset}", response_model=StockDetailsDTO | None)
 def get_variable_income_details(simulation: ActiveSimulation, asset: str):
     """Return details of a specific stock."""
     stock = simulation.get_stock_details(asset)
     if not stock:
         raise NotFoundError("Asset not found.")
-    return JSONResponse(content=stock.to_json())
+    return stock
 
 
-@operation_router.post("/variable-income/{asset}/orders")
+@operation_router.post(
+    "/variable-income/{asset}/orders", response_model=SubmitOrderResponse
+)
 def submit_order(
     simulation: ActiveSimulation,
     client_id: ClientID,
@@ -88,10 +98,12 @@ def submit_order(
         )
 
     simulation.create_order(order)
-    return JSONResponse(content={"order_id": order.id, "status": order.status.name})
+    return SubmitOrderResponse(order_id=order.id, status=order.status.name)
 
 
-@operation_router.delete("/variable-income/{asset}/orders")
+@operation_router.delete(
+    "/variable-income/{asset}/orders", status_code=status.HTTP_204_NO_CONTENT
+)
 def cancel_order(
     simulation: ActiveSimulation,
     client_id: ClientID,
@@ -103,34 +115,36 @@ def cancel_order(
     canceled = simulation.cancel_order(order_id=order_id, client_id=client_id)
     if not canceled:
         raise NotFoundError("Ordem não encontrada")
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@operation_router.get("/variable-income/{asset}/orders")
+@operation_router.get("/variable-income/{asset}/orders", response_model=list[OrderDTO])
 def list_order_book(simulation: ActiveSimulation, asset: str):
     """Lista todas as ordens (BUY + SELL) no book para o ativo"""
     orders = simulation.get_orders(asset)
-    return JSONResponse(content=[o.to_json() for o in orders])
+    return orders
 
 
-@operation_router.get("/fixed-income")
+@operation_router.get("/fixed-income", response_model=list[FixedIncomeAssetDTO])
 def get_fixed_income(simulation: ActiveSimulation):
     """Return list of fixed-income assets."""
     fixed = simulation.get_fixed_assets()
-    fixed_json = [asset.to_json() for asset in fixed]
-    return JSONResponse(content=fixed_json)
+    return fixed
 
 
-@operation_router.get("/fixed-income/{asset_uuid}")
+@operation_router.get(
+    "/fixed-income/{asset_uuid}", response_model=FixedIncomeAssetDTO | None
+)
 def get_fixed_income_details(simulation: ActiveSimulation, asset_uuid: str):
     """Return details of a fixed-income asset."""
     fixed = simulation.get_fixed_asset(asset_uuid)
     if not fixed:
         raise NotFoundError("Asset not found.")
-    return JSONResponse(content=fixed.to_json())
+    return fixed
 
 
-@operation_router.post("/fixed-income/{asset_uuid}/buy")
+@operation_router.post(
+    "/fixed-income/{asset_uuid}/buy", status_code=status.HTTP_204_NO_CONTENT
+)
 def buy_fixed_income(
     simulation: ActiveSimulation,
     client_id: ClientID,
@@ -144,5 +158,3 @@ def buy_fixed_income(
     quantity = payload.quantity
 
     simulation._engine.fixed_broker.buy(client_id, fixed, quantity)
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -1,9 +1,8 @@
 import asyncio
-import contextlib
 from typing import ClassVar
 
 from backend import config
-from backend.core.dto.tunnel_status import TunnelStatus
+from backend.core.dto.tunnel_status import TunnelStatusDTO
 from backend.core.logger import setup_logger
 from backend.features.tunnel.providers import AVAILABLE_PROVIDERS
 from backend.features.tunnel.tunnel_provider import TunnelProvider
@@ -28,17 +27,17 @@ class TunnelManager:
     _task: asyncio.Task | None = None
 
     @classmethod
-    async def start_tunnel(cls) -> TunnelStatus:
+    async def start_tunnel(cls) -> TunnelStatusDTO:
         async with cls._lock:
             if cls._provider.is_active():
-                return TunnelStatus(
+                return TunnelStatusDTO(
                     active=True,
                     url=cls._provider.get_public_url(),
                     provider=cls._provider.name,
                 )
 
             url = await cls._provider.start(cls._config.port)
-            return TunnelStatus(active=True, url=url, provider=cls._provider.name)
+            return TunnelStatusDTO(active=True, url=url, provider=cls._provider.name)
 
     @classmethod
     async def stop_tunnel(cls):
@@ -49,8 +48,8 @@ class TunnelManager:
             await cls._provider.stop()
 
     @classmethod
-    def get_status(cls) -> TunnelStatus:
-        return TunnelStatus(
+    def get_status(cls) -> TunnelStatusDTO:
+        return TunnelStatusDTO(
             active=cls._provider.is_active(),
             url=cls._provider.get_public_url(),
             provider=cls._provider.name,

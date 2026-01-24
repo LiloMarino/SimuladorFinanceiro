@@ -1,26 +1,32 @@
 from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from backend.core.dependencies import ActiveSimulation, ClientID
+from backend.core.dto.portfolio import PortfolioDTO
+from backend.core.dto.position import PositionDTO
 
 portfolio_router = APIRouter(prefix="/api/portfolio", tags=["Portfolio"])
 
 
-@portfolio_router.get("")
+class CashResponse(BaseModel):
+    cash: float
+
+
+@portfolio_router.get("", response_model=PortfolioDTO)
 def get_portfolio(client_id: ClientID, simulation: ActiveSimulation):
     portfolio_data = simulation.get_portfolio(client_id)
-    return JSONResponse(content=portfolio_data.to_json())
+    return portfolio_data
 
 
-@portfolio_router.get("/cash")
+@portfolio_router.get("/cash", response_model=CashResponse)
 def get_cash(client_id: ClientID, simulation: ActiveSimulation):
     cash = simulation.get_cash(client_id)
-    return JSONResponse(content={"cash": cash})
+    return CashResponse(cash=cash)
 
 
-@portfolio_router.get("/{ticker}")
+@portfolio_router.get("/{ticker}", response_model=PositionDTO)
 def get_portfolio_ticker(
     client_id: ClientID, simulation: ActiveSimulation, ticker: str
 ):
     position = simulation.get_portfolio_ticker(client_id, ticker)
-    return JSONResponse(content=position.to_json())
+    return position

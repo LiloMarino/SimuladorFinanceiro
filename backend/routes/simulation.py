@@ -1,7 +1,6 @@
 from datetime import date
 
-from fastapi import APIRouter, Response, status
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, status
 from pydantic import BaseModel, Field, model_validator
 
 from backend import config
@@ -19,6 +18,11 @@ from backend.features.realtime import notify
 from backend.features.simulation.simulation_loop import simulation_controller
 
 simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
+
+
+class SimulationStatusResponse(BaseModel):
+    active: bool
+    simulation: SimulationDTO | None = None
 
 
 class CreateSimulationRequest(BaseModel):
@@ -53,17 +57,28 @@ class UpdateSettingsRequest(BaseModel):
         return self
 
 
-@simulation_router.get("/status")
+class PlayerNickname(BaseModel):
+    nickname: str
+
+
+class SimulationSettingsResponse(BaseModel):
+    is_host: bool
+    simulation: SimulationDTO
+
+
+@simulation_router.get("/status", response_model=SimulationStatusResponse)
 def simulation_status():
     try:
         sim = SimulationManager.get_active_simulation()
         data = sim.settings
-        return JSONResponse(content={"active": True, "simulation": data.to_json()})
+        return SimulationStatusResponse(active=True, simulation=data)
     except NoActiveSimulationError:
-        return JSONResponse(content={"active": False})
+        return SimulationStatusResponse(active=False, simulation=None)
 
 
-@simulation_router.post("/create", status_code=201)
+@simulation_router.post(
+    "/create", status_code=201, response_model=SimulationStatusResponse
+)
 def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     repository.user.reset_users_data(payload.start_date, payload.starting_cash)
 
@@ -86,13 +101,12 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
         },
     )
 
-    return {
-        "active": True,
-        "simulation": sim.settings.to_json(),
-    }
+    return SimulationStatusResponse(active=True, simulation=sim.settings)
 
 
-@simulation_router.post("/continue", status_code=201)
+@simulation_router.post(
+    "/continue", status_code=201, response_model=SimulationStatusResponse
+)
 def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
     last_snapshot_date = repository.snapshot.get_last_snapshot_date()
     if not last_snapshot_date:
@@ -122,13 +136,10 @@ def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
         },
     )
 
-    return {
-        "active": True,
-        "simulation": sim.settings.to_json(),
-    }
+    return SimulationStatusResponse(active=True, simulation=sim.settings)
 
 
-@simulation_router.post("/stop", status_code=204)
+@simulation_router.post("/stop", status_code=status.HTTP_204_NO_CONTENT)
 def stop_simulation(_: HostVerified):
     """Encerra a simulação manualmente"""
     simulation_controller.stop()
@@ -140,16 +151,14 @@ def stop_simulation(_: HostVerified):
         },
     )
 
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-
-@simulation_router.get("/players")
+@simulation_router.get("/players", response_model=list[PlayerNickname])
 def get_active_players():
     active_players = UserManager.list_active_players()
-    return JSONResponse(content=[{"nickname": p.nickname} for p in active_players])
+    return [PlayerNickname(nickname=p.nickname) for p in active_players]
 
 
-@simulation_router.get("/settings")
+@simulation_router.get("/settings", response_model=SimulationSettingsResponse)
 def get_simulation_settings(client_id: ClientID):
     user = UserManager.get_user(client_id)
     if user is None:
@@ -157,15 +166,13 @@ def get_simulation_settings(client_id: ClientID):
     host_nickname = config.toml.host.nickname
 
     settings = SimulationManager.get_settings()
-    return JSONResponse(
-        content={
-            "is_host": user.nickname == host_nickname,
-            "simulation": settings.to_json(),
-        }
+    return SimulationSettingsResponse(
+        is_host=user.nickname == host_nickname,
+        simulation=settings,
     )
 
 
-@simulation_router.put("/settings")
+@simulation_router.put("/settings", response_model=SimulationDTO)
 def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
     settings = SimulationManager.update_settings(
         SimulationDTO(
@@ -177,4 +184,4 @@ def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
     )
 
     notify("simulation_settings_update", settings.to_json())
-    return settings.to_json()
+    return settings

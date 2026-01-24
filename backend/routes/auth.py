@@ -1,12 +1,12 @@
 import uuid
 
 from fastapi import APIRouter, Request, Response, status
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from backend.core import repository
 from backend.core.dependencies import ClientID
 from backend.core.dto.session import SessionDTO
+from backend.core.dto.user import UserDTO
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -50,7 +50,7 @@ def session_init(request: Request):
     return response
 
 
-@auth_router.get("/session/me")
+@auth_router.get("/session/me", response_model=SessionDTO)
 def session_me(client_id: ClientID):
     """
     Retorna os dados da sessão atual.
@@ -62,7 +62,7 @@ def session_me(client_id: ClientID):
         user=user_dto,
     )
 
-    return JSONResponse(content=session_dto.to_json())
+    return session_dto
 
 
 @auth_router.post("/session/logout", status_code=status.HTTP_204_NO_CONTENT)
@@ -82,7 +82,7 @@ def session_logout(client_id: ClientID):
     return response
 
 
-@auth_router.post("/user/register")
+@auth_router.post("/user/register", response_model=UserDTO)
 def user_register(payload: UserRegisterRequest, client_id: ClientID):
     """
     Cria um usuário para o client_id atual.
@@ -107,10 +107,10 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
         starting = sim.settings.starting_cash
         sim._engine.add_cash(str(new_user.client_id), starting)
 
-    return JSONResponse(content=new_user.to_json())
+    return new_user
 
 
-@auth_router.post("/user/claim")
+@auth_router.post("/user/claim", response_model=UserDTO)
 def user_claim(payload: UserClaimRequest, client_id: ClientID):
     """
     Permite que o usuário recupere seu nickname após limpar navegador.
@@ -132,7 +132,7 @@ def user_claim(payload: UserClaimRequest, client_id: ClientID):
         existing_user.id, uuid.UUID(client_id)
     )
 
-    return JSONResponse(content=updated_user.to_json())
+    return updated_user
 
 
 @auth_router.delete("/user", status_code=status.HTTP_204_NO_CONTENT)

@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from backend.core.dependencies import ActiveSimulation, ClientID
@@ -13,7 +12,17 @@ class SetSpeedRequest(BaseModel):
     speed: int = 0
 
 
-@timespeed_router.post("/set-speed")
+class SetSpeedResponse(BaseModel):
+    speed: int
+
+
+class SimulationStateResponse(BaseModel):
+    current_date: str
+    speed: int
+    cash: float
+
+
+@timespeed_router.post("/set-speed", response_model=SetSpeedResponse)
 def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
     speed = payload.speed
     simulation.set_speed(speed)
@@ -25,14 +34,16 @@ def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
 
     # Envia a atualização de velocidade para todos os clientes
     notify("speed_update", {"speed": speed})
-    return JSONResponse(content={"speed": speed})
+    return SetSpeedResponse(speed=speed)
 
 
-@timespeed_router.get("/get-simulation-state")
+@timespeed_router.get("/get-simulation-state", response_model=SimulationStateResponse)
 def get_simulation_state(client_id: ClientID, simulation: ActiveSimulation):
     current_date = simulation.get_current_date_formatted()
     speed = simulation.get_speed()
     cash = simulation.get_cash(client_id)
-    return JSONResponse(
-        content={"currentDate": current_date, "speed": speed, "cash": cash}
+    return SimulationStateResponse(
+        current_date=current_date,
+        speed=speed,
+        cash=cash,
     )

@@ -1,15 +1,13 @@
-from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
+
+from pydantic import Field
 
 from backend.core.dto.base import BaseDTO
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
 class BaseEventDTO(BaseDTO):
-    """
-    Base para qualquer evento financeiro.
-    """
+    """Base para qualquer evento financeiro."""
 
     user_id: int
     event_date: date
-    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

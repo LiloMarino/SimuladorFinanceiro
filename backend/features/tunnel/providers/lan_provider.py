@@ -95,7 +95,7 @@ class LANProvider(TunnelProvider):
 
     def _log_firewall_warning(self, port: int) -> None:
         logger.warning(
-            f"⚠️ Para aceitar conexões externas, abra a porta {port} no firewall:"
+            f"Para aceitar conexões externas, abra a porta {port} no firewall:"
         )
         logger.warning("   Windows: Settings > Privacy & Security > Firewall")
         logger.warning(f"   Linux: sudo ufw allow {port}/tcp")

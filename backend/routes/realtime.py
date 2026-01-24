@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from backend.core.dependencies import ClientID
@@ -15,6 +14,11 @@ class UpdateSubscriptionRequest(BaseModel):
     events: list[str] = []
 
 
+class UpdateSubscriptionResponse(BaseModel):
+    client_id: str
+    events: list[str]
+
+
 @realtime_router.get("/stream")
 def stream(client_id: ClientID):
     """SSE stream endpoint - retorna eventos em tempo real."""
@@ -22,7 +26,7 @@ def stream(client_id: ClientID):
     return broker.connect(client_id)
 
 
-@realtime_router.post("/update-subscription")
+@realtime_router.post("/update-subscription", response_model=UpdateSubscriptionResponse)
 def update_subscription(client_id: ClientID, payload: UpdateSubscriptionRequest):
     """Atualiza os eventos que um cliente está inscrito."""
     broker = get_broker()
@@ -30,4 +34,4 @@ def update_subscription(client_id: ClientID, payload: UpdateSubscriptionRequest)
 
     broker.update_subscription(client_id, events)
     logger.info("Updating subscription: %s -> %s", client_id, events)
-    return JSONResponse(content={"client_id": client_id, "events": events})
+    return UpdateSubscriptionResponse(client_id=client_id, events=events)

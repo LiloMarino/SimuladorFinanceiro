@@ -1,12 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 from backend.core.dto.base import BaseDTO
 from backend.features.variable_income.entities.position import Position
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
 class PositionDTO(BaseDTO):
     ticker: str
     size: int
