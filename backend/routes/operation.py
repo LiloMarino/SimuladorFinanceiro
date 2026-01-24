@@ -40,16 +40,30 @@ class SubmitOrderResponse(BaseModel):
     status: str
 
 
-@operation_router.get("/variable-income", response_model=list[CandleDTO])
+@operation_router.get(
+    "/variable-income",
+    response_model=list[CandleDTO],
+    summary="Listar ativos de renda variável",
+    description="Retorna a lista de todos os ativos de renda variável (ações) disponíveis na simulação.",
+)
 def get_variable_income(simulation: ActiveSimulation):
-    """Return list of stocks."""
+    """
+    Lista todos os ativos de renda variável.
+    """
     stocks = simulation.get_stocks()
     return stocks
 
 
-@operation_router.get("/variable-income/{asset}", response_model=StockDetailsDTO | None)
+@operation_router.get(
+    "/variable-income/{asset}",
+    response_model=StockDetailsDTO | None,
+    summary="Obter detalhes de um ativo",
+    description="Retorna as informações detalhadas de um ativo de renda variável específico.",
+)
 def get_variable_income_details(simulation: ActiveSimulation, asset: str):
-    """Return details of a specific stock."""
+    """
+    Retorna os detalhes de um ativo de renda variável.
+    """
     stock = simulation.get_stock_details(asset)
     if not stock:
         raise NotFoundError("Asset not found.")
@@ -57,7 +71,10 @@ def get_variable_income_details(simulation: ActiveSimulation, asset: str):
 
 
 @operation_router.post(
-    "/variable-income/{asset}/orders", response_model=SubmitOrderResponse
+    "/variable-income/{asset}/orders",
+    response_model=SubmitOrderResponse,
+    summary="Submeter ordem de compra/venda",
+    description="Cria e submete uma nova ordem (MARKET ou LIMIT) para o ativo especificado.",
 )
 def submit_order(
     simulation: ActiveSimulation,
@@ -65,6 +82,9 @@ def submit_order(
     asset: str,
     payload: SubmitOrderRequest,
 ):
+    """
+    Submete uma nova ordem para o ativo.
+    """
     size = payload.quantity
     order_type: str = payload.type.lower()
     action: str = payload.action.lower()
@@ -102,7 +122,10 @@ def submit_order(
 
 
 @operation_router.delete(
-    "/variable-income/{asset}/orders", status_code=status.HTTP_204_NO_CONTENT
+    "/variable-income/{asset}/orders",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Cancelar ordem",
+    description="Remove uma ordem ativa do livro de ordens para o ativo informado.",
 )
 def cancel_order(
     simulation: ActiveSimulation,
@@ -110,6 +133,9 @@ def cancel_order(
     asset: str,
     payload: CancelOrderRequest,
 ):
+    """
+    Cancela uma ordem existente.
+    """
     order_id = payload.order_id
 
     canceled = simulation.cancel_order(order_id=order_id, client_id=client_id)
@@ -117,25 +143,44 @@ def cancel_order(
         raise NotFoundError("Ordem não encontrada")
 
 
-@operation_router.get("/variable-income/{asset}/orders", response_model=list[OrderDTO])
+@operation_router.get(
+    "/variable-income/{asset}/orders",
+    response_model=list[OrderDTO],
+    summary="Listar ordens do livro",
+    description="Lista todas as ordens ativas (BUY + SELL) no livro de ordens para o ativo especificado.",
+)
 def list_order_book(simulation: ActiveSimulation, asset: str):
-    """Lista todas as ordens (BUY + SELL) no book para o ativo"""
+    """
+    Lista todas as ordens no livro de ordens do ativo.
+    """
     orders = simulation.get_orders(asset)
     return orders
 
 
-@operation_router.get("/fixed-income", response_model=list[FixedIncomeAssetDTO])
+@operation_router.get(
+    "/fixed-income",
+    response_model=list[FixedIncomeAssetDTO],
+    summary="Listar ativos de renda fixa",
+    description="Retorna a lista de todos os ativos de renda fixa disponíveis na simulação.",
+)
 def get_fixed_income(simulation: ActiveSimulation):
-    """Return list of fixed-income assets."""
+    """
+    Lista todos os ativos de renda fixa.
+    """
     fixed = simulation.get_fixed_assets()
     return fixed
 
 
 @operation_router.get(
-    "/fixed-income/{asset_uuid}", response_model=FixedIncomeAssetDTO | None
+    "/fixed-income/{asset_uuid}",
+    response_model=FixedIncomeAssetDTO | None,
+    summary="Obter detalhes de renda fixa",
+    description="Retorna as informações detalhadas de um ativo de renda fixa específico.",
 )
 def get_fixed_income_details(simulation: ActiveSimulation, asset_uuid: str):
-    """Return details of a fixed-income asset."""
+    """
+    Retorna os detalhes de um ativo de renda fixa.
+    """
     fixed = simulation.get_fixed_asset(asset_uuid)
     if not fixed:
         raise NotFoundError("Asset not found.")
@@ -143,7 +188,10 @@ def get_fixed_income_details(simulation: ActiveSimulation, asset_uuid: str):
 
 
 @operation_router.post(
-    "/fixed-income/{asset_uuid}/buy", status_code=status.HTTP_204_NO_CONTENT
+    "/fixed-income/{asset_uuid}/buy",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Comprar ativo de renda fixa",
+    description="Realiza a compra de um ativo de renda fixa com a quantidade especificada.",
 )
 def buy_fixed_income(
     simulation: ActiveSimulation,
@@ -151,6 +199,9 @@ def buy_fixed_income(
     asset_uuid: str,
     payload: BuyFixedIncomeRequest,
 ):
+    """
+    Compra um ativo de renda fixa.
+    """
     fixed = simulation.get_fixed_asset(asset_uuid)
     if not fixed:
         raise NotFoundError("Ativo de renda fixa não encontrado")

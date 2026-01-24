@@ -66,8 +66,16 @@ class SimulationSettingsResponse(BaseModel):
     simulation: SimulationDTO
 
 
-@simulation_router.get("/status", response_model=SimulationStatusResponse)
+@simulation_router.get(
+    "/status",
+    response_model=SimulationStatusResponse,
+    summary="Obter status da simulação",
+    description="Retorna o status atual da simulação (ativa ou inativa) e seus parâmetros.",
+)
 def simulation_status():
+    """
+    Retorna o status atual da simulação.
+    """
     try:
         sim = SimulationManager.get_active_simulation()
         data = sim.settings
@@ -77,9 +85,16 @@ def simulation_status():
 
 
 @simulation_router.post(
-    "/create", status_code=201, response_model=SimulationStatusResponse
+    "/create",
+    status_code=201,
+    response_model=SimulationStatusResponse,
+    summary="Criar nova simulação",
+    description="Cria e inicia uma nova simulação com os parâmetros fornecidos (datas, capital inicial, contribuição mensal).",
 )
 def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
+    """
+    Cria uma nova simulação financeira.
+    """
     repository.user.reset_users_data(payload.start_date, payload.starting_cash)
 
     sim = SimulationManager.create_simulation(
@@ -105,9 +120,16 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
 
 
 @simulation_router.post(
-    "/continue", status_code=201, response_model=SimulationStatusResponse
+    "/continue",
+    status_code=201,
+    response_model=SimulationStatusResponse,
+    summary="Continuar simulação",
+    description="Continua uma simulação anterior a partir do último snapshot salvo até a nova data de término.",
 )
 def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
+    """
+    Continua uma simulação anterior.
+    """
     last_snapshot_date = repository.snapshot.get_last_snapshot_date()
     if not last_snapshot_date:
         raise NotFoundError("No snapshots found to continue simulation.")
@@ -139,9 +161,16 @@ def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
     return SimulationStatusResponse(active=True, simulation=sim.settings)
 
 
-@simulation_router.post("/stop", status_code=status.HTTP_204_NO_CONTENT)
+@simulation_router.post(
+    "/stop",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Parar simulação",
+    description="Encerra a simulação atual manualmente.",
+)
 def stop_simulation(_: HostVerified):
-    """Encerra a simulação manualmente"""
+    """
+    Encerra a simulação atual.
+    """
     simulation_controller.stop()
 
     notify(
@@ -152,14 +181,30 @@ def stop_simulation(_: HostVerified):
     )
 
 
-@simulation_router.get("/players", response_model=list[PlayerNickname])
+@simulation_router.get(
+    "/players",
+    response_model=list[PlayerNickname],
+    summary="Listar jogadores ativos",
+    description="Retorna a lista de todos os usuários ativos na simulação atual.",
+)
 def get_active_players():
+    """
+    Lista todos os jogadores ativos na simulação.
+    """
     active_players = UserManager.list_active_players()
     return [PlayerNickname(nickname=p.nickname) for p in active_players]
 
 
-@simulation_router.get("/settings", response_model=SimulationSettingsResponse)
+@simulation_router.get(
+    "/settings",
+    response_model=SimulationSettingsResponse,
+    summary="Obter configurações da simulação",
+    description="Retorna as configurações da simulação atual e indica se o usuário é o host.",
+)
 def get_simulation_settings(client_id: ClientID):
+    """
+    Retorna as configurações da simulação.
+    """
     user = UserManager.get_user(client_id)
     if user is None:
         raise NotFoundError("User not found.")
@@ -172,8 +217,16 @@ def get_simulation_settings(client_id: ClientID):
     )
 
 
-@simulation_router.put("/settings", response_model=SimulationDTO)
+@simulation_router.put(
+    "/settings",
+    response_model=SimulationDTO,
+    summary="Atualizar configurações da simulação",
+    description="Atualiza os parâmetros da simulação (datas, capital, contribuição mensal). Apenas o host pode executar.",
+)
 def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
+    """
+    Atualiza as configurações da simulação.
+    """
     settings = SimulationManager.update_settings(
         SimulationDTO(
             start_date=payload.start_date,

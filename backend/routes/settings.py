@@ -19,14 +19,30 @@ class SettingsRequest(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
-@settings_router.get("", response_model=SettingsRequest)
+@settings_router.get(
+    "",
+    response_model=SettingsRequest,
+    summary="Obter configurações do usuário",
+    description="Retorna as configurações pessoais do usuário (notificações de ordens, etc.).",
+)
 def get_settings(client_id: ClientID):
+    """
+    Retorna as configurações do usuário.
+    """
     settings = repository.settings.get_by_user_id(UserManager.get_user_id(client_id))
     return SettingsRequest.model_validate(settings)
 
 
-@settings_router.put("", response_model=SettingsRequest)
+@settings_router.put(
+    "",
+    response_model=SettingsRequest,
+    summary="Atualizar configurações do usuário",
+    description="Atualiza as configurações pessoais do usuário.",
+)
 def update_settings(client_id: ClientID, data: SettingsRequest):
+    """
+    Atualiza as configurações do usuário.
+    """
     user_id = UserManager.get_user_id(client_id)
 
     repository.settings.update_by_user_id(user_id, data.model_dump())

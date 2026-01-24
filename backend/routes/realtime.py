@@ -19,16 +19,29 @@ class UpdateSubscriptionResponse(BaseModel):
     events: list[str]
 
 
-@realtime_router.get("/stream")
+@realtime_router.get(
+    "/stream",
+    summary="Stream de eventos SSE",
+    description="Retorna um stream de eventos em tempo real via Server-Sent Events (SSE).",
+)
 def stream(client_id: ClientID):
-    """SSE stream endpoint - retorna eventos em tempo real."""
+    """
+    Abre um stream de eventos em tempo real via SSE.
+    """
     broker = get_sse_broker()
     return broker.connect(client_id)
 
 
-@realtime_router.post("/update-subscription", response_model=UpdateSubscriptionResponse)
+@realtime_router.post(
+    "/update-subscription",
+    response_model=UpdateSubscriptionResponse,
+    summary="Atualizar inscrição de eventos",
+    description="Atualiza a lista de eventos em tempo real que o cliente deseja receber.",
+)
 def update_subscription(client_id: ClientID, payload: UpdateSubscriptionRequest):
-    """Atualiza os eventos que um cliente está inscrito."""
+    """
+    Atualiza os eventos inscritos pelo cliente.
+    """
     broker = get_broker()
     events = payload.events
 

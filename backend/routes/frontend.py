@@ -24,10 +24,15 @@ def register_frontend_routes(app: FastAPI):
     )
 
     # SPA fallback (React Router)
-    @app.get("/{full_path:path}")
+    @app.get(
+        "/{full_path:path}",
+        summary="SPA fallback",
+        description="Rota de fallback para o Single Page Application (SPA) - devolve index.html para rotas não capturadas.",
+        include_in_schema=False,
+    )
     async def spa_fallback(request: Request, full_path: str):  # type: ignore
         """
-        Qualquer rota não capturada acima devolve o index.html
+        Fallback para rotas não capturadas do SPA.
         """
         index_file = static_dir / "index.html"
         return FileResponse(index_file)

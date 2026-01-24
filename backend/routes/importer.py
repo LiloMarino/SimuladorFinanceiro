@@ -24,20 +24,34 @@ class ImportYFinanceRequest(BaseModel):
     overwrite: bool = False
 
 
-@import_router.post("/yfinance", status_code=status.HTTP_204_NO_CONTENT)
+@import_router.post(
+    "/yfinance",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Importar dados de yfinance",
+    description="Importa dados de ativos do yfinance para um ticker especificado.",
+)
 def import_assets_json(request: ImportYFinanceRequest):
-    """Import assets from yfinance (JSON payload)."""
+    """
+    Importa dados de ativos do yfinance.
+    """
     ticker = request.ticker
     overwrite = request.overwrite
     update_from_yfinance(ticker, overwrite)
 
 
-@import_router.post("/csv", status_code=status.HTTP_204_NO_CONTENT)
+@import_router.post(
+    "/csv",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Importar dados de CSV",
+    description="Importa dados de ativos a partir de um arquivo CSV enviado via multipart/form-data.",
+)
 def import_assets_csv(
     ticker: Annotated[str, Form(...)],
     csv_file: Annotated[UploadFile, File(...)],
     overwrite: Annotated[str, Form(...)] = "false",
 ):
-    """Import assets from CSV (multipart/form-data)."""
+    """
+    Importa dados de ativos de um arquivo CSV.
+    """
     overwrite_bool = str_to_bool(overwrite)
     update_from_csv(csv_file.file, ticker, overwrite_bool)

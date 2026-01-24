@@ -22,8 +22,16 @@ class SimulationStateResponse(BaseModel):
     cash: float
 
 
-@timespeed_router.post("/set-speed", response_model=SetSpeedResponse)
+@timespeed_router.post(
+    "/set-speed",
+    response_model=SetSpeedResponse,
+    summary="Definir velocidade da simulação",
+    description="Ajusta a velocidade de execução da simulação (0 para pausar, valores maiores para acelerar).",
+)
 def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
+    """
+    Define a velocidade de simulação.
+    """
     speed = payload.speed
     simulation.set_speed(speed)
     speed = simulation.get_speed()
@@ -37,8 +45,16 @@ def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
     return SetSpeedResponse(speed=speed)
 
 
-@timespeed_router.get("/get-simulation-state", response_model=SimulationStateResponse)
+@timespeed_router.get(
+    "/get-simulation-state",
+    response_model=SimulationStateResponse,
+    summary="Obter estado da simulação",
+    description="Retorna o estado atual da simulação incluindo data, velocidade e saldo do cliente.",
+)
 def get_simulation_state(client_id: ClientID, simulation: ActiveSimulation):
+    """
+    Retorna o estado atual da simulação.
+    """
     current_date = simulation.get_current_date_formatted()
     speed = simulation.get_speed()
     cash = simulation.get_cash(client_id)

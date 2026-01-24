@@ -26,12 +26,12 @@ class UserClaimRequest(BaseModel):
 @auth_router.post(
     "/session/init",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Inicializa a sessão",
+    description="Garante que o cliente possua um client_id persistido no cookie. Se já existir, retorna o existente. Se não existir, cria um novo e salva no cookie.",
 )
 def session_init(request: Request):
     """
-    Garante que o cliente possua um client_id persistido no cookie.
-    Se já existir → retorna o existente.
-    Se não existir → cria um novo, salva no cookie e retorna.
+    Inicializa a sessão do cliente com um client_id único.
     """
     client_id = request.cookies.get("client_id")
 
@@ -50,7 +50,12 @@ def session_init(request: Request):
     return response
 
 
-@auth_router.get("/session/me", response_model=SessionDTO)
+@auth_router.get(
+    "/session/me",
+    response_model=SessionDTO,
+    summary="Obter dados da sessão",
+    description="Retorna as informações da sessão atual do cliente autenticado.",
+)
 def session_me(client_id: ClientID):
     """
     Retorna os dados da sessão atual.
@@ -65,12 +70,15 @@ def session_me(client_id: ClientID):
     return session_dto
 
 
-@auth_router.post("/session/logout", status_code=status.HTTP_204_NO_CONTENT)
+@auth_router.post(
+    "/session/logout",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Logout do cliente",
+    description="Encerra a sessão removendo a presença do cliente e invalidando o cookie de autenticação.",
+)
 def session_logout(client_id: ClientID):
     """
-    Logout:
-    - Remove presença
-    - Invalida sessão no navegador
+    Encerra a sessão do cliente.
     """
     UserManager.player_logout(client_id)
     response = Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -82,10 +90,15 @@ def session_logout(client_id: ClientID):
     return response
 
 
-@auth_router.post("/user/register", response_model=UserDTO)
+@auth_router.post(
+    "/user/register",
+    response_model=UserDTO,
+    summary="Registrar novo usuário",
+    description="Cria um novo usuário com o nickname fornecido para o client_id atual. Se houver simulação ativa, concede o depósito inicial.",
+)
 def user_register(payload: UserRegisterRequest, client_id: ClientID):
     """
-    Cria um usuário para o client_id atual.
+    Registra um novo usuário.
     """
     nickname = payload.nickname
 
@@ -110,10 +123,15 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
     return new_user
 
 
-@auth_router.post("/user/claim", response_model=UserDTO)
+@auth_router.post(
+    "/user/claim",
+    response_model=UserDTO,
+    summary="Recuperar usuário existente",
+    description="Permite recuperar um usuário existente pelo nickname após limpar o navegador ou trocar de dispositivo.",
+)
 def user_claim(payload: UserClaimRequest, client_id: ClientID):
     """
-    Permite que o usuário recupere seu nickname após limpar navegador.
+    Recupera um usuário existente pelo nickname.
     """
     nickname = payload.nickname
 
@@ -135,11 +153,15 @@ def user_claim(payload: UserClaimRequest, client_id: ClientID):
     return updated_user
 
 
-@auth_router.delete("/user", status_code=status.HTTP_204_NO_CONTENT)
+@auth_router.delete(
+    "/user",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Deletar usuário",
+    description="Remove permanentemente o usuário atual e todos os dados relacionados (em cascata).",
+)
 def user_delete(client_id: ClientID):
     """
-    Remove o usuário atual permanentemente.
-    Todos os dados relacionados serão deletados em cascade.
+    Deleta o usuário atual permanentemente.
     """
     user = UserManager.get_user(client_id)
     if not user:
