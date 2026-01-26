@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from backend.core.logger import setup_logger
 from backend.routes.auth import auth_router
@@ -15,6 +16,10 @@ from backend.routes.timespeed import timespeed_router
 from backend.routes.tunnel import tunnel_router
 
 logger = setup_logger(__name__)
+
+
+class ErrorResponse(BaseModel):
+    message: str
 
 
 def register_routes(app: FastAPI):
@@ -39,11 +44,17 @@ def register_routes(app: FastAPI):
         Exceções normais do python serão tratadas como Internal Server Error
         """
         logger.exception(f"{e.__class__.__name__}: {e}")
-        return JSONResponse(status_code=500, content={"message": str(e)})
+        return JSONResponse(
+            status_code=500,
+            content=ErrorResponse(message=str(e)).model_dump(),
+        )
 
     @app.exception_handler(HTTPException)
     async def handle_http_exception(request: Request, e: HTTPException):  # type: ignore
         """
         Exceções HTTP serão tratadas devidamente com seus respetivos status code
         """
-        return JSONResponse(status_code=e.status_code, content={"message": e.detail})
+        return JSONResponse(
+            status_code=e.status_code,
+            content=ErrorResponse(message=e.detail).model_dump(),
+        )
