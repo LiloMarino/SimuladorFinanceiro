@@ -4,7 +4,6 @@ import type { Session, User } from "@/types/user";
 export interface AuthContextValue {
   session: Session | null;
   user: User | null;
-  refresh: () => Promise<Session | null>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
   loading: boolean;

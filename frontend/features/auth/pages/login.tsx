@@ -17,8 +17,8 @@ import {
 import ApiError from "@/shared/lib/models/ApiError";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import type { User } from "@/types";
-import { useAuth } from "@/shared/hooks/useAuth";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Validação com Zod
 const nicknameSchema = z.object({
@@ -28,7 +28,7 @@ const nicknameSchema = z.object({
 type NicknameForm = z.infer<typeof nicknameSchema>;
 
 export function LoginPage() {
-  const { refresh } = useAuth();
+  const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
 
   const { mutate: registerNickname, loading: registerNicknameLoading } = useMutationApi<User, { nickname: string }>(
@@ -40,7 +40,7 @@ export function LoginPage() {
       onError: (err) => {
         toast.error(err.message);
       },
-    }
+    },
   );
 
   const { mutate: claimNickname, loading: claimNicknameLoading } = useMutationApi<User, { nickname: string }>(
@@ -52,7 +52,7 @@ export function LoginPage() {
       onError: (err) => {
         toast.error(err.message);
       },
-    }
+    },
   );
 
   const form = useForm<NicknameForm>({
@@ -63,7 +63,7 @@ export function LoginPage() {
   const onSubmit = async (values: NicknameForm) => {
     try {
       await registerNickname(values);
-      await refresh();
+      queryClient.invalidateQueries({ queryKey: ["auth", "session"] });
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         setModalOpen(true);
@@ -76,7 +76,7 @@ export function LoginPage() {
   const confirmClaim = async () => {
     const nickname = form.getValues("nickname");
     await claimNickname({ nickname });
-    await refresh();
+    queryClient.invalidateQueries({ queryKey: ["auth", "session"] });
     setModalOpen(false);
   };
 

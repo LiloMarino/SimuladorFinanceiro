@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import MainLayout from "@/layouts/main-layout";
 import {
   faChartLine,
@@ -30,6 +32,7 @@ import { NotificationSettingsProvider } from "@/shared/context/notifications-set
 import { GlobalNotifications } from "./shared/notifications";
 import { SimulationProvider } from "./shared/context/simulation";
 import { GuardLayout } from "./layouts/guard-layout";
+import { queryClient } from "@/shared/lib/queryClient";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
@@ -48,40 +51,43 @@ const routeLabels = navItems.reduce<Record<string, string>>((acc, item) => {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <RealtimeProvider mode="ws">
-          <NotificationSettingsProvider>
-            {/* Listeners globais de notificações */}
-            <GlobalNotifications />
-            <PageLabelProvider routeLabels={routeLabels}>
-              <SimulationProvider>
-                <Routes>
-                  <Route element={<GuardLayout />}>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/lobby" element={<LobbyPage />} />
-                    <Route element={<MainLayout navItems={navItems} />}>
-                      <Route path="/" element={<PortfolioPage />} />
-                      <Route path="/variable-income" element={<VariableIncomePage />} />
-                      <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
-                      <Route path="/fixed-income" element={<FixedIncomePage />} />
-                      <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
-                      <Route path="/portfolio" element={<PortfolioPage />} />
-                      <Route path="/strategies" element={<StrategiesPage />} />
-                      <Route path="/settings" element={<SettingsPage />} />
-                      <Route path="/statistics" element={<StatisticsPage />} />
-                      <Route path="/import-assets" element={<ImportAssetsPage />} />
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} />
+      <BrowserRouter>
+        <AuthProvider>
+          <RealtimeProvider mode="ws">
+            <NotificationSettingsProvider>
+              {/* Listeners globais de notificações */}
+              <GlobalNotifications />
+              <PageLabelProvider routeLabels={routeLabels}>
+                <SimulationProvider>
+                  <Routes>
+                    <Route element={<GuardLayout />}>
+                      <Route path="/login" element={<LoginPage />} />
+                      <Route path="/lobby" element={<LobbyPage />} />
+                      <Route element={<MainLayout navItems={navItems} />}>
+                        <Route path="/" element={<PortfolioPage />} />
+                        <Route path="/variable-income" element={<VariableIncomePage />} />
+                        <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
+                        <Route path="/fixed-income" element={<FixedIncomePage />} />
+                        <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
+                        <Route path="/portfolio" element={<PortfolioPage />} />
+                        <Route path="/strategies" element={<StrategiesPage />} />
+                        <Route path="/settings" element={<SettingsPage />} />
+                        <Route path="/statistics" element={<StatisticsPage />} />
+                        <Route path="/import-assets" element={<ImportAssetsPage />} />
+                      </Route>
                     </Route>
-                  </Route>
-                  {/* 404 */}
-                  <Route path="*" element={<ErrorPage />} />
-                </Routes>
-                <Toaster position="bottom-right" richColors />
-              </SimulationProvider>
-            </PageLabelProvider>
-          </NotificationSettingsProvider>
-        </RealtimeProvider>
-      </AuthProvider>
-    </BrowserRouter>
+                    {/* 404 */}
+                    <Route path="*" element={<ErrorPage />} />
+                  </Routes>
+                  <Toaster position="bottom-right" richColors />
+                </SimulationProvider>
+              </PageLabelProvider>
+            </NotificationSettingsProvider>
+          </RealtimeProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
