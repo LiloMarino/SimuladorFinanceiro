@@ -10,11 +10,13 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19+-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 
-[Releases](#-download) • [Documentação](#-instalação) • [Contribuir](CONTRIBUTING.md) • [Build](docs/BUILD.md)
+[Download](#-download) • [Como Usar](#-executando-o-projeto) • [Stack](#️-stack-tecnológica) • [Contribuir](CONTRIBUTING.md) • [Build](docs/BUILD.md)
 
 ---
 
 </div>
+
+> 🇧🇷 **Projeto em Português** - Este simulador é focado no mercado financeiro brasileiro e toda a documentação está em português.
 
 ## 📌 Sobre o Projeto
 
@@ -82,6 +84,16 @@ pip install -r requirements.txt
 cd frontend
 pnpm install
 ```
+
+**Configuração (Opcional)**
+```bash
+# Copie o arquivo de exemplo de variáveis de ambiente
+cp example.env .env
+
+# Edite .env com suas configurações (banco de dados, etc.)
+```
+
+> **Nota:** O projeto funciona com SQLite por padrão. Configure PostgreSQL apenas se necessário.
 
 ---
 
