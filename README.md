@@ -1,168 +1,219 @@
-# 📊 Simulador Financeiro  
+<div align="center">
 
-## 📌 Visão Geral  
-O **Simulador Financeiro** é uma aplicação interativa inspirada em jogos RTS como **Capitalism Lab e Victoria 3**, que permite testar estratégias de investimento no **mercado financeiro brasileiro**. O simulador inclui **renda fixa (CDB, LCI, LCA, Tesouro Direto)** e **renda variável (Ações, FIIs, ETFs)**, além de eventos econômicos dinâmicos, métricas de desempenho e suporte a múltiplas fontes de dados.  
+# 📊 Simulador Financeiro
 
-O objetivo é oferecer um ambiente dinâmico para experimentação de estratégias de compra e venda de ativos, seja de forma automática ou manual.  
+**Simulador de investimentos do mercado financeiro brasileiro com modo multiplayer**
 
-## 🎮 Modos de Jogo  
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.128+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-19+-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 
-### 1️⃣ **Modo Automático** 📈  
-- O tempo avança automaticamente, como em um RTS.  
-- As compras e vendas são executadas conforme uma **estratégia de negociação programada**.  
-- O usuário pode configurar e testar diferentes **algoritmos de investimento**.  
-
-### 2️⃣ **Modo Manual** 🏦  
-- O jogador pode **emitir ordens de compra e venda manualmente**.  
-- O mercado segue em tempo real, e o usuário decide **quando intervir**.  
-- O tempo pode ser pausado ou acelerado (**1x, 2x, 4x, 10x**).  
-
-### 3️⃣ **Modo Multiplayer** 🌐  
-- Permite **vários jogadores** competindo simultaneamente.  
-- O jogo sincroniza eventos econômicos e tempo de simulação para todos os participantes.  
-- O jogador com o maior patrimônio ao final vence.  
-
-## 🔥 Funcionalidades Principais  
-
-✅ **Simulação de negociações** (Ações, FIIs, ETFs) em tempo real.  
-✅ **Investimentos em renda fixa** (CDB, LCI, LCA, Tesouro Direto).  
-✅ **Fluxo de caixa mensal** (simulação de salário ou renda fixa recorrente).  
-✅ **Análise de desempenho**: Retorno, drawdown, índice de Sharpe, etc.  
-✅ **Eventos econômicos dinâmicos**: Crises, mudanças nos juros e inflação.  
-✅ **Gráficos interativos** em **Plotly + Dash** para acompanhar a evolução do portfólio.  
-✅ **Interface Web personalizada** via **Flask + Dash + CSS**.  
-✅ **Suporte a múltiplas fontes de dados** (Yahoo Finance, MySQL, SQLite).  
-✅ **Modo Multiplayer** com servidor cliente-servidor via **WebSockets**.  
-✅ **Atualizações em tempo real** simulando ticks do mercado.  
-✅ **Empacotamento como executável (.exe)** para facilitar a distribuição.  
-
-## 🌐 Providers de Túnel
-
-O Simulador Financeiro suporta diferentes formas de compartilhar a sessão de jogo multiplayer. Você pode escolher entre conectar localmente via LAN/VPN ou usar um túnel público:
-
-### **Providers Garantidos** ✅
-
-#### 1. **LAN** (Padrão)
-Conecte-se diretamente via rede local ou VPN própria.
-
-- **Detecção Automática**: Radmin VPN, LogMeIn Hamachi, Tailscale
-- **Ideal para**: Usuários avançados, jogadores de Minecraft, grupos de amigos
-- **Banda**: ✅ **Ilimitada** (zero limite)
-- **Latência**: ✅ **Excelente**
-- **Configuração**: 
-  ```toml
-  [tunnel]
-  provider = "lan"
-  port = 8000
-  ```
-- **Como usar**:
-  1. Instale [Radmin VPN](https://www.radmin-vpn.com/) (gratuito)
-  2. Crie uma rede ou entre em uma existente
-  3. Inicie o simulador
-  4. Compartilhe o IP detectado com seus amigos
+[Releases](#-download) • [Documentação](#-instalação) • [Contribuir](CONTRIBUTING.md) • [Build](docs/BUILD.md)
 
 ---
 
-#### 2. **LocalTunnel** (Em desenvolvimento)
-Túnel público automático - funciona na hora, sem configuração.
+</div>
 
-- **Ideal para**: Iniciantes, testes rápidos
-- **Banda**: ⚠️ Pode ter limitações
-- **Latência**: ⚠️ Moderada
-- **Vantagem**: Zero configuração necessária
-- **Instalação**: Automática quando configurado
-- **Configuração**:
-  ```toml
-  [tunnel]
-  provider = "localtunnel"
-  port = 8000
-  ```
+## 📌 Sobre o Projeto
 
----
+O **Simulador Financeiro** é uma aplicação web interativa inspirada em jogos de estratégia como **Capitalism Lab** e **Victoria 3**, que permite testar e competir com estratégias de investimento no **mercado financeiro brasileiro**.
 
-### **Providers Planejados** 🚀
+Simule negociações em **renda variável** (Ações, FIIs, ETFs) e **renda fixa** (CDB, LCI, LCA, Tesouro Direto), acompanhe métricas de desempenho em tempo real e compita com outros jogadores no modo multiplayer.
 
-#### 3. **Playit.gg** (Em desenvolvimento)
-Túnel otimizado para jogos, desenvolvido por gamers.
+### ✨ Principais Características
 
-- **Ideal para**: Jogos multiplayer, gaming
-- **Banda**: ✅ Boa
-- **Latência**: ✅ Otimizada para games
-- **Site**: https://playit.gg/
-- **Quando disponível**:
-  ```toml
-  [tunnel]
-  provider = "playit"
-  port = 8000
-  ```
+- 🎮 **Modo Single Player e Multiplayer** - Jogue sozinho ou compita com amigos
+- 📈 **Renda Variável** - Negocie ações, FIIs e ETFs com dados reais do mercado
+- 💰 **Renda Fixa** - Invista em CDB, LCI, LCA e Tesouro Direto
+- 🤖 **Estratégias Automatizadas** - Configure algoritmos de trading personalizados
+- 📊 **Dashboard Completo** - Acompanhe seu portfólio e estatísticas em tempo real
+- ⏱️ **Controle de Tempo** - Pause, acelere ou desacelere a simulação (1x, 2x, 4x, 10x)
+- 🌐 **Sistema de Túnel** - Compartilhe sessões multiplayer via LAN ou VPN
+- 🎯 **Ranking Competitivo** - Compare seu desempenho com outros jogadores
+- 📦 **Executável Standalone** - Baixe e execute sem instalação
 
 ---
 
-#### 4. **Zrok** (Em desenvolvimento)
-Túnel open-source robusto e confiável.
+## 🎮 Como Funciona
 
-- **Ideal para**: Deployments profissionais, servidor próprio
-- **Banda**: ✅ Excelente
-- **Latência**: ✅ Baixa
-- **Site**: https://zrok.io/
-- **Quando disponível**:
-  ```toml
-  [tunnel]
-  provider = "zrok"
-  port = 8000
-  ```
+### Modo Single Player
+Crie uma sessão local e teste suas estratégias de investimento sem pressão. Configure seu capital inicial, escolha seus ativos e acompanhe o desempenho do seu portfólio ao longo do tempo.
 
----
+### Modo Multiplayer
+1. **Host** - Crie uma sala e compartilhe o IP com seus amigos
+2. **Jogadores** - Entrem na sala usando o IP fornecido
+3. **Competição** - Todos começam com o mesmo capital e competem para ter o melhor retorno
+4. **Vencedor** - O jogador com maior patrimônio ao final vence
 
-### 📊 Tabela Comparativa
-
-| Feature      | LAN         | LocalTunnel | Playit.gg   | Zrok        |
-| ------------ | ----------- | ----------- | ----------- | ----------- |
-| Status       | ✅ Ativo     | 🚀 Planejado | 🚀 Planejado | 🚀 Planejado |
-| Configuração | Fácil       | Automática  | Simples     | Moderada    |
-| Banda        | ∞ Ilimitada | ⚠️ Limitada  | ✅ Boa       | ✅ Excelente |
-| Latência     | ⭐⭐⭐⭐⭐       | ⭐⭐⭐         | ⭐⭐⭐⭐⭐       | ⭐⭐⭐⭐        |
-| Custo        | Grátis      | Grátis      | Grátis      | Grátis      |
-| Requer VPN   | ✅ Sim       | ❌ Não       | ❌ Não       | ❌ Não       |
-| Ideal para   | Amigos      | Testes      | Games       | Produção    |
+### Estratégias de Investimento
+- **Manual** - Tome decisões de compra e venda manualmente
+- **Automática** - Configure algoritmos que operam automaticamente baseados em indicadores técnicos
 
 ---
 
+## 🚀 Download
 
+> **Nota:** Os executáveis estarão disponíveis na seção de [Releases](../../releases) em breve.
 
-- **[Backtrader](https://www.backtrader.com/)** → Motor de backtesting e simulação.  
-- **[Flask](https://flask.palletsprojects.com/)** → Backend da aplicação.  
-- **[Dash](https://dash.plotly.com/)** → Framework para interface gráfica interativa.  
-- **[Plotly](https://plotly.com/python/)** → Gráficos dinâmicos para acompanhamento do portfólio.  
-- **[yfinance](https://pypi.org/project/yfinance/)** → Dados do mercado financeiro.  
-- **[SQLAlchemy](https://www.sqlalchemy.org/)** → ORM para banco de dados.  
-- **Banco de Dados** → **MySQL e SQLite** para armazenamento de históricos e portfólio.  
-- **WebSockets** → Comunicação em tempo real para atualização de gráficos e multiplayer (back -> front).
-- **REST** → Comunicação em eventos e dados externos (front -> back).
-- **PyInstaller** → Empacotamento da aplicação como executável (.exe).  
+### Executável (Recomendado)
+Baixe o executável para seu sistema operacional e execute diretamente:
 
-## 📦 Como Compilar o Executável
+- 🪟 **Windows** - `SimuladorFinanceiro.exe` 
+- 🐧 **Linux** - `SimuladorFinanceiro`
+- 🍎 **macOS** - `SimuladorFinanceiro`
 
-Para compilar o projeto em um executável único que inclui frontend e backend:
+### Instalação do Código-Fonte
+Clone o repositório e instale as dependências:
+
+```bash
+git clone https://github.com/LiloMarino/SimuladorFinanceiro.git
+cd SimuladorFinanceiro
+```
+
+**Backend (Python 3.12+)**
+```bash
+pip install -r requirements.txt
+```
+
+**Frontend (Node.js + pnpm)**
+```bash
+cd frontend
+pnpm install
+```
+
+---
+
+## 🏃 Executando o Projeto
+
+### Modo Desenvolvimento
+
+**Backend:**
+```bash
+python main.py
+```
+
+**Frontend (em outro terminal):**
+```bash
+cd frontend
+pnpm dev
+```
+
+Acesse: `http://localhost:5173` (frontend dev) ou `http://localhost:8000` (backend direto)
+
+### Modo Produção (Compilado)
 
 ```bash
 make build
+./dist/SimuladorFinanceiro
 ```
 
-Isso irá:
-1. Compilar o frontend React/TypeScript
-2. Copiar os arquivos para o backend
-3. Gerar o executável com PyInstaller
+Acesse: `http://localhost:8000`
 
-O executável será gerado em `dist/SimuladorFinanceiro.exe` (Windows) ou `dist/SimuladorFinanceiro` (Linux/Mac).
+---
 
-Para mais detalhes, consulte a [documentação de build](docs/BUILD.md).
+## 🛠️ Stack Tecnológica
+
+### Backend
+- **[FastAPI](https://fastapi.tiangolo.com/)** - Framework web moderno e rápido
+- **[Uvicorn](https://www.uvicorn.org/)** - Servidor ASGI de alta performance
+- **[SQLAlchemy](https://www.sqlalchemy.org/)** - ORM para gerenciamento de dados
+- **[Socket.IO](https://socket.io/)** - Comunicação em tempo real via WebSockets
+- **[yfinance](https://pypi.org/project/yfinance/)** - Dados do mercado financeiro
+- **PostgreSQL / SQLite** - Banco de dados (PostgreSQL para produção, SQLite para desenvolvimento)
+
+### Frontend
+- **[React 19](https://react.dev/)** - Biblioteca para interfaces modernas
+- **[TypeScript](https://www.typescriptlang.org/)** - Type safety para JavaScript
+- **[Vite](https://vitejs.dev/)** - Build tool ultra-rápido
+- **[TailwindCSS](https://tailwindcss.com/)** - Framework CSS utilitário
+- **[Recharts](https://recharts.org/)** - Biblioteca de gráficos composáveis
+- **[Lightweight Charts](https://tradingview.github.io/lightweight-charts/)** - Gráficos financeiros profissionais
+- **[Radix UI](https://www.radix-ui.com/)** - Componentes acessíveis e não-estilizados
+- **[React Query](https://tanstack.com/query/latest)** - Gerenciamento de estado assíncrono
+- **[React Router](https://reactrouter.com/)** - Roteamento declarativo
+
+### Ferramentas de Build
+- **[PyInstaller](https://pyinstaller.org/)** - Empacotamento do Python em executável
+- **[Make](https://www.gnu.org/software/make/)** - Automação de build
+
+---
+
+## 🌐 Sistema de Túnel para Multiplayer
+
+O Simulador suporta diferentes formas de compartilhar sessões multiplayer:
+
+### LAN / VPN (Recomendado) ✅
+Conecte-se via rede local ou VPN:
+- **Radmin VPN** (gratuito) - [Download](https://www.radmin-vpn.com/)
+- **Hamachi** - Para grupos pequenos
+- **Tailscale** - Moderno e fácil
+
+**Configuração:**
+```toml
+[server]
+provider = "lan"
+port = 8000
+```
+
+### Túneis Públicos (Em Desenvolvimento) 🚀
+- **LocalTunnel** - Túnel público automático
+- **Playit.gg** - Otimizado para jogos
+- **Zrok** - Open-source e confiável
+
+---
+
+## 📋 Requisitos do Sistema
+
+### Mínimos
+- **Sistema Operacional:** Windows 10/11, Linux (Ubuntu 20.04+), macOS 11+
+- **RAM:** 2 GB
+- **Espaço em Disco:** 500 MB
+- **Internet:** Necessária para baixar dados do mercado
+
+### Recomendados
+- **RAM:** 4 GB ou mais
+- **Processador:** Dual-core ou superior
+- **Internet:** Conexão estável para multiplayer
+
+---
+
+## 📚 Documentação
+
+- **[Guia de Contribuição](CONTRIBUTING.md)** - Como contribuir com o projeto
+- **[Build do Executável](docs/BUILD.md)** - Como compilar o projeto
+- **[Licença GPL-3.0](LICENSE)** - Termos de uso e distribuição
+
+---
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Veja o [guia de contribuição](CONTRIBUTING.md) para começar.
+
+**Formas de contribuir:**
+- 🐛 Reportar bugs
+- 💡 Sugerir novas funcionalidades
+- 🔧 Enviar pull requests
+- 📖 Melhorar a documentação
+- ⭐ Dar uma estrela no projeto
+
+---
 
 ## 📜 Licença
 
-Este projeto está licenciado sob os termos da [Licença Pública Geral GNU, versão 3 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html).
+Este projeto está licenciado sob a [GNU General Public License v3.0](LICENSE).
 
-Você pode usar, modificar e redistribuir este software livremente, contanto que preserve a mesma licença em versões modificadas.
+Você é livre para usar, modificar e distribuir este software, desde que mantenha a mesma licença e atribua os devidos créditos.
 
-© 2025 Murilo Marino
+---
 
+## 👤 Autor
+
+**Murilo Marino** ([@LiloMarino](https://github.com/LiloMarino))
+
+---
+
+## ⭐ Mostre seu Apoio
+
+Se este projeto foi útil para você, considere dar uma ⭐ no repositório!
