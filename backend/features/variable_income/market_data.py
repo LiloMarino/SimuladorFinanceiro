@@ -4,6 +4,15 @@ from backend.features.variable_income.entities.candle import Candle
 
 
 class MarketData:
+    """
+    Buffer de candles históricos de mercado por ticker.
+
+    Responsável por:
+    - Armazenar histórico limitado de candles (OHLCV) por ticker
+    - Fornecer acesso aos candles mais recentes para análise
+    - Retornar o último candle de um ticker para referência de preço
+    """
+
     def __init__(self, maxlen: int = 30):
         self._buffers: dict[str, deque[Candle]] = {}
         self._maxlen = maxlen

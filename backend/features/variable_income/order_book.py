@@ -11,9 +11,13 @@ from backend.features.variable_income.entities.order import (
 
 class OrderBook:
     """
-    OrderBook otimizado para ordens LIMIT.
-    - Mantém heaps por ticker para pegar melhor preço rapidamente
-    - Mantém dict id->order para cancelamento e lookup rápido
+    Livro de ofertas otimizado para ordens LIMIT.
+
+    Responsável por:
+    - Manter heaps por ticker para obter melhor preço em O(log n)
+    - Indexar ordens por ID para lookup e cancelamento em O(1)
+    - Implementar lazy deletion de ordens canceladas nos heaps
+    - Fornecer best buy/sell e listar ordens pendentes por ticker
     """
 
     def __init__(self):

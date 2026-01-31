@@ -12,6 +12,13 @@ from backend.features.fixed_income.factory.abstract_factory import (
 
 
 class LCAFactory(AbstractFixedIncomeFactory):
+    """
+    Factory para criação de ativos LCA (Letra de Crédito do Agronegócio).
+
+    Responsável por:
+    - Gerar LCAs com indexadores CDI, IPCA e Prefixado
+    """
+
     @property
     def _strategies(self):
         return {

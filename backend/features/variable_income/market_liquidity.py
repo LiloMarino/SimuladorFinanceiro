@@ -16,12 +16,14 @@ from backend.features.variable_income.order_book import OrderBook
 
 class MarketLiquidity:
     """
-    Injeta liquidez sintética no OrderBook a partir de OHLCV.
+    Injetor de liquidez sintética no OrderBook a partir de candles OHLCV.
 
-    Conceito:
-    - Typical Price define o centro (BUY vs SELL)
-    - Beta Distribution define densidade de ordens
-    - Candle define range e volume
+    Responsável por:
+    - Gerar ordens LIMIT de compra/venda baseadas em candles de mercado
+    - Remover liquidez antiga ao receber novo candle
+    - Distribuir volume do candle usando Beta Distribution (densidade centrípeta)
+    - Calcular Typical Price para separar zona de BUY vs SELL
+    - Rastrear ordens de mercado por ticker para limpeza eficiente
     """
 
     MARKET_CLIENT_ID = "__MARKET__"

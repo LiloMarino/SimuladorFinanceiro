@@ -12,6 +12,17 @@ logger = setup_logger(__name__)
 
 
 class UserManager:
+    """
+    Gerenciador singleton de usuários e presença de players.
+
+    Responsável por:
+    - Controlar players ativos (autenticados e conectados) na simulação
+    - Manter cache lazy de usuários por client_id para acesso rápido
+    - Gerenciar lifecycle de conexão (register, unregister, auth, logout)
+    - Emitir eventos de entrada/saída de players
+    - Sincronizar estado com a simulação ativa
+    """
+
     # 🔹 Apenas players autenticados (presença)
     _active_players: ClassVar[dict[str, UserDTO]] = {}
 

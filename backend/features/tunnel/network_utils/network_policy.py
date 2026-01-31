@@ -3,6 +3,15 @@ from backend.features.tunnel.network_utils.network_types import NetworkType
 
 
 class NetworkPolicy:
+    """
+    Seletor de melhor interface de rede baseado em prioridades.
+
+    Responsável por:
+    - Aplicar prioridade padrão (Radmin > Hamachi > Tailscale > LAN)
+    - Permitir preferência manual de tipo de rede
+    - Selecionar primeira interface que atende critérios
+    """
+
     DEFAULT_PRIORITY: tuple[NetworkType, ...] = (
         NetworkType.RADMIN,
         NetworkType.HAMACHI,

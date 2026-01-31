@@ -13,7 +13,13 @@ logger = setup_logger(__name__)
 
 class NetworkDetector:
     """
-    Detecta interfaces de rede locais e VPNs conhecidas.
+    Detector de interfaces de rede locais e VPNs.
+
+    Responsável por:
+    - Descobrir IPs locais usando hostname resolution e parsing de ifconfig/ipconfig
+    - Identificar tipo de rede (Radmin, Hamachi, Tailscale, LAN) via ranges de IP
+    - Executar comandos de sistema operacional para listar interfaces
+    - Retornar lista de NetworkInterface com IP e tipo
     """
 
     def detect(self) -> list[NetworkInterface]:

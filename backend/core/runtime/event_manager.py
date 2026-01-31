@@ -6,6 +6,15 @@ from backend.core.dto.events.base_event import BaseEventDTO
 
 
 class EventManager:
+    """
+    Gerenciador singleton de eventos da aplicação.
+
+    Responsável por:
+    - Acumular eventos em memória de forma thread-safe
+    - Persistir eventos em lote no banco de dados
+    - Garantir que eventos não sejam perdidos durante concorrência
+    """
+
     _events: ClassVar[list[BaseEventDTO]] = []
     _lock = Lock()
 

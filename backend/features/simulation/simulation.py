@@ -20,6 +20,18 @@ logger = setup_logger(__name__)
 
 
 class Simulation:
+    """
+    Orquestrador principal da simulação financeira.
+
+    Responsável por:
+    - Avançar simulação dia-a-dia (next_tick), pulando finais de semana
+    - Aplicar contribuições mensais e registrar eventos mensais
+    - Criar snapshots mensais do portfólio de todos os players
+    - Fornecer interface de alto nível para operações (criar/cancelar ordens, consultar portfólio)
+    - Gerenciar velocidade da simulação e notificar atualizações realtime
+    - Limpar caches de usuários ao fazer logout
+    """
+
     def __init__(self, settings: SimulationDTO):
         self._speed = 0
         self.settings = settings

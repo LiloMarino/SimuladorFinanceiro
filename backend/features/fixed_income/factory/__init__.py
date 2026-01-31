@@ -19,6 +19,16 @@ from backend.features.fixed_income.factory.tesouro_factory import (
 
 
 class FixedIncomeFactory:
+    """
+    Registry e orquestrador de factories de renda fixa.
+
+    Responsável por:
+    - Manter registro de factories por tipo de ativo (CDB, LCI, LCA, Tesouro)
+    - Gerar ativos de forma balanceada entre tipos e indexadores
+    - Garantir distribuição uniforme de combinações (tipo + indexador)
+    - Fornecer interface simplificada para geração em lote
+    """
+
     _registry: Mapping[FixedIncomeType, AbstractFixedIncomeFactory] = MappingProxyType(
         {
             FixedIncomeType.CDB: CDBFactory(),

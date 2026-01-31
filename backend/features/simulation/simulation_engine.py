@@ -21,6 +21,18 @@ from backend.features.variable_income.matching_engine import MatchingEngine
 
 
 class SimulationEngine:
+    """
+    Motor central da simulação financeira.
+
+    Responsável por:
+    - Coordenar brokers de renda variável e fixa
+    - Gerenciar saldo em caixa dos players com cache lazy
+    - Atualizar dados de mercado e executar matching de ordens
+    - Aplicar juros diários de renda fixa
+    - Executar estratégias de trading a cada tick
+    - Registrar eventos de cashflow (depósitos, retiradas, aportes)
+    """
+
     def __init__(self, current_date, starting_cash: float):
         self.broker = Broker(self)
         self.fixed_broker = FixedBroker(self)

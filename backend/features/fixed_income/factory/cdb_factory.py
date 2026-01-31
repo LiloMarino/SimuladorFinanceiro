@@ -12,6 +12,13 @@ from backend.features.fixed_income.factory.abstract_factory import (
 
 
 class CDBFactory(AbstractFixedIncomeFactory):
+    """
+    Factory para criação de ativos CDB (Certificado de Depósito Bancário).
+
+    Responsável por:
+    - Gerar CDBs com indexadores CDI, IPCA e Prefixado
+    """
+
     @property
     def _strategies(self):
         return {

@@ -8,6 +8,16 @@ from backend.features.simulation.simulation import Simulation
 
 
 class SimulationManager:
+    """
+    Gerenciador singleton de configurações e lifecycle da simulação.
+
+    Responsável por:
+    - Armazenar configurações pendentes da simulação (datas, capital inicial)
+    - Criar e manter referência à simulação ativa
+    - Fornecer acesso thread-safe à simulação para toda a aplicação
+    - Gerenciar lifecycle (criação, consulta, limpeza)
+    """
+
     _lock = Lock()
     _pending_settings: SimulationDTO | None = None
     _active_simulation: Simulation | None = None

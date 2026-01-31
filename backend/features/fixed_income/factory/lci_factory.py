@@ -12,6 +12,13 @@ from backend.features.fixed_income.factory.abstract_factory import (
 
 
 class LCIFactory(AbstractFixedIncomeFactory):
+    """
+    Factory para criação de ativos LCI (Letra de Crédito Imobiliário).
+
+    Responsável por:
+    - Gerar LCIs com indexadores CDI, IPCA e Prefixado
+    """
+
     @property
     def _strategies(self):
         return {

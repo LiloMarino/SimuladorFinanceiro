@@ -8,14 +8,14 @@ logger = setup_logger(__name__)
 
 class ExampleProvider(TunnelProvider):
     """
-    Provider de exemplo que não cria túnel real.
+    Provider mock para desenvolvimento e testes.
 
-    Útil para desenvolvimento e testes. Gera URLs mock no formato:
-    https://tunnel-example-{uuid}.example.com
+    Responsável por:
+    - Gerar URLs mock sem criar conexões reais
+    - Simular lifecycle de túnel (start/stop) para prototipagem
+    - Fornecer placeholder para testes locais sem infraestrutura externa
 
-    ⚠️ Este provider não cria conexões reais! É apenas para prototipagem.
-    Para expor o servidor publicamente, implemente um provider real
-    (ex: LocalTunnel, ngrok, etc).
+    ⚠️ Não cria túneis reais! Apenas para desenvolvimento.
     """
 
     def __init__(self):

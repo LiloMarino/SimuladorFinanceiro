@@ -15,8 +15,14 @@ logger = setup_logger(__name__)
 
 class SocketBroker(RealtimeBroker):
     """
-    Implementação do broker Pub/Sub usando python-socketio com ASGI.
-    Permite notificar clientes conectados via WebSocket.
+    Implementação Pub/Sub usando WebSocket (python-socketio).
+
+    Responsável por:
+    - Gerenciar conexões WebSocket bidirecionais com python-socketio
+    - Mapear client_id para múltiplos SIDs (suporta múltiplas tabs)
+    - Gerenciar assinaturas de eventos por cliente
+    - Executar emissões de forma thread-safe via event loop
+    - Suportar comunicação bidirecional (servidor → cliente e cliente → servidor)
     """
 
     def __init__(self, sio: AsyncServer):

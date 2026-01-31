@@ -10,7 +10,15 @@ logger = setup_logger(__name__)
 
 
 class FixedIncomeMarket:
-    """Gera e mantém o hall de ativos de renda fixa disponíveis."""
+    """
+    Gerenciador de hall de ativos de renda fixa disponíveis.
+
+    Responsável por:
+    - Gerar novos ativos mensalmente usando FixedIncomeFactory
+    - Manter catálogo de ativos disponíveis por UUID
+    - Notificar players sobre atualizações do hall via realtime
+    - Fornecer consultas de ativos disponíveis e busca por UUID
+    """
 
     def __init__(self):
         self._current_month: tuple[int, int] | None = None

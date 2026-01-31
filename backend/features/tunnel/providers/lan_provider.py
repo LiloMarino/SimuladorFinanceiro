@@ -10,10 +10,13 @@ logger = setup_logger(__name__)
 
 class LANProvider(TunnelProvider):
     """
-    Provider LAN:
-    - Não cria túnel
-    - Não inicia subprocessos
-    - Apenas detecta interfaces locais/VPNs e escolhe a melhor
+    Provider de detecção de interfaces LAN e VPN locais.
+
+    Responsável por:
+    - Detectar interfaces de rede locais e VPNs (Radmin, Hamachi, Tailscale)
+    - Selecionar melhor interface baseado em política de prioridade
+    - Fornecer URL de acesso usando IP detectado + porta
+    - Não criar túnel (apenas descoberta de rede)
     """
 
     def __init__(self):

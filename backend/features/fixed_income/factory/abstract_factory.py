@@ -9,6 +9,16 @@ from backend.core.enum import RateIndexType
 
 
 class AbstractFixedIncomeFactory(ABC):
+    """
+    Factory abstrato para criação de ativos de renda fixa.
+
+    Responsável por:
+    - Definir interface para factories concretos (CDB, LCA, LCI, Tesouro)
+    - Fornecer métodos utilitários para geração de taxas aleatórias
+    - Calcular datas de vencimento dentro de ranges configurados
+    - Gerar taxas CDI, IPCA spread e prefixadas baseadas em indicadores econômicos
+    """
+
     @property
     def valid_indexes(self) -> list[RateIndexType]:
         return list(self._strategies.keys())

@@ -11,6 +11,14 @@ from backend.features.fixed_income.factory.abstract_factory import (
 
 
 class TesouroFactory(AbstractFixedIncomeFactory):
+    """
+    Factory para criação de títulos do Tesouro Direto.
+
+    Responsável por:
+    - Gerar títulos com indexadores SELIC, IPCA e Prefixado
+    - Usar nomenclatura padrão do Tesouro (Selic, IPCA+, Prefixado)
+    """
+
     @property
     def _strategies(self):
         return {

@@ -17,9 +17,14 @@ logger = setup_logger(__name__)
 
 class SSEBroker(RealtimeBroker):
     """
-    Implementação do broker Pub/Sub usando Server-Sent Events (SSE).
-    Cada cliente possui uma fila (Queue) e um conjunto de tópicos de interesse.
-    Mantém clientes assinantes e envia mensagens via stream HTTP unidirecional.
+    Implementação Pub/Sub usando Server-Sent Events (SSE).
+
+    Responsável por:
+    - Manter filas (Queue) individuais para cada cliente conectado
+    - Gerenciar assinaturas de eventos por cliente
+    - Enviar mensagens via stream HTTP unidirecional
+    - Registrar/remover clientes no UserManager
+    - Fornecer StreamingResponse para FastAPI
     """
 
     def __init__(self):

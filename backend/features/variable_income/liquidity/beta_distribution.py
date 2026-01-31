@@ -7,12 +7,13 @@ from backend.features.variable_income.liquidity.liquidity_distribution import (
 
 class BetaLiquidityDistribution(LiquidityDistribution):
     """
-    Gera uma distribuição de liquidez sintética usando uma distribuição Beta.
+    Gerador de distribuição de liquidez sintética usando Beta Distribution.
 
-    Conceito:
-    - Candle define range e volume total
-    - Typical Price define o centro semântico
-    - Distribuição Beta define a densidade relativa
+    Responsável por:
+    - Calcular densidade centrípeta de ordens usando distribuição Beta
+    - Dividir volume do candle entre níveis de preço de forma realista
+    - Gerar price levels separados para zona de compra e venda
+    - Aplicar tick_size para arredondamento de preços
     """
 
     def __init__(

@@ -7,7 +7,14 @@ if TYPE_CHECKING:
 
 
 class BaseStrategy:
-    """Classe base para estratégias. Deve ser herdada por todas as estratégias."""
+    """
+    Classe base abstrata para estratégias de trading.
+
+    Responsável por:
+    - Definir interface comum para todas as estratégias (método next)
+    - Fornecer acesso ao MatchingEngine para submissão de ordens
+    - Fornecer acesso ao MarketData para análise de candles
+    """
 
     def __init__(self, matching_engine: MatchingEngine):
         self.matching_engine = matching_engine

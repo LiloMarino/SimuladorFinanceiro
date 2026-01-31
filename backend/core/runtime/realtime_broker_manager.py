@@ -8,7 +8,14 @@ if TYPE_CHECKING:
 
 
 class RealtimeBrokerManager:
-    """Manager para o singleton do RealtimeBroker."""
+    """
+    Gerenciador singleton do broker de comunicação realtime.
+
+    Responsável por:
+    - Armazenar referência global ao RealtimeBroker configurado
+    - Fornecer acesso thread-safe ao broker para toda a aplicação
+    - Garantir que apenas um broker esteja ativo por vez
+    """
 
     _lock = Lock()
     _broker: RealtimeBroker | None = None

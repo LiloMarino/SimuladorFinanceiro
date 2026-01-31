@@ -17,7 +17,16 @@ class SimulationState(Enum):
 
 
 class SimulationLoopController:
-    """Controla o loop da simulação com start/stop explícitos."""
+    """
+    Controlador de lifecycle do loop de simulação.
+
+    Responsável por:
+    - Gerenciar thread dedicada para executar a simulação
+    - Controlar estados (STOPPED, RUNNING) de forma thread-safe
+    - Implementar pausa/retomada da simulação
+    - Encerrar gracefully ao receber stop ou atingir data final
+    - Notificar eventos de início, fim e erros via realtime
+    """
 
     def __init__(self):
         self._thread: threading.Thread | None = None

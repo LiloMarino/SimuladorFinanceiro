@@ -42,6 +42,18 @@ def load_positions(client_id: str) -> dict[str, Position]:
 
 
 class Broker:
+    """
+    Gerenciador de posições de renda variável e execução de trades.
+
+    Responsável por:
+    - Manter posições dos players com cache lazy carregado do banco
+    - Executar trades atomicamente entre taker e maker com validação dupla
+    - Gerenciar cash flow (débito/crédito) em compras e vendas
+    - Registrar eventos de equity (BUY, SELL, DIVIDEND) no EventManager
+    - Emitir notificações realtime de atualizações de portfólio
+    - Fazer bypass para ordens de liquidez sintética (MARKET_CLIENT_ID)
+    """
+
     def __init__(
         self,
         simulation_engine: SimulationEngine,

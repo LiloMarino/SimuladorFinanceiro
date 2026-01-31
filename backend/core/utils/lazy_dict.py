@@ -5,9 +5,12 @@ class LazyDict[K, V](
     dict[K, V],
 ):
     """
-    Dict que carrega valores sob demanda.
+    Dicionário que carrega valores sob demanda usando um loader.
 
-    loader: função(key: K) -> V
+    Responsável por:
+    - Carregar valores automaticamente quando uma chave é acessada pela primeira vez
+    - Cachear valores carregados para acesso subsequente rápido
+    - Implementar padrão lazy loading via método __missing__
     """
 
     def __init__(self, loader: Callable[[K], V]):

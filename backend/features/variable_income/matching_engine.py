@@ -21,13 +21,15 @@ from backend.features.variable_income.order_book import OrderBook
 
 class MatchingEngine:
     """
-    Engine de matching baseada exclusivamente em OrderBook.
+    Engine de matching de ordens baseada exclusivamente em OrderBook.
 
-    Regras:
-    - TODA ordem tenta consumir o book
-    - MARKET → consome tudo ou falha
-    - LIMIT → consome até o limite, resto entra no book
-    - Candle NÃO executa ordens, apenas injeta liquidez
+    Responsável por:
+    - Executar matching entre ordens de compra e venda do OrderBook
+    - Aplicar regras de execução: MARKET consome tudo ou falha, LIMIT consome até limite
+    - Coordenar com Broker para executar trades atomicamente
+    - Gerenciar injeção de liquidez sintética baseada em candles
+    - Processar submissão e cancelamento de ordens
+    - Emitir notificações realtime de ações no OrderBook
     """
 
     def __init__(self, broker: Broker):

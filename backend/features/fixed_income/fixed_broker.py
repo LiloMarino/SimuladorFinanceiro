@@ -45,7 +45,17 @@ def load_fixed_assets(client_id: str) -> dict[str, FixedIncomePosition]:
 
 
 class FixedBroker:
-    """Gerencia ativos de renda fixa e cálculo de juros"""
+    """
+    Gerenciador de operações e posições de renda fixa.
+
+    Responsável por:
+    - Executar compras de ativos de renda fixa (buy) com validação de saldo e vencimento
+    - Manter posições dos players com cache lazy carregado do banco
+    - Aplicar juros diários em todas as posições ativas
+    - Processar vencimento de ativos e creditar valores ao player
+    - Registrar eventos de renda fixa (BUY, INTEREST, MATURITY)
+    - Emitir notificações realtime de atualizações de portfólio
+    """
 
     def __init__(self, simulation_engine: SimulationEngine):
         self._simulation_engine = simulation_engine
