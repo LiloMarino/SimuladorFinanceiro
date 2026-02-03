@@ -1,0 +1,9 @@
+{
+    "label": "Desenvolvimento",
+    "position": 3,
+    "link": {
+        "type": "generated-index",
+        "description": "Guia para desenvolvedores interessados em contribuir com o projeto"
+    },
+    "collapsed": false
+}

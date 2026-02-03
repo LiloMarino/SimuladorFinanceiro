@@ -34,7 +34,9 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           editUrl:
             `https://github.com/${organizationName}/${projectName}/tree/main/docs/`,
+          routeBasePath: '/',
         },
+        pages: false,
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -59,7 +61,7 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Tutorial',
+          label: 'Documentação',
         },
         {
           href: `https://github.com/${organizationName}/${projectName}`,
@@ -72,11 +74,19 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Documentação',
           items: [
             {
-              label: 'Documentação',
+              label: 'Introdução',
               to: '/docs/intro',
+            },
+            {
+              label: 'Como Usar',
+              to: '/docs/como-usar',
+            },
+            {
+              label: 'Desenvolvimento',
+              to: '/docs/desenvolvimento',
             },
           ],
         },

@@ -1,47 +1,119 @@
 ---
+slug: /
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+# 📊 Simulador Financeiro
 
-Let's discover **Docusaurus in less than 5 minutes**.
+**Simulador de investimentos do mercado financeiro brasileiro com modo multiplayer**
 
-## Getting Started
+---
 
-Get started by **creating a new site**.
+## 📌 Sobre o Projeto
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+O **Simulador Financeiro** é uma aplicação web interativa que permite testar e competir com estratégias de investimento no **mercado financeiro brasileiro**.
 
-### What you'll need
+Simule negociações em **renda variável** (Ações, FIIs, ETFs) e **renda fixa** (CDB, LCI, LCA, Tesouro Direto), acompanhe métricas de desempenho em tempo real e compita com outros jogadores no modo multiplayer.
 
-- [Node.js](https://nodejs.org/en/download/) version 20.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+## ✨ Principais Características
 
-## Generate a new site
+- 🎮 **Modo Single Player e Multiplayer** — Jogue sozinho ou compita com amigos
+- 📈 **Renda Variável** — Negocie ações, FIIs e ETFs com dados reais do mercado
+- 💰 **Renda Fixa** — Invista em CDB, LCI, LCA e Tesouro Direto
+- 🤖 **Estratégias Automatizadas** — Configure algoritmos de trading personalizados
+- 📊 **Dashboard Completo** — Acompanhe seu portfólio e estatísticas em tempo real
+- ⏱️ **Controle de Tempo** — Pause, acelere ou desacelere a simulação (1x, 2x, 4x, 10x)
+- 🌐 **Sistema de Túnel** — Compartilhe sessões multiplayer via LAN ou VPN
+- 🎯 **Ranking Competitivo** — Compare seu desempenho com outros jogadores
+- 📦 **Executável Standalone** — Baixe e execute sem instalação
 
-Generate a new Docusaurus site using the **classic template**.
+## 🎮 Como Funciona
 
-The classic template will automatically be added to your project after you run the command:
+### Modo Single Player
 
-```bash
-npm init docusaurus@latest my-website classic
-```
+Crie uma sessão local e teste suas estratégias de investimento sem pressão. Configure seu capital inicial, escolha seus ativos e acompanhe o desempenho do seu portfólio ao longo do tempo.
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+### Modo Multiplayer
 
-The command also installs all necessary dependencies you need to run Docusaurus.
+1. **Host** — Crie uma sala e compartilhe o IP com seus amigos
+2. **Jogadores** — Entrem na sala usando o IP fornecido
+3. **Competição** — Todos começam com o mesmo capital e competem para ter o melhor retorno
+4. **Vencedor** — O jogador com maior patrimônio ao final vence
 
-## Start your site
+### Estratégias de Investimento
 
-Run the development server:
+- **Manual** — Tome decisões de compra e venda manualmente
+- **Automática** — Configure algoritmos que operam automaticamente baseados em indicadores técnicos
 
-```bash
-cd my-website
-npm run start
-```
+## 🚀 Começando
 
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
+:::info
+Selecione a seção **Como Usar** na documentação para um guia passo a passo sobre como instalar e usar o simulador.
+:::
 
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
+Para desenvolvedores interessados em contribuir, consulte a seção **Desenvolvimento** para entender a arquitetura e como configurar o ambiente de desenvolvimento.
 
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+## 🛠️ Stack Tecnológica
+
+### Backend
+- **FastAPI** — Framework web moderno e rápido
+- **Uvicorn** — Servidor ASGI de alta performance
+- **SQLAlchemy** — ORM para gerenciamento de dados
+- **Socket.IO** — Comunicação em tempo real via WebSockets
+- **yfinance** — Dados do mercado financeiro
+
+### Frontend
+- **React 19** — Biblioteca para interfaces modernas
+- **TypeScript** — Type safety para JavaScript
+- **Vite** — Build tool ultra-rápido
+- **TailwindCSS** — Framework CSS utilitário
+- **Recharts** — Biblioteca de gráficos composáveis
+- **Radix UI** — Componentes acessíveis
+
+## 🌐 Multiplayer: Sistema de Túnel
+
+O Simulador suporta diferentes formas de compartilhar sessões multiplayer:
+
+### LAN / VPN (Recomendado) ✅
+
+Conecte-se via rede local ou VPN:
+- **Radmin VPN** (gratuito)
+- **Hamachi** — Para grupos pequenos
+- **Tailscale** — Moderno e fácil
+
+### Túneis Públicos (Em Desenvolvimento) 🚀
+
+- **LocalTunnel**
+- **Playit.gg**
+- **Zrok** (Open-source)
+
+## 📋 Requisitos do Sistema
+
+### Mínimos
+- **Sistema Operacional:** Windows 10/11, Linux (Ubuntu 20.04+), macOS 11+
+- **RAM:** 2 GB
+- **Espaço em Disco:** 500 MB
+- **Internet:** Necessária para dados do mercado
+
+### Recomendados
+- **RAM:** 4 GB ou mais
+- **Processador:** Dual-core ou superior
+- **Internet:** Conexão estável para multiplayer
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Consulte a seção **Desenvolvimento** > **Contribuindo** para as diretrizes.
+
+**Formas de contribuir:**
+- 🐛 Reportar bugs
+- 💡 Sugerir novas funcionalidades
+- 🔧 Enviar pull requests
+- 📖 Melhorar a documentação
+
+## 📜 Licença
+
+Este projeto está licenciado sob a [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0).
+
+---
+
+**Desenvolvido com ❤️ por [Murilo Marino](https://github.com/LiloMarino)**
