@@ -6,11 +6,11 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const organizationName = 'LiloMarino';
 const projectName = 'SimuladorFinanceiro';
+
 const config: Config = {
   title: 'Simulador Financeiro',
   tagline: 'Documentação oficial do projeto',
   favicon: 'img/favicon.ico',
-  // Set the production url of your site here
   url: 'https://lilomarino.github.io',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -32,8 +32,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          editUrl:
-            `https://github.com/${organizationName}/${projectName}/tree/main/docs/`,
+          editUrl: `https://github.com/${organizationName}/${projectName}/tree/main/docs/`,
           routeBasePath: '/',
         },
         pages: false,
@@ -45,11 +44,12 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
+
     colorMode: {
       respectPrefersColorScheme: true,
     },
+
     navbar: {
       title: 'Simulador Financeiro',
       logo: {
@@ -70,6 +70,7 @@ const config: Config = {
         },
       ],
     },
+
     footer: {
       style: 'dark',
       links: [
@@ -78,15 +79,15 @@ const config: Config = {
           items: [
             {
               label: 'Introdução',
-              to: '/docs/intro',
+              to: '/',
             },
             {
               label: 'Como Usar',
-              to: '/docs/como-usar',
+              to: '/como-usar/instalacao',
             },
             {
               label: 'Desenvolvimento',
-              to: '/docs/desenvolvimento',
+              to: '/desenvolvimento/introducao',
             },
           ],
         },
@@ -102,6 +103,8 @@ const config: Config = {
       ],
       copyright: `© ${new Date().getFullYear()} Simulador Financeiro`,
     },
+
+
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,

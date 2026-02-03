@@ -42,7 +42,7 @@ O host clicará em **"Iniciar Sessão"** quando todos estiverem prontos.
 - Verifique se o IP está correto
 - Verifique se está na mesma rede
 - Teste a conectividade: `ping IP_DO_HOST`
-- Consulte [Sistema de Túnel](./vpn-tunel.md) para jogar de longe
+- Consulte Sistema de Túnel para jogar de longe
 
 ## Próximas Lições
 
