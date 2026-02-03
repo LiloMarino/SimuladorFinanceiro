@@ -1,0 +1,56 @@
+name: Deploy Docs (gh-pages)
+
+on:
+  # Permite executar manualmente via botão no Actions
+  workflow_dispatch:
+
+  # Executa automaticamente quando há mudanças na pasta docs/
+  # Desabilitado temporariamente para evitar deploys desnecessários
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'docs/**'
+
+# Garante que apenas um deploy rode por vez
+concurrency:
+  group: "docs-gh-pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        working-directory: docs
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Docusaurus
+        run: |
+          cd docs
+          pnpm build
+
+      - name: Deploy docs to gh-pages
+        working-directory: docs
+        env:
+          GIT_USER: github-actions[bot]
+          GIT_PASS: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm deploy
