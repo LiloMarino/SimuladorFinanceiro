@@ -19,6 +19,7 @@ const config: Config = {
   },
   baseUrl: `/${projectName}/`,
   organizationName: organizationName,
+  trailingSlash: false,
   projectName: projectName,
   deploymentBranch: 'gh-pages',
   onBrokenLinks: 'throw',
