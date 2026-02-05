@@ -112,6 +112,6 @@ Opções de túnel público como **LocalTunnel**, **Playit.gg** e **Zrok** estã
 
 ## Próximos Passos
 
-- [Criar Sala](./criar-sala) - Aprenda a criar e configurar uma sala multiplayer
-- [Entrar em Sala](./entrar-sala) - Como se conectar a uma sala existente
-- [Lobby](../lobby) - Entenda os campos de configuração da sala
+- [Criar Sala](/como-usar/multiplayer/criar-sala) - Aprenda a criar e configurar uma sala multiplayer
+- [Entrar em Sala](/como-usar/multiplayer/entrar-sala) - Como se conectar a uma sala existente
+- [Lobby](/como-usar/lobby) - Entenda os campos de configuração da sala

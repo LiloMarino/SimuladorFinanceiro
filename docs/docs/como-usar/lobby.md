@@ -108,7 +108,7 @@ Se você configurar R$ 1.000 de contribuição mensal:
 - Também pode escolher ativos de renda fixa disponíveis (CDB, LCI, LCA, Tesouro Direto)
 
 :::info
-Os dados de ativos são carregados antes de iniciar a simulação. Veja [Importação de Ativos](../importacao-ativos) para mais detalhes.
+Os dados de ativos são carregados antes de iniciar a simulação. Veja [Importação de Ativos](/como-usar/importacao-ativos) para mais detalhes.
 :::
 
 ---
@@ -150,4 +150,4 @@ Após configurar o lobby:
 
 1. Clique em "Iniciar Simulação"
 2. Aguarde o carregamento dos dados de mercado
-3. Comece a investir! Veja [Investimentos Suportados](../investimentos/renda-variavel) para aprender mais
+3. Comece a investir! Veja [Investimentos Suportados](/como-usar/investimentos/renda-variavel) para aprender mais
