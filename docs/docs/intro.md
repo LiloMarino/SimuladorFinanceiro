@@ -42,15 +42,15 @@ Crie uma sessão local e teste suas estratégias de investimento sem pressão. C
 ### Estratégias de Investimento
 
 - **Manual** — Tome decisões de compra e venda manualmente
-- **Automática** — Configure algoritmos que operam automaticamente baseados em indicadores técnicos
+- **Automática (Em desenvolvimento)** — Configure algoritmos que operam automaticamente baseados em indicadores técnicos
 
 ## 🚀 Começando
 
 :::info
-Selecione a seção **Como Usar** na documentação para um guia passo a passo sobre como instalar e usar o simulador.
+Selecione a seção **[Como Usar](./como-usar/instalacao.md)** na documentação para um guia passo a passo sobre como instalar e usar o simulador.
 :::
 
-Para desenvolvedores interessados em contribuir, consulte a seção **Desenvolvimento** para entender a arquitetura e como configurar o ambiente de desenvolvimento.
+Para desenvolvedores interessados em contribuir, consulte a seção **[Desenvolvimento](./desenvolvimento/introducao.md)** para entender a arquitetura e como configurar o ambiente de desenvolvimento.
 
 ## Stack Tecnológica
 
