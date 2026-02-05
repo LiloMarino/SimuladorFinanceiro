@@ -244,5 +244,5 @@ brew services list
 
 ## Próximos Passos
 
-- [Diretrizes Async vs Sync](../async-vs-sync) — Padrões de código assíncrono/síncrono
-- [Estrutura de Pastas](./estrutura-pastas) — Entenda a organização do código
+- [Diretrizes Async vs Sync](/desenvolvimento/async-vs-sync) — Padrões de código assíncrono/síncrono
+- [Estrutura de Pastas](/desenvolvimento/guia-dev/estrutura-pastas) — Entenda a organização do código

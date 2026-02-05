@@ -74,4 +74,4 @@ Se a página não abrir automaticamente, acesse manualmente: `http://localhost:8
 
 ## Instalação a partir do Código-Fonte
 
-Se você é desenvolvedor ou deseja executar a partir do código-fonte, siga as instruções na seção [Desenvolvimento > Setup do Ambiente](/desenvolvimento/setup).
+Se você é desenvolvedor ou deseja executar a partir do código-fonte, siga as instruções na seção [Desenvolvimento > Setup do Ambiente](/desenvolvimento/guia-dev/setup).
