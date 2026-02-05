@@ -8,15 +8,8 @@ Esta página explica como baixar e executar o Simulador Financeiro no seu sistem
 
 ## Download dos Executáveis
 
-Os executáveis standalone estão disponíveis na página de [Releases do GitHub](https://github.com/LiloMarino/SimuladorFinanceiro/releases).
+Os executáveis standalone estão disponíveis na página de [Releases do GitHub](https://github.com/LiloMarino/SimuladorFinanceiro/releases), escolha a versão mais recente e baixe o arquivo correspondente ao seu sistema operacional.
 
-### Sistema Operacional
-
-Escolha o executável de acordo com seu sistema operacional:
-
-- **🪟 Windows**: `SimuladorFinanceiro.exe` 
-- **🐧 Linux**: `SimuladorFinanceiro`
-- **🍎 macOS**: `SimuladorFinanceiro`
 
 :::info
 Os executáveis são standalone e não requerem instalação de Python, Node.js ou outras dependências.
@@ -66,7 +59,7 @@ Ao abrir a aplicação pela primeira vez:
 
 1. O banco de dados será criado automaticamente (SQLite)
 2. Uma aba do navegador será aberta em `http://localhost:8000`
-3. Você verá a tela de login/cadastro
+3. Você verá a tela de login
 
 :::tip
 Se a página não abrir automaticamente, acesse manualmente: `http://localhost:8000`
