@@ -10,7 +10,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19+-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 
-[Download](#-download) • [Como Usar](#-executando-o-projeto) • [Stack](#️-stack-tecnológica) • [Documentação](https://lilomarino.github.io/SimuladorFinanceiro/)
+[Instalação](#-instalação) • [Como Usar](#-executando-o-projeto) • [Stack](#️-stack-tecnológica) • [Documentação](https://lilomarino.github.io/SimuladorFinanceiro/)
 
 ---
 
@@ -36,7 +36,6 @@ Simule negociações em **renda variável** (Ações, FIIs, ETFs) e **renda fixa
 - ⏱️ **Controle de Tempo** - Pause, acelere ou desacelere a simulação
 - 🎯 **Ranking Competitivo** - Compare seu desempenho com outros jogadores
 
----
 
 ## 🎮 Como Funciona
 
@@ -51,19 +50,14 @@ Crie uma sessão local e teste suas estratégias de investimento sem pressão. C
 
 ### Estratégias de Investimento
 - **Manual** - Tome decisões de compra e venda manualmente
-- **Automática** - Configure algoritmos que operam automaticamente baseados em indicadores técnicos
+- **Automática (Em desenvolvimento)** - Configure algoritmos que operam automaticamente baseados em indicadores técnicos
 
----
 
-## 🚀 Download
+## 📥 Instalação
 
-> **Nota:** Os executáveis estarão disponíveis na seção de [Releases](../../releases) em breve.
+### Instalação via Executável Standalone
 
-### 💻 Executáveis por Sistema Operacional
-
-- 🪟 Windows - `SimuladorFinanceiro.exe` 
-- 🐧 Linux - `SimuladorFinanceiro`
-- 🍎 macOS - `SimuladorFinanceiro`
+Baixe o executável disponível em [Releases](../../releases), escolha o arquivo conforme seu sistema operacional e execute-o diretamente. O navegador abrirá automaticamente em `http://localhost:8000`.
 
 ### Instalação a partir do Código-Fonte
 Clone o repositório e instale as dependências:
@@ -92,11 +86,10 @@ cp example.env .env
 # Edite .env com suas configurações (banco de dados, etc.)
 ```
 
-> **Nota:** O projeto funciona com SQLite por padrão. Configure PostgreSQL apenas se necessário.
+> [!IMPORTANT]
+> O projeto funciona com SQLite. Porém é recomendado usar PostgreSQL e para isso é necessário configurar as variáveis de ambiente no arquivo `.env`.
 
----
-
-## 🏃 Executando o Projeto
+## Executando o Projeto Localmente
 
 ### Modo Desenvolvimento
 
@@ -122,8 +115,6 @@ make build
 
 Acesse: `http://localhost:8000`
 
----
-
 ## 🛠️ Stack Tecnológica
 
 ### Backend
@@ -132,7 +123,7 @@ Acesse: `http://localhost:8000`
 - **[SQLAlchemy](https://www.sqlalchemy.org/)** - ORM para gerenciamento de dados
 - **[Socket.IO](https://socket.io/)** - Comunicação em tempo real via WebSockets
 - **[yfinance](https://pypi.org/project/yfinance/)** - Dados do mercado financeiro
-- **PostgreSQL / SQLite** - Banco de dados (PostgreSQL para produção, SQLite para desenvolvimento)
+- **PostgreSQL / SQLite** - Banco de dados (PostgreSQL preferencial, SQLite para fallback)
 
 ### Frontend
 - **[React 19](https://react.dev/)** - Biblioteca para interfaces modernas
@@ -148,9 +139,7 @@ Acesse: `http://localhost:8000`
 ### Ferramentas de Build
 - **[PyInstaller](https://pyinstaller.org/)** - Empacotamento do Python em executável
 - **[Make](https://www.gnu.org/software/make/)** - Automação de build
-
----
-
+  
 ## 🤝 Contribuindo
 
 Contribuições são bem-vindas! Veja a [documentação completa](https://lilomarino.github.io/SimuladorFinanceiro/) para guias de desenvolvimento.
