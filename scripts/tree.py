@@ -4,6 +4,8 @@ from pathlib import Path
 
 import yaml
 
+STOP_DIRS = {"docs", "components"}
+
 
 def load_descriptions(yaml_path: Path) -> dict[str, str]:
     """
@@ -15,17 +17,44 @@ def load_descriptions(yaml_path: Path) -> dict[str, str]:
     return {k.rstrip("/"): v for k, v in raw.items()}
 
 
-def build_tree(paths: list[str]) -> dict:
+def normalize_path(path: str, stop_dirs: set[str]) -> str:
     """
-    Constrói uma árvore (dicionários aninhados) a partir de uma lista de caminhos.
+    Trunca o path ao encontrar um diretório terminal.
     """
+    parts = Path(path).parts
+    normalized = []
 
+    for part in parts:
+        normalized.append(part)
+        if part in stop_dirs:
+            break
+
+    return Path(*normalized).as_posix()
+
+
+def extract_dirs_from_files(files: list[str], stop_dirs: set[str]) -> set[str]:
+    dirs: set[str] = set()
+
+    for file in files:
+        path = Path(file)
+
+        for parent in path.parents:
+            if parent == Path():
+                break
+
+            normalized = normalize_path(parent.as_posix(), stop_dirs)
+            dirs.add(normalized)
+
+    return dirs
+
+
+def build_tree(paths: list[str]) -> dict:
     def tree():
         return defaultdict(tree)
 
     root = tree()
 
-    for path in paths:
+    for path in sorted(set(paths)):
         current = root
         for part in Path(path).parts:
             current = current[part]
@@ -48,14 +77,11 @@ def gather_lines(
 
     for i, (key, subtree) in enumerate(entries):
         is_last = i == len(entries) - 1
-        is_dir = bool(subtree)
 
-        display = key + "/" if is_dir else key
         connector = "└── " if is_last else "├── "
         extension = "    " if is_last else "│   "
 
-        full_path = Path(base_path) / key if base_path else key
-        full_path = full_path.replace("\\", "/").rstrip("/")
+        full_path = f"{base_path}/{key}" if base_path else key
 
         comment = (
             f"# {descriptions[full_path]}"
@@ -63,13 +89,9 @@ def gather_lines(
             else ""
         )
 
-        line_text = prefix + connector + display
-        lines.append((line_text, comment))
+        lines.append((prefix + connector + f"{key}/", comment))
 
-        if is_dir:
-            lines.extend(
-                gather_lines(subtree, prefix + extension, full_path, descriptions)
-            )
+        lines.extend(gather_lines(subtree, prefix + extension, full_path, descriptions))
 
     return lines
 
@@ -79,7 +101,7 @@ def print_tree(d: dict, descriptions: dict[str, str] | None = None):
     Imprime a árvore alinhando os comentários à direita.
     """
     lines = gather_lines(d, descriptions=descriptions)
-    max_len = max(len(line) for line, _ in lines)
+    max_len = max(len(line) for line, _ in lines) if lines else 0
 
     for text, comment in lines:
         if comment:
@@ -88,36 +110,15 @@ def print_tree(d: dict, descriptions: dict[str, str] | None = None):
             print(text)
 
 
-def save_descriptions_template(paths: list[str], output_path: Path):
+def save_descriptions_template(dirs: list[str], output_path: Path):
     """
     Gera um YAML contendo todas as pastas e arquivos do repo
     com descrições vazias (template para preenchimento).
     """
-    tree = build_tree(paths)
-    template = {p.replace("\\", "/").rstrip("/"): "" for p in paths}
-
-    def collect_dirs(subtree: dict, base=""):
-        for key, child in subtree.items():
-            current = f"{base}/{key}" if base else key
-            normalized = current.replace("\\", "/").rstrip("/")
-
-            if child:
-                template[f"{normalized}/"] = ""
-                collect_dirs(child, current)
-
-    collect_dirs(tree)
-
-    # Ordenação hierárquica simples
-    def sort_key(item):
-        path, _ = item
-        parts = path.split("/")
-        is_file = not path.endswith("/")
-        return (*parts, is_file)
-
-    sorted_template = dict(sorted(template.items(), key=sort_key))
+    template = {f"{d}/": "" for d in sorted(dirs)}
 
     yaml.dump(
-        sorted_template,
+        template,
         output_path.open("w", encoding="utf-8"),
         default_flow_style=False,
         sort_keys=False,
@@ -131,14 +132,16 @@ if __name__ == "__main__":
     with os.popen("git ls-files") as f:
         files = [line.strip() for line in f if line.strip()]
 
+    dirs = list(extract_dirs_from_files(files, STOP_DIRS))
+    tree = build_tree(dirs)
+
     desc_path = Path(__file__).parent / "tree_descriptions.yaml"
 
     if not desc_path.exists():
-        save_descriptions_template(files, desc_path)
+        save_descriptions_template(dirs, desc_path)
         exit(0)
 
     descriptions = load_descriptions(desc_path)
-    tree = build_tree(files)
 
     print(f"{Path.cwd().name}/")
     print_tree(tree, descriptions)

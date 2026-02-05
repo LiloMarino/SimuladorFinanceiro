@@ -1,125 +1,87 @@
-.gitignore: "Ignora arquivos desnecessários do Git."
-.vscode/: "Configurações específicas do VSCode."
-.vscode/launch.json: "Configurações de debug do VSCode."
-
-CONTRIBUTING.md: "Guia para contribuidores."
-LICENSE: "Licença do projeto."
-README.md: "Descrição geral do projeto."
-
-backend/: "Código-fonte do servidor Python. Organizado por domínios (features), rotas e utilidades compartilhadas."
-
-backend/core/: "São abstrações, contratos, infraestrutura, estado de runtime compartilhado e serviços genéricos que não pertencem a um fluxo de negócio específico, mas são usados por múltiplas features."
-backend/core/database.py: "Configuração da conexão com o banco e inicialização do ORM."
-backend/core/logger.py: "Logger global configurado para todo o backend."
-backend/core/models/: "Modelos persistentes usados pelo ORM."
-backend/core/models/models.py: "Definições base de modelos SQLAlchemy."
-
-backend/core/utils/: "Funções utilitárias genéricas de infraestrutura (puras, pequenas e sem domínio)."
-backend/core/utils/data_provider.py: "Fornece acesso unificado aos dados."
-
-backend/features/: "Cada feature implementa casos de uso completos, orquestrando regras, entidades, estratégias e integrações com o core."
-backend/features/import_data/: "Lógica de ingestão de dados externos para o sistema."
-backend/features/import_data/importer_service.py: "Serviço responsável por importar, validar e transformar dados."
-
-backend/features/realtime/: "Módulo responsável por comunicação em tempo real."
-backend/features/realtime/realtime_broker.py: "Classe abstrata de um broker de comunicação realtime (Pub/Sub)."
-backend/features/realtime/sse_broker.py: "Broker concreto de comunicação SSE."
-backend/features/realtime/ws_broker.py: "Broker concreto de comunicação WebSocket."
-backend/features/realtime/ws_handlers.py: "Callbacks de eventos WebSocket."
-
-backend/features/simulation/: "Núcleo da engine de simulação do mercado financeiro."
-backend/features/simulation/broker.py: "Broker de negociação de ações."
-backend/features/simulation/data_buffer.py: "Buffer interno para caching de dados durante a simulação."
-backend/features/simulation/entities/: "Modelos/entidades da simulação."
-backend/features/simulation/entities/candle.py: "Representa candles OHLCV."
-backend/features/simulation/entities/fixed_income_asset.py: "Representa ativo de renda fixa."
-backend/features/simulation/entities/order.py: "Ordem de compra/venda."
-backend/features/simulation/entities/portfolio.py: "Carteira completa."
-backend/features/simulation/entities/position.py: "Posição de um único ativo de renda varíavel."
-backend/features/simulation/fixed_broker.py: "Broker de negociação de renda fixa."
-backend/features/simulation/fixed_income/: "Módulo de lógica de renda fixa e produtos."
-backend/features/simulation/fixed_income/market.py: "Mercado de renda fixa."
-
-backend/features/simulation/fixed_income/factory/: "Factories de criação de ativos financeiros de renda fixa."
-backend/features/simulation/fixed_income/factory/abstract_factory.py: "Interface base para factories."
-backend/features/simulation/fixed_income/factory/cdb_factory.py: "Factory para CDB."
-backend/features/simulation/fixed_income/factory/lca_factory.py: "Factory LCA."
-backend/features/simulation/fixed_income/factory/lci_factory.py: "Factory LCI."
-backend/features/simulation/fixed_income/factory/tesouro_factory.py: "Factory Tesouro Direto."
-
-backend/features/simulation/simulation.py: "Módulo de lógica da simulação."
-backend/features/simulation/simulation_engine.py: "Engine de simulação."
-
-backend/features/strategy/: "Algoritmos de estratégia de investimento."
-backend/features/strategy/base_strategy.py: "Interface base."
-backend/features/strategy/manual.py: "Estratégia manual usada pelo usuário."
-
-backend/routes/: "Blueprints/routers do backend (FastAPI/Flask)."
-backend/routes/helpers.py: "Helpers REST — padronização de responses."
-backend/routes/import_routes.py: "Rotas de importação."
-backend/routes/operation_routes.py: "Operações (compra/venda)."
-backend/routes/portfolio_routes.py: "Rotas da carteira."
-backend/routes/realtime_routes.py: "Rotas de realtime SSE."
-backend/routes/settings_routes.py: "Configurações da simulação."
-backend/routes/timespeed_routes.py: "Ajuste de velocidade da simulação."
-
-backend/simulation_loop.py: "Lógica de loop principal da simulação."
-
-data/: "Dados externos do projeto."
-data/simulador_financeiro.mwb: "Esquema do banco MySQL Workbench."
-
-example.env: "Exemplo de variáveis de ambiente."
-
-frontend/: "Aplicação React + Vite. Estrutura Feature-Based + Domain Segmentation."
-
-frontend/components.json: "Configuração do shadcn/ui."
-frontend/public/: "Imagens e assets estáticos do Vite."
-
-frontend/src/: "Código-fonte principal do frontend."
-
-frontend/src/features/: "Funcionalidades agrupadas por domínio (DDD no frontend)."
-frontend/src/features/fixed-income/: "Feature de renda fixa."
-frontend/src/features/import-assets/: "Tela e lógica de importação."
-frontend/src/features/portfolio/: "Feature do portfólio."
-frontend/src/features/variable-income/: "Feature de renda variável."
-
-frontend/src/layouts/: "Layouts que compõem a estrutura geral da UI."
-frontend/src/layouts/main-layout.tsx: "Layout base."
-frontend/src/layouts/partial/: "Partes do layout (sidebar, topbar)."
-
-frontend/src/models/: "Factories e classes (modelo orientado a objetos)."
-
-frontend/src/pages/: "Páginas completas do app."
-frontend/src/pages/variable-income.tsx: "Página principal da renda variável."
-frontend/src/pages/fixed-income.tsx: "Página principal da renda fixa."
-frontend/src/pages/portfolio.tsx: "Página do portfólio."
-frontend/src/pages/settings.tsx: "Tela de configurações."
-frontend/src/pages/statistics.tsx: "Tela de estatísticas."
-frontend/src/pages/strategies.tsx: "Tela de estratégias."
-
-frontend/src/shared/: "Código compartilhado entre features."
-frontend/src/shared/components/: "Componentes reutilizáveis."
-frontend/src/shared/components/ui/: "Componentes de UI do shadcn/ui."
-frontend/src/shared/context/: "Contextos globais de estado."
-frontend/src/shared/hooks/: "Hooks reutilizáveis (useQueryApi etc)."
-frontend/src/shared/lib/: "Bibliotecas internas."
-frontend/src/shared/lib/realtime/: "Lógica para SSE/WS."
-frontend/src/shared/lib/schemas/: "Zod schemas da API."
-frontend/src/shared/lib/utils/: "Funções auxiliares (formatting, api)."
-
-frontend/src/types/: "Definições TypeScript de tipos por domínio."
-frontend/src/types/stock.ts: "Tipos de renda variável."
-frontend/src/types/fixed-income.ts: "Tipos de renda fixa."
-frontend/src/types/simulation.ts: "Tipos de simulação."
-frontend/src/types/portfolio.ts: "Tipos da carteira."
-frontend/src/types/economic.ts: "Tipos de indicadores."
-frontend/src/types/base.ts: "Tipos universais."
-
-frontend/vite.config.ts: "Configuração do Vite."
-requirements.txt: "Dependências do backend Python."
-main.py: "Entrada da API/backend."
-
-scripts/: "Scripts utilitários para desenvolvimento."
-scripts/fix_model.py: "Script para arrumar models automaticamente."
-scripts/tree.py: "Gera a árvore de diretórios."
-scripts/tree_descriptions.yaml: "Arquivo de descrição da estrutura (este arquivo)."
+.github/: Configurações do GitHub (Actions, workflows, etc)
+.github/workflows/: Workflows de CI/CD e automações
+.vscode/: Configurações do Visual Studio Code para o projeto
+backend/: Código-fonte do servidor Python (FastAPI)
+backend/config/: Configurações da aplicação (variáveis de ambiente, TOML)
+backend/core/: Infraestrutura central (database, logger, models, utils)
+backend/core/decorators/: Decoradores reutilizáveis (auth, cache, etc)
+backend/core/dependencies/: Dependências do FastAPI (injeção de dependência)
+backend/core/dto/: Data Transfer Objects para comunicação backend->frontend e tipagem forte
+backend/core/dto/events/: DTOs específicos para eventos da simulação
+backend/core/enum/: Enumerações globais (tipos, status, etc)
+backend/core/exceptions/: Exceções customizadas da aplicação
+backend/core/models/: Modelos SQLAlchemy (entidades do banco de dados)
+backend/core/repository/: Camada de acesso a dados (Data Access Layer)
+backend/core/runtime/: Gerenciadores runtime singleton thread-safe (brokers, túneis, etc)
+backend/core/utils/: Funções utilitárias genéricas de infraestrutura
+backend/features/: Funcionalidades organizadas por domínio (DDD)
+backend/features/fixed_income/: Lógica de negócio de Renda Fixa
+backend/features/fixed_income/entities/: Entidades de domínio (CDB, Tesouro, etc)
+backend/features/fixed_income/factory/: Factories para criação de ativos de RF
+backend/features/import_data/: Serviço de importação de dados externos
+backend/features/realtime/: Sistema de comunicação em tempo real (WebSocket/SSE)
+backend/features/simulation/: Engine de simulação do mercado financeiro
+backend/features/strategy/: Algoritmos de estratégias de investimento
+backend/features/tunnel/: Sistema de túnel para multiplayer (ngrok, etc)
+backend/features/tunnel/network_utils/: Utilitários de rede para túneis
+backend/features/tunnel/providers/: Provedores de túnel (ngrok, localtunnel)
+backend/features/variable_income/: Lógica de negócio de Renda Variável
+backend/features/variable_income/entities/: Entidades de domínio (Ações, FIIs, etc)
+backend/features/variable_income/liquidity/: Sistema de liquidez e book de ofertas
+backend/routes/: Endpoints REST da API (routers do FastAPI)
+backend/types/: Definições de tipos Python compartilhados
+docs/: Documentação do projeto (Docusaurus)
+frontend/: Aplicação React + TypeScript (Vite)
+frontend/assets/: Assets estáticos do frontend (imagens, fontes)
+frontend/features/: Funcionalidades organizadas por domínio (Feature-Based)
+frontend/features/auth/: Feature de autenticação e login
+frontend/features/auth/pages/: Páginas de autenticação
+frontend/features/fixed-income/: Feature de Renda Fixa
+frontend/features/fixed-income/components/: Componentes específicos de RF
+frontend/features/fixed-income/models/: Models de ativos de RF
+frontend/features/fixed-income/pages/: Páginas da feature de RF
+frontend/features/fixed-income/schemas/: Schemas de validação (Zod) para RF
+frontend/features/import-assets/: Feature de importação de ativos
+frontend/features/import-assets/components/: Componentes de importação (CSV, YFinance)
+frontend/features/import-assets/pages/: Páginas de importação
+frontend/features/lobby/: Feature de lobby/sessões multiplayer
+frontend/features/lobby/components/: Componentes do lobby
+frontend/features/lobby/hooks/: Hooks customizados do lobby
+frontend/features/lobby/pages/: Páginas do lobby
+frontend/features/portfolio/: Feature de carteira/portfólio
+frontend/features/portfolio/components/: Componentes da carteira (gráficos, tabelas)
+frontend/features/portfolio/lib/: Lógica de negócio da carteira
+frontend/features/portfolio/pages/: Páginas da carteira
+frontend/features/settings/: Feature de configurações
+frontend/features/settings/components/: Componentes de configurações
+frontend/features/settings/pages/: Páginas de configurações
+frontend/features/statistics/: Feature de estatísticas e ranking
+frontend/features/statistics/components/: Componentes de estatísticas
+frontend/features/statistics/lib/: Lógica de cálculo de estatísticas
+frontend/features/statistics/pages/: Páginas de estatísticas
+frontend/features/strategies/: Feature de estratégias automatizadas
+frontend/features/strategies/pages/: Páginas de estratégias
+frontend/features/variable-income/: Feature de Renda Variável
+frontend/features/variable-income/components/: Componentes de RV (gráficos, ordens)
+frontend/features/variable-income/pages/: Páginas de RV (mercado, detalhes)
+frontend/layouts/: Layouts principais da aplicação
+frontend/layouts/partial/: Componentes parciais de layout (sidebar, topbar)
+frontend/pages/: Páginas genéricas (erro, loading, etc)
+frontend/public/: Assets públicos servidos pelo Vite
+frontend/shared/: Código compartilhado entre features
+frontend/shared/components/: Componentes React reutilizáveis entre as features
+frontend/shared/context/: Contexts globais (React Context API)
+frontend/shared/context/auth/: Context de autenticação
+frontend/shared/context/notifications-settings/: Context de configurações de notificações
+frontend/shared/context/page-label/: Context de labels de páginas
+frontend/shared/context/realtime/: Context de comunicação em tempo real
+frontend/shared/context/simulation/: Context de estado da simulação
+frontend/shared/hooks/: Hooks customizados reutilizáveis
+frontend/shared/lib/: Bibliotecas internas e utilitários
+frontend/shared/lib/models/: Classes e models (ApiError, etc)
+frontend/shared/lib/realtime/: Cliente de WebSocket/SSE
+frontend/shared/lib/schemas/: Schemas de validação (Zod)
+frontend/shared/lib/utils/: Funções utilitárias (formatação, API, etc)
+frontend/shared/notifications/: Sistema global de notificações
+frontend/types/: Definições de tipos TypeScript compartilhados
+scripts/: Scripts utilitários de desenvolvimento
