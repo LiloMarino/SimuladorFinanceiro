@@ -5,7 +5,7 @@
 **Simulador de investimentos do mercado financeiro brasileiro com modo multiplayer**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.13+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19+-61DAFB?logo=react&logoColor=black)](https://react.dev/)
@@ -35,23 +35,6 @@ Simule negociações em **renda variável** (Ações, FIIs, ETFs) e **renda fixa
 - 📊 **Dashboard Completo** - Acompanhe seu portfólio e estatísticas em tempo real
 - ⏱️ **Controle de Tempo** - Pause, acelere ou desacelere a simulação
 - 🎯 **Ranking Competitivo** - Compare seu desempenho com outros jogadores
-
-
-## 🎮 Como Funciona
-
-### Modo Single Player
-Crie uma sessão local e teste suas estratégias de investimento sem pressão. Configure seu capital inicial, escolha seus ativos e acompanhe o desempenho do seu portfólio ao longo do tempo.
-
-### Modo Multiplayer
-1. **Host** - Crie uma sala e compartilhe o IP com seus amigos
-2. **Jogadores** - Entrem na sala usando o IP fornecido
-3. **Competição** - Todos começam com o mesmo capital e competem para ter o melhor retorno
-4. **Vencedor** - O jogador com maior patrimônio ao final vence
-
-### Estratégias de Investimento
-- **Manual** - Tome decisões de compra e venda manualmente
-- **Automática (Em desenvolvimento)** - Configure algoritmos que operam automaticamente baseados em indicadores técnicos
-
 
 ## 📥 Instalação
 

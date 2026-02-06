@@ -4,150 +4,137 @@ sidebar_position: 4
 
 # Lobby
 
-O lobby é onde você configura os parâmetros da simulação antes de iniciá-la. Esta página explica o que cada campo faz e como eles influenciam a simulação.
+O lobby é onde você configura os parâmetros da simulação antes de iniciá-la.
+É aqui que são definidos tanto os **valores da simulação** quanto **quem tem permissão para controlá-la**.
+
+Esta página explica o que cada campo faz e como eles influenciam a simulação.
+
+---
+
+## Configuração do Host (Obrigatória)
+
+Antes de qualquer simulação — **singleplayer ou multiplayer** — é obrigatório configurar corretamente o **host**.
+
+:::warning Atenção
+O host **não é definido automaticamente**  
+e **não é necessariamente quem está hospedando o servidor**.
+:::
+
+O host funciona como um **administrador da simulação**:
+
+- pode iniciar a simulação
+- pode configurar a simulação
+- controla a simulação
+
+Se o host não estiver corretamente configurado, a simulação **não poderá ser iniciada**, mesmo simulando sozinho.
+
+---
+
+### O que o Host é (e o que ele NÃO é)
+
+**O host é:**
+- Um **papel lógico** dentro da simulação
+- Um **admin da sessão**
+- Definido manualmente no `config.toml`
+
+**O host NÃO é:**
+- Automaticamente quem roda o servidor
+- Automaticamente quem cria a sala
+- Um conceito exclusivo do multiplayer
+
+👉 Justamente por isso ele precisa ser configurado manualmente.
+
+---
+
+### Como configurar o Host
+
+No arquivo `config.toml`, defina o nickname do host:
+
+```toml
+[host]
+nickname = "host"
+````
+
+Esse nickname deve ser **exatamente o mesmo utilizado pelo jogador** no lobby.
+
+---
+
+### Como funciona internamente
+
+1. O jogador entra no lobby com um nickname.
+2. O backend compara esse nickname com `host.nickname` definido no `config.toml`.
+3. Se forem diferentes, ações administrativas são bloqueadas.
+
+Essas ações incluem:
+
+* iniciar simulação
+* controlar a simulação
+* alterar configurações
+
+---
 
 ## Campos de Configuração
 
-### Nome da Sessão
+O formulário do lobby possui os seguintes campos:
 
-**O que é:** Um nome identificador para sua simulação.
+### Data Inicial
 
-**Influência:** Não afeta a simulação em si, apenas facilita identificar a sessão na lista de salas disponíveis (especialmente em multiplayer).
-
-**Exemplo:** "Competição de Ações 2024", "Teste de Renda Fixa"
-
----
-
-### Capital Inicial
-
-**O que é:** A quantia de dinheiro que cada jogador começa na simulação.
-
-**Influência:** 
-- Determina quanto dinheiro você tem disponível para investir no início
-- Todos os jogadores começam com o mesmo valor em multiplayer
-- Valores mais altos permitem diversificar mais rapidamente
-
-**Valores típicos:** 
-- R$ 10.000 - Simulação realista para iniciantes
-- R$ 100.000 - Portfólio mais robusto
-- R$ 1.000.000 - Cenários avançados
-
----
-
-### Data de Início
-
-**O que é:** A data inicial da simulação no histórico de mercado.
+**O que é:**  
+A data de início da simulação no histórico de mercado.
 
 **Influência:**
-- Define a partir de qual ponto histórico os dados de mercado serão utilizados
-- Permite simular diferentes períodos econômicos (crises, bull markets, etc.)
-- Dados históricos disponíveis geralmente de 2000 até 2026
 
-**Exemplo:** 
-- "2008-01-01" - Simular a crise de 2008
-- "2020-03-01" - Simular o crash da COVID-19
-- "2010-01-01" - Período de crescimento econômico
-
-:::tip
-Escolher períodos históricos específicos permite testar suas estratégias em diferentes cenários de mercado.
-:::
+* Define a partir de qual ponto histórico os dados de preços de ativos serão utilizados
+* Permite simular diferentes períodos econômicos e cenários históricos
+* Dados históricos geralmente disponíveis de 2000 até hoje
 
 ---
 
-### Data de Término
+### Data Final
 
-**O que é:** A data final da simulação no histórico de mercado.
+**O que é:**  
+A data de término da simulação.
 
 **Influência:**
-- Define até quando a simulação vai rodar
-- Quando a data de término é atingida, a simulação para automaticamente
-- A diferença entre data de início e término define a "duração" da simulação
 
-**Exemplo:**
-- Se início é "2020-01-01" e término é "2021-01-01", a simulação cobre 1 ano de dados históricos
-
-:::info
-A velocidade da simulação (1x, 2x, 4x, 10x) afeta quão rápido você progride entre estas datas, não as datas em si.
-:::
+* Define quando a simulação será encerrada automaticamente
+* Deve ser posterior à data inicial
 
 ---
 
-### Contribuição Mensal
+### Saldo Inicial (R$)
 
-**O que é:** Um valor que é automaticamente adicionado ao seu saldo todo mês simulado.
+**O que é:**  
+O capital inicial disponível para cada jogador na simulação.
 
 **Influência:**
-- Simula aportes mensais regulares (estratégia comum de investimento)
-- Permite testar estratégias de acumulação a longo prazo
-- Em multiplayer, todos recebem a mesma contribuição mensal
 
-**Valores típicos:**
-- R$ 0 - Sem aportes mensais
-- R$ 500 - R$ 2.000 - Aportes realistas para pessoa física
-- R$ 5.000+ - Cenários de alta capacidade de investimento
-
-**Exemplo:**
-Se você configurar R$ 1.000 de contribuição mensal:
-- A cada mês simulado, R$ 1.000 serão automaticamente adicionados ao seu saldo disponível
-- Com velocidade 10x, isto acontece 10 vezes mais rápido em tempo real
+* Determina quanto dinheiro você tem disponível para investir no início
+* Em multiplayer, todos os jogadores começam com o mesmo valor
+* Valores mais altos permitem diversificar mais rapidamente
 
 ---
 
-### Ativos Disponíveis
+### Aporte Mensal (R$)
 
-**O que é:** A lista de ativos (ações, FIIs, ETFs, renda fixa) que estarão disponíveis para negociação na simulação.
+**O que é:**  
+Valor adicionado automaticamente ao saldo todo mês simulado.
 
 **Influência:**
-- Define quais investimentos você poderá fazer
-- Mais ativos = mais opções de diversificação
-- Menos ativos = simulação mais focada e simples
 
-**Como configurar:**
-- Você pode importar ativos do Yahoo Finance (dados históricos reais)
-- Ou importar dados de CSV próprios
-- Também pode escolher ativos de renda fixa disponíveis (CDB, LCI, LCA, Tesouro Direto)
-
-:::info
-Os dados de ativos são carregados antes de iniciar a simulação. Veja [Importação de Ativos](/como-usar/importacao-ativos) para mais detalhes.
-:::
+* Simula aportes recorrentes 
+* Em multiplayer, todos os jogadores recebem o mesmo valor mensalmente
+* Pode ser configurado como R$ 0 se não desejar aportes
 
 ---
 
-## Dicas de Configuração
+### Link Compartilhável
 
-### Para Iniciantes
-```
-Capital Inicial: R$ 10.000
-Data Início: 2020-01-01
-Data Término: 2021-01-01
-Contribuição Mensal: R$ 1.000
-Velocidade: 1x ou 2x
-```
+**O que é:**  
+Link gerado automaticamente para compartilhar a sessão com outros jogadores.
 
-### Para Competições Multiplayer
-```
-Capital Inicial: R$ 100.000 (igual para todos)
-Data Início: 2015-01-01
-Data Término: 2020-01-01 (5 anos de dados)
-Contribuição Mensal: R$ 0 (sem aportes, testar só estratégia)
-Velocidade: 2x ou 4x
-```
+**Características:**
 
-### Para Testar Crises
-```
-Capital Inicial: R$ 50.000
-Data Início: 2008-01-01 (início da crise)
-Data Término: 2010-01-01
-Contribuição Mensal: R$ 2.000
-Velocidade: 4x
-```
-
----
-
-## Próximos Passos
-
-Após configurar o lobby:
-
-1. Clique em "Iniciar Simulação"
-2. Aguarde o carregamento dos dados de mercado
-3. Comece a investir! Veja [Investimentos Suportados](/como-usar/investimentos/renda-variavel) para aprender mais
+* Exibe o endereço local (`http://seu-ip:8000`) ou túnel público se configurado
+* Pode ser copiado com um clique
+* Veja mais em [Link Copiável na Interface](/como-usar/multiplayer#link-copiável-na-interface)

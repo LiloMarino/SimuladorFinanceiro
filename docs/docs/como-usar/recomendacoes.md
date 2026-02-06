@@ -21,9 +21,9 @@ Por padrão, o simulador utiliza **SQLite**, que é mais simples e não requer c
 - Menor performance em cenários com múltiplos usuários simultâneos
 - Pode ter problemas com concorrência em multiplayer intenso
 
-### PostgreSQL (Recomendado para Multiplayer)
+### PostgreSQL (Recomendado)
 
-Para melhor performance em sessões multiplayer, recomendamos usar **PostgreSQL**.
+Para melhor performance e estabilidade recomenda-se usar o **PostgreSQL**.
 
 #### Instalação do PostgreSQL
 
@@ -109,7 +109,9 @@ O simulador permite controlar a velocidade do tempo:
 - **2x**: Dobro da velocidade
 - **4x**: Quatro vezes mais rápido
 - **10x**: Dez vezes mais rápido
+- **100x**: Cem vezes mais rápido **(Pode causar muito lag)**
 
-:::tip
-Em sessões multiplayer intensas, velocidades muito altas podem causar lag. Recomendamos 1x ou 2x para melhor experiência.
+:::warning
+Velocidades muito altas podem causar muito lag no navegador principalmente em telas ricas de
+atualizações em tempo real.
 :::
