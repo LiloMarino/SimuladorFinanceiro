@@ -1,117 +1,147 @@
 ---
-sidebar_position: 1
+sidebar_position: 3
 ---
 
 # Multiplayer
 
-O modo multiplayer permite que você compita com amigos em tempo real, testando suas estratégias de investimento uns contra os outros.
+O modo multiplayer permite que você compita com amigos em tempo real, testando suas estratégias de investimento sob as mesmas condições de mercado.
+
+Todos os jogadores veem as mesmas movimentações e começam com o mesmo capital, garantindo uma competição justa.
+
+---
 
 ## Como Funciona o Multiplayer
 
 No modo multiplayer:
 
-1. **Um jogador cria a sala (Host)** - Define as configurações iniciais da simulação
-2. **Outros jogadores entram na sala** - Usando o IP/link compartilhado pelo host
-3. **Todos começam com o mesmo capital** - Condições iguais para competição justa
-4. **Simulação acontece em tempo real** - Todos veem as mesmas movimentações de mercado
-5. **Vencedor é quem tem maior patrimônio** - Ao final do período da simulação
+1. **Um jogador atua como Host (admin da simulação)**  
+   Controla a sessão e inicia a simulação.
+
+2. **Outros jogadores entram na sala**  
+   Usando o IP ou link compartilhado.
+
+3. **Todos começam com o mesmo capital**  
+   Nenhum jogador tem vantagem inicial.
+
+4. **A simulação acontece em tempo real**  
+   As mesmas variações de mercado são aplicadas para todos.
+
+
+:::warning Atenção
+O host **não é automaticamente quem hospeda o servidor**  
+e **não é escolhido automaticamente pelo sistema**.
+:::
+
+O host é um **papel lógico de administrador da simulação**, definido manualmente no `config.toml`.
+
+Essa configuração é obrigatória:
+- no multiplayer
+- no singleplayer
+- mesmo quando apenas uma pessoa está jogando
+
+👉 Veja a explicação completa em [Lobby](/como-usar/lobby).
+
+---
 
 ## Configuração de Rede
 
-O multiplayer funciona através de **conexão de rede local (LAN)** ou **VPN**.
+O multiplayer funciona através de **rede local (LAN)** ou **VPN**, dependendo de onde os jogadores estão conectados.
+
+
 
 ### Opção 1: Conexão via LAN (Mesma Rede Wi-Fi)
 
-Se todos os jogadores estiverem na mesma rede Wi-Fi:
+Se todos os jogadores estiverem na mesma rede local (ex: mesma casa ou escritório):
 
-1. O host inicia a simulação e compartilha seu IP local (ex: `192.168.1.100`)
-2. Os outros jogadores usam este IP para se conectar
-3. Todos acessam `http://<IP_DO_HOST>:8000`
+1. O host inicia a simulação e compartilha seu IP local  
+   Exemplo: `192.168.1.100`
+2. Os outros jogadores usam esse IP para se conectar
+3. Todos acessam:  
+   `http://<IP_DO_HOST>:8000`
 
 :::tip
-Esta é a opção mais simples se todos estiverem fisicamente próximos e conectados à mesma rede.
+Esta é a opção mais simples e recomendada quando todos estão fisicamente próximos e conectados à mesma rede.
 :::
+
+---
 
 ### Opção 2: Conexão via VPN (Jogadores Remotos)
 
-Para jogar com amigos que não estão na mesma rede física, use uma **VPN** para criar uma rede virtual.
+Para jogar com amigos que **não estão na mesma rede física**, é necessário usar uma **VPN**, criando uma rede virtual compartilhada entre os computadores.
+
 
 #### Radmin VPN (Recomendado)
 
-**Radmin VPN** é gratuito, fácil de usar e não tem limite de usuários.
+O **Radmin VPN** é gratuito, fácil de configurar e não possui limite de usuários.
 
-**Instalação:**
+**Instalação e uso:**
 
-1. Baixe o Radmin VPN: [radmin-vpn.com](https://www.radmin-vpn.com/)
+1. Baixe o Radmin VPN:  
+   https://www.radmin-vpn.com/
 2. Instale em todos os computadores que participarão
-3. **Host cria uma rede:**
+3. **O host cria uma rede:**
    - Abra o Radmin VPN
-   - Clique em "Criar rede"
-   - Defina um nome e senha
-   - Compartilhe estas informações com os jogadores
-4. **Jogadores entram na rede:**
-   - Abra o Radmin VPN
-   - Clique em "Entrar em rede"
-   - Digite o nome da rede e senha fornecidos pelo host
-5. **Conectar:**
-   - Todos os jogadores verão o IP virtual do host na lista do Radmin VPN
-   - Use este IP para se conectar ao simulador
+   - Clique em **Criar rede**
+   - Defina um nome e uma senha
+   - Compartilhe essas informações com os jogadores
+4. **Os jogadores entram na rede:**
+   - Clique em **Entrar em rede**
+   - Informe o nome da rede e a senha
+5. **Conexão:**
+   - Todos verão o IP virtual do host na lista do Radmin VPN
+   - Use esse IP para se conectar ao simulador
 
 :::info
-O Radmin VPN cria IPs virtuais que começam geralmente com `26.x.x.x`. Use este IP para conexão.
+O Radmin VPN normalmente cria IPs no formato `26.x.x.x`.  
+Este é o IP que deve ser usado para conexão.
 :::
+
 
 #### Outras Opções de VPN
 
-- **Hamachi** - Gratuito para até 5 usuários. Boa para grupos pequenos.
-- **Tailscale** - Moderno, seguro e fácil de configurar. Gratuito para uso pessoal.
-- **ZeroTier** - Open-source e gratuito.
+- **Hamachi**  
+  Gratuito para até 5 usuários. Indicado para grupos pequenos.
 
-### Configuração do preferred_vpn
+- **Tailscale**  
+  Moderno, seguro e simples de configurar. Gratuito para uso pessoal.
 
-O simulador pode detectar automaticamente sua VPN e usar o IP correto.
+---
 
-Edite o arquivo `config.toml` na raiz do projeto:
+## Configuração do `preferred_vpn`
+
+O simulador tenta detectar automaticamente a VPN ativa e exibir o IP correto na tela do lobby do host.
+
+Caso a detecção automática não funcione corretamente, é possível definir manualmente a VPN preferida no arquivo `config.toml`.
 
 ```toml
 [server]
 provider = "lan"
 port = 8000
-preferred_vpn = "radmin"  # ou "hamachi", "tailscale", "zerotier"
-```
+preferred_vpn = "radmin"
+````
 
-Opções disponíveis:
-- `"radmin"` - Radmin VPN
-- `"hamachi"` - LogMeIn Hamachi
-- `"tailscale"` - Tailscale VPN
-- `"zerotier"` - ZeroTier VPN
-- `null` - Detectar automaticamente
+Define qual VPN o simulador deve priorizar ao exibir o IP de conexão.
 
-:::tip
-Se você configurar o `preferred_vpn`, o simulador mostrará automaticamente o IP correto da VPN na interface, facilitando o compartilhamento com outros jogadores.
-:::
+---
 
 ## Link Copiável na Interface
 
-Quando você cria uma sala no modo multiplayer, a interface mostra um **link copiável** que facilita compartilhar a sala com outros jogadores.
+Ao criar uma sala multiplayer, a interface exibe automaticamente um **link copiável** para facilitar o compartilhamento.
 
 **Como usar:**
 
-1. Ao criar a sala, procure o botão "Copiar Link" na interface
-2. Clique para copiar o link completo (ex: `http://26.123.45.67:8000`)
-3. Compartilhe este link com seus amigos via Discord, WhatsApp, etc.
-4. Eles podem simplesmente abrir o link no navegador para entrar na sala
+1. Crie a sala multiplayer
+2. Clique no botão **Copiar Link**
+3. O link completo será copiado
+   Exemplo: `http://26.123.45.67:8000`
+4. Compartilhe o link via Discord, WhatsApp ou qualquer outro meio
+5. Os jogadores podem abrir o link diretamente no navegador para entrar na sala
 
-:::tip
-Se você configurou o `preferred_vpn` no `config.toml`, o link já virá com o IP correto da sua VPN automaticamente!
-:::
+---
 
 ## Túneis Públicos (Em Desenvolvimento)
 
-Opções de túnel público como **LocalTunnel**, **Playit.gg** e **Zrok** estão em desenvolvimento e permitirão compartilhar sessões sem necessidade de VPN.
+Opções de túnel público como **LocalTunnel**, **Playit.gg** e **Zrok** estão em desenvolvimento.
 
-## Próximos Passos
+Essas soluções permitirão compartilhar sessões multiplayer pela internet **sem a necessidade de VPN**, mas **ainda não estão disponíveis** nesta versão.
 
-- [Criar Sala](/como-usar/multiplayer/criar-sala) - Aprenda a criar e configurar uma sala multiplayer
-- [Entrar em Sala](/como-usar/multiplayer/entrar-sala) - Como se conectar a uma sala existente
-- [Lobby](/como-usar/lobby) - Entenda os campos de configuração da sala
