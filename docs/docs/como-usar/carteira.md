@@ -17,121 +17,75 @@ A carteira é uma tela centralizada que mostra uma visão completa da sua posiç
 ### Visão Geral
 
 **Patrimônio Total**
-- Soma de todo seu dinheiro disponível + valor de mercado de todos os investimentos
-- Atualizado em tempo real conforme o mercado se move
+- Valor total da carteira (dinheiro + investimentos)
+- Exibe a rentabilidade total em %
 
-**Saldo Disponível**
-- Dinheiro líquido que você tem para investir
-- Não inclui valor em ativos
+**Total Investido**
+- Soma do valor investido nas posições
+- Mostra o percentual do patrimônio alocado
 
-**Valor Investido**
-- Soma do valor original que você investiu em ativos
-- Não considera ganhos ou perdas
+**Renda Variável**
+- Valor total em ações/FIIs/ETFs
+- Percentual da carteira em renda variável
 
-**Lucro/Prejuízo (P&L)**
-- Diferença entre o valor atual dos seus ativos e o valor investido
-- Pode ser:
-  - **Positivo (verde)** - Você está ganhando dinheiro
-  - **Negativo (vermelho)** - Você está tendo prejuízo
-- Mostra valor absoluto (R$) e percentual (%)
+**Renda Fixa**
+- Valor total em títulos de renda fixa
+- Percentual da carteira em renda fixa
 
 ---
 
 ### Renda Variável
 
-**Lista de Posições:**
-Para cada ação/FII/ETF que você possui, a carteira mostra:
+**Tabela de Posições:**
+Para cada ativo de renda variável, a carteira mostra:
 
-- **Ticker** - Código do ativo (ex: VALE3, PETR4)
-- **Quantidade** - Número de ações que você possui
-- **Preço Médio** - Preço médio que você pagou nas compras
-- **Preço Atual** - Valor de mercado atual do ativo
-- **Valor Total** - Quantidade × Preço Atual
-- **Lucro/Prejuízo** - Ganho ou perda na posição
-  - Valor em R$
-  - Percentual de variação
-- **Ações disponíveis:**
-  - **Comprar Mais** - Adicionar mais unidades à posição
-  - **Vender** - Liquidar parte ou toda a posição
+- **Ativo** - Ticker do papel
+- **Preço Médio** - Preço médio de compra
+- **Preço Atual** - Cotação atual
+- **Quantidade** - Posição total
+- **Valor Total** - Valor de mercado da posição
+- **% Carteira** - Participação no portfólio
+- **Retorno (R$)** - Ganho/perda absoluto
+- **Retorno (%)** - Ganho/perda percentual
+- **Ações** - Atalho para **Detalhes** do ativo
 
-**Gráfico de Composição:**
-- Visualização em pizza mostrando a proporção de cada ativo no portfólio
-- Ajuda a identificar concentração excessiva em algum ativo
+**Gráfico de Distribuição:**
+- Visualização em pizza com a composição total da carteira
+- Inclui renda variável e renda fixa
 
 ---
 
 ### Renda Fixa
 
-**Lista de Investimentos:**
-Para cada título de renda fixa, a carteira mostra:
+**Tabela de Investimentos:**
+Para cada ativo de renda fixa, a carteira mostra:
 
-- **Tipo** - CDB, LCI, LCA, Tesouro Direto
-- **Emissor** - Banco ou instituição emissora
-- **Valor Aplicado** - Quanto você investiu inicialmente
-- **Rentabilidade** - Taxa contratada (ex: 100% CDI, IPCA+5%, 10% a.a.)
-- **Valor Atual** - Valor atualizado com rendimentos
-- **Data de Vencimento** - Quando o título vence
-- **Rentabilidade Acumulada** - Quanto você ganhou até agora
-- **IR a Pagar** - Imposto de Renda que será descontado no resgate
-- **Valor Líquido** - Valor atual - IR a pagar
-- **Ações disponíveis:**
-  - **Resgatar** - Liquidar o investimento (pode ter perda de rentabilidade se antes do vencimento)
+- **Ativo** - Nome do título
+- **Valor Investido** - Valor aplicado
+- **Valor Atual** - Valor atualizado
+- **Taxa** - Rentabilidade do título
+- **% Carteira** - Participação no portfólio
+- **Retorno (R$)** - Ganho/perda absoluto
+- **Retorno (%)** - Ganho/perda percentual
+- **Ações** - Atalho para **Detalhes** do ativo
 
 ---
 
-### Histórico de Transações
+### Indicadores Econômicos
 
-Algumas carteiras também mostram o histórico de todas as operações:
+Um card com os principais indicadores de referência:
 
-- Compras e vendas de renda variável
-- Aplicações e resgates de renda fixa
-- Data e hora de cada operação
-- Valores e quantidades
+- **CDI**
+- **SELIC**
+- **IPCA (12m)**
 
 ---
 
 ### Evolução do Patrimônio
 
 **Gráfico de Linha:**
-- Mostra como seu patrimônio total variou ao longo do tempo simulado
-- Permite identificar períodos de ganho e perda
-- Útil para avaliar o desempenho geral da sua estratégia
-
----
-
-## Dicas de Uso
-
-### Diversificação
-
-A carteira ajuda a visualizar se você está **bem diversificado**:
-
-- ✅ **Bom:** Patrimônio distribuído entre vários ativos (renda fixa + variável, diferentes setores)
-- ⚠️ **Arriscado:** Mais de 30-40% em um único ativo
-
-### Rebalanceamento
-
-Use a carteira para decidir quando **rebalancear**:
-
-1. Identifique ativos que cresceram muito (ficaram pesados no portfólio)
-2. Venda parte deles
-3. Compre ativos que ficaram subpesados ou novos ativos
-
-### Controle de Risco
-
-Monitore o **P&L total** e por ativo:
-
-- Se um ativo está com prejuízo grande, avalie se deve:
-  - **Manter (hold)** - Se acredita em recuperação
-  - **Vender (stop loss)** - Para limitar perdas
-
----
-
-## Diferença entre Carteira e Estatísticas
-
-- **Carteira** - Foco nos seus ativos individuais e posições atuais
-- **Estatísticas da Simulação** - Foco em métricas de desempenho e comparação com outros jogadores (multiplayer)
-
-Ambas são complementares e importantes para uma visão completa.
+- Mostra o histórico do patrimônio ao longo do tempo simulado
+- Útil para acompanhar tendência e volatilidade
 
 ---
 

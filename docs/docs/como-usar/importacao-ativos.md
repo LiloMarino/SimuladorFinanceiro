@@ -31,13 +31,11 @@ O simulador pode buscar dados diretamente do **Yahoo Finance** usando a bibliote
 
 **Como importar:**
 
-1. Acesse **Configurações** → **Importar Ativos** → **Yahoo Finance**
-2. Digite o **ticker** do ativo (ex: `VALE3.SA`, `PETR4.SA`)
-   - **Importante:** Ativos brasileiros precisam do sufixo `.SA` (São Paulo)
-3. Escolha o **período** (data inicial e final)
-4. Clique em **Importar**
-5. Aguarde o download dos dados
-6. O ativo estará disponível para uso na próxima simulação
+1. Acesse **Configurações** → **Importar Ativos**
+2. No card **Buscar via yFinance**, informe o **Código do Ativo** (ex: `PETR4`, `VALE3`, `BTC-USD`)
+3. (Opcional) Marque **Sobrescrever dados existentes**
+4. Clique em **Buscar e Importar**
+5. Confirme a ação na janela de confirmação
 
 **Exemplos de tickers brasileiros:**
 - Ações: `VALE3.SA`, `PETR4.SA`, `BBAS3.SA`, `ITUB4.SA`
@@ -63,11 +61,12 @@ Você pode importar dados de qualquer fonte usando um **arquivo CSV** no formato
 **Como importar:**
 
 1. Prepare seu arquivo CSV no formato correto (veja abaixo)
-2. Acesse **Configurações** → **Importar Ativos** → **CSV**
-3. Faça upload do arquivo
-4. O sistema validará o formato
-5. Se válido, os dados serão importados
-6. O ativo estará disponível para uso na próxima simulação
+2. Acesse **Configurações** → **Importar Ativos**
+3. No card **Importar via CSV**, informe o **Nome do Ativo**
+4. Selecione o **arquivo CSV**
+5. (Opcional) Marque **Sobrescrever dados existentes**
+6. Clique em **Importar CSV**
+7. Confirme a ação na janela de confirmação
 
 #### Formato do CSV
 
@@ -99,91 +98,8 @@ Date,Open,High,Low,Close,Volume
 
 [📄 Baixe o arquivo de exemplo](/csv/exemplo-importacao-ohlcv.csv)
 
-<!-- Link para arquivo CSV de exemplo -->
 
----
+## Dicas Rápidas
 
-## Onde Obter Dados CSV
-
-Se você quiser usar dados de fontes alternativas ao Yahoo Finance:
-
-### Fontes de Dados de Mercado
-
-1. **B3 (Bolsa Brasileira)**
-   - Site oficial da B3 disponibiliza alguns dados históricos
-   - [http://www.b3.com.br/](http://www.b3.com.br/)
-
-2. **Status Invest**
-   - Plataforma brasileira com dados de ações e FIIs
-   - [https://statusinvest.com.br/](https://statusinvest.com.br/)
-
-3. **Quantum Axis**
-   - API paga com dados do mercado brasileiro
-
-4. **Alpha Vantage**
-   - API gratuita (com limitações) para dados internacionais
-
-:::tip Dica
-Após baixar dados de qualquer fonte, você pode precisar convertê-los para o formato CSV aceito pelo simulador. Use Excel, Google Sheets ou Python para fazer a conversão.
-:::
-
----
-
-## Gestão de Ativos Importados
-
-### Visualizar Ativos Disponíveis
-
-1. Acesse **Configurações** → **Ativos Importados**
-2. Veja a lista de todos os ativos já importados
-3. Verifique:
-   - Ticker
-   - Nome
-   - Período de dados disponíveis
-   - Data da última importação
-
-### Atualizar Dados
-
-Para atualizar dados de um ativo:
-
-1. Re-importe o ativo com novos dados
-2. O sistema substituirá os dados antigos pelos novos
-3. **Atenção:** Simulações em andamento usarão os dados antigos até serem reiniciadas
-
-### Deletar Ativos
-
-Para remover um ativo:
-
-1. Acesse **Configurações** → **Ativos Importados**
-2. Selecione o ativo
-3. Clique em **Deletar**
-4. Confirme
-
-:::warning
-Deletar um ativo não afeta simulações já criadas, mas ele não estará disponível para novas simulações.
-:::
-
----
-
-## Perguntas Frequentes
-
-**P: Quantos ativos posso importar?**  
-R: Não há limite técnico, mas importar muitos ativos pode deixar o banco de dados grande e a interface pesada.
-
-**P: Posso importar ativos internacionais?**  
-R: Sim, via Yahoo Finance ou CSV. Use tickers do Yahoo Finance (ex: `AAPL` para Apple, `TSLA` para Tesla).
-
-**P: O que acontece se eu importar dados incompletos?**  
-R: A simulação pode funcionar com gaps (dias sem dados), mas a precisão será afetada. Recomendamos dados completos.
-
-**P: Posso editar dados depois de importar?**  
-R: Atualmente não. Você precisaria deletar e re-importar com dados corretos.
-
----
-
-## Próximos Passos
-
-Após importar ativos:
-
-1. [Crie uma simulação no Lobby](./lobby)
-2. Selecione os ativos importados para uso
-3. Comece a investir!
+- Use **Sobrescrever dados existentes** quando quiser atualizar um ticker que ja existe.
+- A importação pede confirmação antes de enviar os dados.
