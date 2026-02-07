@@ -83,7 +83,17 @@ Uma **ordem limitada** só é executada se o preço atingir o valor **especifica
 
 **Desvantagens:**
 - ⚠️ Pode nunca ser executada se o preço não for atingido
-- ⚠️ Execução parcial (nem todas as ações podem ser negociadas)
+- ⚠️ Pode ser executada apenas parcialmente, deixando você com uma posição incompleta
+
+:::info
+**Execução parcial** significa que apenas parte da quantidade solicitada é negociada.
+
+Exemplo:  
+Você envia uma ordem para comprar 100 ações a R$ 10,00, mas só existem 30 ações disponíveis nesse preço.  
+Resultado: você compra 30 ações e as outras 70 ficam aguardando no livro de ofertas.
+
+Isso pode exigir ajustes manuais e impactar sua estratégia.
+:::
 
 **Exemplo:**
 ```
@@ -97,12 +107,12 @@ Resultado: Ordem aguarda no livro até VALE3 cair para R$ 65,00 ou menos
 
 ### Diferenças Entre Ordem a Mercado e Ordem Limitada
 
-| Característica | Ordem a Mercado | Ordem Limitada |
-|----------------|-----------------|----------------|
-| **Execução** | Imediata | Quando preço atingir o limite |
-| **Controle de Preço** | Não | Sim |
-| **Garantia de Execução** | Alta (se houver liquidez) | Não garantida |
-| **Melhor para** | Urgência, ativos líquidos | Controle de preço, estratégia |
+| Característica           | Ordem a Mercado           | Ordem Limitada                |
+| ------------------------ | ------------------------- | ----------------------------- |
+| **Execução**             | Imediata                  | Quando preço atingir o limite |
+| **Controle de Preço**    | Não                       | Sim                           |
+| **Garantia de Execução** | Alta (se houver liquidez) | Não garantida                 |
+| **Melhor para**          | Urgência, ativos líquidos | Controle de preço, estratégia |
 
 ---
 
