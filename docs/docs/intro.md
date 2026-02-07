@@ -50,7 +50,7 @@ Crie uma sessão local e teste suas estratégias de investimento sem pressão. C
 Selecione a seção **[Como Usar](./como-usar/instalacao.md)** na documentação para um guia passo a passo sobre como instalar e usar o simulador.
 :::
 
-Para desenvolvedores interessados em contribuir, consulte a seção **[Desenvolvimento](./desenvolvimento/introducao.md)** para entender a arquitetura e como configurar o ambiente de desenvolvimento.
+Para desenvolvedores interessados em contribuir, consulte a seção **[Desenvolvimento](./desenvolvimento/setup.md)** para entender a arquitetura e como configurar o ambiente de desenvolvimento.
 
 ## Stack Tecnológica
 
