@@ -118,43 +118,33 @@ Resultado: Ordem aguarda no livro até VALE3 cair para R$ 65,00 ou menos
 
 ## Operações Básicas
 
-### Comprar Ações
+### Abrir um ativo e enviar ordens
 
-1. Acesse **Mercado** → **Renda Variável**
-2. Procure o ticker desejado (ex: `VALE3`)
-3. Clique em **Comprar**
-4. Configure:
-   - **Quantidade:** Número de ações
-   - **Tipo de Ordem:** Mercado ou Limitada
-   - **Preço Limite:** (apenas para ordem limitada)
-5. Confirme a ordem
+1. Acesse **Renda Variável** para ver a lista de ativos.
+2. Encontre o ticker desejado e clique em **Ver**.
+3. Na tela de detalhes do ativo, use o card **Nova Ordem** para:
+   - Escolher **Tipo de Operação**: Compra ou Venda.
+   - Escolher **Tipo de Ordem**: À Mercado ou Limitada.
+   - Informar a **Quantidade** (use **Máx** para preencher o limite disponível).
+   - Informar **Preço desejado** quando a ordem for **Limitada**.
+4. Clique em **Executar Compra** ou **Executar Venda**.
 
-### Vender Ações
+### Vender ações
 
-1. Acesse **Portfólio/Carteira**
-2. Encontre o ativo que deseja vender
-3. Clique em **Vender**
-4. Configure quantidade e tipo de ordem
-5. Confirme
+A venda é feita no mesmo card **Nova Ordem**. Ao selecionar **Venda**, o botão **Máx** considera apenas a quantidade que você já possui na posição.
 
-### Acompanhar Posições
+### Acompanhar posição e ordens
 
-No **Portfólio**, você pode ver:
-- Quantidade de cada ativo
-- Preço médio de compra
-- Preço atual de mercado
-- Lucro/Prejuízo (P&L)
-- Percentual de ganho/perda
+Na tela de detalhes do ativo, você encontra:
+- **Resumo**: quantidade em carteira, preço médio, preço atual, saldo em conta e P&L.
+- **Ordens Pendentes**: lista de ordens abertas, com status e opção de cancelar quando estiverem pendentes.
 
 ---
 
-## Estratégias Comuns
+## Estratégias Comuns Suportadas
 
 ### Buy and Hold
 Compre e mantenha o investimento por longo prazo. Ideal para quem acredita no crescimento da empresa.
-
-### Day Trade
-Compre e venda no mesmo dia simulado. Aproveita volatilidade de curto prazo.
 
 ### Swing Trade
 Mantém posições por alguns dias/semanas para capturar tendências de médio prazo.
