@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 # Estrutura de Pastas
@@ -198,7 +198,8 @@ class SimulationEngine:
 
 ### Frontend (TypeScript/React)
 
-- **Arquivos de Componentes:** `PascalCase.tsx`
+- **Arquivos de Componentes:** `kebab-case.tsx`
+- **Arquivos classe:** `PascalCase.ts`
 - **Arquivos utilitários:** `camelCase.ts`
 - **Componentes:** `PascalCase`
 - **Funções:** `camelCase()`

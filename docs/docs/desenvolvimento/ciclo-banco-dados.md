@@ -1,28 +1,46 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 ---
 
 # Ciclo de Desenvolvimento com Banco de Dados
 
-Como trabalhar com o banco de dados durante o desenvolvimento do projeto.
 
-## Visão Geral
+O ciclo de desenvolvimento do projeto é feito **exclusivamente com PostgreSQL** como banco principal.
 
-O projeto suporta **PostgreSQL** (recomendado para produção) e **SQLite** (desenvolvimento). O sistema detecta automaticamente qual banco usar baseado nas variáveis de ambiente e cria as tabelas automaticamente.
+O **SQLite** existe apenas para uso simples e rápido (out-of-the-box), conforme descrito em
+[Recomendações Gerais](../como-usar/recomendacoes.md), e **não deve ser considerado a fonte de verdade do schema**.
 
-## Bancos Suportados
+Durante o desenvolvimento, **o PostgreSQL é tratado como o banco canônico**.
 
-### SQLite (Padrão para Desenvolvimento)
+---
 
-- Arquivo `database.db` na raiz do projeto
-- Não requer instalação ou configuração
-- Ideal para desenvolvimento local
+## Configuração do Banco de Dados (PostgreSQL)
 
-### PostgreSQL (Recomendado para Produção)
+1. **Instalar PostgreSQL:**
 
-- Melhor performance
-- Suporte a concorrência
-- Recomendado para multiplayer
+   * Windows: [https://www.postgresql.org/download/windows/](https://www.postgresql.org/download/windows/)
+   * Linux: `sudo apt install postgresql`
+   * macOS: `brew install postgresql`
+
+2. **Criar banco de dados:**
+
+   ```sql
+   CREATE DATABASE simulador_financeiro;
+   ```
+
+3. **Configurar `.env`:**
+
+   ```env
+   DATABASE_URL=postgresql+psycopg://postgres:sua_senha@localhost:5432/simulador_financeiro
+   ```
+
+4. **Iniciar a aplicação:**
+
+   ```bash
+   python main.py
+   ```
+
+As tabelas serão criadas automaticamente se não existirem.
 
 ---
 
@@ -30,41 +48,47 @@ O projeto suporta **PostgreSQL** (recomendado para produção) e **SQLite** (des
 
 O fluxo de trabalho para alterações no banco de dados é:
 
-1. ✏️ **Editar modelo** (no MySQL Workbench ou diretamente no código)
-2. 📥 **Sincronizar o banco de dados PostgreSQL** (se usando)
-3. 🧬 **Gerar ORM com sqlacodegen**
-4. 🛠️ **Compatibilizar com múltiplos bancos** (PostgreSQL e SQLite)
+1. ✏️ **Editar o schema no PostgreSQL** (via ferramenta gráfica ou SQL manual)
+2. 📥 **Sincronizar o banco local** (tabelas e relações atualizadas)
+3. 🧬 **Gerar modelos ORM com `sqlacodegen`** (quando fizer sentido)
+4. 🛠️ **Ajustar modelos manualmente** quando a alteração for pequena
 
-### Passo 1: Editar o Modelo
+---
 
-Você pode editar o modelo de duas formas:
+### Passo 1: Editar o Schema no PostgreSQL
 
-#### Opção A: MySQL Workbench (.mwb)
+Você pode editar o schema usando ferramentas como **pgAdmin** ou **DataGrip**, ou editar manualmente via SQL.
 
-Se você usa MySQL Workbench para design visual do banco:
+#### Opção A: Ferramentas gráficas
 
-1. Abra o arquivo `.mwb` (se existir)
-2. Faça as alterações necessárias
-3. Forward engineer para o banco PostgreSQL
+1. Edite as tabelas, colunas e relações na ferramenta
+2. Aplique as mudanças no banco local
 
-#### Opção B: Diretamente no Código
+#### Opção B: SQL manual
 
-Ou edite os modelos SQLAlchemy diretamente em `backend/core/models/models.py`.
+1. Edite o SQL das tabelas e relações
+2. Execute os comandos diretamente no banco local
 
-### Passo 2: Sincronizar com PostgreSQL
+---
 
-Se você estiver usando PostgreSQL e fez mudanças diretamente no banco:
+### Passo 2: Sincronizar o banco local
+
+Se as alterações foram feitas via ferramenta gráfica, elas já são aplicadas no banco local.
+
+Se foram feitas manualmente, execute os scripts SQL:
 
 ```bash
-# Conecte-se ao banco e execute os scripts SQL necessários
 psql -U postgres -d simulador_financeiro -f schema_changes.sql
 ```
 
-### Passo 3: Gerar ORM com sqlacodegen
+---
 
-O `sqlacodegen` lê o schema do banco de dados e gera automaticamente os modelos SQLAlchemy.
+### Passo 3: Gerar ORM com `sqlacodegen`
+
+O `sqlacodegen` lê o schema existente no banco de dados e gera automaticamente os modelos SQLAlchemy.
 
 **Instalação:**
+
 ```bash
 pip install sqlacodegen
 ```
@@ -77,172 +101,89 @@ sqlacodegen postgresql+psycopg://postgres:<senha>@localhost:5432/simulador_finan
 
 Substitua `<senha>` pela senha do seu banco PostgreSQL.
 
-:::tip
-O sqlacodegen facilita muito o desenvolvimento, pois você não precisa escrever os modelos manualmente. Ele reflete o schema real do banco.
+:::tip Quando usar sqlacodegen
+O `sqlacodegen` é mais útil quando há **mudanças grandes no schema**.
+Para alterações pequenas, normalmente é melhor editar diretamente o arquivo  `backend/core/models/models.py`.
 :::
 
-### Passo 4: Compatibilizar com SQLite
+:::warning Código gerado não é final
+O código gerado pelo `sqlacodegen` **serve como ponto de partida e deve ser revisado.**.
 
-**Atenção:** PostgreSQL e SQLite têm algumas diferenças de tipos de dados. A principal incompatibilidade é o tipo **JSONB**.
-
-#### Problema: JSONB
-
-PostgreSQL tem o tipo `JSONB` (JSON binário), mas SQLite não suporta.
-
-**Exemplo de problema:**
-```python
-# Gerado pelo sqlacodegen para PostgreSQL
-class Simulation(Base):
-    __tablename__ = 'simulations'
-    
-    config = Column(JSONB, nullable=False)  # ❌ Não funciona no SQLite
-```
-
-**Solução:**
-
-Use o tipo `JSON` do SQLAlchemy, que é compatível com ambos:
-
-```python
-from sqlalchemy import JSON
-
-class Simulation(Base):
-    __tablename__ = 'simulations'
-    
-    config = Column(JSON, nullable=False)  # ✅ Funciona em ambos
-```
-
-O SQLAlchemy converte automaticamente:
-- **PostgreSQL:** Usa `JSONB` internamente
-- **SQLite:** Usa `TEXT` e faz serialização/deserialização automaticamente
-
-:::warning Atenção
-Sempre verifique os modelos gerados pelo sqlacodegen e substitua `JSONB` por `JSON` para garantir compatibilidade.
+É comum ajustar manualmente:
+- Relacionamentos
+- Enums
+- Tipos customizados
+- Defaults e constraints
+- Incompatibilidades entre bancos (ex: tipos específicos do PostgreSQL que não existem no SQLite)
 :::
+
 
 ---
 
 ## Criação Automática de Tabelas
 
-O projeto cria automaticamente as tabelas no primeiro run:
+O projeto cria automaticamente as tabelas **em ambientes limpos ou no primeiro run**, com base nos modelos ORM:
 
 ```python
-# No arquivo de inicialização
 Base.metadata.create_all(bind=engine)
 ```
 
-Isso significa que você **não precisa** criar as tabelas manualmente. O SQLAlchemy faz isso para você baseado nos modelos.
+Isso é útil para:
 
----
+* Primeiro setup
+* SQLite
+* Ambientes de teste
 
-## Migrations (Futuro)
+No desenvolvimento contínuo com PostgreSQL, o schema deve ser tratado como **database-first**.
 
-Atualmente, o projeto não usa migrations (Alembic), mas isso pode ser adicionado no futuro para melhor controle de versão do schema.
-
-**Vantagens de usar Alembic:**
-- Histórico de mudanças no schema
-- Rollback de mudanças
-- Deploy mais seguro
-
-Se você quiser implementar, consulte a [documentação do Alembic](https://alembic.sqlalchemy.org/).
-
----
-
-## Configuração do Banco de Dados
-
-### SQLite (Padrão)
-
-Não requer configuração. O arquivo `database.db` é criado automaticamente.
-
-### PostgreSQL
-
-1. **Instalar PostgreSQL:**
-   - Windows: [postgresql.org/download](https://www.postgresql.org/download/windows/)
-   - Linux: `sudo apt install postgresql`
-   - macOS: `brew install postgresql`
-
-2. **Criar banco de dados:**
-   ```sql
-   CREATE DATABASE simulador_financeiro;
-   ```
-
-3. **Configurar `.env`:**
-   ```env
-   DATABASE_URL=postgresql+psycopg://postgres:sua_senha@localhost:5432/simulador_financeiro
-   ```
-
-4. **Reiniciar aplicação:**
-   ```bash
-   python main.py
-   ```
-   
-   As tabelas serão criadas automaticamente.
 
 ---
 
 ## Dicas e Boas Práticas
 
-### Use PostgreSQL em Produção
-
-Mesmo que SQLite seja prático para desenvolvimento, use PostgreSQL em produção:
-- Melhor performance
-- Suporte a concorrência (importante para multiplayer)
-- Mais robusto
-
 ### Teste Ambos os Bancos
 
-Sempre teste suas mudanças em **ambos** SQLite e PostgreSQL para garantir compatibilidade:
+Sempre teste as mudanças em **PostgreSQL e SQLite**, lembrando que o comportamento pode variar:
 
 ```bash
 # Testar com SQLite (remova DATABASE_URL do .env)
 python main.py
 
-# Testar com PostgreSQL (adicione DATABASE_URL ao .env)
+# Testar com PostgreSQL
 DATABASE_URL=postgresql+psycopg://... python main.py
 ```
 
+SQLite é apenas um apoio para desenvolvimento rápido e para usuários sem PostgreSQL instalado/configurado.
+
+---
+
 ### Evite SQL Raw
 
-Sempre que possível, use o ORM do SQLAlchemy ao invés de SQL raw. Isso garante compatibilidade entre bancos.
+Sempre que possível, use o ORM do SQLAlchemy para garantir compatibilidade entre bancos.
 
 **Evite:**
+
 ```python
 session.execute("SELECT * FROM users WHERE id = 1")
 ```
 
 **Prefira:**
+
 ```python
-session.query(User).filter_by(id=1).first()
+session.get(User, 1)
 ```
 
----
+ou, em consultas mais complexas:
 
-## Problemas Comuns
-
-### "relation does not exist"
-
-O banco não tem as tabelas. Execute o app para criá-las automaticamente:
-```bash
-python main.py
-```
-
-### Tipos incompatíveis
-
-Verifique se você está usando tipos compatíveis. Especialmente `JSONB` → `JSON`.
-
-### Conexão recusada
-
-Verifique se o PostgreSQL está rodando:
-```bash
-# Linux
-sudo systemctl status postgresql
-
-# macOS
-brew services list
+```python
+stmt = select(User).where(User.id == 1)
+session.execute(stmt).scalar_one_or_none()
 ```
 
 ---
 
 ## Próximos Passos
 
-- [Diretrizes Async vs Sync](/desenvolvimento/async-vs-sync) — Padrões de código assíncrono/síncrono
-- [Estrutura de Pastas](/desenvolvimento/guia-dev/estrutura-pastas) — Entenda a organização do código
+* [Diretrizes Async vs Sync](/desenvolvimento/async-vs-sync)
+* [Estrutura de Pastas](/desenvolvimento/guia-dev/estrutura-pastas)
+

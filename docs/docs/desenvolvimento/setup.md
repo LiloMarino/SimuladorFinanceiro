@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # Setup do Ambiente
@@ -11,14 +11,10 @@ Configure seu ambiente de desenvolvimento para contribuir com o projeto.
 Antes de começar, instale as seguintes ferramentas:
 
 - **Git** — [Baixar](https://git-scm.com/)
-- **Python 3.12+** — [Baixar](https://www.python.org/)
-- **Node.js 18+** — [Baixar](https://nodejs.org/)
+- **Python** — [Baixar](https://www.python.org/)
+- **Node.js** — [Baixar](https://nodejs.org/)
 - **pnpm** — Instale com `npm install -g pnpm`
-
-### (Opcional) Ferramentas Recomendadas
-
-- **Visual Studio Code** — Editor recomendado
-- **PostgreSQL** — Para desenvolvimento com banco mais robusto (opcional, SQLite funciona por padrão)
+- **PostgreSQL** — [Baixar](https://www.postgresql.org/) (opcional, recomendado)
 
 ---
 
@@ -155,15 +151,11 @@ Por padrão, o projeto usa SQLite (`database.db` na raiz). Não requer configura
 
 #### PostgreSQL (Opcional)
 
-Para melhor performance (especialmente em multiplayer), você pode usar PostgreSQL:
+Para melhor performance, você pode usar PostgreSQL:
 
 1. Instale o PostgreSQL
-2. Crie um banco de dados:
-   ```sql
-   CREATE DATABASE simulador_financeiro;
-   ```
-3. Configure o `.env` com a connection string do PostgreSQL (veja seção 2)
-4. Reinicie o backend - as tabelas serão criadas automaticamente
+2. Configure o `.env` com a connection string do PostgreSQL 
+3. Reinicie o backend - as tabelas e o banco serão criados automaticamente
 
 ### Configuração TOML
 
@@ -191,32 +183,6 @@ provider = "lan"
 preferred_vpn = null  # ou "radmin", "hamachi", "tailscale"
 ```
 
----
-
-## Desenvolvimento em Hot Reload
-
-Ambos backend e frontend suportam **hot reload** - suas alterações no código serão refletidas automaticamente:
-
-- **Backend:** FastAPI recarrega automaticamente quando você altera arquivos Python
-- **Frontend:** Vite recarrega automaticamente quando você altera arquivos TypeScript/React
-
----
-
-## Problemas Comuns
-
-### "Module not found"
-- Certifique-se de que instalou as dependências (`pip install -r requirements.txt` e `pnpm install`)
-- Verifique se o virtual environment está ativado
-
-### "Port already in use"
-- Algum processo já está usando a porta 8000 ou 5173
-- No Windows: `netstat -ano | findstr :8000` e `taskkill /PID <PID> /F`
-- No Linux/macOS: `lsof -ti:8000 | xargs kill -9`
-
-### Banco de dados não conecta
-- Se usando PostgreSQL, verifique se o serviço está rodando
-- Verifique a connection string no `.env`
-- O SQLite funciona sem configuração
 
 ---
 
@@ -226,4 +192,4 @@ Agora que seu ambiente está configurado:
 
 - [Estrutura de Pastas](./estrutura-pastas) — Entenda como o código está organizado
 - [Contribuindo](./contribuindo) — Saiba como enviar suas mudanças
-- [Ciclo de Desenvolvimento com BD](../ciclo-banco-dados) — Como trabalhar com o banco de dados
+- [Ciclo de Desenvolvimento com BD](./ciclo-banco-dados) — Como trabalhar com o banco de dados
