@@ -223,6 +223,6 @@ export const formatCurrency = (value: number) => { ... }
 
 ## Próximos Passos
 
-- [Ciclo de Desenvolvimento com BD](../ciclo-banco-dados) — Como trabalhar com banco de dados
-- [Diretrizes Async vs Sync](../async-vs-sync) — Padrões de código assíncrono
+- [Ciclo de Desenvolvimento com BD](./ciclo-banco-dados) — Como trabalhar com banco de dados
+- [Diretrizes Async vs Sync](./async-vs-sync) — Padrões de código assíncrono
 - [Contribuindo](./contribuindo) — Como enviar suas mudanças

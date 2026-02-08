@@ -92,7 +92,7 @@ const config: Config = {
             },
             {
               label: 'Desenvolvimento',
-              to: '/desenvolvimento/introducao',
+              to: '/desenvolvimento/intro-dev',
             },
           ],
         },

@@ -184,6 +184,6 @@ session.execute(stmt).scalar_one_or_none()
 
 ## Próximos Passos
 
-* [Diretrizes Async vs Sync](/desenvolvimento/async-vs-sync)
-* [Estrutura de Pastas](/desenvolvimento/guia-dev/estrutura-pastas)
+* [Diretrizes Async vs Sync](./async-vs-sync.md)
+* [Estrutura de Pastas](./estrutura-pastas.md)
 
