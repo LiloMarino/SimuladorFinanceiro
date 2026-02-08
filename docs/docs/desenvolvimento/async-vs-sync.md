@@ -4,70 +4,122 @@ sidebar_position: 5
 
 # Diretrizes Async vs Sync
 
-Este projeto **adota explicitamente um modelo híbrido (sync + async)**. Esta página documenta as convenções e padrões para trabalhar com código síncrono e assíncrono.
+Este projeto adota **deliberadamente** um modelo híbrido (**sync + async**).
+
+A arquitetura é construída de forma que:
+- o **core da simulação e do domínio seja estritamente síncrono**
+- o **código assíncrono fique restrito à camada de transporte** (ASGI, WebSocket, Socket.IO)
+
+Este documento define as **regras oficiais** para essa separação, evitando o vazamento de `async/await` para o domínio e garantindo integração segura com o event loop.
+
+:::note Decisão Arquitetural (ADR)
+Este documento registra uma **decisão arquitetural explícita** do projeto.
+
+Alterar o modelo sync/async descrito aqui **impacta diretamente o determinismo, o controle de estado e o modelo de execução da simulação** e **não deve ser feito sem reavaliar toda a arquitetura e seus trade-offs**.
+:::
 
 ## Filosofia do Projeto
 
-O objetivo é **conter o código assíncrono na camada de transporte** e evitar que ele se propague para o core (domínio e engine de simulação).
+O objetivo é **conter o código assíncrono na camada de transporte** e impedir que conceitos como `await`, `asyncio` ou event loop contaminem o domínio.
 
 :::info Princípio Chave
 **O domínio não conhece `asyncio`, event loop ou `await`.**  
-Async é um detalhe da camada de transporte, não da regra de negócio.
+Async é um detalhe de infraestrutura, não de regra de negócio.
 :::
 
 ---
 
-## Convenções Adotadas
+## Convenções por Camada
 
 ### Domínio e Engine (Síncrono)
 
-A lógica central da simulação — `backend/features/simulation/*`, `Simulation`, `SimulationEngine`, `UserManager` e a maior parte dos repositórios/DAO — **deve permanecer síncrona** (`def`).
+A lógica central da simulação — `backend/features/simulation/*`, `Simulation`, `SimulationEngine`, `UserManager` e repositórios/DAO — **permanece intencionalmente síncrona** (`def`).
 
-**Por quê?**
-- Essas camadas executam cálculos, regras de negócio e acesso síncrono a dados
-- Podem rodar em threads dedicadas
-- Não precisam de I/O assíncrono
-- Código mais simples e fácil de manter
+**Motivos:**
+- Executa regras de negócio e cálculos determinísticos
+- Possui estado mutável controlado
+- Não depende de I/O assíncrono
+- É mais simples de testar, depurar e raciocinar
+- Pode rodar de forma previsível em uma thread dedicada
 
 **Exemplo:**
 ```python
 class SimulationEngine:
     def calculate_portfolio_value(self, user_id: int) -> float:
-        # Lógica síncrona
         positions = self.repository.get_positions(user_id)
         return sum(p.quantity * p.current_price for p in positions)
-```
+````
 
 ---
 
 ### Loop da Simulação (Thread Dedicada)
 
-A `SimulationLoopController` roda em uma **thread separada** e deve usar `time.sleep()` e mecanismos de sincronização de thread (`threading.Lock`).
+O loop de simulação roda em **uma thread própria**, separada do event loop assíncrono da aplicação.
 
-**❌ NÃO transforme o loop em coroutine**, pois isso forçaria a migração do core para async.
+Essa decisão **não é uma preferência estilística**, mas uma consequência direta do modelo de execução da simulação.
 
-**Exemplo:**
+A simulação é um processo contínuo que possui:
+
+* um `while` controlando explicitamente o ciclo de vida
+* execução sequencial de `next_tick()`
+* controle manual de tempo (`sleep`)
+* sincronização explícita de estado (`lock`)
+* necessidade de previsibilidade e determinismo
+
+Esse tipo de execução **é inerentemente síncrono**.
+
+Uma thread Python executa código de forma **sequencial e bloqueante**.
+Portanto, o código que roda dentro dela **deve ser síncrono** para manter simplicidade e previsibilidade.
+
+Tornar esse loop assíncrono exigiria:
+
+* transformar `next_tick()` em `async`
+* propagar `async/await` por todo o core
+* trocar `threading.Lock` por `asyncio.Lock`
+* introduzir conversões constantes entre sync ↔ async
+
+Tudo isso **aumentaria a complexidade**, sem trazer ganhos reais para esse tipo de simulação.
+
+---
+
+#### Estrutura do Loop
+
 ```python
 import threading
 import time
 
 class SimulationLoopController:
-    def __init__(self):
+    def __init__(self, engine):
+        self.engine = engine
         self.running = False
         self.lock = threading.Lock()
-        
+        self.tick_interval = 1.0
+
     def run(self):
-        """Roda em thread separada"""
+        """Executa em thread dedicada"""
         while self.running:
             with self.lock:
-                self.engine.tick()  # Método síncrono
-            
-            time.sleep(self.tick_interval)  # Síncrono, não asyncio.sleep
+                self.engine.next_tick()  # Código síncrono
+            time.sleep(self.tick_interval)
 ```
 
-**Iniciando a thread:**
+Esse modelo oferece:
+
+* execução previsível e determinística do `tick`
+* isolamento total do core em relação ao event loop async
+* uso direto de primitivas de sincronização (`threading.Lock`)
+* controle explícito de tempo sem dependência de `asyncio`
+* menor custo cognitivo e arquitetural
+
+---
+
+#### Inicialização da Thread
+
 ```python
-thread = threading.Thread(target=controller.run, daemon=True)
+thread = threading.Thread(
+    target=controller.run,
+    daemon=True,
+)
 thread.start()
 ```
 
@@ -75,76 +127,103 @@ thread.start()
 
 ### Camada de Transporte (Async)
 
-Web e WebSocket (FastAPI/ASGI, `socketio.AsyncServer`, handlers, middlewares) **são assíncronos por natureza** e devem permanecer `async def`.
+FastAPI, ASGI, WebSocket e Socket.IO **são assíncronos por definição**.
 
-**Por quê?**
-- FastAPI é construído sobre ASGI (assíncrono)
-- WebSocket requer async
-- Permite alta concorrência para múltiplos clientes
+Nessa camada, o uso de `async` **é obrigatório**, mas **não deve vazar para o core**.
+
+Quando necessário, o transporte faz a ponte chamando código síncrono de forma segura.
 
 **Exemplo:**
+
 ```python
 @router.get("/portfolio/{user_id}")
 async def get_portfolio(user_id: int):
-    # Endpoint assíncrono
     portfolio = await asyncio.to_thread(
-        simulation_engine.get_portfolio,  # Método síncrono
+        simulation_engine.get_portfolio,  # método síncrono
         user_id
     )
     return portfolio
 ```
 
-:::tip
-Use `asyncio.to_thread()` para chamar código síncrono de forma assíncrona, evitando bloqueio do event loop.
-:::
-
 ---
 
-### `notify()` - Fire and Forget
+## Pontes entre Sync e Async (Regra de Ouro)
 
-A função `notify(event, payload, to=None)` do broker realtime é **síncrona e fire-and-forget**.
+### Async → Sync (event loop chamando código bloqueante)
 
-**Por quê?**
-Isso permite que o domínio chame notificações sem depender de `async` ou `await`.
+✔ **Use `asyncio.to_thread()`**
 
-**Exemplo:**
 ```python
-# No domínio (síncrono)
-class SimulationEngine:
-    def execute_trade(self, order):
-        # Lógica de execução
-        trade = self.match_order(order)
-        
-        # Notificar sem async
-        notify("trade_executed", {
-            "trade_id": trade.id,
-            "order_id": order.id
-        })
+result = await asyncio.to_thread(sync_function, arg1, arg2)
 ```
 
+**Quando usar:**
+
+* Endpoint FastAPI chamando domínio
+* Handler WebSocket chamando engine
+* Qualquer código async chamando algo bloqueante
+
 ---
 
-### Entrega Assíncrona Interna
+### Sync → Async (thread chamando coroutine)
 
-A implementação do broker é responsável por **agendar a entrega dos eventos no event loop**, sem bloquear a thread chamadora.
+✔ **Use `asyncio.run_coroutine_threadsafe()`**
 
-**Como fazer:**
-Use `asyncio.run_coroutine_threadsafe()` ou mecanismos equivalentes do transporte.
+```python
+asyncio.run_coroutine_threadsafe(coro(), loop)
+```
 
-**Exemplo de implementação no broker:**
+**Quando usar:**
+
+* Loop de simulação notificando WebSocket
+* Core disparando eventos realtime
+* Código síncrono que precisa interagir com async
+
+---
+
+## `notify()` — Fire and Forget (Padrão Oficial)
+
+O broker realtime expõe um método **síncrono**, propositalmente:
+
+```python
+def notify(event, payload, to=None) -> None
+```
+
+**Por quê?**
+
+* O core é síncrono
+* O core não deve depender de `await`
+* Notificação é efeito colateral, não fluxo principal
+
+---
+
+### Implementação Correta do Broker
+
+A responsabilidade de fazer a ponte **sync → async** é **exclusivamente do broker**.
+
 ```python
 class SocketBroker:
-    def notify(self, event: str, payload: dict, to: str | None = None):
-        """Método síncrono fire-and-forget"""
-        # Agenda a coroutine no event loop sem bloquear
+    def notify(
+        self,
+        event: str,
+        payload: dict,
+        to: str | None = None,
+    ) -> None:
+        if self._loop is None:
+            raise RuntimeError("Event loop não está vinculado ao SocketBroker")
+
         asyncio.run_coroutine_threadsafe(
             self._async_notify(event, payload, to),
-            self.loop
+            self._loop,
         )
-    
-    async def _async_notify(self, event: str, payload: dict, to: str | None):
-        """Método assíncrono interno"""
-        if to:
+
+    async def _async_notify(
+        self,
+        event: str,
+        payload: dict,
+        to: str | None,
+    ):
+        if to is not None:
             await self.sio.emit(event, payload, to=to)
         else:
             await self.sio.emit(event, payload)
@@ -152,182 +231,52 @@ class SocketBroker:
 
 ---
 
-## Padrões de Integração
-
-### Chamando Código Síncrono de Async
-
-Use `asyncio.to_thread()` para rodar código síncrono bloqueante sem bloquear o event loop:
+### Exemplo Real (Core Síncrono)
 
 ```python
-@router.post("/start-simulation")
-async def start_simulation(config: SimulationConfig):
-    # Executa método síncrono em thread separada
-    simulation = await asyncio.to_thread(
-        simulation_manager.create_simulation,
-        config
-    )
-    return {"simulation_id": simulation.id}
-```
+class SimulationEngine:
+    def execute_trade(self, order):
+        trade = self.match_order(order)
 
-:::warning
-Nunca chame código bloqueante síncrono diretamente em um endpoint async sem `to_thread()`. Isso bloqueará o event loop!
-:::
+        # Fire-and-forget
+        self.broker.notify(
+            event="trade_executed",
+            payload={
+                "trade_id": trade.id,
+                "order_id": order.id,
+            },
+        )
+```
 
 ---
 
-### Chamando Código Async de Sync
-
-Use `asyncio.run_coroutine_threadsafe()` para agendar coroutines de código síncrono:
-
-```python
-# Domínio síncrono precisa notificar via broker async
-def execute_trade(self, order):
-    trade = self.match_order(order)
-    
-    # Agenda notificação no event loop
-    asyncio.run_coroutine_threadsafe(
-        broker.async_notify("trade", trade.dict()),
-        broker.loop
-    )
-```
-
-Ou simplesmente use o método `notify()` fire-and-forget do broker, que já faz isso internamente.
-
----
-
-## Diagramas de Arquitetura
-
-### Fluxo Sync-Async
+## Diagrama Final de Arquitetura
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Camada de Transporte (Async)             │
-│                                                               │
-│  ┌─────────────┐    ┌──────────────┐    ┌──────────────┐  │
-│  │  FastAPI    │    │  WebSocket   │    │  Middlewares │  │
-│  │  Endpoints  │    │  Handlers    │    │              │  │
-│  └──────┬──────┘    └──────┬───────┘    └──────┬───────┘  │
-│         │                  │                    │           │
-└─────────┼──────────────────┼────────────────────┼───────────┘
-          │                  │                    │
-          │ asyncio.to_thread()                  │
-          ▼                  │                    ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Domínio e Engine (Sync)                    │
-│                                                               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │  Simulation  │  │  Engine      │  │  Repository  │      │
-│  │  Manager     │  │              │  │  (DAO)       │      │
-│  └──────┬───────┘  └──────┬───────┘  └──────────────┘      │
-│         │                  │                                 │
-│         │ notify()         │ threading                       │
-│         ▼                  ▼                                 │
-│  ┌──────────────────────────────┐                           │
-│  │  Realtime Broker (notify)    │                           │
-│  └────────────┬─────────────────┘                           │
-│               │ run_coroutine_threadsafe()                   │
-└───────────────┼──────────────────────────────────────────────┘
+│                Camada de Transporte (Async)                 │
+│                                                             │
+│  FastAPI / WebSocket / Socket.IO                            │
+│                                                             │
+│  async → sync  → asyncio.to_thread()                        │
+└───────────────┬─────────────────────────────────────────────┘
                 │
                 ▼
-        Event Loop (async emit)
+┌─────────────────────────────────────────────────────────────┐
+│                 Domínio e Engine (Sync)                     │
+│                                                             │
+│  SimulationEngine / Loop / Core                             │
+│                                                             │
+│  sync → async → notify()                                    │
+└───────────────┬─────────────────────────────────────────────┘
+                │
+                ▼
+┌─────────────────────────────────────────────────────────────┐
+│               Realtime Broker (Async Bridge)                │
+│                                                             │
+│  asyncio.run_coroutine_threadsafe()                         │
+└───────────────┬─────────────────────────────────────────────┘
+                │
+                ▼
+          Event Loop (emit WebSocket)
 ```
-
----
-
-## Exemplos Completos
-
-### Exemplo 1: Endpoint que Executa Lógica Síncrona
-
-```python
-# backend/routes/operations.py
-@router.post("/buy")
-async def buy_asset(order: OrderCreate, user_id: int = Depends(get_current_user)):
-    # Executa lógica síncrona em thread separada
-    result = await asyncio.to_thread(
-        broker.execute_buy_order,  # Método síncrono
-        user_id,
-        order
-    )
-    return result
-```
-
-### Exemplo 2: Domínio Notificando via Broker
-
-```python
-# backend/features/variable_income/broker.py
-class VariableIncomeBroker:
-    def execute_buy_order(self, user_id: int, order: Order):
-        """Método síncrono do domínio"""
-        # Lógica de execução
-        trade = self.match_engine.match(order)
-        
-        # Notifica todos os clientes (fire-and-forget)
-        notify("trade_executed", {
-            "user_id": user_id,
-            "trade": trade.dict()
-        })
-        
-        return trade
-```
-
-### Exemplo 3: Loop de Simulação em Thread
-
-```python
-# backend/features/simulation/simulation_loop.py
-import threading
-import time
-
-class SimulationLoop:
-    def __init__(self, engine):
-        self.engine = engine
-        self.running = False
-        self.thread = None
-        
-    def start(self):
-        self.running = True
-        self.thread = threading.Thread(target=self._run, daemon=True)
-        self.thread.start()
-        
-    def _run(self):
-        while self.running:
-            # Lógica síncrona
-            self.engine.tick()
-            
-            # Sleep síncrono
-            time.sleep(1.0 / self.engine.speed)
-            
-    def stop(self):
-        self.running = False
-        if self.thread:
-            self.thread.join(timeout=5)
-```
-
----
-
-## Vantagens desta Arquitetura
-
-✅ **Simplicidade do domínio** - Lógica de negócio mais fácil de entender e manter
-
-✅ **Testabilidade** - Código síncrono é mais fácil de testar
-
-✅ **Performance** - Threads para CPU-bound, async para I/O-bound
-
-✅ **Isolamento** - Mudanças na camada de transporte não afetam o domínio
-
-✅ **Flexibilidade** - Fácil trocar entre SSE e WebSocket
-
----
-
-## Regra de Ouro
-
-> **O domínio não conhece `asyncio`, event loop ou `await`.**  
-> Async é um detalhe da camada de transporte, não da regra de negócio.
-
-Se você se pegar adicionando `async/await` em código de domínio, pare e reconsidere a arquitetura.
-
----
-
-## Próximos Passos
-
-- [Estrutura de Pastas](./guia-dev/estrutura-pastas) — Entenda onde cada tipo de código vive
-- [Contribuindo](./guia-dev/contribuindo) — Como enviar suas mudanças
