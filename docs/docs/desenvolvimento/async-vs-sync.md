@@ -252,31 +252,25 @@ class SimulationEngine:
 
 ## Diagrama Final de Arquitetura
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                Camada de Transporte (Async)                 │
-│                                                             │
-│  FastAPI / WebSocket / Socket.IO                            │
-│                                                             │
-│  async → sync  → asyncio.to_thread()                        │
-└───────────────┬─────────────────────────────────────────────┘
-                │
-                ▼
-┌─────────────────────────────────────────────────────────────┐
-│                 Domínio e Engine (Sync)                     │
-│                                                             │
-│  SimulationEngine / Loop / Core                             │
-│                                                             │
-│  sync → async → notify()                                    │
-└───────────────┬─────────────────────────────────────────────┘
-                │
-                ▼
-┌─────────────────────────────────────────────────────────────┐
-│               Realtime Broker (Async Bridge)                │
-│                                                             │
-│  asyncio.run_coroutine_threadsafe()                         │
-└───────────────┬─────────────────────────────────────────────┘
-                │
-                ▼
-          Event Loop (emit WebSocket)
+```mermaid
+flowchart LR
+    Transport["Camada de Transporte (Async)<br>
+    FastAPI / WebSocket / Socket.IO<br>
+    async → sync<br>
+    asyncio.to_thread()"]
+
+    Domain["Domínio e Engine (Sync)<br>
+    SimulationEngine / Loop / Core<br>
+    sync → async<br>
+    notify()"]
+
+    Broker["Realtime Broker<br>(Async Bridge)<br>
+    asyncio.run_coroutine_threadsafe()"]
+
+    EventLoop["Event Loop<br>(emit WebSocket)"]
+
+    Transport --> Domain
+    Domain --> Broker
+    Broker --> EventLoop
+
 ```
