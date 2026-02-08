@@ -95,7 +95,7 @@ class Simulation:
         for stock in stocks:
             ticker = stock.ticker
             notify(f"stock_update:{ticker}", {"stock": stock.to_json()})
-        notify("simulation_update", {"currentDate": self.get_current_date_formatted()})
+        notify("simulation_update", {"current_date": self.get_current_date_formatted()})
         notify("stocks_update", {"stocks": [s.to_json() for s in stocks]})
 
     def get_current_date(self) -> date:

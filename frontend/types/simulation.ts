@@ -11,7 +11,7 @@ export type SimulationEvents = {
   simulation_ended: {
     reason: "completed" | "stopped_by_host";
   };
-  simulation_update: { currentDate: string };
+  simulation_update: { current_date: string };
   speed_update: { speed: number };
   cash_update: { cash: number };
   stocks_update: { stocks: Stock[] };
@@ -53,7 +53,7 @@ export type SimulationEvents = {
 };
 
 export type SimulationState = {
-  currentDate?: string;
+  current_date?: string;
   speed?: number;
   cash?: number;
 };

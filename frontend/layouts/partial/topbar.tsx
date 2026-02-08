@@ -69,7 +69,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
                     simData?.speed === option
                       ? "bg-blue-700 text-white"
                       : "bg-gray-200 text-gray-800 hover:bg-gray-300",
-                    loading && "opacity-70 cursor-not-allowed"
+                    loading && "opacity-70 cursor-not-allowed",
                   )}
                 >
                   {option === 0 ? "Pausar" : `${option}x`}
@@ -81,7 +81,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
           {/* Data */}
           <div className="flex items-center">
             <span className="text-sm text-gray-600 mr-2">Simulação:</span>
-            <span className="font-medium">{simData?.currentDate ?? "--/--/----"}</span>
+            <span className="font-medium">{simData?.current_date ?? "--/--/----"}</span>
           </div>
         </div>
       </div>

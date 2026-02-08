@@ -43,9 +43,9 @@ export default function FixedIncomeDetailPage() {
   });
 
   const asset = useMemo(() => {
-    if (!assetData || !simData?.currentDate || !rates) return null;
-    return new FixedIncomeAsset(assetData, parse(simData.currentDate, "dd/MM/yyyy", new Date()), rates);
-  }, [assetData, simData?.currentDate, rates]);
+    if (!assetData || !simData?.current_date || !rates) return null;
+    return new FixedIncomeAsset(assetData, parse(simData.current_date, "dd/MM/yyyy", new Date()), rates);
+  }, [assetData, simData?.current_date, rates]);
 
   if (isAssetLoading || isRatesLoading || isSimLoading) {
     return <LoadingPage />;

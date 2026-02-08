@@ -33,7 +33,7 @@ export default function FixedIncomePage() {
     );
   }
 
-  const currentDate = parse(simData?.currentDate ?? "", "dd/MM/yyyy", new Date());
+  const currentDate = parse(simData?.current_date ?? "", "dd/MM/yyyy", new Date());
 
   return (
     <section className="p-4">
