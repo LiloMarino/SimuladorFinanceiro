@@ -27,6 +27,10 @@ const config: Config = {
     defaultLocale: 'pt-BR',
     locales: ['pt-BR'],
   },
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
   presets: [
     [
       'classic',
