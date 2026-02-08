@@ -5,12 +5,11 @@ on:
   workflow_dispatch:
 
   # Executa automaticamente quando há mudanças na pasta docs/
-  # Desabilitado temporariamente para evitar deploys desnecessários
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - 'docs/**'
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/**"
 
 # Garante que apenas um deploy rode por vez
 concurrency:
