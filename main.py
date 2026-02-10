@@ -16,6 +16,15 @@ Você deve ter recebido uma cópia da Licença Pública Geral GNU
 junto com este programa. Caso não, veja <https://www.gnu.org/licenses/>.
 """
 
+from backend import config
+from backend.core.logger import setup_logging
+
+setup_logging(
+    level=config.toml.logging.logging_level,
+    logs_path=config.toml.logging.logs_path,
+)
+# flake8: noqa: E402 - Setup de logging deve ser o primeiro para capturar logs de importação
+
 import asyncio
 import logging
 from contextlib import asynccontextmanager
@@ -25,7 +34,6 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend import config
 from backend.core.database import engine
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.tunnel_manager import TunnelManager
