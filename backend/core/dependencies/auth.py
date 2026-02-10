@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 from fastapi.security import APIKeyCookie
 
-from backend.config.toml_settings import load_toml_settings
+from backend import config
 from backend.core.dto.user import UserDTO
 from backend.core.exceptions import SessionNotInitializedError
 from backend.core.exceptions.http_exceptions import ForbiddenError, NotFoundError
@@ -35,6 +35,5 @@ def get_current_user(
 def verify_host(
     user: Annotated[UserDTO, Depends(get_current_user)],
 ) -> None:
-    settings = load_toml_settings()
-    if user.nickname != settings.host.nickname:
+    if user.nickname != config.toml.host.nickname:
         raise ForbiddenError("Apenas o host pode executar essa ação.")

@@ -51,7 +51,7 @@ def _generate_env_default_content(model: EnvSettings) -> str:
     return "\n".join(lines).strip() + "\n"
 
 
-def load_env_settings() -> EnvSettings:
+def _load_env_settings() -> EnvSettings:
     example = EnvSettings()
 
     if not ENV_PATH.exists():

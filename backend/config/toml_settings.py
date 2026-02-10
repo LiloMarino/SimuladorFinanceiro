@@ -73,7 +73,7 @@ class TomlSettings(BaseModel):
     logging: LoggingConfig = LoggingConfig()
 
 
-def load_toml_settings() -> TomlSettings:
+def _load_toml_settings() -> TomlSettings:
     if not CONFIG_PATH.exists():
         defaults = TomlSettings().model_dump()
 
