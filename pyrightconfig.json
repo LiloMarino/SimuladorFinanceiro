@@ -2,6 +2,7 @@
     "include": [
         "backend",
         "scripts",
+        "tests",
         "main.py"
     ],
     "exclude": [
