@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 import backend.features.variable_income.matching_engine as me
-from backend.core.exceptions import InsufficentCashError
+from backend.core.exceptions import InsufficentCashError, InsufficentPositionError
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.runtime import user_manager
 from backend.features.variable_income.broker import Broker
@@ -18,14 +18,28 @@ from backend.features.variable_income.matching_engine import MatchingEngine
 
 
 class FakeBroker(Broker):
-    def __init__(self, *, raise_exc: Exception | None = None):
-        self.raise_exc = raise_exc
+    def __init__(
+        self,
+        *,
+        raise_for_clients: dict[str, Exception] | None = None,
+        raise_on: str = "maker",
+    ):
+        self.raise_for_clients = raise_for_clients or {}
+        self.raise_on = raise_on
         self.calls: list[dict[str, object]] = []
 
     def execute_trade_atomic(self, **kwargs):
         self.calls.append(kwargs)
-        if self.raise_exc:
-            raise self.raise_exc
+
+        candidate_ids: list[str | None] = []
+        if self.raise_on in ("maker", "either"):
+            candidate_ids.append(kwargs.get("maker_client_id"))
+        if self.raise_on in ("taker", "either"):
+            candidate_ids.append(kwargs.get("taker_client_id"))
+
+        for client_id in candidate_ids:
+            if client_id in self.raise_for_clients:
+                raise self.raise_for_clients[client_id]
 
 
 @pytest.fixture(autouse=True)
@@ -107,7 +121,7 @@ def test_market_without_liquidity_raises():
 
 def test_market_without_cash_removes_maker_and_fails():
     """Uma ordem MARKET que falha no broker deve remover o maker e falhar."""
-    broker = FakeBroker(raise_exc=InsufficentCashError())
+    broker = FakeBroker(raise_for_clients={"s": InsufficentCashError()})
     engine = MatchingEngine(broker)
 
     maker = _limit(client_id="s", price=10, size=5, action=OrderAction.SELL)
@@ -122,7 +136,7 @@ def test_market_without_cash_removes_maker_and_fails():
 
 def test_limit_without_cash_enters_book_after_removing_maker():
     """Uma LIMIT que falha no broker deve remover o maker e entrar no book."""
-    broker = FakeBroker(raise_exc=InsufficentCashError())
+    broker = FakeBroker(raise_for_clients={"s": InsufficentCashError()})
     engine = MatchingEngine(broker)
 
     maker = _limit(client_id="s", price=10, size=5, action=OrderAction.SELL)
@@ -257,6 +271,25 @@ def test_market_against_many_limits_insufficient_liquidity():
     assert engine.order_book.get_orders("ABCD") == []
 
 
+def test_market_skips_maker_with_insufficient_position():
+    """Market deve ignorar maker com posicao insuficiente e seguir."""
+    broker = FakeBroker(raise_for_clients={"s1": InsufficentPositionError()})
+    engine = MatchingEngine(broker)
+
+    s1 = _limit(client_id="s1", price=10, size=1, action=OrderAction.SELL)
+    s2 = _limit(client_id="s2", price=11, size=1, action=OrderAction.SELL)
+    engine.submit(s1)
+    engine.submit(s2)
+
+    engine.submit(_market(client_id="b", size=1, action=OrderAction.BUY))
+
+    assert len(broker.calls) == 2
+    assert broker.calls[0]["maker_client_id"] == "s1"
+    assert broker.calls[1]["maker_client_id"] == "s2"
+    assert engine.order_book.find(s1.id) is None
+    assert engine.order_book.find(s2.id) is None
+
+
 def test_limit_against_many_limits_limits_left():
     """LIMIT contra varios LIMIT deve executar e deixar LIMITs sobrando."""
     broker = FakeBroker()
@@ -319,3 +352,42 @@ def test_limit_against_many_limits_insufficient_liquidity():
     assert engine.order_book.find(taker.id) is taker
     assert engine.order_book.find(s1.id) is None
     assert engine.order_book.find(s2.id) is None
+
+
+def test_market_sell_skips_buyer_with_insufficient_cash():
+    """Market SELL deve ignorar BUY sem saldo e seguir."""
+    broker = FakeBroker(raise_for_clients={"b1": InsufficentCashError()})
+    engine = MatchingEngine(broker)
+
+    b1 = _limit(client_id="b1", price=12, size=1, action=OrderAction.BUY)
+    b2 = _limit(client_id="b2", price=11, size=1, action=OrderAction.BUY)
+    engine.submit(b1)
+    engine.submit(b2)
+
+    engine.submit(_market(client_id="s", size=1, action=OrderAction.SELL))
+
+    assert len(broker.calls) == 2
+    assert broker.calls[0]["maker_client_id"] == "b1"
+    assert broker.calls[1]["maker_client_id"] == "b2"
+    assert engine.order_book.find(b1.id) is None
+    assert engine.order_book.find(b2.id) is None
+
+
+def test_invalid_limit_does_not_block_other_valid_limits():
+    """LIMIT invalida deve ser removida sem bloquear execucao das outras."""
+    broker = FakeBroker(raise_for_clients={"s2": InsufficentCashError()})
+    engine = MatchingEngine(broker)
+
+    valid1 = _limit(client_id="s1", price=10, size=1, action=OrderAction.SELL)
+    invalid = _limit(client_id="s2", price=11, size=1, action=OrderAction.SELL)
+    valid2 = _limit(client_id="s3", price=12, size=1, action=OrderAction.SELL)
+
+    engine.submit(valid1)
+    engine.submit(invalid)
+    engine.submit(valid2)
+
+    engine.submit(_market(client_id="b", size=2, action=OrderAction.BUY))
+
+    assert engine.order_book.find(invalid.id) is None
+    assert engine.order_book.find(valid1.id) is None
+    assert engine.order_book.find(valid2.id) is None
