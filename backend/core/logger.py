@@ -18,8 +18,17 @@ def setup_logging(
 
     numeric_level = getattr(logging, level.upper(), logging.INFO)
 
+    old_factory = logging.getLogRecordFactory()
+
+    def record_factory(*args, **kwargs):
+        record = old_factory(*args, **kwargs)
+        record.display_name = record.name.split(".")[-1].upper().replace("_", " ")
+        return record
+
+    logging.setLogRecordFactory(record_factory)
+
     formatter = logging.Formatter(
-        "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
+        "[%(asctime)s] [%(display_name)s] [%(levelname)s] %(message)s"
     )
 
     root_logger = logging.getLogger()
