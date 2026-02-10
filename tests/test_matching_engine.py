@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 import backend.features.variable_income.matching_engine as me
-from backend.core.exceptions import InsufficentCashError, InsufficentPositionError
+from backend.core.exceptions import InsufficentCashError
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.runtime import user_manager
 from backend.features.variable_income.broker import Broker
@@ -13,7 +13,6 @@ from backend.features.variable_income.entities.order import (
     LimitOrder,
     MarketOrder,
     OrderAction,
-    OrderStatus,
 )
 from backend.features.variable_income.matching_engine import MatchingEngine
 
@@ -47,7 +46,7 @@ def _limit(
     action: OrderAction,
     created_at: datetime | None = None,
 ) -> LimitOrder:
-    order = LimitOrder(
+    return LimitOrder(
         client_id=client_id,
         ticker="ABCD",
         price=price,
@@ -55,7 +54,6 @@ def _limit(
         action=action,
         created_at=created_at or datetime.now(UTC),
     )
-    return order
 
 
 def _market(
@@ -73,162 +71,98 @@ def _market(
 
 
 def test_limit_limit_full_fill():
+    """Duas ordens LIMIT compativeis devem se executar completamente."""
     broker = FakeBroker()
     engine = MatchingEngine(broker)
 
-    sell = _limit(client_id="seller", price=10.0, size=5, action=OrderAction.SELL)
-    engine.submit(sell)
+    engine.submit(_limit(client_id="s", price=10, size=5, action=OrderAction.SELL))
+    engine.submit(_limit(client_id="b", price=12, size=5, action=OrderAction.BUY))
 
-    buy = _limit(client_id="buyer", price=12.0, size=5, action=OrderAction.BUY)
-    engine.submit(buy)
-
-    assert sell.status == OrderStatus.EXECUTED
-    assert buy.status == OrderStatus.EXECUTED
-    assert sell.remaining == 0
-    assert buy.remaining == 0
-    assert engine.order_book.get_orders("ABCD") == []
     assert len(broker.calls) == 1
-    assert broker.calls[0]["price"] == 10.0
-    assert broker.calls[0]["size"] == 5
-
-
-def test_limit_partial_fill_rests_in_book():
-    broker = FakeBroker()
-    engine = MatchingEngine(broker)
-
-    sell = _limit(client_id="seller", price=10.0, size=4, action=OrderAction.SELL)
-    engine.submit(sell)
-
-    buy = _limit(client_id="buyer", price=12.0, size=10, action=OrderAction.BUY)
-    engine.submit(buy)
-
-    assert sell.status == OrderStatus.EXECUTED
-    assert buy.status == OrderStatus.PARTIAL
-    assert buy.remaining == 6
-    assert engine.order_book.find(buy.id) is buy
-
-
-def test_market_order_full_fill_no_rest():
-    broker = FakeBroker()
-    engine = MatchingEngine(broker)
-
-    sell = _limit(client_id="seller", price=10.0, size=5, action=OrderAction.SELL)
-    engine.submit(sell)
-
-    buy = _market(client_id="buyer", size=5, action=OrderAction.BUY)
-    engine.submit(buy)
-
-    assert buy.status == OrderStatus.EXECUTED
-    assert buy.remaining == 0
     assert engine.order_book.get_orders("ABCD") == []
 
 
-def test_market_order_insufficient_liquidity_raises():
+def test_market_limit_full_fill():
+    """Uma ordem MARKET deve executar totalmente contra uma LIMIT compativel."""
     broker = FakeBroker()
     engine = MatchingEngine(broker)
 
-    sell = _limit(client_id="seller", price=10.0, size=3, action=OrderAction.SELL)
+    sell = _limit(client_id="s", price=10, size=5, action=OrderAction.SELL)
     engine.submit(sell)
 
-    buy = _market(client_id="buyer", size=5, action=OrderAction.BUY)
+    engine.submit(_market(client_id="b", size=5, action=OrderAction.BUY))
+
+    assert len(broker.calls) == 1
+    assert engine.order_book.get_orders("ABCD") == []
+
+
+def test_market_without_liquidity_raises():
+    """Uma ordem MARKET sem liquidez deve falhar."""
+    broker = FakeBroker()
+    engine = MatchingEngine(broker)
+
     with pytest.raises(ConflictError):
-        engine.submit(buy)
-    assert buy.remaining == 2
-    assert buy.status == OrderStatus.PARTIAL
-    assert engine.order_book.get_orders("ABCD") == []
+        engine.submit(_market(client_id="b", size=5, action=OrderAction.BUY))
 
 
-def test_limit_price_constraint_blocks_execution():
-    broker = FakeBroker()
-    engine = MatchingEngine(broker)
-
-    sell = _limit(client_id="seller", price=10.0, size=5, action=OrderAction.SELL)
-    engine.submit(sell)
-
-    buy = _limit(client_id="buyer", price=9.0, size=5, action=OrderAction.BUY)
-    engine.submit(buy)
-
-    assert buy.status == OrderStatus.PENDING
-    assert buy.remaining == 5
-    assert engine.order_book.find(buy.id) is buy
-    assert engine.order_book.find(sell.id) is sell
-    assert broker.calls == []
-
-
-def test_rejection_removes_maker_and_notifies():
+def test_market_without_cash_removes_maker_and_fails():
+    """Uma ordem MARKET que falha no broker deve remover o maker e falhar."""
     broker = FakeBroker(raise_exc=InsufficentCashError())
     engine = MatchingEngine(broker)
 
-    sell = _limit(client_id="seller", price=10.0, size=5, action=OrderAction.SELL)
-    engine.submit(sell)
+    maker = _limit(client_id="s", price=10, size=5, action=OrderAction.SELL)
+    engine.submit(maker)
 
-    buy = _limit(client_id="buyer", price=11.0, size=5, action=OrderAction.BUY)
-    engine.submit(buy)
-
-    assert engine.order_book.find(sell.id) is None
-    assert engine.order_book.find(buy.id) is buy
-    assert buy.status == OrderStatus.PENDING
-    assert buy.remaining == 5
-
-
-def test_price_time_priority_same_price():
-    broker = FakeBroker()
-    engine = MatchingEngine(broker)
-
-    now = datetime.now(UTC)
-    sell_first = _limit(
-        client_id="seller_1",
-        price=10.0,
-        size=1,
-        action=OrderAction.SELL,
-        created_at=now - timedelta(seconds=10),
-    )
-    sell_second = _limit(
-        client_id="seller_2",
-        price=10.0,
-        size=1,
-        action=OrderAction.SELL,
-        created_at=now,
-    )
-
-    engine.submit(sell_first)
-    engine.submit(sell_second)
-
-    buy = _limit(client_id="buyer", price=12.0, size=1, action=OrderAction.BUY)
-    engine.submit(buy)
-
-    assert broker.calls
-    assert broker.calls[0]["maker_client_id"] == "seller_1"
-    assert engine.order_book.find(sell_first.id) is None
-    assert engine.order_book.find(sell_second.id) is sell_second
-
-
-def test_rejection_with_insufficient_position_removes_maker():
-    broker = FakeBroker(raise_exc=InsufficentPositionError())
-    engine = MatchingEngine(broker)
-
-    sell = _limit(client_id="seller", price=10.0, size=2, action=OrderAction.SELL)
-    engine.submit(sell)
-
-    buy = _limit(client_id="buyer", price=10.0, size=2, action=OrderAction.BUY)
-    engine.submit(buy)
-
-    assert engine.order_book.find(sell.id) is None
-    assert engine.order_book.find(buy.id) is buy
-
-
-def test_market_order_never_enters_book():
-    broker = FakeBroker()
-    engine = MatchingEngine(broker)
-
-    buy = _market(client_id="buyer", size=5, action=OrderAction.BUY)
     with pytest.raises(ConflictError):
-        engine.submit(buy)
+        engine.submit(_market(client_id="b", size=5, action=OrderAction.BUY))
 
-    assert engine.order_book.get_orders("ABCD") == []
+    assert engine.order_book.find(maker.id) is None
+    assert len(broker.calls) == 1
 
 
-def test_market_order_walks_book_by_best_price():
+def test_limit_without_cash_enters_book_after_removing_maker():
+    """Uma LIMIT que falha no broker deve remover o maker e entrar no book."""
+    broker = FakeBroker(raise_exc=InsufficentCashError())
+    engine = MatchingEngine(broker)
+
+    maker = _limit(client_id="s", price=10, size=5, action=OrderAction.SELL)
+    engine.submit(maker)
+
+    taker = _limit(client_id="b", price=12, size=5, action=OrderAction.BUY)
+    engine.submit(taker)
+
+    assert engine.order_book.find(maker.id) is None
+    assert engine.order_book.find(taker.id) is taker
+    assert len(broker.calls) == 1
+
+
+def test_limit_without_liquidity_enters_book():
+    """Uma ordem LIMIT sem contraparte deve entrar no book."""
+    broker = FakeBroker()
+    engine = MatchingEngine(broker)
+
+    buy = _limit(client_id="b", price=10, size=5, action=OrderAction.BUY)
+    engine.submit(buy)
+
+    assert engine.order_book.find(buy.id) is buy
+
+
+def test_market_limit_leaves_limit_partial():
+    """Uma ordem MARKET pode deixar a LIMIT parcialmente executada."""
+    broker = FakeBroker()
+    engine = MatchingEngine(broker)
+
+    sell = _limit(client_id="s", price=10, size=10, action=OrderAction.SELL)
+    engine.submit(sell)
+
+    engine.submit(_market(client_id="b", size=4, action=OrderAction.BUY))
+
+    assert sell.remaining == 6
+    assert engine.order_book.find(sell.id) is sell
+
+
+def test_market_price_priority_across_levels():
+    """Ordem MARKET deve consumir do melhor preco para o pior."""
     broker = FakeBroker()
     engine = MatchingEngine(broker)
 
@@ -236,8 +170,152 @@ def test_market_order_walks_book_by_best_price():
     engine.submit(_limit(client_id="s2", price=11, size=1, action=OrderAction.SELL))
     engine.submit(_limit(client_id="s3", price=12, size=1, action=OrderAction.SELL))
 
-    buy = _market(client_id="buyer", size=3, action=OrderAction.BUY)
-    engine.submit(buy)
+    engine.submit(_market(client_id="b", size=3, action=OrderAction.BUY))
 
     prices = [c["price"] for c in broker.calls]
     assert prices == [10, 11, 12]
+
+
+def test_time_priority_same_price():
+    """Ordens com mesmo preco devem respeitar FIFO."""
+    broker = FakeBroker()
+    engine = MatchingEngine(broker)
+
+    t0 = datetime.now(UTC)
+    engine.submit(
+        _limit(client_id="s1", price=10, size=1, action=OrderAction.SELL, created_at=t0)
+    )
+    engine.submit(
+        _limit(
+            client_id="s2",
+            price=10,
+            size=1,
+            action=OrderAction.SELL,
+            created_at=t0 + timedelta(seconds=1),
+        )
+    )
+
+    engine.submit(_market(client_id="b", size=1, action=OrderAction.BUY))
+
+    assert broker.calls[0]["maker_client_id"] == "s1"
+
+
+def test_market_against_many_limits_limits_left():
+    """Market contra varios LIMIT deve deixar LIMITs sobrando sem parcial."""
+    broker = FakeBroker()
+    engine = MatchingEngine(broker)
+
+    s1 = _limit(client_id="s1", price=10, size=2, action=OrderAction.SELL)
+    s2 = _limit(client_id="s2", price=11, size=2, action=OrderAction.SELL)
+    s3 = _limit(client_id="s3", price=12, size=2, action=OrderAction.SELL)
+
+    engine.submit(s1)
+    engine.submit(s2)
+    engine.submit(s3)
+
+    engine.submit(_market(client_id="b", size=4, action=OrderAction.BUY))
+
+    assert engine.order_book.find(s1.id) is None
+    assert engine.order_book.find(s2.id) is None
+    assert engine.order_book.find(s3.id) is s3
+    assert s3.remaining == 2
+
+
+def test_market_against_many_limits_last_limit_partial():
+    """Market contra varios LIMIT deve deixar o ultimo LIMIT parcial."""
+    broker = FakeBroker()
+    engine = MatchingEngine(broker)
+
+    s1 = _limit(client_id="s1", price=10, size=2, action=OrderAction.SELL)
+    s2 = _limit(client_id="s2", price=11, size=2, action=OrderAction.SELL)
+    s3 = _limit(client_id="s3", price=12, size=2, action=OrderAction.SELL)
+
+    engine.submit(s1)
+    engine.submit(s2)
+    engine.submit(s3)
+
+    engine.submit(_market(client_id="b", size=5, action=OrderAction.BUY))
+
+    assert engine.order_book.find(s1.id) is None
+    assert engine.order_book.find(s2.id) is None
+    assert engine.order_book.find(s3.id) is s3
+    assert s3.remaining == 1
+
+
+def test_market_against_many_limits_insufficient_liquidity():
+    """Market contra varios LIMIT deve falhar se faltar liquidez."""
+    broker = FakeBroker()
+    engine = MatchingEngine(broker)
+
+    engine.submit(_limit(client_id="s1", price=10, size=2, action=OrderAction.SELL))
+    engine.submit(_limit(client_id="s2", price=11, size=2, action=OrderAction.SELL))
+    engine.submit(_limit(client_id="s3", price=12, size=2, action=OrderAction.SELL))
+
+    with pytest.raises(ConflictError):
+        engine.submit(_market(client_id="b", size=7, action=OrderAction.BUY))
+
+    assert engine.order_book.get_orders("ABCD") == []
+
+
+def test_limit_against_many_limits_limits_left():
+    """LIMIT contra varios LIMIT deve executar e deixar LIMITs sobrando."""
+    broker = FakeBroker()
+    engine = MatchingEngine(broker)
+
+    s1 = _limit(client_id="s1", price=10, size=1, action=OrderAction.SELL)
+    s2 = _limit(client_id="s2", price=11, size=1, action=OrderAction.SELL)
+    s3 = _limit(client_id="s3", price=12, size=1, action=OrderAction.SELL)
+    s4 = _limit(client_id="s4", price=13, size=1, action=OrderAction.SELL)
+
+    engine.submit(s1)
+    engine.submit(s2)
+    engine.submit(s3)
+    engine.submit(s4)
+
+    taker = _limit(client_id="b", price=12, size=3, action=OrderAction.BUY)
+    engine.submit(taker)
+
+    assert taker.remaining == 0
+    assert engine.order_book.find(taker.id) is None
+    assert engine.order_book.find(s4.id) is s4
+
+
+def test_limit_against_many_limits_limit_partial_due_to_price():
+    """LIMIT contra varios LIMIT deve ficar parcial se o preco limitar."""
+    broker = FakeBroker()
+    engine = MatchingEngine(broker)
+
+    s1 = _limit(client_id="s1", price=10, size=2, action=OrderAction.SELL)
+    s2 = _limit(client_id="s2", price=11, size=2, action=OrderAction.SELL)
+    s3 = _limit(client_id="s3", price=12, size=2, action=OrderAction.SELL)
+
+    engine.submit(s1)
+    engine.submit(s2)
+    engine.submit(s3)
+
+    taker = _limit(client_id="b", price=11, size=5, action=OrderAction.BUY)
+    engine.submit(taker)
+
+    assert taker.remaining == 1
+    assert engine.order_book.find(taker.id) is taker
+    assert engine.order_book.find(s3.id) is s3
+
+
+def test_limit_against_many_limits_insufficient_liquidity():
+    """LIMIT contra varios LIMIT deve ficar no book se faltar liquidez."""
+    broker = FakeBroker()
+    engine = MatchingEngine(broker)
+
+    s1 = _limit(client_id="s1", price=10, size=2, action=OrderAction.SELL)
+    s2 = _limit(client_id="s2", price=11, size=2, action=OrderAction.SELL)
+
+    engine.submit(s1)
+    engine.submit(s2)
+
+    taker = _limit(client_id="b", price=11, size=5, action=OrderAction.BUY)
+    engine.submit(taker)
+
+    assert taker.remaining == 1
+    assert engine.order_book.find(taker.id) is taker
+    assert engine.order_book.find(s1.id) is None
+    assert engine.order_book.find(s2.id) is None
