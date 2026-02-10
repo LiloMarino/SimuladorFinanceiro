@@ -1,11 +1,12 @@
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from backend.core.logger import setup_logger
 from backend.core.utils import resource_path
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def register_frontend_routes(app: FastAPI):

@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 from sqlalchemy import create_engine, text
@@ -5,10 +6,9 @@ from sqlalchemy.engine.url import URL, make_url
 from sqlalchemy.orm import sessionmaker
 
 from backend import config
-from backend.core.logger import setup_logger
 from backend.core.models.models import Base
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # -----------------------------------

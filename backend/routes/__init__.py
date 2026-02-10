@@ -1,7 +1,8 @@
+import logging
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-from backend.core.logger import setup_logger
 from backend.routes.auth import auth_router
 from backend.routes.error import ERROR_500_RESPONSE, ErrorResponse
 from backend.routes.frontend import register_frontend_routes
@@ -15,7 +16,7 @@ from backend.routes.statistics import statistics_router
 from backend.routes.timespeed import timespeed_router
 from backend.routes.tunnel import tunnel_router
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def register_routes(app: FastAPI):

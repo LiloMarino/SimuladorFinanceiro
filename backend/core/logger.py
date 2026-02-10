@@ -2,35 +2,44 @@ import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-LOG_DIR = Path("logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
 
+def setup_logging(
+    *,
+    level: str = "INFO",
+    logs_path: str = "logs",
+    log_file: str = "app.log",
+) -> None:
+    """
+    Configura logging global da aplicação.
+    Deve ser chamado UMA vez no boot.
+    """
+    log_dir = Path(logs_path)
+    log_dir.mkdir(parents=True, exist_ok=True)
 
-def setup_logger(
-    name: str = "APP", log_file: str = "app.log", level=logging.INFO
-) -> logging.Logger:
-    logger = logging.getLogger(name.split(".")[-1].upper().replace("_", " "))
-    logger.setLevel(level)
+    numeric_level = getattr(logging, level.upper(), logging.INFO)
 
     formatter = logging.Formatter(
         "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
     )
 
-    # Evita adicionar múltiplos handlers ao reiniciar
-    if not logger.handlers:
-        # Console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(numeric_level)
 
-        # File handler
-        file_handler = RotatingFileHandler(
-            LOG_DIR / log_file,
-            maxBytes=10_000_000,  # ~10MB por arquivo
-            backupCount=5,  # mantém 5 arquivos circulares
-            encoding="utf-8",
-        )
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+    # Evita handlers duplicados
+    if root_logger.handlers:
+        return
 
-    return logger
+    # Console
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    root_logger.addHandler(console_handler)
+
+    # Arquivo
+    file_handler = RotatingFileHandler(
+        log_dir / log_file,
+        maxBytes=10_000_000,  # ~10MB por arquivo
+        backupCount=5,  # mantém 5 arquivos circulares
+        encoding="utf-8",
+    )
+    file_handler.setFormatter(formatter)
+    root_logger.addHandler(file_handler)

@@ -1,13 +1,14 @@
+import logging
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
 from backend.core.dependencies import ClientID
-from backend.core.logger import setup_logger
 from backend.features.realtime import get_broker, get_sse_broker
 
 realtime_router = APIRouter(prefix="/api", tags=["Realtime"])
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class UpdateSubscriptionRequest(BaseModel):

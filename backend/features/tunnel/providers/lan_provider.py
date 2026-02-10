@@ -1,11 +1,12 @@
+import logging
+
 from backend import config
-from backend.core.logger import setup_logger
 from backend.features.tunnel.network_utils.network_detector import NetworkDetector
 from backend.features.tunnel.network_utils.network_interface import NetworkInterface
 from backend.features.tunnel.network_utils.network_policy import NetworkPolicy
 from backend.features.tunnel.tunnel_provider import TunnelProvider
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class LANProvider(TunnelProvider):

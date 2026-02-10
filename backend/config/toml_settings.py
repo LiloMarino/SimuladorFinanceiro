@@ -1,14 +1,14 @@
+import logging
 import tomllib
 from pathlib import Path
 
 import toml
 from pydantic import BaseModel, field_validator
 
-from backend.core.logger import setup_logger
 from backend.features.tunnel.network_utils.network_types import NetworkType
 from backend.features.tunnel.providers import AVAILABLE_PROVIDERS
 
-logger = setup_logger(__package__ if __package__ else __name__)
+logger = logging.getLogger(__package__ if __package__ else __name__)
 
 CONFIG_PATH = Path("config.toml")
 
@@ -48,12 +48,29 @@ class ServerConfig(BaseModel):
         return v
 
 
+class LoggingConfig(BaseModel):
+    logging_level: str = "INFO"
+    logs_path: str = "logs"
+
+    @field_validator("logging_level")
+    @classmethod
+    def validate_level(cls, v: str) -> str:
+        level = v.upper()
+        if not hasattr(logging, level):
+            raise ValueError(
+                f"logging_level inválido: {v}. "
+                "Use DEBUG, INFO, WARNING, ERROR ou CRITICAL."
+            )
+        return level
+
+
 class TomlSettings(BaseModel):
     database: DatabaseConfig = DatabaseConfig()
     simulation: SimulationConfig = SimulationConfig()
     realtime: RealtimeConfig = RealtimeConfig()
     host: HostConfig = HostConfig()
     server: ServerConfig = ServerConfig()
+    logging: LoggingConfig = LoggingConfig()
 
 
 def load_toml_settings() -> TomlSettings:

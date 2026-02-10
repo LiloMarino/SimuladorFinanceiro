@@ -1,3 +1,4 @@
+import logging
 from threading import Lock
 from typing import ClassVar
 
@@ -5,10 +6,9 @@ from backend.core import repository
 from backend.core.dto.user import UserDTO
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import NotFoundError
-from backend.core.logger import setup_logger
 from backend.core.utils.lazy_dict import LazyDict
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class UserManager:

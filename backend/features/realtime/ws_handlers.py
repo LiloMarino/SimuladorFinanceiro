@@ -1,12 +1,12 @@
+import logging
 from http.cookies import SimpleCookie
 
 from socketio import AsyncServer
 
-from backend.core.logger import setup_logger
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import get_socket_broker
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def register_ws_handlers(sio: AsyncServer):

@@ -1,16 +1,16 @@
 import asyncio
+import logging
 from collections import defaultdict
 from collections.abc import Iterable
 from threading import Lock
 
 from socketio import AsyncServer
 
-from backend.core.logger import setup_logger
 from backend.types import SID, ClientID, Event, JSONValue
 
 from .realtime_broker import RealtimeBroker
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class SocketBroker(RealtimeBroker):

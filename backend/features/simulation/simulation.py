@@ -1,3 +1,4 @@
+import logging
 from datetime import date, timedelta
 from decimal import Decimal
 
@@ -10,13 +11,12 @@ from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
-from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.features.realtime import notify
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.strategy.manual import ManualStrategy
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Simulation:

@@ -17,6 +17,7 @@ junto com este programa. Caso não, veja <https://www.gnu.org/licenses/>.
 """
 
 import asyncio
+import logging
 from contextlib import asynccontextmanager
 
 import socketio
@@ -26,7 +27,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend import config
 from backend.core.database import engine
-from backend.core.logger import setup_logger
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.tunnel_manager import TunnelManager
 from backend.features.realtime.sse_broker import SSEBroker
@@ -35,7 +35,7 @@ from backend.features.realtime.ws_handlers import register_ws_handlers
 from backend.features.simulation.simulation_loop import simulation_controller
 from backend.routes import register_routes
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------

@@ -1,9 +1,9 @@
+import logging
 import uuid
 
-from backend.core.logger import setup_logger
 from backend.features.tunnel.tunnel_provider import TunnelProvider
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ExampleProvider(TunnelProvider):

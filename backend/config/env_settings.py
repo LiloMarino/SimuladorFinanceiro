@@ -1,12 +1,10 @@
+import logging
 from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from backend.core.logger import setup_logger
-
-logger = setup_logger(__package__ if __package__ else __name__)
-
+logger = logging.getLogger(__package__ if __package__ else __name__)
 ENV_PATH = Path(".env")
 
 

@@ -1,12 +1,12 @@
+import logging
 from datetime import date
 
 from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.logger import setup_logger
 from backend.features.fixed_income.factory import FixedIncomeFactory
 from backend.features.realtime import notify
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class FixedIncomeMarket:

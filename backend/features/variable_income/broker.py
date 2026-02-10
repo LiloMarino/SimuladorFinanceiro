@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
@@ -8,7 +9,6 @@ from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.enum import EquityEventType
 from backend.core.exceptions import InsufficentCashError, InsufficentPositionError
-from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
@@ -20,7 +20,7 @@ from backend.features.variable_income.market_liquidity import MarketLiquidity
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def load_positions(client_id: str) -> dict[str, Position]:

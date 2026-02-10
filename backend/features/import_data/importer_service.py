@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 
 import pandas as pd
@@ -7,10 +8,9 @@ import yfinance as yf
 
 from backend.core import repository
 from backend.core.exceptions.http_exceptions import NotFoundError
-from backend.core.logger import setup_logger
 from backend.core.models.models import StockPriceHistory
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 # -------------------
 # Origens de dados

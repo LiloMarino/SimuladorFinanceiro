@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import date
 from decimal import Decimal
 from typing import TYPE_CHECKING
@@ -12,7 +13,6 @@ from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.enum import FixedIncomeEventType
 from backend.core.exceptions.http_exceptions import ConflictError
-from backend.core.logger import setup_logger
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
@@ -24,7 +24,7 @@ from backend.features.realtime import notify
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def load_fixed_assets(client_id: str) -> dict[str, FixedIncomePosition]:
