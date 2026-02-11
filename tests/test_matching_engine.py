@@ -19,28 +19,17 @@ from backend.features.variable_income.matching_engine import MatchingEngine
 
 
 class FakeBroker(Broker):
-    def __init__(
-        self,
-        *,
-        raise_for_clients: dict[str, Exception] | None = None,
-        raise_on: str = "maker",
-    ):
-        self.raise_for_clients = raise_for_clients or {}
-        self.raise_on = raise_on
-        self.calls: list[dict[str, object]] = []
+    def __init__(self, *, fail_for: dict[str, Exception] | None = None):
+        self.fail_for = fail_for or {}
+        self.calls: list[dict] = []
 
     def execute_trade_atomic(self, **kwargs):
         self.calls.append(kwargs)
 
-        candidate_ids: list[str | None] = []
-        if self.raise_on in ("maker", "either"):
-            candidate_ids.append(kwargs.get("maker_client_id"))
-        if self.raise_on in ("taker", "either"):
-            candidate_ids.append(kwargs.get("taker_client_id"))
-
-        for client_id in candidate_ids:
-            if client_id in self.raise_for_clients:
-                raise self.raise_for_clients[client_id]
+        for key in ("maker_client_id", "taker_client_id"):
+            client_id = kwargs.get(key)
+            if client_id in self.fail_for:
+                raise self.fail_for[client_id]
 
 
 @pytest.fixture(autouse=True)
@@ -456,3 +445,117 @@ def test_limit_against_many_limits_insufficient_liquidity():
         taker_action=OrderAction.BUY,
         maker_action=OrderAction.SELL,
     )
+
+
+def test_limit_against_same_price_limit_partial_due_to_price():
+    """LIMIT contra LIMIT do mesmo preço deve ficar parcial se o tamanho limitar."""
+    broker = FakeBroker()
+    engine = MatchingEngine(broker)
+
+    s1 = _limit(client_id="s1", price=10, size=2, action=OrderAction.SELL)
+    s2 = _limit(client_id="s2", price=10, size=3, action=OrderAction.SELL)
+
+    engine.submit(s1)
+    engine.submit(s2)
+
+    taker = _limit(client_id="b", price=10, size=4, action=OrderAction.BUY)
+    engine.submit(taker)
+
+    assert engine.order_book.find(taker.id) is None
+    assert taker.remaining == 0
+    assert taker.status == OrderStatus.EXECUTED
+
+    assert engine.order_book.find(s1.id) is None
+    assert s1.remaining == 0
+    assert s1.status == OrderStatus.EXECUTED
+
+    assert engine.order_book.find(s2.id) is s2
+    assert s2.remaining == 1
+    assert s2.status == OrderStatus.PARTIAL
+
+    assert len(broker.calls) == 2
+    assert_trade(
+        broker.calls[0],
+        taker_client_id="b",
+        maker_client_id="s1",
+        size=2,
+        price=10,
+        taker_action=OrderAction.BUY,
+        maker_action=OrderAction.SELL,
+    )
+    assert_trade(
+        broker.calls[1],
+        taker_client_id="b",
+        maker_client_id="s2",
+        size=2,
+        price=10,
+        taker_action=OrderAction.BUY,
+        maker_action=OrderAction.SELL,
+    )
+
+
+def test_limit_without_cash_is_rejected():
+    """LIMIT BUY sem saldo deve ser rejeitada e não entrar no book."""
+    broker = FakeBroker(
+        fail_for={"b": InsufficentCashError()},
+    )
+    engine = MatchingEngine(broker)
+    sell = _limit(client_id="s", price=10, size=5, action=OrderAction.SELL)
+    engine.submit(sell)
+    engine.submit(_limit(client_id="b", price=12, size=5, action=OrderAction.BUY))
+
+    # Book intacto
+    assert engine.order_book.find(sell.id) is sell
+    assert sell.remaining == 5
+    assert sell.status == OrderStatus.PENDING
+
+
+def test_market_without_cash_is_rejected():
+    """MARKET BUY sem saldo deve falhar e não consumir liquidez."""
+    broker = FakeBroker(
+        fail_for={"b": InsufficentCashError()},
+    )
+    engine = MatchingEngine(broker)
+
+    sell = _limit(client_id="s", price=10, size=5, action=OrderAction.SELL)
+    engine.submit(sell)
+    engine.submit(_market(client_id="b", size=3, action=OrderAction.BUY))
+
+    # Book intacto
+    assert engine.order_book.find(sell.id) is sell
+    assert sell.remaining == 5
+    assert sell.status == OrderStatus.PENDING
+
+
+def test_limit_sell_without_position_is_rejected():
+    """LIMIT SELL sem posição deve ser rejeitada."""
+    broker = FakeBroker(
+        fail_for={"s": InsufficentPositionError()},
+    )
+    engine = MatchingEngine(broker)
+
+    buy = _limit(client_id="b", price=10, size=5, action=OrderAction.BUY)
+    engine.submit(buy)
+    engine.submit(_limit(client_id="s", price=10, size=5, action=OrderAction.SELL))
+
+    # Book intacto
+    assert engine.order_book.find(buy.id) is buy
+    assert buy.remaining == 5
+    assert buy.status == OrderStatus.PENDING
+
+
+def test_market_sell_without_position_is_rejected():
+    """MARKET SELL sem posição deve falhar e não afetar o book."""
+    broker = FakeBroker(
+        fail_for={"s": InsufficentPositionError()},
+    )
+    engine = MatchingEngine(broker)
+
+    buy = _limit(client_id="b", price=10, size=5, action=OrderAction.BUY)
+    engine.submit(buy)
+    engine.submit(_market(client_id="s", size=3, action=OrderAction.SELL))
+
+    # Book intacto
+    assert engine.order_book.find(buy.id) is buy
+    assert buy.remaining == 5
+    assert buy.status == OrderStatus.PENDING
