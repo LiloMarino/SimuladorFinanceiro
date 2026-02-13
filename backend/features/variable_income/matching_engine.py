@@ -46,12 +46,27 @@ class MatchingEngine:
         if order.status != OrderStatus.PENDING:
             raise UnprocessableEntityError("Ordem inválida")
 
+        # Reserva o cash em LIMIT para evitar que seja gasto em outro trade antes de ser executado
+        if isinstance(order, LimitOrder):
+            self.broker.reserve_limit_order(order)
+
         # Toda ordem tenta consumir o book
-        self._consume_book(order)
+        executed, error = self._consume_book(order)
+
+        if error:
+            if isinstance(order, LimitOrder):
+                self.broker.release_limit_order(order)
+                raise error
+            if isinstance(order, MarketOrder) and executed == 0:
+                raise error
 
         # MARKET que sobrou → erro
         if isinstance(order, MarketOrder) and order.remaining > 0:
-            raise ConflictError("Sem liquidez no mercado")
+            if executed == 0:
+                raise ConflictError("Sem liquidez no mercado")
+            raise ConflictError(
+                f"Ordem executada parcialmente: executado {executed} de {order.size}."
+            )
 
         # LIMIT que sobrou → entra no book
         if isinstance(order, LimitOrder) and order.remaining > 0:
@@ -91,11 +106,12 @@ class MatchingEngine:
         if order.client_id != client_id:
             raise ForbiddenError("Ordem não pertence ao cliente")
 
-        if order.status not in (OrderStatus.PENDING, OrderStatus.PARTIAL):
+        if order.status != OrderStatus.PENDING:
             raise ForbiddenError("Ordem não pode ser cancelada")
 
         order.status = OrderStatus.CANCELED
         order.remaining = 0
+        self.broker.release_limit_order(order)
         notify(
             event=f"order_updated:{order.ticker}",
             payload={
@@ -114,7 +130,9 @@ class MatchingEngine:
         if mo.remaining <= 0:
             return False
 
-        self._consume_book(mo)
+        _, error = self._consume_book(mo)
+        if error:
+            return False
 
         if mo.remaining > 0:
             self.order_book.add(mo)
@@ -126,13 +144,14 @@ class MatchingEngine:
     # Core matching
     # =========================
 
-    def _consume_book(self, order: Order) -> None:
+    def _consume_book(self, order: Order) -> tuple[int, Exception | None]:
         """
         Consome o book respeitando:
         - preço (se LIMIT)
         - melhor preço disponível
         - price-time priority
         """
+        executed = 0
         while order.remaining > 0:
             counter = (
                 self.order_book.best_sell(order.ticker)
@@ -150,27 +169,37 @@ class MatchingEngine:
                 if order.action == OrderAction.SELL and counter.price < order.price:
                     break
 
-            self._execute_trade(order, counter, counter.price)
+            qty, error = self._execute_trade(order, counter, counter.price)
+            if error:
+                return executed, error
+            executed += qty
 
-    def _execute_trade(self, taker: Order, maker: LimitOrder, price: float):
+        return executed, None
+
+    def _execute_trade(
+        self, taker: Order, maker: LimitOrder, price: float
+    ) -> tuple[int, Exception | None]:
         """
         Executa trade atomicamente entre taker (ordem ativa) e maker (ordem do book).
         Se falhar, maker é removido do book e notificado com rejeição.
         """
         qty = min(taker.remaining, maker.remaining)
 
+        taker_use_reserved = isinstance(taker, LimitOrder)
+        maker_use_reserved = True
+
         try:
-            self.broker.execute_trade_atomic(
-                taker_client_id=taker.client_id,
-                maker_client_id=maker.client_id,
-                ticker=taker.ticker,
-                size=qty,
-                price=price,
-                taker_action=taker.action,
-                maker_action=maker.action,
+            self.broker.validate_trade_leg(
+                client_id=maker.client_id,
+                ticker=maker.ticker,
+                qty=qty,
+                cost=price * qty,
+                action=maker.action,
+                use_reserved=maker_use_reserved,
+                order_id=maker.id,
+                limit_price=maker.price,
             )
         except (InsufficentCashError, InsufficentPositionError) as e:
-            # Trade não pode ser executado remove maker do book e notifica rejeição
             self.order_book.remove(maker)
             reason = (
                 f"Saldo insuficiente para executar a ordem em {maker.ticker}"
@@ -178,7 +207,37 @@ class MatchingEngine:
                 else f"Posição insuficiente em {maker.ticker} para executar a ordem"
             )
             self._notify_rejection(maker, reason)
-            return
+            return 0, None
+
+        try:
+            self.broker.validate_trade_leg(
+                client_id=taker.client_id,
+                ticker=taker.ticker,
+                qty=qty,
+                cost=price * qty,
+                action=taker.action,
+                use_reserved=taker_use_reserved,
+                order_id=taker.id if taker_use_reserved else None,
+                limit_price=taker.price if taker_use_reserved else None,
+            )
+        except (InsufficentCashError, InsufficentPositionError) as e:
+            return 0, e
+
+        self.broker.execute_trade_atomic(
+            taker_client_id=taker.client_id,
+            maker_client_id=maker.client_id,
+            ticker=taker.ticker,
+            size=qty,
+            price=price,
+            taker_action=taker.action,
+            maker_action=maker.action,
+            taker_use_reserved=taker_use_reserved,
+            maker_use_reserved=maker_use_reserved,
+            taker_order_id=taker.id if taker_use_reserved else None,
+            maker_order_id=maker.id,
+            taker_limit_price=taker.price if taker_use_reserved else None,
+            maker_limit_price=maker.price,
+        )
 
         # Trade bem-sucedido atualiza estados e notifica
         taker.remaining -= qty
@@ -196,6 +255,8 @@ class MatchingEngine:
 
         if maker.remaining == 0:
             self.order_book.remove(maker)
+
+        return qty, None
 
     # =========================
     # Notificações

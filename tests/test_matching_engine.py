@@ -31,6 +31,28 @@ class FakeBroker(Broker):
             if client_id in self.fail_for:
                 raise self.fail_for[client_id]
 
+    def reserve_limit_order(self, order: LimitOrder) -> None:
+        if order.client_id in self.fail_for:
+            raise self.fail_for[order.client_id]
+
+    def release_limit_order(self, order: LimitOrder) -> None:
+        return None
+
+    def validate_trade_leg(
+        self,
+        *,
+        client_id: str,
+        ticker: str,
+        qty: int,
+        cost: float,
+        action: OrderAction,
+        use_reserved: bool = False,
+        order_id: str | None = None,
+        limit_price: float | None = None,
+    ) -> None:
+        if client_id in self.fail_for:
+            raise self.fail_for[client_id]
+
 
 @pytest.fixture(autouse=True)
 def disable_side_effects(monkeypatch: pytest.MonkeyPatch):
@@ -295,7 +317,7 @@ def test_market_against_many_limits_last_limit_partial():
 
 
 def test_market_against_many_limits_insufficient_liquidity():
-    """Market contra vários LIMIT deve falhar se não houver liquidez suficiente e não deve afetar o book."""
+    """Market contra vários LIMIT deve falhar se não houver liquidez suficiente."""
     broker = FakeBroker()
     engine = MatchingEngine(broker)
 
@@ -306,14 +328,16 @@ def test_market_against_many_limits_insufficient_liquidity():
     engine.submit(s2)
     engine.submit(s3)
 
-    with pytest.raises(ConflictError):
+    with pytest.raises(ConflictError) as exc_info:
         engine.submit(_market(client_id="b", size=7, action=OrderAction.BUY))
 
-    assert len(broker.calls) == 0
+    assert "executado 6 de 7" in str(exc_info.value)
+
+    assert len(broker.calls) == 3
     for s in (s1, s2, s3):
-        assert engine.order_book.find(s.id) is s
-        assert s.remaining == 2
-        assert s.status == OrderStatus.PENDING
+        assert engine.order_book.find(s.id) is None
+        assert s.remaining == 0
+        assert s.status == OrderStatus.EXECUTED
 
 
 def test_limit_against_many_limits_limits_left():
@@ -502,7 +526,9 @@ def test_limit_without_cash_is_rejected():
     engine = MatchingEngine(broker)
     sell = _limit(client_id="s", price=10, size=5, action=OrderAction.SELL)
     engine.submit(sell)
-    engine.submit(_limit(client_id="b", price=12, size=5, action=OrderAction.BUY))
+
+    with pytest.raises(InsufficentCashError):
+        engine.submit(_limit(client_id="b", price=12, size=5, action=OrderAction.BUY))
 
     # Book intacto
     assert engine.order_book.find(sell.id) is sell
@@ -519,7 +545,8 @@ def test_market_without_cash_is_rejected():
 
     sell = _limit(client_id="s", price=10, size=5, action=OrderAction.SELL)
     engine.submit(sell)
-    engine.submit(_market(client_id="b", size=3, action=OrderAction.BUY))
+    with pytest.raises(InsufficentCashError):
+        engine.submit(_market(client_id="b", size=3, action=OrderAction.BUY))
 
     # Book intacto
     assert engine.order_book.find(sell.id) is sell
@@ -536,7 +563,8 @@ def test_limit_sell_without_position_is_rejected():
 
     buy = _limit(client_id="b", price=10, size=5, action=OrderAction.BUY)
     engine.submit(buy)
-    engine.submit(_limit(client_id="s", price=10, size=5, action=OrderAction.SELL))
+    with pytest.raises(InsufficentPositionError):
+        engine.submit(_limit(client_id="s", price=10, size=5, action=OrderAction.SELL))
 
     # Book intacto
     assert engine.order_book.find(buy.id) is buy
@@ -553,7 +581,8 @@ def test_market_sell_without_position_is_rejected():
 
     buy = _limit(client_id="b", price=10, size=5, action=OrderAction.BUY)
     engine.submit(buy)
-    engine.submit(_market(client_id="s", size=3, action=OrderAction.SELL))
+    with pytest.raises(InsufficentPositionError):
+        engine.submit(_market(client_id="s", size=3, action=OrderAction.SELL))
 
     # Book intacto
     assert engine.order_book.find(buy.id) is buy
