@@ -13,7 +13,7 @@ from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.realtime import notify
-from backend.features.variable_income.entities.order import OrderAction
+from backend.features.variable_income.entities.order import LimitOrder, OrderAction
 from backend.features.variable_income.entities.position import Position
 from backend.features.variable_income.market_liquidity import MarketLiquidity
 
@@ -63,6 +63,36 @@ class Broker:
 
     def get_positions(self, client_id: str) -> dict[str, Position]:
         return self._positions[client_id]
+
+    def get_position_size(self, client_id: str, ticker: str) -> int:
+        position = self._positions[client_id].get(ticker)
+        return position.size if position else 0
+
+    def reserve_limit_order(self, order: LimitOrder) -> None:
+        if order.client_id == MarketLiquidity.MARKET_CLIENT_ID:
+            return
+
+        if order.action == OrderAction.BUY:
+            cost = order.price * order.size
+            if self._simulation_engine.get_cash(order.client_id) < cost:
+                raise InsufficentCashError()
+
+            self._simulation_engine.add_cash(order.client_id, -cost)
+        elif order.action == OrderAction.SELL:
+            if self.get_position_size(order.client_id, order.ticker) < order.size:
+                raise InsufficentPositionError()
+
+            self._positions[order.client_id][order.ticker].reserve(order.size)
+
+    def release_limit_order(self, order: LimitOrder) -> None:
+        if order.client_id == MarketLiquidity.MARKET_CLIENT_ID:
+            return
+
+        if order.action == OrderAction.BUY:
+            cost = order.price * order.size
+            self._simulation_engine.add_cash(order.client_id, cost)
+        elif order.action == OrderAction.SELL:
+            self._positions[order.client_id][order.ticker].release(order.size)
 
     def execute_trade_atomic(
         self,
@@ -152,9 +182,9 @@ class Broker:
         if client_id == MarketLiquidity.MARKET_CLIENT_ID:
             return
 
-        if action == OrderAction.SELL and (
-            ticker not in self._positions[client_id]
-            or self._positions[client_id][ticker].size < qty
+        if (
+            action == OrderAction.SELL
+            and self.get_position_size(client_id, ticker) < qty
         ):
             raise InsufficentPositionError()
 

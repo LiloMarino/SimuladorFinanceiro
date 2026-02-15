@@ -46,6 +46,10 @@ class MatchingEngine:
         if order.status != OrderStatus.PENDING:
             raise UnprocessableEntityError("Ordem inválida")
 
+        # Reserva o cash em LIMIT para evitar que seja gasto em outro trade antes de ser executado
+        if isinstance(order, LimitOrder):
+            self.broker.reserve_limit_order(order)
+
         # Toda ordem tenta consumir o book
         self._consume_book(order)
 

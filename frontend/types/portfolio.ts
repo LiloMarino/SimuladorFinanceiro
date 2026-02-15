@@ -3,6 +3,7 @@ import type { FixedIncomeAssetApi } from "./fixed-income";
 export type Position = {
   ticker: string;
   size: number;
+  reserved: number;
   total_cost: number;
   avg_price: number;
 };

@@ -9,6 +9,7 @@ class Position:
 
     ticker: str
     size: int = 0
+    reserved: int = 0
     total_cost: float = 0
     avg_price: float = 0
 
@@ -25,3 +26,13 @@ class Position:
         self.total_cost -= self.avg_price * size
         self.size -= size
         self.avg_price = (self.total_cost / self.size) if self.size > 0 else 0
+
+    def reserve(self, size: int):
+        """Reserva parte da posição para ordens em aberto."""
+        if self.size - self.reserved < size:
+            raise InsufficentPositionError()
+        self.reserved += size
+
+    def release(self, size: int):
+        """Libera parte da posição reservada."""
+        self.reserved = max(0, self.reserved - size)
