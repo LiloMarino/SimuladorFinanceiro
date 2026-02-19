@@ -63,15 +63,24 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
     },
   });
 
-  const executeOrderMutation = useMutationApi(`/api/variable-income/${stock.ticker}/orders`, {
-    onSuccess: () => {
-      toast.success("Ordem enviada com sucesso!");
-      form.reset();
+  const executeOrderMutation = useMutationApi<{ order_id: string; status: string }>(
+    `/api/variable-income/${stock.ticker}/orders`,
+    {
+      onSuccess: (data) => {
+        if (data.status === "PARTIAL") {
+          toast.warning("Ordem executada parcialmente", {
+            description: "Não foi possível completar a execução por falta de liquidez",
+          });
+        } else {
+          toast.success("Ordem enviada com sucesso!");
+        }
+        form.reset();
+      },
+      onError: (err) => {
+        toast.error(err.message);
+      },
     },
-    onError: (err) => {
-      toast.error(err.message);
-    },
-  });
+  );
 
   const type = form.watch("type");
   const action = form.watch("action");

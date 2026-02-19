@@ -126,6 +126,7 @@ class Simulation:
             else PositionDTO(
                 ticker=ticker,
                 size=0,
+                reserved=0,
                 total_cost=0,
                 avg_price=0,
             )

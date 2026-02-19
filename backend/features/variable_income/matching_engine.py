@@ -47,12 +47,8 @@ class MatchingEngine:
 
         if isinstance(order, MarketOrder):
             executed = self._consume_book(order)
-            if order.remaining > 0:
-                if executed == 0:
-                    raise ConflictError("Sem liquidez no mercado")
-                raise ConflictError(
-                    f"Ordem executada parcialmente: executado {executed} de {order.size}."
-                )
+            if order.remaining > 0 and executed == 0:
+                raise ConflictError("Sem liquidez no mercado")
 
         if isinstance(order, LimitOrder):
             # Reserva o cash/posição em LIMIT para evitar que seja gasto em outro trade antes de ser executado
