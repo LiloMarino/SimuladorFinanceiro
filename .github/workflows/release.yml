@@ -11,6 +11,8 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
@@ -40,6 +42,8 @@ jobs:
   build:
     needs: validate
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
 
     strategy:
       fail-fast: false
