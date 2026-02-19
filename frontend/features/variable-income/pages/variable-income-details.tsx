@@ -66,7 +66,7 @@ export default function VariableIncomeDetailPage() {
           <NewOrderCard stock={stock} cash={cash} position={position} />
 
           {/* Resumo */}
-          <PositionSummaryCard stock={stock} cash={cash} position={position} />
+          <PositionSummaryCard stock={stock} position={position} />
         </div>
 
         <PendingOrdersCard ticker={stock.ticker} />

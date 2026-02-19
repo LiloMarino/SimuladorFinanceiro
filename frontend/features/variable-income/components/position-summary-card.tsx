@@ -5,11 +5,10 @@ import clsx from "clsx";
 
 type PositionSummaryCardProps = {
   stock: StockDetails;
-  cash: number;
   position: Position | null;
 };
 
-export function PositionSummaryCard({ stock, cash, position }: PositionSummaryCardProps) {
+export function PositionSummaryCard({ stock, position }: PositionSummaryCardProps) {
   const size = position?.size ?? 0;
   const reserved = position?.reserved ?? 0;
   const avgPrice = position?.avg_price ?? 0;
@@ -17,7 +16,6 @@ export function PositionSummaryCard({ stock, cash, position }: PositionSummaryCa
   const pnl = size * (currentPrice - avgPrice);
   const pnlPct = avgPrice > 0 ? (currentPrice - avgPrice) / avgPrice : 0;
   const isProfit = pnl >= 0;
-  const reservedLabel = reserved > 0 ? ` (${reserved} reservadas)` : "";
   return (
     <Card className="flex-1 bg-background p-4 border gap-4">
       <h3 className="font-medium">Resumo</h3>
@@ -25,13 +23,13 @@ export function PositionSummaryCard({ stock, cash, position }: PositionSummaryCa
         <div>
           <p className="text-muted-foreground">Você possui</p>
           <p className="font-bold">
-            {size} ações{reservedLabel} ({displayMoney(size * currentPrice)})
+            {size} ações {reserved > 0 ? ` (${reserved} reservadas)` : ""}
           </p>
         </div>
 
         <div>
-          <p className="text-muted-foreground">Saldo em conta</p>
-          <p className="font-bold">{displayMoney(cash)}</p>
+          <p className="text-muted-foreground">Valor total da posição</p>
+          <p className="font-bold">{displayMoney(size * currentPrice)}</p>
         </div>
 
         <div>
