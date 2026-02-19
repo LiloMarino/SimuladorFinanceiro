@@ -1,0 +1,155 @@
+name: Release Multi-Plataforma
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versão SemVer (ex: 1.2.3)"
+        required: true
+        type: string
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validar versão SemVer
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Versão inválida: '$VERSION'. Use SemVer (ex: 1.2.3)."
+            exit 1
+          fi
+
+      - name: Falhar se tag já existir
+        env:
+          TAG: v${{ inputs.version }}
+        run: |
+          git fetch --tags --force
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "::error::A tag '$TAG' já existe. Escolha outra versão."
+            exit 1
+          fi
+
+  build:
+    needs: validate
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            dist_binary: SimuladorFinanceiro
+            release_binary: SimuladorFinanceiro-linux
+          - os: windows-latest
+            dist_binary: SimuladorFinanceiro.exe
+            release_binary: SimuladorFinanceiro-windows.exe
+          - os: macos-latest
+            dist_binary: SimuladorFinanceiro
+            release_binary: SimuladorFinanceiro-macos
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Instalar dependências do frontend
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Compilar frontend
+        working-directory: frontend
+        run: pnpm run build
+
+      - name: Instalar dependências do Python
+        run: python -m pip install -r requirements.txt
+
+      - name: Gerar executável com PyInstaller
+        run: pyinstaller SimuladorFinanceiro.spec --clean --noconfirm
+
+      - name: Preparar artefato de release
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+
+          src = Path("dist") / "${{ matrix.dist_binary }}"
+          dst_dir = Path("release-assets")
+          dst_dir.mkdir(exist_ok=True)
+          dst = dst_dir / "${{ matrix.release_binary }}"
+
+          if not src.exists():
+            raise SystemExit(f"Executável não encontrado: {src}")
+
+          shutil.copy2(src, dst)
+          print(f"Artefato pronto: {dst}")
+          PY
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.release_binary }}
+          path: release-assets/${{ matrix.release_binary }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Falhar se tag já existir
+        env:
+          TAG: v${{ inputs.version }}
+        run: |
+          git fetch --tags --force
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "::error::A tag '$TAG' já existe. Escolha outra versão."
+            exit 1
+          fi
+
+      - name: Download dos artefatos
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          pattern: SimuladorFinanceiro-*
+          merge-multiple: true
+
+      - name: Criar release e anexar executáveis
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          files: |
+            release-assets/SimuladorFinanceiro-windows.exe
+            release-assets/SimuladorFinanceiro-linux
+            release-assets/SimuladorFinanceiro-macos
