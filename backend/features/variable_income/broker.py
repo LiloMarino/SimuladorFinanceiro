@@ -13,7 +13,12 @@ from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.realtime import notify
-from backend.features.variable_income.entities.order import LimitOrder, OrderAction
+from backend.features.variable_income.entities.order import (
+    LimitOrder,
+    MarketOrder,
+    Order,
+    OrderAction,
+)
 from backend.features.variable_income.entities.position import Position
 from backend.features.variable_income.market_liquidity import MarketLiquidity
 
@@ -64,9 +69,14 @@ class Broker:
     def get_positions(self, client_id: str) -> dict[str, Position]:
         return self._positions[client_id]
 
-    def get_position_size(self, client_id: str, ticker: str) -> int:
+    def get_available_position(self, client_id: str, ticker: str) -> int:
         position = self._positions[client_id].get(ticker)
-        return position.size if position else 0
+        if not position:
+            return 0
+        return max(0, position.size - position.reserved)
+
+    def get_cash(self, client_id: str) -> float:
+        return self._simulation_engine.get_cash(client_id)
 
     def reserve_limit_order(self, order: LimitOrder) -> None:
         if order.client_id == MarketLiquidity.MARKET_CLIENT_ID:
@@ -79,125 +89,108 @@ class Broker:
 
             self._simulation_engine.add_cash(order.client_id, -cost)
         elif order.action == OrderAction.SELL:
-            if self.get_position_size(order.client_id, order.ticker) < order.size:
+            position = self._positions[order.client_id].get(order.ticker)
+            if not position:
                 raise InsufficentPositionError()
 
-            self._positions[order.client_id][order.ticker].reserve(order.size)
+            position.reserve(order.size)
+            notify(
+                event=f"position_update:{order.ticker}",
+                payload={"position": PositionDTO.from_model(position).to_json()},
+                to=order.client_id,
+            )
 
     def release_limit_order(self, order: LimitOrder) -> None:
         if order.client_id == MarketLiquidity.MARKET_CLIENT_ID:
             return
 
         if order.action == OrderAction.BUY:
-            cost = order.price * order.size
+            cost = order.price * order.remaining
             self._simulation_engine.add_cash(order.client_id, cost)
         elif order.action == OrderAction.SELL:
-            self._positions[order.client_id][order.ticker].release(order.size)
+            position = self._positions[order.client_id].get(order.ticker)
+            if position:
+                position.release(order.remaining)
+                notify(
+                    event=f"position_update:{order.ticker}",
+                    payload={"position": PositionDTO.from_model(position).to_json()},
+                    to=order.client_id,
+                )
 
-    def execute_trade_atomic(
+    def execute_trade(
         self,
         *,
-        taker_client_id: str,
-        maker_client_id: str,
+        taker_order: Order,
+        maker_order: LimitOrder,
         ticker: str,
         size: int,
         price: float,
-        taker_action: OrderAction,
-        maker_action: OrderAction,
     ) -> None:
-        """Executa uma trade atomicamente entre taker e maker.
+        """Executa uma trade entre taker e maker.
 
         Se maker_client_id for MARKET_CLIENT_ID, faz bypass (sem evento/notificação).
-        Se ambos forem clientes reais, valida ambos ANTES de executar qualquer coisa.
-        Se validação falhar em qualquer um, nenhum é executado (atomicidade).
+        Valida cash/posição para ordens de clientes reais (não MARKET) antes de executar.
         """
-        qty = size
-        cost = price * qty
         if size <= 0:
             raise ValueError("Quantidade deve ser maior que zero")
 
-        # =========================
-        # VALIDAÇÃO DUPLA
-        # =========================
-        self._validate_order(
-            client_id=maker_client_id,
-            ticker=ticker,
-            qty=qty,
-            cost=cost,
-            action=maker_action,
-        )
-        self._validate_order(
-            client_id=taker_client_id,
-            ticker=ticker,
-            qty=qty,
-            cost=cost,
-            action=taker_action,
-        )
+        self._validate_market_order(taker_order, size, price)
 
         # =========================
         # EXECUÇÃO
         # =========================
         self._execute_order(
-            client_id=taker_client_id,
-            ticker=ticker,
-            size=qty,
+            order=taker_order,
+            size=size,
             price=price,
-            action=taker_action,
         )
         self._execute_order(
-            client_id=maker_client_id,
-            ticker=ticker,
-            size=qty,
+            order=maker_order,
+            size=size,
             price=price,
-            action=maker_action,
         )
 
     def _execute_order(
         self,
-        *,
-        client_id: str,
-        ticker: str,
+        order: Order,
         size: int,
         price: float,
-        action: OrderAction,
     ):
         # Executa a ordem para o cliente (se não for MARKET)
-        if client_id != MarketLiquidity.MARKET_CLIENT_ID:
-            match action:
+        if order.client_id != MarketLiquidity.MARKET_CLIENT_ID:
+            match order.action:
                 case OrderAction.BUY:
-                    self._execute_buy(client_id, ticker, size, price)
+                    self._execute_buy(order, size, price)
                 case OrderAction.SELL:
-                    self._execute_sell(client_id, ticker, size, price)
+                    self._execute_sell(order, size, price)
 
-    def _validate_order(
-        self,
-        *,
-        client_id: str,
-        ticker: str,
-        qty: int,
-        cost: float,
-        action: OrderAction,
-    ):
-        """Valida se o cliente pode executar a ordem. Se o cliente for MARKET, faz bypass."""
-        if client_id == MarketLiquidity.MARKET_CLIENT_ID:
-            return
-
-        if (
-            action == OrderAction.SELL
-            and self.get_position_size(client_id, ticker) < qty
+    def _validate_market_order(self, order: Order, size: int, price: float):
+        if order.client_id != MarketLiquidity.MARKET_CLIENT_ID and isinstance(
+            order, MarketOrder
         ):
-            raise InsufficentPositionError()
+            if (
+                order.action == OrderAction.SELL
+                and self.get_available_position(order.client_id, order.ticker) < size
+            ):
+                raise InsufficentPositionError()
 
-        if (
-            action == OrderAction.BUY
-            and self._simulation_engine.get_cash(client_id) < cost
-        ):
-            raise InsufficentCashError()
+            if (
+                order.action == OrderAction.BUY
+                and self._simulation_engine.get_cash(order.client_id) < price * size
+            ):
+                raise InsufficentCashError()
 
-    def _execute_buy(self, client_id: str, ticker: str, size: int, price: float):
+    def _execute_buy(self, order: Order, size: int, price: float):
+        client_id = order.client_id
+        ticker = order.ticker
         cost = price * size
 
-        self._simulation_engine.add_cash(client_id, -cost)
+        if isinstance(order, MarketOrder):
+            self._simulation_engine.add_cash(client_id, -cost)
+
+        if isinstance(order, LimitOrder):
+            refund = (order.price - price) * size
+            self._simulation_engine.add_cash(client_id, refund)
 
         if ticker not in self._positions[client_id]:
             self._positions[client_id][ticker] = Position(ticker)
@@ -226,10 +219,14 @@ class Broker:
         )
         logger.info(f"Executado BUY {size}x {ticker} @ R$ {price}")
 
-    def _execute_sell(self, client_id: str, ticker: str, size: int, price: float):
-        pos = self._positions[client_id][ticker]
+    def _execute_sell(self, order: Order, size: int, price: float):
+        client_id = order.client_id
+        ticker = order.ticker
+
+        position = self._positions[client_id][ticker]
         self._simulation_engine.add_cash(client_id, price * size)
-        pos.update_sell(size)
+        position.release(size)
+        position.update_sell(size)
 
         EventManager.push_event(
             EquityEventDTO(
@@ -251,7 +248,7 @@ class Broker:
             },
             to=client_id,
         )
-        if pos.size == 0:
+        if position.size == 0:
             del self._positions[client_id][ticker]
 
         logger.info(f"Executado SELL {size}x {ticker} @ R$ {price}")

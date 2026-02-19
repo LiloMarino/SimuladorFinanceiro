@@ -23,7 +23,12 @@ class FakeBroker(Broker):
         self.fail_for = fail_for or {}
         self.calls: list[dict] = []
 
-    def execute_trade_atomic(self, **kwargs):
+    def reserve_limit_order(self, order: LimitOrder) -> None:
+        client_id = order.client_id
+        if client_id in self.fail_for:
+            raise self.fail_for[client_id]
+
+    def execute_trade(self, **kwargs):
         self.calls.append(kwargs)
 
         for key in ("maker_client_id", "taker_client_id"):

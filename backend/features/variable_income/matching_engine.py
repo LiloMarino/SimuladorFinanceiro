@@ -1,5 +1,5 @@
 from backend.core.dto.order import OrderDTO
-from backend.core.exceptions import InsufficentCashError, InsufficentPositionError
+from backend.core.dto.position import PositionDTO
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     ForbiddenError,
@@ -46,26 +46,31 @@ class MatchingEngine:
         if order.status != OrderStatus.PENDING:
             raise UnprocessableEntityError("Ordem inválida")
 
-        # Reserva o cash em LIMIT para evitar que seja gasto em outro trade antes de ser executado
+        if isinstance(order, MarketOrder):
+            executed = self._consume_book(order)
+            if order.remaining > 0:
+                if executed == 0:
+                    raise ConflictError("Sem liquidez no mercado")
+                raise ConflictError(
+                    f"Ordem executada parcialmente: executado {executed} de {order.size}."
+                )
+
         if isinstance(order, LimitOrder):
+            # Reserva o cash/posição em LIMIT para evitar que seja gasto em outro trade antes de ser executado
             self.broker.reserve_limit_order(order)
 
-        # Toda ordem tenta consumir o book
-        self._consume_book(order)
+            # LIMIT tenta consumir o book
+            self._consume_book(order)
 
-        # MARKET que sobrou → erro
-        if isinstance(order, MarketOrder) and order.remaining > 0:
-            raise ConflictError("Sem liquidez no mercado")
-
-        # LIMIT que sobrou → entra no book
-        if isinstance(order, LimitOrder) and order.remaining > 0:
-            self.order_book.add(order)
-            notify(
-                event=f"order_added:{order.ticker}",
-                payload={
-                    "order": OrderDTO.from_model(order).to_json(),
-                },
-            )
+            # LIMIT que sobrou → entra no book
+            if order.remaining > 0:
+                self.order_book.add(order)
+                notify(
+                    event=f"order_added:{order.ticker}",
+                    payload={
+                        "order": OrderDTO.from_model(order).to_json(),
+                    },
+                )
 
     def on_tick(self, ticker: str) -> None:
         """
@@ -95,8 +100,10 @@ class MatchingEngine:
         if order.client_id != client_id:
             raise ForbiddenError("Ordem não pertence ao cliente")
 
-        if order.status not in (OrderStatus.PENDING, OrderStatus.PARTIAL):
+        if order.status != OrderStatus.PENDING:
             raise ForbiddenError("Ordem não pode ser cancelada")
+
+        self.broker.release_limit_order(order)
 
         order.status = OrderStatus.CANCELED
         order.remaining = 0
@@ -130,7 +137,7 @@ class MatchingEngine:
     # Core matching
     # =========================
 
-    def _consume_book(self, order: Order) -> None:
+    def _consume_book(self, order: Order) -> int:
         """
         Consome o book respeitando:
         - preço (se LIMIT)
@@ -155,6 +162,7 @@ class MatchingEngine:
                     break
 
             self._execute_trade(order, counter, counter.price)
+        return order.size - order.remaining
 
     def _execute_trade(self, taker: Order, maker: LimitOrder, price: float):
         """
@@ -163,26 +171,13 @@ class MatchingEngine:
         """
         qty = min(taker.remaining, maker.remaining)
 
-        try:
-            self.broker.execute_trade_atomic(
-                taker_client_id=taker.client_id,
-                maker_client_id=maker.client_id,
-                ticker=taker.ticker,
-                size=qty,
-                price=price,
-                taker_action=taker.action,
-                maker_action=maker.action,
-            )
-        except (InsufficentCashError, InsufficentPositionError) as e:
-            # Trade não pode ser executado remove maker do book e notifica rejeição
-            self.order_book.remove(maker)
-            reason = (
-                f"Saldo insuficiente para executar a ordem em {maker.ticker}"
-                if isinstance(e, InsufficentCashError)
-                else f"Posição insuficiente em {maker.ticker} para executar a ordem"
-            )
-            self._notify_rejection(maker, reason)
-            return
+        self.broker.execute_trade(
+            taker_order=taker,
+            maker_order=maker,
+            ticker=maker.ticker,
+            size=qty,
+            price=price,
+        )
 
         # Trade bem-sucedido atualiza estados e notifica
         taker.remaining -= qty
@@ -229,12 +224,3 @@ class MatchingEngine:
                     "order": OrderDTO.from_model(order).to_json(),
                 },
             )
-
-    def _notify_rejection(self, order: Order, reason: str):
-        notify(
-            event="order_rejected",
-            payload={
-                "reason": reason,
-            },
-            to=order.client_id,
-        )
