@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
@@ -75,9 +76,6 @@ class Broker:
             return 0
         return max(0, position.size - position.reserved)
 
-    def get_cash(self, client_id: str) -> float:
-        return self._simulation_engine.get_cash(client_id)
-
     def reserve_limit_order(self, order: LimitOrder) -> None:
         if order.client_id == MarketLiquidity.MARKET_CLIENT_ID:
             return
@@ -88,16 +86,16 @@ class Broker:
                 raise InsufficentCashError()
 
             self._simulation_engine.add_cash(order.client_id, -cost)
+
         elif order.action == OrderAction.SELL:
             position = self._positions[order.client_id].get(order.ticker)
             if not position:
                 raise InsufficentPositionError()
 
-            position.reserve(order.size)
-            notify(
-                event=f"position_update:{order.ticker}",
-                payload={"position": PositionDTO.from_model(position).to_json()},
-                to=order.client_id,
+            self._mutate_position(
+                client_id=order.client_id,
+                ticker=order.ticker,
+                mutation=lambda p: p.reserve(order.size),
             )
 
     def release_limit_order(self, order: LimitOrder) -> None:
@@ -107,14 +105,14 @@ class Broker:
         if order.action == OrderAction.BUY:
             cost = order.price * order.remaining
             self._simulation_engine.add_cash(order.client_id, cost)
+
         elif order.action == OrderAction.SELL:
             position = self._positions[order.client_id].get(order.ticker)
             if position:
-                position.release(order.remaining)
-                notify(
-                    event=f"position_update:{order.ticker}",
-                    payload={"position": PositionDTO.from_model(position).to_json()},
-                    to=order.client_id,
+                self._mutate_position(
+                    client_id=order.client_id,
+                    ticker=order.ticker,
+                    mutation=lambda p: p.release(order.remaining),
                 )
 
     def execute_trade(
@@ -122,7 +120,6 @@ class Broker:
         *,
         taker_order: Order,
         maker_order: LimitOrder,
-        ticker: str,
         size: int,
         price: float,
     ) -> None:
@@ -134,7 +131,8 @@ class Broker:
         if size <= 0:
             raise ValueError("Quantidade deve ser maior que zero")
 
-        self._validate_market_order(taker_order, size, price)
+        if isinstance(taker_order, MarketOrder):
+            self._validate_market_order(taker_order, size, price)
 
         # =========================
         # EXECUÇÃO
@@ -164,10 +162,8 @@ class Broker:
                 case OrderAction.SELL:
                     self._execute_sell(order, size, price)
 
-    def _validate_market_order(self, order: Order, size: int, price: float):
-        if order.client_id != MarketLiquidity.MARKET_CLIENT_ID and isinstance(
-            order, MarketOrder
-        ):
+    def _validate_market_order(self, order: MarketOrder, size: int, price: float):
+        if order.client_id != MarketLiquidity.MARKET_CLIENT_ID:
             if (
                 order.action == OrderAction.SELL
                 and self.get_available_position(order.client_id, order.ticker) < size
@@ -179,6 +175,31 @@ class Broker:
                 and self._simulation_engine.get_cash(order.client_id) < price * size
             ):
                 raise InsufficentCashError()
+
+    def _mutate_position(
+        self,
+        *,
+        client_id: str,
+        ticker: str,
+        mutation: Callable[[Position], None],
+    ):
+        if ticker not in self._positions[client_id]:
+            self._positions[client_id][ticker] = Position(ticker)
+
+        position = self._positions[client_id][ticker]
+
+        # Executa a mutação real (buy/sell/reserve/release)
+        mutation(position)
+
+        # Remove posição se zerou
+        if position.size == 0 and position.reserved == 0:
+            del self._positions[client_id][ticker]
+
+        notify(
+            event=f"position_update:{ticker}",
+            payload={"position": PositionDTO.from_model(position).to_json()},
+            to=client_id,
+        )
 
     def _execute_buy(self, order: Order, size: int, price: float):
         client_id = order.client_id
@@ -192,10 +213,11 @@ class Broker:
             refund = (order.price - price) * size
             self._simulation_engine.add_cash(client_id, refund)
 
-        if ticker not in self._positions[client_id]:
-            self._positions[client_id][ticker] = Position(ticker)
-
-        self._positions[client_id][ticker].update_buy(price, size)
+        self._mutate_position(
+            client_id=client_id,
+            ticker=ticker,
+            mutation=lambda p: p.update_buy(price, size),
+        )
 
         EventManager.push_event(
             EquityEventDTO(
@@ -208,25 +230,24 @@ class Broker:
             )
         )
 
-        notify(
-            event=f"position_update:{ticker}",
-            payload={
-                "position": PositionDTO.from_model(
-                    self._positions[client_id][ticker]
-                ).to_json()
-            },
-            to=client_id,
-        )
         logger.info(f"Executado BUY {size}x {ticker} @ R$ {price}")
 
     def _execute_sell(self, order: Order, size: int, price: float):
         client_id = order.client_id
         ticker = order.ticker
 
-        position = self._positions[client_id][ticker]
         self._simulation_engine.add_cash(client_id, price * size)
-        position.release(size)
-        position.update_sell(size)
+
+        def _sell_mutation(p: Position):
+            if isinstance(order, LimitOrder):
+                p.release(size)
+            p.update_sell(size)
+
+        self._mutate_position(
+            client_id=client_id,
+            ticker=ticker,
+            mutation=_sell_mutation,
+        )
 
         EventManager.push_event(
             EquityEventDTO(
@@ -238,17 +259,5 @@ class Broker:
                 event_date=self._simulation_engine.current_date,
             )
         )
-
-        notify(
-            event=f"position_update:{ticker}",
-            payload={
-                "position": PositionDTO.from_model(
-                    self._positions[client_id][ticker]
-                ).to_json()
-            },
-            to=client_id,
-        )
-        if position.size == 0:
-            del self._positions[client_id][ticker]
 
         logger.info(f"Executado SELL {size}x {ticker} @ R$ {price}")

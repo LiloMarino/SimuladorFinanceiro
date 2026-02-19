@@ -1,5 +1,4 @@
 from backend.core.dto.order import OrderDTO
-from backend.core.dto.position import PositionDTO
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     ForbiddenError,
@@ -174,7 +173,6 @@ class MatchingEngine:
         self.broker.execute_trade(
             taker_order=taker,
             maker_order=maker,
-            ticker=maker.ticker,
             size=qty,
             price=price,
         )
