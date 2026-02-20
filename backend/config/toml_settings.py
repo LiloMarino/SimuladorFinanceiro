@@ -36,6 +36,7 @@ class ServerConfig(BaseModel):
     port: int = 8000
     provider: str = "lan"
     preferred_vpn: NetworkType | None = None
+    show_firewall_hint: bool = True
 
     @field_validator("provider")
     @classmethod

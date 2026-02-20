@@ -24,6 +24,7 @@ class LANProvider(TunnelProvider):
         self._detector = NetworkDetector()
         self._policy = NetworkPolicy()
         self._preferred = config.toml.server.preferred_vpn
+        self._show_firewall_hint = config.toml.server.show_firewall_hint
         self._interfaces: list[NetworkInterface] = []
         self._active = False
         self._port: int | None = None
@@ -52,7 +53,8 @@ class LANProvider(TunnelProvider):
                 f"  {interface.icon} [{interface.name}] http://{interface.ip}:{port}"
             )
 
-        self._log_firewall_warning(port)
+        if self._show_firewall_hint:
+            self._log_firewall_hint(port)
 
         best = self._policy.select(self._interfaces, self._preferred)
         return self._url_for(best) if best else ""
@@ -97,10 +99,7 @@ class LANProvider(TunnelProvider):
             return ""
         return f"http://{interface.ip}:{self._port}"
 
-    def _log_firewall_warning(self, port: int) -> None:
-        logger.warning(
-            f"Para aceitar conexões externas, abra a porta {port} no firewall:"
+    def _log_firewall_hint(self, port: int) -> None:
+        logger.info(
+            f"Para acesso externo, pode ser necessário permitir o aplicativo no firewall ou liberar a porta {port}."
         )
-        logger.warning("   Windows: Settings > Privacy & Security > Firewall")
-        logger.warning(f"   Linux: sudo ufw allow {port}/tcp")
-        logger.warning("   macOS: System Settings > Network > Firewall")
