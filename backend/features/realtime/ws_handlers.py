@@ -1,5 +1,6 @@
 import logging
 from http.cookies import SimpleCookie
+from uuid import UUID
 
 from socketio import AsyncServer
 
@@ -10,10 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 def register_ws_handlers(sio: AsyncServer):
-    async def _extract_client_id(environ) -> str | None:
+    async def _extract_client_id(environ) -> UUID | None:
         cookies = SimpleCookie(environ.get("HTTP_COOKIE", ""))
         client = cookies.get("client_id")
-        return client.value if client else None
+        return UUID(client.value) if client else None
 
     @sio.event
     async def connect(sid, environ):  # type: ignore

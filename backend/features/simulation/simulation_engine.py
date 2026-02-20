@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+from uuid import UUID
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
@@ -38,7 +39,7 @@ class SimulationEngine:
         self.fixed_broker = FixedBroker(self)
         self.fixed_income_market = FixedIncomeMarket()
         self.matching_engine = MatchingEngine(self.broker)
-        self._cash: LazyDict[str, float] = LazyDict(
+        self._cash: LazyDict[UUID, float] = LazyDict(
             loader=repository.user.get_user_balance
         )
         self._strategy = None
@@ -51,10 +52,10 @@ class SimulationEngine:
     def set_strategy(self, strategy_cls: type[BaseStrategy], *args, **kwargs):
         self._strategy = strategy_cls(self.matching_engine, *args, **kwargs)
 
-    def get_cash(self, client_id: str) -> float:
+    def get_cash(self, client_id: UUID) -> float:
         return self._cash[client_id]
 
-    def add_cash(self, client_id: str, cash: float):
+    def add_cash(self, client_id: UUID, cash: float):
         self._cash[client_id] += cash
         EventManager.push_event(
             CashflowEventDTO(
@@ -68,7 +69,7 @@ class SimulationEngine:
         )
         notify("cash_update", {"cash": self._cash[client_id]}, to=client_id)
 
-    def add_contribution(self, client_id: str, amount: float):
+    def add_contribution(self, client_id: UUID, amount: float):
         """Adiciona aporte mensal (não conta como retorno de investimento)"""
         self._cash[client_id] += amount
         EventManager.push_event(
@@ -95,7 +96,7 @@ class SimulationEngine:
             self.matching_engine.market_data.add_candle(candle)
             self.matching_engine.on_tick(s.ticker)
 
-    def get_portfolio(self, client_id: str) -> PortfolioDTO:
+    def get_portfolio(self, client_id: UUID) -> PortfolioDTO:
         positions = self.broker.get_positions(client_id).values()
         variable_income = [
             PositionDTO.from_model(pos) for pos in positions if pos.size > 0

@@ -1,4 +1,5 @@
 import logging
+from uuid import UUID
 
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -16,7 +17,7 @@ class UpdateSubscriptionRequest(BaseModel):
 
 
 class UpdateSubscriptionResponse(BaseModel):
-    client_id: str
+    client_id: UUID
     events: list[str]
 
 

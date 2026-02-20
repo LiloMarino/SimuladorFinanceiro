@@ -4,6 +4,7 @@ import logging
 from datetime import date
 from decimal import Decimal
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from backend.core import repository
 from backend.core.dto.events.fixed_income import (
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def load_fixed_assets(client_id: str) -> dict[str, FixedIncomePosition]:
+def load_fixed_assets(client_id: UUID) -> dict[str, FixedIncomePosition]:
     user_id = UserManager.get_user_id(client_id)
 
     dtos = repository.portfolio.get_fixed_income_positions(user_id)
@@ -59,14 +60,14 @@ class FixedBroker:
 
     def __init__(self, simulation_engine: SimulationEngine):
         self._simulation_engine = simulation_engine
-        self._assets: LazyDict[str, dict[str, FixedIncomePosition]] = LazyDict(
+        self._assets: LazyDict[UUID, dict[str, FixedIncomePosition]] = LazyDict(
             load_fixed_assets
         )
 
-    def get_fixed_positions(self, client_id: str) -> dict[str, FixedIncomePosition]:
+    def get_fixed_positions(self, client_id: UUID) -> dict[str, FixedIncomePosition]:
         return self._assets[client_id]
 
-    def buy(self, client_id: str, asset: FixedIncomeAssetDTO, value: float):
+    def buy(self, client_id: UUID, asset: FixedIncomeAssetDTO, value: float):
         if value <= 0:
             raise ValueError("Valor do investimento deve ser maior que zero")
 
@@ -141,7 +142,7 @@ class FixedBroker:
     def redeem_position(
         self,
         current_date: date,
-        client_id: str,
+        client_id: UUID,
         user_id: int,
         asset_name: str,
         position: FixedIncomePosition,

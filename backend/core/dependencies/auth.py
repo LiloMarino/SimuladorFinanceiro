@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends
 from fastapi.security import APIKeyCookie
@@ -17,14 +18,14 @@ client_id_cookie = APIKeyCookie(
 
 def get_client_id(
     client_id: Annotated[str | None, Depends(client_id_cookie)],
-) -> str:
+) -> UUID:
     if not client_id:
         raise SessionNotInitializedError()
-    return client_id
+    return UUID(client_id)
 
 
 def get_current_user(
-    client_id: Annotated[str, Depends(get_client_id)],
+    client_id: Annotated[UUID, Depends(get_client_id)],
 ):
     user = UserManager.get_user(client_id)
     if user is None:

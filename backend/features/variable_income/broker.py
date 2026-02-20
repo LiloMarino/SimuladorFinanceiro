@@ -4,6 +4,7 @@ import logging
 from collections.abc import Callable
 from decimal import Decimal
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from backend.core import repository
 from backend.core.dto.events.equity import EquityEventDTO
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def load_positions(client_id: str) -> dict[str, Position]:
+def load_positions(client_id: UUID) -> dict[str, Position]:
     user_id = UserManager.get_user_id(client_id)
 
     dtos = repository.portfolio.get_equity_positions(user_id)
@@ -65,12 +66,12 @@ class Broker:
         simulation_engine: SimulationEngine,
     ):
         self._simulation_engine = simulation_engine
-        self._positions: LazyDict[str, dict[str, Position]] = LazyDict(load_positions)
+        self._positions: LazyDict[UUID, dict[str, Position]] = LazyDict(load_positions)
 
-    def get_positions(self, client_id: str) -> dict[str, Position]:
+    def get_positions(self, client_id: UUID) -> dict[str, Position]:
         return self._positions[client_id]
 
-    def get_available_position(self, client_id: str, ticker: str) -> int:
+    def get_available_position(self, client_id: UUID, ticker: str) -> int:
         position = self._positions[client_id].get(ticker)
         if not position:
             return 0
@@ -179,7 +180,7 @@ class Broker:
     def _mutate_position(
         self,
         *,
-        client_id: str,
+        client_id: UUID,
         ticker: str,
         mutation: Callable[[Position], None],
     ):

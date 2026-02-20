@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from collections import defaultdict
 from collections.abc import Callable
 
@@ -26,7 +27,7 @@ class MarketLiquidity:
     - Rastrear ordens de mercado por ticker para limpeza eficiente
     """
 
-    MARKET_CLIENT_ID = "__MARKET__"
+    MARKET_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__MARKET__")
 
     def __init__(
         self,

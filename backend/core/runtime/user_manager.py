@@ -1,6 +1,7 @@
 import logging
 from threading import Lock
 from typing import ClassVar
+from uuid import UUID
 
 from backend.core import repository
 from backend.core.dto.user import UserDTO
@@ -24,10 +25,10 @@ class UserManager:
     """
 
     # 🔹 Apenas players autenticados (presença)
-    _active_players: ClassVar[dict[str, UserDTO]] = {}
+    _active_players: ClassVar[dict[UUID, UserDTO]] = {}
 
     # 🔹 Cache lazy client_id -> UserDTO (independente de presença)
-    _client_user_cache: LazyDict[str, UserDTO | None] = LazyDict(
+    _client_user_cache: LazyDict[UUID, UserDTO | None] = LazyDict(
         loader=repository.user.get_by_client_id
     )
 
@@ -38,11 +39,11 @@ class UserManager:
     # =========================
 
     @classmethod
-    def register(cls, client_id: str):
+    def register(cls, client_id: UUID):
         logger.info(f"User connected: {client_id}")
 
     @classmethod
-    def unregister(cls, client_id: str):
+    def unregister(cls, client_id: UUID):
         logger.info(f"User disconnected: {client_id}")
 
         with cls._lock:
@@ -56,7 +57,7 @@ class UserManager:
     # =========================
 
     @classmethod
-    def player_auth(cls, client_id: str) -> UserDTO | None:
+    def player_auth(cls, client_id: UUID) -> UserDTO | None:
         user = cls.get_user(client_id)
         if user is None:
             return None
@@ -71,7 +72,7 @@ class UserManager:
         return user
 
     @classmethod
-    def player_logout(cls, client_id: str):
+    def player_logout(cls, client_id: UUID):
         from backend.core.runtime.simulation_manager import (  # noqa: PLC0415
             SimulationManager,
         )
@@ -101,7 +102,7 @@ class UserManager:
     # =========================
 
     @classmethod
-    def get_user(cls, client_id: str) -> UserDTO | None:
+    def get_user(cls, client_id: UUID) -> UserDTO | None:
         user = cls._client_user_cache[client_id]
         if user is None:
             cls._client_user_cache.pop(client_id, None)
@@ -109,7 +110,7 @@ class UserManager:
         return user
 
     @classmethod
-    def get_user_id(cls, client_id: str) -> int:
+    def get_user_id(cls, client_id: UUID) -> int:
         user = cls.get_user(client_id)
         if user is None:
             raise NotFoundError(f"Usuário não encontrado para client_id={client_id}")

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -22,11 +23,15 @@ class FakeBroker(Broker):
     def __init__(self, *, fail_for: dict[str, Exception] | None = None):
         self.fail_for = fail_for or {}
         self.calls: list[dict] = []
+        # Converter chaves string para UUID
+        self._fail_for_uuids = {
+            uuid.uuid5(uuid.NAMESPACE_DNS, k): v for k, v in self.fail_for.items()
+        }
 
     def reserve_limit_order(self, order: LimitOrder) -> None:
         client_id = order.client_id
-        if client_id in self.fail_for:
-            raise self.fail_for[client_id]
+        if client_id in self._fail_for_uuids:
+            raise self._fail_for_uuids[client_id]
 
     def execute_trade(self, **kwargs):
         self.calls.append(kwargs)
@@ -35,8 +40,8 @@ class FakeBroker(Broker):
         maker = kwargs.get("maker_order")
 
         for order in (taker, maker):
-            if order and order.client_id in self.fail_for:
-                raise self.fail_for[order.client_id]
+            if order and order.client_id in self._fail_for_uuids:
+                raise self._fail_for_uuids[order.client_id]
 
 
 @pytest.fixture(autouse=True)
@@ -57,8 +62,9 @@ def _limit(
     action: OrderAction,
     created_at: datetime | None = None,
 ) -> LimitOrder:
+    uuid_client_id = uuid.uuid5(uuid.NAMESPACE_DNS, client_id)
     return LimitOrder(
-        client_id=client_id,
+        client_id=uuid_client_id,
         ticker="ABCD",
         price=price,
         size=size,
@@ -73,8 +79,9 @@ def _market(
     size: int,
     action: OrderAction,
 ) -> MarketOrder:
+    uuid_client_id = uuid.uuid5(uuid.NAMESPACE_DNS, client_id)
     return MarketOrder(
-        client_id=client_id,
+        client_id=uuid_client_id,
         ticker="ABCD",
         size=size,
         action=action,
@@ -94,8 +101,11 @@ def assert_trade(
     taker = call["taker_order"]
     maker = call["maker_order"]
 
-    assert taker.client_id == taker_client_id
-    assert maker.client_id == maker_client_id
+    taker_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, taker_client_id)
+    maker_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, maker_client_id)
+
+    assert taker.client_id == taker_uuid
+    assert maker.client_id == maker_uuid
     assert taker.ticker == "ABCD"
     assert maker.ticker == "ABCD"
     assert call["size"] == size

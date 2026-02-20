@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from backend.core.dto.order import OrderDTO
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -87,7 +89,7 @@ class MatchingEngine:
             },
         )
 
-    def cancel(self, *, order_id: str, client_id: str) -> bool:
+    def cancel(self, *, order_id: str, client_id: UUID) -> bool:
         order = self.order_book.find(order_id)
         if not order:
             return False

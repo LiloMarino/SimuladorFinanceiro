@@ -4,6 +4,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from queue import Empty, Queue
 from threading import Lock
+from uuid import UUID
 
 from fastapi.responses import StreamingResponse
 
@@ -87,7 +88,7 @@ class SSEBroker(RealtimeBroker):
     # --------------------------------------------------------------------- #
     # Connection handler
     # --------------------------------------------------------------------- #
-    def connect(self, client_id: str) -> StreamingResponse:
+    def connect(self, client_id: UUID) -> StreamingResponse:
         """Rota SSE: cria client e retorna Response que streama eventos."""
         self.register_client(client_id)
 
@@ -96,7 +97,7 @@ class SSEBroker(RealtimeBroker):
             media_type="text/event-stream",
         )
 
-    def _listen_generator(self, client_id: str):
+    def _listen_generator(self, client_id: UUID):
         """Generator que yields eventos SSE para o cliente."""
         with self._lock:
             q = self._clients.get(client_id)

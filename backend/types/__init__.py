@@ -1,4 +1,5 @@
 from collections.abc import Mapping, Sequence
+from uuid import UUID
 
 type JSONPrimitive = str | int | float | bool | None
 
@@ -10,5 +11,5 @@ type JSONArray = Sequence[JSONValue]
 
 # Realtime types
 type Event = str
-type ClientID = str
+type ClientID = UUID
 type SID = str

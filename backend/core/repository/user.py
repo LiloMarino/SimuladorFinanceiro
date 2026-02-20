@@ -19,7 +19,7 @@ from backend.core.models.models import (
 
 class UserRepository:
     @transactional
-    def create_user(self, session: Session, client_id: str, nickname: str) -> UserDTO:
+    def create_user(self, session: Session, client_id: UUID, nickname: str) -> UserDTO:
         user = Users(
             client_id=client_id,
             nickname=nickname,
@@ -34,7 +34,7 @@ class UserRepository:
         )
 
     @transactional
-    def get_by_client_id(self, session: Session, client_id: str) -> UserDTO | None:
+    def get_by_client_id(self, session: Session, client_id: UUID) -> UserDTO | None:
         user = session.query(Users).filter_by(client_id=client_id).first()
         if not user:
             return None
@@ -58,7 +58,7 @@ class UserRepository:
         )
 
     @transactional
-    def get_user_balance(self, session: Session, client_id: str) -> float:
+    def get_user_balance(self, session: Session, client_id: UUID) -> float:
         # --------------------------------------------------
         # 1. Usuário
         # --------------------------------------------------

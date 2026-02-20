@@ -1,6 +1,7 @@
 import logging
 from datetime import date, timedelta
 from decimal import Decimal
+from uuid import UUID
 
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
@@ -117,7 +118,7 @@ class Simulation:
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
         return repository.stock.get_stock_details(ticker, self._current_date)
 
-    def get_portfolio_ticker(self, client_id: str, ticker: str) -> PositionDTO:
+    def get_portfolio_ticker(self, client_id: UUID, ticker: str) -> PositionDTO:
         positions = self._engine.get_positions(client_id)
         position = positions.get(ticker)
         return (
@@ -146,7 +147,7 @@ class Simulation:
         orders = self._engine.matching_engine.order_book.get_orders(ticker)
         return [OrderDTO.from_model(o) for o in orders]
 
-    def clear_user_cache(self, client_id: str) -> None:
+    def clear_user_cache(self, client_id: UUID) -> None:
         # Remove saldo em cache
         self._engine._cash.pop(client_id, None)
         # Remove posições de renda variável em cache
@@ -168,17 +169,16 @@ class Simulation:
             return
 
         for user in users:
-            client_id = str(user.client_id)
-            self._engine.add_contribution(client_id, self.settings.monthly_contribution)
+            self._engine.add_contribution(
+                user.client_id, self.settings.monthly_contribution
+            )
 
     def _create_monthly_snapshots(self, users: list[UserDTO]):
         snapshots_payload = []
 
         for user in users:
-            client_id = str(user.client_id)
-
             # Obtém as posições de renda fixa antes do snapshot
-            fixed_positions = self.get_fixed_positions(client_id)
+            fixed_positions = self.get_fixed_positions(user.client_id)
 
             for position in fixed_positions.values():
                 asset_id = repository.fixed_income.get_or_create_asset(position.asset)
@@ -201,7 +201,7 @@ class Simulation:
             notify(
                 event="snapshot_update",
                 payload={"snapshot": snapshot.to_json()},
-                to=client_id,
+                to=user.client_id,
             )
 
             # Statistics (global)

@@ -118,7 +118,7 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
 
     if sim:
         starting = sim.settings.starting_cash
-        sim._engine.add_cash(str(new_user.client_id), starting)
+        sim._engine.add_cash(new_user.client_id, starting)
 
     return new_user
 
@@ -146,9 +146,7 @@ def user_claim(payload: UserClaimRequest, client_id: ClientID):
         raise ConflictError("User is currently active and cannot be claimed.")
 
     # Atualizar client_id do usuário
-    updated_user = repository.user.update_client_id(
-        existing_user.id, uuid.UUID(client_id)
-    )
+    updated_user = repository.user.update_client_id(existing_user.id, client_id)
 
     return updated_user
 

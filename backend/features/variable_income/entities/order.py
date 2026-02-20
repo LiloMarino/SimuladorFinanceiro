@@ -26,7 +26,7 @@ class OrderStatus(Enum):
 class Order(ABC):
     """Representa uma ordem de compra ou venda executada ou pendente."""
 
-    client_id: str
+    client_id: uuid.UUID
     ticker: str
     size: int
     action: OrderAction
