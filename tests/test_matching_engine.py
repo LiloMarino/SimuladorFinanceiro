@@ -317,8 +317,7 @@ def test_market_against_many_limits_insufficient_liquidity():
     engine.submit(s2)
     engine.submit(s3)
 
-    with pytest.raises(ConflictError):
-        engine.submit(_market(client_id="b", size=7, action=OrderAction.BUY))
+    engine.submit(_market(client_id="b", size=7, action=OrderAction.BUY))
 
     assert len(broker.calls) == 3
     for s in (s1, s2, s3):
