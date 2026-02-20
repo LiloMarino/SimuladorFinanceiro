@@ -18,11 +18,18 @@ def register_frontend_routes(app: FastAPI):
         return
 
     logger.info(f"Servindo frontend SPA de {static_dir}")
+
+    # Serve apenas os assets corretamente
     app.mount(
-        "/static",
-        StaticFiles(directory=static_dir, html=True),
-        name="frontend",
+        "/assets",
+        StaticFiles(directory=static_dir / "assets"),
+        name="assets",
     )
+
+    # Arquivos soltos (vite.svg etc)
+    @app.get("/vite.svg", include_in_schema=False)
+    async def serve_vite():  # type: ignore
+        return FileResponse(static_dir / "vite.svg")
 
     # SPA fallback (React Router)
     @app.get(
