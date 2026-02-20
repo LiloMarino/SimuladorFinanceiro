@@ -70,7 +70,7 @@ cp example.env .env
 ```
 
 > [!IMPORTANT]
-> O projeto funciona com SQLite. Porém é recomendado usar PostgreSQL e para isso é necessário configurar as variáveis de ambiente no arquivo `.env`.
+> O projeto requer PostgreSQL. Configure as variáveis de ambiente no arquivo `.env` antes de executar.
 
 ## Executando o Projeto Localmente
 
@@ -106,7 +106,7 @@ Acesse: `http://localhost:8000`
 - **[SQLAlchemy](https://www.sqlalchemy.org/)** - ORM para gerenciamento de dados
 - **[Socket.IO](https://socket.io/)** - Comunicação em tempo real via WebSockets
 - **[yfinance](https://pypi.org/project/yfinance/)** - Dados do mercado financeiro
-- **PostgreSQL / SQLite** - Banco de dados (PostgreSQL preferencial, SQLite para fallback)
+- **PostgreSQL** - Banco de dados
 
 ### Frontend
 - **[React 19](https://react.dev/)** - Biblioteca para interfaces modernas

@@ -57,7 +57,7 @@ No macOS, pode ser necessário permitir a execução de aplicativos de desenvolv
 
 Ao abrir a aplicação pela primeira vez:
 
-1. O banco de dados será criado automaticamente (SQLite)
+1. O banco de dados será criado automaticamente (PostgreSQL)
 2. Uma aba do navegador será aberta em `http://localhost:8000`
 3. Você verá a tela de login
 

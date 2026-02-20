@@ -14,7 +14,7 @@ Antes de começar, instale as seguintes ferramentas:
 - **Python** — [Baixar](https://www.python.org/)
 - **Node.js** — [Baixar](https://nodejs.org/)
 - **pnpm** — Instale com `npm install -g pnpm`
-- **PostgreSQL** — [Baixar](https://www.postgresql.org/) (opcional, recomendado)
+- **PostgreSQL** — [Baixar](https://www.postgresql.org/)
 
 ---
 
@@ -59,21 +59,21 @@ Isso instalará todas as dependências necessárias, incluindo:
 - yfinance
 - E outras
 
-### (Opcional) Configurar Variáveis de Ambiente
+### Configurar Variáveis de Ambiente
 
-O projeto funciona com SQLite por padrão, mas você pode configurar PostgreSQL ou outras opções via arquivo `.env`.
+O projeto requer PostgreSQL. Configure a connection string via arquivo `.env`.
 
 ```bash
 # Copiar arquivo de exemplo
 cp example.env .env
 
-# Editar .env conforme necessário (opcional)
+# Editar .env com suas credenciais do PostgreSQL
 nano .env  # ou use seu editor preferido
 ```
 
-**Exemplo de configuração para PostgreSQL:**
+**Exemplo de configuração:**
 ```env
-DATABASE_URL=postgresql+psycopg://postgres:senha@localhost:5432/simulador_financeiro
+POSTGRES_DATABASE_URL=postgresql+psycopg://postgres:senha@localhost:5432/simulador_financeiro
 ```
 
 ---
@@ -145,16 +145,10 @@ Se ambos os servidores estiverem rodando sem erros:
 
 ### Banco de Dados
 
-#### SQLite (Padrão)
-
-Por padrão, o projeto usa SQLite (`database.db` na raiz). Não requer configuração adicional.
-
-#### PostgreSQL (Opcional)
-
-Para melhor performance, você pode usar PostgreSQL:
+O projeto usa PostgreSQL. Configure o `.env` com a connection string do PostgreSQL:
 
 1. Instale o PostgreSQL
-2. Configure o `.env` com a connection string do PostgreSQL 
+2. Configure o `.env` com a connection string do PostgreSQL
 3. Reinicie o backend - as tabelas e o banco serão criados automaticamente
 
 ### Configuração TOML

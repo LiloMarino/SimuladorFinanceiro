@@ -60,7 +60,7 @@ Para desenvolvedores interessados em contribuir, consulte a seção **[Desenvolv
 - **SQLAlchemy** — ORM para gerenciamento de dados
 - **Socket.IO** — Comunicação em tempo real via WebSockets
 - **yfinance** — Dados do mercado financeiro
-- **PostgreSQL / SQLite** — Banco de dados
+- **PostgreSQL** — Banco de dados
 
 ### Frontend
 - **React 19** — Biblioteca para interfaces modernas

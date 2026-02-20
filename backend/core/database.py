@@ -1,5 +1,4 @@
 import logging
-from pathlib import Path
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine.url import URL, make_url
@@ -45,37 +44,23 @@ def create_database_postgres(url_obj):
 # -----------------------------------
 def get_engine():
     pg_url = config.env.postgres_url
-    sqlite_url = config.env.sqlite_url
 
-    # ================================
-    # PostgreSQL (prioritário)
-    # ================================
-    if pg_url:
-        try:
-            url_obj = make_url(pg_url)
+    if not pg_url:
+        raise RuntimeError(
+            "POSTGRES_DATABASE_URL não configurada. "
+            "Configure a variável de ambiente no arquivo .env"
+        )
 
-            create_database_postgres(url_obj)
+    url_obj = make_url(pg_url)
 
-            engine = create_engine(
-                pg_url, pool_pre_ping=True, echo=config.toml.database.echo_sql
-            )
-            Base.metadata.create_all(engine)
+    create_database_postgres(url_obj)
 
-            logger.info("Conectado ao PostgreSQL.")
-
-        except Exception:
-            logger.exception("Erro ao conectar no PostgreSQL")
-        else:
-            return engine
-
-    # ================================
-    # SQLite (fallback automático)
-    # ================================
-    sqlite_path = sqlite_url.replace("sqlite:///", "")
-    Path(sqlite_path).parent.mkdir(parents=True, exist_ok=True)
-    engine = create_engine(sqlite_url, pool_pre_ping=True)
+    engine = create_engine(
+        pg_url, pool_pre_ping=True, echo=config.toml.database.echo_sql
+    )
     Base.metadata.create_all(engine)
-    logger.warning("Conectado ao SQLite (fallback).")
+
+    logger.info("Conectado ao PostgreSQL.")
     return engine
 
 
