@@ -54,4 +54,4 @@ def import_assets_csv(
     Importa dados de ativos de um arquivo CSV.
     """
     overwrite_bool = str_to_bool(overwrite)
-    update_from_csv(csv_file.file, ticker, overwrite_bool)
+    update_from_csv(csv_file, ticker, overwrite_bool)

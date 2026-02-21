@@ -5,6 +5,7 @@ from datetime import datetime
 
 import pandas as pd
 import yfinance as yf
+from fastapi import UploadFile
 
 from backend.core import repository
 from backend.core.exceptions.http_exceptions import NotFoundError
@@ -45,9 +46,9 @@ def from_yfinance(
     return df
 
 
-def from_csv(file, fillzero: bool = True) -> pd.DataFrame:
+def from_csv(file: UploadFile, fillzero: bool = True) -> pd.DataFrame:
     logger.info(f"Lendo arquivo CSV '{file.filename}'...")
-    df = pd.read_csv(file)
+    df = pd.read_csv(file.file)
 
     # Converte datas (formato dd.mm.yyyy → datetime)
     df["Data"] = pd.to_datetime(df["Data"], format="%d.%m.%Y", errors="coerce")
@@ -166,7 +167,7 @@ def update_from_yfinance(ticker: str, overwrite: bool = False):
         raise
 
 
-def update_from_csv(file, ticker: str, overwrite: bool = False):
+def update_from_csv(file: UploadFile, ticker: str, overwrite: bool = False):
     try:
         df = from_csv(file)
         if not df.empty:
