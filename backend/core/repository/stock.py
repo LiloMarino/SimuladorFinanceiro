@@ -37,7 +37,11 @@ class StockRepository:
         for stock in stocks:
             ph = (
                 session.query(StockPriceHistory)
-                .filter_by(stock_id=stock.id, price_date=current_date)
+                .filter(
+                    StockPriceHistory.stock_id == stock.id,
+                    StockPriceHistory.price_date <= current_date,
+                )
+                .order_by(StockPriceHistory.price_date.desc())
                 .first()
             )
             if ph:

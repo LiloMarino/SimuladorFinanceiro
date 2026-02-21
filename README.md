@@ -136,7 +136,6 @@ Contribuições são bem-vindas! Veja a [documentação completa](https://liloma
 - 🔧 Enviar pull requests
 - 📖 Melhorar a documentação
 
----
 
 ## 📜 Licença
 
