@@ -1,0 +1,1 @@
+{"responses":{"204":{"description":"Successful Response"},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"properties":{"message":{"type":"string","title":"Message"}},"type":"object","required":["message"],"title":"ErrorResponse"}}}}}}

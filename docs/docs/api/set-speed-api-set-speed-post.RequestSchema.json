@@ -1,0 +1,1 @@
+{"title":"Body","body":{"content":{"application/json":{"schema":{"properties":{"speed":{"type":"integer","title":"Speed","default":0}},"type":"object","title":"SetSpeedRequest"}}},"required":true}}

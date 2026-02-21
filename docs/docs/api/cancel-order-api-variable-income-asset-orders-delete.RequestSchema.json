@@ -1,0 +1,1 @@
+{"title":"Body","body":{"required":true,"content":{"application/json":{"schema":{"properties":{"order_id":{"type":"string","title":"Order Id"}},"type":"object","required":["order_id"],"title":"CancelOrderRequest"}}}}}

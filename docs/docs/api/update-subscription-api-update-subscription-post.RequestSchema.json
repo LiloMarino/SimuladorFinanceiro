@@ -1,0 +1,1 @@
+{"title":"Body","body":{"content":{"application/json":{"schema":{"properties":{"events":{"items":{"type":"string"},"type":"array","title":"Events","default":[]}},"type":"object","title":"UpdateSubscriptionRequest"}}},"required":true}}

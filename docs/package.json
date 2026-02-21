@@ -12,7 +12,10 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "fetch:api": "curl http://localhost:8000/openapi.json -o openapi.json",
+    "generate:api": "docusaurus gen-api-docs api",
+    "update:api": "pnpm run fetch:api && pnpm run generate:api"
   },
   "dependencies": {
     "@docusaurus/core": "3.9.2",
@@ -20,6 +23,8 @@
     "@docusaurus/theme-mermaid": "^3.9.2",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",
+    "docusaurus-plugin-openapi-docs": "^4.7.1",
+    "docusaurus-theme-openapi-docs": "^4.7.1",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

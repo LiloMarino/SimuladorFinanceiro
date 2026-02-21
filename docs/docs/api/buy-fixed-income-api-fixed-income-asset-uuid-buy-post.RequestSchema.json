@@ -1,0 +1,1 @@
+{"title":"Body","body":{"required":true,"content":{"application/json":{"schema":{"properties":{"quantity":{"type":"number","exclusiveMinimum":0,"title":"Quantity"}},"type":"object","required":["quantity"],"title":"BuyFixedIncomeRequest"}}}}}
