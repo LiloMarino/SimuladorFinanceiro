@@ -12,6 +12,9 @@ import { StockHeader } from "../components/stock-header";
 import { PositionSummaryCard } from "../components/position-summary-card";
 import { PendingOrdersCard } from "../components/pending-orders-table";
 import { NewOrderCard } from "../components/new-order-card";
+import { usePendingOrders } from "../hooks/usePendingOrders";
+import { VariableIncomeStock } from "../models/VariableIncomeStock";
+import { useMemo } from "react";
 
 export default function VariableIncomeDetailPage() {
   usePageLabel("Detalhes Renda Variável");
@@ -19,6 +22,7 @@ export default function VariableIncomeDetailPage() {
   const { data: stock, setData: setStock, loading } = useQueryApi<StockDetails>(`/api/variable-income/${ticker}`);
   const { data: cashData, setData: setCash } = useQueryApi<{ cash: number }>("/api/portfolio/cash");
   const { cash = 0 } = cashData ?? {};
+  const pendingOrders = usePendingOrders(ticker);
 
   useRealtime(`stock_update:${ticker}`, ({ stock }) => {
     setStock((prev) => ({
@@ -38,9 +42,14 @@ export default function VariableIncomeDetailPage() {
     setPosition(position);
   });
 
+  const stockModel = useMemo(() => {
+    if (!stock) return null;
+    return new VariableIncomeStock(stock, pendingOrders);
+  }, [stock, pendingOrders]);
+
   if (loading) {
     return <LoadingPage />;
-  } else if (!stock) {
+  } else if (!stock || !stockModel) {
     return (
       <ErrorPage
         code="404"
@@ -63,13 +72,13 @@ export default function VariableIncomeDetailPage() {
         {/* Ações + Resumo */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           {/* Ações */}
-          <NewOrderCard stock={stock} cash={cash} position={position} />
+          <NewOrderCard stock={stockModel} cash={cash} position={position} />
 
           {/* Resumo */}
           <PositionSummaryCard stock={stock} position={position} />
         </div>
 
-        <PendingOrdersCard ticker={stock.ticker} />
+        <PendingOrdersCard ticker={stock.ticker} pendingOrders={pendingOrders} />
       </Card>
     </section>
   );

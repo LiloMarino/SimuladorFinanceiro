@@ -6,43 +6,15 @@ import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type { Order } from "@/types";
 import { FileText, XCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { toast } from "sonner";
-import { useRealtime } from "@/shared/hooks/useRealtime";
 
 interface PendingOrdersCardProps {
   ticker: string;
+  pendingOrders: Order[];
 }
 
-export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
-  const { data: pendingOrders, setData: setPendingOrders } = useQueryApi<Order[]>(
-    `/api/variable-income/${ticker}/orders`
-  );
-
-  useRealtime(`order_added:${ticker}`, ({ order }) => {
-    setPendingOrders((prev) => {
-      if (!prev) return [order];
-
-      if (prev.some((o) => o.id === order.id)) {
-        return prev;
-      }
-
-      return [...prev, order];
-    });
-  });
-
-  useRealtime(`order_updated:${ticker}`, ({ order }) => {
-    setPendingOrders((prev) => {
-      if (!prev) return prev;
-      return prev.map((o) => (o.id === order.id ? order : o));
-    });
-  });
-
-  useRealtime(`order_book_snapshot:${ticker}`, ({ orders }) => {
-    setPendingOrders(orders);
-  });
-
+export function PendingOrdersCard({ ticker, pendingOrders }: PendingOrdersCardProps) {
   const cancelOrderMutation = useMutationApi(`/api/variable-income/${ticker}/orders`, {
     method: "DELETE",
     onSuccess: () => {
@@ -57,7 +29,7 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
     await cancelOrderMutation.mutate({ order_id: orderId });
   };
 
-  if (!pendingOrders || pendingOrders.length === 0) {
+  if (pendingOrders.length === 0) {
     return (
       <Card className="p-4 bg-background border">
         <h3 className="font-medium mb-4">Ordens Pendentes</h3>
@@ -121,7 +93,7 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
                           className={clsx(
                             order.action === "buy"
                               ? "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400"
-                              : "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400"
+                              : "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400",
                           )}
                         >
                           {order.action === "buy" ? "Compra" : "Venda"}
@@ -158,7 +130,7 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
 
                           order.status === "pending" && "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
 
-                          order.status === "canceled" && "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                          order.status === "canceled" && "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
                         )}
                       >
                         {order.status === "executed" && "Efetivada"}
@@ -178,7 +150,7 @@ export function PendingOrdersCard({ ticker }: PendingOrdersCardProps) {
                               "p-1 rounded transition-colors",
                               canCancel
                                 ? "text-red-600 hover:bg-red-100 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/30"
-                                : "text-muted-foreground cursor-not-allowed"
+                                : "text-muted-foreground cursor-not-allowed",
                             )}
                           >
                             <XCircle className="h-4 w-4" />

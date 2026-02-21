@@ -5,7 +5,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/shared/components/ui/form";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { displayMoney } from "@/shared/lib/utils/display";
-import type { OrderAction, OrderType, StockDetails, Position } from "@/types";
+import type { OrderAction, OrderType, Position } from "@/types";
 import clsx from "clsx";
 import { Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import { normalizeNumberString } from "@/shared/lib/utils";
+import { VariableIncomeStock } from "@/features/variable-income/models/VariableIncomeStock";
 
 const newOrderSchema = z
   .object({
@@ -47,7 +48,7 @@ type NewOrderFormOutput = {
 };
 
 interface NewOrderCardProps {
-  stock: StockDetails;
+  stock: VariableIncomeStock;
   cash: number;
   position: Position | null;
 }
@@ -87,8 +88,9 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
   const quantity = Number(form.watch("quantity"));
   const limitPrice = Number(normalizeNumberString(form.watch("limit_price")));
 
-  const estimatedPrice = type === "market" ? stock.close : limitPrice;
-  const estimatedTotal = quantity * estimatedPrice;
+  const marketEstimatedPrice = stock.getMarketPrice(action);
+  const estimatedPrice = type === "market" ? marketEstimatedPrice : limitPrice;
+  const estimatedTotal = estimatedPrice !== null ? quantity * estimatedPrice : null;
 
   // Quantidade em posição
   const positionSize = position?.size ?? 0;
@@ -186,8 +188,8 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
                       let maxQty = 0;
                       if (action === "buy") {
                         if (type === "market") {
-                          // Ordem à mercado: cash / preço atual
-                          maxQty = Math.floor(cash / stock.close);
+                          // Ordem à mercado: cash / melhor preço atual do book
+                          maxQty = marketEstimatedPrice ? Math.floor(cash / marketEstimatedPrice) : 0;
                         } else {
                           // Ordem limitada: cash / preço desejado
                           const price = limitPrice || stock.close;
@@ -254,7 +256,9 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
           <div className="border-t pt-3 text-sm space-y-1">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Total estimado:</span>
-              <span className="font-semibold">{displayMoney(estimatedTotal)}</span>
+              <span className="font-semibold">
+                {estimatedTotal !== null ? displayMoney(estimatedTotal) : "Indisponível"}
+              </span>
             </div>
 
             {type === "limit" && (
@@ -264,7 +268,11 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
             )}
 
             {type === "market" && (
-              <p className="text-xs text-muted-foreground italic">* O preço pode variar conforme o mercado.</p>
+              <p className="text-xs text-muted-foreground italic">
+                {estimatedPrice === null
+                  ? "* Sem preço disponível no book para estimar a ordem de mercado."
+                  : "* O preço pode variar conforme o mercado."}
+              </p>
             )}
           </div>
         </form>
