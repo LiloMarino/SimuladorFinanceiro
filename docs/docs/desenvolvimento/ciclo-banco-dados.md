@@ -5,10 +5,7 @@ sidebar_position: 4
 # Ciclo de Desenvolvimento com Banco de Dados
 
 
-O ciclo de desenvolvimento do projeto é feito **exclusivamente com PostgreSQL** como banco principal.
-
-O **SQLite** existe apenas para uso simples e rápido (out-of-the-box), conforme descrito em
-[Recomendações Gerais](../como-usar/recomendacoes.md), e **não deve ser considerado a fonte de verdade do schema**.
+O ciclo de desenvolvimento do projeto é feito **exclusivamente com PostgreSQL**.
 
 Durante o desenvolvimento, **o PostgreSQL é tratado como o banco canônico**.
 
@@ -31,7 +28,7 @@ Durante o desenvolvimento, **o PostgreSQL é tratado como o banco canônico**.
 3. **Configurar `.env`:**
 
    ```env
-   DATABASE_URL=postgresql+psycopg://postgres:sua_senha@localhost:5432/simulador_financeiro
+   POSTGRES_DATABASE_URL=postgresql+psycopg://postgres:sua_senha@localhost:5432/simulador_financeiro
    ```
 
 4. **Iniciar a aplicação:**
@@ -114,7 +111,6 @@ O código gerado pelo `sqlacodegen` **serve como ponto de partida e deve ser rev
 - Enums
 - Tipos customizados
 - Defaults e constraints
-- Incompatibilidades entre bancos (ex: tipos específicos do PostgreSQL que não existem no SQLite)
 :::
 
 
@@ -131,7 +127,6 @@ Base.metadata.create_all(bind=engine)
 Isso é útil para:
 
 * Primeiro setup
-* SQLite
 * Ambientes de teste
 
 No desenvolvimento contínuo com PostgreSQL, o schema deve ser tratado como **database-first**.
@@ -141,25 +136,9 @@ No desenvolvimento contínuo com PostgreSQL, o schema deve ser tratado como **da
 
 ## Dicas e Boas Práticas
 
-### Teste Ambos os Bancos
-
-Sempre teste as mudanças em **PostgreSQL e SQLite**, lembrando que o comportamento pode variar:
-
-```bash
-# Testar com SQLite (remova DATABASE_URL do .env)
-python main.py
-
-# Testar com PostgreSQL
-DATABASE_URL=postgresql+psycopg://... python main.py
-```
-
-SQLite é apenas um apoio para desenvolvimento rápido e para usuários sem PostgreSQL instalado/configurado.
-
----
-
 ### Evite SQL Raw
 
-Sempre que possível, use o ORM do SQLAlchemy para garantir compatibilidade entre bancos.
+Sempre que possível, use o ORM do SQLAlchemy.
 
 **Evite:**
 

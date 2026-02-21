@@ -24,7 +24,7 @@ Simule negociações em **renda variável** (Ações, FIIs, ETFs) e **renda fixa
 - **Dashboard Completo** — Acompanhe seu portfólio e estatísticas em tempo real
 - **Controle de Tempo** — Pause, acelere ou desacelere a simulação
 - **Ranking Competitivo** — Compare seu desempenho com outros jogadores
-- **Executável Standalone** — Baixe e execute sem instalação
+- **Executável Disponível** — Baixe e execute sem precisar instalar Python ou Node.js
 
 ## Como Funciona
 
@@ -60,7 +60,7 @@ Para desenvolvedores interessados em contribuir, consulte a seção **[Desenvolv
 - **SQLAlchemy** — ORM para gerenciamento de dados
 - **Socket.IO** — Comunicação em tempo real via WebSockets
 - **yfinance** — Dados do mercado financeiro
-- **PostgreSQL / SQLite** — Banco de dados
+- **PostgreSQL** — Banco de dados
 
 ### Frontend
 - **React 19** — Biblioteca para interfaces modernas

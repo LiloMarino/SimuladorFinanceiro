@@ -18,9 +18,8 @@ from sqlalchemy import (
     Uuid,
     text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-
-from backend.core.models.types import JSONType
 
 
 class Base(DeclarativeBase):
@@ -145,7 +144,7 @@ class Users(Base):
         DateTime(True), nullable=False
     )
     settings: Mapped[dict] = mapped_column(
-        JSONType, nullable=False, server_default=text("'{}'")
+        JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
 
     event_cashflow: Mapped[list["EventCashflow"]] = relationship(

@@ -14,11 +14,6 @@ class EnvSettings(BaseSettings):
         alias="POSTGRES_DATABASE_URL",
         description="PostgreSQL URL ex: postgresql+psycopg://postgres:<PASSWORD>@localhost:5432/simulador_financeiro",
     )
-    sqlite_url: str = Field(
-        default="sqlite:///./data/simulador_financeiro.db",
-        alias="SQLITE_DATABASE_URL",
-        description="SQLite fallback database URL",
-    )
 
     model_config = SettingsConfigDict(
         env_file=".env",

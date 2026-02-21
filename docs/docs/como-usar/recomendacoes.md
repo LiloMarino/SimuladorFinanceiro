@@ -8,22 +8,9 @@ Recomendações para melhor experiência ao usar o Simulador Financeiro.
 
 ## Banco de Dados
 
-### SQLite (Padrão)
+O simulador utiliza **PostgreSQL** como banco de dados. É necessário ter o PostgreSQL instalado e configurado para rodar o simulador.
 
-Por padrão, o simulador utiliza **SQLite**, que é mais simples e não requer configuração adicional. O banco de dados é criado automaticamente no arquivo `database.db` na pasta do projeto.
-
-**Vantagens:**
-- Não requer instalação ou configuração
-- Ideal para uso pessoal e desenvolvimento
-- Funciona out-of-the-box
-
-**Limitações:**
-- Menor performance em cenários com múltiplos usuários simultâneos
-- Pode ter problemas com concorrência em multiplayer intenso
-
-### PostgreSQL (Recomendado)
-
-Para melhor performance e estabilidade recomenda-se usar o **PostgreSQL**.
+### PostgreSQL
 
 #### Instalação do PostgreSQL
 
@@ -50,7 +37,7 @@ brew services start postgresql
 1. Crie um arquivo `.env` na raiz do projeto (baseado no `example.env`)
 2. Configure a connection string do PostgreSQL:
    ```env
-   DATABASE_URL=postgresql+psycopg://postgres:<senha>@localhost:5432/simulador_financeiro
+   POSTGRES_DATABASE_URL=postgresql+psycopg://postgres:<senha>@localhost:5432/simulador_financeiro
    ```
 3. Reinicie o simulador
 
