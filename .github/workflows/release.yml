@@ -99,22 +99,10 @@ jobs:
         run: pyinstaller SimuladorFinanceiro.spec --clean --noconfirm
 
       - name: Preparar artefato de release
+        shell: bash
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import shutil
-
-          src = Path("dist") / "${{ matrix.dist_binary }}"
-          dst_dir = Path("release-assets")
-          dst_dir.mkdir(exist_ok=True)
-          dst = dst_dir / "${{ matrix.release_binary }}"
-
-          if not src.exists():
-            raise SystemExit(f"Executável não encontrado: {src}")
-
-          shutil.copy2(src, dst)
-          print(f"Artefato pronto: {dst}")
-          PY
+          mkdir -p release-assets
+          cp "dist/${{ matrix.dist_binary }}" "release-assets/${{ matrix.release_binary }}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
