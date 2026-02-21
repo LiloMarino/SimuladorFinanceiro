@@ -11,6 +11,7 @@ from backend.features.variable_income.entities.order import (
     OrderStatus,
     OrderType,
 )
+from backend.features.variable_income.market_liquidity import MarketLiquidity
 
 
 class OrderDTO(BaseDTO):
@@ -26,7 +27,7 @@ class OrderDTO(BaseDTO):
 
     @staticmethod
     def from_model(order: Order) -> OrderDTO:
-        if order.client_id == "__MARKET__":
+        if order.client_id == MarketLiquidity.MARKET_CLIENT_ID:
             nickname = "Mercado"
         else:
             user = UserManager.get_user(order.client_id)
