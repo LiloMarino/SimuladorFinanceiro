@@ -11,12 +11,12 @@ Esta página explica como baixar e executar o Simulador Financeiro no seu sistem
 Os executáveis estão disponíveis na página de [Releases do GitHub](https://github.com/LiloMarino/SimuladorFinanceiro/releases), escolha a versão mais recente e baixe o arquivo correspondente ao seu sistema operacional.
 
 
-:::info
-Os executáveis não requerem instalação de Python ou Node.js.
+:::warning
+Os executáveis não requerem instalação de Python ou Node.js, porém o **PostgreSQL** é uma dependência externa obrigatória. Configure a variável de ambiente `POSTGRES_DATABASE_URL` no arquivo `.env` antes de executar.
 :::
 
-:::warning
-O **PostgreSQL** é uma dependência externa obrigatória. Configure a variável de ambiente `POSTGRES_DATABASE_URL` no arquivo `.env` antes de executar.
+:::tip
+O `.env` é criado automaticamente na primeira execução, mas você pode criar e configurar manualmente antes de rodar o executável para evitar esse erro na primeira execução.
 :::
 
 ## Como Executar
