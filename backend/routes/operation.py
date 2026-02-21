@@ -32,7 +32,7 @@ class CancelOrderRequest(BaseModel):
 
 
 class BuyFixedIncomeRequest(BaseModel):
-    quantity: int = Field(..., gt=0)
+    quantity: float = Field(..., gt=0)
 
 
 class SubmitOrderResponse(BaseModel):

@@ -42,6 +42,10 @@ export default function FixedIncomeDetailPage() {
     setSimData((prev) => ({ ...prev, ...update }));
   });
 
+  useRealtime("cash_update", (update) => {
+    setSimData((prev) => ({ ...prev, ...update }));
+  });
+
   const asset = useMemo(() => {
     if (!assetData || !simData?.current_date || !rates) return null;
     return new FixedIncomeAsset(assetData, parse(simData.current_date, "dd/MM/yyyy", new Date()), rates);
