@@ -38,9 +38,12 @@ Simule negociações em **renda variável** (Ações, FIIs, ETFs) e **renda fixa
 
 ## 📥 Instalação
 
-### Instalação via Executável Standalone
+### Instalação via Executável
 
 Baixe o executável disponível em [Releases](../../releases), escolha o arquivo conforme seu sistema operacional e execute-o diretamente. O navegador abrirá automaticamente em `http://localhost:8000`.
+
+> [!IMPORTANT]
+> O executável não requer instalação de Python ou Node.js, mas ainda depende do **PostgreSQL**. Configure as variáveis de ambiente no arquivo `.env` antes de executar.
 
 ### Instalação a partir do Código-Fonte
 Clone o repositório e instale as dependências:

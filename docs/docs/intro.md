@@ -24,7 +24,7 @@ Simule negociações em **renda variável** (Ações, FIIs, ETFs) e **renda fixa
 - **Dashboard Completo** — Acompanhe seu portfólio e estatísticas em tempo real
 - **Controle de Tempo** — Pause, acelere ou desacelere a simulação
 - **Ranking Competitivo** — Compare seu desempenho com outros jogadores
-- **Executável Standalone** — Baixe e execute sem instalação
+- **Executável Disponível** — Baixe e execute sem precisar instalar Python ou Node.js
 
 ## Como Funciona
 
