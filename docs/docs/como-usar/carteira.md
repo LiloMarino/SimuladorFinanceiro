@@ -10,7 +10,7 @@ A **Carteira** (ou Portfólio) é onde você visualiza e gerencia todos os seus 
 
 A carteira é uma tela centralizada que mostra uma visão completa da sua posição financeira na simulação. Ela agrega todos os seus ativos e permite acompanhar o desempenho do seu portfólio em tempo real.
 
-<!-- Espaço reservado para screenshot da tela de carteira -->
+![Exemplo de tela de carteira](/img/carteira.png)
 
 ## O que você pode observar na Carteira
 

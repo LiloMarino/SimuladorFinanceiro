@@ -6,6 +6,8 @@ sidebar_position: 1
 
 Aprenda a investir em ações, FIIs e ETFs no simulador.
 
+![Exemplo de tela de renda variável](/img/renda-variavel.png)
+
 ## O que é Renda Variável?
 
 **Renda Variável** são investimentos cujo retorno não é fixo e varia conforme o desempenho do mercado. No Brasil, os principais ativos de renda variável são:
@@ -27,6 +29,8 @@ Aprenda a investir em ações, FIIs e ETFs no simulador.
 ## Sistema de Ordens
 
 O simulador utiliza um sistema realista de ordens para compra e venda de ativos de renda variável.
+
+![Exemplo de tela de ordens](/img/ordens.png)
 
 ### Tipos de Ordem
 

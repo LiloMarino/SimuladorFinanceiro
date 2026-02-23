@@ -19,7 +19,7 @@ O sistema de importação carrega **dados históricos OHLCV** (Open, High, Low, 
 
 Estes dados são usados para simular o movimento realista do mercado durante a simulação.
 
-<!-- Espaço reservado para screenshot da tela de importação -->
+![Exemplo de tela de importação de ativos](/img/importar.png)
 
 ---
 

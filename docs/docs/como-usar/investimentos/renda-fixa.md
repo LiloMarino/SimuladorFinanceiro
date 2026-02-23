@@ -6,6 +6,8 @@ sidebar_position: 2
 
 Aprenda a investir em títulos de renda fixa no simulador.
 
+![Exemplo de tela de renda fixa](/img/renda-fixa.png)
+
 ## O que é Renda Fixa?
 
 **Renda Fixa** são investimentos em que você empresta dinheiro e recebe de volta o valor inicial mais juros.

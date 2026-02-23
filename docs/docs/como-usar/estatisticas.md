@@ -15,7 +15,7 @@ Esta tela é particularmente valiosa em modo multiplayer, onde você compete com
 - Como estou me saindo comparado aos outros?
 - Quais estratégias estão funcionando melhor?
 
-<!-- Espaço reservado para screenshot da tela de estatísticas -->
+![Exemplo de tela de estatísticas](/img/estatisticas.png)
 
 ---
 

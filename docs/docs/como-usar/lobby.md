@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 2
 ---
 
 # Lobby
@@ -9,7 +9,8 @@ O lobby é onde você configura os parâmetros da simulação antes de iniciá-l
 
 Esta página explica o que cada campo faz e como eles influenciam a simulação.
 
----
+
+![Exemplo de lobby](/img/lobby.png)
 
 ## Configuração do Host (Obrigatória)
 
