@@ -1,5 +1,5 @@
 EXEC=main.py
-PYTHON=venv/Scripts/python
+PYTHON=uv run python
 CPROFILE_OUT = cprofile.prof
 LINEPROFILE_OUT = lineprofile.lprof
 APP_NAME = SimuladorFinanceiro
@@ -10,6 +10,9 @@ SPEC_FILE = SimuladorFinanceiro.spec
 # --------------------------------------------------------------
 # Desenvolvimento
 # --------------------------------------------------------------
+setup:
+	uv sync --dev
+
 dev:
 	@echo "=== Iniciando ambiente de desenvolvimento ==="
 	pnpm run dev

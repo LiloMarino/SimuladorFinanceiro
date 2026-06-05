@@ -6,6 +6,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python](https://img.shields.io/badge/Python-3.13+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![uv](https://img.shields.io/badge/uv-package%20manager-DE5FE9?logo=astral&logoColor=white)](https://docs.astral.sh/uv/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19+-61DAFB?logo=react&logoColor=black)](https://react.dev/)
@@ -53,9 +54,9 @@ git clone https://github.com/LiloMarino/SimuladorFinanceiro.git
 cd SimuladorFinanceiro
 ```
 
-**Backend (Python 3.12+)**
+**Backend (Python 3.13+ via [uv](https://docs.astral.sh/uv/))**
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 **Frontend (Node.js + pnpm)**
@@ -79,12 +80,21 @@ cp example.env .env
 
 ### Modo Desenvolvimento
 
-**Backend:**
+**Opção 1 — Iniciar tudo com um único comando (recomendado):**
 ```bash
-python main.py
+pnpm dev
 ```
 
-**Frontend (em outro terminal):**
+Isso inicia o backend e o frontend simultaneamente via `concurrently`.
+
+**Opção 2 — Iniciar separadamente:**
+
+**Backend (Terminal 1):**
+```bash
+uv run python main.py
+```
+
+**Frontend (Terminal 2):**
 ```bash
 cd frontend
 pnpm dev

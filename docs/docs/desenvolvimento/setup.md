@@ -11,7 +11,7 @@ Configure seu ambiente de desenvolvimento para contribuir com o projeto.
 Antes de começar, instale as seguintes ferramentas:
 
 - **Git** — [Baixar](https://git-scm.com/)
-- **Python** — [Baixar](https://www.python.org/)
+- **uv** — [Instalar](https://docs.astral.sh/uv/getting-started/installation/) (gerencia Python e dependências automaticamente)
 - **Node.js** — [Baixar](https://nodejs.org/)
 - **pnpm** — Instale com `npm install -g pnpm`
 - **PostgreSQL** — [Baixar](https://www.postgresql.org/)
@@ -29,35 +29,21 @@ cd SimuladorFinanceiro
 
 ## 2. Setup do Backend (Python)
 
-### Criar Virtual Environment
-
-É recomendado usar um ambiente virtual para isolar as dependências do projeto.
-
-**Windows:**
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-
-**Linux/macOS:**
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
 ### Instalar Dependências
 
+O projeto usa **uv** para gerenciar Python e dependências. Não é necessário criar um virtualenv manualmente — o uv faz isso automaticamente.
+
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
-Isso instalará todas as dependências necessárias, incluindo:
-- FastAPI
-- Uvicorn
-- SQLAlchemy
-- Socket.IO
-- yfinance
-- E outras
+Isso criará o virtualenv em `.venv`, instalará todas as dependências do projeto e gerará (ou validará) o lockfile `uv.lock`.
+
+Para instalar dependências de desenvolvimento também (pytest, ruff, pyright, etc.):
+
+```bash
+uv sync --dev
+```
 
 ### Configurar Variáveis de Ambiente
 
@@ -99,26 +85,31 @@ Isso instalará todas as dependências do frontend, incluindo:
 
 ## 4. Executar Localmente
 
-Para rodar o projeto em modo de desenvolvimento, você precisa de **dois terminais** (um para backend, outro para frontend).
-
-### Terminal 1 — Backend
+### Opção 1 — Iniciar tudo de uma vez (recomendado)
 
 Na raiz do projeto:
 
 ```bash
-# Certifique-se de que o virtual environment está ativado
-python main.py
+pnpm dev
 ```
 
-O backend rodará em: **`http://localhost:8000`**
+Isso usa `concurrently` para iniciar o backend e o frontend simultaneamente em um único terminal.
 
 :::tip Swagger Docs
 Acesse `http://localhost:8000/docs` para ver a documentação interativa da API (Swagger UI).
 :::
 
-### Terminal 2 — Frontend
+### Opção 2 — Iniciar separadamente
 
-Em outro terminal:
+**Terminal 1 — Backend:**
+
+```bash
+uv run python main.py
+```
+
+O backend rodará em: **`http://localhost:8000`**
+
+**Terminal 2 — Frontend:**
 
 ```bash
 cd frontend

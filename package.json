@@ -2,7 +2,7 @@
   "name": "simulador-financeiro-dev",
   "private": true,
   "scripts": {
-    "dev": "concurrently --kill-others -n backend,frontend -c cyan,yellow \"venv\\\\Scripts\\\\python main.py\" \"cd frontend && pnpm run dev\""
+    "dev": "concurrently --kill-others -n backend,frontend -c cyan,yellow \"uv run python main.py\" \"cd frontend && pnpm run dev\""
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
