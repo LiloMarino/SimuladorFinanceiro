@@ -1,10 +1,43 @@
-import type { components } from "@/types/openapi";
-import type { FixedIncomeAssetApi } from "./fixed-income";
-import type { FixedIncomePosition, Position } from "./portfolio";
-import type { Snapshot } from "./snapshot";
-import type { Stock } from "./stock";
-import type { PatrimonialHistory } from "./portfolio";
-import type { Order, OrderExecutedEvent, OrderPartialExecutedEvent } from "./order";
+import type {
+  FixedIncomeAssetApi,
+  FixedIncomePosition,
+  Order,
+  OrderAction,
+  PatrimonialHistory,
+  Position,
+  SimulationData,
+  SimulationInfo,
+  Stock,
+} from "./api";
+
+/** Snapshot de patrimônio emitido via WebSocket/SSE */
+export type Snapshot = {
+  user_id: number;
+  snapshot_date: string; // ISO
+  total_equity: number;
+  total_fixed: number;
+  total_cash: number;
+  total_contribution: number;
+  total_networth: number;
+  created_at: string; // ISO
+};
+
+export type OrderExecutedEvent = {
+  order_id: string;
+  ticker: string;
+  action: OrderAction;
+  price: number;
+  quantity: number;
+};
+
+export type OrderPartialExecutedEvent = {
+  order_id: string;
+  ticker: string;
+  action: OrderAction;
+  price: number;
+  quantity: number;
+  remaining: number;
+};
 
 /** Eventos emitidos pelo servidor via WebSocket ou SSE */
 export type SimulationEvents = {
@@ -52,11 +85,3 @@ export type SimulationEvents = {
     orders: Order[];
   };
 };
-
-export type SimulationState = Partial<components["schemas"]["SimulationStateResponse"]>;
-
-export type SimulationData = components["schemas"]["SimulationDTO"];
-
-export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];
-
-export type SimulationInfo = components["schemas"]["SimulationStatusResponse"];

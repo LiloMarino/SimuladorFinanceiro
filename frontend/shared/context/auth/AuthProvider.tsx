@@ -1,7 +1,7 @@
 import { useCallback, useEffect, type PropsWithChildren } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AuthContext } from "./AuthContext";
-import type { Session } from "@/types/user";
+import type { Session } from "@/types";
 import { handleApiResponse } from "@/shared/lib/utils/api";
 
 export function AuthProvider({ children }: PropsWithChildren) {

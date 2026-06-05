@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { Session, User } from "@/types/user";
+import type { Session, User } from "@/types";
 
 export interface AuthContextValue {
   session: Session | null;
