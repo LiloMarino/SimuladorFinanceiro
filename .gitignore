@@ -47,6 +47,7 @@ logs/
 # =========================
 # NODE / FRONTEND
 # =========================
+node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/

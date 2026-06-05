@@ -1,10 +1,18 @@
 EXEC=main.py
+PYTHON=venv/Scripts/python
 CPROFILE_OUT = cprofile.prof
 LINEPROFILE_OUT = lineprofile.lprof
 APP_NAME = SimuladorFinanceiro
 BUILD_DIR = build
 DIST_DIR = dist
 SPEC_FILE = SimuladorFinanceiro.spec
+
+# --------------------------------------------------------------
+# Desenvolvimento
+# --------------------------------------------------------------
+dev:
+	@echo "=== Iniciando ambiente de desenvolvimento ==="
+	pnpm run dev
 
 # --------------------------------------------------------------
 # Build
@@ -71,14 +79,14 @@ format:
 # Profiling
 # --------------------------------------------------------------
 cprofile:
-	python -m cProfile -o $(CPROFILE_OUT) $(EXEC)
+	$(PYTHON) -m cProfile -o $(CPROFILE_OUT) $(EXEC)
 	snakeviz $(CPROFILE_OUT)
 
 lineprofile:
-	LINE_PROFILE=1 python $(EXEC)
+	LINE_PROFILE=1 $(PYTHON) $(EXEC)
 
 lineprofile-view:
-	python -m line_profiler $(LINEPROFILE_OUT)
+	$(PYTHON) -m line_profiler $(LINEPROFILE_OUT)
 
 snakeviz:
 	snakeviz $(CPROFILE_OUT)
@@ -89,9 +97,9 @@ snakeviz:
 
 build-clean:
 	@echo "=== Limpando arquivos de build ==="
-	python -c "import shutil; from pathlib import Path; dirs=['backend/static','build','dist']; [shutil.rmtree(d) if Path(d).exists() else None for d in dirs]"
+	$(PYTHON) -c "import shutil; from pathlib import Path; dirs=['backend/static','build','dist']; [shutil.rmtree(d) if Path(d).exists() else None for d in dirs]"
 	@echo "Build limpo!"
 
 clean:
 	@echo "=== Limpando artefatos auxiliares ==="
-	python -c "import os; from pathlib import Path; files=['*.prof','*.lprof','cc.json','mi.json','hal.json']; [os.remove(f) if Path(f).exists() else None for pattern in files for f in Path('.').glob(pattern)]"
+	$(PYTHON) -c "import os; from pathlib import Path; files=['*.prof','*.lprof','cc.json','mi.json','hal.json']; [os.remove(f) if Path(f).exists() else None for pattern in files for f in Path('.').glob(pattern)]"
