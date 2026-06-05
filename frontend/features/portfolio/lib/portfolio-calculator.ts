@@ -88,7 +88,7 @@ function calculateFixedPositions(fixedIncome: FixedIncomePosition[]): FixedPosit
     })();
 
     return {
-      uuid: pos.asset.asset_uuid,
+      uuid: pos.asset.asset_uuid ?? "",
       name: pos.asset.name,
       issuer: pos.asset.issuer,
       rateIndex: pos.asset.rate_index,
@@ -131,7 +131,7 @@ export function calculatePortfolioView(portfolioData: PortfolioState, stocks: St
 
   // Calcula retorno (descontando aportes)
   const lastSnapshot = portfolioData.patrimonial_history[portfolioData.patrimonial_history.length - 1];
-  const totalContributions = lastSnapshot?.total_contribution ?? 0;
+  const totalContributions = parseFloat(lastSnapshot?.total_contribution ?? "0");
   const capitalProvided = portfolioData.starting_cash + totalContributions;
   const totalReturnValue = totalNetWorth - capitalProvided;
   const totalReturnPct = capitalProvided > 0 ? totalReturnValue / capitalProvided : 0;

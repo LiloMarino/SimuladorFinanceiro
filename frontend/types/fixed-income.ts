@@ -1,13 +1,7 @@
-export type RateIndex = "CDI" | "IPCA" | "SELIC" | "Prefixado";
+import type { components } from "@/types/openapi";
 
-export type InvestmentType = "CDB" | "LCI" | "LCA" | "Tesouro Direto";
+export type RateIndex = components["schemas"]["RateIndexType"];
 
-export type FixedIncomeAssetApi = {
-  asset_uuid: string; // UUID como string
-  name: string;
-  issuer: string;
-  interest_rate: number;
-  rate_index: RateIndex;
-  investment_type: InvestmentType;
-  maturity_date: string; // ISO date
-};
+export type InvestmentType = components["schemas"]["FixedIncomeType"];
+
+export type FixedIncomeAssetApi = components["schemas"]["FixedIncomeAssetDTO"];

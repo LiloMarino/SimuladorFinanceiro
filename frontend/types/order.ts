@@ -1,18 +1,12 @@
-export type OrderAction = "buy" | "sell";
-export type OrderType = "market" | "limit";
-export type OrderStatus = "pending" | "partial" | "executed" | "canceled";
+import type { components } from "@/types/openapi";
 
-export type Order = {
-  id: string;
-  player_nickname: string;
-  action: OrderAction;
-  order_type: OrderType;
-  status: OrderStatus;
-  size: number;
-  remaining: number;
-  limit_price: number | null;
-  created_at: string;
-};
+export type OrderAction = components["schemas"]["OrderAction"];
+
+export type OrderType = components["schemas"]["OrderType"];
+
+export type OrderStatus = components["schemas"]["OrderStatus"];
+
+export type Order = components["schemas"]["OrderDTO"];
 
 export type OrderExecutedEvent = {
   order_id: string;

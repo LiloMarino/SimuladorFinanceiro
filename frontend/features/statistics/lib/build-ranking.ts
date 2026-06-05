@@ -5,9 +5,9 @@ export function buildPlayersRanking(players: PlayerHistory[]): PlayerStat[] {
   const ranked = players.map((p) => {
     const lastSnapshot = p.history[p.history.length - 1];
 
-    const totalContributions = lastSnapshot.total_contribution;
+    const totalContributions = parseFloat(lastSnapshot.total_contribution);
     const capitalProvided = p.starting_cash + totalContributions;
-    const finalNetWorth = lastSnapshot.total_networth ?? capitalProvided;
+    const finalNetWorth = parseFloat(lastSnapshot.total_networth) || capitalProvided;
     const returnValue = finalNetWorth - capitalProvided;
     const returnPercent = capitalProvided > 0 ? returnValue / capitalProvided : 0;
 

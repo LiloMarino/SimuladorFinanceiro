@@ -37,11 +37,11 @@ export default function PortfolioPage() {
 
       map.set(snapshot.snapshot_date, {
         snapshot_date: snapshot.snapshot_date,
-        total_networth: snapshot.total_networth,
-        total_equity: snapshot.total_equity,
-        total_fixed: snapshot.total_fixed,
-        total_cash: snapshot.total_cash,
-        total_contribution: snapshot.total_contribution,
+        total_networth: String(snapshot.total_networth),
+        total_equity: String(snapshot.total_equity),
+        total_fixed: String(snapshot.total_fixed),
+        total_cash: String(snapshot.total_cash),
+        total_contribution: String(snapshot.total_contribution),
       });
 
       return {

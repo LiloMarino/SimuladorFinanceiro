@@ -1,6 +1,5 @@
+import type { components } from "@/types/openapi";
+
 export type NotificationPreferences = {
-  orders: {
-    executed: boolean;
-    partial: boolean;
-  };
+  orders: components["schemas"]["OrderNotificationSettings"];
 };

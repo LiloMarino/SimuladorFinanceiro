@@ -1,28 +1,7 @@
-/** Dados de um ativo retornado na listagem geral */
-export type Stock = {
-  ticker: string;
-  name: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-  price_date: string; // ISO
-  change: number;
-  change_pct: string;
-};
+import type { components } from "@/types/openapi";
 
-/** Registro histórico de preço (candlestick) */
-export type StockCandle = {
-  price_date: string; // ISO
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-};
+export type Stock = Omit<components["schemas"]["CandleDTO"], "id">;
 
-/** Detalhamento completo de um ativo (para a página individual) */
-export type StockDetails = Stock & {
-  history: StockCandle[];
-};
+export type StockCandle = components["schemas"]["StockPriceHistoryDTO"];
+
+export type StockDetails = Omit<components["schemas"]["StockDetailsDTO"], "id">;

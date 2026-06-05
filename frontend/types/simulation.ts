@@ -1,3 +1,4 @@
+import type { components } from "@/types/openapi";
 import type { FixedIncomeAssetApi } from "./fixed-income";
 import type { FixedIncomePosition, Position } from "./portfolio";
 import type { Snapshot } from "./snapshot";
@@ -52,25 +53,10 @@ export type SimulationEvents = {
   };
 };
 
-export type SimulationState = {
-  current_date?: string;
-  speed?: number;
-  cash?: number;
-};
+export type SimulationState = Partial<components["schemas"]["SimulationStateResponse"]>;
 
-export type SimulationData = {
-  start_date: string;
-  end_date: string;
-  starting_cash: number;
-  monthly_contribution: number;
-};
+export type SimulationData = components["schemas"]["SimulationDTO"];
 
-export type SimulationSettings = {
-  is_host: boolean;
-  simulation: SimulationData;
-};
+export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];
 
-export type SimulationInfo = {
-  active: boolean;
-  simulation?: SimulationData;
-};
+export type SimulationInfo = components["schemas"]["SimulationStatusResponse"];

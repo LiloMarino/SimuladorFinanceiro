@@ -1,10 +1,5 @@
-export type User = {
-  id: number;
-  client_id: string;
-  nickname: string;
-};
+import type { components } from "@/types/openapi";
 
-export type Session = {
-  authenticated: boolean;
-  user: User | null;
-};
+export type User = components["schemas"]["UserDTO"];
+
+export type Session = components["schemas"]["SessionDTO"];
