@@ -1,5 +1,5 @@
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-import { displayMoney, displayMonthYear } from "@/shared/lib/utils/display";
+import { displayMoneyCompact, displayMonthYear } from "@/shared/lib/utils/display";
 import { useStaticChartVisibility } from "@/shared/hooks/useStaticChartVisibility";
 import { PerformanceChartLegend } from "./chart-legend";
 import { PerformanceChartTooltip } from "./chart-tooltip";
@@ -48,7 +48,7 @@ export function MetricLineChart({ metric, players }: MetricLineChartProps) {
             minTickGap={40}
           />
 
-          <YAxis tickFormatter={displayMoney} width={96} />
+          <YAxis tickFormatter={displayMoneyCompact} width={96} />
 
           <Tooltip content={<PerformanceChartTooltip />} />
 

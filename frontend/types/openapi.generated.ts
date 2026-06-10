@@ -688,10 +688,7 @@ export interface components {
         Body_import_assets_csv_api_import_assets_csv_post: {
             /** Ticker */
             ticker: string;
-            /**
-             * Csv File
-             * Format: binary
-             */
+            /** Csv File */
             csv_file: string;
             /**
              * Overwrite
@@ -1157,6 +1154,10 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
         };
     };
     responses: never;

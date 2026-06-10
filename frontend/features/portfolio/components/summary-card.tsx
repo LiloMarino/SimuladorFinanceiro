@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Card } from "@/shared/components/ui/card";
 import type { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { displayMoney } from "@/shared/lib/utils/display";
+import { displayMoneyCompact } from "@/shared/lib/utils/display";
 
 interface SummaryCardProps {
   title: string;
@@ -26,7 +26,7 @@ export function SummaryCard({
         {/* Texto */}
         <div className="min-w-0">
           <p className="text-gray-600">{title}</p>
-          <h3 className="text-2xl font-bold">{displayMoney(value)}</h3>
+          <h3 className="text-2xl font-bold">{displayMoneyCompact(value)}</h3>
           <p className={`${color} mt-1`}>{subtitle}</p>
         </div>
 

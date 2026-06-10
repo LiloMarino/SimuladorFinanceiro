@@ -16,6 +16,30 @@ export function displayMoney(value: number) {
   }).format(value);
 }
 
+const COMPACT_SCALES = [
+  { threshold: 1_000_000_000_000, suffix: "T" },
+  { threshold: 1_000_000_000, suffix: "B" },
+  { threshold: 1_000_000, suffix: "M" },
+  { threshold: 1_000, suffix: "K" },
+] as const;
+
+export function displayMoneyCompact(value: number): string {
+  const abs = Math.abs(value);
+
+  for (const { threshold, suffix } of COMPACT_SCALES) {
+    if (abs >= threshold) {
+      const v = value / threshold;
+      const formatted = new Intl.NumberFormat("pt-BR", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 1,
+      }).format(v);
+      return `R$ ${formatted} ${suffix}`;
+    }
+  }
+
+  return displayMoney(value);
+}
+
 export function displayPercent(value: number, digits = 2) {
   return new Intl.NumberFormat("pt-BR", {
     style: "percent",

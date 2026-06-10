@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-import { displayMoney, displayMonthYear } from "@/shared/lib/utils/display";
+import { displayMoneyCompact, displayMonthYear } from "@/shared/lib/utils/display";
 import type { PatrimonialHistory } from "@/types";
 import { PortfolioAreaTooltip } from "./chart-tooltip";
 import { useStaticChartVisibility } from "../../../../shared/hooks/useStaticChartVisibility";
@@ -67,7 +67,7 @@ export function PortfolioAreaChart({ data }: PortfolioAreaChartProps) {
               />
 
               <YAxis
-                tickFormatter={displayMoney}
+                tickFormatter={displayMoneyCompact}
                 width={80}
                 tick={{
                   fontSize: 13,
