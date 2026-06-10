@@ -7,6 +7,7 @@ from backend.core.dto.candle import CandleDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
+from backend.core.dto.stock_status import StockStatusDTO
 from backend.core.models.models import Stock, StockPriceHistory
 
 
@@ -127,3 +128,22 @@ class StockRepository:
     @transactional
     def delete_stock_price_history(self, session: Session, stock_id: int):
         session.query(StockPriceHistory).filter_by(stock_id=stock_id).delete()
+
+    @transactional
+    def get_all_stocks_with_last_date(self, session: Session) -> list[StockStatusDTO]:
+        stocks = session.query(Stock).order_by(Stock.ticker).all()
+        result = []
+        for stock in stocks:
+            last = (
+                session.query(StockPriceHistory)
+                .filter_by(stock_id=stock.id)
+                .order_by(StockPriceHistory.price_date.desc())
+                .first()
+            )
+            result.append(
+                StockStatusDTO(
+                    ticker=stock.ticker,
+                    last_date=last.price_date if last else None,
+                )
+            )
+        return result

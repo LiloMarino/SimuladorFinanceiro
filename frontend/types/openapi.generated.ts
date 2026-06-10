@@ -216,6 +216,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/import-assets/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Status dos ativos importados
+         * @description Retorna todos os ativos com a data da última entrada histórica no banco.
+         */
+        get: operations["get_stocks_status_api_import_assets_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/import-assets/yfinance": {
         parameters: {
             query?: never;
@@ -230,6 +250,26 @@ export interface paths {
          * @description Importa dados de ativos do yfinance para um ticker especificado.
          */
         post: operations["import_assets_json_api_import_assets_yfinance_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-assets/yfinance/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Importar dados de múltiplos ativos via yfinance
+         * @description Baixa dados de vários ativos em uma única chamada ao yfinance.
+         */
+        post: operations["import_assets_batch_api_import_assets_yfinance_batch_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -832,6 +872,16 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** ImportYFinanceBatchRequest */
+        ImportYFinanceBatchRequest: {
+            /** Tickers */
+            tickers: string[];
+            /**
+             * Overwrite
+             * @default false
+             */
+            overwrite: boolean;
+        };
         /** ImportYFinanceRequest */
         ImportYFinanceRequest: {
             /** Ticker */
@@ -1058,6 +1108,13 @@ export interface components {
             close: number;
             /** Volume */
             volume: number;
+        };
+        /** StockStatusDTO */
+        StockStatusDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Last Date */
+            last_date: string | null;
         };
         /** SubmitOrderRequest */
         SubmitOrderRequest: {
@@ -1643,6 +1700,35 @@ export interface operations {
             };
         };
     };
+    get_stocks_status_api_import_assets_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StockStatusDTO"][];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     import_assets_json_api_import_assets_yfinance_post: {
         parameters: {
             query?: never;
@@ -1653,6 +1739,46 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ImportYFinanceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    import_assets_batch_api_import_assets_yfinance_batch_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportYFinanceBatchRequest"];
             };
         };
         responses: {

@@ -16,6 +16,7 @@ import type { CsvFormData } from "@/features/import-assets/components/csv-form";
 import type { YFinanceFormData } from "@/features/import-assets/components/yfinance-form";
 import CSVForm from "@/features/import-assets/components/csv-form";
 import YFinanceForm from "@/features/import-assets/components/yfinance-form";
+import { StocksStatusTable } from "@/features/import-assets/components/stocks-status-table";
 
 type ImportFormData = { type: "csv"; data: CsvFormData } | { type: "yfinance"; data: YFinanceFormData };
 
@@ -61,7 +62,7 @@ export default function ImportAssetsPage() {
   };
 
   return (
-    <section className="section-content p-4">
+    <section className="section-content p-4 flex flex-col gap-4">
       {/* AlertDialog de confirmação */}
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <AlertDialogContent>
@@ -102,6 +103,9 @@ export default function ImportAssetsPage() {
           />
         </div>
       </div>
+
+      {/* Tabela de status dos ativos */}
+      <StocksStatusTable />
     </section>
   );
 }

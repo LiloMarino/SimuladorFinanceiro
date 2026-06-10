@@ -129,7 +129,7 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
     else:
         last_date = repository.stock.get_last_stock_price_history(stock.id)
         if last_date:
-            df = pd.DataFrame(df[df.index > last_date.price_date])
+            df = pd.DataFrame(df[df.index > pd.Timestamp(last_date.price_date)])
             if df.empty:
                 logger.info(f"'{ticker}' já está atualizado.")
                 return
@@ -155,6 +155,44 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
 # -------------------
 # Funções finais do pipeline
 # -------------------
+
+
+def from_yfinance_batch(tickers: list[str]) -> dict[str, pd.DataFrame]:
+    if not tickers:
+        return {}
+    if len(tickers) == 1:
+        return {tickers[0]: from_yfinance(tickers[0])}
+
+    logger.info(f"Baixando dados em lote do YFinance para: {', '.join(tickers)}")
+    df = yf.download(
+        tickers,
+        period="max",
+        group_by="ticker",
+        auto_adjust=True,
+    )
+
+    result = {}
+    for ticker in tickers:
+        try:
+            ticker_df = df[ticker].dropna(how="all")
+            if not ticker_df.empty:
+                result[ticker] = ticker_df
+            else:
+                logger.warning(f"Nenhum dado retornado para {ticker} no lote.")
+        except KeyError:
+            logger.warning(f"Ticker '{ticker}' não encontrado no resultado do lote.")
+
+    return result
+
+
+def update_from_yfinance_batch(tickers: list[str], overwrite: bool = False):
+    try:
+        batch = from_yfinance_batch(tickers)
+        for ticker, df in batch.items():
+            upsert_dataframe(df, ticker, overwrite=overwrite)
+    except Exception:
+        logger.exception("Erro ao baixar dados em lote do YFinance")
+        raise
 
 
 def update_from_yfinance(ticker: str, overwrite: bool = False):
