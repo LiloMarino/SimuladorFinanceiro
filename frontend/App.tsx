@@ -2,11 +2,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import MainLayout from "@/layouts/main-layout";
+import { PlainLayout } from "@/layouts/plain-layout";
 import {
   faChartLine,
   faCoins,
   faWallet,
-  faFileImport,
   faRobot,
   faTrophy,
   faCog,
@@ -40,7 +40,6 @@ const navItems: NavItem[] = [
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: faWallet },
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: faTrophy },
   { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: faRobot },
-  { key: "import-assets", label: "Importar Ativos", endpoint: "/import-assets", icon: faFileImport },
   { key: "settings", label: "Configurações", endpoint: "/settings", icon: faCog },
 ];
 
@@ -65,6 +64,9 @@ export default function App() {
                     <Route element={<GuardLayout />}>
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/lobby" element={<LobbyPage />} />
+                      <Route element={<PlainLayout />}>
+                        <Route path="/import-assets" element={<ImportAssetsPage />} />
+                      </Route>
                       <Route element={<MainLayout navItems={navItems} />}>
                         <Route path="/" element={<PortfolioPage />} />
                         <Route path="/variable-income" element={<VariableIncomePage />} />
@@ -75,7 +77,6 @@ export default function App() {
                         <Route path="/strategies" element={<StrategiesPage />} />
                         <Route path="/settings" element={<SettingsPage />} />
                         <Route path="/statistics" element={<StatisticsPage />} />
-                        <Route path="/import-assets" element={<ImportAssetsPage />} />
                       </Route>
                     </Route>
                     {/* 404 */}
