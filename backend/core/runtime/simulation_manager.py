@@ -43,6 +43,11 @@ class SimulationManager:
             return cls._simulation_id
 
     @classmethod
+    def set_simulation_id(cls, simulation_id: int) -> None:
+        with cls._lock:
+            cls._simulation_id = simulation_id
+
+    @classmethod
     def clear_simulation(cls) -> None:
         with cls._lock:
             cls._active_simulation = None

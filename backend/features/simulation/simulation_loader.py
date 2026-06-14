@@ -21,6 +21,8 @@ class SimulationLoader:
             simulation_id, settings.start_date, settings.starting_cash
         )
 
+        SimulationManager.clear_simulation()
+        SimulationManager.set_simulation_id(simulation_id)
         sim = Simulation(SimulationDTO(id=simulation_id, **settings.model_dump()))
         SimulationManager.register_simulation(sim)
         SettingsManager.clear()
@@ -41,6 +43,8 @@ class SimulationLoader:
                 "A simulação já chegou na data final e não pode ser continuada."
             )
 
+        SimulationManager.clear_simulation()
+        SimulationManager.set_simulation_id(summary.id)
         sim = Simulation(
             SimulationDTO(
                 id=summary.id,
