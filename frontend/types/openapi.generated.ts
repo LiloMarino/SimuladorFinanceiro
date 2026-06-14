@@ -1073,13 +1073,11 @@ export interface components {
             starting_cash: number;
             /** Monthly Contribution */
             monthly_contribution: number;
-            /** Simulation Id */
-            simulation_id?: number | null;
-        };
-        /** SimulationListItem */
-        SimulationListItem: {
             /** Id */
             id: number;
+        };
+        /** SimulationSettingsDTO */
+        SimulationSettingsDTO: {
             /** Name */
             name: string;
             /**
@@ -1096,22 +1094,12 @@ export interface components {
             starting_cash: number;
             /** Monthly Contribution */
             monthly_contribution: number;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Last Simulated At
-             * Format: date-time
-             */
-            last_simulated_at: string;
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
             /** Is Host */
             is_host: boolean;
-            simulation: components["schemas"]["SimulationDTO"];
+            simulation: components["schemas"]["SimulationSettingsDTO"];
         };
         /** SimulationStateResponse */
         SimulationStateResponse: {
@@ -1127,6 +1115,37 @@ export interface components {
             /** Active */
             active: boolean;
             simulation?: components["schemas"]["SimulationDTO"] | null;
+        };
+        /** SimulationSummaryDTO */
+        SimulationSummaryDTO: {
+            /** Name */
+            name: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Starting Cash */
+            starting_cash: number;
+            /** Monthly Contribution */
+            monthly_contribution: number;
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Last Simulated At
+             * Format: date-time
+             */
+            last_simulated_at: string;
         };
         /** StockDetailsDTO */
         StockDetailsDTO: {
@@ -2471,7 +2490,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SimulationListItem"][];
+                    "application/json": components["schemas"]["SimulationSummaryDTO"][];
                 };
             };
             /** @description Validation Error */
@@ -2598,7 +2617,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SimulationDTO"];
+                    "application/json": components["schemas"]["SimulationSettingsDTO"];
                 };
             };
             /** @description Validation Error */

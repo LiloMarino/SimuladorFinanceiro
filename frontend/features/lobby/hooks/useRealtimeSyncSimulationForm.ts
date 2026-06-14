@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { useRealtime } from "@/shared/hooks/useRealtime";
-import type { SimulationData } from "@/types";
+import type { SimulationSettingsData } from "@/types";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { toast } from "sonner";
 import type { SimulationFormValues } from "../components/lobby-simulation-form";
@@ -17,17 +17,17 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
   debounceMs,
 }: {
   form: UseFormReturn<TForm>;
-  initial: SimulationData;
+  initial: SimulationSettingsData;
   isHost: boolean;
   debounceMs: number;
 }) {
   const lock = useAsyncLock();
 
   /** Mantém o último payload REAL enviado à API */
-  const lastSentRef = useRef<SimulationData | null>(initial);
+  const lastSentRef = useRef<SimulationSettingsData | null>(initial);
 
   const { mutate: updateSettings } = useMutationApi<
-    SimulationData,
+    SimulationSettingsData,
     { name: string; start_date: string; end_date: string; starting_cash: number; monthly_contribution: number }
   >("/api/simulation/settings", {
     method: "PUT",

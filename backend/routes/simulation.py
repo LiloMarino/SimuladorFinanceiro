@@ -16,9 +16,11 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
+from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
+from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_loop import simulation_controller
 
 simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
@@ -84,7 +86,7 @@ def _resume_simulation(summary: SimulationSummaryDTO) -> SimulationDTO:
             "A simulação já chegou na data final e não pode ser continuada."
         )
 
-    sim = SimulationManager.create_simulation(
+    sim = Simulation(
         SimulationDTO(
             id=summary.id,
             name=summary.name,
@@ -94,6 +96,8 @@ def _resume_simulation(summary: SimulationSummaryDTO) -> SimulationDTO:
             monthly_contribution=summary.monthly_contribution,
         )
     )
+    SimulationManager.register_simulation(sim)
+    SettingsManager.clear()
 
     repository.simulation.touch_last_simulated(summary.id)
     simulation_controller.start()
@@ -155,9 +159,9 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
         simulation_id, payload.start_date, payload.starting_cash
     )
 
-    sim = SimulationManager.create_simulation(
-        SimulationDTO(id=simulation_id, **settings.model_dump())
-    )
+    sim = Simulation(SimulationDTO(id=simulation_id, **settings.model_dump()))
+    SimulationManager.register_simulation(sim)
+    SettingsManager.clear()
 
     simulation_controller.start()
 
@@ -272,7 +276,7 @@ def get_simulation_settings(client_id: ClientID):
         raise NotFoundError("User not found.")
     host_nickname = config.toml.host.nickname
 
-    settings = SimulationManager.get_settings()
+    settings = SettingsManager.get()
     return SimulationSettingsResponse(
         is_host=user.nickname == host_nickname,
         simulation=settings,
@@ -289,7 +293,7 @@ def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
     """
     Atualiza as configurações da simulação.
     """
-    settings = SimulationManager.update_settings(
+    settings = SettingsManager.update(
         SimulationSettingsDTO(
             name=payload.name,
             start_date=payload.start_date,

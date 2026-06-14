@@ -41,6 +41,7 @@ export type NotificationPreferences = {
 // Simulation
 export type SimulationState = Partial<components["schemas"]["SimulationStateResponse"]>;
 export type SimulationData = components["schemas"]["SimulationDTO"];
+export type SimulationSettingsData = components["schemas"]["SimulationSettingsDTO"];
 export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];
 export type SimulationInfo = components["schemas"]["SimulationStatusResponse"];
-export type SimulationListItem = components["schemas"]["SimulationListItem"];
+export type SimulationListItem = components["schemas"]["SimulationSummaryDTO"];

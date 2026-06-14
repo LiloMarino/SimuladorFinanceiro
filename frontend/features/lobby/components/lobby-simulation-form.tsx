@@ -18,7 +18,7 @@ import { normalizeNumberString } from "@/shared/lib/utils";
 import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
-import type { SimulationInfo, SimulationData } from "@/types";
+import type { SimulationInfo, SimulationSettingsData } from "@/types";
 import { toast } from "sonner";
 import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
@@ -46,7 +46,7 @@ const simulationFormSchema = z
 
 export type SimulationFormValues = z.infer<typeof simulationFormSchema>;
 
-export function LobbySimulationForm({ simulationData, isHost }: { simulationData: SimulationData; isHost: boolean }) {
+export function LobbySimulationForm({ simulationData, isHost }: { simulationData: SimulationSettingsData; isHost: boolean }) {
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [loadOpen, setLoadOpen] = useState(false);
