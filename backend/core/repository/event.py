@@ -40,6 +40,7 @@ class EventRepository:
     ) -> None:
         cashflow_models = [
             EventCashflow(
+                simulation_id=e.simulation_id,
                 user_id=e.user_id,
                 event_type=e.event_type.value,
                 amount=e.amount,
@@ -60,6 +61,7 @@ class EventRepository:
 
         equity_models = [
             EventEquity(
+                simulation_id=e.simulation_id,
                 user_id=e.user_id,
                 stock_id=stock_map[e.ticker],
                 event_type=e.event_type.value,
@@ -77,6 +79,7 @@ class EventRepository:
     ) -> None:
         fixed_income_models = [
             EventFixedIncome(
+                simulation_id=e.simulation_id,
                 user_id=e.user_id,
                 asset_id=e.asset_id,
                 event_type=e.event_type.value,

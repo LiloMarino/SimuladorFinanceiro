@@ -222,6 +222,7 @@ class Broker:
 
         EventManager.push_event(
             EquityEventDTO(
+                simulation_id=self._simulation_engine.simulation_id,
                 user_id=UserManager.get_user_id(client_id),
                 event_type=EquityEventType.BUY,
                 ticker=ticker,
@@ -252,6 +253,7 @@ class Broker:
 
         EventManager.push_event(
             EquityEventDTO(
+                simulation_id=self._simulation_engine.simulation_id,
                 user_id=UserManager.get_user_id(client_id),
                 event_type=EquityEventType.SELL,
                 ticker=ticker,

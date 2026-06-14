@@ -23,6 +23,10 @@ class SnapshotRepository:
         user_id: int,
         snapshot_date: date,
     ) -> SnapshotDTO:
+        from backend.core.runtime.simulation_manager import SimulationManager
+
+        simulation_id = SimulationManager.get_active_simulation_id()
+
         # --------------------------------------------------
         # 2. CASHFLOW (TOTAL)
         # --------------------------------------------------
@@ -49,6 +53,7 @@ class SnapshotRepository:
                     )
                 ).where(
                     EventCashflow.user_id == user_id,
+                    EventCashflow.simulation_id == simulation_id,
                     EventCashflow.event_date <= snapshot_date,
                 )
             ).scalar_one()
@@ -66,6 +71,7 @@ class SnapshotRepository:
                     )
                 ).where(
                     EventCashflow.user_id == user_id,
+                    EventCashflow.simulation_id == simulation_id,
                     EventCashflow.event_type == "CONTRIBUTION",
                     EventCashflow.event_date <= snapshot_date,
                 )
@@ -88,6 +94,7 @@ class SnapshotRepository:
             )
             .where(
                 EventEquity.user_id == user_id,
+                EventEquity.simulation_id == simulation_id,
                 EventEquity.event_date <= snapshot_date,
             )
             .group_by(EventEquity.stock_id)
@@ -128,7 +135,10 @@ class SnapshotRepository:
                         func.sum(FixedIncomePosition.current_value),
                         0,
                     )
-                ).where(FixedIncomePosition.user_id == user_id)
+                ).where(
+                    FixedIncomePosition.user_id == user_id,
+                    FixedIncomePosition.simulation_id == simulation_id,
+                )
             ).scalar_one()
         )
 
@@ -141,6 +151,7 @@ class SnapshotRepository:
         # 6. Persistir snapshot
         # --------------------------------------------------
         snapshot = Snapshots(
+            simulation_id=simulation_id,
             user_id=user_id,
             snapshot_date=snapshot_date,
             total_equity=total_equity,
@@ -165,9 +176,13 @@ class SnapshotRepository:
         )
 
     @transactional
-    def get_last_snapshot_date(self, session: Session) -> date | None:
-        """Retorna a última data de snapshot registrada"""
+    def get_last_snapshot_date(
+        self, session: Session, simulation_id: int
+    ) -> date | None:
+        """Retorna a última data de snapshot registrada para a simulação"""
         last_date = session.execute(
-            select(func.max(Snapshots.snapshot_date))
+            select(func.max(Snapshots.snapshot_date)).where(
+                Snapshots.simulation_id == simulation_id
+            )
         ).scalar_one_or_none()
         return last_date

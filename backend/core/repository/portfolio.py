@@ -25,9 +25,15 @@ class PortfolioRepository:
     def get_patrimonial_history(
         self, session: Session, user_id: int
     ) -> list[PatrimonialHistoryDTO]:
+        from backend.core.runtime.simulation_manager import SimulationManager
+
+        simulation_id = SimulationManager.get_active_simulation_id()
         rows = session.scalars(
             select(Snapshots)
-            .where(Snapshots.user_id == user_id)
+            .where(
+                Snapshots.user_id == user_id,
+                Snapshots.simulation_id == simulation_id,
+            )
             .order_by(Snapshots.snapshot_date)
         ).all()
 
@@ -45,6 +51,9 @@ class PortfolioRepository:
 
     @transactional
     def get_equity_positions(self, session: Session, user_id: int) -> list[PositionDTO]:
+        from backend.core.runtime.simulation_manager import SimulationManager
+
+        simulation_id = SimulationManager.get_active_simulation_id()
         size_expr = func.sum(
             Case(
                 (EventEquity.event_type == "BUY", EventEquity.quantity),
@@ -75,7 +84,10 @@ class PortfolioRepository:
                 (total_cost_expr / func.nullif(size_expr, 0)).label("avg_price"),
             )
             .join(Stock, Stock.id == EventEquity.stock_id)
-            .where(EventEquity.user_id == user_id)
+            .where(
+                EventEquity.user_id == user_id,
+                EventEquity.simulation_id == simulation_id,
+            )
             .group_by(Stock.ticker)
         )
 
@@ -95,6 +107,9 @@ class PortfolioRepository:
     def get_fixed_income_positions(
         self, session: Session, user_id: int
     ) -> list[FixedIncomePositionDTO]:
+        from backend.core.runtime.simulation_manager import SimulationManager
+
+        simulation_id = SimulationManager.get_active_simulation_id()
         # Subquery para somar BUYs e subtrair REDEEMs
         total_applied_subq = (
             select(
@@ -118,7 +133,10 @@ class PortfolioRepository:
                     )
                 ).label("first_applied_date"),  # Data do primeiro aporte
             )
-            .where(EventFixedIncome.user_id == user_id)
+            .where(
+                EventFixedIncome.user_id == user_id,
+                EventFixedIncome.simulation_id == simulation_id,
+            )
             .group_by(EventFixedIncome.asset_id)
             .subquery()
         )

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from fastapi import APIRouter, status
 from pydantic import BaseModel, Field, model_validator
@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, model_validator
 from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
-from backend.core.dto.simulation import SimulationDTO
+from backend.core.dto.simulation import SimulationDTO, SimulationSummaryDTO
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import (
     NotFoundError,
@@ -26,6 +26,7 @@ class SimulationStatusResponse(BaseModel):
 
 
 class CreateSimulationRequest(BaseModel):
+    name: str | None = None
     start_date: date
     end_date: date
     starting_cash: float = Field(gt=0)
@@ -38,13 +39,12 @@ class CreateSimulationRequest(BaseModel):
         return self
 
 
-class ContinueSimulationRequest(BaseModel):
-    end_date: date
-    starting_cash: float = Field(gt=0)
-    monthly_contribution: float = Field(ge=0, default=0.0)
+class LoadSimulationRequest(BaseModel):
+    id: int
 
 
 class UpdateSettingsRequest(BaseModel):
+    name: str
     start_date: date
     end_date: date
     starting_cash: float = Field(gt=0)
@@ -64,6 +64,56 @@ class PlayerNickname(BaseModel):
 class SimulationSettingsResponse(BaseModel):
     is_host: bool
     simulation: SimulationDTO
+
+
+class SimulationListItem(BaseModel):
+    id: int
+    name: str
+    start_date: date
+    end_date: date
+    starting_cash: float
+    monthly_contribution: float
+    created_at: datetime
+    last_simulated_at: datetime
+
+
+def _resume_simulation(summary: SimulationSummaryDTO) -> SimulationDTO:
+    """Retoma uma simulação persistida a partir do último snapshot salvo.
+
+    Define a simulação como ativa, atualiza `last_simulated_at`, inicia o loop
+    e retorna as settings em execução. Compartilhado por /continue e /load.
+    """
+    last_snapshot_date = repository.snapshot.get_last_snapshot_date(summary.id)
+    resume_start = last_snapshot_date or summary.start_date
+
+    if resume_start >= summary.end_date:
+        raise UnprocessableEntityError(
+            "A simulação já chegou na data final e não pode ser continuada."
+        )
+
+    sim = SimulationManager.create_simulation(
+        SimulationDTO(
+            simulation_id=summary.id,
+            name=summary.name,
+            start_date=resume_start,
+            end_date=summary.end_date,
+            starting_cash=summary.starting_cash,
+            monthly_contribution=summary.monthly_contribution,
+        )
+    )
+
+    repository.simulation.touch_last_simulated(summary.id)
+    simulation_controller.start()
+
+    notify(
+        "simulation_started",
+        {
+            "active": True,
+            "simulation": sim.settings.to_json(),
+        },
+    )
+
+    return sim.settings
 
 
 @simulation_router.get(
@@ -95,15 +145,25 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     """
     Cria uma nova simulação financeira.
     """
-    repository.user.reset_users_data(payload.start_date, payload.starting_cash)
+    name = payload.name or repository.simulation.generate_default_name()
+
+    settings = SimulationDTO(
+        name=name,
+        start_date=payload.start_date,
+        end_date=payload.end_date,
+        starting_cash=payload.starting_cash,
+        monthly_contribution=payload.monthly_contribution,
+    )
+
+    # Persiste a simulação e semeia o depósito inicial taggeado com o id
+    # (sem apagar dados de simulações anteriores).
+    simulation_id = repository.simulation.create_simulation(settings)
+    repository.user.seed_simulation_users(
+        simulation_id, payload.start_date, payload.starting_cash
+    )
 
     sim = SimulationManager.create_simulation(
-        SimulationDTO(
-            start_date=payload.start_date,
-            end_date=payload.end_date,
-            starting_cash=payload.starting_cash,
-            monthly_contribution=payload.monthly_contribution,
-        )
+        settings.model_copy(update={"simulation_id": simulation_id})
     )
 
     simulation_controller.start()
@@ -123,42 +183,52 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     "/continue",
     status_code=201,
     response_model=SimulationStatusResponse,
-    summary="Continuar simulação",
-    description="Continua uma simulação anterior a partir do último snapshot salvo até a nova data de término.",
+    summary="Continuar última simulação",
+    description="Continua a simulação jogada mais recentemente, a partir do último snapshot salvo.",
 )
-def continue_simulation(payload: ContinueSimulationRequest, _: HostVerified):
+def continue_simulation(_: HostVerified):
     """
-    Continua uma simulação anterior.
+    Continua a última simulação jogada.
     """
-    last_snapshot_date = repository.snapshot.get_last_snapshot_date()
-    if not last_snapshot_date:
-        raise NotFoundError("No snapshots found to continue simulation.")
+    summary = repository.simulation.get_last_simulated()
+    if summary is None:
+        raise NotFoundError("Nenhuma simulação encontrada para continuar.")
 
-    if last_snapshot_date >= payload.end_date:
-        raise UnprocessableEntityError(
-            "Last snapshot date is after or equal to the target end date."
-        )
+    settings = _resume_simulation(summary)
+    return SimulationStatusResponse(active=True, simulation=settings)
 
-    sim = SimulationManager.create_simulation(
-        SimulationDTO(
-            start_date=last_snapshot_date,
-            end_date=payload.end_date,
-            starting_cash=payload.starting_cash,
-            monthly_contribution=payload.monthly_contribution,
-        )
-    )
 
-    simulation_controller.start()
+@simulation_router.post(
+    "/load",
+    status_code=201,
+    response_model=SimulationStatusResponse,
+    summary="Carregar e iniciar simulação",
+    description="Carrega uma simulação específica pelo id e a retoma a partir de onde parou.",
+)
+def load_simulation(payload: LoadSimulationRequest, _: HostVerified):
+    """
+    Carrega uma simulação salva e a inicia de onde parou.
+    """
+    summary = repository.simulation.get_simulation(payload.id)
+    if summary is None:
+        raise NotFoundError("Simulação não encontrada.")
 
-    notify(
-        "simulation_started",
-        {
-            "active": True,
-            "simulation": sim.settings.to_json(),
-        },
-    )
+    settings = _resume_simulation(summary)
+    return SimulationStatusResponse(active=True, simulation=settings)
 
-    return SimulationStatusResponse(active=True, simulation=sim.settings)
+
+@simulation_router.get(
+    "/list",
+    response_model=list[SimulationListItem],
+    summary="Listar simulações salvas",
+    description="Retorna o histórico de simulações, ordenado pela última vez jogada.",
+)
+def list_simulations(search: str | None = None):
+    """
+    Lista as simulações persistidas (histórico).
+    """
+    simulations = repository.simulation.list_simulations(search)
+    return [SimulationListItem(**s.model_dump()) for s in simulations]
 
 
 @simulation_router.post(
@@ -229,6 +299,7 @@ def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
     """
     settings = SimulationManager.update_settings(
         SimulationDTO(
+            name=payload.name,
             start_date=payload.start_date,
             end_date=payload.end_date,
             starting_cash=payload.starting_cash,

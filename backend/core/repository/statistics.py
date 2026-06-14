@@ -1,27 +1,39 @@
 from collections import defaultdict
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
-from backend.core.models.models import Snapshots, Users
+from backend.core.models.models import Simulations, Snapshots, Users
 
 
 class StatisticsRepository:
     @transactional
-    def get_players_history(
-        self, session: Session, starting_cash: float
-    ) -> list[PlayerHistoryDTO]:
+    def get_players_history(self, session: Session) -> list[PlayerHistoryDTO]:
+        from backend.core.runtime.simulation_manager import SimulationManager
+
+        simulation_id = SimulationManager.get_active_simulation_id()
+
+        # 0. Capital inicial vem da linha da simulação (nunca do formulário),
+        # garantindo métricas consistentes ao continuar/carregar simulações.
+        starting_cash = float(
+            session.execute(
+                select(Simulations.starting_cash).where(Simulations.id == simulation_id)
+            ).scalar_one()
+        )
+
         # 1. Busca todos os usuários
         users = session.query(Users).all()
 
         if not users:
             return []
 
-        # 2. Busca todos os snapshots de todos os usuários, ordenados
+        # 2. Busca os snapshots da simulação ativa, ordenados
         snapshots = (
             session.query(Snapshots)
+            .where(Snapshots.simulation_id == simulation_id)
             .order_by(Snapshots.user_id, Snapshots.snapshot_date)
             .all()
         )

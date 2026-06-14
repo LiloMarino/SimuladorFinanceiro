@@ -58,6 +58,7 @@ class FixedIncomeRepository:
     def upsert_position(
         self,
         session: Session,
+        simulation_id: int,
         user_id: int,
         asset_id: int,
         total_applied: Decimal,
@@ -66,6 +67,7 @@ class FixedIncomeRepository:
         first_applied_date: date | None = None,
     ) -> None:
         stmt = select(FixedIncomePosition).where(
+            FixedIncomePosition.simulation_id == simulation_id,
             FixedIncomePosition.user_id == user_id,
             FixedIncomePosition.asset_id == asset_id,
         )
@@ -76,6 +78,7 @@ class FixedIncomeRepository:
         if position is None:
             # INSERT
             position = FixedIncomePosition(
+                simulation_id=simulation_id,
                 user_id=user_id,
                 asset_id=asset_id,
                 total_applied=total_applied,
@@ -97,11 +100,13 @@ class FixedIncomeRepository:
     def delete_position(
         self,
         session: Session,
+        simulation_id: int,
         user_id: int,
         asset_id: int,
     ) -> None:
         session.execute(
             delete(FixedIncomePosition).where(
+                FixedIncomePosition.simulation_id == simulation_id,
                 FixedIncomePosition.user_id == user_id,
                 FixedIncomePosition.asset_id == asset_id,
             )

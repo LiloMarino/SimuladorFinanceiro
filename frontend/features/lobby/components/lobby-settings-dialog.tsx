@@ -28,6 +28,20 @@ export function LobbySettingsDialog({ open, onOpenChange, form, isHost, loading 
 
         <Form {...form}>
           <form className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nome da Simulação</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Simulação #1" {...field} disabled={disableFields} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}

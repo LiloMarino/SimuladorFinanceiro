@@ -93,6 +93,7 @@ class FixedBroker:
         asset_id = repository.fixed_income.get_or_create_asset(asset)
         EventManager.push_event(
             FixedIncomeEventDTO(
+                simulation_id=self._simulation_engine.simulation_id,
                 user_id=UserManager.get_user_id(client_id),
                 event_type=FixedIncomeEventType.BUY,
                 asset_id=asset_id,
@@ -152,8 +153,10 @@ class FixedBroker:
 
         self._simulation_engine.add_cash(client_id, redeem_value)
         asset_id = repository.fixed_income.get_or_create_asset(position.asset)
+        simulation_id = self._simulation_engine.simulation_id
         EventManager.push_event(
             FixedIncomeEventDTO(
+                simulation_id=simulation_id,
                 user_id=user_id,
                 event_type=FixedIncomeEventType.REDEEM,
                 asset_id=asset_id,
@@ -161,7 +164,9 @@ class FixedBroker:
                 event_date=current_date,
             )
         )
-        repository.fixed_income.delete_position(user_id=user_id, asset_id=asset_id)
+        repository.fixed_income.delete_position(
+            simulation_id=simulation_id, user_id=user_id, asset_id=asset_id
+        )
         logger.info(
             f"REDEEM de {redeem_value:.2f} em {asset_name} (maturity, IR={ir_amount:.2f})"
         )

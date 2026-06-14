@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class NetworkType(str, Enum):
+class NetworkType(StrEnum):
     RADMIN = "radmin"
     HAMACHI = "hamachi"
     TAILSCALE = "tailscale"

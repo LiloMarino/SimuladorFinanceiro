@@ -8,6 +8,7 @@ from backend.core.dto.base import BaseDTO
 class BaseEventDTO(BaseDTO):
     """Base para qualquer evento financeiro."""
 
+    simulation_id: int
     user_id: int
     event_date: date
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

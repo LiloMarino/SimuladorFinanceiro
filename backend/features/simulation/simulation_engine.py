@@ -34,7 +34,7 @@ class SimulationEngine:
     - Registrar eventos de cashflow (depósitos, retiradas, aportes)
     """
 
-    def __init__(self, current_date, starting_cash: float):
+    def __init__(self, current_date, starting_cash: float, simulation_id: int | None):
         self.broker = Broker(self)
         self.fixed_broker = FixedBroker(self)
         self.fixed_income_market = FixedIncomeMarket()
@@ -45,6 +45,7 @@ class SimulationEngine:
         self._strategy = None
         self.current_date: date = current_date
         self.starting_cash = starting_cash
+        self.simulation_id = simulation_id  # Desnecessário manter separado
 
         # Configura os alias
         self.get_positions = self.broker.get_positions
@@ -59,6 +60,7 @@ class SimulationEngine:
         self._cash[client_id] += cash
         EventManager.push_event(
             CashflowEventDTO(
+                simulation_id=self.simulation_id,
                 user_id=UserManager.get_user_id(client_id),
                 event_type=CashflowEventType.DEPOSIT
                 if cash > 0
@@ -74,6 +76,7 @@ class SimulationEngine:
         self._cash[client_id] += amount
         EventManager.push_event(
             CashflowEventDTO(
+                simulation_id=self.simulation_id,
                 user_id=UserManager.get_user_id(client_id),
                 event_type=CashflowEventType.CONTRIBUTION,
                 amount=Decimal(amount),

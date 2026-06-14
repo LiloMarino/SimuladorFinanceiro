@@ -9,10 +9,6 @@ from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.user import UserDTO
 from backend.core.models.models import (
     EventCashflow,
-    EventEquity,
-    EventFixedIncome,
-    FixedIncomePosition,
-    Snapshots,
     Users,
 )
 
@@ -59,6 +55,10 @@ class UserRepository:
 
     @transactional
     def get_user_balance(self, session: Session, client_id: UUID) -> float:
+        from backend.core.runtime.simulation_manager import SimulationManager
+
+        simulation_id = SimulationManager.get_active_simulation_id()
+
         # --------------------------------------------------
         # 1. Usuário
         # --------------------------------------------------
@@ -92,6 +92,7 @@ class UserRepository:
                     )
                 ).where(
                     EventCashflow.user_id == user.id,
+                    EventCashflow.simulation_id == simulation_id,
                 )
             ).scalar_one()
         )
@@ -129,22 +130,19 @@ class UserRepository:
         session.execute(delete(Users).where(Users.id == user_id))
 
     @transactional
-    def reset_users_data(
-        self, session: Session, event_date: date, starting_cash: float
+    def seed_simulation_users(
+        self,
+        session: Session,
+        simulation_id: int,
+        event_date: date,
+        starting_cash: float,
     ) -> None:
         users = session.query(Users).all()
 
-        # Deleta todos os dados anteriores
-        session.query(EventCashflow).delete(synchronize_session=False)
-        session.query(EventEquity).delete(synchronize_session=False)
-        session.query(EventFixedIncome).delete(synchronize_session=False)
-        session.query(FixedIncomePosition).delete(synchronize_session=False)
-        session.query(Snapshots).delete(synchronize_session=False)
-
-        # Cria um novo cashflow de depósito inicial para cada usuário
         now = datetime.now(UTC)
         new_cashflows = [
             EventCashflow(
+                simulation_id=simulation_id,
                 user_id=user.id,
                 event_type="DEPOSIT",
                 amount=starting_cash,

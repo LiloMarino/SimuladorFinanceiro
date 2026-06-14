@@ -43,3 +43,4 @@ export type SimulationState = Partial<components["schemas"]["SimulationStateResp
 export type SimulationData = components["schemas"]["SimulationDTO"];
 export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];
 export type SimulationInfo = components["schemas"]["SimulationStatusResponse"];
+export type SimulationListItem = components["schemas"]["SimulationListItem"];

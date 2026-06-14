@@ -37,7 +37,11 @@ class Simulation:
         self._speed = 0
         self.settings = settings
         self._current_date = self.settings.start_date - timedelta(days=1)
-        self._engine = SimulationEngine(self._current_date, settings.starting_cash)
+        self._engine = SimulationEngine(
+            self._current_date,
+            settings.starting_cash,
+            settings.simulation_id,
+        )
         self._engine.set_strategy(ManualStrategy)
 
         # Controle de snapshot
@@ -141,7 +145,7 @@ class Simulation:
         )
 
     def get_statistics(self) -> list[PlayerHistoryDTO]:
-        return repository.statistics.get_players_history(self.settings.starting_cash)
+        return repository.statistics.get_players_history()
 
     def get_orders(self, ticker: str) -> list[OrderDTO]:
         orders = self._engine.matching_engine.order_book.get_orders(ticker)
@@ -183,6 +187,7 @@ class Simulation:
             for position in fixed_positions.values():
                 asset_id = repository.fixed_income.get_or_create_asset(position.asset)
                 repository.fixed_income.upsert_position(
+                    simulation_id=self.settings.simulation_id,
                     user_id=user.id,
                     asset_id=asset_id,
                     total_applied=Decimal(position.total_applied),

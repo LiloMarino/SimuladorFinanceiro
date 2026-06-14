@@ -586,10 +586,50 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Continuar simulação
-         * @description Continua uma simulação anterior a partir do último snapshot salvo até a nova data de término.
+         * Continuar última simulação
+         * @description Continua a simulação jogada mais recentemente, a partir do último snapshot salvo.
          */
         post: operations["continue_simulation_api_simulation_continue_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/load": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Carregar e iniciar simulação
+         * @description Carrega uma simulação específica pelo id e a retoma a partir de onde parou.
+         */
+        post: operations["load_simulation_api_simulation_load_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar simulações salvas
+         * @description Retorna o histórico de simulações, ordenado pela última vez jogada.
+         */
+        get: operations["list_simulations_api_simulation_list_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -779,23 +819,10 @@ export interface components {
             /** Cash */
             cash: number;
         };
-        /** ContinueSimulationRequest */
-        ContinueSimulationRequest: {
-            /**
-             * End Date
-             * Format: date
-             */
-            end_date: string;
-            /** Starting Cash */
-            starting_cash: number;
-            /**
-             * Monthly Contribution
-             * @default 0
-             */
-            monthly_contribution: number;
-        };
         /** CreateSimulationRequest */
         CreateSimulationRequest: {
+            /** Name */
+            name?: string | null;
             /**
              * Start Date
              * Format: date
@@ -891,6 +918,11 @@ export interface components {
              * @default false
              */
             overwrite: boolean;
+        };
+        /** LoadSimulationRequest */
+        LoadSimulationRequest: {
+            /** Id */
+            id: number;
         };
         /**
          * OrderAction
@@ -1025,6 +1057,8 @@ export interface components {
         };
         /** SimulationDTO */
         SimulationDTO: {
+            /** Name */
+            name: string;
             /**
              * Start Date
              * Format: date
@@ -1039,6 +1073,39 @@ export interface components {
             starting_cash: number;
             /** Monthly Contribution */
             monthly_contribution: number;
+            /** Simulation Id */
+            simulation_id?: number | null;
+        };
+        /** SimulationListItem */
+        SimulationListItem: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Starting Cash */
+            starting_cash: number;
+            /** Monthly Contribution */
+            monthly_contribution: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Last Simulated At
+             * Format: date-time
+             */
+            last_simulated_at: string;
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
@@ -1145,6 +1212,8 @@ export interface components {
         };
         /** UpdateSettingsRequest */
         UpdateSettingsRequest: {
+            /** Name */
+            name: string;
             /**
              * Start Date
              * Format: date
@@ -2321,9 +2390,38 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationStatusResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    load_simulation_api_simulation_load_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ContinueSimulationRequest"];
+                "application/json": components["schemas"]["LoadSimulationRequest"];
             };
         };
         responses: {
@@ -2334,6 +2432,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SimulationStatusResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_simulations_api_simulation_list_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationListItem"][];
                 };
             };
             /** @description Validation Error */

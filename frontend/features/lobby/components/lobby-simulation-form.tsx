@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy, faPlay, faLink, faFileImport, faCog, faArrowsLeftRight } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCopy,
+  faPlay,
+  faLink,
+  faFileImport,
+  faCog,
+  faArrowsLeftRight,
+  faFolderOpen,
+} from "@fortawesome/free-solid-svg-icons";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,9 +24,11 @@ import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
 import { useTunnel } from "@/shared/hooks/useTunnel";
 import { LobbySettingsDialog } from "./lobby-settings-dialog";
+import { LoadSimulationDialog } from "./load-simulation-dialog";
 
 const simulationFormSchema = z
   .object({
+    name: z.string().min(1, "Informe um nome para a simulação"),
     startDate: z.string().min(1, "Selecione a data inicial"),
     endDate: z.string().min(1, "Selecione a data final"),
     startingCash: z
@@ -39,6 +49,7 @@ export type SimulationFormValues = z.infer<typeof simulationFormSchema>;
 export function LobbySimulationForm({ simulationData, isHost }: { simulationData: SimulationData; isHost: boolean }) {
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [loadOpen, setLoadOpen] = useState(false);
   const localIP = window.location.host;
   const { status: tunnelStatus, startTunnel, loading: tunnelLoading } = useTunnel();
 
@@ -49,6 +60,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
     resolver: zodResolver(simulationFormSchema),
     mode: "onChange",
     defaultValues: {
+      name: simulationData.name,
       startDate: simulationData.start_date,
       endDate: simulationData.end_date,
       startingCash: formatMoney(String(simulationData.starting_cash * 100)),
@@ -65,19 +77,19 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
 
   const { mutate: createSimulation, loading: loadingCreate } = useMutationApi<
     SimulationInfo,
-    { start_date: string; end_date: string; starting_cash: number; monthly_contribution: number }
+    { name: string; start_date: string; end_date: string; starting_cash: number; monthly_contribution: number }
   >("/api/simulation/create", {
     onSuccess: () => toast.success("Simulação criada com sucesso!"),
     onError: (err) => toast.error(err.message),
   });
 
-  const { mutate: continueSimulation, loading: loadingContinue } = useMutationApi<
-    SimulationInfo,
-    { end_date: string; starting_cash: number; monthly_contribution: number }
-  >("/api/simulation/continue", {
-    onSuccess: () => toast.success("Simulação continuada com sucesso!"),
-    onError: (err) => toast.error(err.message),
-  });
+  const { mutate: continueSimulation, loading: loadingContinue } = useMutationApi<SimulationInfo, void>(
+    "/api/simulation/continue",
+    {
+      onSuccess: () => toast.success("Simulação continuada com sucesso!"),
+      onError: (err) => toast.error(err.message),
+    }
+  );
 
   const copyHostIP = () => {
     navigator.clipboard.writeText(shareableLink);
@@ -98,12 +110,15 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
         loading={loadingCreate || loadingContinue}
       />
 
+      <LoadSimulationDialog open={loadOpen} onOpenChange={setLoadOpen} isHost={isHost} />
+
       <Button
         type="button"
         className="w-full bg-green-600 hover:bg-green-700"
         disabled={disableSimulationActions}
         onClick={() =>
           createSimulation({
+            name: form.getValues("name"),
             start_date: form.getValues("startDate"),
             end_date: form.getValues("endDate"),
             starting_cash: Number(normalizeNumberString(form.getValues("startingCash"))),
@@ -112,23 +127,28 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
         }
       >
         <FontAwesomeIcon icon={faPlay} className="mr-2" />
-        Iniciar Simulação
+        Iniciar Nova Simulação
       </Button>
 
       <Button
         type="button"
         className="w-full bg-blue-600 hover:bg-blue-700"
         disabled={disableSimulationActions}
-        onClick={() =>
-          continueSimulation({
-            end_date: form.getValues("endDate"),
-            starting_cash: Number(normalizeNumberString(form.getValues("startingCash"))),
-            monthly_contribution: Number(normalizeNumberString(form.getValues("monthlyContribution"))),
-          })
-        }
+        onClick={() => continueSimulation()}
       >
         <FontAwesomeIcon icon={faPlay} className="mr-2" />
-        Continuar Simulação
+        Continuar Última Simulação
+      </Button>
+
+      <Button
+        type="button"
+        variant="secondary"
+        className="w-full"
+        disabled={!isHost}
+        onClick={() => setLoadOpen(true)}
+      >
+        <FontAwesomeIcon icon={faFolderOpen} className="mr-2" />
+        Carregar Simulação
       </Button>
 
       <Button type="button" variant="secondary" className="w-full" onClick={() => navigate("/import-assets")}>
