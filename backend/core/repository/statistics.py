@@ -7,14 +7,13 @@ from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.models.models import Simulations, Snapshots, Users
+from backend.core.runtime.active_context import ActiveContext
 
 
 class StatisticsRepository:
     @transactional
     def get_players_history(self, session: Session) -> list[PlayerHistoryDTO]:
-        from backend.core.runtime.simulation_manager import SimulationManager
-
-        simulation_id = SimulationManager.get_active_simulation_id()
+        simulation_id = ActiveContext.get_active_simulation_id()
 
         # 0. Capital inicial vem da linha da simulação (nunca do formulário),
         # garantindo métricas consistentes ao continuar/carregar simulações.

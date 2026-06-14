@@ -40,7 +40,7 @@ class Simulation:
         self._engine = SimulationEngine(
             self._current_date,
             settings.starting_cash,
-            settings.simulation_id,
+            settings.id,
         )
         self._engine.set_strategy(ManualStrategy)
 
@@ -187,7 +187,7 @@ class Simulation:
             for position in fixed_positions.values():
                 asset_id = repository.fixed_income.get_or_create_asset(position.asset)
                 repository.fixed_income.upsert_position(
-                    simulation_id=self.settings.simulation_id,
+                    simulation_id=self.settings.id,
                     user_id=user.id,
                     asset_id=asset_id,
                     total_applied=Decimal(position.total_applied),

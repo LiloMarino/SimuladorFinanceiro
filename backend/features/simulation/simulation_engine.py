@@ -34,7 +34,7 @@ class SimulationEngine:
     - Registrar eventos de cashflow (depósitos, retiradas, aportes)
     """
 
-    def __init__(self, current_date, starting_cash: float, simulation_id: int | None):
+    def __init__(self, current_date, starting_cash: float, simulation_id: int):
         self.broker = Broker(self)
         self.fixed_broker = FixedBroker(self)
         self.fixed_income_market = FixedIncomeMarket()

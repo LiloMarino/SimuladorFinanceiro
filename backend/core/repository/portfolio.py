@@ -18,6 +18,7 @@ from backend.core.models.models import (
     Snapshots,
     Stock,
 )
+from backend.core.runtime.active_context import ActiveContext
 
 
 class PortfolioRepository:
@@ -25,9 +26,7 @@ class PortfolioRepository:
     def get_patrimonial_history(
         self, session: Session, user_id: int
     ) -> list[PatrimonialHistoryDTO]:
-        from backend.core.runtime.simulation_manager import SimulationManager
-
-        simulation_id = SimulationManager.get_active_simulation_id()
+        simulation_id = ActiveContext.get_active_simulation_id()
         rows = session.scalars(
             select(Snapshots)
             .where(
@@ -51,9 +50,7 @@ class PortfolioRepository:
 
     @transactional
     def get_equity_positions(self, session: Session, user_id: int) -> list[PositionDTO]:
-        from backend.core.runtime.simulation_manager import SimulationManager
-
-        simulation_id = SimulationManager.get_active_simulation_id()
+        simulation_id = ActiveContext.get_active_simulation_id()
         size_expr = func.sum(
             Case(
                 (EventEquity.event_type == "BUY", EventEquity.quantity),
@@ -107,9 +104,7 @@ class PortfolioRepository:
     def get_fixed_income_positions(
         self, session: Session, user_id: int
     ) -> list[FixedIncomePositionDTO]:
-        from backend.core.runtime.simulation_manager import SimulationManager
-
-        simulation_id = SimulationManager.get_active_simulation_id()
+        simulation_id = ActiveContext.get_active_simulation_id()
         # Subquery para somar BUYs e subtrair REDEEMs
         total_applied_subq = (
             select(

@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
-from backend.core.dto.simulation import SimulationDTO, SimulationSummaryDTO
+from backend.core.dto.simulation import SimulationSettingsDTO, SimulationSummaryDTO
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.models.models import Simulations
 
@@ -17,7 +17,9 @@ _DEFAULT_NAME_PATTERN = re.compile(r"^Simulação #(\d+)$")
 
 class SimulationRepository:
     @transactional
-    def create_simulation(self, session: Session, settings: SimulationDTO) -> int:
+    def create_simulation(
+        self, session: Session, settings: SimulationSettingsDTO
+    ) -> int:
         now = datetime.now(UTC)
         simulation = Simulations(
             name=settings.name,

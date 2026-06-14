@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 
 from fastapi import APIRouter, status
 from pydantic import BaseModel, Field, model_validator
@@ -6,7 +6,11 @@ from pydantic import BaseModel, Field, model_validator
 from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
-from backend.core.dto.simulation import SimulationDTO, SimulationSummaryDTO
+from backend.core.dto.simulation import (
+    SimulationDTO,
+    SimulationSettingsDTO,
+    SimulationSummaryDTO,
+)
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import (
     NotFoundError,
@@ -63,18 +67,7 @@ class PlayerNickname(BaseModel):
 
 class SimulationSettingsResponse(BaseModel):
     is_host: bool
-    simulation: SimulationDTO
-
-
-class SimulationListItem(BaseModel):
-    id: int
-    name: str
-    start_date: date
-    end_date: date
-    starting_cash: float
-    monthly_contribution: float
-    created_at: datetime
-    last_simulated_at: datetime
+    simulation: SimulationSettingsDTO
 
 
 def _resume_simulation(summary: SimulationSummaryDTO) -> SimulationDTO:
@@ -93,7 +86,7 @@ def _resume_simulation(summary: SimulationSummaryDTO) -> SimulationDTO:
 
     sim = SimulationManager.create_simulation(
         SimulationDTO(
-            simulation_id=summary.id,
+            id=summary.id,
             name=summary.name,
             start_date=resume_start,
             end_date=summary.end_date,
@@ -147,7 +140,7 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     """
     name = payload.name or repository.simulation.generate_default_name()
 
-    settings = SimulationDTO(
+    settings = SimulationSettingsDTO(
         name=name,
         start_date=payload.start_date,
         end_date=payload.end_date,
@@ -163,7 +156,7 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     )
 
     sim = SimulationManager.create_simulation(
-        settings.model_copy(update={"simulation_id": simulation_id})
+        SimulationDTO(id=simulation_id, **settings.model_dump())
     )
 
     simulation_controller.start()
@@ -219,7 +212,7 @@ def load_simulation(payload: LoadSimulationRequest, _: HostVerified):
 
 @simulation_router.get(
     "/list",
-    response_model=list[SimulationListItem],
+    response_model=list[SimulationSummaryDTO],
     summary="Listar simulações salvas",
     description="Retorna o histórico de simulações, ordenado pela última vez jogada.",
 )
@@ -227,8 +220,7 @@ def list_simulations(search: str | None = None):
     """
     Lista as simulações persistidas (histórico).
     """
-    simulations = repository.simulation.list_simulations(search)
-    return [SimulationListItem(**s.model_dump()) for s in simulations]
+    return repository.simulation.list_simulations(search)
 
 
 @simulation_router.post(
@@ -289,7 +281,7 @@ def get_simulation_settings(client_id: ClientID):
 
 @simulation_router.put(
     "/settings",
-    response_model=SimulationDTO,
+    response_model=SimulationSettingsDTO,
     summary="Atualizar configurações da simulação",
     description="Atualiza os parâmetros da simulação (datas, capital, contribuição mensal). Apenas o host pode executar.",
 )
@@ -298,7 +290,7 @@ def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
     Atualiza as configurações da simulação.
     """
     settings = SimulationManager.update_settings(
-        SimulationDTO(
+        SimulationSettingsDTO(
             name=payload.name,
             start_date=payload.start_date,
             end_date=payload.end_date,

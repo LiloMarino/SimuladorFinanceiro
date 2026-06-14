@@ -13,6 +13,7 @@ from backend.core.models.models import (
     Snapshots,
     StockPriceHistory,
 )
+from backend.core.runtime.active_context import ActiveContext
 
 
 class SnapshotRepository:
@@ -23,9 +24,7 @@ class SnapshotRepository:
         user_id: int,
         snapshot_date: date,
     ) -> SnapshotDTO:
-        from backend.core.runtime.simulation_manager import SimulationManager
-
-        simulation_id = SimulationManager.get_active_simulation_id()
+        simulation_id = ActiveContext.get_active_simulation_id()
 
         # --------------------------------------------------
         # 2. CASHFLOW (TOTAL)
