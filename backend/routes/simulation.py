@@ -12,15 +12,12 @@ from backend.core.dto.simulation import (
     SimulationSummaryDTO,
 )
 from backend.core.exceptions import NoActiveSimulationError
-from backend.core.exceptions.http_exceptions import (
-    NotFoundError,
-    UnprocessableEntityError,
-)
+from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
-from backend.features.simulation.simulation import Simulation
+from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.simulation.simulation_loop import simulation_controller
 
 simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
@@ -72,47 +69,6 @@ class SimulationSettingsResponse(BaseModel):
     simulation: SimulationSettingsDTO
 
 
-def _resume_simulation(summary: SimulationSummaryDTO) -> SimulationDTO:
-    """Retoma uma simulação persistida a partir do último snapshot salvo.
-
-    Define a simulação como ativa, atualiza `last_simulated_at`, inicia o loop
-    e retorna as settings em execução. Compartilhado por /continue e /load.
-    """
-    last_snapshot_date = repository.snapshot.get_last_snapshot_date(summary.id)
-    resume_start = last_snapshot_date or summary.start_date
-
-    if resume_start >= summary.end_date:
-        raise UnprocessableEntityError(
-            "A simulação já chegou na data final e não pode ser continuada."
-        )
-
-    sim = Simulation(
-        SimulationDTO(
-            id=summary.id,
-            name=summary.name,
-            start_date=resume_start,
-            end_date=summary.end_date,
-            starting_cash=summary.starting_cash,
-            monthly_contribution=summary.monthly_contribution,
-        )
-    )
-    SimulationManager.register_simulation(sim)
-    SettingsManager.clear()
-
-    repository.simulation.touch_last_simulated(summary.id)
-    simulation_controller.start()
-
-    notify(
-        "simulation_started",
-        {
-            "active": True,
-            "simulation": sim.settings.to_json(),
-        },
-    )
-
-    return sim.settings
-
-
 @simulation_router.get(
     "/status",
     response_model=SimulationStatusResponse,
@@ -142,38 +98,15 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     """
     Cria uma nova simulação financeira.
     """
-    name = payload.name or repository.simulation.generate_default_name()
-
     settings = SimulationSettingsDTO(
-        name=name,
+        name=payload.name or repository.simulation.generate_default_name(),
         start_date=payload.start_date,
         end_date=payload.end_date,
         starting_cash=payload.starting_cash,
         monthly_contribution=payload.monthly_contribution,
     )
-
-    # Persiste a simulação e semeia o depósito inicial taggeado com o id
-    # (sem apagar dados de simulações anteriores).
-    simulation_id = repository.simulation.create_simulation(settings)
-    repository.user.seed_simulation_users(
-        simulation_id, payload.start_date, payload.starting_cash
-    )
-
-    sim = Simulation(SimulationDTO(id=simulation_id, **settings.model_dump()))
-    SimulationManager.register_simulation(sim)
-    SettingsManager.clear()
-
-    simulation_controller.start()
-
-    notify(
-        "simulation_started",
-        {
-            "active": True,
-            "simulation": sim.settings.to_json(),
-        },
-    )
-
-    return SimulationStatusResponse(active=True, simulation=sim.settings)
+    sim_dto = SimulationLoader.create(settings)
+    return SimulationStatusResponse(active=True, simulation=sim_dto)
 
 
 @simulation_router.post(
@@ -191,8 +124,8 @@ def continue_simulation(_: HostVerified):
     if summary is None:
         raise NotFoundError("Nenhuma simulação encontrada para continuar.")
 
-    settings = _resume_simulation(summary)
-    return SimulationStatusResponse(active=True, simulation=settings)
+    sim_dto = SimulationLoader.load(summary)
+    return SimulationStatusResponse(active=True, simulation=sim_dto)
 
 
 @simulation_router.post(
@@ -210,8 +143,8 @@ def load_simulation(payload: LoadSimulationRequest, _: HostVerified):
     if summary is None:
         raise NotFoundError("Simulação não encontrada.")
 
-    settings = _resume_simulation(summary)
-    return SimulationStatusResponse(active=True, simulation=settings)
+    sim_dto = SimulationLoader.load(summary)
+    return SimulationStatusResponse(active=True, simulation=sim_dto)
 
 
 @simulation_router.get(
