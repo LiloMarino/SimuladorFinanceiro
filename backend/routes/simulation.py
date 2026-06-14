@@ -29,7 +29,7 @@ class SimulationStatusResponse(BaseModel):
 
 
 class CreateSimulationRequest(BaseModel):
-    name: str | None = None
+    name: str
     start_date: date
     end_date: date
     starting_cash: float = Field(gt=0)
@@ -99,7 +99,7 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     Cria uma nova simulação financeira.
     """
     settings = SimulationSettingsDTO(
-        name=payload.name or repository.simulation.generate_default_name(),
+        name=payload.name,
         start_date=payload.start_date,
         end_date=payload.end_date,
         starting_cash=payload.starting_cash,

@@ -822,7 +822,7 @@ export interface components {
         /** CreateSimulationRequest */
         CreateSimulationRequest: {
             /** Name */
-            name?: string | null;
+            name: string;
             /**
              * Start Date
              * Format: date
