@@ -1,4 +1,4 @@
-import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import type { LucideIcon } from "lucide-react";
 
 /** Item de navegação (menu lateral, abas etc.) */
 
@@ -6,7 +6,7 @@ export interface NavItem {
   key: string;
   label: string;
   endpoint: string;
-  icon: IconDefinition;
+  icon: LucideIcon;
 }
 
 export type RedirectState = {

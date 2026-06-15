@@ -1,5 +1,4 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { User } from "lucide-react";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { stringToColor } from "@/shared/lib/utils";
@@ -54,7 +53,7 @@ export function LobbyPlayersList({ maxPlayers }: LobbyPlayersListProps) {
 
             return (
               <div key={player.nickname} className={`p-3 flex items-center ${isYou ? "bg-green-50" : ""}`}>
-                <FontAwesomeIcon icon={faUser} className="mr-2" style={{ color }} />
+                <User className="w-4 h-4 mr-2 flex-shrink-0 " style={{ color }} />
                 <span className={isYou ? "font-medium" : ""}>
                   {player.nickname}
                   {isYou && " (você)"}

@@ -2,8 +2,7 @@ import { useState } from "react";
 import clsx from "clsx";
 import type { NavItem } from "@/types";
 import { NavLink } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { Menu } from "lucide-react";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -36,7 +35,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
           FinSim
         </span>
         <button className="focus:outline-none" onClick={() => setOpen(!open)}>
-          <FontAwesomeIcon icon={faBars} size="lg" />
+          <Menu className="w-5 h-5" />
         </button>
       </div>
 
@@ -53,7 +52,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                   { "justify-start": open, "justify-center": !open }
                 )}
               >
-                <FontAwesomeIcon icon={item.icon} size="lg" className="w-6 flex-shrink-0" />
+                <item.icon className="w-5 h-5 flex-shrink-0" />
                 {open && <span className="ml-3 whitespace-nowrap">{item.label}</span>}
               </NavLink>
             </li>

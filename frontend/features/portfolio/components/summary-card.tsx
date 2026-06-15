@@ -1,6 +1,6 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { LucideIcon } from "lucide-react";
 import { Card } from "@/shared/components/ui/card";
-import type { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { cn } from "@/shared/lib/utils";
 import { displayMoneyCompact } from "@/shared/lib/utils/display";
 
 interface SummaryCardProps {
@@ -8,7 +8,7 @@ interface SummaryCardProps {
   value: number;
   subtitle: string;
   color?: string;
-  icon: IconProp;
+  icon: LucideIcon;
   iconBg?: string;
 }
 
@@ -17,7 +17,7 @@ export function SummaryCard({
   value,
   subtitle,
   color = "text-gray-600",
-  icon,
+  icon: Icon,
   iconBg = "bg-gray-100",
 }: SummaryCardProps) {
   return (
@@ -32,7 +32,7 @@ export function SummaryCard({
 
         {/* Ícone */}
         <div className={`${iconBg} w-12 h-12 flex items-center justify-center rounded-full flex-shrink-0`}>
-          <FontAwesomeIcon icon={icon} className={color} />
+          <Icon className={cn("w-5 h-5", color)} />
         </div>
       </div>
     </Card>

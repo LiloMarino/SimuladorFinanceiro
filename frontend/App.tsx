@@ -3,14 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import MainLayout from "@/layouts/main-layout";
 import { PlainLayout } from "@/layouts/plain-layout";
-import {
-  faChartLine,
-  faCoins,
-  faWallet,
-  faRobot,
-  faTrophy,
-  faCog,
-} from "@fortawesome/free-solid-svg-icons";
+import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings } from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
 import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
@@ -35,12 +28,12 @@ import { GuardLayout } from "./layouts/guard-layout";
 import { queryClient } from "@/shared/lib/queryClient";
 
 const navItems: NavItem[] = [
-  { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: faChartLine },
-  { key: "fixed-income", label: "Renda Fixa", endpoint: "/fixed-income", icon: faCoins },
-  { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: faWallet },
-  { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: faTrophy },
-  { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: faRobot },
-  { key: "settings", label: "Configurações", endpoint: "/settings", icon: faCog },
+  { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: TrendingUp },
+  { key: "fixed-income", label: "Renda Fixa", endpoint: "/fixed-income", icon: Coins },
+  { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet },
+  { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: Trophy },
+  { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: Bot },
+  { key: "settings", label: "Configurações", endpoint: "/settings", icon: Settings },
 ];
 
 const routeLabels = navItems.reduce<Record<string, string>>((acc, item) => {

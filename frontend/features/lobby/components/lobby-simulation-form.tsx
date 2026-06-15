@@ -1,15 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCopy,
-  faPlay,
-  faLink,
-  faFileImport,
-  faCog,
-  faArrowsLeftRight,
-  faFolderOpen,
-} from "@fortawesome/free-solid-svg-icons";
+import { Copy, Play, Link, FileInput, Settings, ArrowLeftRight, FolderOpen } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -126,7 +117,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
           })
         }
       >
-        <FontAwesomeIcon icon={faPlay} className="mr-2" />
+        <Play />
         Iniciar Nova Simulação
       </Button>
 
@@ -137,7 +128,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
         disabled={disableSimulationActions}
         onClick={() => continueSimulation()}
       >
-        <FontAwesomeIcon icon={faPlay} className="mr-2" />
+        <Play />
         Continuar Última Simulação
       </Button>
 
@@ -148,22 +139,22 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
         disabled={!isHost}
         onClick={() => setLoadOpen(true)}
       >
-        <FontAwesomeIcon icon={faFolderOpen} className="mr-2" />
+        <FolderOpen />
         Carregar Simulação
       </Button>
 
       <Button type="button" variant="secondary" className="w-full" onClick={() => navigate("/import-assets")}>
-        <FontAwesomeIcon icon={faFileImport} className="mr-2" />
+        <FileInput />
         Importar Ativos
       </Button>
 
       <Button type="button" variant="secondary" className="w-full" disabled>
-        <FontAwesomeIcon icon={faArrowsLeftRight} className="mr-2" />
+        <ArrowLeftRight />
         Comparar Simulações
       </Button>
 
       <Button type="button" variant="outline" className="w-full" onClick={() => setSettingsOpen(true)}>
-        <FontAwesomeIcon icon={faCog} className="mr-2" />
+        <Settings />
         Configurações
       </Button>
 
@@ -172,7 +163,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
         <div className="flex mt-1">
           <Input value={shareableLink} readOnly className="rounded-r-none bg-gray-50" />
           <Button type="button" variant="secondary" onClick={copyHostIP} className="rounded-l-none">
-            <FontAwesomeIcon icon={faCopy} />
+            <Copy />
           </Button>
         </div>
 
@@ -184,7 +175,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
             onClick={startTunnel}
             disabled={tunnelLoading}
           >
-            <FontAwesomeIcon icon={faLink} className="mr-2" />
+            <Link />
             {tunnelLoading ? "Gerando..." : "Gerar Link Compartilhável"}
           </Button>
         )}

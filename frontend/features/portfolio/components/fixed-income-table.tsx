@@ -1,8 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { FixedPosition } from "../lib/portfolio-calculator";
 
@@ -57,7 +56,7 @@ export function FixedIncomeTable({ fixedPositions }: FixedIncomeTableProps) {
                     to={`/fixed-income/${pos.uuid}`}
                     className="text-blue-600 hover:text-blue-800 text-sm flex items-center justify-center"
                   >
-                    <FontAwesomeIcon icon={faEye} className="mr-1" />
+                    <Eye className="w-4 h-4 mr-1" />
                     Detalhes
                   </Link>
                 </TableCell>

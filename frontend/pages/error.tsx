@@ -3,8 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Card } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBug, faCircleQuestion, faTriangleExclamation, type IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import { Bug, CircleHelp, TriangleAlert, type LucideIcon } from "lucide-react";
 
 type ErrorStateProps = {
   /** Código do erro, ex: "404", "500" */
@@ -22,7 +21,7 @@ type ErrorStateProps = {
 };
 
 type ErrorVisual = {
-  icon: IconDefinition;
+  icon: LucideIcon;
   iconColor: string;
   bgColor: string;
 };
@@ -32,7 +31,7 @@ function resolveErrorVisual(code?: string): ErrorVisual {
 
   if (status >= 400 && status < 500) {
     return {
-      icon: faTriangleExclamation,
+      icon: TriangleAlert,
       iconColor: "text-yellow-600",
       bgColor: "bg-yellow-100",
     };
@@ -40,14 +39,14 @@ function resolveErrorVisual(code?: string): ErrorVisual {
 
   if (status >= 500 && status < 600) {
     return {
-      icon: faBug,
+      icon: Bug,
       iconColor: "text-red-600",
       bgColor: "bg-red-100",
     };
   }
 
   return {
-    icon: faCircleQuestion,
+    icon: CircleHelp,
     iconColor: "text-muted-foreground",
     bgColor: "bg-muted",
   };
@@ -63,6 +62,7 @@ export function ErrorPage({
 }: ErrorStateProps) {
   const visual = resolveErrorVisual(code);
   const hasPrimaryAction = actionHref && actionLabel;
+  const Icon = visual.icon;
 
   return (
     <motion.div
@@ -75,7 +75,7 @@ export function ErrorPage({
         <Card className="p-6">
           <div className="flex flex-col items-center text-center gap-4">
             <div className={cn("rounded-full w-16 h-16 flex items-center justify-center", visual.bgColor)}>
-              <FontAwesomeIcon icon={visual.icon} className={visual.iconColor} size="2x" />
+              <Icon className={cn("w-8 h-8", visual.iconColor)} />
             </div>
 
             <div className="flex flex-col items-center">

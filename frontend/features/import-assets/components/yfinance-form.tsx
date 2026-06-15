@@ -1,5 +1,4 @@
-import { faChartLine } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { TrendingUp } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
@@ -29,8 +28,8 @@ export default function YFinanceForm({ onSubmit }: YFinanceFormProps) {
     <Form {...yForm}>
       <form onSubmit={yForm.handleSubmit(onSubmit)} className="border rounded-lg p-6 space-y-4">
         <div className="flex items-center mb-4">
-          <FontAwesomeIcon icon={faChartLine} className="text-yellow-500 text-2xl mr-3" />
-          <h3 className="text-lg font-medium">Buscar via yFinance</h3>
+          <TrendingUp className="w-6 h-6 text-yellow-500 mr-3" />
+          <h3 className="text-lg font-semibold">Buscar via yFinance</h3>
         </div>
         <p className="text-gray-600 mb-4">Busque ativos usando a API do yFinance.</p>
 

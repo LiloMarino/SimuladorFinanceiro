@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSyncAlt, faRobot, faHandPaper, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { RefreshCw, Bot, Hand, Trash2 } from "lucide-react";
 import { ErrorPage } from "@/pages/error";
 
 interface Strategy {
@@ -61,7 +60,7 @@ export default function StrategiesPage() {
             className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center gap-2"
             onClick={handleRefresh}
           >
-            <FontAwesomeIcon icon={faSyncAlt} /> Refresh
+            <RefreshCw className="w-4 h-4" /> Refresh
           </button>
         </div>
 
@@ -77,7 +76,7 @@ export default function StrategiesPage() {
                 }`}
                 onClick={() => handleModeChange("auto")}
               >
-                <FontAwesomeIcon icon={faRobot} /> Automático
+                <Bot className="w-4 h-4" /> Automático
               </button>
               <button
                 className={`flex-1 py-3 px-4 rounded-lg shadow transition flex items-center justify-center gap-2 ${
@@ -85,7 +84,7 @@ export default function StrategiesPage() {
                 }`}
                 onClick={() => handleModeChange("manual")}
               >
-                <FontAwesomeIcon icon={faHandPaper} /> Manual
+                <Hand className="w-4 h-4" /> Manual
               </button>
             </div>
           </div>
@@ -125,7 +124,7 @@ export default function StrategiesPage() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-medium">Log de Execução</h3>
             <button className="text-gray-500 hover:text-gray-700" onClick={handleClearLog}>
-              <FontAwesomeIcon icon={faTrashAlt} />
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
           <div className="h-48 overflow-y-auto bg-gray-100 rounded p-3 font-mono text-sm space-y-1">

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass, faPlay } from "@fortawesome/free-solid-svg-icons";
+import { Search, Play } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -127,10 +126,7 @@ export function LoadSimulationDialog({ open, onOpenChange, isHost }: LoadSimulat
 
         {/* Barra de pesquisa (altura fixa) */}
         <div className="relative">
-          <FontAwesomeIcon
-            icon={faMagnifyingGlass}
-            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
-          />
+          <Search className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -149,7 +145,7 @@ export function LoadSimulationDialog({ open, onOpenChange, isHost }: LoadSimulat
             disabled={selectedId === null || !isHost || loadingLoad}
             onClick={() => selectedId !== null && loadSimulation({ id: selectedId })}
           >
-            <FontAwesomeIcon icon={faPlay} className="mr-2" />
+            <Play />
             Carregar e Iniciar Simulação
           </Button>
         </DialogFooter>

@@ -1,8 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileCsv, faCloudUploadAlt } from "@fortawesome/free-solid-svg-icons";
+import { FileSpreadsheet, CloudUpload } from "lucide-react";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -30,8 +29,8 @@ export default function CSVForm({ onSubmit }: CsvFormProps) {
     <Form {...csvForm}>
       <form onSubmit={csvForm.handleSubmit(onSubmit)} className="border rounded-lg p-6 space-y-4">
         <div className="flex items-center mb-4">
-          <FontAwesomeIcon icon={faFileCsv} className="text-blue-500 text-2xl mr-3" />
-          <h3 className="text-lg font-medium">Importar via CSV</h3>
+          <FileSpreadsheet className="w-6 h-6 text-blue-500 mr-3" />
+          <h3 className="text-lg font-semibold">Importar via CSV</h3>
         </div>
         <p className="text-gray-600 mb-4">Faça upload de um arquivo CSV com os dados históricos do ativo.</p>
 
@@ -64,7 +63,7 @@ export default function CSVForm({ onSubmit }: CsvFormProps) {
                     if (file) field.onChange(file);
                   }}
                   onClick={() => document.getElementById("csv-upload")?.click()}
-                  className="border-2 border-dashed border-gray-300 rounded-md p-6 text-center cursor-pointer"
+                  className="border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center text-center cursor-pointer"
                 >
                   <input
                     id="csv-upload"
@@ -73,7 +72,7 @@ export default function CSVForm({ onSubmit }: CsvFormProps) {
                     className="hidden"
                     onChange={(e) => e.target.files && field.onChange(e.target.files[0])}
                   />
-                  <FontAwesomeIcon icon={faCloudUploadAlt} className="text-3xl text-gray-400 mb-2" />
+                  <CloudUpload className="w-8 h-8 text-gray-400 mb-2" />
                   <p className="text-sm text-gray-500">Arraste e solte ou clique para selecionar</p>
                   {field.value && <p className="mt-2 text-sm text-gray-700">{(field.value as File).name}</p>}
                 </div>

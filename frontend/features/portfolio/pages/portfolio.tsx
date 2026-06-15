@@ -1,4 +1,4 @@
-import { faWallet, faChartLine, faCoins, faMoneyBillWave } from "@fortawesome/free-solid-svg-icons";
+import { Wallet, TrendingUp, Coins, Banknote } from "lucide-react";
 import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import type { EconomicIndicators, PortfolioState, Stock } from "@/types";
@@ -120,7 +120,7 @@ export default function PortfolioPage() {
           title="Patrimônio Total"
           value={totalNetWorth}
           subtitle={`Rentabilidade de ${displayPercent(totalReturnPct)}`}
-          icon={faWallet}
+          icon={Wallet}
           iconBg="bg-green-100"
           color="text-green-600"
         />
@@ -129,7 +129,7 @@ export default function PortfolioPage() {
           title="Total Investido"
           value={investedValue}
           subtitle={`${displayPercent(investedPct)} do patrimônio`}
-          icon={faMoneyBillWave}
+          icon={Banknote}
           iconBg="bg-purple-100"
           color="text-purple-600"
         />
@@ -138,7 +138,7 @@ export default function PortfolioPage() {
           title="Renda Variável"
           value={variableIncomeValue}
           subtitle={`${displayPercent(variableIncomePct)} da carteira`}
-          icon={faChartLine}
+          icon={TrendingUp}
           iconBg="bg-blue-100"
           color="text-blue-600"
         />
@@ -147,7 +147,7 @@ export default function PortfolioPage() {
           title="Renda Fixa"
           value={fixedIncomeValue}
           subtitle={`${displayPercent(fixedIncomePct)} da carteira`}
-          icon={faCoins}
+          icon={Coins}
           iconBg="bg-yellow-100"
           color="text-yellow-600"
         />
