@@ -171,6 +171,9 @@ def from_yfinance_batch(tickers: list[str]) -> dict[str, pd.DataFrame]:
         auto_adjust=True,
     )
 
+    if df is None:
+        return {}
+
     result = {}
     for ticker in tickers:
         try:

@@ -1,5 +1,6 @@
 from datetime import date
 
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -26,23 +27,26 @@ class StockRepository:
     @transactional
     def add_stock_price_history(
         self, session: Session, stock_price_history: list[StockPriceHistory]
-    ):
+    ) -> None:
         session.add_all(stock_price_history)
 
     @transactional
     def get_stocks_by_date(
         self, session: Session, current_date: date
     ) -> list[CandleDTO]:
-        stocks = session.query(Stock).all()
+        stocks = session.execute(select(Stock)).scalars().all()
         stocks_with_history: list[CandleDTO] = []
         for stock in stocks:
             ph = (
-                session.query(StockPriceHistory)
-                .filter(
-                    StockPriceHistory.stock_id == stock.id,
-                    StockPriceHistory.price_date <= current_date,
+                session.execute(
+                    select(StockPriceHistory)
+                    .where(
+                        StockPriceHistory.stock_id == stock.id,
+                        StockPriceHistory.price_date <= current_date,
+                    )
+                    .order_by(StockPriceHistory.price_date.desc())
                 )
-                .order_by(StockPriceHistory.price_date.desc())
+                .scalars()
                 .first()
             )
             if ph:
@@ -69,16 +73,23 @@ class StockRepository:
     def get_stock_details(
         self, session: Session, ticker: str, current_date: date
     ) -> StockDetailsDTO | None:
-        stock = session.query(Stock).filter_by(ticker=ticker).first()
+        stock = session.execute(
+            select(Stock).where(Stock.ticker == ticker)
+        ).scalar_one_or_none()
         if not stock:
             return None
 
         # Histórico até a data atual
-        history: list[StockPriceHistory] = (
-            session.query(StockPriceHistory)
-            .filter(StockPriceHistory.stock_id == stock.id)
-            .filter(StockPriceHistory.price_date <= current_date)
-            .order_by(StockPriceHistory.price_date)
+        history: list[StockPriceHistory] = list(
+            session.execute(
+                select(StockPriceHistory)
+                .where(
+                    StockPriceHistory.stock_id == stock.id,
+                    StockPriceHistory.price_date <= current_date,
+                )
+                .order_by(StockPriceHistory.price_date)
+            )
+            .scalars()
             .all()
         )
 
@@ -106,7 +117,9 @@ class StockRepository:
 
     @transactional
     def get_by_ticker(self, session: Session, ticker: str) -> StockDTO | None:
-        stock = session.query(Stock).filter_by(ticker=ticker).first()
+        stock = session.execute(
+            select(Stock).where(Stock.ticker == ticker)
+        ).scalar_one_or_none()
         return (
             StockDTO(id=stock.id, ticker=stock.ticker, name=stock.name)
             if stock
@@ -118,26 +131,34 @@ class StockRepository:
         self, session: Session, stock_id: int
     ) -> StockPriceHistoryDTO | None:
         price_history = (
-            session.query(StockPriceHistory)
-            .filter_by(stock_id=stock_id)
-            .order_by(StockPriceHistory.price_date.desc())
+            session.execute(
+                select(StockPriceHistory)
+                .where(StockPriceHistory.stock_id == stock_id)
+                .order_by(StockPriceHistory.price_date.desc())
+            )
+            .scalars()
             .first()
         )
         return StockPriceHistoryDTO.from_model(price_history) if price_history else None
 
     @transactional
-    def delete_stock_price_history(self, session: Session, stock_id: int):
-        session.query(StockPriceHistory).filter_by(stock_id=stock_id).delete()
+    def delete_stock_price_history(self, session: Session, stock_id: int) -> None:
+        session.execute(
+            delete(StockPriceHistory).where(StockPriceHistory.stock_id == stock_id)
+        )
 
     @transactional
     def get_all_stocks_with_last_date(self, session: Session) -> list[StockStatusDTO]:
-        stocks = session.query(Stock).order_by(Stock.ticker).all()
+        stocks = session.execute(select(Stock).order_by(Stock.ticker)).scalars().all()
         result = []
         for stock in stocks:
             last = (
-                session.query(StockPriceHistory)
-                .filter_by(stock_id=stock.id)
-                .order_by(StockPriceHistory.price_date.desc())
+                session.execute(
+                    select(StockPriceHistory)
+                    .where(StockPriceHistory.stock_id == stock.id)
+                    .order_by(StockPriceHistory.price_date.desc())
+                )
+                .scalars()
                 .first()
             )
             result.append(

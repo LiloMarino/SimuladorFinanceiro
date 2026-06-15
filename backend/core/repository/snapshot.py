@@ -163,16 +163,7 @@ class SnapshotRepository:
 
         session.merge(snapshot)
 
-        return SnapshotDTO(
-            user_id=user_id,
-            snapshot_date=snapshot_date,
-            total_equity=total_equity,
-            total_fixed=total_fixed,
-            total_cash=total_cash,
-            total_contribution=total_contribution,
-            total_networth=total_networth,
-            created_at=datetime.now(UTC),
-        )
+        return SnapshotDTO.from_model(snapshot)
 
     @transactional
     def get_last_snapshot_date(

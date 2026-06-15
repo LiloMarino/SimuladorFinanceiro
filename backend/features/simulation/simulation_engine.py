@@ -45,18 +45,18 @@ class SimulationEngine:
         self._strategy = None
         self.current_date: date = current_date
         self.starting_cash = starting_cash
-        self.simulation_id = simulation_id  # Desnecessário manter separado
+        self.simulation_id = simulation_id
 
         # Configura os alias
         self.get_positions = self.broker.get_positions
 
-    def set_strategy(self, strategy_cls: type[BaseStrategy], *args, **kwargs):
+    def set_strategy(self, strategy_cls: type[BaseStrategy], *args, **kwargs) -> None:
         self._strategy = strategy_cls(self.matching_engine, *args, **kwargs)
 
     def get_cash(self, client_id: UUID) -> float:
         return self._cash[client_id]
 
-    def add_cash(self, client_id: UUID, cash: float):
+    def add_cash(self, client_id: UUID, cash: float) -> None:
         self._cash[client_id] += cash
         EventManager.push_event(
             CashflowEventDTO(
@@ -71,7 +71,7 @@ class SimulationEngine:
         )
         notify("cash_update", {"cash": self._cash[client_id]}, to=client_id)
 
-    def add_contribution(self, client_id: UUID, amount: float):
+    def add_contribution(self, client_id: UUID, amount: float) -> None:
         """Adiciona aporte mensal (não conta como retorno de investimento)"""
         self._cash[client_id] += amount
         EventManager.push_event(
@@ -85,7 +85,7 @@ class SimulationEngine:
         )
         notify("cash_update", {"cash": self._cash[client_id]}, to=client_id)
 
-    def update_market_data(self, stocks: list[CandleDTO]):
+    def update_market_data(self, stocks: list[CandleDTO]) -> None:
         for s in stocks:
             candle = Candle(
                 ticker=s.ticker,
@@ -128,7 +128,7 @@ class SimulationEngine:
             ),
         )
 
-    def next(self, current_date: date):
+    def next(self, current_date: date) -> None:
         self.current_date = current_date
 
         self.fixed_income_market.refresh_assets(current_date)

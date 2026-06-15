@@ -11,6 +11,7 @@ import { investmentFormSchema, type InvestmentFormSchema } from "../schemas/inve
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorPage } from "@/pages/error";
 import { LoadingPage } from "@/pages/loading";
+import { Card } from "@/shared/components/ui/card";
 import { FixedIncomeHeader } from "../components/fixed-income-header";
 import { FixedIncomeBasicInfoGrid } from "../components/fixed-income-basic-info-grid";
 import { FixedIncomeInvestmentForm } from "../components/fixed-income-investment-form";
@@ -69,15 +70,15 @@ export default function FixedIncomeDetailPage() {
   const amount = form.watch("amount");
   const simulation = asset.getSimulation(Number(normalizeNumberString(amount)));
   return (
-    <main className="min-h-screen bg-slate-50 p-4 md:p-8">
+    <section className="section-content p-4">
       <div className="mx-auto max-w-6xl">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <Card className="overflow-hidden p-0 gap-0">
           <FixedIncomeHeader asset={asset} />
           <FixedIncomeBasicInfoGrid asset={asset} />
 
           {/* Investment Section */}
           <div className="p-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-6">Investir neste ativo</h3>
+            <h3 className="text-lg font-semibold mb-6">Investir neste ativo</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
               <FixedIncomeInvestmentForm form={form} id={id} availableCash={simData?.cash ?? 0} />
@@ -90,8 +91,8 @@ export default function FixedIncomeDetailPage() {
               <FixedIncomeTaxTable asset={asset} />
             </div>
           </div>
-        </div>
+        </Card>
       </div>
-    </main>
+    </section>
   );
 }

@@ -32,7 +32,7 @@ class UserRepository:
 
     @transactional
     def get_by_client_id(self, session: Session, client_id: UUID) -> UserDTO | None:
-        user = session.query(Users).filter_by(client_id=client_id).first()
+        user = session.execute(select(Users).where(Users.client_id == client_id)).scalar_one_or_none()
         if not user:
             return None
 
@@ -44,7 +44,7 @@ class UserRepository:
 
     @transactional
     def get_by_nickname(self, session: Session, nickname: str) -> UserDTO | None:
-        user = session.query(Users).filter_by(nickname=nickname).first()
+        user = session.execute(select(Users).where(Users.nickname == nickname)).scalar_one_or_none()
         if not user:
             return None
 
@@ -115,7 +115,7 @@ class UserRepository:
     def update_client_id(
         self, session: Session, user_id: int, new_client_id: UUID
     ) -> UserDTO:
-        user = session.query(Users).filter_by(id=user_id).one()
+        user = session.execute(select(Users).where(Users.id == user_id)).scalar_one()
         user.client_id = new_client_id
 
         return UserDTO(
@@ -136,7 +136,7 @@ class UserRepository:
         event_date: date,
         starting_cash: float,
     ) -> None:
-        users = session.query(Users).all()
+        users = session.execute(select(Users)).scalars().all()
 
         now = datetime.now(UTC)
         new_cashflows = [

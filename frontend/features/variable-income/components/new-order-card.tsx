@@ -7,7 +7,7 @@ import { useMutationApi } from "@/shared/hooks/useMutationApi";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { OrderAction, OrderType, Position } from "@/types";
 import clsx from "clsx";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, TrendingDown, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -121,18 +121,33 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tipo de Operação</FormLabel>
-                <div className="flex gap-4">
-                  {["buy", "sell"].map((op) => (
-                    <label key={op} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        checked={field.value === op}
-                        onChange={() => field.onChange(op)}
-                        className={clsx("w-4 h-4", op === "buy" ? "accent-green-600" : "accent-red-600")}
-                      />
-                      <span className="text-sm">{op === "buy" ? "Compra" : "Venda"}</span>
-                    </label>
-                  ))}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={clsx(
+                      "flex-1",
+                      field.value === "buy" &&
+                        "border-success bg-success/10 text-success hover:bg-success/20 hover:text-success",
+                    )}
+                    onClick={() => field.onChange("buy")}
+                  >
+                    <TrendingUp />
+                    Compra
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={clsx(
+                      "flex-1",
+                      field.value === "sell" &&
+                        "border-destructive bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive",
+                    )}
+                    onClick={() => field.onChange("sell")}
+                  >
+                    <TrendingDown />
+                    Venda
+                  </Button>
                 </div>
               </FormItem>
             )}
@@ -145,18 +160,23 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tipo de Ordem</FormLabel>
-                <div className="flex gap-4">
-                  {["market", "limit"].map((t) => (
-                    <label key={t} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        checked={field.value === t}
-                        onChange={() => field.onChange(t)}
-                        className="w-4 h-4"
-                      />
-                      <span className="text-sm">{t === "market" ? "À Mercado" : "Limitada"}</span>
-                    </label>
-                  ))}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant={field.value === "market" ? "default" : "outline"}
+                    className="flex-1"
+                    onClick={() => field.onChange("market")}
+                  >
+                    À Mercado
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={field.value === "limit" ? "default" : "outline"}
+                    className="flex-1"
+                    onClick={() => field.onChange("limit")}
+                  >
+                    Limitada
+                  </Button>
                 </div>
               </FormItem>
             )}
