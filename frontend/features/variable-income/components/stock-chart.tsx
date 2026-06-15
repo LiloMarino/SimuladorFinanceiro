@@ -131,15 +131,14 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
     const filteredData = getFilteredData(selectedScale);
 
     // Adiciona série de acordo com o tipo
-    const rootStyle = getComputedStyle(document.documentElement);
-    const lineColor = rootStyle.getPropertyValue("--chart-1").trim();
-    const topColor = `color-mix(in srgb, ${lineColor} 30%, transparent)`;
+    const lineColor = getComputedStyle(document.documentElement).getPropertyValue("--chart-1-canvas").trim();
+    const topColor = `${lineColor}4d`; // 30% de opacidade em hex8 (0x4D ≈ 0.3 * 255)
 
     if (chartType === "line") {
       const areaSeries = chartInstance.current.addSeries(AreaSeries, {
         lineColor,
         topColor,
-        bottomColor: "transparent",
+        bottomColor: `${lineColor}00`,
       });
       areaSeries.priceScale().applyOptions({
         autoScale: false, // Desativa a escala automática no preço para manter a visualização fixa

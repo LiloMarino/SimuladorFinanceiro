@@ -70,6 +70,7 @@
   --chart-3: oklch(0.769 0.178 70.08);
   --chart-4: oklch(0.556 0 0);
   --chart-5: oklch(0.627 0.265 303.9);
+  --chart-1-canvas: #2563eb;
   --sidebar: oklch(0.34 0.185 263);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.985 0 0);
@@ -108,6 +109,7 @@
   --chart-3: oklch(0.769 0.178 70.08);
   --chart-4: oklch(0.708 0 0);
   --chart-5: oklch(0.75 0.2 303.9);
+  --chart-1-canvas: #60a5fa;
   --sidebar: oklch(0.22 0.12 263);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.985 0 0);
