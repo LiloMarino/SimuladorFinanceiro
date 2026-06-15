@@ -1,4 +1,5 @@
 import { io, type Socket } from "socket.io-client";
+import { logger } from "@/shared/lib/logger";
 import { BaseSubscriberRealtime } from "./BaseSubscriberRealtime";
 
 export class SocketClient<
@@ -14,22 +15,22 @@ export class SocketClient<
     this.socket = io(baseUrl, { autoConnect: true, path: "/socket.io", transports: ["websocket"] });
 
     this.socket.onAny((event: string, payload: unknown) => {
-      console.debug("[SocketClient] event", event, payload);
+      logger.debug("[SocketClient] event", event, payload);
       this.notify(event as keyof TEvents, payload as TEvents[keyof TEvents]);
     });
 
     this.socket.on("connect", () => {
-      console.debug("[SocketClient] connected");
+      logger.debug("[SocketClient] connected");
       this.setConnected(true);
     });
 
     this.socket.on("disconnect", () => {
-      console.debug("[SocketClient] disconnected");
+      logger.debug("[SocketClient] disconnected");
       this.setConnected(false);
     });
 
     this.socket.on("subscribed", (payload) => {
-      console.debug("[SocketClient] subscription confirmed", payload);
+      logger.debug("[SocketClient] subscription confirmed", payload);
     });
   }
 

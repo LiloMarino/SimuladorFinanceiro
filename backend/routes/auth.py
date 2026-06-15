@@ -118,7 +118,7 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
 
     if sim:
         starting = sim.settings.starting_cash
-        sim._engine.add_cash(new_user.client_id, starting)
+        sim.add_cash(new_user.client_id, starting)
 
     return new_user
 

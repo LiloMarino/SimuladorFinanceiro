@@ -208,4 +208,4 @@ def buy_fixed_income(
 
     quantity = payload.quantity
 
-    simulation._engine.fixed_broker.buy(client_id, fixed, quantity)
+    simulation.buy_fixed_income(client_id, fixed, quantity)

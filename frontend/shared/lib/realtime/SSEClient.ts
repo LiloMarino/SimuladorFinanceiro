@@ -1,3 +1,4 @@
+import { logger } from "@/shared/lib/logger";
 import { BaseSubscriberRealtime } from "./BaseSubscriberRealtime";
 
 export class SSEClient<
@@ -12,7 +13,7 @@ export class SSEClient<
     this.es = new EventSource(url);
 
     this.es.onopen = () => {
-      console.debug("[SSEClient] connected");
+      logger.debug("[SSEClient] connected");
       this.setConnected(true);
     };
 
@@ -23,12 +24,12 @@ export class SSEClient<
         const payload = parsed.payload ?? parsed;
         this.notify(type as keyof TEvents, payload as TEvents[keyof TEvents]);
       } catch (err) {
-        console.error("[SSEClient] parse error", err);
+        logger.error("[SSEClient] parse error", err);
       }
     };
 
     this.es.onerror = (err) => {
-      console.error("[SSEClient] error", err);
+      logger.error("[SSEClient] error", err);
       this.setConnected(false);
     };
   }
@@ -43,7 +44,7 @@ export class SSEClient<
         credentials: "include",
       });
     } catch (err) {
-      console.error("[SSEClient] failed to update subscription", err);
+      logger.error("[SSEClient] failed to update subscription", err);
     }
   }
 }

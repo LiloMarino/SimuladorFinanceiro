@@ -6,6 +6,7 @@ from uuid import UUID
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.position import PositionDTO
@@ -58,6 +59,12 @@ class Simulation:
 
         # Roda o primeiro tick para a inicialização
         self.next_tick()
+
+    def add_cash(self, client_id: UUID, cash: float) -> None:
+        self._engine.add_cash(client_id, cash)
+
+    def buy_fixed_income(self, client_id: UUID, asset: FixedIncomeAssetDTO, value: float) -> None:
+        self._engine.fixed_broker.buy(client_id, asset, value)
 
     def next_tick(self):
         # Verifica se a simulação terminou
