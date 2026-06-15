@@ -16,14 +16,14 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   return (
     <div
       className={clsx(
-        "h-full flex flex-col bg-blue-800 text-white transition-all duration-300",
+        "h-full flex flex-col bg-sidebar text-sidebar-foreground transition-all duration-300",
         open ? "w-64" : "w-16"
       )}
     >
       {/* Cabeçalho */}
       <div
         className={clsx(
-          "flex items-center p-4 border-b border-blue-700 transition-all duration-300",
+          "flex items-center p-4 border-b border-sidebar-border transition-all duration-300",
           { "justify-between": open, "justify-center": !open }
         )}
       >
@@ -48,8 +48,8 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
               <NavLink
                 to={item.endpoint}
                 className={clsx(
-                  "flex items-center p-4 hover:bg-blue-700 transition-all duration-300",
-                  { "bg-blue-700": activePage === item.key },
+                  "flex items-center p-4 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-300",
+                  { "bg-sidebar-accent text-sidebar-accent-foreground": activePage === item.key },
                   { "justify-start": open, "justify-center": !open }
                 )}
               >

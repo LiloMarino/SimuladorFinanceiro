@@ -17,15 +17,15 @@ export function FixedIncomeOperationSummary({ asset, simulation }: FixedIncomeOp
         </div>
         <div>
           <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">Rendimento Bruto</p>
-          <p className="text-2xl font-bold text-green-600">{displayMoney(simulation.grossReturn)}</p>
+          <p className="text-2xl font-bold text-success">{displayMoney(simulation.grossReturn)}</p>
         </div>
         <div>
           <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">Imposto (IR)</p>
-          <p className="text-2xl font-bold text-red-600">{displayMoney(simulation.tax)}</p>
+          <p className="text-2xl font-bold text-destructive">{displayMoney(simulation.tax)}</p>
         </div>
         <div>
           <p className="text-xs uppercase tracking-wide text-slate-600 font-semibold mb-1">Valor de resgate</p>
-          <p className="text-2xl font-bold text-green-700">{displayMoney(simulation.netAmount)}</p>
+          <p className="text-2xl font-bold text-success">{displayMoney(simulation.netAmount)}</p>
         </div>
       </div>
       <p className="text-xs text-slate-500 mt-6 pt-4 border-t border-slate-300">

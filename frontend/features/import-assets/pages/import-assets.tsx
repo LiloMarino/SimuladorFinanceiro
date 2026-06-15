@@ -75,7 +75,7 @@ export default function ImportAssetsPage() {
           </AlertDialogHeader>
 
           <AlertDialogFooter className="flex justify-end space-x-2 mt-4">
-            <Button variant="blue" onClick={handleConfirm}>
+            <Button variant="default" onClick={handleConfirm}>
               Sim
             </Button>
             <Button variant="secondary" onClick={() => setDialogOpen(false)}>

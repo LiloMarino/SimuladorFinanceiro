@@ -49,7 +49,7 @@ export function PortfolioAreaChart({ data }: PortfolioAreaChartProps) {
                 ))}
               </defs>
 
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
 
               <XAxis
                 dataKey="timestamp"
@@ -60,10 +60,10 @@ export function PortfolioAreaChart({ data }: PortfolioAreaChartProps) {
                 minTickGap={40}
                 tick={{
                   fontSize: 13,
-                  fill: "#374151",
+                  fill: "var(--color-muted-foreground)",
                   fontWeight: 500,
                 }}
-                axisLine={{ stroke: "#374151" }}
+                axisLine={{ stroke: "var(--color-border)" }}
               />
 
               <YAxis
@@ -71,10 +71,10 @@ export function PortfolioAreaChart({ data }: PortfolioAreaChartProps) {
                 width={80}
                 tick={{
                   fontSize: 13,
-                  fill: "#374151",
+                  fill: "var(--color-muted-foreground)",
                   fontWeight: 500,
                 }}
-                axisLine={{ stroke: "#374151" }}
+                axisLine={{ stroke: "var(--color-border)" }}
               />
 
               <Tooltip content={<PortfolioAreaTooltip />} />

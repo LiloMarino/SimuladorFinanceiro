@@ -182,7 +182,7 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
 
                   <Button
                     type="button"
-                    variant="gray"
+                    variant="secondary"
                     size="sm"
                     onClick={() => {
                       let maxQty = 0;
@@ -238,9 +238,7 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
           <Button
             type="submit"
             disabled={executeOrderMutation.loading}
-            className={clsx(
-              form.watch("action") === "buy" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700",
-            )}
+            variant={action === "buy" ? "default" : "destructive"}
           >
             {executeOrderMutation.loading ? (
               <Spinner className="h-4 w-4" />

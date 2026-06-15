@@ -48,10 +48,10 @@ export function VariableIncomeTable({ variablePositions }: VariableIncomeTablePr
                 <TableCell>{pos.quantity}</TableCell>
                 <TableCell>{displayMoney(pos.currentValue)}</TableCell>
                 <TableCell>{displayPercent(pos.portfolioPercent)}</TableCell>
-                <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
+                <TableCell className={pos.returnValue >= 0 ? "text-success" : "text-destructive"}>
                   {displayMoney(pos.returnValue)}
                 </TableCell>
-                <TableCell className={pos.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
+                <TableCell className={pos.returnValue >= 0 ? "text-success" : "text-destructive"}>
                   {displayPercent(pos.returnPercent)}
                 </TableCell>
                 <TableCell>

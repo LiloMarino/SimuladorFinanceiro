@@ -96,7 +96,7 @@ export default function CSVForm({ onSubmit }: CsvFormProps) {
           )}
         />
 
-        <Button type="submit" variant="blue" className="w-full">
+        <Button type="submit" variant="default" className="w-full">
           Importar CSV
         </Button>
       </form>

@@ -52,7 +52,7 @@ export function FixedIncomeInvestmentForm({ form, id, availableCash }: FixedInco
 
                 <Button
                   type="button"
-                  variant="gray"
+                  variant="outline"
                   className="shrink-0 px-3"
                   disabled={availableCash === 0}
                   onClick={() => {
@@ -71,7 +71,8 @@ export function FixedIncomeInvestmentForm({ form, id, availableCash }: FixedInco
 
         <Button
           type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-base font-semibold rounded-lg"
+          variant="default"
+          className="w-full bg-success hover:bg-success/90 text-success-foreground py-6 text-base font-semibold rounded-lg"
         >
           Investir agora
         </Button>

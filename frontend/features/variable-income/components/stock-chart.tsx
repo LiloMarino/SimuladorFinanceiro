@@ -131,11 +131,15 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
     const filteredData = getFilteredData(selectedScale);
 
     // Adiciona série de acordo com o tipo
+    const rootStyle = getComputedStyle(document.documentElement);
+    const lineColor = rootStyle.getPropertyValue("--chart-1").trim();
+    const topColor = `color-mix(in srgb, ${lineColor} 30%, transparent)`;
+
     if (chartType === "line") {
       const areaSeries = chartInstance.current.addSeries(AreaSeries, {
-        lineColor: "#2563eb",
-        topColor: "rgba(37, 99, 235, 0.3)",
-        bottomColor: "rgba(37, 99, 235, 0.0)",
+        lineColor,
+        topColor,
+        bottomColor: "transparent",
       });
       areaSeries.priceScale().applyOptions({
         autoScale: false, // Desativa a escala automática no preço para manter a visualização fixa
@@ -172,14 +176,16 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
 
         <div className="flex items-center gap-2">
           {/* TimeScale */}
-          <div className="flex divide-x divide-gray-300 rounded-md overflow-hidden">
+          <div className="flex divide-x divide-border rounded-md overflow-hidden border border-border">
             {TIME_SCALES.map((scale) => (
               <button
                 key={scale}
                 onClick={() => setSelectedScale(scale)}
                 className={clsx(
                   "px-3 py-1 text-sm transition-colors duration-200",
-                  selectedScale === scale ? "bg-blue-700 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  selectedScale === scale
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
                 {scale.toUpperCase()}
@@ -188,12 +194,14 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
           </div>
 
           {/* Switch Chart */}
-          <div className="flex divide-x divide-gray-300 rounded-md overflow-hidden border border-gray-300 ml-2">
+          <div className="flex divide-x divide-border rounded-md overflow-hidden border border-border ml-2">
             <button
               onClick={() => setChartType("line")}
               className={clsx(
                 "px-3 py-1 flex items-center justify-center gap-1 text-sm transition-colors duration-200",
-                chartType === "line" ? "bg-blue-700 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                chartType === "line"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               )}
               title="Gráfico de Área"
             >
@@ -203,7 +211,9 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
               onClick={() => setChartType("candle")}
               className={clsx(
                 "px-3 py-1 flex items-center justify-center gap-1 text-sm transition-colors duration-200",
-                chartType === "candle" ? "bg-blue-700 text-white" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                chartType === "candle"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               )}
               title="Gráfico de Velas"
             >
@@ -214,7 +224,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
           {/* Botão Realtime */}
           <button
             onClick={() => chartInstance.current?.timeScale().scrollToRealTime()}
-            className="ml-2 px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+            className="ml-2 px-3 py-1 text-sm bg-success text-success-foreground rounded-md hover:bg-success/90 transition-colors"
             title="Ir para o realtime"
           >
             Realtime

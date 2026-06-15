@@ -37,7 +37,7 @@ export function MetricLineChart({ metric, players }: MetricLineChartProps) {
             bottom: 8,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
 
           <XAxis
             dataKey="timestamp"

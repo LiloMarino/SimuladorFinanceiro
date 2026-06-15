@@ -104,7 +104,7 @@ export function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
+              <Button type="submit" className="w-full" disabled={loading}>
                 Entrar
               </Button>
             </form>

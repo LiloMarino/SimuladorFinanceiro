@@ -52,11 +52,11 @@ export function PlayersRankingTable({ playersStats, currentPlayerName }: Props) 
 
                   <TableCell>{displayMoney(player.totalNetWorth)}</TableCell>
 
-                  <TableCell className={player.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
+                  <TableCell className={player.returnValue >= 0 ? "text-success" : "text-destructive"}>
                     {displayMoney(player.returnValue)}
                   </TableCell>
 
-                  <TableCell className={player.returnValue >= 0 ? "text-green-600" : "text-red-600"}>
+                  <TableCell className={player.returnValue >= 0 ? "text-success" : "text-destructive"}>
                     {displayPercent(player.returnPercent)}
                   </TableCell>
                 </TableRow>

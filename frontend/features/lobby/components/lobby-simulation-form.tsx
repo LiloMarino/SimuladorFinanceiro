@@ -114,7 +114,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
 
       <Button
         type="button"
-        className="w-full bg-green-600 hover:bg-green-700"
+        className="w-full"
         disabled={disableSimulationActions}
         onClick={() =>
           createSimulation({
@@ -132,7 +132,8 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
 
       <Button
         type="button"
-        className="w-full bg-blue-600 hover:bg-blue-700"
+        variant="outline"
+        className="w-full"
         disabled={disableSimulationActions}
         onClick={() => continueSimulation()}
       >

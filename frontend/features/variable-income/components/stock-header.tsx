@@ -16,7 +16,7 @@ export function StockHeader({ stock }: { stock: StockDetails }) {
         <div
           className={clsx(
             "flex items-center justify-end gap-1 font-medium",
-            isPositive ? "text-green-600" : "text-red-600"
+            isPositive ? "text-success" : "text-destructive"
           )}
         >
           {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}

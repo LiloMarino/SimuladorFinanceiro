@@ -61,7 +61,7 @@ export default function YFinanceForm({ onSubmit }: YFinanceFormProps) {
           )}
         />
 
-        <Button type="submit" variant="blue" className="w-full">
+        <Button type="submit" variant="default" className="w-full">
           Buscar e Importar
         </Button>
       </form>

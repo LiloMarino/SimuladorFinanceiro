@@ -43,22 +43,22 @@ export default function Topbar({ pageLabel }: TopbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white shadow-sm">
+    <header className="sticky top-0 z-30 bg-background border-b border-border shadow-sm">
       <div className="flex flex-wrap items-center justify-between p-4 gap-4">
-        <h1 className="text-xl font-semibold text-gray-800">{pageLabel}</h1>
+        <h1 className="text-xl font-semibold text-foreground">{pageLabel}</h1>
 
         <div className="flex items-center space-x-6">
           {/* Saldo */}
           <div className="flex items-center">
-            <span className="text-sm text-gray-600 mr-2">Saldo:</span>
+            <span className="text-sm text-muted-foreground mr-2">Saldo:</span>
             <span className="font-medium">{simData?.cash !== undefined ? displayMoney(simData.cash) : "--"}</span>
           </div>
 
           {/* Velocidade */}
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600 hidden md:block">Velocidade:</span>
+            <span className="text-sm text-muted-foreground hidden md:block">Velocidade:</span>
 
-            <div className="flex divide-x divide-gray-300 rounded-md overflow-hidden">
+            <div className="flex divide-x divide-border rounded-md overflow-hidden border border-border">
               {SPEED_OPTIONS.map((option) => (
                 <button
                   key={option}
@@ -67,8 +67,8 @@ export default function Topbar({ pageLabel }: TopbarProps) {
                   className={clsx(
                     "px-3 py-1 text-sm transition-colors duration-200",
                     simData?.speed === option
-                      ? "bg-blue-700 text-white"
-                      : "bg-gray-200 text-gray-800 hover:bg-gray-300",
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                     loading && "opacity-70 cursor-not-allowed",
                   )}
                 >
@@ -80,7 +80,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
 
           {/* Data */}
           <div className="flex items-center">
-            <span className="text-sm text-gray-600 mr-2">Simulação:</span>
+            <span className="text-sm text-muted-foreground mr-2">Simulação:</span>
             <span className="font-medium">{simData?.current_date ?? "--/--/----"}</span>
           </div>
         </div>

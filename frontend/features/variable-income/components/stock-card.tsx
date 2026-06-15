@@ -7,7 +7,7 @@ interface StockCardProps {
 }
 
 export default function StockCard({ stock }: StockCardProps) {
-  const changeColor = stock.change_pct.includes("-") ? "text-red-500" : "text-green-500";
+  const changeColor = stock.change_pct.includes("-") ? "text-destructive" : "text-success";
 
   return (
     <BaseCard

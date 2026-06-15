@@ -19,29 +19,26 @@ interface BaseCardProps {
 
 export default function BaseCard({ header, fields, footer }: BaseCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform transform hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex flex-col">
-      {/* Header */}
+    <div className="bg-card text-card-foreground rounded-xl border shadow-sm overflow-hidden transition-transform hover:-translate-y-0.5 hover:shadow-lg duration-200 flex flex-col">
       <div className="p-4 border-b">
         <div className="flex justify-between items-center">
           <h3 className="font-bold text-lg">{header.title}</h3>
-          {header.badge && header.badge}
+          {header.badge}
         </div>
-        {header.subtitle && <p className="text-gray-500 text-sm">{header.subtitle}</p>}
+        {header.subtitle && <p className="text-muted-foreground text-sm mt-0.5">{header.subtitle}</p>}
       </div>
 
-      {/* Body */}
       <div className="p-4 flex-1">
         {fields.map((field, index) => (
           <div key={index} className={`flex justify-between text-sm ${index < fields.length - 1 ? "mb-2" : ""}`}>
-            <span className="text-gray-500">{field.label}</span>
+            <span className="text-muted-foreground">{field.label}</span>
             <span className="font-medium">{field.value}</span>
           </div>
         ))}
       </div>
 
-      {/* Footer */}
-      <div className="bg-gray-50 px-4 py-2 flex justify-end mt-auto">
-        <Link to={footer.linkTo} className="text-blue-600 text-sm font-medium hover:text-blue-800">
+      <div className="bg-muted/50 px-4 py-2 flex justify-end mt-auto">
+        <Link to={footer.linkTo} className="text-primary text-sm font-medium hover:text-primary/80">
           {footer.label}
         </Link>
       </div>

@@ -17,7 +17,7 @@ export default function FixedIncomeCard({ asset }: FixedIncomeCardProps) {
           </>
         ),
         badge: (
-          <Badge variant="outline" className="text-green-600 border-green-300 font-medium">
+          <Badge variant="outline" className="text-success border-success/50 font-medium">
             {asset.rateLabel}
           </Badge>
         ),

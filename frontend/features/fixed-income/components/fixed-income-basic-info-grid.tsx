@@ -51,12 +51,12 @@ export function FixedIncomeBasicInfoGrid({ asset }: FixedIncomeBasicInfoGridProp
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">Rendimento Bruto Total (%)</span>
-            <span className="font-medium text-green-700">{displayPercent(asset.grossReturn)}</span>
+            <span className="font-medium text-success">{displayPercent(asset.grossReturn)}</span>
           </div>
 
           <div className="flex justify-between">
             <span className="text-slate-600">Rendimento Líquido Total (%)</span>
-            <span className="font-medium text-green-700">{displayPercent(asset.netReturn)}</span>
+            <span className="font-medium text-success">{displayPercent(asset.netReturn)}</span>
           </div>
 
           <div className="flex justify-between pt-2 border-t border-slate-100">
