@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import threading
 from collections.abc import Callable
 from decimal import Decimal
 from typing import TYPE_CHECKING
@@ -64,57 +65,63 @@ class Broker:
     def __init__(
         self,
         simulation_engine: SimulationEngine,
+        lock: threading.RLock,
     ):
         self._simulation_engine = simulation_engine
+        self._lock = lock
         self._positions: LazyDict[UUID, dict[str, Position]] = LazyDict(load_positions)
 
     def get_positions(self, client_id: UUID) -> dict[str, Position]:
-        return self._positions[client_id]
+        with self._lock:
+            return self._positions[client_id]
 
     def get_available_position(self, client_id: UUID, ticker: str) -> int:
-        position = self._positions[client_id].get(ticker)
-        if not position:
-            return 0
-        return max(0, position.size - position.reserved)
+        with self._lock:
+            position = self._positions[client_id].get(ticker)
+            if not position:
+                return 0
+            return max(0, position.size - position.reserved)
 
     def reserve_limit_order(self, order: LimitOrder) -> None:
         if order.client_id == MarketLiquidity.MARKET_CLIENT_ID:
             return
 
-        if order.action == OrderAction.BUY:
-            cost = order.price * order.size
-            if self._simulation_engine.get_cash(order.client_id) < cost:
-                raise InsufficentCashError()
+        with self._lock:
+            if order.action == OrderAction.BUY:
+                cost = order.price * order.size
+                if self._simulation_engine.get_cash(order.client_id) < cost:
+                    raise InsufficentCashError()
 
-            self._simulation_engine.add_cash(order.client_id, -cost)
+                self._simulation_engine.add_cash(order.client_id, -cost)
 
-        elif order.action == OrderAction.SELL:
-            position = self._positions[order.client_id].get(order.ticker)
-            if not position:
-                raise InsufficentPositionError()
+            elif order.action == OrderAction.SELL:
+                position = self._positions[order.client_id].get(order.ticker)
+                if not position:
+                    raise InsufficentPositionError()
 
-            self._mutate_position(
-                client_id=order.client_id,
-                ticker=order.ticker,
-                mutation=lambda p: p.reserve(order.size),
-            )
+                self._mutate_position(
+                    client_id=order.client_id,
+                    ticker=order.ticker,
+                    mutation=lambda p: p.reserve(order.size),
+                )
 
     def release_limit_order(self, order: LimitOrder) -> None:
         if order.client_id == MarketLiquidity.MARKET_CLIENT_ID:
             return
 
-        if order.action == OrderAction.BUY:
-            cost = order.price * order.remaining
-            self._simulation_engine.add_cash(order.client_id, cost)
+        with self._lock:
+            if order.action == OrderAction.BUY:
+                cost = order.price * order.remaining
+                self._simulation_engine.add_cash(order.client_id, cost)
 
-        elif order.action == OrderAction.SELL:
-            position = self._positions[order.client_id].get(order.ticker)
-            if position:
-                self._mutate_position(
-                    client_id=order.client_id,
-                    ticker=order.ticker,
-                    mutation=lambda p: p.release(order.remaining),
-                )
+            elif order.action == OrderAction.SELL:
+                position = self._positions[order.client_id].get(order.ticker)
+                if position:
+                    self._mutate_position(
+                        client_id=order.client_id,
+                        ticker=order.ticker,
+                        mutation=lambda p: p.release(order.remaining),
+                    )
 
     def execute_trade(
         self,
@@ -132,22 +139,23 @@ class Broker:
         if size <= 0:
             raise ValueError("Quantidade deve ser maior que zero")
 
-        if isinstance(taker_order, MarketOrder):
-            self._validate_market_order(taker_order, size, price)
+        with self._lock:
+            if isinstance(taker_order, MarketOrder):
+                self._validate_market_order(taker_order, size, price)
 
-        # =========================
-        # EXECUÇÃO
-        # =========================
-        self._execute_order(
-            order=taker_order,
-            size=size,
-            price=price,
-        )
-        self._execute_order(
-            order=maker_order,
-            size=size,
-            price=price,
-        )
+            # =========================
+            # EXECUÇÃO
+            # =========================
+            self._execute_order(
+                order=taker_order,
+                size=size,
+                price=price,
+            )
+            self._execute_order(
+                order=maker_order,
+                size=size,
+                price=price,
+            )
 
     def _execute_order(
         self,
@@ -184,21 +192,24 @@ class Broker:
         ticker: str,
         mutation: Callable[[Position], None],
     ):
-        if ticker not in self._positions[client_id]:
-            self._positions[client_id][ticker] = Position(ticker)
+        with self._lock:
+            if ticker not in self._positions[client_id]:
+                self._positions[client_id][ticker] = Position(ticker)
 
-        position = self._positions[client_id][ticker]
+            position = self._positions[client_id][ticker]
 
-        # Executa a mutação real (buy/sell/reserve/release)
-        mutation(position)
+            # Executa a mutação real (buy/sell/reserve/release)
+            mutation(position)
 
-        # Remove posição se zerou
-        if position.size == 0 and position.reserved == 0:
-            del self._positions[client_id][ticker]
+            # Remove posição se zerou
+            if position.size == 0 and position.reserved == 0:
+                del self._positions[client_id][ticker]
+
+            position_payload = PositionDTO.from_model(position).to_json()
 
         notify(
             event=f"position_update:{ticker}",
-            payload={"position": PositionDTO.from_model(position).to_json()},
+            payload={"position": position_payload},
             to=client_id,
         )
 

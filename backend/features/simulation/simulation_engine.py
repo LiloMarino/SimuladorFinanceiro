@@ -1,3 +1,4 @@
+import threading
 from datetime import date
 from decimal import Decimal
 from uuid import UUID
@@ -35,8 +36,11 @@ class SimulationEngine:
     """
 
     def __init__(self, current_date, starting_cash: float, simulation_id: int):
-        self.broker = Broker(self)
-        self.fixed_broker = FixedBroker(self)
+        # Protege _cash (aqui) e _positions/_assets (Broker/FixedBroker) contra
+        # mutação concorrente pela thread do loop e pelas threads de request HTTP.
+        self._lock = threading.RLock()
+        self.broker = Broker(self, self._lock)
+        self.fixed_broker = FixedBroker(self, self._lock)
         self.fixed_income_market = FixedIncomeMarket()
         self.matching_engine = MatchingEngine(self.broker)
         self._cash: LazyDict[UUID, float] = LazyDict(
@@ -54,10 +58,13 @@ class SimulationEngine:
         self._strategy = strategy_cls(self.matching_engine, *args, **kwargs)
 
     def get_cash(self, client_id: UUID) -> float:
-        return self._cash[client_id]
+        with self._lock:
+            return self._cash[client_id]
 
     def add_cash(self, client_id: UUID, cash: float) -> None:
-        self._cash[client_id] += cash
+        with self._lock:
+            self._cash[client_id] += cash
+            new_cash = self._cash[client_id]
         EventManager.push_event(
             CashflowEventDTO(
                 simulation_id=self.simulation_id,
@@ -69,11 +76,13 @@ class SimulationEngine:
                 event_date=self.current_date,
             )
         )
-        notify("cash_update", {"cash": self._cash[client_id]}, to=client_id)
+        notify("cash_update", {"cash": new_cash}, to=client_id)
 
     def add_contribution(self, client_id: UUID, amount: float) -> None:
         """Adiciona aporte mensal (não conta como retorno de investimento)"""
-        self._cash[client_id] += amount
+        with self._lock:
+            self._cash[client_id] += amount
+            new_cash = self._cash[client_id]
         EventManager.push_event(
             CashflowEventDTO(
                 simulation_id=self.simulation_id,
@@ -83,7 +92,7 @@ class SimulationEngine:
                 event_date=self.current_date,
             )
         )
-        notify("cash_update", {"cash": self._cash[client_id]}, to=client_id)
+        notify("cash_update", {"cash": new_cash}, to=client_id)
 
     def update_market_data(self, stocks: list[CandleDTO]) -> None:
         for s in stocks:
@@ -100,14 +109,16 @@ class SimulationEngine:
             self.matching_engine.on_tick(s.ticker)
 
     def get_portfolio(self, client_id: UUID) -> PortfolioDTO:
-        positions = self.broker.get_positions(client_id).values()
+        with self._lock:
+            positions = list(self.broker.get_positions(client_id).values())
+            fixed_income_positions = list(
+                self.fixed_broker.get_fixed_positions(client_id).values()
+            )
+            cash = self._cash[client_id]
+
         variable_income = [
             PositionDTO.from_model(pos) for pos in positions if pos.size > 0
         ]
-
-        fixed_income_positions = self.fixed_broker.get_fixed_positions(
-            client_id
-        ).values()
         fixed_income = [
             FixedIncomePositionDTO(
                 asset=pos.asset,
@@ -120,7 +131,7 @@ class SimulationEngine:
 
         return PortfolioDTO(
             starting_cash=self.starting_cash,
-            cash=self._cash[client_id],
+            cash=cash,
             variable_income=variable_income,
             fixed_income=fixed_income,
             patrimonial_history=repository.portfolio.get_patrimonial_history(

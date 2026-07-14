@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import threading
 from datetime import date
 from decimal import Decimal
 from typing import TYPE_CHECKING
@@ -58,14 +59,16 @@ class FixedBroker:
     - Emitir notificações realtime de atualizações de portfólio
     """
 
-    def __init__(self, simulation_engine: SimulationEngine):
+    def __init__(self, simulation_engine: SimulationEngine, lock: threading.RLock):
         self._simulation_engine = simulation_engine
+        self._lock = lock
         self._assets: LazyDict[UUID, dict[str, FixedIncomePosition]] = LazyDict(
             load_fixed_assets
         )
 
     def get_fixed_positions(self, client_id: UUID) -> dict[str, FixedIncomePosition]:
-        return self._assets[client_id]
+        with self._lock:
+            return self._assets[client_id]
 
     def buy(self, client_id: UUID, asset: FixedIncomeAssetDTO, value: float):
         if value <= 0:
@@ -76,19 +79,20 @@ class FixedBroker:
                 f"Ativo {asset.name} já venceu em {asset.maturity_date}"
             )
 
-        if self._simulation_engine.get_cash(client_id) < value:
-            raise ValueError(f"Saldo insuficiente para investir em {asset.name}")
+        with self._lock:
+            if self._simulation_engine.get_cash(client_id) < value:
+                raise ValueError(f"Saldo insuficiente para investir em {asset.name}")
 
-        self._simulation_engine.add_cash(client_id, -value)
+            self._simulation_engine.add_cash(client_id, -value)
 
-        if asset.name in self._assets[client_id]:
-            self._assets[client_id][asset.name].invest(value)
-        else:
-            self._assets[client_id][asset.name] = FixedIncomePosition(
-                asset=asset,
-                total_applied=value,
-                first_applied_date=self._simulation_engine.current_date,
-            )
+            if asset.name in self._assets[client_id]:
+                self._assets[client_id][asset.name].invest(value)
+            else:
+                self._assets[client_id][asset.name] = FixedIncomePosition(
+                    asset=asset,
+                    total_applied=value,
+                    first_applied_date=self._simulation_engine.current_date,
+                )
 
         asset_id = repository.fixed_income.get_or_create_asset(asset)
         EventManager.push_event(
@@ -111,8 +115,20 @@ class FixedBroker:
             updates: list[FixedIncomePositionDTO] = []
             has_expired = False
             for asset_name, position in list(assets_by_client.items()):
-                position.apply_daily_interest(current_date)
-                if current_date >= position.asset.maturity_date:
+                with self._lock:
+                    position.apply_daily_interest(current_date)
+                    expired = current_date >= position.asset.maturity_date
+                    if expired:
+                        del assets_by_client[asset_name]
+                    else:
+                        update_dto = FixedIncomePositionDTO(
+                            asset=position.asset,
+                            total_applied=position.total_applied,
+                            current_value=position.current_value,
+                            first_applied_date=position.first_applied_date,
+                        )
+
+                if expired:
                     self.redeem_position(
                         current_date,
                         client_id,
@@ -120,18 +136,9 @@ class FixedBroker:
                         asset_name,
                         position,
                     )
-                    del assets_by_client[asset_name]
                     has_expired = True
-                    continue
-
-                updates.append(
-                    FixedIncomePositionDTO(
-                        asset=position.asset,
-                        total_applied=position.total_applied,
-                        current_value=position.current_value,
-                        first_applied_date=position.first_applied_date,
-                    )
-                )
+                else:
+                    updates.append(update_dto)
 
             if updates or has_expired:
                 notify(
