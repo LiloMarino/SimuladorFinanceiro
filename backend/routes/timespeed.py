@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.features.realtime import notify
+from backend.features.realtime.schemas import SpeedUpdateEventDTO
 from backend.features.simulation.simulation_loop import simulation_controller
 
 timespeed_router = APIRouter(prefix="/api", tags=["Simulation Control"])
@@ -41,7 +42,7 @@ def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
         simulation_controller.unpause()
 
     # Envia a atualização de velocidade para todos os clientes
-    notify("speed_update", {"speed": speed})
+    notify("speed_update", SpeedUpdateEventDTO(speed=speed).to_json())
     return SetSpeedResponse(speed=speed)
 
 

@@ -16,6 +16,7 @@ from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.realtime import notify
+from backend.features.realtime.schemas import PositionUpdateEventDTO
 from backend.features.variable_income.entities.order import (
     LimitOrder,
     MarketOrder,
@@ -205,11 +206,13 @@ class Broker:
             if position.size == 0 and position.reserved == 0:
                 del self._positions[client_id][ticker]
 
-            position_payload = PositionDTO.from_model(position).to_json()
+            position_payload = PositionUpdateEventDTO(
+                position=PositionDTO.from_model(position)
+            ).to_json()
 
         notify(
             event=f"position_update:{ticker}",
-            payload={"position": position_payload},
+            payload=position_payload,
             to=client_id,
         )
 

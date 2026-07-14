@@ -2,6 +2,7 @@ from backend.core import repository
 from backend.core.dto.simulation import (
     SimulationDTO,
     SimulationSettingsDTO,
+    SimulationStatusResponse,
     SimulationSummaryDTO,
 )
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
@@ -28,7 +29,8 @@ class SimulationLoader:
         SettingsManager.clear()
         simulation_controller.start()
         notify(
-            "simulation_started", {"active": True, "simulation": sim.settings.to_json()}
+            "simulation_started",
+            SimulationStatusResponse(active=True, simulation=sim.settings).to_json(),
         )
         return sim.settings
 
@@ -60,6 +62,7 @@ class SimulationLoader:
         SettingsManager.clear()
         simulation_controller.start()
         notify(
-            "simulation_started", {"active": True, "simulation": sim.settings.to_json()}
+            "simulation_started",
+            SimulationStatusResponse(active=True, simulation=sim.settings).to_json(),
         )
         return sim.settings

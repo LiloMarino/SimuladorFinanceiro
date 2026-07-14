@@ -128,13 +128,19 @@ class UserManager:
     @classmethod
     def _emit_player_join(cls, user: UserDTO):
         from backend.features.realtime import notify  # noqa: PLC0415
+        from backend.features.realtime.schemas import (  # noqa: PLC0415
+            PlayerPresenceEventDTO,
+        )
 
         logger.info(f"Player joined: {user.nickname}")
-        notify("player_join", {"nickname": user.nickname})
+        notify("player_join", PlayerPresenceEventDTO(nickname=user.nickname).to_json())
 
     @classmethod
     def _emit_player_exit(cls, user: UserDTO):
         from backend.features.realtime import notify  # noqa: PLC0415
+        from backend.features.realtime.schemas import (  # noqa: PLC0415
+            PlayerPresenceEventDTO,
+        )
 
         logger.info(f"Player exited: {user.nickname}")
-        notify("player_exit", {"nickname": user.nickname})
+        notify("player_exit", PlayerPresenceEventDTO(nickname=user.nickname).to_json())

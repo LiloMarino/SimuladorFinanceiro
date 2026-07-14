@@ -9,6 +9,7 @@ from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.simulation import (
     SimulationDTO,
     SimulationSettingsDTO,
+    SimulationStatusResponse,
     SimulationSummaryDTO,
 )
 from backend.core.exceptions import NoActiveSimulationError
@@ -17,15 +18,11 @@ from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
+from backend.features.realtime.schemas import SimulationEndedEventDTO
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.simulation.simulation_loop import simulation_controller
 
 simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
-
-
-class SimulationStatusResponse(BaseModel):
-    active: bool
-    simulation: SimulationDTO | None = None
 
 
 class CreateSimulationRequest(BaseModel):
@@ -174,9 +171,7 @@ def stop_simulation(_: HostVerified):
 
     notify(
         "simulation_ended",
-        {
-            "reason": "stopped_by_host",
-        },
+        SimulationEndedEventDTO(reason="stopped_by_host").to_json(),
     )
 
 

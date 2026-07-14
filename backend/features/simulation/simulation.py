@@ -15,6 +15,14 @@ from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
 from backend.core.runtime.event_manager import EventManager
 from backend.features.realtime import notify
+from backend.features.realtime.schemas import (
+    SimulationTickUpdateEventDTO,
+    SnapshotUpdateEventDTO,
+    StatisticsSnapshotEntryDTO,
+    StatisticsSnapshotUpdateEventDTO,
+    StockUpdateEventDTO,
+    StocksUpdateEventDTO,
+)
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.strategy.manual import ManualStrategy
 
@@ -106,9 +114,17 @@ class Simulation:
         logger.info(f"Dia atual: {self.get_current_date_formatted()}")
         for stock in stocks:
             ticker = stock.ticker
-            notify(f"stock_update:{ticker}", {"stock": stock.to_json()})
-        notify("simulation_update", {"current_date": self.get_current_date_formatted()})
-        notify("stocks_update", {"stocks": [s.to_json() for s in stocks]})
+            notify(
+                f"stock_update:{ticker}",
+                StockUpdateEventDTO(stock=stock).to_json(),
+            )
+        notify(
+            "simulation_update",
+            SimulationTickUpdateEventDTO(
+                current_date=self.get_current_date_formatted()
+            ).to_json(),
+        )
+        notify("stocks_update", StocksUpdateEventDTO(stocks=stocks).to_json())
 
     def get_current_date(self) -> date:
         return self._current_date
@@ -212,19 +228,21 @@ class Simulation:
             # Portfolio (individual)
             notify(
                 event="snapshot_update",
-                payload={"snapshot": snapshot.to_json()},
+                payload=SnapshotUpdateEventDTO(snapshot=snapshot).to_json(),
                 to=user.client_id,
             )
 
             # Statistics (global)
             snapshots_payload.append(
-                {
-                    "player_nickname": user.nickname,
-                    "snapshot": snapshot.to_json(),
-                }
+                StatisticsSnapshotEntryDTO(
+                    player_nickname=user.nickname,
+                    snapshot=snapshot,
+                )
             )
 
         notify(
             event="statistics_snapshot_update",
-            payload={"snapshots": snapshots_payload},
+            payload=StatisticsSnapshotUpdateEventDTO(
+                snapshots=snapshots_payload
+            ).to_json(),
         )

@@ -7,6 +7,12 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.features.realtime import notify
+from backend.features.realtime.schemas import (
+    OrderBookSnapshotEventDTO,
+    OrderEventDTO,
+    OrderExecutedEventDTO,
+    OrderPartialExecutedEventDTO,
+)
 from backend.features.variable_income.broker import Broker
 from backend.features.variable_income.entities.order import (
     LimitOrder,
@@ -64,9 +70,7 @@ class MatchingEngine:
                 self.order_book.add(order)
                 notify(
                     event=f"order_added:{order.ticker}",
-                    payload={
-                        "order": OrderDTO.from_model(order).to_json(),
-                    },
+                    payload=OrderEventDTO(order=OrderDTO.from_model(order)).to_json(),
                 )
 
     def on_tick(self, ticker: str) -> None:
@@ -81,12 +85,12 @@ class MatchingEngine:
 
         notify(
             event=f"order_book_snapshot:{candle.ticker}",
-            payload={
-                "orders": [
-                    OrderDTO.from_model(o).to_json()
+            payload=OrderBookSnapshotEventDTO(
+                orders=[
+                    OrderDTO.from_model(o)
                     for o in self.order_book.get_orders(candle.ticker)
                 ]
-            },
+            ).to_json(),
         )
 
     def cancel(self, *, order_id: str, client_id: UUID) -> bool:
@@ -106,9 +110,7 @@ class MatchingEngine:
         order.remaining = 0
         notify(
             event=f"order_updated:{order.ticker}",
-            payload={
-                "order": OrderDTO.from_model(order).to_json(),
-            },
+            payload=OrderEventDTO(order=OrderDTO.from_model(order)).to_json(),
         )
         self.order_book.remove(order)
         return True
@@ -199,16 +201,23 @@ class MatchingEngine:
     def _notify_execution(self, order: Order, price: float, quantity: int):
         event = "order_executed" if order.remaining == 0 else "order_partial_executed"
 
-        payload = {
-            "order_id": order.id,
-            "ticker": order.ticker,
-            "action": order.action.value,
-            "price": price,
-            "quantity": quantity,
-        }
-
         if order.remaining > 0:
-            payload["remaining"] = order.remaining
+            payload = OrderPartialExecutedEventDTO(
+                order_id=order.id,
+                ticker=order.ticker,
+                action=order.action,
+                price=price,
+                quantity=quantity,
+                remaining=order.remaining,
+            ).to_json()
+        else:
+            payload = OrderExecutedEventDTO(
+                order_id=order.id,
+                ticker=order.ticker,
+                action=order.action,
+                price=price,
+                quantity=quantity,
+            ).to_json()
 
         if order.client_id != MarketLiquidity.MARKET_CLIENT_ID:
             notify(event=event, payload=payload, to=order.client_id)
@@ -216,7 +225,5 @@ class MatchingEngine:
         if isinstance(order, LimitOrder):
             notify(
                 event=f"order_updated:{order.ticker}",
-                payload={
-                    "order": OrderDTO.from_model(order).to_json(),
-                },
+                payload=OrderEventDTO(order=OrderDTO.from_model(order)).to_json(),
             )

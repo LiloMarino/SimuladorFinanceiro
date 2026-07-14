@@ -7,6 +7,7 @@ from enum import Enum
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.realtime import notify
+from backend.features.realtime.schemas import SimulationEndedEventDTO
 
 logger = logging.getLogger(__name__)
 
@@ -113,9 +114,7 @@ class SimulationLoopController:
                 except StopIteration:
                     notify(
                         "simulation_ended",
-                        {
-                            "reason": "completed",
-                        },
+                        SimulationEndedEventDTO(reason="completed").to_json(),
                     )
                     break
 

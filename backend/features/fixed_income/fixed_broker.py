@@ -22,6 +22,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
 from backend.features.realtime import notify
+from backend.features.realtime.schemas import FixedIncomePositionUpdateEventDTO
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
@@ -143,7 +144,7 @@ class FixedBroker:
             if updates or has_expired:
                 notify(
                     "fixed_income_position_update",
-                    {"positions": [update.to_json() for update in updates]},
+                    FixedIncomePositionUpdateEventDTO(positions=updates).to_json(),
                     client_id,
                 )
 

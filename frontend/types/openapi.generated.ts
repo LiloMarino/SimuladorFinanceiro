@@ -336,6 +336,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/internal/realtime-events-schema": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * [DEV] Catálogo de payloads de eventos realtime
+         * @description Existe apenas para expor os schemas dos payloads WS/SSE no OpenAPI e alimentar `pnpm run types:generate` (types/events.ts). Nunca deve ser chamada por clientes reais.
+         */
+        get: operations["get_realtime_events_schema_api_internal_realtime_events_schema_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/set-speed": {
         parameters: {
             query?: never;
@@ -819,6 +839,11 @@ export interface components {
             /** Cash */
             cash: number;
         };
+        /** CashUpdateEventDTO */
+        CashUpdateEventDTO: {
+            /** Cash */
+            cash: number;
+        };
         /** CreateSimulationRequest */
         CreateSimulationRequest: {
             /** Name */
@@ -855,6 +880,11 @@ export interface components {
             /** Message */
             message: string;
         };
+        /** FixedAssetsUpdateEventDTO */
+        FixedAssetsUpdateEventDTO: {
+            /** Assets */
+            assets: components["schemas"]["FixedIncomeAssetDTO"][];
+        };
         /** FixedIncomeAssetDTO */
         FixedIncomeAssetDTO: {
             /**
@@ -888,6 +918,11 @@ export interface components {
              * Format: date
              */
             first_applied_date: string;
+        };
+        /** FixedIncomePositionUpdateEventDTO */
+        FixedIncomePositionUpdateEventDTO: {
+            /** Positions */
+            positions: components["schemas"]["FixedIncomePositionDTO"][];
         };
         /**
          * FixedIncomeType
@@ -929,6 +964,11 @@ export interface components {
          * @enum {string}
          */
         OrderAction: "buy" | "sell";
+        /** OrderBookSnapshotEventDTO */
+        OrderBookSnapshotEventDTO: {
+            /** Orders */
+            orders: components["schemas"]["OrderDTO"][];
+        };
         /** OrderDTO */
         OrderDTO: {
             /** Id */
@@ -950,12 +990,42 @@ export interface components {
              */
             created_at: string;
         };
+        /** OrderEventDTO */
+        OrderEventDTO: {
+            order: components["schemas"]["OrderDTO"];
+        };
+        /** OrderExecutedEventDTO */
+        OrderExecutedEventDTO: {
+            /** Order Id */
+            order_id: string;
+            /** Ticker */
+            ticker: string;
+            action: components["schemas"]["OrderAction"];
+            /** Price */
+            price: number;
+            /** Quantity */
+            quantity: number;
+        };
         /** OrderNotificationSettings */
         OrderNotificationSettings: {
             /** Executed */
             executed: boolean;
             /** Partial */
             partial: boolean;
+        };
+        /** OrderPartialExecutedEventDTO */
+        OrderPartialExecutedEventDTO: {
+            /** Order Id */
+            order_id: string;
+            /** Ticker */
+            ticker: string;
+            action: components["schemas"]["OrderAction"];
+            /** Price */
+            price: number;
+            /** Quantity */
+            quantity: number;
+            /** Remaining */
+            remaining: number;
         };
         /**
          * OrderStatus
@@ -999,6 +1069,11 @@ export interface components {
             /** Nickname */
             nickname: string;
         };
+        /** PlayerPresenceEventDTO */
+        PlayerPresenceEventDTO: {
+            /** Nickname */
+            nickname: string;
+        };
         /** PortfolioDTO */
         PortfolioDTO: {
             /** Starting Cash */
@@ -1025,11 +1100,43 @@ export interface components {
             /** Avg Price */
             avg_price: number;
         };
+        /** PositionUpdateEventDTO */
+        PositionUpdateEventDTO: {
+            position: components["schemas"]["PositionDTO"];
+        };
         /**
          * RateIndexType
          * @enum {string}
          */
         RateIndexType: "CDI" | "IPCA" | "SELIC" | "Prefixado";
+        /**
+         * RealtimeEventCatalog
+         * @description Um campo por nome de evento realtime, tipado para o DTO do payload
+         *     correspondente. Nunca é instanciado de verdade — só existe para que seu
+         *     schema apareça em `/openapi.json` via a rota dev-only em `routes/realtime.py`.
+         */
+        RealtimeEventCatalog: {
+            simulation_started: components["schemas"]["SimulationStatusResponse"];
+            simulation_ended: components["schemas"]["SimulationEndedEventDTO"];
+            simulation_update: components["schemas"]["SimulationTickUpdateEventDTO"];
+            speed_update: components["schemas"]["SpeedUpdateEventDTO"];
+            cash_update: components["schemas"]["CashUpdateEventDTO"];
+            stocks_update: components["schemas"]["StocksUpdateEventDTO"];
+            fixed_assets_update: components["schemas"]["FixedAssetsUpdateEventDTO"];
+            snapshot_update: components["schemas"]["SnapshotUpdateEventDTO"];
+            fixed_income_position_update: components["schemas"]["FixedIncomePositionUpdateEventDTO"];
+            statistics_snapshot_update: components["schemas"]["StatisticsSnapshotUpdateEventDTO"];
+            order_executed: components["schemas"]["OrderExecutedEventDTO"];
+            order_partial_executed: components["schemas"]["OrderPartialExecutedEventDTO"];
+            player_join: components["schemas"]["PlayerPresenceEventDTO"];
+            player_exit: components["schemas"]["PlayerPresenceEventDTO"];
+            simulation_settings_update: components["schemas"]["SimulationSettingsDTO"];
+            stock_update: components["schemas"]["StockUpdateEventDTO"];
+            position_update: components["schemas"]["PositionUpdateEventDTO"];
+            order_added: components["schemas"]["OrderEventDTO"];
+            order_updated: components["schemas"]["OrderEventDTO"];
+            order_book_snapshot: components["schemas"]["OrderBookSnapshotEventDTO"];
+        };
         /** SessionDTO */
         SessionDTO: {
             /** Authenticated */
@@ -1075,6 +1182,14 @@ export interface components {
             monthly_contribution: number;
             /** Id */
             id: number;
+        };
+        /** SimulationEndedEventDTO */
+        SimulationEndedEventDTO: {
+            /**
+             * Reason
+             * @enum {string}
+             */
+            reason: "completed" | "stopped_by_host";
         };
         /** SimulationSettingsDTO */
         SimulationSettingsDTO: {
@@ -1147,6 +1262,56 @@ export interface components {
              */
             last_simulated_at: string;
         };
+        /** SimulationTickUpdateEventDTO */
+        SimulationTickUpdateEventDTO: {
+            /** Current Date */
+            current_date: string;
+        };
+        /** SnapshotDTO */
+        SnapshotDTO: {
+            /** User Id */
+            user_id: number;
+            /**
+             * Snapshot Date
+             * Format: date
+             */
+            snapshot_date: string;
+            /** Total Equity */
+            total_equity: string;
+            /** Total Fixed */
+            total_fixed: string;
+            /** Total Cash */
+            total_cash: string;
+            /** Total Contribution */
+            total_contribution: string;
+            /** Total Networth */
+            total_networth: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** SnapshotUpdateEventDTO */
+        SnapshotUpdateEventDTO: {
+            snapshot: components["schemas"]["SnapshotDTO"];
+        };
+        /** SpeedUpdateEventDTO */
+        SpeedUpdateEventDTO: {
+            /** Speed */
+            speed: number;
+        };
+        /** StatisticsSnapshotEntryDTO */
+        StatisticsSnapshotEntryDTO: {
+            /** Player Nickname */
+            player_nickname: string;
+            snapshot: components["schemas"]["SnapshotDTO"];
+        };
+        /** StatisticsSnapshotUpdateEventDTO */
+        StatisticsSnapshotUpdateEventDTO: {
+            /** Snapshots */
+            snapshots: components["schemas"]["StatisticsSnapshotEntryDTO"][];
+        };
         /** StockDetailsDTO */
         StockDetailsDTO: {
             /** Id */
@@ -1201,6 +1366,15 @@ export interface components {
             ticker: string;
             /** Last Date */
             last_date: string | null;
+        };
+        /** StockUpdateEventDTO */
+        StockUpdateEventDTO: {
+            stock: components["schemas"]["CandleDTO"];
+        };
+        /** StocksUpdateEventDTO */
+        StocksUpdateEventDTO: {
+            /** Stocks */
+            stocks: components["schemas"]["CandleDTO"][];
         };
         /** SubmitOrderRequest */
         SubmitOrderRequest: {
@@ -1995,6 +2169,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_realtime_events_schema_api_internal_realtime_events_schema_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RealtimeEventCatalog"];
                 };
             };
             /** @description Internal Server Error */

@@ -16,6 +16,7 @@ from backend.core.utils.lazy_dict import LazyDict
 from backend.features.fixed_income.fixed_broker import FixedBroker
 from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
+from backend.features.realtime.schemas import CashUpdateEventDTO
 from backend.features.strategy.base_strategy import BaseStrategy
 from backend.features.variable_income.broker import Broker
 from backend.features.variable_income.entities.candle import Candle
@@ -76,7 +77,7 @@ class SimulationEngine:
                 event_date=self.current_date,
             )
         )
-        notify("cash_update", {"cash": new_cash}, to=client_id)
+        notify("cash_update", CashUpdateEventDTO(cash=new_cash).to_json(), to=client_id)
 
     def add_contribution(self, client_id: UUID, amount: float) -> None:
         """Adiciona aporte mensal (não conta como retorno de investimento)"""
@@ -92,7 +93,7 @@ class SimulationEngine:
                 event_date=self.current_date,
             )
         )
-        notify("cash_update", {"cash": new_cash}, to=client_id)
+        notify("cash_update", CashUpdateEventDTO(cash=new_cash).to_json(), to=client_id)
 
     def update_market_data(self, stocks: list[CandleDTO]) -> None:
         for s in stocks:

@@ -19,3 +19,8 @@ class SimulationSummaryDTO(SimulationSettingsDTO):
     id: int
     created_at: datetime
     last_simulated_at: datetime
+
+
+class SimulationStatusResponse(BaseDTO):
+    active: bool
+    simulation: SimulationDTO | None = None

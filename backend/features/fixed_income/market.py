@@ -5,6 +5,7 @@ from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.features.fixed_income.factory import FixedIncomeFactory
 from backend.features.realtime import notify
+from backend.features.realtime.schemas import FixedAssetsUpdateEventDTO
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,6 @@ class FixedIncomeMarket:
         )
         notify(
             "fixed_assets_update",
-            {"assets": [asset.to_json() for asset in self.get_available_assets()]},
+            FixedAssetsUpdateEventDTO(assets=self.get_available_assets()).to_json(),
         )
         logger.info(f"Gerados {len(self._assets)} ativos de renda fixa")
