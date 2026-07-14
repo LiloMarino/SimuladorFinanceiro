@@ -90,7 +90,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
   const disableSimulationActions = loadingCreate || loadingContinue || !isHost;
 
   return (
-    <div className="flex flex-col gap-3 border-t md:border-l md:border-t-0 border-gray-300 pt-6 md:pt-0 md:pl-6">
+    <div className="flex flex-col gap-3 border-t md:border-l md:border-t-0 border-border pt-6 md:pt-0 md:pl-6">
       <h2 className="text-lg font-semibold">Ações</h2>
 
       <LobbySettingsDialog
@@ -117,7 +117,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
           })
         }
       >
-        <Play />
+        <Play fill="currentColor" />
         Iniciar Nova Simulação
       </Button>
 
@@ -128,13 +128,13 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
         disabled={disableSimulationActions}
         onClick={() => continueSimulation()}
       >
-        <Play />
+        <Play fill="currentColor" />
         Continuar Última Simulação
       </Button>
 
       <Button
         type="button"
-        variant="secondary"
+        variant="outline"
         className="w-full"
         disabled={!isHost}
         onClick={() => setLoadOpen(true)}
@@ -143,12 +143,12 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
         Carregar Simulação
       </Button>
 
-      <Button type="button" variant="secondary" className="w-full" onClick={() => navigate("/import-assets")}>
+      <Button type="button" variant="outline" className="w-full" onClick={() => navigate("/import-assets")}>
         <FileInput />
         Importar Ativos
       </Button>
 
-      <Button type="button" variant="secondary" className="w-full" disabled>
+      <Button type="button" variant="ghost" className="w-full" disabled>
         <ArrowLeftRight />
         Comparar Simulações
       </Button>
@@ -158,10 +158,10 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
         Configurações
       </Button>
 
-      <div className="mt-auto pt-4 border-t border-gray-200">
+      <div className="mt-auto pt-4 border-t border-border">
         <Label>Link Compartilhável (Via {providerName})</Label>
         <div className="flex mt-1">
-          <Input value={shareableLink} readOnly className="rounded-r-none bg-gray-50" />
+          <Input value={shareableLink} readOnly className="rounded-r-none" />
           <Button type="button" variant="secondary" onClick={copyHostIP} className="rounded-l-none">
             <Copy />
           </Button>

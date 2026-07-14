@@ -1,8 +1,14 @@
-import { useState } from "react";
-import clsx from "clsx";
-import type { NavItem } from "@/types";
 import { NavLink } from "react-router-dom";
-import { Menu } from "lucide-react";
+import type { NavItem } from "@/types";
+import {
+  Sidebar as SidebarRoot,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarTrigger,
+} from "@/shared/components/ui/sidebar";
+import { useSidebar } from "@/shared/components/ui/hooks/useSidebar";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -10,55 +16,27 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ navItems, activePage }: SidebarProps) {
-  const [open, setOpen] = useState(false);
+  const { open } = useSidebar();
 
   return (
-    <div
-      className={clsx(
-        "h-full flex flex-col bg-sidebar text-sidebar-foreground transition-all duration-300",
-        open ? "w-64" : "w-16"
-      )}
-    >
-      {/* Cabeçalho */}
-      <div
-        className={clsx(
-          "flex items-center p-4 border-b border-sidebar-border transition-all duration-300",
-          { "justify-between": open, "justify-center": !open }
-        )}
-      >
-        <span
-          className={clsx(
-            "text-xl font-bold transition-all duration-300",
-            { hidden: !open }
-          )}
-        >
-          FinSim
-        </span>
-        <button className="focus:outline-none" onClick={() => setOpen(!open)}>
-          <Menu className="w-5 h-5" />
-        </button>
-      </div>
+    <SidebarRoot>
+      <SidebarHeader>
+        {open && <span className="text-xl font-bold whitespace-nowrap">FinSim</span>}
+        <SidebarTrigger />
+      </SidebarHeader>
 
-      {/* Navegação */}
-      <nav className="mt-4 flex-1 overflow-y-auto">
-        <ul>
-          {navItems.map((item) => (
-            <li key={item.key}>
-              <NavLink
-                to={item.endpoint}
-                className={clsx(
-                  "flex items-center p-4 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-300",
-                  { "bg-sidebar-accent text-sidebar-accent-foreground": activePage === item.key },
-                  { "justify-start": open, "justify-center": !open }
-                )}
-              >
+      <SidebarMenu>
+        {navItems.map((item) => (
+          <SidebarMenuItem key={item.key}>
+            <SidebarMenuButton asChild isActive={activePage === item.key} tooltip={item.label}>
+              <NavLink to={item.endpoint}>
                 <item.icon className="w-5 h-5 flex-shrink-0" />
                 {open && <span className="ml-3 whitespace-nowrap">{item.label}</span>}
               </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ))}
+      </SidebarMenu>
+    </SidebarRoot>
   );
 }

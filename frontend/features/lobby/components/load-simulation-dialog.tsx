@@ -141,11 +141,12 @@ export function LoadSimulationDialog({ open, onOpenChange, isHost }: LoadSimulat
         <DialogFooter>
           <Button
             type="button"
-            className="w-full bg-green-600 hover:bg-green-700 sm:w-auto"
+            variant="success"
+            className="w-full sm:w-auto"
             disabled={selectedId === null || !isHost || loadingLoad}
             onClick={() => selectedId !== null && loadSimulation({ id: selectedId })}
           >
-            <Play />
+            <Play fill="currentColor" />
             Carregar e Iniciar Simulação
           </Button>
         </DialogFooter>

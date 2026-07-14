@@ -4,6 +4,7 @@ import Sidebar from "@/layouts/partial/sidebar";
 import Topbar from "@/layouts/partial/topbar";
 import type { NavItem } from "@/types";
 import { Outlet } from "react-router-dom";
+import { SidebarProvider } from "@/shared/components/ui/sidebar";
 
 interface LayoutProps {
   navItems: NavItem[];
@@ -15,7 +16,9 @@ export default function MainLayout({ navItems }: LayoutProps) {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar navItems={navItems} activePage={activePage} />
+      <SidebarProvider>
+        <Sidebar navItems={navItems} activePage={activePage} />
+      </SidebarProvider>
       <div className="flex-1 overflow-auto">
         <Topbar pageLabel={pageLabel} />
         <main className="p-6">
