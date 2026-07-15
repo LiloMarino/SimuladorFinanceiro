@@ -27,6 +27,7 @@ export function NotificationSettingsProvider({ children }: PropsWithChildren) {
   const preferences: NotificationPreferences = { ...DEFAULT_PREFERENCES, ...(data ?? {}) };
 
   const updateMutation = useApiMutation({
+    mutationKey: queryKeys.notificationSettings(),
     mutationFn: (next: NotificationPreferences) =>
       apiFetch<NotificationPreferences>("/api/settings", { method: "PUT", body: next }),
 
@@ -38,16 +39,21 @@ export function NotificationSettingsProvider({ children }: PropsWithChildren) {
       return { previous };
     },
 
-    // Se o PUT falhar, desfaz o valor otimista.
+    // Se o PUT falhar, desfaz o valor otimista — mas só se essa for a última
+    // mutação em voo: se o usuário já disparou outra mudança depois desta, é
+    // ela quem manda no cache, e não deixamos o rollback desta atropelar o
+    // sucesso da mais recente (ver "Concurrent Optimistic Updates" do TkDodo).
     onError: (err, _next, context) => {
-      if (context?.previous !== undefined) {
-        queryClient.setQueryData(queryKeys.notificationSettings(), context.previous);
+      if (queryClient.isMutating({ mutationKey: queryKeys.notificationSettings() }) === 1) {
+        queryClient.setQueryData(queryKeys.notificationSettings(), context?.previous);
       }
       toast.error(err.message);
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notificationSettings() });
+      if (queryClient.isMutating({ mutationKey: queryKeys.notificationSettings() }) === 1) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.notificationSettings() });
+      }
     },
   });
 

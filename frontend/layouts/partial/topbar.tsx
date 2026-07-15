@@ -1,8 +1,11 @@
 import clsx from "clsx";
+import { useQueryClient } from "@tanstack/react-query";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
+import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMoney } from "@/shared/lib/utils/display";
+import type { SimulationState } from "@/types";
 
 interface TopbarProps {
   pageLabel: string;
@@ -11,14 +14,37 @@ interface TopbarProps {
 const SPEED_OPTIONS = [0, 1, 2, 4, 10, 100];
 
 export default function Topbar({ pageLabel }: TopbarProps) {
+  const queryClient = useQueryClient();
   const { data: simData } = useSimulationState();
 
-  // Mutação para alterar velocidade — não escreve o cache diretamente: quem
-  // atualiza `speed` é o evento WS speed_update, via useSimulationState().
+  // Mutação para alterar velocidade — atualiza o cache otimisticamente no
+  // clique. O evento WS speed_update (via useSimulationState()) mantém os
+  // outros clientes sincronizados; o invalidate no onSettled é a rede de
+  // segurança caso esse broadcast se perca. mutationKey + o guard isMutating
+  // evitam que uma mutação antiga atropele o resultado de uma mais recente
+  // (ver https://tkdodo.eu/blog/concurrent-optimistic-updates-in-react-query).
   const { mutate: setSpeedApi, isPending: loading } = useApiMutation({
+    mutationKey: queryKeys.simulationState(),
     mutationFn: (speed: number) => apiFetch<{ speed: number }>("/api/set-speed", { method: "POST", body: { speed } }),
-    onError: (err) => {
+    onMutate: async (speed) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.simulationState() });
+      const previous = queryClient.getQueryData<SimulationState>(queryKeys.simulationState());
+      queryClient.setQueryData(queryKeys.simulationState(), (prev: SimulationState | undefined) => ({
+        ...prev,
+        speed,
+      }));
+      return { previous };
+    },
+    onError: (err, _speed, context) => {
+      if (queryClient.isMutating({ mutationKey: queryKeys.simulationState() }) === 1) {
+        queryClient.setQueryData(queryKeys.simulationState(), context?.previous);
+      }
       console.error("Erro ao alterar velocidade:", err);
+    },
+    onSettled: () => {
+      if (queryClient.isMutating({ mutationKey: queryKeys.simulationState() }) === 1) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.simulationState() });
+      }
     },
   });
 

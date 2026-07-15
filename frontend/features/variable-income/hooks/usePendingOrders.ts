@@ -38,7 +38,7 @@ export function usePendingOrders(ticker: string | undefined) {
         `order_updated:${ticker}`,
         ({ order }) => {
             setPendingOrders((prev) => {
-                if (!prev) return prev ?? [];
+                if (!prev) return [order];
                 return prev.map((o) => (o.id === order.id ? order : o));
             });
         },
