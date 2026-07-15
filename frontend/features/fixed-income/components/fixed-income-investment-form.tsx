@@ -4,18 +4,20 @@ import { Input } from "@/shared/components/ui/input";
 import type { InvestmentFormSchema } from "../schemas/investment-form";
 import type { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { normalizeNumberString } from "@/shared/lib/utils";
 
 interface FixedIncomeInvestmentFormProps {
   form: UseFormReturn<InvestmentFormSchema>;
-  id: string | undefined;
+  id: string;
   availableCash: number;
 }
 
 export function FixedIncomeInvestmentForm({ form, id, availableCash }: FixedIncomeInvestmentFormProps) {
-  const buyMutation = useMutationApi<{ quantity: number }>(`/api/fixed-income/${id}/buy`, {
+  const buyMutation = useApiMutation({
+    mutationFn: (payload: { quantity: number }) => apiFetch(`/api/fixed-income/${id}/buy`, { method: "POST", body: payload }),
     onSuccess: () => {
       toast.success("Investido com sucesso!");
     },
@@ -26,7 +28,7 @@ export function FixedIncomeInvestmentForm({ form, id, availableCash }: FixedInco
 
   const onSubmit = async (values: InvestmentFormSchema) => {
     const quantity = Number(normalizeNumberString(values.amount));
-    await buyMutation.mutate({
+    await buyMutation.mutateAsync({
       quantity,
     });
   };
@@ -72,9 +74,10 @@ export function FixedIncomeInvestmentForm({ form, id, availableCash }: FixedInco
         <Button
           type="submit"
           variant="default"
+          disabled={buyMutation.isPending}
           className="w-full bg-success hover:bg-success/90 text-success-foreground py-6 text-base font-semibold rounded-lg"
         >
-          Investir agora
+          {buyMutation.isPending ? "Investindo..." : "Investir agora"}
         </Button>
       </form>
     </Form>

@@ -1,8 +1,7 @@
 import { User } from "lucide-react";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { useRealtime } from "@/shared/hooks/useRealtime";
 import { stringToColor } from "@/shared/lib/utils";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
+import { useLobbyPlayers } from "../hooks/queries/useLobbyPlayers";
 
 interface LobbyPlayersListProps {
   maxPlayers: number;
@@ -10,28 +9,7 @@ interface LobbyPlayersListProps {
 
 export function LobbyPlayersList({ maxPlayers }: LobbyPlayersListProps) {
   const { user } = useAuth();
-  const { data: players, setData: setPlayers } = useQueryApi<{ nickname: string }[]>("/api/simulation/players");
-
-  // 🔹 Player entrou
-  useRealtime("player_join", ({ nickname }) => {
-    setPlayers((prev) => {
-      if (!prev) return [{ nickname }];
-
-      if (prev.some((p) => p.nickname === nickname)) {
-        return prev;
-      }
-
-      return [...prev, { nickname }];
-    });
-  });
-
-  // 🔹 Player saiu
-  useRealtime("player_exit", ({ nickname }) => {
-    setPlayers((prev) => {
-      if (!prev) return prev;
-      return prev.filter((p) => p.nickname !== nickname);
-    });
-  });
+  const { data: players } = useLobbyPlayers();
 
   const playersList = [...(players ?? [])].sort((a, b) => a.nickname.localeCompare(b.nickname));
   return (

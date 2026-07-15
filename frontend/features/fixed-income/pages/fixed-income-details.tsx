@@ -1,9 +1,13 @@
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { FixedIncomeAsset } from "@/features/fixed-income/models/FixedIncomeAsset";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
 import { useParams } from "react-router-dom";
-import { useRealtime } from "@/shared/hooks/useRealtime";
-import type { EconomicIndicators, FixedIncomeAssetApi, SimulationState } from "@/types";
+import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { useApiQuery } from "@/shared/lib/api/useApiQuery";
+import { queryKeys } from "@/shared/lib/queryKeys";
+import { economicIndicatorsOptions } from "@/shared/lib/queries/economicIndicatorsOptions";
+import type { FixedIncomeAssetApi } from "@/types";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { parse } from "date-fns";
 import { useForm } from "react-hook-form";
@@ -24,27 +28,19 @@ import { normalizeNumberString } from "@/shared/lib/utils";
 export default function FixedIncomeDetailPage() {
   usePageLabel("Detalhes Renda Fixa");
   const { id } = useParams<{ id: string }>();
-  const { data: assetData, loading: isAssetLoading } = useQueryApi<FixedIncomeAssetApi>(`/api/fixed-income/${id}`);
-  const { data: rates, loading: isRatesLoading } = useQueryApi<EconomicIndicators>("/api/economic-indicators");
-  const {
-    data: simData,
-    setData: setSimData,
-    loading: isSimLoading,
-  } = useQueryApi<SimulationState>("/api/get-simulation-state");
+  const { data: assetData, isLoading: isAssetLoading } = useApiQuery({
+    queryKey: queryKeys.fixedIncomeAsset(id ?? ""),
+    queryFn: ({ signal }) => apiFetch<FixedIncomeAssetApi>(`/api/fixed-income/${id}`, { signal }),
+    enabled: !!id,
+  });
+  const { data: rates, isLoading: isRatesLoading } = useQuery(economicIndicatorsOptions());
+  const { data: simData, isLoading: isSimLoading } = useSimulationState();
 
   const form = useForm<InvestmentFormSchema>({
     resolver: zodResolver(investmentFormSchema),
     defaultValues: {
       amount: formatMoney("0"),
     },
-  });
-
-  useRealtime("simulation_update", (update) => {
-    setSimData((prev) => ({ ...prev, ...update }));
-  });
-
-  useRealtime("cash_update", (update) => {
-    setSimData((prev) => ({ ...prev, ...update }));
   });
 
   const asset = useMemo(() => {
@@ -56,7 +52,7 @@ export default function FixedIncomeDetailPage() {
     return <LoadingPage />;
   }
 
-  if (!asset) {
+  if (!asset || !id) {
     return (
       <ErrorPage
         code="404"

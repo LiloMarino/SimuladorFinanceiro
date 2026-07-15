@@ -11,7 +11,8 @@ import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import type { SimulationInfo, SimulationSettingsData } from "@/types";
 import { toast } from "sonner";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
 import { useTunnel } from "@/shared/hooks/useTunnel";
 import { LobbySettingsDialog } from "./lobby-settings-dialog";
@@ -66,21 +67,23 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
     debounceMs: 400,
   });
 
-  const { mutate: createSimulation, loading: loadingCreate } = useMutationApi<
-    SimulationInfo,
-    { name: string; start_date: string; end_date: string; starting_cash: number; monthly_contribution: number }
-  >("/api/simulation/create", {
+  const { mutate: createSimulation, isPending: loadingCreate } = useApiMutation({
+    mutationFn: (body: {
+      name: string;
+      start_date: string;
+      end_date: string;
+      starting_cash: number;
+      monthly_contribution: number;
+    }) => apiFetch<SimulationInfo>("/api/simulation/create", { method: "POST", body }),
     onSuccess: () => toast.success("Simulação criada com sucesso!"),
     onError: (err) => toast.error(err.message),
   });
 
-  const { mutate: continueSimulation, loading: loadingContinue } = useMutationApi<SimulationInfo, void>(
-    "/api/simulation/continue",
-    {
-      onSuccess: () => toast.success("Simulação continuada com sucesso!"),
-      onError: (err) => toast.error(err.message),
-    }
-  );
+  const { mutate: continueSimulation, isPending: loadingContinue } = useApiMutation({
+    mutationFn: () => apiFetch<SimulationInfo>("/api/simulation/continue", { method: "POST" }),
+    onSuccess: () => toast.success("Simulação continuada com sucesso!"),
+    onError: (err) => toast.error(err.message),
+  });
 
   const copyHostIP = () => {
     navigator.clipboard.writeText(shareableLink);

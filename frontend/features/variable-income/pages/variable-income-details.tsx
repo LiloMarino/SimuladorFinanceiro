@@ -1,7 +1,4 @@
 import { useParams } from "react-router-dom";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
-import type { Position, StockDetails } from "@/types";
-import { useRealtime } from "@/shared/hooks/useRealtime";
 import { Card } from "@/shared/components/ui/card";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { StockChart } from "@/features/variable-income/components/stock-chart";
@@ -13,34 +10,20 @@ import { PositionSummaryCard } from "../components/position-summary-card";
 import { PendingOrdersCard } from "../components/pending-orders-table";
 import { NewOrderCard } from "../components/new-order-card";
 import { usePendingOrders } from "../hooks/usePendingOrders";
+import { useVariableIncomeStock } from "../hooks/queries/useVariableIncomeStock";
+import { usePortfolioCash } from "@/features/portfolio/hooks/queries/usePortfolioCash";
+import { usePortfolioPosition } from "@/features/portfolio/hooks/queries/usePortfolioPosition";
 import { VariableIncomeStock } from "../models/VariableIncomeStock";
 import { useMemo } from "react";
 
 export default function VariableIncomeDetailPage() {
   usePageLabel("Detalhes Renda Variável");
   const { ticker } = useParams<{ ticker: string }>();
-  const { data: stock, setData: setStock, loading } = useQueryApi<StockDetails>(`/api/variable-income/${ticker}`);
-  const { data: cashData, setData: setCash } = useQueryApi<{ cash: number }>("/api/portfolio/cash");
+  const { data: stock, isLoading: loading } = useVariableIncomeStock(ticker);
+  const { data: cashData } = usePortfolioCash();
   const { cash = 0 } = cashData ?? {};
   const pendingOrders = usePendingOrders(ticker);
-
-  useRealtime(`stock_update:${ticker}`, ({ stock }) => {
-    setStock((prev) => ({
-      ...prev,
-      ...stock,
-      history: prev?.history ?? [],
-    }));
-  });
-
-  useRealtime("cash_update", ({ cash }) => {
-    setCash({ cash });
-  });
-
-  const { data: position, setData: setPosition } = useQueryApi<Position>(`/api/portfolio/${ticker}`);
-
-  useRealtime(`position_update:${ticker}`, ({ position }) => {
-    setPosition(position);
-  });
+  const { data: position } = usePortfolioPosition(ticker);
 
   const stockModel = useMemo(() => {
     if (!stock) return null;
@@ -72,10 +55,10 @@ export default function VariableIncomeDetailPage() {
         {/* Ações + Resumo */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           {/* Ações */}
-          <NewOrderCard stock={stockModel} cash={cash} position={position} />
+          <NewOrderCard stock={stockModel} cash={cash} position={position ?? null} />
 
           {/* Resumo */}
-          <PositionSummaryCard stock={stock} position={position} />
+          <PositionSummaryCard stock={stock} position={position ?? null} />
         </div>
 
         <PendingOrdersCard ticker={stock.ticker} pendingOrders={pendingOrders} />

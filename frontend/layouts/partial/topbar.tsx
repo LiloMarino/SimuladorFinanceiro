@@ -1,8 +1,7 @@
 import clsx from "clsx";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
-import { useRealtime } from "@/shared/hooks/useRealtime";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
-import type { SimulationState } from "@/types";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { displayMoney } from "@/shared/lib/utils/display";
 
 interface TopbarProps {
@@ -12,26 +11,12 @@ interface TopbarProps {
 const SPEED_OPTIONS = [0, 1, 2, 4, 10, 100];
 
 export default function Topbar({ pageLabel }: TopbarProps) {
-  const { data: simData, setData: setSimData } = useQueryApi<SimulationState>("/api/get-simulation-state");
+  const { data: simData } = useSimulationState();
 
-  // Realtime updates
-  useRealtime("simulation_update", (update) => {
-    setSimData((prev) => ({ ...prev, ...update }));
-  });
-
-  useRealtime("speed_update", (update) => {
-    setSimData((prev) => ({ ...prev, ...update }));
-  });
-
-  useRealtime("cash_update", (update) => {
-    setSimData((prev) => ({ ...prev, ...update }));
-  });
-
-  // Mutações para alterar velocidade
-  const { mutate: setSpeedApi, loading } = useMutationApi<{ speed: number }>("/api/set-speed", {
-    onSuccess: (data) => {
-      setSimData((prev) => ({ ...prev, speed: data.speed }));
-    },
+  // Mutação para alterar velocidade — não escreve o cache diretamente: quem
+  // atualiza `speed` é o evento WS speed_update, via useSimulationState().
+  const { mutate: setSpeedApi, isPending: loading } = useApiMutation({
+    mutationFn: (speed: number) => apiFetch<{ speed: number }>("/api/set-speed", { method: "POST", body: { speed } }),
     onError: (err) => {
       console.error("Erro ao alterar velocidade:", err);
     },
@@ -39,7 +24,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
 
   const handleSpeedChange = (newSpeed: number) => {
     if (newSpeed === simData?.speed) return;
-    setSpeedApi({ speed: newSpeed });
+    setSpeedApi(newSpeed);
   };
 
   return (

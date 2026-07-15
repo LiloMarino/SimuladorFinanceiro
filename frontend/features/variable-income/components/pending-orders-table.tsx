@@ -6,7 +6,8 @@ import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type { Order } from "@/types";
 import { FileText, XCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { toast } from "sonner";
 
 interface PendingOrdersCardProps {
@@ -15,8 +16,9 @@ interface PendingOrdersCardProps {
 }
 
 export function PendingOrdersCard({ ticker, pendingOrders }: PendingOrdersCardProps) {
-  const cancelOrderMutation = useMutationApi(`/api/variable-income/${ticker}/orders`, {
-    method: "DELETE",
+  const cancelOrderMutation = useApiMutation({
+    mutationFn: (orderId: string) =>
+      apiFetch(`/api/variable-income/${ticker}/orders`, { method: "DELETE", body: { order_id: orderId } }),
     onSuccess: () => {
       toast.info("Ordem cancelada com sucesso!");
     },
@@ -26,7 +28,7 @@ export function PendingOrdersCard({ ticker, pendingOrders }: PendingOrdersCardPr
   });
 
   const handleCancelOrder = async (orderId: string) => {
-    await cancelOrderMutation.mutate({ order_id: orderId });
+    await cancelOrderMutation.mutateAsync(orderId);
   };
 
   if (pendingOrders.length === 0) {
@@ -145,7 +147,7 @@ export function PendingOrdersCard({ ticker, pendingOrders }: PendingOrdersCardPr
                         <TooltipTrigger asChild>
                           <button
                             onClick={() => handleCancelOrder(order.id)}
-                            disabled={!canCancel || cancelOrderMutation.loading}
+                            disabled={!canCancel || cancelOrderMutation.isPending}
                             className={clsx(
                               "p-1 rounded transition-colors",
                               canCancel

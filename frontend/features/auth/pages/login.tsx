@@ -15,10 +15,12 @@ import {
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
 import ApiError from "@/shared/lib/models/ApiError";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { queryKeys } from "@/shared/lib/queryKeys";
 import type { User } from "@/types";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 
 // Validação com Zod
 const nicknameSchema = z.object({
@@ -31,29 +33,25 @@ export function LoginPage() {
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { mutate: registerNickname, loading: registerNicknameLoading } = useMutationApi<User, { nickname: string }>(
-    "/api/user/register",
-    {
-      onSuccess: () => {
-        toast.success("Nickname registrado!");
-      },
-      onError: (err) => {
-        toast.error(err.message);
-      },
+  const { mutateAsync: registerNickname, isPending: registerNicknameLoading } = useApiMutation({
+    mutationFn: (body: { nickname: string }) => apiFetch<User>("/api/user/register", { method: "POST", body }),
+    onSuccess: () => {
+      toast.success("Nickname registrado!");
     },
-  );
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
 
-  const { mutate: claimNickname, loading: claimNicknameLoading } = useMutationApi<User, { nickname: string }>(
-    "/api/user/claim",
-    {
-      onSuccess: () => {
-        toast.success("Nickname recuperado!");
-      },
-      onError: (err) => {
-        toast.error(err.message);
-      },
+  const { mutateAsync: claimNickname, isPending: claimNicknameLoading } = useApiMutation({
+    mutationFn: (body: { nickname: string }) => apiFetch<User>("/api/user/claim", { method: "POST", body }),
+    onSuccess: () => {
+      toast.success("Nickname recuperado!");
     },
-  );
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
 
   const form = useForm<NicknameForm>({
     resolver: zodResolver(nicknameSchema),
@@ -63,7 +61,7 @@ export function LoginPage() {
   const onSubmit = async (values: NicknameForm) => {
     try {
       await registerNickname(values);
-      queryClient.invalidateQueries({ queryKey: ["auth", "session"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.authSession() });
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         setModalOpen(true);
@@ -76,7 +74,7 @@ export function LoginPage() {
   const confirmClaim = async () => {
     const nickname = form.getValues("nickname");
     await claimNickname({ nickname });
-    queryClient.invalidateQueries({ queryKey: ["auth", "session"] });
+    queryClient.invalidateQueries({ queryKey: queryKeys.authSession() });
     setModalOpen(false);
   };
 

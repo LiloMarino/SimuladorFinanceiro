@@ -1,15 +1,19 @@
+import { useQuery } from "@tanstack/react-query";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useNavigate } from "react-router-dom";
 import { LobbyPlayersList } from "../components/lobby-player-list";
 import { LobbySimulationForm } from "../components/lobby-simulation-form";
-import type { SimulationSettings } from "@/types";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
+import { simulationSettingsOptions } from "@/shared/lib/queries/simulationSettingsOptions";
 import { LoadingPage } from "@/pages/loading";
 import { ErrorPage } from "@/pages/error";
 
 export function LobbyPage() {
   const navigate = useNavigate();
-  const { data: settings, loading, error } = useQueryApi<SimulationSettings>("/api/simulation/settings");
+  const {
+    data: settings,
+    isLoading: loading,
+    error,
+  } = useQuery(simulationSettingsOptions());
 
   useRealtime("simulation_started", (simulation) => {
     if (simulation.active) {

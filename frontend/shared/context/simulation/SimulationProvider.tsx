@@ -1,22 +1,21 @@
 import type { PropsWithChildren } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { SimulationContext } from "./SimulationContext";
 import type { SimulationInfo } from "@/types";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { handleApiResponse } from "@/shared/lib/utils/api";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { useApiQuery } from "@/shared/lib/api/useApiQuery";
+import { queryKeys } from "@/shared/lib/queryKeys";
 
 export function SimulationProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const { data: simulation, isLoading: loading } = useQuery({
-    queryKey: ["simulation", "status"],
-    queryFn: async () => {
-      const res = await fetch("/api/simulation/status", { credentials: "include" });
-      return handleApiResponse<SimulationInfo>(res);
-    },
+  const { data: simulation, isLoading: loading } = useApiQuery({
+    queryKey: queryKeys.simulationStatus(),
+    queryFn: ({ signal }) => apiFetch<SimulationInfo>("/api/simulation/status", { signal }),
     staleTime: 1 * 60 * 1000, // 1min (simulação muda mais rápido)
     gcTime: 5 * 60 * 1000, // 5min cache
   });
@@ -25,7 +24,7 @@ export function SimulationProvider({ children }: PropsWithChildren) {
     "simulation_started",
     (payload) => {
       if (payload?.active) {
-        queryClient.setQueryData(["simulation", "status"], payload);
+        queryClient.setQueryData(queryKeys.simulationStatus(), payload);
       }
     },
     true,
@@ -34,7 +33,7 @@ export function SimulationProvider({ children }: PropsWithChildren) {
   useRealtime(
     "simulation_ended",
     (payload) => {
-      queryClient.setQueryData(["simulation", "status"], { active: false });
+      queryClient.setQueryData(queryKeys.simulationStatus(), { active: false });
 
       const reason =
         payload.reason === "stopped_by_host"

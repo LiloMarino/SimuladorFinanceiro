@@ -1,65 +1,42 @@
 import { useCallback, useEffect, type PropsWithChildren } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { AuthContext } from "./AuthContext";
 import type { Session } from "@/types";
-import { handleApiResponse } from "@/shared/lib/utils/api";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { useApiQuery } from "@/shared/lib/api/useApiQuery";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { queryKeys } from "@/shared/lib/queryKeys";
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
 
   // Mutation: Inicializa uma nova sessão
-  const { mutateAsync: initSession, isPending: initLoading } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch("/api/session/init", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({}),
-      });
-      return handleApiResponse<Session>(res);
-    },
+  const { mutateAsync: initSession, isPending: initLoading } = useApiMutation({
+    mutationFn: () => apiFetch<Session>("/api/session/init", { method: "POST", body: {} }),
     onSuccess: (data) => {
-      queryClient.setQueryData(["auth", "session"], data);
+      queryClient.setQueryData(queryKeys.authSession(), data);
     },
   });
 
   // Query: Sessão atual
-  const { data: session, isLoading: sessionLoading } = useQuery({
-    queryKey: ["auth", "session"],
-    queryFn: async () => {
-      const res = await fetch("/api/session/me", { credentials: "include" });
-      return handleApiResponse<Session>(res);
-    },
+  const { data: session, isLoading: sessionLoading } = useApiQuery({
+    queryKey: queryKeys.authSession(),
+    queryFn: ({ signal }) => apiFetch<Session>("/api/session/me", { signal }),
   });
 
   // Mutation: Logout
-  const { mutateAsync: logoutApi, isPending: logoutLoading } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch("/api/session/logout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({}),
-      });
-      return handleApiResponse<void>(res);
-    },
+  const { mutateAsync: logoutApi, isPending: logoutLoading } = useApiMutation({
+    mutationFn: () => apiFetch<void>("/api/session/logout", { method: "POST", body: {} }),
     onSuccess: async () => {
-      queryClient.setQueryData(["auth", "session"], null);
+      queryClient.setQueryData(queryKeys.authSession(), null);
     },
   });
 
   // Mutation: Delete account
-  const { mutateAsync: deleteAccountApi, isPending: deleteLoading } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch("/api/user", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-      return handleApiResponse<void>(res);
-    },
+  const { mutateAsync: deleteAccountApi, isPending: deleteLoading } = useApiMutation({
+    mutationFn: () => apiFetch<void>("/api/user", { method: "DELETE" }),
     onSuccess: async () => {
-      queryClient.setQueryData(["auth", "session"], null);
+      queryClient.setQueryData(queryKeys.authSession(), null);
     },
   });
 

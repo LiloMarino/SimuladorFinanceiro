@@ -1,19 +1,17 @@
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { Input } from "@/shared/components/ui/input";
 import { NotificationSettingsForm } from "../components/notifications-settings-form";
 import { AccountSettings } from "../components/account-settings";
 import { SimulationControl } from "../components/simulation-control";
 import { SettingsSection } from "../components/settings-section";
-import type { SimulationSettings } from "@/types";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
+import { simulationSettingsOptions } from "@/shared/lib/queries/simulationSettingsOptions";
 
 export default function SettingsPage() {
   const { user } = useAuth();
-  
+
   // Verificar se o usuário é host
-  const { data: settings } = useQueryApi<SimulationSettings>("/api/simulation/settings", {
-    initialFetch: true,
-  });
+  const { data: settings } = useQuery(simulationSettingsOptions());
 
   const isHost = settings?.is_host ?? false;
   return (

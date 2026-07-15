@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search, Play } from "lucide-react";
 import { toast } from "sonner";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 
 import {
   Dialog,
@@ -14,8 +16,8 @@ import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Spinner } from "@/shared/components/ui/spinner";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayDate, displayMoneyCompact } from "@/shared/lib/utils/display";
 import { cn } from "@/shared/lib/utils";
 import type { SimulationInfo, SimulationListItem } from "@/types";
@@ -30,8 +32,10 @@ export function LoadSimulationDialog({ open, onOpenChange, isHost }: LoadSimulat
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const { data, loading, error, query } = useQueryApi<SimulationListItem[]>("/api/simulation/list", {
-    initialFetch: false,
+  const { data, isLoading: loading, error, refetch } = useApiQuery({
+    queryKey: queryKeys.simulationList(),
+    queryFn: ({ signal }) => apiFetch<SimulationListItem[]>("/api/simulation/list", { signal }),
+    enabled: false,
   });
 
   // Recarrega a lista (e reseta a seleção/busca) sempre que o dialog abre,
@@ -40,17 +44,15 @@ export function LoadSimulationDialog({ open, onOpenChange, isHost }: LoadSimulat
     if (open) {
       setSearch("");
       setSelectedId(null);
-      void query();
+      void refetch();
     }
-  }, [open, query]);
+  }, [open, refetch]);
 
-  const { mutate: loadSimulation, loading: loadingLoad } = useMutationApi<SimulationInfo, { id: number }>(
-    "/api/simulation/load",
-    {
-      onSuccess: () => onOpenChange(false),
-      onError: (err) => toast.error(err.message),
-    }
-  );
+  const { mutate: loadSimulation, isPending: loadingLoad } = useApiMutation({
+    mutationFn: (body: { id: number }) => apiFetch<SimulationInfo>("/api/simulation/load", { method: "POST", body }),
+    onSuccess: () => onOpenChange(false),
+    onError: (err) => toast.error(err.message),
+  });
 
   const items = useMemo(() => {
     const term = search.trim().toLowerCase();

@@ -3,7 +3,8 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/shared/components/ui/form";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { OrderAction, OrderType, Position } from "@/types";
 import clsx from "clsx";
@@ -64,24 +65,26 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
     },
   });
 
-  const executeOrderMutation = useMutationApi<{ order_id: string; status: string }>(
-    `/api/variable-income/${stock.ticker}/orders`,
-    {
-      onSuccess: (data) => {
-        if (data.status === "PARTIAL") {
-          toast.warning("Ordem executada parcialmente", {
-            description: "Não foi possível completar a execução por falta de liquidez",
-          });
-        } else {
-          toast.success("Ordem enviada com sucesso!");
-        }
-        form.reset();
-      },
-      onError: (err) => {
-        toast.error(err.message);
-      },
+  const executeOrderMutation = useApiMutation({
+    mutationFn: (payload: NewOrderFormOutput) =>
+      apiFetch<{ order_id: string; status: string }>(`/api/variable-income/${stock.ticker}/orders`, {
+        method: "POST",
+        body: payload,
+      }),
+    onSuccess: (data) => {
+      if (data.status === "PARTIAL") {
+        toast.warning("Ordem executada parcialmente", {
+          description: "Não foi possível completar a execução por falta de liquidez",
+        });
+      } else {
+        toast.success("Ordem enviada com sucesso!");
+      }
+      form.reset();
     },
-  );
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
 
   const type = form.watch("type");
   const action = form.watch("action");
@@ -105,7 +108,7 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
       }),
     };
 
-    await executeOrderMutation.mutate(payload);
+    await executeOrderMutation.mutateAsync(payload);
   };
 
   return (
@@ -257,10 +260,10 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
           {/* Botão */}
           <Button
             type="submit"
-            disabled={executeOrderMutation.loading}
+            disabled={executeOrderMutation.isPending}
             variant={action === "buy" ? "default" : "destructive"}
           >
-            {executeOrderMutation.loading ? (
+            {executeOrderMutation.isPending ? (
               <Spinner className="h-4 w-4" />
             ) : (
               <>

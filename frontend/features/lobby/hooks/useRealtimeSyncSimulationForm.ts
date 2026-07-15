@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { useDebounce } from "use-debounce";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { SimulationSettingsData } from "@/types";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { toast } from "sonner";
 import type { SimulationFormValues } from "../components/lobby-simulation-form";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
@@ -26,11 +27,14 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
   /** Mantém o último payload REAL enviado à API */
   const lastSentRef = useRef<SimulationSettingsData | null>(initial);
 
-  const { mutate: updateSettings } = useMutationApi<
-    SimulationSettingsData,
-    { name: string; start_date: string; end_date: string; starting_cash: number; monthly_contribution: number }
-  >("/api/simulation/settings", {
-    method: "PUT",
+  const { mutateAsync: updateSettings } = useApiMutation({
+    mutationFn: (body: {
+      name: string;
+      start_date: string;
+      end_date: string;
+      starting_cash: number;
+      monthly_contribution: number;
+    }) => apiFetch<SimulationSettingsData>("/api/simulation/settings", { method: "PUT", body }),
     onSuccess: () => {
       toast.success("Configurações sincronizadas");
     },

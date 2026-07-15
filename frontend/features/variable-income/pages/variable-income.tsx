@@ -1,16 +1,10 @@
 import StockCard from "@/features/variable-income/components/stock-card";
 import { ErrorPage } from "@/pages/error";
 import { LoadingPage } from "@/pages/loading";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
-import { useRealtime } from "@/shared/hooks/useRealtime";
-import type { Stock } from "@/types";
+import { useVariableIncomeStocks } from "@/features/variable-income/hooks/queries/useVariableIncomeStocks";
 
 export default function VariableIncomePage() {
-  const { data: stocks, setData: setStocks, loading, error } = useQueryApi<Stock[]>("/api/variable-income");
-
-  useRealtime("stocks_update", (data) => {
-    setStocks(data.stocks);
-  });
+  const { data: stocks, isLoading: loading, error } = useVariableIncomeStocks();
 
   if (loading) {
     return <LoadingPage />;

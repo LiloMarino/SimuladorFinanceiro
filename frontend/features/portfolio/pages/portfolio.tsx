@@ -1,9 +1,10 @@
 import { Wallet, TrendingUp, Coins, Banknote } from "lucide-react";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
+import { useQuery } from "@tanstack/react-query";
 import usePageLabel from "@/shared/hooks/usePageLabel";
-import type { EconomicIndicators, PortfolioState, Stock } from "@/types";
+import { economicIndicatorsOptions } from "@/shared/lib/queries/economicIndicatorsOptions";
+import { usePortfolio } from "@/features/portfolio/hooks/queries/usePortfolio";
+import { useVariableIncomeStocks } from "@/features/variable-income/hooks/queries/useVariableIncomeStocks";
 import { displayPercent } from "@/shared/lib/utils/display";
-import { useRealtime } from "@/shared/hooks/useRealtime";
 import { SummaryCard } from "@/features/portfolio/components/summary-card";
 import { PortfolioCharts } from "../components/portfolio-charts";
 import { useMemo } from "react";
@@ -16,74 +17,18 @@ import { LoadingPage } from "@/pages/loading";
 
 export default function PortfolioPage() {
   usePageLabel("Carteira");
-  // Busca dados da carteira
-  const {
-    data: portfolioData,
-    setData: setPortfolioData,
-    loading: portfolioLoading,
-    error: portfolioError,
-  } = useQueryApi<PortfolioState>("/api/portfolio");
+  // Busca dados da carteira (posições, caixa, histórico — mantida viva via WS)
+  const { data: portfolioData, isLoading: portfolioLoading, error: portfolioError } = usePortfolio();
 
   // Busca dados econômicos
-  const { data: economicIndicatorsData, loading: economicIndicatorsLoading } =
-    useQueryApi<EconomicIndicators>("/api/economic-indicators");
+  const { data: economicIndicatorsData, isLoading: economicIndicatorsLoading } = useQuery(economicIndicatorsOptions());
 
-  // Atualiza o histórico patrimonial em tempo real
-  useRealtime("snapshot_update", ({ snapshot }) => {
-    setPortfolioData((prev) => {
-      if (!prev) return prev;
-
-      const map = new Map(prev.patrimonial_history.map((h) => [h.snapshot_date, h]));
-
-      map.set(snapshot.snapshot_date, {
-        snapshot_date: snapshot.snapshot_date,
-        total_networth: String(snapshot.total_networth),
-        total_equity: String(snapshot.total_equity),
-        total_fixed: String(snapshot.total_fixed),
-        total_cash: String(snapshot.total_cash),
-        total_contribution: String(snapshot.total_contribution),
-      });
-
-      return {
-        ...prev,
-        patrimonial_history: Array.from(map.values()).sort((a, b) => a.snapshot_date.localeCompare(b.snapshot_date)),
-      };
-    });
-  });
-
-  // Busca os valores das ações e os atualiza em tempo real
-  const { data: stocks, setData: setStocks } = useQueryApi<Stock[]>("/api/variable-income");
-  useRealtime("stocks_update", (data) => {
-    setStocks(data.stocks);
-  });
-
-  // Atualiza os valores da renda fixa em tempo real
-  useRealtime("fixed_income_position_update", (data) => {
-    setPortfolioData((prev) => {
-      if (!prev) return prev;
-
-      return {
-        ...prev,
-        fixed_income: data.positions,
-      };
-    });
-  });
-
-  // Atualiza o saldo em tempo real (ex.: resgates)
-  useRealtime("cash_update", ({ cash }) => {
-    setPortfolioData((prev) => {
-      if (!prev) return prev;
-
-      return {
-        ...prev,
-        cash,
-      };
-    });
-  });
+  // Busca os valores das ações (mantidos vivos via WS)
+  const { data: stocks } = useVariableIncomeStocks();
 
   const view = useMemo(() => {
     if (!portfolioData) return null;
-    return calculatePortfolioView(portfolioData, stocks);
+    return calculatePortfolioView(portfolioData, stocks ?? null);
   }, [portfolioData, stocks]);
 
   if (portfolioLoading) {
@@ -161,7 +106,7 @@ export default function PortfolioPage() {
       />
 
       {/* Economic Indicators */}
-      <EconomicIndicatorsCard loading={economicIndicatorsLoading} data={economicIndicatorsData} />
+      <EconomicIndicatorsCard loading={economicIndicatorsLoading} data={economicIndicatorsData ?? null} />
 
       {/* Positions Tables */}
       <div className="space-y-6">

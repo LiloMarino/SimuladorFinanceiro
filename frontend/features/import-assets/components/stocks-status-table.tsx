@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { Button } from "@/shared/components/ui/button";
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayDate } from "@/shared/lib/utils/display";
 import { toast } from "sonner";
 
@@ -27,11 +30,24 @@ function isOutdated(lastDate: string | null): boolean {
 }
 
 export function StocksStatusTable() {
-  const { data, loading, query } = useQueryApi<StockStatus[]>("/api/import-assets/status");
-  const batchMutation = useMutationApi<unknown, { tickers: string[]; overwrite: boolean }>(
-    "/api/import-assets/yfinance/batch",
-  );
-  const singleMutation = useMutationApi<unknown, { ticker: string; overwrite: boolean }>("/api/import-assets/yfinance");
+  const queryClient = useQueryClient();
+  const { data, isLoading: loading } = useApiQuery({
+    queryKey: queryKeys.importAssetsStatus(),
+    queryFn: ({ signal }) => apiFetch<StockStatus[]>("/api/import-assets/status", { signal }),
+  });
+
+  const invalidateStatus = () => queryClient.invalidateQueries({ queryKey: queryKeys.importAssetsStatus() });
+
+  const batchMutation = useApiMutation({
+    mutationFn: (payload: { tickers: string[]; overwrite: boolean }) =>
+      apiFetch("/api/import-assets/yfinance/batch", { method: "POST", body: payload }),
+    onSettled: invalidateStatus,
+  });
+  const singleMutation = useApiMutation({
+    mutationFn: (payload: { ticker: string; overwrite: boolean }) =>
+      apiFetch("/api/import-assets/yfinance", { method: "POST", body: payload }),
+    onSettled: invalidateStatus,
+  });
 
   const [updatingTickers, setUpdatingTickers] = useState<Set<string>>(new Set());
   const [updatingAll, setUpdatingAll] = useState(false);
@@ -44,9 +60,8 @@ export function StocksStatusTable() {
     setUpdatingTickers((prev) => new Set(prev).add(ticker));
     const toastId = toast.loading(`Atualizando ${ticker}...`);
     try {
-      await singleMutation.mutate({ ticker, overwrite: false });
+      await singleMutation.mutateAsync({ ticker, overwrite: false });
       toast.success(`${ticker} atualizado com sucesso!`, { id: toastId });
-      await query();
     } catch {
       toast.error(`Falha ao atualizar ${ticker}.`, { id: toastId });
     } finally {
@@ -64,9 +79,8 @@ export function StocksStatusTable() {
     const tickers = outdatedStocks.map((s) => s.ticker);
     const toastId = toast.loading(`Atualizando ${tickers.length} ativos...`);
     try {
-      await batchMutation.mutate({ tickers, overwrite: false });
+      await batchMutation.mutateAsync({ tickers, overwrite: false });
       toast.success(`${tickers.length} ativos atualizados com sucesso!`, { id: toastId });
-      await query();
     } catch {
       toast.error("Falha ao atualizar ativos em lote.", { id: toastId });
     } finally {

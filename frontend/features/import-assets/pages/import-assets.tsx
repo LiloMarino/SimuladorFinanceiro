@@ -9,8 +9,9 @@ import {
   AlertDialogDescription,
 } from "@/shared/components/ui/alert-dialog";
 
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
-import { useFormDataMutation } from "@/shared/hooks/useFormDataMutation";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { toFormData } from "@/shared/lib/api/toFormData";
 import { toast } from "sonner";
 import type { CsvFormData } from "@/features/import-assets/components/csv-form";
 import type { YFinanceFormData } from "@/features/import-assets/components/yfinance-form";
@@ -24,8 +25,14 @@ export default function ImportAssetsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingImport, setPendingImport] = useState<ImportFormData | null>(null);
 
-  const csvMutation = useFormDataMutation("/api/import-assets/csv");
-  const yFinanceMutation = useMutationApi("/api/import-assets/yfinance");
+  const csvMutation = useApiMutation({
+    mutationFn: (payload: { ticker: string; overwrite: boolean; csv_file: File }) =>
+      apiFetch("/api/import-assets/csv", { method: "POST", body: toFormData(payload) }),
+  });
+  const yFinanceMutation = useApiMutation({
+    mutationFn: (payload: { ticker: string; overwrite: boolean }) =>
+      apiFetch("/api/import-assets/yfinance", { method: "POST", body: payload }),
+  });
 
   const handleConfirm = async () => {
     if (!pendingImport) return;
@@ -41,14 +48,14 @@ export default function ImportAssetsPage() {
 
       if (pendingImport.type === "csv") {
         const { csv_file, ticker, overwrite } = pendingImport.data;
-        await csvMutation.mutate({
+        await csvMutation.mutateAsync({
           ticker,
           overwrite,
           csv_file,
         });
         toast.success("Importação CSV concluída!", { id: toastId });
       } else {
-        await yFinanceMutation.mutate({
+        await yFinanceMutation.mutateAsync({
           ticker: pendingImport.data.ticker,
           overwrite: pendingImport.data.overwrite ?? false,
         });

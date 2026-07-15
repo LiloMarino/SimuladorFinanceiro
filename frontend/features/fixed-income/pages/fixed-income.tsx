@@ -1,23 +1,14 @@
-import { useQueryApi } from "@/shared/hooks/useQueryApi";
-import { useRealtime } from "@/shared/hooks/useRealtime";
+import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
+import { useFixedIncomeAssets } from "@/features/fixed-income/hooks/queries/useFixedIncomeAssets";
 import { FixedIncomeAsset } from "@/features/fixed-income/models/FixedIncomeAsset";
-import type { FixedIncomeAssetApi, SimulationState } from "@/types";
 import { parse } from "date-fns";
 import FixedIncomeCard from "@/features/fixed-income/components/fixed-income-card";
 import { LoadingPage } from "@/pages/loading";
 import { ErrorPage } from "@/pages/error";
 
 export default function FixedIncomePage() {
-  const { data: assets, setData: setAssets, loading, error } = useQueryApi<FixedIncomeAssetApi[]>("/api/fixed-income");
-  const { data: simData, setData: setSimData } = useQueryApi<SimulationState>("/api/get-simulation-state");
-
-  useRealtime("simulation_update", (update) => {
-    setSimData((prev) => ({ ...prev, ...update }));
-  });
-
-  useRealtime("fixed_assets_update", ({ assets }) => {
-    setAssets(assets);
-  });
+  const { data: assets, isLoading: loading, error } = useFixedIncomeAssets();
+  const { data: simData } = useSimulationState();
 
   if (loading) {
     return <LoadingPage />;

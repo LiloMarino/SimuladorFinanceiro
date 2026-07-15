@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useMutationApi } from "@/shared/hooks/useMutationApi";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -17,22 +18,19 @@ export function SimulationControl() {
   const [showStopConfirm, setShowStopConfirm] = useState(false);
 
   // Mutação para encerrar simulação
-  const { mutate: stopSimulation, loading: stoppingSimulation } = useMutationApi(
-    "/api/simulation/stop",
-    {
-      method: "POST",
-      onSuccess: () => {
-        toast.success("Simulação encerrada com sucesso!");
-        setShowStopConfirm(false);
-      },
-      onError: (err) => {
-        toast.error(err.message);
-      },
-    }
-  );
+  const { mutate: stopSimulation, isPending: stoppingSimulation } = useApiMutation({
+    mutationFn: () => apiFetch("/api/simulation/stop", { method: "POST" }),
+    onSuccess: () => {
+      toast.success("Simulação encerrada com sucesso!");
+      setShowStopConfirm(false);
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
 
   const handleStopSimulation = () => {
-    stopSimulation({});
+    stopSimulation();
     setShowStopConfirm(false);
   };
 
