@@ -54,16 +54,14 @@ git clone https://github.com/LiloMarino/SimuladorFinanceiro.git
 cd SimuladorFinanceiro
 ```
 
-**Backend (Python 3.13+ via [uv](https://docs.astral.sh/uv/))**
+**Dependências (Python 3.13+ via [uv](https://docs.astral.sh/uv/), Node.js + pnpm)**
 ```bash
-uv sync
+pnpm install     # ferramentas da raiz (concurrently, cross-env)
+pnpm run setup   # uv sync --dev + pnpm install no frontend
 ```
 
-**Frontend (Node.js + pnpm)**
-```bash
-cd frontend
-pnpm install
-```
+> [!NOTE]
+> `pnpm setup` (sem `run`) é um comando nativo do pnpm e não executa o script do projeto.
 
 **Configuração (Opcional)**
 ```bash
@@ -91,13 +89,12 @@ Isso inicia o backend e o frontend simultaneamente via `concurrently`.
 
 **Backend (Terminal 1):**
 ```bash
-uv run python main.py
+pnpm backend
 ```
 
 **Frontend (Terminal 2):**
 ```bash
-cd frontend
-pnpm dev
+pnpm frontend
 ```
 
 Acesse: `http://localhost:5173` (frontend dev) ou `http://localhost:8000` (backend direto)
@@ -105,11 +102,35 @@ Acesse: `http://localhost:5173` (frontend dev) ou `http://localhost:8000` (backe
 ### Modo Produção (Compilado)
 
 ```bash
-make build
+pnpm build
 ./dist/SimuladorFinanceiro
 ```
 
 Acesse: `http://localhost:8000`
+
+### Comandos de Desenvolvimento
+
+Todos os comandos rodam a partir da raiz com `pnpm <script>`:
+
+| Script | O que faz |
+|---|---|
+| `check` | lint + typecheck + testes do backend + check do frontend |
+| `test` / `test:cov` | testes do backend (pytest) / com relatório de cobertura |
+| `lint` / `lint:fix` / `format` | ruff check / com correção automática / ruff format |
+| `typecheck` | pyright |
+| `build` / `build:frontend` / `build:exe` | build completo / só o frontend / só o executável (PyInstaller) |
+| `radon` / `radon:mi` / `radon:cc` | métricas de código (JSON) / índice de manutenibilidade / complexidade ciclomática |
+| `profile` / `profile:view` | cProfile do backend + snakeviz / reabre o último perfil |
+| `profile:line` / `profile:line:view` | line_profiler do backend / visualiza o resultado |
+| `clean` / `clean:build` | remove artefatos de profiling e métricas / remove `build`, `dist` e `backend/static` |
+
+Os testes do backend cobrem o domínio em memória e não precisam do PostgreSQL.
+
+Como ler as métricas:
+
+- **Cobertura** (`test:cov`): fração das linhas do backend que algum teste executa. 60% de 3.000 linhas são 1.200 linhas que nenhum teste passa; a coluna `Missing` aponta quais.
+- **Complexidade ciclomática** (`radon:cc`): quantos caminhos de execução uma função tem (cada `if`, `for` ou `case` soma um). Nota A (1–5) é simples de ler e testar; a partir de C (11+) vale quebrar a função.
+- **Índice de manutenibilidade** (`radon:mi`): nota de 0 a 100 que combina tamanho, complexidade e volume de código. A (20–100) é saudável; B (10–19) e C (0–9) indicam arquivo difícil de manter.
 
 ## 🛠️ Stack Tecnológica
 

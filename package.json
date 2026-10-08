@@ -2,11 +2,33 @@
   "name": "simulador-financeiro-dev",
   "private": true,
   "scripts": {
+    "setup": "uv sync --dev && cd frontend && pnpm install",
     "backend": "uv run python main.py",
     "frontend": "cd frontend && pnpm run dev",
-    "dev": "concurrently --kill-others -n backend,frontend -c cyan,yellow \"pnpm run backend\" \"pnpm run frontend\""
+    "dev": "concurrently --kill-others -n backend,frontend -c cyan,yellow \"pnpm run backend\" \"pnpm run frontend\"",
+    "lint": "uv run ruff check",
+    "lint:fix": "uv run ruff check --fix",
+    "format": "uv run ruff format",
+    "typecheck": "uv run pyright",
+    "test": "uv run pytest",
+    "test:cov": "uv run pytest --cov=backend --cov-report=term-missing",
+    "front:check": "cd frontend && pnpm run check",
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run front:check",
+    "build": "pnpm run build:frontend && pnpm run build:exe",
+    "build:frontend": "cd frontend && pnpm run build",
+    "build:exe": "uv run --group build pyinstaller SimuladorFinanceiro.spec --clean --noconfirm",
+    "radon:mi": "uv run radon mi main.py backend/ -s",
+    "radon:cc": "uv run radon cc main.py backend/ -s -a && uv run radon cc main.py backend/ -s -a -O cc.txt",
+    "radon": "uv run radon cc main.py backend/ -s -a -j -O cc.json && uv run radon mi main.py backend/ -s -j -O mi.json && uv run radon hal main.py backend/ -j -O hal.json",
+    "profile": "uv run python -m cProfile -o cprofile.prof main.py && uv run snakeviz cprofile.prof",
+    "profile:view": "uv run snakeviz cprofile.prof",
+    "profile:line": "cross-env LINE_PROFILE=1 uv run python main.py",
+    "profile:line:view": "uv run python -m line_profiler lineprofile.lprof",
+    "clean": "uv run python -c \"from pathlib import Path; [f.unlink() for pattern in ['*.prof', '*.lprof', 'cc.json', 'mi.json', 'hal.json'] for f in Path('.').glob(pattern)]\"",
+    "clean:build": "uv run python -c \"import shutil; [shutil.rmtree(d, ignore_errors=True) for d in ['backend/static', 'build', 'dist']]\""
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0"
   }
 }
