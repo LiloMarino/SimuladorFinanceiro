@@ -18,6 +18,9 @@ dependencies = [
     "yfinance>=1.4.1",
 ]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.ruff]
 line-length = 88
 target-version = "py313"
@@ -57,6 +60,7 @@ dev = [
     "matplotlib>=3.10.9",
     "pyright>=1.1.410",
     "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
     "pyyaml>=6.0.3",
     "radon>=6.0.1",
     "ruff>=0.15.16",
