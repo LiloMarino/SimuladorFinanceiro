@@ -14,7 +14,11 @@ from backend.core.dto.events.fixed_income import (
 )
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.enum import FixedIncomeEventType
-from backend.core.exceptions.http_exceptions import ConflictError
+from backend.core.exceptions import InsufficentCashError
+from backend.core.exceptions.http_exceptions import (
+    ConflictError,
+    UnprocessableEntityError,
+)
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import next_business_day
@@ -107,7 +111,9 @@ class FixedBroker:
 
     def buy(self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal):
         if value <= 0:
-            raise ValueError("Valor do investimento deve ser maior que zero")
+            raise UnprocessableEntityError(
+                "Valor do investimento deve ser maior que zero"
+            )
 
         if self._simulation_engine.current_date >= asset.maturity_date:
             raise ConflictError(
@@ -116,7 +122,9 @@ class FixedBroker:
 
         with self._lock:
             if self._simulation_engine.get_cash(client_id) < value:
-                raise ValueError(f"Saldo insuficiente para investir em {asset.name}")
+                raise InsufficentCashError(
+                    f"Saldo insuficiente para investir em {asset.name}"
+                )
 
             self._simulation_engine.add_cash(client_id, -value)
 
