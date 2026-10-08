@@ -1,12 +1,13 @@
 import { displayPercent } from "@/shared/lib/utils/display";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { TAX_TABLE, FixedIncomeAsset } from "../models/FixedIncomeAsset";
+import { TAX_TABLE } from "../models/FixedIncomeAsset";
+import type { FixedIncomeProjection } from "@/types";
 
 interface FixedIncomeTaxTableProps {
-  asset: FixedIncomeAsset;
+  projection: FixedIncomeProjection;
 }
 
-export function FixedIncomeTaxTable({ asset }: FixedIncomeTaxTableProps) {
+export function FixedIncomeTaxTable({ projection }: FixedIncomeTaxTableProps) {
   return (
     <div className="lg:col-span-1">
       <h4 className="font-semibold text-slate-900 mb-4">Tabela Regressiva de IR</h4>
@@ -21,7 +22,7 @@ export function FixedIncomeTaxTable({ asset }: FixedIncomeTaxTableProps) {
           </TableHeader>
           <TableBody>
             {TAX_TABLE.map((row, idx) => {
-              const isActive = asset.incomeTaxRate === row.rate;
+              const isActive = Number(projection.income_tax_rate) === Number(row.rate);
 
               return (
                 <TableRow

@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.fixed_income_asset import (
@@ -49,10 +50,9 @@ class TesouroFactory(AbstractFixedIncomeFactory):
         maturity_year = maturity_date.year
         rate = self._generate_prefixado_rate(
             current_date,
-            base_index=lambda current_date: repository.economic.get_selic_rate(
-                current_date
-            )
-            - 0.01,  # Redução de 1% devido ao longo prazo
+            base_index=lambda current_date: (
+                repository.economic.get_selic_rate(current_date) - Decimal("0.01")
+            ),  # Redução de 1% devido ao longo prazo
         )
 
         return FixedIncomeAssetDTO(

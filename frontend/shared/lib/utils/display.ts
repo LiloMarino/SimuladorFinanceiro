@@ -1,51 +1,74 @@
 /**
  * display.ts
  * ------------
- * Funções de exibição (display*) — recebem valores já processados (ex: number, Date, etc.)
- * e retornam strings prontas para serem mostradas na UI (ex: "R$ 1.200,00").
+ * Funções de exibição (display*) — recebem valores já processados e retornam
+ * strings prontas para serem mostradas na UI (ex: "R$ 1.200,00").
  *
- * 🔹 Convenção de assinatura:
- *    (value: any) => string
+ * Dinheiro, quantidades e taxas da API chegam como string decimal ("1234.567891")
+ * e são formatados direto pelo Intl, que trata a string como decimal exato. Preços
+ * de ação chegam como number, porque a própria fonte deles é float.
  */
 
-export function displayMoney(value: number) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 2,
-  }).format(value);
+import type { RateIndex } from "@/types";
+
+type Numeric = string | number;
+
+const MONEY_FORMAT = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  minimumFractionDigits: 2,
+});
+
+const MONEY_COMPACT_FORMAT = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+export function displayMoney(value: Numeric) {
+  return MONEY_FORMAT.format(value as Intl.StringNumericLiteral | number);
 }
 
-const COMPACT_SCALES = [
-  { threshold: 1_000_000_000_000, suffix: "T" },
-  { threshold: 1_000_000_000, suffix: "B" },
-  { threshold: 1_000_000, suffix: "M" },
-  { threshold: 1_000, suffix: "K" },
-] as const;
-
-export function displayMoneyCompact(value: number): string {
-  const abs = Math.abs(value);
-
-  for (const { threshold, suffix } of COMPACT_SCALES) {
-    if (abs >= threshold) {
-      const v = value / threshold;
-      const formatted = new Intl.NumberFormat("pt-BR", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 1,
-      }).format(v);
-      return `R$ ${formatted} ${suffix}`;
-    }
-  }
-
-  return displayMoney(value);
+export function displayMoneyCompact(value: Numeric): string {
+  return MONEY_COMPACT_FORMAT.format(value as Intl.StringNumericLiteral | number);
 }
 
-export function displayPercent(value: number, digits = 2) {
+export function displayPercent(value: Numeric, digits = 2) {
   return new Intl.NumberFormat("pt-BR", {
     style: "percent",
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
-  }).format(value);
+  }).format(value as Intl.StringNumericLiteral | number);
+}
+
+/** Valor em reais com 2 casas, sem separador de milhar ("1234.56"), truncado. */
+export function toCentsString(value: string) {
+  return new Intl.NumberFormat("en-US", {
+    useGrouping: false,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    roundingMode: "trunc",
+  }).format(value as Intl.StringNumericLiteral);
+}
+
+/** Valor negativo? Lê o sinal direto da string decimal. */
+export function isLoss(value: string) {
+  return value.trim().startsWith("-");
+}
+
+/** Taxa do título como o mercado escreve: "110,00% do CDI", "IPCA + 6,00%", "12,00% a.a.". */
+export function displayRateLabel(rateIndex: RateIndex, interestRate: string) {
+  switch (rateIndex) {
+    case "CDI":
+      return `${displayPercent(interestRate)} do CDI`;
+    case "IPCA":
+      return `IPCA + ${displayPercent(interestRate)}`;
+    case "SELIC":
+      return `SELIC + ${displayPercent(interestRate)}`;
+    case "Prefixado":
+      return `${displayPercent(interestRate)} a.a.`;
+  }
 }
 
 export function displayDate(date: Date | string) {

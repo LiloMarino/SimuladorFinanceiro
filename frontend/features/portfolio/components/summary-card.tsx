@@ -5,7 +5,7 @@ import { displayMoneyCompact } from "@/shared/lib/utils/display";
 
 interface SummaryCardProps {
   title: string;
-  value: number;
+  value: string;
   subtitle: string;
   color?: string;
   icon: LucideIcon;

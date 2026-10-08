@@ -8,16 +8,17 @@ import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { normalizeNumberString } from "@/shared/lib/utils";
+import { toCentsString } from "@/shared/lib/utils/display";
 
 interface FixedIncomeInvestmentFormProps {
   form: UseFormReturn<InvestmentFormSchema>;
   id: string;
-  availableCash: number;
+  availableCash: string;
 }
 
 export function FixedIncomeInvestmentForm({ form, id, availableCash }: FixedIncomeInvestmentFormProps) {
   const buyMutation = useApiMutation({
-    mutationFn: (payload: { quantity: number }) => apiFetch(`/api/fixed-income/${id}/buy`, { method: "POST", body: payload }),
+    mutationFn: (payload: { quantity: string }) => apiFetch(`/api/fixed-income/${id}/buy`, { method: "POST", body: payload }),
     onSuccess: () => {
       toast.success("Investido com sucesso!");
     },
@@ -27,9 +28,8 @@ export function FixedIncomeInvestmentForm({ form, id, availableCash }: FixedInco
   });
 
   const onSubmit = async (values: InvestmentFormSchema) => {
-    const quantity = Number(normalizeNumberString(values.amount));
     await buyMutation.mutateAsync({
-      quantity,
+      quantity: normalizeNumberString(values.amount),
     });
   };
   return (
@@ -56,9 +56,9 @@ export function FixedIncomeInvestmentForm({ form, id, availableCash }: FixedInco
                   type="button"
                   variant="outline"
                   className="shrink-0 px-3"
-                  disabled={availableCash === 0}
+                  disabled={Number(availableCash) === 0}
                   onClick={() => {
-                    const maxAmount = formatMoney(String(Math.round(availableCash * 100)));
+                    const maxAmount = formatMoney(toCentsString(availableCash));
                     form.setValue("amount", maxAmount);
                   }}
                 >

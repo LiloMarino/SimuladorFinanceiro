@@ -7,21 +7,27 @@ from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
+from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
 from backend.core.dto.order import OrderDTO
+from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
 from backend.core.runtime.event_manager import EventManager
+from backend.core.runtime.user_manager import UserManager
+from backend.core.utils import next_business_day
+from backend.features.fixed_income.accrual import index_rate_on, project
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
+    PortfolioUpdateEventDTO,
     SimulationTickUpdateEventDTO,
     SnapshotUpdateEventDTO,
     StatisticsSnapshotEntryDTO,
     StatisticsSnapshotUpdateEventDTO,
-    StockUpdateEventDTO,
     StocksUpdateEventDTO,
+    StockUpdateEventDTO,
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.strategy.manual import ManualStrategy
@@ -42,10 +48,14 @@ class Simulation:
     - Limpar caches de usuários ao fazer logout
     """
 
-    def __init__(self, settings: SimulationDTO):
+    def __init__(self, settings: SimulationDTO, resume_from: date | None = None):
+        """
+        `resume_from` é o último dia já processado de uma simulação retomada; o
+        primeiro tick é o dia útil seguinte. Sem ele, o primeiro tick é o `start_date`.
+        """
         self._speed = 0
         self.settings = settings
-        self._current_date = self.settings.start_date - timedelta(days=1)
+        self._current_date = resume_from or self.settings.start_date - timedelta(days=1)
         self._engine = SimulationEngine(
             self._current_date,
             settings.starting_cash,
@@ -53,8 +63,10 @@ class Simulation:
         )
         self._engine.set_strategy(ManualStrategy)
 
-        # Controle de snapshot
-        self._last_snapshot_month: tuple[int, int] | None = None
+        # Controle de snapshot: o mês do último dia processado já recebeu aporte e snapshot
+        self._last_snapshot_month: tuple[int, int] | None = (
+            (resume_from.year, resume_from.month) if resume_from else None
+        )
 
         # Configura os alias
         self.get_cash = self._engine.get_cash
@@ -68,11 +80,24 @@ class Simulation:
         # Roda o primeiro tick para a inicialização
         self.next_tick()
 
-    def add_cash(self, client_id: UUID, cash: float) -> None:
+    def add_cash(self, client_id: UUID, cash: Decimal) -> None:
         self._engine.add_cash(client_id, cash)
 
-    def buy_fixed_income(self, client_id: UUID, asset: FixedIncomeAssetDTO, value: float) -> None:
+    def buy_fixed_income(
+        self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal
+    ) -> None:
         self._engine.fixed_broker.buy(client_id, asset, value)
+
+    def project_fixed_income(
+        self, asset: FixedIncomeAssetDTO, amount: Decimal
+    ) -> FixedIncomeProjectionDTO:
+        index_rate = index_rate_on(asset.rate_index, self._current_date)
+        return project(asset, amount, self._current_date, index_rate)
+
+    def get_patrimonial_history(self, client_id: UUID) -> list[PatrimonialHistoryDTO]:
+        return repository.portfolio.get_patrimonial_history(
+            UserManager.get_user_id(client_id)
+        )
 
     def next_tick(self):
         # Verifica se a simulação terminou
@@ -81,9 +106,7 @@ class Simulation:
             raise StopIteration()
 
         # Avança para o próximo dia útil
-        self._current_date += timedelta(days=1)
-        while self._current_date.weekday() >= 5:
-            self._current_date += timedelta(days=1)
+        self._current_date = next_business_day(self._current_date)
         if self._current_date > self.settings.end_date:
             logger.info("Fim da simulação")
             raise StopIteration()
@@ -125,6 +148,14 @@ class Simulation:
             ).to_json(),
         )
         notify("stocks_update", StocksUpdateEventDTO(stocks=stocks).to_json())
+        for player in UserManager.list_active_players():
+            notify(
+                "portfolio_update",
+                PortfolioUpdateEventDTO(
+                    portfolio=self.get_portfolio(player.client_id)
+                ).to_json(),
+                to=player.client_id,
+            )
 
     def get_current_date(self) -> date:
         return self._current_date
@@ -149,14 +180,18 @@ class Simulation:
         positions = self._engine.get_positions(client_id)
         position = positions.get(ticker)
         return (
-            PositionDTO.from_model(position)
+            PositionDTO.from_model(position, self._engine.get_current_price(position))
             if position
             else PositionDTO(
                 ticker=ticker,
                 size=0,
                 reserved=0,
-                total_cost=0,
-                avg_price=0,
+                total_cost=Decimal(0),
+                avg_price=Decimal(0),
+                current_price=Decimal(0),
+                current_value=Decimal(0),
+                return_value=Decimal(0),
+                return_pct=Decimal(0),
             )
         )
 
@@ -213,8 +248,8 @@ class Simulation:
                     simulation_id=self.settings.id,
                     user_id=user.id,
                     asset_id=asset_id,
-                    total_applied=Decimal(position.total_applied),
-                    current_value=Decimal(position.current_value),
+                    total_applied=position.total_applied,
+                    current_value=position.current_value,
                     accrual_date=self._current_date,
                     first_applied_date=position.first_applied_date,
                 )

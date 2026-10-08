@@ -7,13 +7,14 @@ Servem para dois propósitos:
    `openapi-typescript` gere `types/events.ts` a partir destes schemas.
 """
 
+from decimal import Decimal
 from typing import Literal
 
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.order import OrderDTO
+from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
@@ -21,7 +22,7 @@ from backend.features.variable_income.entities.order import OrderAction
 
 
 class CashUpdateEventDTO(BaseDTO):
-    cash: float
+    cash: Decimal
 
 
 class SpeedUpdateEventDTO(BaseDTO):
@@ -44,7 +45,7 @@ class OrderExecutedEventDTO(BaseDTO):
     order_id: str
     ticker: str
     action: OrderAction
-    price: float
+    price: Decimal
     quantity: int
 
 
@@ -76,8 +77,8 @@ class FixedAssetsUpdateEventDTO(BaseDTO):
     assets: list[FixedIncomeAssetDTO]
 
 
-class FixedIncomePositionUpdateEventDTO(BaseDTO):
-    positions: list[FixedIncomePositionDTO]
+class PortfolioUpdateEventDTO(BaseDTO):
+    portfolio: PortfolioDTO
 
 
 class SnapshotUpdateEventDTO(BaseDTO):
@@ -108,7 +109,7 @@ class RealtimeEventCatalog(BaseDTO):
     stocks_update: StocksUpdateEventDTO
     fixed_assets_update: FixedAssetsUpdateEventDTO
     snapshot_update: SnapshotUpdateEventDTO
-    fixed_income_position_update: FixedIncomePositionUpdateEventDTO
+    portfolio_update: PortfolioUpdateEventDTO
     statistics_snapshot_update: StatisticsSnapshotUpdateEventDTO
     order_executed: OrderExecutedEventDTO
     order_partial_executed: OrderPartialExecutedEventDTO

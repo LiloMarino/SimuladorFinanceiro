@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança:** roadmap iniciado a partir das 11 issues abertas do GitHub; a origem de cada feature está na mini descrição dela (`#NN`).
+> **Última mudança:** M1 concluído; registrada a D6 (de onde a retomada continua).
 
 ---
 
@@ -87,3 +87,10 @@ Uma ordem enorme num ativo pouco negociado move o preço contra quem compra. Sem
 2. **Como cliente da API, na máquina do jogador** — a estratégia é um bot que roda localmente e opera pelas mesmas rotas que a interface usa. Funciona no multiplayer sem risco para o host; mas o tick não espera o bot, e a estratégia passa a depender de latência de rede.
 
 **Por quê está aberto:** a ideia (#2, #12, #49) é a estratégia ser 100% código do usuário, e o multiplayer é parte central do jogo. As duas opções cobrem metade cada uma; o spike mede se dá pra ter as duas ou qual metade vale mais.
+
+### D6 — A retomada continua no dia seguinte ao último evento
+**Status:** ✅ Decidida
+
+**Decisão:** Uma simulação retomada continua no dia útil seguinte à data mais recente entre os eventos e os snapshots dela. Os eventos pendentes são gravados ao parar a simulação.
+**Por quê:** segue da D1 — um dia sem evento não mudou nada persistido, então reprocessar os dias depois do último registro chega ao mesmo estado em que o jogador parou, sem coluna nova no banco. A alternativa (gravar o último dia simulado numa coluna de `simulations`) exigiria `ALTER TABLE` nos bancos existentes, sem mecanismo de migração no executável.
+**Consequências:** ao retomar, a data da simulação pode voltar alguns dias (até o último evento). Todo estado que precise sobreviver à retomada tem que ser reconstruível pelos eventos, e toda alteração de estado persistido tem que gerar evento.

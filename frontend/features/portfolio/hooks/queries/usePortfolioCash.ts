@@ -3,6 +3,7 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
+import type { CashResponse } from "@/types";
 
 /**
  * Saldo em caixa do jogador via `/api/portfolio/cash`, mantido vivo via cash_update.
@@ -14,7 +15,7 @@ export function usePortfolioCash() {
 
   const query = useApiQuery({
     queryKey: queryKeys.portfolioCash(),
-    queryFn: ({ signal }) => apiFetch<{ cash: number }>("/api/portfolio/cash", { signal }),
+    queryFn: ({ signal }) => apiFetch<CashResponse>("/api/portfolio/cash", { signal }),
   });
 
   useRealtime("cash_update", ({ cash }) => {

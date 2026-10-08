@@ -50,7 +50,7 @@ type NewOrderFormOutput = {
 
 interface NewOrderCardProps {
   stock: VariableIncomeStock;
-  cash: number;
+  cash: string;
   position: Position | null;
 }
 
@@ -212,11 +212,11 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
                       if (action === "buy") {
                         if (type === "market") {
                           // Ordem à mercado: cash / melhor preço atual do book
-                          maxQty = marketEstimatedPrice ? Math.floor(cash / marketEstimatedPrice) : 0;
+                          maxQty = marketEstimatedPrice ? Math.floor(Number(cash) / marketEstimatedPrice) : 0;
                         } else {
                           // Ordem limitada: cash / preço desejado
                           const price = limitPrice || stock.close;
-                          maxQty = Math.floor(cash / price);
+                          maxQty = Math.floor(Number(cash) / price);
                         }
                       } else {
                         // Venda: só pode vender o que tem na posição
@@ -224,7 +224,7 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
                       }
                       form.setValue("quantity", String(maxQty));
                     }}
-                    disabled={action === "buy" ? cash === 0 : positionSize === 0}
+                    disabled={action === "buy" ? Number(cash) === 0 : positionSize === 0}
                     className="shrink-0 px-3"
                   >
                     Máx

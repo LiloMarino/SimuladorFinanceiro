@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import threading
+from collections import defaultdict
 from datetime import date
 from decimal import Decimal
 from typing import TYPE_CHECKING
@@ -12,17 +13,15 @@ from backend.core.dto.events.fixed_income import (
     FixedIncomeEventDTO,
 )
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.enum import FixedIncomeEventType
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
+from backend.core.utils import next_business_day
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
-from backend.features.realtime import notify
-from backend.features.realtime.schemas import FixedIncomePositionUpdateEventDTO
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
@@ -30,21 +29,53 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def load_fixed_assets(client_id: UUID) -> dict[str, FixedIncomePosition]:
+def load_fixed_assets(
+    simulation_id: int, client_id: UUID, until: date
+) -> dict[UUID, FixedIncomePosition]:
+    """
+    Reconstrói as posições em aberto a partir dos eventos, até o dia `until`.
+
+    Repete a ordem do jogo ao vivo: em cada dia útil, primeiro o rendimento do
+    dia (o tick) e depois as compras feitas naquele dia.
+    """
     user_id = UserManager.get_user_id(client_id)
 
-    dtos = repository.portfolio.get_fixed_income_positions(user_id)
+    assets: dict[UUID, FixedIncomeAssetDTO] = {}
+    buys: dict[UUID, dict[date, list[Decimal]]] = defaultdict(lambda: defaultdict(list))
+    redeemed: set[UUID] = set()
+    for asset, event in repository.fixed_income.get_events(simulation_id, user_id):
+        assets[asset.asset_uuid] = asset
+        match event.event_type:
+            case FixedIncomeEventType.BUY:
+                buys[asset.asset_uuid][event.event_date].append(event.amount)
+            case FixedIncomeEventType.REDEEM:
+                redeemed.add(asset.asset_uuid)
 
-    assets: dict[str, FixedIncomePosition] = {}
+    positions: dict[UUID, FixedIncomePosition] = {}
+    for asset_uuid, buys_by_day in buys.items():
+        if asset_uuid in redeemed:
+            continue
 
-    for dto in dtos:
-        assets[dto.asset.name] = FixedIncomePosition(
-            asset=dto.asset,
-            total_applied=dto.total_applied,
-            first_applied_date=dto.first_applied_date,
-        )
+        position: FixedIncomePosition | None = None
+        day = min(buys_by_day)
+        while day <= until:
+            if position is not None:
+                position.accrue(day)
+            for amount in buys_by_day.get(day, []):
+                if position is None:
+                    position = FixedIncomePosition(
+                        asset=assets[asset_uuid],
+                        total_applied=amount,
+                        first_applied_date=day,
+                    )
+                else:
+                    position.invest(amount)
+            day = next_business_day(day)
 
-    return assets
+        if position is not None:
+            positions[asset_uuid] = position
+
+    return positions
 
 
 class FixedBroker:
@@ -56,22 +87,25 @@ class FixedBroker:
     - Manter posições dos players com cache lazy carregado do banco
     - Aplicar juros diários em todas as posições ativas
     - Processar vencimento de ativos e creditar valores ao player
-    - Registrar eventos de renda fixa (BUY, INTEREST, MATURITY)
-    - Emitir notificações realtime de atualizações de portfólio
+    - Registrar eventos de renda fixa (BUY, REDEEM)
     """
 
     def __init__(self, simulation_engine: SimulationEngine, lock: threading.RLock):
         self._simulation_engine = simulation_engine
         self._lock = lock
-        self._assets: LazyDict[UUID, dict[str, FixedIncomePosition]] = LazyDict(
-            load_fixed_assets
+        self._assets: LazyDict[UUID, dict[UUID, FixedIncomePosition]] = LazyDict(
+            lambda client_id: load_fixed_assets(
+                simulation_engine.simulation_id,
+                client_id,
+                simulation_engine.current_date,
+            )
         )
 
-    def get_fixed_positions(self, client_id: UUID) -> dict[str, FixedIncomePosition]:
+    def get_fixed_positions(self, client_id: UUID) -> dict[UUID, FixedIncomePosition]:
         with self._lock:
             return self._assets[client_id]
 
-    def buy(self, client_id: UUID, asset: FixedIncomeAssetDTO, value: float):
+    def buy(self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal):
         if value <= 0:
             raise ValueError("Valor do investimento deve ser maior que zero")
 
@@ -86,10 +120,11 @@ class FixedBroker:
 
             self._simulation_engine.add_cash(client_id, -value)
 
-            if asset.name in self._assets[client_id]:
-                self._assets[client_id][asset.name].invest(value)
+            positions = self._assets[client_id]
+            if asset.asset_uuid in positions:
+                positions[asset.asset_uuid].invest(value)
             else:
-                self._assets[client_id][asset.name] = FixedIncomePosition(
+                positions[asset.asset_uuid] = FixedIncomePosition(
                     asset=asset,
                     total_applied=value,
                     first_applied_date=self._simulation_engine.current_date,
@@ -102,7 +137,7 @@ class FixedBroker:
                 user_id=UserManager.get_user_id(client_id),
                 event_type=FixedIncomeEventType.BUY,
                 asset_id=asset_id,
-                amount=Decimal(value),
+                amount=value,
                 event_date=self._simulation_engine.current_date,
             )
         )
@@ -113,51 +148,24 @@ class FixedBroker:
     def apply_daily_interest(self, current_date: date):
         for client_id, assets_by_client in list(self._assets.items()):
             user_id = UserManager.get_user_id(client_id)
-            updates: list[FixedIncomePositionDTO] = []
-            has_expired = False
-            for asset_name, position in list(assets_by_client.items()):
+            for asset_uuid, position in list(assets_by_client.items()):
                 with self._lock:
-                    position.apply_daily_interest(current_date)
-                    expired = current_date >= position.asset.maturity_date
+                    position.accrue(current_date)
+                    expired = current_date >= position.redemption_date
                     if expired:
-                        del assets_by_client[asset_name]
-                    else:
-                        update_dto = FixedIncomePositionDTO(
-                            asset=position.asset,
-                            total_applied=position.total_applied,
-                            current_value=position.current_value,
-                            first_applied_date=position.first_applied_date,
-                        )
+                        del assets_by_client[asset_uuid]
 
                 if expired:
-                    self.redeem_position(
-                        current_date,
-                        client_id,
-                        user_id,
-                        asset_name,
-                        position,
-                    )
-                    has_expired = True
-                else:
-                    updates.append(update_dto)
-
-            if updates or has_expired:
-                notify(
-                    "fixed_income_position_update",
-                    FixedIncomePositionUpdateEventDTO(positions=updates).to_json(),
-                    client_id,
-                )
+                    self.redeem_position(current_date, client_id, user_id, position)
 
     def redeem_position(
         self,
         current_date: date,
         client_id: UUID,
         user_id: int,
-        asset_name: str,
         position: FixedIncomePosition,
     ) -> None:
-        ir_amount = position.calculate_ir(current_date)
-        redeem_value = position.current_value - ir_amount
+        redeem_value = position.net_redemption_value()
 
         self._simulation_engine.add_cash(client_id, redeem_value)
         asset_id = repository.fixed_income.get_or_create_asset(position.asset)
@@ -168,7 +176,7 @@ class FixedBroker:
                 user_id=user_id,
                 event_type=FixedIncomeEventType.REDEEM,
                 asset_id=asset_id,
-                amount=Decimal(redeem_value),
+                amount=redeem_value,
                 event_date=current_date,
             )
         )
@@ -176,5 +184,5 @@ class FixedBroker:
             simulation_id=simulation_id, user_id=user_id, asset_id=asset_id
         )
         logger.info(
-            f"REDEEM de {redeem_value:.2f} em {asset_name} (maturity, IR={ir_amount:.2f})"
+            f"REDEEM de {redeem_value:.2f} em {position.asset.name} (vencimento)"
         )

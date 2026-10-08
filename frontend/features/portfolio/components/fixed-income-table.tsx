@@ -1,12 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
+import { displayMoney, displayPercent, displayRateLabel, isLoss } from "@/shared/lib/utils/display";
 import { Eye } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { FixedPosition } from "../lib/portfolio-calculator";
+import type { FixedIncomePosition } from "@/types";
 
 interface FixedIncomeTableProps {
-  fixedPositions: FixedPosition[];
+  fixedPositions: FixedIncomePosition[];
 }
 
 export function FixedIncomeTable({ fixedPositions }: FixedIncomeTableProps) {
@@ -39,21 +39,21 @@ export function FixedIncomeTable({ fixedPositions }: FixedIncomeTableProps) {
 
           <TableBody>
             {fixedPositions.map((pos) => (
-              <TableRow key={pos.uuid} className="text-center [&>td]:py-4">
-                <TableCell>{pos.name}</TableCell>
-                <TableCell>{displayMoney(pos.investedValue)}</TableCell>
-                <TableCell>{displayMoney(pos.currentValue)}</TableCell>
-                <TableCell>{pos.rateLabel}</TableCell>
-                <TableCell>{displayPercent(pos.portfolioPercent)}</TableCell>
-                <TableCell className={pos.returnValue >= 0 ? "text-success" : "text-destructive"}>
-                  {displayMoney(pos.returnValue)}
+              <TableRow key={pos.asset.asset_uuid} className="text-center [&>td]:py-4">
+                <TableCell>{pos.asset.name}</TableCell>
+                <TableCell>{displayMoney(pos.total_applied)}</TableCell>
+                <TableCell>{displayMoney(pos.current_value)}</TableCell>
+                <TableCell>{displayRateLabel(pos.asset.rate_index, pos.asset.interest_rate)}</TableCell>
+                <TableCell>{displayPercent(pos.portfolio_pct)}</TableCell>
+                <TableCell className={isLoss(pos.return_value) ? "text-destructive" : "text-success"}>
+                  {displayMoney(pos.return_value)}
                 </TableCell>
-                <TableCell className={pos.returnValue >= 0 ? "text-success" : "text-destructive"}>
-                  {displayPercent(pos.returnPercent)}
+                <TableCell className={isLoss(pos.return_value) ? "text-destructive" : "text-success"}>
+                  {displayPercent(pos.return_pct)}
                 </TableCell>
                 <TableCell>
                   <Link
-                    to={`/fixed-income/${pos.uuid}`}
+                    to={`/fixed-income/${pos.asset.asset_uuid}`}
                     className="text-blue-600 hover:text-blue-800 text-sm flex items-center justify-center"
                   >
                     <Eye className="w-4 h-4 mr-1" />

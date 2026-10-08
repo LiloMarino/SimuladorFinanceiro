@@ -10,11 +10,14 @@ export type Position = components["schemas"]["PositionDTO"];
 export type PatrimonialHistory = components["schemas"]["PatrimonialHistoryDTO"];
 export type FixedIncomePosition = components["schemas"]["FixedIncomePositionDTO"];
 export type PortfolioState = components["schemas"]["PortfolioDTO"];
+export type CashResponse = components["schemas"]["CashResponse"];
+export type PortfolioPosition = PortfolioState["variable_income"][number];
 
 // Fixed Income
 export type RateIndex = components["schemas"]["RateIndexType"];
 export type InvestmentType = components["schemas"]["FixedIncomeType"];
 export type FixedIncomeAssetApi = components["schemas"]["FixedIncomeAssetDTO"];
+export type FixedIncomeProjection = components["schemas"]["FixedIncomeProjectionDTO"];
 
 // Economic
 export type EconomicIndicators = components["schemas"]["EconomicIndicatorsDTO"];

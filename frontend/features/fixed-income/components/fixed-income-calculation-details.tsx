@@ -1,12 +1,12 @@
 import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { FixedIncomeAsset } from "../models/FixedIncomeAsset";
+import type { FixedIncomeProjection } from "@/types";
 
 interface FixedIncomeCalculationDetailsProps {
-  simulation: ReturnType<FixedIncomeAsset["getSimulation"]>;
+  projection: FixedIncomeProjection;
 }
 
-export function FixedIncomeCalculationDetails({ simulation }: FixedIncomeCalculationDetailsProps) {
+export function FixedIncomeCalculationDetails({ projection }: FixedIncomeCalculationDetailsProps) {
   return (
     <div className="lg:col-span-2">
       <h4 className="font-semibold text-slate-900 mb-4">Detalhamento dos Cálculos</h4>
@@ -22,48 +22,48 @@ export function FixedIncomeCalculationDetails({ simulation }: FixedIncomeCalcula
           <TableBody>
             <TableRow className="border-b border-slate-200">
               <TableCell className="text-slate-700 font-medium">Valor Aplicado</TableCell>
-              <TableCell className="text-right font-medium text-slate-900">{displayMoney(simulation.amount)}</TableCell>
-              <TableCell className="text-right font-medium text-slate-900">{displayPercent(1)}</TableCell>
+              <TableCell className="text-right font-medium text-slate-900">{displayMoney(projection.amount)}</TableCell>
+              <TableCell className="text-right font-medium text-slate-900">{displayPercent("1")}</TableCell>
             </TableRow>
             <TableRow className="border-b border-slate-200">
               <TableCell className="text-slate-700 font-medium">Resultado Bruto (R$)</TableCell>
               <TableCell className="text-right font-bold text-green-700">
-                {displayMoney(simulation.grossAmount)}
+                {displayMoney(projection.gross_amount)}
               </TableCell>
               <TableCell className="text-right font-bold text-green-700">
-                {displayPercent(simulation.grossReturnPct)}
+                {displayPercent(projection.gross_return_pct)}
               </TableCell>
             </TableRow>
             <TableRow className="border-b border-slate-200">
               <TableCell className="text-slate-700 font-medium">Rendimento Bruto (R$)</TableCell>
               <TableCell className="text-right font-medium text-slate-900">
-                {displayMoney(simulation.grossReturn)}
+                {displayMoney(projection.gross_return)}
               </TableCell>
               <TableCell className="text-right font-medium text-slate-900">
-                {displayPercent(simulation.grossReturnPct)}
+                {displayPercent(projection.gross_return_pct)}
               </TableCell>
             </TableRow>
             <TableRow className="border-b border-slate-200">
               <TableCell className="text-slate-700 font-medium">Imposto sobre Rendimento (R$)</TableCell>
-              <TableCell className="text-right font-bold text-red-600">- {displayMoney(simulation.tax)}</TableCell>
-              <TableCell className="text-right font-bold text-red-600">{displayPercent(simulation.taxPct)}</TableCell>
+              <TableCell className="text-right font-bold text-red-600">- {displayMoney(projection.income_tax)}</TableCell>
+              <TableCell className="text-right font-bold text-red-600">{displayPercent(projection.income_tax_pct)}</TableCell>
             </TableRow>
             <TableRow className="border-b border-slate-200">
               <TableCell className="text-slate-700 font-medium">Resultado Líquido (R$)</TableCell>
               <TableCell className="text-right font-bold text-green-600">
-                {displayMoney(simulation.netAmount)}
+                {displayMoney(projection.net_amount)}
               </TableCell>
               <TableCell className="text-right font-bold text-green-600">
-                {displayPercent(simulation.netReturnPct)}
+                {displayPercent(projection.net_return_pct)}
               </TableCell>
             </TableRow>
             <TableRow>
               <TableCell className="text-slate-700 font-medium">Rendimento Líquido (R$)</TableCell>
               <TableCell className="text-right font-medium text-slate-900">
-                {displayMoney(simulation.netReturn)}
+                {displayMoney(projection.net_return)}
               </TableCell>
               <TableCell className="text-right font-medium text-slate-900">
-                {displayPercent(simulation.netReturnPct)}
+                {displayPercent(projection.net_return_pct)}
               </TableCell>
             </TableRow>
           </TableBody>

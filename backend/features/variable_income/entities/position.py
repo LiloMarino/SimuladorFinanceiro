@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from decimal import Decimal
 
 from backend.core.exceptions import InsufficentPositionError
 
@@ -10,10 +11,10 @@ class Position:
     ticker: str
     size: int = 0
     reserved: int = 0
-    total_cost: float = 0
-    avg_price: float = 0
+    total_cost: Decimal = field(default_factory=Decimal)
+    avg_price: Decimal = field(default_factory=Decimal)
 
-    def update_buy(self, price: float, size: int):
+    def update_buy(self, price: Decimal, size: int):
         """Atualiza posição após uma compra."""
         self.total_cost += price * size
         self.size += size
@@ -25,7 +26,7 @@ class Position:
             raise InsufficentPositionError()
         self.total_cost -= self.avg_price * size
         self.size -= size
-        self.avg_price = (self.total_cost / self.size) if self.size > 0 else 0
+        self.avg_price = (self.total_cost / self.size) if self.size > 0 else Decimal(0)
 
     def reserve(self, size: int):
         """Reserva parte da posição para ordens em aberto."""

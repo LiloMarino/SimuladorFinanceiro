@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-07):** Roadmap iniciado a partir das 11 issues abertas do GitHub; a origem de cada feature está na mini descrição dela (#NN).
+> **Última mudança (2026-10-08):** M1 concluído (F1 e F2); registrada a D6.
 
 ## Glossário
 
@@ -25,8 +25,6 @@
 | **N7** | Que o simulador cobre os custos de operar do mercado real | F13 | — |
 | **D4** | Banco de dados embarcado no executável | F4 | 🔍 |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | F8 | 🔍 |
-| **F1** | Decimal como string do backend ao frontend | — | ⏳ |
-| **F2** | Renda fixa com cálculo único no backend e retomada consistente | — | ⏳ |
 | **F3** | Spike: banco embarcado no executável | — | 🔍 |
 | **F4** | Executável sobe sem banco instalado | — | ⏳ |
 | **F5** | Spike: provider de túnel pela internet | — | 🔍 |
@@ -41,13 +39,16 @@
 | **F14** | Janela desktop nativa | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (4 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (7 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
 | **D1** | Eventos são a fonte da verdade; snapshots são derivados | F2, F11 | ✅ |
 | **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | F2, F11, F12 | ✅ |
 | **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | F1 | ✅ |
+| **D6** | A retomada continua no dia seguinte ao último evento | F2 | ✅ |
+| **F1** | Decimal como string do backend ao frontend | — | ✅ |
+| **F2** | Renda fixa com cálculo único no backend e retomada consistente | — | ✅ |
 | **F15** | Cliente desktop em Tauri | — | 🚫 |
 
 </details>
@@ -63,8 +64,6 @@
 | **F7** | Spike: estratégia Python escrita pelo usuário | M4 | 3 | 🔍 |
 | **F3** | Spike: banco embarcado no executável | M2 | 1 | 🔍 |
 | **F5** | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
-| **F1** | Decimal como string do backend ao frontend | M1 | 0 | ⏳ |
-| **F2** | Renda fixa com cálculo único no backend e retomada consistente | M1 | 0 | ⏳ |
 | **F11** | Métricas de risco do desempenho | M5 | 0 | ⏳ |
 | **F12** | Comparação entre simulações | M5 | 0 | ⏳ |
 | **F13** | Impacto de preço de ordens grandes | — | 0 | ⏳ |
@@ -79,12 +78,20 @@
 >
 > **Serve:** N3
 >
-> **Progresso:** 0/2 concluídas
+> **Progresso:** 2/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| **F1** | Decimal como string do backend ao frontend | — | ⏳ |
-| **F2** | Renda fixa com cálculo único no backend e retomada consistente | — | ⏳ |
+| — | *(nada em aberto)* | — | — |
+
+<details><summary>Concluído (2 itens)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| **F1** | Decimal como string do backend ao frontend | — | ✅ |
+| **F2** | Renda fixa com cálculo único no backend e retomada consistente | — | ✅ |
+
+</details>
 
 ### M2 — Baixar e jogar
 
@@ -155,8 +162,8 @@
 
 | ID | Resumo | Atende (N#) | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **F1** | Decimal como string do backend ao frontend | N3 | D3 | M1 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F2** | Renda fixa com cálculo único no backend e retomada consistente | N3 | D1, D2 | M1 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
+| **F1** | Decimal como string do backend ao frontend | N3 | D3 | M1 | — | Médio | Médio | Alto | Bom | ✅ Concluído |
+| **F2** | Renda fixa com cálculo único no backend e retomada consistente | N3 | D1, D2, D6 | M1 | — | Alto | Alto | Alto | Bom | ✅ Concluído |
 | **F4** | Executável sobe sem banco instalado | N1 | D4 | M2 | F3 | Médio | Médio | Alto | Excelente | ⏳ Pendente |
 | **F6** | Link de convite pela internet no lobby | N2 | — | M3 | F5 | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F8** | Modo automático: estratégia do jogador roda a cada tick | N4 | D5 | M4 | F7 | Alto | Alto | Alto | Bom | ⏳ Pendente |
@@ -166,11 +173,11 @@
 | **F12** | Comparação entre simulações | N6 | D2 | M5 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F13** | Impacto de preço de ordens grandes | N7 | — | — | — | Alto | Alto | Médio | Médio | ⏳ Pendente |
 
-**F1 — Decimal como string do backend ao frontend.** Origem: #86. Os DTOs com valor monetário ou quantidade passam a serializar `Decimal` como string (D3) em vez de converter para `float`; o tipo gerado pelo OpenAPI vira `string` e o tsc aponta cada consumidor. `formatMoney` e os demais formatadores passam a receber string e formatar sem passar por `number`. Onde o front hoje faz conta com esses valores (ex.: `build-ranking.ts`), a conta sobe para o backend (D2) junto com a feature que toca aquela tela (F2, F11, F12). Gatilho: antes de qualquer feature que crie DTO numérico novo, para não nascer mais conversão.
+**F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: `build-ranking.ts` e o gráfico de desempenho ainda fazem conta com `parseFloat` (sobem com a F12); a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
 **Aceite:** todo valor exibido bate com o `NUMERIC(20,6)` do banco em todas as casas que a tela mostra.
 
-**F2 — Renda fixa com cálculo único no backend e retomada consistente.** Origem: #85. Uma função determinística no backend calcula montante, juros acumulados e projeção até o vencimento a partir dos eventos da posição (D1); o front para de projetar juros em JS e exibe os campos que vêm no DTO (D2). O estado da posição que hoje vive em memória e se perde ao pausar passa a ser reconstruído dos eventos ao carregar a simulação. Prefixado é totalmente previsível desde a compra; pós-fixado projeta com o último CDI/IPCA conhecido e corrige a cada tick.
-**Aceite:** um prefixado comprado e levado ao vencimento credita o mesmo valor, ao centavo, rodando direto ou pausando e retomando no meio — e esse valor é igual à projeção mostrada no dia da compra.
+**F2 — Renda fixa com cálculo único no backend e retomada consistente.** Origem: #85. `features/fixed_income/accrual.py` é a única fórmula: taxa efetiva (prefixado = taxa; CDI = CDI × percentual; IPCA+/SELIC+ composto, `(1 + índice) × (1 + spread) − 1`), fator diário `(1 + taxa)^(1/252)`, tabela regressiva de IR e resgate arredondado ao centavo. O tick ao vivo (`accrue`, idempotente por dia), a reconstrução e a projeção aplicam a mesma sequência de multiplicações em `Decimal`. Ao carregar, as posições são reconstruídas dos eventos BUY/REDEEM (D1), e as de ações também, repetindo compras e vendas com a mesma `Position`. A retomada segue a D6, sem reaplicar o aporte do mês, e o caixa reconstruído passou a somar os aportes. As posições de renda fixa são indexadas pelo `asset_uuid`, não pelo nome. `GET /api/fixed-income/{uuid}/projection` alimenta a tela de detalhe, e o front parou de projetar juros. Limitações: os indicadores (CDI, IPCA, SELIC) ainda são constantes em `EconomicRepository`, então a projeção do pós-fixado só coincide com o realizado enquanto continuarem constantes; o IR de vários aportes no mesmo título usa a data do primeiro.
+**Aceite:** um prefixado comprado e levado ao vencimento credita o mesmo valor, ao centavo, rodando direto ou pausando e retomando no meio — e esse valor é igual à projeção mostrada no dia da compra (coberto em `tests/test_fixed_income_accrual.py` e verificado ponta a ponta: projeção R$ 12.778,14, resgate R$ 12.778,14 após parar e retomar).
 
 **F4 — Executável sobe sem banco instalado.** Serve N1. Na primeira execução o executável cria o banco sozinho numa pasta de dados do usuário (ex.: `%APPDATA%/SimuladorFinanceiro`), sem `.env` obrigatório; `database.py` deixa de falhar quando `POSTGRES_DATABASE_URL` não existe. O motor é o que a D4 decidir. A página de instalação dos docs e o README perdem a etapa de instalar o Postgres. Gatilho: assim que a F3 fechar a D4.
 **Aceite:** numa máquina sem Postgres, baixar o release e abrir o executável leva ao lobby sem nenhum passo extra.

@@ -24,7 +24,7 @@ export type SimulationEvents = {
   stocks_update: RealtimeEventCatalog["stocks_update"];
   fixed_assets_update: RealtimeEventCatalog["fixed_assets_update"];
   snapshot_update: RealtimeEventCatalog["snapshot_update"];
-  fixed_income_position_update: RealtimeEventCatalog["fixed_income_position_update"];
+  portfolio_update: RealtimeEventCatalog["portfolio_update"];
   statistics_snapshot_update: RealtimeEventCatalog["statistics_snapshot_update"];
   order_executed: OrderExecutedEvent;
   order_partial_executed: OrderPartialExecutedEvent;

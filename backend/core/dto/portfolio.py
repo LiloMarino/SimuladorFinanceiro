@@ -1,12 +1,22 @@
+from decimal import Decimal
+
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
-from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
-from backend.core.dto.position import PositionDTO
+from backend.core.dto.position import PortfolioPositionDTO
 
 
 class PortfolioDTO(BaseDTO):
-    starting_cash: float
-    cash: float
-    variable_income: list[PositionDTO]
+    starting_cash: Decimal
+    cash: Decimal
+    total_networth: Decimal
+    invested_value: Decimal
+    variable_income_value: Decimal
+    fixed_income_value: Decimal
+    # Frações (0.25 = 25%): investido sobre o patrimônio; RV e RF sobre o investido
+    invested_pct: Decimal
+    variable_income_pct: Decimal
+    fixed_income_pct: Decimal
+    # Retorno sobre o capital aportado (caixa inicial + aportes mensais)
+    total_return_pct: Decimal
+    variable_income: list[PortfolioPositionDTO]
     fixed_income: list[FixedIncomePositionDTO]
-    patrimonial_history: list[PatrimonialHistoryDTO]

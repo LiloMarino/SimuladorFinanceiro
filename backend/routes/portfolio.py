@@ -1,7 +1,10 @@
+from decimal import Decimal
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
 from backend.core.dependencies import ActiveSimulation, ClientID
+from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
 
@@ -9,14 +12,14 @@ portfolio_router = APIRouter(prefix="/api/portfolio", tags=["Portfolio"])
 
 
 class CashResponse(BaseModel):
-    cash: float
+    cash: Decimal
 
 
 @portfolio_router.get(
     "",
     response_model=PortfolioDTO,
     summary="Obter portfólio",
-    description="Retorna o portfólio atual do cliente com todas as posições e saldos.",
+    description="Retorna o portfólio atual do cliente com todas as posições, saldos, totais e rentabilidade já calculados.",
 )
 def get_portfolio(client_id: ClientID, simulation: ActiveSimulation):
     """
@@ -24,6 +27,19 @@ def get_portfolio(client_id: ClientID, simulation: ActiveSimulation):
     """
     portfolio_data = simulation.get_portfolio(client_id)
     return portfolio_data
+
+
+@portfolio_router.get(
+    "/history",
+    response_model=list[PatrimonialHistoryDTO],
+    summary="Obter histórico patrimonial",
+    description="Retorna os snapshots mensais do patrimônio do cliente, em ordem cronológica.",
+)
+def get_patrimonial_history(client_id: ClientID, simulation: ActiveSimulation):
+    """
+    Retorna o histórico patrimonial do cliente.
+    """
+    return simulation.get_patrimonial_history(client_id)
 
 
 @portfolio_router.get(

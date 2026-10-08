@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import type { SimulationFormValues } from "../components/lobby-simulation-form";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { displayMoney } from "@/shared/lib/utils/display";
+import { displayMoney, toCentsString } from "@/shared/lib/utils/display";
 
 export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues>({
   form,
@@ -25,15 +25,19 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
   const lock = useAsyncLock();
 
   /** Mantém o último payload REAL enviado à API */
-  const lastSentRef = useRef<SimulationSettingsData | null>(initial);
+  const lastSentRef = useRef<SimulationSettingsData | null>({
+    ...initial,
+    starting_cash: toCentsString(initial.starting_cash),
+    monthly_contribution: toCentsString(initial.monthly_contribution),
+  });
 
   const { mutateAsync: updateSettings } = useApiMutation({
     mutationFn: (body: {
       name: string;
       start_date: string;
       end_date: string;
-      starting_cash: number;
-      monthly_contribution: number;
+      starting_cash: string;
+      monthly_contribution: string;
     }) => apiFetch<SimulationSettingsData>("/api/simulation/settings", { method: "PUT", body }),
     onSuccess: () => {
       toast.success("Configurações sincronizadas");
@@ -76,8 +80,8 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       name,
       start_date: startDate,
       end_date: endDate,
-      starting_cash: Number(normalizeNumberString(startingCash)),
-      monthly_contribution: Number(normalizeNumberString(monthlyContribution)),
+      starting_cash: toCentsString(normalizeNumberString(startingCash)),
+      monthly_contribution: toCentsString(normalizeNumberString(monthlyContribution)),
     };
 
     // Descarta duplicatas reais

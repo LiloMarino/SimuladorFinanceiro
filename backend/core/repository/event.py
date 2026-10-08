@@ -1,5 +1,7 @@
 from collections import defaultdict
+from datetime import date
 
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -34,6 +36,19 @@ class EventRepository:
 
         if FixedIncomeEventDTO in buckets:
             self._insert_fixed_income(session, buckets[FixedIncomeEventDTO])
+
+    @transactional
+    def get_last_event_date(self, session: Session, simulation_id: int) -> date | None:
+        """Data do evento mais recente da simulação, em qualquer tabela de evento."""
+        dates = [
+            session.execute(
+                select(func.max(model.event_date)).where(
+                    model.simulation_id == simulation_id
+                )
+            ).scalar_one_or_none()
+            for model in (EventCashflow, EventEquity, EventFixedIncome)
+        ]
+        return max((d for d in dates if d is not None), default=None)
 
     def _insert_cashflows(
         self, session: Session, cashflow_events: list[CashflowEventDTO]

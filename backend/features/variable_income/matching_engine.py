@@ -13,7 +13,7 @@ from backend.features.realtime.schemas import (
     OrderExecutedEventDTO,
     OrderPartialExecutedEventDTO,
 )
-from backend.features.variable_income.broker import Broker
+from backend.features.variable_income.broker import Broker, to_money
 from backend.features.variable_income.entities.order import (
     LimitOrder,
     MarketOrder,
@@ -206,7 +206,7 @@ class MatchingEngine:
                 order_id=order.id,
                 ticker=order.ticker,
                 action=order.action,
-                price=price,
+                price=to_money(price),
                 quantity=quantity,
                 remaining=order.remaining,
             ).to_json()
@@ -215,7 +215,7 @@ class MatchingEngine:
                 order_id=order.id,
                 ticker=order.ticker,
                 action=order.action,
-                price=price,
+                price=to_money(price),
                 quantity=quantity,
             ).to_json()
 

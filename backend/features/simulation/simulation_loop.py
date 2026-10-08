@@ -5,6 +5,7 @@ from datetime import date
 from enum import Enum
 
 from backend.core.exceptions import NoActiveSimulationError
+from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import SimulationEndedEventDTO
@@ -87,6 +88,9 @@ class SimulationLoopController:
             self._state = SimulationState.STOPPED
             self._thread = None
 
+        # Operações feitas depois do último tick (ex.: com o jogo pausado) só viram
+        # evento persistido no flush; a retomada parte do que estiver no banco.
+        EventManager.flush()
         SimulationManager.clear_simulation()
 
     def _run(self):

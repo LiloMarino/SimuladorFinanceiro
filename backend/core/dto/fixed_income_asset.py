@@ -1,5 +1,6 @@
 import uuid
 from datetime import date
+from decimal import Decimal
 from uuid import UUID
 
 from pydantic import Field
@@ -15,4 +16,4 @@ class FixedIncomeAssetDTO(BaseDTO):
     investment_type: FixedIncomeType
     rate_index: RateIndexType
     maturity_date: date
-    interest_rate: float
+    interest_rate: Decimal

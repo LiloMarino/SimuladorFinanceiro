@@ -21,7 +21,7 @@ export default function VariableIncomeDetailPage() {
   const { ticker } = useParams<{ ticker: string }>();
   const { data: stock, isLoading: loading } = useVariableIncomeStock(ticker);
   const { data: cashData } = usePortfolioCash();
-  const { cash = 0 } = cashData ?? {};
+  const { cash = "0" } = cashData ?? {};
   const pendingOrders = usePendingOrders(ticker);
   const { data: position } = usePortfolioPosition(ticker);
 

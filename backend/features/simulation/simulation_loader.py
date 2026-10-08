@@ -8,6 +8,7 @@ from backend.core.dto.simulation import (
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
+from backend.core.utils import next_business_day
 from backend.features.realtime import notify
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_loop import simulation_controller
@@ -36,11 +37,24 @@ class SimulationLoader:
 
     @classmethod
     def load(cls, summary: SimulationSummaryDTO) -> SimulationDTO:
-        """Retoma uma simulação existente a partir do último snapshot."""
-        last_snapshot_date = repository.snapshot.get_last_snapshot_date(summary.id)
-        resume_start = last_snapshot_date or summary.start_date
+        """
+        Retoma uma simulação existente no dia útil seguinte ao último dia registrado.
 
-        if resume_start >= summary.end_date:
+        Eventos são a fonte da verdade: um dia sem evento nem snapshot não mudou
+        nada persistido, então reprocessar os dias depois do último registro chega
+        ao mesmo estado em que o jogador parou.
+        """
+        last_dates = [
+            d
+            for d in (
+                repository.event.get_last_event_date(summary.id),
+                repository.snapshot.get_last_snapshot_date(summary.id),
+            )
+            if d is not None
+        ]
+        resume_from = max(last_dates) if last_dates else None
+
+        if resume_from and next_business_day(resume_from) > summary.end_date:
             raise UnprocessableEntityError(
                 "A simulação já chegou na data final e não pode ser continuada."
             )
@@ -51,11 +65,12 @@ class SimulationLoader:
             SimulationDTO(
                 id=summary.id,
                 name=summary.name,
-                start_date=resume_start,
+                start_date=summary.start_date,
                 end_date=summary.end_date,
                 starting_cash=summary.starting_cash,
                 monthly_contribution=summary.monthly_contribution,
-            )
+            ),
+            resume_from=resume_from,
         )
         repository.simulation.touch_last_simulated(summary.id)
         SimulationManager.register_simulation(sim)

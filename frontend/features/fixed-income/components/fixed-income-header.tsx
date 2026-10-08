@@ -1,11 +1,13 @@
 import { displayPercent } from "@/shared/lib/utils/display";
 import { FixedIncomeAsset } from "../models/FixedIncomeAsset";
+import type { FixedIncomeProjection } from "@/types";
 
 interface FixedIncomeHeaderProps {
   asset: FixedIncomeAsset;
+  projection: FixedIncomeProjection;
 }
 
-export function FixedIncomeHeader({ asset }: FixedIncomeHeaderProps) {
+export function FixedIncomeHeader({ asset, projection }: FixedIncomeHeaderProps) {
   return (
     <div className="border-b border-slate-200 p-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -18,7 +20,7 @@ export function FixedIncomeHeader({ asset }: FixedIncomeHeaderProps) {
         <div className="text-right">
           <h3 className="text-3xl md:text-4xl font-bold text-slate-800">{asset.rateLabel}</h3>
           <span className="text-green-600 font-medium inline-block mt-2">
-            Retorno esperado: {displayPercent(asset.grossReturn)} no período
+            Retorno esperado: {displayPercent(projection.gross_return_pct)} no período
           </span>
         </div>
       </div>

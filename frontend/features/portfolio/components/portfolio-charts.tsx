@@ -1,20 +1,10 @@
 import { PortfolioPieChart } from "./portfolio-pie-chart";
 import { PortfolioAreaChart } from "./portfolio-area-chart";
-import type { PatrimonialHistory } from "@/types";
-
-interface VariablePositionForChart {
-  ticker: string;
-  currentValue: number;
-}
-
-interface FixedPositionForChart {
-  name: string;
-  currentValue: number;
-}
+import type { FixedIncomePosition, PatrimonialHistory, PortfolioPosition } from "@/types";
 
 interface PortfolioChartsProps {
-  variablePositions: VariablePositionForChart[];
-  fixedPositions: FixedPositionForChart[];
+  variablePositions: PortfolioPosition[];
+  fixedPositions: FixedIncomePosition[];
   patrimonialHistory: PatrimonialHistory[];
 }
 
@@ -22,11 +12,11 @@ export function PortfolioCharts({ variablePositions, fixedPositions, patrimonial
   const pieData = [
     ...variablePositions.map((pos) => ({
       name: pos.ticker,
-      value: pos.currentValue,
+      value: Number(pos.current_value),
     })),
     ...fixedPositions.map((pos) => ({
-      name: pos.name,
-      value: pos.currentValue,
+      name: pos.asset.name,
+      value: Number(pos.current_value),
     })),
   ];
   return (

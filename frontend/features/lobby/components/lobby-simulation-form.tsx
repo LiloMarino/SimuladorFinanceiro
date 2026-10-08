@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formatMoney } from "@/shared/lib/utils/format";
+import { toCentsString } from "@/shared/lib/utils/display";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
@@ -55,8 +56,8 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
       name: simulationData.name,
       startDate: simulationData.start_date,
       endDate: simulationData.end_date,
-      startingCash: formatMoney(String(simulationData.starting_cash * 100)),
-      monthlyContribution: formatMoney(String(simulationData.monthly_contribution * 100)),
+      startingCash: formatMoney(toCentsString(simulationData.starting_cash)),
+      monthlyContribution: formatMoney(toCentsString(simulationData.monthly_contribution)),
     },
   });
 
@@ -72,8 +73,8 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
       name: string;
       start_date: string;
       end_date: string;
-      starting_cash: number;
-      monthly_contribution: number;
+      starting_cash: string;
+      monthly_contribution: string;
     }) => apiFetch<SimulationInfo>("/api/simulation/create", { method: "POST", body }),
     onSuccess: () => toast.success("Simulação criada com sucesso!"),
     onError: (err) => toast.error(err.message),
@@ -115,8 +116,8 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
             name: form.getValues("name"),
             start_date: form.getValues("startDate"),
             end_date: form.getValues("endDate"),
-            starting_cash: Number(normalizeNumberString(form.getValues("startingCash"))),
-            monthly_contribution: Number(normalizeNumberString(form.getValues("monthlyContribution"))),
+            starting_cash: normalizeNumberString(form.getValues("startingCash")),
+            monthly_contribution: normalizeNumberString(form.getValues("monthlyContribution")),
           })
         }
       >

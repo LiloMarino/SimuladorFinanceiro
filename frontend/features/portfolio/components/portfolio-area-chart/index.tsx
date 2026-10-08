@@ -15,9 +15,11 @@ interface PortfolioAreaChartProps {
 export function PortfolioAreaChart({ data }: PortfolioAreaChartProps) {
   const { visible, toggle } = useStaticChartVisibility(PORTFOLIO_AREA_SERIES);
 
-  const chartData = data.map((item) => ({
-    ...item,
-    timestamp: new Date(`${item.snapshot_date}T00:00:00`).getTime(),
+  // Séries em number só para a geometria; o tooltip formata a string original do snapshot
+  const chartData = data.map((snapshot) => ({
+    snapshot,
+    timestamp: new Date(`${snapshot.snapshot_date}T00:00:00`).getTime(),
+    ...Object.fromEntries(PORTFOLIO_AREA_SERIES.map((s) => [s.key, Number(snapshot[s.key])])),
   }));
 
   if (!data.length) {

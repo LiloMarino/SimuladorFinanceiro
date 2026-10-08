@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 from threading import Lock
 
 from backend import config
@@ -25,8 +26,10 @@ class SettingsManager:
                     name=repository.simulation.generate_default_name(),
                     start_date=date.fromisoformat(config.toml.simulation.start_date),
                     end_date=date.fromisoformat(config.toml.simulation.end_date),
-                    starting_cash=config.toml.simulation.starting_cash,
-                    monthly_contribution=config.toml.simulation.monthly_contribution,
+                    starting_cash=Decimal(str(config.toml.simulation.starting_cash)),
+                    monthly_contribution=Decimal(
+                        str(config.toml.simulation.monthly_contribution)
+                    ),
                 )
             return cls._settings
 

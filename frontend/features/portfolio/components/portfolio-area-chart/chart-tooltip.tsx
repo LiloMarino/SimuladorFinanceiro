@@ -1,14 +1,16 @@
 import type { TooltipProps } from "recharts";
 import { displayDate, displayMoney } from "@/shared/lib/utils/display";
+import type { PatrimonialHistory } from "@/types";
+import type { PortfolioSeriesKey } from "./series";
 
 export function PortfolioAreaTooltip({ active, payload, label }: TooltipProps<number, string>) {
   if (!active || !payload || !payload.length) return null;
 
   const entries = payload as Array<{
-    dataKey?: string;
+    dataKey?: PortfolioSeriesKey;
     name?: string;
     color?: string;
-    value?: number;
+    payload?: { snapshot: PatrimonialHistory };
   }>;
 
   return (
@@ -23,7 +25,7 @@ export function PortfolioAreaTooltip({ active, payload, label }: TooltipProps<nu
               <span className="text-sm text-muted-foreground">{entry.name}</span>
             </div>
 
-            <span className="text-sm font-semibold text-foreground">{displayMoney(entry.value ?? 0)}</span>
+            <span className="text-sm font-semibold text-foreground">{entry.dataKey && entry.payload ? displayMoney(entry.payload.snapshot[entry.dataKey]) : "--"}</span>
           </div>
         ))}
       </div>

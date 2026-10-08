@@ -8,10 +8,13 @@ export const queryKeys = {
   economicIndicators: () => ["economic-indicators"] as const,
   fixedIncomeList: () => ["fixed-income", "list"] as const,
   fixedIncomeAsset: (id: string) => ["fixed-income", id] as const,
+  fixedIncomeProjection: (id: string, amount: string, currentDate: string) =>
+    ["fixed-income", id, "projection", amount, currentDate] as const,
   variableIncomeList: () => ["variable-income", "list"] as const,
   variableIncomeStock: (ticker: string) => ["variable-income", ticker] as const,
   variableIncomeOrders: (ticker: string) => ["variable-income", ticker, "orders"] as const,
   portfolio: () => ["portfolio"] as const,
+  patrimonialHistory: () => ["portfolio", "history"] as const,
   portfolioPosition: (ticker: string) => ["portfolio", ticker] as const,
   portfolioCash: () => ["portfolio", "cash"] as const,
   statistics: () => ["statistics"] as const,

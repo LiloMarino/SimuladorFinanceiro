@@ -1,6 +1,5 @@
 import re
 from datetime import UTC, datetime
-from decimal import Decimal
 
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
@@ -25,8 +24,8 @@ class SimulationRepository:
             name=settings.name,
             start_date=settings.start_date,
             end_date=settings.end_date,
-            starting_cash=Decimal(str(settings.starting_cash)),
-            monthly_contribution=Decimal(str(settings.monthly_contribution)),
+            starting_cash=settings.starting_cash,
+            monthly_contribution=settings.monthly_contribution,
             created_at=now,
             last_simulated_at=now,
         )
@@ -113,8 +112,8 @@ class SimulationRepository:
             name=simulation.name,
             start_date=simulation.start_date,
             end_date=simulation.end_date,
-            starting_cash=float(simulation.starting_cash),
-            monthly_contribution=float(simulation.monthly_contribution),
+            starting_cash=simulation.starting_cash,
+            monthly_contribution=simulation.monthly_contribution,
             created_at=simulation.created_at,
             last_simulated_at=simulation.last_simulated_at,
         )

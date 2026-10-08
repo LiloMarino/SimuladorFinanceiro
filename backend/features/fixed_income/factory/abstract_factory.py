@@ -2,6 +2,7 @@ import random
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from datetime import date, timedelta
+from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
@@ -54,25 +55,27 @@ class AbstractFixedIncomeFactory(ABC):
     # =========================================================
     def _random_rate(
         self,
-        base_value: float,
+        base_value: float | Decimal,
         delta: float,
         multiplier: float = 1.0,
         step: float | None = None,
         precision: int = 4,
-    ) -> float:
+    ) -> Decimal:
         """
         Gera uma taxa aleatória em torno de base ± delta.
 
         - step: se informado, força múltiplos (ex: 0.05)
-        - precision: casas decimais finais
+        - precision: casas decimais finais (no máximo as 6 do NUMERIC do banco,
+          para a taxa em memória ser a mesma que volta do banco na retomada)
         """
-        raw = random.uniform(base_value - delta, base_value + delta)
+        base = float(base_value)
+        raw = random.uniform(base - delta, base + delta)
         rate = raw * multiplier
 
         if step is not None:
             rate = round(rate / step) * step
 
-        return round(rate, precision)
+        return Decimal(str(round(rate, precision)))
 
     # =========================================================
     # ======== GERADORES POR INDEXADOR (alto nível)
@@ -80,7 +83,7 @@ class AbstractFixedIncomeFactory(ABC):
     def _generate_cdi_rate(
         self,
         multiplier: float = 1.0,
-    ) -> float:
+    ) -> Decimal:
         upper_bound = 1.2
         lower_bound = 1.0
         base_value = (upper_bound + lower_bound) / 2
@@ -95,9 +98,9 @@ class AbstractFixedIncomeFactory(ABC):
     def _generate_ipca_spread(
         self,
         current_date: date,
-        spread_index: Callable[[date], float],
+        spread_index: Callable[[date], Decimal],
         multiplier: float = 1.0,
-    ) -> float:
+    ) -> Decimal:
         """
         Retorna spread real (ex: 0.045 = IPCA + 4.5%)
         """
@@ -109,9 +112,9 @@ class AbstractFixedIncomeFactory(ABC):
     def _generate_prefixado_rate(
         self,
         current_date: date,
-        base_index: Callable[[date], float],
+        base_index: Callable[[date], Decimal],
         multiplier: float = 1.0,
-    ) -> float:
+    ) -> Decimal:
         """
         Retorna taxa anual do prefixado (ex: 0.15 = 15% ao ano)
         """
@@ -121,7 +124,7 @@ class AbstractFixedIncomeFactory(ABC):
 
     def _generate_selic_spread(
         self,
-    ) -> float:
+    ) -> Decimal:
         """
         Retorna o spread da SELIC (ex: 0.0005 = SELIC + 0.005%)
         """

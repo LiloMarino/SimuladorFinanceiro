@@ -32,7 +32,9 @@ class UserRepository:
 
     @transactional
     def get_by_client_id(self, session: Session, client_id: UUID) -> UserDTO | None:
-        user = session.execute(select(Users).where(Users.client_id == client_id)).scalar_one_or_none()
+        user = session.execute(
+            select(Users).where(Users.client_id == client_id)
+        ).scalar_one_or_none()
         if not user:
             return None
 
@@ -44,7 +46,9 @@ class UserRepository:
 
     @transactional
     def get_by_nickname(self, session: Session, nickname: str) -> UserDTO | None:
-        user = session.execute(select(Users).where(Users.nickname == nickname)).scalar_one_or_none()
+        user = session.execute(
+            select(Users).where(Users.nickname == nickname)
+        ).scalar_one_or_none()
         if not user:
             return None
 
@@ -55,7 +59,7 @@ class UserRepository:
         )
 
     @transactional
-    def get_user_balance(self, session: Session, client_id: UUID) -> float:
+    def get_user_balance(self, session: Session, client_id: UUID) -> Decimal:
         simulation_id = SimulationManager.get_active_simulation_id()
 
         # --------------------------------------------------
@@ -76,7 +80,7 @@ class UserRepository:
                             Case(
                                 (
                                     EventCashflow.event_type.in_(
-                                        ["DEPOSIT", "DIVIDEND"]
+                                        ["DEPOSIT", "DIVIDEND", "CONTRIBUTION"]
                                     ),
                                     EventCashflow.amount,
                                 ),
@@ -96,7 +100,20 @@ class UserRepository:
             ).scalar_one()
         )
 
-        return float(total_cash)
+        return total_cash
+
+    @transactional
+    def get_total_contribution(self, session: Session, user_id: int) -> Decimal:
+        simulation_id = SimulationManager.get_active_simulation_id()
+        return Decimal(
+            session.execute(
+                select(func.coalesce(func.sum(EventCashflow.amount), 0)).where(
+                    EventCashflow.user_id == user_id,
+                    EventCashflow.simulation_id == simulation_id,
+                    EventCashflow.event_type == "CONTRIBUTION",
+                )
+            ).scalar_one()
+        )
 
     @transactional
     def get_all_users(self, session: Session) -> list[UserDTO]:
@@ -134,7 +151,7 @@ class UserRepository:
         session: Session,
         simulation_id: int,
         event_date: date,
-        starting_cash: float,
+        starting_cash: Decimal,
     ) -> None:
         users = session.execute(select(Users)).scalars().all()
 

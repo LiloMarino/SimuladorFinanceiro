@@ -1,7 +1,9 @@
+from decimal import Decimal
+
 from backend.core.dto.base import BaseDTO
 
 
 class EconomicIndicatorsDTO(BaseDTO):
-    ipca: float
-    selic: float
-    cdi: float
+    ipca: Decimal
+    selic: Decimal
+    cdi: Decimal

@@ -1,9 +1,13 @@
-from fastapi import APIRouter, status
+from decimal import Decimal
+from typing import Annotated
+
+from fastapi import APIRouter, Query, status
 from pydantic import BaseModel, Field
 
 from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
+from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.exceptions.http_exceptions import (
@@ -32,7 +36,7 @@ class CancelOrderRequest(BaseModel):
 
 
 class BuyFixedIncomeRequest(BaseModel):
-    quantity: float = Field(..., gt=0)
+    quantity: Decimal = Field(..., gt=0)
 
 
 class SubmitOrderResponse(BaseModel):
@@ -185,6 +189,26 @@ def get_fixed_income_details(simulation: ActiveSimulation, asset_uuid: str):
     if not fixed:
         raise NotFoundError("Asset not found.")
     return fixed
+
+
+@operation_router.get(
+    "/fixed-income/{asset_uuid}/projection",
+    response_model=FixedIncomeProjectionDTO,
+    summary="Projetar investimento em renda fixa",
+    description="Projeta o valor aplicado hoje até o vencimento: bruto, IR e líquido. Pós-fixados usam o último valor conhecido do indexador.",
+)
+def get_fixed_income_projection(
+    simulation: ActiveSimulation,
+    asset_uuid: str,
+    amount: Annotated[Decimal, Query(ge=0)] = Decimal(0),
+):
+    """
+    Projeta um investimento no ativo de renda fixa.
+    """
+    fixed = simulation.get_fixed_asset(asset_uuid)
+    if not fixed:
+        raise NotFoundError("Ativo de renda fixa não encontrado")
+    return simulation.project_fixed_income(fixed, amount)
 
 
 @operation_router.post(

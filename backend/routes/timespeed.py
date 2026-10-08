@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -20,7 +22,7 @@ class SetSpeedResponse(BaseModel):
 class SimulationStateResponse(BaseModel):
     current_date: str
     speed: int
-    cash: float
+    cash: Decimal
 
 
 @timespeed_router.post(

@@ -1,12 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
+import { displayMoney, displayPercent, isLoss } from "@/shared/lib/utils/display";
 import { Eye } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { VariablePosition } from "../lib/portfolio-calculator";
+import type { PortfolioPosition } from "@/types";
 
 interface VariableIncomeTableProps {
-  variablePositions: VariablePosition[];
+  variablePositions: PortfolioPosition[];
 }
 
 export function VariableIncomeTable({ variablePositions }: VariableIncomeTableProps) {
@@ -42,16 +42,16 @@ export function VariableIncomeTable({ variablePositions }: VariableIncomeTablePr
             {variablePositions.map((pos) => (
               <TableRow key={pos.ticker} className="text-center [&>td]:py-4">
                 <TableCell>{pos.ticker}</TableCell>
-                <TableCell>{displayMoney(pos.averagePrice)}</TableCell>
-                <TableCell>{displayMoney(pos.currentPrice)}</TableCell>
-                <TableCell>{pos.quantity}</TableCell>
-                <TableCell>{displayMoney(pos.currentValue)}</TableCell>
-                <TableCell>{displayPercent(pos.portfolioPercent)}</TableCell>
-                <TableCell className={pos.returnValue >= 0 ? "text-success" : "text-destructive"}>
-                  {displayMoney(pos.returnValue)}
+                <TableCell>{displayMoney(pos.avg_price)}</TableCell>
+                <TableCell>{displayMoney(pos.current_price)}</TableCell>
+                <TableCell>{pos.size}</TableCell>
+                <TableCell>{displayMoney(pos.current_value)}</TableCell>
+                <TableCell>{displayPercent(pos.portfolio_pct)}</TableCell>
+                <TableCell className={isLoss(pos.return_value) ? "text-destructive" : "text-success"}>
+                  {displayMoney(pos.return_value)}
                 </TableCell>
-                <TableCell className={pos.returnValue >= 0 ? "text-success" : "text-destructive"}>
-                  {displayPercent(pos.returnPercent)}
+                <TableCell className={isLoss(pos.return_value) ? "text-destructive" : "text-success"}>
+                  {displayPercent(pos.return_pct)}
                 </TableCell>
                 <TableCell>
                   <Link

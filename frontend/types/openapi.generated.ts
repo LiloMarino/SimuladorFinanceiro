@@ -112,6 +112,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/fixed-income/{asset_uuid}/projection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Projetar investimento em renda fixa
+         * @description Projeta o valor aplicado hoje até o vencimento: bruto, IR e líquido. Pós-fixados usam o último valor conhecido do indexador.
+         */
+        get: operations["get_fixed_income_projection_api_fixed_income__asset_uuid__projection_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/fixed-income/{asset_uuid}/buy": {
         parameters: {
             query?: never;
@@ -141,9 +161,29 @@ export interface paths {
         };
         /**
          * Obter portfólio
-         * @description Retorna o portfólio atual do cliente com todas as posições e saldos.
+         * @description Retorna o portfólio atual do cliente com todas as posições, saldos, totais e rentabilidade já calculados.
          */
         get: operations["get_portfolio_api_portfolio_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolio/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter histórico patrimonial
+         * @description Retorna os snapshots mensais do patrimônio do cliente, em ordem cronológica.
+         */
+        get: operations["get_patrimonial_history_api_portfolio_history_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -607,7 +647,7 @@ export interface paths {
         put?: never;
         /**
          * Continuar última simulação
-         * @description Continua a simulação jogada mais recentemente, a partir do último snapshot salvo.
+         * @description Continua a simulação jogada mais recentemente, a partir do dia seguinte ao último evento registrado.
          */
         post: operations["continue_simulation_api_simulation_continue_post"];
         delete?: never;
@@ -799,7 +839,7 @@ export interface components {
         /** BuyFixedIncomeRequest */
         BuyFixedIncomeRequest: {
             /** Quantity */
-            quantity: number;
+            quantity: number | string;
         };
         /** CancelOrderRequest */
         CancelOrderRequest: {
@@ -837,12 +877,12 @@ export interface components {
         /** CashResponse */
         CashResponse: {
             /** Cash */
-            cash: number;
+            cash: string;
         };
         /** CashUpdateEventDTO */
         CashUpdateEventDTO: {
             /** Cash */
-            cash: number;
+            cash: string;
         };
         /** CreateSimulationRequest */
         CreateSimulationRequest: {
@@ -859,21 +899,21 @@ export interface components {
              */
             end_date: string;
             /** Starting Cash */
-            starting_cash: number;
+            starting_cash: number | string;
             /**
              * Monthly Contribution
              * @default 0
              */
-            monthly_contribution: number;
+            monthly_contribution: number | string;
         };
         /** EconomicIndicatorsDTO */
         EconomicIndicatorsDTO: {
             /** Ipca */
-            ipca: number;
+            ipca: string;
             /** Selic */
-            selic: number;
+            selic: string;
             /** Cdi */
-            cdi: number;
+            cdi: string;
         };
         /** ErrorResponse */
         ErrorResponse: {
@@ -904,25 +944,66 @@ export interface components {
              */
             maturity_date: string;
             /** Interest Rate */
-            interest_rate: number;
+            interest_rate: string;
         };
         /** FixedIncomePositionDTO */
         FixedIncomePositionDTO: {
             asset: components["schemas"]["FixedIncomeAssetDTO"];
             /** Total Applied */
-            total_applied: number;
+            total_applied: string;
             /** Current Value */
-            current_value: number;
+            current_value: string;
             /**
              * First Applied Date
              * Format: date
              */
             first_applied_date: string;
+            /** Return Value */
+            return_value: string;
+            /** Return Pct */
+            return_pct: string;
+            /** Portfolio Pct */
+            portfolio_pct: string;
         };
-        /** FixedIncomePositionUpdateEventDTO */
-        FixedIncomePositionUpdateEventDTO: {
-            /** Positions */
-            positions: components["schemas"]["FixedIncomePositionDTO"][];
+        /**
+         * FixedIncomeProjectionDTO
+         * @description Projeção de um investimento levado até o vencimento.
+         *
+         *     Percentuais são frações sobre o valor aplicado (0.12 = 12%) e não dependem
+         *     de `amount`, então valem mesmo com `amount` zero.
+         */
+        FixedIncomeProjectionDTO: {
+            /** Amount */
+            amount: string;
+            /** Index Rate */
+            index_rate: string;
+            /** Effective Annual Rate */
+            effective_annual_rate: string;
+            /** Business Days */
+            business_days: number;
+            /**
+             * Redemption Date
+             * Format: date
+             */
+            redemption_date: string;
+            /** Gross Amount */
+            gross_amount: string;
+            /** Gross Return */
+            gross_return: string;
+            /** Gross Return Pct */
+            gross_return_pct: string;
+            /** Income Tax Rate */
+            income_tax_rate: string;
+            /** Income Tax */
+            income_tax: string;
+            /** Income Tax Pct */
+            income_tax_pct: string;
+            /** Net Amount */
+            net_amount: string;
+            /** Net Return */
+            net_return: string;
+            /** Net Return Pct */
+            net_return_pct: string;
         };
         /**
          * FixedIncomeType
@@ -1002,7 +1083,7 @@ export interface components {
             ticker: string;
             action: components["schemas"]["OrderAction"];
             /** Price */
-            price: number;
+            price: string;
             /** Quantity */
             quantity: number;
         };
@@ -1021,7 +1102,7 @@ export interface components {
             ticker: string;
             action: components["schemas"]["OrderAction"];
             /** Price */
-            price: number;
+            price: string;
             /** Quantity */
             quantity: number;
             /** Remaining */
@@ -1060,7 +1141,7 @@ export interface components {
             /** Player Nickname */
             player_nickname: string;
             /** Starting Cash */
-            starting_cash: number;
+            starting_cash: string;
             /** History */
             history: components["schemas"]["PatrimonialHistoryDTO"][];
         };
@@ -1077,15 +1158,56 @@ export interface components {
         /** PortfolioDTO */
         PortfolioDTO: {
             /** Starting Cash */
-            starting_cash: number;
+            starting_cash: string;
             /** Cash */
-            cash: number;
+            cash: string;
+            /** Total Networth */
+            total_networth: string;
+            /** Invested Value */
+            invested_value: string;
+            /** Variable Income Value */
+            variable_income_value: string;
+            /** Fixed Income Value */
+            fixed_income_value: string;
+            /** Invested Pct */
+            invested_pct: string;
+            /** Variable Income Pct */
+            variable_income_pct: string;
+            /** Fixed Income Pct */
+            fixed_income_pct: string;
+            /** Total Return Pct */
+            total_return_pct: string;
             /** Variable Income */
-            variable_income: components["schemas"]["PositionDTO"][];
+            variable_income: components["schemas"]["PortfolioPositionDTO"][];
             /** Fixed Income */
             fixed_income: components["schemas"]["FixedIncomePositionDTO"][];
-            /** Patrimonial History */
-            patrimonial_history: components["schemas"]["PatrimonialHistoryDTO"][];
+        };
+        /** PortfolioPositionDTO */
+        PortfolioPositionDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Size */
+            size: number;
+            /** Reserved */
+            reserved: number;
+            /** Total Cost */
+            total_cost: string;
+            /** Avg Price */
+            avg_price: string;
+            /** Current Price */
+            current_price: string;
+            /** Current Value */
+            current_value: string;
+            /** Return Value */
+            return_value: string;
+            /** Return Pct */
+            return_pct: string;
+            /** Portfolio Pct */
+            portfolio_pct: string;
+        };
+        /** PortfolioUpdateEventDTO */
+        PortfolioUpdateEventDTO: {
+            portfolio: components["schemas"]["PortfolioDTO"];
         };
         /** PositionDTO */
         PositionDTO: {
@@ -1096,9 +1218,17 @@ export interface components {
             /** Reserved */
             reserved: number;
             /** Total Cost */
-            total_cost: number;
+            total_cost: string;
             /** Avg Price */
-            avg_price: number;
+            avg_price: string;
+            /** Current Price */
+            current_price: string;
+            /** Current Value */
+            current_value: string;
+            /** Return Value */
+            return_value: string;
+            /** Return Pct */
+            return_pct: string;
         };
         /** PositionUpdateEventDTO */
         PositionUpdateEventDTO: {
@@ -1124,7 +1254,7 @@ export interface components {
             stocks_update: components["schemas"]["StocksUpdateEventDTO"];
             fixed_assets_update: components["schemas"]["FixedAssetsUpdateEventDTO"];
             snapshot_update: components["schemas"]["SnapshotUpdateEventDTO"];
-            fixed_income_position_update: components["schemas"]["FixedIncomePositionUpdateEventDTO"];
+            portfolio_update: components["schemas"]["PortfolioUpdateEventDTO"];
             statistics_snapshot_update: components["schemas"]["StatisticsSnapshotUpdateEventDTO"];
             order_executed: components["schemas"]["OrderExecutedEventDTO"];
             order_partial_executed: components["schemas"]["OrderPartialExecutedEventDTO"];
@@ -1177,9 +1307,9 @@ export interface components {
              */
             end_date: string;
             /** Starting Cash */
-            starting_cash: number;
+            starting_cash: string;
             /** Monthly Contribution */
-            monthly_contribution: number;
+            monthly_contribution: string;
             /** Id */
             id: number;
         };
@@ -1206,9 +1336,9 @@ export interface components {
              */
             end_date: string;
             /** Starting Cash */
-            starting_cash: number;
+            starting_cash: string;
             /** Monthly Contribution */
-            monthly_contribution: number;
+            monthly_contribution: string;
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
@@ -1223,7 +1353,7 @@ export interface components {
             /** Speed */
             speed: number;
             /** Cash */
-            cash: number;
+            cash: string;
         };
         /** SimulationStatusResponse */
         SimulationStatusResponse: {
@@ -1246,9 +1376,9 @@ export interface components {
              */
             end_date: string;
             /** Starting Cash */
-            starting_cash: number;
+            starting_cash: string;
             /** Monthly Contribution */
-            monthly_contribution: number;
+            monthly_contribution: string;
             /** Id */
             id: number;
             /**
@@ -1418,12 +1548,12 @@ export interface components {
              */
             end_date: string;
             /** Starting Cash */
-            starting_cash: number;
+            starting_cash: number | string;
             /**
              * Monthly Contribution
              * @default 0
              */
-            monthly_contribution: number;
+            monthly_contribution: number | string;
         };
         /** UpdateSubscriptionRequest */
         UpdateSubscriptionRequest: {
@@ -1751,6 +1881,48 @@ export interface operations {
             };
         };
     };
+    get_fixed_income_projection_api_fixed_income__asset_uuid__projection_get: {
+        parameters: {
+            query?: {
+                amount?: number | string;
+            };
+            header?: never;
+            path: {
+                asset_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FixedIncomeProjectionDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     buy_fixed_income_api_fixed_income__asset_uuid__buy_post: {
         parameters: {
             query?: never;
@@ -1809,6 +1981,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PortfolioDTO"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_patrimonial_history_api_portfolio_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatrimonialHistoryDTO"][];
                 };
             };
             /** @description Internal Server Error */

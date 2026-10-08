@@ -1,22 +1,36 @@
 from dataclasses import dataclass, field
 from datetime import date
+from decimal import Decimal
 
-from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.enum import FixedIncomeType, RateIndexType
+from backend.features.fixed_income.accrual import (
+    daily_factor,
+    effective_annual_rate,
+    income_tax_rate,
+    index_rate_on,
+    net_redemption,
+    redemption_date,
+)
 
 
 @dataclass
 class FixedIncomePosition:
     asset: FixedIncomeAssetDTO
-    total_applied: float  # Capital inicial (C)
-    current_value: float = field(init=False)  # Montante (M)
+    total_applied: Decimal  # Capital aplicado (C)
     first_applied_date: date  # Data do primeiro aporte
+    current_value: Decimal = field(init=False)  # Montante (M)
+    # Último dia útil cujo rendimento já está em `current_value`
+    last_accrual_date: date = field(init=False)
 
     def __post_init__(self):
         self.current_value = self.total_applied
+        self.last_accrual_date = self.first_applied_date
 
-    def invest(self, value: float):
+    @property
+    def redemption_date(self) -> date:
+        return redemption_date(self.asset.maturity_date)
+
+    def invest(self, value: Decimal):
         """
         Aporta mais capital:
         - aumenta o capital aplicado (C)
@@ -25,42 +39,24 @@ class FixedIncomePosition:
         self.total_applied += value
         self.current_value += value
 
-    def apply_daily_interest(self, current_date: date):
+    def accrue(self, day: date):
         """
-        Aplica juros diários sobre o montante (M).
+        Aplica o rendimento do dia útil `day` sobre o montante (M).
+
+        Cada dia rende uma única vez e nada rende depois do resgate, então o tick
+        e a reconstrução por eventos podem chamar para o mesmo dia sem somar duas vezes.
         """
-        annual_rate = self.get_index_rate(current_date, self.asset.rate_index)
-        daily_rate = self.annual_to_daily_rate(annual_rate)
-        self.current_value *= 1 + daily_rate
+        if day <= self.last_accrual_date or day > self.redemption_date:
+            return
 
-    def get_index_rate(self, current_date: date, rate_index: RateIndexType) -> float:
-        match rate_index:
-            case RateIndexType.CDI:
-                return repository.economic.get_cdi_rate(current_date)
-            case RateIndexType.IPCA:
-                return repository.economic.get_ipca_rate(current_date)
-            case RateIndexType.SELIC:
-                return repository.economic.get_selic_rate(current_date)
-            case RateIndexType.PREFIXADO:
-                return self.asset.interest_rate
+        index_rate = index_rate_on(self.asset.rate_index, day)
+        self.current_value *= daily_factor(
+            effective_annual_rate(self.asset, index_rate)
+        )
+        self.last_accrual_date = day
 
-    def annual_to_daily_rate(self, annual_rate: float) -> float:
-        return (1 + annual_rate) ** (1 / 252) - 1
-
-    def calculate_ir(self, current_date: date) -> float:
-        if self.asset.investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA):
-            return 0
-
-        days = (current_date - self.first_applied_date).days
-
-        if days <= 180:
-            rate = 0.225
-        elif days <= 360:
-            rate = 0.20
-        elif days <= 720:
-            rate = 0.175
-        else:
-            rate = 0.15
-
-        profit = self.current_value - self.total_applied
-        return profit * rate
+    def net_redemption_value(self) -> Decimal:
+        """Valor creditado no resgate, já descontado o IR."""
+        days_held = (self.redemption_date - self.first_applied_date).days
+        tax_rate = income_tax_rate(self.asset.investment_type, days_held)
+        return net_redemption(self.current_value, self.total_applied, tax_rate)

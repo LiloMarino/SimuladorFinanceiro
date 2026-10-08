@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from fastapi import APIRouter, status
 from pydantic import BaseModel, Field, model_validator
@@ -7,7 +8,6 @@ from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.simulation import (
-    SimulationDTO,
     SimulationSettingsDTO,
     SimulationStatusResponse,
     SimulationSummaryDTO,
@@ -29,8 +29,8 @@ class CreateSimulationRequest(BaseModel):
     name: str
     start_date: date
     end_date: date
-    starting_cash: float = Field(gt=0)
-    monthly_contribution: float = Field(ge=0, default=0.0)
+    starting_cash: Decimal = Field(gt=0)
+    monthly_contribution: Decimal = Field(ge=0, default=Decimal(0))
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -47,8 +47,8 @@ class UpdateSettingsRequest(BaseModel):
     name: str
     start_date: date
     end_date: date
-    starting_cash: float = Field(gt=0)
-    monthly_contribution: float = Field(ge=0, default=0.0)
+    starting_cash: Decimal = Field(gt=0)
+    monthly_contribution: Decimal = Field(ge=0, default=Decimal(0))
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -111,7 +111,7 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     status_code=201,
     response_model=SimulationStatusResponse,
     summary="Continuar última simulação",
-    description="Continua a simulação jogada mais recentemente, a partir do último snapshot salvo.",
+    description="Continua a simulação jogada mais recentemente, a partir do dia seguinte ao último evento registrado.",
 )
 def continue_simulation(_: HostVerified):
     """

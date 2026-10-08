@@ -17,11 +17,9 @@ class StatisticsRepository:
 
         # 0. Capital inicial vem da linha da simulação (nunca do formulário),
         # garantindo métricas consistentes ao continuar/carregar simulações.
-        starting_cash = float(
-            session.execute(
-                select(Simulations.starting_cash).where(Simulations.id == simulation_id)
-            ).scalar_one()
-        )
+        starting_cash = session.execute(
+            select(Simulations.starting_cash).where(Simulations.id == simulation_id)
+        ).scalar_one()
 
         # 1. Busca todos os usuários
         users = session.query(Users).all()

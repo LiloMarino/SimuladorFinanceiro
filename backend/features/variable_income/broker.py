@@ -32,22 +32,25 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def to_money(price: float) -> Decimal:
+    """Preço de ação (float na origem) em Decimal pelo texto, sem a expansão binária."""
+    return Decimal(str(price))
+
+
 def load_positions(client_id: UUID) -> dict[str, Position]:
+    """Reconstrói as posições repetindo os eventos com as mesmas operações do jogo ao vivo."""
     user_id = UserManager.get_user_id(client_id)
 
-    dtos = repository.portfolio.get_equity_positions(user_id)
-
     positions: dict[str, Position] = {}
+    for event in repository.portfolio.get_equity_events(user_id):
+        position = positions.setdefault(event.ticker, Position(event.ticker))
+        match event.event_type:
+            case EquityEventType.BUY:
+                position.update_buy(event.price, event.quantity)
+            case EquityEventType.SELL:
+                position.update_sell(event.quantity)
 
-    for dto in dtos:
-        positions[dto.ticker] = Position(
-            ticker=dto.ticker,
-            size=dto.size,
-            total_cost=dto.total_cost,
-            avg_price=dto.avg_price,
-        )
-
-    return positions
+    return {ticker: p for ticker, p in positions.items() if p.size > 0}
 
 
 class Broker:
@@ -89,7 +92,7 @@ class Broker:
 
         with self._lock:
             if order.action == OrderAction.BUY:
-                cost = order.price * order.size
+                cost = to_money(order.price) * order.size
                 if self._simulation_engine.get_cash(order.client_id) < cost:
                     raise InsufficentCashError()
 
@@ -112,7 +115,7 @@ class Broker:
 
         with self._lock:
             if order.action == OrderAction.BUY:
-                cost = order.price * order.remaining
+                cost = to_money(order.price) * order.remaining
                 self._simulation_engine.add_cash(order.client_id, cost)
 
             elif order.action == OrderAction.SELL:
@@ -182,7 +185,8 @@ class Broker:
 
             if (
                 order.action == OrderAction.BUY
-                and self._simulation_engine.get_cash(order.client_id) < price * size
+                and self._simulation_engine.get_cash(order.client_id)
+                < to_money(price) * size
             ):
                 raise InsufficentCashError()
 
@@ -207,7 +211,9 @@ class Broker:
                 del self._positions[client_id][ticker]
 
             position_payload = PositionUpdateEventDTO(
-                position=PositionDTO.from_model(position)
+                position=PositionDTO.from_model(
+                    position, self._simulation_engine.get_current_price(position)
+                )
             ).to_json()
 
         notify(
@@ -219,19 +225,20 @@ class Broker:
     def _execute_buy(self, order: Order, size: int, price: float):
         client_id = order.client_id
         ticker = order.ticker
-        cost = price * size
+        money_price = to_money(price)
+        cost = money_price * size
 
         if isinstance(order, MarketOrder):
             self._simulation_engine.add_cash(client_id, -cost)
 
         if isinstance(order, LimitOrder):
-            refund = (order.price - price) * size
+            refund = (to_money(order.price) - money_price) * size
             self._simulation_engine.add_cash(client_id, refund)
 
         self._mutate_position(
             client_id=client_id,
             ticker=ticker,
-            mutation=lambda p: p.update_buy(price, size),
+            mutation=lambda p: p.update_buy(money_price, size),
         )
 
         EventManager.push_event(
@@ -241,7 +248,7 @@ class Broker:
                 event_type=EquityEventType.BUY,
                 ticker=ticker,
                 quantity=size,
-                price=Decimal(price),
+                price=to_money(price),
                 event_date=self._simulation_engine.current_date,
             )
         )
@@ -252,7 +259,7 @@ class Broker:
         client_id = order.client_id
         ticker = order.ticker
 
-        self._simulation_engine.add_cash(client_id, price * size)
+        self._simulation_engine.add_cash(client_id, to_money(price) * size)
 
         def _sell_mutation(p: Position):
             if isinstance(order, LimitOrder):
@@ -272,7 +279,7 @@ class Broker:
                 event_type=EquityEventType.SELL,
                 ticker=ticker,
                 quantity=size,
-                price=Decimal(price),
+                price=to_money(price),
                 event_date=self._simulation_engine.current_date,
             )
         )
