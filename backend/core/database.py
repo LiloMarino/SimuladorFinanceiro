@@ -1,8 +1,10 @@
 import logging
+from functools import cache
 
 from sqlalchemy import create_engine, text
+from sqlalchemy.engine import Engine
 from sqlalchemy.engine.url import URL, make_url
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from backend import config
 from backend.core.models.models import Base
@@ -42,7 +44,13 @@ def create_database_postgres(url_obj):
 # -----------------------------------
 # Factory do Engine
 # -----------------------------------
-def get_engine():
+@cache
+def get_engine() -> Engine:
+    """
+    A engine conecta no primeiro uso: importar o backend não toca no banco. No app,
+    o primeiro uso é o lifespan do main.py, então as threads de request e do loop
+    da simulação já a encontram criada.
+    """
     pg_url = config.env.postgres_url
 
     if not pg_url:
@@ -64,5 +72,6 @@ def get_engine():
     return engine
 
 
-engine = get_engine()
-SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+@cache
+def get_session_factory() -> sessionmaker[Session]:
+    return sessionmaker(bind=get_engine(), autocommit=False, autoflush=False)

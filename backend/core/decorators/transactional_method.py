@@ -4,7 +4,7 @@ from typing import Concatenate, ParamSpec, TypeVar
 
 from sqlalchemy.orm import Session
 
-from backend.core.database import SessionLocal
+from backend.core.database import get_session_factory
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -16,7 +16,7 @@ def transactional(
 ) -> Callable[Concatenate[T, P], R]:
     @wraps(func)
     def wrapper(self: T, *args: P.args, **kwargs: P.kwargs) -> R:
-        session = SessionLocal()
+        session = get_session_factory()()
         try:
             result = func(self, session, *args, **kwargs)
             session.commit()

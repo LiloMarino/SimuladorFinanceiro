@@ -36,7 +36,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.core.database import engine
+from backend.core.database import get_engine
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.tunnel_manager import TunnelManager
 from backend.features.realtime.sse_broker import SSEBroker
@@ -55,6 +55,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    engine = get_engine()
     backend = engine.url.get_backend_name()
     logger.info(f"Banco de dados em uso: {backend.upper()} ({engine.url})")
 
