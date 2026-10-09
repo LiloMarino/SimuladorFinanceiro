@@ -8,7 +8,6 @@ from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.models.models import (
     EventCashflow,
-    FixedIncomePosition,
     Snapshots,
 )
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -22,10 +21,12 @@ class SnapshotRepository:
         user_id: int,
         snapshot_date: date,
         total_equity: Decimal,
+        total_fixed: Decimal,
     ) -> SnapshotDTO:
         """
-        `total_equity` vem do motor: é o valor das ações ao preço negociado na
-        simulação, que difere do histórico quando o impacto de preço está ligado.
+        `total_equity` e `total_fixed` vêm do motor: as ações ao preço negociado na
+        simulação, que difere do histórico quando o impacto de preço está ligado, e
+        a renda fixa com o rendimento do dia já acumulado.
         """
         simulation_id = SimulationManager.get_active_simulation_id()
 
@@ -76,23 +77,6 @@ class SnapshotRepository:
                     EventCashflow.simulation_id == simulation_id,
                     EventCashflow.event_type == "CONTRIBUTION",
                     EventCashflow.event_date <= snapshot_date,
-                )
-            ).scalar_one()
-        )
-
-        # --------------------------------------------------
-        # 3. FIXED INCOME (MARK-TO-MARKET)
-        # --------------------------------------------------
-        total_fixed = Decimal(
-            session.execute(
-                select(
-                    func.coalesce(
-                        func.sum(FixedIncomePosition.current_value),
-                        0,
-                    )
-                ).where(
-                    FixedIncomePosition.user_id == user_id,
-                    FixedIncomePosition.simulation_id == simulation_id,
                 )
             ).scalar_one()
         )

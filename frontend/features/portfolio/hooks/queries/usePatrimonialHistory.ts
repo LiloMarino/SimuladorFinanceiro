@@ -5,7 +5,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { PatrimonialHistory } from "@/types";
 
-/** Histórico patrimonial mensal do jogador, mantido vivo via snapshot_update (merge por data). */
+/** Histórico patrimonial diário do jogador, mantido vivo via snapshot_update (merge por data). */
 export function usePatrimonialHistory() {
   const queryClient = useQueryClient();
 

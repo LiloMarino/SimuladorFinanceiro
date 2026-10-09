@@ -1,7 +1,4 @@
-from datetime import UTC, date, datetime
-from decimal import Decimal
-
-from sqlalchemy import delete, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -11,7 +8,6 @@ from backend.core.enum import FixedIncomeEventType, FixedIncomeType, RateIndexTy
 from backend.core.models.models import (
     EventFixedIncome,
     FixedIncomeAsset,
-    FixedIncomePosition,
 )
 
 
@@ -93,61 +89,3 @@ class FixedIncomeRepository:
             )
             for event, asset in rows
         ]
-
-    @transactional
-    def upsert_position(
-        self,
-        session: Session,
-        simulation_id: int,
-        user_id: int,
-        asset_id: int,
-        total_applied: Decimal,
-        current_value: Decimal,
-        accrual_date: date,
-        first_applied_date: date | None = None,
-    ) -> None:
-        stmt = select(FixedIncomePosition).where(
-            FixedIncomePosition.simulation_id == simulation_id,
-            FixedIncomePosition.user_id == user_id,
-            FixedIncomePosition.asset_id == asset_id,
-        )
-
-        position = session.scalar(stmt)
-        now = datetime.now(UTC)
-
-        if position is None:
-            # INSERT
-            position = FixedIncomePosition(
-                simulation_id=simulation_id,
-                user_id=user_id,
-                asset_id=asset_id,
-                total_applied=total_applied,
-                current_value=current_value,
-                last_accrual_date=accrual_date,
-                first_applied_date=first_applied_date,
-                created_at=now,
-                updated_at=now,
-            )
-            session.add(position)
-        else:
-            # UPDATE
-            position.total_applied = total_applied
-            position.current_value = current_value
-            position.last_accrual_date = accrual_date
-            position.updated_at = now
-
-    @transactional
-    def delete_position(
-        self,
-        session: Session,
-        simulation_id: int,
-        user_id: int,
-        asset_id: int,
-    ) -> None:
-        session.execute(
-            delete(FixedIncomePosition).where(
-                FixedIncomePosition.simulation_id == simulation_id,
-                FixedIncomePosition.user_id == user_id,
-                FixedIncomePosition.asset_id == asset_id,
-            )
-        )

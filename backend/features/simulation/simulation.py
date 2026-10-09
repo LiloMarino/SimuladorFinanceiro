@@ -44,7 +44,7 @@ class Simulation:
     Responsável por:
     - Avançar simulação dia-a-dia (next_tick), pulando finais de semana
     - Aplicar contribuições mensais e registrar eventos mensais
-    - Criar snapshots mensais do portfólio de todos os players
+    - Criar snapshots diários do portfólio de todos os players
     - Fornecer interface de alto nível para operações (criar/cancelar ordens, consultar portfólio)
     - Gerenciar velocidade da simulação e notificar atualizações realtime
     - Limpar caches de usuários ao fazer logout
@@ -71,8 +71,8 @@ class Simulation:
             settings.price_impact_decay_days,
         )
 
-        # Controle de snapshot: o mês do último dia processado já recebeu aporte e snapshot
-        self._last_snapshot_month: tuple[int, int] | None = (
+        # O mês do último dia processado já recebeu o aporte
+        self._last_contribution_month: tuple[int, int] | None = (
             (resume_from.year, resume_from.month) if resume_from else None
         )
 
@@ -131,20 +131,15 @@ class Simulation:
         # Executa a estratégia
         self._engine.next(self._current_date)
 
-        if self._has_month_changed():
-            users = repository.user.get_all_users()
+        users = repository.user.get_all_users()
+        month_changed = self._has_month_changed()
 
-            # Processa eventos mensais antes de persistir
+        # O aporte do mês entra nos eventos antes do flush, para o snapshot do dia já contá-lo
+        if month_changed:
             self._apply_monthly_contributions(users)
+        EventManager.flush()
 
-            # Persiste os eventos
-            EventManager.flush()
-
-            # Cria snapshot mensal
-            self._create_monthly_snapshots(users)
-        else:
-            # Persiste os eventos
-            EventManager.flush()
+        self._create_daily_snapshots(users, month_changed)
 
         # Emite notificações
         logger.info(f"Dia atual: {self.get_current_date_formatted()}")
@@ -245,8 +240,8 @@ class Simulation:
     def _has_month_changed(self) -> bool:
         current_month = (self._current_date.year, self._current_date.month)
 
-        if self._last_snapshot_month != current_month:
-            self._last_snapshot_month = current_month
+        if self._last_contribution_month != current_month:
+            self._last_contribution_month = current_month
             return True
 
         return False
@@ -260,30 +255,21 @@ class Simulation:
                 user.client_id, self.settings.monthly_contribution
             )
 
-    def _create_monthly_snapshots(self, users: list[UserDTO]):
+    def _create_daily_snapshots(self, users: list[UserDTO], month_changed: bool):
+        """
+        `statistics_snapshot_update` faz a tela de Estatísticas buscar o histórico
+        inteiro de novo, então sai só na virada do mês; `snapshot_update` é um merge
+        por data no cache da Carteira e sai todo dia.
+        """
         snapshots_payload = []
 
         for user in users:
-            # Obtém as posições de renda fixa antes do snapshot
-            fixed_positions = self.get_fixed_positions(user.client_id)
-
-            for position in fixed_positions.values():
-                asset_id = repository.fixed_income.get_or_create_asset(position.asset)
-                repository.fixed_income.upsert_position(
-                    simulation_id=self.settings.id,
-                    user_id=user.id,
-                    asset_id=asset_id,
-                    total_applied=position.total_applied,
-                    current_value=position.current_value,
-                    accrual_date=self._current_date,
-                    first_applied_date=position.first_applied_date,
-                )
-
-            # Cria o snapshot
+            portfolio = self.get_portfolio(user.client_id)
             snapshot = repository.snapshot.create_snapshot(
                 user_id=user.id,
                 snapshot_date=self._current_date,
-                total_equity=self.get_portfolio(user.client_id).variable_income_value,
+                total_equity=portfolio.variable_income_value,
+                total_fixed=portfolio.fixed_income_value,
             )
 
             # Portfolio (individual)
@@ -300,6 +286,9 @@ class Simulation:
                     snapshot=snapshot,
                 )
             )
+
+        if not month_changed:
+            return
 
         notify(
             event="statistics_snapshot_update",

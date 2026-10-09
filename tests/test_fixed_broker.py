@@ -27,23 +27,16 @@ ASSET_ID = 7
 
 
 @pytest.fixture
-def deleted_positions(
+def fixed_income_db(
     monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEventDTO]
-) -> list[int]:
-    """Banco de renda fixa em memória: sem histórico e registrando as exclusões."""
-    deleted: list[int] = []
+) -> None:
+    """Banco de renda fixa em memória: sem histórico."""
     monkeypatch.setattr(
         repository.fixed_income, "get_events", lambda simulation_id, user_id: []
     )
     monkeypatch.setattr(
         repository.fixed_income, "get_or_create_asset", lambda asset: ASSET_ID
     )
-    monkeypatch.setattr(
-        repository.fixed_income,
-        "delete_position",
-        lambda *, simulation_id, user_id, asset_id: deleted.append(asset_id),
-    )
-    return deleted
 
 
 def _asset(maturity: date = date(2021, 1, 6)) -> FixedIncomeAssetDTO:
@@ -67,7 +60,7 @@ def _fixed_events(events: list[BaseEventDTO]) -> list[FixedIncomeEventDTO]:
 
 
 @pytest.mark.parametrize("value", ["0", "-10"])
-def test_non_positive_value_is_rejected(deleted_positions, value: str):
+def test_non_positive_value_is_rejected(fixed_income_db, value: str):
     """Aplicação de valor zero ou negativo é rejeitada como entrada inválida."""
     broker, _ = _broker()
 
@@ -75,7 +68,7 @@ def test_non_positive_value_is_rejected(deleted_positions, value: str):
         broker.buy(INVESTOR, _asset(), Decimal(value))
 
 
-def test_matured_asset_is_rejected(deleted_positions):
+def test_matured_asset_is_rejected(fixed_income_db):
     """Título com vencimento até a data atual não pode ser comprado."""
     broker, _ = _broker()
 
@@ -83,7 +76,7 @@ def test_matured_asset_is_rejected(deleted_positions):
         broker.buy(INVESTOR, _asset(maturity=BUY_DATE), Decimal("100"))
 
 
-def test_buy_without_cash_is_rejected(deleted_positions, captured_events):
+def test_buy_without_cash_is_rejected(fixed_income_db, captured_events):
     """Aplicação acima do saldo falha sem debitar, abrir posição ou emitir evento."""
     broker, engine = _broker(cash="50")
 
@@ -95,7 +88,7 @@ def test_buy_without_cash_is_rejected(deleted_positions, captured_events):
     assert captured_events == []
 
 
-def test_second_buy_adds_to_same_position(deleted_positions, captured_events):
+def test_second_buy_adds_to_same_position(fixed_income_db, captured_events):
     """Aportes no mesmo título somam na mesma posição e cada um vira um evento BUY."""
     broker, engine = _broker()
     asset = _asset()
@@ -113,7 +106,7 @@ def test_second_buy_adds_to_same_position(deleted_positions, captured_events):
     ]
 
 
-def test_daily_interest_before_redemption_only_accrues(deleted_positions):
+def test_daily_interest_before_redemption_only_accrues(fixed_income_db):
     """Antes do resgate o tick só rende: a posição continua aberta."""
     broker, _ = _broker()
     asset = _asset()
@@ -125,7 +118,7 @@ def test_daily_interest_before_redemption_only_accrues(deleted_positions):
     assert position.current_value > Decimal("1000")
 
 
-def test_redemption_credits_projected_net_value(deleted_positions, captured_events):
+def test_redemption_credits_projected_net_value(fixed_income_db, captured_events):
     """No dia do resgate credita o líquido projetado na compra, fecha a posição e emite REDEEM."""
     asset = _asset(maturity=date(2020, 1, 10))
     broker, engine = _broker()
@@ -141,4 +134,3 @@ def test_redemption_credits_projected_net_value(deleted_positions, captured_even
     assert engine.cash[INVESTOR] == expected
     assert broker.get_fixed_positions(INVESTOR) == {}
     assert (redeem.event_type, redeem.amount) == (FixedIncomeEventType.REDEEM, expected)
-    assert deleted_positions == [ASSET_ID]

@@ -65,9 +65,6 @@ class FixedIncomeAsset(Base):
     event_fixed_income: Mapped[list["EventFixedIncome"]] = relationship(
         "EventFixedIncome", back_populates="asset"
     )
-    fixed_income_position: Mapped[list["FixedIncomePosition"]] = relationship(
-        "FixedIncomePosition", back_populates="asset"
-    )
 
 
 class IpcaHistory(Base):
@@ -166,9 +163,6 @@ class Simulations(Base):
     event_fixed_income: Mapped[list["EventFixedIncome"]] = relationship(
         "EventFixedIncome", back_populates="simulation"
     )
-    fixed_income_position: Mapped[list["FixedIncomePosition"]] = relationship(
-        "FixedIncomePosition", back_populates="simulation"
-    )
     snapshots: Mapped[list["Snapshots"]] = relationship(
         "Snapshots", back_populates="simulation"
     )
@@ -212,9 +206,6 @@ class Users(Base):
     )
     event_fixed_income: Mapped[list["EventFixedIncome"]] = relationship(
         "EventFixedIncome", back_populates="user"
-    )
-    fixed_income_position: Mapped[list["FixedIncomePosition"]] = relationship(
-        "FixedIncomePosition", back_populates="user"
     )
     snapshots: Mapped[list["Snapshots"]] = relationship(
         "Snapshots", back_populates="user"
@@ -396,64 +387,6 @@ class EventFixedIncome(Base):
     user: Mapped["Users"] = relationship("Users", back_populates="event_fixed_income")
     simulation: Mapped["Simulations"] = relationship(
         "Simulations", back_populates="event_fixed_income"
-    )
-
-
-class FixedIncomePosition(Base):
-    __tablename__ = "fixed_income_position"
-    __table_args__ = (
-        ForeignKeyConstraint(
-            ["simulation_id"],
-            ["simulations.id"],
-            ondelete="CASCADE",
-            onupdate="CASCADE",
-            name="fixed_income_position_simulation_fkey",
-        ),
-        ForeignKeyConstraint(
-            ["asset_id"],
-            ["fixed_income_asset.id"],
-            ondelete="RESTRICT",
-            onupdate="CASCADE",
-            name="fixed_income_position_asset_fkey",
-        ),
-        ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-            ondelete="CASCADE",
-            onupdate="CASCADE",
-            name="fixed_income_position_user_fkey",
-        ),
-        PrimaryKeyConstraint(
-            "simulation_id", "user_id", "asset_id", name="fixed_income_position_pkey"
-        ),
-    )
-
-    simulation_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    asset_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    total_applied: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(20, 6), nullable=False
-    )
-    current_value: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(20, 6), nullable=False
-    )
-    last_accrual_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
-    created_at: Mapped[datetime.datetime] = mapped_column(
-        DateTime(True), nullable=False
-    )
-    updated_at: Mapped[datetime.datetime] = mapped_column(
-        DateTime(True), nullable=False
-    )
-    first_applied_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
-
-    asset: Mapped["FixedIncomeAsset"] = relationship(
-        "FixedIncomeAsset", back_populates="fixed_income_position"
-    )
-    user: Mapped["Users"] = relationship(
-        "Users", back_populates="fixed_income_position"
-    )
-    simulation: Mapped["Simulations"] = relationship(
-        "Simulations", back_populates="fixed_income_position"
     )
 
 
