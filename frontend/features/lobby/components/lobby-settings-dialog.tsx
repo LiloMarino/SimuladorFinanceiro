@@ -1,5 +1,3 @@
-import type { ReactNode } from "react";
-import { Info } from "lucide-react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import {
@@ -13,7 +11,7 @@ import {
 } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Checkbox } from "@/shared/components/ui/checkbox";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import { InfoHint } from "@/shared/components/info-hint";
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import type { SimulationFormValues } from "./lobby-simulation-form";
 
@@ -136,11 +134,11 @@ export function LobbySettingsDialog({ open, onOpenChange, form, isHost, loading 
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={disableFields} />
                     </FormControl>
                     <FormLabel>Impacto de preço das ordens</FormLabel>
-                    <FieldHint>
+                    <InfoHint>
                       Uma compra empurra o preço do ativo para cima nos pregões seguintes e uma venda empurra para
                       baixo. O desvio volta sozinho ao preço histórico se ninguém operar de novo. Desligado, os preços
                       seguem exatamente o histórico.
-                    </FieldHint>
+                    </InfoHint>
                   </div>
                   <FormDescription>Ordens grandes movem o preço dos dias seguintes.</FormDescription>
                 </FormItem>
@@ -156,11 +154,11 @@ export function LobbySettingsDialog({ open, onOpenChange, form, isHost, loading 
                     <FormItem>
                       <div className="flex items-center gap-2">
                         <FormLabel>Intensidade (k)</FormLabel>
-                        <FieldHint>
+                        <InfoHint>
                           Impacto = k × √(quantidade ÷ volume médio diário do ativo). Com k = 0,02, comprar 10% do volume
                           médio sobe o preço ~0,63%, e comprar o volume de um dia inteiro sobe ~2%. 0,02 é próximo do
                           mercado real; acima de 0,1 o efeito fica dramático.
-                        </FieldHint>
+                        </InfoHint>
                       </div>
                       <FormControl>
                         <Input inputMode="decimal" placeholder="Ex: 0,02" {...field} disabled={disableFields} />
@@ -178,11 +176,11 @@ export function LobbySettingsDialog({ open, onOpenChange, form, isHost, loading 
                     <FormItem>
                       <div className="flex items-center gap-2">
                         <FormLabel>Volta ao histórico (T)</FormLabel>
-                        <FieldHint>
+                        <InfoHint>
                           Por quantos pregões o desvio dura. O impacto vale cheio no pregão seguinte à ordem e cai pela
                           curva (1 − t/T)²: com T = 20, resta 64% no 5º pregão, 30% no 10º, 9% no 15º e some depois do
                           20º.
-                        </FieldHint>
+                        </InfoHint>
                       </div>
                       <FormControl>
                         <Input
@@ -204,20 +202,5 @@ export function LobbySettingsDialog({ open, onOpenChange, form, isHost, loading 
         </Form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function FieldHint({ children }: { children: ReactNode }) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button type="button" className="text-muted-foreground" aria-label="Como funciona">
-          <Info className="size-4" />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-72">
-        {children}
-      </TooltipContent>
-    </Tooltip>
   );
 }

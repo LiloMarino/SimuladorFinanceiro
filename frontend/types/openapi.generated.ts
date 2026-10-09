@@ -1197,6 +1197,7 @@ export interface components {
             return_value: string;
             /** Return Percent */
             return_percent: string;
+            risk: components["schemas"]["RiskMetricsDTO"];
         };
         /** PlayerPresenceEventDTO */
         PlayerPresenceEventDTO: {
@@ -1314,6 +1315,15 @@ export interface components {
             order_added: components["schemas"]["OrderEventDTO"];
             order_updated: components["schemas"]["OrderEventDTO"];
             order_book_snapshot: components["schemas"]["OrderBookSnapshotEventDTO"];
+        };
+        /** RiskMetricsDTO */
+        RiskMetricsDTO: {
+            /** Max Drawdown */
+            max_drawdown: string | null;
+            /** Annual Volatility */
+            annual_volatility: string | null;
+            /** Sharpe Ratio */
+            sharpe_ratio: string | null;
         };
         /** SessionDTO */
         SessionDTO: {

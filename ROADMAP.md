@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-09):** F13 concluída: impacto de preço das ordens, ligável por partida no lobby.
+> **Última mudança (2026-10-09):** F11 concluída: drawdown, volatilidade e Sharpe por jogador, sobre snapshots que passaram a ser diários.
 
 ## Glossário
 
@@ -33,11 +33,10 @@
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ⏳ |
 | [**F9**](#f9) | Estratégias prontas de exemplo | — | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
-| [**F11**](#f11) | Métricas de risco do desempenho | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (9 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (10 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -47,6 +46,7 @@
 | **D6** | A retomada continua no dia seguinte ao último evento | [F2](#f2) | ✅ |
 | [**F1**](#f1) | Decimal como string do backend ao frontend | — | ✅ |
 | [**F2**](#f2) | Renda fixa com cálculo único no backend e retomada consistente | — | ✅ |
+| [**F11**](#f11) | Métricas de risco do desempenho | — | ✅ |
 | [**F12**](#f12) | Comparação entre simulações | — | ✅ |
 | [**F13**](#f13) | Impacto de preço de ordens grandes | — | ✅ |
 | [**F15**](#f15) | Cliente desktop em Tauri | — | 🚫 |
@@ -64,7 +64,6 @@
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 3 | 🔍 |
 | [**F3**](#f3) | Spike: banco embarcado no executável | M2 | 1 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
-| [**F11**](#f11) | Métricas de risco do desempenho | M5 | 0 | ⏳ |
 
 ---
 
@@ -138,16 +137,17 @@
 >
 > **Serve:** N5, N6
 >
-> **Progresso:** 1/2 concluídas
+> **Progresso:** 2/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F11**](#f11) | Métricas de risco do desempenho | — | ⏳ |
+| — | *(nada em aberto)* | — | — |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F11**](#f11) | Métricas de risco do desempenho | — | ✅ |
 | [**F12**](#f12) | Comparação entre simulações | — | ✅ |
 
 </details>
@@ -181,7 +181,7 @@
 | **F8** | Modo automático: estratégia do jogador roda a cada tick | N4 | D5 | M4 | [F7](#f7) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F9** | Estratégias prontas de exemplo | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
-| **F11** | Métricas de risco do desempenho | N5 | D1, D2 | M5 | — | Médio | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F11** | Métricas de risco do desempenho | N5 | D1, D2 | M5 | — | Médio | Baixo | Alto | Excelente | ✅ Concluído |
 | **F12** | Comparação entre simulações | N6 | D2 | M5 | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F13** | Impacto de preço de ordens grandes | N7 | D1 | — | — | Alto | Alto | Médio | Médio | ✅ Concluído |
 
@@ -211,13 +211,13 @@
 **F10 — Guia de como escrever uma estratégia.** Origem: #49. Página no Docusaurus (grupo "Como Usar"): a classe base, quais métodos o usuário implementa e quais já vêm prontos, o que acontece em cada tick, uma das estratégias da F9 comentada linha a linha, e as limitações (bibliotecas disponíveis no executável, tempo máximo por tick, regra de multiplayer da D5). Gatilho: F8 concluída — a API da classe base só fica estável depois dela.
 
 <a id="f11"></a>
-**F11 — Métricas de risco do desempenho.** Origem: #5 (a #22 foi fechada, mas drawdown e Sharpe não existem no código). Calculadas no backend (D2) a partir dos snapshots diários (D1), descontando os aportes do dia para que o salário mensal não pareça rendimento:
-- **Drawdown máximo:** a maior queda do patrimônio a partir de um pico, antes de recuperá-lo. Ex.: o patrimônio sobe a R$ 15.000 e cai a R$ 12.000 → drawdown de 20%. Quanto menor, melhor; acima de ~30% é uma queda que a maioria das pessoas não aguenta sem vender.
-- **Volatilidade anual:** quanto o patrimônio sobe e desce de um dia para o outro, em média (desvio-padrão dos retornos diários × √252 dias úteis). Ex.: ~1% ao ano é renda fixa; ~25% é uma carteira só de ações.
-- **Índice de Sharpe:** quanto retorno acima do CDI a carteira entregou por unidade de volatilidade = (retorno anual − CDI anual) ÷ volatilidade anual. Ex.: retorno de 18%, CDI de 10%, volatilidade de 16% → Sharpe 0,5. Abaixo de 0 perdeu para o CDI; perto de 1 é bom; acima de 2 é raro. O CDI vem da série de indicadores econômicos que já existe.
+**F11 — Métricas de risco do desempenho.** Origem: #5. O snapshot passou a ser diário (um por jogador por dia útil); `statistics_snapshot_update` continua saindo só na virada do mês, para a tela de Estatísticas não buscar o histórico inteiro a cada tick, e `snapshot_update` (merge por data na Carteira) sai todo dia. O `total_fixed` do snapshot vem das posições em memória do motor, como o `total_equity`, e a tabela `fixed_income_position`, que só existia para alimentá-lo, saiu do modelo. Medido em 100× com 4 jogadores: o tick foi de ~49 ms para ~64 ms (~4,5 ms por jogador). `features/statistics/risk.py` calcula em `Decimal`, a partir dos snapshots (D1) e no backend (D2), o retorno de cada dia descontado o aporte do dia, e sobre ele:
+- **Drawdown máximo:** a maior queda a partir de um pico numa cota que só os rendimentos movem (como a cota de um fundo), então o aporte não disfarça a queda. Ex.: o patrimônio sobe a R$ 15.000 e cai a R$ 12.000 → 20%. Quanto menor, melhor; acima de ~30% é uma queda que a maioria das pessoas não aguenta sem vender.
+- **Volatilidade anual:** desvio-padrão amostral dos retornos diários × √252. Ex.: ~1% ao ano é renda fixa; ~25% é uma carteira só de ações.
+- **Índice de Sharpe:** (retorno anual − CDI anual) ÷ volatilidade anual, com o retorno anual e o CDI anual como a média diária × 252; o CDI de cada dia sai do mesmo fator diário da renda fixa. Ex.: retorno de 18%, CDI de 10%, volatilidade de 16% → 0,5. Abaixo de 0 perdeu para o CDI; perto de 1 é bom; acima de 2 é raro.
 
-Na tela de Estatísticas, cada métrica ganha uma descrição curta ao lado e um tooltip com a definição e como ler.
-**Aceite:** numa série sintética com pico de R$ 15.000 e vale de R$ 12.000, a API retorna drawdown de 20,00%.
+`RiskMetricsDTO` vem aninhado em cada jogador de `/api/statistics` e `/api/statistics/compare`; cada métrica é `null` enquanto a série é curta demais (drawdown a partir do 2º dia, volatilidade e Sharpe a partir do 3º; Sharpe também sem oscilação). Na tela de Estatísticas, o card "Risco da sua carteira" mostra as três com o número de dias da amostra, uma descrição curta ao lado e um tooltip com definição, exemplo e faixa boa/ruim; o ranking (e a comparação) ganhou as três colunas com o mesmo tooltip. O `FieldHint` do lobby virou `shared/components/info-hint.tsx`. Limitações: o CDI ainda é constante em `EconomicRepository`; save anterior tem só os pontos mensais antes da retomada, que entram como um "dia" de variação maior; com volatilidade perto de zero (só renda fixa) o Sharpe fica grande em módulo.
+**Aceite:** numa série sintética com pico de R$ 15.000 e vale de R$ 12.000, a API retorna drawdown de 20,00% (coberto em `tests/test_statistics_risk.py`, junto com aporte que não esconde queda e volatilidade/Sharpe conferidos à mão).
 
 <a id="f12"></a>
 **F12 — Comparação entre simulações.** Origem: #84. O ranking subiu para o backend (D2): `features/statistics/ranking.py` calcula em `Decimal`, a partir do último snapshot de cada jogador, o capital aportado (saldo inicial + aportes), o retorno em R$ e em % e a posição, além da média da sala. `GET /api/statistics` passou a devolver esse relatório pronto (`PerformanceReportDTO`). `GET /api/statistics/compare?simulation_ids=…` devolve o mesmo relatório para várias simulações salvas, sem exigir partida ativa; `StatisticsRepository.get_players_history` recebe os ids e traz o nome de cada simulação. No front saíram `build-ranking.ts` e `build-match-summary.ts`. A tela de Estatísticas refaz a busca a cada `statistics_snapshot_update`. O gráfico de desempenho guarda a string original para o tooltip, que agora mostra os valores em R$. A tela `/compare-simulations` abre pelo botão "Comparar Simulações" do lobby: uma sidebar com checkbox por simulação salva, e o gráfico e o ranking com séries `Nick#Simulação`. O registro recusa `#` no nickname. Patrimônio zero passou a valer −100% de retorno. Limitação: o eixo X é a data, então simulações de períodos diferentes aparecem em trechos diferentes do eixo, não sobrepostas.

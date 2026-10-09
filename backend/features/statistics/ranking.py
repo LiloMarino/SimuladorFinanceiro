@@ -5,6 +5,7 @@ from backend.core.dto.player_history import (
     PlayerHistoryDTO,
     PlayerPerformanceDTO,
 )
+from backend.features.statistics.risk import build_risk_metrics
 
 
 def build_performance_report(players: list[PlayerHistoryDTO]) -> PerformanceReportDTO:
@@ -22,6 +23,7 @@ def build_performance_report(players: list[PlayerHistoryDTO]) -> PerformanceRepo
             total_networth=networth,
             return_value=return_value,
             return_percent=return_percent,
+            risk=build_risk_metrics(player.history),
         )
         for position, (player, return_percent, networth, return_value) in enumerate(
             performances, start=1

@@ -3,6 +3,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { displayMoney, displayPercent, isLoss } from "@/shared/lib/utils/display";
 import type { PlayerPerformance } from "@/types";
 import { playerLabel } from "../lib/player-label";
+import { RISK_METRICS, displayRiskMetric } from "../lib/risk-metrics";
+import { RiskMetricHint } from "./risk-metric-hint";
 
 interface Props {
   players: PlayerPerformance[];
@@ -24,6 +26,14 @@ export function PlayersRankingTable({ players, currentPlayerName, showSimulation
               {["Posição", "Jogador", "Patrimônio", "Retorno (R$)", "Retorno (%)"].map((h) => (
                 <TableHead key={h} className="text-center">
                   {h}
+                </TableHead>
+              ))}
+              {RISK_METRICS.map((metric) => (
+                <TableHead key={metric.key} className="text-center">
+                  <span className="inline-flex items-center gap-1">
+                    {metric.label}
+                    <RiskMetricHint metric={metric} />
+                  </span>
                 </TableHead>
               ))}
             </TableRow>
@@ -51,6 +61,10 @@ export function PlayersRankingTable({ players, currentPlayerName, showSimulation
                   <TableCell className={returnColor}>{displayMoney(player.return_value)}</TableCell>
 
                   <TableCell className={returnColor}>{displayPercent(player.return_percent)}</TableCell>
+
+                  {RISK_METRICS.map((metric) => (
+                    <TableCell key={metric.key}>{displayRiskMetric(metric, player.risk)}</TableCell>
+                  ))}
                 </TableRow>
               );
             })}

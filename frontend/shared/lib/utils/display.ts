@@ -42,6 +42,14 @@ export function displayPercent(value: Numeric, digits = 2) {
   }).format(value as Intl.StringNumericLiteral | number);
 }
 
+/** Número com casas fixas, lido da string decimal ("0.5432" → "0,54"). */
+export function displayNumber(value: Numeric, digits = 2) {
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(value as Intl.StringNumericLiteral | number);
+}
+
 /** Número em pt-BR, sem separador de milhar (0.02 → "0,02"). */
 export function displayDecimal(value: number) {
   return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 6, useGrouping: false }).format(value);
