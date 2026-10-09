@@ -3,6 +3,7 @@ name = "simulador-financeiro"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
+    "alembic>=1.20.0",
     "fastapi>=0.136.3",
     "pandas>=3.0.3",
     "psycopg-pool>=3.3.1",
@@ -20,6 +21,23 @@ dependencies = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.alembic]
+script_location = "%(here)s/backend/migrations"
+file_template = "%%(year)d_%%(month).2d_%%(day).2d_%%(hour).2d%%(minute).2d-%%(rev)s_%%(slug)s"
+prepend_sys_path = ["."]
+
+[[tool.alembic.post_write_hooks]]
+name = "ruff_fix"
+type = "module"
+module = "ruff"
+options = "check --fix REVISION_SCRIPT_FILENAME"
+
+[[tool.alembic.post_write_hooks]]
+name = "ruff_format"
+type = "module"
+module = "ruff"
+options = "format REVISION_SCRIPT_FILENAME"
 
 [tool.ruff]
 line-length = 88
@@ -65,5 +83,4 @@ dev = [
     "radon>=6.0.1",
     "ruff>=0.15.16",
     "snakeviz>=2.2.2",
-    "sqlacodegen>=4.0.3",
 ]

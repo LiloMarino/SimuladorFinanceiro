@@ -1,0 +1,131 @@
+"""As migrations chegam exatamente no schema dos models, e o `migrate` só entra
+num banco existente quando nada se perde."""
+
+from __future__ import annotations
+
+import uuid
+from collections.abc import Iterator
+
+import pytest
+from alembic import command
+from sqlalchemy import Engine, create_engine, inspect, text
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.pool import NullPool
+
+from backend import config
+from backend.core.migration import (
+    MigrationError,
+    TableFingerprint,
+    alembic_config,
+    assert_no_data_loss,
+    backups_to_drop,
+    current_revision,
+    drop_databases,
+    ensure_database,
+    head_revision,
+    migrate,
+    schema_diff,
+)
+from backend.core.models.models import Base
+
+
+@pytest.fixture
+def pg_url() -> Iterator[str]:
+    """Banco descartável no mesmo servidor do .env, apagado no fim."""
+    if not config.env.postgres_url:
+        pytest.skip("POSTGRES_DATABASE_URL não configurada")
+    url = make_url(config.env.postgres_url).set(
+        database=f"simfin_test_{uuid.uuid4().hex[:8]}"
+    )
+    try:
+        ensure_database(url)
+    except OperationalError:
+        pytest.skip("PostgreSQL indisponível")
+    yield url.render_as_string(hide_password=False)
+    drop_databases(url, [str(url.database)])
+
+
+@pytest.fixture
+def engine(pg_url: str) -> Iterator[Engine]:
+    engine = create_engine(pg_url, poolclass=NullPool)
+    yield engine
+    engine.dispose()
+
+
+def test_schema_matches_models(pg_url: str, engine: Engine) -> None:
+    """Depois do upgrade até o head, o `compare_metadata` não acha diferença."""
+    migrate(pg_url)
+
+    assert schema_diff(engine) == []
+    assert current_revision(engine) == head_revision()
+
+
+def test_downgrade_then_upgrade_again(pg_url: str, engine: Engine) -> None:
+    """Toda migration desce até a base e sobe de volta até o head."""
+    migrate(pg_url)
+    alembic = alembic_config(pg_url)
+
+    command.downgrade(alembic, "base")
+    assert current_revision(engine) is None
+
+    command.upgrade(alembic, "head")
+    assert current_revision(engine) == head_revision()
+
+
+def test_unversioned_database_matching_models_is_stamped(
+    pg_url: str, engine: Engine
+) -> None:
+    """Banco do `create_all` igual aos models entra na linha de revisões no head."""
+    Base.metadata.create_all(engine)
+
+    migrate(pg_url)
+
+    assert current_revision(engine) == head_revision()
+
+
+def test_unversioned_database_with_old_schema_is_refused(
+    pg_url: str, engine: Engine
+) -> None:
+    """Banco do `create_all` com schema antigo é recusado e fica como estava."""
+    Base.metadata.create_all(engine)
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE simulations DROP COLUMN price_impact_k"))
+
+    with pytest.raises(MigrationError, match="anterior às migrations"):
+        migrate(pg_url)
+
+    assert current_revision(engine) is None
+    columns = {column["name"] for column in inspect(engine).get_columns("simulations")}
+    assert "price_impact_k" not in columns
+
+
+def test_data_loss_is_refused() -> None:
+    before = {
+        "stock": TableFingerprint(rows=3, filled_cells=9),
+        "users": TableFingerprint(rows=1, filled_cells=5),
+    }
+
+    assert_no_data_loss(before, dict(before))
+    with pytest.raises(MigrationError, match="stock caiu de 3 para 2 linhas"):
+        assert_no_data_loss(
+            before, {**before, "stock": TableFingerprint(rows=2, filled_cells=6)}
+        )
+    with pytest.raises(MigrationError, match="células preenchidas"):
+        assert_no_data_loss(
+            before, {**before, "users": TableFingerprint(rows=1, filled_cells=4)}
+        )
+    with pytest.raises(MigrationError, match="a tabela users sumiu"):
+        assert_no_data_loss(before, {"stock": before["stock"]})
+
+
+def test_only_the_latest_backups_are_kept() -> None:
+    backups = [
+        "db_bkp_20261003_101500",
+        "db_bkp_20261001_090000",
+        "db_bkp_20261009_120000",
+        "db_bkp_20261005_080000",
+    ]
+
+    assert backups_to_drop(backups, keep=3) == ["db_bkp_20261001_090000"]
+    assert backups_to_drop(backups[:2], keep=3) == []

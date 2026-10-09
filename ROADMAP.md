@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-09):** F31 definida com diagrama Mermaid validado por teste; F27 ganhou pódio e critério de vitória; registrada a F32 (correlação entre ativos).
+> **Última mudança (2026-10-09):** F25 concluída: o banco sobe pelas migrations do Alembic, com ensaio numa cópia e backup antes de cada upgrade.
 
 ## Glossário
 
@@ -54,7 +54,6 @@
 | [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | — | 🔍 |
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ⏳ |
-| [**F25**](#f25) | Migrations com Alembic | — | ⏳ |
 | [**F26**](#f26) | Redesign visual | — | 🔍 |
 | [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | — | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
@@ -64,7 +63,7 @@
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (13 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (14 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -81,6 +80,7 @@
 | [**F12**](#f12) | Comparação entre simulações | — | ✅ |
 | [**F13**](#f13) | Impacto de preço de ordens grandes | — | ✅ |
 | [**F15**](#f15) | Cliente desktop em Tauri | — | 🚫 |
+| [**F25**](#f25) | Migrations com Alembic | — | ✅ |
 
 </details>
 
@@ -100,7 +100,6 @@
 | [**F18**](#f18) | Pontuação geral (overall) | M7 | 1 | 🔍 |
 | [**F21**](#f21) | Central de dados, fora da partida | M8 | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
-| [**F25**](#f25) | Migrations com Alembic | M2 | 0 | ⏳ |
 | [**F26**](#f26) | Redesign visual | — | 0 | 🔍 |
 | [**F29**](#f29) | IR na venda de renda variável | M10 | 0 | ⏳ |
 | [**F30**](#f30) | Setores e segmentos | — | 0 | ⏳ |
@@ -138,13 +137,20 @@
 >
 > **Serve:** N1, N14
 >
-> **Progresso:** 0/3 concluídas
+> **Progresso:** 1/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F3**](#f3) | Spike: banco embarcado no executável | — | 🔍 |
 | [**F4**](#f4) | Executável sobe sem banco instalado | [F3](#f3) | ⏳ |
-| [**F25**](#f25) | Migrations com Alembic | — | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F25**](#f25) | Migrations com Alembic | — | ✅ |
+
+</details>
 
 ### M3 — Multiplayer pela internet
 
@@ -303,7 +309,7 @@
 | **F20** | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | N11 | D7 | M8 | — | Médio | Médio | Alto | Excelente | ⏳ Pendente |
 | **F21** | Central de dados, fora da partida | N13, N3 | D7 | M8 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F24** | Gerar dados futuros na Central de dados | N12 | D7 | M9 | [F21](#f21), [F23](#f23) | Médio | Alto | Alto | Bom | ⏳ Pendente |
-| **F25** | Migrations com Alembic | N14, N1 | D9 | M2 | — | Médio | Médio | Alto | Excelente | ⏳ Pendente |
+| **F25** | Migrations com Alembic | N14, N1 | D9 | M2 | — | Médio | Médio | Alto | Excelente | ✅ Concluído |
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F27** | Fechamento de partida: pódio e critério de vitória | N5, N6, N9 | D8 | M7 | [F17](#f17), [F18](#f18) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F29** | IR na venda de renda variável | N7 | D1 | M10 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
@@ -370,12 +376,8 @@
 **F24 — Gerar dados futuros na Central de dados.** Serve N12; segue a D7. Na Central (F21), "Gerar dados": o usuário escolhe até quando gerar (o início é sempre o dia útil seguinte ao último dado real de cada série), a semente e a temperatura, vendo no preview como a geração fica antes de gravar; o gerador da F23 grava as linhas nas mesmas tabelas de preço e de indicadores, com origem "gerado", e a barra da linha do tempo mostra o trecho. "Atualizar" passa a trocar o trecho gerado pelo real à medida que o real fica disponível, seguindo a regra para partidas salvas que a F23 fechar. A simulação lê as séries como sempre. Gatilho: F21 e F23 concluídas.
 
 <a id="f25"></a>
-**F25 — Migrations com Alembic.** Serve N14 e N1; segue a D9. O schema nasce de `Base.metadata.create_all` (`backend/core/database.py:69`), que cria tabela que falta mas não adiciona coluna: cada mudança de model (F11, F13) exigiu banco novo, e as próximas (estratégia por jogador, bots, indicadores, origem da série da D7) mudam o banco de novo. Segue o desenho do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): Alembic configurado no `pyproject.toml`; `pnpm db:revision "<descrição>"` gera a revisão por autogenerate a partir dos models e o arquivo é revisado antes de aplicar; o `main.py` leva o banco ao head antes de subir o uvicorn, no lugar do `create_all`; a migration roda antes numa cópia do banco e só é aplicada se nenhuma tabela perder linha ou célula preenchida; `tests/test_migrations.py` confere que as migrations chegam exatamente no schema dos models. O `sqlacodegen` sai das dependências.
-
-**Ponto de partida.** A primeira revisão é o schema da última release (`v1.0.0`); a segunda leva dele aos models atuais (as mudanças da F11 e da F13). Banco sem `alembic_version` cujo schema bate com o da `v1.0.0` recebe `stamp` e sobe pelo upgrade normal; banco num estado intermediário (de desenvolvimento, entre releases) é recusado com mensagem, e o banco local de desenvolvimento é acertado uma vez nessa entrega. A partir daí, toda feature que mexe no banco entrega a sua migration.
-
-A pasta de migrations entra no executável como dado do PyInstaller (`SimuladorFinanceiro.spec`). A cópia de teste depende do dialeto (D4): no Postgres, `CREATE DATABASE ... TEMPLATE`; no SQLite, `VACUUM INTO`, e lá o Alembic precisa do modo batch para alterar coluna. Gatilho: antes das features que mexem no banco (F8, F16, F20, F21, F29, F30).
-**Aceite:** um banco criado na `v1.0.0` abre na versão nova com as partidas salvas intactas e retomáveis.
+**F25 — Migrations com Alembic.** Origem: as mudanças de schema da F11 e da F13, que deixaram os bancos anteriores incompatíveis. O `create_all` saiu de `get_engine()`, e o `main.py` chama `migrate()` (`backend/core/migration.py`) antes de subir o uvicorn; `MigrationError` encerra o app com a mensagem no console (no executável, esperando um Enter). O Alembic é configurado no `pyproject.toml` (`[tool.alembic]`, com `ruff` nos hooks de escrita), `pnpm db:revision "<descrição>"` gera a revisão por autogenerate a partir dos models (D9), e o `sqlacodegen` saiu das dependências e do `.spec`. A primeira revisão (`243ae671fdc0`) é o schema atual; a v1.0.0 e bancos de desenvolvimento entre releases não migram. O `migrate` decide pelo estado do banco: vazio recebe todas as migrations; no head, nada; sem `alembic_version` e igual aos models (um banco do `create_all` atual), é marcado no head; sem `alembic_version` e diferente, é recusado; numa revisão anterior, as migrations rodam antes numa cópia (`<banco>_dryrun`, `CREATE DATABASE ... TEMPLATE`), que recusa o upgrade se alguma tabela perder linha ou célula preenchida, e depois um backup `<banco>_bkp_AAAAMMDD_HHMMSS` (ficam os 3 mais recentes) antecede o upgrade real. O `resource_path` acha `backend/migrations` em dev e no executável, que a empacota como dado. `tests/test_migrations.py` (Postgres do `.env`, banco descartável por teste, pulado sem servidor) confere que as migrations chegam exatamente no schema dos models, que toda revisão desce e sobe, o `stamp` do banco do `create_all` e a recusa do banco antigo. A página "Ciclo de desenvolvimento com banco de dados" dos docs foi reescrita para o ciclo novo, com o que o autogenerate não cobre (valor novo em `ENUM` nativo, `ENUM` no downgrade, `NOT NULL` em tabela com dado, rename). O banco local de desenvolvimento ficou preservado como `simulador_financeiro_pre_alembic`. Limitações: a cópia exige o banco sem outras conexões abertas (pgAdmin, DBeaver); a contagem de células não pega dado alterado sem ser apagado.
+**Aceite:** com uma revisão de teste que adiciona coluna, um banco com 6.721 preços migra com backup e sem perder linha; uma que remove coluna com dado é recusada no ensaio e o banco fica intacto.
 
 <a id="f19"></a>
 **F19 — Modo backtest: partida só de estratégias, sem interação.** Serve N4 e N10; segue a D8. No lobby, "Rodar backtest" escolhe período, capital inicial, aporte e as estratégias participantes; cada estratégia vira um bot (F16) e a partida roda sem `sleep` entre ticks e sem eventos de socket por tick, mandando o progresso a cada N dias para a tela animar o gráfico. Ao fim, a partida fica salva como qualquer outra e abre no relatório da F17, já comparando as estratégias.

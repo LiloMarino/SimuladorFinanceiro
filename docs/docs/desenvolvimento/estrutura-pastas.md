@@ -77,6 +77,8 @@ SimuladorFinanceiro/
 │   │   └── variable_income/            # Lógica de negócio de Renda Variável
 │   │       ├── entities/               # Entidades de domínio (Ações, FIIs, etc)
 │   │       └── liquidity/              # Sistema de liquidez e book de ofertas
+│   ├── migrations/                     # Migrations do Alembic (schema do banco)
+│   │   └── versions/                   # Uma revisão por mudança de schema
 │   ├── routes/                         # Endpoints REST da API (routers do FastAPI)
 │   └── types/                          # Definições de tipos Python compartilhados
 ├── docs/                               # Documentação do projeto (Docusaurus)

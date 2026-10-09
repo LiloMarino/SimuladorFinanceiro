@@ -5,7 +5,10 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('backend/static', 'backend/static')],
+    datas=[
+        ('backend/static', 'backend/static'),
+        ('backend/migrations', 'backend/migrations'),
+    ],
     hiddenimports=[
         'psycopg_binary',
     ],
@@ -19,7 +22,6 @@ a = Analysis(
         'line_profiler',
         'radon',
         'snakeviz',
-        'sqlacodegen',
 
         # GUI
         'tcl',

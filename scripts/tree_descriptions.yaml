@@ -28,6 +28,8 @@ backend/features/tunnel/providers/: Provedores de túnel (ngrok, localtunnel)
 backend/features/variable_income/: Lógica de negócio de Renda Variável
 backend/features/variable_income/entities/: Entidades de domínio (Ações, FIIs, etc)
 backend/features/variable_income/liquidity/: Sistema de liquidez e book de ofertas
+backend/migrations/: Migrations do Alembic (schema do banco)
+backend/migrations/versions/: Uma revisão por mudança de schema
 backend/routes/: Endpoints REST da API (routers do FastAPI)
 backend/types/: Definições de tipos Python compartilhados
 docs/: Documentação do projeto (Docusaurus)
