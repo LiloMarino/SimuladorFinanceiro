@@ -155,6 +155,9 @@ start_date = "2000-01-01"
 end_date = "2026-01-01"
 starting_cash = 10000.00
 monthly_contribution = 0.0
+price_impact_enabled = false  # Padrão do lobby para o impacto de preço das ordens
+price_impact_k = 0.02         # Intensidade do impacto
+price_impact_decay_days = 20  # Pregões até o preço voltar ao histórico
 
 [realtime]
 use_sse = false  # true para usar SSE ao invés de WebSocket

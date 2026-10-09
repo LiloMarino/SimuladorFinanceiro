@@ -4,6 +4,7 @@ import uuid
 
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     Date,
     DateTime,
     Double,
@@ -146,6 +147,9 @@ class Simulations(Base):
     monthly_contribution: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
     )
+    price_impact_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    price_impact_k: Mapped[float] = mapped_column(Double(53), nullable=False)
+    price_impact_decay_days: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )

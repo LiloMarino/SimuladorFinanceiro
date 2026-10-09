@@ -10,6 +10,9 @@ class SimulationSettingsDTO(BaseDTO):
     end_date: date
     starting_cash: Decimal
     monthly_contribution: Decimal
+    price_impact_enabled: bool
+    price_impact_k: float
+    price_impact_decay_days: int
 
 
 class SimulationDTO(SimulationSettingsDTO):

@@ -1,17 +1,15 @@
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
-from sqlalchemy import Case, func, select, true
+from sqlalchemy import Case, func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.models.models import (
     EventCashflow,
-    EventEquity,
     FixedIncomePosition,
     Snapshots,
-    StockPriceHistory,
 )
 from backend.core.runtime.simulation_manager import SimulationManager
 
@@ -23,7 +21,12 @@ class SnapshotRepository:
         session: Session,
         user_id: int,
         snapshot_date: date,
+        total_equity: Decimal,
     ) -> SnapshotDTO:
+        """
+        `total_equity` vem do motor: é o valor das ações ao preço negociado na
+        simulação, que difere do histórico quando o impacto de preço está ligado.
+        """
         simulation_id = SimulationManager.get_active_simulation_id()
 
         # --------------------------------------------------
@@ -78,54 +81,7 @@ class SnapshotRepository:
         )
 
         # --------------------------------------------------
-        # 3. EQUITY (MARK-TO-MARKET)
-        # --------------------------------------------------
-        positions = (
-            select(
-                EventEquity.stock_id,
-                func.sum(
-                    Case(
-                        (EventEquity.event_type == "BUY", EventEquity.quantity),
-                        (EventEquity.event_type == "SELL", -EventEquity.quantity),
-                        else_=0,
-                    )
-                ).label("quantity"),
-            )
-            .where(
-                EventEquity.user_id == user_id,
-                EventEquity.simulation_id == simulation_id,
-                EventEquity.event_date <= snapshot_date,
-            )
-            .group_by(EventEquity.stock_id)
-        ).subquery()
-
-        price_lateral = (
-            select(StockPriceHistory.close)
-            .where(
-                StockPriceHistory.stock_id == positions.c.stock_id,
-                StockPriceHistory.price_date <= snapshot_date,
-            )
-            .order_by(StockPriceHistory.price_date.desc())
-            .limit(1)
-            .lateral()
-        )
-
-        total_equity = Decimal(
-            session.execute(
-                select(
-                    func.coalesce(
-                        func.sum(positions.c.quantity * price_lateral.c.close),
-                        0,
-                    )
-                )
-                .select_from(positions)
-                .join(price_lateral, true())
-                .where(positions.c.quantity != 0)
-            ).scalar_one()
-        )
-
-        # --------------------------------------------------
-        # 4. FIXED INCOME (MARK-TO-MARKET)
+        # 3. FIXED INCOME (MARK-TO-MARKET)
         # --------------------------------------------------
         total_fixed = Decimal(
             session.execute(
@@ -142,12 +98,12 @@ class SnapshotRepository:
         )
 
         # --------------------------------------------------
-        # 5. NET WORTH
+        # 4. NET WORTH
         # --------------------------------------------------
         total_networth = total_cash + total_equity + total_fixed
 
         # --------------------------------------------------
-        # 6. Persistir snapshot
+        # 5. Persistir snapshot
         # --------------------------------------------------
         snapshot = Snapshots(
             simulation_id=simulation_id,

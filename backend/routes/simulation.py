@@ -31,6 +31,9 @@ class CreateSimulationRequest(BaseModel):
     end_date: date
     starting_cash: Decimal = Field(gt=0)
     monthly_contribution: Decimal = Field(ge=0, default=Decimal(0))
+    price_impact_enabled: bool = False
+    price_impact_k: float = Field(ge=0)
+    price_impact_decay_days: int = Field(ge=1)
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -49,6 +52,9 @@ class UpdateSettingsRequest(BaseModel):
     end_date: date
     starting_cash: Decimal = Field(gt=0)
     monthly_contribution: Decimal = Field(ge=0, default=Decimal(0))
+    price_impact_enabled: bool = False
+    price_impact_k: float = Field(ge=0)
+    price_impact_decay_days: int = Field(ge=1)
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -95,13 +101,7 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     """
     Cria uma nova simulação financeira.
     """
-    settings = SimulationSettingsDTO(
-        name=payload.name,
-        start_date=payload.start_date,
-        end_date=payload.end_date,
-        starting_cash=payload.starting_cash,
-        monthly_contribution=payload.monthly_contribution,
-    )
+    settings = SimulationSettingsDTO(**payload.model_dump())
     sim_dto = SimulationLoader.create(settings)
     return SimulationStatusResponse(active=True, simulation=sim_dto)
 
@@ -221,15 +221,7 @@ def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
     """
     Atualiza as configurações da simulação.
     """
-    settings = SettingsManager.update(
-        SimulationSettingsDTO(
-            name=payload.name,
-            start_date=payload.start_date,
-            end_date=payload.end_date,
-            starting_cash=payload.starting_cash,
-            monthly_contribution=payload.monthly_contribution,
-        )
-    )
+    settings = SettingsManager.update(SimulationSettingsDTO(**payload.model_dump()))
 
     notify("simulation_settings_update", settings.to_json())
     return settings

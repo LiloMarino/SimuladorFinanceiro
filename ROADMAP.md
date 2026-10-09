@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-08):** M1 concluído (F1 e F2); registrada a D6.
+> **Última mudança (2026-10-09):** F13 concluída: impacto de preço das ordens, ligável por partida no lobby.
 
 ## Glossário
 
@@ -34,21 +34,21 @@
 | [**F9**](#f9) | Estratégias prontas de exemplo | — | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
 | [**F11**](#f11) | Métricas de risco do desempenho | — | ⏳ |
-| [**F13**](#f13) | Impacto de preço de ordens grandes | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (8 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (9 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
-| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F2](#f2), [F11](#f11) | ✅ |
+| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F2](#f2), [F11](#f11), [F13](#f13) | ✅ |
 | **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F2](#f2), [F11](#f11), [F12](#f12) | ✅ |
 | **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F1](#f1) | ✅ |
 | **D6** | A retomada continua no dia seguinte ao último evento | [F2](#f2) | ✅ |
 | [**F1**](#f1) | Decimal como string do backend ao frontend | — | ✅ |
 | [**F2**](#f2) | Renda fixa com cálculo único no backend e retomada consistente | — | ✅ |
 | [**F12**](#f12) | Comparação entre simulações | — | ✅ |
+| [**F13**](#f13) | Impacto de preço de ordens grandes | — | ✅ |
 | [**F15**](#f15) | Cliente desktop em Tauri | — | 🚫 |
 
 </details>
@@ -65,7 +65,6 @@
 | [**F3**](#f3) | Spike: banco embarcado no executável | M2 | 1 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F11**](#f11) | Métricas de risco do desempenho | M5 | 0 | ⏳ |
-| [**F13**](#f13) | Impacto de preço de ordens grandes | — | 0 | ⏳ |
 
 ---
 
@@ -155,12 +154,19 @@
 
 ### Sem marco
 
-> **Progresso:** 0/2 concluídas
+> **Progresso:** 1/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F13**](#f13) | Impacto de preço de ordens grandes | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F13**](#f13) | Impacto de preço de ordens grandes | — | ✅ |
+
+</details>
 
 ---
 
@@ -177,7 +183,7 @@
 | **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F11** | Métricas de risco do desempenho | N5 | D1, D2 | M5 | — | Médio | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F12** | Comparação entre simulações | N6 | D2 | M5 | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
-| **F13** | Impacto de preço de ordens grandes | N7 | — | — | — | Alto | Alto | Médio | Médio | ⏳ Pendente |
+| **F13** | Impacto de preço de ordens grandes | N7 | D1 | — | — | Alto | Alto | Médio | Médio | ✅ Concluído |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -218,7 +224,8 @@ Na tela de Estatísticas, cada métrica ganha uma descrição curta ao lado e um
 **Aceite:** marcar duas simulações salvas mostra `Lilo#Teste M1 103121` (2,18%) e `Lilo#Simulação #4` (0,00%) no gráfico e no ranking, com tooltip em R$.
 
 <a id="f13"></a>
-**F13 — Impacto de preço de ordens grandes.** Origem: #59. Uma ordem executada desloca o preço do ativo proporcionalmente ao tamanho dela em relação ao volume médio negociado (modelo de raiz quadrada: impacto = k × √(quantidade ÷ volume médio diário)), e o deslocamento decai até zero em T dias pela curva (1 − t/T)² — cai rápido no começo e zera de verdade em T, como a issue pede. T (15 a 30 dias) e k ficam no TOML. O preço exibido e o usado pelo matching engine passam a ser OHLCV × (1 + soma dos impactos ativos). Convive com a liquidez e o market maker que já existem (#60), que hoje limitam a ordem mas não mexem nos preços futuros.
+**F13 — Impacto de preço de ordens grandes.** Origem: #59. Ligável por partida no lobby: `price_impact_enabled`, `price_impact_k` e `price_impact_decay_days` são colunas de `simulations` (padrões em `[simulation]` do TOML), então a partida retoma com a mesma configuração. `features/variable_income/price_impact.py` é a única fórmula: a quantidade líquida do dia por ativo (compras − vendas dos jogadores, de `event_equity`) gera impacto = k × √(quantidade ÷ volume médio dos últimos 20 pregões); o impacto vale cheio no pregão seguinte e decai por (1 − t/T)², com t = 0 nesse primeiro pregão, durando T pregões. O preço do dia é o OHLC histórico × (1 + soma dos impactos ativos), piso 0,01, no centavo. Agregar por dia faz o fatiamento de uma ordem em várias execuções não mudar nada, e compra e venda iguais entre jogadores se anulam. O impacto é derivado dos eventos (D1) a cada tick, depois de um flush que leva ao banco as ordens enviadas entre ticks, então retomar reconstrói os mesmos preços. Vale na lista de ativos, no detalhe e no histórico do gráfico (cada dia com o seu fator), no market maker e no matching, na carteira e no snapshot mensal, que passou a receber do motor o valor das ações. Padrões: k = 0,02 (próximo do mercado real), T = 20. Limitações: sem migração, banco anterior à F13 fica incompatível (nova release, novo save); o histórico do detalhe recalcula o fator de cada dia a cada abertura da tela.
+**Aceite:** com k = 0,02, comprar 10% do volume médio desloca o preço do pregão seguinte em +0,63% e o desvio some depois de T pregões (coberto em `tests/test_price_impact.py`).
 
 ---
 ## 2. Nice-to-have

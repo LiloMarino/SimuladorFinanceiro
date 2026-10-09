@@ -42,6 +42,11 @@ export function displayPercent(value: Numeric, digits = 2) {
   }).format(value as Intl.StringNumericLiteral | number);
 }
 
+/** Número em pt-BR, sem separador de milhar (0.02 → "0,02"). */
+export function displayDecimal(value: number) {
+  return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 6, useGrouping: false }).format(value);
+}
+
 /** Valor em reais com 2 casas, sem separador de milhar ("1234.56"), truncado. */
 export function toCentsString(value: string) {
   return new Intl.NumberFormat("en-US", {

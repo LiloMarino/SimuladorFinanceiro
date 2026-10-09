@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import type { SimulationFormValues } from "../components/lobby-simulation-form";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { displayMoney, toCentsString } from "@/shared/lib/utils/display";
+import { displayDecimal, displayMoney, toCentsString } from "@/shared/lib/utils/display";
 
 export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues>({
   form,
@@ -38,6 +38,9 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       end_date: string;
       starting_cash: string;
       monthly_contribution: string;
+      price_impact_enabled: boolean;
+      price_impact_k: number;
+      price_impact_decay_days: number;
     }) => apiFetch<SimulationSettingsData>("/api/simulation/settings", { method: "PUT", body }),
     onSuccess: () => {
       toast.success("Configurações sincronizadas");
@@ -58,6 +61,9 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
           endDate: data.end_date,
           startingCash: displayMoney(data.starting_cash),
           monthlyContribution: displayMoney(data.monthly_contribution),
+          priceImpactEnabled: data.price_impact_enabled,
+          priceImpactK: displayDecimal(data.price_impact_k),
+          priceImpactDecayDays: String(data.price_impact_decay_days),
         } as TForm);
       });
     },
@@ -74,14 +80,27 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
     if (!debouncedValues) return;
     if (lock.isLocked()) return;
 
-    const { name, startDate, endDate, startingCash, monthlyContribution } = debouncedValues;
+    const {
+      name,
+      startDate,
+      endDate,
+      startingCash,
+      monthlyContribution,
+      priceImpactEnabled,
+      priceImpactK,
+      priceImpactDecayDays,
+    } = debouncedValues;
 
+    // Mesma ordem de chaves do SimulationSettingsData: o descarte de duplicata compara o JSON
     const payload = {
       name,
       start_date: startDate,
       end_date: endDate,
       starting_cash: toCentsString(normalizeNumberString(startingCash)),
       monthly_contribution: toCentsString(normalizeNumberString(monthlyContribution)),
+      price_impact_enabled: priceImpactEnabled,
+      price_impact_k: Number(normalizeNumberString(priceImpactK)),
+      price_impact_decay_days: Number(priceImpactDecayDays),
     };
 
     // Descarta duplicatas reais

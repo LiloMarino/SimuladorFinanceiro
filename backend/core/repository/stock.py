@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -114,6 +114,22 @@ class StockRepository:
             ),
             history=[StockPriceHistoryDTO.from_model(h) for h in history],
         )
+
+    @transactional
+    def get_average_volume(
+        self, session: Session, ticker: str, until: date, window: int
+    ) -> float:
+        """Média do volume dos últimos `window` pregões até `until` (inclusive)."""
+        recent = (
+            select(StockPriceHistory.volume)
+            .join(Stock, Stock.id == StockPriceHistory.stock_id)
+            .where(Stock.ticker == ticker, StockPriceHistory.price_date <= until)
+            .order_by(StockPriceHistory.price_date.desc())
+            .limit(window)
+            .subquery()
+        )
+        average = session.execute(select(func.avg(recent.c.volume))).scalar_one()
+        return float(average) if average is not None else 0.0
 
     @transactional
     def get_by_ticker(self, session: Session, ticker: str) -> StockDTO | None:

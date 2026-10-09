@@ -1,10 +1,11 @@
 from collections import defaultdict
 from datetime import date
 
-from sqlalchemy import func, select
+from sqlalchemy import Case, func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
+from backend.core.dto.daily_equity_flow import DailyEquityFlowDTO
 from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
@@ -49,6 +50,40 @@ class EventRepository:
             for model in (EventCashflow, EventEquity, EventFixedIncome)
         ]
         return max((d for d in dates if d is not None), default=None)
+
+    @transactional
+    def get_daily_equity_flow(
+        self,
+        session: Session,
+        simulation_id: int,
+        since: date | None = None,
+        ticker: str | None = None,
+    ) -> list[DailyEquityFlowDTO]:
+        """Quantidade líquida (compras - vendas) por ativo e dia, a partir de `since`."""
+        quantity = func.sum(
+            Case(
+                (EventEquity.event_type == "BUY", EventEquity.quantity),
+                (EventEquity.event_type == "SELL", -EventEquity.quantity),
+                else_=0,
+            )
+        )
+        stmt = (
+            select(Stock.ticker, EventEquity.event_date, quantity)
+            .join(Stock, Stock.id == EventEquity.stock_id)
+            .where(EventEquity.simulation_id == simulation_id)
+            .group_by(Stock.ticker, EventEquity.event_date)
+            .order_by(EventEquity.event_date)
+        )
+        if since is not None:
+            stmt = stmt.where(EventEquity.event_date >= since)
+        if ticker is not None:
+            stmt = stmt.where(Stock.ticker == ticker)
+
+        return [
+            DailyEquityFlowDTO(ticker=t, flow_date=d, quantity=q)
+            for t, d, q in session.execute(stmt).all()
+            if q != 0
+        ]
 
     def _insert_cashflows(
         self, session: Session, cashflow_events: list[CashflowEventDTO]

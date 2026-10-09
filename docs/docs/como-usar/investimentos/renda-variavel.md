@@ -120,6 +120,44 @@ Resultado: Ordem aguarda no livro até VALE3 cair para R$ 65,00 ou menos
 
 ---
 
+### Impacto de Preço
+
+Quando o host liga o **Impacto de preço das ordens** no [lobby](/como-usar/lobby#impacto-de-preço-das-ordens), as ordens dos jogadores passam a mover o preço dos pregões seguintes, como no mercado real: comprar muito de um ativo pouco negociado encarece esse ativo. Desligado, os preços seguem exatamente o histórico.
+
+**Quanto o preço se move:**
+
+```
+impacto = k × √(quantidade líquida do dia ÷ volume médio diário)
+```
+
+- **Quantidade líquida do dia:** compras menos vendas de todos os jogadores naquele ativo, naquele dia. Comprar sobe o preço; vender desce.
+- **Volume médio diário:** a média de ações negociadas por dia nos últimos 20 pregões. Serve de régua: 1.000 ações é muito para um ativo que negocia 5.000 por dia e quase nada para um que negocia 50 milhões.
+- **k (intensidade):** configurado no lobby; o padrão é 0,02, próximo do que se mede no mercado real.
+
+Exemplos com k = 0,02 num ativo com volume médio de 1.000.000 de ações por dia:
+
+| Compra no dia | Parcela do volume médio | Preço no pregão seguinte |
+| ------------- | ----------------------- | ------------------------ |
+| 100 ações     | 0,01%                   | +0,02%                   |
+| 100.000 ações | 10%                     | +0,63%                   |
+| 1.000.000     | 100%                    | +2,00%                   |
+
+A raiz quadrada faz o impacto crescer menos que a ordem: quadruplicar a compra só dobra o impacto. E como a conta usa o total do dia, dividir uma ordem em várias menores no mesmo dia dá o mesmo resultado; se um jogador vende para outro a mesma quantidade, uma ordem anula a outra.
+
+**Como o preço volta ao histórico:**
+
+A ordem não mexe no preço do próprio dia, onde o custo dela já aparece ao consumir as ofertas do livro. O impacto vale cheio no pregão seguinte e diminui pela curva (1 − t/T)², em que t conta os pregões a partir desse primeiro (que tem t = 0) e T é o valor configurado no lobby (padrão 20):
+
+| Pregão depois da ordem | 1º   | 5º  | 10º | 15º | 20º  | 21º |
+| ---------------------- | ---- | --- | --- | --- | ---- | --- |
+| Impacto que resta      | 100% | 64% | 30% | 9%  | 0,3% | 0%  |
+
+Impactos de dias diferentes se somam, cada um sumindo no seu ritmo. Se ninguém operar mais o ativo, o preço converge de volta ao histórico: o efeito de uma ordem dura T pregões.
+
+O preço com impacto é o mesmo em toda a simulação: na lista de ativos, no gráfico, no livro de ofertas, na carteira e no ranking.
+
+---
+
 ## Operações Básicas
 
 ### Abrir um ativo e enviar ordens

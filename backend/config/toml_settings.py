@@ -22,6 +22,9 @@ class SimulationConfig(BaseModel):
     end_date: str = "2026-01-01"
     starting_cash: float = 10000.00
     monthly_contribution: float = 0.0
+    price_impact_enabled: bool = False
+    price_impact_k: float = 0.02
+    price_impact_decay_days: int = 20
 
 
 class RealtimeConfig(BaseModel):

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formatMoney } from "@/shared/lib/utils/format";
-import { toCentsString } from "@/shared/lib/utils/display";
+import { displayDecimal, toCentsString } from "@/shared/lib/utils/display";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
@@ -31,6 +31,14 @@ const simulationFormSchema = z
     monthlyContribution: z
       .string()
       .refine((val) => Number(normalizeNumberString(val)) >= 0, "O aporte mensal não pode ser negativo"),
+    priceImpactEnabled: z.boolean(),
+    priceImpactK: z
+      .string()
+      .min(1, "Informe a intensidade")
+      .refine((val) => Number(normalizeNumberString(val)) >= 0, "A intensidade não pode ser negativa"),
+    priceImpactDecayDays: z
+      .string()
+      .refine((val) => Number.isInteger(Number(val)) && Number(val) >= 1, "Informe ao menos 1 pregão"),
   })
   .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
     message: "A data final deve ser maior que a data inicial",
@@ -58,6 +66,9 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
       endDate: simulationData.end_date,
       startingCash: formatMoney(toCentsString(simulationData.starting_cash)),
       monthlyContribution: formatMoney(toCentsString(simulationData.monthly_contribution)),
+      priceImpactEnabled: simulationData.price_impact_enabled,
+      priceImpactK: displayDecimal(simulationData.price_impact_k),
+      priceImpactDecayDays: String(simulationData.price_impact_decay_days),
     },
   });
 
@@ -75,6 +86,9 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
       end_date: string;
       starting_cash: string;
       monthly_contribution: string;
+      price_impact_enabled: boolean;
+      price_impact_k: number;
+      price_impact_decay_days: number;
     }) => apiFetch<SimulationInfo>("/api/simulation/create", { method: "POST", body }),
     onSuccess: () => toast.success("Simulação criada com sucesso!"),
     onError: (err) => toast.error(err.message),
@@ -118,6 +132,9 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
             end_date: form.getValues("endDate"),
             starting_cash: normalizeNumberString(form.getValues("startingCash")),
             monthly_contribution: normalizeNumberString(form.getValues("monthlyContribution")),
+            price_impact_enabled: form.getValues("priceImpactEnabled"),
+            price_impact_k: Number(normalizeNumberString(form.getValues("priceImpactK"))),
+            price_impact_decay_days: Number(form.getValues("priceImpactDecayDays")),
           })
         }
       >

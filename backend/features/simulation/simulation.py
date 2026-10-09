@@ -32,6 +32,7 @@ from backend.features.realtime.schemas import (
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.statistics.ranking import build_performance_report
 from backend.features.strategy.manual import ManualStrategy
+from backend.features.variable_income.price_impact import PriceImpact
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +64,12 @@ class Simulation:
             settings.id,
         )
         self._engine.set_strategy(ManualStrategy)
+        self._price_impact = PriceImpact(
+            settings.id,
+            settings.price_impact_enabled,
+            settings.price_impact_k,
+            settings.price_impact_decay_days,
+        )
 
         # Controle de snapshot: o mês do último dia processado já recebeu aporte e snapshot
         self._last_snapshot_month: tuple[int, int] | None = (
@@ -112,8 +119,13 @@ class Simulation:
             logger.info("Fim da simulação")
             raise StopIteration()
 
+        # O impacto é lido dos eventos no banco: o flush leva antes as ordens que
+        # chegaram por HTTP depois do último tick, ainda datadas do dia anterior
+        EventManager.flush()
+        self._price_impact.refresh(self._current_date)
+
         # Obtém os dados do dia atual e atualiza o buffer
-        stocks = repository.stock.get_stocks_by_date(self._current_date)
+        stocks = self.get_stocks()
         self._engine.update_market_data(stocks)
 
         # Executa a estratégia
@@ -172,10 +184,20 @@ class Simulation:
         return self._speed
 
     def get_stocks(self) -> list[CandleDTO]:
-        return repository.stock.get_stocks_by_date(self._current_date)
+        return [
+            self._price_impact.apply(stock)
+            for stock in repository.stock.get_stocks_by_date(self._current_date)
+        ]
 
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
-        return repository.stock.get_stock_details(ticker, self._current_date)
+        details = repository.stock.get_stock_details(ticker, self._current_date)
+        if details is None:
+            return None
+        return self._price_impact.apply(details).model_copy(
+            update={
+                "history": self._price_impact.apply_history(ticker, details.history)
+            }
+        )
 
     def get_portfolio_ticker(self, client_id: UUID, ticker: str) -> PositionDTO:
         positions = self._engine.get_positions(client_id)
@@ -261,6 +283,7 @@ class Simulation:
             snapshot = repository.snapshot.create_snapshot(
                 user_id=user.id,
                 snapshot_date=self._current_date,
+                total_equity=self.get_portfolio(user.client_id).variable_income_value,
             )
 
             # Portfolio (individual)

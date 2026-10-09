@@ -3,7 +3,14 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 
-from backend.core.utils import format_percent, is_business_day, next_business_day, ratio
+from backend.core.utils import (
+    business_days_between,
+    format_percent,
+    is_business_day,
+    next_business_day,
+    ratio,
+    subtract_business_days,
+)
 from backend.core.utils.lazy_dict import LazyDict
 
 FRIDAY = date(2020, 1, 10)
@@ -26,6 +33,23 @@ def test_next_business_day_skips_weekend():
     assert next_business_day(SATURDAY) == MONDAY
     assert next_business_day(SUNDAY) == MONDAY
     assert next_business_day(MONDAY) == date(2020, 1, 14)
+
+
+def test_business_days_between_skips_weekends():
+    """Conta os dias úteis em (início, fim]; fim de semana não conta."""
+    assert business_days_between(FRIDAY, MONDAY) == 1
+    assert business_days_between(MONDAY, MONDAY) == 0
+    assert business_days_between(MONDAY, FRIDAY) == 0
+    assert business_days_between(SATURDAY, date(2020, 1, 27)) == 11
+    assert business_days_between(date(2020, 1, 6), date(2020, 1, 20)) == 10
+
+
+def test_subtract_business_days_skips_weekends():
+    """Voltar um dia útil a partir da segunda cai na sexta."""
+    assert subtract_business_days(MONDAY, 1) == FRIDAY
+    assert subtract_business_days(MONDAY, 0) == MONDAY
+    assert subtract_business_days(MONDAY, 6) == date(2020, 1, 3)
+    assert business_days_between(subtract_business_days(MONDAY, 20), MONDAY) == 20
 
 
 def test_ratio_with_zero_denominator_is_zero():

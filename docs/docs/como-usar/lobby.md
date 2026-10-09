@@ -129,6 +129,27 @@ Valor adicionado automaticamente ao saldo todo mês simulado.
 
 ---
 
+### Impacto de preço das ordens
+
+**O que é:**  
+Liga o deslocamento de preço causado pelas ordens dos jogadores. Desligado, os preços seguem exatamente o histórico.
+
+**Influência:**
+
+* Uma compra empurra o preço do ativo para cima nos pregões seguintes, e uma venda empurra para baixo
+* O desvio volta sozinho ao preço histórico se ninguém operar de novo naquele ativo
+* Vale para todos os jogadores: a ordem de um move o preço que os outros veem
+* Fica gravado na simulação, então ela é retomada com a mesma configuração
+
+Ao ligar, aparecem dois campos:
+
+* **Intensidade (k):** quanto uma ordem move o preço. Com o padrão 0,02, comprar 10% do volume médio diário do ativo sobe o preço cerca de 0,63%
+* **Volta ao histórico (T):** em quantos pregões o desvio some. O padrão é 20 (cerca de um mês)
+
+O cálculo está detalhado em [Impacto de preço](/como-usar/investimentos/renda-variavel#impacto-de-preço).
+
+---
+
 ### Link Compartilhável
 
 **O que é:**  

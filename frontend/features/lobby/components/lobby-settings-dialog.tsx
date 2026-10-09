@@ -1,8 +1,20 @@
+import type { ReactNode } from "react";
+import { Info } from "lucide-react";
+import { useWatch, type UseFormReturn } from "react-hook-form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
-import { formatMoney } from "@/shared/lib/utils/format";
-import type { UseFormReturn } from "react-hook-form";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import type { SimulationFormValues } from "./lobby-simulation-form";
 
 interface LobbySettingsDialogProps {
@@ -15,6 +27,7 @@ interface LobbySettingsDialogProps {
 
 export function LobbySettingsDialog({ open, onOpenChange, form, isHost, loading }: LobbySettingsDialogProps) {
   const disableFields = loading || !isHost;
+  const priceImpactEnabled = useWatch({ control: form.control, name: "priceImpactEnabled" });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -111,9 +124,100 @@ export function LobbySettingsDialog({ open, onOpenChange, form, isHost, loading 
                 </FormItem>
               )}
             />
+
+            {/* Impacto de preço */}
+            <FormField
+              control={form.control}
+              name="priceImpactEnabled"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-2">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={disableFields} />
+                    </FormControl>
+                    <FormLabel>Impacto de preço das ordens</FormLabel>
+                    <FieldHint>
+                      Uma compra empurra o preço do ativo para cima nos pregões seguintes e uma venda empurra para
+                      baixo. O desvio volta sozinho ao preço histórico se ninguém operar de novo. Desligado, os preços
+                      seguem exatamente o histórico.
+                    </FieldHint>
+                  </div>
+                  <FormDescription>Ordens grandes movem o preço dos dias seguintes.</FormDescription>
+                </FormItem>
+              )}
+            />
+
+            {priceImpactEnabled && (
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="priceImpactK"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2">
+                        <FormLabel>Intensidade (k)</FormLabel>
+                        <FieldHint>
+                          Impacto = k × √(quantidade ÷ volume médio diário do ativo). Com k = 0,02, comprar 10% do volume
+                          médio sobe o preço ~0,63%, e comprar o volume de um dia inteiro sobe ~2%. 0,02 é próximo do
+                          mercado real; acima de 0,1 o efeito fica dramático.
+                        </FieldHint>
+                      </div>
+                      <FormControl>
+                        <Input inputMode="decimal" placeholder="Ex: 0,02" {...field} disabled={disableFields} />
+                      </FormControl>
+                      <FormDescription>Quanto uma ordem move o preço.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="priceImpactDecayDays"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-2">
+                        <FormLabel>Volta ao histórico (T)</FormLabel>
+                        <FieldHint>
+                          Por quantos pregões o desvio dura. O impacto vale cheio no pregão seguinte à ordem e cai pela
+                          curva (1 − t/T)²: com T = 20, resta 64% no 5º pregão, 30% no 10º, 9% no 15º e some depois do
+                          20º.
+                        </FieldHint>
+                      </div>
+                      <FormControl>
+                        <Input
+                          inputMode="numeric"
+                          placeholder="Ex: 20"
+                          {...field}
+                          onChange={(e) => field.onChange(formatPositiveInteger(e.target.value))}
+                          disabled={disableFields}
+                        />
+                      </FormControl>
+                      <FormDescription>Em pregões (dias úteis).</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
           </form>
         </Form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function FieldHint({ children }: { children: ReactNode }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button type="button" className="text-muted-foreground" aria-label="Como funciona">
+          <Info className="size-4" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-72">
+        {children}
+      </TooltipContent>
+    </Tooltip>
   );
 }

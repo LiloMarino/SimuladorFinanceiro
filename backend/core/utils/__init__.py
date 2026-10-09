@@ -30,3 +30,25 @@ def next_business_day(d: date) -> date:
     while not is_business_day(d):
         d += timedelta(days=1)
     return d
+
+
+def business_days_between(start: date, end: date) -> int:
+    """Quantos dias úteis existem em (start, end]; zero quando end <= start."""
+    if end <= start:
+        return 0
+    # Toda semana cheia tem 5 dias úteis; só o resto precisa ser olhado dia a dia
+    weeks, rest = divmod((end - start).days, 7)
+    tail_start = start + timedelta(days=weeks * 7)
+    tail = sum(
+        is_business_day(tail_start + timedelta(days=i)) for i in range(1, rest + 1)
+    )
+    return weeks * 5 + tail
+
+
+def subtract_business_days(d: date, n: int) -> date:
+    """Dia útil que fica `n` dias úteis antes de `d`."""
+    while n > 0:
+        d -= timedelta(days=1)
+        if is_business_day(d):
+            n -= 1
+    return d

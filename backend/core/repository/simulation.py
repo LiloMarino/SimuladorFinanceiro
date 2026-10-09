@@ -26,6 +26,9 @@ class SimulationRepository:
             end_date=settings.end_date,
             starting_cash=settings.starting_cash,
             monthly_contribution=settings.monthly_contribution,
+            price_impact_enabled=settings.price_impact_enabled,
+            price_impact_k=settings.price_impact_k,
+            price_impact_decay_days=settings.price_impact_decay_days,
             created_at=now,
             last_simulated_at=now,
         )
@@ -114,6 +117,9 @@ class SimulationRepository:
             end_date=simulation.end_date,
             starting_cash=simulation.starting_cash,
             monthly_contribution=simulation.monthly_contribution,
+            price_impact_enabled=simulation.price_impact_enabled,
+            price_impact_k=simulation.price_impact_k,
+            price_impact_decay_days=simulation.price_impact_decay_days,
             created_at=simulation.created_at,
             last_simulated_at=simulation.last_simulated_at,
         )

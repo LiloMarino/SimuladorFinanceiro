@@ -30,6 +30,9 @@ class SettingsManager:
                     monthly_contribution=Decimal(
                         str(config.toml.simulation.monthly_contribution)
                     ),
+                    price_impact_enabled=config.toml.simulation.price_impact_enabled,
+                    price_impact_k=config.toml.simulation.price_impact_k,
+                    price_impact_decay_days=config.toml.simulation.price_impact_decay_days,
                 )
             return cls._settings
 

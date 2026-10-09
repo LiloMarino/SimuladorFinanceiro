@@ -925,6 +925,15 @@ export interface components {
              * @default 0
              */
             monthly_contribution: number | string;
+            /**
+             * Price Impact Enabled
+             * @default false
+             */
+            price_impact_enabled: boolean;
+            /** Price Impact K */
+            price_impact_k: number;
+            /** Price Impact Decay Days */
+            price_impact_decay_days: number;
         };
         /** EconomicIndicatorsDTO */
         EconomicIndicatorsDTO: {
@@ -1349,6 +1358,12 @@ export interface components {
             starting_cash: string;
             /** Monthly Contribution */
             monthly_contribution: string;
+            /** Price Impact Enabled */
+            price_impact_enabled: boolean;
+            /** Price Impact K */
+            price_impact_k: number;
+            /** Price Impact Decay Days */
+            price_impact_decay_days: number;
             /** Id */
             id: number;
         };
@@ -1378,6 +1393,12 @@ export interface components {
             starting_cash: string;
             /** Monthly Contribution */
             monthly_contribution: string;
+            /** Price Impact Enabled */
+            price_impact_enabled: boolean;
+            /** Price Impact K */
+            price_impact_k: number;
+            /** Price Impact Decay Days */
+            price_impact_decay_days: number;
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
@@ -1418,6 +1439,12 @@ export interface components {
             starting_cash: string;
             /** Monthly Contribution */
             monthly_contribution: string;
+            /** Price Impact Enabled */
+            price_impact_enabled: boolean;
+            /** Price Impact K */
+            price_impact_k: number;
+            /** Price Impact Decay Days */
+            price_impact_decay_days: number;
             /** Id */
             id: number;
             /**
@@ -1593,6 +1620,15 @@ export interface components {
              * @default 0
              */
             monthly_contribution: number | string;
+            /**
+             * Price Impact Enabled
+             * @default false
+             */
+            price_impact_enabled: boolean;
+            /** Price Impact K */
+            price_impact_k: number;
+            /** Price Impact Decay Days */
+            price_impact_decay_days: number;
         };
         /** UpdateSubscriptionRequest */
         UpdateSubscriptionRequest: {
