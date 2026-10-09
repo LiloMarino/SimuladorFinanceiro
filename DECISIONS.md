@@ -59,7 +59,7 @@ Uma ordem enorme num ativo pouco negociado move o preço contra quem compra. Sem
 **Status:** ✅ Decidida
 
 **Decisão:** Montante, juros, projeções, retorno e métricas de risco são calculados no backend e entregues prontos. O frontend formata e exibe; não recalcula.
-**Por quê:** a #85 descreve o sintoma de ter duas implementações: o JS do front projeta juros de um jeito e o backend credita de outro, e "cada um tem uma verdade sobre o dado". Hoje o ranking também é calculado no front (`build-ranking.ts`, com `parseFloat`). Uma fórmula só não diverge.
+**Por quê:** a #85 descreve o sintoma de ter duas implementações: o JS do front projeta juros de um jeito e o backend credita de outro, e "cada um tem uma verdade sobre o dado". Uma fórmula só não diverge.
 **Consequências:** toda tela nova que precisa de um número derivado ganha um campo no DTO em vez de uma função no front. O custo é um round-trip a mais em telas que poderiam calcular localmente.
 
 ### D3 — Dinheiro e quantidade trafegam como Decimal serializado em string

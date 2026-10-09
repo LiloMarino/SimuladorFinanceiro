@@ -10,7 +10,7 @@ from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
-from backend.core.dto.player_history import PlayerHistoryDTO
+from backend.core.dto.player_history import PerformanceReportDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.stock_details import StockDetailsDTO
@@ -30,6 +30,7 @@ from backend.features.realtime.schemas import (
     StockUpdateEventDTO,
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.statistics.ranking import build_performance_report
 from backend.features.strategy.manual import ManualStrategy
 
 logger = logging.getLogger(__name__)
@@ -202,8 +203,10 @@ class Simulation:
             cdi=repository.economic.get_cdi_rate(self._current_date),
         )
 
-    def get_statistics(self) -> list[PlayerHistoryDTO]:
-        return repository.statistics.get_players_history()
+    def get_statistics(self) -> PerformanceReportDTO:
+        return build_performance_report(
+            repository.statistics.get_players_history([self.settings.id])
+        )
 
     def get_orders(self, ticker: str) -> list[OrderDTO]:
         orders = self._engine.matching_engine.order_book.get_orders(ticker)

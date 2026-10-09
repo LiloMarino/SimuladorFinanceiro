@@ -7,65 +7,45 @@ from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.models.models import Simulations, Snapshots, Users
-from backend.core.runtime.simulation_manager import SimulationManager
 
 
 class StatisticsRepository:
     @transactional
-    def get_players_history(self, session: Session) -> list[PlayerHistoryDTO]:
-        simulation_id = SimulationManager.get_active_simulation_id()
-
-        # 0. Capital inicial vem da linha da simulação (nunca do formulário),
+    def get_players_history(
+        self, session: Session, simulation_ids: list[int]
+    ) -> list[PlayerHistoryDTO]:
+        # Capital inicial vem da linha da simulação (nunca do formulário),
         # garantindo métricas consistentes ao continuar/carregar simulações.
-        starting_cash = session.execute(
-            select(Simulations.starting_cash).where(Simulations.id == simulation_id)
-        ).scalar_one()
+        rows = session.execute(
+            select(Snapshots, Users.nickname, Simulations.name, Simulations.starting_cash)
+            .join(Users, Users.id == Snapshots.user_id)
+            .join(Simulations, Simulations.id == Snapshots.simulation_id)
+            .where(Snapshots.simulation_id.in_(simulation_ids))
+            .order_by(Snapshots.simulation_id, Snapshots.user_id, Snapshots.snapshot_date)
+        ).all()
 
-        # 1. Busca todos os usuários
-        users = session.query(Users).all()
+        # Agrupa os snapshots por jogador em cada simulação, preservando a ordem de data
+        grouped: dict[tuple[int, int], list] = defaultdict(list)
+        for row in rows:
+            grouped[(row.Snapshots.simulation_id, row.Snapshots.user_id)].append(row)
 
-        if not users:
-            return []
-
-        # 2. Busca os snapshots da simulação ativa, ordenados
-        snapshots = (
-            session.query(Snapshots)
-            .where(Snapshots.simulation_id == simulation_id)
-            .order_by(Snapshots.user_id, Snapshots.snapshot_date)
-            .all()
-        )
-
-        # 3. Agrupa snapshots por usuário
-        snapshots_by_user: dict[int, list[Snapshots]] = defaultdict(list)
-        for snap in snapshots:
-            snapshots_by_user[snap.user_id].append(snap)
-
-        # 4. Monta o DTO final
-        players_history: list[PlayerHistoryDTO] = []
-        for user in users:
-            user_snaps = snapshots_by_user.get(user.id, [])
-
-            if not user_snaps:
-                continue
-
-            history: list[PatrimonialHistoryDTO] = [
-                PatrimonialHistoryDTO(
-                    snapshot_date=s.snapshot_date,
-                    total_equity=s.total_equity,
-                    total_fixed=s.total_fixed,
-                    total_cash=s.total_cash,
-                    total_networth=s.total_networth,
-                    total_contribution=s.total_contribution,
-                )
-                for s in user_snaps
-            ]
-
-            players_history.append(
-                PlayerHistoryDTO(
-                    player_nickname=user.nickname,
-                    starting_cash=starting_cash,
-                    history=history,
-                )
+        return [
+            PlayerHistoryDTO(
+                player_nickname=group[0].nickname,
+                simulation_id=simulation_id,
+                simulation_name=group[0].name,
+                starting_cash=group[0].starting_cash,
+                history=[
+                    PatrimonialHistoryDTO(
+                        snapshot_date=r.Snapshots.snapshot_date,
+                        total_equity=r.Snapshots.total_equity,
+                        total_fixed=r.Snapshots.total_fixed,
+                        total_cash=r.Snapshots.total_cash,
+                        total_networth=r.Snapshots.total_networth,
+                        total_contribution=r.Snapshots.total_contribution,
+                    )
+                    for r in group
+                ],
             )
-
-        return players_history
+            for (simulation_id, _), group in grouped.items()
+        ]

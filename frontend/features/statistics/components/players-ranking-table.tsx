@@ -1,21 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
-
-export interface PlayerStat {
-  position: number;
-  name: string;
-  totalNetWorth: number;
-  returnValue: number;
-  returnPercent: number;
-}
+import { displayMoney, displayPercent, isLoss } from "@/shared/lib/utils/display";
+import type { PlayerPerformance } from "@/types";
+import { playerLabel } from "../lib/player-label";
 
 interface Props {
-  playersStats: PlayerStat[];
+  players: PlayerPerformance[];
   currentPlayerName: string;
+  showSimulation?: boolean;
 }
 
-export function PlayersRankingTable({ playersStats, currentPlayerName }: Props) {
+export function PlayersRankingTable({ players, currentPlayerName, showSimulation = false }: Props) {
   return (
     <Card>
       <CardHeader>
@@ -35,8 +30,9 @@ export function PlayersRankingTable({ playersStats, currentPlayerName }: Props) 
           </TableHeader>
 
           <TableBody>
-            {playersStats.map((player) => {
-              const isCurrentPlayer = player.name === currentPlayerName;
+            {players.map((player) => {
+              const isCurrentPlayer = player.player_nickname === currentPlayerName;
+              const returnColor = isLoss(player.return_value) ? "text-destructive" : "text-success";
 
               return (
                 <TableRow
@@ -48,17 +44,13 @@ export function PlayersRankingTable({ playersStats, currentPlayerName }: Props) 
                 >
                   <TableCell>{player.position}</TableCell>
 
-                  <TableCell>{player.name}</TableCell>
+                  <TableCell>{playerLabel(player, showSimulation)}</TableCell>
 
-                  <TableCell>{displayMoney(player.totalNetWorth)}</TableCell>
+                  <TableCell>{displayMoney(player.total_networth)}</TableCell>
 
-                  <TableCell className={player.returnValue >= 0 ? "text-success" : "text-destructive"}>
-                    {displayMoney(player.returnValue)}
-                  </TableCell>
+                  <TableCell className={returnColor}>{displayMoney(player.return_value)}</TableCell>
 
-                  <TableCell className={player.returnValue >= 0 ? "text-success" : "text-destructive"}>
-                    {displayPercent(player.returnPercent)}
-                  </TableCell>
+                  <TableCell className={returnColor}>{displayPercent(player.return_percent)}</TableCell>
                 </TableRow>
               );
             })}

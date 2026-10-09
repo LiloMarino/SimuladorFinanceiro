@@ -3,19 +3,20 @@ import { displayMoneyCompact, displayMonthYear } from "@/shared/lib/utils/displa
 import { useStaticChartVisibility } from "@/shared/hooks/useStaticChartVisibility";
 import { PerformanceChartLegend } from "./chart-legend";
 import { PerformanceChartTooltip } from "./chart-tooltip";
-import { buildChartData } from "./utils";
+import { buildChartData, type PerformanceChartRow } from "./utils";
 import { buildPlayerSeries } from "./series";
-import type { PlayerHistory, PerformanceMetric } from "@/types";
+import type { PlayerPerformance, PerformanceMetric } from "@/types";
 
 interface MetricLineChartProps {
   metric: PerformanceMetric;
-  players: PlayerHistory[];
+  players: PlayerPerformance[];
+  showSimulation: boolean;
 }
 
-export function MetricLineChart({ metric, players }: MetricLineChartProps) {
-  const series = buildPlayerSeries(players);
+export function MetricLineChart({ metric, players, showSimulation }: MetricLineChartProps) {
+  const series = buildPlayerSeries(players, showSimulation);
   const { visible, toggle } = useStaticChartVisibility(series);
-  const data = buildChartData(players, metric);
+  const data = buildChartData(players, metric, showSimulation);
 
   if (!data.length) {
     return (
@@ -57,7 +58,7 @@ export function MetricLineChart({ metric, players }: MetricLineChartProps) {
           {series.map((s) => (
             <Line
               key={s.key}
-              dataKey={s.key}
+              dataKey={(row: PerformanceChartRow) => row.numbers[s.key]}
               name={s.label}
               stroke={s.color}
               strokeWidth={2.5}

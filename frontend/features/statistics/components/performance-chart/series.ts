@@ -1,5 +1,6 @@
 import { stringToColor } from "@/shared/lib/utils";
-import type { PlayerHistory } from "@/types";
+import type { PlayerPerformance } from "@/types";
+import { playerLabel } from "../../lib/player-label";
 
 export interface PlayerSeries {
   key: string;
@@ -8,11 +9,9 @@ export interface PlayerSeries {
   defaultVisible: boolean;
 }
 
-export function buildPlayerSeries(players: PlayerHistory[]): PlayerSeries[] {
-  return players.map((p) => ({
-    key: p.player_nickname,
-    label: p.player_nickname,
-    color: stringToColor(p.player_nickname),
-    defaultVisible: true,
-  }));
+export function buildPlayerSeries(players: PlayerPerformance[], showSimulation: boolean): PlayerSeries[] {
+  return players.map((p) => {
+    const label = playerLabel(p, showSimulation);
+    return { key: label, label, color: stringToColor(label), defaultVisible: true };
+  });
 }

@@ -28,7 +28,8 @@ export type Session = components["schemas"]["SessionDTO"];
 
 // Statistics
 export type PerformanceMetric = "total_networth" | "total_equity" | "total_fixed" | "total_cash" | "total_contribution";
-export type PlayerHistory = components["schemas"]["PlayerHistoryDTO"];
+export type PerformanceReport = components["schemas"]["PerformanceReportDTO"];
+export type PlayerPerformance = PerformanceReport["players"][number];
 
 // Orders
 export type OrderAction = components["schemas"]["OrderAction"];

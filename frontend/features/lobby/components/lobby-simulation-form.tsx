@@ -152,7 +152,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
         Importar Ativos
       </Button>
 
-      <Button type="button" variant="ghost" className="w-full" disabled>
+      <Button type="button" variant="outline" className="w-full" onClick={() => navigate("/compare-simulations")}>
         <ArrowLeftRight />
         Comparar Simulações
       </Button>

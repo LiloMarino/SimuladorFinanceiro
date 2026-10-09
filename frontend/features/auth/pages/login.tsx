@@ -24,7 +24,7 @@ import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 
 // Validação com Zod
 const nicknameSchema = z.object({
-  nickname: z.string().min(1, "Digite um nickname!"),
+  nickname: z.string().min(1, "Digite um nickname!").regex(/^[^#]+$/, "Use um nickname sem #"),
 });
 
 type NicknameForm = z.infer<typeof nicknameSchema>;

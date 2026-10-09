@@ -565,9 +565,29 @@ export interface paths {
         };
         /**
          * Obter estatísticas de desempenho
-         * @description Retorna o histórico de desempenho de todos os jogadores da simulação.
+         * @description Retorna o ranking e o histórico de desempenho de todos os jogadores da simulação.
          */
         get: operations["get_statistics_api_statistics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/statistics/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Comparar simulações
+         * @description Retorna o ranking e o histórico de desempenho de cada jogador em cada simulação salva informada.
+         */
+        get: operations["compare_simulations_api_statistics_compare_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1136,19 +1156,38 @@ export interface components {
             /** Total Contribution */
             total_contribution: string;
         };
-        /** PlayerHistoryDTO */
-        PlayerHistoryDTO: {
-            /** Player Nickname */
-            player_nickname: string;
-            /** Starting Cash */
-            starting_cash: string;
-            /** History */
-            history: components["schemas"]["PatrimonialHistoryDTO"][];
+        /** PerformanceReportDTO */
+        PerformanceReportDTO: {
+            /** Players */
+            players: components["schemas"]["PlayerPerformanceDTO"][];
+            /** Average Return */
+            average_return: string | null;
         };
         /** PlayerNickname */
         PlayerNickname: {
             /** Nickname */
             nickname: string;
+        };
+        /** PlayerPerformanceDTO */
+        PlayerPerformanceDTO: {
+            /** Player Nickname */
+            player_nickname: string;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Simulation Name */
+            simulation_name: string;
+            /** Starting Cash */
+            starting_cash: string;
+            /** History */
+            history: components["schemas"]["PatrimonialHistoryDTO"][];
+            /** Position */
+            position: number;
+            /** Total Networth */
+            total_networth: string;
+            /** Return Value */
+            return_value: string;
+            /** Return Percent */
+            return_percent: string;
         };
         /** PlayerPresenceEventDTO */
         PlayerPresenceEventDTO: {
@@ -2692,7 +2731,47 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PlayerHistoryDTO"][];
+                    "application/json": components["schemas"]["PerformanceReportDTO"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    compare_simulations_api_statistics_compare_get: {
+        parameters: {
+            query: {
+                simulation_ids: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PerformanceReportDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
             /** @description Internal Server Error */

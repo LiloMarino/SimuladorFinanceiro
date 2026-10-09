@@ -17,10 +17,10 @@ import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { queryKeys } from "@/shared/lib/queryKeys";
+import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
 import { displayDate, displayMoneyCompact } from "@/shared/lib/utils/display";
 import { cn } from "@/shared/lib/utils";
-import type { SimulationInfo, SimulationListItem } from "@/types";
+import type { SimulationInfo } from "@/types";
 
 interface LoadSimulationDialogProps {
   open: boolean;
@@ -32,11 +32,7 @@ export function LoadSimulationDialog({ open, onOpenChange, isHost }: LoadSimulat
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const { data, isLoading: loading, error, refetch } = useApiQuery({
-    queryKey: queryKeys.simulationList(),
-    queryFn: ({ signal }) => apiFetch<SimulationListItem[]>("/api/simulation/list", { signal }),
-    enabled: false,
-  });
+  const { data, isLoading: loading, error, refetch } = useApiQuery({ ...simulationListOptions(), enabled: false });
 
   // Recarrega a lista (e reseta a seleção/busca) sempre que o dialog abre,
   // garantindo que simulações recém-criadas apareçam.

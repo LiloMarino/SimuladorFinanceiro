@@ -1,7 +1,8 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/shared/components/ui/tabs";
 import { MetricLineChart } from "./metric-line-chart";
-import type { PerformanceMetric, PlayerHistory } from "@/types";
+import type { PerformanceMetric, PlayerPerformance } from "@/types";
+import { playerLabel } from "../../lib/player-label";
 
 const TABS: { key: PerformanceMetric; label: string }[] = [
   { key: "total_networth", label: "Patrimônio Total" },
@@ -12,10 +13,14 @@ const TABS: { key: PerformanceMetric; label: string }[] = [
 ] as const;
 
 interface PerformanceChartProps {
-  playersHistory: PlayerHistory[];
+  players: PlayerPerformance[];
+  showSimulation?: boolean;
 }
 
-export function PerformanceChart({ playersHistory }: PerformanceChartProps) {
+export function PerformanceChart({ players, showSimulation = false }: PerformanceChartProps) {
+  // A visibilidade das séries nasce com o gráfico: um conjunto novo de séries remonta o gráfico
+  const seriesSetKey = players.map((p) => playerLabel(p, showSimulation)).join("|");
+
   return (
     <Card>
       <CardHeader className="space-y-4">
@@ -32,7 +37,12 @@ export function PerformanceChart({ playersHistory }: PerformanceChartProps) {
 
           {TABS.map((t) => (
             <TabsContent key={t.key} value={t.key}>
-              <MetricLineChart metric={t.key} players={playersHistory} />
+              <MetricLineChart
+                key={seriesSetKey}
+                metric={t.key}
+                players={players}
+                showSimulation={showSimulation}
+              />
             </TabsContent>
           ))}
         </Tabs>

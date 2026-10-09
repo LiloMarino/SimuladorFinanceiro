@@ -18,6 +18,7 @@ import { RealtimeProvider } from "@/shared/context/realtime";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { PageLabelProvider } from "@/shared/context/page-label";
 import StatisticsPage from "./features/statistics/pages/statistics";
+import CompareSimulationsPage from "./features/statistics/pages/compare-simulations";
 import { LoginPage } from "./features/auth/pages/login";
 import { AuthProvider } from "./shared/context/auth";
 import { ErrorPage } from "./pages/error";
@@ -59,6 +60,7 @@ export default function App() {
                       <Route path="/lobby" element={<LobbyPage />} />
                       <Route element={<PlainLayout />}>
                         <Route path="/import-assets" element={<ImportAssetsPage />} />
+                        <Route path="/compare-simulations" element={<CompareSimulationsPage />} />
                       </Route>
                       <Route element={<MainLayout navItems={navItems} />}>
                         <Route path="/" element={<PortfolioPage />} />

@@ -1,7 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Request, Response, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from backend.core import repository
 from backend.core.dependencies import ClientID
@@ -16,7 +16,8 @@ auth_router = APIRouter(prefix="/api", tags=["Authentication"])
 
 
 class UserRegisterRequest(BaseModel):
-    nickname: str
+    # "#" separa jogador e simulação nos rótulos da comparação ("Nick#Simulação")
+    nickname: str = Field(min_length=1, pattern=r"^[^#]+$")
 
 
 class UserClaimRequest(BaseModel):
