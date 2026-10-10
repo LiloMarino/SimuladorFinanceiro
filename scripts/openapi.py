@@ -1,6 +1,7 @@
 """Gera o `docs/openapi.json` a partir das rotas, sem subir o servidor.
 
-Uso: `pnpm docs:api`, que também regenera as páginas de API dos docs. O
+Uso: `pnpm openapi`, que também regenera as páginas de API dos docs e os tipos
+do frontend (`frontend/types/openapi.generated.ts`), ambos lidos deste arquivo. O
 `tests/test_openapi.py` compara o arquivo com o que este script geraria, então
 ele acompanha cada mudança de rota.
 """
