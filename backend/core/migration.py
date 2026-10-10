@@ -91,7 +91,9 @@ def assert_no_data_loss(before: Fingerprint, after: Fingerprint) -> None:
     for table, old in before.items():
         new = after.get(table)
         if new is None:
-            problems.append(f"a tabela {table} sumiu")
+            # Tabela vazia some sem levar dado
+            if old.rows:
+                problems.append(f"a tabela {table} sumiu com {old.rows} linhas")
         elif new.rows < old.rows:
             problems.append(f"{table} caiu de {old.rows} para {new.rows} linhas")
         elif new.filled_cells < old.filled_cells:

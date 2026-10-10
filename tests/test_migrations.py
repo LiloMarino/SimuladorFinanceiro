@@ -73,6 +73,42 @@ def test_downgrade_then_upgrade_again(pg_url: str, engine: Engine) -> None:
     assert current_revision(engine) == head_revision()
 
 
+def test_versioned_database_migrates_through_the_dry_run(
+    pg_url: str, engine: Engine
+) -> None:
+    """Banco com dado uma revisão atrás passa pelo ensaio e pelo backup até o head."""
+    migrate(pg_url)
+    command.downgrade(alembic_config(pg_url), "-1")
+    with engine.begin() as connection:
+        connection.execute(text("INSERT INTO stock (ticker, name) VALUES ('T', 'T')"))
+
+    try:
+        migrate(pg_url)
+
+        assert current_revision(engine) == head_revision()
+        with engine.connect() as connection:
+            assert connection.execute(text("SELECT ticker FROM stock")).scalar() == "T"
+    finally:
+        drop_databases(make_url(pg_url), _backups(pg_url))
+
+
+def _backups(pg_url: str) -> list[str]:
+    url = make_url(pg_url)
+    admin = create_engine(url.set(database="postgres"), poolclass=NullPool)
+    try:
+        with admin.connect() as connection:
+            return list(
+                connection.execute(
+                    text(
+                        "SELECT datname FROM pg_database WHERE starts_with(datname, :p)"
+                    ),
+                    {"p": f"{url.database}_bkp_"},
+                ).scalars()
+            )
+    finally:
+        admin.dispose()
+
+
 def test_unversioned_database_matching_models_is_stamped(
     pg_url: str, engine: Engine
 ) -> None:
@@ -115,8 +151,18 @@ def test_data_loss_is_refused() -> None:
         assert_no_data_loss(
             before, {**before, "users": TableFingerprint(rows=1, filled_cells=4)}
         )
-    with pytest.raises(MigrationError, match="a tabela users sumiu"):
+    with pytest.raises(MigrationError, match="a tabela users sumiu com 1 linhas"):
         assert_no_data_loss(before, {"stock": before["stock"]})
+
+
+def test_dropping_an_empty_table_loses_nothing() -> None:
+    """Tabela vazia que some não é perda de dado."""
+    before = {
+        "stock": TableFingerprint(rows=3, filled_cells=9),
+        "unused": TableFingerprint(rows=0, filled_cells=0),
+    }
+
+    assert_no_data_loss(before, {"stock": before["stock"]})
 
 
 def test_only_the_latest_backups_are_kept() -> None:
