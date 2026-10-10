@@ -191,6 +191,12 @@ O botão **Carregar Simulação** (para quem não é host, **Simulações Salvas
 
 ---
 
+### Correlação entre ativos
+
+O botão **Correlação entre ativos** mede o quanto os ativos importados andam juntos, em qualquer período com dado. Ver [Correlação entre Ativos](./correlacao).
+
+---
+
 ### Link Compartilhável
 
 **O que é:**  

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Copy, Play, Link, Database, Settings, ArrowLeftRight, FolderOpen } from "lucide-react";
+import { Copy, Play, Link, Database, Settings, ArrowLeftRight, FolderOpen, Grid3x3 } from "lucide-react";
 import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
@@ -188,6 +188,11 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
       <Button type="button" variant="outline" className="w-full" onClick={() => navigate("/compare-simulations")}>
         <ArrowLeftRight />
         Comparar Simulações
+      </Button>
+
+      <Button type="button" variant="outline" className="w-full" onClick={() => navigate("/correlation")}>
+        <Grid3x3 />
+        Correlação entre ativos
       </Button>
 
       <Button type="button" variant="outline" className="w-full" onClick={() => setSettingsOpen(true)}>

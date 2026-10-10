@@ -1,5 +1,5 @@
 import { InfoHint } from "@/shared/components/info-hint";
-import type { MetricInfo } from "../../lib/metrics";
+import type { MetricInfo } from "@/shared/lib/metric-info";
 
 interface Props {
   metric: MetricInfo;

@@ -1,15 +1,6 @@
 import { displayMoney, displayNumber, displayPercent } from "@/shared/lib/utils/display";
+import type { MetricInfo } from "@/shared/lib/metric-info";
 import type { ScoreAxis, ScoreMetric } from "@/types";
-
-/** Texto de uma métrica: a descrição curta fica ao lado do número; o resto vai na dica. */
-export interface MetricInfo {
-  label: string;
-  description: string;
-  definition: string;
-  example: string;
-  reading: string;
-  format: (value: string | number) => string;
-}
 
 const percent = (value: string | number) => displayPercent(value);
 const ratio = (value: string | number) => displayNumber(String(value));

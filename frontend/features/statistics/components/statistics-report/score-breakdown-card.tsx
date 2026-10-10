@@ -4,7 +4,7 @@ import { displayNumber } from "@/shared/lib/utils/display";
 import type { OverviewReport, Score } from "@/types";
 import { playerLabel } from "../../lib/player-label";
 import { SCORE, SCORE_AXES, SCORE_METRICS, displayMetric } from "../../lib/metrics";
-import { MetricHint, MetricLabel } from "./metric-hint";
+import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 import { PlayerPills } from "./shared";
 
 // Cada eixo tem ~100 como desempenho bom; a barra vai até o dobro disso

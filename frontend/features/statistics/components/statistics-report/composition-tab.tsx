@@ -6,7 +6,7 @@ import type { CompositionReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { playerLabel } from "../../lib/player-label";
 import { COMPOSITION, EFFECTIVE_SECTORS, SECTOR_EXPOSURE, SECTOR_PROFIT, displayMetric } from "../../lib/metrics";
-import { MetricLabel } from "./metric-hint";
+import { MetricLabel } from "@/shared/components/metric-hint";
 import { ChartCard, PlayerPills, TabStatus, type ReportProps } from "./shared";
 
 const UNCLASSIFIED = "Sem setor";

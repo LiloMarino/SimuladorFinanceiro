@@ -5,8 +5,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { stringToColor } from "@/shared/lib/utils";
 import type { PlayerRef } from "@/types";
 import { playerLabel } from "../../lib/player-label";
-import { displayMetric, type MetricInfo } from "../../lib/metrics";
-import { MetricHint, MetricLabel } from "./metric-hint";
+import type { MetricInfo } from "@/shared/lib/metric-info";
+import { displayMetric } from "../../lib/metrics";
+import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 
 export interface ReportProps {
   simulationIds: number[];

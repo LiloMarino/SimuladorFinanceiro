@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-10):** F27 concluída e M7 fechado: fechamento de partida com pódio pelo critério de vitória escolhido no lobby.
+> **Última mudança (2026-10-10):** F32 concluída: ferramenta de correlação entre ativos, com o Ibovespa como referência, na partida e no lobby.
 
 ## Glossário
 
@@ -52,10 +52,9 @@
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ⏳ |
 | [**F26**](#f26) | Redesign visual | — | 🔍 |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
-| [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -82,6 +81,7 @@
 | [**F29**](#f29) | IR na venda de renda variável | — | ✅ |
 | [**F30**](#f30) | Setores e segmentos | — | ✅ |
 | [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
+| [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ✅ |
 
 </details>
 
@@ -99,7 +99,6 @@
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F26**](#f26) | Redesign visual | — | 0 | 🔍 |
-| [**F32**](#f32) | Ferramenta de correlação entre ativos | — | 0 | ⏳ |
 
 ---
 
@@ -289,20 +288,20 @@
 
 ### Sem marco
 
-> **Progresso:** 2/5 concluídas
+> **Progresso:** 3/5 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F26**](#f26) | Redesign visual | — | 🔍 |
-| [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
 
-<details><summary>Concluído (2 itens)</summary>
+<details><summary>Concluído (3 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F30**](#f30) | Setores e segmentos | — | ✅ |
 | [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
+| [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ✅ |
 
 </details>
 
@@ -333,7 +332,7 @@
 | **F29** | IR na venda de renda variável | N7 | D1 | M10 | — | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F30** | Setores e segmentos | N16 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F31** | Diagrama do banco sempre em dia | N17 | D9 | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
-| **F32** | Ferramenta de correlação entre ativos | N18 | D2 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F32** | Ferramenta de correlação entre ativos | N18 | D2 | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F18** | Pontuação geral (overall) | N9 | D10 | M7 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 
 <a id="f1"></a>
@@ -424,7 +423,8 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **Aceite:** tirar o `UK` de uma coluna na página, sem mudar o model, faz o `tests/test_erd.py` falhar.
 
 <a id="f32"></a>
-**F32 — Ferramenta de correlação entre ativos.** Serve N18. Como a do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): escolhem-se tickers quaisquer, e o IBOV ou o CDI como referência, e uma janela (6 meses, 1, 3 ou 5 anos); o backend (D2) calcula a correlação dos retornos diários de cada par e devolve a matriz, mostrada como mapa de calor. A correlação vai de −1 a 1: perto de 1, os dois sobem e caem juntos (dois bancos, ~0,8); perto de 0, um não diz nada sobre o outro; negativa, um tende a subir quando o outro cai. Para diversificar, quanto mais baixa melhor. A tela traz essa leitura ao lado e num tooltip, com o tamanho da amostra (quantos pregões em comum entraram no cálculo). Durante a partida, a janela termina na data da simulação, para a ferramenta não revelar o futuro; fora da partida, vale qualquer período. Também serve para conferir o gerador da F23: a correlação entre ativos nos dados gerados deve ficar perto da do histórico.
+**F32 — Ferramenta de correlação entre ativos.** Serve N18; segue a D2. Uma rota só, `/correlation`: na partida é o item "Correlação" da sidebar, e no lobby o botão "Correlação entre ativos" a abre em tela cheia (`layouts/simulation-mode-layout.tsx` escolhe o layout pelo modo). Escolhem-se até 20 tickers e uma janela (6 meses, 1, 3 ou 5 anos). `GET /api/correlation` (`features/correlation/correlation.py`) calcula a correlação de Pearson dos retornos diários de cada par com `statistics.correlation`, usando só os pregões em que os dois lados têm retorno, e devolve a matriz completa com o IBOV como última linha e coluna; `GET /api/correlation/assets` dá os tickers e o último dia que a janela alcança. Célula com menos de 20 pregões em comum, ou com um lado parado na janela, vem `null` e aparece "—"; fechamento inválido (NaN, zero) conta como dia sem pregão. Na partida, a janela termina sempre na data da simulação, mesmo que o pedido traga outra; fora dela, o campo de data final começa no último pregão e vai para qualquer dia. A tela tem o mapa de calor (vermelho para positiva, azul para negativa), o card "Como ler" com as faixas (≥ 0,7 andam muito juntos; 0,3 a 0,7 em parte; −0,3 a 0,3 quase independentes; ≤ −0,3 opostos) e um tooltip por célula com o valor, a faixa e os pregões em comum; a página "Correlação entre Ativos" dos docs explica a leitura. `MetricInfo` e `MetricHint` subiram para `shared/`, porque a estatística e a correlação usam os dois. O CDI ficou de fora como referência: a taxa diária só muda quando o Copom mexe na Selic, então a correlação com ela fica perto de 0 e, numa janela com a Selic parada, nem existe. Quando a F23 existir, a mesma tela confere o gerador: o mesmo par medido num período histórico e num gerado.
+**Aceite:** com a janela de 1 ano terminando em 29/12/2023, ITUB4 × IBOV dá 0,74 e ITUB4 × PETR4 dá 0,27, com 248 pregões em comum; na partida, pedir uma data além da simulação devolve a mesma matriz que sem data (coberto em `tests/test_correlation.py`).
 
 <a id="f18"></a>
 **F18 — Pontuação geral (overall).** Serve N9; segue a D10. Uma nota por jogador, decomposta por eixo e por métrica, na aba Geral da F17 e no ranking, que passou a ordenar por ela (quem ainda não tem nota vem depois, e o retorno desempata). `features/statistics/score.py` guarda as faixas como tabela de dados: cada métrica vira pontos numa reta entre o valor que vale 0 e o que vale 100, com chão 0 e sem teto; cada eixo é a média das suas métricas medidas, e a nota é a soma dos quatro. **Retorno:** retorno anual acima do CDI (−10 p.p. → 0, +10 p.p. → 100) e acima do Ibovespa (−15 → 0, +15 → 100). **Risco:** queda máxima (50% → 0, 0% → 100), volatilidade (40% → 0), maior tempo abaixo do pico (252 pregões → 0) e pior mês (−20% → 0). **Consistência:** fração dos meses acima do CDI e no positivo. **Eficiência:** Sharpe (−1 → 0, 2 → 100) e Sortino (−1 → 0, 3 → 100). A nota só aparece a partir de 63 pregões; antes, a aba Geral mostra quantos faltam. `ScoreDTO` vem em cada jogador de `/api/statistics/overview`, com o valor e os pontos de cada métrica, e o card "Nota" mostra cada eixo com uma barra e cada métrica como "queda máxima 13,65% → 72,7 pts". A página de estatísticas dos docs tem a fórmula em LaTeX (`remark-math` + `rehype-katex`, com o `$` simples desligado por causa do "R$"), a tabela de faixas e um exemplo completo. Limitação: risco e consistência param perto de 100 e retorno e eficiência não, então uma carteira parada em caixa fica com ~100, quase tudo do eixo Risco.

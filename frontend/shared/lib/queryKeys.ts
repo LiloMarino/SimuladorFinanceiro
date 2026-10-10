@@ -19,6 +19,9 @@ export const queryKeys = {
   portfolioCash: () => ["portfolio", "cash"] as const,
   statistics: () => ["statistics"] as const,
   statisticsReport: (tab: string, simulationIds: number[]) => ["statistics", tab, ...simulationIds] as const,
+  correlationAssets: () => ["correlation", "assets"] as const,
+  correlation: (tickers: string[], window: string, end: string | null) =>
+    ["correlation", window, end, ...tickers] as const,
   notificationSettings: () => ["notifications", "settings"] as const,
   seriesCoverage: () => ["import-assets", "coverage"] as const,
   sectors: () => ["import-assets", "sectors"] as const,

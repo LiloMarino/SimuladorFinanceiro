@@ -61,3 +61,11 @@ def business_days_in_month(d: date) -> int:
     return business_days_between(
         first - timedelta(days=1), next_month - timedelta(days=1)
     )
+
+
+def subtract_months(d: date, months: int) -> date:
+    """Mesmo dia `months` meses antes; num mês mais curto, o último dia dele."""
+    year, month = divmod(d.year * 12 + d.month - 1 - months, 12)
+    first = date(year, month + 1, 1)
+    last_day = ((first + timedelta(days=32)).replace(day=1) - timedelta(days=1)).day
+    return first.replace(day=min(d.day, last_day))

@@ -30,7 +30,13 @@ export function GuardLayout() {
   }
 
   // Autenticado + SEM simulação → /lobby
-  const allowedWithoutSimulation = ["/lobby", "/import-assets", "/compare-simulations", "/match-result/:simulationId"];
+  const allowedWithoutSimulation = [
+    "/lobby",
+    "/import-assets",
+    "/compare-simulations",
+    "/correlation",
+    "/match-result/:simulationId",
+  ];
   if (isAuthenticated && !hasSimulation) {
     if (!allowedWithoutSimulation.some((pattern) => matchPath(pattern, pathname))) {
       return <Navigate to="/lobby" replace state={{ from: { pathname } } satisfies RedirectState} />;

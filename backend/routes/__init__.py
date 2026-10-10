@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from backend.routes.auth import auth_router
+from backend.routes.correlation import correlation_router
 from backend.routes.error import ERROR_500_RESPONSE, ErrorResponse
 from backend.routes.frontend import register_frontend_routes
 from backend.routes.importer import import_router
@@ -29,6 +30,7 @@ def register_routes(app: FastAPI):
     app.include_router(timespeed_router, responses=ERROR_500_RESPONSE)
     app.include_router(auth_router, responses=ERROR_500_RESPONSE)
     app.include_router(statistics_router, responses=ERROR_500_RESPONSE)
+    app.include_router(correlation_router, responses=ERROR_500_RESPONSE)
     app.include_router(simulation_router, responses=ERROR_500_RESPONSE)
     app.include_router(tunnel_router, responses=ERROR_500_RESPONSE)
 

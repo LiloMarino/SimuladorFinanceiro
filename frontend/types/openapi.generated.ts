@@ -780,6 +780,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/correlation/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ativos da correlação
+         * @description Tickers com preço para a ferramenta de correlação e o último dia que a janela alcança. Na partida, a janela termina na data da simulação.
+         */
+        get: operations["get_correlation_assets_api_correlation_assets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/correlation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Matriz de correlação
+         * @description Correlação dos retornos diários de cada par de tickers, com o Ibovespa como referência, na janela que termina em `end`. Na partida, `end` é sempre a data da simulação.
+         */
+        get: operations["get_correlation_api_correlation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/status": {
         parameters: {
             query?: never;
@@ -1096,6 +1136,41 @@ export interface components {
         CompositionReportDTO: {
             /** Players */
             players: components["schemas"]["PlayerCompositionDTO"][];
+        };
+        /** CorrelationAssetsDTO */
+        CorrelationAssetsDTO: {
+            /** Tickers */
+            tickers: string[];
+            /** Last Date */
+            last_date: string | null;
+            /** End Fixed */
+            end_fixed: boolean;
+        };
+        /** CorrelationCellDTO */
+        CorrelationCellDTO: {
+            /** Correlation */
+            correlation: string | null;
+            /** Days */
+            days: number;
+        };
+        /** CorrelationMatrixDTO */
+        CorrelationMatrixDTO: {
+            /** Labels */
+            labels: string[];
+            /** Rows */
+            rows: components["schemas"]["CorrelationCellDTO"][][];
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Min Days */
+            min_days: number;
         };
         /** CreateSimulationRequest */
         CreateSimulationRequest: {
@@ -3629,6 +3704,77 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EconomicIndicatorsDTO"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_correlation_assets_api_correlation_assets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorrelationAssetsDTO"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_correlation_api_correlation_get: {
+        parameters: {
+            query: {
+                tickers: string[];
+                window?: "6m" | "1y" | "3y" | "5y";
+                end?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorrelationMatrixDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
             /** @description Internal Server Error */

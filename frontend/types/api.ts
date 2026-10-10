@@ -1,4 +1,4 @@
-import type { components } from "@/types/openapi";
+import type { components, operations } from "@/types/openapi";
 
 // Stock
 export type Stock = Omit<components["schemas"]["CandleDTO"], "id">;
@@ -45,6 +45,13 @@ export type ReturnsReport = components["schemas"]["ReturnsReportDTO"];
 export type RiskReport = components["schemas"]["RiskReportDTO"];
 export type CompositionReport = components["schemas"]["CompositionReportDTO"];
 export type OperationsReport = components["schemas"]["OperationsReportDTO"];
+
+// Correlation
+export type CorrelationAssets = components["schemas"]["CorrelationAssetsDTO"];
+export type CorrelationMatrix = components["schemas"]["CorrelationMatrixDTO"];
+export type CorrelationCell = CorrelationMatrix["rows"][number][number];
+export type CorrelationQuery = operations["get_correlation_api_correlation_get"]["parameters"]["query"];
+export type CorrelationWindow = NonNullable<CorrelationQuery["window"]>;
 
 // Orders
 export type OrderAction = components["schemas"]["OrderAction"];

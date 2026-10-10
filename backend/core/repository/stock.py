@@ -289,6 +289,24 @@ class StockRepository:
         ]
 
     @transactional
+    def get_closes_between(
+        self, session: Session, tickers: list[str], start: date, end: date
+    ) -> dict[str, dict[date, float]]:
+        """Fechamentos de cada ticker em [start, end], por dia de pregão."""
+        rows = session.execute(
+            select(Stock.ticker, StockPriceHistory.price_date, StockPriceHistory.close)
+            .join(StockPriceHistory, StockPriceHistory.stock_id == Stock.id)
+            .where(
+                Stock.ticker.in_(tickers),
+                StockPriceHistory.price_date.between(start, end),
+            )
+        ).all()
+        closes: dict[str, dict[date, float]] = {ticker: {} for ticker in tickers}
+        for ticker, price_date, close in rows:
+            closes[ticker][price_date] = close
+        return closes
+
+    @transactional
     def get_closes_on(self, session: Session, on: date) -> dict[str, float]:
         """Último fechamento histórico de cada ação até `on` (inclusive)."""
         last = (

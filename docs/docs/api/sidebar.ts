@@ -308,6 +308,24 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Correlation",
+      items: [
+        {
+          type: "doc",
+          id: "api/get-correlation-assets-api-correlation-assets-get",
+          label: "Ativos da correlação",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/get-correlation-api-correlation-get",
+          label: "Matriz de correlação",
+          className: "api-method get",
+        },
+      ],
+    },
+    {
+      type: "category",
       label: "Simulation",
       items: [
         {

@@ -4,7 +4,7 @@ import { displayMoney, displayPercent, isLoss } from "@/shared/lib/utils/display
 import type { OverviewReport } from "@/types";
 import { playerLabel } from "../../lib/player-label";
 import { SCORE, displayMetric } from "../../lib/metrics";
-import { MetricLabel } from "./metric-hint";
+import { MetricLabel } from "@/shared/components/metric-hint";
 
 interface Props {
   players: OverviewReport["players"];
