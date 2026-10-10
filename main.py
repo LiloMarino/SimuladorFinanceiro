@@ -168,8 +168,10 @@ if __name__ == "__main__":
     asgi_app = create_app()
     local_url = f"http://localhost:{config.toml.server.port}"
 
-    logger.info(f"Abrindo navegador em {local_url}")
-    Timer(1.0, lambda: webbrowser.open(local_url)).start()
+    # O executável serve o front buildado; em dev o front é o do Vite
+    if getattr(sys, "frozen", False):
+        logger.info(f"Abrindo navegador em {local_url}")
+        Timer(1.0, lambda: webbrowser.open(local_url)).start()
 
     uvicorn.run(
         asgi_app,
