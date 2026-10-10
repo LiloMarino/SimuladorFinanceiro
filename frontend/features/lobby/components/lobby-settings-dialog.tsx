@@ -14,6 +14,8 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { InfoHint } from "@/shared/components/info-hint";
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import type { SimulationFormValues } from "./lobby-simulation-form";
+import type { CoverageCheck } from "../lib/coverage";
+import { CoverageAlerts } from "./coverage-alerts";
 
 interface LobbySettingsDialogProps {
   open: boolean;
@@ -21,9 +23,17 @@ interface LobbySettingsDialogProps {
   form: UseFormReturn<SimulationFormValues>;
   isHost: boolean;
   loading: boolean;
+  coverageCheck: CoverageCheck;
 }
 
-export function LobbySettingsDialog({ open, onOpenChange, form, isHost, loading }: LobbySettingsDialogProps) {
+export function LobbySettingsDialog({
+  open,
+  onOpenChange,
+  form,
+  isHost,
+  loading,
+  coverageCheck,
+}: LobbySettingsDialogProps) {
   const disableFields = loading || !isHost;
   const priceImpactEnabled = useWatch({ control: form.control, name: "priceImpactEnabled" });
 
@@ -82,6 +92,8 @@ export function LobbySettingsDialog({ open, onOpenChange, form, isHost, loading 
                 )}
               />
             </div>
+
+            <CoverageAlerts check={coverageCheck} />
 
             <FormField
               control={form.control}

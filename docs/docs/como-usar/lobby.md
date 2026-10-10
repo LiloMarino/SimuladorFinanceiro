@@ -101,6 +101,22 @@ A data de término da simulação.
 * Define quando a simulação será encerrada automaticamente
 * Deve ser posterior à data inicial
 
+### Alertas de cobertura dos dados
+
+O lobby confere se os dados guardados cobrem o período escolhido. Os alertas aparecem embaixo das ações e também dentro da janela **Configurações**, ao lado das datas.
+
+**Alerta vermelho: "Sem indicador na data inicial"**
+
+Aparece quando CDI, SELIC ou IPCA não tem dado na data inicial. Ex.: uma data inicial em 1970, ou uma base sem indicadores porque o app nunca conseguiu acessar a internet. Nesse caso, o botão **Iniciar Nova Simulação** fica desabilitado, e o servidor também recusa a partida.
+
+Para resolver, atualize os indicadores na **Central de dados** (botão no lobby) ou escolha uma data inicial mais recente.
+
+**Alerta amarelo: "Período passa do dado real"**
+
+Aparece quando a data final passa do último dado real de alguma série. O alerta lista cada série com a sua última data real. Depois dessa data, a partida repete o último valor conhecido, a mesma regra usada para os preços das ações. Ex.: se o último CDI real é de 30/09/2026 e a partida vai até 31/12/2026, o CDI de outubro a dezembro repete o último valor conhecido.
+
+Este alerta é apenas um aviso: a partida continua podendo ser iniciada.
+
 ---
 
 ### Saldo Inicial (R$)

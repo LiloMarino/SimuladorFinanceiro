@@ -80,3 +80,13 @@ class UnprocessableEntityError(HTTPException):
         ),
     ):
         super().__init__(status_code=422, detail=detail)
+
+
+class BadGatewayError(HTTPException):
+    """502 Bad Gateway"""
+
+    def __init__(
+        self,
+        detail: str = "An upstream service failed to answer the request.",
+    ):
+        super().__init__(status_code=502, detail=detail)

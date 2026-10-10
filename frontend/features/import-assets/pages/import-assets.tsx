@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/shared/components/ui/button";
 import {
   AlertDialog,
@@ -11,27 +12,32 @@ import {
 
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { queryKeys } from "@/shared/lib/queryKeys";
 import { toFormData } from "@/shared/lib/api/toFormData";
 import { toast } from "sonner";
 import type { CsvFormData } from "@/features/import-assets/components/csv-form";
 import type { YFinanceFormData } from "@/features/import-assets/components/yfinance-form";
 import CSVForm from "@/features/import-assets/components/csv-form";
 import YFinanceForm from "@/features/import-assets/components/yfinance-form";
-import { StocksStatusTable } from "@/features/import-assets/components/stocks-status-table";
+import { SeriesCoverageTable } from "@/features/import-assets/components/series-coverage-table";
 
 type ImportFormData = { type: "csv"; data: CsvFormData } | { type: "yfinance"; data: YFinanceFormData };
 
 export default function ImportAssetsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingImport, setPendingImport] = useState<ImportFormData | null>(null);
+  const queryClient = useQueryClient();
+  const invalidateCoverage = () => queryClient.invalidateQueries({ queryKey: queryKeys.seriesCoverage() });
 
   const csvMutation = useApiMutation({
     mutationFn: (payload: { ticker: string; overwrite: boolean; csv_file: File }) =>
       apiFetch("/api/import-assets/csv", { method: "POST", body: toFormData(payload) }),
+    onSettled: invalidateCoverage,
   });
   const yFinanceMutation = useApiMutation({
     mutationFn: (payload: { ticker: string; overwrite: boolean }) =>
       apiFetch("/api/import-assets/yfinance", { method: "POST", body: payload }),
+    onSettled: invalidateCoverage,
   });
 
   const handleConfirm = async () => {
@@ -70,6 +76,13 @@ export default function ImportAssetsPage() {
 
   return (
     <section className="section-content p-4 flex flex-col gap-4">
+      <header>
+        <h1 className="text-2xl font-semibold">Central de dados</h1>
+        <p className="text-sm text-muted-foreground">
+          Indicadores e ações que a simulação usa. Disponível só fora da partida.
+        </p>
+      </header>
+
       {/* AlertDialog de confirmação */}
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <AlertDialogContent>
@@ -94,7 +107,7 @@ export default function ImportAssetsPage() {
 
       {/* Formulários */}
       <div className="bg-white rounded-lg shadow p-6 space-y-8">
-        <h2 className="text-xl font-semibold mb-6">Importar Ativos</h2>
+        <h2 className="text-xl font-semibold mb-6">Importar ações</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <CSVForm
             onSubmit={(data) => {
@@ -111,8 +124,8 @@ export default function ImportAssetsPage() {
         </div>
       </div>
 
-      {/* Tabela de status dos ativos */}
-      <StocksStatusTable />
+      {/* Cobertura das séries */}
+      <SeriesCoverageTable />
     </section>
   );
 }

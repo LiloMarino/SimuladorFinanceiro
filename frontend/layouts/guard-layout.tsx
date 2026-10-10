@@ -38,9 +38,10 @@ export function GuardLayout() {
     return <Outlet />;
   }
 
-  // Autenticado + COM simulação
+  // Autenticado + COM simulação: a Central de dados só abre fora da partida
+  const blockedDuringSimulation = ["/login", "/lobby", "/import-assets"];
   if (isAuthenticated && hasSimulation) {
-    if (pathname === "/login" || pathname === "/lobby") {
+    if (blockedDuringSimulation.includes(pathname)) {
       return <Navigate to="/" replace />;
     }
     return <Outlet />;

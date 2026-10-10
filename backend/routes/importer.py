@@ -1,27 +1,64 @@
 from typing import Annotated
 
-from fastapi import APIRouter, File, Form, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from pydantic import BaseModel
 
-from backend.core import repository
-from backend.core.dto.stock_status import StockStatusDTO
+from backend.core.dependencies.simulation import require_no_active_simulation
+from backend.core.dto.series_coverage import SeriesCoverageDTO
+from backend.core.enum import IndicatorSeries
+from backend.core.exceptions.http_exceptions import BadGatewayError
+from backend.features.import_data.coverage import get_series_coverage
 from backend.features.import_data.importer_service import (
     update_from_csv,
     update_from_yfinance,
     update_from_yfinance_batch,
 )
+from backend.features.import_data.indicators import refresh_indicators
 
-import_router = APIRouter(prefix="/api/import-assets", tags=["Import Assets"])
+import_router = APIRouter(
+    prefix="/api/import-assets",
+    tags=["Import Assets"],
+    dependencies=[Depends(require_no_active_simulation)],
+)
 
 
 @import_router.get(
-    "/status",
-    response_model=list[StockStatusDTO],
-    summary="Status dos ativos importados",
-    description="Retorna todos os ativos com a data da última entrada histórica no banco.",
+    "/coverage",
+    response_model=list[SeriesCoverageDTO],
+    summary="Cobertura das séries",
+    description="Retorna cada série da base (indicadores e ações) com o início, o fim do dado real e o fim do dado gerado.",
 )
-def get_stocks_status():
-    return repository.stock.get_all_stocks_with_last_date()
+def get_coverage():
+    return get_series_coverage()
+
+
+def refresh_or_raise(series: list[IndicatorSeries] | None) -> None:
+    failed = refresh_indicators(series, force=True)
+    if failed:
+        raise BadGatewayError(
+            f"Não foi possível buscar {', '.join(s.value for s in failed)}. "
+            "O que já estava no banco foi mantido."
+        )
+
+
+@import_router.post(
+    "/indicators",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Atualizar todos os indicadores",
+    description="Busca CDI, SELIC e IPCA no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.",
+)
+def refresh_all_indicators():
+    refresh_or_raise(None)
+
+
+@import_router.post(
+    "/indicators/{series}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Atualizar um indicador",
+    description="Busca um indicador a partir do último valor guardado.",
+)
+def refresh_one_indicator(series: IndicatorSeries):
+    refresh_or_raise([series])
 
 
 def str_to_bool(value: str | bool | None) -> bool:

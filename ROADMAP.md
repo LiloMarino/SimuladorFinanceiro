@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-10):** F31 concluída: diagrama do banco gerado dos models numa página dos docs, conferido por teste.
+> **Última mudança (2026-10-10):** F20 e F21 concluídas juntas: indicadores reais do Banco Central na renda fixa e Central de dados fora da partida.
 
 ## Glossário
 
@@ -49,8 +49,6 @@
 | [**F17**](#f17) | Estatísticas em abas, como o relatório de fim de partida de um RTS | — | ⏳ |
 | [**F18**](#f18) | Pontuação geral (overall) | — | 🔍 |
 | [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ⏳ |
-| [**F20**](#f20) | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | — | ⏳ |
-| [**F21**](#f21) | Central de dados, fora da partida | — | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | — | 🔍 |
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ⏳ |
@@ -62,7 +60,7 @@
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -79,6 +77,8 @@
 | [**F12**](#f12) | Comparação entre simulações | — | ✅ |
 | [**F13**](#f13) | Impacto de preço de ordens grandes | — | ✅ |
 | [**F15**](#f15) | Cliente desktop em Tauri | — | 🚫 |
+| [**F20**](#f20) | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | — | ✅ |
+| [**F21**](#f21) | Central de dados, fora da partida | — | ✅ |
 | [**F25**](#f25) | Migrations com Alembic | — | ✅ |
 | [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
 
@@ -93,12 +93,11 @@
 | ID | Resumo | Marco | Destrava | Status |
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
-| [**F20**](#f20) | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | M8 | 3 | ⏳ |
+| [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
 | [**F3**](#f3) | Spike: banco embarcado no executável | M2 | 1 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F17**](#f17) | Estatísticas em abas, como o relatório de fim de partida de um RTS | M7 | 1 | ⏳ |
 | [**F18**](#f18) | Pontuação geral (overall) | M7 | 1 | 🔍 |
-| [**F21**](#f21) | Central de dados, fora da partida | M8 | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F26**](#f26) | Redesign visual | — | 0 | 🔍 |
 | [**F29**](#f29) | IR na venda de renda variável | M10 | 0 | ⏳ |
@@ -233,13 +232,20 @@
 >
 > **Serve:** N3, N11, N13
 >
-> **Progresso:** 0/3 concluídas
+> **Progresso:** 2/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F20**](#f20) | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | — | ⏳ |
-| [**F21**](#f21) | Central de dados, fora da partida | — | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
+
+<details><summary>Concluído (2 itens)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F20**](#f20) | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | — | ✅ |
+| [**F21**](#f21) | Central de dados, fora da partida | — | ✅ |
+
+</details>
 
 ### M9 — Mercado sem fim
 
@@ -312,8 +318,8 @@
 | **F13** | Impacto de preço de ordens grandes | N7 | D1 | M10 | — | Alto | Alto | Médio | Médio | ✅ Concluído |
 | **F16** | Bots na sala | N8 | D8 | M6 | [F8](#f8) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F17** | Estatísticas em abas, como o relatório de fim de partida de um RTS | N5, N6 | D2 | M7 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
-| **F20** | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | N11 | D7 | M8 | — | Médio | Médio | Alto | Excelente | ⏳ Pendente |
-| **F21** | Central de dados, fora da partida | N13, N3 | D7 | M8 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F20** | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | N11 | D7 | M8 | — | Médio | Médio | Alto | Excelente | ✅ Concluído |
+| **F21** | Central de dados, fora da partida | N13, N3 | D7 | M8 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F24** | Gerar dados futuros na Central de dados | N12 | D7 | M9 | [F21](#f21), [F23](#f23) | Médio | Alto | Alto | Bom | ⏳ Pendente |
 | **F25** | Migrations com Alembic | N14, N1 | D9 | M2 | — | Médio | Médio | Alto | Excelente | ✅ Concluído |
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
@@ -372,11 +378,11 @@
 **F17 — Estatísticas em abas, como o relatório de fim de partida de um RTS.** Serve N5 e N6. Inspiração: a tela de estatísticas do fim de partida do Age of Empires II, com uma aba por dimensão e a curva de cada jogador ao longo do tempo. `statistics.tsx` deixa de empilhar cards e passa a abas, cada uma com gráfico temporal por jogador e tabela: **Rentabilidade** (patrimônio, retorno % acumulado e as linhas de referência do CDI e do IBOV no período); **Risco** (curva de drawdown — quanto cada jogador está abaixo do próprio pico, dia a dia —, volatilidade em janela móvel de 63 pregões, ~3 meses, e um gráfico de dispersão risco × retorno com um ponto por jogador, como o do [Finance Manager](https://github.com/LiloMarino/Finance-Manager)); **Composição** (área empilhada de caixa, renda variável e renda fixa); **Operações** (ordens executadas, giro, IR pago e, com a F13 ligada, custo de impacto pago — preço executado menos preço histórico). As séries vêm prontas do backend (D2), um endpoint por aba sobre os snapshots diários da F11. O mesmo componente de abas serve a tela de Estatísticas durante a partida, o fechamento (F27) e a comparação (`/compare-simulations`, alimentada por `/api/statistics/compare`). A aba Geral entra com a F18.
 
 <a id="f20"></a>
-**F20 — Indicadores reais (CDI, SELIC, IPCA) do Banco Central.** Serve N11. `EconomicRepository` deixa de devolver constantes e lê a tabela `economic_indicator_history` (série, data, valor em `NUMERIC`, origem — D7). A busca segue o desenho do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): API SGS do Banco Central (`api.bcb.gov.br/dados/serie/bcdata.sgs.{código}/dados`), séries 12 (CDI diário), 11 (SELIC diária) e 433 (IPCA mensal), em janelas de até 10 anos (acima disso a API recusa), valor lido do texto direto para `Decimal`. A primeira carga traz a série inteira; as seguintes buscam só a partir do 1º dia do mês do último valor guardado, com intervalo mínimo de 6 horas e uma `fetch_log` registrando tentativa e sucesso; falha na busca mantém o que já está no banco. O IBOV entra na mesma tabela, pelo yfinance (`^BVSP`), como referência para os gráficos da F17. O [EconomicStatistics](https://github.com/LiloMarino/EconomicStatistics) é a referência se o IPCA precisar vir do IBGE ou se dado antigo for revisado. Na renda fixa, CDI e SELIC diários viram o fator do dia direto, sem passar pela taxa anual; o IPCA do mês é distribuído pelos dias úteis do mês. Depois do último dado real vale o último valor conhecido, como no preço das ações. Resolve a limitação de CDI constante da F2 e da F11. A busca roda na Central de dados (F21) e na inicialização, quando a última tiver mais de 6 horas.
-**Aceite:** um CDB 100% do CDI comprado no primeiro dia útil de 2020 e resgatado no último rende, antes do IR, o CDI acumulado de 2020 publicado pelo Banco Central.
+**F20 — Indicadores reais (CDI, SELIC, IPCA) do Banco Central.** Serve N11. As constantes do `EconomicRepository` saíram: as séries moram em `economic_indicator_history` (série, data, `NUMERIC`, origem — D7), com `fetch_log` registrando tentativa e sucesso, e as antigas `ipca_history`/`selic_history`, que nada lia, foram removidas na mesma migration; `stock_price_history` também ganhou a coluna de origem. A busca segue o desenho do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): SGS do Banco Central (séries 12, 11 e 433) em janelas de até 10 anos, valor lido do texto direto para `Decimal`, e IBOV pelo yfinance (`^BVSP`) na mesma tabela. A primeira carga traz a série inteira; as seguintes recomeçam no dia 1 do mês do último valor; a inicialização dispara a busca numa thread, respeitando o intervalo de 6 horas, e falha mantém o que está no banco. Na renda fixa, o tick rende com a taxa do dia útil anterior (a taxa de um dia paga a noite até o próximo): CDI e SELIC viram o fator do dia direto, dia sem valor publicado dentro da série é feriado e não rende, o IPCA do mês se distribui pelos dias úteis do mês, e depois do último dado real vale o último valor conhecido. A projeção na compra congela o último valor conhecido. A taxa anual mostrada no card e usada pelas fábricas de títulos é a do dia composta por 252 dias úteis (IPCA: acumulado de 12 meses), e o Sharpe desconta o CDI diário real. A partida só é criada (ou carregada) quando CDI, SELIC e IPCA têm dado no dia de início. Resolve a limitação de CDI constante da F2 e da F11.
+**Aceite:** um CDB 100% do CDI de 02/01/2020 a 31/12/2020 rende, antes do IR, o índice 1,02750141 que a Calculadora do Cidadão do Banco Central dá para o mesmo período (teste com o CDI real de 2020).
 
 <a id="f21"></a>
-**F21 — Central de dados, fora da partida.** Serve N13 e N3. `/import-assets` vira a Central de dados, aberta pelo lobby: uma tabela com toda série da base — ativos e indicadores (F20) — com início, fim do dado real e, quando houver, fim do dado gerado (D7), e uma barra de linha do tempo por série com o trecho real e o gerado em cores diferentes. Dela se atualiza uma série ou todas, se importa por yfinance ou CSV e, com a F24, se geram dados. Hoje a importação já fica no lobby, mas a rota segue acessível com partida ativa (`guard-layout.tsx:33` libera `/import-assets`), o backend não barra nada e o motor lê as tabelas vivas a cada tick — importar no meio de uma partida muda os preços dela. A Central passa a ser só de fora da partida: as rotas de `/api/import-assets` respondem 409 com partida ativa e o guard tira a rota durante o jogo. No lobby, o período escolhido é conferido contra a cobertura dos dados, com aviso quando passa do fim do dado real.
+**F21 — Central de dados, fora da partida.** Serve N13 e N3. `/import-assets` virou a Central de dados, aberta pelo botão do lobby: além dos formulários de importação por yfinance e CSV, uma tabela com toda série da base — indicadores (F20) e ações — com início, fim do dado real, fim do dado gerado (D7, vazio até a F24) e uma barra de linha do tempo por série num eixo comum, com o trecho real e o gerado em cores diferentes. Cada série se atualiza pelo botão da linha (indicador ignora o intervalo de 6 horas) e "Atualizar todos" busca os indicadores e as ações desatualizadas. A cobertura vem de `GET /api/import-assets/coverage`, numa consulta agrupada no lugar do `/status` que fazia uma consulta por ação. A Central é só de fora da partida: o router de `/api/import-assets` responde 409 com partida ativa e o guard manda `/import-assets` para `/` durante o jogo. No lobby, o período é conferido contra a cobertura: indexador sem dado na data inicial bloqueia o botão de iniciar (o backend também recusa), e série cujo dado real termina antes da data final gera um aviso. Um `Alert` entrou no design system para os dois casos.
 
 <a id="f24"></a>
 **F24 — Gerar dados futuros na Central de dados.** Serve N12; segue a D7. Na Central (F21), "Gerar dados": o usuário escolhe até quando gerar (o início é sempre o dia útil seguinte ao último dado real de cada série), a semente e a temperatura, vendo no preview como a geração fica antes de gravar; o gerador da F23 grava as linhas nas mesmas tabelas de preço e de indicadores, com origem "gerado", e a barra da linha do tempo mostra o trecho. "Atualizar" passa a trocar o trecho gerado pelo real à medida que o real fica disponível, seguindo a regra para partidas salvas que a F23 fechar. A simulação lê as séries como sempre. Gatilho: F21 e F23 concluídas.

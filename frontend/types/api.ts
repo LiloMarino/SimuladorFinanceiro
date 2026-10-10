@@ -21,6 +21,10 @@ export type FixedIncomeProjection = components["schemas"]["FixedIncomeProjection
 
 // Economic
 export type EconomicIndicators = components["schemas"]["EconomicIndicatorsDTO"];
+export type IndicatorSeries = components["schemas"]["IndicatorSeries"];
+
+// Data center
+export type SeriesCoverage = components["schemas"]["SeriesCoverageDTO"];
 
 // User
 export type User = components["schemas"]["UserDTO"];

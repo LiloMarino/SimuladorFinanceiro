@@ -84,6 +84,12 @@ export function displayRateLabel(rateIndex: RateIndex, interestRate: string) {
   }
 }
 
+/** "2020-01-02" como meia-noite local: `new Date` leria UTC e voltaria um dia no Brasil. */
+export function parseLocalDate(isoDate: string): Date {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
 export function displayDate(date: Date | string) {
   const d = typeof date === "string" ? new Date(date) : date;
 

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Copy, Play, Link, FileInput, Settings, ArrowLeftRight, FolderOpen } from "lucide-react";
+import { Copy, Play, Link, Database, Settings, ArrowLeftRight, FolderOpen } from "lucide-react";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { displayDecimal, toCentsString } from "@/shared/lib/utils/display";
@@ -18,6 +19,9 @@ import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulatio
 import { useTunnel } from "@/shared/hooks/useTunnel";
 import { LobbySettingsDialog } from "./lobby-settings-dialog";
 import { LoadSimulationDialog } from "./load-simulation-dialog";
+import { CoverageAlerts } from "./coverage-alerts";
+import { checkCoverage } from "../lib/coverage";
+import { seriesCoverageOptions } from "@/shared/lib/queries/seriesCoverageOptions";
 
 const simulationFormSchema = z
   .object({
@@ -72,6 +76,11 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
     },
   });
 
+  const { data: coverage } = useQuery(seriesCoverageOptions());
+  const [startDate, endDate] = useWatch({ control: form.control, name: ["startDate", "endDate"] });
+  const coverageCheck = checkCoverage(coverage ?? [], startDate, endDate);
+  const blockedByCoverage = coverageCheck.missingAtStart.length > 0;
+
   useRealtimeSyncSimulationForm({
     form,
     initial: simulationData,
@@ -117,14 +126,17 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
         form={form}
         isHost={isHost}
         loading={loadingCreate || loadingContinue}
+        coverageCheck={coverageCheck}
       />
 
       <LoadSimulationDialog open={loadOpen} onOpenChange={setLoadOpen} isHost={isHost} />
 
+      <CoverageAlerts check={coverageCheck} />
+
       <Button
         type="button"
         className="w-full"
-        disabled={disableSimulationActions}
+        disabled={disableSimulationActions || blockedByCoverage}
         onClick={() =>
           createSimulation({
             name: form.getValues("name"),
@@ -165,8 +177,8 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
       </Button>
 
       <Button type="button" variant="outline" className="w-full" onClick={() => navigate("/import-assets")}>
-        <FileInput />
-        Importar Ativos
+        <Database />
+        Central de dados
       </Button>
 
       <Button type="button" variant="outline" className="w-full" onClick={() => navigate("/compare-simulations")}>

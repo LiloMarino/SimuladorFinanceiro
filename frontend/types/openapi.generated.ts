@@ -256,7 +256,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/import-assets/status": {
+    "/api/import-assets/coverage": {
         parameters: {
             query?: never;
             header?: never;
@@ -264,12 +264,52 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Status dos ativos importados
-         * @description Retorna todos os ativos com a data da última entrada histórica no banco.
+         * Cobertura das séries
+         * @description Retorna cada série da base (indicadores e ações) com o início, o fim do dado real e o fim do dado gerado.
          */
-        get: operations["get_stocks_status_api_import_assets_status_get"];
+        get: operations["get_coverage_api_import_assets_coverage_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-assets/indicators": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Atualizar todos os indicadores
+         * @description Busca CDI, SELIC e IPCA no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.
+         */
+        post: operations["refresh_all_indicators_api_import_assets_indicators_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-assets/indicators/{series}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Atualizar um indicador
+         * @description Busca um indicador a partir do último valor guardado.
+         */
+        post: operations["refresh_one_indicator_api_import_assets_indicators__series__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1064,6 +1104,11 @@ export interface components {
              */
             overwrite: boolean;
         };
+        /**
+         * IndicatorSeries
+         * @enum {string}
+         */
+        IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV";
         /** LoadSimulationRequest */
         LoadSimulationRequest: {
             /** Id */
@@ -1325,6 +1370,25 @@ export interface components {
             /** Sharpe Ratio */
             sharpe_ratio: string | null;
         };
+        /** SeriesCoverageDTO */
+        SeriesCoverageDTO: {
+            kind: components["schemas"]["SeriesKind"];
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+            /** Start */
+            start: string | null;
+            /** Real End */
+            real_end: string | null;
+            /** Generated End */
+            generated_end: string | null;
+        };
+        /**
+         * SeriesKind
+         * @enum {string}
+         */
+        SeriesKind: "STOCK" | "INDICATOR";
         /** SessionDTO */
         SessionDTO: {
             /** Authenticated */
@@ -1565,13 +1629,6 @@ export interface components {
             close: number;
             /** Volume */
             volume: number;
-        };
-        /** StockStatusDTO */
-        StockStatusDTO: {
-            /** Ticker */
-            ticker: string;
-            /** Last Date */
-            last_date: string | null;
         };
         /** StockUpdateEventDTO */
         StockUpdateEventDTO: {
@@ -2248,7 +2305,7 @@ export interface operations {
             };
         };
     };
-    get_stocks_status_api_import_assets_status_get: {
+    get_coverage_api_import_assets_coverage_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -2263,7 +2320,72 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StockStatusDTO"][];
+                    "application/json": components["schemas"]["SeriesCoverageDTO"][];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    refresh_all_indicators_api_import_assets_indicators_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    refresh_one_indicator_api_import_assets_indicators__series__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                series: components["schemas"]["IndicatorSeries"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
             /** @description Internal Server Error */

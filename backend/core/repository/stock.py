@@ -5,10 +5,11 @@ from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.candle import CandleDTO
+from backend.core.dto.series_coverage import OriginCoverageDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
-from backend.core.dto.stock_status import StockStatusDTO
+from backend.core.enum import DataOrigin
 from backend.core.models.models import Stock, StockPriceHistory
 
 
@@ -164,23 +165,25 @@ class StockRepository:
         )
 
     @transactional
-    def get_all_stocks_with_last_date(self, session: Session) -> list[StockStatusDTO]:
-        stocks = session.execute(select(Stock).order_by(Stock.ticker)).scalars().all()
-        result = []
-        for stock in stocks:
-            last = (
-                session.execute(
-                    select(StockPriceHistory)
-                    .where(StockPriceHistory.stock_id == stock.id)
-                    .order_by(StockPriceHistory.price_date.desc())
-                )
-                .scalars()
-                .first()
+    def get_coverage(self, session: Session) -> list[OriginCoverageDTO]:
+        rows = session.execute(
+            select(
+                Stock.ticker,
+                StockPriceHistory.origin,
+                func.min(StockPriceHistory.price_date),
+                func.max(StockPriceHistory.price_date),
             )
-            result.append(
-                StockStatusDTO(
-                    ticker=stock.ticker,
-                    last_date=last.price_date if last else None,
-                )
+            .join(StockPriceHistory, StockPriceHistory.stock_id == Stock.id)
+            .group_by(Stock.ticker, StockPriceHistory.origin)
+        ).all()
+        return [
+            OriginCoverageDTO(
+                key=ticker, origin=DataOrigin(origin), start=start, end=end
             )
-        return result
+            for ticker, origin, start, end in rows
+        ]
+
+    @transactional
+    def get_names(self, session: Session) -> dict[str, str]:
+        """Nome de cada ação pelo ticker, inclusive as que ainda não têm preço."""
+        return dict(session.execute(select(Stock.ticker, Stock.name)).tuples().all())

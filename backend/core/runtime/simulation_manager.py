@@ -36,6 +36,10 @@ class SimulationManager:
         return sim
 
     @classmethod
+    def has_active_simulation(cls) -> bool:
+        return cls._active_simulation is not None
+
+    @classmethod
     def get_active_simulation_id(cls) -> int:
         with cls._lock:
             if cls._simulation_id is None:
