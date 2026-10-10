@@ -1,0 +1,1 @@
+{"parameters":[{"name":"asset_uuid","in":"path","required":true,"schema":{"type":"string","title":"Asset Uuid"}},{"name":"amount","in":"query","required":false,"schema":{"anyOf":[{"type":"number","minimum":0},{"type":"string","pattern":"^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"}],"default":"0","title":"Amount"}}]}

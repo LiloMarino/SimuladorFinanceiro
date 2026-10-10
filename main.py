@@ -100,7 +100,8 @@ async def lifespan(app: FastAPI):
 # ---------------------------------------------------------------------
 
 
-def create_app():
+def create_api() -> FastAPI:
+    """As rotas HTTP; o `create_app` acrescenta o canal de tempo real por cima."""
     app = FastAPI(
         title="Simulador Financeiro",
         version="1.0.0",
@@ -116,6 +117,11 @@ def create_app():
     )
 
     register_routes(app)
+    return app
+
+
+def create_app():
+    app = create_api()
 
     # ------------------------------------------------------------
     # 🔌 WebSocket (Socket.IO)

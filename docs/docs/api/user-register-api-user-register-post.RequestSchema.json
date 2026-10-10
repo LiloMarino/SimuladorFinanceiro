@@ -1,1 +1,1 @@
-{"title":"Body","body":{"content":{"application/json":{"schema":{"properties":{"nickname":{"type":"string","title":"Nickname"}},"type":"object","required":["nickname"],"title":"UserRegisterRequest"}}},"required":true}}
+{"title":"Body","body":{"content":{"application/json":{"schema":{"properties":{"nickname":{"type":"string","minLength":1,"pattern":"^[^#]+$","title":"Nickname"}},"type":"object","required":["nickname"],"title":"UserRegisterRequest"}}},"required":true}}

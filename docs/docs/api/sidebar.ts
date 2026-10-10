@@ -54,6 +54,12 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/get-fixed-income-projection-api-fixed-income-asset-uuid-projection-get",
+          label: "Projetar investimento em renda fixa",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
           id: "api/buy-fixed-income-api-fixed-income-asset-uuid-buy-post",
           label: "Comprar ativo de renda fixa",
           className: "api-method post",
@@ -68,6 +74,12 @@ const sidebar: SidebarsConfig = {
           type: "doc",
           id: "api/get-portfolio-api-portfolio-get",
           label: "Obter portfólio",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/get-patrimonial-history-api-portfolio-history-get",
+          label: "Obter histórico patrimonial",
           className: "api-method get",
         },
         {
@@ -108,8 +120,32 @@ const sidebar: SidebarsConfig = {
       items: [
         {
           type: "doc",
+          id: "api/get-coverage-api-import-assets-coverage-get",
+          label: "Cobertura das séries",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/refresh-all-indicators-api-import-assets-indicators-post",
+          label: "Atualizar todos os indicadores",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/refresh-one-indicator-api-import-assets-indicators-series-post",
+          label: "Atualizar um indicador",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
           id: "api/import-assets-json-api-import-assets-yfinance-post",
           label: "Importar dados de yfinance",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/import-assets-batch-api-import-assets-yfinance-batch-post",
+          label: "Importar dados de múltiplos ativos via yfinance",
           className: "api-method post",
         },
         {
@@ -135,6 +171,12 @@ const sidebar: SidebarsConfig = {
           id: "api/update-subscription-api-update-subscription-post",
           label: "Atualizar inscrição de eventos",
           className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/get-realtime-events-schema-api-internal-realtime-events-schema-get",
+          label: "[DEV] Catálogo de payloads de eventos realtime",
+          className: "api-method get",
         },
       ],
     },
@@ -210,6 +252,12 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/compare-simulations-api-statistics-compare-get",
+          label: "Comparar simulações",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
           id: "api/get-economic-indicators-api-economic-indicators-get",
           label: "Obter indicadores econômicos",
           className: "api-method get",
@@ -235,8 +283,20 @@ const sidebar: SidebarsConfig = {
         {
           type: "doc",
           id: "api/continue-simulation-api-simulation-continue-post",
-          label: "Continuar simulação",
+          label: "Continuar última simulação",
           className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/load-simulation-api-simulation-load-post",
+          label: "Carregar e iniciar simulação",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/list-simulations-api-simulation-list-get",
+          label: "Listar simulações salvas",
+          className: "api-method get",
         },
         {
           type: "doc",

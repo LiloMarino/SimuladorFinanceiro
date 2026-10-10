@@ -1,0 +1,1 @@
+{"title":"Body","body":{"content":{"application/json":{"schema":{"properties":{"id":{"type":"integer","title":"Id"}},"type":"object","required":["id"],"title":"LoadSimulationRequest"}}},"required":true}}

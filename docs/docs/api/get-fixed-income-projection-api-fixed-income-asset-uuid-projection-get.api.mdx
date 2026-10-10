@@ -1,0 +1,69 @@
+---
+id: get-fixed-income-projection-api-fixed-income-asset-uuid-projection-get
+title: "Projetar investimento em renda fixa"
+description: "Projeta o valor aplicado hoje até o vencimento: bruto, IR e líquido. Pós-fixados usam o último valor conhecido do indexador."
+sidebar_label: "Projetar investimento em renda fixa"
+hide_title: true
+hide_table_of_contents: true
+api: eJzNV81uGzcQfhV2kAK2s5YVo70IKAw3dlIjbS3YTi+WsqGWI4nOklyTXMGqsE/TQ9BDT0UvverFilnualeSnbaBCvQkezmcb36+Gc4swPOJg94tXGZouZdGOxhGINAlVmb0P/Sgb80des4Mm/HUWMazVCZcGDY1d8i4X/5KR6gTqVB702Mjm3sTsYsrhixd/nafS2E6rL/83R2O5QMXxrHcccUMW/6ZeqlqxYnRU0ykMEwYJrVAkrUdiMDU5l0I6MEEfTyWDyhiqROjMM7IwoTOY57J9bOYO4c+znMp4rbgBD1EkHHLFXq0FIUFaK4QetBcgQgkxSDjfgoRWLzPpUUBPW9zjMAlU1Qcegvw84xuOm+lnkAEXvqUPpySKvaWVBVF1CAok2tfa7/P0c7X1I956tb0cz2/HJc2Vkg6VyO0EIGSWqpcQa9L+jftyLj3aAnk3d7JF+9uD593hgfP9m+fHw5PugeDgTgYDDon9PsMijL1Y56nHnrQbXsRzC1IwqLLjHboyKzjbpd+1glznScJOjfOU3ZVCUMEidEetS+dyUoKkfjRnaM7i5armaV0exkQqkg9EuJ/49q2KxR6gQ+x5R53p/2CdLIr0llEgOMxsW2GMdc65+mOwc5r9ey0VL/CHeVOanQuFnzuWnhSe5yUpKlVfFtJsjOSLCi7AlWZyFg8YezYWMWJIaVAo+tqdZWdVYZMrHEu3nUKX5NW1iQyoFj0udW7RrkKWjdQ4izZuT8BifWTipxl9/J89wwlxeyGNzRtsP4LmA1vdhq5ljNV3DT6nfPtR/QtthHCrrlGCA3TGoTdRqtBCdEqIuBCSKpYnvZbXbd6fSpUM6I3c+15um0/YKsu+lTD22xI211mo1NslPQjtbddIGs03mLcGjHWcrgV7mETsFc0SASO9VeTw9nNJTw6Ii0/Ln8xTCDLFZN6hs6HgYilOKNxaWtS6gz0QPfRJqh9zqVjjhSMLV9+XP6Bjjkzsrg9du11Oy+O2TfsxfGX+wyZDqgZaoFqoAWy98HP9xFD7el0xlNUTKFThiVGrQTYz2hNB4qCqPDV8fH2U/4TT6UoH2p2bq2xn/+OC/RcpvSX9KjctkBqkrXTrYmnYn9ryqnfs2JYrNjKreXzFum/N8FAKizlJp+a1X5A5/ikbIlB5GnRMhjshk7L9pbloU5XfYk+FBEkvt1TV5VUy72kWD6EUvxUtVFsgvmVXIukTYpChp4OxVlIwWNgtch3Nzf9LYUlPb4Ok95nZl9Vof0n0f+bWNSqhhvZWI2apbnrNL7Q1C55yq7RztCy2rEIFPqpqZaK0Fin0IMjnsmjco04DI3kaNHsBMVRs0ZABA6T3Eo/vybXg7en/Ys3OH9pzAfZdpln8g3O66E/CcdRvRIkqUTt47AogNRj02bUtVR5SusQeyU11wlKayCCGVoXXHzR6Xa6lPzMOK94mY1Kc7XA2fWuhIpZ1IIz2sk2O1or0f+H/a8KINXKUZZyWVZzbst2ElJ2S9Gl4bSVNIigt7bKtfI2jGBqnKeLi8WIO3xr06Kgz2EZo74jpOOjtLWOfcB5e3eb8TQns8rFacatJOnHbz4Z3L2ritr77Ck/a/boeRtzZU3jYNkGp8gF2tKKIHCaJJi1zd2qWzJ/VQevz2+gKP4Cgmh2Tg==
+sidebar_class_name: "get api-method"
+info_path: api/simulador-financeiro
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Projetar investimento em renda fixa"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/api/fixed-income/{asset_uuid}/projection"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Projeta o valor aplicado hoje até o vencimento: bruto, IR e líquido. Pós-fixados usam o último valor conhecido do indexador.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./get-fixed-income-projection-api-fixed-income-asset-uuid-projection-get.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./get-fixed-income-projection-api-fixed-income-asset-uuid-projection-get.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./get-fixed-income-projection-api-fixed-income-asset-uuid-projection-get.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

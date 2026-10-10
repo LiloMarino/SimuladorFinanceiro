@@ -1,0 +1,1 @@
+{"title":"Body","body":{"content":{"application/json":{"schema":{"properties":{"tickers":{"items":{"type":"string"},"type":"array","title":"Tickers"},"overwrite":{"type":"boolean","title":"Overwrite","default":false}},"type":"object","required":["tickers"],"title":"ImportYFinanceBatchRequest"}}},"required":true}}
