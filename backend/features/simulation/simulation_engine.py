@@ -1,6 +1,7 @@
 import threading
 from datetime import date
 from decimal import Decimal
+from functools import cached_property
 from uuid import UUID
 
 from backend.core import repository
@@ -9,9 +10,11 @@ from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PortfolioPositionDTO, PositionDTO
+from backend.core.dto.sector import StockSegmentDTO
 from backend.core.enum import CashflowEventType
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
+from backend.core.sectors import allocate_by_sector
 from backend.core.utils import ratio
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.fixed_income.fixed_broker import FixedBroker
@@ -124,6 +127,14 @@ class SimulationEngine:
         candle = self.matching_engine.market_data.get_last(position.ticker)
         return to_money(candle.close) if candle else position.avg_price
 
+    @cached_property
+    def classification(self) -> dict[str, StockSegmentDTO]:
+        """
+        Setor e segmento de cada ação, lidos uma vez por partida: a classificação
+        se edita na Central de dados, que só abre com a partida parada.
+        """
+        return repository.stock.get_classification()
+
     def get_portfolio(self, client_id: UUID) -> PortfolioDTO:
         with self._lock:
             equity = [
@@ -174,6 +185,9 @@ class SimulationEngine:
                 )
                 for pos in equity
             ],
+            sectors=allocate_by_sector(
+                {pos.ticker: pos.current_value for pos in equity}, self.classification
+            ),
             fixed_income=[
                 FixedIncomePositionDTO(
                     asset=pos.asset,

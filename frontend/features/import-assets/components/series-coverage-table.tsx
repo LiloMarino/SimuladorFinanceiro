@@ -12,6 +12,8 @@ import { Button } from "@/shared/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
 import type { AssetClass, SeriesCoverage } from "@/types";
+import { Pencil } from "lucide-react";
+import { ClassifyStockDialog } from "./classify-stock-dialog";
 import { CoverageBar, type TimelineRange } from "./coverage-bar";
 
 const STALE_AFTER_DAYS = 2;
@@ -82,6 +84,7 @@ export function SeriesCoverageTable() {
 
   const [updatingKeys, setUpdatingKeys] = useState<Set<string>>(new Set());
   const [updatingAll, setUpdatingAll] = useState(false);
+  const [classifying, setClassifying] = useState<SeriesCoverage | null>(null);
 
   const series = data ?? [];
   const range = timelineRange(series);
@@ -139,6 +142,9 @@ export function SeriesCoverageTable() {
             A classe do ativo decide o IR na venda. Ela é sugerida pelo final do código (11 vira FII, 34 vira BDR) e
             pode ser trocada: ETFs e units também terminam em 11.
           </p>
+          <p className="text-sm text-muted-foreground">
+            O setor e o segmento vêm sugeridos pelo yfinance na importação e agrupam a carteira e as estatísticas.
+          </p>
         </div>
         <Button variant="warning" size="sm" disabled={isBusy} onClick={updateAll}>
           {updatingAll ? "Atualizando..." : "Atualizar todos"}
@@ -152,7 +158,15 @@ export function SeriesCoverageTable() {
           <Table>
             <TableHeader>
               <TableRow>
-                {["Série", "Início", "Fim do dado real", "Fim do dado gerado", "Linha do tempo", "Ação"].map((h) => (
+                {[
+                  "Série",
+                  "Setor / Segmento",
+                  "Início",
+                  "Fim do dado real",
+                  "Fim do dado gerado",
+                  "Linha do tempo",
+                  "Ação",
+                ].map((h) => (
                   <TableHead key={h} className="text-center">
                     {h}
                   </TableHead>
@@ -195,6 +209,30 @@ export function SeriesCoverageTable() {
                         {item.name !== item.key && <span className="text-muted-foreground text-xs">{item.name}</span>}
                       </div>
                     </TableCell>
+                    <TableCell className="text-left">
+                      {item.kind === "STOCK" ? (
+                        <div className="flex items-center gap-1">
+                          {item.segment ? (
+                            <span className="text-sm">
+                              {item.segment.sector}
+                              <span className="text-muted-foreground"> · {item.segment.segment}</span>
+                            </span>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">Sem setor</span>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={`Classificar ${item.key}`}
+                            onClick={() => setClassifying(item)}
+                          >
+                            <Pencil />
+                          </Button>
+                        </div>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
                     <TableCell>{formatDay(item.start)}</TableCell>
                     <TableCell className={outdated ? "text-destructive" : ""}>{formatDay(item.real_end)}</TableCell>
                     <TableCell>{formatDay(item.generated_end)}</TableCell>
@@ -218,6 +256,10 @@ export function SeriesCoverageTable() {
           </Table>
         )}
       </CardContent>
+
+      {classifying && (
+        <ClassifyStockDialog key={classifying.key} series={classifying} onClose={() => setClassifying(null)} />
+      )}
     </Card>
   );
 }

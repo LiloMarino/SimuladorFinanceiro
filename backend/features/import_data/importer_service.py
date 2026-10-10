@@ -9,6 +9,7 @@ import yfinance as yf
 from fastapi import UploadFile
 
 from backend.core import repository
+from backend.core.dto.sector import StockSegmentDTO
 from backend.core.enum import AssetClass, DataOrigin
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.models.models import StockPriceHistory
@@ -120,25 +121,58 @@ def infer_asset_class(ticker: str) -> AssetClass:
     return AssetClass.STOCK
 
 
-def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
-    # 1. Garante que o ativo existe
-    stock = repository.stock.get_by_ticker(ticker)
-    if not stock:
-        try:
-            yf_ticker = yf.Ticker(ticker)
-            info = yf_ticker.info
-            nome = info.get("longName") or info.get("shortName") or ticker
-        except Exception as e:
-            logger.warning(
-                f"Não foi possível obter nome de '{ticker}' no yfinance: {e}"
-            )
-            nome = ticker
+# Os 11 setores do yfinance, nos nomes em português da classificação da B3
+YFINANCE_SECTORS = {
+    "Basic Materials": "Materiais Básicos",
+    "Communication Services": "Comunicações",
+    "Consumer Cyclical": "Consumo Cíclico",
+    "Consumer Defensive": "Consumo Não Cíclico",
+    "Energy": "Petróleo, Gás e Biocombustíveis",
+    "Financial Services": "Financeiro",
+    "Healthcare": "Saúde",
+    "Industrials": "Bens Industriais",
+    "Real Estate": "Imobiliário",
+    "Technology": "Tecnologia da Informação",
+    "Utilities": "Utilidade Pública",
+}
 
+
+def suggest_segment(info: dict) -> StockSegmentDTO | None:
+    """Setor e indústria do yfinance como sugestão de setor e segmento."""
+    sector: str = info.get("sector") or ""
+    if not sector:
+        return None
+    return StockSegmentDTO(
+        sector=YFINANCE_SECTORS.get(sector) or sector,
+        segment=info.get("industry") or sector,
+    )
+
+
+def fetch_info(ticker: str) -> dict:
+    try:
+        return yf.Ticker(ticker).info
+    except Exception as e:
+        logger.warning(f"Não foi possível obter dados de '{ticker}' no yfinance: {e}")
+        return {}
+
+
+def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
+    # 1. Garante que o ativo existe e, enquanto não tiver classificação, sugere a
+    # do yfinance; a que o usuário escolheu na Central de dados fica como está
+    stock = repository.stock.get_by_ticker(ticker)
+    classified = stock is not None and ticker in repository.stock.get_classification()
+    info = {} if classified else fetch_info(ticker)
+
+    if not stock:
+        nome = info.get("longName") or info.get("shortName") or ticker
         asset_class = infer_asset_class(ticker)
         stock = repository.stock.add_stock(ticker, nome, asset_class)
         logger.info(
             f"Ativo '{ticker}' ({nome}) criado no banco como {asset_class.value}."
         )
+
+    if not classified and (segment := suggest_segment(info)):
+        repository.stock.classify(ticker, segment)
 
     # 2. Lógica de sobrescrever
     if overwrite:

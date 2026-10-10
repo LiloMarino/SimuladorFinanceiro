@@ -8,6 +8,7 @@ import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import { SummaryCard } from "@/features/portfolio/components/summary-card";
 import { PortfolioCharts } from "../components/portfolio-charts";
 import { EconomicIndicatorsCard } from "../components/economic-indicators-card";
+import { SectorAllocationCard } from "../components/sector-allocation-card";
 import { VariableIncomeTable } from "../components/variable-income-table";
 import { FixedIncomeTable } from "../components/fixed-income-table";
 import { ErrorPage } from "@/pages/error";
@@ -99,6 +100,9 @@ export default function PortfolioPage() {
         fixedPositions={portfolio.fixed_income}
         patrimonialHistory={patrimonialHistory ?? []}
       />
+
+      {/* Setores */}
+      <SectorAllocationCard sectors={portfolio.sectors} />
 
       {/* Economic Indicators */}
       <EconomicIndicatorsCard loading={economicIndicatorsLoading} data={economicIndicatorsData ?? null} />

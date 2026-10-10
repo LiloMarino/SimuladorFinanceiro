@@ -100,9 +100,77 @@ class FetchLog(Base):
     succeeded_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(True))
 
 
+class Sectors(Base):
+    __tablename__ = "sectors"
+    __table_args__ = (
+        PrimaryKeyConstraint("id", name="sectors_pkey"),
+        UniqueConstraint("name", name="sectors_name_key"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=2147483647,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+
+    segments: Mapped[list["Segments"]] = relationship(
+        "Segments", back_populates="sector"
+    )
+
+
+class Segments(Base):
+    __tablename__ = "segments"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["sector_id"],
+            ["sectors.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="segments_sector_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="segments_pkey"),
+        UniqueConstraint("sector_id", "name", name="segments_sector_id_name_key"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=2147483647,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    sector_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+
+    sector: Mapped["Sectors"] = relationship("Sectors", back_populates="segments")
+    stock: Mapped[list["Stock"]] = relationship("Stock", back_populates="segment")
+
+
 class Stock(Base):
     __tablename__ = "stock"
     __table_args__ = (
+        ForeignKeyConstraint(
+            ["segment_id"],
+            ["segments.id"],
+            ondelete="SET NULL",
+            onupdate="CASCADE",
+            name="stock_segment_id_fkey",
+        ),
         PrimaryKeyConstraint("id", name="stock_pkey"),
         UniqueConstraint("name", name="stock_name_key"),
         UniqueConstraint("ticker", name="stock_ticker_key"),
@@ -126,7 +194,11 @@ class Stock(Base):
     asset_class: Mapped[str] = mapped_column(
         Enum("STOCK", "FII", "ETF", "BDR", name="asset_class"), nullable=False
     )
+    segment_id: Mapped[int | None] = mapped_column(Integer)
 
+    segment: Mapped["Segments | None"] = relationship(
+        "Segments", back_populates="stock"
+    )
     event_equity: Mapped[list["EventEquity"]] = relationship(
         "EventEquity", back_populates="stock"
     )

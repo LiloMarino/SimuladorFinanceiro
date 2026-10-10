@@ -1,16 +1,22 @@
 from datetime import date
 
 from sqlalchemy import delete, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.candle import CandleDTO
+from backend.core.dto.sector import SectorDTO, StockSegmentDTO
 from backend.core.dto.series_coverage import OriginCoverageDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 from backend.core.enum import AssetClass, DataOrigin
-from backend.core.models.models import Stock, StockPriceHistory
+from backend.core.models.models import (
+    Sectors,
+    Segments,
+    Stock,
+    StockPriceHistory,
+)
 
 
 class StockRepository:
@@ -196,3 +202,88 @@ class StockRepository:
         """Todas as ações, inclusive as que ainda não têm preço, em ordem de ticker."""
         stocks = session.execute(select(Stock).order_by(Stock.ticker)).scalars().all()
         return [StockDTO.from_model(stock) for stock in stocks]
+
+    @transactional
+    def classify(
+        self, session: Session, ticker: str, segment: StockSegmentDTO | None
+    ) -> StockDTO | None:
+        """
+        Põe a ação no setor e segmento informados, criando-os pelo nome quando
+        ainda não existem; None tira a classificação. Setor e segmento sem
+        nenhuma ação saem junto, então a lista de sugestões só tem o que está em uso.
+        """
+        stock = session.execute(
+            select(Stock).where(Stock.ticker == ticker)
+        ).scalar_one_or_none()
+        if not stock:
+            return None
+
+        stock.segment_id = (
+            self._get_or_create_segment(session, segment).id if segment else None
+        )
+        session.flush()
+        session.execute(
+            delete(Segments).where(
+                ~select(Stock.id).where(Stock.segment_id == Segments.id).exists()
+            )
+        )
+        session.execute(
+            delete(Sectors).where(
+                ~select(Segments.id).where(Segments.sector_id == Sectors.id).exists()
+            )
+        )
+        return StockDTO.from_model(stock)
+
+    def _get_or_create_segment(
+        self, session: Session, segment: StockSegmentDTO
+    ) -> Segments:
+        sector = session.execute(
+            select(Sectors).where(Sectors.name == segment.sector)
+        ).scalar_one_or_none()
+        if not sector:
+            sector = Sectors(name=segment.sector)
+            session.add(sector)
+            session.flush()
+
+        row = session.execute(
+            select(Segments).where(
+                Segments.sector_id == sector.id, Segments.name == segment.segment
+            )
+        ).scalar_one_or_none()
+        if not row:
+            row = Segments(sector_id=sector.id, name=segment.segment)
+            session.add(row)
+            session.flush()
+        return row
+
+    @transactional
+    def get_classification(self, session: Session) -> dict[str, StockSegmentDTO]:
+        """Setor e segmento de cada ação classificada, pelo ticker."""
+        rows = session.execute(
+            select(Stock.ticker, Sectors.name, Segments.name)
+            .join(Segments, Segments.id == Stock.segment_id)
+            .join(Sectors, Sectors.id == Segments.sector_id)
+        ).all()
+        return {
+            ticker: StockSegmentDTO(sector=sector, segment=segment)
+            for ticker, sector, segment in rows
+        }
+
+    @transactional
+    def get_sectors(self, session: Session) -> list[SectorDTO]:
+        sectors = (
+            session.execute(
+                select(Sectors)
+                .options(selectinload(Sectors.segments))
+                .order_by(Sectors.name)
+            )
+            .scalars()
+            .all()
+        )
+        return [
+            SectorDTO(
+                name=sector.name,
+                segments=sorted(segment.name for segment in sector.segments),
+            )
+            for sector in sectors
+        ]

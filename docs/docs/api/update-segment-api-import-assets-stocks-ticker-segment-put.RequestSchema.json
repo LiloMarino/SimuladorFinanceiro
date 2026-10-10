@@ -1,0 +1,1 @@
+{"title":"Body","body":{"required":true,"content":{"application/json":{"schema":{"properties":{"sector":{"type":"string","minLength":1,"title":"Sector"},"segment":{"type":"string","minLength":1,"title":"Segment"}},"type":"object","required":["sector","segment"],"title":"StockSegmentRequest"}}}}}

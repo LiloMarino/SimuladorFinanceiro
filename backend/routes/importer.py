@@ -1,10 +1,11 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from backend.core import repository
 from backend.core.dependencies.simulation import require_no_active_simulation
+from backend.core.dto.sector import SectorDTO, StockSegmentDTO
 from backend.core.dto.series_coverage import SeriesCoverageDTO
 from backend.core.enum import AssetClass, IndicatorSeries
 from backend.core.exceptions.http_exceptions import BadGatewayError, NotFoundError
@@ -75,6 +76,46 @@ class AssetClassRequest(BaseModel):
 def update_asset_class(ticker: str, request: AssetClassRequest):
     if repository.stock.set_asset_class(ticker, request.asset_class) is None:
         raise NotFoundError(f"Ativo '{ticker}' não encontrado.")
+
+
+class StockSegmentRequest(BaseModel):
+    sector: str = Field(min_length=1)
+    segment: str = Field(min_length=1)
+
+
+@import_router.put(
+    "/stocks/{ticker}/segment",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Classificar um ativo por setor e segmento",
+    description="Põe o ativo no setor e segmento informados, criando-os pelo nome quando ainda não existem.",
+)
+def update_segment(ticker: str, request: StockSegmentRequest):
+    segment = StockSegmentDTO(
+        sector=request.sector.strip(), segment=request.segment.strip()
+    )
+    if repository.stock.classify(ticker, segment) is None:
+        raise NotFoundError(f"Ativo '{ticker}' não encontrado.")
+
+
+@import_router.delete(
+    "/stocks/{ticker}/segment",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Remover a classificação de um ativo",
+    description="Tira o ativo do setor e do segmento; ele passa a aparecer como sem setor.",
+)
+def delete_segment(ticker: str):
+    if repository.stock.classify(ticker, None) is None:
+        raise NotFoundError(f"Ativo '{ticker}' não encontrado.")
+
+
+@import_router.get(
+    "/sectors",
+    response_model=list[SectorDTO],
+    summary="Setores e segmentos",
+    description="Retorna os setores em uso, cada um com os seus segmentos, para sugerir na classificação.",
+)
+def get_sectors():
+    return repository.stock.get_sectors()
 
 
 def str_to_bool(value: str | bool | None) -> bool:

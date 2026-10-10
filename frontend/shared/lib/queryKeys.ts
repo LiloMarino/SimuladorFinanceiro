@@ -21,5 +21,6 @@ export const queryKeys = {
   statisticsComparison: (simulationIds: number[]) => ["statistics", "compare", ...simulationIds] as const,
   notificationSettings: () => ["notifications", "settings"] as const,
   seriesCoverage: () => ["import-assets", "coverage"] as const,
+  sectors: () => ["import-assets", "sectors"] as const,
   tunnelStatus: () => ["tunnel", "status"] as const,
 } as const;

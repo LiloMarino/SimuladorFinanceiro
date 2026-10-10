@@ -12,6 +12,7 @@ export type FixedIncomePosition = components["schemas"]["FixedIncomePositionDTO"
 export type PortfolioState = components["schemas"]["PortfolioDTO"];
 export type CashResponse = components["schemas"]["CashResponse"];
 export type PortfolioPosition = PortfolioState["variable_income"][number];
+export type SectorAllocation = PortfolioState["sectors"][number];
 
 // Fixed Income
 export type RateIndex = components["schemas"]["RateIndexType"];
@@ -26,6 +27,7 @@ export type IndicatorSeries = components["schemas"]["IndicatorSeries"];
 // Data center
 export type SeriesCoverage = components["schemas"]["SeriesCoverageDTO"];
 export type AssetClass = components["schemas"]["AssetClass"];
+export type Sector = components["schemas"]["SectorDTO"];
 
 // User
 export type User = components["schemas"]["UserDTO"];

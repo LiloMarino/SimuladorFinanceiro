@@ -11,6 +11,7 @@ from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.events.fixed_income import FixedIncomeEventDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
+from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.enum import (
     AssetClass,
@@ -61,6 +62,11 @@ def player_book(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEvent
         lambda: [
             StockDTO(id=1, ticker="ABCD", name="Abcd", asset_class=AssetClass.STOCK)
         ],
+    )
+    monkeypatch.setattr(
+        repository.stock,
+        "get_classification",
+        lambda: {"ABCD": StockSegmentDTO(sector="Financeiro", segment="Bancos")},
     )
     monkeypatch.setattr(
         repository.portfolio,
@@ -126,6 +132,9 @@ def test_portfolio_values_and_shares(player_book):
     assert portfolio.total_return_pct == Decimal("0.25")
     assert portfolio.variable_income[0].return_value == Decimal("20")
     assert portfolio.fixed_income[0].return_value == 0
+    assert [(s.sector, s.value, s.fraction) for s in portfolio.sectors] == [
+        ("Financeiro", Decimal("120"), Decimal("1"))
+    ]
 
 
 def test_current_price_without_candle_is_average_price(player_book):

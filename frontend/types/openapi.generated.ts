@@ -336,6 +336,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/import-assets/stocks/{ticker}/segment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Classificar um ativo por setor e segmento
+         * @description Põe o ativo no setor e segmento informados, criando-os pelo nome quando ainda não existem.
+         */
+        put: operations["update_segment_api_import_assets_stocks__ticker__segment_put"];
+        post?: never;
+        /**
+         * Remover a classificação de um ativo
+         * @description Tira o ativo do setor e do segmento; ele passa a aparecer como sem setor.
+         */
+        delete: operations["delete_segment_api_import_assets_stocks__ticker__segment_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-assets/sectors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Setores e segmentos
+         * @description Retorna os setores em uso, cada um com os seus segmentos, para sugerir na classificação.
+         */
+        get: operations["get_sectors_api_import_assets_sectors_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/import-assets/yfinance": {
         parameters: {
             query?: never;
@@ -1307,6 +1351,8 @@ export interface components {
             income_tax_due: string;
             /** Variable Income */
             variable_income: components["schemas"]["PortfolioPositionDTO"][];
+            /** Sectors */
+            sectors: components["schemas"]["SectorAllocationDTO"][];
             /** Fixed Income */
             fixed_income: components["schemas"]["FixedIncomePositionDTO"][];
         };
@@ -1404,6 +1450,33 @@ export interface components {
             /** Sharpe Ratio */
             sharpe_ratio: string | null;
         };
+        /** SectorAllocationDTO */
+        SectorAllocationDTO: {
+            /** Sector */
+            sector: string | null;
+            /** Value */
+            value: string;
+            /** Fraction */
+            fraction: string;
+            /** Segments */
+            segments: components["schemas"]["SegmentAllocationDTO"][];
+        };
+        /** SectorDTO */
+        SectorDTO: {
+            /** Name */
+            name: string;
+            /** Segments */
+            segments: string[];
+        };
+        /** SegmentAllocationDTO */
+        SegmentAllocationDTO: {
+            /** Segment */
+            segment: string | null;
+            /** Value */
+            value: string;
+            /** Fraction */
+            fraction: string;
+        };
         /** SeriesCoverageDTO */
         SeriesCoverageDTO: {
             kind: components["schemas"]["SeriesKind"];
@@ -1418,6 +1491,7 @@ export interface components {
             /** Generated End */
             generated_end: string | null;
             asset_class: components["schemas"]["AssetClass"] | null;
+            segment: components["schemas"]["StockSegmentDTO"] | null;
         };
         /**
          * SeriesKind
@@ -1665,6 +1739,20 @@ export interface components {
             close: number;
             /** Volume */
             volume: number;
+        };
+        /** StockSegmentDTO */
+        StockSegmentDTO: {
+            /** Sector */
+            sector: string;
+            /** Segment */
+            segment: string;
+        };
+        /** StockSegmentRequest */
+        StockSegmentRequest: {
+            /** Sector */
+            sector: string;
+            /** Segment */
+            segment: string;
         };
         /** StockUpdateEventDTO */
         StockUpdateEventDTO: {
@@ -2464,6 +2552,115 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    update_segment_api_import_assets_stocks__ticker__segment_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StockSegmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_segment_api_import_assets_stocks__ticker__segment_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_sectors_api_import_assets_sectors_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SectorDTO"][];
                 };
             };
             /** @description Internal Server Error */

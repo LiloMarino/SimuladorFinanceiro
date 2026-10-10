@@ -53,6 +53,11 @@ Para cada ativo de renda variável, a carteira mostra:
 - Visualização em pizza com a composição total da carteira
 - Inclui renda variável e renda fixa
 
+**Renda Variável por Setor:**
+- Barras com a fração da renda variável em cada setor, e uma tabela com o valor e a fração de cada setor e de cada segmento dentro dele
+- Ex.: R$ 6.000 em bancos e R$ 4.000 em mineração → Financeiro 60%, Materiais Básicos 40%
+- Ações sem classificação aparecem como **Sem setor**; a classificação se edita na [Central de dados](./importacao-ativos#setor-e-segmento-das-ações)
+
 ---
 
 ### Renda Fixa

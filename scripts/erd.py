@@ -54,9 +54,12 @@ SECTIONS: list[tuple[str, str, set[str]]] = [
     ),
     (
         "Ativos e indicadores",
-        "Os ativos negociáveis, o histórico de preços e os indicadores econômicos, "
-        "com a origem de cada valor (real ou gerado) e o registro das buscas.",
+        "Os ativos negociáveis com o setor e o segmento de cada um, o histórico de "
+        "preços e os indicadores econômicos, com a origem de cada valor (real ou "
+        "gerado) e o registro das buscas.",
         {
+            "sectors",
+            "segments",
             "stock",
             "stock_price_history",
             "fixed_income_asset",

@@ -94,7 +94,7 @@ erDiagram
 
 ## Ativos e indicadores
 
-Os ativos negociáveis, o histórico de preços e os indicadores econômicos, com a origem de cada valor (real ou gerado) e o registro das buscas.
+Os ativos negociáveis com o setor e o segmento de cada um, o histórico de preços e os indicadores econômicos, com a origem de cada valor (real ou gerado) e o registro das buscas.
 
 ```mermaid
 erDiagram
@@ -120,11 +120,21 @@ erDiagram
         date maturity_date
         numeric interest_rate
     }
+    sectors {
+        integer id PK
+        text name UK
+    }
+    segments {
+        integer id PK
+        integer sector_id FK
+        text name
+    }
     stock {
         integer id PK
         text ticker UK
         text name UK
         asset_class asset_class
+        integer segment_id FK "nullable"
     }
     stock_price_history {
         integer stock_id PK, FK
@@ -136,6 +146,8 @@ erDiagram
         bigint volume
         data_origin origin
     }
+    sectors ||--o{ segments : sector_id
+    segments |o--o{ stock : segment_id
     stock ||--o{ stock_price_history : stock_id
 ```
 

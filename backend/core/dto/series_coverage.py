@@ -2,6 +2,7 @@ from datetime import date
 from enum import Enum
 
 from backend.core.dto.base import BaseDTO
+from backend.core.dto.sector import StockSegmentDTO
 from backend.core.enum import AssetClass, DataOrigin
 
 
@@ -28,3 +29,4 @@ class SeriesCoverageDTO(BaseDTO):
     generated_end: date | None
     # Só as ações têm classe; ela decide a alíquota do IR na venda
     asset_class: AssetClass | None
+    segment: StockSegmentDTO | None

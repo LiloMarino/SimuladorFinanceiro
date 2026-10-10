@@ -144,6 +144,24 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/update-segment-api-import-assets-stocks-ticker-segment-put",
+          label: "Classificar um ativo por setor e segmento",
+          className: "api-method put",
+        },
+        {
+          type: "doc",
+          id: "api/delete-segment-api-import-assets-stocks-ticker-segment-delete",
+          label: "Remover a classificação de um ativo",
+          className: "api-method delete",
+        },
+        {
+          type: "doc",
+          id: "api/get-sectors-api-import-assets-sectors-get",
+          label: "Setores e segmentos",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
           id: "api/import-assets-json-api-import-assets-yfinance-post",
           label: "Importar dados de yfinance",
           className: "api-method post",

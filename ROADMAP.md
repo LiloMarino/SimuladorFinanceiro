@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-10):** F29 concluída: IR na venda de renda variável, debitado do caixa no vencimento do DARF, com a classe do ativo editável na Central de dados.
+> **Última mudança (2026-10-10):** F30 concluída: setores e segmentos com sugestão do yfinance, edição na Central de dados e visão por setor na carteira.
 
 ## Glossário
 
@@ -55,11 +55,10 @@
 | [**F26**](#f26) | Redesign visual | — | 🔍 |
 | [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | — | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
-| [**F30**](#f30) | Setores e segmentos | — | ⏳ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -80,6 +79,7 @@
 | [**F21**](#f21) | Central de dados, fora da partida | — | ✅ |
 | [**F25**](#f25) | Migrations com Alembic | — | ✅ |
 | [**F29**](#f29) | IR na venda de renda variável | — | ✅ |
+| [**F30**](#f30) | Setores e segmentos | — | ✅ |
 | [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
 
 </details>
@@ -100,7 +100,6 @@
 | [**F18**](#f18) | Pontuação geral (overall) | M7 | 1 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F26**](#f26) | Redesign visual | — | 0 | 🔍 |
-| [**F30**](#f30) | Setores e segmentos | — | 0 | ⏳ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | 0 | ⏳ |
 
 ---
@@ -283,19 +282,19 @@
 
 ### Sem marco
 
-> **Progresso:** 1/5 concluídas
+> **Progresso:** 2/5 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F26**](#f26) | Redesign visual | — | 🔍 |
-| [**F30**](#f30) | Setores e segmentos | — | ⏳ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F30**](#f30) | Setores e segmentos | — | ✅ |
 | [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
 
 </details>
@@ -325,7 +324,7 @@
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F27** | Fechamento de partida: pódio e critério de vitória | N5, N6, N9 | D8 | M7 | [F17](#f17), [F18](#f18) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F29** | IR na venda de renda variável | N7 | D1 | M10 | — | Médio | Médio | Alto | Bom | ✅ Concluído |
-| **F30** | Setores e segmentos | N16 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F30** | Setores e segmentos | N16 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F31** | Diagrama do banco sempre em dia | N17 | D9 | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F32** | Ferramenta de correlação entre ativos | N18 | D2 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
@@ -411,7 +410,8 @@ A tela lê `/api/statistics/compare?simulation_ids=<id>`, que já funciona sem p
 **Aceite:** vender R$ 30.000 em ações com R$ 5.000 de lucro num mês debita R$ 750 no mês seguinte; vender R$ 15.000 com lucro no mês não debita nada.
 
 <a id="f30"></a>
-**F30 — Setores e segmentos.** Serve N16. Mesmo modelo do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): tabelas `sectors` (nome único) e `segments` (nome único dentro do setor), com `segment_id` anulável em `stock`. Na importação, o setor e a indústria que o yfinance dá ao ticker viram uma sugestão de segmento, e a classificação é editável na Central de dados (F21). Com isso: a carteira ganha a visão por setor e segmento (barras e tabela de valor e fração), a aba Composição da F17 ganha o recorte por setor, e a estratégia (F8) enxerga o setor de cada ativo — o que permite estratégias como rotação setorial.
+**F30 — Setores e segmentos.** Serve N16. Mesmo modelo do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): tabelas `sectors` (nome único) e `segments` (nome único dentro do setor), com `segment_id` anulável em `stock` (`ON DELETE SET NULL`). `StockRepository.classify` cria setor e segmento pelo nome na primeira vez e apaga o que fica sem nenhuma ação, então a lista de sugestões só tem o que está em uso. Na importação, enquanto a ação não tem classificação, o `sector` e a `industry` do `yf.Ticker().info` viram a sugestão: os 11 setores do yfinance chegam nos nomes da B3 (Financial Services → Financeiro), a indústria vira o segmento como veio; a classificação feita à mão não é trocada. Na Central de dados (F21), a coluna "Setor / Segmento" abre a janela Classificar, com as sugestões de `GET /api/import-assets/sectors` (`PUT`/`DELETE /stocks/{ticker}/segment`). A carteira ganhou o card "Renda Variável por Setor" (barras e tabela de valor e fração por setor e segmento, "Sem setor" para o que não foi classificado), calculado no backend em `backend/core/sectors.py` (`PortfolioDTO.sectors`); o motor lê a classificação uma vez por partida, porque a Central só abre com a partida parada. O recorte por setor das estatísticas entra na aba Composição da F17. "A estratégia enxerga o setor" ficou para a F7/F8: o dado está em `get_classification`, e o que a estratégia vê é decidido no spike. Limitação: o segmento sugerido vem em inglês (*Banks - Regional*) até ser editado.
+**Aceite:** importar ITUB4 e VALE3 pelo yfinance as classifica em Financeiro · Banks - Regional e Materiais Básicos · Other Industrial Metals & Mining, e a PETR4 classificada à mão continua como estava (coberto em `tests/test_sectors.py`).
 
 <a id="f31"></a>
 **F31 — Diagrama do banco sempre em dia.** Serve N17; segue a D9. `pnpm db:erd` (`scripts/erd.py`) lê o `Base.metadata` e escreve a página "Diagrama do Banco de Dados" (`docs/docs/desenvolvimento/diagrama-banco-dados.md`), logo depois do ciclo do banco na seção Desenvolvimento dos docs. A página tem um `erDiagram` em Mermaid por domínio — "Partidas e jogadores" e "Ativos e indicadores"; tabela nova sem seção cai em "Outras tabelas" —, cada tabela com tipo do Postgres, nome, `PK`/`FK`/`UK` e `nullable`, e as relações tiradas das chaves estrangeiras; os valores de cada `ENUM` ficam numa tabela no fim. O diagrama é desenhado da esquerda para a direita: num diagrama só, ou de cima para baixo, as tabelas de evento ficavam lado a lado e o Mermaid encolhia tudo até o texto ficar ilegível. `tests/test_erd.py` compara a página com o que o script geraria e falha pedindo `pnpm db:erd`. O `docs/erd/simulador_financeiro.erd` saiu do repositório, e o ciclo de desenvolvimento ganhou o passo do diagrama. Limitação: o diagrama não se edita pelo desenho; ideias de modelagem são esboçadas em Mermaid na conversa.
@@ -461,7 +461,7 @@ A tela lê `/api/statistics/compare?simulation_ids=<id>`, que já funciona sem p
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO sem cair para polling. O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
 
 <a id="f7"></a>
-**F7 — Spike: estratégia Python escrita pelo usuário.** Origem: #2, #12. Decide a D5 e define a API da classe base. Falta responder: (1) carregar um `.py` externo via `importlib` funciona dentro do executável do PyInstaller, e quais bibliotecas a estratégia enxerga (só as empacotadas — pandas sim, outras não); (2) como proteger o tick de uma estratégia em loop infinito ou lenta (timeout por tick); (3) o que a estratégia vê e pode fazer — hoje `BaseStrategy` só recebe `matching_engine`/`market_data`, ou seja, renda variável, e faltam caixa, posição e renda fixa; (4) onde o código fica guardado — numa pasta (fácil de editar no editor) ou no banco junto da simulação (retomar reusa exatamente a mesma versão do código); (5) a viabilidade da opção "bot cliente da API" no multiplayer.
+**F7 — Spike: estratégia Python escrita pelo usuário.** Origem: #2, #12. Decide a D5 e define a API da classe base. Falta responder: (1) carregar um `.py` externo via `importlib` funciona dentro do executável do PyInstaller, e quais bibliotecas a estratégia enxerga (só as empacotadas — pandas sim, outras não); (2) como proteger o tick de uma estratégia em loop infinito ou lenta (timeout por tick); (3) o que a estratégia vê e pode fazer — hoje `BaseStrategy` só recebe `matching_engine`/`market_data`, ou seja, renda variável, e faltam caixa, posição, renda fixa e o setor e segmento de cada ativo (já no banco pela F30, em `repository.stock.get_classification`); (4) onde o código fica guardado — numa pasta (fácil de editar no editor) ou no banco junto da simulação (retomar reusa exatamente a mesma versão do código); (5) a viabilidade da opção "bot cliente da API" no multiplayer.
 
 <a id="f18"></a>
 **F18 — Pontuação geral (overall).** Serve N9. Uma nota por jogador, decomposta por dimensão, na aba Geral da F17 e no ranking, com a fórmula nos docs em LaTeX (o Docusaurus precisa de `remark-math` + `rehype-katex`, hoje ausentes). Falta definir: (1) **os componentes** — candidatos: retorno anual acima do CDI, drawdown máximo, volatilidade, Sharpe (que já mistura retorno e volatilidade, então somá-lo à volatilidade conta o risco duas vezes) e consistência (fração dos meses em que bateu o CDI); (2) **a normalização** para uma escala comum — absoluta, com faixas fixas (drawdown de 0% vale 100 pontos, de 50% vale 0), que permite comparar partidas diferentes, ou relativa à sala (o melhor jogador vale 100), que não permite; (3) **a agregação** — soma de pontos por categoria, como o placar do Age of Empires II, ou média ponderada com pesos configuráveis. Sai daqui com a fórmula escolhida e o card em Atende necessidade.

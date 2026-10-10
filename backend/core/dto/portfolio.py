@@ -3,6 +3,7 @@ from decimal import Decimal
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.position import PortfolioPositionDTO
+from backend.core.dto.sector import SectorAllocationDTO
 
 
 class PortfolioDTO(BaseDTO):
@@ -22,4 +23,6 @@ class PortfolioDTO(BaseDTO):
     income_tax_paid: Decimal
     income_tax_due: Decimal
     variable_income: list[PortfolioPositionDTO]
+    # Renda variável por setor e segmento; as frações são sobre a renda variável
+    sectors: list[SectorAllocationDTO]
     fixed_income: list[FixedIncomePositionDTO]

@@ -36,11 +36,20 @@ A tela tem duas partes: os formulários de importação de ações (explicados n
 A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA e Ibovespa) e depois cada ação importada. Em cada linha:
 
 - **Série**: nome do indicador ou do ticker.
+- **Setor / Segmento**: a classificação da ação (ver abaixo). Indicadores mostram "—".
 - **Início**: primeira data com dado.
 - **Fim do dado real**: última data com dado publicado pela fonte.
 - **Fim do dado gerado**: sempre "—" por enquanto. Fica reservada para dados que o simulador venha a gerar no futuro.
 - **Linha do tempo**: barra com o período coberto pelo dado real. Todas as barras usam a mesma régua de tempo, então dá para comparar visualmente quais séries cobrem mais anos. Passe o mouse sobre a barra para ver as datas.
 - **Ação**: botão **Atualizar** da linha.
+
+### Setor e segmento das ações
+
+Cada ação pertence a um **setor** (ex.: Financeiro) e, dentro dele, a um **segmento** (ex.: Bancos). A carteira mostra quanto da renda variável está em cada setor, e as estatísticas comparam os setores entre os jogadores.
+
+- **Sugestão automática:** ao importar uma ação pelo Yahoo Finance (ou ao atualizar uma que ainda não tem classificação), o setor e a indústria que o Yahoo informa viram a sugestão. O setor chega traduzido para os nomes da B3 (ex.: *Financial Services* → Financeiro); o segmento chega como o Yahoo escreve (ex.: *Banks - Regional*).
+- **Editar:** o lápis ao lado da classificação abre a janela **Classificar**. Escolha um setor e um segmento da lista ou digite nomes novos; **Remover classificação** deixa a ação como "Sem setor".
+- Uma classificação feita à mão não é trocada pela sugestão nas próximas atualizações.
 
 ### Indicadores econômicos
 
