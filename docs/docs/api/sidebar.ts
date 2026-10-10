@@ -138,6 +138,12 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/update-asset-class-api-import-assets-stocks-ticker-asset-class-put",
+          label: "Alterar a classe de um ativo",
+          className: "api-method put",
+        },
+        {
+          type: "doc",
           id: "api/import-assets-json-api-import-assets-yfinance-post",
           label: "Importar dados de yfinance",
           className: "api-method post",

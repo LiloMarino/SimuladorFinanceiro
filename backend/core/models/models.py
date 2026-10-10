@@ -123,6 +123,9 @@ class Stock(Base):
     )
     ticker: Mapped[str] = mapped_column(Text, nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
+    asset_class: Mapped[str] = mapped_column(
+        Enum("STOCK", "FII", "ETF", "BDR", name="asset_class"), nullable=False
+    )
 
     event_equity: Mapped[list["EventEquity"]] = relationship(
         "EventEquity", back_populates="stock"
@@ -270,6 +273,7 @@ class EventCashflow(Base):
             "WITHDRAW",
             "DIVIDEND",
             "CONTRIBUTION",
+            "TAX",
             name="cashflow_event_type",
         ),
         nullable=False,

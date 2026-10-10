@@ -1,10 +1,10 @@
-import { Wallet, TrendingUp, Coins, Banknote } from "lucide-react";
+import { Wallet, TrendingUp, Coins, Banknote, Landmark } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { economicIndicatorsOptions } from "@/shared/lib/queries/economicIndicatorsOptions";
 import { usePortfolio } from "@/features/portfolio/hooks/queries/usePortfolio";
 import { usePatrimonialHistory } from "@/features/portfolio/hooks/queries/usePatrimonialHistory";
-import { displayPercent } from "@/shared/lib/utils/display";
+import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import { SummaryCard } from "@/features/portfolio/components/summary-card";
 import { PortfolioCharts } from "../components/portfolio-charts";
 import { EconomicIndicatorsCard } from "../components/economic-indicators-card";
@@ -37,7 +37,7 @@ export default function PortfolioPage() {
   return (
     <section className="p-4 space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-6">
         <SummaryCard
           title="Patrimônio Total"
           value={portfolio.total_networth}
@@ -72,6 +72,24 @@ export default function PortfolioPage() {
           icon={Coins}
           iconBg="bg-yellow-100"
           color="text-yellow-600"
+        />
+
+        <SummaryCard
+          title="Imposto de Renda"
+          value={portfolio.income_tax_paid}
+          subtitle={`${displayMoney(portfolio.income_tax_due)} a pagar`}
+          icon={Landmark}
+          iconBg="bg-red-100"
+          color="text-red-600"
+          hint={
+            <>
+              IR sobre o lucro das vendas de renda variável, apurado por mês sobre o preço médio. O valor grande é o
+              que já saiu do caixa; &quot;a pagar&quot; é o apurado que ainda não venceu. Ações pagam 15%, isentas
+              quando as vendas de ações do mês somam até R$ 20 mil; FII e day trade pagam 20%; ETF e BDR, 15% sem
+              isenção. Prejuízo abate o lucro dos meses seguintes. O imposto sai do caixa no último dia útil do mês
+              seguinte; abaixo de R$ 10 ele soma ao do mês seguinte.
+            </>
+          }
         />
       </div>
 

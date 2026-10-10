@@ -58,11 +58,19 @@ class CashflowEventType(Enum):
     WITHDRAW = "WITHDRAW"
     DIVIDEND = "DIVIDEND"
     CONTRIBUTION = "CONTRIBUTION"
+    TAX = "TAX"
 
 
 class EquityEventType(Enum):
     BUY = "BUY"
     SELL = "SELL"
+
+
+class AssetClass(Enum):
+    STOCK = "STOCK"
+    FII = "FII"
+    ETF = "ETF"
+    BDR = "BDR"
 
 
 class FixedIncomeEventType(Enum):

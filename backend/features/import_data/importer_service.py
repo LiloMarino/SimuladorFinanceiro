@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from datetime import datetime
 
 import pandas as pd
@@ -8,7 +9,7 @@ import yfinance as yf
 from fastapi import UploadFile
 
 from backend.core import repository
-from backend.core.enum import DataOrigin
+from backend.core.enum import AssetClass, DataOrigin
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.models.models import StockPriceHistory
 
@@ -104,6 +105,21 @@ def from_csv(file: UploadFile, fillzero: bool = True) -> pd.DataFrame:
 # -------------------
 
 
+BDR_SUFFIXES = ("31", "32", "33", "34", "35", "39")
+
+
+def infer_asset_class(ticker: str) -> AssetClass:
+    """Pelo sufixo do código, com ou sem o `.SA` do yfinance. O 11 é FII, ETF ou
+    unit, e quem decide é o usuário na Central de dados; FII é só o ponto de partida."""
+    suffix = re.search(r"(\d+)(?:\.SA)?$", ticker, re.IGNORECASE)
+    digits = suffix.group(1) if suffix else ""
+    if digits.endswith(BDR_SUFFIXES):
+        return AssetClass.BDR
+    if digits.endswith("11"):
+        return AssetClass.FII
+    return AssetClass.STOCK
+
+
 def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
     # 1. Garante que o ativo existe
     stock = repository.stock.get_by_ticker(ticker)
@@ -118,8 +134,11 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
             )
             nome = ticker
 
-        stock = repository.stock.add_stock(ticker, nome)
-        logger.info(f"Ativo '{ticker}' ({nome}) criado no banco.")
+        asset_class = infer_asset_class(ticker)
+        stock = repository.stock.add_stock(ticker, nome, asset_class)
+        logger.info(
+            f"Ativo '{ticker}' ({nome}) criado no banco como {asset_class.value}."
+        )
 
     # 2. Lógica de sobrescrever
     if overwrite:

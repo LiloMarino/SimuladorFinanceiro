@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.user import UserDTO
+from backend.core.enum import CashflowEventType
 from backend.core.models.models import (
     EventCashflow,
     Users,
@@ -85,7 +86,7 @@ class UserRepository:
                                     EventCashflow.amount,
                                 ),
                                 (
-                                    EventCashflow.event_type == "WITHDRAW",
+                                    EventCashflow.event_type.in_(["WITHDRAW", "TAX"]),
                                     -EventCashflow.amount,
                                 ),
                                 else_=Decimal("0"),
@@ -103,14 +104,16 @@ class UserRepository:
         return total_cash
 
     @transactional
-    def get_total_contribution(self, session: Session, user_id: int) -> Decimal:
+    def get_total_cashflow(
+        self, session: Session, user_id: int, event_type: CashflowEventType
+    ) -> Decimal:
         simulation_id = SimulationManager.get_active_simulation_id()
         return Decimal(
             session.execute(
                 select(func.coalesce(func.sum(EventCashflow.amount), 0)).where(
                     EventCashflow.user_id == user_id,
                     EventCashflow.simulation_id == simulation_id,
-                    EventCashflow.event_type == "CONTRIBUTION",
+                    EventCashflow.event_type == event_type.value,
                 )
             ).scalar_one()
         )

@@ -9,11 +9,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
-import type { SeriesCoverage } from "@/types";
+import type { AssetClass, SeriesCoverage } from "@/types";
 import { CoverageBar, type TimelineRange } from "./coverage-bar";
 
 const STALE_AFTER_DAYS = 2;
+
+const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
+  STOCK: "Ação",
+  FII: "FII",
+  ETF: "ETF",
+  BDR: "BDR",
+};
 const DAY_MS = 1000 * 60 * 60 * 24;
 
 // Ação cujo último preço tem mais de 2 dias: o pregão de ontem já devia estar lá
@@ -60,6 +68,15 @@ export function SeriesCoverageTable() {
   });
   const allIndicatorsMutation = useApiMutation({
     mutationFn: () => apiFetch("/api/import-assets/indicators", { method: "POST" }),
+    onSettled: invalidateCoverage,
+  });
+  const assetClassMutation = useApiMutation({
+    mutationFn: ({ ticker, assetClass }: { ticker: string; assetClass: AssetClass }) =>
+      apiFetch(`/api/import-assets/stocks/${ticker}/asset-class`, {
+        method: "PUT",
+        body: { asset_class: assetClass },
+      }),
+    onError: (err) => toast.error(err.message),
     onSettled: invalidateCoverage,
   });
 
@@ -118,6 +135,10 @@ export function SeriesCoverageTable() {
           <p className="text-sm text-muted-foreground mt-1">
             Depois do fim do dado real, a partida usa o último valor conhecido de cada série.
           </p>
+          <p className="text-sm text-muted-foreground">
+            A classe do ativo decide o IR na venda. Ela é sugerida pelo final do código (11 vira FII, 34 vira BDR) e
+            pode ser trocada: ETFs e units também terminam em 11.
+          </p>
         </div>
         <Button variant="warning" size="sm" disabled={isBusy} onClick={updateAll}>
           {updatingAll ? "Atualizando..." : "Atualizar todos"}
@@ -148,9 +169,28 @@ export function SeriesCoverageTable() {
                   <TableRow key={`${item.kind}-${item.key}`} className="text-center [&>td]:py-3">
                     <TableCell className="text-left">
                       <div className="flex items-center gap-2">
-                        <Badge variant={item.kind === "INDICATOR" ? "default" : "secondary"}>
-                          {item.kind === "INDICATOR" ? "Indicador" : "Ação"}
-                        </Badge>
+                        {item.asset_class ? (
+                          <Select
+                            value={item.asset_class}
+                            disabled={assetClassMutation.isPending}
+                            onValueChange={(value) =>
+                              assetClassMutation.mutate({ ticker: item.key, assetClass: value as AssetClass })
+                            }
+                          >
+                            <SelectTrigger size="sm" aria-label={`Classe de ${item.key}`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(ASSET_CLASS_LABELS).map(([value, label]) => (
+                                <SelectItem key={value} value={value}>
+                                  {label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Badge>Indicador</Badge>
+                        )}
                         <span className={outdated ? "font-medium text-destructive" : "font-medium"}>{item.key}</span>
                         {item.name !== item.key && <span className="text-muted-foreground text-xs">{item.name}</span>}
                       </div>

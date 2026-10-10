@@ -9,21 +9,19 @@ from backend.core.dto.series_coverage import OriginCoverageDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
-from backend.core.enum import DataOrigin
+from backend.core.enum import AssetClass, DataOrigin
 from backend.core.models.models import Stock, StockPriceHistory
 
 
 class StockRepository:
     @transactional
-    def add_stock(self, session: Session, ticker: str, name: str) -> StockDTO:
-        stock = Stock(ticker=ticker, name=name)
+    def add_stock(
+        self, session: Session, ticker: str, name: str, asset_class: AssetClass
+    ) -> StockDTO:
+        stock = Stock(ticker=ticker, name=name, asset_class=asset_class.value)
         session.add(stock)
         session.flush()
-        return StockDTO(
-            id=stock.id,
-            ticker=stock.ticker,
-            name=stock.name,
-        )
+        return StockDTO.from_model(stock)
 
     @transactional
     def add_stock_price_history(
@@ -58,6 +56,7 @@ class StockRepository:
                         id=ph.stock.id,
                         ticker=ph.stock.ticker,
                         name=ph.stock.name,
+                        asset_class=AssetClass(ph.stock.asset_class),
                         close=ph.close,
                         low=ph.low,
                         high=ph.high,
@@ -101,6 +100,7 @@ class StockRepository:
             id=stock.id,
             ticker=stock.ticker,
             name=stock.name,
+            asset_class=AssetClass(stock.asset_class),
             open=ph_today.open if ph_today else 0,
             close=ph_today.close if ph_today else 0,
             low=ph_today.low if ph_today else 0,
@@ -137,11 +137,19 @@ class StockRepository:
         stock = session.execute(
             select(Stock).where(Stock.ticker == ticker)
         ).scalar_one_or_none()
-        return (
-            StockDTO(id=stock.id, ticker=stock.ticker, name=stock.name)
-            if stock
-            else None
-        )
+        return StockDTO.from_model(stock) if stock else None
+
+    @transactional
+    def set_asset_class(
+        self, session: Session, ticker: str, asset_class: AssetClass
+    ) -> StockDTO | None:
+        stock = session.execute(
+            select(Stock).where(Stock.ticker == ticker)
+        ).scalar_one_or_none()
+        if not stock:
+            return None
+        stock.asset_class = asset_class.value
+        return StockDTO.from_model(stock)
 
     @transactional
     def get_last_stock_price_history(
@@ -184,6 +192,7 @@ class StockRepository:
         ]
 
     @transactional
-    def get_names(self, session: Session) -> dict[str, str]:
-        """Nome de cada ação pelo ticker, inclusive as que ainda não têm preço."""
-        return dict(session.execute(select(Stock.ticker, Stock.name)).tuples().all())
+    def get_stocks(self, session: Session) -> list[StockDTO]:
+        """Todas as ações, inclusive as que ainda não têm preço, em ordem de ticker."""
+        stocks = session.execute(select(Stock).order_by(Stock.ticker)).scalars().all()
+        return [StockDTO.from_model(stock) for stock in stocks]

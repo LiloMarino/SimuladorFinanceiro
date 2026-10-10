@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-10):** F20 e F21 concluídas juntas: indicadores reais do Banco Central na renda fixa e Central de dados fora da partida.
+> **Última mudança (2026-10-10):** F29 concluída: IR na venda de renda variável, debitado do caixa no vencimento do DARF, com a classe do ativo editável na Central de dados.
 
 ## Glossário
 
@@ -55,12 +55,11 @@
 | [**F26**](#f26) | Redesign visual | — | 🔍 |
 | [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | — | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
-| [**F29**](#f29) | IR na venda de renda variável | — | ⏳ |
 | [**F30**](#f30) | Setores e segmentos | — | ⏳ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -80,6 +79,7 @@
 | [**F20**](#f20) | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | — | ✅ |
 | [**F21**](#f21) | Central de dados, fora da partida | — | ✅ |
 | [**F25**](#f25) | Migrations com Alembic | — | ✅ |
+| [**F29**](#f29) | IR na venda de renda variável | — | ✅ |
 | [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
 
 </details>
@@ -100,7 +100,6 @@
 | [**F18**](#f18) | Pontuação geral (overall) | M7 | 1 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F26**](#f26) | Redesign visual | — | 0 | 🔍 |
-| [**F29**](#f29) | IR na venda de renda variável | M10 | 0 | ⏳ |
 | [**F30**](#f30) | Setores e segmentos | — | 0 | ⏳ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | 0 | ⏳ |
 
@@ -267,17 +266,18 @@
 >
 > **Serve:** N7
 >
-> **Progresso:** 1/2 concluídas
+> **Progresso:** 2/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F29**](#f29) | IR na venda de renda variável | — | ⏳ |
+| — | *(nada em aberto)* | — | — |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F13**](#f13) | Impacto de preço de ordens grandes | — | ✅ |
+| [**F29**](#f29) | IR na venda de renda variável | — | ✅ |
 
 </details>
 
@@ -324,7 +324,7 @@
 | **F25** | Migrations com Alembic | N14, N1 | D9 | M2 | — | Médio | Médio | Alto | Excelente | ✅ Concluído |
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F27** | Fechamento de partida: pódio e critério de vitória | N5, N6, N9 | D8 | M7 | [F17](#f17), [F18](#f18) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
-| **F29** | IR na venda de renda variável | N7 | D1 | M10 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
+| **F29** | IR na venda de renda variável | N7 | D1 | M10 | — | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F30** | Setores e segmentos | N16 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F31** | Diagrama do banco sempre em dia | N17 | D9 | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F32** | Ferramenta de correlação entre ativos | N18 | D2 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
@@ -407,7 +407,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 A tela lê `/api/statistics/compare?simulation_ids=<id>`, que já funciona sem partida ativa, então ela também abre depois, a partir da lista de simulações salvas. O payload de `simulation_ended` passa a levar o id da simulação. Gatilho: F17 concluída e a fórmula da F18 fechada.
 
 <a id="f29"></a>
-**F29 — IR na venda de renda variável.** Serve N7. A renda fixa já desconta IR no resgate (F2); a renda variável não desconta nada, então uma estratégia que gira muito parece melhor do que é. A apuração segue o motor fiscal do [Finance Manager](https://github.com/LiloMarino/Finance-Manager) (`backend/domain/tax.py`, regras conferidas no Perguntas e Respostas do IRPF da Receita): todo mês, por jogador, o lucro das vendas sobre o preço médio da `Position`, separado por categoria — ações em operação comum, 15%, isentas quando as vendas de ações do mês somam até R$ 20.000; FIIs, 20%, sem isenção; ETFs, 15%, sem isenção; day trade, 20%. Prejuízo de um mês abate lucro dos meses seguintes da mesma categoria. O imposto sai do caixa no último dia útil do mês seguinte (o vencimento do DARF), como evento de caixa (D1), então a retomada o reconstrói. Aparece na carteira e na aba Operações da F17. O IRRF de 0,005% ("dedo-duro") fica fora: é antecipação do mesmo imposto e não muda o total.
+**F29 — IR na venda de renda variável.** Serve N7. `features/variable_income/income_tax.py` é o motor fiscal do [Finance Manager](https://github.com/LiloMarino/Finance-Manager) portado para os eventos de `event_equity`, recalculado das operações a cada consulta (D1). Todo mês, por jogador, o lucro das vendas sobre o preço médio fiscal vai para três conjuntos de compensação: comum (ação, ETF e BDR, 15%), day trade (20%) e FII (20%). Compra e venda do mesmo ativo no mesmo dia se pareiam como day trade, a 1ª compra com a 1ª venda, e só as sobras movem o preço médio, que por isso tem replay próprio, separado da posição do `Broker`. O ganho comum com ações é isento quando as vendas de ações do mês somam até R$ 20.000. O prejuízo de cada conjunto abate o lucro dos meses seguintes, e o imposto abaixo de R$ 10 soma ao do mês seguinte. No último dia útil do mês, o tick debita o DARF do mês anterior como evento `TAX` de `event_cashflow`. A retomada começa no dia seguinte ao último evento, então nenhum DARF sai duas vezes. O caixa pode ficar negativo, como uma dívida com a Receita. `stock` ganhou `asset_class` (ação, FII, ETF, BDR): na importação a classe é inferida pelo sufixo do código (31 a 35 e 39 viram BDR, 11 vira FII, o resto vira ação), e na Central de dados um seletor a corrige, porque ETFs e units também terminam em 11. A migration aplica a mesma regra às ações já importadas. A carteira mostra o card "Imposto de Renda", com o IR pago, o valor a pagar (o já apurado que não venceu, mais o mês corrente) e a regra explicada na dica. A aba Operações da F17 lê o mesmo evento `TAX` quando for feita. Limitações: a regra fiscal atual vale para qualquer período histórico simulado; o IRRF de 0,005% fica fora, porque é antecipação do mesmo imposto; e uma partida que termina antes do vencimento não debita o último mês, que fica só como "a pagar".
 **Aceite:** vender R$ 30.000 em ações com R$ 5.000 de lucro num mês debita R$ 750 no mês seguinte; vender R$ 15.000 com lucro no mês não debita nada.
 
 <a id="f30"></a>

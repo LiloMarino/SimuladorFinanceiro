@@ -18,5 +18,8 @@ class PortfolioDTO(BaseDTO):
     fixed_income_pct: Decimal
     # Retorno sobre o capital aportado (caixa inicial + aportes mensais)
     total_return_pct: Decimal
+    # IR da renda variável: o que já saiu do caixa e o apurado que ainda vai sair
+    income_tax_paid: Decimal
+    income_tax_due: Decimal
     variable_income: list[PortfolioPositionDTO]
     fixed_income: list[FixedIncomePositionDTO]

@@ -316,6 +316,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/import-assets/stocks/{ticker}/asset-class": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Alterar a classe de um ativo
+         * @description Define se o ativo é ação, FII, ETF ou BDR, o que decide a alíquota e a isenção do IR na venda.
+         */
+        put: operations["update_asset_class_api_import_assets_stocks__ticker__asset_class_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/import-assets/yfinance": {
         parameters: {
             query?: never;
@@ -884,6 +904,15 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AssetClass
+         * @enum {string}
+         */
+        AssetClass: "STOCK" | "FII" | "ETF" | "BDR";
+        /** AssetClassRequest */
+        AssetClassRequest: {
+            asset_class: components["schemas"]["AssetClass"];
+        };
         /** Body_import_assets_csv_api_import_assets_csv_post */
         Body_import_assets_csv_api_import_assets_csv_post: {
             /** Ticker */
@@ -914,6 +943,7 @@ export interface components {
             ticker: string;
             /** Name */
             name: string;
+            asset_class: components["schemas"]["AssetClass"];
             /** Open */
             open: number;
             /** High */
@@ -1271,6 +1301,10 @@ export interface components {
             fixed_income_pct: string;
             /** Total Return Pct */
             total_return_pct: string;
+            /** Income Tax Paid */
+            income_tax_paid: string;
+            /** Income Tax Due */
+            income_tax_due: string;
             /** Variable Income */
             variable_income: components["schemas"]["PortfolioPositionDTO"][];
             /** Fixed Income */
@@ -1383,6 +1417,7 @@ export interface components {
             real_end: string | null;
             /** Generated End */
             generated_end: string | null;
+            asset_class: components["schemas"]["AssetClass"] | null;
         };
         /**
          * SeriesKind
@@ -1590,6 +1625,7 @@ export interface components {
             ticker: string;
             /** Name */
             name: string;
+            asset_class: components["schemas"]["AssetClass"];
             /** Open */
             open: number;
             /** High */
@@ -2371,6 +2407,48 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    update_asset_class_api_import_assets_stocks__ticker__asset_class_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssetClassRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             204: {

@@ -11,7 +11,9 @@ from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.events.fixed_income import FixedIncomeEventDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
+from backend.core.dto.stock import StockDTO
 from backend.core.enum import (
+    AssetClass,
     CashflowEventType,
     EquityEventType,
     FixedIncomeEventType,
@@ -46,7 +48,19 @@ def player_book(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEvent
         repository.user, "get_user_balance", lambda _client_id: Decimal("880")
     )
     monkeypatch.setattr(
-        repository.user, "get_total_contribution", lambda _user_id: Decimal("600")
+        repository.user,
+        "get_total_cashflow",
+        lambda _user_id, event_type: {
+            CashflowEventType.CONTRIBUTION: Decimal("600"),
+            CashflowEventType.TAX: Decimal("0"),
+        }[event_type],
+    )
+    monkeypatch.setattr(
+        repository.stock,
+        "get_stocks",
+        lambda: [
+            StockDTO(id=1, ticker="ABCD", name="Abcd", asset_class=AssetClass.STOCK)
+        ],
     )
     monkeypatch.setattr(
         repository.portfolio,
@@ -146,3 +160,13 @@ def test_contribution_is_recorded_apart_from_deposit(player_book, captured_event
     assert _cashflows(captured_events) == [
         (CashflowEventType.CONTRIBUTION, Decimal("300"))
     ]
+
+
+def test_income_tax_payment_is_recorded_as_tax(player_book, captured_events):
+    """O DARF sai do caixa como TAX, separado de um saque comum."""
+    engine = _engine()
+
+    engine.pay_income_tax(PLAYER, Decimal("750"))
+
+    assert engine.get_cash(PLAYER) == Decimal("130")
+    assert _cashflows(captured_events) == [(CashflowEventType.TAX, Decimal("750"))]

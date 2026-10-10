@@ -124,6 +124,7 @@ erDiagram
         integer id PK
         text ticker UK
         text name UK
+        asset_class asset_class
     }
     stock_price_history {
         integer stock_id PK, FK
@@ -142,7 +143,8 @@ erDiagram
 
 | ENUM | Valores | Colunas |
 | --- | --- | --- |
-| `cashflow_event_type` | `DEPOSIT`, `WITHDRAW`, `DIVIDEND`, `CONTRIBUTION` | `event_cashflow.event_type` |
+| `asset_class` | `STOCK`, `FII`, `ETF`, `BDR` | `stock.asset_class` |
+| `cashflow_event_type` | `DEPOSIT`, `WITHDRAW`, `DIVIDEND`, `CONTRIBUTION`, `TAX` | `event_cashflow.event_type` |
 | `data_origin` | `REAL`, `GENERATED` | `economic_indicator_history.origin`, `stock_price_history.origin` |
 | `equity_event_type` | `BUY`, `SELL` | `event_equity.event_type` |
 | `fixed_income_event_type` | `BUY`, `REDEEM` | `event_fixed_income.event_type` |

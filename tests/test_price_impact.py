@@ -8,6 +8,7 @@ from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.daily_equity_flow import DailyEquityFlowDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
+from backend.core.enum import AssetClass
 from backend.features.variable_income.price_impact import (
     MIN_FACTOR,
     PriceImpact,
@@ -60,6 +61,7 @@ def _candle(price_date: date = TUESDAY) -> CandleDTO:
         id=1,
         ticker="ABCD",
         name="Abcd",
+        asset_class=AssetClass.STOCK,
         open=10.0,
         high=11.0,
         low=9.0,

@@ -25,6 +25,7 @@ export type IndicatorSeries = components["schemas"]["IndicatorSeries"];
 
 // Data center
 export type SeriesCoverage = components["schemas"]["SeriesCoverageDTO"];
+export type AssetClass = components["schemas"]["AssetClass"];
 
 // User
 export type User = components["schemas"]["UserDTO"];

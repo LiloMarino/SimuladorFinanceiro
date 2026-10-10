@@ -46,6 +46,7 @@ class Simulation:
     Responsável por:
     - Avançar simulação dia-a-dia (next_tick), pulando finais de semana
     - Aplicar contribuições mensais e registrar eventos mensais
+    - Debitar o IR da renda variável no vencimento do DARF
     - Criar snapshots diários do portfólio de todos os players
     - Fornecer interface de alto nível para operações (criar/cancelar ordens, consultar portfólio)
     - Gerenciar velocidade da simulação e notificar atualizações realtime
@@ -135,9 +136,11 @@ class Simulation:
         users = repository.user.get_all_users()
         month_changed = self._has_month_changed()
 
-        # O aporte do mês entra nos eventos antes do flush, para o snapshot do dia já contá-lo
+        # O aporte do mês e o DARF que vence hoje entram nos eventos antes do flush,
+        # para o snapshot do dia já contá-los
         if month_changed:
             self._apply_monthly_contributions(users)
+        self._collect_income_tax(users)
         EventManager.flush()
 
         self._create_daily_snapshots(users, month_changed)
@@ -255,6 +258,24 @@ class Simulation:
             self._engine.add_contribution(
                 user.client_id, self.settings.monthly_contribution
             )
+
+    def _collect_income_tax(self, users: list[UserDTO]):
+        """
+        O DARF do mês anterior vence no último dia útil do mês. O evento TAX fica
+        datado do vencimento e a retomada começa no dia seguinte ao último evento,
+        então cada DARF sai do caixa uma vez só.
+        """
+        if next_business_day(self._current_date).month == self._current_date.month:
+            return
+
+        for user in users:
+            months = self._engine.assess_income_tax(user.id)
+            darf = next(
+                (m.darf_amount for m in months if m.due_date == self._current_date),
+                None,
+            )
+            if darf:
+                self._engine.pay_income_tax(user.client_id, darf)
 
     def _create_daily_snapshots(self, users: list[UserDTO], month_changed: bool):
         """

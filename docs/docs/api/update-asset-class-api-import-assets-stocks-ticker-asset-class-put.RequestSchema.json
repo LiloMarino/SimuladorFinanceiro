@@ -1,0 +1,1 @@
+{"title":"Body","body":{"required":true,"content":{"application/json":{"schema":{"properties":{"asset_class":{"type":"string","enum":["STOCK","FII","ETF","BDR"],"title":"AssetClass"}},"type":"object","required":["asset_class"],"title":"AssetClassRequest"}}}}}

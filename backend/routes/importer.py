@@ -3,10 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from pydantic import BaseModel
 
+from backend.core import repository
 from backend.core.dependencies.simulation import require_no_active_simulation
 from backend.core.dto.series_coverage import SeriesCoverageDTO
-from backend.core.enum import IndicatorSeries
-from backend.core.exceptions.http_exceptions import BadGatewayError
+from backend.core.enum import AssetClass, IndicatorSeries
+from backend.core.exceptions.http_exceptions import BadGatewayError, NotFoundError
 from backend.features.import_data.coverage import get_series_coverage
 from backend.features.import_data.importer_service import (
     update_from_csv,
@@ -59,6 +60,21 @@ def refresh_all_indicators():
 )
 def refresh_one_indicator(series: IndicatorSeries):
     refresh_or_raise([series])
+
+
+class AssetClassRequest(BaseModel):
+    asset_class: AssetClass
+
+
+@import_router.put(
+    "/stocks/{ticker}/asset-class",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Alterar a classe de um ativo",
+    description="Define se o ativo é ação, FII, ETF ou BDR, o que decide a alíquota e a isenção do IR na venda.",
+)
+def update_asset_class(ticker: str, request: AssetClassRequest):
+    if repository.stock.set_asset_class(ticker, request.asset_class) is None:
+        raise NotFoundError(f"Ativo '{ticker}' não encontrado.")
 
 
 def str_to_bool(value: str | bool | None) -> bool:

@@ -46,7 +46,7 @@ class SnapshotRepository:
                                     EventCashflow.amount,
                                 ),
                                 (
-                                    EventCashflow.event_type == "WITHDRAW",
+                                    EventCashflow.event_type.in_(["WITHDRAW", "TAX"]),
                                     -EventCashflow.amount,
                                 ),
                                 else_=Decimal("0"),

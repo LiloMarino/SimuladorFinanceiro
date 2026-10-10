@@ -22,6 +22,7 @@ from backend.features.strategy.base_strategy import BaseStrategy
 from backend.features.variable_income.broker import Broker, to_money
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.position import Position
+from backend.features.variable_income.income_tax import MonthlyTax, assess
 from backend.features.variable_income.matching_engine import MatchingEngine
 
 
@@ -35,7 +36,7 @@ class SimulationEngine:
     - Atualizar dados de mercado e executar matching de ordens
     - Aplicar juros diários de renda fixa
     - Executar estratégias de trading a cada tick
-    - Registrar eventos de cashflow (depósitos, retiradas, aportes)
+    - Registrar eventos de cashflow (depósitos, retiradas, aportes, IR)
     """
 
     def __init__(self, current_date, starting_cash: Decimal, simulation_id: int):
@@ -64,38 +65,45 @@ class SimulationEngine:
         with self._lock:
             return self._cash[client_id]
 
-    def add_cash(self, client_id: UUID, cash: Decimal) -> None:
+    def _move_cash(
+        self, client_id: UUID, delta: Decimal, event_type: CashflowEventType
+    ) -> None:
         with self._lock:
-            self._cash[client_id] += cash
+            self._cash[client_id] += delta
             new_cash = self._cash[client_id]
         EventManager.push_event(
             CashflowEventDTO(
                 simulation_id=self.simulation_id,
                 user_id=UserManager.get_user_id(client_id),
-                event_type=CashflowEventType.DEPOSIT
-                if cash > 0
-                else CashflowEventType.WITHDRAW,
-                amount=abs(cash),
+                event_type=event_type,
+                amount=abs(delta),
                 event_date=self.current_date,
             )
         )
         notify("cash_update", CashUpdateEventDTO(cash=new_cash).to_json(), to=client_id)
 
+    def add_cash(self, client_id: UUID, cash: Decimal) -> None:
+        self._move_cash(
+            client_id,
+            cash,
+            CashflowEventType.DEPOSIT if cash > 0 else CashflowEventType.WITHDRAW,
+        )
+
     def add_contribution(self, client_id: UUID, amount: Decimal) -> None:
         """Adiciona aporte mensal (não conta como retorno de investimento)"""
-        with self._lock:
-            self._cash[client_id] += amount
-            new_cash = self._cash[client_id]
-        EventManager.push_event(
-            CashflowEventDTO(
-                simulation_id=self.simulation_id,
-                user_id=UserManager.get_user_id(client_id),
-                event_type=CashflowEventType.CONTRIBUTION,
-                amount=amount,
-                event_date=self.current_date,
-            )
+        self._move_cash(client_id, amount, CashflowEventType.CONTRIBUTION)
+
+    def pay_income_tax(self, client_id: UUID, amount: Decimal) -> None:
+        """Debita o DARF; o caixa pode ficar negativo, como uma dívida com a Receita."""
+        self._move_cash(client_id, -amount, CashflowEventType.TAX)
+
+    def assess_income_tax(self, user_id: int) -> list[MonthlyTax]:
+        asset_classes = {s.ticker: s.asset_class for s in repository.stock.get_stocks()}
+        return assess(
+            repository.portfolio.get_equity_events(user_id),
+            asset_classes,
+            self.current_date,
         )
-        notify("cash_update", CashUpdateEventDTO(cash=new_cash).to_json(), to=client_id)
 
     def update_market_data(self, stocks: list[CandleDTO]) -> None:
         for s in stocks:
@@ -132,8 +140,18 @@ class SimulationEngine:
         total_networth = invested_value + cash
 
         # Aporte mensal é capital do jogador, não rendimento
-        capital_provided = self.starting_cash + repository.user.get_total_contribution(
-            UserManager.get_user_id(client_id)
+        user_id = UserManager.get_user_id(client_id)
+        capital_provided = self.starting_cash + repository.user.get_total_cashflow(
+            user_id, CashflowEventType.CONTRIBUTION
+        )
+
+        # A pagar: o apurado que ainda não venceu, o saldo abaixo do mínimo do DARF
+        # e o mês corrente até agora
+        income_tax_paid = repository.user.get_total_cashflow(
+            user_id, CashflowEventType.TAX
+        )
+        income_tax_assessed = sum(
+            (m.tax for m in self.assess_income_tax(user_id)), Decimal(0)
         )
 
         return PortfolioDTO(
@@ -147,6 +165,8 @@ class SimulationEngine:
             variable_income_pct=ratio(variable_income_value, invested_value),
             fixed_income_pct=ratio(fixed_income_value, invested_value),
             total_return_pct=ratio(total_networth - capital_provided, capital_provided),
+            income_tax_paid=income_tax_paid,
+            income_tax_due=income_tax_assessed - income_tax_paid,
             variable_income=[
                 PortfolioPositionDTO(
                     **pos.model_dump(),
