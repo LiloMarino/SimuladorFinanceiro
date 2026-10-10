@@ -2,6 +2,7 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from backend.core.dto.base import BaseDTO
+from backend.core.enum import VictoryCriterion
 
 
 class SimulationSettingsDTO(BaseDTO):
@@ -13,6 +14,7 @@ class SimulationSettingsDTO(BaseDTO):
     price_impact_enabled: bool
     price_impact_k: float
     price_impact_decay_days: int
+    victory_criterion: VictoryCriterion
 
 
 class SimulationDTO(SimulationSettingsDTO):

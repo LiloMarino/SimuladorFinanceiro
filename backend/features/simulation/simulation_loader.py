@@ -75,6 +75,7 @@ class SimulationLoader:
                 price_impact_enabled=summary.price_impact_enabled,
                 price_impact_k=summary.price_impact_k,
                 price_impact_decay_days=summary.price_impact_decay_days,
+                victory_criterion=summary.victory_criterion,
             ),
             resume_from=resume_from,
         )

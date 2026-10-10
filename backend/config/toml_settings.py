@@ -25,6 +25,7 @@ class SimulationConfig(BaseModel):
     price_impact_enabled: bool = False
     price_impact_k: float = 0.02
     price_impact_decay_days: int = 20
+    victory_criterion: str = "SCORE"
 
 
 class RealtimeConfig(BaseModel):

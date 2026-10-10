@@ -8,6 +8,7 @@ from pydantic import ValidationError
 
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
+from backend.core.enum import VictoryCriterion
 from backend.features.statistics.ranking import build_overview
 from backend.routes.auth import UserRegisterRequest
 
@@ -91,3 +92,16 @@ def test_nickname_rejects_hash_separator():
         UserRegisterRequest(nickname="Lilo#1")
 
     assert UserRegisterRequest(nickname="Lilo").nickname == "Lilo"
+
+
+def test_networth_criterion_ranks_by_final_networth():
+    """Com aporte maior, Ana tem mais patrimônio e menos retorno: o critério decide."""
+    lilo = player("Lilo", networth="12000")
+    ana = player("Ana", networth="15000", contribution="10000")
+
+    by_return = build_overview([lilo, ana], VictoryCriterion.RETURN)
+    by_networth = build_overview([lilo, ana], VictoryCriterion.NETWORTH)
+
+    assert [p.player_nickname for p in by_return.players] == ["Lilo", "Ana"]
+    assert [p.player_nickname for p in by_networth.players] == ["Ana", "Lilo"]
+    assert by_networth.criterion is VictoryCriterion.NETWORTH

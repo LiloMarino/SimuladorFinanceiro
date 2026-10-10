@@ -24,7 +24,7 @@ from backend.core.dto.statistics_report import (
     RiskReportDTO,
     SeriesPointDTO,
 )
-from backend.core.enum import EquityEventType
+from backend.core.enum import EquityEventType, VictoryCriterion
 from backend.core.sectors import allocate_by_sector
 from backend.features.statistics import operations, returns, risk, sectors
 from backend.features.statistics.ranking import build_overview, capital_provided
@@ -33,7 +33,17 @@ from backend.features.variable_income.price_impact import PriceImpact
 
 
 def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
-    return build_overview(repository.statistics.get_players_history(simulation_ids))
+    return build_overview(
+        repository.statistics.get_players_history(simulation_ids),
+        _shared_criterion(simulation_ids),
+    )
+
+
+def _shared_criterion(simulation_ids: list[int]) -> VictoryCriterion:
+    """O critério das simulações quando todas usam o mesmo; senão, a nota geral."""
+    simulations = [repository.simulation.get_simulation(i) for i in simulation_ids]
+    criteria = {s.victory_criterion for s in simulations if s is not None}
+    return criteria.pop() if len(criteria) == 1 else VictoryCriterion.SCORE
 
 
 def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:

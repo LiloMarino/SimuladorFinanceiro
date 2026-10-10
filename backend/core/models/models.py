@@ -239,6 +239,11 @@ class Simulations(Base):
     price_impact_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False)
     price_impact_k: Mapped[float] = mapped_column(Double(53), nullable=False)
     price_impact_decay_days: Mapped[int] = mapped_column(Integer, nullable=False)
+    victory_criterion: Mapped[str] = mapped_column(
+        Enum("SCORE", "RETURN", "NETWORTH", "SHARPE", name="victory_criterion"),
+        nullable=False,
+        server_default=text("'SCORE'"),
+    )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )

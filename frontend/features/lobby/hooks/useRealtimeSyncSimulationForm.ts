@@ -3,7 +3,7 @@ import { useWatch, type UseFormReturn } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { useRealtime } from "@/shared/hooks/useRealtime";
-import type { SimulationSettingsData } from "@/types";
+import type { SimulationSettingsData, VictoryCriterion } from "@/types";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { toast } from "sonner";
 import type { SimulationFormValues } from "../components/lobby-simulation-form";
@@ -41,6 +41,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       price_impact_enabled: boolean;
       price_impact_k: number;
       price_impact_decay_days: number;
+      victory_criterion: VictoryCriterion;
     }) => apiFetch<SimulationSettingsData>("/api/simulation/settings", { method: "PUT", body }),
     onSuccess: () => {
       toast.success("Configurações sincronizadas");
@@ -64,6 +65,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
           priceImpactEnabled: data.price_impact_enabled,
           priceImpactK: displayDecimal(data.price_impact_k),
           priceImpactDecayDays: String(data.price_impact_decay_days),
+          victoryCriterion: data.victory_criterion,
         } as TForm);
       });
     },
@@ -89,6 +91,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       priceImpactEnabled,
       priceImpactK,
       priceImpactDecayDays,
+      victoryCriterion,
     } = debouncedValues;
 
     // Mesma ordem de chaves do SimulationSettingsData: o descarte de duplicata compara o JSON
@@ -101,6 +104,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       price_impact_enabled: priceImpactEnabled,
       price_impact_k: Number(normalizeNumberString(priceImpactK)),
       price_impact_decay_days: Number(priceImpactDecayDays),
+      victory_criterion: victoryCriterion,
     };
 
     // Descarta duplicatas reais

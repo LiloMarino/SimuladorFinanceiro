@@ -73,6 +73,13 @@ class AssetClass(Enum):
     BDR = "BDR"
 
 
+class VictoryCriterion(Enum):
+    SCORE = "SCORE"
+    RETURN = "RETURN"
+    NETWORTH = "NETWORTH"
+    SHARPE = "SHARPE"
+
+
 class FixedIncomeEventType(Enum):
     BUY = "BUY"
     REDEEM = "REDEEM"

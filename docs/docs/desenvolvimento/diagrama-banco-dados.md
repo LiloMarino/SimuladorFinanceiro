@@ -59,6 +59,7 @@ erDiagram
         boolean price_impact_enabled
         double price_impact_k
         integer price_impact_decay_days
+        victory_criterion victory_criterion
         timestamptz created_at
         timestamptz last_simulated_at
     }
@@ -163,3 +164,4 @@ erDiagram
 | `indicator_series` | `CDI`, `SELIC`, `IPCA`, `IBOV` | `economic_indicator_history.series`, `fetch_log.series` |
 | `investment_type` | `CDB`, `LCI`, `LCA`, `TESOURO_DIRETO` | `fixed_income_asset.investment_type` |
 | `rate_type` | `SELIC`, `IPCA`, `CDI`, `PREFIXADO` | `fixed_income_asset.rate_type` |
+| `victory_criterion` | `SCORE`, `RETURN`, `NETWORTH`, `SHARPE` | `simulations.victory_criterion` |

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, Play } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, Play, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
@@ -29,6 +30,7 @@ interface LoadSimulationDialogProps {
 }
 
 export function LoadSimulationDialog({ open, onOpenChange, isHost }: LoadSimulationDialogProps) {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -116,9 +118,9 @@ export function LoadSimulationDialog({ open, onOpenChange, isHost }: LoadSimulat
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[80vh] flex-col sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Carregar Simulação</DialogTitle>
+          <DialogTitle>{isHost ? "Carregar Simulação" : "Simulações Salvas"}</DialogTitle>
           <DialogDescription>
-            Selecione uma simulação salva para continuar de onde parou.
+            Selecione uma simulação salva para continuar de onde parou ou ver o resultado dela.
           </DialogDescription>
         </DialogHeader>
 
@@ -137,6 +139,16 @@ export function LoadSimulationDialog({ open, onOpenChange, isHost }: LoadSimulat
         <ScrollArea className="h-72 rounded-md border">{renderList()}</ScrollArea>
 
         <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full sm:w-auto"
+            disabled={selectedId === null}
+            onClick={() => selectedId !== null && navigate(`/match-result/${selectedId}`)}
+          >
+            <Trophy />
+            Ver resultado
+          </Button>
           <Button
             type="button"
             variant="success"

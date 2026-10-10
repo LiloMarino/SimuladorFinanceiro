@@ -10,6 +10,7 @@ from typing import Literal
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.sector import SectorAllocationDTO
+from backend.core.enum import VictoryCriterion
 
 
 class SeriesPointDTO(BaseDTO):
@@ -70,6 +71,7 @@ class PlayerRankingDTO(PlayerRefDTO):
     days: int
     # None até a amostra ter `min_score_days` retornos diários
     score: ScoreDTO | None
+    sharpe_ratio: Decimal | None
 
 
 class OverviewReportDTO(BaseDTO):
@@ -77,6 +79,8 @@ class OverviewReportDTO(BaseDTO):
     players: list[PlayerRankingDTO]
     average_return: Decimal | None
     min_score_days: int
+    # O critério que ordenou o ranking: o da partida, ou a nota entre partidas diferentes
+    criterion: VictoryCriterion
 
 
 # Rentabilidade

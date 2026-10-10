@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-10):** F18 concluída: nota geral em quatro eixos de peso igual, decomposta na aba Geral; decisão D10 registrada.
+> **Última mudança (2026-10-10):** F27 concluída e M7 fechado: fechamento de partida com pódio pelo critério de vitória escolhido no lobby.
 
 ## Glossário
 
@@ -51,12 +51,11 @@
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | — | 🔍 |
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ⏳ |
 | [**F26**](#f26) | Redesign visual | — | 🔍 |
-| [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | — | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -79,6 +78,7 @@
 | [**F20**](#f20) | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | — | ✅ |
 | [**F21**](#f21) | Central de dados, fora da partida | — | ✅ |
 | [**F25**](#f25) | Migrations com Alembic | — | ✅ |
+| [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | — | ✅ |
 | [**F29**](#f29) | IR na venda de renda variável | — | ✅ |
 | [**F30**](#f30) | Setores e segmentos | — | ✅ |
 | [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
@@ -99,7 +99,6 @@
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F26**](#f26) | Redesign visual | — | 0 | 🔍 |
-| [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | M7 | 0 | ⏳ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | 0 | ⏳ |
 
 ---
@@ -216,18 +215,19 @@
 >
 > **Serve:** N5, N6, N9
 >
-> **Progresso:** 2/3 concluídas
+> **Progresso:** 3/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | [F17](#f17), [F18](#f18) | ⏳ |
+| — | *(nada em aberto)* | — | — |
 
-<details><summary>Concluído (2 itens)</summary>
+<details><summary>Concluído (3 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F17**](#f17) | Estatísticas em abas, como o relatório de fim de partida de um RTS | — | ✅ |
 | [**F18**](#f18) | Pontuação geral (overall) | — | ✅ |
+| [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | [F17](#f17), [F18](#f18) | ✅ |
 
 </details>
 
@@ -329,7 +329,7 @@
 | **F24** | Gerar dados futuros na Central de dados | N12 | D7 | M9 | [F21](#f21), [F23](#f23) | Médio | Alto | Alto | Bom | ⏳ Pendente |
 | **F25** | Migrations com Alembic | N14, N1 | D9 | M2 | — | Médio | Médio | Alto | Excelente | ✅ Concluído |
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
-| **F27** | Fechamento de partida: pódio e critério de vitória | N5, N6, N9 | D8 | M7 | [F17](#f17), [F18](#f18) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F27** | Fechamento de partida: pódio e critério de vitória | N5, N6, N9 | D8 | M7 | [F17](#f17), [F18](#f18) | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F29** | IR na venda de renda variável | N7 | D1 | M10 | — | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F30** | Setores e segmentos | N16 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F31** | Diagrama do banco sempre em dia | N17 | D9 | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
@@ -408,11 +408,8 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **Aceite:** duas estratégias idênticas, em mercado isolado e com a F13 ligada, terminam com o mesmo patrimônio.
 
 <a id="f27"></a>
-**F27 — Fechamento de partida: pódio e critério de vitória.** Serve N5, N6 e N9. Hoje, quando a partida chega na data final (`StopIteration` em `simulation.py:114`) ou o host encerra, o `simulation_ended` vira um toast e o guard devolve todo mundo ao lobby. No lugar disso, todos os jogadores vão para a tela de fechamento, como o fim de partida de um RTS: o pódio com os três primeiros, a classificação completa e as abas da F17 sobre a partida inteira, com o botão "Voltar ao lobby". É diferente da tela de comparação: a comparação põe resultados lado a lado, o pódio declara quem venceu.
-
-**Critério de vitória.** Como as condições de vitória do Civilization VI, o host escolhe no lobby o que decide a partida: a nota geral da F18 (padrão), rentabilidade, patrimônio final ou Sharpe. O critério é uma coluna de `simulations` (migration da F25), ordena o pódio e também o ranking durante a partida, e aparece no topo do fechamento ("Vitória por: nota geral").
-
-A tela lê `/api/statistics/compare?simulation_ids=<id>`, que já funciona sem partida ativa, então ela também abre depois, a partir da lista de simulações salvas. O payload de `simulation_ended` passa a levar o id da simulação. Gatilho: F17 concluída e a fórmula da F18 fechada.
+**F27 — Fechamento de partida: pódio e critério de vitória.** Serve N5, N6 e N9; segue a D8. Quando a partida chega na data final ou o host encerra, o `simulation_ended` passou a levar o id da simulação, e o `SimulationProvider` leva todos para `/match-result/:id` no lugar do toast e do lobby: o título "Fim de partida", o pódio com os três primeiros e o valor que decidiu cada posição, o relatório da F17 sobre a partida inteira (com a classificação completa e a nota na aba Geral) e "Voltar ao lobby". A rota muda antes de o status da partida ser atualizado, porque o guard tira da tela de Estatísticas quem estiver lá com a partida inativa. O fim por data passou a fazer o mesmo que o `stop()`: o flush dos eventos do último dia e a liberação da simulação antes do aviso, então o fechamento lê a partida inteira. A mesma tela abre depois, para qualquer simulação salva, pelo "Ver resultado" da lista de simulações salvas do lobby, que agora abre para todos os jogadores (carregar continua só do host). **Critério de vitória:** como as condições de vitória do Civilization VI, o host escolhe no lobby entre nota geral (padrão, F18), rentabilidade, patrimônio final ou Sharpe; é a coluna `victory_criterion` de `simulations` (ENUM, migration com `server_default` para as partidas salvas) e ordena o ranking durante a partida e o pódio, com o retorno desempatando e quem ainda não tem o valor (a nota antes de 63 pregões, o Sharpe sem oscilação) no fim. Na comparação de simulações com critérios diferentes, vale a nota geral. É diferente da tela de comparação: a comparação põe resultados lado a lado, o pódio declara quem venceu. Limitação: quem entra pelo navegador com a partida já rodando cai no lobby até recarregar a página (comportamento anterior à F27).
+**Aceite:** uma partida de quatro jogadores levada até a data final leva a aba aberta em Estatísticas para `/match-result/3`, com Lilo em 1º por 285 pts de nota; uma partida encerrada pelo host abre a mesma tela pelo "Ver resultado" (ranking por critério coberto em `tests/test_statistics_ranking.py`).
 
 <a id="f29"></a>
 **F29 — IR na venda de renda variável.** Serve N7. `features/variable_income/income_tax.py` é o motor fiscal do [Finance Manager](https://github.com/LiloMarino/Finance-Manager) portado para os eventos de `event_equity`, recalculado das operações a cada consulta (D1). Todo mês, por jogador, o lucro das vendas sobre o preço médio fiscal vai para três conjuntos de compensação: comum (ação, ETF e BDR, 15%), day trade (20%) e FII (20%). Compra e venda do mesmo ativo no mesmo dia se pareiam como day trade, a 1ª compra com a 1ª venda, e só as sobras movem o preço médio, que por isso tem replay próprio, separado da posição do `Broker`. O ganho comum com ações é isento quando as vendas de ações do mês somam até R$ 20.000. O prejuízo de cada conjunto abate o lucro dos meses seguintes, e o imposto abaixo de R$ 10 soma ao do mês seguinte. No último dia útil do mês, o tick debita o DARF do mês anterior como evento `TAX` de `event_cashflow`. A retomada começa no dia seguinte ao último evento, então nenhum DARF sai duas vezes. O caixa pode ficar negativo, como uma dívida com a Receita. `stock` ganhou `asset_class` (ação, FII, ETF, BDR): na importação a classe é inferida pelo sufixo do código (31 a 35 e 39 viram BDR, 11 vira FII, o resto vira ação), e na Central de dados um seletor a corrige, porque ETFs e units também terminam em 11. A migration aplica a mesma regra às ações já importadas. A carteira mostra o card "Imposto de Renda", com o IR pago, o valor a pagar (o já apurado que não venceu, mais o mês corrente) e a regra explicada na dica. A aba Operações da F17 lê o mesmo evento `TAX` quando for feita. Limitações: a regra fiscal atual vale para qualquer período histórico simulado; o IRRF de 0,005% fica fora, porque é antecipação do mesmo imposto; e uma partida que termina antes do vencimento não debita o último mês, que fica só como "a pagar".

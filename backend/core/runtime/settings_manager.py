@@ -5,6 +5,7 @@ from threading import Lock
 from backend import config
 from backend.core import repository
 from backend.core.dto.simulation import SimulationSettingsDTO
+from backend.core.enum import VictoryCriterion
 
 
 class SettingsManager:
@@ -33,6 +34,9 @@ class SettingsManager:
                     price_impact_enabled=config.toml.simulation.price_impact_enabled,
                     price_impact_k=config.toml.simulation.price_impact_k,
                     price_impact_decay_days=config.toml.simulation.price_impact_decay_days,
+                    victory_criterion=VictoryCriterion(
+                        config.toml.simulation.victory_criterion
+                    ),
                 )
             return cls._settings
 

@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, matchPath, useLocation } from "react-router-dom";
 import { LoadingPage } from "@/pages/loading";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSimulation } from "@/shared/hooks/useSimulation";
@@ -30,9 +30,9 @@ export function GuardLayout() {
   }
 
   // Autenticado + SEM simulação → /lobby
-  const allowedWithoutSimulation = ["/lobby", "/import-assets", "/compare-simulations"];
+  const allowedWithoutSimulation = ["/lobby", "/import-assets", "/compare-simulations", "/match-result/:simulationId"];
   if (isAuthenticated && !hasSimulation) {
-    if (!allowedWithoutSimulation.includes(pathname)) {
+    if (!allowedWithoutSimulation.some((pattern) => matchPath(pattern, pathname))) {
       return <Navigate to="/lobby" replace state={{ from: { pathname } } satisfies RedirectState} />;
     }
     return <Outlet />;

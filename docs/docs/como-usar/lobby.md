@@ -166,6 +166,31 @@ O cálculo está detalhado em [Impacto de preço](/como-usar/investimentos/renda
 
 ---
 
+### Critério de vitória
+
+**O que é:**
+O que decide quem vence a partida. Ordena o ranking durante a partida e o pódio do fechamento.
+
+**Opções:**
+
+* **Nota geral** (padrão): retorno, risco, consistência e eficiência num número só (ver [Como a nota é calculada](./estatisticas#como-a-nota-é-calculada)). Quem ainda não tem nota, nos primeiros 63 pregões, fica atrás
+* **Rentabilidade:** o maior retorno sobre o capital aportado, sem olhar o risco
+* **Patrimônio final:** o maior patrimônio no último dia. Com aportes iguais para todos, dá o mesmo resultado que a rentabilidade
+* **Índice de Sharpe:** o maior retorno acima do CDI por unidade de oscilação. Premia ganhar sem sobressaltos
+
+Em todos, o retorno desempata. O critério fica gravado na simulação.
+
+---
+
+### Simulações salvas
+
+O botão **Carregar Simulação** (para quem não é host, **Simulações Salvas**) lista as partidas salvas. Selecione uma e:
+
+* **Ver resultado** abre a tela de fechamento daquela partida, com o pódio e as estatísticas. Qualquer jogador pode abrir
+* **Carregar e Iniciar Simulação** retoma a partida de onde parou. Só o host pode fazer isso
+
+---
+
 ### Link Compartilhável
 
 **O que é:**  

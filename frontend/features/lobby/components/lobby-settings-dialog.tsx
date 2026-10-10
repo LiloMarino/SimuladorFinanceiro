@@ -11,6 +11,8 @@ import {
 } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { InfoHint } from "@/shared/components/info-hint";
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import type { SimulationFormValues } from "./lobby-simulation-form";
@@ -131,6 +133,43 @@ export function LobbySettingsDialog({
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Critério de vitória */}
+            <FormField
+              control={form.control}
+              name="victoryCriterion"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-2">
+                    <FormLabel>Critério de vitória</FormLabel>
+                    <InfoHint>
+                      <div className="space-y-1 text-left">
+                        {Object.values(VICTORY_CRITERIA).map((c) => (
+                          <p key={c.label}>
+                            <strong>{c.label}:</strong> {c.description}
+                          </p>
+                        ))}
+                      </div>
+                    </InfoHint>
+                  </div>
+                  <Select value={field.value} onValueChange={field.onChange} disabled={disableFields}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.entries(VICTORY_CRITERIA).map(([value, c]) => (
+                        <SelectItem key={value} value={value}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>Decide o pódio e a ordem do ranking.</FormDescription>
                 </FormItem>
               )}
             />

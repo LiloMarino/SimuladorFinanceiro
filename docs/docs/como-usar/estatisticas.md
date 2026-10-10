@@ -12,13 +12,25 @@ O mesmo relatório aparece em três lugares:
 
 - **Durante a partida**, pelo menu **Estatísticas**. Ele se atualiza a cada virada de mês.
 - **Na comparação entre simulações**, pelo botão **Comparar Simulações** do lobby. Cada série aparece como `Jogador#Simulação`.
-- **No fechamento da partida**.
+- **No fechamento da partida**, junto do pódio (ver abaixo).
 
 Todas as métricas são calculadas no simulador a partir do patrimônio de cada dia útil. Cada uma tem um ícone **i** com a definição, um exemplo e como ler o número.
 
 :::info A cota: retorno sem contar aportes
 Várias métricas usam a **cota**, como a de um fundo de investimento: um valor que começa em 1 e só se move com o que os investimentos renderam. O aporte mensal entra como capital, não como ganho. Ex.: se o patrimônio foi de R$ 10.000 para R$ 22.000, mas R$ 12.000 vieram de aportes, a cota continua em 1,00, e o retorno é zero.
 :::
+
+---
+
+## Fechamento da partida
+
+Quando a partida chega à data final ou o host a encerra, todos os jogadores vão para a tela **Fim de partida**:
+
+- **Pódio** com os três primeiros pelo [critério de vitória](./lobby#critério-de-vitória) escolhido no lobby, e o valor que decidiu cada posição (ex.: "212 pts" pela nota geral).
+- **O relatório inteiro** em abas, sobre a partida toda.
+- **Voltar ao lobby** leva de volta ao lobby, para a próxima partida.
+
+A mesma tela abre depois, para qualquer partida salva, pelo botão **Ver resultado** na lista de simulações salvas do lobby.
 
 ---
 

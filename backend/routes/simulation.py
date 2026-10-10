@@ -12,6 +12,7 @@ from backend.core.dto.simulation import (
     SimulationStatusResponse,
     SimulationSummaryDTO,
 )
+from backend.core.enum import VictoryCriterion
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.runtime.settings_manager import SettingsManager
@@ -34,6 +35,7 @@ class CreateSimulationRequest(BaseModel):
     price_impact_enabled: bool = False
     price_impact_k: float = Field(ge=0)
     price_impact_decay_days: int = Field(ge=1)
+    victory_criterion: VictoryCriterion = VictoryCriterion.SCORE
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -55,6 +57,7 @@ class UpdateSettingsRequest(BaseModel):
     price_impact_enabled: bool = False
     price_impact_k: float = Field(ge=0)
     price_impact_decay_days: int = Field(ge=1)
+    victory_criterion: VictoryCriterion = VictoryCriterion.SCORE
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -167,11 +170,14 @@ def stop_simulation(_: HostVerified):
     """
     Encerra a simulação atual.
     """
+    simulation_id = SimulationManager.get_active_simulation_id()
     simulation_controller.stop()
 
     notify(
         "simulation_ended",
-        SimulationEndedEventDTO(reason="stopped_by_host").to_json(),
+        SimulationEndedEventDTO(
+            reason="stopped_by_host", simulation_id=simulation_id
+        ).to_json(),
     )
 
 

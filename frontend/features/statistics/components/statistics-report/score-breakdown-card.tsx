@@ -92,7 +92,7 @@ function ScoreAxes({ score }: { score: Score }) {
                       </span>
                       <span>
                         {displayMetric(metric, m.value)} <span className="text-muted-foreground">→</span>{" "}
-                        <span className="font-medium">{points(m.points)} pts</span>
+                        <span className="font-medium">{m.points === null ? "—" : `${points(m.points)} pts`}</span>
                       </span>
                     </li>
                   );

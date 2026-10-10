@@ -64,3 +64,4 @@ export type SimulationSettingsData = components["schemas"]["SimulationSettingsDT
 export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];
 export type SimulationInfo = components["schemas"]["SimulationStatusResponse"];
 export type SimulationListItem = components["schemas"]["SimulationSummaryDTO"];
+export type VictoryCriterion = components["schemas"]["VictoryCriterion"];

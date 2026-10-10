@@ -39,6 +39,7 @@ class PlayerPresenceEventDTO(BaseDTO):
 
 class SimulationEndedEventDTO(BaseDTO):
     reason: Literal["completed", "stopped_by_host"]
+    simulation_id: int
 
 
 class OrderExecutedEventDTO(BaseDTO):

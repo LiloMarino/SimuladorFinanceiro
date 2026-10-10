@@ -11,7 +11,7 @@ import { normalizeNumberString } from "@/shared/lib/utils";
 import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
-import type { SimulationInfo, SimulationSettingsData } from "@/types";
+import type { SimulationInfo, SimulationSettingsData, VictoryCriterion } from "@/types";
 import { toast } from "sonner";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
@@ -22,6 +22,7 @@ import { LoadSimulationDialog } from "./load-simulation-dialog";
 import { CoverageAlerts } from "./coverage-alerts";
 import { checkCoverage } from "../lib/coverage";
 import { seriesCoverageOptions } from "@/shared/lib/queries/seriesCoverageOptions";
+import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 
 const simulationFormSchema = z
   .object({
@@ -43,6 +44,7 @@ const simulationFormSchema = z
     priceImpactDecayDays: z
       .string()
       .refine((val) => Number.isInteger(Number(val)) && Number(val) >= 1, "Informe ao menos 1 pregão"),
+    victoryCriterion: z.custom<VictoryCriterion>((value) => typeof value === "string" && value in VICTORY_CRITERIA),
   })
   .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
     message: "A data final deve ser maior que a data inicial",
@@ -73,6 +75,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
       priceImpactEnabled: simulationData.price_impact_enabled,
       priceImpactK: displayDecimal(simulationData.price_impact_k),
       priceImpactDecayDays: String(simulationData.price_impact_decay_days),
+      victoryCriterion: simulationData.victory_criterion,
     },
   });
 
@@ -98,6 +101,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
       price_impact_enabled: boolean;
       price_impact_k: number;
       price_impact_decay_days: number;
+      victory_criterion: VictoryCriterion;
     }) => apiFetch<SimulationInfo>("/api/simulation/create", { method: "POST", body }),
     onSuccess: () => toast.success("Simulação criada com sucesso!"),
     onError: (err) => toast.error(err.message),
@@ -147,6 +151,7 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
             price_impact_enabled: form.getValues("priceImpactEnabled"),
             price_impact_k: Number(normalizeNumberString(form.getValues("priceImpactK"))),
             price_impact_decay_days: Number(form.getValues("priceImpactDecayDays")),
+            victory_criterion: form.getValues("victoryCriterion"),
           })
         }
       >
@@ -169,11 +174,10 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
         type="button"
         variant="outline"
         className="w-full"
-        disabled={!isHost}
         onClick={() => setLoadOpen(true)}
       >
         <FolderOpen />
-        Carregar Simulação
+        {isHost ? "Carregar Simulação" : "Simulações Salvas"}
       </Button>
 
       <Button type="button" variant="outline" className="w-full" onClick={() => navigate("/import-assets")}>

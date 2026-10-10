@@ -116,9 +116,15 @@ class SimulationLoopController:
                 try:
                     simulation.next_tick()
                 except StopIteration:
+                    # A partida acaba como no stop(): eventos no banco e simulação
+                    # liberada, então o fechamento lê a partida inteira
+                    EventManager.flush()
+                    SimulationManager.clear_simulation()
                     notify(
                         "simulation_ended",
-                        SimulationEndedEventDTO(reason="completed").to_json(),
+                        SimulationEndedEventDTO(
+                            reason="completed", simulation_id=simulation.settings.id
+                        ).to_json(),
                     )
                     break
 

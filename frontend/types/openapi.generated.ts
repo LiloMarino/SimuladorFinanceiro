@@ -1127,6 +1127,8 @@ export interface components {
             price_impact_k: number;
             /** Price Impact Decay Days */
             price_impact_decay_days: number;
+            /** @default SCORE */
+            victory_criterion: components["schemas"]["VictoryCriterion"];
         };
         /** EconomicIndicatorsDTO */
         EconomicIndicatorsDTO: {
@@ -1370,6 +1372,7 @@ export interface components {
             average_return: string | null;
             /** Min Score Days */
             min_score_days: number;
+            criterion: components["schemas"]["VictoryCriterion"];
         };
         /** PatrimonialHistoryDTO */
         PatrimonialHistoryDTO: {
@@ -1458,6 +1461,8 @@ export interface components {
             /** Days */
             days: number;
             score: components["schemas"]["ScoreDTO"] | null;
+            /** Sharpe Ratio */
+            sharpe_ratio: string | null;
         };
         /** PlayerReturnsDTO */
         PlayerReturnsDTO: {
@@ -1784,6 +1789,7 @@ export interface components {
             price_impact_k: number;
             /** Price Impact Decay Days */
             price_impact_decay_days: number;
+            victory_criterion: components["schemas"]["VictoryCriterion"];
             /** Id */
             id: number;
         };
@@ -1794,6 +1800,8 @@ export interface components {
              * @enum {string}
              */
             reason: "completed" | "stopped_by_host";
+            /** Simulation Id */
+            simulation_id: number;
         };
         /** SimulationSettingsDTO */
         SimulationSettingsDTO: {
@@ -1819,6 +1827,7 @@ export interface components {
             price_impact_k: number;
             /** Price Impact Decay Days */
             price_impact_decay_days: number;
+            victory_criterion: components["schemas"]["VictoryCriterion"];
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
@@ -1865,6 +1874,7 @@ export interface components {
             price_impact_k: number;
             /** Price Impact Decay Days */
             price_impact_decay_days: number;
+            victory_criterion: components["schemas"]["VictoryCriterion"];
             /** Id */
             id: number;
             /**
@@ -2057,6 +2067,8 @@ export interface components {
             price_impact_k: number;
             /** Price Impact Decay Days */
             price_impact_decay_days: number;
+            /** @default SCORE */
+            victory_criterion: components["schemas"]["VictoryCriterion"];
         };
         /** UpdateSubscriptionRequest */
         UpdateSubscriptionRequest: {
@@ -2111,6 +2123,11 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /**
+         * VictoryCriterion
+         * @enum {string}
+         */
+        VictoryCriterion: "SCORE" | "RETURN" | "NETWORTH" | "SHARPE";
     };
     responses: never;
     parameters: never;

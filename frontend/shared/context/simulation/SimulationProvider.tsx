@@ -4,7 +4,6 @@ import { SimulationContext } from "./SimulationContext";
 import type { SimulationInfo } from "@/types";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
@@ -33,17 +32,10 @@ export function SimulationProvider({ children }: PropsWithChildren) {
   useRealtime(
     "simulation_ended",
     (payload) => {
-      queryClient.setQueryData(queryKeys.simulationStatus(), { active: false });
-
-      const reason =
-        payload.reason === "stopped_by_host"
-          ? "A simulação foi encerrada pelo host."
-          : "A simulação foi concluída com sucesso!";
-
-      toast.info(reason);
-
-      // Redireciona para o lobby
-      navigate("/lobby");
+      // A rota muda antes do status: com a partida inativa, o guard tira de /statistics
+      // quem ainda estiver lá. O backend já liberou a simulação, então o refetch a vê inativa.
+      navigate(`/match-result/${payload.simulation_id}`);
+      void queryClient.invalidateQueries({ queryKey: queryKeys.simulationStatus() });
     },
     true,
   );
