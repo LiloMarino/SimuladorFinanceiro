@@ -5,9 +5,8 @@ from decimal import Decimal
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.features.fixed_income.accrual import (
     daily_factor,
-    effective_annual_rate,
     income_tax_rate,
-    index_rate_on,
+    index_daily_rate_on,
     net_redemption,
     redemption_date,
 )
@@ -49,10 +48,9 @@ class FixedIncomePosition:
         if day <= self.last_accrual_date or day > self.redemption_date:
             return
 
-        index_rate = index_rate_on(self.asset.rate_index, day)
-        self.current_value *= daily_factor(
-            effective_annual_rate(self.asset, index_rate)
-        )
+        # O dia útil anterior ao tick é o que remunerou a noite até `day`
+        index_rate = index_daily_rate_on(self.asset.rate_index, self.last_accrual_date)
+        self.current_value *= daily_factor(self.asset, index_rate)
         self.last_accrual_date = day
 
     def net_redemption_value(self) -> Decimal:

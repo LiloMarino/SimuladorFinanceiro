@@ -6,11 +6,13 @@ from decimal import Decimal
 
 import pytest
 
-from backend.core import repository
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
+from backend.core.enum import IndicatorSeries
 from backend.features.statistics.ranking import build_performance_report
 from backend.features.statistics.risk import build_risk_metrics
+from tests.conftest import SetIndicator
+from tests.fakes import daily_series
 
 START = date(2020, 1, 1)
 
@@ -33,13 +35,19 @@ def history(*days: str | tuple[str, str]) -> list[PatrimonialHistoryDTO]:
     return snapshots
 
 
+@pytest.fixture(autouse=True)
+def no_database(indicators: SetIndicator):
+    """O CDI vem de séries em memória; sem `cdi(...)`, a série fica vazia."""
+
+
 @pytest.fixture
-def cdi(monkeypatch: pytest.MonkeyPatch):
-    """Fixa o CDI anual da série."""
+def cdi(indicators: SetIndicator):
+    """Fixa o CDI diário (em % ao dia) no período dos snapshots."""
 
     def set_rate(rate: str) -> None:
-        monkeypatch.setattr(
-            repository.economic, "get_cdi_rate", lambda day: Decimal(rate)
+        indicators(
+            IndicatorSeries.CDI,
+            daily_series(START - timedelta(days=7), START + timedelta(days=30), rate),
         )
 
     return set_rate
@@ -85,11 +93,11 @@ def test_flat_series_has_no_volatility_and_no_sharpe():
 
 def test_volatility_and_sharpe_of_a_known_series(cdi):
     """Retornos de +2% e -1%: média 0,5%, desvio-padrão 0,015·√2, anualizados por 252."""
-    cdi("0.10")
+    cdi("0.04")
     risk = build_risk_metrics(history("10000", "10200", "10098"))
 
     volatility = 0.015 * math.sqrt(2) * math.sqrt(252)
-    cdi_daily = 1.10 ** (1 / 252) - 1
+    cdi_daily = 0.0004
     assert risk.annual_volatility is not None and risk.sharpe_ratio is not None
     assert float(risk.annual_volatility) == pytest.approx(volatility)
     assert float(risk.sharpe_ratio) == pytest.approx(

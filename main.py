@@ -30,7 +30,7 @@ import logging
 import sys
 import webbrowser
 from contextlib import asynccontextmanager
-from threading import Timer
+from threading import Thread, Timer
 
 import socketio
 import uvicorn
@@ -41,6 +41,7 @@ from backend.core.database import get_engine
 from backend.core.migration import MigrationError, migrate
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.tunnel_manager import TunnelManager
+from backend.features.import_data.indicators import refresh_indicators
 from backend.features.realtime.sse_broker import SSEBroker
 from backend.features.realtime.ws_broker import SocketBroker
 from backend.features.realtime.ws_handlers import register_ws_handlers
@@ -78,6 +79,11 @@ async def lifespan(app: FastAPI):
             logger.info("Event loop vinculado ao SocketBroker.")
     except Exception as e:
         logger.warning(f"Não foi possível vincular o event loop ao SocketBroker: {e}")
+
+    # --------------------------------------------------
+    # Indicadores econômicos: o boot segue sem esperar a rede
+    # --------------------------------------------------
+    Thread(target=refresh_indicators, name="indicators-refresh", daemon=True).start()
 
     logger.info("Acesse localmente: http://localhost:8000")
     yield

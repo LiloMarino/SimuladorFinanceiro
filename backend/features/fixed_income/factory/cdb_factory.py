@@ -1,10 +1,11 @@
 from datetime import date
+from functools import partial
 
-from backend.core import repository
 from backend.core.dto.fixed_income_asset import (
     FixedIncomeAssetDTO,
 )
-from backend.core.enum import FixedIncomeType, RateIndexType
+from backend.core.enum import FixedIncomeType, IndicatorSeries, RateIndexType
+from backend.core.indicators import annual_index_rate
 from backend.core.utils import format_percent
 from backend.features.fixed_income.factory.abstract_factory import (
     AbstractFixedIncomeFactory,
@@ -45,7 +46,7 @@ class CDBFactory(AbstractFixedIncomeFactory):
         maturity_date = self._generate_maturity(current_date, 0, 8)
         spread = self._generate_ipca_spread(
             current_date,
-            spread_index=repository.economic.get_cdi_rate,
+            spread_index=partial(annual_index_rate, IndicatorSeries.CDI),
         )
         issuer = "Banco XPTO"
 
@@ -61,7 +62,7 @@ class CDBFactory(AbstractFixedIncomeFactory):
     def create_prefixado(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 0, 6)
         rate = self._generate_prefixado_rate(
-            current_date, base_index=repository.economic.get_cdi_rate
+            current_date, base_index=partial(annual_index_rate, IndicatorSeries.CDI)
         )
         issuer = "Banco XPTO"
 

@@ -73,11 +73,13 @@ Para cada ativo de renda fixa, a carteira mostra:
 
 ### Indicadores Econômicos
 
-Um card com os principais indicadores de referência:
+Um card com as taxas de referência do dia simulado. Cada indicador tem um ícone **i** que mostra a explicação resumida.
 
-- **CDI**
-- **SELIC**
-- **IPCA (12m)**
+- **CDI** - taxa diária dos empréstimos entre bancos, base de muitos CDBs. O card mostra a taxa **anual equivalente** à do dia: quanto o CDI renderia em um ano se a taxa do dia se repetisse em todos os 252 dias úteis do ano, com os ganhos rendendo também no dia seguinte (juros compostos). Ex.: a taxa diária de 0,0551% equivale a 14,9% ao ano.
+- **SELIC** - taxa básica de juros da economia, definida pelo Banco Central. Aparece do mesmo jeito que o CDI.
+- **IPCA (12m)** - inflação acumulada nos últimos 12 meses até o mês simulado. Ex.: 4,5% significa que o que custava R$ 100 doze meses antes passou a custar R$ 104,50.
+
+Ex.: em 02/01/2020, o card mostra **CDI 4,40%**, **SELIC 4,40%** e **IPCA (12m) 4,19%**.
 
 ---
 

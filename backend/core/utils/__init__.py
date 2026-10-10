@@ -52,3 +52,12 @@ def subtract_business_days(d: date, n: int) -> date:
         if is_business_day(d):
             n -= 1
     return d
+
+
+def business_days_in_month(d: date) -> int:
+    """Quantos dias úteis tem o mês de `d`."""
+    first = d.replace(day=1)
+    next_month = (first + timedelta(days=32)).replace(day=1)
+    return business_days_between(
+        first - timedelta(days=1), next_month - timedelta(days=1)
+    )

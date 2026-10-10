@@ -6,23 +6,22 @@ from decimal import Decimal
 
 import pytest
 
-from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.enum import FixedIncomeType, RateIndexType
+from backend.core.enum import FixedIncomeType, IndicatorSeries, RateIndexType
 from backend.features.fixed_income.factory import FixedIncomeFactory
+from tests.conftest import SetIndicator
+from tests.fakes import daily_series, monthly_series
 
 TODAY = date(2020, 1, 1)
 COMBINATIONS = 12  # 4 tipos x 3 indexadores
 
 
 @pytest.fixture(autouse=True)
-def economic_rates(monkeypatch: pytest.MonkeyPatch):
-    """Indicadores fixos no lugar da série histórica do banco."""
-    monkeypatch.setattr(repository.economic, "get_cdi_rate", lambda _: Decimal("0.10"))
-    monkeypatch.setattr(repository.economic, "get_ipca_rate", lambda _: Decimal("0.04"))
-    monkeypatch.setattr(
-        repository.economic, "get_selic_rate", lambda _: Decimal("0.11")
-    )
+def economic_rates(indicators: SetIndicator):
+    """Indicadores fixos no lugar da série histórica do banco (≈10%, 11% e 4% a.a.)."""
+    indicators(IndicatorSeries.CDI, daily_series(TODAY, TODAY, "0.0378"))
+    indicators(IndicatorSeries.SELIC, daily_series(TODAY, TODAY, "0.0414"))
+    indicators(IndicatorSeries.IPCA, monthly_series(date(2019, 1, 1), 13, "0.33"))
 
 
 def _generate(n: int, seed: int = 42) -> list[FixedIncomeAssetDTO]:

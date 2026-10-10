@@ -15,10 +15,12 @@ from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
+from backend.core.enum import IndicatorSeries
+from backend.core.indicators import annual_index_rate
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import next_business_day
-from backend.features.fixed_income.accrual import index_rate_on, project
+from backend.features.fixed_income.accrual import project
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     PortfolioUpdateEventDTO,
@@ -99,8 +101,7 @@ class Simulation:
     def project_fixed_income(
         self, asset: FixedIncomeAssetDTO, amount: Decimal
     ) -> FixedIncomeProjectionDTO:
-        index_rate = index_rate_on(asset.rate_index, self._current_date)
-        return project(asset, amount, self._current_date, index_rate)
+        return project(asset, amount, self._current_date)
 
     def get_patrimonial_history(self, client_id: UUID) -> list[PatrimonialHistoryDTO]:
         return repository.portfolio.get_patrimonial_history(
@@ -215,9 +216,9 @@ class Simulation:
 
     def get_economic_indicators(self) -> EconomicIndicatorsDTO:
         return EconomicIndicatorsDTO(
-            ipca=repository.economic.get_ipca_rate(self._current_date),
-            selic=repository.economic.get_selic_rate(self._current_date),
-            cdi=repository.economic.get_cdi_rate(self._current_date),
+            ipca=annual_index_rate(IndicatorSeries.IPCA, self._current_date),
+            selic=annual_index_rate(IndicatorSeries.SELIC, self._current_date),
+            cdi=annual_index_rate(IndicatorSeries.CDI, self._current_date),
         )
 
     def get_statistics(self) -> PerformanceReportDTO:

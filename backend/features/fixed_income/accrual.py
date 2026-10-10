@@ -3,21 +3,31 @@ Cálculo de renda fixa: a única fórmula de rendimento do simulador.
 
 O jogo ao vivo (um `accrue` por tick), a reconstrução a partir dos eventos
 (retomada) e a projeção mostrada na compra aplicam a mesma sequência de
-multiplicações `valor *= daily_factor(taxa)`, um dia útil por vez e na mesma
-ordem, em `Decimal`. Por isso os três chegam ao mesmo valor ao centavo.
+multiplicações `valor *= daily_factor(...)`, um dia útil por vez e na mesma
+ordem, em `Decimal`. Ao vivo e reconstrução leem a taxa real de cada dia e
+chegam ao mesmo valor ao centavo; a projeção congela o último valor conhecido
+na compra, e coincide com eles quando o indexador não muda.
+
+A taxa do dia útil `d` remunera a noite de `d` até o próximo dia útil: o tick
+rende com a taxa do dia útil anterior a ele.
 """
 
 from datetime import date
 from decimal import ROUND_HALF_EVEN, Decimal
 from functools import lru_cache
 
-from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
-from backend.core.enum import FixedIncomeType, RateIndexType
+from backend.core.enum import FixedIncomeType, IndicatorSeries, RateIndexType
+from backend.core.indicators import (
+    BUSINESS_DAYS_PER_YEAR,
+    annual_index_rate,
+    daily_rate,
+    index_daily_rate,
+    last_known_value,
+)
 from backend.core.utils import is_business_day, next_business_day
 
-BUSINESS_DAYS_PER_YEAR = 252
 CENT = Decimal("0.01")
 
 # Tabela regressiva de IR: (até N dias corridos de aplicação, alíquota)
@@ -29,17 +39,18 @@ INCOME_TAX_BRACKETS: list[tuple[int, Decimal]] = [
 INCOME_TAX_FLOOR = Decimal("0.15")
 
 
+INDEX_SERIES: dict[RateIndexType, IndicatorSeries] = {
+    RateIndexType.CDI: IndicatorSeries.CDI,
+    RateIndexType.IPCA: IndicatorSeries.IPCA,
+    RateIndexType.SELIC: IndicatorSeries.SELIC,
+}
+
+
 def index_rate_on(rate_index: RateIndexType, on: date) -> Decimal:
-    """Taxa anual do indexador no dia. Prefixado não tem indexador: vale 0."""
-    match rate_index:
-        case RateIndexType.CDI:
-            return repository.economic.get_cdi_rate(on)
-        case RateIndexType.IPCA:
-            return repository.economic.get_ipca_rate(on)
-        case RateIndexType.SELIC:
-            return repository.economic.get_selic_rate(on)
-        case RateIndexType.PREFIXADO:
-            return Decimal(0)
+    """Taxa anual do indexador conhecida em `on`. Prefixado não tem indexador: vale 0."""
+    if rate_index is RateIndexType.PREFIXADO:
+        return Decimal(0)
+    return annual_index_rate(INDEX_SERIES[rate_index], on)
 
 
 def effective_annual_rate(asset: FixedIncomeAssetDTO, index_rate: Decimal) -> Decimal:
@@ -61,9 +72,37 @@ def effective_annual_rate(asset: FixedIncomeAssetDTO, index_rate: Decimal) -> De
 
 
 @lru_cache(maxsize=1024)
-def daily_factor(annual_rate: Decimal) -> Decimal:
+def annual_to_daily_factor(annual_rate: Decimal) -> Decimal:
     """Fator de um dia útil: (1 + taxa anual) ^ (1/252)."""
     return (1 + annual_rate) ** (Decimal(1) / BUSINESS_DAYS_PER_YEAR)
+
+
+def daily_factor(asset: FixedIncomeAssetDTO, index_rate: Decimal | None) -> Decimal:
+    """
+    Fator de um dia útil do título, com `index_rate` a fração que o indexador
+    rendeu no dia. None é dia sem pregão no indexador: nada rende.
+
+    - Prefixado: (1 + taxa) ^ (1/252).
+    - CDI: 1 + CDI do dia x percentual do CDI.
+    - IPCA/SELIC: (1 + índice do dia) x (1 + spread) ^ (1/252).
+    """
+    if index_rate is None:
+        return Decimal(1)
+
+    match asset.rate_index:
+        case RateIndexType.PREFIXADO:
+            return annual_to_daily_factor(asset.interest_rate)
+        case RateIndexType.CDI:
+            return 1 + index_rate * asset.interest_rate
+        case RateIndexType.IPCA | RateIndexType.SELIC:
+            return (1 + index_rate) * annual_to_daily_factor(asset.interest_rate)
+
+
+def index_daily_rate_on(rate_index: RateIndexType, day: date) -> Decimal | None:
+    """Fração que o indexador rendeu no dia útil `day`. Prefixado: 0."""
+    if rate_index is RateIndexType.PREFIXADO:
+        return Decimal(0)
+    return index_daily_rate(INDEX_SERIES[rate_index], day)
 
 
 def redemption_date(maturity: date) -> date:
@@ -91,27 +130,36 @@ def net_redemption(
 
 
 def project(
-    asset: FixedIncomeAssetDTO, amount: Decimal, on: date, index_rate: Decimal
+    asset: FixedIncomeAssetDTO, amount: Decimal, on: date
 ) -> FixedIncomeProjectionDTO:
     """
-    Projeta `amount` aplicado em `on` até o resgate, com o indexador congelado em
-    `index_rate` (o último conhecido). O primeiro dia que rende é o tick seguinte
-    à compra, e o último é o dia do resgate — igual ao jogo ao vivo.
+    Projeta `amount` aplicado em `on` até o resgate, com o indexador congelado no
+    último valor conhecido em `on`. O primeiro dia que rende é o tick seguinte à
+    compra, e o último é o dia do resgate — igual ao jogo ao vivo.
     """
+    index_rate = index_rate_on(asset.rate_index, on)
     annual_rate = effective_annual_rate(asset, index_rate)
-    factor = daily_factor(annual_rate)
     redeem_on = redemption_date(asset.maturity_date)
+
+    series = INDEX_SERIES.get(asset.rate_index)
+    frozen = None if series is None else last_known_value(series, on)
+
+    def frozen_rate(day: date) -> Decimal | None:
+        if series is None:
+            return Decimal(0)
+        return None if frozen is None else daily_rate(series, frozen, day)
 
     # `gross_amount` cresce a partir de `amount`; `growth`, a partir de 1 (percentuais)
     gross_amount = amount
     growth = Decimal(1)
     business_days = 0
-    day = next_business_day(on)
+    previous, day = on, next_business_day(on)
     while day <= redeem_on:
+        factor = daily_factor(asset, frozen_rate(previous))
         gross_amount *= factor
         growth *= factor
         business_days += 1
-        day = next_business_day(day)
+        previous, day = day, next_business_day(day)
 
     tax_rate = income_tax_rate(asset.investment_type, (redeem_on - on).days)
     gross_return = gross_amount - amount

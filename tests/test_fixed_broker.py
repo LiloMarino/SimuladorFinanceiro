@@ -123,7 +123,7 @@ def test_redemption_credits_projected_net_value(fixed_income_db, captured_events
     asset = _asset(maturity=date(2020, 1, 10))
     broker, engine = _broker()
     broker.buy(INVESTOR, asset, Decimal("1000"))
-    expected = project(asset, Decimal("1000"), BUY_DATE, Decimal(0)).net_amount
+    expected = project(asset, Decimal("1000"), BUY_DATE).net_amount
 
     day = BUY_DATE
     while day < asset.maturity_date:

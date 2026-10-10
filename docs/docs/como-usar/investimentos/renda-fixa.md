@@ -188,6 +188,38 @@ No Brasil, a maioria dos investimentos de renda fixa é tributada pelo **Imposto
 
 ---
 
+## Como o rendimento é calculado
+
+No simulador, CDI, SELIC e IPCA são as **taxas reais publicadas pelo Banco Central**, e não números fixos. Cada título rende com a taxa do dia (ou do mês) em que o dinheiro estava aplicado.
+
+### CDI e SELIC (taxa por dia)
+
+Essas taxas são publicadas **por dia**, em % ao dia. Ex.: uma taxa de 0,0551% em um dia faz R$ 1.000 virarem R$ 1.000,55 na noite.
+
+- Um título de **110% do CDI** rende 1,1 vez a taxa do dia. Ex.: 1,1 × 0,0551% = 0,06061% naquele dia.
+- A taxa de um dia útil vale para a noite até o próximo dia útil. O fim de semana não conta: a taxa da sexta-feira rende uma única vez, de sexta para segunda.
+- Em **feriados** (dias em que o Banco Central não publica CDI nem SELIC), o título não rende nada.
+
+### IPCA (taxa por mês)
+
+O IPCA é publicado **por mês**, em % ao mês. O simulador espalha a inflação de cada mês pelos dias úteis daquele mês, de forma que o mês inteiro soma exatamente a inflação publicada. Ex.: se o IPCA do mês é 0,5%, um título atrelado ao IPCA rende 0,5% no mês inteiro.
+
+Títulos **IPCA+** e **SELIC+** somam uma parte fixa (o *spread*, combinado na compra) por cima do índice. Ex.: IPCA + 5% a.a. (a.a. quer dizer "ao ano") rende a inflação do período mais 5% ao ano, proporcionalmente ao tempo.
+
+### Depois do último dado real
+
+Depois do último dia com dado real, o simulador repete o último valor conhecido. É a mesma regra usada para os preços das ações.
+
+### Projeção na compra
+
+Ao comprar, a projeção mostrada assume que o indexador (CDI, SELIC ou IPCA) continua no valor que se conhece no dia da compra. Como essas taxas mudam com o tempo, o resultado real pode ser diferente.
+
+### Exemplo conferido
+
+Um CDB de 100% do CDI comprado em 02/01/2020 e resgatado em 31/12/2020 rende **2,750141%** antes do IR. Ou seja, R$ 1.000 viram R$ 1.027,50 antes do imposto. Esse é exatamente o resultado da "Calculadora do Cidadão", do Banco Central, para o mesmo período.
+
+---
+
 ## Como Funciona no Simulador
 
 ### Investir em Renda Fixa

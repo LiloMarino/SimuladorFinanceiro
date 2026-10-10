@@ -4,9 +4,9 @@ from collections.abc import Callable
 from datetime import date, timedelta
 from decimal import Decimal
 
-from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.enum import RateIndexType
+from backend.core.enum import IndicatorSeries, RateIndexType
+from backend.core.indicators import annual_index_rate
 
 
 class AbstractFixedIncomeFactory(ABC):
@@ -104,8 +104,8 @@ class AbstractFixedIncomeFactory(ABC):
         """
         Retorna spread real (ex: 0.045 = IPCA + 4.5%)
         """
-        spread_base = spread_index(current_date) - repository.economic.get_ipca_rate(
-            current_date
+        spread_base = spread_index(current_date) - annual_index_rate(
+            IndicatorSeries.IPCA, current_date
         )
         return self._random_rate(spread_base, 0.01, multiplier)
 

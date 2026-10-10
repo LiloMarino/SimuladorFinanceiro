@@ -68,3 +68,15 @@ class EquityEventType(Enum):
 class FixedIncomeEventType(Enum):
     BUY = "BUY"
     REDEEM = "REDEEM"
+
+
+class IndicatorSeries(Enum):
+    CDI = "CDI"
+    SELIC = "SELIC"
+    IPCA = "IPCA"
+    IBOV = "IBOV"
+
+
+class DataOrigin(Enum):
+    REAL = "REAL"
+    GENERATED = "GENERATED"

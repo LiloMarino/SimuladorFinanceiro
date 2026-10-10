@@ -1,8 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+from datetime import date
+from decimal import Decimal
+
 import pytest
 
+from backend.core import repository
 from backend.core.dto.events.base_event import BaseEventDTO
+from backend.core.enum import IndicatorSeries
+from backend.core.repository.economic import IndicatorHistory
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.user_manager import UserManager
@@ -29,3 +36,25 @@ def captured_events(monkeypatch: pytest.MonkeyPatch) -> list[BaseEventDTO]:
         RealtimeBrokerManager, "get_broker", lambda: _SilentRealtimeBroker()
     )
     return events
+
+
+type SetIndicator = Callable[[IndicatorSeries, dict[date, Decimal]], None]
+
+
+@pytest.fixture
+def indicators(monkeypatch: pytest.MonkeyPatch) -> SetIndicator:
+    """
+    Séries de indicadores em memória no lugar do banco: `indicators(série, valores)`
+    define uma série; as não definidas ficam vazias.
+    """
+    histories: dict[IndicatorSeries, IndicatorHistory] = {}
+    monkeypatch.setattr(
+        repository.economic,
+        "get_history",
+        lambda series: histories.get(series, IndicatorHistory([], {})),
+    )
+
+    def _set(series: IndicatorSeries, values: dict[date, Decimal]) -> None:
+        histories[series] = IndicatorHistory(sorted(values), values)
+
+    return _set

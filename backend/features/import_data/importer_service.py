@@ -8,6 +8,7 @@ import yfinance as yf
 from fastapi import UploadFile
 
 from backend.core import repository
+from backend.core.enum import DataOrigin
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.models.models import StockPriceHistory
 
@@ -144,6 +145,7 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
             low=row["Low"],
             close=row["Close"],
             volume=row["Volume"],
+            origin=DataOrigin.REAL.value,
         )
         for index, row in df.iterrows()
     ]

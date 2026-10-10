@@ -3,10 +3,11 @@ from datetime import date
 from decimal import Decimal
 from itertools import pairwise
 
-from backend.core import repository
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import RiskMetricsDTO
-from backend.features.fixed_income.accrual import BUSINESS_DAYS_PER_YEAR, daily_factor
+from backend.core.enum import IndicatorSeries
+from backend.core.indicators import BUSINESS_DAYS_PER_YEAR, index_daily_rate
+from backend.core.utils import subtract_business_days
 
 DAYS_PER_YEAR = Decimal(BUSINESS_DAYS_PER_YEAR)
 
@@ -70,12 +71,16 @@ def sharpe_ratio(
 ) -> Decimal | None:
     """
     (retorno anual - CDI anual) ÷ volatilidade anual, com os anuais como a média
-    diária x 252. O CDI do dia sai do mesmo fator diário que rende a renda fixa.
+    diária x 252. O CDI de cada dia é o que um título de 100% do CDI rendeu
+    entre o snapshot anterior e ele: a taxa do dia útil anterior.
     """
     if not volatility:
         return None
 
-    excess = statistics.mean(
-        r - (daily_factor(repository.economic.get_cdi_rate(day)) - 1) for day, r in days
-    )
+    excess = statistics.mean(r - _cdi_return(day) for day, r in days)
     return excess * DAYS_PER_YEAR / volatility
+
+
+def _cdi_return(day: date) -> Decimal:
+    rate = index_daily_rate(IndicatorSeries.CDI, subtract_business_days(day, 1))
+    return rate if rate is not None else Decimal(0)

@@ -1,19 +1,25 @@
 from __future__ import annotations
 
+import json
 import uuid
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
 import backend.features.fixed_income.fixed_broker as fixed_broker
-from backend.core import repository
 from backend.core.dto.events.fixed_income import FixedIncomeEventDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.enum import FixedIncomeEventType, FixedIncomeType, RateIndexType
+from backend.core.enum import (
+    FixedIncomeEventType,
+    FixedIncomeType,
+    IndicatorSeries,
+    RateIndexType,
+)
 from backend.core.utils import next_business_day
 from backend.features.fixed_income.accrual import (
-    daily_factor,
+    annual_to_daily_factor,
     effective_annual_rate,
     income_tax_rate,
     index_rate_on,
@@ -24,6 +30,10 @@ from backend.features.fixed_income.accrual import (
 from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
+from tests.conftest import SetIndicator
+from tests.fakes import daily_series, monthly_series
+
+CDI_2020 = Path(__file__).parent / "fixtures" / "cdi_2020.json"
 
 CLIENT_ID = uuid.uuid4()
 BUY_DATE = date(2020, 1, 6)  # segunda-feira
@@ -84,7 +94,7 @@ def test_prefixed_live_resumed_and_projected_match(replay_events):
     asset = _asset()
     amount = Decimal("10000")
 
-    projection = project(asset, amount, BUY_DATE, Decimal(0))
+    projection = project(asset, amount, BUY_DATE)
 
     # (a) rodando direto
     live = FixedIncomePosition(asset, amount, BUY_DATE)
@@ -104,8 +114,13 @@ def test_prefixed_live_resumed_and_projected_match(replay_events):
     assert projection.redemption_date == date(2021, 3, 15)
 
 
-def test_rebuild_with_contributions_on_different_days_matches_live(replay_events):
+def test_rebuild_with_contributions_on_different_days_matches_live(
+    replay_events, indicators: SetIndicator
+):
     """Reconstrução com aportes em dias diferentes bate com o jogo ao vivo."""
+    indicators(
+        IndicatorSeries.CDI, daily_series(date(2020, 1, 1), date(2020, 12, 31), "0.04")
+    )
     asset = _asset(RateIndexType.CDI, "1.05")
     second_buy = date(2020, 3, 11)
     until = date(2020, 9, 30)
@@ -189,7 +204,7 @@ def test_income_tax_brackets_and_lci_lca_exemption():
 
 def test_zero_amount_projection_has_percentages():
     """Projeção com valor zero ainda mostra os percentuais de rendimento."""
-    projection = project(_asset(), Decimal(0), BUY_DATE, Decimal(0))
+    projection = project(_asset(), Decimal(0), BUY_DATE)
 
     assert projection.net_amount == Decimal("0.00")
     assert projection.gross_return_pct > 0
@@ -202,7 +217,7 @@ def test_lci_projection_net_equals_gross():
     """LCI isenta: o líquido da projeção é o bruto arredondado ao centavo."""
     asset = _asset(investment_type=FixedIncomeType.LCI)
 
-    projection = project(asset, Decimal("1000"), BUY_DATE, Decimal(0))
+    projection = project(asset, Decimal("1000"), BUY_DATE)
 
     assert projection.income_tax_rate == 0
     assert projection.net_amount == projection.gross_amount.quantize(Decimal("0.01"))
@@ -210,7 +225,7 @@ def test_lci_projection_net_equals_gross():
 
 def test_daily_factor_compounds_to_annual_rate():
     """252 dias úteis do fator diário recompõem a taxa anual."""
-    compounded = daily_factor(Decimal("0.12")) ** 252
+    compounded = annual_to_daily_factor(Decimal("0.12")) ** 252
 
     assert abs(compounded - Decimal("1.12")) < Decimal("1e-20")
 
@@ -243,15 +258,107 @@ def test_net_redemption_taxes_only_profit_and_rounds_half_even():
     ) == Decimal("100.14")
 
 
-def test_index_rate_on_reads_the_asset_index(monkeypatch: pytest.MonkeyPatch):
-    """Cada indexador lê a sua própria série; prefixado não tem indexador."""
-    monkeypatch.setattr(repository.economic, "get_cdi_rate", lambda _: Decimal("0.10"))
-    monkeypatch.setattr(repository.economic, "get_ipca_rate", lambda _: Decimal("0.04"))
-    monkeypatch.setattr(
-        repository.economic, "get_selic_rate", lambda _: Decimal("0.11")
-    )
+def test_index_rate_on_annualizes_the_asset_index(indicators: SetIndicator):
+    """
+    A taxa anual de cada indexador sai da sua série: CDI/SELIC compõem o valor do
+    dia por 252 dias úteis; IPCA acumula os últimos 12 meses.
+    """
+    indicators(IndicatorSeries.CDI, daily_series(BUY_DATE, BUY_DATE, "0.04"))
+    indicators(IndicatorSeries.SELIC, daily_series(BUY_DATE, BUY_DATE, "0.05"))
+    indicators(IndicatorSeries.IPCA, monthly_series(date(2019, 1, 1), 13, "0.5"))
 
-    assert index_rate_on(RateIndexType.CDI, BUY_DATE) == Decimal("0.10")
-    assert index_rate_on(RateIndexType.IPCA, BUY_DATE) == Decimal("0.04")
-    assert index_rate_on(RateIndexType.SELIC, BUY_DATE) == Decimal("0.11")
+    assert index_rate_on(RateIndexType.CDI, BUY_DATE) == Decimal("1.0004") ** 252 - 1
+    assert index_rate_on(RateIndexType.SELIC, BUY_DATE) == Decimal("1.0005") ** 252 - 1
+    ipca_12m = index_rate_on(RateIndexType.IPCA, BUY_DATE)
+    assert abs(ipca_12m - (Decimal("1.005") ** 12 - 1)) < Decimal("1e-20")
     assert index_rate_on(RateIndexType.PREFIXADO, BUY_DATE) == Decimal(0)
+
+
+def test_cdi_live_rebuilt_and_projected_match_on_constant_series(
+    replay_events, indicators: SetIndicator
+):
+    """Com o CDI constante, a projeção na compra é o que o jogo credita no resgate."""
+    indicators(
+        IndicatorSeries.CDI, daily_series(date(2020, 1, 1), date(2021, 6, 30), "0.04")
+    )
+    asset = _asset(RateIndexType.CDI, "1.1")
+    amount = Decimal("10000")
+
+    projection = project(asset, amount, BUY_DATE)
+
+    live = FixedIncomePosition(asset, amount, BUY_DATE)
+    _tick_until(live, BUY_DATE, live.redemption_date)
+
+    resume_from = date(2020, 7, 15)
+    replay_events([(asset, _buy_event(1, "10000", BUY_DATE))])
+    resumed = fixed_broker.load_fixed_assets(1, CLIENT_ID, resume_from)[
+        asset.asset_uuid
+    ]
+    _tick_until(resumed, resume_from, resumed.redemption_date)
+
+    assert live.net_redemption_value() == projection.net_amount
+    assert resumed.current_value == live.current_value
+
+
+def test_day_without_cdi_inside_the_series_does_not_accrue(indicators: SetIndicator):
+    """Feriado (dia útil sem CDI publicado) não rende: nem o índice, nem o spread."""
+    holiday = date(2020, 1, 7)
+    values = daily_series(BUY_DATE, date(2020, 1, 31), "0.04")
+    del values[holiday]
+    indicators(IndicatorSeries.CDI, values)
+    asset = _asset(RateIndexType.CDI, "1")
+    position = FixedIncomePosition(asset, Decimal("1000"), BUY_DATE)
+
+    position.accrue(holiday)  # rende a noite de 06/01 com o CDI de 06/01
+    after_holiday_tick = position.current_value
+    position.accrue(date(2020, 1, 8))  # a noite de 07/01 não teve CDI
+
+    assert after_holiday_tick == Decimal("1000") * Decimal("1.0004")
+    assert position.current_value == after_holiday_tick
+
+
+def test_after_the_series_ends_the_last_value_holds(indicators: SetIndicator):
+    """Depois do último dado real vale o último valor conhecido, como no preço das ações."""
+    indicators(IndicatorSeries.CDI, {date(2020, 1, 3): Decimal("0.04")})
+    asset = _asset(RateIndexType.CDI, "1")
+    position = FixedIncomePosition(asset, Decimal("1000"), BUY_DATE)
+
+    _tick_until(position, BUY_DATE, date(2020, 1, 10))
+
+    assert position.current_value == Decimal("1000") * Decimal("1.0004") ** 4
+
+
+def test_ipca_month_spread_over_its_business_days_closes_the_monthly_rate(
+    indicators: SetIndicator,
+):
+    """O IPCA do mês, distribuído pelos dias úteis, fecha a taxa mensal publicada."""
+    indicators(IndicatorSeries.IPCA, monthly_series(date(2020, 1, 1), 3, "0.5"))
+    asset = _asset(RateIndexType.IPCA, "0")
+    # Comprado no 1º dia útil de fevereiro: os ticks até 02/03 rendem as 20 noites
+    # dos dias úteis de fevereiro
+    position = FixedIncomePosition(asset, Decimal("1000"), date(2020, 2, 3))
+
+    _tick_until(position, date(2020, 2, 3), date(2020, 3, 2))
+
+    assert abs(position.current_value - Decimal("1005")) < Decimal("1e-20")
+
+
+def test_cdb_100_cdi_over_2020_yields_the_published_cdi(indicators: SetIndicator):
+    """
+    Aceite da F20: CDB 100% do CDI do primeiro ao último dia útil de 2020 rende,
+    antes do IR, o que a Calculadora do Cidadão do Banco Central dá para o mesmo
+    período (índice 1,02750141 de 02/01/2020 a 31/12/2020).
+    """
+    cdi_2020 = json.loads(CDI_2020.read_text())
+    indicators(
+        IndicatorSeries.CDI,
+        {date.fromisoformat(d): Decimal(v) for d, v in cdi_2020.items()},
+    )
+    asset = _asset(RateIndexType.CDI, "1", maturity=date(2020, 12, 31))
+    position = FixedIncomePosition(asset, Decimal("1000"), date(2020, 1, 2))
+
+    _tick_until(position, date(2020, 1, 2), position.redemption_date)
+
+    assert (position.current_value / 1000).quantize(Decimal("1e-8")) == Decimal(
+        "1.02750141"
+    )

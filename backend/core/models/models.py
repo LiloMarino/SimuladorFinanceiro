@@ -67,20 +67,37 @@ class FixedIncomeAsset(Base):
     )
 
 
-class IpcaHistory(Base):
-    __tablename__ = "ipca_history"
-    __table_args__ = (PrimaryKeyConstraint("ref_month", name="ipca_history_pkey"),)
+class EconomicIndicatorHistory(Base):
+    __tablename__ = "economic_indicator_history"
+    __table_args__ = (
+        PrimaryKeyConstraint(
+            "series", "ref_date", name="economic_indicator_history_pkey"
+        ),
+    )
 
-    ref_month: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
-    rate_value: Mapped[decimal.Decimal] = mapped_column(Numeric(10, 6), nullable=False)
+    series: Mapped[str] = mapped_column(
+        Enum("CDI", "SELIC", "IPCA", "IBOV", name="indicator_series"),
+        primary_key=True,
+    )
+    ref_date: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
+    value: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 8), nullable=False)
+    origin: Mapped[str] = mapped_column(
+        Enum("REAL", "GENERATED", name="data_origin"), nullable=False
+    )
 
 
-class SelicHistory(Base):
-    __tablename__ = "selic_history"
-    __table_args__ = (PrimaryKeyConstraint("rate_date", name="selic_history_pkey"),)
+class FetchLog(Base):
+    __tablename__ = "fetch_log"
+    __table_args__ = (PrimaryKeyConstraint("series", name="fetch_log_pkey"),)
 
-    rate_date: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
-    rate_value: Mapped[decimal.Decimal] = mapped_column(Numeric(10, 6), nullable=False)
+    series: Mapped[str] = mapped_column(
+        Enum("CDI", "SELIC", "IPCA", "IBOV", name="indicator_series"),
+        primary_key=True,
+    )
+    attempted_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+    succeeded_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(True))
 
 
 class Stock(Base):
@@ -456,5 +473,10 @@ class StockPriceHistory(Base):
     low: Mapped[float] = mapped_column(Double(53), nullable=False)
     close: Mapped[float] = mapped_column(Double(53), nullable=False)
     volume: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    origin: Mapped[str] = mapped_column(
+        Enum("REAL", "GENERATED", name="data_origin"),
+        nullable=False,
+        server_default=text("'REAL'"),
+    )
 
     stock: Mapped["Stock"] = relationship("Stock", back_populates="stock_price_history")

@@ -94,11 +94,22 @@ erDiagram
 
 ## Ativos e indicadores
 
-Os ativos negociáveis, o histórico de preços e os indicadores econômicos.
+Os ativos negociáveis, o histórico de preços e os indicadores econômicos, com a origem de cada valor (real ou gerado) e o registro das buscas.
 
 ```mermaid
 erDiagram
     direction LR
+    economic_indicator_history {
+        indicator_series series PK
+        date ref_date PK
+        numeric value
+        data_origin origin
+    }
+    fetch_log {
+        indicator_series series PK
+        timestamptz attempted_at
+        timestamptz succeeded_at "nullable"
+    }
     fixed_income_asset {
         bigint id PK
         uuid asset_uuid UK
@@ -108,14 +119,6 @@ erDiagram
         rate_type rate_type
         date maturity_date
         numeric interest_rate
-    }
-    ipca_history {
-        date ref_month PK
-        numeric rate_value
-    }
-    selic_history {
-        date rate_date PK
-        numeric rate_value
     }
     stock {
         integer id PK
@@ -130,6 +133,7 @@ erDiagram
         double low
         double close
         bigint volume
+        data_origin origin
     }
     stock ||--o{ stock_price_history : stock_id
 ```
@@ -139,7 +143,9 @@ erDiagram
 | ENUM | Valores | Colunas |
 | --- | --- | --- |
 | `cashflow_event_type` | `DEPOSIT`, `WITHDRAW`, `DIVIDEND`, `CONTRIBUTION` | `event_cashflow.event_type` |
+| `data_origin` | `REAL`, `GENERATED` | `economic_indicator_history.origin`, `stock_price_history.origin` |
 | `equity_event_type` | `BUY`, `SELL` | `event_equity.event_type` |
 | `fixed_income_event_type` | `BUY`, `REDEEM` | `event_fixed_income.event_type` |
+| `indicator_series` | `CDI`, `SELIC`, `IPCA`, `IBOV` | `economic_indicator_history.series`, `fetch_log.series` |
 | `investment_type` | `CDB`, `LCI`, `LCA`, `TESOURO_DIRETO` | `fixed_income_asset.investment_type` |
 | `rate_type` | `SELIC`, `IPCA`, `CDI`, `PREFIXADO` | `fixed_income_asset.rate_type` |

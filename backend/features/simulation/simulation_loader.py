@@ -6,6 +6,7 @@ from backend.core.dto.simulation import (
     SimulationSummaryDTO,
 )
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
+from backend.core.indicators import ensure_indicator_coverage
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.utils import next_business_day
@@ -18,6 +19,7 @@ class SimulationLoader:
     @classmethod
     def create(cls, settings: SimulationSettingsDTO) -> SimulationDTO:
         """Persiste, instancia e inicia uma nova simulação."""
+        ensure_indicator_coverage(settings.start_date)
         simulation_id = repository.simulation.create_simulation(settings)
         repository.user.seed_simulation_users(
             simulation_id, settings.start_date, settings.starting_cash
@@ -58,6 +60,7 @@ class SimulationLoader:
             raise UnprocessableEntityError(
                 "A simulação já chegou na data final e não pode ser continuada."
             )
+        ensure_indicator_coverage(summary.start_date)
 
         SimulationManager.clear_simulation()
         SimulationManager.set_simulation_id(summary.id)
