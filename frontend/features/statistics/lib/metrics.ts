@@ -1,4 +1,5 @@
 import { displayMoney, displayNumber, displayPercent } from "@/shared/lib/utils/display";
+import type { ScoreAxis, ScoreMetric } from "@/types";
 
 /** Texto de uma métrica: a descrição curta fica ao lado do número; o resto vai na dica. */
 export interface MetricInfo {
@@ -255,6 +256,56 @@ export const IMPACT_COST: MetricInfo = {
   example: "Ex.: comprar 100 ações a R$ 11 com o histórico em R$ 10 → R$ 100 de custo.",
   reading: "Positivo é custo; negativo, o impacto (das ordens de todos) jogou a favor.",
   format: (value) => displayMoney(value),
+};
+
+export const SCORE: MetricInfo = {
+  label: "Nota",
+  description: "Retorno, risco, consistência e eficiência num número só",
+  definition:
+    "Cada métrica vira pontos por uma faixa fixa (ex.: queda máxima de 0% vale 100 e de 50% vale 0), cada eixo é a média das suas métricas, e a nota é a soma dos quatro eixos. Aparece a partir de 63 pregões.",
+  example: "Ex.: Retorno 120 + Risco 60 + Consistência 75 + Eficiência 55 → 310.",
+  reading:
+    "Não tem teto: ~100 por eixo é um desempenho bom, então ~400 é bom em tudo. Risco e consistência param perto de 100, retorno e eficiência podem passar disso.",
+  format: (value) => displayNumber(String(value), 0),
+};
+
+export const RETURN_OVER_CDI: MetricInfo = {
+  label: "Retorno acima do CDI",
+  description: "Retorno anual menos o CDI anual do mesmo período",
+  definition: "Quantos pontos percentuais por ano a carteira rendeu além do que um título de 100% do CDI renderia.",
+  example: "Ex.: rendeu 18% ao ano com CDI de 10% → +8 p.p.",
+  reading: "Positivo bateu a renda fixa; negativo, teria sido melhor deixar no CDI.",
+  format: percent,
+};
+
+export const RETURN_OVER_IBOV: MetricInfo = {
+  label: "Retorno acima do Ibovespa",
+  description: "Retorno anual menos a variação anual do Ibovespa no período",
+  definition: "Quantos pontos percentuais por ano a carteira rendeu além do índice da bolsa.",
+  example: "Ex.: Ibovespa +12% e carteira +15% → +3 p.p.",
+  reading: "Positivo bateu a bolsa; negativo, um fundo que copia o índice teria rendido mais.",
+  format: percent,
+};
+
+/** Métricas da nota com o valor como a nota mede: frações de meses em vez de "9 de 12". */
+export const SCORE_METRICS: Record<ScoreMetric, MetricInfo> = {
+  return_over_cdi: RETURN_OVER_CDI,
+  return_over_ibov: RETURN_OVER_IBOV,
+  max_drawdown: MAX_DRAWDOWN,
+  annual_volatility: ANNUAL_VOLATILITY,
+  time_underwater: TIME_UNDERWATER,
+  worst_month: WORST_MONTH,
+  months_above_cdi: { ...MONTHS_ABOVE_CDI, format: percent },
+  positive_months: { ...POSITIVE_MONTHS, format: percent },
+  sharpe_ratio: SHARPE_RATIO,
+  sortino_ratio: SORTINO_RATIO,
+};
+
+export const SCORE_AXES: Record<ScoreAxis, { label: string; description: string }> = {
+  return: { label: "Retorno", description: "Quanto ganhou além do CDI e do Ibovespa" },
+  risk: { label: "Risco", description: "O tamanho e a duração das quedas, e o quanto oscilou" },
+  consistency: { label: "Consistência", description: "Em quantos meses foi bem" },
+  efficiency: { label: "Eficiência", description: "Quanto retorno por unidade de risco" },
 };
 
 /** Valor formatado, ou "—" enquanto a série ainda não permite medir. */

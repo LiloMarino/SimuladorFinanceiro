@@ -3,6 +3,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { displayMoney, displayPercent, isLoss } from "@/shared/lib/utils/display";
 import type { OverviewReport } from "@/types";
 import { playerLabel } from "../../lib/player-label";
+import { SCORE, displayMetric } from "../../lib/metrics";
+import { MetricLabel } from "./metric-hint";
 
 interface Props {
   players: OverviewReport["players"];
@@ -21,7 +23,15 @@ export function PlayersRankingTable({ players, currentPlayerName, showSimulation
         <Table>
           <TableHeader>
             <TableRow>
-              {["Posição", "Jogador", "Patrimônio", "Retorno (R$)", "Retorno (%)", "Dias simulados"].map((h) => (
+              {["Posição", "Jogador"].map((h) => (
+                <TableHead key={h} className="text-center">
+                  {h}
+                </TableHead>
+              ))}
+              <TableHead className="text-center">
+                <MetricLabel metric={SCORE} />
+              </TableHead>
+              {["Patrimônio", "Retorno (R$)", "Retorno (%)", "Dias simulados"].map((h) => (
                 <TableHead key={h} className="text-center">
                   {h}
                 </TableHead>
@@ -44,6 +54,7 @@ export function PlayersRankingTable({ players, currentPlayerName, showSimulation
                 >
                   <TableCell>{player.position}</TableCell>
                   <TableCell>{playerLabel(player, showSimulation)}</TableCell>
+                  <TableCell className="font-semibold">{displayMetric(SCORE, player.score?.total)}</TableCell>
                   <TableCell>{displayMoney(player.total_networth)}</TableCell>
                   <TableCell className={returnColor}>{displayMoney(player.return_value)}</TableCell>
                   <TableCell className={returnColor}>{displayPercent(player.return_percent)}</TableCell>

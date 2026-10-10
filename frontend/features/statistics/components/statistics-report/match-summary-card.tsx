@@ -11,9 +11,10 @@ export function MatchSummaryCard({ report, currentPlayerName }: Props) {
   const { players, average_return } = report;
   const current = players.find((p) => p.player_nickname === currentPlayerName);
 
-  // O ranking chega ordenado do melhor para o pior retorno
-  const best = players[0];
-  const worst = players[players.length - 1];
+  // O ranking segue a nota: o melhor e o pior retorno vêm de uma ordem própria
+  const byReturn = [...players].sort((a, b) => Number(b.return_percent) - Number(a.return_percent));
+  const best = byReturn[0];
+  const worst = byReturn[byReturn.length - 1];
 
   return (
     <Card>

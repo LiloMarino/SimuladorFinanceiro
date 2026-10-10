@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { stringToColor } from "@/shared/lib/utils";
 import type { PlayerRef } from "@/types";
 import { playerLabel } from "../../lib/player-label";
 import { displayMetric, type MetricInfo } from "../../lib/metrics";
@@ -103,5 +104,35 @@ export function MetricsTable<T extends PlayerRef>({
         </Table>
       </CardContent>
     </Card>
+  );
+}
+
+interface PlayerPillsProps {
+  labels: string[];
+  current: string | undefined;
+  onSelect: (label: string) => void;
+  className?: string;
+}
+
+/** Escolhe um jogador quando o gráfico mostra um por vez; com um jogador só, some. */
+export function PlayerPills({ labels, current, onSelect, className = "" }: PlayerPillsProps) {
+  if (labels.length < 2) return null;
+
+  return (
+    <div className={`flex flex-wrap gap-2 ${className}`}>
+      {labels.map((label) => (
+        <button
+          key={label}
+          type="button"
+          onClick={() => onSelect(label)}
+          className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+            label === current ? "bg-primary/10 border-primary/20" : "opacity-60"
+          }`}
+        >
+          <span className="size-3 rounded-full" style={{ backgroundColor: stringToColor(label) }} />
+          {label}
+        </button>
+      ))}
+    </div>
   );
 }

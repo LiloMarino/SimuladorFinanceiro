@@ -1,6 +1,8 @@
 import { themes as prismThemes } from "prism-react-renderer";
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 
 const organizationName = "LiloMarino";
 const projectName = "SimuladorFinanceiro";
@@ -42,6 +44,9 @@ const config: Config = {
           editUrl: `https://github.com/${organizationName}/${projectName}/tree/main/docs/`,
           routeBasePath: "/",
           docItemComponent: "@theme/ApiItem",
+          // Fórmulas em LaTeX entre $$...$$, na linha ou em bloco: o $ sozinho é o de "R$"
+          remarkPlugins: [[remarkMath, { singleDollarTextMath: false }]],
+          rehypePlugins: [rehypeKatex],
         },
         pages: false,
         theme: {

@@ -25,7 +25,57 @@ Várias métricas usam a **cota**, como a de um fundo de investimento: um valor 
 ## Geral
 
 - **Resumo da partida:** a sua posição, o seu retorno, a média da sala e o melhor e o pior retorno.
-- **Ranking de jogadores:** posição, patrimônio, retorno em R$ e em % sobre o capital aportado (saldo inicial + aportes) e quantos dias foram simulados.
+- **Ranking de jogadores:** ordenado pela **nota geral**. Mostra também patrimônio, retorno em R$ e em % sobre o capital aportado (saldo inicial + aportes) e quantos dias foram simulados. Quem ainda não tem nota vem depois, e o retorno desempata.
+- **Nota:** a decomposição da nota de cada jogador, eixo por eixo e métrica por métrica (ex.: "Queda máxima 13,65% → 72,7 pts"). Mostra o que puxou a nota para baixo.
+
+### Como a nota é calculada
+
+A nota resume num número só quatro **eixos**: Retorno, Risco, Consistência e Eficiência. Cada eixo junta métricas que olham o desempenho por ângulos diferentes, e os eixos pesam igual entre si. Assim, nenhum lado conta em dobro: ter quatro métricas de risco não faz o risco valer mais que o retorno.
+
+**1. Cada métrica vira pontos** por uma reta com dois níveis fixos: o valor que vale 0 ponto ($$x_0$$) e o que vale 100 pontos ($$x_{100}$$). O chão é 0 e **não há teto**:
+
+$$
+\text{pontos}(x) = \max\left(0,\ 100 \cdot \frac{x - x_0}{x_{100} - x_0}\right)
+$$
+
+**2. Cada eixo é a média dos pontos das suas métricas.** Uma métrica que ainda não pode ser medida (ex.: o Sharpe de uma carteira que não oscila) sai da média:
+
+$$
+\text{eixo} = \frac{1}{n} \sum_{i=1}^{n} \text{pontos}_i
+$$
+
+**3. A nota é a soma dos quatro eixos:**
+
+$$
+\text{nota} = R + K + C + E
+$$
+
+em que $$R$$ é o eixo Retorno, $$K$$ o Risco, $$C$$ a Consistência e $$E$$ a Eficiência.
+
+| Eixo | Métrica | Vale 0 | Vale 100 |
+| --- | --- | --- | --- |
+| Retorno | Retorno anual acima do CDI | −10 p.p. | +10 p.p. |
+| Retorno | Retorno anual acima do Ibovespa | −15 p.p. | +15 p.p. |
+| Risco | Queda máxima | 50% | 0% |
+| Risco | Volatilidade anual | 40% | 0% |
+| Risco | Maior tempo abaixo do pico | 252 pregões | 0 |
+| Risco | Pior mês | −20% | 0% |
+| Consistência | Meses acima do CDI | 0% dos meses | 100% |
+| Consistência | Meses no positivo | 0% dos meses | 100% |
+| Eficiência | Índice de Sharpe | −1 | 2 |
+| Eficiência | Índice de Sortino | −1 | 3 |
+
+**Como ler:** ~100 pontos num eixo é um desempenho bom, então ~400 é ir bem em tudo. As faixas são fixas, iguais em toda partida, então a nota de partidas diferentes se compara (na tela de comparação, por exemplo).
+
+**Exemplo:** rendeu 4,83 p.p. ao ano acima do CDI (74,2 pts) e 2,28 p.p. abaixo do Ibovespa (42,4 pts) → Retorno 58,3. Queda máxima de 13,65% (72,7), volatilidade de 19,10% (52,2), 59 pregões abaixo do pico (76,6) e pior mês de −2,90% (85,5) → Risco 71,8. Bateu o CDI em 33% dos meses (33,3) e ficou no positivo em 50% (50,0) → Consistência 41,7. Sharpe de 0,31 (43,8) e Sortino de 0,48 (36,9) → Eficiência 40,4. **Nota: 58,3 + 71,8 + 41,7 + 40,4 = 212.**
+
+:::note Por que sem teto, e o que isso muda
+Como num placar de jogo, a nota não tem limite em cima. Mas risco e consistência têm um máximo natural: risco zero vale 100, e não dá para bater o CDI em mais de 100% dos meses. Já retorno e eficiência crescem sem limite. Por isso, quem ganha muito acima do CDI pode compensar um risco maior. Um jogador que deixa tudo parado em caixa fica com ~100, quase todos vindos do eixo Risco.
+:::
+
+:::info A nota aparece a partir de 63 pregões
+Com pouco tempo de partida, anualizar engana: 10 dias com +2% viram ~64% ao ano. Por isso a nota só aparece depois de 63 pregões (~3 meses). Antes disso, o ranking ordena pelo retorno.
+:::
 
 ---
 

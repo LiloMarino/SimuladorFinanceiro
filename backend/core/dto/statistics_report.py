@@ -25,6 +25,40 @@ class PlayerRefDTO(BaseDTO):
 
 # Geral
 
+type ScoreAxis = Literal["return", "risk", "consistency", "efficiency"]
+type ScoreMetric = Literal[
+    "return_over_cdi",
+    "return_over_ibov",
+    "max_drawdown",
+    "annual_volatility",
+    "time_underwater",
+    "worst_month",
+    "months_above_cdi",
+    "positive_months",
+    "sharpe_ratio",
+    "sortino_ratio",
+]
+
+
+class ScoreMetricDTO(BaseDTO):
+    metric: ScoreMetric
+    # Valor medido (fração, pregões ou número puro) e os pontos que ele vale
+    value: Decimal | None
+    points: Decimal | None
+
+
+class ScoreAxisDTO(BaseDTO):
+    axis: ScoreAxis
+    # Média dos pontos das métricas medidas do eixo
+    points: Decimal | None
+    metrics: list[ScoreMetricDTO]
+
+
+class ScoreDTO(BaseDTO):
+    # Soma dos pontos dos eixos: chão 0, sem teto
+    total: Decimal
+    axes: list[ScoreAxisDTO]
+
 
 class PlayerRankingDTO(PlayerRefDTO):
     position: int
@@ -34,12 +68,15 @@ class PlayerRankingDTO(PlayerRefDTO):
     return_percent: Decimal
     # Dias úteis com snapshot: o tamanho da amostra das métricas
     days: int
+    # None até a amostra ter `min_score_days` retornos diários
+    score: ScoreDTO | None
 
 
 class OverviewReportDTO(BaseDTO):
     # Ordenado pelo ranking: o primeiro é o melhor
     players: list[PlayerRankingDTO]
     average_return: Decimal | None
+    min_score_days: int
 
 
 # Rentabilidade

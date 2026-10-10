@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-10):** F17 concluída: estatísticas em abas (Geral, Rentabilidade, Risco, Composição, Operações) na partida e na comparação.
+> **Última mudança (2026-10-10):** F18 concluída: nota geral em quatro eixos de peso igual, decomposta na aba Geral; decisão D10 registrada.
 
 ## Glossário
 
@@ -24,7 +24,7 @@
 | **N6** | Comparar resultados de simulações diferentes | [F12](#f12), [F17](#f17), [F27](#f27) | — |
 | **N7** | Que o simulador cobre os custos de operar do mercado real | [F13](#f13), [F29](#f29) | — |
 | **N8** | Jogar contra oponentes controlados pelo computador | [F16](#f16) | — |
-| **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | [F27](#f27) | — |
+| **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | [F18](#f18), [F27](#f27) | — |
 | **N10** | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | [F19](#f19) | — |
 | **N11** | Que o cenário econômico simulado seja o histórico real | [F20](#f20) | — |
 | **N12** | Continuar jogando depois do último dia com dado real | [F24](#f24) | — |
@@ -46,7 +46,6 @@
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F16**](#f16) | Bots na sala | — | ⏳ |
-| [**F18**](#f18) | Pontuação geral (overall) | — | 🔍 |
 | [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | — | 🔍 |
@@ -57,7 +56,7 @@
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -68,6 +67,7 @@
 | **D7** | O simulador lê as séries sem saber a origem | [F20](#f20), [F21](#f21), [F24](#f24) | ✅ |
 | **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F8](#f8), [F16](#f16), [F19](#f19), [F27](#f27) | ✅ |
 | **D9** | De onde nasce uma mudança de schema | [F25](#f25), [F31](#f31) | ✅ |
+| **D10** | Como a nota geral é calculada | [F18](#f18) | ✅ |
 | [**F1**](#f1) | Decimal como string do backend ao frontend | — | ✅ |
 | [**F2**](#f2) | Renda fixa com cálculo único no backend e retomada consistente | — | ✅ |
 | [**F11**](#f11) | Métricas de risco do desempenho | — | ✅ |
@@ -75,6 +75,7 @@
 | [**F13**](#f13) | Impacto de preço de ordens grandes | — | ✅ |
 | [**F15**](#f15) | Cliente desktop em Tauri | — | 🚫 |
 | [**F17**](#f17) | Estatísticas em abas, como o relatório de fim de partida de um RTS | — | ✅ |
+| [**F18**](#f18) | Pontuação geral (overall) | — | ✅ |
 | [**F20**](#f20) | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | — | ✅ |
 | [**F21**](#f21) | Central de dados, fora da partida | — | ✅ |
 | [**F25**](#f25) | Migrations com Alembic | — | ✅ |
@@ -96,9 +97,9 @@
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
 | [**F3**](#f3) | Spike: banco embarcado no executável | M2 | 1 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
-| [**F18**](#f18) | Pontuação geral (overall) | M7 | 1 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F26**](#f26) | Redesign visual | — | 0 | 🔍 |
+| [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | M7 | 0 | ⏳ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | 0 | ⏳ |
 
 ---
@@ -215,18 +216,18 @@
 >
 > **Serve:** N5, N6, N9
 >
-> **Progresso:** 1/3 concluídas
+> **Progresso:** 2/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F18**](#f18) | Pontuação geral (overall) | — | 🔍 |
 | [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | [F17](#f17), [F18](#f18) | ⏳ |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F17**](#f17) | Estatísticas em abas, como o relatório de fim de partida de um RTS | — | ✅ |
+| [**F18**](#f18) | Pontuação geral (overall) | — | ✅ |
 
 </details>
 
@@ -333,6 +334,7 @@
 | **F30** | Setores e segmentos | N16 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F31** | Diagrama do banco sempre em dia | N17 | D9 | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F32** | Ferramenta de correlação entre ativos | N18 | D2 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F18** | Pontuação geral (overall) | N9 | D10 | M7 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -427,6 +429,10 @@ A tela lê `/api/statistics/compare?simulation_ids=<id>`, que já funciona sem p
 <a id="f32"></a>
 **F32 — Ferramenta de correlação entre ativos.** Serve N18. Como a do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): escolhem-se tickers quaisquer, e o IBOV ou o CDI como referência, e uma janela (6 meses, 1, 3 ou 5 anos); o backend (D2) calcula a correlação dos retornos diários de cada par e devolve a matriz, mostrada como mapa de calor. A correlação vai de −1 a 1: perto de 1, os dois sobem e caem juntos (dois bancos, ~0,8); perto de 0, um não diz nada sobre o outro; negativa, um tende a subir quando o outro cai. Para diversificar, quanto mais baixa melhor. A tela traz essa leitura ao lado e num tooltip, com o tamanho da amostra (quantos pregões em comum entraram no cálculo). Durante a partida, a janela termina na data da simulação, para a ferramenta não revelar o futuro; fora da partida, vale qualquer período. Também serve para conferir o gerador da F23: a correlação entre ativos nos dados gerados deve ficar perto da do histórico.
 
+<a id="f18"></a>
+**F18 — Pontuação geral (overall).** Serve N9; segue a D10. Uma nota por jogador, decomposta por eixo e por métrica, na aba Geral da F17 e no ranking, que passou a ordenar por ela (quem ainda não tem nota vem depois, e o retorno desempata). `features/statistics/score.py` guarda as faixas como tabela de dados: cada métrica vira pontos numa reta entre o valor que vale 0 e o que vale 100, com chão 0 e sem teto; cada eixo é a média das suas métricas medidas, e a nota é a soma dos quatro. **Retorno:** retorno anual acima do CDI (−10 p.p. → 0, +10 p.p. → 100) e acima do Ibovespa (−15 → 0, +15 → 100). **Risco:** queda máxima (50% → 0, 0% → 100), volatilidade (40% → 0), maior tempo abaixo do pico (252 pregões → 0) e pior mês (−20% → 0). **Consistência:** fração dos meses acima do CDI e no positivo. **Eficiência:** Sharpe (−1 → 0, 2 → 100) e Sortino (−1 → 0, 3 → 100). A nota só aparece a partir de 63 pregões; antes, a aba Geral mostra quantos faltam. `ScoreDTO` vem em cada jogador de `/api/statistics/overview`, com o valor e os pontos de cada métrica, e o card "Nota" mostra cada eixo com uma barra e cada métrica como "queda máxima 13,65% → 72,7 pts". A página de estatísticas dos docs tem a fórmula em LaTeX (`remark-math` + `rehype-katex`, com o `$` simples desligado por causa do "R$"), a tabela de faixas e um exemplo completo. Limitação: risco e consistência param perto de 100 e retorno e eficiência não, então uma carteira parada em caixa fica com ~100, quase tudo do eixo Risco.
+**Aceite:** na partida de teste, Lilo tem Retorno 58,3 + Risco 71,8 + Consistência 41,7 + Eficiência 40,4 = 212 e lidera o ranking; a soma dos eixos bate com o total (coberto em `tests/test_statistics_score.py`).
+
 ---
 ## 2. Nice-to-have
 
@@ -455,7 +461,6 @@ A tela lê `/api/statistics/compare?simulation_ids=<id>`, que já funciona sem p
 | **F3** | Spike: banco embarcado no executável | Serve N1; decide D4 | M2 | — | 🔍 Em avaliação |
 | **F5** | Spike: provider de túnel pela internet | Serve N2; escolhe o provider da F6 | M3 | — | 🔍 Em avaliação |
 | **F7** | Spike: estratégia Python escrita pelo usuário | Serve N4; decide D5 | M4 | — | 🔍 Em avaliação |
-| **F18** | Pontuação geral (overall) | Serve N9; a aba Geral da F17 | M7 | — | 🔍 Em avaliação |
 | **F22** | Preço ajustado e proventos | Serve N3, N7; degrau falso na atualização incremental | M8 | — | 🔍 Em avaliação |
 | **F23** | Spike: gerador de séries sintéticas | Serve N12; fecha o método e o contrato da F24 | M9 | [F20](#f20) | 🔍 Em avaliação |
 | **F26** | Redesign visual | Serve N15; referência das telas das F16–F30 | — | — | 🔍 Em avaliação |
@@ -469,9 +474,6 @@ A tela lê `/api/statistics/compare?simulation_ids=<id>`, que já funciona sem p
 
 <a id="f7"></a>
 **F7 — Spike: estratégia Python escrita pelo usuário.** Origem: #2, #12. Decide a D5 e define a API da classe base. Falta responder: (1) carregar um `.py` externo via `importlib` funciona dentro do executável do PyInstaller, e quais bibliotecas a estratégia enxerga (só as empacotadas — pandas sim, outras não); (2) como proteger o tick de uma estratégia em loop infinito ou lenta (timeout por tick); (3) o que a estratégia vê e pode fazer — hoje `BaseStrategy` só recebe `matching_engine`/`market_data`, ou seja, renda variável, e faltam caixa, posição, renda fixa e o setor e segmento de cada ativo (já no banco pela F30, em `repository.stock.get_classification`); (4) onde o código fica guardado — numa pasta (fácil de editar no editor) ou no banco junto da simulação (retomar reusa exatamente a mesma versão do código); (5) a viabilidade da opção "bot cliente da API" no multiplayer.
-
-<a id="f18"></a>
-**F18 — Pontuação geral (overall).** Serve N9. Uma nota por jogador, decomposta por dimensão, na aba Geral da F17 e no ranking, com a fórmula nos docs em LaTeX (o Docusaurus precisa de `remark-math` + `rehype-katex`, hoje ausentes). Falta definir: (1) **os componentes** — candidatos: retorno anual acima do CDI, drawdown máximo, volatilidade, Sharpe (que já mistura retorno e volatilidade, então somá-lo à volatilidade conta o risco duas vezes) e consistência (fração dos meses em que bateu o CDI); (2) **a normalização** para uma escala comum — absoluta, com faixas fixas (drawdown de 0% vale 100 pontos, de 50% vale 0), que permite comparar partidas diferentes, ou relativa à sala (o melhor jogador vale 100), que não permite; (3) **a agregação** — soma de pontos por categoria, como o placar do Age of Empires II, ou média ponderada com pesos configuráveis. Sai daqui com a fórmula escolhida e o card em Atende necessidade.
 
 <a id="f22"></a>
 **F22 — Preço ajustado e proventos.** Serve N3 e N7. O importador usa `yf.download(auto_adjust=True)`: o preço vem ajustado por dividendos e desdobramentos *até o dia da importação*. A atualização incremental (`upsert_dataframe` só grava linhas depois da última data guardada) emenda duas séries ajustadas em dias diferentes, então um provento ou desdobramento ocorrido entre a importação e a atualização vira um degrau falso na emenda — num desdobramento 2:1, uma queda de 50% que não existiu. Além disso, o preço exibido não é o que se negociava na época, e dividendo nunca entra no caixa. Falta escolher: (1) **atualizar sempre baixando a série inteira** e sobrescrevendo — corrige o degrau com pouca mudança, mas reescreve o passado de partidas salvas a cada provento novo; (2) **preço bruto + proventos como evento** — `auto_adjust=False`; desdobramento ajusta a quantidade da posição e dividendo credita o caixa na data ex (o `yfinance` traz as duas listas); fiel e reprodutível, mas mexe no motor, na carteira e na F13. Sai daqui com a escolha e o plano de implementação.

@@ -37,6 +37,9 @@ export type Session = components["schemas"]["SessionDTO"];
 export type SeriesPoint = components["schemas"]["SeriesPointDTO"];
 export type OverviewReport = components["schemas"]["OverviewReportDTO"];
 // Toda linha de jogador de qualquer aba traz quem é e em que simulação
+export type Score = NonNullable<OverviewReport["players"][number]["score"]>;
+export type ScoreAxis = Score["axes"][number]["axis"];
+export type ScoreMetric = Score["axes"][number]["metrics"][number]["metric"];
 export type PlayerRef = Pick<OverviewReport["players"][number], "player_nickname" | "simulation_id" | "simulation_name">;
 export type ReturnsReport = components["schemas"]["ReturnsReportDTO"];
 export type RiskReport = components["schemas"]["RiskReportDTO"];

@@ -1368,6 +1368,8 @@ export interface components {
             players: components["schemas"]["PlayerRankingDTO"][];
             /** Average Return */
             average_return: string | null;
+            /** Min Score Days */
+            min_score_days: number;
         };
         /** PatrimonialHistoryDTO */
         PatrimonialHistoryDTO: {
@@ -1455,6 +1457,7 @@ export interface components {
             return_percent: string;
             /** Days */
             days: number;
+            score: components["schemas"]["ScoreDTO"] | null;
         };
         /** PlayerReturnsDTO */
         PlayerReturnsDTO: {
@@ -1639,6 +1642,33 @@ export interface components {
             players: components["schemas"]["PlayerRiskDTO"][];
             /** Rolling Window */
             rolling_window: number;
+        };
+        /** @enum {string} */
+        ScoreAxis: "return" | "risk" | "consistency" | "efficiency";
+        /** ScoreAxisDTO */
+        ScoreAxisDTO: {
+            axis: components["schemas"]["ScoreAxis"];
+            /** Points */
+            points: string | null;
+            /** Metrics */
+            metrics: components["schemas"]["ScoreMetricDTO"][];
+        };
+        /** ScoreDTO */
+        ScoreDTO: {
+            /** Total */
+            total: string;
+            /** Axes */
+            axes: components["schemas"]["ScoreAxisDTO"][];
+        };
+        /** @enum {string} */
+        ScoreMetric: "return_over_cdi" | "return_over_ibov" | "max_drawdown" | "annual_volatility" | "time_underwater" | "worst_month" | "months_above_cdi" | "positive_months" | "sharpe_ratio" | "sortino_ratio";
+        /** ScoreMetricDTO */
+        ScoreMetricDTO: {
+            metric: components["schemas"]["ScoreMetric"];
+            /** Value */
+            value: string | null;
+            /** Points */
+            points: string | null;
         };
         /** SectorAllocationDTO */
         SectorAllocationDTO: {

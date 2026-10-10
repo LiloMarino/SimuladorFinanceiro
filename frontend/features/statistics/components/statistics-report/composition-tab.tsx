@@ -7,7 +7,7 @@ import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { playerLabel } from "../../lib/player-label";
 import { COMPOSITION, EFFECTIVE_SECTORS, SECTOR_EXPOSURE, SECTOR_PROFIT, displayMetric } from "../../lib/metrics";
 import { MetricLabel } from "./metric-hint";
-import { ChartCard, TabStatus, type ReportProps } from "./shared";
+import { ChartCard, PlayerPills, TabStatus, type ReportProps } from "./shared";
 
 const UNCLASSIFIED = "Sem setor";
 
@@ -34,23 +34,12 @@ export function CompositionTab({ simulationIds, showSimulation, currentPlayerNam
   return (
     <div className="space-y-6">
       <ChartCard metric={COMPOSITION}>
-        {players.length > 1 && (
-          <div className="mb-4 flex flex-wrap gap-2">
-            {players.map(({ label }) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => setSelected(label)}
-                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
-                  label === current?.label ? "bg-primary/10 border-primary/20" : "opacity-60"
-                }`}
-              >
-                <span className="size-3 rounded-full" style={{ backgroundColor: stringToColor(label) }} />
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
+        <PlayerPills
+          labels={players.map((p) => p.label)}
+          current={current?.label}
+          onSelect={setSelected}
+          className="mb-4"
+        />
         {current ? <CompositionChart player={current.player} /> : null}
       </ChartCard>
 

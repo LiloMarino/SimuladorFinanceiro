@@ -154,3 +154,10 @@ Diversificar só funciona entre ativos que não caem juntos. Sem medir isso, dua
 **Por quê está aberto:** com o Alembic, o autogenerate parte dos models por construção; o ciclo atual parte do banco. Os dois funcionam, mas um vira o caminho natural e o outro um contorno.
 
 **Atualização (2026-10-09):** decidido o ciclo 1, código primeiro. O `sqlacodegen` existia para editar o banco direto, sem passar pelo SQLAlchemy; com as migrations geradas dos models, esse caminho perde a razão de ser e sai junto. A visão do schema que o banco-primeiro dava passa a vir de um diagrama (F31).
+
+### D10 — Como a nota geral é calculada
+**Status:** ✅ Decidida
+
+**Decisão:** a nota é a soma de quatro eixos de peso igual — Retorno, Risco, Consistência e Eficiência —, cada um a média dos pontos das suas métricas. Cada métrica vira pontos por uma reta com dois níveis fixos (o que vale 0 e o que vale 100), com chão 0 e sem teto. As métricas: retorno anual acima do CDI e do Ibovespa; queda máxima, volatilidade, maior tempo abaixo do pico e pior mês; meses acima do CDI e meses no positivo; Sharpe e Sortino. A nota só existe a partir de 63 pregões.
+**Por quê:** a avaliação olha cada dimensão por vários ângulos (o risco não é só a queda máxima), e o eixo, e não a métrica, é a unidade de peso: com quatro métricas de risco e duas de retorno, o risco não vale o dobro. As faixas são absolutas, iguais em toda partida, para que a nota compare partidas diferentes e funcione jogando sozinho, o que uma nota relativa à sala não permite. Sem teto, como placar de jogo, mas decomponível eixo a eixo e métrica a métrica, para mostrar o que puxou a nota. Abaixo de ~3 meses, anualizar engana (10 dias com +2% viram ~64% ao ano).
+**Consequências:** risco e consistência têm máximo natural perto de 100 e retorno e eficiência não, então retorno muito alto compensa risco; uma carteira parada em caixa fica com ~100, quase tudo do eixo Risco. Mudar uma faixa muda a nota de todas as partidas salvas, porque a nota é recalculada dos snapshots a cada leitura.

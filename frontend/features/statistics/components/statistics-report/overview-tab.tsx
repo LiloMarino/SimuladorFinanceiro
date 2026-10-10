@@ -1,6 +1,7 @@
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { MatchSummaryCard } from "./match-summary-card";
 import { PlayersRankingTable } from "./players-ranking-table";
+import { ScoreBreakdownCard } from "./score-breakdown-card";
 import { TabStatus, type ReportProps } from "./shared";
 
 export function OverviewTab({ simulationIds, showSimulation, currentPlayerName = "" }: ReportProps) {
@@ -15,6 +16,9 @@ export function OverviewTab({ simulationIds, showSimulation, currentPlayerName =
         currentPlayerName={currentPlayerName}
         showSimulation={showSimulation}
       />
+      {data.players.length > 0 && (
+        <ScoreBreakdownCard report={data} showSimulation={showSimulation} currentPlayerName={currentPlayerName} />
+      )}
     </div>
   );
 }
