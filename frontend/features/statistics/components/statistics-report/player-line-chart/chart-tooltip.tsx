@@ -1,11 +1,15 @@
 import type { TooltipProps } from "recharts";
-import { displayDate, displayMoney } from "@/shared/lib/utils/display";
-import type { PerformanceChartRow } from "./utils";
+import { displayDate } from "@/shared/lib/utils/display";
+import type { LineChartRow } from "./utils";
 
-export function PerformanceChartTooltip({ active, payload, label }: TooltipProps<number, string>) {
+interface Props extends TooltipProps<number, string> {
+  format: (value: string) => string;
+}
+
+export function LineChartTooltip({ active, payload, label, format }: Props) {
   if (!active || !payload || !payload.length) return null;
 
-  const entries = payload as Array<{ name?: string; color?: string; payload?: PerformanceChartRow }>;
+  const entries = payload as Array<{ name?: string; color?: string; payload?: LineChartRow }>;
 
   return (
     <div className="bg-background border border-border rounded-lg shadow-lg p-4 min-w-[200px]">
@@ -22,7 +26,7 @@ export function PerformanceChartTooltip({ active, payload, label }: TooltipProps
                 <span className="text-sm text-muted-foreground">{entry.name}</span>
               </div>
 
-              <span className="text-sm font-semibold text-foreground">{value ? displayMoney(value) : "--"}</span>
+              <span className="text-sm font-semibold text-foreground">{value ? format(value) : "--"}</span>
             </div>
           );
         })}

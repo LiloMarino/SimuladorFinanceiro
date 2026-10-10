@@ -8,11 +8,13 @@ from pydantic import ValidationError
 
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
-from backend.features.statistics.ranking import build_performance_report
+from backend.features.statistics.ranking import build_overview
 from backend.routes.auth import UserRegisterRequest
 
 
-def player(nickname: str, networth: str, contribution: str = "0", starting_cash: str = "10000") -> PlayerHistoryDTO:
+def player(
+    nickname: str, networth: str, contribution: str = "0", starting_cash: str = "10000"
+) -> PlayerHistoryDTO:
     snapshot = PatrimonialHistoryDTO(
         snapshot_date=date(2020, 1, 31),
         total_networth=Decimal(networth),
@@ -32,7 +34,7 @@ def player(nickname: str, networth: str, contribution: str = "0", starting_cash:
 
 def test_return_is_measured_over_starting_cash_plus_contributions():
     """O aporte mensal entra no capital: patrimônio igual ao aportado é retorno zero."""
-    report = build_performance_report([player("Lilo", networth="12000", contribution="2000")])
+    report = build_overview([player("Lilo", networth="12000", contribution="2000")])
 
     entry = report.players[0]
     assert entry.total_networth == Decimal("12000")
@@ -42,7 +44,7 @@ def test_return_is_measured_over_starting_cash_plus_contributions():
 
 def test_zero_networth_is_a_total_loss():
     """Patrimônio zerado é perda de 100% do capital."""
-    report = build_performance_report([player("Lilo", networth="0")])
+    report = build_overview([player("Lilo", networth="0")])
 
     assert report.players[0].return_value == Decimal("-10000")
     assert report.players[0].return_percent == Decimal("-1")
@@ -50,7 +52,7 @@ def test_zero_networth_is_a_total_loss():
 
 def test_players_are_ranked_by_return_percent():
     """O ranking ordena pelo retorno percentual, do melhor para o pior, numerando as posições."""
-    report = build_performance_report(
+    report = build_overview(
         [
             player("Ana", networth="11000"),
             player("Bia", networth="15000"),
@@ -68,7 +70,7 @@ def test_players_are_ranked_by_return_percent():
 
 def test_average_return_is_the_mean_of_player_returns():
     """A média da sala é a média simples dos retornos percentuais."""
-    report = build_performance_report(
+    report = build_overview(
         [player("Ana", networth="11000"), player("Bia", networth="15000")]
     )
 
@@ -77,7 +79,7 @@ def test_average_return_is_the_mean_of_player_returns():
 
 def test_empty_report_has_no_average():
     """Sem jogadores não há média a exibir."""
-    report = build_performance_report([])
+    report = build_overview([])
 
     assert report.players == []
     assert report.average_return is None

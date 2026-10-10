@@ -1,12 +1,12 @@
-import type { PlayerSeries } from "./series";
+import type { LineSeries } from "./series";
 
 interface Props {
-  series: PlayerSeries[];
+  series: LineSeries[];
   visible: Record<string, boolean>;
   toggle: (key: string) => void;
 }
 
-export function PerformanceChartLegend({ series, visible, toggle }: Props) {
+export function LineChartLegend({ series, visible, toggle }: Props) {
   return (
     <div className="flex justify-center gap-3 flex-wrap">
       {series.map((s) => {

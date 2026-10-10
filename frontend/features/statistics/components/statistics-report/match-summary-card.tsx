@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayPercent } from "@/shared/lib/utils/display";
-import type { PerformanceReport } from "@/types";
+import type { OverviewReport } from "@/types";
 
 interface Props {
-  report: PerformanceReport;
+  report: OverviewReport;
   currentPlayerName: string;
 }
 

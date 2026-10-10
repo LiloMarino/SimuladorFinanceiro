@@ -1,40 +1,26 @@
-import { MatchSummaryCard } from "../components/match-summary-card";
-import { PlayersRankingTable } from "../components/players-ranking-table";
-import { PerformanceChart } from "../components/performance-chart";
-import { RiskSummaryCard } from "../components/risk-summary-card";
-import { useStatistics } from "../hooks/queries/useStatistics";
-import { LoadingPage } from "@/pages/loading";
-import { ErrorPage } from "@/pages/error";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { useRealtime } from "@/shared/hooks/useRealtime";
+import { useSimulation } from "@/shared/hooks/useSimulation";
+import { queryKeys } from "@/shared/lib/queryKeys";
+import { StatisticsReport } from "../components/statistics-report";
 
 export default function StatisticsPage() {
-  const { data: statistics, isLoading: loading, error } = useStatistics();
-  const { user: currentUser } = useAuth();
+  const queryClient = useQueryClient();
+  const { simulation } = useSimulation();
+  const { user } = useAuth();
 
-  if (loading) {
-    return <LoadingPage />;
-  } else if (!statistics || !currentUser) {
-    return (
-      <ErrorPage
-        code={String(error?.status) || "500"}
-        title="Erro ao carregar estatísticas"
-        message={String(error?.message)}
-      />
-    );
-  }
+  // O snapshot que as abas leem fecha o mês: todas as abas abertas refazem a busca
+  useRealtime("statistics_snapshot_update", () => {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.statistics() });
+  });
 
-  const currentNickname = currentUser.nickname;
-  const currentPlayer = statistics.players.find((p) => p.player_nickname === currentNickname);
+  const simulationId = simulation?.simulation?.id;
+  if (simulationId === undefined) return null;
 
   return (
-    <section className="p-4 space-y-6">
-      <PlayersRankingTable players={statistics.players} currentPlayerName={currentNickname} />
-
-      <PerformanceChart players={statistics.players} />
-
-      {statistics.players.length > 0 && <MatchSummaryCard report={statistics} currentPlayerName={currentNickname} />}
-
-      {currentPlayer && <RiskSummaryCard player={currentPlayer} />}
+    <section className="p-4">
+      <StatisticsReport simulationIds={[simulationId]} showSimulation={false} currentPlayerName={user?.nickname} />
     </section>
   );
 }

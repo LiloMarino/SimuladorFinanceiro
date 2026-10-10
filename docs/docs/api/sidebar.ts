@@ -270,14 +270,32 @@ const sidebar: SidebarsConfig = {
       items: [
         {
           type: "doc",
-          id: "api/get-statistics-api-statistics-get",
-          label: "Obter estatísticas de desempenho",
+          id: "api/get-overview-api-statistics-overview-get",
+          label: "Estatísticas: geral",
           className: "api-method get",
         },
         {
           type: "doc",
-          id: "api/compare-simulations-api-statistics-compare-get",
-          label: "Comparar simulações",
+          id: "api/get-returns-api-statistics-returns-get",
+          label: "Estatísticas: rentabilidade",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/get-risk-api-statistics-risk-get",
+          label: "Estatísticas: risco",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/get-composition-api-statistics-composition-get",
+          label: "Estatísticas: composição",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/get-operations-api-statistics-operations-get",
+          label: "Estatísticas: operações",
           className: "api-method get",
         },
         {

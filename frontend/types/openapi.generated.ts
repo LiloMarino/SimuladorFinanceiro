@@ -660,7 +660,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/statistics": {
+    "/api/statistics/overview": {
         parameters: {
             query?: never;
             header?: never;
@@ -668,10 +668,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Obter estatísticas de desempenho
-         * @description Retorna o ranking e o histórico de desempenho de todos os jogadores da simulação.
+         * Estatísticas: geral
+         * @description Ranking dos jogadores das simulações informadas pelo retorno sobre o capital aportado, com a média da sala.
          */
-        get: operations["get_statistics_api_statistics_get"];
+        get: operations["get_overview_api_statistics_overview_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -680,7 +680,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/statistics/compare": {
+    "/api/statistics/returns": {
         parameters: {
             query?: never;
             header?: never;
@@ -688,10 +688,70 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Comparar simulações
-         * @description Retorna o ranking e o histórico de desempenho de cada jogador em cada simulação salva informada.
+         * Estatísticas: rentabilidade
+         * @description Patrimônio e retorno acumulado de cada jogador dia a dia, com o CDI e o Ibovespa do mesmo período como referência.
          */
-        get: operations["compare_simulations_api_statistics_compare_get"];
+        get: operations["get_returns_api_statistics_returns_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/statistics/risk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estatísticas: risco
+         * @description Drawdown e volatilidade em janela móvel de cada jogador dia a dia, com as métricas de risco do período.
+         */
+        get: operations["get_risk_api_statistics_risk_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/statistics/composition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estatísticas: composição
+         * @description Caixa, renda variável e renda fixa de cada jogador dia a dia, e a exposição e o lucro por setor.
+         */
+        get: operations["get_composition_api_statistics_composition_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/statistics/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estatísticas: operações
+         * @description Negócios executados, volume por mês, giro, IR pago e custo de impacto de cada jogador.
+         */
+        get: operations["get_operations_api_statistics_operations_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -957,6 +1017,20 @@ export interface components {
         AssetClassRequest: {
             asset_class: components["schemas"]["AssetClass"];
         };
+        /** BenchmarkDTO */
+        BenchmarkDTO: {
+            series: components["schemas"]["BenchmarkSeries"];
+            /** Simulation Id */
+            simulation_id: number;
+            /** Simulation Name */
+            simulation_name: string;
+            /** Cumulative Return */
+            cumulative_return: components["schemas"]["SeriesPointDTO"][];
+            /** Annual Return */
+            annual_return: string | null;
+        };
+        /** @enum {string} */
+        BenchmarkSeries: "CDI" | "IBOV";
         /** Body_import_assets_csv_api_import_assets_csv_post */
         Body_import_assets_csv_api_import_assets_csv_post: {
             /** Ticker */
@@ -1017,6 +1091,11 @@ export interface components {
         CashUpdateEventDTO: {
             /** Cash */
             cash: string;
+        };
+        /** CompositionReportDTO */
+        CompositionReportDTO: {
+            /** Players */
+            players: components["schemas"]["PlayerCompositionDTO"][];
         };
         /** CreateSimulationRequest */
         CreateSimulationRequest: {
@@ -1188,6 +1267,23 @@ export interface components {
             /** Id */
             id: number;
         };
+        /** MonthlyVolumeDTO */
+        MonthlyVolumeDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Bought */
+            bought: string;
+            /** Sold */
+            sold: string;
+        };
+        /** OperationsReportDTO */
+        OperationsReportDTO: {
+            /** Players */
+            players: components["schemas"]["PlayerOperationsDTO"][];
+        };
         /**
          * OrderAction
          * @enum {string}
@@ -1266,6 +1362,13 @@ export interface components {
          * @enum {string}
          */
         OrderType: "market" | "limit";
+        /** OverviewReportDTO */
+        OverviewReportDTO: {
+            /** Players */
+            players: components["schemas"]["PlayerRankingDTO"][];
+            /** Average Return */
+            average_return: string | null;
+        };
         /** PatrimonialHistoryDTO */
         PatrimonialHistoryDTO: {
             /**
@@ -1284,30 +1387,64 @@ export interface components {
             /** Total Contribution */
             total_contribution: string;
         };
-        /** PerformanceReportDTO */
-        PerformanceReportDTO: {
-            /** Players */
-            players: components["schemas"]["PlayerPerformanceDTO"][];
-            /** Average Return */
-            average_return: string | null;
-        };
-        /** PlayerNickname */
-        PlayerNickname: {
-            /** Nickname */
-            nickname: string;
-        };
-        /** PlayerPerformanceDTO */
-        PlayerPerformanceDTO: {
+        /** PlayerCompositionDTO */
+        PlayerCompositionDTO: {
             /** Player Nickname */
             player_nickname: string;
             /** Simulation Id */
             simulation_id: number;
             /** Simulation Name */
             simulation_name: string;
-            /** Starting Cash */
-            starting_cash: string;
             /** History */
             history: components["schemas"]["PatrimonialHistoryDTO"][];
+            /** Sectors */
+            sectors: components["schemas"]["SectorAllocationDTO"][];
+            /** Effective Sectors */
+            effective_sectors: string | null;
+            /** Sector Profit */
+            sector_profit: components["schemas"]["SectorProfitDTO"][];
+        };
+        /** PlayerNickname */
+        PlayerNickname: {
+            /** Nickname */
+            nickname: string;
+        };
+        /** PlayerOperationsDTO */
+        PlayerOperationsDTO: {
+            /** Player Nickname */
+            player_nickname: string;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Simulation Name */
+            simulation_name: string;
+            /** Buy Trades */
+            buy_trades: number;
+            /** Sell Trades */
+            sell_trades: number;
+            /** Traded Volume */
+            traded_volume: string;
+            /** Turnover */
+            turnover: string | null;
+            /** Income Tax Paid */
+            income_tax_paid: string;
+            /** Impact Cost */
+            impact_cost: string | null;
+            /** Monthly Volume */
+            monthly_volume: components["schemas"]["MonthlyVolumeDTO"][];
+        };
+        /** PlayerPresenceEventDTO */
+        PlayerPresenceEventDTO: {
+            /** Nickname */
+            nickname: string;
+        };
+        /** PlayerRankingDTO */
+        PlayerRankingDTO: {
+            /** Player Nickname */
+            player_nickname: string;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Simulation Name */
+            simulation_name: string;
             /** Position */
             position: number;
             /** Total Networth */
@@ -1316,12 +1453,60 @@ export interface components {
             return_value: string;
             /** Return Percent */
             return_percent: string;
-            risk: components["schemas"]["RiskMetricsDTO"];
+            /** Days */
+            days: number;
         };
-        /** PlayerPresenceEventDTO */
-        PlayerPresenceEventDTO: {
-            /** Nickname */
-            nickname: string;
+        /** PlayerReturnsDTO */
+        PlayerReturnsDTO: {
+            /** Player Nickname */
+            player_nickname: string;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Simulation Name */
+            simulation_name: string;
+            /** Networth */
+            networth: components["schemas"]["SeriesPointDTO"][];
+            /** Cumulative Return */
+            cumulative_return: components["schemas"]["SeriesPointDTO"][];
+            /** Capital Provided */
+            capital_provided: string;
+            /** Annual Return */
+            annual_return: string | null;
+            /** Months Above Cdi */
+            months_above_cdi: number;
+            /** Positive Months */
+            positive_months: number;
+            /** Months */
+            months: number;
+        };
+        /** PlayerRiskDTO */
+        PlayerRiskDTO: {
+            /** Player Nickname */
+            player_nickname: string;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Simulation Name */
+            simulation_name: string;
+            /** Drawdown */
+            drawdown: components["schemas"]["SeriesPointDTO"][];
+            /** Rolling Volatility */
+            rolling_volatility: components["schemas"]["SeriesPointDTO"][];
+            /** Max Drawdown */
+            max_drawdown: string | null;
+            /** Annual Volatility */
+            annual_volatility: string | null;
+            /** Sharpe Ratio */
+            sharpe_ratio: string | null;
+            /** Sortino Ratio */
+            sortino_ratio: string | null;
+            /** Time Underwater */
+            time_underwater: number | null;
+            /** Worst Month */
+            worst_month: string | null;
+            /** Annual Return */
+            annual_return: string | null;
+            /** Days */
+            days: number;
         };
         /** PortfolioDTO */
         PortfolioDTO: {
@@ -1441,14 +1626,19 @@ export interface components {
             order_updated: components["schemas"]["OrderEventDTO"];
             order_book_snapshot: components["schemas"]["OrderBookSnapshotEventDTO"];
         };
-        /** RiskMetricsDTO */
-        RiskMetricsDTO: {
-            /** Max Drawdown */
-            max_drawdown: string | null;
-            /** Annual Volatility */
-            annual_volatility: string | null;
-            /** Sharpe Ratio */
-            sharpe_ratio: string | null;
+        /** ReturnsReportDTO */
+        ReturnsReportDTO: {
+            /** Players */
+            players: components["schemas"]["PlayerReturnsDTO"][];
+            /** Benchmarks */
+            benchmarks: components["schemas"]["BenchmarkDTO"][];
+        };
+        /** RiskReportDTO */
+        RiskReportDTO: {
+            /** Players */
+            players: components["schemas"]["PlayerRiskDTO"][];
+            /** Rolling Window */
+            rolling_window: number;
         };
         /** SectorAllocationDTO */
         SectorAllocationDTO: {
@@ -1467,6 +1657,13 @@ export interface components {
             name: string;
             /** Segments */
             segments: string[];
+        };
+        /** SectorProfitDTO */
+        SectorProfitDTO: {
+            /** Sector */
+            sector: string | null;
+            /** Profit */
+            profit: string;
         };
         /** SegmentAllocationDTO */
         SegmentAllocationDTO: {
@@ -1498,6 +1695,16 @@ export interface components {
          * @enum {string}
          */
         SeriesKind: "STOCK" | "INDICATOR";
+        /** SeriesPointDTO */
+        SeriesPointDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Value */
+            value: string;
+        };
         /** SessionDTO */
         SessionDTO: {
             /** Authenticated */
@@ -3159,36 +3366,7 @@ export interface operations {
             };
         };
     };
-    get_statistics_api_statistics_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PerformanceReportDTO"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    compare_simulations_api_statistics_compare_get: {
+    get_overview_api_statistics_overview_get: {
         parameters: {
             query: {
                 simulation_ids: number[];
@@ -3205,7 +3383,167 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PerformanceReportDTO"];
+                    "application/json": components["schemas"]["OverviewReportDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_returns_api_statistics_returns_get: {
+        parameters: {
+            query: {
+                simulation_ids: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReturnsReportDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_risk_api_statistics_risk_get: {
+        parameters: {
+            query: {
+                simulation_ids: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RiskReportDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_composition_api_statistics_composition_get: {
+        parameters: {
+            query: {
+                simulation_ids: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompositionReportDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_operations_api_statistics_operations_get: {
+        parameters: {
+            query: {
+                simulation_ids: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationsReportDTO"];
                 };
             };
             /** @description Validation Error */

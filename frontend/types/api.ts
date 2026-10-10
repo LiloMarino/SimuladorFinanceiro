@@ -34,9 +34,14 @@ export type User = components["schemas"]["UserDTO"];
 export type Session = components["schemas"]["SessionDTO"];
 
 // Statistics
-export type PerformanceMetric = "total_networth" | "total_equity" | "total_fixed" | "total_cash" | "total_contribution";
-export type PerformanceReport = components["schemas"]["PerformanceReportDTO"];
-export type PlayerPerformance = PerformanceReport["players"][number];
+export type SeriesPoint = components["schemas"]["SeriesPointDTO"];
+export type OverviewReport = components["schemas"]["OverviewReportDTO"];
+// Toda linha de jogador de qualquer aba traz quem é e em que simulação
+export type PlayerRef = Pick<OverviewReport["players"][number], "player_nickname" | "simulation_id" | "simulation_name">;
+export type ReturnsReport = components["schemas"]["ReturnsReportDTO"];
+export type RiskReport = components["schemas"]["RiskReportDTO"];
+export type CompositionReport = components["schemas"]["CompositionReportDTO"];
+export type OperationsReport = components["schemas"]["OperationsReportDTO"];
 
 // Orders
 export type OrderAction = components["schemas"]["OrderAction"];

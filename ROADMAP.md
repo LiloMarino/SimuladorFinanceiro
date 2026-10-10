@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-10):** F30 concluída: setores e segmentos com sugestão do yfinance, edição na Central de dados e visão por setor na carteira.
+> **Última mudança (2026-10-10):** F17 concluída: estatísticas em abas (Geral, Rentabilidade, Risco, Composição, Operações) na partida e na comparação.
 
 ## Glossário
 
@@ -46,7 +46,6 @@
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F16**](#f16) | Bots na sala | — | ⏳ |
-| [**F17**](#f17) | Estatísticas em abas, como o relatório de fim de partida de um RTS | — | ⏳ |
 | [**F18**](#f18) | Pontuação geral (overall) | — | 🔍 |
 | [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
@@ -58,7 +57,7 @@
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -75,6 +74,7 @@
 | [**F12**](#f12) | Comparação entre simulações | — | ✅ |
 | [**F13**](#f13) | Impacto de preço de ordens grandes | — | ✅ |
 | [**F15**](#f15) | Cliente desktop em Tauri | — | 🚫 |
+| [**F17**](#f17) | Estatísticas em abas, como o relatório de fim de partida de um RTS | — | ✅ |
 | [**F20**](#f20) | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | — | ✅ |
 | [**F21**](#f21) | Central de dados, fora da partida | — | ✅ |
 | [**F25**](#f25) | Migrations com Alembic | — | ✅ |
@@ -96,7 +96,6 @@
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
 | [**F3**](#f3) | Spike: banco embarcado no executável | M2 | 1 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
-| [**F17**](#f17) | Estatísticas em abas, como o relatório de fim de partida de um RTS | M7 | 1 | ⏳ |
 | [**F18**](#f18) | Pontuação geral (overall) | M7 | 1 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F26**](#f26) | Redesign visual | — | 0 | 🔍 |
@@ -216,13 +215,20 @@
 >
 > **Serve:** N5, N6, N9
 >
-> **Progresso:** 0/3 concluídas
+> **Progresso:** 1/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F17**](#f17) | Estatísticas em abas, como o relatório de fim de partida de um RTS | — | ⏳ |
 | [**F18**](#f18) | Pontuação geral (overall) | — | 🔍 |
 | [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | [F17](#f17), [F18](#f18) | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F17**](#f17) | Estatísticas em abas, como o relatório de fim de partida de um RTS | — | ✅ |
+
+</details>
 
 ### M8 — Dados reais, cuidados fora da partida
 
@@ -316,7 +322,7 @@
 | **F12** | Comparação entre simulações | N6 | D2 | M5 | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F13** | Impacto de preço de ordens grandes | N7 | D1 | M10 | — | Alto | Alto | Médio | Médio | ✅ Concluído |
 | **F16** | Bots na sala | N8 | D8 | M6 | [F8](#f8) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
-| **F17** | Estatísticas em abas, como o relatório de fim de partida de um RTS | N5, N6 | D2 | M7 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F17** | Estatísticas em abas, como o relatório de fim de partida de um RTS | N5, N6 | D2 | M7 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F20** | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | N11 | D7 | M8 | — | Médio | Médio | Alto | Excelente | ✅ Concluído |
 | **F21** | Central de dados, fora da partida | N13, N3 | D7 | M8 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F24** | Gerar dados futuros na Central de dados | N12 | D7 | M9 | [F21](#f21), [F23](#f23) | Médio | Alto | Alto | Bom | ⏳ Pendente |
@@ -374,7 +380,8 @@
 **F16 — Bots na sala.** Serve N8; segue a D8. No lobby, o host clica "Adicionar bot" e escolhe a estratégia — as prontas da F9 ou as escritas pelo usuário na F8; cada estratégia é um "tipo de IA", como as IAs do OpenTTD — e um nome. O bot é um jogador sem socket: registro em `users` marcado como bot, carteira própria, e o motor chama o `next()` da estratégia dele a cada tick, como faz com a de um humano no automático. Aparece no ranking e nas estatísticas como qualquer jogador, com um ícone que o distingue. Quem escolhe o código do bot é o host, então ele roda no processo do host qualquer que seja a D5 — a restrição da D5 é sobre código vindo de jogador remoto. Com a F13 ligada, as ordens do bot movem preço como as de qualquer jogador. Gatilho: F8 concluída.
 
 <a id="f17"></a>
-**F17 — Estatísticas em abas, como o relatório de fim de partida de um RTS.** Serve N5 e N6. Inspiração: a tela de estatísticas do fim de partida do Age of Empires II, com uma aba por dimensão e a curva de cada jogador ao longo do tempo. `statistics.tsx` deixa de empilhar cards e passa a abas, cada uma com gráfico temporal por jogador e tabela: **Rentabilidade** (patrimônio, retorno % acumulado e as linhas de referência do CDI e do IBOV no período); **Risco** (curva de drawdown — quanto cada jogador está abaixo do próprio pico, dia a dia —, volatilidade em janela móvel de 63 pregões, ~3 meses, e um gráfico de dispersão risco × retorno com um ponto por jogador, como o do [Finance Manager](https://github.com/LiloMarino/Finance-Manager)); **Composição** (área empilhada de caixa, renda variável e renda fixa); **Operações** (ordens executadas, giro, IR pago e, com a F13 ligada, custo de impacto pago — preço executado menos preço histórico). As séries vêm prontas do backend (D2), um endpoint por aba sobre os snapshots diários da F11. O mesmo componente de abas serve a tela de Estatísticas durante a partida, o fechamento (F27) e a comparação (`/compare-simulations`, alimentada por `/api/statistics/compare`). A aba Geral entra com a F18.
+**F17 — Estatísticas em abas, como o relatório de fim de partida de um RTS.** Serve N5 e N6. Inspiração: a tela de estatísticas do fim de partida do Age of Empires II. `GET /api/statistics` e `/api/statistics/compare` deram lugar a um endpoint por aba — `/api/statistics/{overview,returns,risk,composition,operations}?simulation_ids=…` —, todos sobre os snapshots diários da F11 e sem exigir partida ativa: a tela de Estatísticas passa o id da partida em andamento, a comparação passa os escolhidos, e o fechamento (F27) vai passar o da partida encerrada. O cálculo fica em `features/statistics/` (D2), montado por `report.py`: **Geral** (ranking e resumo da partida); **Rentabilidade** (patrimônio e retorno acumulado da cota dia a dia, com o CDI e o Ibovespa da F20 como linhas tracejadas, e uma tabela com capital aportado, retorno anual composto, meses acima do CDI e meses no positivo); **Risco** (curva de distância do pico, volatilidade em janela móvel de 63 pregões, dispersão risco × retorno e a tabela com drawdown, volatilidade, Sharpe, Sortino, maior tempo abaixo do pico, pior mês e a amostra); **Composição** (área empilhada de caixa, renda variável e renda fixa, e o recorte por setor da F30: exposição de cada jogador no último dia, número efetivo de setores — 1 ÷ Σ fração² — e lucro por setor, reconstruídos de `event_equity` a preço do dia com o fator de impacto); **Operações** (volume negociado por mês, compras, vendas, giro, o IR pago da F29 e o custo de impacto da F13 — executado menos histórico, com o sinal de quem paga —, para o qual `PriceImpact.factors_on` virou público). No front, `StatisticsReport` (`features/statistics/components/statistics-report/`) serve a partida e a comparação; cada aba busca os próprios dados quando abre, e cada métrica tem descrição curta e dica com definição, exemplo e leitura (`lib/metrics.ts`). O `PerformanceChart` virou o gráfico de linha genérico das abas. A aba Geral ganha a nota com a F18. Limitações: o Sortino de uma carteira parada em caixa fica muito negativo (perde para o CDI todo dia com oscilação quase nula); na comparação, simulações de períodos diferentes aparecem em trechos diferentes do eixo.
+**Aceite:** numa partida de dois jogadores com impacto ligado, as cinco abas mostram as curvas por jogador com CDI e Ibovespa de referência, Lilo com 69,84% em Financeiro e número efetivo de 1,87, e a comparação abre o mesmo relatório com séries `Nick#Simulação` (cálculos cobertos em `tests/test_statistics_{risk,returns,sectors,operations}.py`).
 
 <a id="f20"></a>
 **F20 — Indicadores reais (CDI, SELIC, IPCA) do Banco Central.** Serve N11. As constantes do `EconomicRepository` saíram: as séries moram em `economic_indicator_history` (série, data, `NUMERIC`, origem — D7), com `fetch_log` registrando tentativa e sucesso, e as antigas `ipca_history`/`selic_history`, que nada lia, foram removidas na mesma migration; `stock_price_history` também ganhou a coluna de origem. A busca segue o desenho do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): SGS do Banco Central (séries 12, 11 e 433) em janelas de até 10 anos, valor lido do texto direto para `Decimal`, e IBOV pelo yfinance (`^BVSP`) na mesma tabela. A primeira carga traz a série inteira; as seguintes recomeçam no dia 1 do mês do último valor; a inicialização dispara a busca numa thread, respeitando o intervalo de 6 horas, e falha mantém o que está no banco. Na renda fixa, o tick rende com a taxa do dia útil anterior (a taxa de um dia paga a noite até o próximo): CDI e SELIC viram o fator do dia direto, dia sem valor publicado dentro da série é feriado e não rende, o IPCA do mês se distribui pelos dias úteis do mês, e depois do último dado real vale o último valor conhecido. A projeção na compra congela o último valor conhecido. A taxa anual mostrada no card e usada pelas fábricas de títulos é a do dia composta por 252 dias úteis (IPCA: acumulado de 12 meses), e o Sharpe desconta o CDI diário real. A partida só é criada (ou carregada) quando CDI, SELIC e IPCA têm dado no dia de início. Resolve a limitação de CDI constante da F2 e da F11.

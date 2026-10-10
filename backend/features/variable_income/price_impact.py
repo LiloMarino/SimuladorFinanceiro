@@ -83,16 +83,17 @@ class PriceImpact:
         self, ticker: str, history: list[StockPriceHistoryDTO]
     ) -> list[StockPriceHistoryDTO]:
         """Histórico com o fator de cada dia, igual ao que foi negociado naquele dia."""
-        if not self.enabled:
-            return history
+        factors = self.factors_on(ticker, [row.price_date for row in history])
+        return [_scale(row, factors[row.price_date]) for row in history]
 
-        flows = repository.event.get_daily_equity_flow(
-            self.simulation_id, ticker=ticker
+    def factors_on(self, ticker: str, days: list[date]) -> dict[date, float]:
+        """Fator do ativo em cada um dos `days`, reconstruído dos eventos persistidos."""
+        flows = (
+            repository.event.get_daily_equity_flow(self.simulation_id, ticker=ticker)
+            if self.enabled
+            else []
         )
-        if not flows:
-            return history
-
-        return [_scale(row, self._factor_on(flows, row.price_date)) for row in history]
+        return {day: self._factor_on(flows, day) if flows else 1.0 for day in days}
 
     def _factor_on(self, flows: list[DailyEquityFlowDTO], on: date) -> float:
         total = 0.0

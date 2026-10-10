@@ -287,3 +287,26 @@ class StockRepository:
             )
             for sector in sectors
         ]
+
+    @transactional
+    def get_closes_on(self, session: Session, on: date) -> dict[str, float]:
+        """Último fechamento histórico de cada ação até `on` (inclusive)."""
+        last = (
+            select(
+                StockPriceHistory.stock_id,
+                func.max(StockPriceHistory.price_date).label("price_date"),
+            )
+            .where(StockPriceHistory.price_date <= on)
+            .group_by(StockPriceHistory.stock_id)
+            .subquery()
+        )
+        rows = session.execute(
+            select(Stock.ticker, StockPriceHistory.close)
+            .join(StockPriceHistory, StockPriceHistory.stock_id == Stock.id)
+            .join(
+                last,
+                (last.c.stock_id == StockPriceHistory.stock_id)
+                & (last.c.price_date == StockPriceHistory.price_date),
+            )
+        ).all()
+        return {ticker: close for ticker, close in rows}

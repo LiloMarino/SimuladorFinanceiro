@@ -10,7 +10,6 @@ from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
-from backend.core.dto.player_history import PerformanceReportDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.stock_details import StockDetailsDTO
@@ -32,7 +31,6 @@ from backend.features.realtime.schemas import (
     StockUpdateEventDTO,
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
-from backend.features.statistics.ranking import build_performance_report
 from backend.features.strategy.manual import ManualStrategy
 from backend.features.variable_income.price_impact import PriceImpact
 
@@ -222,11 +220,6 @@ class Simulation:
             ipca=annual_index_rate(IndicatorSeries.IPCA, self._current_date),
             selic=annual_index_rate(IndicatorSeries.SELIC, self._current_date),
             cdi=annual_index_rate(IndicatorSeries.CDI, self._current_date),
-        )
-
-    def get_statistics(self) -> PerformanceReportDTO:
-        return build_performance_report(
-            repository.statistics.get_players_history([self.settings.id])
         )
 
     def get_orders(self, ticker: str) -> list[OrderDTO]:
