@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-09):** F25 concluída: o banco sobe pelas migrations do Alembic, com ensaio numa cópia e backup antes de cada upgrade.
+> **Última mudança (2026-10-10):** F31 concluída: diagrama do banco gerado dos models numa página dos docs, conferido por teste.
 
 ## Glossário
 
@@ -59,11 +59,10 @@
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
 | [**F29**](#f29) | IR na venda de renda variável | — | ⏳ |
 | [**F30**](#f30) | Setores e segmentos | — | ⏳ |
-| [**F31**](#f31) | Diagrama do banco sempre em dia | — | ⏳ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (14 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -81,6 +80,7 @@
 | [**F13**](#f13) | Impacto de preço de ordens grandes | — | ✅ |
 | [**F15**](#f15) | Cliente desktop em Tauri | — | 🚫 |
 | [**F25**](#f25) | Migrations com Alembic | — | ✅ |
+| [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
 
 </details>
 
@@ -103,7 +103,6 @@
 | [**F26**](#f26) | Redesign visual | — | 0 | 🔍 |
 | [**F29**](#f29) | IR na venda de renda variável | M10 | 0 | ⏳ |
 | [**F30**](#f30) | Setores e segmentos | — | 0 | ⏳ |
-| [**F31**](#f31) | Diagrama do banco sempre em dia | — | 0 | ⏳ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | 0 | ⏳ |
 
 ---
@@ -278,15 +277,22 @@
 
 ### Sem marco
 
-> **Progresso:** 0/5 concluídas
+> **Progresso:** 1/5 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F26**](#f26) | Redesign visual | — | 🔍 |
 | [**F30**](#f30) | Setores e segmentos | — | ⏳ |
-| [**F31**](#f31) | Diagrama do banco sempre em dia | — | ⏳ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
+
+</details>
 
 ---
 
@@ -314,7 +320,7 @@
 | **F27** | Fechamento de partida: pódio e critério de vitória | N5, N6, N9 | D8 | M7 | [F17](#f17), [F18](#f18) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F29** | IR na venda de renda variável | N7 | D1 | M10 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F30** | Setores e segmentos | N16 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F31** | Diagrama do banco sempre em dia | N17 | D9 | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F31** | Diagrama do banco sempre em dia | N17 | D9 | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F32** | Ferramenta de correlação entre ativos | N18 | D2 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f1"></a>
@@ -402,8 +408,8 @@ A tela lê `/api/statistics/compare?simulation_ids=<id>`, que já funciona sem p
 **F30 — Setores e segmentos.** Serve N16. Mesmo modelo do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): tabelas `sectors` (nome único) e `segments` (nome único dentro do setor), com `segment_id` anulável em `stock`. Na importação, o setor e a indústria que o yfinance dá ao ticker viram uma sugestão de segmento, e a classificação é editável na Central de dados (F21). Com isso: a carteira ganha a visão por setor e segmento (barras e tabela de valor e fração), a aba Composição da F17 ganha o recorte por setor, e a estratégia (F8) enxerga o setor de cada ativo — o que permite estratégias como rotação setorial.
 
 <a id="f31"></a>
-**F31 — Diagrama do banco sempre em dia.** Serve N17; segue a D9. O `docs/erd/simulador_financeiro.erd` (extensão ERD Editor do VS Code) era editado à mão e está defasado desde 2025-12-29; com a D9, a fonte do schema são os models. `pnpm db:erd` lê o `Base.metadata` e escreve a página `docs/docs/desenvolvimento/banco-de-dados.md` com um `erDiagram` em Mermaid: cada tabela com colunas, tipos, PK e FK, e as relações tiradas das chaves estrangeiras. O Docusaurus já tem o Mermaid ligado, então o diagrama renderiza no site da documentação (e no GitHub, que também renderiza Mermaid). `tests/test_erd.py` gera o diagrama em memória e compara com a página: se um model mudou e a página não, o teste falha pedindo `pnpm db:erd`. O `.erd` sai do repositório. Ideias de modelagem são esboçadas em Mermaid na conversa, antes de virar model e migration.
-**Aceite:** acrescentar uma coluna num model sem rodar `pnpm db:erd` faz o teste falhar.
+**F31 — Diagrama do banco sempre em dia.** Serve N17; segue a D9. `pnpm db:erd` (`scripts/erd.py`) lê o `Base.metadata` e escreve a página "Diagrama do Banco de Dados" (`docs/docs/desenvolvimento/diagrama-banco-dados.md`), logo depois do ciclo do banco na seção Desenvolvimento dos docs. A página tem um `erDiagram` em Mermaid por domínio — "Partidas e jogadores" e "Ativos e indicadores"; tabela nova sem seção cai em "Outras tabelas" —, cada tabela com tipo do Postgres, nome, `PK`/`FK`/`UK` e `nullable`, e as relações tiradas das chaves estrangeiras; os valores de cada `ENUM` ficam numa tabela no fim. O diagrama é desenhado da esquerda para a direita: num diagrama só, ou de cima para baixo, as tabelas de evento ficavam lado a lado e o Mermaid encolhia tudo até o texto ficar ilegível. `tests/test_erd.py` compara a página com o que o script geraria e falha pedindo `pnpm db:erd`. O `docs/erd/simulador_financeiro.erd` saiu do repositório, e o ciclo de desenvolvimento ganhou o passo do diagrama. Limitação: o diagrama não se edita pelo desenho; ideias de modelagem são esboçadas em Mermaid na conversa.
+**Aceite:** tirar o `UK` de uma coluna na página, sem mudar o model, faz o `tests/test_erd.py` falhar.
 
 <a id="f32"></a>
 **F32 — Ferramenta de correlação entre ativos.** Serve N18. Como a do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): escolhem-se tickers quaisquer, e o IBOV ou o CDI como referência, e uma janela (6 meses, 1, 3 ou 5 anos); o backend (D2) calcula a correlação dos retornos diários de cada par e devolve a matriz, mostrada como mapa de calor. A correlação vai de −1 a 1: perto de 1, os dois sobem e caem juntos (dois bancos, ~0,8); perto de 0, um não diz nada sobre o outro; negativa, um tende a subir quando o outro cai. Para diversificar, quanto mais baixa melhor. A tela traz essa leitura ao lado e num tooltip, com o tamanho da amostra (quantos pregões em comum entraram no cálculo). Durante a partida, a janela termina na data da simulação, para a ferramenta não revelar o futuro; fora da partida, vale qualquer período. Também serve para conferir o gerador da F23: a correlação entre ativos nos dados gerados deve ficar perto da do histórico.

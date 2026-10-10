@@ -48,7 +48,8 @@ O schema nasce dos models em `backend/core/models/models.py`, e cada mudança vi
 
    O autogenerate compara os models com o banco do `.env` e escreve a revisão. A descrição é em inglês e vira o nome do arquivo.
 3. 🔍 **Revisar o arquivo gerado** — ele é um ponto de partida, não o resultado final
-4. ✅ **Rodar `pnpm test`** — o `tests/test_migrations.py` confere que as migrations chegam exatamente no schema dos models e que toda revisão desce e sobe de volta
+4. 🗺️ **Atualizar o diagrama:** `pnpm db:erd` regenera o [Diagrama do Banco de Dados](./diagrama-banco-dados.md)
+5. ✅ **Rodar `pnpm test`** — o `tests/test_migrations.py` confere que as migrations chegam exatamente no schema dos models e que toda revisão desce e sobe de volta, e o `tests/test_erd.py`, que o diagrama acompanha os models
 
 O banco do `.env` precisa estar no head antes de gerar uma revisão nova: subir o app uma vez já garante isso.
 
