@@ -178,6 +178,12 @@ const sidebar: SidebarsConfig = {
           label: "Importar dados de CSV",
           className: "api-method post",
         },
+        {
+          type: "doc",
+          id: "api/get-segment-suggestion-api-import-assets-stocks-ticker-suggestion-get",
+          label: "Sugestão de setor do yfinance",
+          className: "api-method get",
+        },
       ],
     },
     {

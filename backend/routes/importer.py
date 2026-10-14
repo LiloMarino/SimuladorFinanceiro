@@ -11,6 +11,8 @@ from backend.core.enum import AssetClass, IndicatorSeries
 from backend.core.exceptions.http_exceptions import BadGatewayError, NotFoundError
 from backend.features.import_data.coverage import get_series_coverage
 from backend.features.import_data.importer_service import (
+    fetch_info,
+    suggest_segment,
     update_from_csv,
     update_from_yfinance,
     update_from_yfinance_batch,
@@ -131,19 +133,28 @@ class ImportYFinanceRequest(BaseModel):
     overwrite: bool = False
 
 
+def imported_series(ticker: str) -> SeriesCoverageDTO:
+    """A série como ficou na base depois da importação; sem pregão nenhum, a fonte não tinha dado."""
+    series = next((s for s in get_series_coverage() if s.key == ticker), None)
+    if series is None or series.start is None:
+        raise NotFoundError(
+            f"Nenhum pregão de {ticker} veio da fonte: confira o código."
+        )
+    return series
+
+
 @import_router.post(
     "/yfinance",
-    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=SeriesCoverageDTO,
     summary="Importar dados de yfinance",
-    description="Importa dados de ativos do yfinance para um ticker especificado.",
+    description="Importa dados de ativos do yfinance para um ticker especificado e devolve a série como ficou na base.",
 )
 def import_assets_json(request: ImportYFinanceRequest):
     """
     Importa dados de ativos do yfinance.
     """
-    ticker = request.ticker
-    overwrite = request.overwrite
-    update_from_yfinance(ticker, overwrite)
+    update_from_yfinance(request.ticker, request.overwrite)
+    return imported_series(request.ticker)
 
 
 class ImportYFinanceBatchRequest(BaseModel):
@@ -163,9 +174,9 @@ def import_assets_batch(request: ImportYFinanceBatchRequest):
 
 @import_router.post(
     "/csv",
-    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=SeriesCoverageDTO,
     summary="Importar dados de CSV",
-    description="Importa dados de ativos a partir de um arquivo CSV enviado via multipart/form-data.",
+    description="Importa dados de ativos a partir de um arquivo CSV enviado via multipart/form-data e devolve a série como ficou na base.",
 )
 def import_assets_csv(
     ticker: Annotated[str, Form(...)],
@@ -175,5 +186,15 @@ def import_assets_csv(
     """
     Importa dados de ativos de um arquivo CSV.
     """
-    overwrite_bool = str_to_bool(overwrite)
-    update_from_csv(csv_file, ticker, overwrite_bool)
+    update_from_csv(csv_file, ticker, str_to_bool(overwrite))
+    return imported_series(ticker)
+
+
+@import_router.get(
+    "/stocks/{ticker}/suggestion",
+    response_model=StockSegmentDTO | None,
+    summary="Sugestão de setor do yfinance",
+    description="Setor e segmento que o yfinance sugere para o ativo, ou nada quando ele não sabe.",
+)
+def get_segment_suggestion(ticker: str):
+    return suggest_segment(fetch_info(ticker))

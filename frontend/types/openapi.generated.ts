@@ -391,7 +391,7 @@ export interface paths {
         put?: never;
         /**
          * Importar dados de yfinance
-         * @description Importa dados de ativos do yfinance para um ticker especificado.
+         * @description Importa dados de ativos do yfinance para um ticker especificado e devolve a série como ficou na base.
          */
         post: operations["import_assets_json_api_import_assets_yfinance_post"];
         delete?: never;
@@ -431,9 +431,29 @@ export interface paths {
         put?: never;
         /**
          * Importar dados de CSV
-         * @description Importa dados de ativos a partir de um arquivo CSV enviado via multipart/form-data.
+         * @description Importa dados de ativos a partir de um arquivo CSV enviado via multipart/form-data e devolve a série como ficou na base.
          */
         post: operations["import_assets_csv_api_import_assets_csv_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-assets/stocks/{ticker}/suggestion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sugestão de setor do yfinance
+         * @description Setor e segmento que o yfinance sugere para o ativo, ou nada quando ele não sabe.
+         */
+        get: operations["get_segment_suggestion_api_import_assets_stocks__ticker__suggestion_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3079,11 +3099,13 @@ export interface operations {
         };
         responses: {
             /** @description Successful Response */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SeriesCoverageDTO"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -3159,11 +3181,53 @@ export interface operations {
         };
         responses: {
             /** @description Successful Response */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["SeriesCoverageDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_segment_suggestion_api_import_assets_stocks__ticker__suggestion_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StockSegmentDTO"] | null;
+                };
             };
             /** @description Validation Error */
             422: {

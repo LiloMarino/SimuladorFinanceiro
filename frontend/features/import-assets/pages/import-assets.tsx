@@ -1,131 +1,126 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { CalendarDays } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-} from "@/shared/components/ui/alert-dialog";
-
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/shared/components/ui/empty";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { ErrorState } from "@/shared/components/error-state";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { toFormData } from "@/shared/lib/api/toFormData";
-import { toast } from "sonner";
-import type { CsvFormData } from "@/features/import-assets/components/csv-form";
-import type { YFinanceFormData } from "@/features/import-assets/components/yfinance-form";
-import CSVForm from "@/features/import-assets/components/csv-form";
-import YFinanceForm from "@/features/import-assets/components/yfinance-form";
-import { SeriesCoverageTable } from "@/features/import-assets/components/series-coverage-table";
-
-type ImportFormData = { type: "csv"; data: CsvFormData } | { type: "yfinance"; data: YFinanceFormData };
+import { seriesCoverageOptions } from "@/shared/lib/queries/seriesCoverageOptions";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
+import { ADD_ASSET_INPUT_ID, AddAssetPanel } from "../components/add-asset-panel";
+import { CoverageSummary } from "../components/coverage-summary";
+import { HowToRead } from "../components/how-to-read";
+import { SeriesTable } from "../components/series-table";
 
 export default function ImportAssetsPage() {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [pendingImport, setPendingImport] = useState<ImportFormData | null>(null);
   const queryClient = useQueryClient();
-  const invalidateCoverage = () => queryClient.invalidateQueries({ queryKey: queryKeys.seriesCoverage() });
+  const { data: series, isLoading, error, refetch } = useQuery(seriesCoverageOptions());
+  // Ação com a classificação aberta na própria linha da tabela
+  const [classifying, setClassifying] = useState<string | null>(null);
 
-  const csvMutation = useApiMutation({
-    mutationFn: (payload: { ticker: string; overwrite: boolean; csv_file: File }) =>
-      apiFetch("/api/import-assets/csv", { method: "POST", body: toFormData(payload) }),
-    onSettled: invalidateCoverage,
-  });
-  const yFinanceMutation = useApiMutation({
-    mutationFn: (payload: { ticker: string; overwrite: boolean }) =>
-      apiFetch("/api/import-assets/yfinance", { method: "POST", body: payload }),
-    onSettled: invalidateCoverage,
+  const downloadIndicators = useApiMutation({
+    mutationFn: () => apiFetch("/api/import-assets/indicators", { method: "POST" }),
+    onError: (err) => toastApiError(err),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.seriesCoverage() }),
   });
 
-  const handleConfirm = async () => {
-    if (!pendingImport) return;
+  const hasData = (series ?? []).some((s) => s.start);
 
-    setDialogOpen(false);
-    let toastId: string | number | undefined;
-
-    try {
-      // Mostra o toast de loading
-      toastId = toast.loading(
-        pendingImport.type === "csv" ? "Importando arquivo CSV..." : "Baixando dados via YFinance..."
+  const renderSeries = () => {
+    if (isLoading) {
+      return (
+        <Card>
+          <CardContent>
+            <div className="grid gap-4">
+              {Array.from({ length: 5 }, (_, i) => (
+                <div key={i} className="grid grid-cols-[120px_200px_1fr_90px] gap-4">
+                  <Skeleton className="h-4" />
+                  <Skeleton className="h-4" />
+                  <Skeleton className="h-4" />
+                  <Skeleton className="h-4" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       );
-
-      if (pendingImport.type === "csv") {
-        const { csv_file, ticker, overwrite } = pendingImport.data;
-        await csvMutation.mutateAsync({
-          ticker,
-          overwrite,
-          csv_file,
-        });
-        toast.success("Importação CSV concluída!", { id: toastId });
-      } else {
-        await yFinanceMutation.mutateAsync({
-          ticker: pendingImport.data.ticker,
-          overwrite: pendingImport.data.overwrite ?? false,
-        });
-        toast.success("Importação via YFinance concluída!", { id: toastId });
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao realizar a importação.", { id: toastId });
-    } finally {
-      setPendingImport(null);
     }
+    if (error) {
+      return (
+        <Card>
+          <CardContent>
+            <ErrorState
+              title="Não deu pra carregar as séries"
+              description="Confira se o servidor do host está ligado."
+              error={error}
+              onRetry={() => void refetch()}
+            />
+          </CardContent>
+        </Card>
+      );
+    }
+    if (!hasData) {
+      return (
+        <Card>
+          <CardContent>
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <CalendarDays />
+                </EmptyMedia>
+                <EmptyTitle>A base está vazia</EmptyTitle>
+                <EmptyDescription>
+                  Comece pelos indicadores: sem CDI, SELIC, IPCA e Ibovespa na data inicial, a partida não começa.
+                  Depois adicione as ações que quer negociar.
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent className="flex-row justify-center">
+                <Button disabled={downloadIndicators.isPending} onClick={() => downloadIndicators.mutate()}>
+                  {downloadIndicators.isPending && <Spinner />}
+                  Baixar indicadores
+                </Button>
+                <Button variant="outline" onClick={() => document.getElementById(ADD_ASSET_INPUT_ID)?.focus()}>
+                  Adicionar ativo
+                </Button>
+              </EmptyContent>
+            </Empty>
+          </CardContent>
+        </Card>
+      );
+    }
+    return <SeriesTable series={series ?? []} classifying={classifying} onClassify={setClassifying} />;
   };
 
   return (
-    <section className="section-content p-4 flex flex-col gap-4">
-      <header>
-        <h1 className="text-2xl font-semibold">Central de dados</h1>
-        <p className="text-sm text-muted-foreground">
-          Indicadores e ações que a simulação usa. Disponível só fora da partida.
+    <section className="flex flex-col gap-5">
+      <header className="grid gap-1">
+        <h1 className="text-2xl font-bold">Central de dados</h1>
+        <p className="text-muted-foreground">
+          Os preços e indicadores que as partidas usam. Só dá pra mexer fora da partida.
         </p>
       </header>
 
-      {/* AlertDialog de confirmação */}
-      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Importação</AlertDialogTitle>
-            <AlertDialogDescription>
-              Deseja realmente importar os dados selecionados?{" "}
-              {pendingImport?.data.overwrite && "Essa ação pode sobrescrever informações existentes."}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+      {hasData && <CoverageSummary series={series ?? []} />}
 
-          <AlertDialogFooter className="flex justify-end space-x-2 mt-4">
-            <Button variant="default" onClick={handleConfirm}>
-              Sim
-            </Button>
-            <Button variant="secondary" onClick={() => setDialogOpen(false)}>
-              Cancelar
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Formulários */}
-      <div className="bg-white rounded-lg shadow p-6 space-y-8">
-        <h2 className="text-xl font-semibold mb-6">Importar ações</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <CSVForm
-            onSubmit={(data) => {
-              setPendingImport({ type: "csv", data });
-              setDialogOpen(true);
-            }}
-          />
-          <YFinanceForm
-            onSubmit={(data) => {
-              setPendingImport({ type: "yfinance", data });
-              setDialogOpen(true);
-            }}
-          />
-        </div>
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+        {renderSeries()}
+        <aside className="grid gap-5">
+          <AddAssetPanel onClassify={setClassifying} />
+          <HowToRead />
+        </aside>
       </div>
-
-      {/* Cobertura das séries */}
-      <SeriesCoverageTable />
     </section>
   );
 }

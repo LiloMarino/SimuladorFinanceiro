@@ -26,5 +26,6 @@ export const queryKeys = {
   notificationSettings: () => ["notifications", "settings"] as const,
   seriesCoverage: () => ["import-assets", "coverage"] as const,
   sectors: () => ["import-assets", "sectors"] as const,
+  segmentSuggestion: (ticker: string) => ["import-assets", "suggestion", ticker] as const,
   tunnelStatus: () => ["tunnel", "status"] as const,
 } as const;
