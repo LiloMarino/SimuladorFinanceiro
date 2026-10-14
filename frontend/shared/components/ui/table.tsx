@@ -33,19 +33,19 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
 
 /**
  * `group`: linha de título de um grupo de linhas; `warning`: linha que pede atenção;
- * `editing`: linha aberta para edição logo abaixo de outra.
+ * `editing`: linha aberta para edição logo abaixo de outra; `current`: a linha de quem está vendo.
  */
 function TableRow({
   className,
   variant = "default",
   ...props
-}: React.ComponentProps<"tr"> & { variant?: "default" | "group" | "warning" | "editing" }) {
+}: React.ComponentProps<"tr"> & { variant?: "default" | "group" | "warning" | "editing" | "current" }) {
   return (
     <tr
       data-slot="table-row"
       data-variant={variant}
       className={cn(
-        "border-b border-muted transition-colors hover:bg-subtle has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted data-[variant=editing]:bg-info-soft/50 data-[variant=group]:bg-subtle data-[variant=warning]:bg-warning-soft/40 data-[variant=editing]:hover:bg-info-soft/50 data-[variant=warning]:hover:bg-warning-soft/60",
+        "border-b border-muted transition-colors hover:bg-subtle has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted data-[variant=current]:bg-info-soft/40 data-[variant=current]:font-semibold data-[variant=editing]:bg-info-soft/50 data-[variant=group]:bg-subtle data-[variant=warning]:bg-warning-soft/40 data-[variant=editing]:hover:bg-info-soft/50 data-[variant=warning]:hover:bg-warning-soft/60",
         className,
       )}
       {...props}

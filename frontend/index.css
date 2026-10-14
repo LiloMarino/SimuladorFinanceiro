@@ -57,6 +57,9 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
   --color-candle-up: var(--candle-up);
   --color-candle-down: var(--candle-down);
   --color-toast: var(--toast);
@@ -117,6 +120,9 @@
   --chart-3: #e9a23b;
   --chart-4: #8e5cc8;
   --chart-5: #e07a1f;
+  --chart-6: #db2777;
+  --chart-7: #0891b2;
+  --chart-8: #65a30d;
   /* O lightweight-charts desenha em canvas e lê a cor por getComputedStyle: precisa ser hex */
   --chart-1-canvas: #2350d8;
   --candle-up: #26a69a;

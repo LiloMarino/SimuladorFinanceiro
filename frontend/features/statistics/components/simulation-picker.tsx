@@ -63,7 +63,12 @@ export function SimulationPicker({ selected, onToggle }: SimulationPickerProps) 
       {/* Busca */}
       <div className="relative">
         <Search className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nome..." className="pl-9" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar por nome..."
+          className="pl-9"
+        />
       </div>
 
       {/* Lista */}

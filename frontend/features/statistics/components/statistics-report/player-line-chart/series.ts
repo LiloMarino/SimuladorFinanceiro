@@ -7,5 +7,9 @@ export interface LineSeries {
   color: string;
   points: SeriesPoint[];
   dashed?: boolean;
+  /** A linha de quem está vendo: mais grossa */
+  emphasis?: boolean;
+  /** Linha de contexto, mais apagada */
+  muted?: boolean;
   defaultVisible?: boolean;
 }

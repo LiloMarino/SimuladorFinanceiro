@@ -2,17 +2,20 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query
 
-from backend.core.dependencies import ActiveSimulation
+from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.statistics_report import (
     CompositionReportDTO,
+    HighlightsDTO,
     OperationsReportDTO,
     OverviewReportDTO,
     ReturnsReportDTO,
     RiskReportDTO,
 )
+from backend.core.runtime.user_manager import UserManager
 from backend.features.statistics.report import (
     build_composition_report,
+    build_highlights,
     build_operations_report,
     build_overview_report,
     build_returns_report,
@@ -33,6 +36,17 @@ SimulationIds = Annotated[list[int], Query(min_length=1)]
 )
 def get_overview(simulation_ids: SimulationIds):
     return build_overview_report(simulation_ids)
+
+
+@statistics_router.get(
+    "/statistics/highlights",
+    response_model=HighlightsDTO,
+    summary="Estatísticas: destaques",
+    description="Quem teve o maior retorno, a menor queda, mais negócios e mais IR pago, e o melhor mês de quem pede.",
+)
+def get_highlights(simulation_ids: SimulationIds, client_id: ClientID):
+    user = UserManager.get_user(client_id)
+    return build_highlights(simulation_ids, user.nickname if user else None)
 
 
 @statistics_router.get(

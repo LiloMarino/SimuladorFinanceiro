@@ -1,181 +1,328 @@
 import { useState } from "react";
-import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { stringToColor } from "@/shared/lib/utils";
-import { displayMoney, displayMoneyCompact, displayMonthYear, displayPercent, isLoss } from "@/shared/lib/utils/display";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { MetricHint } from "@/shared/components/metric-hint";
+import {
+  displayMoney,
+  displayMoneyCompact,
+  displayMonthSlashYear,
+  displayNumber,
+  displayPercent,
+} from "@/shared/lib/utils/display";
 import type { CompositionReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
+import { EFFECTIVE_SECTORS, SECTOR_PROFIT } from "../../lib/metrics";
+import { playerColors } from "../../lib/player-colors";
 import { playerLabel } from "../../lib/player-label";
-import { COMPOSITION, EFFECTIVE_SECTORS, SECTOR_EXPOSURE, SECTOR_PROFIT, displayMetric } from "../../lib/metrics";
-import { MetricLabel } from "@/shared/components/metric-hint";
-import { ChartCard, PlayerPills, TabStatus, type ReportProps } from "./shared";
+import { PlayerCell, TabStatus, type ReportProps } from "./shared";
 
-const UNCLASSIFIED = "Sem setor";
+type Player = CompositionReport["players"][number];
+type Unit = "PCT" | "MONEY";
 
-const LAYERS = [
-  { key: "total_cash", label: "Caixa", color: "var(--color-chart-4)" },
-  { key: "total_equity", label: "Renda variável", color: "var(--color-chart-1)" },
-  { key: "total_fixed", label: "Renda fixa", color: "var(--color-chart-2)" },
+const SERIES = [
+  { key: "total_cash", label: "Caixa", color: "var(--input)" },
+  { key: "total_equity", label: "Renda variável", color: "var(--chart-1)" },
+  { key: "total_fixed", label: "Renda fixa", color: "var(--chart-2)" },
 ] as const;
 
-type PlayerComposition = CompositionReport["players"][number];
+const NO_SECTOR = "Sem setor";
+
+/** A diversificação em palavras: 1 é tudo num setor; 4 é dividido igual em quatro. */
+function diversificationWord(value: number) {
+  if (value < 2) return "concentrado";
+  if (value < 3) return "moderado";
+  return "diversificado";
+}
 
 export function CompositionTab({ simulationIds, showSimulation, currentPlayerName }: ReportProps) {
-  const { data, isLoading } = useStatisticsReport("composition", simulationIds);
-  const [selected, setSelected] = useState<string | null>(null);
-  if (!data) return <TabStatus loading={isLoading} />;
+  const { data, isLoading, error, refetch } = useStatisticsReport("composition", simulationIds);
+  const [unit, setUnit] = useState<Unit>("PCT");
+  if (!data) return <TabStatus loading={isLoading} title="a Composição" error={error} onRetry={() => void refetch()} />;
 
-  const players = data.players.map((p) => ({ player: p, label: playerLabel(p, showSimulation) }));
-  // Começa no jogador logado; sem ele na lista, no primeiro
-  const current =
-    players.find((p) => p.label === selected) ??
-    players.find((p) => p.player.player_nickname === currentPlayerName) ??
-    players[0];
+  const labels = data.players.map((p) => playerLabel(p, showSimulation));
+  const colorOf = playerColors(labels);
 
   return (
-    <div className="space-y-6">
-      <ChartCard metric={COMPOSITION}>
-        <PlayerPills
-          labels={players.map((p) => p.label)}
-          current={current?.label}
-          onSelect={setSelected}
-          className="mb-4"
-        />
-        {current ? <CompositionChart player={current.player} /> : null}
-      </ChartCard>
+    <div className="grid gap-5">
+      {/* Como cada um dividiu o dinheiro */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Como cada um dividiu o dinheiro</CardTitle>
+          <CardDescription>
+            Fatia do patrimônio em caixa, ações e renda fixa, dia a dia. Todos lado a lado.
+          </CardDescription>
+          <CardAction>
+            <ToggleGroup
+              variant="segmented"
+              aria-label="Unidade"
+              value={[unit]}
+              onValueChange={(values) => values[0] && setUnit(values[0] as Unit)}
+            >
+              <ToggleGroupItem value="PCT">Em %</ToggleGroupItem>
+              <ToggleGroupItem value="MONEY">Em R$</ToggleGroupItem>
+            </ToggleGroup>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4">
+            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+              {SERIES.map((s) => (
+                <span key={s.key} className="flex items-center gap-1.5">
+                  <span className="size-2.5 rounded-sm" style={{ backgroundColor: s.color }} aria-hidden="true" />
+                  {s.label}
+                </span>
+              ))}
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {data.players.map((p) => (
+                <SmallMultiple
+                  key={playerLabel(p, true)}
+                  player={p}
+                  label={playerLabel(p, showSimulation)}
+                  unit={unit}
+                />
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <ChartCard metric={SECTOR_EXPOSURE}>
-        <div className="space-y-5">
-          {players.map(({ player, label }) => (
-            <SectorExposure key={label} player={player} label={label} />
-          ))}
-        </div>
-      </ChartCard>
-
-      <ChartCard metric={SECTOR_PROFIT}>
-        <div className="space-y-6">
-          {players.map(({ player, label }) => (
-            <SectorProfit key={label} player={player} label={label} />
-          ))}
-        </div>
-      </ChartCard>
+      <SectorExposure
+        players={data.players}
+        showSimulation={showSimulation}
+        currentPlayerName={currentPlayerName}
+        colorOf={colorOf}
+      />
+      <SectorProfit players={data.players} showSimulation={showSimulation} />
     </div>
   );
 }
 
-function CompositionChart({ player }: { player: PlayerComposition }) {
-  const data = player.history.map((h) => ({
-    timestamp: new Date(`${h.snapshot_date}T00:00:00`).getTime(),
+function SmallMultiple({ player, label, unit }: { player: Player; label: string; unit: Unit }) {
+  const rows = player.history.map((h) => ({
+    date: h.snapshot_date,
     total_cash: Number(h.total_cash),
     total_equity: Number(h.total_equity),
     total_fixed: Number(h.total_fixed),
   }));
 
   return (
-    <div className="h-[380px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 12, right: 16, left: 24, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-          <XAxis
-            dataKey="timestamp"
-            type="number"
-            scale="time"
-            domain={["dataMin", "dataMax"]}
-            tickFormatter={(v) => displayMonthYear(new Date(v))}
-            minTickGap={40}
-          />
-          <YAxis tickFormatter={(v: number) => displayMoneyCompact(v)} width={96} />
-          <Tooltip
-            labelFormatter={(v) => displayMonthYear(new Date(Number(v)))}
-            formatter={(value) => displayMoney(Number(value))}
-          />
-          <Legend />
-          {LAYERS.map((layer) => (
-            <Area
-              key={layer.key}
-              type="monotone"
-              dataKey={layer.key}
-              name={layer.label}
-              stackId="networth"
-              stroke={layer.color}
-              fill={layer.color}
-              fillOpacity={0.35}
-            />
-          ))}
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-function SectorExposure({ player, label }: { player: PlayerComposition; label: string }) {
-  return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-        <span className="font-medium">{label}</span>
-        <span className="flex items-center gap-1 text-muted-foreground">
-          <MetricLabel metric={EFFECTIVE_SECTORS} />: {displayMetric(EFFECTIVE_SECTORS, player.effective_sectors)}
-        </span>
-      </div>
-
-      {player.sectors.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nenhuma ação na carteira no último dia.</p>
+    <div className="grid gap-1.5">
+      <span className="text-[13px] font-semibold">{label}</span>
+      {rows.length < 2 ? (
+        <div className="flex h-36 items-center justify-center rounded-lg border border-dashed border-input text-xs text-muted-foreground">
+          Sem histórico ainda
+        </div>
       ) : (
-        <>
-          {/* Régua de 0 a 100% fatiada por setor */}
-          <div className="flex h-4 w-full overflow-hidden rounded-full bg-muted">
-            {player.sectors.map((s) => (
-              <div
-                key={s.sector ?? UNCLASSIFIED}
-                title={`${s.sector ?? UNCLASSIFIED}: ${displayPercent(s.fraction)}`}
-                style={{ width: `${Number(s.fraction) * 100}%`, backgroundColor: stringToColor(s.sector ?? UNCLASSIFIED) }}
+        <div className="h-36">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={rows}
+              stackOffset={unit === "PCT" ? "expand" : "none"}
+              margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
+            >
+              <XAxis dataKey="date" hide />
+              <YAxis
+                width={44}
+                tick={{ fontSize: 10, fill: "var(--faint-foreground)" }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v: number) => (unit === "PCT" ? displayPercent(v, 0) : displayMoneyCompact(v))}
               />
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            {player.sectors.map((s) => (
-              <span key={s.sector ?? UNCLASSIFIED} className="flex items-center gap-1">
-                <span
-                  className="size-2.5 rounded-full"
-                  style={{ backgroundColor: stringToColor(s.sector ?? UNCLASSIFIED) }}
+              <Tooltip
+                contentStyle={{ borderRadius: 10, borderColor: "var(--border)", fontSize: 11 }}
+                labelFormatter={(d) => displayMonthSlashYear(String(d))}
+                formatter={(v, name) => [displayMoney(Number(v)), SERIES.find((s) => s.key === name)?.label ?? name]}
+              />
+              {SERIES.map((s) => (
+                <Area
+                  key={s.key}
+                  type="monotone"
+                  dataKey={s.key}
+                  stackId="1"
+                  stroke="none"
+                  fill={s.color}
+                  fillOpacity={0.9}
                 />
-                {s.sector ?? UNCLASSIFIED} {displayPercent(s.fraction)}
-              </span>
-            ))}
-          </div>
-        </>
+              ))}
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );
 }
 
-function SectorProfit({ player, label }: { player: PlayerComposition; label: string }) {
-  const largest = Math.max(...player.sector_profit.map((s) => Math.abs(Number(s.profit))), 0);
+/** Jogador × setor: quanto mais escuro, maior a aposta; a diversificação em número e em palavras. */
+function SectorExposure({
+  players,
+  showSimulation,
+  currentPlayerName,
+  colorOf,
+}: {
+  players: Player[];
+  showSimulation: boolean;
+  currentPlayerName?: string;
+  colorOf: (label: string) => string;
+}) {
+  const sectors = [...new Set(players.flatMap((p) => p.sectors.map((s) => s.sector ?? NO_SECTOR)))].sort((a, b) =>
+    a === NO_SECTOR ? 1 : b === NO_SECTOR ? -1 : a.localeCompare(b),
+  );
 
   return (
-    <div className="space-y-2">
-      <p className="text-sm font-medium">{label}</p>
-      {player.sector_profit.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nenhuma ação negociada.</p>
+    <Card className="overflow-hidden">
+      <CardHeader>
+        <CardTitle>Em que setores cada um apostou</CardTitle>
+        <CardDescription>
+          Fatia da renda variável em cada setor no último dia. Quanto mais escuro, maior a aposta.
+        </CardDescription>
+      </CardHeader>
+      {sectors.length === 0 ? (
+        <CardContent>
+          <p className="py-6 text-center text-[13px] text-muted-foreground">Ninguém tinha ações no último dia.</p>
+        </CardContent>
       ) : (
-        player.sector_profit.map((s) => {
-          const loss = isLoss(s.profit);
-          const width = largest > 0 ? (Math.abs(Number(s.profit)) / largest) * 100 : 0;
-          return (
-            <div key={s.sector ?? UNCLASSIFIED} className="grid grid-cols-[minmax(0,12rem)_1fr_7rem] items-center gap-3">
-              <span className="truncate text-xs text-muted-foreground">{s.sector ?? UNCLASSIFIED}</span>
-              <div className="h-3 rounded-full bg-muted">
-                <div
-                  className={`h-3 rounded-full ${loss ? "bg-destructive" : "bg-success"}`}
-                  style={{ width: `${width}%` }}
-                />
-              </div>
-              <span className={`text-right text-xs font-medium ${loss ? "text-destructive" : "text-success"}`}>
-                {displayMoney(s.profit)}
-              </span>
-            </div>
-          );
-        })
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Jogador</TableHead>
+              {sectors.map((s) => (
+                <TableHead key={s} numeric>
+                  {s}
+                </TableHead>
+              ))}
+              <TableHead>
+                <span className="flex items-center gap-1">
+                  Diversificação
+                  <MetricHint metric={EFFECTIVE_SECTORS} />
+                </span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {players.map((p) => {
+              const label = playerLabel(p, showSimulation);
+              const isYou = p.player_nickname === currentPlayerName;
+              const bySector = new Map(p.sectors.map((s) => [s.sector ?? NO_SECTOR, Number(s.fraction)]));
+              const effective = p.effective_sectors !== null ? Number(p.effective_sectors) : null;
+              return (
+                <TableRow key={playerLabel(p, true)} variant={isYou ? "current" : "default"}>
+                  <TableCell>
+                    <PlayerCell label={label} color={colorOf(label)} isYou={isYou} />
+                  </TableCell>
+                  {sectors.map((s) => {
+                    const fraction = bySector.get(s);
+                    return (
+                      <TableCell key={s} numeric>
+                        {fraction ? (
+                          <span
+                            className="inline-block w-14 rounded px-1.5 py-1 text-center"
+                            style={{
+                              backgroundColor: `color-mix(in oklab, var(--primary) ${Math.round(fraction * 80)}%, transparent)`,
+                              color: fraction > 0.45 ? "var(--primary-foreground)" : undefined,
+                            }}
+                          >
+                            {displayPercent(fraction, 0)}
+                          </span>
+                        ) : (
+                          <span className="text-faint-foreground">·</span>
+                        )}
+                      </TableCell>
+                    );
+                  })}
+                  <TableCell>
+                    {effective === null ? (
+                      <span className="text-[13px] text-muted-foreground">Sem ações no último dia</span>
+                    ) : (
+                      <span className="text-[13px]">
+                        <b className="font-mono">{displayNumber(effective, 2)}</b> · {diversificationWord(effective)}
+                      </span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       )}
-    </div>
+    </Card>
+  );
+}
+
+/** Lucro ou prejuízo por setor, em barras para os dois lados e com a mesma escala pra todos. */
+function SectorProfit({ players, showSimulation }: { players: Player[]; showSimulation: boolean }) {
+  const scale = Math.max(...players.flatMap((p) => p.sector_profit.map((s) => Math.abs(Number(s.profit)))), 1);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          <span className="flex items-center gap-1">
+            De onde veio o resultado em ações
+            <MetricHint metric={SECTOR_PROFIT} />
+          </span>
+        </CardTitle>
+        <CardDescription>
+          Lucro ou prejuízo por setor, antes do IR. Mesma escala pra todos: barras do mesmo tamanho valem o mesmo.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-4 md:grid-cols-2">
+          {players.map((p) => {
+            const total = p.sector_profit.reduce((sum, s) => sum + Number(s.profit), 0);
+            return (
+              <div
+                key={playerLabel(p, true)}
+                className="grid content-start gap-2 rounded-[10px] border border-border p-4"
+              >
+                <div className="flex justify-between">
+                  <span className="font-semibold">{playerLabel(p, showSimulation)}</span>
+                  <span className={total >= 0 ? "font-mono text-success" : "font-mono text-destructive"}>
+                    {p.sector_profit.length ? `${total >= 0 ? "+" : ""}${displayMoney(total)}` : "—"}
+                  </span>
+                </div>
+                {p.sector_profit.length === 0 ? (
+                  <span className="text-[13px] text-muted-foreground">Não negociou ações.</span>
+                ) : (
+                  p.sector_profit.map((s) => {
+                    const value = Number(s.profit);
+                    const width = (Math.abs(value) / scale) * 50;
+                    return (
+                      <div
+                        key={s.sector ?? NO_SECTOR}
+                        className="grid grid-cols-[110px_1fr_90px] items-center gap-2 text-xs"
+                      >
+                        <span className="truncate text-muted-foreground">{s.sector ?? NO_SECTOR}</span>
+                        <span className="relative h-2.5">
+                          <span className="absolute inset-y-0 left-1/2 w-px bg-input" />
+                          <span
+                            className={
+                              value >= 0
+                                ? "absolute inset-y-0 left-1/2 rounded-r bg-success"
+                                : "absolute inset-y-0 right-1/2 rounded-l bg-destructive"
+                            }
+                            style={{ width: `${width}%` }}
+                          />
+                        </span>
+                        <span
+                          className={
+                            value >= 0 ? "text-right font-mono text-success" : "text-right font-mono text-destructive"
+                          }
+                        >
+                          {value >= 0 ? "+" : ""}
+                          {displayMoney(value)}
+                        </span>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

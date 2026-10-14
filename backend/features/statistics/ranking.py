@@ -4,6 +4,7 @@ from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.statistics_report import (
     OverviewReportDTO,
     PlayerRankingDTO,
+    ScoreAxis,
     ScoreDTO,
 )
 from backend.core.enum import VictoryCriterion
@@ -26,6 +27,9 @@ def build_overview(
         reverse=True,
     )
 
+    leader_value = (
+        _criterion_value(criterion, performances[0]) if performances else None
+    )
     ranked = [
         PlayerRankingDTO(
             player_nickname=player.player_nickname,
@@ -38,15 +42,19 @@ def build_overview(
             days=len(player.history),
             score=score,
             sharpe_ratio=sharpe,
+            criterion_value=_criterion_value(criterion, performance),
+            leader_gap=_gap(leader_value, _criterion_value(criterion, performance)),
+            weakest_axis=_weakest_axis(score),
         )
-        for position, (
+        for position, performance in enumerate(performances, start=1)
+        for (
             player,
             return_percent,
             networth,
             return_value,
             score,
             sharpe,
-        ) in enumerate(performances, start=1)
+        ) in [performance]
     ]
 
     average_return = (
@@ -71,15 +79,32 @@ type Performance = tuple[
 ]
 
 
-def _ranking_key(criterion: VictoryCriterion, performance: Performance):
+def _criterion_value(
+    criterion: VictoryCriterion, performance: Performance
+) -> Decimal | None:
     _, return_percent, networth, _, score, sharpe = performance
-    value = {
+    return {
         VictoryCriterion.SCORE: score.total if score else None,
         VictoryCriterion.RETURN: return_percent,
         VictoryCriterion.NETWORTH: networth,
         VictoryCriterion.SHARPE: sharpe,
     }[criterion]
-    return (value is not None, value or Decimal(0), return_percent)
+
+
+def _gap(leader: Decimal | None, value: Decimal | None) -> Decimal | None:
+    return leader - value if leader is not None and value is not None else None
+
+
+def _weakest_axis(score: ScoreDTO | None) -> ScoreAxis | None:
+    measured = [a for a in score.axes if a.points is not None] if score else []
+    return (
+        min(measured, key=lambda a: a.points or Decimal(0)).axis if measured else None
+    )
+
+
+def _ranking_key(criterion: VictoryCriterion, performance: Performance):
+    value = _criterion_value(criterion, performance)
+    return (value is not None, value or Decimal(0), performance[1])
 
 
 def _performance(player: PlayerHistoryDTO) -> Performance:

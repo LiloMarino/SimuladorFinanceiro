@@ -105,3 +105,14 @@ def test_networth_criterion_ranks_by_final_networth():
     assert [p.player_nickname for p in by_return.players] == ["Lilo", "Ana"]
     assert [p.player_nickname for p in by_networth.players] == ["Ana", "Lilo"]
     assert by_networth.criterion is VictoryCriterion.NETWORTH
+
+
+def test_leader_gap_is_the_distance_to_first_in_the_criterion():
+    """Pelo patrimônio, quem tem R$ 11 mil fica a R$ 4 mil do líder com R$ 15 mil."""
+    report = build_overview(
+        [player("Ana", networth="11000"), player("Bia", networth="15000")],
+        VictoryCriterion.NETWORTH,
+    )
+
+    gaps = {p.player_nickname: p.leader_gap for p in report.players}
+    assert gaps == {"Bia": Decimal("0"), "Ana": Decimal("4000")}

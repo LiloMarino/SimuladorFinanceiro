@@ -37,7 +37,8 @@ export const NETWORTH: MetricInfo = {
 export const CAPITAL_PROVIDED: MetricInfo = {
   label: "Capital aportado",
   description: "Saldo inicial + aportes",
-  definition: "Todo o dinheiro que o jogador colocou na carteira: o saldo inicial e os aportes mensais até o último dia.",
+  definition:
+    "Todo o dinheiro que o jogador colocou na carteira: o saldo inicial e os aportes mensais até o último dia.",
   example: "Ex.: R$ 10.000 iniciais e 12 aportes de R$ 1.000 → R$ 22.000.",
   reading: "É a base do retorno em R$ e em %, que aparece na aba Geral.",
   format: (value) => displayMoney(value),
@@ -46,7 +47,8 @@ export const CAPITAL_PROVIDED: MetricInfo = {
 export const MONTHS_ABOVE_CDI: MetricInfo = {
   label: "Meses acima do CDI",
   description: "Em quantos meses a carteira rendeu mais que o CDI",
-  definition: "Cada mês civil da partida conta como um mês; o retorno dele é comparado com o CDI acumulado no mesmo mês.",
+  definition:
+    "Cada mês civil da partida conta como um mês; o retorno dele é comparado com o CDI acumulado no mesmo mês.",
   example: "Ex.: 9 de 12 → bateu o CDI em 75% dos meses.",
   reading: "Quanto mais, mais regular. Abaixo da metade, o CDI ganhou na maioria dos meses.",
   format: (value) => String(value),
@@ -112,7 +114,8 @@ export const SORTINO_RATIO: MetricInfo = {
   definition:
     "(retorno anual − CDI anual) ÷ oscilação dos dias que renderam menos que o CDI. Subir muito de uma vez não é punido.",
   example: "Ex.: 8 p.p. acima do CDI com oscilação de queda de 10% ao ano → 0,80.",
-  reading: "Abaixo de 0 perdeu para o CDI; perto de 1 é bom; acima de 2 é raro. Fica acima do Sharpe quando as oscilações são mais para cima.",
+  reading:
+    "Abaixo de 0 perdeu para o CDI; perto de 1 é bom; acima de 2 é raro. Fica acima do Sharpe quando as oscilações são mais para cima.",
   format: ratio,
 };
 
@@ -138,7 +141,8 @@ export const RISK_RETURN: MetricInfo = {
   label: "Risco × retorno",
   description: "Um ponto por jogador: quanto oscilou (para a direita) e quanto rendeu (para cima)",
   definition: "Eixo horizontal: volatilidade anual. Eixo vertical: retorno anual. Os dois do período inteiro.",
-  example: "Ex.: um ponto em 10% de volatilidade e 15% de retorno rendeu mais com menos sobe-e-desce que um em 25% e 12%.",
+  example:
+    "Ex.: um ponto em 10% de volatilidade e 15% de retorno rendeu mais com menos sobe-e-desce que um em 25% e 12%.",
   reading: "Quanto mais para cima e para a esquerda, melhor: mais retorno com menos risco.",
   format: percent,
 };
@@ -176,7 +180,8 @@ export const EFFECTIVE_SECTORS: MetricInfo = {
   description: "Em quantos setores a renda variável está espalhada, na prática",
   definition: "1 ÷ soma dos quadrados das frações de cada setor. Pesa mais os setores grandes.",
   example: "Ex.: tudo num setor → 1; dividido igual em 4 → 4; 70/10/10/10 → ~1,9.",
-  reading: "Quanto maior, mais diversificado. Abaixo de 2 é concentrado num setor só. Ações sem setor contam como um setor.",
+  reading:
+    "Quanto maior, mais diversificado. Abaixo de 2 é concentrado num setor só. Ações sem setor contam como um setor.",
   format: ratio,
 };
 
@@ -233,7 +238,8 @@ export const TURNOVER: MetricInfo = {
 export const INCOME_TAX_PAID: MetricInfo = {
   label: "IR pago",
   description: "Imposto sobre o lucro das vendas que já saiu do caixa",
-  definition: "Soma dos DARFs da renda variável pagos na partida: 15% sobre lucro de ações (isento até R$ 20 mil de vendas no mês), 20% em FII e day trade.",
+  definition:
+    "Soma dos DARFs da renda variável pagos na partida: 15% sobre lucro de ações (isento até R$ 20 mil de vendas no mês), 20% em FII e day trade.",
   example: "Ex.: R$ 5.000 de lucro vendendo R$ 30.000 em ações num mês → R$ 750 no mês seguinte.",
   reading: "Já está descontado do patrimônio e do retorno.",
   format: (value) => displayMoney(value),

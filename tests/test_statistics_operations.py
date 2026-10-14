@@ -88,7 +88,46 @@ def test_turnover_and_monthly_volume():
 
     assert operations.traded_volume(trades) == Decimal("3000")
     assert operations.turnover(trades, history) == Decimal("2")
-    assert [(m.month, m.bought, m.sold) for m in operations.monthly_volume(trades)] == [
+    assert [
+        (m.month, m.bought, m.sold) for m in operations.monthly_volume(trades, history)
+    ] == [
         (date(2020, 1, 1), Decimal("1000"), Decimal("0")),
         (date(2020, 2, 1), Decimal("1000"), Decimal("1000")),
     ]
+
+
+def test_monthly_volume_covers_months_without_trades():
+    """Março sem negócio entra zerado: o mapa de calor mostra o período inteiro."""
+    march = date(2020, 3, 2)
+    history = [
+        PatrimonialHistoryDTO(
+            snapshot_date=day,
+            total_networth=Decimal(1000),
+            total_equity=Decimal(0),
+            total_fixed=Decimal(0),
+            total_cash=Decimal(1000),
+            total_contribution=Decimal(0),
+        )
+        for day in (JAN, march)
+    ]
+
+    months = operations.monthly_volume([trade(JAN, BUY, 1, "10")], history)
+
+    assert [(m.month, m.bought, m.buy_count) for m in months] == [
+        (date(2020, 1, 1), Decimal("10"), 1),
+        (date(2020, 3, 1), Decimal("0"), 0),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("value", "style"),
+    [
+        (None, None),
+        (Decimal("0.4"), "Segura"),
+        (Decimal("1.96"), "Moderado"),
+        (Decimal("2.94"), "Ativo"),
+        (Decimal("4.81"), "Muito ativo"),
+    ],
+)
+def test_turnover_style_names_how_much_the_portfolio_turned(value, style):
+    assert operations.turnover_style(value) == style

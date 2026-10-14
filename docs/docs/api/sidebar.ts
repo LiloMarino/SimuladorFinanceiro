@@ -294,6 +294,12 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/get-highlights-api-statistics-highlights-get",
+          label: "Estatísticas: destaques",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
           id: "api/get-returns-api-statistics-returns-get",
           label: "Estatísticas: rentabilidade",
           className: "api-method get",

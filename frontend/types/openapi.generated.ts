@@ -740,6 +740,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/statistics/highlights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estatísticas: destaques
+         * @description Quem teve o maior retorno, a menor queda, mais negócios e mais IR pago, e o melhor mês de quem pede.
+         */
+        get: operations["get_highlights_api_statistics_highlights_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/statistics/returns": {
         parameters: {
             query?: never;
@@ -1151,6 +1171,16 @@ export interface components {
         };
         /** @enum {string} */
         BenchmarkSeries: "CDI" | "IBOV";
+        /** BestMonthDTO */
+        BestMonthDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Value */
+            value: string;
+        };
         /** Body_import_assets_csv_api_import_assets_csv_post */
         Body_import_assets_csv_api_import_assets_csv_post: {
             /** Ticker */
@@ -1431,6 +1461,14 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** HighlightsDTO */
+        HighlightsDTO: {
+            biggest_return: components["schemas"]["PlayerHighlightDTO"] | null;
+            smallest_drawdown: components["schemas"]["PlayerHighlightDTO"] | null;
+            most_trades: components["schemas"]["PlayerHighlightDTO"] | null;
+            most_tax: components["schemas"]["PlayerHighlightDTO"] | null;
+            your_best_month: components["schemas"]["BestMonthDTO"] | null;
+        };
         /** ImportYFinanceBatchRequest */
         ImportYFinanceBatchRequest: {
             /** Tickers */
@@ -1503,6 +1541,18 @@ export interface components {
             /** Segment */
             segment: string | null;
         };
+        /** MonthlyReturnDTO */
+        MonthlyReturnDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Value */
+            value: string;
+            /** Cdi */
+            cdi: string;
+        };
         /** MonthlyVolumeDTO */
         MonthlyVolumeDTO: {
             /**
@@ -1514,6 +1564,10 @@ export interface components {
             bought: string;
             /** Sold */
             sold: string;
+            /** Buy Count */
+            buy_count: number;
+            /** Sell Count */
+            sell_count: number;
         };
         /** OperationsReportDTO */
         OperationsReportDTO: {
@@ -1683,6 +1737,13 @@ export interface components {
             /** Sector Profit */
             sector_profit: components["schemas"]["SectorProfitDTO"][];
         };
+        /** PlayerHighlightDTO */
+        PlayerHighlightDTO: {
+            /** Player Nickname */
+            player_nickname: string;
+            /** Value */
+            value: string;
+        };
         /** PlayerNickname */
         PlayerNickname: {
             /** Nickname */
@@ -1709,6 +1770,7 @@ export interface components {
             traded_volume: string;
             /** Turnover */
             turnover: string | null;
+            turnover_style: components["schemas"]["TurnoverStyle"] | null;
             /** Income Tax Paid */
             income_tax_paid: string;
             /** Impact Cost */
@@ -1742,6 +1804,11 @@ export interface components {
             score: components["schemas"]["ScoreDTO"] | null;
             /** Sharpe Ratio */
             sharpe_ratio: string | null;
+            /** Criterion Value */
+            criterion_value: string | null;
+            /** Leader Gap */
+            leader_gap: string | null;
+            weakest_axis: components["schemas"]["ScoreAxis"] | null;
         };
         /** PlayerReturnsDTO */
         PlayerReturnsDTO: {
@@ -1765,6 +1832,8 @@ export interface components {
             positive_months: number;
             /** Months */
             months: number;
+            /** Monthly Returns */
+            monthly_returns: components["schemas"]["MonthlyReturnDTO"][];
         };
         /** PlayerRiskDTO */
         PlayerRiskDTO: {
@@ -2410,6 +2479,8 @@ export interface components {
             /** Provider */
             provider: string | null;
         };
+        /** @enum {string} */
+        TurnoverStyle: "Segura" | "Moderado" | "Ativo" | "Muito ativo";
         /** UpdateSettingsRequest */
         UpdateSettingsRequest: {
             /** Name */
@@ -3932,6 +4003,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OverviewReportDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_highlights_api_statistics_highlights_get: {
+        parameters: {
+            query: {
+                simulation_ids: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HighlightsDTO"];
                 };
             };
             /** @description Validation Error */

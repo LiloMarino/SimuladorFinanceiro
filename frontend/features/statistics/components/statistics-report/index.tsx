@@ -21,8 +21,8 @@ const TABS = [
  */
 export function StatisticsReport({ simulationIds, showSimulation, currentPlayerName }: ReportProps) {
   return (
-    <Tabs defaultValue={TABS[0].value} className="space-y-4">
-      <TabsList className="flex-wrap h-auto">
+    <Tabs defaultValue={TABS[0].value}>
+      <TabsList>
         {TABS.map((tab) => (
           <TabsTrigger key={tab.value} value={tab.value}>
             {tab.label}

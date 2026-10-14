@@ -72,6 +72,11 @@ class PlayerRankingDTO(PlayerRefDTO):
     # None até a amostra ter `min_score_days` retornos diários
     score: ScoreDTO | None
     sharpe_ratio: Decimal | None
+    # Valor no critério da partida e quanto falta para o primeiro (0 para o líder)
+    criterion_value: Decimal | None
+    leader_gap: Decimal | None
+    # Eixo da nota com menos pontos: onde o jogador mais pode subir
+    weakest_axis: ScoreAxis | None
 
 
 class OverviewReportDTO(BaseDTO):
@@ -86,6 +91,13 @@ class OverviewReportDTO(BaseDTO):
 # Rentabilidade
 
 
+class MonthlyReturnDTO(BaseDTO):
+    month: date
+    value: Decimal
+    # CDI composto no mesmo mês, para comparar
+    cdi: Decimal
+
+
 class PlayerReturnsDTO(PlayerRefDTO):
     networth: list[SeriesPointDTO]
     # Retorno acumulado da cota, que só os rendimentos movem: o aporte não conta
@@ -95,6 +107,7 @@ class PlayerReturnsDTO(PlayerRefDTO):
     months_above_cdi: int
     positive_months: int
     months: int
+    monthly_returns: list[MonthlyReturnDTO]
 
 
 type BenchmarkSeries = Literal["CDI", "IBOV"]
@@ -167,6 +180,11 @@ class MonthlyVolumeDTO(BaseDTO):
     month: date
     bought: Decimal
     sold: Decimal
+    buy_count: int
+    sell_count: int
+
+
+type TurnoverStyle = Literal["Segura", "Moderado", "Ativo", "Muito ativo"]
 
 
 class PlayerOperationsDTO(PlayerRefDTO):
@@ -175,6 +193,7 @@ class PlayerOperationsDTO(PlayerRefDTO):
     traded_volume: Decimal
     # Volume negociado ÷ patrimônio médio do período
     turnover: Decimal | None
+    turnover_style: TurnoverStyle | None
     income_tax_paid: Decimal
     # Executado - histórico, somado com o sinal de quem paga: compra cara e venda
     # barata são custo; None com o impacto de preço desligado
@@ -184,3 +203,26 @@ class PlayerOperationsDTO(PlayerRefDTO):
 
 class OperationsReportDTO(BaseDTO):
     players: list[PlayerOperationsDTO]
+
+
+# Fechamento da partida
+
+
+class PlayerHighlightDTO(BaseDTO):
+    player_nickname: str
+    value: Decimal
+
+
+class BestMonthDTO(BaseDTO):
+    month: date
+    value: Decimal
+
+
+class HighlightsDTO(BaseDTO):
+    biggest_return: PlayerHighlightDTO | None
+    # A queda máxima mais rasa da sala
+    smallest_drawdown: PlayerHighlightDTO | None
+    most_trades: PlayerHighlightDTO | None
+    most_tax: PlayerHighlightDTO | None
+    # O melhor mês de quem está vendo; None se ele não jogou
+    your_best_month: BestMonthDTO | None

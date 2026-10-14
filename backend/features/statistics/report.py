@@ -13,10 +13,14 @@ from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.statistics_report import (
     BenchmarkDTO,
     BenchmarkSeries,
+    BestMonthDTO,
     CompositionReportDTO,
+    HighlightsDTO,
+    MonthlyReturnDTO,
     OperationsReportDTO,
     OverviewReportDTO,
     PlayerCompositionDTO,
+    PlayerHighlightDTO,
     PlayerOperationsDTO,
     PlayerReturnsDTO,
     PlayerRiskDTO,
@@ -68,6 +72,10 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
                 months_above_cdi=sum(1 for m in months if m.value > m.cdi),
                 positive_months=sum(1 for m in months if m.value > 0),
                 months=len(months),
+                monthly_returns=[
+                    MonthlyReturnDTO(month=m.month, value=m.value, cdi=m.cdi)
+                    for m in months
+                ],
             )
         )
 
@@ -167,12 +175,13 @@ def build_operations_report(simulation_ids: list[int]) -> OperationsReportDTO:
                     1 for t in player_trades if t.event_type is EquityEventType.SELL
                 ),
                 traded_volume=operations.traded_volume(player_trades),
-                turnover=operations.turnover(player_trades, player.history),
+                turnover=(turn := operations.turnover(player_trades, player.history)),
+                turnover_style=operations.turnover_style(turn),
                 income_tax_paid=taxes.get(key, Decimal(0)),
                 impact_cost=operations.impact_cost(
                     player_trades, price_impact(player.simulation_id)
                 ),
-                monthly_volume=operations.monthly_volume(player_trades),
+                monthly_volume=operations.monthly_volume(player_trades, player.history),
             )
         )
     return OperationsReportDTO(players=entries)
@@ -236,3 +245,50 @@ def _price_impacts() -> Callable[[int], PriceImpact]:
         )
 
     return price_impact
+
+
+def build_highlights(simulation_ids: list[int], nickname: str | None) -> HighlightsDTO:
+    """Os destaques do fechamento: quem foi melhor em quê, e o melhor mês de quem está vendo."""
+    players = repository.statistics.get_players_history(simulation_ids)
+    trades = repository.statistics.get_players_trades(simulation_ids)
+    taxes = repository.statistics.get_players_tax(simulation_ids)
+
+    returns: list[PlayerHighlightDTO] = []
+    drawdowns: list[PlayerHighlightDTO] = []
+    trade_counts: list[PlayerHighlightDTO] = []
+    tax_paid: list[PlayerHighlightDTO] = []
+    your_best: BestMonthDTO | None = None
+    for player in players:
+        key = (player.simulation_id, player.player_nickname)
+        days = risk.daily_returns(player.history)
+        capital = capital_provided(player)
+        if capital > 0:
+            returns.append(
+                _highlight(
+                    player, (player.history[-1].total_networth - capital) / capital
+                )
+            )
+        if (drawdown := risk.max_drawdown(days)) is not None:
+            drawdowns.append(_highlight(player, drawdown))
+        trade_counts.append(_highlight(player, Decimal(len(trades.get(key, [])))))
+        tax_paid.append(_highlight(player, taxes.get(key, Decimal(0))))
+        if player.player_nickname == nickname and (
+            months := risk.monthly_returns(days)
+        ):
+            best = max(months, key=lambda m: m.value)
+            your_best = BestMonthDTO(month=best.month, value=best.value)
+
+    def top(items: list[PlayerHighlightDTO]) -> PlayerHighlightDTO | None:
+        return max(items, key=lambda h: h.value, default=None)
+
+    return HighlightsDTO(
+        biggest_return=top(returns),
+        smallest_drawdown=top(drawdowns),
+        most_trades=top([t for t in trade_counts if t.value > 0]),
+        most_tax=top([t for t in tax_paid if t.value > 0]),
+        your_best_month=your_best,
+    )
+
+
+def _highlight(player: PlayerHistoryDTO, value: Decimal) -> PlayerHighlightDTO:
+    return PlayerHighlightDTO(player_nickname=player.player_nickname, value=value)

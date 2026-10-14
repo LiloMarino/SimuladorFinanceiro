@@ -1,5 +1,5 @@
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
-import { displayMonthYear } from "@/shared/lib/utils/display";
+import { displayShortDate } from "@/shared/lib/utils/display";
 import { useStaticChartVisibility } from "@/shared/hooks/useStaticChartVisibility";
 import { LineChartLegend } from "./chart-legend";
 import { LineChartTooltip } from "./chart-tooltip";
@@ -21,7 +21,7 @@ export function PlayerLineChart({ series, format, axisFormat }: PlayerLineChartP
 
   if (!data.length) {
     return (
-      <div className="h-72 flex items-center justify-center border border-dashed rounded-md text-sm text-muted-foreground">
+      <div className="flex h-72 items-center justify-center rounded-[10px] border border-dashed border-input text-sm text-muted-foreground">
         Nenhum dado disponível
       </div>
     );
@@ -31,18 +31,27 @@ export function PlayerLineChart({ series, format, axisFormat }: PlayerLineChartP
     <div className="h-[380px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 12, right: 16, left: 24, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+          <CartesianGrid vertical={false} stroke="var(--border)" />
 
           <XAxis
             dataKey="timestamp"
             type="number"
             scale="time"
             domain={["dataMin", "dataMax"]}
-            tickFormatter={(v) => displayMonthYear(new Date(v))}
-            minTickGap={40}
+            tickFormatter={(v) => displayShortDate(new Date(v))}
+            minTickGap={56}
+            tick={{ fontSize: 11, fill: "var(--faint-foreground)" }}
+            axisLine={false}
+            tickLine={false}
           />
 
-          <YAxis tickFormatter={axisFormat} width={96} />
+          <YAxis
+            tickFormatter={axisFormat}
+            width={84}
+            tick={{ fontSize: 11, fill: "var(--faint-foreground)" }}
+            axisLine={false}
+            tickLine={false}
+          />
 
           <Tooltip content={(props) => <LineChartTooltip {...props} format={format} />} />
 
@@ -54,7 +63,8 @@ export function PlayerLineChart({ series, format, axisFormat }: PlayerLineChartP
               dataKey={(row: LineChartRow) => row.numbers[s.key]}
               name={s.key}
               stroke={s.color}
-              strokeWidth={s.dashed ? 1.5 : 2.5}
+              strokeOpacity={s.muted ? 0.45 : 1}
+              strokeWidth={s.emphasis ? 2.5 : 1.5}
               strokeDasharray={s.dashed ? "6 4" : undefined}
               dot={false}
               connectNulls
