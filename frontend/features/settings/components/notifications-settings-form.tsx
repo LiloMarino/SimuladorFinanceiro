@@ -19,6 +19,12 @@ const notificationLabels: NotificationLabels = {
       partial: "Ordem parcialmente executada",
     },
   },
+  players: {
+    label: "Jogadores",
+    items: {
+      join_exit: "Entrada e saída de jogadores",
+    },
+  },
 } as const;
 
 export function NotificationSettingsForm() {

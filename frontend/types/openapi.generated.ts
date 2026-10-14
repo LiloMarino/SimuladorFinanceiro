@@ -1489,6 +1489,11 @@ export interface components {
             /** Nickname */
             nickname: string;
         };
+        /** PlayerNotificationSettings */
+        PlayerNotificationSettings: {
+            /** Join Exit */
+            join_exit: boolean;
+        };
         /** PlayerOperationsDTO */
         PlayerOperationsDTO: {
             /** Player Nickname */
@@ -1837,6 +1842,7 @@ export interface components {
         /** SettingsRequest */
         SettingsRequest: {
             orders: components["schemas"]["OrderNotificationSettings"];
+            players: components["schemas"]["PlayerNotificationSettings"];
         } & {
             [key: string]: unknown;
         };

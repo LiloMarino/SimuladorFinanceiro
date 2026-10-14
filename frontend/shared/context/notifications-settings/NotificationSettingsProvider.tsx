@@ -7,12 +7,15 @@ import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { NotificationPreferences } from "@/types";
-import { toast } from "sonner";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 const DEFAULT_PREFERENCES: NotificationPreferences = {
   orders: {
     executed: true,
     partial: true,
+  },
+  players: {
+    join_exit: true,
   },
 };
 
@@ -47,7 +50,7 @@ export function NotificationSettingsProvider({ children }: PropsWithChildren) {
       if (queryClient.isMutating({ mutationKey: queryKeys.notificationSettings() }) === 1) {
         queryClient.setQueryData(queryKeys.notificationSettings(), context?.previous);
       }
-      toast.error(err.message);
+      toastApiError(err);
     },
 
     onSettled: () => {

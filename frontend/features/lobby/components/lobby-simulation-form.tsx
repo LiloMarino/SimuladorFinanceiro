@@ -23,6 +23,7 @@ import { CoverageAlerts } from "./coverage-alerts";
 import { checkCoverage } from "../lib/coverage";
 import { seriesCoverageOptions } from "@/shared/lib/queries/seriesCoverageOptions";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 const simulationFormSchema = z
   .object({
@@ -104,13 +105,13 @@ export function LobbySimulationForm({ simulationData, isHost }: { simulationData
       victory_criterion: VictoryCriterion;
     }) => apiFetch<SimulationInfo>("/api/simulation/create", { method: "POST", body }),
     onSuccess: () => toast.success("Simulação criada com sucesso!"),
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toastApiError(err),
   });
 
   const { mutate: continueSimulation, isPending: loadingContinue } = useApiMutation({
     mutationFn: () => apiFetch<SimulationInfo>("/api/simulation/continue", { method: "POST" }),
     onSuccess: () => toast.success("Simulação continuada com sucesso!"),
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toastApiError(err),
   });
 
   const copyHostIP = () => {

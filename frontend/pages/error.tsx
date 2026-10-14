@@ -1,106 +1,49 @@
-import { cn } from "@/shared/lib/utils";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Card } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
-import { Bug, CircleHelp, TriangleAlert, type LucideIcon } from "lucide-react";
+import { useSimulation } from "@/shared/hooks/useSimulation";
 
-type ErrorStateProps = {
+type ErrorPageProps = {
   /** Código do erro, ex: "404", "500" */
   code?: string;
-  /** Título principal (curto e direto) */
   title?: string;
-  /** Mensagem explicativa abaixo do título */
   message?: string;
-  /** Texto do botão */
+  /** Ação principal da página; sem ela, só aparece a saída do momento */
   actionLabel?: string;
-  /** Caminho de destino do botão */
   actionHref?: string;
-  /** Classe opcional pra customização */
-  className?: string;
 };
-
-type ErrorVisual = {
-  icon: LucideIcon;
-  iconColor: string;
-  bgColor: string;
-};
-
-function resolveErrorVisual(code?: string): ErrorVisual {
-  const status = Number(code);
-
-  if (status >= 400 && status < 500) {
-    return {
-      icon: TriangleAlert,
-      iconColor: "text-yellow-600",
-      bgColor: "bg-yellow-100",
-    };
-  }
-
-  if (status >= 500 && status < 600) {
-    return {
-      icon: Bug,
-      iconColor: "text-red-600",
-      bgColor: "bg-red-100",
-    };
-  }
-
-  return {
-    icon: CircleHelp,
-    iconColor: "text-muted-foreground",
-    bgColor: "bg-muted",
-  };
-}
 
 export function ErrorPage({
   code = "404",
-  title = "Página não encontrada",
-  message = "Parece que você tentou acessar algo que não existe.",
+  title = "Essa página não existe",
+  message = "O endereço pode ter sido digitado errado ou a tela mudou de lugar.",
   actionLabel,
   actionHref,
-  className,
-}: ErrorStateProps) {
-  const visual = resolveErrorVisual(code);
-  const hasPrimaryAction = actionHref && actionLabel;
-  const Icon = visual.icon;
+}: ErrorPageProps) {
+  const { simulationActive } = useSimulation();
+
+  // Na partida a saída é a carteira; fora dela, o lobby
+  const exit = simulationActive
+    ? { label: "Ir para a carteira", href: "/portfolio" }
+    : { label: "Voltar ao lobby", href: "/lobby" };
+  const hasAction = !!actionLabel && !!actionHref;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-      className={cn("flex min-h-[80vh] w-full items-center justify-center px-4", className)}
-    >
-      <section className="w-full max-w-lg px-4">
-        <Card className="p-6">
-          <div className="flex flex-col items-center text-center gap-4">
-            <div className={cn("rounded-full w-16 h-16 flex items-center justify-center", visual.bgColor)}>
-              <Icon className={cn("w-8 h-8", visual.iconColor)} />
-            </div>
-
-            <div className="flex flex-col items-center">
-              <div className="text-3xl font-bold text-primary">{code}</div>
-              <h2 className="mt-2 text-2xl font-semibold text-foreground">{title}</h2>
-              <p className="mt-1 text-sm text-muted-foreground leading-relaxed ">{message}</p>
-            </div>
-
-            <div className="mt-4 flex gap-2">
-              {hasPrimaryAction && (
-                <Button nativeButton={false} render={<Link to={actionHref} />}>
-                  {actionLabel}
-                </Button>
-              )}
-              <Button
-                variant={hasPrimaryAction ? "outline" : "default"}
-                nativeButton={false}
-                render={<Link to="/" />}
-              >
-                Voltar para o Início
-              </Button>
-            </div>
-          </div>
-        </Card>
-      </section>
-    </motion.div>
+    <section className="flex min-h-[70vh] items-center justify-center p-6">
+      <div className="grid max-w-[380px] justify-items-start gap-3.5">
+        <span className="font-mono text-[13px] font-semibold text-primary">{code}</span>
+        <h2 className="text-[26px] font-bold">{title}</h2>
+        <p className="text-muted-foreground">{message}</p>
+        <div className="flex gap-2">
+          {hasAction && (
+            <Button nativeButton={false} render={<Link to={actionHref} />}>
+              {actionLabel}
+            </Button>
+          )}
+          <Button variant={hasAction ? "outline" : "default"} nativeButton={false} render={<Link to={exit.href} />}>
+            {exit.label}
+          </Button>
+        </div>
+      </div>
+    </section>
   );
 }

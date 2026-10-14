@@ -13,6 +13,7 @@ import {
     AlertDialogAction,
     AlertDialogCancel,
 } from "@/shared/components/ui/alert-dialog";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 export function SimulationControl() {
   const [showStopConfirm, setShowStopConfirm] = useState(false);
@@ -25,7 +26,7 @@ export function SimulationControl() {
       setShowStopConfirm(false);
     },
     onError: (err) => {
-      toast.error(err.message);
+      toastApiError(err);
     },
   });
 

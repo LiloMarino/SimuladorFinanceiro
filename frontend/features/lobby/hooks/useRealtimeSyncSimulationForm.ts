@@ -10,6 +10,7 @@ import type { SimulationFormValues } from "../components/lobby-simulation-form";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { displayDecimal, displayMoney, toCentsString } from "@/shared/lib/utils/display";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues>({
   form,
@@ -47,7 +48,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       toast.success("Configurações sincronizadas");
     },
     onError: (err) => {
-      toast.error(err.message);
+      toastApiError(err);
     },
   });
 

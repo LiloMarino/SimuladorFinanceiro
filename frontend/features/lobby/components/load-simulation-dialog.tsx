@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Play, Trophy } from "lucide-react";
-import { toast } from "sonner";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 
@@ -22,6 +21,7 @@ import { simulationListOptions } from "@/shared/lib/queries/simulationListOption
 import { displayDate, displayMoneyCompact } from "@/shared/lib/utils/display";
 import { cn } from "@/shared/lib/utils";
 import type { SimulationInfo } from "@/types";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 interface LoadSimulationDialogProps {
   open: boolean;
@@ -51,7 +51,7 @@ function LoadSimulationContent({ onOpenChange, isHost }: Omit<LoadSimulationDial
   const { mutate: loadSimulation, isPending: loadingLoad } = useApiMutation({
     mutationFn: (body: { id: number }) => apiFetch<SimulationInfo>("/api/simulation/load", { method: "POST", body }),
     onSuccess: () => onOpenChange(false),
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toastApiError(err),
   });
 
   const items = useMemo(() => {

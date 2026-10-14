@@ -1,6 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
@@ -19,6 +18,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import type { Sector, SeriesCoverage } from "@/types";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 const classifySchema = z.object({
   sector: z.string().trim().min(1, "Informe o setor"),
@@ -52,13 +52,13 @@ export function ClassifyStockDialog({ series, onClose }: ClassifyStockDialogProp
     mutationFn: (body: ClassifyFormData) =>
       apiFetch(`/api/import-assets/stocks/${series.key}/segment`, { method: "PUT", body }),
     onSuccess: onClose,
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toastApiError(err),
     onSettled,
   });
   const removeMutation = useApiMutation({
     mutationFn: () => apiFetch(`/api/import-assets/stocks/${series.key}/segment`, { method: "DELETE" }),
     onSuccess: onClose,
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toastApiError(err),
     onSettled,
   });
 

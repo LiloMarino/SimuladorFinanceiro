@@ -7,10 +7,10 @@ import type { RedirectState } from "@/types";
 export function GuardLayout() {
   const location = useLocation();
   const { session, loading: authLoading } = useAuth();
-  const { simulation, loading: simulationLoading } = useSimulation();
+  const { simulation, loading: simulationLoading, failed, retry } = useSimulation();
 
   if (authLoading || simulationLoading || !simulation) {
-    return <LoadingPage variant="fullscreen" />;
+    return <LoadingPage variant="fullscreen" failed={failed} onRetry={retry} />;
   }
 
   const pathname = location.pathname; // Página requisitada

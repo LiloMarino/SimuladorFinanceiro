@@ -21,6 +21,7 @@ import type { User } from "@/types";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 // Validação com Zod
 const nicknameSchema = z.object({
@@ -39,7 +40,7 @@ export function LoginPage() {
       toast.success("Nickname registrado!");
     },
     onError: (err) => {
-      toast.error(err.message);
+      toastApiError(err);
     },
   });
 
@@ -49,7 +50,7 @@ export function LoginPage() {
       toast.success("Nickname recuperado!");
     },
     onError: (err) => {
-      toast.error(err.message);
+      toastApiError(err);
     },
   });
 

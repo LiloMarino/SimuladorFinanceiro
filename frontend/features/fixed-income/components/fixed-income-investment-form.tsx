@@ -9,6 +9,7 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { toCentsString } from "@/shared/lib/utils/display";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 interface FixedIncomeInvestmentFormProps {
   form: UseFormReturn<InvestmentFormSchema>;
@@ -23,7 +24,7 @@ export function FixedIncomeInvestmentForm({ form, id, availableCash }: FixedInco
       toast.success("Investido com sucesso!");
     },
     onError: (err) => {
-      toast.error(err.message);
+      toastApiError(err);
     },
   });
 

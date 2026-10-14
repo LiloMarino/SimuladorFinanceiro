@@ -12,7 +12,12 @@ export function SimulationProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const { data: simulation, isLoading: loading } = useApiQuery({
+  const {
+    data: simulation,
+    isLoading: loading,
+    isError: failed,
+    refetch,
+  } = useApiQuery({
     queryKey: queryKeys.simulationStatus(),
     queryFn: ({ signal }) => apiFetch<SimulationInfo>("/api/simulation/status", { signal }),
     staleTime: 1 * 60 * 1000, // 1min (simulação muda mais rápido)
@@ -46,6 +51,8 @@ export function SimulationProvider({ children }: PropsWithChildren) {
         simulation: simulation ?? null,
         simulationActive: simulation?.active ?? false,
         loading,
+        failed,
+        retry: () => void refetch(),
       }}
     >
       {children}

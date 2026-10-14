@@ -15,6 +15,7 @@ import type { AssetClass, SeriesCoverage } from "@/types";
 import { Pencil } from "lucide-react";
 import { ClassifyStockDialog } from "./classify-stock-dialog";
 import { CoverageBar, type TimelineRange } from "./coverage-bar";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 const STALE_AFTER_DAYS = 2;
 
@@ -78,7 +79,7 @@ export function SeriesCoverageTable() {
         method: "PUT",
         body: { asset_class: assetClass },
       }),
-    onError: (err) => toast.error(err.message),
+    onError: (err) => toastApiError(err),
     onSettled: invalidateCoverage,
   });
 

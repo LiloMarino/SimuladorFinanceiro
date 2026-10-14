@@ -16,6 +16,7 @@ import { z } from "zod";
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { VariableIncomeStock } from "@/features/variable-income/models/VariableIncomeStock";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 const newOrderSchema = z
   .object({
@@ -82,7 +83,7 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
       form.reset();
     },
     onError: (err) => {
-      toast.error(err.message);
+      toastApiError(err);
     },
   });
 

@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shar
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { toast } from "sonner";
+import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 interface PendingOrdersCardProps {
   ticker: string;
@@ -23,7 +24,7 @@ export function PendingOrdersCard({ ticker, pendingOrders }: PendingOrdersCardPr
       toast.info("Ordem cancelada com sucesso!");
     },
     onError: (err) => {
-      toast.error(err.message);
+      toastApiError(err);
     },
   });
 

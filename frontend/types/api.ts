@@ -60,9 +60,7 @@ export type OrderStatus = components["schemas"]["OrderStatus"];
 export type Order = components["schemas"]["OrderDTO"];
 
 // Notifications
-export type NotificationPreferences = {
-  orders: components["schemas"]["OrderNotificationSettings"];
-};
+export type NotificationPreferences = Pick<components["schemas"]["SettingsRequest"], "orders" | "players">;
 
 // Simulation
 export type SimulationState = Partial<components["schemas"]["SimulationStateResponse"]>;

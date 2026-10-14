@@ -13,8 +13,13 @@ class OrderNotificationSettings(BaseModel):
     partial: bool
 
 
+class PlayerNotificationSettings(BaseModel):
+    join_exit: bool
+
+
 class SettingsRequest(BaseModel):
     orders: OrderNotificationSettings
+    players: PlayerNotificationSettings
 
     model_config = ConfigDict(extra="allow")
 
@@ -23,7 +28,8 @@ DEFAULT_SETTINGS = SettingsRequest(
     orders=OrderNotificationSettings(
         executed=True,
         partial=True,
-    )
+    ),
+    players=PlayerNotificationSettings(join_exit=True),
 )
 
 
