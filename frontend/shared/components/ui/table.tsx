@@ -53,12 +53,14 @@ function TableRow({
   );
 }
 
-function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+/** `numeric`: coluna de valores, alinhada à direita. */
+function TableHead({ className, numeric = false, ...props }: React.ComponentProps<"th"> & { numeric?: boolean }) {
   return (
     <th
       data-slot="table-head"
+      data-numeric={numeric ? "" : undefined}
       className={cn(
-        "h-10 bg-subtle px-4 text-left align-middle text-xs font-medium whitespace-nowrap text-muted-foreground [&:has([role=checkbox])]:pr-0",
+        "h-10 bg-subtle px-4 text-left align-middle text-xs font-medium whitespace-nowrap text-muted-foreground data-numeric:text-right [&:has([role=checkbox])]:pr-0",
         className,
       )}
       {...props}
@@ -66,11 +68,16 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   );
 }
 
-function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+/** `numeric`: valor alinhado à direita, em mono com algarismos alinhados. */
+function TableCell({ className, numeric = false, ...props }: React.ComponentProps<"td"> & { numeric?: boolean }) {
   return (
     <td
       data-slot="table-cell"
-      className={cn("px-4 py-3 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0", className)}
+      data-numeric={numeric ? "" : undefined}
+      className={cn(
+        "px-4 py-3 align-middle whitespace-nowrap data-numeric:text-right data-numeric:font-mono data-numeric:tabular-nums [&:has([role=checkbox])]:pr-0",
+        className,
+      )}
       {...props}
     />
   );

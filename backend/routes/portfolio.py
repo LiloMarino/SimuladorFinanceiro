@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from backend.core.dependencies import ActiveSimulation, ClientID
-from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
+from backend.core.dto.patrimonial_history import PortfolioHistoryPointDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
 
@@ -31,7 +31,7 @@ def get_portfolio(client_id: ClientID, simulation: ActiveSimulation):
 
 @portfolio_router.get(
     "/history",
-    response_model=list[PatrimonialHistoryDTO],
+    response_model=list[PortfolioHistoryPointDTO],
     summary="Obter histórico patrimonial",
     description="Retorna os snapshots mensais do patrimônio do cliente, em ordem cronológica.",
 )

@@ -21,11 +21,16 @@ from backend.features.fixed_income.fixed_broker import FixedBroker
 from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import CashUpdateEventDTO
+from backend.features.statistics.sectors import effective_sectors
 from backend.features.strategy.base_strategy import BaseStrategy
 from backend.features.variable_income.broker import Broker, to_money
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.position import Position
-from backend.features.variable_income.income_tax import MonthlyTax, assess
+from backend.features.variable_income.income_tax import (
+    STOCK_EXEMPTION_LIMIT,
+    MonthlyTax,
+    assess,
+)
 from backend.features.variable_income.matching_engine import MatchingEngine
 
 
@@ -161,8 +166,19 @@ class SimulationEngine:
         income_tax_paid = repository.user.get_total_cashflow(
             user_id, CashflowEventType.TAX
         )
-        income_tax_assessed = sum(
-            (m.tax for m in self.assess_income_tax(user_id)), Decimal(0)
+        months = self.assess_income_tax(user_id)
+        income_tax_assessed = sum((m.tax for m in months), Decimal(0))
+        today = self.current_date
+        this_month = next(
+            (m for m in months if (m.year, m.month) == (today.year, today.month)), None
+        )
+        upcoming_due = [
+            m.due_date
+            for m in months
+            if m.darf_amount and m.due_date and m.due_date >= today
+        ]
+        sectors = allocate_by_sector(
+            {pos.ticker: pos.current_value for pos in equity}, self.classification
         )
 
         return PortfolioDTO(
@@ -175,9 +191,17 @@ class SimulationEngine:
             invested_pct=ratio(invested_value, total_networth),
             variable_income_pct=ratio(variable_income_value, invested_value),
             fixed_income_pct=ratio(fixed_income_value, invested_value),
+            capital_provided=capital_provided,
+            total_return_value=total_networth - capital_provided,
             total_return_pct=ratio(total_networth - capital_provided, capital_provided),
+            variable_income_networth_pct=ratio(variable_income_value, total_networth),
+            fixed_income_networth_pct=ratio(fixed_income_value, total_networth),
+            cash_pct=ratio(cash, total_networth),
             income_tax_paid=income_tax_paid,
             income_tax_due=income_tax_assessed - income_tax_paid,
+            income_tax_due_date=min(upcoming_due) if upcoming_due else None,
+            month_stock_sales=this_month.stock_sales if this_month else Decimal(0),
+            stock_sales_exemption=STOCK_EXEMPTION_LIMIT,
             variable_income=[
                 PortfolioPositionDTO(
                     **pos.model_dump(),
@@ -185,9 +209,8 @@ class SimulationEngine:
                 )
                 for pos in equity
             ],
-            sectors=allocate_by_sector(
-                {pos.ticker: pos.current_value for pos in equity}, self.classification
-            ),
+            sectors=sectors,
+            effective_sectors=effective_sectors(sectors),
             fixed_income=[
                 FixedIncomePositionDTO(
                     asset=pos.asset,

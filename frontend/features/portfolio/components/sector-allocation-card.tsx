@@ -1,83 +1,77 @@
-import { Fragment } from "react";
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
-import { ChartEmptyCard } from "@/features/portfolio/components/shared/chart-empty-card";
-import { stringToColor } from "@/shared/lib/utils";
-import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
-import type { SectorAllocation } from "@/types";
+import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { displayMoney, displayNumber, displayPercent } from "@/shared/lib/utils/display";
+import type { PortfolioState } from "@/types";
 
-const UNCLASSIFIED = "Sem setor";
-const TITLE = "Renda Variável por Setor";
+const COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
+const OTHERS_COLOR = "var(--input)";
 
-interface SectorAllocationCardProps {
-  sectors: SectorAllocation[];
-}
-
-export function SectorAllocationCard({ sectors }: SectorAllocationCardProps) {
-  if (!sectors.length) {
-    return <ChartEmptyCard title={TITLE} height={200} message="Nenhuma ação na carteira" />;
-  }
-
-  const chartData = sectors.map((s) => ({ name: s.sector ?? UNCLASSIFIED, fraction: Number(s.fraction) }));
+/** Renda variável por setor: uma barra só e a lista setor · segmento. */
+export function SectorAllocationCard({ portfolio }: { portfolio: PortfolioState }) {
+  const sectors = portfolio.sectors;
+  const colorOf = (index: number, sector: string | null) =>
+    sector === null || index >= COLORS.length ? OTHERS_COLOR : COLORS[index];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{TITLE}</CardTitle>
+        <CardTitle>Renda variável por setor</CardTitle>
         <CardDescription>
-          Quanto da renda variável está em cada setor. A classificação se edita na Central de dados.
+          Onde está o dinheiro em ações. A classificação se edita na Central de dados, fora da partida.
         </CardDescription>
+        {portfolio.effective_sectors && (
+          <CardAction>
+            <Badge variant="secondary">
+              {sectors.length} {sectors.length === 1 ? "setor" : "setores"} · diversificação{" "}
+              {displayNumber(portfolio.effective_sectors, 2)}
+            </Badge>
+          </CardAction>
+        )}
       </CardHeader>
-
-      <CardContent className="grid gap-6 lg:grid-cols-2">
-        {/* Barras por setor */}
-        <ResponsiveContainer width="100%" height={Math.max(160, chartData.length * 40)}>
-          <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 16 }}>
-            <XAxis type="number" domain={[0, 1]} tickFormatter={(v: number) => displayPercent(v, 0)} />
-            <YAxis type="category" dataKey="name" width={150} tick={{ fontSize: 12 }} />
-            <Tooltip
-              formatter={(v) => displayPercent(Number(v))}
-              labelClassName="font-medium"
-              cursor={{ fillOpacity: 0.1 }}
-            />
-            <Bar dataKey="fraction" name="Fração" radius={[0, 4, 4, 0]}>
-              {chartData.map((entry) => (
-                <Cell key={entry.name} fill={stringToColor(entry.name)} />
+      <CardContent>
+        {sectors.length === 0 ? (
+          <p className="py-6 text-center text-[13px] text-muted-foreground">Nenhuma ação na carteira ainda.</p>
+        ) : (
+          <div className="grid gap-4">
+            <div className="flex h-3.5 gap-0.5 overflow-hidden rounded-full">
+              {sectors.map((s, i) => (
+                <span
+                  key={s.sector ?? "none"}
+                  style={{ width: `${Number(s.fraction) * 100}%`, backgroundColor: colorOf(i, s.sector) }}
+                  title={`${s.sector ?? "Sem setor"} · ${displayPercent(s.fraction)}`}
+                />
               ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-
-        {/* Tabela por setor e segmento */}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Setor / Segmento</TableHead>
-              <TableHead className="text-right">Valor</TableHead>
-              <TableHead className="text-right">% da renda variável</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sectors.map((sector) => (
-              <Fragment key={sector.sector ?? UNCLASSIFIED}>
-                <TableRow className="font-medium">
-                  <TableCell>{sector.sector ?? UNCLASSIFIED}</TableCell>
-                  <TableCell className="text-right">{displayMoney(sector.value)}</TableCell>
-                  <TableCell className="text-right">{displayPercent(sector.fraction)}</TableCell>
-                </TableRow>
-                {sector.sector &&
-                  sector.segments.map((segment) => (
-                    <TableRow key={segment.segment} className="text-muted-foreground">
-                      <TableCell className="pl-6">{segment.segment}</TableCell>
-                      <TableCell className="text-right">{displayMoney(segment.value)}</TableCell>
-                      <TableCell className="text-right">{displayPercent(segment.fraction)}</TableCell>
-                    </TableRow>
+            </div>
+            <ul className="grid gap-2.5 text-[13px]">
+              {sectors.map((s, i) => (
+                <li key={s.sector ?? "none"} className="grid gap-1">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="size-2.5 rounded-sm"
+                      style={{ backgroundColor: colorOf(i, s.sector) }}
+                      aria-hidden="true"
+                    />
+                    <span className="flex-1 font-medium">{s.sector ?? "Sem setor"}</span>
+                    <span className="font-mono">{displayMoney(s.value)}</span>
+                    <span className="w-16 text-right font-mono text-muted-foreground">
+                      {displayPercent(s.fraction)}
+                    </span>
+                  </div>
+                  {s.segments.map((seg) => (
+                    <div
+                      key={seg.segment ?? "none"}
+                      className="flex items-center gap-2 pl-4.5 text-xs text-muted-foreground"
+                    >
+                      <span className="flex-1">{seg.segment ?? "Sem segmento"}</span>
+                      <span className="font-mono">{displayMoney(seg.value)}</span>
+                      <span className="w-16 text-right font-mono">{displayPercent(seg.fraction)}</span>
+                    </div>
                   ))}
-              </Fragment>
-            ))}
-          </TableBody>
-        </Table>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

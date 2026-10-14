@@ -1656,18 +1656,56 @@ export interface components {
             variable_income_pct: string;
             /** Fixed Income Pct */
             fixed_income_pct: string;
+            /** Capital Provided */
+            capital_provided: string;
+            /** Total Return Value */
+            total_return_value: string;
             /** Total Return Pct */
             total_return_pct: string;
+            /** Variable Income Networth Pct */
+            variable_income_networth_pct: string;
+            /** Fixed Income Networth Pct */
+            fixed_income_networth_pct: string;
+            /** Cash Pct */
+            cash_pct: string;
             /** Income Tax Paid */
             income_tax_paid: string;
             /** Income Tax Due */
             income_tax_due: string;
+            /** Income Tax Due Date */
+            income_tax_due_date: string | null;
+            /** Month Stock Sales */
+            month_stock_sales: string;
+            /** Stock Sales Exemption */
+            stock_sales_exemption: string;
             /** Variable Income */
             variable_income: components["schemas"]["PortfolioPositionDTO"][];
             /** Sectors */
             sectors: components["schemas"]["SectorAllocationDTO"][];
+            /** Effective Sectors */
+            effective_sectors: string | null;
             /** Fixed Income */
             fixed_income: components["schemas"]["FixedIncomePositionDTO"][];
+        };
+        /** PortfolioHistoryPointDTO */
+        PortfolioHistoryPointDTO: {
+            /**
+             * Snapshot Date
+             * Format: date
+             */
+            snapshot_date: string;
+            /** Total Networth */
+            total_networth: string;
+            /** Total Equity */
+            total_equity: string;
+            /** Total Fixed */
+            total_fixed: string;
+            /** Total Cash */
+            total_cash: string;
+            /** Total Contribution */
+            total_contribution: string;
+            /** Total Provided */
+            total_provided: string;
         };
         /** PortfolioPositionDTO */
         PortfolioPositionDTO: {
@@ -2077,7 +2115,7 @@ export interface components {
         };
         /** SnapshotUpdateEventDTO */
         SnapshotUpdateEventDTO: {
-            snapshot: components["schemas"]["SnapshotDTO"];
+            snapshot: components["schemas"]["PortfolioHistoryPointDTO"];
         };
         /** SpeedUpdateEventDTO */
         SpeedUpdateEventDTO: {
@@ -2686,7 +2724,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PatrimonialHistoryDTO"][];
+                    "application/json": components["schemas"]["PortfolioHistoryPointDTO"][];
                 };
             };
             /** @description Internal Server Error */

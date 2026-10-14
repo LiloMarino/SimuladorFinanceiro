@@ -11,3 +11,8 @@ class PatrimonialHistoryDTO(BaseDTO):
     total_fixed: Decimal
     total_cash: Decimal
     total_contribution: Decimal
+
+
+class PortfolioHistoryPointDTO(PatrimonialHistoryDTO):
+    # Saldo inicial + aportes até o dia: a linha do "aportado" no gráfico da carteira
+    total_provided: Decimal

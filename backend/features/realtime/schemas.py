@@ -15,6 +15,7 @@ from backend.core.dto.base import BaseDTO
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.order import OrderDTO
+from backend.core.dto.patrimonial_history import PortfolioHistoryPointDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
@@ -84,7 +85,7 @@ class PortfolioUpdateEventDTO(BaseDTO):
 
 
 class SnapshotUpdateEventDTO(BaseDTO):
-    snapshot: SnapshotDTO
+    snapshot: PortfolioHistoryPointDTO
 
 
 class StatisticsSnapshotEntryDTO(BaseDTO):

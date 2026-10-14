@@ -1,120 +1,63 @@
-import { Wallet, TrendingUp, Coins, Banknote, Landmark } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import usePageLabel from "@/shared/hooks/usePageLabel";
-import { economicIndicatorsOptions } from "@/shared/lib/queries/economicIndicatorsOptions";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { ErrorState } from "@/shared/components/error-state";
 import { usePortfolio } from "@/features/portfolio/hooks/queries/usePortfolio";
 import { usePatrimonialHistory } from "@/features/portfolio/hooks/queries/usePatrimonialHistory";
-import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
-import { SummaryCard } from "@/features/portfolio/components/summary-card";
-import { PortfolioCharts } from "../components/portfolio-charts";
-import { EconomicIndicatorsCard } from "../components/economic-indicators-card";
+import { AllocationDonut } from "../components/allocation-donut";
+import { IncomeTaxCard } from "../components/income-tax-card";
+import { NetworthChart } from "../components/networth-chart";
+import { PortfolioSummary } from "../components/portfolio-summary";
+import { PositionsCard } from "../components/positions-card";
 import { SectorAllocationCard } from "../components/sector-allocation-card";
-import { VariableIncomeTable } from "../components/variable-income-table";
-import { FixedIncomeTable } from "../components/fixed-income-table";
-import { ErrorPage } from "@/pages/error";
-import { LoadingPage } from "@/pages/loading";
 
 export default function PortfolioPage() {
   usePageLabel("Carteira");
-  // Busca dados da carteira (posições, caixa e totais — mantida viva via WS)
-  const { data: portfolio, isLoading: portfolioLoading, error: portfolioError } = usePortfolio();
-  const { data: patrimonialHistory } = usePatrimonialHistory();
+  const { data: portfolio, isLoading, error, refetch } = usePortfolio();
+  const { data: history } = usePatrimonialHistory();
 
-  // Busca dados econômicos
-  const { data: economicIndicatorsData, isLoading: economicIndicatorsLoading } = useQuery(economicIndicatorsOptions());
-
-  if (portfolioLoading) {
-    return <LoadingPage />;
-  } else if (!portfolio) {
+  if (isLoading) {
     return (
-      <ErrorPage
-        code={String(portfolioError?.status) || "500"}
-        title="Erro ao carregar carteira"
-        message={String(portfolioError?.message)}
-      />
+      <div className="grid gap-5">
+        <Skeleton className="h-36" />
+        <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
+          <Skeleton className="h-80" />
+          <Skeleton className="h-80" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!portfolio) {
+    return (
+      <Card>
+        <CardContent>
+          <ErrorState
+            title="Não deu pra carregar sua carteira"
+            description="A partida continua rodando. Tente de novo; se persistir, o servidor do host pode ter caído."
+            error={error}
+            onRetry={() => void refetch()}
+          />
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <section className="p-4 space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-6">
-        <SummaryCard
-          title="Patrimônio Total"
-          value={portfolio.total_networth}
-          subtitle={`Rentabilidade de ${displayPercent(portfolio.total_return_pct)}`}
-          icon={Wallet}
-          iconBg="bg-green-100"
-          color="text-green-600"
-        />
+    <>
+      <PortfolioSummary portfolio={portfolio} />
 
-        <SummaryCard
-          title="Total Investido"
-          value={portfolio.invested_value}
-          subtitle={`${displayPercent(portfolio.invested_pct)} do patrimônio`}
-          icon={Banknote}
-          iconBg="bg-purple-100"
-          color="text-purple-600"
-        />
-
-        <SummaryCard
-          title="Renda Variável"
-          value={portfolio.variable_income_value}
-          subtitle={`${displayPercent(portfolio.variable_income_pct)} da carteira`}
-          icon={TrendingUp}
-          iconBg="bg-blue-100"
-          color="text-blue-600"
-        />
-
-        <SummaryCard
-          title="Renda Fixa"
-          value={portfolio.fixed_income_value}
-          subtitle={`${displayPercent(portfolio.fixed_income_pct)} da carteira`}
-          icon={Coins}
-          iconBg="bg-yellow-100"
-          color="text-yellow-600"
-        />
-
-        <SummaryCard
-          title="Imposto de Renda"
-          value={portfolio.income_tax_paid}
-          subtitle={`${displayMoney(portfolio.income_tax_due)} a pagar`}
-          icon={Landmark}
-          iconBg="bg-red-100"
-          color="text-red-600"
-          hint={
-            <>
-              IR sobre o lucro das vendas de renda variável, apurado por mês sobre o preço médio. O valor grande é o
-              que já saiu do caixa; &quot;a pagar&quot; é o apurado que ainda não venceu. Ações pagam 15%, isentas
-              quando as vendas de ações do mês somam até R$ 20 mil; FII e day trade pagam 20%; ETF e BDR, 15% sem
-              isenção. Prejuízo abate o lucro dos meses seguintes. O imposto sai do caixa no último dia útil do mês
-              seguinte; abaixo de R$ 10 ele soma ao do mês seguinte.
-            </>
-          }
-        />
+      <div className="grid items-start gap-5 lg:grid-cols-[1.3fr_1fr]">
+        <NetworthChart history={history ?? []} />
+        <AllocationDonut portfolio={portfolio} />
       </div>
 
-      {/* Charts */}
-      <PortfolioCharts
-        variablePositions={portfolio.variable_income}
-        fixedPositions={portfolio.fixed_income}
-        patrimonialHistory={patrimonialHistory ?? []}
-      />
-
-      {/* Setores */}
-      <SectorAllocationCard sectors={portfolio.sectors} />
-
-      {/* Economic Indicators */}
-      <EconomicIndicatorsCard loading={economicIndicatorsLoading} data={economicIndicatorsData ?? null} />
-
-      {/* Positions Tables */}
-      <div className="space-y-6">
-        {/* Renda Variável */}
-        <VariableIncomeTable variablePositions={portfolio.variable_income} />
-
-        {/* Renda Fixa */}
-        <FixedIncomeTable fixedPositions={portfolio.fixed_income} />
+      <div className="grid items-start gap-5 lg:grid-cols-[1.6fr_1fr]">
+        <SectorAllocationCard portfolio={portfolio} />
+        <IncomeTaxCard portfolio={portfolio} />
       </div>
-    </section>
+
+      <PositionsCard portfolio={portfolio} />
+    </>
   );
 }

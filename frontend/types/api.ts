@@ -8,6 +8,7 @@ export type StockDetails = Omit<components["schemas"]["StockDetailsDTO"], "id">;
 // Portfolio
 export type Position = components["schemas"]["PositionDTO"];
 export type PatrimonialHistory = components["schemas"]["PatrimonialHistoryDTO"];
+export type PortfolioHistoryPoint = components["schemas"]["PortfolioHistoryPointDTO"];
 export type FixedIncomePosition = components["schemas"]["FixedIncomePositionDTO"];
 export type PortfolioState = components["schemas"]["PortfolioDTO"];
 export type CashResponse = components["schemas"]["CashResponse"];

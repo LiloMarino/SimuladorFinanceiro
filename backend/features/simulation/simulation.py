@@ -9,7 +9,10 @@ from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
 from backend.core.dto.order import OrderDTO
-from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
+from backend.core.dto.patrimonial_history import (
+    PatrimonialHistoryDTO,
+    PortfolioHistoryPointDTO,
+)
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.stock_details import StockDetailsDTO
@@ -102,9 +105,20 @@ class Simulation:
     ) -> FixedIncomeProjectionDTO:
         return project(asset, amount, self._current_date)
 
-    def get_patrimonial_history(self, client_id: UUID) -> list[PatrimonialHistoryDTO]:
-        return repository.portfolio.get_patrimonial_history(
-            UserManager.get_user_id(client_id)
+    def get_patrimonial_history(
+        self, client_id: UUID
+    ) -> list[PortfolioHistoryPointDTO]:
+        return [
+            self._history_point(point)
+            for point in repository.portfolio.get_patrimonial_history(
+                UserManager.get_user_id(client_id)
+            )
+        ]
+
+    def _history_point(self, point: PatrimonialHistoryDTO) -> PortfolioHistoryPointDTO:
+        return PortfolioHistoryPointDTO(
+            **point.model_dump(),
+            total_provided=self.settings.starting_cash + point.total_contribution,
         )
 
     def next_tick(self):
@@ -288,7 +302,15 @@ class Simulation:
             # Portfolio (individual)
             notify(
                 event="snapshot_update",
-                payload=SnapshotUpdateEventDTO(snapshot=snapshot).to_json(),
+                payload=SnapshotUpdateEventDTO(
+                    snapshot=self._history_point(
+                        PatrimonialHistoryDTO.model_validate(
+                            snapshot.model_dump(
+                                include=set(PatrimonialHistoryDTO.model_fields)
+                            )
+                        )
+                    )
+                ).to_json(),
                 to=user.client_id,
             )
 
