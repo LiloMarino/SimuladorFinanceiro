@@ -85,8 +85,8 @@ function CompositionChart({ player }: { player: PlayerComposition }) {
           />
           <YAxis tickFormatter={(v: number) => displayMoneyCompact(v)} width={96} />
           <Tooltip
-            labelFormatter={(v: number) => displayMonthYear(new Date(v))}
-            formatter={(value: number) => displayMoney(value)}
+            labelFormatter={(v) => displayMonthYear(new Date(Number(v)))}
+            formatter={(value) => displayMoney(Number(value))}
           />
           <Legend />
           {LAYERS.map((layer) => (

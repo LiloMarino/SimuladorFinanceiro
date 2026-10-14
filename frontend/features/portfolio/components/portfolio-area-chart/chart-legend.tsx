@@ -1,7 +1,7 @@
-import type { LegendProps } from "recharts";
+import type { DefaultLegendContentProps } from "recharts";
 import { PORTFOLIO_AREA_SERIES, type PortfolioSeriesKey } from "./series";
 
-interface ChartLegendProps extends LegendProps {
+interface ChartLegendProps extends Pick<DefaultLegendContentProps, "payload"> {
   visible: Record<PortfolioSeriesKey, boolean>;
   toggle: (key: PortfolioSeriesKey) => void;
 }

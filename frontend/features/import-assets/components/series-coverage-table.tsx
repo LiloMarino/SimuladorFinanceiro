@@ -185,6 +185,7 @@ export function SeriesCoverageTable() {
                       <div className="flex items-center gap-2">
                         {item.asset_class ? (
                           <Select
+                            items={ASSET_CLASS_LABELS}
                             value={item.asset_class}
                             disabled={assetClassMutation.isPending}
                             onValueChange={(value) =>

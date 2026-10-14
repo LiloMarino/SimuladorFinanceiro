@@ -61,18 +61,8 @@ export function SimulationControl() {
         </AlertDialogHeader>
 
         <AlertDialogFooter>
-          <AlertDialogCancel asChild>
-            <Button variant="outline">Cancelar</Button>
-          </AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button
-              variant="destructive"
-              onClick={handleStopSimulation}
-              disabled={stoppingSimulation}
-            >
-              Confirmar Encerramento
-            </Button>
-          </AlertDialogAction>
+          <AlertDialogCancel variant="outline">Cancelar</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={handleStopSimulation} disabled={stoppingSimulation}>Confirmar Encerramento</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

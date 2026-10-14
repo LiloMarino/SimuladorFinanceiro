@@ -64,14 +64,8 @@ export function AccountSettings() {
           </AlertDialogHeader>
 
           <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <Button variant="outline">Cancelar</Button>
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button variant="destructive" onClick={handleDeleteAccount} disabled={loading}>
-                Confirmar Exclusão
-              </Button>
-            </AlertDialogAction>
+            <AlertDialogCancel variant="outline">Cancelar</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={handleDeleteAccount} disabled={loading}>Confirmar Exclusão</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

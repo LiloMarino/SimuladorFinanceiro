@@ -37,7 +37,7 @@ export function SectorAllocationCard({ sectors }: SectorAllocationCardProps) {
             <XAxis type="number" domain={[0, 1]} tickFormatter={(v: number) => displayPercent(v, 0)} />
             <YAxis type="category" dataKey="name" width={150} tick={{ fontSize: 12 }} />
             <Tooltip
-              formatter={(v: number) => displayPercent(v)}
+              formatter={(v) => displayPercent(Number(v))}
               labelClassName="font-medium"
               cursor={{ fillOpacity: 0.1 }}
             />

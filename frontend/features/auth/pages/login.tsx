@@ -122,13 +122,9 @@ export function LoginPage() {
           </p>
 
           <div className="flex justify-end gap-3 mt-4">
-            <AlertDialogCancel asChild>
-              <Button variant="secondary">Cancelar</Button>
-            </AlertDialogCancel>
+            <AlertDialogCancel variant="secondary">Cancelar</AlertDialogCancel>
 
-            <AlertDialogAction asChild>
-              <Button onClick={confirmClaim}>Sim</Button>
-            </AlertDialogAction>
+            <AlertDialogAction onClick={confirmClaim}>Sim</AlertDialogAction>
           </div>
         </AlertDialogContent>
       </AlertDialog>

@@ -8,7 +8,6 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "@/shared/components/ui/sidebar";
-import { useSidebar } from "@/shared/components/ui/hooks/useSidebar";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -16,23 +15,23 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ navItems, activePage }: SidebarProps) {
-  const { open } = useSidebar();
-
   return (
-    <SidebarRoot>
-      <SidebarHeader>
-        {open && <span className="text-xl font-bold whitespace-nowrap">FinSim</span>}
+    <SidebarRoot collapsible="icon">
+      <SidebarHeader className="flex-row items-center justify-between">
+        <span className="text-xl font-bold whitespace-nowrap group-data-[collapsible=icon]:hidden">FinSim</span>
         <SidebarTrigger />
       </SidebarHeader>
 
-      <SidebarMenu>
+      <SidebarMenu className="px-2">
         {navItems.map((item) => (
           <SidebarMenuItem key={item.key}>
-            <SidebarMenuButton asChild isActive={activePage === item.key} tooltip={item.label}>
-              <NavLink to={item.endpoint}>
-                <item.icon className="w-5 h-5 flex-shrink-0" />
-                {open && <span className="ml-3 whitespace-nowrap">{item.label}</span>}
-              </NavLink>
+            <SidebarMenuButton
+              isActive={activePage === item.key}
+              tooltip={item.label}
+              render={<NavLink to={item.endpoint} />}
+            >
+              <item.icon />
+              <span>{item.label}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}

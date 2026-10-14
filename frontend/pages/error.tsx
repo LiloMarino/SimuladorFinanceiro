@@ -86,12 +86,16 @@ export function ErrorPage({
 
             <div className="mt-4 flex gap-2">
               {hasPrimaryAction && (
-                <Button asChild>
-                  <Link to={actionHref}>{actionLabel}</Link>
+                <Button nativeButton={false} render={<Link to={actionHref} />}>
+                  {actionLabel}
                 </Button>
               )}
-              <Button asChild variant={hasPrimaryAction ? "outline" : "default"}>
-                <Link to="/">Voltar para o Início</Link>
+              <Button
+                variant={hasPrimaryAction ? "outline" : "default"}
+                nativeButton={false}
+                render={<Link to="/" />}
+              >
+                Voltar para o Início
               </Button>
             </div>
           </div>

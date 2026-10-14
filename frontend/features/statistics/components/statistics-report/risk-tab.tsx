@@ -95,7 +95,7 @@ export function RiskTab({ simulationIds, showSimulation, currentPlayerName }: Re
                   label={{ value: "Retorno anual", angle: -90, position: "insideLeft" }}
                 />
                 <ZAxis range={[120, 120]} />
-                <Tooltip formatter={(value: number) => displayPercent(value)} cursor={{ strokeDasharray: "3 3" }} />
+                <Tooltip formatter={(value) => displayPercent(Number(value))} cursor={{ strokeDasharray: "3 3" }} />
                 <Legend verticalAlign="top" />
                 {points.map(({ player, label, color }) => (
                   <Scatter

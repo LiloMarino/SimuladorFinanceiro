@@ -1,14 +1,15 @@
-import type { TooltipProps } from "recharts";
+import type { TooltipContentProps } from "recharts";
+import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
 
-interface PortfolioPieTooltipProps extends TooltipProps<number, string> {
+interface PortfolioPieTooltipProps extends TooltipContentProps<ValueType, NameType> {
   total: number;
 }
 
 export function PortfolioPieTooltip({ active, payload, total }: PortfolioPieTooltipProps) {
   if (!active || !payload || !payload.length || total === 0) return null;
 
-  const data = payload[0] as { name?: string; value?: number };
+  const data = payload[0] as unknown as { name?: string; value?: number };
   const value = data.value ?? 0;
 
   return (

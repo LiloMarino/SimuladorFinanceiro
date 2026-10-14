@@ -1,15 +1,16 @@
-import type { TooltipProps } from "recharts";
+import type { TooltipContentProps } from "recharts";
+import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { displayDate } from "@/shared/lib/utils/display";
 import type { LineChartRow } from "./utils";
 
-interface Props extends TooltipProps<number, string> {
+interface Props extends TooltipContentProps<ValueType, NameType> {
   format: (value: string) => string;
 }
 
 export function LineChartTooltip({ active, payload, label, format }: Props) {
-  if (!active || !payload || !payload.length) return null;
+  if (!active || !payload || !payload.length || label === undefined) return null;
 
-  const entries = payload as Array<{ name?: string; color?: string; payload?: LineChartRow }>;
+  const entries = payload as unknown as Array<{ name?: string; color?: string; payload?: LineChartRow }>;
 
   return (
     <div className="bg-background border border-border rounded-lg shadow-lg p-4 min-w-[200px]">

@@ -54,18 +54,20 @@ export function CorrelationHeatmap({ matrix }: CorrelationHeatmapProps) {
                   return (
                     <td key={labels[j]} className="p-0">
                       <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div
-                            tabIndex={0}
-                            className={cn(
-                              "flex h-12 w-16 items-center justify-center rounded-md tabular-nums",
-                              diagonal && "bg-muted text-muted-foreground",
-                              value === null && "border border-dashed text-muted-foreground",
-                            )}
-                            style={!diagonal && value !== null ? { backgroundColor: cellColor(value) } : undefined}
-                          >
-                            {value === null ? "—" : displayNumber(value)}
-                          </div>
+                        <TooltipTrigger
+                          render={
+                            <div
+                              tabIndex={0}
+                              className={cn(
+                                "flex h-12 w-16 items-center justify-center rounded-md tabular-nums",
+                                diagonal && "bg-muted text-muted-foreground",
+                                value === null && "border border-dashed text-muted-foreground",
+                              )}
+                              style={!diagonal && value !== null ? { backgroundColor: cellColor(value) } : undefined}
+                            />
+                          }
+                        >
+                          {value === null ? "—" : displayNumber(value)}
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-72">
                           {diagonal

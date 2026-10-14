@@ -26,21 +26,19 @@ export function CoverageBar({ series, range }: CoverageBarProps) {
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <div className="relative h-2 min-w-40 rounded-full bg-muted">
-          {/* Trecho real */}
+      <TooltipTrigger render={<div className="relative h-2 min-w-40 rounded-full bg-muted" />}>
+        {/* Trecho real */}
+        <div
+          className="absolute inset-y-0 rounded-full bg-chart-1"
+          style={{ left: `${realStart}%`, width: `${Math.max(realEnd - realStart, 0.5)}%` }}
+        />
+        {/* Trecho gerado */}
+        {series.generated_end && (
           <div
-            className="absolute inset-y-0 rounded-full bg-chart-1"
-            style={{ left: `${realStart}%`, width: `${Math.max(realEnd - realStart, 0.5)}%` }}
+            className="absolute inset-y-0 rounded-full bg-chart-3"
+            style={{ left: `${realEnd}%`, width: `${generatedEnd - realEnd}%` }}
           />
-          {/* Trecho gerado */}
-          {series.generated_end && (
-            <div
-              className="absolute inset-y-0 rounded-full bg-chart-3"
-              style={{ left: `${realEnd}%`, width: `${generatedEnd - realEnd}%` }}
-            />
-          )}
-        </div>
+        )}
       </TooltipTrigger>
       <TooltipContent side="top">
         Dado real de {displayDate(parseLocalDate(series.start))} a {displayDate(parseLocalDate(series.real_end))}

@@ -55,7 +55,7 @@ export function PortfolioPieChart({ title, data }: PortfolioPieChartProps) {
                   />
                 ))}
               </Pie>
-              <Tooltip content={<PortfolioPieTooltip total={total} />} />
+              <Tooltip content={(props) => <PortfolioPieTooltip {...props} total={total} />} />
             </PieChart>
           </ResponsiveContainer>
         </div>

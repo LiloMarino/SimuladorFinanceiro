@@ -144,19 +144,17 @@ export function PendingOrdersCard({ ticker, pendingOrders }: PendingOrdersCardPr
 
                     <TableCell>
                       <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => handleCancelOrder(order.id)}
-                            disabled={!canCancel || cancelOrderMutation.isPending}
-                            className={clsx(
-                              "p-1 rounded transition-colors",
-                              canCancel
-                                ? "text-red-600 hover:bg-red-100 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/30"
-                                : "text-muted-foreground cursor-not-allowed",
-                            )}
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </button>
+                        <TooltipTrigger
+                          onClick={() => handleCancelOrder(order.id)}
+                          disabled={!canCancel || cancelOrderMutation.isPending}
+                          className={clsx(
+                            "p-1 rounded transition-colors",
+                            canCancel
+                              ? "text-red-600 hover:bg-red-100 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/30"
+                              : "text-muted-foreground cursor-not-allowed",
+                          )}
+                        >
+                          <XCircle className="h-4 w-4" />
                         </TooltipTrigger>
 
                         <TooltipContent side="top">

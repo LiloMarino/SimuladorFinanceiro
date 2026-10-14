@@ -28,6 +28,9 @@ interface LobbySettingsDialogProps {
   coverageCheck: CoverageCheck;
 }
 
+
+const VICTORY_CRITERIA_ITEMS = Object.entries(VICTORY_CRITERIA).map(([value, c]) => ({ value, label: c.label }));
+
 export function LobbySettingsDialog({
   open,
   onOpenChange,
@@ -155,7 +158,7 @@ export function LobbySettingsDialog({
                       </div>
                     </InfoHint>
                   </div>
-                  <Select value={field.value} onValueChange={field.onChange} disabled={disableFields}>
+                  <Select items={VICTORY_CRITERIA_ITEMS} value={field.value} onValueChange={field.onChange} disabled={disableFields}>
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue />

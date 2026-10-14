@@ -79,7 +79,7 @@ export function PortfolioAreaChart({ data }: PortfolioAreaChartProps) {
                 axisLine={{ stroke: "var(--color-border)" }}
               />
 
-              <Tooltip content={<PortfolioAreaTooltip />} />
+              <Tooltip content={(props) => <PortfolioAreaTooltip {...props} />} />
 
               <Legend content={<PortfolioAreaLegend visible={visible} toggle={toggle} />} />
 

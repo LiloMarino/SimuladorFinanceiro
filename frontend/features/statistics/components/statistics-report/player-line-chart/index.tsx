@@ -44,7 +44,7 @@ export function PlayerLineChart({ series, format, axisFormat }: PlayerLineChartP
 
           <YAxis tickFormatter={axisFormat} width={96} />
 
-          <Tooltip content={<LineChartTooltip format={format} />} />
+          <Tooltip content={(props) => <LineChartTooltip {...props} format={format} />} />
 
           <Legend content={<LineChartLegend series={series} visible={visible} toggle={toggle} />} />
 

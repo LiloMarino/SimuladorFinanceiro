@@ -1,12 +1,13 @@
-import type { TooltipProps } from "recharts";
+import type { TooltipContentProps } from "recharts";
+import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { displayDate, displayMoney } from "@/shared/lib/utils/display";
 import type { PatrimonialHistory } from "@/types";
 import type { PortfolioSeriesKey } from "./series";
 
-export function PortfolioAreaTooltip({ active, payload, label }: TooltipProps<number, string>) {
-  if (!active || !payload || !payload.length) return null;
+export function PortfolioAreaTooltip({ active, payload, label }: TooltipContentProps<ValueType, NameType>) {
+  if (!active || !payload || !payload.length || label === undefined) return null;
 
-  const entries = payload as Array<{
+  const entries = payload as unknown as Array<{
     dataKey?: PortfolioSeriesKey;
     name?: string;
     color?: string;

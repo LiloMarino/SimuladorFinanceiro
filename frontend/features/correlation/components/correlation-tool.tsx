@@ -60,7 +60,7 @@ export function CorrelationTool({ tickers, lastDate, endFixed }: CorrelationTool
         <div className="flex flex-wrap items-end gap-4">
           <div className="space-y-1">
             <Label htmlFor="correlation-window">Janela</Label>
-            <Select value={period} onValueChange={(value) => setPeriod(value as CorrelationWindow)}>
+            <Select items={WINDOWS} value={period} onValueChange={(value) => setPeriod(value as CorrelationWindow)}>
               <SelectTrigger id="correlation-window" className="w-36">
                 <SelectValue />
               </SelectTrigger>

@@ -46,8 +46,8 @@ export function OperationsTab({ simulationIds, showSimulation, currentPlayerName
                 <XAxis dataKey="month" tickFormatter={(v: string) => displayMonthYear(new Date(`${v}T00:00:00`))} />
                 <YAxis tickFormatter={(v: number) => displayMoneyCompact(v)} width={96} />
                 <Tooltip
-                  labelFormatter={(v: string) => displayMonthYear(new Date(`${v}T00:00:00`))}
-                  formatter={(value: number) => displayMoney(value)}
+                  labelFormatter={(v) => displayMonthYear(new Date(`${String(v)}T00:00:00`))}
+                  formatter={(value) => displayMoney(Number(value))}
                 />
                 <Legend />
                 {players.map(({ label }) => (
