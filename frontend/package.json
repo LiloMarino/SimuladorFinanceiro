@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
     "@hookform/resolvers": "^5.9.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.104.2",
@@ -27,7 +29,6 @@
     "framer-motion": "^12.43.0",
     "lightweight-charts": "^5.2.1",
     "lucide-react": "^1.57.0",
-    "next-themes": "^0.4.6",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-hook-form": "^7.90.0",
