@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Play, Trophy } from "lucide-react";
 import { toast } from "sonner";
@@ -30,21 +30,23 @@ interface LoadSimulationDialogProps {
 }
 
 export function LoadSimulationDialog({ open, onOpenChange, isHost }: LoadSimulationDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="flex max-h-[80vh] flex-col sm:max-w-lg">
+        <LoadSimulationContent onOpenChange={onOpenChange} isHost={isHost} />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// O conteúdo desmonta quando o dialog fecha: cada abertura nasce com busca e
+// seleção limpas e busca a lista de novo, trazendo as simulações recém-criadas.
+function LoadSimulationContent({ onOpenChange, isHost }: Omit<LoadSimulationDialogProps, "open">) {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const { data, isLoading: loading, error, refetch } = useApiQuery({ ...simulationListOptions(), enabled: false });
-
-  // Recarrega a lista (e reseta a seleção/busca) sempre que o dialog abre,
-  // garantindo que simulações recém-criadas apareçam.
-  useEffect(() => {
-    if (open) {
-      setSearch("");
-      setSelectedId(null);
-      void refetch();
-    }
-  }, [open, refetch]);
+  const { data, isLoading: loading, error } = useApiQuery({ ...simulationListOptions(), refetchOnMount: "always" });
 
   const { mutate: loadSimulation, isPending: loadingLoad } = useApiMutation({
     mutationFn: (body: { id: number }) => apiFetch<SimulationInfo>("/api/simulation/load", { method: "POST", body }),
@@ -115,52 +117,50 @@ export function LoadSimulationDialog({ open, onOpenChange, isHost }: LoadSimulat
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[80vh] flex-col sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{isHost ? "Carregar Simulação" : "Simulações Salvas"}</DialogTitle>
-          <DialogDescription>
-            Selecione uma simulação salva para continuar de onde parou ou ver o resultado dela.
-          </DialogDescription>
-        </DialogHeader>
+    <>
+    <DialogHeader>
+      <DialogTitle>{isHost ? "Carregar Simulação" : "Simulações Salvas"}</DialogTitle>
+      <DialogDescription>
+        Selecione uma simulação salva para continuar de onde parou ou ver o resultado dela.
+      </DialogDescription>
+    </DialogHeader>
 
-        {/* Barra de pesquisa (altura fixa) */}
-        <div className="relative">
-          <Search className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nome..."
-            className="pl-9"
-          />
-        </div>
+    {/* Barra de pesquisa (altura fixa) */}
+    <div className="relative">
+      <Search className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <Input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Buscar por nome..."
+        className="pl-9"
+      />
+    </div>
 
-        {/* Lista (altura fixa e scrollável — não encolhe ao filtrar) */}
-        <ScrollArea className="h-72 rounded-md border">{renderList()}</ScrollArea>
+    {/* Lista (altura fixa e scrollável — não encolhe ao filtrar) */}
+    <ScrollArea className="h-72 rounded-md border">{renderList()}</ScrollArea>
 
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full sm:w-auto"
-            disabled={selectedId === null}
-            onClick={() => selectedId !== null && navigate(`/match-result/${selectedId}`)}
-          >
-            <Trophy />
-            Ver resultado
-          </Button>
-          <Button
-            type="button"
-            variant="success"
-            className="w-full sm:w-auto"
-            disabled={selectedId === null || !isHost || loadingLoad}
-            onClick={() => selectedId !== null && loadSimulation({ id: selectedId })}
-          >
-            <Play fill="currentColor" />
-            Carregar e Iniciar Simulação
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <DialogFooter>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full sm:w-auto"
+        disabled={selectedId === null}
+        onClick={() => selectedId !== null && navigate(`/match-result/${selectedId}`)}
+      >
+        <Trophy />
+        Ver resultado
+      </Button>
+      <Button
+        type="button"
+        variant="success"
+        className="w-full sm:w-auto"
+        disabled={selectedId === null || !isHost || loadingLoad}
+        onClick={() => selectedId !== null && loadSimulation({ id: selectedId })}
+      >
+        <Play fill="currentColor" />
+        Carregar e Iniciar Simulação
+      </Button>
+    </DialogFooter>
+    </>
   );
 }

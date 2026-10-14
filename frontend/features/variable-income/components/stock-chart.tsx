@@ -232,7 +232,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
       </CardHeader>
 
       <CardContent className="h-100">
-        {historyRef.current.length > 0 ? (
+        {initialData.length > 0 ? (
           <div ref={chartRef} className="w-full h-full" />
         ) : (
           <div className="h-full flex items-center justify-center text-muted-foreground">

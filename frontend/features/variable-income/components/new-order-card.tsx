@@ -208,7 +208,7 @@ export function NewOrderCard({ stock, cash, position }: NewOrderCardProps) {
                     variant="secondary"
                     size="sm"
                     onClick={() => {
-                      let maxQty = 0;
+                      let maxQty: number;
                       if (action === "buy") {
                         if (type === "market") {
                           // Ordem à mercado: cash / melhor preço atual do book

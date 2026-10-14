@@ -31,7 +31,7 @@ function getHttpStatusText(status: number): string {
  * Valida erros com schema Zod e retorna conteúdo direto em sucesso.
  */
 export async function handleApiResponse<R>(res: Response, responseSchema?: ZodType<R>): Promise<R> {
-  let json: unknown = null;
+  let json: unknown;
 
   try {
     json = await res.json();
