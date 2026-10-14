@@ -69,7 +69,7 @@ def _candle(price_date: date = TUESDAY) -> CandleDTO:
         volume=500,
         price_date=price_date,
         change=0.5,
-        change_pct="+5.00%",
+        change_pct=0.05,
     )
 
 
@@ -179,7 +179,7 @@ def test_apply_scales_ohlc_and_keeps_change_pct(flows: list[DailyEquityFlowDTO])
         10.71,
     )
     assert candle.change == 0.51
-    assert candle.change_pct == "+5.00%"
+    assert candle.change_pct == 0.05
     assert candle.volume == 500
 
 

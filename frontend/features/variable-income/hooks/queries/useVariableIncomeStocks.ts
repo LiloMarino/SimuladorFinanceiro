@@ -3,23 +3,35 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
-import type { Stock } from "@/types";
+import type { MarketQuote } from "@/types";
 
 /**
- * Lista de ações da renda variável, mantida viva via stocks_update.
- * Consumida por variable-income.tsx e portfolio.tsx — compartilham a mesma
- * busca e a mesma assinatura WS (dedup por queryKey).
+ * Lista de mercado, mantida viva via stocks_update. O evento traz só a cotação do
+ * dia: o mini gráfico e o setor vêm da busca, e o último ponto do gráfico segue o
+ * fechamento ao vivo (num pregão novo, o ponto mais antigo sai).
  */
 export function useVariableIncomeStocks() {
   const queryClient = useQueryClient();
 
   const query = useApiQuery({
     queryKey: queryKeys.variableIncomeList(),
-    queryFn: ({ signal }) => apiFetch<Stock[]>("/api/variable-income", { signal }),
+    queryFn: ({ signal }) => apiFetch<MarketQuote[]>("/api/variable-income", { signal }),
   });
 
-  useRealtime("stocks_update", (data) => {
-    queryClient.setQueryData(queryKeys.variableIncomeList(), data.stocks);
+  useRealtime("stocks_update", ({ stocks }) => {
+    queryClient.setQueryData(queryKeys.variableIncomeList(), (prev: MarketQuote[] | undefined) => {
+      if (!prev) return prev;
+      const byTicker = new Map(stocks.map((s) => [s.ticker, s]));
+      return prev.map((quote) => {
+        const candle = byTicker.get(quote.ticker);
+        if (!candle) return quote;
+        const newDay = candle.price_date !== quote.price_date;
+        const sparkline = newDay
+          ? [...quote.sparkline.slice(1), candle.close]
+          : [...quote.sparkline.slice(0, -1), candle.close];
+        return { ...quote, ...candle, sparkline };
+      });
+    });
   });
 
   return query;

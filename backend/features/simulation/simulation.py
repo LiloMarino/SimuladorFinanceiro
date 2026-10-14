@@ -4,7 +4,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from backend.core import repository
-from backend.core.dto.candle import CandleDTO
+from backend.core.dto.candle import CandleDTO, MarketQuoteDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
@@ -36,6 +36,9 @@ from backend.features.realtime.schemas import (
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.strategy.manual import ManualStrategy
 from backend.features.variable_income.price_impact import PriceImpact
+
+# Pregões no mini gráfico da lista de mercado
+SPARKLINE_DAYS = 30
 
 logger = logging.getLogger(__name__)
 
@@ -197,6 +200,26 @@ class Simulation:
             self._price_impact.apply(stock)
             for stock in repository.stock.get_stocks_by_date(self._current_date)
         ]
+
+    def get_market(self) -> list[MarketQuoteDTO]:
+        """As cotações do dia com os 30 pregões do mini gráfico; o último ponto é o de hoje, com impacto."""
+        closes = repository.stock.get_recent_closes(self._current_date, SPARKLINE_DAYS)
+        classification = repository.stock.get_classification()
+        quotes = []
+        for candle in self.get_stocks():
+            history = closes.get(candle.ticker, [])
+            segment = classification.get(candle.ticker)
+            quotes.append(
+                MarketQuoteDTO(
+                    **candle.model_dump(),
+                    sparkline=[*history[:-1], candle.close]
+                    if history
+                    else [candle.close],
+                    sector=segment.sector if segment else None,
+                    segment=segment.segment if segment else None,
+                )
+            )
+        return quotes
 
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
         details = repository.stock.get_stock_details(ticker, self._current_date)

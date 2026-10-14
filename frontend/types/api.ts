@@ -2,6 +2,7 @@ import type { components, operations } from "@/types/openapi";
 
 // Stock
 export type Stock = Omit<components["schemas"]["CandleDTO"], "id">;
+export type MarketQuote = components["schemas"]["MarketQuoteDTO"];
 export type StockCandle = components["schemas"]["StockPriceHistoryDTO"];
 export type StockDetails = Omit<components["schemas"]["StockDetailsDTO"], "id">;
 

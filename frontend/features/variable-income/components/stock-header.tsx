@@ -1,3 +1,4 @@
+import { displaySignedPercent } from "@/shared/lib/utils/display";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { StockDetails } from "@/types";
 import clsx from "clsx";
@@ -16,11 +17,11 @@ export function StockHeader({ stock }: { stock: StockDetails }) {
         <div
           className={clsx(
             "flex items-center justify-end gap-1 font-medium",
-            isPositive ? "text-success" : "text-destructive"
+            isPositive ? "text-success" : "text-destructive",
           )}
         >
           {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-          <span>{stock.change_pct}</span>
+          <span>{displaySignedPercent(stock.change_pct)}</span>
           <span className="text-muted-foreground">({displayMoney(stock.change)})</span>
         </div>
       </div>

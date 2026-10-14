@@ -42,6 +42,23 @@ export function displayPercent(value: Numeric, digits = 2) {
   }).format(value as Intl.StringNumericLiteral | number);
 }
 
+/** Percentual com sinal explícito (0.0141 → "+1,41%"), para variações. */
+export function displaySignedPercent(value: Numeric, digits = 2) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "percent",
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+    signDisplay: "exceptZero",
+  }).format(value as Intl.StringNumericLiteral | number);
+}
+
+/** Número curto com sufixo pt-BR (48200000 → "48,2 mi"), para volumes. */
+export function displayCompactNumber(value: Numeric) {
+  return new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 }).format(
+    value as Intl.StringNumericLiteral | number,
+  );
+}
+
 /** Número com casas fixas, lido da string decimal ("0.5432" → "0,54"). */
 export function displayNumber(value: Numeric, digits = 2) {
   return new Intl.NumberFormat("pt-BR", {

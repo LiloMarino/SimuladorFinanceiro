@@ -5,7 +5,7 @@ from fastapi import APIRouter, Query, status
 from pydantic import BaseModel, Field
 
 from backend.core.dependencies import ActiveSimulation, ClientID
-from backend.core.dto.candle import CandleDTO
+from backend.core.dto.candle import MarketQuoteDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
 from backend.core.dto.order import OrderDTO
@@ -46,16 +46,15 @@ class SubmitOrderResponse(BaseModel):
 
 @operation_router.get(
     "/variable-income",
-    response_model=list[CandleDTO],
+    response_model=list[MarketQuoteDTO],
     summary="Listar ativos de renda variável",
-    description="Retorna a lista de todos os ativos de renda variável (ações) disponíveis na simulação.",
+    description="Retorna os ativos de renda variável com a cotação do dia, os últimos 30 fechamentos e o setor.",
 )
 def get_variable_income(simulation: ActiveSimulation):
     """
     Lista todos os ativos de renda variável.
     """
-    stocks = simulation.get_stocks()
-    return stocks
+    return simulation.get_market()
 
 
 @operation_router.get(
@@ -70,7 +69,7 @@ def get_variable_income_details(simulation: ActiveSimulation, asset: str):
     """
     stock = simulation.get_stock_details(asset)
     if not stock:
-        raise NotFoundError("Asset not found.")
+        raise NotFoundError("Ativo não encontrado.")
     return stock
 
 
@@ -187,7 +186,7 @@ def get_fixed_income_details(simulation: ActiveSimulation, asset_uuid: str):
     """
     fixed = simulation.get_fixed_asset(asset_uuid)
     if not fixed:
-        raise NotFoundError("Asset not found.")
+        raise NotFoundError("Ativo não encontrado.")
     return fixed
 
 

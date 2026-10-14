@@ -158,7 +158,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
           high: d.high,
           low: d.low,
           close: d.close,
-        }))
+        })),
       );
     }
 
@@ -184,7 +184,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
                   "px-3 py-1 text-sm transition-colors duration-200",
                   selectedScale === scale
                     ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                 )}
               >
                 {scale.toUpperCase()}
@@ -200,7 +200,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
                 "px-3 py-1 flex items-center justify-center gap-1 text-sm transition-colors duration-200",
                 chartType === "line"
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}
               title="Gráfico de Área"
             >
@@ -212,7 +212,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
                 "px-3 py-1 flex items-center justify-center gap-1 text-sm transition-colors duration-200",
                 chartType === "candle"
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
               )}
               title="Gráfico de Velas"
             >

@@ -1,3 +1,4 @@
+import { displaySignedPercent } from "@/shared/lib/utils/display";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { StockDetails } from "@/types";
 import clsx from "clsx";
@@ -8,7 +9,11 @@ export function StockMiniStats({ stock }: { stock: StockDetails }) {
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       {[
         { label: "Volume", value: stock.volume.toLocaleString() },
-        { label: "Variação Dia", value: stock.change_pct, color: isPositive ? "text-success" : "text-destructive" },
+        {
+          label: "Variação Dia",
+          value: displaySignedPercent(stock.change_pct),
+          color: isPositive ? "text-success" : "text-destructive",
+        },
         { label: "Mín. do Dia", value: displayMoney(stock.low) },
         { label: "Máx. do Dia", value: displayMoney(stock.high) },
       ].map((item, idx) => (

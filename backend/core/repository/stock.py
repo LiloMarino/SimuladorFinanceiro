@@ -56,7 +56,7 @@ class StockRepository:
             )
             if ph:
                 change = ph.close - ph.open
-                change_pct = (change / ph.open * 100) if ph.open != 0 else 0
+                change_pct = change / ph.open if ph.open != 0 else 0
                 stocks_with_history.append(
                     CandleDTO(
                         id=ph.stock.id,
@@ -70,10 +70,33 @@ class StockRepository:
                         open=ph.open,
                         price_date=ph.price_date,
                         change=round(change, 2),
-                        change_pct=f"{change_pct:+.2f}%",
+                        change_pct=change_pct,
                     )
                 )
         return stocks_with_history
+
+    @transactional
+    def get_recent_closes(
+        self, session: Session, current_date: date, days: int
+    ) -> dict[str, list[float]]:
+        """Os últimos `days` fechamentos de cada ação até `current_date`, em ordem cronológica."""
+        closes: dict[str, list[float]] = {}
+        for stock in session.execute(select(Stock)).scalars().all():
+            rows = (
+                session.execute(
+                    select(StockPriceHistory.close)
+                    .where(
+                        StockPriceHistory.stock_id == stock.id,
+                        StockPriceHistory.price_date <= current_date,
+                    )
+                    .order_by(StockPriceHistory.price_date.desc())
+                    .limit(days)
+                )
+                .scalars()
+                .all()
+            )
+            closes[stock.ticker] = list(reversed(rows))
+        return closes
 
     @transactional
     def get_stock_details(
@@ -115,9 +138,9 @@ class StockRepository:
             price_date=ph_today.price_date if ph_today else current_date,
             change=round(ph_today.close - ph_today.open, 2) if ph_today else 0,
             change_pct=(
-                f"{((ph_today.close - ph_today.open) / ph_today.open * 100):+.2f}%"
-                if ph_today
-                else "0.00%"
+                (ph_today.close - ph_today.open) / ph_today.open
+                if ph_today and ph_today.open
+                else 0
             ),
             history=[StockPriceHistoryDTO.from_model(h) for h in history],
         )

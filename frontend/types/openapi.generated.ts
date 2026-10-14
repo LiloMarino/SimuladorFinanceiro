@@ -13,7 +13,7 @@ export interface paths {
         };
         /**
          * Listar ativos de renda variável
-         * @description Retorna a lista de todos os ativos de renda variável (ações) disponíveis na simulação.
+         * @description Retorna os ativos de renda variável com a cotação do dia, os últimos 30 fechamentos e o setor.
          */
         get: operations["get_variable_income_api_variable_income_get"];
         put?: never;
@@ -1160,7 +1160,7 @@ export interface components {
             /** Change */
             change: number;
             /** Change Pct */
-            change_pct: string;
+            change_pct: number;
         };
         /** CashResponse */
         CashResponse: {
@@ -1383,6 +1383,41 @@ export interface components {
         LoadSimulationRequest: {
             /** Id */
             id: number;
+        };
+        /** MarketQuoteDTO */
+        MarketQuoteDTO: {
+            /** Id */
+            id: number;
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            asset_class: components["schemas"]["AssetClass"];
+            /** Open */
+            open: number;
+            /** High */
+            high: number;
+            /** Low */
+            low: number;
+            /** Close */
+            close: number;
+            /** Volume */
+            volume: number;
+            /**
+             * Price Date
+             * Format: date
+             */
+            price_date: string;
+            /** Change */
+            change: number;
+            /** Change Pct */
+            change_pct: number;
+            /** Sparkline */
+            sparkline: number[];
+            /** Sector */
+            sector: string | null;
+            /** Segment */
+            segment: string | null;
         };
         /** MonthlyVolumeDTO */
         MonthlyVolumeDTO: {
@@ -2160,7 +2195,7 @@ export interface components {
             /** Change */
             change: number;
             /** Change Pct */
-            change_pct: string;
+            change_pct: number;
             /** History */
             history: components["schemas"]["StockPriceHistoryDTO"][];
         };
@@ -2347,7 +2382,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CandleDTO"][];
+                    "application/json": components["schemas"]["MarketQuoteDTO"][];
                 };
             };
             /** @description Internal Server Error */
