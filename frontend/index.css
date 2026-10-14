@@ -62,6 +62,10 @@
   --color-toast: var(--toast);
   --color-toast-foreground: var(--toast-foreground);
   --color-toast-muted: var(--toast-muted);
+  --color-toast-success: var(--toast-success);
+  --color-toast-warning: var(--toast-warning);
+  --color-toast-info: var(--toast-info);
+  --color-toast-error: var(--toast-error);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-muted: var(--sidebar-muted);
@@ -120,6 +124,10 @@
   --toast: #0f1729;
   --toast-foreground: #ffffff;
   --toast-muted: #9aa5ba;
+  --toast-success: #5bd6a0;
+  --toast-warning: #f2b35b;
+  --toast-info: #8fb0ff;
+  --toast-error: #ff8a80;
   --sidebar: #0f1729;
   --sidebar-foreground: #c9d1e0;
   --sidebar-muted: #7d879b;

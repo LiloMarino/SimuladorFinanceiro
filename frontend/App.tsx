@@ -85,7 +85,7 @@ export default function App() {
                     {/* 404 */}
                     <Route path="*" element={<ErrorPage />} />
                   </Routes>
-                  <Toaster position="bottom-right" richColors />
+                  <Toaster position="bottom-right" />
                 </SimulationProvider>
               </PageLabelProvider>
             </NotificationSettingsProvider>

@@ -1,5 +1,6 @@
 import type { ZodType } from "zod";
 import { handleApiResponse } from "@/shared/lib/utils/api";
+import ApiError, { defaultErrorMessage, NETWORK_ERROR_STATUS } from "@/shared/lib/models/ApiError";
 
 export interface ApiFetchInit<R = unknown> {
   readonly method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
@@ -18,13 +19,20 @@ export async function apiFetch<R = unknown>(path: string, init: ApiFetchInit<R> 
   const { method = "GET", body, headers, responseSchema, signal } = init;
   const isFormData = body instanceof FormData;
 
-  const res = await fetch(path, {
-    method,
-    credentials: "include",
-    signal,
-    headers: isFormData ? headers : { "Content-Type": "application/json", ...(headers ?? {}) },
-    body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
-  });
+  let res: Response;
+  try {
+    res = await fetch(path, {
+      method,
+      credentials: "include",
+      signal,
+      headers: isFormData ? headers : { "Content-Type": "application/json", ...(headers ?? {}) },
+      body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
+    });
+  } catch (err) {
+    // Cancelamento segue como está; o resto é a requisição que não chegou ao servidor
+    if (signal?.aborted) throw err;
+    throw new ApiError(defaultErrorMessage(NETWORK_ERROR_STATUS), NETWORK_ERROR_STATUS, null);
+  }
 
   return handleApiResponse<R>(res, responseSchema);
 }
