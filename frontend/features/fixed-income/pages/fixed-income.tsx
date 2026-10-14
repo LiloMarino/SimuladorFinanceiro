@@ -1,7 +1,7 @@
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { useFixedIncomeAssets } from "@/features/fixed-income/hooks/queries/useFixedIncomeAssets";
 import { FixedIncomeAsset } from "@/features/fixed-income/models/FixedIncomeAsset";
-import { parse } from "date-fns";
+import { parseLocalDate } from "@/shared/lib/utils/display";
 import FixedIncomeCard from "@/features/fixed-income/components/fixed-income-card";
 import { LoadingPage } from "@/pages/loading";
 import { ErrorPage } from "@/pages/error";
@@ -24,7 +24,7 @@ export default function FixedIncomePage() {
     );
   }
 
-  const currentDate = parse(simData?.current_date ?? "", "dd/MM/yyyy", new Date());
+  const currentDate = parseLocalDate(simData?.current_date ?? "");
 
   return (
     <section className="p-4">

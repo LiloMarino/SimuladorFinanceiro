@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 
 from fastapi import APIRouter
@@ -20,7 +21,7 @@ class SetSpeedResponse(BaseModel):
 
 
 class SimulationStateResponse(BaseModel):
-    current_date: str
+    current_date: date
     speed: int
     cash: Decimal
 
@@ -58,7 +59,7 @@ def get_simulation_state(client_id: ClientID, simulation: ActiveSimulation):
     """
     Retorna o estado atual da simulação.
     """
-    current_date = simulation.get_current_date_formatted()
+    current_date = simulation.get_current_date()
     speed = simulation.get_speed()
     cash = simulation.get_cash(client_id)
     return SimulationStateResponse(

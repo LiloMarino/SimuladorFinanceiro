@@ -32,14 +32,17 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
   );
 }
 
-function AvatarFallback({ className, ...props }: AvatarPrimitive.Fallback.Props) {
+/** `color` pinta o avatar com a cor do jogador; sem ela, fica neutro. */
+function AvatarFallback({ className, color, style, ...props }: AvatarPrimitive.Fallback.Props & { color?: string }) {
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
+      data-colored={color ? "" : undefined}
       className={cn(
-        "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
+        "flex size-full items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground group-data-[size=lg]/avatar:text-sm data-colored:text-white",
         className,
       )}
+      style={color ? { ...style, backgroundColor: color } : style}
       {...props}
     />
   );

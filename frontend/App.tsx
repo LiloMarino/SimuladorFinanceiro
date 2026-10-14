@@ -32,13 +32,13 @@ import { SimulationModeLayout } from "./layouts/simulation-mode-layout";
 import { queryClient } from "@/shared/lib/queryClient";
 
 const navItems: NavItem[] = [
-  { key: "variable-income", label: "Renda Variável", endpoint: "/variable-income", icon: TrendingUp },
-  { key: "fixed-income", label: "Renda Fixa", endpoint: "/fixed-income", icon: Coins },
-  { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet },
-  { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: Trophy },
-  { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3 },
-  { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: Bot },
-  { key: "settings", label: "Configurações", endpoint: "/settings", icon: Settings },
+  { key: "variable-income", label: "Renda variável", endpoint: "/variable-income", icon: TrendingUp, group: "Mercado" },
+  { key: "fixed-income", label: "Renda fixa", endpoint: "/fixed-income", icon: Coins, group: "Mercado" },
+  { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet, group: "Você" },
+  { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: Trophy, group: "Você" },
+  { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
+  { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: Bot, group: "Ferramentas", badge: "Em breve" },
+  { key: "settings", label: "Configurações", endpoint: "/settings", icon: Settings, group: "Ferramentas" },
 ];
 
 const routeLabels = navItems.reduce<Record<string, string>>((acc, item) => {

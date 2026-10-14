@@ -15,11 +15,11 @@ export default function MainLayout({ navItems }: LayoutProps) {
   const { label: pageLabel } = usePageLabel();
 
   return (
-    <SidebarProvider className="h-svh overflow-hidden">
+    <SidebarProvider className="h-svh overflow-hidden" style={{ "--sidebar-width": "14.5rem" } as React.CSSProperties}>
       <Sidebar navItems={navItems} activePage={activePage} />
       <SidebarInset className="overflow-auto">
         <Topbar pageLabel={pageLabel} />
-        <main className="p-6">
+        <main className="mx-auto flex w-full max-w-[1320px] flex-col gap-5 px-7 pt-6 pb-10">
           <Outlet />
         </main>
       </SidebarInset>

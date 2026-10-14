@@ -1912,7 +1912,10 @@ export interface components {
         };
         /** SimulationStateResponse */
         SimulationStateResponse: {
-            /** Current Date */
+            /**
+             * Current Date
+             * Format: date
+             */
             current_date: string;
             /** Speed */
             speed: number;
@@ -1965,7 +1968,10 @@ export interface components {
         };
         /** SimulationTickUpdateEventDTO */
         SimulationTickUpdateEventDTO: {
-            /** Current Date */
+            /**
+             * Current Date
+             * Format: date
+             */
             current_date: string;
         };
         /** SnapshotDTO */

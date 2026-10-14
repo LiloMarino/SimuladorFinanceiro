@@ -153,9 +153,7 @@ class Simulation:
             )
         notify(
             "simulation_update",
-            SimulationTickUpdateEventDTO(
-                current_date=self.get_current_date_formatted()
-            ).to_json(),
+            SimulationTickUpdateEventDTO(current_date=self._current_date).to_json(),
         )
         notify("stocks_update", StocksUpdateEventDTO(stocks=stocks).to_json())
         for player in UserManager.list_active_players():

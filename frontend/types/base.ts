@@ -7,6 +7,8 @@ export interface NavItem {
   label: string;
   endpoint: string;
   icon: LucideIcon;
+  group: "Mercado" | "Você" | "Ferramentas";
+  badge?: string;
 }
 
 export type RedirectState = {

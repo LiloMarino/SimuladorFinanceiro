@@ -1,17 +1,20 @@
-import clsx from "clsx";
+import { useRef } from "react";
+import { Pause, Play } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { displayMoney } from "@/shared/lib/utils/display";
+import { Button } from "@/shared/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { displayMoney, displayShortDate } from "@/shared/lib/utils/display";
 import type { SimulationState } from "@/types";
 
 interface TopbarProps {
   pageLabel: string;
 }
 
-const SPEED_OPTIONS = [0, 1, 2, 4, 10, 100];
+const SPEED_OPTIONS = [1, 2, 4, 10, 100];
 
 export default function Topbar({ pageLabel }: TopbarProps) {
   const queryClient = useQueryClient();
@@ -48,51 +51,58 @@ export default function Topbar({ pageLabel }: TopbarProps) {
     },
   });
 
+  // Velocidade 0 é a pausa; o play retoma na última velocidade escolhida
+  const lastSpeed = useRef(1);
+  const speed = simData?.speed ?? 0;
+  const paused = speed === 0;
+
   const handleSpeedChange = (newSpeed: number) => {
-    if (newSpeed === simData?.speed) return;
+    if (newSpeed === speed) return;
+    if (newSpeed > 0) lastSpeed.current = newSpeed;
     setSpeedApi(newSpeed);
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-background border-b border-border shadow-sm">
-      <div className="flex flex-wrap items-center justify-between p-4 gap-4">
-        <h1 className="text-xl font-semibold text-foreground">{pageLabel}</h1>
+    <header className="sticky top-0 z-30 border-b border-border bg-card">
+      <div className="flex flex-wrap items-center justify-between gap-4 px-7 py-3">
+        <h1 className="text-lg font-semibold">{pageLabel}</h1>
 
-        <div className="flex items-center space-x-6">
-          {/* Saldo */}
-          <div className="flex items-center">
-            <span className="text-sm text-muted-foreground mr-2">Saldo:</span>
-            <span className="font-medium">{simData?.cash !== undefined ? displayMoney(simData.cash) : "--"}</span>
-          </div>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Data e velocidade */}
+          <span className="flex h-9 items-center rounded-lg border border-border px-3 font-mono text-[13px]">
+            {simData?.current_date ? displayShortDate(simData.current_date) : "—"}
+          </span>
+          <Button
+            variant="dark"
+            size="icon-sm"
+            disabled={loading}
+            aria-label={paused ? "Retomar simulação" : "Pausar simulação"}
+            onClick={() => handleSpeedChange(paused ? lastSpeed.current : 0)}
+          >
+            {paused ? <Play /> : <Pause />}
+          </Button>
+          <ToggleGroup
+            variant="segmented"
+            aria-label="Velocidade da simulação"
+            value={paused ? [] : [String(speed)]}
+            onValueChange={(values) => values[0] && handleSpeedChange(Number(values[0]))}
+            disabled={loading}
+          >
+            {SPEED_OPTIONS.map((option) => (
+              <ToggleGroupItem key={option} value={String(option)}>
+                {option}×
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
 
-          {/* Velocidade */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground hidden md:block">Velocidade:</span>
-
-            <div className="flex divide-x divide-border rounded-md overflow-hidden border border-border">
-              {SPEED_OPTIONS.map((option) => (
-                <button
-                  key={option}
-                  onClick={() => handleSpeedChange(option)}
-                  disabled={loading}
-                  className={clsx(
-                    "px-3 py-1 text-sm transition-colors duration-200",
-                    simData?.speed === option
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                    loading && "opacity-70 cursor-not-allowed",
-                  )}
-                >
-                  {option === 0 ? "Pausar" : `${option}x`}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Data */}
-          <div className="flex items-center">
-            <span className="text-sm text-muted-foreground mr-2">Simulação:</span>
-            <span className="font-medium">{simData?.current_date ?? "--/--/----"}</span>
+          {/* Caixa */}
+          <div className="grid border-l border-border pl-4">
+            <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+              Caixa disponível
+            </span>
+            <span className="font-mono text-[15px] font-semibold">
+              {simData?.cash !== undefined ? displayMoney(simData.cash) : "—"}
+            </span>
           </div>
         </div>
       </div>

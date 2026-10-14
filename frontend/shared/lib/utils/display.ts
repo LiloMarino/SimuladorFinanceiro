@@ -100,6 +100,15 @@ export function displayDate(date: Date | string) {
   }).format(d);
 }
 
+/** "2023-03-14" → "14 mar 2023", a data curta do topo. */
+export function displayShortDate(isoDate: string) {
+  const parts = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).formatToParts(
+    parseLocalDate(isoDate),
+  );
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value.replace(".", "") ?? "";
+  return `${part("day")} ${part("month")} ${part("year")}`;
+}
+
 export function displayMonthYear(date: Date | string) {
   const d = typeof date === "string" ? new Date(date) : date;
 

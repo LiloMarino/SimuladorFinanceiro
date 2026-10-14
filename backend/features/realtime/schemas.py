@@ -1,3 +1,4 @@
+
 """
 DTOs dos payloads emitidos via `notify(...)` (WebSocket/SSE).
 
@@ -7,6 +8,7 @@ Servem para dois propósitos:
    `openapi-typescript` gere `types/events.ts` a partir destes schemas.
 """
 
+from datetime import date
 from decimal import Decimal
 from typing import Literal
 
@@ -30,7 +32,7 @@ class SpeedUpdateEventDTO(BaseDTO):
 
 
 class SimulationTickUpdateEventDTO(BaseDTO):
-    current_date: str
+    current_date: date
 
 
 class PlayerPresenceEventDTO(BaseDTO):

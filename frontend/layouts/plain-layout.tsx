@@ -1,22 +1,19 @@
 import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 
 export function PlainLayout() {
-  const navigate = useNavigate();
-
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="px-4 py-3 border-b bg-white flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+    <div className="min-h-screen">
+      <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-5 px-7 pt-6 pb-10">
+        <Button variant="link" size="sm" nativeButton={false} render={<Link to="/lobby" />} className="self-start">
           <ArrowLeft />
-          Voltar
+          Voltar ao lobby
         </Button>
-      </header>
-      <main className="flex-1">
-        <Outlet />
-      </main>
+        <main>
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

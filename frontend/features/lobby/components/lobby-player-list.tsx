@@ -1,7 +1,7 @@
 import { User } from "lucide-react";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { stringToColor } from "@/shared/lib/utils";
-import { useLobbyPlayers } from "../hooks/queries/useLobbyPlayers";
+import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 
 interface LobbyPlayersListProps {
   maxPlayers: number;
@@ -9,7 +9,7 @@ interface LobbyPlayersListProps {
 
 export function LobbyPlayersList({ maxPlayers }: LobbyPlayersListProps) {
   const { user } = useAuth();
-  const { data: players } = useLobbyPlayers();
+  const { data: players } = useRoomPlayers();
 
   const playersList = [...(players ?? [])].sort((a, b) => a.nickname.localeCompare(b.nickname));
   return (
