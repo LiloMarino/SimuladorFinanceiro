@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@shadcn/lint": "^0.2.1",
     "@tanstack/react-query-devtools": "^5.104.2",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^26.6.5",

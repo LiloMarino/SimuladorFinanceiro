@@ -3,6 +3,7 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import { plugin as shadcn } from '@shadcn/lint'
 import { globalIgnores } from 'eslint/config'
 
 export default tseslint.config([
@@ -19,5 +20,15 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    plugins: { shadcn },
+    rules: {
+      'shadcn/no-restyle': ['warn', { allow: ['layout'] }],
+      'shadcn/no-raw-colors': 'warn',
+    },
+  },
+  // Os componentes do design system definem o próprio visual
+  {
+    files: ['shared/components/ui/**'],
+    rules: { 'shadcn/no-restyle': 'off' },
   },
 ])
