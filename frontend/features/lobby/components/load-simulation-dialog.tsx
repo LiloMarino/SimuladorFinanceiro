@@ -118,49 +118,49 @@ function LoadSimulationContent({ onOpenChange, isHost }: Omit<LoadSimulationDial
 
   return (
     <>
-    <DialogHeader>
-      <DialogTitle>{isHost ? "Carregar Simulação" : "Simulações Salvas"}</DialogTitle>
-      <DialogDescription>
-        Selecione uma simulação salva para continuar de onde parou ou ver o resultado dela.
-      </DialogDescription>
-    </DialogHeader>
+      <DialogHeader>
+        <DialogTitle>{isHost ? "Carregar Simulação" : "Simulações Salvas"}</DialogTitle>
+        <DialogDescription>
+          Selecione uma simulação salva para continuar de onde parou ou ver o resultado dela.
+        </DialogDescription>
+      </DialogHeader>
 
-    {/* Barra de pesquisa (altura fixa) */}
-    <div className="relative">
-      <Search className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-      <Input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Buscar por nome..."
-        className="pl-9"
-      />
-    </div>
+      {/* Barra de pesquisa (altura fixa) */}
+      <div className="relative">
+        <Search className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar por nome..."
+          className="pl-9"
+        />
+      </div>
 
-    {/* Lista (altura fixa e scrollável — não encolhe ao filtrar) */}
-    <ScrollArea className="h-72 rounded-md border">{renderList()}</ScrollArea>
+      {/* Lista (altura fixa e scrollável — não encolhe ao filtrar) */}
+      <ScrollArea className="h-72 rounded-md border">{renderList()}</ScrollArea>
 
-    <DialogFooter>
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full sm:w-auto"
-        disabled={selectedId === null}
-        onClick={() => selectedId !== null && navigate(`/match-result/${selectedId}`)}
-      >
-        <Trophy />
-        Ver resultado
-      </Button>
-      <Button
-        type="button"
-        variant="success"
-        className="w-full sm:w-auto"
-        disabled={selectedId === null || !isHost || loadingLoad}
-        onClick={() => selectedId !== null && loadSimulation({ id: selectedId })}
-      >
-        <Play fill="currentColor" />
-        Carregar e Iniciar Simulação
-      </Button>
-    </DialogFooter>
+      <DialogFooter>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full sm:w-auto"
+          disabled={selectedId === null}
+          onClick={() => selectedId !== null && navigate(`/match-result/${selectedId}`)}
+        >
+          <Trophy />
+          Ver resultado
+        </Button>
+        <Button
+          type="button"
+          variant="success"
+          className="w-full sm:w-auto"
+          disabled={selectedId === null || !isHost || loadingLoad}
+          onClick={() => selectedId !== null && loadSimulation({ id: selectedId })}
+        >
+          <Play fill="currentColor" />
+          Carregar e Iniciar Simulação
+        </Button>
+      </DialogFooter>
     </>
   );
 }
