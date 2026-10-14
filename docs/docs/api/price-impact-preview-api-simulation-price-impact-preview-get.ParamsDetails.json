@@ -1,0 +1,1 @@
+{"parameters":[{"name":"k","in":"query","required":true,"schema":{"type":"number","minimum":0,"title":"K"}},{"name":"decay_days","in":"query","required":true,"schema":{"type":"integer","maximum":250,"minimum":1,"title":"Decay Days"}}]}

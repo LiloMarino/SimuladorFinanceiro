@@ -9,8 +9,8 @@ from backend.core.exceptions.http_exceptions import UnprocessableEntityError
 from backend.core.indicators import ensure_indicator_coverage
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
-from backend.core.utils import next_business_day
 from backend.features.realtime import notify
+from backend.features.simulation.saved_simulation import is_finished, resume_point
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_loop import simulation_controller
 
@@ -46,17 +46,9 @@ class SimulationLoader:
         nada persistido, então reprocessar os dias depois do último registro chega
         ao mesmo estado em que o jogador parou.
         """
-        last_dates = [
-            d
-            for d in (
-                repository.event.get_last_event_date(summary.id),
-                repository.snapshot.get_last_snapshot_date(summary.id),
-            )
-            if d is not None
-        ]
-        resume_from = max(last_dates) if last_dates else None
+        resume_from = resume_point(summary.id)
 
-        if resume_from and next_business_day(resume_from) > summary.end_date:
+        if is_finished(summary.end_date, resume_from):
             raise UnprocessableEntityError(
                 "A simulação já chegou na data final e não pode ser continuada."
             )

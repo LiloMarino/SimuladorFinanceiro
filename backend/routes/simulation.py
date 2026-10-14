@@ -1,16 +1,18 @@
 from datetime import date
 from decimal import Decimal
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Query, status
 from pydantic import BaseModel, Field, model_validator
 
 from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.simulation import (
+    PriceImpactPointDTO,
+    PriceImpactPreviewDTO,
+    SavedSimulationDTO,
     SimulationSettingsDTO,
     SimulationStatusResponse,
-    SimulationSummaryDTO,
 )
 from backend.core.enum import VictoryCriterion
 from backend.core.exceptions import NoActiveSimulationError
@@ -20,8 +22,10 @@ from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import SimulationEndedEventDTO
+from backend.features.simulation.saved_simulation import describe
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.simulation.simulation_loop import simulation_controller
+from backend.features.variable_income.price_impact import decay, impact
 
 simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
 
@@ -72,6 +76,7 @@ class PlayerNickname(BaseModel):
 
 class SimulationSettingsResponse(BaseModel):
     is_host: bool
+    host_nickname: str
     simulation: SimulationSettingsDTO
 
 
@@ -149,15 +154,39 @@ def load_simulation(payload: LoadSimulationRequest, _: HostVerified):
 
 @simulation_router.get(
     "/list",
-    response_model=list[SimulationSummaryDTO],
+    response_model=list[SavedSimulationDTO],
     summary="Listar simulações salvas",
-    description="Retorna o histórico de simulações, ordenado pela última vez jogada.",
+    description="Retorna o histórico de simulações, ordenado pela última vez jogada, com onde cada uma parou e quem venceu as terminadas.",
 )
 def list_simulations(search: str | None = None):
     """
     Lista as simulações persistidas (histórico).
     """
-    return repository.simulation.list_simulations(search)
+    return [describe(s) for s in repository.simulation.list_simulations(search)]
+
+
+# Fração do volume médio diário usada no exemplo da prévia
+PREVIEW_VOLUME_SHARE = 0.10
+
+
+@simulation_router.get(
+    "/price-impact-preview",
+    response_model=PriceImpactPreviewDTO,
+    summary="Prévia do impacto de preço",
+    description="Quanto uma compra de 10% do volume médio diário move o preço no pregão seguinte e como o efeito some até voltar ao histórico.",
+)
+def price_impact_preview(
+    k: float = Query(ge=0), decay_days: int = Query(ge=1, le=250)
+) -> PriceImpactPreviewDTO:
+    first_day = impact(round(PREVIEW_VOLUME_SHARE * 1_000_000), 1_000_000, k)
+    return PriceImpactPreviewDTO(
+        volume_share=PREVIEW_VOLUME_SHARE,
+        first_day_impact=first_day,
+        curve=[
+            PriceImpactPointDTO(day=age + 1, impact=first_day * decay(age, decay_days))
+            for age in range(decay_days + 1)
+        ],
+    )
 
 
 @simulation_router.post(
@@ -213,6 +242,7 @@ def get_simulation_settings(client_id: ClientID):
     settings = SettingsManager.get()
     return SimulationSettingsResponse(
         is_host=user.nickname == host_nickname,
+        host_nickname=host_nickname,
         simulation=settings,
     )
 

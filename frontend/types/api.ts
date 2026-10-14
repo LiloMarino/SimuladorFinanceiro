@@ -68,5 +68,6 @@ export type SimulationData = components["schemas"]["SimulationDTO"];
 export type SimulationSettingsData = components["schemas"]["SimulationSettingsDTO"];
 export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];
 export type SimulationInfo = components["schemas"]["SimulationStatusResponse"];
-export type SimulationListItem = components["schemas"]["SimulationSummaryDTO"];
+export type SimulationListItem = components["schemas"]["SavedSimulationDTO"];
+export type PriceImpactPreview = components["schemas"]["PriceImpactPreviewDTO"];
 export type VictoryCriterion = components["schemas"]["VictoryCriterion"];

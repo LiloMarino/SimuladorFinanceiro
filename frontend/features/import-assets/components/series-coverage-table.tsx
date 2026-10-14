@@ -16,8 +16,7 @@ import { Pencil } from "lucide-react";
 import { ClassifyStockDialog } from "./classify-stock-dialog";
 import { CoverageBar, type TimelineRange } from "./coverage-bar";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
-
-const STALE_AFTER_DAYS = 2;
+import { isOutdatedStock } from "@/shared/lib/series-coverage";
 
 const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   STOCK: "Ação",
@@ -25,17 +24,6 @@ const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   ETF: "ETF",
   BDR: "BDR",
 };
-const DAY_MS = 1000 * 60 * 60 * 24;
-
-// Ação cujo último preço tem mais de 2 dias: o pregão de ontem já devia estar lá
-function isOutdatedStock(series: SeriesCoverage): boolean {
-  if (series.kind !== "STOCK") return false;
-  if (!series.real_end) return true;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return (today.getTime() - parseLocalDate(series.real_end).getTime()) / DAY_MS > STALE_AFTER_DAYS;
-}
-
 // Intervalo comum das barras: do início mais antigo ao fim mais recente
 function timelineRange(series: SeriesCoverage[]): TimelineRange {
   const dates = series

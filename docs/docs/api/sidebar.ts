@@ -360,6 +360,12 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/price-impact-preview-api-simulation-price-impact-preview-get",
+          label: "Prévia do impacto de preço",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
           id: "api/stop-simulation-api-simulation-stop-post",
           label: "Parar simulação",
           className: "api-method post",

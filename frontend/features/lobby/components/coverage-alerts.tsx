@@ -1,37 +1,66 @@
-import { CircleAlert, TriangleAlert } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Ban, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Button } from "@/shared/components/ui/button";
 import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
 import type { CoverageCheck } from "../lib/coverage";
 
-export function CoverageAlerts({ check }: { check: CoverageCheck }) {
+type CoverageAlertsProps = {
+  check: CoverageCheck;
+  startDate: string;
+  /** Abre as regras para trocar a data; só o host tem essa saída */
+  onChangeDate?: () => void;
+};
+
+const formatIso = (iso: string) => displayDate(parseLocalDate(iso));
+
+export function CoverageAlerts({ check, startDate, onChangeDate }: CoverageAlertsProps) {
   const { missingAtStart, endingBeforeEnd } = check;
+
+  // Primeiro dia em que todos os indicadores faltantes já têm dado
+  const firstCoveredStart = missingAtStart.every((s) => s.start)
+    ? missingAtStart
+        .map((s) => s.start as string)
+        .sort()
+        .at(-1)
+    : undefined;
+  const firstRealEnd = endingBeforeEnd.map((s) => s.real_end as string).sort()[0];
 
   return (
     <>
       {missingAtStart.length > 0 && (
         <Alert variant="destructive">
-          <CircleAlert />
-          <AlertTitle>Sem indicador na data inicial</AlertTitle>
+          <Ban />
+          <AlertTitle>Não dá pra começar em {startDate ? formatIso(startDate) : "—"}</AlertTitle>
           <AlertDescription>
-            <p>
-              {missingAtStart.map((s) => s.name).join(", ")} não {missingAtStart.length > 1 ? "têm" : "tem"} dado nessa
-              data. Atualize os indicadores na Central de dados ou escolha uma data inicial mais recente.
-            </p>
+            {missingAtStart.map((s) => s.key).join(" e ")} não {missingAtStart.length > 1 ? "têm" : "tem"} dado nessa
+            data.{" "}
+            {firstCoveredStart
+              ? `Escolha um início a partir de ${formatIso(firstCoveredStart)} ou atualize os indicadores.`
+              : "Atualize os indicadores na Central de dados."}
           </AlertDescription>
+          <div className="col-span-full mt-1 flex gap-4">
+            {onChangeDate && (
+              <Button variant="link" size="sm" onClick={onChangeDate}>
+                Mudar a data
+              </Button>
+            )}
+            <Button variant="link" size="sm" nativeButton={false} render={<Link to="/import-assets" />}>
+              Abrir Central de dados
+            </Button>
+          </div>
         </Alert>
       )}
 
       {endingBeforeEnd.length > 0 && (
         <Alert variant="warning">
           <TriangleAlert />
-          <AlertTitle>Período passa do dado real</AlertTitle>
           <AlertDescription>
-            <p>Depois do último dia com dado real, a partida repete o último valor conhecido:</p>
-            <p>
-              {endingBeforeEnd
-                .map((s) => `${s.key} até ${displayDate(parseLocalDate(s.real_end as string))}`)
-                .join(" · ")}
-            </p>
+            Depois de <b className="font-mono">{formatIso(firstRealEnd)}</b> não há preço real: a partida repete o
+            último valor de {endingBeforeEnd.map((s) => s.key).join(", ")}.{" "}
+            <Link to="/import-assets" className="font-medium text-primary hover:text-primary-hover">
+              Ver séries
+            </Link>
           </AlertDescription>
         </Alert>
       )}

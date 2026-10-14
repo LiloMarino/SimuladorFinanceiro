@@ -4,6 +4,7 @@ export const queryKeys = {
   simulationState: () => ["simulation", "state"] as const,
   simulationSettings: () => ["simulation", "settings"] as const,
   simulationList: () => ["simulation", "list"] as const,
+  priceImpactPreview: (k: number, decayDays: number) => ["simulation", "price-impact-preview", k, decayDays] as const,
   simulationPlayers: () => ["simulation", "players"] as const,
   economicIndicators: () => ["economic-indicators"] as const,
   fixedIncomeList: () => ["fixed-income", "list"] as const,

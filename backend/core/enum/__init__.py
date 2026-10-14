@@ -73,6 +73,11 @@ class AssetClass(Enum):
     BDR = "BDR"
 
 
+class SimulationStatus(Enum):
+    PAUSED = "PAUSED"
+    FINISHED = "FINISHED"
+
+
 class VictoryCriterion(Enum):
     SCORE = "SCORE"
     RETURN = "RETURN"

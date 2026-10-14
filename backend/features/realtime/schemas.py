@@ -1,4 +1,3 @@
-
 """
 DTOs dos payloads emitidos via `notify(...)` (WebSocket/SSE).
 

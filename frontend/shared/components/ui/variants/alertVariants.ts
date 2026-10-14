@@ -9,7 +9,7 @@ export const alertVariants = cva(
         muted: "border-transparent bg-subtle text-foreground",
         info: "border-info-border bg-info-soft text-foreground *:[svg]:text-primary",
         success: "border-transparent bg-success-soft text-foreground *:[svg]:text-success",
-        warning: "border-transparent bg-warning-soft text-foreground *:[svg]:text-warning",
+        warning: "border-transparent bg-warning-soft text-foreground *:[svg]:text-warning *:data-[slot=alert-description]:text-foreground",
         destructive:
           "border-transparent bg-destructive-soft text-foreground *:data-[slot=alert-title]:text-destructive *:[svg]:text-destructive",
       },

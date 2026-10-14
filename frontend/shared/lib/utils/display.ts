@@ -109,6 +109,13 @@ export function displayShortDate(isoDate: string) {
   return `${part("day")} ${part("month")} ${part("year")}`;
 }
 
+/** "2023-03-14" → "mar/2023", o período compacto de listas. */
+export function displayMonthSlashYear(isoDate: string) {
+  const d = parseLocalDate(isoDate);
+  const month = new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(d).replace(".", "");
+  return `${month}/${d.getFullYear()}`;
+}
+
 export function displayMonthYear(date: Date | string) {
   const d = typeof date === "string" ? new Date(date) : date;
 

@@ -909,9 +909,29 @@ export interface paths {
         };
         /**
          * Listar simulações salvas
-         * @description Retorna o histórico de simulações, ordenado pela última vez jogada.
+         * @description Retorna o histórico de simulações, ordenado pela última vez jogada, com onde cada uma parou e quem venceu as terminadas.
          */
         get: operations["list_simulations_api_simulation_list_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/price-impact-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Prévia do impacto de preço
+         * @description Quanto uma compra de 10% do volume médio diário move o preço no pregão seguinte e como o efeito some até voltar ao histórico.
+         */
+        get: operations["price_impact_preview_api_simulation_price_impact_preview_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1681,6 +1701,22 @@ export interface components {
         PositionUpdateEventDTO: {
             position: components["schemas"]["PositionDTO"];
         };
+        /** PriceImpactPointDTO */
+        PriceImpactPointDTO: {
+            /** Day */
+            day: number;
+            /** Impact */
+            impact: number;
+        };
+        /** PriceImpactPreviewDTO */
+        PriceImpactPreviewDTO: {
+            /** Volume Share */
+            volume_share: number;
+            /** First Day Impact */
+            first_day_impact: number;
+            /** Curve */
+            curve: components["schemas"]["PriceImpactPointDTO"][];
+        };
         /**
          * RateIndexType
          * @enum {string}
@@ -1727,6 +1763,51 @@ export interface components {
             players: components["schemas"]["PlayerRiskDTO"][];
             /** Rolling Window */
             rolling_window: number;
+        };
+        /** SavedSimulationDTO */
+        SavedSimulationDTO: {
+            /** Name */
+            name: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Starting Cash */
+            starting_cash: string;
+            /** Monthly Contribution */
+            monthly_contribution: string;
+            /** Price Impact Enabled */
+            price_impact_enabled: boolean;
+            /** Price Impact K */
+            price_impact_k: number;
+            /** Price Impact Decay Days */
+            price_impact_decay_days: number;
+            victory_criterion: components["schemas"]["VictoryCriterion"];
+            /** Id */
+            id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Last Simulated At
+             * Format: date-time
+             */
+            last_simulated_at: string;
+            /** Resume From */
+            resume_from: string | null;
+            status: components["schemas"]["SimulationStatus"];
+            /** Players Count */
+            players_count: number;
+            /** Winner Nickname */
+            winner_nickname: string | null;
         };
         /** @enum {string} */
         ScoreAxis: "return" | "risk" | "consistency" | "efficiency";
@@ -1914,6 +1995,8 @@ export interface components {
         SimulationSettingsResponse: {
             /** Is Host */
             is_host: boolean;
+            /** Host Nickname */
+            host_nickname: string;
             simulation: components["schemas"]["SimulationSettingsDTO"];
         };
         /** SimulationStateResponse */
@@ -1928,49 +2011,16 @@ export interface components {
             /** Cash */
             cash: string;
         };
+        /**
+         * SimulationStatus
+         * @enum {string}
+         */
+        SimulationStatus: "PAUSED" | "FINISHED";
         /** SimulationStatusResponse */
         SimulationStatusResponse: {
             /** Active */
             active: boolean;
             simulation?: components["schemas"]["SimulationDTO"] | null;
-        };
-        /** SimulationSummaryDTO */
-        SimulationSummaryDTO: {
-            /** Name */
-            name: string;
-            /**
-             * Start Date
-             * Format: date
-             */
-            start_date: string;
-            /**
-             * End Date
-             * Format: date
-             */
-            end_date: string;
-            /** Starting Cash */
-            starting_cash: string;
-            /** Monthly Contribution */
-            monthly_contribution: string;
-            /** Price Impact Enabled */
-            price_impact_enabled: boolean;
-            /** Price Impact K */
-            price_impact_k: number;
-            /** Price Impact Decay Days */
-            price_impact_decay_days: number;
-            victory_criterion: components["schemas"]["VictoryCriterion"];
-            /** Id */
-            id: number;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Last Simulated At
-             * Format: date-time
-             */
-            last_simulated_at: string;
         };
         /** SimulationTickUpdateEventDTO */
         SimulationTickUpdateEventDTO: {
@@ -3959,7 +4009,48 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SimulationSummaryDTO"][];
+                    "application/json": components["schemas"]["SavedSimulationDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    price_impact_preview_api_simulation_price_impact_preview_get: {
+        parameters: {
+            query: {
+                k: number;
+                decay_days: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceImpactPreviewDTO"];
                 };
             };
             /** @description Validation Error */

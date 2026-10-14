@@ -1,19 +1,26 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useNavigate } from "react-router-dom";
-import { LobbyPlayersList } from "../components/lobby-player-list";
-import { LobbySimulationForm } from "../components/lobby-simulation-form";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import { ErrorState } from "@/shared/components/error-state";
+import { useAuth } from "@/shared/hooks/useAuth";
+import { useRealtime } from "@/shared/hooks/useRealtime";
 import { simulationSettingsOptions } from "@/shared/lib/queries/simulationSettingsOptions";
 import { LoadingPage } from "@/pages/loading";
-import { ErrorPage } from "@/pages/error";
+import type { SimulationSettings } from "@/types";
+import { LobbyHeader } from "../components/lobby-header";
+import { LobbyMatch } from "../components/lobby-match";
+import { LobbyPlayersList } from "../components/lobby-player-list";
+import { OfflineTools } from "../components/offline-tools";
+import { SavedSimulationsDialog } from "../components/saved-simulations-dialog";
+
+const MAX_PLAYERS = 8;
 
 export function LobbyPage() {
   const navigate = useNavigate();
-  const {
-    data: settings,
-    isLoading: loading,
-    error,
-  } = useQuery(simulationSettingsOptions());
+  const { logout } = useAuth();
+  const { data: settings, isLoading, error, refetch } = useQuery(simulationSettingsOptions());
 
   useRealtime("simulation_started", (simulation) => {
     if (simulation.active) {
@@ -21,27 +28,53 @@ export function LobbyPage() {
     }
   });
 
-  if (loading) {
+  if (isLoading) {
     return <LoadingPage variant="fullscreen" />;
-  } else if (!settings) {
+  }
+
+  if (!settings) {
     return (
-      <ErrorPage
-        code={String(error?.status) || "500"}
-        title="Erro ao entrar no Lobby"
-        message={String(error?.message)}
-        actionHref="/login"
-        actionLabel="Voltar ao Login"
-      />
+      <section className="flex min-h-svh items-center justify-center p-6">
+        <Card className="w-full max-w-105">
+          <CardContent>
+            <ErrorState
+              title="Não deu pra entrar na sala"
+              description="O servidor do host não respondeu. Confira se ele está ligado e na mesma rede."
+              error={error}
+              onRetry={() => void refetch()}
+            >
+              <Button variant="outline" onClick={() => void logout()}>
+                Sair
+              </Button>
+            </ErrorState>
+          </CardContent>
+        </Card>
+      </section>
     );
   }
 
-  return (
-    <section className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow p-6 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 w-full min-h-[50vh]">
-        <LobbyPlayersList maxPlayers={8} />
+  return <LobbyContent settings={settings} />;
+}
 
-        <LobbySimulationForm simulationData={settings?.simulation} isHost={settings?.is_host} />
+function LobbyContent({ settings }: { settings: SimulationSettings }) {
+  const [savedOpen, setSavedOpen] = useState(false);
+
+  return (
+    <div className="mx-auto flex max-w-280 flex-col gap-5 px-7 py-10">
+      <LobbyHeader isHost={settings.is_host} hostNickname={settings.host_nickname} />
+
+      <div className="grid items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
+        <LobbyPlayersList maxPlayers={MAX_PLAYERS} hostNickname={settings.host_nickname} />
+        <LobbyMatch
+          simulationData={settings.simulation}
+          isHost={settings.is_host}
+          hostNickname={settings.host_nickname}
+        />
       </div>
-    </section>
+
+      <OfflineTools onOpenSaved={() => setSavedOpen(true)} />
+
+      <SavedSimulationsDialog open={savedOpen} onOpenChange={setSavedOpen} isHost={settings.is_host} />
+    </div>
   );
 }

@@ -1,16 +1,14 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { SimulationSettingsData, VictoryCriterion } from "@/types";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { toast } from "sonner";
-import type { SimulationFormValues } from "../components/lobby-simulation-form";
+import type { SimulationFormValues } from "../components/lobby-match";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { displayDecimal, displayMoney, toCentsString } from "@/shared/lib/utils/display";
-import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues>({
   form,
@@ -24,6 +22,8 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
   debounceMs: number;
 }) {
   const lock = useAsyncLock();
+  // Momento do último salvamento confirmado: vira o "Salvo há N s" do painel de regras
+  const [savedAt, setSavedAt] = useState<number | null>(null);
 
   /** Mantém o último payload REAL enviado à API */
   const lastSentRef = useRef<SimulationSettingsData | null>({
@@ -32,7 +32,11 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
     monthly_contribution: toCentsString(initial.monthly_contribution),
   });
 
-  const { mutateAsync: updateSettings } = useApiMutation({
+  const {
+    mutateAsync: updateSettings,
+    isPending: saving,
+    error: saveError,
+  } = useApiMutation({
     mutationFn: (body: {
       name: string;
       start_date: string;
@@ -44,12 +48,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       price_impact_decay_days: number;
       victory_criterion: VictoryCriterion;
     }) => apiFetch<SimulationSettingsData>("/api/simulation/settings", { method: "PUT", body }),
-    onSuccess: () => {
-      toast.success("Configurações sincronizadas");
-    },
-    onError: (err) => {
-      toastApiError(err);
-    },
+    onSuccess: () => setSavedAt(Date.now()),
   });
 
   /** 🔹 Realtime → Form */
@@ -114,7 +113,10 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
     lastSentRef.current = payload;
 
     void lock.runExclusive(async () => {
-      await updateSettings(payload);
+      // A falha fica em `saveError`, mostrada no rodapé do painel de regras
+      await updateSettings(payload).catch(() => undefined);
     });
   }, [debouncedValues, isHost, updateSettings, form.formState.isValid, lock]);
+
+  return { savedAt, saving, saveError };
 }

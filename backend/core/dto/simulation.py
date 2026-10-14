@@ -2,7 +2,7 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from backend.core.dto.base import BaseDTO
-from backend.core.enum import VictoryCriterion
+from backend.core.enum import SimulationStatus, VictoryCriterion
 
 
 class SimulationSettingsDTO(BaseDTO):
@@ -25,6 +25,24 @@ class SimulationSummaryDTO(SimulationSettingsDTO):
     id: int
     created_at: datetime
     last_simulated_at: datetime
+
+
+class SavedSimulationDTO(SimulationSummaryDTO):
+    resume_from: date | None
+    status: SimulationStatus
+    players_count: int
+    winner_nickname: str | None
+
+
+class PriceImpactPointDTO(BaseDTO):
+    day: int
+    impact: float
+
+
+class PriceImpactPreviewDTO(BaseDTO):
+    volume_share: float
+    first_day_impact: float
+    curve: list[PriceImpactPointDTO]
 
 
 class SimulationStatusResponse(BaseDTO):
