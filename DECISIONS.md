@@ -79,6 +79,9 @@ Ter uma visão do schema atual — tabelas, colunas, relações — para entende
 **N18. Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia**
 Diversificar só funciona entre ativos que não caem juntos. Sem medir isso, duas posições "diferentes" podem ser a mesma aposta.
 
+**N19. Analisar um ativo com as ferramentas de um trader**
+Quem decide pelo gráfico precisa dos indicadores (MACD, IFR, médias móveis, Bandas de Bollinger) e das ferramentas de desenho (linha de tendência, suporte e resistência, Fibonacci) que sites como o Investing.com oferecem. Sem eles, quem usa análise técnica joga em desvantagem — e a estratégia automática não tem com o que decidir.
+
 ---
 
 ## Decisões
@@ -161,3 +164,12 @@ Diversificar só funciona entre ativos que não caem juntos. Sem medir isso, dua
 **Decisão:** a nota é a soma de quatro eixos de peso igual — Retorno, Risco, Consistência e Eficiência —, cada um a média dos pontos das suas métricas. Cada métrica vira pontos por uma reta com dois níveis fixos (o que vale 0 e o que vale 100), com chão 0 e sem teto. As métricas: retorno anual acima do CDI e do Ibovespa; queda máxima, volatilidade, maior tempo abaixo do pico e pior mês; meses acima do CDI e meses no positivo; Sharpe e Sortino. A nota só existe a partir de 63 pregões.
 **Por quê:** a avaliação olha cada dimensão por vários ângulos (o risco não é só a queda máxima), e o eixo, e não a métrica, é a unidade de peso: com quatro métricas de risco e duas de retorno, o risco não vale o dobro. As faixas são absolutas, iguais em toda partida, para que a nota compare partidas diferentes e funcione jogando sozinho, o que uma nota relativa à sala não permite. Sem teto, como placar de jogo, mas decomponível eixo a eixo e métrica a métrica, para mostrar o que puxou a nota. Abaixo de ~3 meses, anualizar engana (10 dias com +2% viram ~64% ao ano).
 **Consequências:** risco e consistência têm máximo natural perto de 100 e retorno e eficiência não, então retorno muito alto compensa risco; uma carteira parada em caixa fica com ~100, quase tudo do eixo Risco. Mudar uma faixa muda a nota de todas as partidas salvas, porque a nota é recalculada dos snapshots a cada leitura.
+
+### D11 — Sobre qual base o shadcn monta os componentes: Radix ou Base UI
+**Status:** 🔍 Em aberto
+
+**Decisão:** em aberto entre as duas bases que o shadcn oferece, decidido no começo da F36:
+1. **Radix** — o que o projeto usa hoje (estilo `new-york`). Maduro e com muitos componentes; a troca de estilo é só recriar os componentes. Compõe com `asChild`.
+2. **Base UI** — a biblioteca feita por parte de quem criou o Radix e o Material UI, estável desde a v1 e num pacote só. Compõe com a prop `render`. É a base do Finance Manager e do EconomicStatistics (preset `base-nova`), então componentes e padrões passam de um projeto ao outro sem adaptação.
+
+**Por quê está aberto:** a padronização (F36) recria todos os componentes de qualquer forma, então trocar de base custa quase o mesmo que ficar — sobra a conversão dos 13 `asChild` fora de `ui/`. A recomendação é o Base UI, pela coerência com os projetos irmãos de finanças; falta conferir, recriando dois ou três componentes nos dois presets, que nada do que o app usa hoje fica sem equivalente.
