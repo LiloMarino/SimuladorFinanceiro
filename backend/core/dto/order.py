@@ -24,10 +24,13 @@ class OrderDTO(BaseDTO):
     remaining: int
     limit_price: float | None
     created_at: datetime
+    # Liquidez do mercado simulado, não de um jogador
+    synthetic: bool
 
     @staticmethod
     def from_model(order: Order) -> OrderDTO:
-        if order.client_id == MarketLiquidity.MARKET_CLIENT_ID:
+        synthetic = order.client_id == MarketLiquidity.MARKET_CLIENT_ID
+        if synthetic:
             nickname = "Mercado"
         else:
             user = UserManager.get_user(order.client_id)
@@ -44,4 +47,5 @@ class OrderDTO(BaseDTO):
             remaining=order.remaining,
             status=order.status,
             created_at=order.created_at,
+            synthetic=synthetic,
         )

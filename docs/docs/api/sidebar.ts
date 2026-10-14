@@ -42,6 +42,18 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/preview-order-api-variable-income-asset-order-preview-post",
+          label: "Prévia de uma ordem",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/list-trades-api-variable-income-asset-trades-get",
+          label: "Execuções da sala no ativo",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
           id: "api/get-fixed-income-api-fixed-income-get",
           label: "Listar ativos de renda fixa",
           className: "api-method get",

@@ -1,30 +1,62 @@
-import { displaySignedPercent } from "@/shared/lib/utils/display";
-import { displayMoney } from "@/shared/lib/utils/display";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { displayCompactNumber, displayMoney, displaySignedPercent } from "@/shared/lib/utils/display";
 import type { StockDetails } from "@/types";
-import clsx from "clsx";
-import { TrendingDown, TrendingUp } from "lucide-react";
 
+const CLASS_LABELS: Record<StockDetails["asset_class"], string> = {
+  STOCK: "Ação",
+  FII: "FII",
+  ETF: "ETF",
+  BDR: "BDR",
+};
+
+/** Cabeçalho do ativo: código, nome, o pregão do dia e o preço. */
 export function StockHeader({ stock }: { stock: StockDetails }) {
-  const isPositive = stock.change >= 0;
+  const up = stock.change >= 0;
+  const ohlc = [
+    { label: "Abertura", value: displayMoney(stock.open) },
+    { label: "Mínima", value: displayMoney(stock.low) },
+    { label: "Máxima", value: displayMoney(stock.high) },
+    { label: "Volume", value: displayCompactNumber(stock.volume) },
+  ];
+
   return (
-    <div className="flex justify-between items-center mb-6">
-      <div>
-        <h2 className="text-2xl font-bold">{stock.ticker}</h2>
-        <p className="text-muted-foreground">{stock.name}</p>
-      </div>
-      <div className="text-right">
-        <h3 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{displayMoney(stock.close)}</h3>
-        <div
-          className={clsx(
-            "flex items-center justify-end gap-1 font-medium",
-            isPositive ? "text-success" : "text-destructive",
-          )}
+    <header className="flex flex-wrap items-end justify-between gap-4">
+      <div className="grid gap-1.5">
+        <Button
+          variant="link"
+          size="sm"
+          nativeButton={false}
+          render={<Link to="/variable-income" />}
+          className="self-start"
         >
-          {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-          <span>{displaySignedPercent(stock.change_pct)}</span>
-          <span className="text-muted-foreground">({displayMoney(stock.change)})</span>
+          <ArrowLeft />
+          Renda variável
+        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="font-mono text-[28px] font-semibold">{stock.ticker}</h1>
+          <span className="text-muted-foreground">{stock.name}</span>
+          <Badge variant="secondary">{CLASS_LABELS[stock.asset_class]}</Badge>
         </div>
       </div>
-    </div>
+
+      <div className="flex flex-wrap items-end gap-6">
+        {ohlc.map((item) => (
+          <div key={item.label} className="grid">
+            <span className="text-xs font-medium text-muted-foreground">{item.label}</span>
+            <span className="font-mono">{item.value}</span>
+          </div>
+        ))}
+        <div className="grid justify-items-end">
+          <span className="font-mono text-[28px] leading-none font-semibold">{displayMoney(stock.close)}</span>
+          <span className={up ? "text-[13px] text-success" : "text-[13px] text-destructive"}>
+            {up ? "▲" : "▼"} {displaySignedPercent(stock.change_pct)} · {up ? "+" : ""}
+            {displayMoney(stock.change)} hoje
+          </span>
+        </div>
+      </div>
+    </header>
   );
 }

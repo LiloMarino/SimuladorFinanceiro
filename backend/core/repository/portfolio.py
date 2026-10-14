@@ -3,12 +3,14 @@ from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.events.equity import EquityEventDTO
+from backend.core.dto.order_preview import TradeDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.enum import EquityEventType
 from backend.core.models.models import (
     EventEquity,
     Snapshots,
     Stock,
+    Users,
 )
 from backend.core.runtime.simulation_manager import SimulationManager
 
@@ -38,6 +40,29 @@ class PortfolioRepository:
                 total_contribution=row.total_contribution,
             )
             for row in rows
+        ]
+
+    @transactional
+    def get_trades(self, session: Session, ticker: str, limit: int) -> list[TradeDTO]:
+        """As últimas execuções de todos os jogadores da partida em `ticker`."""
+        simulation_id = SimulationManager.get_active_simulation_id()
+        rows = session.execute(
+            select(EventEquity, Users.nickname)
+            .join(Stock, Stock.id == EventEquity.stock_id)
+            .join(Users, Users.id == EventEquity.user_id)
+            .where(Stock.ticker == ticker, EventEquity.simulation_id == simulation_id)
+            .order_by(EventEquity.event_date.desc(), EventEquity.id.desc())
+            .limit(limit)
+        ).all()
+        return [
+            TradeDTO(
+                event_date=event.event_date,
+                player_nickname=nickname,
+                action=EquityEventType(event.event_type).value.lower(),
+                quantity=event.quantity,
+                price=event.price,
+            )
+            for event, nickname in rows
         ]
 
     @transactional

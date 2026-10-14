@@ -4,11 +4,13 @@ from typing import Annotated
 from fastapi import APIRouter, Query, status
 from pydantic import BaseModel, Field
 
+from backend.core import repository
 from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.candle import MarketQuoteDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
 from backend.core.dto.order import OrderDTO
+from backend.core.dto.order_preview import OrderPreviewDTO, TradeDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.exceptions.http_exceptions import (
     NotFoundError,
@@ -144,6 +146,43 @@ def cancel_order(
     canceled = simulation.cancel_order(order_id=order_id, client_id=client_id)
     if not canceled:
         raise NotFoundError("Ordem não encontrada")
+
+
+class OrderPreviewRequest(BaseModel):
+    action: OrderAction
+    quantity: int = Field(..., ge=0)
+    limit_price: float | None = Field(default=None, gt=0)
+
+
+@operation_router.post(
+    "/variable-income/{asset}/order-preview",
+    response_model=OrderPreviewDTO,
+    summary="Prévia de uma ordem",
+    description="Preço estimado, total, caixa antes e depois, quantidade máxima e, na venda, o lucro e o IR que a ordem acrescenta ao mês.",
+)
+def preview_order(
+    client_id: ClientID,
+    simulation: ActiveSimulation,
+    asset: str,
+    payload: OrderPreviewRequest,
+):
+    return simulation.preview_order(
+        client_id, asset, payload.action, payload.quantity, payload.limit_price
+    )
+
+
+# Execuções mostradas na aba Histórico do livro de ofertas
+TRADES_LIMIT = 50
+
+
+@operation_router.get(
+    "/variable-income/{asset}/trades",
+    response_model=list[TradeDTO],
+    summary="Execuções da sala no ativo",
+    description="As últimas compras e vendas executadas por todos os jogadores da partida no ativo, mais recentes primeiro.",
+)
+def list_trades(_: ActiveSimulation, asset: str):
+    return repository.portfolio.get_trades(asset, TRADES_LIMIT)
 
 
 @operation_router.get(

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import clsx from "clsx";
-import { Card, CardHeader, CardContent, CardTitle } from "@/shared/components/ui/card";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import {
   AreaSeries,
   CandlestickSeries,
@@ -20,12 +21,20 @@ import {
   type Time,
   type WhitespaceData,
 } from "lightweight-charts";
-import { AreaChart, CandlestickChart } from "lucide-react";
 import { displayMoney } from "@/shared/lib/utils/display";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { StockCandle } from "@/types";
 
 const TIME_SCALES = ["1s", "1m", "3m", "1a", "3a", "5a", "MAX"] as const;
+const SCALE_LABELS: Record<TimeScale, string> = {
+  "1s": "1S",
+  "1m": "1M",
+  "3m": "3M",
+  "1a": "1A",
+  "3a": "3A",
+  "5a": "5A",
+  MAX: "Tudo",
+};
 const SCALE_DAYS: Record<TimeScale, number | null> = {
   "1s": 7, // 7 dias
   "1m": 30, // 1 mês
@@ -146,7 +155,16 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
       seriesRef.current = areaSeries;
       areaSeries.setData(filteredData.map((d) => ({ time: d.price_date.split("T")[0], value: d.close })));
     } else {
-      const candleSeries = chartInstance.current.addSeries(CandlestickSeries);
+      const styles = getComputedStyle(document.documentElement);
+      const upColor = styles.getPropertyValue("--candle-up").trim();
+      const downColor = styles.getPropertyValue("--candle-down").trim();
+      const candleSeries = chartInstance.current.addSeries(CandlestickSeries, {
+        upColor,
+        downColor,
+        wickUpColor: upColor,
+        wickDownColor: downColor,
+        borderVisible: false,
+      });
       candleSeries.priceScale().applyOptions({
         autoScale: false, // Desativa a escala automática no preço para manter a visualização fixa
       });
@@ -169,73 +187,44 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
   }, [chartType, selectedScale]);
 
   return (
-    <Card className="mb-8">
-      <CardHeader className="flex flex-row justify-between items-center">
-        <CardTitle className="text-base font-semibold">Histórico de Preços</CardTitle>
-
-        <div className="flex items-center gap-2">
-          {/* TimeScale */}
-          <div className="flex divide-x divide-border rounded-md overflow-hidden border border-border">
-            {TIME_SCALES.map((scale) => (
-              <button
-                key={scale}
-                onClick={() => setSelectedScale(scale)}
-                className={clsx(
-                  "px-3 py-1 text-sm transition-colors duration-200",
-                  selectedScale === scale
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                )}
-              >
-                {scale.toUpperCase()}
-              </button>
-            ))}
-          </div>
-
-          {/* Switch Chart */}
-          <div className="flex divide-x divide-border rounded-md overflow-hidden border border-border ml-2">
-            <button
-              onClick={() => setChartType("line")}
-              className={clsx(
-                "px-3 py-1 flex items-center justify-center gap-1 text-sm transition-colors duration-200",
-                chartType === "line"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-              )}
-              title="Gráfico de Área"
+    <Card>
+      <CardHeader>
+        <CardTitle>Histórico de preços</CardTitle>
+        <CardAction>
+          <div className="flex flex-wrap items-center gap-2">
+            <ToggleGroup
+              variant="segmented"
+              aria-label="Período"
+              value={[selectedScale]}
+              onValueChange={(values) => values[0] && setSelectedScale(values[0] as TimeScale)}
             >
-              <AreaChart className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setChartType("candle")}
-              className={clsx(
-                "px-3 py-1 flex items-center justify-center gap-1 text-sm transition-colors duration-200",
-                chartType === "candle"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-              )}
-              title="Gráfico de Velas"
+              {TIME_SCALES.map((scale) => (
+                <ToggleGroupItem key={scale} value={scale}>
+                  {SCALE_LABELS[scale]}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+            <ToggleGroup
+              variant="segmented"
+              aria-label="Tipo de gráfico"
+              value={[chartType]}
+              onValueChange={(values) => values[0] && setChartType(values[0] as ChartType)}
             >
-              <CandlestickChart className="w-5 h-5" />
-            </button>
+              <ToggleGroupItem value="line">Linha</ToggleGroupItem>
+              <ToggleGroupItem value="candle">Velas</ToggleGroupItem>
+            </ToggleGroup>
+            <Button variant="ghost" size="sm" onClick={() => chartInstance.current?.timeScale().scrollToRealTime()}>
+              Ir pro dia de hoje
+            </Button>
           </div>
-
-          {/* Botão Realtime */}
-          <button
-            onClick={() => chartInstance.current?.timeScale().scrollToRealTime()}
-            className="ml-2 px-3 py-1 text-sm bg-success text-success-foreground rounded-md hover:bg-success/90 transition-colors"
-            title="Ir para o realtime"
-          >
-            Realtime
-          </button>
-        </div>
+        </CardAction>
       </CardHeader>
 
-      <CardContent className="h-100">
+      <CardContent>
         {initialData.length > 0 ? (
-          <div ref={chartRef} className="w-full h-full" />
+          <div ref={chartRef} className="h-90 w-full" />
         ) : (
-          <div className="h-full flex items-center justify-center text-muted-foreground">
+          <div className="flex h-90 items-center justify-center text-muted-foreground">
             Nenhum dado de histórico disponível.
           </div>
         )}

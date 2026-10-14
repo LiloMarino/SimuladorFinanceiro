@@ -23,6 +23,7 @@ from backend.core.enum import (
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.entities.candle import Candle
+from backend.features.variable_income.entities.order import OrderAction
 from backend.features.variable_income.entities.position import Position
 from tests.fakes import USER_ID, client
 
@@ -179,3 +180,39 @@ def test_income_tax_payment_is_recorded_as_tax(player_book, captured_events):
 
     assert engine.get_cash(PLAYER) == Decimal("130")
     assert _cashflows(captured_events) == [(CashflowEventType.TAX, Decimal("750"))]
+
+
+def test_preview_buy_uses_limit_price_and_cash(player_book):
+    """Compra limitada: total pelo limite, caixa depois e o máximo que o caixa paga."""
+    preview = _engine().preview_order(PLAYER, "ABCD", OrderAction.BUY, 10, 12.0)
+
+    assert preview.price == Decimal("12.0")
+    assert preview.total == Decimal("120.0")
+    assert preview.cash_after == Decimal("760.0")
+    assert preview.max_quantity == 73  # 880 // 12
+    assert preview.tax is None
+
+
+def _next_day_engine() -> SimulationEngine:
+    """Um pregão depois da compra: a venda não é day trade."""
+    return SimulationEngine(date(2020, 1, 7), STARTING_CASH, simulation_id=1)
+
+
+def test_preview_sell_within_exemption_has_no_tax(player_book):
+    """Venda que deixa o mês abaixo de R$ 20 mil em ações: lucro sem IR."""
+    preview = _next_day_engine().preview_order(PLAYER, "ABCD", OrderAction.SELL, 10, 15.0)
+
+    assert preview.max_quantity == 10
+    assert preview.profit == Decimal("50.0")
+    assert preview.month_stock_sales_after == Decimal("150.0")
+    assert preview.tax == 0
+
+
+def test_preview_sell_above_exemption_pays_fifteen_percent(player_book):
+    """Venda que passa dos R$ 20 mil no mês: 15% sobre o lucro."""
+    preview = _next_day_engine().preview_order(PLAYER, "ABCD", OrderAction.SELL, 10, 2500.0)
+
+    # Lucro (2500 - 10) x 10 = 24.900; 15% = 3.735
+    assert preview.profit == Decimal("24900.0")
+    assert preview.tax == Decimal("3735.00")
+    assert preview.tax_due_date is not None

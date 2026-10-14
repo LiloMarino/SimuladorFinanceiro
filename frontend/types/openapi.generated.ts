@@ -72,6 +72,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/variable-income/{asset}/order-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Prévia de uma ordem
+         * @description Preço estimado, total, caixa antes e depois, quantidade máxima e, na venda, o lucro e o IR que a ordem acrescenta ao mês.
+         */
+        post: operations["preview_order_api_variable_income__asset__order_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/variable-income/{asset}/trades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Execuções da sala no ativo
+         * @description As últimas compras e vendas executadas por todos os jogadores da partida no ativo, mais recentes primeiro.
+         */
+        get: operations["list_trades_api_variable_income__asset__trades_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/fixed-income": {
         parameters: {
             query?: never;
@@ -1466,6 +1506,8 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            /** Synthetic */
+            synthetic: boolean;
         };
         /** OrderEventDTO */
         OrderEventDTO: {
@@ -1503,6 +1545,44 @@ export interface components {
             quantity: number;
             /** Remaining */
             remaining: number;
+        };
+        /**
+         * OrderPreviewDTO
+         * @description O que uma ordem faria se executasse agora, para a boleta mostrar antes do envio.
+         */
+        OrderPreviewDTO: {
+            /** Price */
+            price: string | null;
+            /** Total */
+            total: string;
+            /** Cash Before */
+            cash_before: string;
+            /** Cash After */
+            cash_after: string;
+            /** Max Quantity */
+            max_quantity: number;
+            /** Held */
+            held: number;
+            /** Reserved */
+            reserved: number;
+            /** Profit */
+            profit: string | null;
+            /** Tax */
+            tax: string | null;
+            /** Month Stock Sales After */
+            month_stock_sales_after: string | null;
+            /** Stock Sales Exemption */
+            stock_sales_exemption: string;
+            /** Tax Due Date */
+            tax_due_date: string | null;
+        };
+        /** OrderPreviewRequest */
+        OrderPreviewRequest: {
+            action: components["schemas"]["OrderAction"];
+            /** Quantity */
+            quantity: number;
+            /** Limit Price */
+            limit_price?: number | null;
         };
         /**
          * OrderStatus
@@ -2258,6 +2338,25 @@ export interface components {
             /** Status */
             status: string;
         };
+        /**
+         * TradeDTO
+         * @description Uma execução de compra ou venda na sala, lida dos eventos.
+         */
+        TradeDTO: {
+            /**
+             * Event Date
+             * Format: date
+             */
+            event_date: string;
+            /** Player Nickname */
+            player_nickname: string;
+            /** Action */
+            action: string;
+            /** Quantity */
+            quantity: number;
+            /** Price */
+            price: string;
+        };
         /** TunnelStatusDTO */
         TunnelStatusDTO: {
             /** Active */
@@ -2541,6 +2640,90 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_order_api_variable_income__asset__order_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderPreviewDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_trades_api_variable_income__asset__trades_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TradeDTO"][];
+                };
             };
             /** @description Validation Error */
             422: {

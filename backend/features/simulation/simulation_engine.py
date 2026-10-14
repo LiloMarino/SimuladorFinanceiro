@@ -7,11 +7,13 @@ from uuid import UUID
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.events.cashflow import CashflowEventDTO
+from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
+from backend.core.dto.order_preview import OrderPreviewDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PortfolioPositionDTO, PositionDTO
 from backend.core.dto.sector import StockSegmentDTO
-from backend.core.enum import CashflowEventType
+from backend.core.enum import CashflowEventType, EquityEventType
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.sectors import allocate_by_sector
@@ -25,11 +27,13 @@ from backend.features.statistics.sectors import effective_sectors
 from backend.features.strategy.base_strategy import BaseStrategy
 from backend.features.variable_income.broker import Broker, to_money
 from backend.features.variable_income.entities.candle import Candle
+from backend.features.variable_income.entities.order import OrderAction
 from backend.features.variable_income.entities.position import Position
 from backend.features.variable_income.income_tax import (
     STOCK_EXEMPTION_LIMIT,
     MonthlyTax,
     assess,
+    darf_due_date,
 )
 from backend.features.variable_income.matching_engine import MatchingEngine
 
@@ -111,6 +115,83 @@ class SimulationEngine:
             repository.portfolio.get_equity_events(user_id),
             asset_classes,
             self.current_date,
+        )
+
+    def preview_order(
+        self,
+        client_id: UUID,
+        ticker: str,
+        action: OrderAction,
+        quantity: int,
+        limit_price: float | None,
+    ) -> OrderPreviewDTO:
+        position = self.broker.get_positions(client_id).get(ticker)
+        held = position.size if position else 0
+        reserved = position.reserved if position else 0
+        cash = self.get_cash(client_id)
+
+        # Preço: o limite; a mercado, o melhor do outro lado do book; sem book, o último fechamento
+        book = self.matching_engine.order_book
+        best = (
+            book.best_sell(ticker)
+            if action == OrderAction.BUY
+            else book.best_buy(ticker)
+        )
+        last = self.matching_engine.market_data.get_last(ticker)
+        if limit_price is not None:
+            price: Decimal | None = to_money(limit_price)
+        elif best is not None:
+            price = to_money(best.price)
+        else:
+            price = to_money(last.close) if last else None
+
+        total = (price or Decimal(0)) * quantity
+        buying = action == OrderAction.BUY
+        preview = OrderPreviewDTO(
+            price=price,
+            total=total,
+            cash_before=cash,
+            cash_after=cash - total if buying else cash + total,
+            max_quantity=(int(cash // price) if price else 0)
+            if buying
+            else held - reserved,
+            held=held,
+            reserved=reserved,
+            profit=None,
+            tax=None,
+            month_stock_sales_after=None,
+            stock_sales_exemption=STOCK_EXEMPTION_LIMIT,
+            tax_due_date=None,
+        )
+        if buying or not position or price is None or quantity <= 0:
+            return preview
+
+        # IR da venda: o imposto do mês com a venda hipotética menos o imposto sem ela
+        user_id = UserManager.get_user_id(client_id)
+        events = repository.portfolio.get_equity_events(user_id)
+        sale = EquityEventDTO(
+            simulation_id=self.simulation_id,
+            user_id=user_id,
+            event_date=self.current_date,
+            ticker=ticker,
+            event_type=EquityEventType.SELL,
+            quantity=quantity,
+            price=price,
+        )
+        asset_classes = {s.ticker: s.asset_class for s in repository.stock.get_stocks()}
+        today = self.current_date
+        without = _month(assess(events, asset_classes, today), today)
+        with_sale = _month(assess([*events, sale], asset_classes, today), today)
+        return preview.model_copy(
+            update={
+                "profit": (price - position.avg_price) * quantity,
+                "tax": (with_sale.tax if with_sale else Decimal(0))
+                - (without.tax if without else Decimal(0)),
+                "month_stock_sales_after": with_sale.stock_sales
+                if with_sale
+                else Decimal(0),
+                "tax_due_date": darf_due_date(today.year, today.month),
+            }
         )
 
     def update_market_data(self, stocks: list[CandleDTO]) -> None:
@@ -239,3 +320,9 @@ class SimulationEngine:
         if not self._strategy:
             raise RuntimeError("Nenhuma estratégia configurada")
         self._strategy.next()
+
+
+def _month(months: list[MonthlyTax], today: date) -> MonthlyTax | None:
+    return next(
+        (m for m in months if (m.year, m.month) == (today.year, today.month)), None
+    )

@@ -1,68 +1,63 @@
-import { useParams } from "react-router-dom";
-import { Card } from "@/shared/components/ui/card";
+import { Link, useParams } from "react-router-dom";
 import usePageLabel from "@/shared/hooks/usePageLabel";
-import { StockChart } from "@/features/variable-income/components/stock-chart";
-import { LoadingPage } from "@/pages/loading";
+import { Button } from "@/shared/components/ui/button";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ErrorPage } from "@/pages/error";
-import { StockMiniStats } from "../components/stock-mini-stats";
+import { StockChart } from "../components/stock-chart";
 import { StockHeader } from "../components/stock-header";
-import { PositionSummaryCard } from "../components/position-summary-card";
-import { PendingOrdersCard } from "../components/pending-orders-table";
-import { NewOrderCard } from "../components/new-order-card";
+import { OrderBookCard } from "../components/order-book-card";
+import { OrderTicket } from "../components/order-ticket";
+import { PositionCard } from "../components/position-card";
 import { usePendingOrders } from "../hooks/usePendingOrders";
 import { useVariableIncomeStock } from "../hooks/queries/useVariableIncomeStock";
-import { usePortfolioCash } from "@/features/portfolio/hooks/queries/usePortfolioCash";
-import { usePortfolioPosition } from "@/features/portfolio/hooks/queries/usePortfolioPosition";
-import { VariableIncomeStock } from "../models/VariableIncomeStock";
-import { useMemo } from "react";
+import { usePortfolioPosition } from "../hooks/queries/usePortfolioPosition";
 
 export default function VariableIncomeDetailPage() {
-  usePageLabel("Detalhes Renda Variável");
+  usePageLabel("Renda variável");
   const { ticker } = useParams<{ ticker: string }>();
-  const { data: stock, isLoading: loading } = useVariableIncomeStock(ticker);
-  const { data: cashData } = usePortfolioCash();
-  const { cash = "0" } = cashData ?? {};
-  const pendingOrders = usePendingOrders(ticker);
+  const { data: stock, isLoading } = useVariableIncomeStock(ticker);
+  const orders = usePendingOrders(ticker);
   const { data: position } = usePortfolioPosition(ticker);
 
-  const stockModel = useMemo(() => {
-    if (!stock) return null;
-    return new VariableIncomeStock(stock, pendingOrders);
-  }, [stock, pendingOrders]);
+  if (isLoading) {
+    return (
+      <div className="grid gap-5">
+        <Skeleton className="h-16" />
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+          <Skeleton className="h-96" />
+          <Skeleton className="h-96" />
+        </div>
+      </div>
+    );
+  }
 
-  if (loading) {
-    return <LoadingPage />;
-  } else if (!stock || !stockModel) {
+  if (!stock || !ticker) {
     return (
       <ErrorPage
-        code="404"
-        title="Ativo de renda variável não encontrado"
+        title={`${ticker} não está na base`}
+        message="Confira o código ou escolha um ativo na lista."
+        actionLabel="Ver ativos"
         actionHref="/variable-income"
-        actionLabel="Voltar para a Renda Variável"
       />
     );
   }
 
   return (
-    <section className="section-content p-4">
-      <Card className="p-6">
-        {/* Header */}
-        <StockHeader stock={stock} />
-        {/* Chart */}
-        <StockChart ticker={stock.ticker} initialData={stock.history} />
-        {/* Mini Cards */}
-        <StockMiniStats stock={stock} />
-        {/* Ações + Resumo */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          {/* Ações */}
-          <NewOrderCard stock={stockModel} cash={cash} position={position ?? null} />
-
-          {/* Resumo */}
-          <PositionSummaryCard stock={stock} position={position ?? null} />
+    <>
+      <StockHeader stock={stock} />
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="grid gap-5">
+          <StockChart ticker={stock.ticker} initialData={stock.history} />
+          <OrderBookCard ticker={stock.ticker} orders={orders} />
         </div>
-
-        <PendingOrdersCard ticker={stock.ticker} pendingOrders={pendingOrders} />
-      </Card>
-    </section>
+        <div className="grid gap-5">
+          <OrderTicket ticker={stock.ticker} />
+          <PositionCard ticker={stock.ticker} position={position ?? null} />
+          <Button variant="link" size="sm" nativeButton={false} render={<Link to="/portfolio" />}>
+            Ver carteira
+          </Button>
+        </div>
+      </div>
+    </>
   );
 }

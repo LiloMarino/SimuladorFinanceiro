@@ -9,6 +9,7 @@ from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
 from backend.core.dto.order import OrderDTO
+from backend.core.dto.order_preview import OrderPreviewDTO
 from backend.core.dto.patrimonial_history import (
     PatrimonialHistoryDTO,
     PortfolioHistoryPointDTO,
@@ -35,6 +36,7 @@ from backend.features.realtime.schemas import (
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.strategy.manual import ManualStrategy
+from backend.features.variable_income.entities.order import OrderAction
 from backend.features.variable_income.price_impact import PriceImpact
 
 # Pregões no mini gráfico da lista de mercado
@@ -255,6 +257,18 @@ class Simulation:
             ipca=annual_index_rate(IndicatorSeries.IPCA, self._current_date),
             selic=annual_index_rate(IndicatorSeries.SELIC, self._current_date),
             cdi=annual_index_rate(IndicatorSeries.CDI, self._current_date),
+        )
+
+    def preview_order(
+        self,
+        client_id: UUID,
+        ticker: str,
+        action: OrderAction,
+        quantity: int,
+        limit_price: float | None,
+    ) -> OrderPreviewDTO:
+        return self._engine.preview_order(
+            client_id, ticker, action, quantity, limit_price
         )
 
     def get_orders(self, ticker: str) -> list[OrderDTO]:
