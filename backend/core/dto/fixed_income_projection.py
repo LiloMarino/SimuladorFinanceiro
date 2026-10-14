@@ -26,3 +26,18 @@ class FixedIncomeProjectionDTO(BaseDTO):
     net_amount: Decimal
     net_return: Decimal
     net_return_pct: Decimal
+
+
+class IncomeTaxBracketDTO(BaseDTO):
+    # Até `max_days` dias corridos de aplicação; None é a faixa final, sem teto
+    max_days: int | None
+    rate: Decimal
+
+
+class FixedIncomeQuoteDTO(FixedIncomeProjectionDTO):
+    """A projeção com o caixa do jogador e a tabela regressiva, para a boleta."""
+
+    cash_before: Decimal
+    cash_after: Decimal
+    max_amount: Decimal
+    income_tax_brackets: list[IncomeTaxBracketDTO]

@@ -3,10 +3,10 @@ import { useDebounce } from "use-debounce";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import type { FixedIncomeProjection } from "@/types";
+import type { FixedIncomeQuote } from "@/types";
 
 /**
- * Projeção até o vencimento calculada pelo backend para o valor digitado. A chave
+ * Cotação da boleta (projeção até o vencimento, caixa e tabela do IR) para o valor digitado. A chave
  * inclui a data da simulação, então a projeção acompanha o avanço dos dias.
  */
 export function useFixedIncomeProjection(id: string, amount: string, currentDate: string) {
@@ -15,10 +15,9 @@ export function useFixedIncomeProjection(id: string, amount: string, currentDate
   return useApiQuery({
     queryKey: queryKeys.fixedIncomeProjection(id, debouncedAmount, currentDate),
     queryFn: ({ signal }) =>
-      apiFetch<FixedIncomeProjection>(
-        `/api/fixed-income/${id}/projection?amount=${encodeURIComponent(debouncedAmount)}`,
-        { signal },
-      ),
+      apiFetch<FixedIncomeQuote>(`/api/fixed-income/${id}/projection?amount=${encodeURIComponent(debouncedAmount)}`, {
+        signal,
+      }),
     placeholderData: keepPreviousData,
   });
 }

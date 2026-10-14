@@ -1,117 +1,252 @@
-import { useMemo } from "react";
-import { FixedIncomeAsset } from "@/features/fixed-income/models/FixedIncomeAsset";
-import { useFixedIncomeProjection } from "@/features/fixed-income/hooks/queries/useFixedIncomeProjection";
-import { useParams } from "react-router-dom";
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { differenceInCalendarDays } from "date-fns";
+import { ArrowLeft } from "lucide-react";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { ErrorPage } from "@/pages/error";
+import usePageLabel from "@/shared/hooks/usePageLabel";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import type { FixedIncomeAssetApi } from "@/types";
-import usePageLabel from "@/shared/hooks/usePageLabel";
-import { parse } from "date-fns";
-import { useForm } from "react-hook-form";
-import { investmentFormSchema, type InvestmentFormSchema } from "../schemas/investment-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ErrorPage } from "@/pages/error";
-import { LoadingPage } from "@/pages/loading";
-import { Card } from "@/shared/components/ui/card";
-import { FixedIncomeHeader } from "../components/fixed-income-header";
-import { FixedIncomeBasicInfoGrid } from "../components/fixed-income-basic-info-grid";
-import { FixedIncomeInvestmentForm } from "../components/fixed-income-investment-form";
-import { FixedIncomeOperationSummary } from "../components/fixed-income-operation-summary";
-import { FixedIncomeCalculationDetails } from "../components/fixed-income-calculation-details";
-import { FixedIncomeTaxTable } from "../components/fixed-income-tax-table";
+import { cn, normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
-import { normalizeNumberString } from "@/shared/lib/utils";
+import {
+  displayDate,
+  displayMoney,
+  displayPercent,
+  displayRateLabel,
+  parseLocalDate,
+} from "@/shared/lib/utils/display";
+import type { FixedIncomeOffer, FixedIncomeQuote } from "@/types";
+import { InvestmentTicket } from "../components/investment-ticket";
+import { useFixedIncomeProjection } from "../hooks/queries/useFixedIncomeProjection";
+import { INVESTMENT_TYPE_LABELS, RATE_KIND_LABELS } from "../lib/labels";
 
-const ASSET_NOT_FOUND = (
+const NOT_FOUND = (
   <ErrorPage
-    code="404"
-    title="Ativo de renda fixa não encontrado"
+    title="Esse título não existe mais"
+    message="Ele pode ter vencido ou saído da base."
+    actionLabel="Ver renda fixa"
     actionHref="/fixed-income"
-    actionLabel="Voltar para a Renda Fixa"
   />
 );
 
 export default function FixedIncomeDetailPage() {
-  usePageLabel("Detalhes Renda Fixa");
+  usePageLabel("Renda fixa");
   const { id } = useParams<{ id: string }>();
-  const { data: assetData, isLoading: isAssetLoading } = useApiQuery({
+  const { data: offer, isLoading } = useApiQuery({
     queryKey: queryKeys.fixedIncomeAsset(id ?? ""),
-    queryFn: ({ signal }) => apiFetch<FixedIncomeAssetApi>(`/api/fixed-income/${id}`, { signal }),
+    queryFn: ({ signal }) => apiFetch<FixedIncomeOffer>(`/api/fixed-income/${id}`, { signal }),
     enabled: !!id,
   });
-  const { data: simData, isLoading: isSimLoading } = useSimulationState();
+  const { data: simulation } = useSimulationState();
 
-  if (isAssetLoading || isSimLoading) {
-    return <LoadingPage />;
+  if (isLoading || !simulation?.current_date) {
+    return <Skeleton className="h-96" />;
   }
+  if (!offer || !id) return NOT_FOUND;
 
-  if (!assetData || !id || !simData?.current_date) {
-    return ASSET_NOT_FOUND;
-  }
+  return <FixedIncomeDetail id={id} offer={offer} today={simulation.current_date} />;
+}
+
+function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncomeOffer; today: string }) {
+  const [amountText, setAmountText] = useState(formatMoney("0"));
+  const { data: quote } = useFixedIncomeProjection(id, normalizeNumberString(amountText), today);
+  const daysToRedeem = quote
+    ? differenceInCalendarDays(parseLocalDate(quote.redemption_date), parseLocalDate(today))
+    : null;
+
+  const metrics = [
+    { label: "Rentabilidade", value: displayRateLabel(offer.rate_index, offer.interest_rate) },
+    {
+      label: "Equivale hoje",
+      value: `${displayPercent(offer.effective_annual_rate)} a.a.`,
+      detail:
+        offer.rate_index !== "Prefixado"
+          ? `${offer.rate_index} ${displayPercent(offer.index_rate)} · Banco Central`
+          : null,
+    },
+    {
+      label: "Vencimento",
+      value: displayDate(parseLocalDate(offer.maturity_date)),
+      detail: daysToRedeem !== null ? `em ${daysToRedeem} dias` : null,
+    },
+    {
+      label: "IR nesse prazo",
+      value: offer.tax_exempt ? "Isento" : displayPercent(offer.income_tax_rate_at_maturity),
+      detail: offer.tax_exempt ? "LCI e LCA não pagam IR" : "tabela regressiva",
+    },
+  ];
 
   return (
-    <FixedIncomeDetail
-      id={id}
-      assetData={assetData}
-      currentDate={simData.current_date}
-      availableCash={simData.cash ?? "0"}
-    />
+    <>
+      {/* Cabeçalho */}
+      <header className="grid gap-1.5">
+        <Button
+          variant="link"
+          size="sm"
+          nativeButton={false}
+          render={<Link to="/fixed-income" />}
+          className="justify-self-start"
+        >
+          <ArrowLeft />
+          Renda fixa
+        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-[26px] font-bold">{offer.name}</h1>
+          <Badge variant="secondary">
+            {INVESTMENT_TYPE_LABELS[offer.investment_type]} · {RATE_KIND_LABELS[offer.rate_index]}
+          </Badge>
+          <span className="text-muted-foreground">emitido por {offer.issuer}</span>
+        </div>
+      </header>
+
+      {/* Os quatro números */}
+      <Card>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {metrics.map((m) => (
+              <div key={m.label} className="grid gap-0.5">
+                <span className="text-xs font-medium text-muted-foreground">{m.label}</span>
+                <span className="font-mono text-lg font-semibold">{m.value}</span>
+                {m.detail && <span className="text-xs text-muted-foreground">{m.detail}</span>}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="grid gap-5">
+          {quote && <Projection quote={quote} />}
+          {quote && daysToRedeem !== null && !offer.tax_exempt && <TaxSteps quote={quote} days={daysToRedeem} />}
+        </div>
+        {quote && (
+          <InvestmentTicket assetId={id} amountText={amountText} onAmountChange={setAmountText} quote={quote} />
+        )}
+      </div>
+    </>
   );
 }
 
-type FixedIncomeDetailProps = {
-  id: string;
-  assetData: FixedIncomeAssetApi;
-  currentDate: string;
-  availableCash: string;
-};
-
-function FixedIncomeDetail({ id, assetData, currentDate, availableCash }: FixedIncomeDetailProps) {
-  const form = useForm<InvestmentFormSchema>({
-    resolver: zodResolver(investmentFormSchema),
-    defaultValues: {
-      amount: formatMoney("0"),
+/** Aplicado → rendimento → IR → resgate, numa barra só. */
+function Projection({ quote }: { quote: FixedIncomeQuote }) {
+  const hasAmount = Number(quote.amount) > 0;
+  const gross = Number(quote.gross_amount) || 1;
+  const parts = [
+    {
+      key: "applied",
+      label: "Aplicado",
+      value: displayMoney(quote.amount),
+      share: Number(quote.amount) / gross,
+      className: "bg-input",
     },
-  });
-
-  const amount = normalizeNumberString(form.watch("amount"));
-  const { data: projection, isLoading } = useFixedIncomeProjection(id, amount, currentDate);
-
-  const asset = useMemo(
-    () => new FixedIncomeAsset(assetData, parse(currentDate, "dd/MM/yyyy", new Date())),
-    [assetData, currentDate],
-  );
-
-  if (!projection) {
-    return isLoading ? <LoadingPage /> : ASSET_NOT_FOUND;
-  }
+    {
+      key: "yield",
+      label: "Rendimento bruto",
+      value: `+${displayMoney(quote.gross_return)} (+${displayPercent(quote.gross_return_pct)})`,
+      share: (Number(quote.gross_return) - Number(quote.income_tax)) / gross,
+      className: "bg-success",
+    },
+    {
+      key: "tax",
+      label: `IR (${displayPercent(quote.income_tax_rate, 1)})`,
+      value: `−${displayMoney(quote.income_tax)}`,
+      share: Number(quote.income_tax) / gross,
+      className: "bg-[repeating-linear-gradient(135deg,var(--destructive)_0_3px,transparent_3px_6px)]",
+    },
+  ];
 
   return (
-    <section className="section-content p-4">
-      <div className="mx-auto max-w-6xl">
-        <Card className="overflow-hidden p-0 gap-0">
-          <FixedIncomeHeader asset={asset} projection={projection} />
-          <FixedIncomeBasicInfoGrid asset={asset} projection={projection} />
-
-          {/* Investment Section */}
-          <div className="p-6">
-            <h3 className="text-lg font-semibold mb-6">Investir neste ativo</h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-              <FixedIncomeInvestmentForm form={form} id={id} availableCash={availableCash} />
-              <FixedIncomeOperationSummary asset={asset} projection={projection} />
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          {hasAmount
+            ? `Quanto ${displayMoney(quote.amount)} viram no vencimento`
+            : "Quanto o dinheiro rende até o vencimento"}
+        </CardTitle>
+        <CardDescription>
+          Projeção com a taxa de hoje. Se o índice mudar durante a partida, o resultado muda junto.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-4">
+          {hasAmount && (
+            <div className="flex h-7 gap-0.5 overflow-hidden rounded-lg">
+              {parts.map((p) => (
+                <span key={p.key} className={p.className} style={{ width: `${Math.max(p.share, 0) * 100}%` }} />
+              ))}
             </div>
-
-            {/* Detalhamento Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <FixedIncomeCalculationDetails projection={projection} />
-              <FixedIncomeTaxTable projection={projection} />
+          )}
+          <dl className="grid gap-3 sm:grid-cols-4">
+            {parts.map((p) => (
+              <div key={p.key} className="grid gap-0.5">
+                <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className={cn("size-2.5 rounded-sm", p.className)} aria-hidden="true" />
+                  {p.label}
+                </dt>
+                <dd className="font-mono text-[13px]">{hasAmount ? p.value : "—"}</dd>
+              </div>
+            ))}
+            <div className="grid gap-0.5">
+              <dt className="text-xs text-muted-foreground">Resgate líquido</dt>
+              <dd className="font-mono text-[13px] font-semibold">
+                {hasAmount
+                  ? `${displayMoney(quote.net_amount)} (+${displayPercent(quote.net_return_pct)})`
+                  : `+${displayPercent(quote.net_return_pct)}`}
+              </dd>
             </div>
-          </div>
-        </Card>
-      </div>
-    </section>
+          </dl>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/** A tabela regressiva em degraus, com a faixa do prazo deste título em destaque. */
+function TaxSteps({ quote, days }: { quote: FixedIncomeQuote; days: number }) {
+  const brackets = quote.income_tax_brackets;
+  const current = brackets.findIndex((b) => b.max_days === null || days <= b.max_days);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>IR cai com o tempo</CardTitle>
+        <CardDescription>Quanto mais tempo o dinheiro fica, menor a alíquota sobre o rendimento.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex gap-1.5">
+          {brackets.map((b, i) => {
+            const from = i === 0 ? 0 : (brackets[i - 1].max_days ?? 0) + 1;
+            const label =
+              b.max_days === null
+                ? `acima de ${from - 1} dias`
+                : i === 0
+                  ? `até ${b.max_days} dias`
+                  : `${from} a ${b.max_days}`;
+            const active = i === current;
+            return (
+              <div
+                key={label}
+                className={cn(
+                  "grid flex-1 gap-0.5 rounded-lg p-3",
+                  active ? "bg-foreground text-primary-foreground" : "bg-background",
+                )}
+              >
+                <span className={cn("text-xs", active ? "text-sidebar-foreground" : "text-muted-foreground")}>
+                  {label}
+                </span>
+                <span className="font-mono font-semibold">{displayPercent(b.rate, 1)}</span>
+                {active && <span className="text-xs text-sidebar-foreground">você resgata em {days} dias</span>}
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

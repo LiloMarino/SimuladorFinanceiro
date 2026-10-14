@@ -121,7 +121,7 @@ export interface paths {
         };
         /**
          * Listar ativos de renda fixa
-         * @description Retorna a lista de todos os ativos de renda fixa disponíveis na simulação.
+         * @description Retorna os títulos de renda fixa disponíveis com a taxa equivalente do dia, a isenção e a alíquota de IR no vencimento.
          */
         get: operations["get_fixed_income_api_fixed_income_get"];
         put?: never;
@@ -141,7 +141,7 @@ export interface paths {
         };
         /**
          * Obter detalhes de renda fixa
-         * @description Retorna as informações detalhadas de um ativo de renda fixa específico.
+         * @description Retorna o título com a taxa equivalente do dia, a isenção e a alíquota de IR no vencimento.
          */
         get: operations["get_fixed_income_details_api_fixed_income__asset_uuid__get"];
         put?: never;
@@ -1325,6 +1325,38 @@ export interface components {
             /** Interest Rate */
             interest_rate: string;
         };
+        /**
+         * FixedIncomeOfferDTO
+         * @description O título com o que ele rende hoje e o IR que paga se levado ao vencimento.
+         */
+        FixedIncomeOfferDTO: {
+            /**
+             * Asset Uuid
+             * Format: uuid
+             */
+            asset_uuid?: string;
+            /** Name */
+            name: string;
+            /** Issuer */
+            issuer: string;
+            investment_type: components["schemas"]["FixedIncomeType"];
+            rate_index: components["schemas"]["RateIndexType"];
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
+            /** Interest Rate */
+            interest_rate: string;
+            /** Index Rate */
+            index_rate: string;
+            /** Effective Annual Rate */
+            effective_annual_rate: string;
+            /** Tax Exempt */
+            tax_exempt: boolean;
+            /** Income Tax Rate At Maturity */
+            income_tax_rate_at_maturity: string;
+        };
         /** FixedIncomePositionDTO */
         FixedIncomePositionDTO: {
             asset: components["schemas"]["FixedIncomeAssetDTO"];
@@ -1345,13 +1377,10 @@ export interface components {
             portfolio_pct: string;
         };
         /**
-         * FixedIncomeProjectionDTO
-         * @description Projeção de um investimento levado até o vencimento.
-         *
-         *     Percentuais são frações sobre o valor aplicado (0.12 = 12%) e não dependem
-         *     de `amount`, então valem mesmo com `amount` zero.
+         * FixedIncomeQuoteDTO
+         * @description A projeção com o caixa do jogador e a tabela regressiva, para a boleta.
          */
-        FixedIncomeProjectionDTO: {
+        FixedIncomeQuoteDTO: {
             /** Amount */
             amount: string;
             /** Index Rate */
@@ -1383,6 +1412,14 @@ export interface components {
             net_return: string;
             /** Net Return Pct */
             net_return_pct: string;
+            /** Cash Before */
+            cash_before: string;
+            /** Cash After */
+            cash_after: string;
+            /** Max Amount */
+            max_amount: string;
+            /** Income Tax Brackets */
+            income_tax_brackets: components["schemas"]["IncomeTaxBracketDTO"][];
         };
         /**
          * FixedIncomeType
@@ -1413,6 +1450,13 @@ export interface components {
              * @default false
              */
             overwrite: boolean;
+        };
+        /** IncomeTaxBracketDTO */
+        IncomeTaxBracketDTO: {
+            /** Max Days */
+            max_days: number | null;
+            /** Rate */
+            rate: string;
         };
         /**
          * IndicatorSeries
@@ -2760,7 +2804,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FixedIncomeAssetDTO"][];
+                    "application/json": components["schemas"]["FixedIncomeOfferDTO"][];
                 };
             };
             /** @description Internal Server Error */
@@ -2791,7 +2835,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FixedIncomeAssetDTO"] | null;
+                    "application/json": components["schemas"]["FixedIncomeOfferDTO"];
                 };
             };
             /** @description Validation Error */
@@ -2833,7 +2877,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FixedIncomeProjectionDTO"];
+                    "application/json": components["schemas"]["FixedIncomeQuoteDTO"];
                 };
             };
             /** @description Validation Error */

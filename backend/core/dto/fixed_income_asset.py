@@ -17,3 +17,13 @@ class FixedIncomeAssetDTO(BaseDTO):
     rate_index: RateIndexType
     maturity_date: date
     interest_rate: Decimal
+
+
+class FixedIncomeOfferDTO(FixedIncomeAssetDTO):
+    """O título com o que ele rende hoje e o IR que paga se levado ao vencimento."""
+
+    index_rate: Decimal
+    # Taxa do título combinada com o indexador do dia: o que ele rende ao ano hoje
+    effective_annual_rate: Decimal
+    tax_exempt: bool
+    income_tax_rate_at_maturity: Decimal

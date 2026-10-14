@@ -200,7 +200,9 @@ def _next_day_engine() -> SimulationEngine:
 
 def test_preview_sell_within_exemption_has_no_tax(player_book):
     """Venda que deixa o mês abaixo de R$ 20 mil em ações: lucro sem IR."""
-    preview = _next_day_engine().preview_order(PLAYER, "ABCD", OrderAction.SELL, 10, 15.0)
+    preview = _next_day_engine().preview_order(
+        PLAYER, "ABCD", OrderAction.SELL, 10, 15.0
+    )
 
     assert preview.max_quantity == 10
     assert preview.profit == Decimal("50.0")
@@ -210,7 +212,9 @@ def test_preview_sell_within_exemption_has_no_tax(player_book):
 
 def test_preview_sell_above_exemption_pays_fifteen_percent(player_book):
     """Venda que passa dos R$ 20 mil no mês: 15% sobre o lucro."""
-    preview = _next_day_engine().preview_order(PLAYER, "ABCD", OrderAction.SELL, 10, 2500.0)
+    preview = _next_day_engine().preview_order(
+        PLAYER, "ABCD", OrderAction.SELL, 10, 2500.0
+    )
 
     # Lucro (2500 - 10) x 10 = 24.900; 15% = 3.735
     assert preview.profit == Decimal("24900.0")

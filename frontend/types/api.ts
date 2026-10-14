@@ -22,7 +22,8 @@ export type SectorAllocation = PortfolioState["sectors"][number];
 export type RateIndex = components["schemas"]["RateIndexType"];
 export type InvestmentType = components["schemas"]["FixedIncomeType"];
 export type FixedIncomeAssetApi = components["schemas"]["FixedIncomeAssetDTO"];
-export type FixedIncomeProjection = components["schemas"]["FixedIncomeProjectionDTO"];
+export type FixedIncomeOffer = components["schemas"]["FixedIncomeOfferDTO"];
+export type FixedIncomeQuote = components["schemas"]["FixedIncomeQuoteDTO"];
 
 // Economic
 export type EconomicIndicators = components["schemas"]["EconomicIndicatorsDTO"];

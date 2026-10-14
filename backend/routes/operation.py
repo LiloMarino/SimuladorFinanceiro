@@ -7,8 +7,8 @@ from pydantic import BaseModel, Field
 from backend.core import repository
 from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.candle import MarketQuoteDTO
-from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
+from backend.core.dto.fixed_income_asset import FixedIncomeOfferDTO
+from backend.core.dto.fixed_income_projection import FixedIncomeQuoteDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO, TradeDTO
 from backend.core.dto.stock_details import StockDetailsDTO
@@ -16,6 +16,7 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
+from backend.features.fixed_income.accrual import income_tax_brackets
 from backend.features.variable_income.entities.order import (
     LimitOrder,
     MarketOrder,
@@ -201,29 +202,28 @@ def list_order_book(simulation: ActiveSimulation, asset: str):
 
 @operation_router.get(
     "/fixed-income",
-    response_model=list[FixedIncomeAssetDTO],
+    response_model=list[FixedIncomeOfferDTO],
     summary="Listar ativos de renda fixa",
-    description="Retorna a lista de todos os ativos de renda fixa disponíveis na simulação.",
+    description="Retorna os títulos de renda fixa disponíveis com a taxa equivalente do dia, a isenção e a alíquota de IR no vencimento.",
 )
 def get_fixed_income(simulation: ActiveSimulation):
     """
     Lista todos os ativos de renda fixa.
     """
-    fixed = simulation.get_fixed_assets()
-    return fixed
+    return simulation.get_fixed_offers()
 
 
 @operation_router.get(
     "/fixed-income/{asset_uuid}",
-    response_model=FixedIncomeAssetDTO | None,
+    response_model=FixedIncomeOfferDTO,
     summary="Obter detalhes de renda fixa",
-    description="Retorna as informações detalhadas de um ativo de renda fixa específico.",
+    description="Retorna o título com a taxa equivalente do dia, a isenção e a alíquota de IR no vencimento.",
 )
 def get_fixed_income_details(simulation: ActiveSimulation, asset_uuid: str):
     """
     Retorna os detalhes de um ativo de renda fixa.
     """
-    fixed = simulation.get_fixed_asset(asset_uuid)
+    fixed = simulation.get_fixed_offer(asset_uuid)
     if not fixed:
         raise NotFoundError("Ativo não encontrado.")
     return fixed
@@ -231,12 +231,13 @@ def get_fixed_income_details(simulation: ActiveSimulation, asset_uuid: str):
 
 @operation_router.get(
     "/fixed-income/{asset_uuid}/projection",
-    response_model=FixedIncomeProjectionDTO,
+    response_model=FixedIncomeQuoteDTO,
     summary="Projetar investimento em renda fixa",
     description="Projeta o valor aplicado hoje até o vencimento: bruto, IR e líquido. Pós-fixados usam o último valor conhecido do indexador.",
 )
 def get_fixed_income_projection(
     simulation: ActiveSimulation,
+    client_id: ClientID,
     asset_uuid: str,
     amount: Annotated[Decimal, Query(ge=0)] = Decimal(0),
 ):
@@ -246,7 +247,14 @@ def get_fixed_income_projection(
     fixed = simulation.get_fixed_asset(asset_uuid)
     if not fixed:
         raise NotFoundError("Ativo de renda fixa não encontrado")
-    return simulation.project_fixed_income(fixed, amount)
+    cash = simulation.get_cash(client_id)
+    return FixedIncomeQuoteDTO(
+        **simulation.project_fixed_income(fixed, amount).model_dump(),
+        cash_before=cash,
+        cash_after=cash - amount,
+        max_amount=cash,
+        income_tax_brackets=income_tax_brackets(),
+    )
 
 
 @operation_router.post(

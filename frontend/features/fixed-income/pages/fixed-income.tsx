@@ -1,42 +1,225 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/shared/components/ui/card";
+import { Empty, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
+import { Label } from "@/shared/components/ui/label";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Switch } from "@/shared/components/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { ErrorState } from "@/shared/components/error-state";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
-import { useFixedIncomeAssets } from "@/features/fixed-income/hooks/queries/useFixedIncomeAssets";
-import { FixedIncomeAsset } from "@/features/fixed-income/models/FixedIncomeAsset";
-import { parseLocalDate } from "@/shared/lib/utils/display";
-import FixedIncomeCard from "@/features/fixed-income/components/fixed-income-card";
-import { LoadingPage } from "@/pages/loading";
-import { ErrorPage } from "@/pages/error";
+import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
+import { economicIndicatorsOptions } from "@/shared/lib/queries/economicIndicatorsOptions";
+import { displayDate, displayPercent, displayRateLabel, parseLocalDate } from "@/shared/lib/utils/display";
+import type { FixedIncomeOffer } from "@/types";
+import { useFixedIncomeAssets } from "../hooks/queries/useFixedIncomeAssets";
+import { INVESTMENT_TYPE_LABELS, timeToMaturity } from "../lib/labels";
+
+type IndexFilter = "ALL" | FixedIncomeOffer["rate_index"];
+type TypeFilter = "ALL" | "CDB" | "LCI_LCA" | "Tesouro Direto";
+
+const INDEX_FILTERS: { value: IndexFilter; label: string }[] = [
+  { value: "ALL", label: "Todos" },
+  { value: "CDI", label: "CDI" },
+  { value: "IPCA", label: "IPCA" },
+  { value: "SELIC", label: "SELIC" },
+  { value: "Prefixado", label: "Prefixado" },
+];
+const TYPE_FILTERS: { value: TypeFilter; label: string }[] = [
+  { value: "ALL", label: "Todos os tipos" },
+  { value: "CDB", label: "CDB" },
+  { value: "LCI_LCA", label: "LCI/LCA" },
+  { value: "Tesouro Direto", label: "Tesouro" },
+];
+
+const matchesType = (o: FixedIncomeOffer, filter: TypeFilter) =>
+  filter === "ALL" ||
+  (filter === "LCI_LCA" ? o.investment_type === "LCI" || o.investment_type === "LCA" : o.investment_type === filter);
 
 export default function FixedIncomePage() {
-  const { data: assets, isLoading: loading, error } = useFixedIncomeAssets();
-  const { data: simData } = useSimulationState();
+  const { data: offers, isLoading, error, refetch } = useFixedIncomeAssets();
+  const { data: portfolio } = usePortfolio();
+  const { data: simulation } = useSimulationState();
+  const { data: indicators } = useQuery(economicIndicatorsOptions());
+  const [indexFilter, setIndexFilter] = useState<IndexFilter>("ALL");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
+  const [onlyExempt, setOnlyExempt] = useState(false);
 
-  if (loading) {
-    return <LoadingPage />;
-  }
+  const held = new Set((portfolio?.fixed_income ?? []).map((p) => p.asset.asset_uuid));
+  const visible = (offers ?? [])
+    .filter((o) => (indexFilter === "ALL" || o.rate_index === indexFilter) && matchesType(o, typeFilter))
+    .filter((o) => !onlyExempt || o.tax_exempt)
+    .sort((a, b) => Number(b.effective_annual_rate) - Number(a.effective_annual_rate));
+  const topRate = Math.max(...visible.map((o) => Number(o.effective_annual_rate)), 0.0001);
+  const today = simulation?.current_date;
 
-  if (!assets) {
+  const renderBody = () => {
+    if (isLoading) {
+      return (
+        <CardContent>
+          <div className="grid gap-3">
+            {Array.from({ length: 6 }, (_, i) => (
+              <Skeleton key={i} className="h-10" />
+            ))}
+          </div>
+        </CardContent>
+      );
+    }
+    if (error) {
+      return (
+        <CardContent>
+          <ErrorState
+            title="Não deu pra carregar os títulos"
+            description="A partida continua; tente de novo."
+            error={error}
+            onRetry={() => void refetch()}
+          />
+        </CardContent>
+      );
+    }
+    if (visible.length === 0) {
+      return (
+        <CardContent>
+          <Empty>
+            <EmptyHeader>
+              <EmptyTitle>
+                {offers?.length ? "Nenhum título com esse filtro" : "Nenhum título disponível nesta partida"}
+              </EmptyTitle>
+            </EmptyHeader>
+          </Empty>
+        </CardContent>
+      );
+    }
     return (
-      <ErrorPage
-        code={String(error?.status) || "500"}
-        title="Erro ao carregar ativos"
-        message={String(error?.message)}
-      />
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Título</TableHead>
+            <TableHead>Tipo</TableHead>
+            <TableHead>Rentabilidade</TableHead>
+            <TableHead>Equivale hoje</TableHead>
+            <TableHead>Vencimento</TableHead>
+            <TableHead>IR</TableHead>
+            <TableHead>
+              <span className="sr-only">Investir</span>
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {visible.map((o) => (
+            <TableRow key={o.asset_uuid}>
+              <TableCell>
+                <div className="grid">
+                  <span className="flex items-center gap-2 font-semibold">
+                    {o.name}
+                    {held.has(o.asset_uuid) && (
+                      <Badge variant="info" size="sm">
+                        na carteira
+                      </Badge>
+                    )}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{o.issuer}</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <Badge variant="secondary">{INVESTMENT_TYPE_LABELS[o.investment_type]}</Badge>
+              </TableCell>
+              <TableCell>
+                <span className="font-mono">{displayRateLabel(o.rate_index, o.interest_rate)}</span>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-22 overflow-hidden rounded-full bg-muted">
+                    <span
+                      className="block h-full rounded-full bg-success"
+                      style={{ width: `${(Number(o.effective_annual_rate) / topRate) * 100}%` }}
+                    />
+                  </span>
+                  <span className="font-mono font-semibold">{displayPercent(o.effective_annual_rate)} a.a.</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="grid">
+                  <span className="font-mono">{displayDate(parseLocalDate(o.maturity_date))}</span>
+                  {today && (
+                    <span className="text-xs text-muted-foreground">{timeToMaturity(o.maturity_date, today)}</span>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>
+                {o.tax_exempt ? (
+                  <Badge variant="success">Isento</Badge>
+                ) : (
+                  <Badge variant="secondary">22,5% → {displayPercent(o.income_tax_rate_at_maturity, 1)}</Badge>
+                )}
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  nativeButton={false}
+                  render={<Link to={`/fixed-income/${o.asset_uuid}`} />}
+                >
+                  Investir
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     );
-  }
-
-  const currentDate = parseLocalDate(simData?.current_date ?? "");
+  };
 
   return (
-    <section className="p-4">
-      {assets.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {assets.map((asset) => (
-            <FixedIncomeCard key={asset.name} asset={new FixedIncomeAsset(asset, currentDate)} />
-          ))}
+    <Card className="overflow-hidden">
+      {/* Filtros */}
+      <CardHeader>
+        <div className="flex flex-wrap items-center gap-3">
+          <ToggleGroup
+            variant="segmented"
+            aria-label="Indexador"
+            value={[indexFilter]}
+            onValueChange={(values) => values[0] && setIndexFilter(values[0] as IndexFilter)}
+          >
+            {INDEX_FILTERS.map((f) => (
+              <ToggleGroupItem key={f.value} value={f.value}>
+                {f.label}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+          <ToggleGroup
+            variant="segmented"
+            aria-label="Tipo de título"
+            value={[typeFilter]}
+            onValueChange={(values) => values[0] && setTypeFilter(values[0] as TypeFilter)}
+          >
+            {TYPE_FILTERS.map((f) => (
+              <ToggleGroupItem key={f.value} value={f.value}>
+                {f.label}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+          <div className="flex items-center gap-2">
+            <Switch id="only-exempt" checked={onlyExempt} onCheckedChange={setOnlyExempt} />
+            <Label htmlFor="only-exempt">Só isentos de IR</Label>
+          </div>
         </div>
-      ) : (
-        <div className="flex justify-center items-center h-full text-muted-foreground">Nenhum ativo disponível.</div>
+      </CardHeader>
+
+      {renderBody()}
+
+      {indicators && (
+        <CardFooter>
+          <span className="text-xs text-muted-foreground">
+            “Equivale hoje” usa CDI {displayPercent(indicators.cdi)} e IPCA 12m {displayPercent(indicators.ipca)} do dia
+            simulado (Banco Central). Ordenado do maior pro menor.
+          </span>
+        </CardFooter>
       )}
-    </section>
+    </Card>
   );
 }

@@ -6,7 +6,7 @@ from uuid import UUID
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO, MarketQuoteDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
-from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, FixedIncomeOfferDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO
@@ -23,7 +23,7 @@ from backend.core.indicators import annual_index_rate
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import next_business_day
-from backend.features.fixed_income.accrual import project
+from backend.features.fixed_income.accrual import offer, project
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     PortfolioUpdateEventDTO,
@@ -104,6 +104,13 @@ class Simulation:
         self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal
     ) -> None:
         self._engine.fixed_broker.buy(client_id, asset, value)
+
+    def get_fixed_offers(self) -> list[FixedIncomeOfferDTO]:
+        return [offer(a, self._current_date) for a in self.get_fixed_assets()]
+
+    def get_fixed_offer(self, asset_uuid: str) -> FixedIncomeOfferDTO | None:
+        asset = self.get_fixed_asset(asset_uuid)
+        return offer(asset, self._current_date) if asset else None
 
     def project_fixed_income(
         self, asset: FixedIncomeAssetDTO, amount: Decimal

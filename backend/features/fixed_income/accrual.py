@@ -16,8 +16,11 @@ from datetime import date
 from decimal import ROUND_HALF_EVEN, Decimal
 from functools import lru_cache
 
-from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, FixedIncomeOfferDTO
+from backend.core.dto.fixed_income_projection import (
+    FixedIncomeProjectionDTO,
+    IncomeTaxBracketDTO,
+)
 from backend.core.enum import FixedIncomeType, IndicatorSeries, RateIndexType
 from backend.core.indicators import (
     BUSINESS_DAYS_PER_YEAR,
@@ -182,3 +185,28 @@ def project(
         net_return=net_amount - amount,
         net_return_pct=gross_return_pct * (1 - tax_rate),
     )
+
+
+def offer(asset: FixedIncomeAssetDTO, on: date) -> FixedIncomeOfferDTO:
+    """O título com a taxa equivalente de `on` e a alíquota de IR se levado ao vencimento."""
+    index_rate = index_rate_on(asset.rate_index, on)
+    return FixedIncomeOfferDTO(
+        **asset.model_dump(),
+        index_rate=index_rate,
+        effective_annual_rate=effective_annual_rate(asset, index_rate),
+        tax_exempt=asset.investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA),
+        income_tax_rate_at_maturity=income_tax_rate(
+            asset.investment_type, (redemption_date(asset.maturity_date) - on).days
+        ),
+    )
+
+
+def income_tax_brackets() -> list[IncomeTaxBracketDTO]:
+    """A tabela regressiva inteira, da primeira faixa à alíquota final."""
+    return [
+        *(
+            IncomeTaxBracketDTO(max_days=days, rate=rate)
+            for days, rate in INCOME_TAX_BRACKETS
+        ),
+        IncomeTaxBracketDTO(max_days=None, rate=INCOME_TAX_FLOOR),
+    ]

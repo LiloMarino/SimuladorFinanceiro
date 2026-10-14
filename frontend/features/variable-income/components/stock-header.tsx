@@ -30,7 +30,7 @@ export function StockHeader({ stock }: { stock: StockDetails }) {
           size="sm"
           nativeButton={false}
           render={<Link to="/variable-income" />}
-          className="self-start"
+          className="justify-self-start"
         >
           <ArrowLeft />
           Renda variável

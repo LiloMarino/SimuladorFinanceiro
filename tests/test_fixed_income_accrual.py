@@ -24,6 +24,7 @@ from backend.features.fixed_income.accrual import (
     income_tax_rate,
     index_rate_on,
     net_redemption,
+    offer,
     project,
     redemption_date,
 )
@@ -362,3 +363,31 @@ def test_cdb_100_cdi_over_2020_yields_the_published_cdi(indicators: SetIndicator
     assert (position.current_value / 1000).quantize(Decimal("1e-8")) == Decimal(
         "1.02750141"
     )
+
+
+def test_offer_shows_today_rate_exemption_and_tax_at_maturity():
+    """Prefixado rende a própria taxa; LCI é isenta; prazo longo cai na alíquota final."""
+    on = date(2020, 1, 6)
+    cdb = FixedIncomeAssetDTO(
+        name="CDB",
+        issuer="Banco",
+        investment_type=FixedIncomeType.CDB,
+        rate_index=RateIndexType.PREFIXADO,
+        maturity_date=date(2023, 1, 6),
+        interest_rate=Decimal("0.12"),
+    )
+    lci = cdb.model_copy(
+        update={
+            "investment_type": FixedIncomeType.LCI,
+            "maturity_date": date(2020, 4, 6),
+        }
+    )
+
+    cdb_offer = offer(cdb, on)
+    lci_offer = offer(lci, on)
+
+    assert cdb_offer.effective_annual_rate == Decimal("0.12")
+    assert not cdb_offer.tax_exempt
+    assert cdb_offer.income_tax_rate_at_maturity == Decimal("0.15")
+    assert lci_offer.tax_exempt
+    assert lci_offer.income_tax_rate_at_maturity == 0
