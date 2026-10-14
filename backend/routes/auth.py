@@ -106,7 +106,7 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
     # Verificar se já existe usuário com esse nickname
     existing_user = repository.user.get_by_nickname(nickname)
     if existing_user:
-        raise ConflictError("User already registered for this client.")
+        raise ConflictError("Esse nickname já está em uso.")
 
     # Cria novo usuário
     new_user = repository.user.create_user(client_id, nickname)
@@ -139,12 +139,14 @@ def user_claim(payload: UserClaimRequest, client_id: ClientID):
     # Verificar se nickname existe
     existing_user = repository.user.get_by_nickname(nickname)
     if not existing_user:
-        raise NotFoundError("Nickname does not exist.")
+        raise NotFoundError("Não existe conta com esse nickname.")
 
     # Verifica se usuário já está ativo em outro client
     active_players = UserManager.list_active_players()
     if any(u.id == existing_user.id for u in active_players):
-        raise ConflictError("User is currently active and cannot be claimed.")
+        raise ConflictError(
+            "Esse jogador está conectado agora. Se é você, feche a outra aba e tente de novo."
+        )
 
     # Atualizar client_id do usuário
     updated_user = repository.user.update_client_id(existing_user.id, client_id)
@@ -164,7 +166,7 @@ def user_delete(client_id: ClientID):
     """
     user = UserManager.get_user(client_id)
     if not user:
-        raise NotFoundError("User not found.")
+        raise NotFoundError("Usuário não encontrado.")
     UserManager.player_logout(client_id)
 
     # Deleta usuário do banco de dados

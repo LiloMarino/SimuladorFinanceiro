@@ -1,57 +1,49 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/shared/components/ui/form";
-import { Input } from "@/shared/components/ui/input";
+import { useQueryClient } from "@tanstack/react-query";
+import { UsersRound } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/shared/components/ui/alert-dialog";
-import ApiError from "@/shared/lib/models/ApiError";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
+import { Spinner } from "@/shared/components/ui/spinner";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
+import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { User } from "@/types";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
-import { toastApiError } from "@/shared/notifications/toast-api-error";
+import { LoginShowcase } from "../components/login-showcase";
 
-// Validação com Zod
 const nicknameSchema = z.object({
-  nickname: z.string().min(1, "Digite um nickname!").regex(/^[^#]+$/, "Use um nickname sem #"),
+  nickname: z
+    .string()
+    .trim()
+    .min(1, "Escolha um nome para entrar.")
+    .regex(/^[^#]+$/, "Tire o # do nome: ele é reservado para identificar a partida."),
 });
 
 type NicknameForm = z.infer<typeof nicknameSchema>;
 
 export function LoginPage() {
   const queryClient = useQueryClient();
-  const [modalOpen, setModalOpen] = useState(false);
+  // Nickname que já tem conta: a decisão (é você ou não) acontece dentro do card
+  const [taken, setTaken] = useState<string | null>(null);
 
-  const { mutateAsync: registerNickname, isPending: registerNicknameLoading } = useApiMutation({
-    mutationFn: (body: { nickname: string }) => apiFetch<User>("/api/user/register", { method: "POST", body }),
-    onSuccess: () => {
-      toast.success("Nickname registrado!");
-    },
-    onError: (err) => {
-      toastApiError(err);
+  const enter = () => queryClient.invalidateQueries({ queryKey: queryKeys.authSession() });
+
+  const register = useApiMutation({
+    mutationFn: (body: NicknameForm) => apiFetch<User>("/api/user/register", { method: "POST", body }),
+    onSuccess: enter,
+    onError: (err, body) => {
+      if (err.status === 409) setTaken(body.nickname);
     },
   });
 
-  const { mutateAsync: claimNickname, isPending: claimNicknameLoading } = useApiMutation({
-    mutationFn: (body: { nickname: string }) => apiFetch<User>("/api/user/claim", { method: "POST", body }),
-    onSuccess: () => {
-      toast.success("Nickname recuperado!");
-    },
-    onError: (err) => {
-      toastApiError(err);
-    },
+  const claim = useApiMutation({
+    mutationFn: (body: NicknameForm) => apiFetch<User>("/api/user/claim", { method: "POST", body }),
+    onSuccess: enter,
   });
 
   const form = useForm<NicknameForm>({
@@ -59,76 +51,109 @@ export function LoginPage() {
     defaultValues: { nickname: "" },
   });
 
-  const onSubmit = async (values: NicknameForm) => {
-    try {
-      await registerNickname(values);
-      queryClient.invalidateQueries({ queryKey: queryKeys.authSession() });
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 409) {
-        setModalOpen(true);
-      } else {
-        throw err;
-      }
-    }
+  const chooseAnotherName = () => {
+    setTaken(null);
+    claim.reset();
+    register.reset();
   };
 
-  const confirmClaim = async () => {
-    const nickname = form.getValues("nickname");
-    await claimNickname({ nickname });
-    queryClient.invalidateQueries({ queryKey: queryKeys.authSession() });
-    setModalOpen(false);
-  };
+  const busy = register.isPending || claim.isPending;
+  const registerFailed = register.isError && register.error.status !== 409;
 
-  const loading = registerNicknameLoading || claimNicknameLoading;
   return (
-    <section className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-xl">
-        <CardHeader>
-          <CardTitle className="text-center text-2xl">Entrar na Sala</CardTitle>
-        </CardHeader>
+    <div className="flex min-h-svh">
+      <LoginShowcase />
 
-        <CardContent className="space-y-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
+      <main className="flex flex-1 items-center justify-center p-10">
+        <Card size="lg" className="w-full max-w-[400px]">
+          <CardHeader>
+            <CardTitle role="heading" aria-level={1}>
+              Entrar na sala
+            </CardTitle>
+            <CardDescription>
+              Primeira vez aqui? Escolha um nome. Já jogou? Use o mesmo para recuperar suas partidas.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={form.handleSubmit((values) => register.mutate(values))} className="grid gap-5">
+              <Controller
                 control={form.control}
                 name="nickname"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Seu Nickname</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Digite seu nickname" {...field} disabled={loading} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="nickname">Seu nickname</FieldLabel>
+                    <Input
+                      {...field}
+                      id="nickname"
+                      fieldSize="lg"
+                      autoComplete="off"
+                      aria-invalid={fieldState.invalid}
+                      disabled={busy}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        if (taken) chooseAnotherName();
+                      }}
+                    />
+                    {fieldState.invalid ? (
+                      <FieldError errors={[fieldState.error]} />
+                    ) : (
+                      <FieldDescription>É assim que você aparece no ranking. Não use #.</FieldDescription>
+                    )}
+                  </Field>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={loading}>
-                Entrar
-              </Button>
+
+              {/* Nickname já existe: um aviso só, com as duas saídas */}
+              {taken ? (
+                <Alert variant={claim.isError ? "destructive" : "info"}>
+                  <UsersRound />
+                  <AlertTitle>{taken} já tem conta nesta sala</AlertTitle>
+                  <AlertDescription>
+                    {claim.isError
+                      ? claim.error.message
+                      : "Se é você, entre e continue de onde parou. Se não, escolha outro nome."}
+                  </AlertDescription>
+                  <div className="col-span-full mt-2 flex gap-2">
+                    <Button
+                      type="button"
+                      className="flex-1"
+                      disabled={busy}
+                      onClick={() => claim.mutate({ nickname: taken })}
+                    >
+                      {claim.isPending && <Spinner />}
+                      Sou eu, entrar
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => {
+                        chooseAnotherName();
+                        form.setFocus("nickname");
+                      }}
+                    >
+                      Usar outro nome
+                    </Button>
+                  </div>
+                </Alert>
+              ) : (
+                <Button type="submit" size="lg" disabled={busy}>
+                  {register.isPending && <Spinner />}
+                  {register.isPending ? "Entrando…" : "Entrar"}
+                </Button>
+              )}
+
+              {registerFailed && (
+                <Alert variant="destructive">
+                  <AlertTitle>{register.error.message}</AlertTitle>
+                  <AlertDescription>{register.error.statusLine}</AlertDescription>
+                </Alert>
+              )}
             </form>
-          </Form>
-        </CardContent>
-      </Card>
-
-      {/* Modal de Claim */}
-      <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Nickname já existe</AlertDialogTitle>
-          </AlertDialogHeader>
-
-          <p>
-            O usuário <strong>{form.getValues("nickname")}</strong> já existe. Deseja clamar este nickname?
-          </p>
-
-          <div className="flex justify-end gap-3 mt-4">
-            <AlertDialogCancel variant="secondary">Cancelar</AlertDialogCancel>
-
-            <AlertDialogAction onClick={confirmClaim}>Sim</AlertDialogAction>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
-    </section>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
   );
 }

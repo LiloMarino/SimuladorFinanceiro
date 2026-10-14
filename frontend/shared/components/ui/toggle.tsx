@@ -5,7 +5,6 @@ import { type VariantProps } from "class-variance-authority";
 import { toggleVariants } from "./variants/toggleVariants";
 import { cn } from "@/shared/lib/utils";
 
-
 function Toggle({
   className,
   variant = "default",

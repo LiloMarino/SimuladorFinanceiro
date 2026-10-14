@@ -207,7 +207,7 @@ def get_simulation_settings(client_id: ClientID):
     """
     user = UserManager.get_user(client_id)
     if user is None:
-        raise NotFoundError("User not found.")
+        raise NotFoundError("Usuário não encontrado.")
     host_nickname = config.toml.host.nickname
 
     settings = SettingsManager.get()
