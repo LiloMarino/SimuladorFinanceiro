@@ -132,6 +132,8 @@
   --candle-down: #ef5350;
   --overlay: rgb(15 23 41 / 0.45);
   --toast: #0f1729;
+  --toast-layer-1: #3a4560;
+  --toast-layer-2: #26314a;
   --toast-foreground: #ffffff;
   --toast-muted: #9aa5ba;
   --toast-success: #5bd6a0;
@@ -147,6 +149,14 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #1a2438;
   --sidebar-ring: #8fb0ff;
+}
+
+/* Pilha de avisos: as camadas de trás aparecem mais claras que o aviso da frente */
+[data-sonner-toast][data-front="false"][data-expanded="false"][data-index="1"] {
+  background: var(--toast-layer-1);
+}
+[data-sonner-toast][data-front="false"][data-expanded="false"][data-index="2"] {
+  background: var(--toast-layer-2);
 }
 
 @layer base {

@@ -1,3 +1,4 @@
+import { LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -26,6 +27,7 @@ export function ProfileCard({ nickname }: { nickname: string }) {
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={() => void logout()} disabled={loading}>
+            <LogOut />
             Sair da conta
           </Button>
         </div>

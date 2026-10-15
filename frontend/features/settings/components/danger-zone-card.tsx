@@ -68,6 +68,7 @@ export function DangerZoneCard({ nickname }: { nickname: string }) {
             </FieldLabel>
             <Input
               id="confirm-nickname"
+              numeric
               value={typed}
               onChange={(e) => setTyped(e.target.value)}
               autoComplete="off"

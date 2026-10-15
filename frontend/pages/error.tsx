@@ -21,11 +21,15 @@ export function ErrorPage({
 }: ErrorPageProps) {
   const { simulationActive } = useSimulation();
 
-  // Na partida a saída é a carteira; fora dela, o lobby
-  const exit = simulationActive
-    ? { label: "Ir para a carteira", href: "/portfolio" }
-    : { label: "Voltar ao lobby", href: "/lobby" };
-  const hasAction = !!actionLabel && !!actionHref;
+  // Na partida: a carteira e, em segundo plano, o lobby; fora dela, só o lobby
+  const exits = simulationActive
+    ? [
+        { label: "Ir para a carteira", href: "/portfolio" },
+        { label: "Voltar ao lobby", href: "/lobby" },
+      ]
+    : [{ label: "Voltar ao lobby", href: "/lobby" }];
+  // A ação da página, quando existe, vem primeiro e as saídas ficam secundárias
+  const buttons = actionLabel && actionHref ? [{ label: actionLabel, href: actionHref }, ...exits] : exits;
 
   return (
     <section className="flex min-h-[70vh] items-center justify-center p-6">
@@ -33,15 +37,17 @@ export function ErrorPage({
         <span className="font-mono text-[13px] font-semibold text-primary">{code}</span>
         <h2 className="text-[26px] font-bold">{title}</h2>
         <p className="text-muted-foreground">{message}</p>
-        <div className="flex gap-2">
-          {hasAction && (
-            <Button nativeButton={false} render={<Link to={actionHref} />}>
-              {actionLabel}
+        <div className="flex flex-wrap gap-2">
+          {buttons.map((button, i) => (
+            <Button
+              key={button.href}
+              variant={i === 0 ? "default" : "outline"}
+              nativeButton={false}
+              render={<Link to={button.href} />}
+            >
+              {button.label}
             </Button>
-          )}
-          <Button variant={hasAction ? "outline" : "default"} nativeButton={false} render={<Link to={exit.href} />}>
-            {exit.label}
-          </Button>
+          ))}
         </div>
       </div>
     </section>
