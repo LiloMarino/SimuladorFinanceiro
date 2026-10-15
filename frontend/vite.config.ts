@@ -15,6 +15,7 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    forwardConsole: { unhandledErrors: true, logLevels: ["error", "warn"] },
     proxy: {
       "/api": "http://localhost:8000",
       "/socket.io": {

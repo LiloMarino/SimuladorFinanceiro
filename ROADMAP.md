@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-15):** F39 com sala de 10 jogadores, 10 cores exclusivas e sigla de duas letras.
+> **Última mudança (2026-10-15):** D12 decidida (SemVer, próxima 2.0.0); F51 ganhou changelog e novidades no app; F40 virou o modo realista; F43 escolheu corrida à meta (F52) e viver de renda (F53); F44 ganhou o desenho da gestora listada.
 
 ## Glossário
 
@@ -29,13 +29,18 @@
 | **N11** | Que o cenário econômico simulado seja o histórico real | [F20](#f20) | — |
 | **N12** | Continuar jogando depois do último dia com dado real | [F24](#f24) | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | [F21](#f21) | — |
-| **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F25](#f25) | — |
+| **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F25](#f25), [F51](#f51) | — |
 | **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F26](#f26), [F35](#f35), [F36](#f36), [F37](#f37), [F38](#f38) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | [F30](#f30) | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | [F31](#f31) | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | [F32](#f32) | — |
 | **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33) | — |
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | [F39](#f39) | — |
+| **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | [F40](#f40) | — |
+| **N22** | Ter objetivos para buscar além de vencer a partida | [F41](#f41) | — |
+| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F42](#f42), [F43](#f43), [F52](#f52), [F53](#f53) | — |
+| **N24** | Saber onde está a lentidão durante uma partida | [F45](#f45) | — |
+| **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F47](#f47), [F48](#f48) | — |
 | **D4** | Banco de dados embarcado no executável | [F4](#f4) | 🔍 |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
 | [**F3**](#f3) | Spike: banco embarcado no executável | — | 🔍 |
@@ -58,14 +63,27 @@
 | [**F37**](#f37) | Tema escuro | — | 💤 |
 | [**F38**](#f38) | Mensagens do backend em português | — | ⏳ |
 | [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ⏳ |
+| [**F40**](#f40) | Modo realista | — | ⏳ |
+| [**F41**](#f41) | Conquistas | — | ⏳ |
+| [**F42**](#f42) | Modo em equipes | — | ⏳ |
+| [**F44**](#f44) | Gestora do jogador: abrir capital e disputar o controle (DLC) | — | 🔍 |
+| [**F45**](#f45) | Painel de desempenho | — | ⏳ |
+| [**F46**](#f46) | Console do navegador no terminal do dev | — | ⏳ |
+| [**F47**](#f47) | Gravação automática de demonstrações | — | ⏳ |
+| [**F48**](#f48) | README e docs que mostram o produto | — | ⏳ |
+| [**F49**](#f49) | Tutorial animado | — | 🔍 |
+| [**F50**](#f50) | Diagrama do banco navegável | — | 🔍 |
+| [**F51**](#f51) | Versão, changelog e novidades no app | — | ⏳ |
+| [**F52**](#f52) | Modo corrida à meta | — | ⏳ |
+| [**F53**](#f53) | Modo viver de renda | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
-| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F2](#f2), [F11](#f11), [F13](#f13), [F29](#f29) | ✅ |
-| **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F2](#f2), [F11](#f11), [F12](#f12), [F17](#f17), [F32](#f32), [F33](#f33) | ✅ |
+| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F2](#f2), [F11](#f11), [F13](#f13), [F29](#f29), [F41](#f41) | ✅ |
+| **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F2](#f2), [F11](#f11), [F12](#f12), [F17](#f17), [F32](#f32), [F33](#f33), [F40](#f40) | ✅ |
 | **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F1](#f1) | ✅ |
 | **D6** | A retomada continua no dia seguinte ao último evento | [F2](#f2) | ✅ |
 | **D7** | O simulador lê as séries sem saber a origem | [F20](#f20), [F21](#f21), [F24](#f24) | ✅ |
@@ -73,6 +91,7 @@
 | **D9** | De onde nasce uma mudança de schema | [F25](#f25), [F31](#f31) | ✅ |
 | **D10** | Como a nota geral é calculada | [F18](#f18) | ✅ |
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | [F36](#f36) | ✅ |
+| **D12** | Como numerar as versões | [F51](#f51) | ✅ |
 | [**F1**](#f1) | Decimal como string do backend ao frontend | — | ✅ |
 | [**F2**](#f2) | Renda fixa com cálculo único no backend e retomada consistente | — | ✅ |
 | [**F11**](#f11) | Métricas de risco do desempenho | — | ✅ |
@@ -92,6 +111,7 @@
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ✅ |
 | [**F35**](#f35) | Dependências em dia | — | ✅ |
 | [**F36**](#f36) | Interface padronizada no shadcn | — | ✅ |
+| [**F43**](#f43) | Spike: outros modos de jogo | — | ✅ |
 
 </details>
 
@@ -108,9 +128,19 @@
 | [**F3**](#f3) | Spike: banco embarcado no executável | M2 | 1 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
+| [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | 1 | ⏳ |
+| [**F47**](#f47) | Gravação automática de demonstrações | M14 | 1 | ⏳ |
+| [**F52**](#f52) | Modo corrida à meta | M13 | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F38**](#f38) | Mensagens do backend em português | — | 0 | ⏳ |
-| [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | 0 | ⏳ |
+| [**F40**](#f40) | Modo realista | M13 | 0 | ⏳ |
+| [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
+| [**F44**](#f44) | Gestora do jogador: abrir capital e disputar o controle (DLC) | — | 0 | 🔍 |
+| [**F45**](#f45) | Painel de desempenho | — | 0 | ⏳ |
+| [**F46**](#f46) | Console do navegador no terminal do dev | — | 0 | ⏳ |
+| [**F49**](#f49) | Tutorial animado | M14 | 0 | 🔍 |
+| [**F50**](#f50) | Diagrama do banco navegável | — | 0 | 🔍 |
+| [**F51**](#f51) | Versão, changelog e novidades no app | — | 0 | ⏳ |
 
 ---
 
@@ -333,9 +363,47 @@
 
 </details>
 
+### M13 — Mais jeitos de jogar
+
+> **Objetivo:** Partidas com outras regras e objetivos: sem assistências, em equipes, com conquistas.
+>
+> **Serve:** N21, N22, N23
+>
+> **Progresso:** 1/6 concluídas
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F40**](#f40) | Modo realista | — | ⏳ |
+| [**F41**](#f41) | Conquistas | — | ⏳ |
+| [**F42**](#f42) | Modo em equipes | [F39](#f39) | ⏳ |
+| [**F52**](#f52) | Modo corrida à meta | — | ⏳ |
+| [**F53**](#f53) | Modo viver de renda | [F52](#f52) | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F43**](#f43) | Spike: outros modos de jogo | — | ✅ |
+
+</details>
+
+### M14 — Vitrine e primeiros passos
+
+> **Objetivo:** Ver o jogo funcionando antes de baixar e aprender a jogar vendo, não lendo.
+>
+> **Serve:** N25
+>
+> **Progresso:** 0/3 concluídas
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F47**](#f47) | Gravação automática de demonstrações | — | ⏳ |
+| [**F48**](#f48) | README e docs que mostram o produto | [F47](#f47) | ⏳ |
+| [**F49**](#f49) | Tutorial animado | — | 🔍 |
+
 ### Sem marco
 
-> **Progresso:** 3/7 concluídas
+> **Progresso:** 3/12 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -343,6 +411,11 @@
 | [**F37**](#f37) | Tema escuro | [F26](#f26) | 💤 |
 | [**F38**](#f38) | Mensagens do backend em português | — | ⏳ |
 | [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ⏳ |
+| [**F44**](#f44) | Gestora do jogador: abrir capital e disputar o controle (DLC) | — | 🔍 |
+| [**F45**](#f45) | Painel de desempenho | — | ⏳ |
+| [**F46**](#f46) | Console do navegador no terminal do dev | — | ⏳ |
+| [**F50**](#f50) | Diagrama do banco navegável | — | 🔍 |
+| [**F51**](#f51) | Versão, changelog e novidades no app | — | ⏳ |
 
 <details><summary>Concluído (3 itens)</summary>
 
@@ -390,6 +463,16 @@
 | **F37** | Tema escuro | N15 | — | — | [F26](#f26) | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F38** | Mensagens do backend em português | N15 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F39** | Cor exclusiva e sigla de duas letras por jogador | N20 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F40** | Modo realista | N21 | D2 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F41** | Conquistas | N22 | D1 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F42** | Modo em equipes | N23 | — | M13 | [F39](#f39) | Médio | Médio | Alto | Bom | ⏳ Pendente |
+| **F45** | Painel de desempenho | N24 | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
+| **F47** | Gravação automática de demonstrações | N25 | — | M14 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
+| **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
+| **F51** | Versão, changelog e novidades no app | N14 | D12 | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F43** | Spike: outros modos de jogo | N23 | — | M13 | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
+| **F52** | Modo corrida à meta | N23 | — | M13 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
+| **F53** | Modo viver de renda | N23 | — | M13 | [F52](#f52) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -577,15 +660,49 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 **F39 — Cor exclusiva e sigla de duas letras por jogador.** Serve N20. Inspiração: o Age of Empires II, que dá uma cor própria a cada um dos 8 jogadores da partida; aqui a sala vai a 10. Hoje a cor do jogador nasce em dois lugares que não se falam: o lobby, o perfil, a sidebar e o livro de ofertas pintam o avatar com um hash do apelido (`stringToColor`, em HSL), e as estatísticas escolhem a cor pela posição alfabética entre os jogadores do relatório (`playerColors`, com `% 8`). O mesmo jogador tem uma cor na sala e outra no gráfico. O limite de 8 jogadores só existe na tela (`MAX_PLAYERS` em `lobby.tsx`); o servidor não recusa o 9º, e com `% 8` o 9º repetiria a cor do 1º. E a sigla do avatar é a primeira letra do apelido, que repete com facilidade. O plano: (1) **cor é do jogador na partida.** Tabela nova `simulation_players` (`simulation_id`, `user_id`, `color`, chave composta), por migration (D9); a cor fica guardada com a partida para a tela de Estatísticas e o fechamento mostrarem as mesmas cores dias depois, sem partida ativa. Hoje nenhuma tabela liga jogador a partida: a participação é deduzida dos eventos e snapshots. (2) **Dez jogadores, dez cores.** A paleta do redesign (`--chart-1` a `--chart-8`, sem vermelho, para não se confundir com perda) ganha `--chart-9` e `--chart-10` em `frontend/index.css`, com o cinza e o marrom que o Age tem e a paleta não, conferidos contra as outras oito e contra daltonismo antes de fechar. O limite da sala sobe de 8 para 10 e passa a ser recusado pelo servidor (sala cheia), porque o teto de jogadores é o tamanho da paleta. Os bots da F16 contam no mesmo limite. Com dez linhas no mesmo gráfico o tom sozinho aperta: a legenda clicável que os gráficos já têm isola uma linha, e o tooltip traz o apelido. Passar de 10 exige um segundo diferenciador além do tom (linha tracejada, marcador). (3) **Conflito é impedido, não detectado.** O servidor é quem decide: ao entrar, o jogador recebe a cor que escolheu da última vez se ela estiver livre, ou a primeira livre da paleta; a troca é um evento do lobby que o servidor recusa se a cor já tiver dono (vale o primeiro pedido, e quem perdeu fica com a anterior). No seletor do lobby, a cor ocupada aparece desabilitada com a sigla de quem a tem. Assim a sala nunca chega ao "iniciar" com cor repetida. Quem sai libera a cor; o bot recebe a primeira livre e o host troca se quiser. (4) **A preferência de cor mora no navegador**, não no banco: cada host tem o próprio banco, e o `users` do convidado só existe no host em que ele entrou, então uma preferência ali não o acompanharia até outra sala. O cliente guarda a última cor e a envia ao entrar. (5) **Sigla sempre de duas letras.** Apelido com duas ou mais palavras usa a inicial das duas primeiras ("Ana Lima" vira AL); com uma palavra, as duas primeiras letras ("Bruno" vira BR, "Bianca" vira BI); com um caractere só, ele dobrado ("A" vira AA). A sigla sai do apelido, não do rótulo do gráfico, que na comparação traz o " · A" da partida. Uma função só, contando letras inteiras (acento e emoji não se partem), usada por um componente `PlayerAvatar` em `shared/` que recebe apelido, cor e tamanho e substitui os sete `Avatar` com `charAt(0)` espalhados; o tamanho `sm`, de 24 px, ganha fonte menor para caber duas letras. A sigla pode repetir entre jogadores (BA e BA), porque com cor exclusiva o par cor e sigla é único, e a sigla é o segundo canal para quem não distingue as cores; legenda e tooltip trazem sempre o apelido inteiro. (6) **Uma fonte de cor só no front.** `stringToColor` e `playerColors` saem; lobby, perfil, sidebar, ranking, pódio e gráficos leem a cor do próprio jogador no payload. A comparação de simulações continua colorindo por partida (a letra e a cor da F17): nela o que se distingue é a partida, não o jogador.
 **Aceite:** uma sala de 10 jogadores abre com 10 cores diferentes e siglas de duas letras; escolher no lobby a cor de outro é recusado e a anterior permanece; o 11º jogador é recusado pelo servidor; o jogador tem a mesma cor no lobby, no ranking e nos gráficos, inclusive ao abrir a partida salva depois.
 
+<a id="f40"></a>
+**F40 — Modo realista.** Serve N21; segue a D2. Uma opção da partida no lobby, ao lado do critério de vitória, que tira as ajudas que decidem pelo jogador e as conveniências que o mercado real não tem. Referências: o realismo de batalha do Total War (no Lendário do Warhammer III, sem pausa nem câmera lenta, com a câmera limitada e sem minimapa); o Ironman dos jogos da Paradox, que trava o save para não voltar atrás (aqui isso já vale: a partida só continua do último evento, D6); e o Hardcore de Kingdom Come: Deliverance, que tira a posição no mapa e a bússola. O que sai, pelo inventário de hoje: na renda fixa, a coluna e o card "Equivale hoje" (a taxa anual equivalente com CDI e IPCA do dia) e a ordenação por ela, que passa a ser por vencimento; no detalhe do título, a projeção "Quanto R$ X viram no vencimento", com o IR já descontado; a pausa da topbar, porque o mercado não para para o jogador pensar; e, quando existir, o "Resumo técnico" da F33 com a leitura compra/neutro/venda (os indicadores ficam). Também entra a névoa de guerra de um RTS: durante a partida não se vê a composição nem a nota dos outros jogadores, que voltam no fechamento. Guardado em `simulations` como uma coluna por ajuda (com o padrão "ligado"), por migration (D9); o lobby oferece os atalhos Normal e Realista e mostra a lista para ajuste fino. O servidor omite os campos escondidos do DTO em vez de o front só não desenhá-los, porque no multiplayer quem abrir o DevTools veria a resposta; a pausa é recusada pelo servidor, não só escondida.
+
+<a id="f41"></a>
+**F41 — Conquistas.** Serve N22; segue a D1. Um catálogo no código (`backend/features/achievements/catalog.py`): cada conquista tem código, nome, descrição, ícone (do `lucide-react`), se é secreta, e uma condição avaliada sobre os eventos e snapshots do jogador no fim de cada tick. Exemplos: primeira compra de ação; primeiro R$ 1 milhão; bater o CDI 12 meses seguidos; atravessar uma queda de 30% do Ibovespa perdendo menos que ele; vencer uma sala cheia; vencer sem assistências (F40). A conquista desbloqueada vai para a tabela `achievements` (`user_id`, `code`, `simulation_id`, `unlocked_at`), por migration (D9), e chega ao jogador por um evento do Socket.IO que abre um toast rico, no estilo da Steam: ícone, nome e descrição, com `toast.custom` do sonner. Uma tela "Conquistas" mostra as do jogador: desbloqueadas com data e partida, bloqueadas em cinza, e as secretas sem descrição até sair. As conquistas ficam no banco do host, como o resto do histórico: sem conta online, o jogador que entra na sala de outro host começa lá do zero.
+
+<a id="f42"></a>
+**F42 — Modo em equipes.** Serve N23. O host escolhe no lobby entre todos contra todos (o de hoje) e equipes; em equipes, cada jogador escolhe a equipe numa lista ao lado da cor, como no lobby de um RTS. A equipe é uma coluna `team` na `simulation_players` da F39, por migration (D9). O ranking, o critério de vitória (F27) e o pódio passam a valer por equipe: o valor da equipe é a média do critério entre os membros (média da nota, do retorno, do Sharpe), para que uma equipe de três não vença uma de dois só por somar mais patrimônio. Cada jogador mantém a própria carteira e a própria cor; a equipe aparece como um selo ao lado do nome e como agrupamento nas estatísticas. Com a névoa da F40 ligada, os colegas de equipe continuam vendo a carteira uns dos outros.
+
+<a id="f45"></a>
+**F45 — Painel de desempenho.** Serve N24. Mede onde o tempo vai durante uma partida, para depois investigar só o ponto caro. Um coletor em memória (`backend/core/metrics.py`) recebe: (1) **HTTP** — um middleware ASGI mede cada requisição e agrupa pela rota declarada (`/api/stocks/{ticker}`, não o ticker); (2) **Socket.IO** — o tempo de cada handler de evento recebido e, para os emitidos, quantas mensagens e quantos bytes por segundo por nome de evento; (3) **tick** — quanto o motor leva para processar um dia e quanto atrasa em relação à velocidade pedida. Para cada item: chamadas, tempo total, médio, p95 (95% das chamadas levam até esse tempo; média de 20 ms com p95 de 400 ms quer dizer que de vez em quando ela trava) e o máximo, sobre as últimas 1.000 medições. Liga com `[debug] metrics = true` no `config.toml`, e então `GET /api/debug/metrics` alimenta uma tela "Desempenho" com a tabela ordenada pelo tempo total, e cada resposta HTTP ganha o cabeçalho `Server-Timing`, que a aba Rede do DevTools já mostra. Achado o ponto, a investigação segue com o `py-spy` (`py-spy record --pid`), que gera o gráfico de chamas do processo rodando sem mudar código; uma página dos docs ensina o caminho. Fica de fora um serviço externo como o Sentry: ele mede desempenho por rota, mas manda os dados para fora da máquina e pede conta.
+
+<a id="f47"></a>
+**F47 — Gravação automática de demonstrações.** Serve N25. Um roteiro em Playwright (`scripts/demo/`) sobe o app num banco de demonstração, importa um conjunto fixo de ativos pelo CSV (sem depender do yfinance, para sair igual toda vez), e percorre as telas: lobby, compra de ação, renda fixa, avanço do tempo, estatísticas e fechamento. Em cada passo tira screenshot, e a sessão inteira é gravada em vídeo (`recordVideo`). O `ffmpeg` corta os trechos em MP4 para os docs e o `gifski` faz GIFs curtos (até ~10 MB) para o README, que no GitHub só anima GIF. A saída vai para `docs/static/demo/`, e o comando `pnpm demo` refaz tudo a cada mudança visual, o que mantém as imagens em dia: as de hoje em `docs/static/img/` são de fevereiro, anteriores ao redesign.
+
+<a id="f48"></a>
+**F48 — README e docs que mostram o produto.** Serve N25. O README abre com um GIF do jogo rodando e, logo abaixo, o que ele faz, cada item com uma imagem ou um GIF curto da F47 (renda variável, renda fixa, estatísticas, multiplayer), o download e o link dos docs; a parte de desenvolvimento desce para o fim. Nos docs, uma página "Tour" com os vídeos, e as páginas de "Como usar" com as imagens novas. Junto, uma revisão do que está desatualizado em README e docs, página por página, contra o app de hoje. Feito com a skill de documentação (`engineering:documentation`).
+
+<a id="f51"></a>
+**F51 — Versão, changelog e novidades no app.** Serve N14; segue a D12. Hoje a versão é digitada à mão no `workflow_dispatch` do `release.yml`, o `pyproject.toml` diz 0.1.0, o app não sabe a própria versão, e não existe changelog: as notas da v1.0.0 são a lista automática de PRs do GitHub, com atualização de dependência do Dependabot, ilegível para quem joga. Desde a v1.0.0 entraram 42 commits `feat:` e 10 `fix:`. O plano: (1) a próxima release é a 2.0.0 (D12), com "Acesso antecipado" no título da release e no README; (2) a versão mora no `pyproject.toml` e o workflow de release a lê de lá, em vez de recebê-la digitada; (3) **`CHANGELOG.md`** na raiz, uma seção por versão com "Novidades", "Correções" e se as partidas salvas continuam valendo. O `git-cliff` gera o rascunho a partir dos commits (`feat:` vira novidade, `fix:` vira correção; `docs:`, `chore:`, `refactor:` e `build:` ficam de fora), e o rascunho é editado à mão antes da release, porque um commit por mudança é miúdo demais para quem joga; a seção da 2.0.0 resume tudo desde a v1.0.0. O mesmo texto vira a descrição da release no GitHub; (4) **novidades no app**, como as notas de patch de um jogo: o `CHANGELOG.md` vai junto no executável, o backend o serve com a versão, e na primeira abertura depois de atualizar um diálogo mostra "O que há de novo na versão X" (o navegador guarda a última versão vista); em Configurações, "Versão X" abre o histórico inteiro.
+
+<a id="f43"></a>
+**F43 — Spike: outros modos de jogo.** Serve N23. Decidido com o usuário: entram a corrida à meta (F52) e o viver de renda (F53), além das equipes (F42). Ficaram de fora, por ora: eliminação (a cada trimestre o último sai, até sobrar um), cenário com objetivo (começar numa crise histórica com uma meta, como uma campanha de RTS) e todos contra o índice (a sala inteira numa equipe contra o CDI e o Ibovespa).
+
+<a id="f52"></a>
+**F52 — Modo corrida à meta.** Serve N23. Vence quem chega primeiro a um patrimônio-alvo, como a vitória por Maravilha do Age of Empires. O host define a meta no lobby (por padrão, 10 vezes o capital inicial), guardada numa coluna `goal_net_worth` em `simulations`, e o critério de vitória da F27 ganha o valor "Primeiro a chegar à meta" (valor novo no `ENUM` nativo `victory_criterion`, com `ALTER TYPE ... ADD VALUE` à mão na migration, D9). No fim de cada dia, depois dos snapshots, o motor confere quem passou da meta; o primeiro encerra a partida e leva ao fechamento (F27). Dois no mesmo dia: vence o maior patrimônio. Se a data final chega sem ninguém na meta, vence quem estiver mais perto. A meta é em reais do dia, sem descontar inflação; numa partida de décadas, isso fica explicado ao lado do campo. A topbar mostra a barra de progresso de cada jogador até a meta. Em equipes (F42), a equipe chega à meta pela média do patrimônio dos membros.
+
+<a id="f53"></a>
+**F53 — Modo viver de renda.** Serve N23. Uma corrida à meta (F52) em que a meta é a independência financeira, e o caminho tem a vida real no meio. O host define no lobby o salário e a despesa mensal (o aporte de hoje vira a diferença entre os dois) e a frequência dos imprevistos. Imprevistos são despesas inesperadas (conserto, saúde, demissão de um mês sem salário), sorteadas com uma semente da partida, para que todos os jogadores recebam os mesmos imprevistos nos mesmos dias. Eles saem do caixa; caixa negativo paga juros de cheque especial até ser coberto, o que obriga a ter reserva de emergência em algo que se resgata rápido. Salário, despesa e imprevisto entram como valores novos do `ENUM` `cashflow_event_type` (à mão na migration, D9). Vence quem primeiro atinge o patrimônio da regra dos 4%: 25 vezes a despesa anual (com R$ 5 mil de despesa por mês, R$ 1,5 milhão), porque retirar 4% ao ano desse patrimônio cobre as despesas, e o estudo Trinity, com dados dos Estados Unidos, mostrou essa retirada, corrigida pela inflação, durando 30 anos na maior parte dos períodos históricos. A taxa de retirada é configurável, e a explicação fica ao lado do campo. Quando os proventos existirem (F22), a meta pode passar a ser a renda passiva real (dividendos e juros recebidos cobrindo a despesa).
+
 ---
 ## 2. Nice-to-have
 
 | ID | Resumo | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F14** | Janela desktop nativa | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
+| **F46** | Console do navegador no terminal do dev | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
+
+<a id="f46"></a>
+**F46 — Console do navegador no terminal do dev.** O Vite 8 tem `server.forwardConsole`: no `pnpm dev`, o que o navegador loga aparece no terminal do Vite. Ligado com `{ unhandledErrors: true, logLevels: ["error", "warn"] }` em `frontend/vite.config.ts`, só erros e avisos atravessam, sem o ruído do `log`. Vale para o desenvolvimento, não para o executável. O ganho principal é para o agente de código, que lê o terminal mas não o console do navegador: erro de render do React passa a aparecer na mesma saída do comando.
 
 ---
 ## 3. Descartada
@@ -609,6 +726,9 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 | **F23** | Spike: gerador de séries sintéticas | Serve N12; fecha o método e o contrato da F24 | M9 | [F20](#f20) | 🔍 Em avaliação |
 | **F28** | Muitos futuros (Monte Carlo) | Serve N10; revisa ou confirma a D7 | M9 | [F19](#f19), [F23](#f23) | 🔍 Em avaliação |
 | **F34** | Gráfico de ações em tela cheia, com ferramentas de trader | Serve N19; escolhe a biblioteca de gráfico | M11 | [F33](#f33) | 🔍 Em avaliação |
+| **F44** | Gestora do jogador: abrir capital e disputar o controle (DLC) | Serve N23; faltam taxas, oferta e se é modo ou opção | — | — | 🔍 Em avaliação |
+| **F49** | Tutorial animado | Serve N25; falta o roteiro e o jeito de animar | M14 | — | 🔍 Em avaliação |
+| **F50** | Diagrama do banco navegável | Serve N17; escolhe entre React Flow e ERD Editor | — | — | 🔍 Em avaliação |
 
 <a id="f3"></a>
 **F3 — Spike: banco embarcado no executável.** Decide a D4. Falta medir as três opções finalistas com o executável real: (1) aumento de tamanho do `.exe` e tempo até o lobby abrir; (2) quantos tipos específicos do Postgres os models usam hoje (JSONB e outros) e o custo de trocá-los; (3) escrita concorrente com 4+ jogadores no mesmo tick (SQLite em modo WAL aguenta?); (4) como ficam as migrations da F25 em cada opção (o SQLite exige o modo batch do Alembic para alterar coluna). Sai daqui com a D4 decidida e o plano da F4 fechado.
@@ -637,3 +757,12 @@ Sai daqui com o método e o contrato fechados para a F24.
 
 <a id="f34"></a>
 **F34 — Gráfico de ações em tela cheia, com ferramentas de trader.** Serve N19; segue a D2. Um botão no card "Histórico de Preços" abre o gráfico em tela cheia, com os indicadores da F33 e o que uma plataforma de trader oferece: barra de ferramentas de desenho (linha de tendência, linha horizontal de suporte e resistência, canal, retângulo, retração de Fibonacci, texto), régua que mede variação % e pregões entre dois pontos, escala logarítmica, legenda com abertura, máxima, mínima, fechamento e volume do candle sob o cursor, comparação com outro ticker ou com o Ibovespa em %, e uma boleta compacta para comprar e vender sem sair da tela. Os desenhos ficam salvos por jogador e ticker numa tabela nova (`chart_drawings`, com os pontos em JSON), entrando por migration (D9). Falta escolher a biblioteca: (1) continuar no `lightweight-charts` e escrever as ferramentas de desenho como plugins (a API de primitives da versão 5; os exemplos oficiais trazem linha de tendência e retângulo); (2) trocar pelo KLineChart (Apache 2.0), que já vem com cerca de 15 ferramentas de desenho, mas calcula indicadores no navegador, e pela D2 eles viriam do backend como indicador customizado; (3) o Advanced Charts da TradingView tem tudo pronto, mas a licença pede cadastro e não permite publicar a biblioteca em repositório público, o que o deixa fora deste projeto. Sai daqui com um protótipo de linha de tendência e Fibonacci nas opções 1 e 2, e a escolha.
+
+<a id="f44"></a>
+**F44 — Gestora do jogador: abrir capital e disputar o controle ("DLC").** Serve N23. Inspiração: o Capitalism Lab, o OpenTTD e o Software Inc, onde se compram ações das empresas dos outros até tomar o controle. Lá cada jogador é uma empresa que fabrica ou transporta; aqui tudo é finanças, então a "empresa" de cada jogador é uma gestora, e o que ela vende é o próprio desempenho. As três graças entram no mesmo desenho, um fundo listado em bolsa, como um FII: (1) **abrir capital** — o jogador cria a gestora levando parte da carteira em troca de cotas, e faz uma oferta pública de cotas novas; quem compra na oferta coloca dinheiro dentro da gestora (investir no amigo), e o jogador passa a gerir dinheiro dos outros; (2) **taxa de gestor** — a gestora paga ao gestor, todo mês, taxa de administração sobre o patrimônio e taxa de performance sobre o que passar do CDI, como um fundo real; (3) **disputar o controle** — depois da oferta, as cotas são negociadas no livro de ofertas que a renda variável já tem, com preço acima ou abaixo do patrimônio por cota; quem juntar mais da metade das cotas troca o gestor pela assembleia de cotistas e passa a operar a carteira da gestora e a receber as taxas. Para não haver participação cruzada (a gestora A com cotas da B, que tem cotas da A, o que faria o valor de cada uma depender da outra e virar um sistema de equações a cada dia), só pessoas compram cotas, nunca gestoras. No ranking, cada jogador soma a carteira pessoal, as cotas que tem (pelo preço de mercado) e as taxas recebidas; a carteira da gestora não entra em ninguém diretamente, só através das cotas, o que evita contar o mesmo dinheiro duas vezes. Falta decidir: os valores padrão das taxas; se a oferta tem preço fixo (patrimônio por cota) ou leilão; se é um modo de jogo próprio ou uma opção ligável em qualquer partida.
+
+<a id="f49"></a>
+**F49 — Tutorial animado.** Serve N25. Um diálogo quase em tela cheia, em passos (avançar, voltar, pular), que aparece na primeira vez no lobby e fica num botão "Como jogar". Cada passo mostra uma animação do próprio app (entrar na sala, comprar uma ação, aplicar em renda fixa, avançar o tempo, ler as estatísticas) com um texto curto. Três jeitos de fazer a animação: (1) **vídeo da F47** — o mesmo roteiro do Playwright grava cada passo; mais barato e sempre fiel ao app, mas não acompanha o tema escuro nem fica nítido em qualquer tamanho; (2) **animação em código** com o `framer-motion`, que o projeto já tem — os componentes reais com dados de exemplo e um cursor roteirizado; nítido, segue o tema, mas cada passo é código; (3) **Remotion**, que escreve vídeo em React e tem skills oficiais para agentes de código (`npx remotion skills add`); junta a precisão do código com a saída em vídeo, ao custo de uma ferramenta a mais (a licença é gratuita para uso individual). Falta: o roteiro do que cada passo mostra (o que aparece, o que se mexe, quanto dura, o texto), e com ele a escolha do jeito.
+
+<a id="f50"></a>
+**F50 — Diagrama do banco navegável.** Serve N17; segue a D9. Hoje a página da F31 é Mermaid, dividida em seções para caber na largura, sem zoom e com a notação do Mermaid. A troca: um diagrama só, com zoom, arrastar para navegar e a notação do MySQL Workbench — PK como chave amarela, FK em vermelho, PK que também é FK como chave vermelha, coluna obrigatória com losango preenchido e anulável com losango vazio (azul ou vermelho conforme é FK). Continua gerado dos models por `pnpm db:erd` e conferido pelo teste. Duas opções: (1) **React Flow** num componente da página do Docusaurus — o `scripts/erd.py` passa a escrever um JSON com tabelas, colunas e relações, e o componente desenha cada tabela com a notação exata, com layout automático (ELK) e zoom, arraste e minimapa prontos; (2) **ERD Editor** embutido (MIT, componente web), em modo somente leitura, carregando o DDL que o SQLAlchemy gera (`loadSQLDDL`); menos código, notação próxima da do MySQL, mas falta ver como posiciona as tabelas importadas e se roda no Docusaurus. O drawDB fica de fora: é um app, não um componente embutível, e só daria para exportar imagem, que fica velha. Sai daqui com um protótipo de cada um sobre o schema de hoje e a escolha.

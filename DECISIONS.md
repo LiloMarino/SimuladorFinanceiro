@@ -85,6 +85,21 @@ Quem decide pelo gráfico precisa dos indicadores (MACD, IFR, médias móveis, B
 **N20. Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar**
 Numa sala com vários jogadores, a cor é o que separa as linhas do gráfico e os nomes do ranking. Para valer como identidade, é do jogador: ele a escolhe, nenhum outro a tem na mesma partida, e é a mesma, junto com uma sigla de duas letras, no lobby, no ranking e nos gráficos.
 
+**N21. Jogar "na unha", sem a interface apontar a melhor escolha**
+Ordenar a renda fixa pela taxa equivalente e mostrar quanto o dinheiro vira no vencimento ensina, mas também decide pelo jogador: ele tende a pegar sempre o primeiro da lista. Quem já entende quer provar o próprio julgamento, fazendo as contas por conta própria.
+
+**N22. Ter objetivos para buscar além de vencer a partida**
+Conquistas dão o que perseguir numa partida perdida ou jogada sozinho, e marcam o que já se aprendeu a fazer, como atravessar uma crise ou bater o CDI um ano inteiro.
+
+**N23. Jogar com os amigos de outras formas além de cada um por si**
+Hoje toda partida é todos contra todos. Equipes, objetivos diferentes e laços econômicos entre os jogadores, como investir no amigo ou disputar o controle da empresa dele, mudam a conversa da sala.
+
+**N24. Saber onde está a lentidão durante uma partida**
+Quando a partida trava, saber qual rota ou evento está custando caro, para depois investigar só aquele ponto.
+
+**N25. Entender o que é o simulador e como se joga, sem ler um manual**
+Quem chega pelo GitHub decide em segundos se baixa, e decide pelo que vê funcionando. Quem abre o jogo pela primeira vez precisa aprender os passos básicos vendo, não lendo.
+
 ---
 
 ## Decisões
@@ -179,3 +194,10 @@ Numa sala com vários jogadores, a cor é o que separa as linhas do gráfico e o
 
 **Atualização (2026-10-14):** decidida pelo **Base UI**, preset `base-nova`, na F36. Todos os componentes que o app usava têm equivalente, e os `asChild` viraram a prop `render`.
 **Status:** ✅ Decidida
+
+### D12 — Como numerar as versões
+**Status:** ✅ Decidida
+
+**Decisão:** SemVer daqui em diante, com a próxima release em 2.0.0. O número diz compatibilidade, não maturidade: maior quando partidas salvas ou o `config.toml` deixam de valer, menor para feature nova, correção no último. A maturidade vai num rótulo à parte, "Acesso antecipado", no README e no título da release.
+**Por quê:** a v1.0.0 saiu em fevereiro de 2026 com uma fração das features de hoje, e o número passa a impressão de produto acabado. Os bancos da v1.0.0 não migram (a F25 partiu do schema atual), então pelo próprio SemVer a próxima já é maior. Recomeçar em 0.x inverteria a ordem (0.2.0 depois de 1.0.0) e prometeria instabilidade justo quando as migrations passaram a garantir que as partidas salvas sobrevivem; versão por data (2026.10.0) deixaria de avisar quando uma atualização quebra algo.
+**Consequências:** a release que não mantém as partidas salvas é sempre maior, e o changelog de cada versão diz se elas continuam valendo (F51). Sair do "Acesso antecipado" é uma decisão de produto, separada do número.
