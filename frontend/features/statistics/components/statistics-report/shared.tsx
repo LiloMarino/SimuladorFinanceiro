@@ -122,7 +122,11 @@ export function PlayerToggle({
     >
       {labels.map((label) => (
         <ToggleGroupItem key={label} value={label}>
-          <span className="size-2 rounded-full" style={{ backgroundColor: colorOf(label) }} aria-hidden="true" />
+          <span
+            className="size-2 shrink-0 rounded-full"
+            style={{ backgroundColor: colorOf(label) }}
+            aria-hidden="true"
+          />
           {label}
         </ToggleGroupItem>
       ))}
@@ -136,6 +140,8 @@ export interface MetricColumn<T> {
   /** Destaca o melhor da sala: o maior ou o menor valor da coluna */
   best?: "max" | "min";
   tone?: (row: T) => "positive" | "negative" | undefined;
+  /** Célula própria no lugar do valor formatado (ex.: os meses em quadradinhos) */
+  cell?: (row: T) => ReactNode;
 }
 
 interface MetricsTableProps<T extends PlayerRef> {
@@ -207,7 +213,9 @@ export function MetricsTable<T extends PlayerRef>({
                   const tone = column.tone?.(row);
                   return (
                     <TableCell key={column.metric.label} numeric>
-                      {best ? (
+                      {column.cell ? (
+                        column.cell(row)
+                      ) : best ? (
                         <Badge variant="success">{displayMetric(column.metric, value)}</Badge>
                       ) : (
                         <span

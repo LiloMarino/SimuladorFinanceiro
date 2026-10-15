@@ -4,8 +4,15 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
-import { MetricLabel } from "@/shared/components/metric-hint";
-import { displayMoney, displayMoneyCompact, displayMonthSlashYear, displayNumber } from "@/shared/lib/utils/display";
+import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
+import {
+  displayMoney,
+  displayMoneyCompact,
+  displayMonthShort,
+  displayMonthSlashYear,
+  displayNumber,
+  displayShortMonthYear,
+} from "@/shared/lib/utils/display";
 import type { OperationsReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { IMPACT_COST, INCOME_TAX_PAID, MONTHLY_VOLUME, TRADED_VOLUME, TURNOVER } from "../../lib/metrics";
@@ -19,13 +26,19 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
   const { data, isLoading, error, refetch } = useStatisticsReport("operations", simulationIds, onlyPlayer);
   if (!data) return <TabStatus loading={isLoading} title="as Operações" error={error} onRetry={() => void refetch()} />;
 
-  const labels = data.players.map((p) => playerLabel(p, simulationIds));
+  const labels = data.players.map((p) => playerLabel(p, simulationIds, currentPlayerName));
   const colorOf = playerColors(labels);
+  const mostTrades = Math.max(...data.players.map((p) => p.buy_trades + p.sell_trades), 1);
   const impactOn = data.players.some((p) => p.impact_cost !== null);
 
   return (
     <div className="grid gap-5">
-      <VolumeHeatmap players={data.players} simulationIds={simulationIds} />
+      <VolumeHeatmap
+        players={data.players}
+        simulationIds={simulationIds}
+        currentPlayerName={currentPlayerName}
+        colorOf={colorOf}
+      />
 
       <Card className="overflow-hidden">
         <CardHeader>
@@ -53,7 +66,7 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
           </TableHeader>
           <TableBody>
             {data.players.map((p: Player) => {
-              const label = playerLabel(p, simulationIds);
+              const label = playerLabel(p, simulationIds, currentPlayerName);
               const isYou = p.player_nickname === currentPlayerName;
               const trades = p.buy_trades + p.sell_trades;
               const impact = p.impact_cost !== null ? Number(p.impact_cost) : null;
@@ -63,8 +76,12 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
                     <PlayerCell label={label} color={colorOf(label)} isYou={isYou} />
                   </TableCell>
                   <TableCell>
-                    <div className="grid w-40 gap-1">
-                      <span className="flex h-2 gap-0.5 overflow-hidden rounded-full bg-muted">
+                    <div className="grid w-44 gap-1">
+                      {/* Barra proporcional ao jogador que mais negociou, com no mínimo 20 px */}
+                      <span
+                        className="flex h-2 gap-0.5 overflow-hidden rounded-full bg-muted"
+                        style={{ width: trades > 0 ? `max(20px, ${(trades / mostTrades) * 100}%)` : "20px" }}
+                      >
                         {trades > 0 && (
                           <>
                             <span className="bg-success" style={{ width: `${(p.buy_trades / trades) * 100}%` }} />
@@ -73,7 +90,8 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
                         )}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {p.buy_trades} compras · {p.sell_trades} vendas
+                        <span className="text-success">{p.buy_trades} compras</span> ·{" "}
+                        <span className="text-destructive">{p.sell_trades} vendas</span>
                       </span>
                     </div>
                   </TableCell>
@@ -114,18 +132,34 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
   );
 }
 
-/** Jogador × mês: mais escuro, mais dinheiro girando; cinza, mês só segurando. */
-function VolumeHeatmap({ players, simulationIds }: { players: Player[]; simulationIds: number[] }) {
+/** Quando cada um negociou: jogador × mês, mais escuro é mais dinheiro girando; cinza, mês só segurando. */
+function VolumeHeatmap({
+  players,
+  simulationIds,
+  currentPlayerName,
+  colorOf,
+}: {
+  players: Player[];
+  simulationIds: number[];
+  currentPlayerName?: string;
+  colorOf: (label: string) => string;
+}) {
   const months = [...new Set(players.flatMap((p) => p.monthly_volume.map((m) => m.month)))].sort();
   const volumeOf = (m: Player["monthly_volume"][number]) => Number(m.bought) + Number(m.sold);
   const max = Math.max(...players.flatMap((p) => p.monthly_volume.map(volumeOf)), 1);
+  // O ano aparece só no primeiro mês e na virada
+  const monthLabel = (month: string, i: number) =>
+    i === 0 || month.slice(0, 4) !== months[i - 1].slice(0, 4)
+      ? displayShortMonthYear(month)
+      : displayMonthShort(month);
 
   return (
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle>
           <span className="flex items-center gap-1">
-            <MetricLabel metric={MONTHLY_VOLUME} />
+            Quando cada um negociou
+            <MetricHint metric={MONTHLY_VOLUME} />
           </span>
         </CardTitle>
         <CardDescription>
@@ -139,19 +173,24 @@ function VolumeHeatmap({ players, simulationIds }: { players: Player[]; simulati
           <div className="overflow-x-auto">
             <div
               className="grid gap-1"
-              style={{ gridTemplateColumns: `140px repeat(${months.length}, minmax(16px, 56px))` }}
+              style={{ gridTemplateColumns: `180px repeat(${months.length}, minmax(28px, 56px)) 96px` }}
             >
               <span />
               {months.map((m, i) => (
                 <span key={m} className="text-center font-mono text-[10px] whitespace-nowrap text-faint-foreground">
-                  {months.length <= 12 || i % 3 === 0 ? displayMonthSlashYear(m) : ""}
+                  {months.length <= 12 || i % 3 === 0 ? monthLabel(m, i) : ""}
                 </span>
               ))}
+              <span className="text-right text-[11px] font-medium text-muted-foreground">Total</span>
               {players.map((p) => {
                 const byMonth = new Map(p.monthly_volume.map((m) => [m.month, m]));
+                const label = playerLabel(p, simulationIds, currentPlayerName);
+                const total = p.monthly_volume.reduce((sum, m) => sum + volumeOf(m), 0);
                 return (
                   <div key={playerKey(p)} className="contents">
-                    <span className="truncate text-[13px]">{playerLabel(p, simulationIds)}</span>
+                    <span className="min-w-0 self-center text-[13px]">
+                      <PlayerCell label={label} color={colorOf(label)} isYou={p.player_nickname === currentPlayerName} />
+                    </span>
                     {months.map((month) => {
                       const entry = byMonth.get(month);
                       const volume = entry ? volumeOf(entry) : 0;
@@ -159,16 +198,18 @@ function VolumeHeatmap({ players, simulationIds }: { players: Player[]; simulati
                         <Tooltip key={month}>
                           <TooltipTrigger render={<span />}>
                             <span
-                              className="block h-7 rounded"
+                              className="flex h-7 items-center justify-center rounded text-[11px] text-faint-foreground"
                               style={{
                                 backgroundColor: volume
                                   ? `color-mix(in oklab, var(--primary) ${Math.round(15 + (volume / max) * 85)}%, transparent)`
                                   : "var(--muted)",
                               }}
-                            />
+                            >
+                              {volume ? "" : "—"}
+                            </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            {playerLabel(p, simulationIds)} · {displayMonthSlashYear(month)}
+                            {label} · {displayMonthSlashYear(month)}
                             <br />
                             {entry && volume
                               ? `${displayMoney(volume)} · ${entry.buy_count} compras, ${entry.sell_count} vendas`
@@ -177,6 +218,9 @@ function VolumeHeatmap({ players, simulationIds }: { players: Player[]; simulati
                         </Tooltip>
                       );
                     })}
+                    <span className="self-center text-right font-mono text-xs">
+                      {total ? displayMoneyCompact(total) : "—"}
+                    </span>
                   </div>
                 );
               })}

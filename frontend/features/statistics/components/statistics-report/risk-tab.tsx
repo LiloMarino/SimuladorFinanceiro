@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   CartesianGrid,
-  Cell,
   LabelList,
   ReferenceArea,
   ResponsiveContainer,
@@ -13,11 +12,11 @@ import {
 } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { displayList, displayNumber, displayPercent } from "@/shared/lib/utils/display";
+import { displayList, displayNumber, displayPercent, displayPercentagePoints } from "@/shared/lib/utils/display";
 import type { RiskReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { playerColors } from "../../lib/player-colors";
-import { playerLabel } from "../../lib/player-label";
+import { playerLabel, youLabel } from "../../lib/player-label";
 import {
   ANNUAL_VOLATILITY,
   DRAWDOWN,
@@ -44,18 +43,23 @@ export function RiskTab({ simulationIds, currentPlayerName, onlyPlayer }: Report
   const [view, setView] = useState<View>("DRAWDOWN");
   if (!data) return <TabStatus loading={isLoading} title="o Risco" error={error} onRetry={() => void refetch()} />;
 
-  const labels = data.players.map((p) => playerLabel(p, simulationIds));
+  const labels = data.players.map((p) => playerLabel(p, simulationIds, currentPlayerName));
+  const someoneIsYou = data.players.some((p) => p.player_nickname === currentPlayerName);
   const colorOf = playerColors(labels);
   const cdiReturn = returns?.benchmarks.find((b) => b.series === "CDI")?.annual_return ?? null;
 
+  // Distância do pico: a sua linha ganha área e as dos outros ficam de fundo
   const lines: LineSeries[] = data.players.map((p) => {
-    const label = playerLabel(p, simulationIds);
+    const label = playerLabel(p, simulationIds, currentPlayerName);
+    const you = p.player_nickname === currentPlayerName;
     return {
       key: label,
-      label,
+      label: youLabel(label, you),
       color: colorOf(label),
       points: view === "DRAWDOWN" ? p.drawdown : p.rolling_volatility,
-      emphasis: p.player_nickname === currentPlayerName,
+      emphasis: you,
+      area: view === "DRAWDOWN" && you,
+      muted: view === "DRAWDOWN" && someoneIsYou && !you,
     };
   });
 
@@ -112,6 +116,14 @@ export function RiskTab({ simulationIds, currentPlayerName, onlyPlayer }: Report
   );
 }
 
+/** O Sharpe em palavras: quanto retorno veio para cada unidade de oscilação. */
+function sharpeVerdict(sharpe: number) {
+  if (sharpe < 0) return "o risco não compensou";
+  if (sharpe < 0.5) return "o risco foi pago, mas pouco";
+  if (sharpe < 1) return "o risco foi bem pago";
+  return "o risco foi muito bem pago";
+}
+
 /** Um ponto por jogador: quanto oscilou × quanto rendeu, com o CDI como referência sem oscilar. */
 function RiskReturn({
   players,
@@ -130,16 +142,24 @@ function RiskReturn({
     (p) => p.annual_volatility !== null && p.annual_return !== null && p.days >= MIN_SCATTER_DAYS,
   );
   // Jogadores no mesmo ponto (ex.: todos parados em caixa) viram um ponto só com os nomes juntos
-  const byPosition = new Map<string, { labels: string[]; x: number; y: number }>();
+  const byPosition = new Map<string, { keys: string[]; names: string[]; x: number; y: number; you: boolean }>();
   for (const p of measured) {
     const x = Number(p.annual_volatility);
     const y = Number(p.annual_return);
     const key = `${x.toFixed(4)}|${y.toFixed(4)}`;
-    const point = byPosition.get(key) ?? { labels: [], x, y };
-    point.labels.push(playerLabel(p, simulationIds));
+    const point = byPosition.get(key) ?? { keys: [], names: [], x, y, you: false };
+    const isYou = p.player_nickname === currentPlayerName;
+    const label = playerLabel(p, simulationIds, currentPlayerName);
+    point.keys.push(label);
+    point.names.push(youLabel(label, isYou));
+    point.you = point.you || isYou;
     byPosition.set(key, point);
   }
-  const points = [...byPosition.values()].map((p) => ({ ...p, label: displayList(p.labels), colorKey: p.labels[0] }));
+  const points = [...byPosition.values()].map((p) => ({
+    ...p,
+    label: displayList(p.names),
+    colorKey: p.keys[0],
+  }));
   const cdi = cdiReturn !== null ? Number(cdiReturn) : null;
   const maxX = Math.max(...points.map((p) => p.x), 0.01) * 1.15;
   const ys = [...points.map((p) => p.y), cdi ?? 0];
@@ -172,7 +192,14 @@ function RiskReturn({
           </div>
         ) : (
           <div className="grid gap-5 lg:grid-cols-[1.7fr_1fr]">
-            <div className="h-90">
+            <div className="relative h-90">
+              {/* Quadrantes: o melhor é em cima e à esquerda, o pior embaixo e à direita */}
+              <span className="pointer-events-none absolute top-5 left-18 text-[11px] font-medium text-success">
+                Mais retorno, menos risco
+              </span>
+              <span className="pointer-events-none absolute right-8 bottom-14 text-[11px] font-medium text-destructive">
+                Menos retorno, mais risco
+              </span>
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 16, right: 24, left: 8, bottom: 16 }}>
                   <CartesianGrid stroke="var(--border)" />
@@ -207,31 +234,53 @@ function RiskReturn({
                     domain={[minY, maxY]}
                     tickFormatter={(v: number) => displayPercent(v, 0)}
                     tick={{ fontSize: 11, fill: "var(--faint-foreground)" }}
-                    width={56}
+                    width={64}
                     name="Retorno anual"
+                    label={{
+                      value: "Retorno anual →",
+                      angle: -90,
+                      position: "insideLeft",
+                      offset: 8,
+                      fontSize: 11,
+                      fill: "var(--muted-foreground)",
+                      style: { textAnchor: "middle" },
+                    }}
                   />
                   <Tooltip
                     cursor={{ strokeDasharray: "3 3" }}
                     contentStyle={{ borderRadius: 10, borderColor: "var(--border)", fontSize: 12 }}
                     formatter={(v, name) => [displayPercent(Number(v)), name]}
                   />
-                  <Scatter data={points} isAnimationActive={false}>
-                    {points.map((p) => (
-                      <Cell key={p.label} fill={colorOf(p.colorKey)} />
-                    ))}
+                  <Scatter
+                    data={points}
+                    isAnimationActive={false}
+                    shape={(props: { cx?: number; cy?: number; payload?: (typeof points)[number] }) => (
+                      // Você em destaque: ponto maior com borda branca
+                      <circle
+                        cx={props.cx}
+                        cy={props.cy}
+                        r={props.payload?.you ? 8 : 6}
+                        fill={colorOf(props.payload?.colorKey ?? "")}
+                        stroke="var(--card)"
+                        strokeWidth={props.payload?.you ? 2 : 0}
+                      />
+                    )}
+                  >
                     <LabelList
                       dataKey="label"
                       content={({ x, y, width, height, value, index }) => {
                         // Na metade direita o nome vai à esquerda do ponto, para caber no gráfico
-                        const toLeft = index !== undefined && points[index].x > maxX / 2;
+                        const point = index !== undefined ? points[index] : undefined;
+                        const toLeft = point !== undefined && point.x > maxX / 2;
                         const cx = Number(x) + Number(width) / 2;
                         return (
                           <text
-                            x={toLeft ? cx - 10 : cx + 10}
+                            x={toLeft ? cx - 12 : cx + 12}
                             y={Number(y) + Number(height) / 2 + 4}
                             textAnchor={toLeft ? "end" : "start"}
                             fontSize={11}
-                            fill="var(--foreground)"
+                            fontWeight={point?.you ? 700 : 500}
+                            fill={point ? colorOf(point.colorKey) : "var(--foreground)"}
                           >
                             {value}
                           </text>
@@ -277,10 +326,24 @@ function RiskReturn({
                   <span className="text-muted-foreground">
                     Oscilou <b className="font-mono text-foreground">{displayPercent(you.annual_volatility ?? 0)}</b> ao
                     ano pra render <b className="font-mono text-foreground">{displayPercent(you.annual_return ?? 0)}</b>
-                    {cdi !== null && <> (CDI: {displayPercent(cdi)})</>}. Sharpe{" "}
+                    {cdi !== null && (
+                      <>
+                        :{" "}
+                        <b className="font-mono text-foreground">
+                          {displayPercentagePoints(Math.abs(Number(you.annual_return ?? 0) - cdi))}{" "}
+                          {Number(you.annual_return ?? 0) >= cdi ? "acima" : "abaixo"} do CDI
+                        </b>
+                      </>
+                    )}
+                    . Sharpe{" "}
                     <b className="font-mono text-foreground">
                       {you.sharpe_ratio ? displayNumber(you.sharpe_ratio) : "—"}
                     </b>
+                    {you.sharpe_ratio !== null && (
+                      <>
+                        : <b className="text-foreground">{sharpeVerdict(Number(you.sharpe_ratio))}</b>
+                      </>
+                    )}
                     .
                   </span>
                 </div>

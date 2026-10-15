@@ -6,10 +6,10 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { MetricHint } from "@/shared/components/metric-hint";
 import {
   displayMoney,
-  displayMoneyCompact,
   displayMonthSlashYear,
   displayNumber,
   displayPercent,
+  displayShortMonthYear,
 } from "@/shared/lib/utils/display";
 import type { CompositionReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
@@ -41,7 +41,7 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
   const [unit, setUnit] = useState<Unit>("PCT");
   if (!data) return <TabStatus loading={isLoading} title="a Composição" error={error} onRetry={() => void refetch()} />;
 
-  const labels = data.players.map((p) => playerLabel(p, simulationIds));
+  const labels = data.players.map((p) => playerLabel(p, simulationIds, currentPlayerName));
   const colorOf = playerColors(labels);
 
   return (
@@ -76,9 +76,19 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
               ))}
             </div>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {data.players.map((p) => (
-                <SmallMultiple key={playerKey(p)} player={p} label={playerLabel(p, simulationIds)} unit={unit} />
-              ))}
+              {data.players.map((p) => {
+                const label = playerLabel(p, simulationIds, currentPlayerName);
+                return (
+                  <SmallMultiple
+                    key={playerKey(p)}
+                    player={p}
+                    label={label}
+                    color={colorOf(label)}
+                    isYou={p.player_nickname === currentPlayerName}
+                    unit={unit}
+                  />
+                );
+              })}
             </div>
           </div>
         </CardContent>
@@ -90,61 +100,87 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
         currentPlayerName={currentPlayerName}
         colorOf={colorOf}
       />
-      <SectorProfit players={data.players} simulationIds={simulationIds} />
+      <SectorProfit players={data.players} simulationIds={simulationIds} currentPlayerName={currentPlayerName} />
     </div>
   );
 }
 
-function SmallMultiple({ player, label, unit }: { player: Player; label: string; unit: Unit }) {
+function SmallMultiple({
+  player,
+  label,
+  color,
+  isYou,
+  unit,
+}: {
+  player: Player;
+  label: string;
+  color: string;
+  isYou: boolean;
+  unit: Unit;
+}) {
   const rows = player.history.map((h) => ({
     date: h.snapshot_date,
     total_cash: Number(h.total_cash),
     total_equity: Number(h.total_equity),
     total_fixed: Number(h.total_fixed),
   }));
+  const first = rows[0];
+  const last = rows.at(-1);
+  const total = last ? last.total_cash + last.total_equity + last.total_fixed : 0;
+  const share = (value: number) => displayPercent(total > 0 ? value / total : 0, 0);
 
   return (
-    <div className="grid gap-1.5">
-      <span className="text-[13px] font-semibold">{label}</span>
-      {rows.length < 2 ? (
+    <div className="grid content-start gap-1.5">
+      <span className="text-[13px] font-semibold">
+        <PlayerCell label={label} color={color} isYou={isYou} />
+      </span>
+      {rows.length < 2 || !first || !last ? (
         <div className="flex h-36 items-center justify-center rounded-lg border border-dashed border-input text-xs text-muted-foreground">
           Sem histórico ainda
         </div>
       ) : (
-        <div className="h-36">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={rows}
-              stackOffset={unit === "PCT" ? "expand" : "none"}
-              margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
-            >
-              <XAxis dataKey="date" hide />
-              <YAxis
-                width={44}
-                tick={{ fontSize: 10, fill: "var(--faint-foreground)" }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(v: number) => (unit === "PCT" ? displayPercent(v, 0) : displayMoneyCompact(v))}
-              />
-              <Tooltip
-                contentStyle={{ borderRadius: 10, borderColor: "var(--border)", fontSize: 11 }}
-                labelFormatter={(d) => displayMonthSlashYear(String(d))}
-                formatter={(v, name) => [displayMoney(Number(v)), SERIES.find((s) => s.key === name)?.label ?? name]}
-              />
-              {SERIES.map((s) => (
-                <Area
-                  key={s.key}
-                  type="monotone"
-                  dataKey={s.key}
-                  stackId="1"
-                  stroke="none"
-                  fill={s.color}
-                  fillOpacity={0.9}
+        <>
+          <div className="h-36">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={rows}
+                stackOffset={unit === "PCT" ? "expand" : "none"}
+                margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
+              >
+                <XAxis dataKey="date" hide />
+                <YAxis hide />
+                <Tooltip
+                  contentStyle={{ borderRadius: 10, borderColor: "var(--border)", fontSize: 11 }}
+                  labelFormatter={(d) => displayMonthSlashYear(String(d))}
+                  formatter={(v, name) => [displayMoney(Number(v)), SERIES.find((s) => s.key === name)?.label ?? name]}
                 />
-              ))}
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
+                {SERIES.map((s) => (
+                  <Area
+                    key={s.key}
+                    type="monotone"
+                    dataKey={s.key}
+                    stackId="1"
+                    stroke="none"
+                    fill={s.color}
+                    fillOpacity={0.9}
+                  />
+                ))}
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex justify-between font-mono text-[10px] text-faint-foreground">
+            <span>{displayShortMonthYear(first.date)}</span>
+            <span>{displayShortMonthYear(last.date)}</span>
+          </div>
+          {/* Como terminou: a fatia de cada classe no último dia */}
+          <span className="text-xs font-medium">
+            <span className="text-muted-foreground">{share(last.total_cash)} caixa</span>
+            {" · "}
+            <span className="text-chart-1">{share(last.total_equity)} RV</span>
+            {" · "}
+            <span className="text-chart-2">{share(last.total_fixed)} RF</span>
+          </span>
+        </>
       )}
     </div>
   );
@@ -198,7 +234,7 @@ function SectorExposure({
           </TableHeader>
           <TableBody>
             {players.map((p) => {
-              const label = playerLabel(p, simulationIds);
+              const label = playerLabel(p, simulationIds, currentPlayerName);
               const isYou = p.player_nickname === currentPlayerName;
               const bySector = new Map(p.sectors.map((s) => [s.sector ?? NO_SECTOR, Number(s.fraction)]));
               const effective = p.effective_sectors !== null ? Number(p.effective_sectors) : null;
@@ -247,7 +283,15 @@ function SectorExposure({
 }
 
 /** Lucro ou prejuízo por setor, em barras para os dois lados e com a mesma escala pra todos. */
-function SectorProfit({ players, simulationIds }: { players: Player[]; simulationIds: number[] }) {
+function SectorProfit({
+  players,
+  simulationIds,
+  currentPlayerName,
+}: {
+  players: Player[];
+  simulationIds: number[];
+  currentPlayerName?: string;
+}) {
   const scale = Math.max(...players.flatMap((p) => p.sector_profit.map((s) => Math.abs(Number(s.profit)))), 1);
 
   return (
@@ -270,7 +314,7 @@ function SectorProfit({ players, simulationIds }: { players: Player[]; simulatio
             return (
               <div key={playerKey(p)} className="grid content-start gap-2 rounded-[10px] border border-border p-4">
                 <div className="flex justify-between">
-                  <span className="font-semibold">{playerLabel(p, simulationIds)}</span>
+                  <span className="font-semibold">{playerLabel(p, simulationIds, currentPlayerName)}</span>
                   <span className={total >= 0 ? "font-mono text-success" : "font-mono text-destructive"}>
                     {p.sector_profit.length ? `${total >= 0 ? "+" : ""}${displayMoney(total)}` : "—"}
                   </span>

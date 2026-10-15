@@ -1,9 +1,10 @@
-import { displayMoney, displayNumber, displayPercent } from "@/shared/lib/utils/display";
+import { displayMoney, displayNumber, displayPercent, displayPercentagePoints } from "@/shared/lib/utils/display";
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import type { ScoreAxis, ScoreMetric } from "@/types";
 
 const percent = (value: string | number) => displayPercent(value);
 const ratio = (value: string | number) => displayNumber(String(value));
+const pointsDifference = (value: string | number) => displayPercentagePoints(value);
 
 export const ANNUAL_RETURN: MetricInfo = {
   label: "Retorno anual",
@@ -272,8 +273,11 @@ export const RETURN_OVER_CDI: MetricInfo = {
   definition: "Quantos pontos percentuais por ano a carteira rendeu além do que um título de 100% do CDI renderia.",
   example: "Ex.: rendeu 18% ao ano com CDI de 10% → +8 p.p.",
   reading: "Positivo bateu a renda fixa; negativo, teria sido melhor deixar no CDI.",
-  format: percent,
+  format: pointsDifference,
 };
+
+/** A coluna "vs CDI" da Rentabilidade: o mesmo retorno acima do CDI, com o nome curto. */
+export const VS_CDI: MetricInfo = { ...RETURN_OVER_CDI, label: "vs CDI" };
 
 export const RETURN_OVER_IBOV: MetricInfo = {
   label: "Retorno acima do Ibovespa",
@@ -281,7 +285,7 @@ export const RETURN_OVER_IBOV: MetricInfo = {
   definition: "Quantos pontos percentuais por ano a carteira rendeu além do índice da bolsa.",
   example: "Ex.: Ibovespa +12% e carteira +15% → +3 p.p.",
   reading: "Positivo bateu a bolsa; negativo, um fundo que copia o índice teria rendido mais.",
-  format: percent,
+  format: pointsDifference,
 };
 
 /** Métricas da nota com o valor como a nota mede: frações de meses em vez de "9 de 12". */

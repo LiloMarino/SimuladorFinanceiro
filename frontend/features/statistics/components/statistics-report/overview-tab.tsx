@@ -1,12 +1,20 @@
 import { useState } from "react";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableEmptyRow,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { MetricLabel } from "@/shared/components/metric-hint";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
-import type { OverviewReport } from "@/types";
+import type { OverviewReport, ScoreMetric } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { displayCriterionGap } from "../../lib/criterion";
 import { SCORE, SCORE_AXES, SCORE_METRICS, displayMetric } from "../../lib/metrics";
@@ -21,11 +29,14 @@ type RankingSort = "SCORE" | "RETURN" | "NETWORTH";
 // Régua dos eixos da nota: ~100 é um bom desempenho, a escala vai a 200
 const AXIS_SCALE = 200;
 
+// Métricas da nota que o relatório lê como contagem de meses ("7 de 12"), não como percentual
+const MONTH_COUNT_METRICS: ScoreMetric[] = ["months_above_cdi", "positive_months"];
+
 export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds, onlyPlayer);
   if (!data) return <TabStatus loading={isLoading} title="o Geral" error={error} onRetry={() => void refetch()} />;
 
-  const labels = data.players.map((p) => playerLabel(p, simulationIds));
+  const labels = data.players.map((p) => playerLabel(p, simulationIds, currentPlayerName));
   const colorOf = playerColors(labels);
 
   return (
@@ -74,11 +85,32 @@ function Headline({ report, currentPlayerName }: { report: OverviewReport; curre
               <span className="text-xs text-muted-foreground">
                 Sua colocação · vitória por <b className="text-foreground">{VICTORY_CRITERIA[criterion].label}</b>
               </span>
-              {you && (
+              {you?.score && (
                 <span className="text-lg font-semibold">
-                  {you.score ? `Nota ${displayNumber(you.score.total, 0)}` : "Sem nota ainda"} · retorno{" "}
-                  {displaySignedPercent(you.return_percent)}
+                  Nota {displayNumber(you.score.total, 0)} · retorno {displaySignedPercent(you.return_percent)}
                 </span>
+              )}
+              {you && !you.score && (
+                <>
+                  <span className="text-xl font-semibold">
+                    Nota sai em {Math.max(min_score_days - you.days, 0)} pregões
+                  </span>
+                  <span className="flex items-center gap-2.5">
+                    <span className="h-2 w-55 overflow-hidden rounded-full bg-muted">
+                      <span
+                        className="block h-full rounded-full bg-primary"
+                        style={{ width: `${Math.min(you.days / min_score_days, 1) * 100}%` }}
+                      />
+                    </span>
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {you.days} de {min_score_days} pregões
+                    </span>
+                  </span>
+                  <span className="text-[13px] text-muted-foreground">
+                    Antes de ~3 meses, anualizar o retorno engana. Retorno até aqui:{" "}
+                    <b className="font-mono text-foreground">{displaySignedPercent(you.return_percent)}</b>.
+                  </span>
+                </>
               )}
               {you && you.position > 1 && (
                 <span className="text-[13px] text-muted-foreground">
@@ -90,12 +122,6 @@ function Headline({ report, currentPlayerName }: { report: OverviewReport; curre
                       Seu eixo mais fraco é <b className="text-foreground">{SCORE_AXES[you.weakest_axis].label}</b>.
                     </>
                   )}
-                </span>
-              )}
-              {you && !you.score && (
-                <span className="text-[13px] text-muted-foreground">
-                  A nota sai em <b className="text-foreground">{Math.max(min_score_days - you.days, 0)} pregões</b>:
-                  antes de ~3 meses, anualizar o retorno engana.
                 </span>
               )}
             </div>
@@ -126,6 +152,7 @@ function Ranking({
 }) {
   const [sortBy, setSortBy] = useState<RankingSort>("SCORE");
   const topScore = Math.max(...report.players.map((p) => Number(p.score?.total ?? 0)), 1);
+  const largestReturn = Math.max(...report.players.map((p) => Math.abs(Number(p.return_percent))), 0.0001);
   const comparing = simulationIds.length > 1;
   // A ordem do servidor é a do critério; entre partidas dá para reordenar por retorno ou patrimônio
   const players =
@@ -161,48 +188,52 @@ function Ranking({
           </CardAction>
         )}
       </CardHeader>
-      {report.players.length === 0 ? (
-        <CardContent>
-          <p className="py-6 text-center text-[13px] text-muted-foreground">
-            Ninguém tem patrimônio registrado ainda. O ranking aparece depois do primeiro pregão.
-          </p>
-        </CardContent>
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>#</TableHead>
-              <TableHead>Jogador</TableHead>
-              <TableHead>
-                <MetricLabel metric={SCORE} />
-              </TableHead>
-              <TableHead numeric>Patrimônio</TableHead>
-              <TableHead numeric>Retorno</TableHead>
-              <TableHead numeric>Pregões</TableHead>
-              <TableHead numeric>Distância do líder</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {players.map((p: Player, i) => {
-              const position = sortBy === "SCORE" ? p.position : i + 1;
-              const label = playerLabel(p, simulationIds);
-              const isYou = p.player_nickname === currentPlayerName;
-              const change = Number(p.return_percent);
-              return (
-                <TableRow key={playerKey(p)} variant={isYou ? "current" : "default"}>
-                  <TableCell>
-                    <span
-                      className={cn(
-                        "grid size-7 place-content-center rounded-md font-mono text-xs font-semibold",
-                        position === 1 ? "bg-foreground text-primary-foreground" : "bg-muted",
-                      )}
-                    >
-                      {position}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <PlayerCell label={label} color={colorOf(label)} isYou={isYou} />
-                  </TableCell>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>#</TableHead>
+            <TableHead>Jogador</TableHead>
+            <TableHead numeric={comparing}>
+              <MetricLabel metric={SCORE} />
+            </TableHead>
+            <TableHead numeric>Patrimônio</TableHead>
+            <TableHead numeric={!comparing}>Retorno</TableHead>
+            <TableHead numeric>Pregões</TableHead>
+            {!comparing && <TableHead numeric>Distância do líder</TableHead>}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {report.players.length === 0 && (
+            <TableEmptyRow colSpan={comparing ? 6 : 7}>
+              <p className="text-[13px] text-muted-foreground">
+                Ninguém tem patrimônio registrado ainda. O ranking aparece depois do primeiro pregão.
+              </p>
+            </TableEmptyRow>
+          )}
+          {players.map((p: Player, i) => {
+            const position = sortBy === "SCORE" ? p.position : i + 1;
+            const label = playerLabel(p, simulationIds, currentPlayerName);
+            const isYou = p.player_nickname === currentPlayerName;
+            const change = Number(p.return_percent);
+            const returnTone = change > 0 ? "text-success" : change < 0 ? "text-destructive" : undefined;
+            return (
+              <TableRow key={playerKey(p)} variant={isYou ? "current" : "default"}>
+                <TableCell>
+                  <span
+                    className={cn(
+                      "grid size-7 place-content-center rounded-md font-mono text-xs font-semibold",
+                      position === 1 ? "bg-foreground text-primary-foreground" : "bg-muted",
+                    )}
+                  >
+                    {position}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <PlayerCell label={label} color={colorOf(label)} isYou={isYou} />
+                </TableCell>
+                {comparing ? (
+                  <TableCell numeric>{displayMetric(SCORE, p.score?.total)}</TableCell>
+                ) : (
                   <TableCell>
                     <span className="flex items-center gap-2">
                       <span className="w-10 font-mono font-semibold">{displayMetric(SCORE, p.score?.total)}</span>
@@ -214,22 +245,49 @@ function Ranking({
                       </span>
                     </span>
                   </TableCell>
-                  <TableCell numeric>{displayMoney(p.total_networth)}</TableCell>
-                  <TableCell numeric>
-                    <span className={change > 0 ? "text-success" : change < 0 ? "text-destructive" : undefined}>
-                      {displaySignedPercent(p.return_percent)}
+                )}
+                <TableCell numeric>{displayMoney(p.total_networth)}</TableCell>
+                {comparing ? (
+                  <TableCell>
+                    {/* Barra divergente: o zero fica no meio, ganho para a direita e perda para a esquerda */}
+                    <span className="flex items-center gap-3">
+                      <span className="relative h-2.5 w-70 shrink-0">
+                        <span className="absolute inset-y-0 left-1/2 w-px bg-input" />
+                        <span
+                          className={cn(
+                            "absolute inset-y-0",
+                            change >= 0 ? "left-1/2 rounded-r bg-success" : "right-1/2 rounded-l bg-destructive",
+                          )}
+                          style={{ width: `${(Math.abs(change) / largestReturn) * 50}%` }}
+                        />
+                      </span>
+                      <span className={cn("w-20 text-right font-mono", returnTone)}>
+                        {displaySignedPercent(p.return_percent)}
+                      </span>
                     </span>
                   </TableCell>
-                  <TableCell numeric>{p.days}</TableCell>
-                  <TableCell numeric>{displayCriterionGap(report.criterion, p.leader_gap)}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      )}
+                ) : (
+                  <TableCell numeric>
+                    <span className={returnTone}>{displaySignedPercent(p.return_percent)}</span>
+                  </TableCell>
+                )}
+                <TableCell numeric>{p.days}</TableCell>
+                {!comparing && <TableCell numeric>{displayCriterionGap(report.criterion, p.leader_gap)}</TableCell>}
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </Card>
   );
+}
+
+/** Valor da métrica na nota; os meses entram como contagem ("7 de 12"), como a Rentabilidade mostra. */
+function displayScoreMetric(metric: ScoreMetric, value: string | null, months: number) {
+  if (value !== null && MONTH_COUNT_METRICS.includes(metric) && months > 0) {
+    return `${Math.round(Number(value) * months)} de ${months}`;
+  }
+  return displayMetric(SCORE_METRICS[metric], value);
 }
 
 /** A nota em 4 eixos, cada um numa régua de 0 a 200 com a marca do 100 e a do líder. */
@@ -245,36 +303,24 @@ function ScoreAxes({
   colorOf: (label: string) => string;
 }) {
   const scored = report.players.filter((p) => p.score);
-  const labels = scored.map((p) => playerLabel(p, simulationIds));
+  const labels = scored.map((p) => playerLabel(p, simulationIds, currentPlayerName));
   const yours = scored.find((p) => p.player_nickname === currentPlayerName);
-  const [selected, setSelected] = useState<string | undefined>(yours ? playerLabel(yours, simulationIds) : labels[0]);
-  const player = scored.find((p) => playerLabel(p, simulationIds) === selected) ?? scored[0];
+  const [selected, setSelected] = useState<string | undefined>(
+    yours ? playerLabel(yours, simulationIds, currentPlayerName) : labels[0],
+  );
+  const player =
+    scored.find((p) => playerLabel(p, simulationIds, currentPlayerName) === selected) ?? scored[0];
   const leader = report.players[0]?.score ? report.players[0] : undefined;
 
   if (!player?.score) {
-    const sample = report.players.find((p) => p.player_nickname === currentPlayerName) ?? report.players[0];
     return (
       <Card>
         <CardHeader>
           <CardTitle>Nota</CardTitle>
-          <CardDescription>A nota só existe a partir de {report.min_score_days} pregões.</CardDescription>
+          <CardDescription>
+            A nota só existe a partir de {report.min_score_days} pregões. Quem ainda não tem nota fica atrás no ranking.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-2">
-            <span className="text-[13px]">
-              <b className="font-mono">{sample.days}</b> de {report.min_score_days} pregões
-            </span>
-            <span className="h-2 w-56 overflow-hidden rounded-full bg-muted">
-              <span
-                className="block h-full rounded-full bg-primary"
-                style={{ width: `${Math.min(sample.days / report.min_score_days, 1) * 100}%` }}
-              />
-            </span>
-            <span className="text-[13px] text-muted-foreground">
-              Antes de ~3 meses, anualizar o retorno engana. Quem ainda não tem nota fica atrás no ranking.
-            </span>
-          </div>
-        </CardContent>
       </Card>
     );
   }
@@ -308,45 +354,78 @@ function ScoreAxes({
                   </span>
                   <span className="text-xs text-muted-foreground">{SCORE_AXES[axis.axis].description}</span>
                 </div>
-                <div className="relative h-2 rounded-full bg-muted">
-                  <span
-                    className={cn("absolute inset-y-0 left-0 rounded-full", belowLeader ? "bg-chart-3" : "bg-primary")}
-                    style={{ width: `${Math.min(points / AXIS_SCALE, 1) * 100}%` }}
-                  />
-                  <span
-                    className="absolute -top-1 h-4 w-px bg-faint-foreground"
-                    style={{ left: "50%" }}
-                    title="100 = bom"
-                  />
-                  {leaderPoints !== null && leaderPoints !== undefined && (
+                <div className="grid gap-1">
+                  <div className="relative h-2 rounded-full bg-muted">
                     <span
-                      className="absolute -top-1 h-4 w-0.5 bg-foreground"
-                      style={{ left: `${Math.min(Number(leaderPoints) / AXIS_SCALE, 1) * 100}%` }}
-                      title={`Líder: ${displayNumber(leaderPoints, 0)}`}
+                      className={cn("absolute inset-y-0 left-0 rounded-full", belowLeader ? "bg-chart-3" : "bg-primary")}
+                      style={{ width: `${Math.min(points / AXIS_SCALE, 1) * 100}%` }}
                     />
-                  )}
+                    <span
+                      className="absolute -top-1 h-4 w-px bg-faint-foreground"
+                      style={{ left: "50%" }}
+                      title="100 = bom"
+                    />
+                    {leaderPoints !== null && leaderPoints !== undefined && (
+                      <span
+                        className="absolute -top-1 h-4 w-0.5 bg-foreground"
+                        style={{ left: `${Math.min(Number(leaderPoints) / AXIS_SCALE, 1) * 100}%` }}
+                        title={`Líder: ${displayNumber(leaderPoints, 0)}`}
+                      />
+                    )}
+                  </div>
+                  <span className="font-mono text-[11px] text-faint-foreground">0 · 100 = bom · {AXIS_SCALE}</span>
                 </div>
-                <dl className="grid gap-1 text-xs">
-                  {axis.metrics.map((m) => (
-                    <div key={m.metric} className="flex justify-between gap-2">
-                      <dt className="text-muted-foreground">{SCORE_METRICS[m.metric].label}</dt>
-                      <dd className="font-mono">
-                        {displayMetric(SCORE_METRICS[m.metric], m.value)} ·{" "}
-                        {m.points === null ? "—" : `${displayNumber(m.points, 0)} pts`}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
+                {/* Métrica, valor e pontos: tabela compacta dentro do cartão do eixo */}
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-[11px] text-faint-foreground">
+                      <th scope="col" className="pb-1 text-left font-medium">
+                        Métrica
+                      </th>
+                      <th scope="col" className="pb-1 text-right font-medium">
+                        Valor
+                      </th>
+                      <th scope="col" className="pb-1 pl-2 text-right font-medium">
+                        Pts
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {axis.metrics.map((m) => (
+                      <tr key={m.metric} className="border-t border-muted">
+                        <td className="py-1.5 pr-2 text-muted-foreground">{SCORE_METRICS[m.metric].label}</td>
+                        <td className="py-1.5 text-right font-mono whitespace-nowrap">
+                          {displayScoreMetric(m.metric, m.value, player.months)}
+                        </td>
+                        <td className="py-1.5 pl-2 text-right font-mono text-muted-foreground">
+                          {m.points === null ? "—" : displayNumber(m.points, 0)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             );
           })}
         </div>
-        {leader && (
-          <p className="mt-4 text-xs text-muted-foreground">
-            Marca preta = líder ({leader.player_nickname}); traço cinza = 100, um bom desempenho. Barra âmbar: abaixo do
-            líder nesse eixo.
-          </p>
-        )}
+
+        {/* Legenda com as amostras das marcas */}
+        <ul className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
+          {leader && (
+            <li className="flex items-center gap-1.5">
+              <span className="h-3.5 w-0.5 bg-foreground" aria-hidden="true" />
+              líder ({leader.player_nickname})
+            </li>
+          )}
+          <li className="flex items-center gap-1.5">
+            <span className="h-2 w-5 rounded-full bg-chart-3" aria-hidden="true" />
+            abaixo do líder nesse eixo
+          </li>
+          <li className="flex items-center gap-1.5">
+            <span className="h-2 w-5 rounded-full bg-primary" aria-hidden="true" />
+            igual ou acima
+          </li>
+        </ul>
       </CardContent>
     </Card>
   );

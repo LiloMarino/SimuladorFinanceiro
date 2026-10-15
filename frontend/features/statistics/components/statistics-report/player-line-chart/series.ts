@@ -11,5 +11,7 @@ export interface LineSeries {
   emphasis?: boolean;
   /** Linha de contexto, mais apagada */
   muted?: boolean;
+  /** Área leve sob a linha, para a série em destaque */
+  area?: boolean;
   defaultVisible?: boolean;
 }

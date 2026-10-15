@@ -19,7 +19,7 @@ export default function StatisticsPage() {
   if (simulationId === undefined) return null;
 
   return (
-    <section className="p-4">
+    <section>
       <StatisticsReport simulationIds={[simulationId]} currentPlayerName={user?.nickname} />
     </section>
   );

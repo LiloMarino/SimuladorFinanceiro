@@ -12,11 +12,19 @@ export function simulationColor(simulationIds: number[], simulationId: number) {
   return SIMULATION_PALETTE[simulationIds.indexOf(simulationId) % SIMULATION_PALETTE.length];
 }
 
-/** Nome da série: "Nick", ou "Nick · A" quando há várias simulações na tela. */
-export function playerLabel(player: PlayerRef, simulationIds: number[]) {
-  return simulationIds.length > 1
-    ? `${player.player_nickname} · ${simulationLetter(simulationIds, player.simulation_id)}`
-    : player.player_nickname;
+/**
+ * Nome da série: "Nick", ou "Nick · A" quando há várias simulações na tela.
+ * Entre simulações, quem está vendo aparece como "Você · A", sem o nickname.
+ */
+export function playerLabel(player: PlayerRef, simulationIds: number[], currentPlayerName?: string) {
+  if (simulationIds.length <= 1) return player.player_nickname;
+  const letter = simulationLetter(simulationIds, player.simulation_id);
+  return player.player_nickname === currentPlayerName ? `Você · ${letter}` : `${player.player_nickname} · ${letter}`;
+}
+
+/** Nome em legenda e rótulo de linha: quem está vendo ganha "(você)" quando o nome ainda não diz isso. */
+export function youLabel(label: string, isYou: boolean) {
+  return isYou && !label.startsWith("Você") ? `${label} (você)` : label;
 }
 
 /** Chave única do jogador entre simulações, para `key` e mapas. */

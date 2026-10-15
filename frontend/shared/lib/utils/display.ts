@@ -42,6 +42,16 @@ export function displayPercent(value: Numeric, digits = 2) {
   }).format(value as Intl.StringNumericLiteral | number);
 }
 
+/** Diferença em pontos percentuais com sinal (0.041 → "+4,10 p.p."). */
+export function displayPercentagePoints(fraction: Numeric, digits = 2) {
+  const points = new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+    signDisplay: "exceptZero",
+  }).format(Number(fraction) * 100);
+  return `${points} p.p.`;
+}
+
 /** Percentual com sinal explícito (0.0141 → "+1,41%"), para variações. */
 export function displaySignedPercent(value: Numeric, digits = 2) {
   return new Intl.NumberFormat("pt-BR", {
@@ -131,6 +141,18 @@ export function displayMonthSlashYear(isoDate: string) {
   const d = parseLocalDate(isoDate);
   const month = new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(d).replace(".", "");
   return `${month}/${d.getFullYear()}`;
+}
+
+/** "2022-04-01" → "abr/22", o mês curto de eixos e legendas. */
+export function displayShortMonthYear(value: Date | string) {
+  const d = typeof value === "string" ? parseLocalDate(value) : value;
+  const month = new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(d).replace(".", "");
+  return `${month}/${String(d.getFullYear()).slice(-2)}`;
+}
+
+/** Só o mês curto ("abr"), para colunas em que o ano aparece uma vez. */
+export function displayMonthShort(isoDate: string) {
+  return new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(parseLocalDate(isoDate)).replace(".", "");
 }
 
 export function displayMonthYear(date: Date | string) {

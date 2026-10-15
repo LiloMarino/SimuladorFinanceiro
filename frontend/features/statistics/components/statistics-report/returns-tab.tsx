@@ -14,7 +14,7 @@ import {
 import type { ReturnsReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { playerColors } from "../../lib/player-colors";
-import { playerLabel, simulationColor, simulationLetter } from "../../lib/player-label";
+import { playerLabel, simulationColor, simulationLetter, youLabel } from "../../lib/player-label";
 import {
   ANNUAL_RETURN,
   CAPITAL_PROVIDED,
@@ -22,12 +22,16 @@ import {
   MONTHS_ABOVE_CDI,
   NETWORTH,
   POSITIVE_MONTHS,
+  VS_CDI,
 } from "../../lib/metrics";
 import { PlayerLineChart, type LineSeries } from "./player-line-chart";
 import type { ChartAxis } from "./player-line-chart/utils";
 import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
 
-const BENCHMARK_COLORS = { CDI: "var(--faint-foreground)", IBOV: "var(--foreground)" } as const;
+// Pregões por mês, para ler o eixo "desde o início" em meses
+const TRADING_DAYS_PER_MONTH = 21;
+
+const BENCHMARK_COLORS = { CDI: "var(--faint-foreground)", IBOV: "var(--warning)" } as const;
 const BENCHMARK_NAMES = { CDI: "CDI", IBOV: "Ibovespa" } as const;
 
 type Benchmark = ReturnsReport["benchmarks"][number];
@@ -39,32 +43,46 @@ function benchmarkLabel(benchmark: Benchmark, simulationIds: number[]) {
   return simulationIds.length > 1 ? `${name} · ${simulationLetter(simulationIds, benchmark.simulation_id)}` : name;
 }
 
-/** Cada mês da partida num quadradinho: verde bateu o CDI, azul só subiu, cinza caiu. */
-function MonthStrip({ months }: { months: Player["monthly_returns"] }) {
+/** Cada mês da partida num quadradinho: colorido quando passou no teste da coluna, cinza quando não. */
+function MonthStrip({ months, passed }: { months: Player["monthly_returns"]; passed: (m: Player["monthly_returns"][number]) => boolean }) {
   return (
     <span className="flex gap-0.5">
-      {months.map((m) => {
-        const aboveCdi = Number(m.value) > Number(m.cdi);
-        const positive = Number(m.value) > 0;
-        return (
-          <Tooltip key={m.month}>
-            <TooltipTrigger render={<span />}>
-              <span
-                className={cn(
-                  "block size-3 rounded-[3px]",
-                  aboveCdi ? "bg-success" : positive ? "bg-chart-1/60" : "bg-muted",
-                )}
-              />
-            </TooltipTrigger>
-            <TooltipContent>
-              {displayMonthSlashYear(m.month)}: {displaySignedPercent(m.value)} · CDI {displayPercent(m.cdi)}
-            </TooltipContent>
-          </Tooltip>
-        );
-      })}
+      {months.map((m) => (
+        <Tooltip key={m.month}>
+          <TooltipTrigger render={<span />}>
+            <span className={cn("block size-3 rounded-[3px]", passed(m) ? "bg-success" : "bg-muted")} />
+          </TooltipTrigger>
+          <TooltipContent>
+            {displayMonthSlashYear(m.month)}: {displaySignedPercent(m.value)} · CDI {displayPercent(m.cdi)}
+          </TooltipContent>
+        </Tooltip>
+      ))}
     </span>
   );
 }
+
+/** Faixa de meses e a contagem ("8 de 12") lado a lado. */
+function MonthsCell({
+  months,
+  count,
+  passed,
+}: {
+  months: Player["monthly_returns"];
+  count: number;
+  passed: (m: Player["monthly_returns"][number]) => boolean;
+}) {
+  return (
+    <span className="flex items-center justify-end gap-2.5">
+      <MonthStrip months={months} passed={passed} />
+      <span className="font-mono">
+        {count} de {months.length}
+      </span>
+    </span>
+  );
+}
+
+const aboveCdi = (m: Player["monthly_returns"][number]) => Number(m.value) > Number(m.cdi);
+const positive = (m: Player["monthly_returns"][number]) => Number(m.value) > 0;
 
 export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("returns", simulationIds, onlyPlayer);
@@ -74,15 +92,16 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
     return <TabStatus loading={isLoading} title="a Rentabilidade" error={error} onRetry={() => void refetch()} />;
 
   const comparing = simulationIds.length > 1;
-  const players = data.players.map((p) => ({ player: p, label: playerLabel(p, simulationIds) }));
+  const players = data.players.map((p) => ({ player: p, label: playerLabel(p, simulationIds, currentPlayerName) }));
   const colorOf = playerColors(players.map((p) => p.label));
   const isYou = (p: Player) => p.player_nickname === currentPlayerName;
+  const cdiOf = new Map(data.benchmarks.filter((b) => b.series === "CDI").map((b) => [b.simulation_id, b.annual_return]));
 
   // Comparando partidas, a cor é da partida: você nela em destaque, os outros em cinza
   const playerSeries = (points: (p: Player) => Player["networth"]): LineSeries[] =>
     players.map(({ player, label }) => ({
       key: label,
-      label,
+      label: youLabel(label, isYou(player)),
       color: !comparing
         ? colorOf(label)
         : isYou(player)
@@ -110,6 +129,15 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
       ? [...playerSeries((p) => p.cumulative_return), ...benchmarkSeries]
       : playerSeries((p) => p.networth);
   const chartAxis = comparing ? axis : "date";
+  // Entre partidas, o eixo "desde o início" marca de 3 em 3 meses: mês 0, 3, 6...
+  const longest = Math.max(...series.map((s) => s.points.length), 0);
+  const monthTicks =
+    comparing && chartAxis === "index"
+      ? Array.from(
+          { length: Math.floor((longest - 1) / (TRADING_DAYS_PER_MONTH * 3)) + 1 },
+          (_, i) => 1 + i * TRADING_DAYS_PER_MONTH * 3,
+        )
+      : undefined;
   const seriesSetKey = `${view}|${chartAxis}|${series.map((s) => s.key).join("|")}`;
 
   return (
@@ -153,18 +181,19 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
           series={series}
           axis={chartAxis}
           format={view === "RETURN" ? (v) => displayPercent(v) : (v) => displayMoney(v)}
-          axisFormat={view === "RETURN" ? (v) => displayPercent(v, 0) : (v) => displayMoneyCompact(v)}
+          axisFormat={view === "RETURN" ? (v) => displaySignedPercent(v, 0) : (v) => displayMoneyCompact(v)}
+          xTicks={monthTicks}
+          xTickFormat={monthTicks ? (x) => `mês ${Math.round((x - 1) / TRADING_DAYS_PER_MONTH)}` : undefined}
         />
       </ChartCard>
 
       <MetricsTable
         title="Rentabilidade por jogador"
-        description="Cada quadradinho é um mês da partida: verde bateu o CDI, azul subiu, cinza caiu."
+        description="Cada quadradinho é um mês da partida: colorido bateu o teste da coluna, cinza não."
         rows={data.players}
         simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
         colorOf={colorOf}
-        extraColumn={{ header: "Meses", cell: (row) => <MonthStrip months={row.monthly_returns} /> }}
         columns={[
           { metric: CAPITAL_PROVIDED, value: (r) => r.capital_provided },
           {
@@ -173,17 +202,37 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
             best: "max",
             tone: (r) => (r.annual_return && Number(r.annual_return) < 0 ? "negative" : undefined),
           },
-          { metric: MONTHS_ABOVE_CDI, value: (r) => `${r.months_above_cdi} de ${r.months}`, best: undefined },
-          { metric: POSITIVE_MONTHS, value: (r) => `${r.positive_months} de ${r.months}` },
+          {
+            metric: VS_CDI,
+            value: (r) => {
+              const cdi = cdiOf.get(r.simulation_id);
+              return r.annual_return !== null && cdi ? Number(r.annual_return) - Number(cdi) : null;
+            },
+            tone: (r) => {
+              const cdi = cdiOf.get(r.simulation_id);
+              if (r.annual_return === null || !cdi) return undefined;
+              return Number(r.annual_return) >= Number(cdi) ? "positive" : "negative";
+            },
+          },
+          {
+            metric: MONTHS_ABOVE_CDI,
+            value: (r) => r.months_above_cdi,
+            cell: (r) => <MonthsCell months={r.monthly_returns} count={r.months_above_cdi} passed={aboveCdi} />,
+          },
+          {
+            metric: POSITIVE_MONTHS,
+            value: (r) => r.positive_months,
+            cell: (r) => <MonthsCell months={r.monthly_returns} count={r.positive_months} passed={positive} />,
+          },
         ]}
         footer={data.benchmarks.map((b) => (
           <TableRow key={`${b.simulation_id}|${b.series}`}>
             <TableCell>
               <span className="text-muted-foreground">{benchmarkLabel(b, simulationIds)} · referência</span>
             </TableCell>
-            <TableCell />
             <TableCell numeric>—</TableCell>
             <TableCell numeric>{b.annual_return ? displayPercent(b.annual_return) : "—"}</TableCell>
+            <TableCell numeric>—</TableCell>
             <TableCell numeric>—</TableCell>
             <TableCell numeric>—</TableCell>
           </TableRow>
