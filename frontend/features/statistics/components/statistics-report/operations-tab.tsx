@@ -10,22 +10,22 @@ import type { OperationsReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { IMPACT_COST, INCOME_TAX_PAID, MONTHLY_VOLUME, TRADED_VOLUME, TURNOVER } from "../../lib/metrics";
 import { playerColors } from "../../lib/player-colors";
-import { playerLabel } from "../../lib/player-label";
+import { playerKey, playerLabel } from "../../lib/player-label";
 import { PlayerCell, TabStatus, type ReportProps } from "./shared";
 
 type Player = OperationsReport["players"][number];
 
-export function OperationsTab({ simulationIds, showSimulation, currentPlayerName }: ReportProps) {
-  const { data, isLoading, error, refetch } = useStatisticsReport("operations", simulationIds);
+export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
+  const { data, isLoading, error, refetch } = useStatisticsReport("operations", simulationIds, onlyPlayer);
   if (!data) return <TabStatus loading={isLoading} title="as Operações" error={error} onRetry={() => void refetch()} />;
 
-  const labels = data.players.map((p) => playerLabel(p, showSimulation));
+  const labels = data.players.map((p) => playerLabel(p, simulationIds));
   const colorOf = playerColors(labels);
   const impactOn = data.players.some((p) => p.impact_cost !== null);
 
   return (
     <div className="grid gap-5">
-      <VolumeHeatmap players={data.players} showSimulation={showSimulation} />
+      <VolumeHeatmap players={data.players} simulationIds={simulationIds} />
 
       <Card className="overflow-hidden">
         <CardHeader>
@@ -53,12 +53,12 @@ export function OperationsTab({ simulationIds, showSimulation, currentPlayerName
           </TableHeader>
           <TableBody>
             {data.players.map((p: Player) => {
-              const label = playerLabel(p, showSimulation);
+              const label = playerLabel(p, simulationIds);
               const isYou = p.player_nickname === currentPlayerName;
               const trades = p.buy_trades + p.sell_trades;
               const impact = p.impact_cost !== null ? Number(p.impact_cost) : null;
               return (
-                <TableRow key={playerLabel(p, true)} variant={isYou ? "current" : "default"}>
+                <TableRow key={playerKey(p)} variant={isYou ? "current" : "default"}>
                   <TableCell>
                     <PlayerCell label={label} color={colorOf(label)} isYou={isYou} />
                   </TableCell>
@@ -115,7 +115,7 @@ export function OperationsTab({ simulationIds, showSimulation, currentPlayerName
 }
 
 /** Jogador × mês: mais escuro, mais dinheiro girando; cinza, mês só segurando. */
-function VolumeHeatmap({ players, showSimulation }: { players: Player[]; showSimulation: boolean }) {
+function VolumeHeatmap({ players, simulationIds }: { players: Player[]; simulationIds: number[] }) {
   const months = [...new Set(players.flatMap((p) => p.monthly_volume.map((m) => m.month)))].sort();
   const volumeOf = (m: Player["monthly_volume"][number]) => Number(m.bought) + Number(m.sold);
   const max = Math.max(...players.flatMap((p) => p.monthly_volume.map(volumeOf)), 1);
@@ -150,8 +150,8 @@ function VolumeHeatmap({ players, showSimulation }: { players: Player[]; showSim
               {players.map((p) => {
                 const byMonth = new Map(p.monthly_volume.map((m) => [m.month, m]));
                 return (
-                  <div key={playerLabel(p, true)} className="contents">
-                    <span className="truncate text-[13px]">{playerLabel(p, showSimulation)}</span>
+                  <div key={playerKey(p)} className="contents">
+                    <span className="truncate text-[13px]">{playerLabel(p, simulationIds)}</span>
                     {months.map((month) => {
                       const entry = byMonth.get(month);
                       const volume = entry ? volumeOf(entry) : 0;
@@ -168,7 +168,7 @@ function VolumeHeatmap({ players, showSimulation }: { players: Player[]; showSim
                             />
                           </TooltipTrigger>
                           <TooltipContent>
-                            {playerLabel(p, showSimulation)} · {displayMonthSlashYear(month)}
+                            {playerLabel(p, simulationIds)} · {displayMonthSlashYear(month)}
                             <br />
                             {entry && volume
                               ? `${displayMoney(volume)} · ${entry.buy_count} compras, ${entry.sell_count} vendas`

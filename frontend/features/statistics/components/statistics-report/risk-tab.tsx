@@ -38,18 +38,18 @@ type View = "DRAWDOWN" | "VOLATILITY";
 // A dispersão precisa de alguns pregões para a oscilação existir
 const MIN_SCATTER_DAYS = 3;
 
-export function RiskTab({ simulationIds, showSimulation, currentPlayerName }: ReportProps) {
-  const { data, isLoading, error, refetch } = useStatisticsReport("risk", simulationIds);
+export function RiskTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
+  const { data, isLoading, error, refetch } = useStatisticsReport("risk", simulationIds, onlyPlayer);
   const { data: returns } = useStatisticsReport("returns", simulationIds);
   const [view, setView] = useState<View>("DRAWDOWN");
   if (!data) return <TabStatus loading={isLoading} title="o Risco" error={error} onRetry={() => void refetch()} />;
 
-  const labels = data.players.map((p) => playerLabel(p, showSimulation));
+  const labels = data.players.map((p) => playerLabel(p, simulationIds));
   const colorOf = playerColors(labels);
   const cdiReturn = returns?.benchmarks.find((b) => b.series === "CDI")?.annual_return ?? null;
 
   const lines: LineSeries[] = data.players.map((p) => {
-    const label = playerLabel(p, showSimulation);
+    const label = playerLabel(p, simulationIds);
     return {
       key: label,
       label,
@@ -65,7 +65,7 @@ export function RiskTab({ simulationIds, showSimulation, currentPlayerName }: Re
         players={data.players}
         cdiReturn={cdiReturn}
         currentPlayerName={currentPlayerName}
-        showSimulation={showSimulation}
+        simulationIds={simulationIds}
         colorOf={colorOf}
       />
 
@@ -95,7 +95,7 @@ export function RiskTab({ simulationIds, showSimulation, currentPlayerName }: Re
         title="Risco por jogador"
         description="Verde = melhor da sala em cada métrica. Com menos de ~63 pregões, leia com cautela."
         rows={data.players}
-        showSimulation={showSimulation}
+        simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
         colorOf={colorOf}
         columns={[
@@ -117,13 +117,13 @@ function RiskReturn({
   players,
   cdiReturn,
   currentPlayerName,
-  showSimulation,
+  simulationIds,
   colorOf,
 }: {
   players: Player[];
   cdiReturn: string | null;
   currentPlayerName?: string;
-  showSimulation: boolean;
+  simulationIds: number[];
   colorOf: (label: string) => string;
 }) {
   const measured = players.filter(
@@ -136,7 +136,7 @@ function RiskReturn({
     const y = Number(p.annual_return);
     const key = `${x.toFixed(4)}|${y.toFixed(4)}`;
     const point = byPosition.get(key) ?? { labels: [], x, y };
-    point.labels.push(playerLabel(p, showSimulation));
+    point.labels.push(playerLabel(p, simulationIds));
     byPosition.set(key, point);
   }
   const points = [...byPosition.values()].map((p) => ({ ...p, label: displayList(p.labels), colorKey: p.labels[0] }));

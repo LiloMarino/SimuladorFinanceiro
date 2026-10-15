@@ -11,12 +11,13 @@ import type ApiError from "@/shared/lib/models/ApiError";
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import type { PlayerRef } from "@/types";
 import { displayMetric } from "../../lib/metrics";
-import { playerLabel } from "../../lib/player-label";
+import { playerKey, playerLabel } from "../../lib/player-label";
 
 export interface ReportProps {
   simulationIds: number[];
-  showSimulation: boolean;
   currentPlayerName?: string;
+  /** Mostra só as linhas deste jogador */
+  onlyPlayer?: string;
 }
 
 /** Aba sem dados: esqueleto enquanto carrega; com erro, só ela falha e oferece tentar de novo. */
@@ -142,7 +143,7 @@ interface MetricsTableProps<T extends PlayerRef> {
   description?: string;
   rows: T[];
   columns: MetricColumn<T>[];
-  showSimulation: boolean;
+  simulationIds: number[];
   currentPlayerName?: string;
   colorOf: (label: string) => string;
   extraColumn?: { header: ReactNode; cell: (row: T) => ReactNode };
@@ -155,7 +156,7 @@ export function MetricsTable<T extends PlayerRef>({
   description,
   rows,
   columns,
-  showSimulation,
+  simulationIds,
   currentPlayerName,
   colorOf,
   extraColumn,
@@ -191,10 +192,10 @@ export function MetricsTable<T extends PlayerRef>({
         </TableHeader>
         <TableBody>
           {rows.map((row) => {
-            const label = playerLabel(row, showSimulation);
+            const label = playerLabel(row, simulationIds);
             const isYou = row.player_nickname === currentPlayerName;
             return (
-              <TableRow key={playerLabel(row, true)} variant={isYou ? "current" : "default"}>
+              <TableRow key={playerKey(row)} variant={isYou ? "current" : "default"}>
                 <TableCell>
                   <PlayerCell label={label} color={colorOf(label)} isYou={isYou} />
                 </TableCell>

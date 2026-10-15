@@ -19,7 +19,7 @@ const TABS = [
  * andamento, o fechamento e a comparação: muda só a lista de simulações. Cada aba busca
  * os próprios dados quando é aberta.
  */
-export function StatisticsReport({ simulationIds, showSimulation, currentPlayerName }: ReportProps) {
+export function StatisticsReport({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
   return (
     <Tabs defaultValue={TABS[0].value}>
       <TabsList>
@@ -32,11 +32,7 @@ export function StatisticsReport({ simulationIds, showSimulation, currentPlayerN
 
       {TABS.map(({ value, Content }) => (
         <TabsContent key={value} value={value}>
-          <Content
-            simulationIds={simulationIds}
-            showSimulation={showSimulation}
-            currentPlayerName={currentPlayerName}
-          />
+          <Content simulationIds={simulationIds} currentPlayerName={currentPlayerName} onlyPlayer={onlyPlayer} />
         </TabsContent>
       ))}
     </Tabs>

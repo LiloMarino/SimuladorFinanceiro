@@ -15,7 +15,7 @@ import type { CompositionReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { EFFECTIVE_SECTORS, SECTOR_PROFIT } from "../../lib/metrics";
 import { playerColors } from "../../lib/player-colors";
-import { playerLabel } from "../../lib/player-label";
+import { playerKey, playerLabel } from "../../lib/player-label";
 import { PlayerCell, TabStatus, type ReportProps } from "./shared";
 
 type Player = CompositionReport["players"][number];
@@ -36,12 +36,12 @@ function diversificationWord(value: number) {
   return "diversificado";
 }
 
-export function CompositionTab({ simulationIds, showSimulation, currentPlayerName }: ReportProps) {
-  const { data, isLoading, error, refetch } = useStatisticsReport("composition", simulationIds);
+export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
+  const { data, isLoading, error, refetch } = useStatisticsReport("composition", simulationIds, onlyPlayer);
   const [unit, setUnit] = useState<Unit>("PCT");
   if (!data) return <TabStatus loading={isLoading} title="a Composição" error={error} onRetry={() => void refetch()} />;
 
-  const labels = data.players.map((p) => playerLabel(p, showSimulation));
+  const labels = data.players.map((p) => playerLabel(p, simulationIds));
   const colorOf = playerColors(labels);
 
   return (
@@ -77,12 +77,7 @@ export function CompositionTab({ simulationIds, showSimulation, currentPlayerNam
             </div>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {data.players.map((p) => (
-                <SmallMultiple
-                  key={playerLabel(p, true)}
-                  player={p}
-                  label={playerLabel(p, showSimulation)}
-                  unit={unit}
-                />
+                <SmallMultiple key={playerKey(p)} player={p} label={playerLabel(p, simulationIds)} unit={unit} />
               ))}
             </div>
           </div>
@@ -91,11 +86,11 @@ export function CompositionTab({ simulationIds, showSimulation, currentPlayerNam
 
       <SectorExposure
         players={data.players}
-        showSimulation={showSimulation}
+        simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
         colorOf={colorOf}
       />
-      <SectorProfit players={data.players} showSimulation={showSimulation} />
+      <SectorProfit players={data.players} simulationIds={simulationIds} />
     </div>
   );
 }
@@ -158,12 +153,12 @@ function SmallMultiple({ player, label, unit }: { player: Player; label: string;
 /** Jogador × setor: quanto mais escuro, maior a aposta; a diversificação em número e em palavras. */
 function SectorExposure({
   players,
-  showSimulation,
+  simulationIds,
   currentPlayerName,
   colorOf,
 }: {
   players: Player[];
-  showSimulation: boolean;
+  simulationIds: number[];
   currentPlayerName?: string;
   colorOf: (label: string) => string;
 }) {
@@ -203,12 +198,12 @@ function SectorExposure({
           </TableHeader>
           <TableBody>
             {players.map((p) => {
-              const label = playerLabel(p, showSimulation);
+              const label = playerLabel(p, simulationIds);
               const isYou = p.player_nickname === currentPlayerName;
               const bySector = new Map(p.sectors.map((s) => [s.sector ?? NO_SECTOR, Number(s.fraction)]));
               const effective = p.effective_sectors !== null ? Number(p.effective_sectors) : null;
               return (
-                <TableRow key={playerLabel(p, true)} variant={isYou ? "current" : "default"}>
+                <TableRow key={playerKey(p)} variant={isYou ? "current" : "default"}>
                   <TableCell>
                     <PlayerCell label={label} color={colorOf(label)} isYou={isYou} />
                   </TableCell>
@@ -252,7 +247,7 @@ function SectorExposure({
 }
 
 /** Lucro ou prejuízo por setor, em barras para os dois lados e com a mesma escala pra todos. */
-function SectorProfit({ players, showSimulation }: { players: Player[]; showSimulation: boolean }) {
+function SectorProfit({ players, simulationIds }: { players: Player[]; simulationIds: number[] }) {
   const scale = Math.max(...players.flatMap((p) => p.sector_profit.map((s) => Math.abs(Number(s.profit)))), 1);
 
   return (
@@ -273,12 +268,9 @@ function SectorProfit({ players, showSimulation }: { players: Player[]; showSimu
           {players.map((p) => {
             const total = p.sector_profit.reduce((sum, s) => sum + Number(s.profit), 0);
             return (
-              <div
-                key={playerLabel(p, true)}
-                className="grid content-start gap-2 rounded-[10px] border border-border p-4"
-              >
+              <div key={playerKey(p)} className="grid content-start gap-2 rounded-[10px] border border-border p-4">
                 <div className="flex justify-between">
-                  <span className="font-semibold">{playerLabel(p, showSimulation)}</span>
+                  <span className="font-semibold">{playerLabel(p, simulationIds)}</span>
                   <span className={total >= 0 ? "font-mono text-success" : "font-mono text-destructive"}>
                     {p.sector_profit.length ? `${total >= 0 ? "+" : ""}${displayMoney(total)}` : "—"}
                   </span>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { MetricLabel } from "@/shared/components/metric-hint";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
@@ -10,30 +11,34 @@ import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { displayCriterionGap } from "../../lib/criterion";
 import { SCORE, SCORE_AXES, SCORE_METRICS, displayMetric } from "../../lib/metrics";
 import { playerColors } from "../../lib/player-colors";
-import { playerLabel } from "../../lib/player-label";
+import { playerKey, playerLabel } from "../../lib/player-label";
 import { PlayerCell, PlayerToggle, TabStatus, type ReportProps } from "./shared";
 
 type Player = OverviewReport["players"][number];
 
+type RankingSort = "SCORE" | "RETURN" | "NETWORTH";
+
 // Régua dos eixos da nota: ~100 é um bom desempenho, a escala vai a 200
 const AXIS_SCALE = 200;
 
-export function OverviewTab({ simulationIds, showSimulation, currentPlayerName = "" }: ReportProps) {
-  const { data, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds);
+export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer }: ReportProps) {
+  const { data, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds, onlyPlayer);
   if (!data) return <TabStatus loading={isLoading} title="o Geral" error={error} onRetry={() => void refetch()} />;
 
-  const labels = data.players.map((p) => playerLabel(p, showSimulation));
+  const labels = data.players.map((p) => playerLabel(p, simulationIds));
   const colorOf = playerColors(labels);
 
   return (
     <div className="grid gap-5">
-      {data.players.length > 0 && <Headline report={data} currentPlayerName={currentPlayerName} />}
-      <Ranking report={data} currentPlayerName={currentPlayerName} showSimulation={showSimulation} colorOf={colorOf} />
+      {simulationIds.length === 1 && data.players.length > 0 && (
+        <Headline report={data} currentPlayerName={currentPlayerName} />
+      )}
+      <Ranking report={data} currentPlayerName={currentPlayerName} simulationIds={simulationIds} colorOf={colorOf} />
       {data.players.length > 0 && (
         <ScoreAxes
           report={data}
           currentPlayerName={currentPlayerName}
-          showSimulation={showSimulation}
+          simulationIds={simulationIds}
           colorOf={colorOf}
         />
       )}
@@ -111,21 +116,50 @@ function Headline({ report, currentPlayerName }: { report: OverviewReport; curre
 function Ranking({
   report,
   currentPlayerName,
-  showSimulation,
+  simulationIds,
   colorOf,
 }: {
   report: OverviewReport;
   currentPlayerName: string;
-  showSimulation: boolean;
+  simulationIds: number[];
   colorOf: (label: string) => string;
 }) {
+  const [sortBy, setSortBy] = useState<RankingSort>("SCORE");
   const topScore = Math.max(...report.players.map((p) => Number(p.score?.total ?? 0)), 1);
+  const comparing = simulationIds.length > 1;
+  // A ordem do servidor é a do critério; entre partidas dá para reordenar por retorno ou patrimônio
+  const players =
+    comparing && sortBy !== "SCORE"
+      ? [...report.players].sort((a, b) =>
+          sortBy === "RETURN"
+            ? Number(b.return_percent) - Number(a.return_percent)
+            : Number(b.total_networth) - Number(a.total_networth),
+        )
+      : report.players;
 
   return (
     <Card className="overflow-hidden">
       <CardHeader>
-        <CardTitle>Ranking</CardTitle>
-        <CardDescription>Ordenado pelo critério da partida: {VICTORY_CRITERIA[report.criterion].label}</CardDescription>
+        <CardTitle>{comparing ? `Ranking das ${simulationIds.length} partidas` : "Ranking"}</CardTitle>
+        <CardDescription>
+          {comparing
+            ? "A Nota compara partidas de períodos diferentes de forma justa; o retorno depende de quanto o mercado andou em cada período. Sem nota (menos de 63 pregões) fica no fim."
+            : `Ordenado pelo critério da partida: ${VICTORY_CRITERIA[report.criterion].label}`}
+        </CardDescription>
+        {comparing && (
+          <CardAction>
+            <ToggleGroup
+              variant="segmented"
+              aria-label="Ordenar por"
+              value={[sortBy]}
+              onValueChange={(values) => values[0] && setSortBy(values[0] as RankingSort)}
+            >
+              <ToggleGroupItem value="SCORE">Nota</ToggleGroupItem>
+              <ToggleGroupItem value="RETURN">Retorno</ToggleGroupItem>
+              <ToggleGroupItem value="NETWORTH">Patrimônio</ToggleGroupItem>
+            </ToggleGroup>
+          </CardAction>
+        )}
       </CardHeader>
       {report.players.length === 0 ? (
         <CardContent>
@@ -149,20 +183,21 @@ function Ranking({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {report.players.map((p: Player) => {
-              const label = playerLabel(p, showSimulation);
+            {players.map((p: Player, i) => {
+              const position = sortBy === "SCORE" ? p.position : i + 1;
+              const label = playerLabel(p, simulationIds);
               const isYou = p.player_nickname === currentPlayerName;
               const change = Number(p.return_percent);
               return (
-                <TableRow key={playerLabel(p, true)} variant={isYou ? "current" : "default"}>
+                <TableRow key={playerKey(p)} variant={isYou ? "current" : "default"}>
                   <TableCell>
                     <span
                       className={cn(
                         "grid size-7 place-content-center rounded-md font-mono text-xs font-semibold",
-                        p.position === 1 ? "bg-foreground text-primary-foreground" : "bg-muted",
+                        position === 1 ? "bg-foreground text-primary-foreground" : "bg-muted",
                       )}
                     >
-                      {p.position}
+                      {position}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -201,19 +236,19 @@ function Ranking({
 function ScoreAxes({
   report,
   currentPlayerName,
-  showSimulation,
+  simulationIds,
   colorOf,
 }: {
   report: OverviewReport;
   currentPlayerName: string;
-  showSimulation: boolean;
+  simulationIds: number[];
   colorOf: (label: string) => string;
 }) {
   const scored = report.players.filter((p) => p.score);
-  const labels = scored.map((p) => playerLabel(p, showSimulation));
+  const labels = scored.map((p) => playerLabel(p, simulationIds));
   const yours = scored.find((p) => p.player_nickname === currentPlayerName);
-  const [selected, setSelected] = useState<string | undefined>(yours ? playerLabel(yours, showSimulation) : labels[0]);
-  const player = scored.find((p) => playerLabel(p, showSimulation) === selected) ?? scored[0];
+  const [selected, setSelected] = useState<string | undefined>(yours ? playerLabel(yours, simulationIds) : labels[0]);
+  const player = scored.find((p) => playerLabel(p, simulationIds) === selected) ?? scored[0];
   const leader = report.players[0]?.score ? report.players[0] : undefined;
 
   if (!player?.score) {

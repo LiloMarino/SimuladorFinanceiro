@@ -111,7 +111,7 @@ function MatchResult({ simulationId }: { simulationId: number }) {
             As mesmas abas das Estatísticas, congeladas no último dia da partida.
           </p>
         </div>
-        <StatisticsReport simulationIds={[simulationId]} showSimulation={false} currentPlayerName={user?.nickname} />
+        <StatisticsReport simulationIds={[simulationId]} currentPlayerName={user?.nickname} />
       </section>
     </div>
   );

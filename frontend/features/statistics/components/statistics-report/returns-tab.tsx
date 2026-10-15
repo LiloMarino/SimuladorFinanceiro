@@ -14,7 +14,7 @@ import {
 import type { ReturnsReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { playerColors } from "../../lib/player-colors";
-import { playerLabel } from "../../lib/player-label";
+import { playerLabel, simulationColor, simulationLetter } from "../../lib/player-label";
 import {
   ANNUAL_RETURN,
   CAPITAL_PROVIDED,
@@ -24,6 +24,7 @@ import {
   POSITIVE_MONTHS,
 } from "../../lib/metrics";
 import { PlayerLineChart, type LineSeries } from "./player-line-chart";
+import type { ChartAxis } from "./player-line-chart/utils";
 import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
 
 const BENCHMARK_COLORS = { CDI: "var(--faint-foreground)", IBOV: "var(--foreground)" } as const;
@@ -33,9 +34,9 @@ type Benchmark = ReturnsReport["benchmarks"][number];
 type Player = ReturnsReport["players"][number];
 type View = "RETURN" | "NETWORTH";
 
-function benchmarkLabel(benchmark: Benchmark, showSimulation: boolean) {
+function benchmarkLabel(benchmark: Benchmark, simulationIds: number[]) {
   const name = BENCHMARK_NAMES[benchmark.series];
-  return showSimulation ? `${name}#${benchmark.simulation_name}` : name;
+  return simulationIds.length > 1 ? `${name} · ${simulationLetter(simulationIds, benchmark.simulation_id)}` : name;
 }
 
 /** Cada mês da partida num quadradinho: verde bateu o CDI, azul só subiu, cinza caiu. */
@@ -65,64 +66,92 @@ function MonthStrip({ months }: { months: Player["monthly_returns"] }) {
   );
 }
 
-export function ReturnsTab({ simulationIds, showSimulation, currentPlayerName }: ReportProps) {
-  const { data, isLoading, error, refetch } = useStatisticsReport("returns", simulationIds);
+export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
+  const { data, isLoading, error, refetch } = useStatisticsReport("returns", simulationIds, onlyPlayer);
   const [view, setView] = useState<View>("RETURN");
+  const [axis, setAxis] = useState<ChartAxis>("index");
   if (!data)
     return <TabStatus loading={isLoading} title="a Rentabilidade" error={error} onRetry={() => void refetch()} />;
 
-  const players = data.players.map((p) => ({ player: p, label: playerLabel(p, showSimulation) }));
+  const comparing = simulationIds.length > 1;
+  const players = data.players.map((p) => ({ player: p, label: playerLabel(p, simulationIds) }));
   const colorOf = playerColors(players.map((p) => p.label));
   const isYou = (p: Player) => p.player_nickname === currentPlayerName;
 
-  const series: LineSeries[] =
+  // Comparando partidas, a cor é da partida: você nela em destaque, os outros em cinza
+  const playerSeries = (points: (p: Player) => Player["networth"]): LineSeries[] =>
+    players.map(({ player, label }) => ({
+      key: label,
+      label,
+      color: !comparing
+        ? colorOf(label)
+        : isYou(player)
+          ? simulationColor(simulationIds, player.simulation_id)
+          : "var(--faint-foreground)",
+      points: points(player),
+      emphasis: isYou(player),
+      muted: comparing && !isYou(player),
+    }));
+  const benchmarkSeries: LineSeries[] = data.benchmarks.map((b) => {
+    const label = benchmarkLabel(b, simulationIds);
+    return {
+      key: label,
+      label,
+      color:
+        comparing && b.series === "CDI" ? simulationColor(simulationIds, b.simulation_id) : BENCHMARK_COLORS[b.series],
+      points: b.cumulative_return,
+      dashed: true,
+      defaultVisible: !comparing || b.series === "CDI",
+    };
+  });
+
+  const series =
     view === "RETURN"
-      ? [
-          ...players.map(({ player, label }) => ({
-            key: label,
-            label,
-            color: colorOf(label),
-            points: player.cumulative_return,
-            emphasis: isYou(player),
-          })),
-          ...data.benchmarks.map((b) => {
-            const label = benchmarkLabel(b, showSimulation);
-            return { key: label, label, color: BENCHMARK_COLORS[b.series], points: b.cumulative_return, dashed: true };
-          }),
-        ]
-      : players.map(({ player, label }) => ({
-          key: label,
-          label,
-          color: colorOf(label),
-          points: player.networth,
-          emphasis: isYou(player),
-        }));
-  const seriesSetKey = `${view}|${series.map((s) => s.key).join("|")}`;
+      ? [...playerSeries((p) => p.cumulative_return), ...benchmarkSeries]
+      : playerSeries((p) => p.networth);
+  const chartAxis = comparing ? axis : "date";
+  const seriesSetKey = `${view}|${chartAxis}|${series.map((s) => s.key).join("|")}`;
 
   return (
     <div className="grid gap-5">
       <ChartCard
         metric={view === "RETURN" ? CUMULATIVE_RETURN : NETWORTH}
         description={
-          view === "RETURN"
-            ? "Quanto a carteira rendeu desde o começo, sem contar aportes. Tracejado: CDI e Ibovespa no mesmo período."
-            : undefined
+          view !== "RETURN"
+            ? undefined
+            : comparing
+              ? "Cada partida traz o CDI do próprio período, na cor dela. Linhas cinza: os outros jogadores."
+              : "Quanto a carteira rendeu desde o começo, sem contar aportes. Tracejado: CDI e Ibovespa no mesmo período."
         }
         action={
-          <ToggleGroup
-            variant="segmented"
-            aria-label="Medida do gráfico"
-            value={[view]}
-            onValueChange={(values) => values[0] && setView(values[0] as View)}
-          >
-            <ToggleGroupItem value="RETURN">Retorno %</ToggleGroupItem>
-            <ToggleGroupItem value="NETWORTH">Patrimônio R$</ToggleGroupItem>
-          </ToggleGroup>
+          <div className="flex flex-wrap gap-2">
+            {comparing && (
+              <ToggleGroup
+                variant="segmented"
+                aria-label="Eixo do tempo"
+                value={[axis]}
+                onValueChange={(values) => values[0] && setAxis(values[0] as ChartAxis)}
+              >
+                <ToggleGroupItem value="index">Desde o início</ToggleGroupItem>
+                <ToggleGroupItem value="date">Data real</ToggleGroupItem>
+              </ToggleGroup>
+            )}
+            <ToggleGroup
+              variant="segmented"
+              aria-label="Medida do gráfico"
+              value={[view]}
+              onValueChange={(values) => values[0] && setView(values[0] as View)}
+            >
+              <ToggleGroupItem value="RETURN">Retorno %</ToggleGroupItem>
+              <ToggleGroupItem value="NETWORTH">Patrimônio R$</ToggleGroupItem>
+            </ToggleGroup>
+          </div>
         }
       >
         <PlayerLineChart
           key={seriesSetKey}
           series={series}
+          axis={chartAxis}
           format={view === "RETURN" ? (v) => displayPercent(v) : (v) => displayMoney(v)}
           axisFormat={view === "RETURN" ? (v) => displayPercent(v, 0) : (v) => displayMoneyCompact(v)}
         />
@@ -132,7 +161,7 @@ export function ReturnsTab({ simulationIds, showSimulation, currentPlayerName }:
         title="Rentabilidade por jogador"
         description="Cada quadradinho é um mês da partida: verde bateu o CDI, azul subiu, cinza caiu."
         rows={data.players}
-        showSimulation={showSimulation}
+        simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
         colorOf={colorOf}
         extraColumn={{ header: "Meses", cell: (row) => <MonthStrip months={row.monthly_returns} /> }}
@@ -148,9 +177,9 @@ export function ReturnsTab({ simulationIds, showSimulation, currentPlayerName }:
           { metric: POSITIVE_MONTHS, value: (r) => `${r.positive_months} de ${r.months}` },
         ]}
         footer={data.benchmarks.map((b) => (
-          <TableRow key={benchmarkLabel(b, true)}>
+          <TableRow key={`${b.simulation_id}|${b.series}`}>
             <TableCell>
-              <span className="text-muted-foreground">{benchmarkLabel(b, showSimulation)} · referência</span>
+              <span className="text-muted-foreground">{benchmarkLabel(b, simulationIds)} · referência</span>
             </TableCell>
             <TableCell />
             <TableCell numeric>—</TableCell>

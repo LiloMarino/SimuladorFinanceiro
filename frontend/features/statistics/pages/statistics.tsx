@@ -20,7 +20,7 @@ export default function StatisticsPage() {
 
   return (
     <section className="p-4">
-      <StatisticsReport simulationIds={[simulationId]} showSimulation={false} currentPlayerName={user?.nickname} />
+      <StatisticsReport simulationIds={[simulationId]} currentPlayerName={user?.nickname} />
     </section>
   );
 }
