@@ -1,19 +1,20 @@
+/** Descrição curta, em português, de cada status HTTP que a API devolve. */
 const HTTP_STATUS_TEXT: Record<number, string> = {
-  400: "Bad Request",
-  401: "Unauthorized",
-  403: "Forbidden",
-  404: "Not Found",
-  405: "Method Not Allowed",
-  408: "Request Timeout",
-  409: "Conflict",
-  413: "Payload Too Large",
-  415: "Unsupported Media Type",
-  422: "Unprocessable Entity",
-  429: "Too Many Requests",
-  500: "Internal Server Error",
-  502: "Bad Gateway",
-  503: "Service Unavailable",
-  504: "Gateway Timeout",
+  400: "requisição inválida",
+  401: "não autorizado",
+  403: "acesso negado",
+  404: "não encontrado",
+  405: "método não permitido",
+  408: "tempo esgotado",
+  409: "conflito",
+  413: "arquivo grande demais",
+  415: "tipo de arquivo não aceito",
+  422: "dados inválidos",
+  429: "muitas requisições",
+  500: "o servidor falhou",
+  502: "o servidor não respondeu",
+  503: "servidor indisponível",
+  504: "o servidor demorou demais",
 };
 
 /** Status 0 é a requisição que não chegou a ter resposta: servidor desligado ou fora da rede. */
@@ -40,9 +41,9 @@ export default class ApiError extends Error {
     this.body = body;
   }
 
-  /** Linha técnica que acompanha a mensagem, ex.: "Erro 500 · Internal Server Error". */
+  /** Linha técnica que acompanha a mensagem, ex.: "Erro 500 · o servidor falhou". */
   get statusLine(): string {
-    if (this.status === NETWORK_ERROR_STATUS) return "Sem resposta do servidor";
-    return `Erro ${this.status} · ${HTTP_STATUS_TEXT[this.status] ?? "Unknown Error"}`;
+    if (this.status === NETWORK_ERROR_STATUS) return "Sem conexão com o servidor do host";
+    return `Erro ${this.status} · ${HTTP_STATUS_TEXT[this.status] ?? "erro desconhecido"}`;
   }
 }
