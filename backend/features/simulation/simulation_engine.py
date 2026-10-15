@@ -261,6 +261,7 @@ class SimulationEngine:
         sectors = allocate_by_sector(
             {pos.ticker: pos.current_value for pos in equity}, self.classification
         )
+        names = {s.ticker: s.name for s in repository.stock.get_stocks()}
 
         return PortfolioDTO(
             starting_cash=self.starting_cash,
@@ -286,6 +287,7 @@ class SimulationEngine:
             variable_income=[
                 PortfolioPositionDTO(
                     **pos.model_dump(),
+                    name=names.get(pos.ticker, pos.ticker),
                     portfolio_pct=ratio(pos.current_value, invested_value),
                 )
                 for pos in equity

@@ -158,11 +158,15 @@ def load_simulation(payload: LoadSimulationRequest, _: HostVerified):
     summary="Listar simulações salvas",
     description="Retorna o histórico de simulações, ordenado pela última vez jogada, com onde cada uma parou e quem venceu as terminadas.",
 )
-def list_simulations(search: str | None = None):
+def list_simulations(client_id: ClientID, search: str | None = None):
     """
     Lista as simulações persistidas (histórico).
     """
-    return [describe(s) for s in repository.simulation.list_simulations(search)]
+    user = UserManager.get_user(client_id)
+    nickname = user.nickname if user else None
+    return [
+        describe(s, nickname) for s in repository.simulation.list_simulations(search)
+    ]
 
 
 # Fração do volume médio diário usada no exemplo da prévia

@@ -28,8 +28,9 @@ def is_finished(end_date: date, resume_from: date | None) -> bool:
     return resume_from is not None and next_business_day(resume_from) > end_date
 
 
-def describe(summary: SimulationSummaryDTO) -> SavedSimulationDTO:
-    """Simulação salva como a lista mostra: onde parou, quantos jogaram e quem venceu."""
+def describe(summary: SimulationSummaryDTO, nickname: str | None) -> SavedSimulationDTO:
+    """Simulação salva como a lista mostra: onde parou, quantos jogaram, quem venceu e
+    em que colocação `nickname` ficou."""
     resume_from = resume_point(summary.id)
     finished = is_finished(summary.end_date, resume_from)
     players = build_overview_report([summary.id]).players
@@ -40,4 +41,7 @@ def describe(summary: SimulationSummaryDTO) -> SavedSimulationDTO:
         status=SimulationStatus.FINISHED if finished else SimulationStatus.PAUSED,
         players_count=len(players),
         winner_nickname=players[0].player_nickname if finished and players else None,
+        my_position=next(
+            (p.position for p in players if p.player_nickname == nickname), None
+        ),
     )

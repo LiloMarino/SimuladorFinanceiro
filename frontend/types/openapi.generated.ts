@@ -1988,6 +1988,8 @@ export interface components {
             return_value: string;
             /** Return Pct */
             return_pct: string;
+            /** Name */
+            name: string;
             /** Portfolio Pct */
             portfolio_pct: string;
         };
@@ -2127,6 +2129,8 @@ export interface components {
             players_count: number;
             /** Winner Nickname */
             winner_nickname: string | null;
+            /** My Position */
+            my_position: number | null;
         };
         /** @enum {string} */
         ScoreAxis: "return" | "risk" | "consistency" | "efficiency";

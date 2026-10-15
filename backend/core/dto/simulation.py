@@ -32,6 +32,8 @@ class SavedSimulationDTO(SimulationSummaryDTO):
     status: SimulationStatus
     players_count: int
     winner_nickname: str | None
+    # Colocação de quem pede a lista; None quando não jogou essa partida
+    my_position: int | None
 
 
 class PriceImpactPointDTO(BaseDTO):

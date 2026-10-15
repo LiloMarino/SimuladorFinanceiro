@@ -36,4 +36,5 @@ class PositionDTO(BaseDTO):
 
 
 class PortfolioPositionDTO(PositionDTO):
+    name: str
     portfolio_pct: Decimal
