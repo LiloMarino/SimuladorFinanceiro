@@ -18,6 +18,8 @@ import type { OverviewReport, ScoreMetric } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { displayCriterionGap } from "../../lib/criterion";
 import { SCORE, SCORE_AXES, SCORE_METRICS, displayMetric } from "../../lib/metrics";
+import { SimulationLetter } from "../compare/simulation-letter";
+import { simulationColor, simulationLetter } from "../../lib/player-label";
 import { playerColors } from "../../lib/player-colors";
 import { playerKey, playerLabel } from "../../lib/player-label";
 import { PlayerCell, PlayerToggle, TabStatus, type ReportProps } from "./shared";
@@ -53,7 +55,87 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
           colorOf={colorOf}
         />
       )}
+      {simulationIds.length > 1 && (
+        <YouVersusYou report={data} simulationIds={simulationIds} currentPlayerName={currentPlayerName} />
+      )}
     </div>
+  );
+}
+
+/** Seus eixos da nota em cada partida, uma barra por partida; a diferença é contra a primeira escolhida. */
+function YouVersusYou({
+  report,
+  simulationIds,
+  currentPlayerName,
+}: {
+  report: OverviewReport;
+  simulationIds: number[];
+  currentPlayerName: string;
+}) {
+  const mine = report.players
+    .filter((p) => p.player_nickname === currentPlayerName && p.score)
+    .sort((a, b) => simulationIds.indexOf(a.simulation_id) - simulationIds.indexOf(b.simulation_id));
+  if (mine.length < 2) return null;
+
+  const pointsOf = (p: Player, axis: string) => p.score?.axes.find((a) => a.axis === axis)?.points ?? null;
+  const base = mine[0];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Você contra você</CardTitle>
+        <CardDescription>
+          Seus eixos da nota em cada partida. ~100 por eixo é um bom desempenho; a diferença é contra a partida{" "}
+          {simulationLetter(simulationIds, base.simulation_id)}.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-5 md:grid-cols-2">
+          {Object.entries(SCORE_AXES).map(([axis, info]) => (
+            <div key={axis} className="grid gap-2">
+              <span className="text-[13px] font-semibold">{info.label}</span>
+              {mine.map((p, i) => {
+                const value = pointsOf(p, axis);
+                const reference = pointsOf(base, axis);
+                const diff = i > 0 && value !== null && reference !== null ? Number(value) - Number(reference) : null;
+                return (
+                  <div key={p.simulation_id} className="flex items-center gap-2.5">
+                    <SimulationLetter
+                      letter={simulationLetter(simulationIds, p.simulation_id)}
+                      color={simulationColor(simulationIds, p.simulation_id)}
+                    />
+                    <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
+                      <span
+                        className="block h-full rounded-full"
+                        style={{
+                          width: `${Math.min(Number(value ?? 0) / AXIS_SCALE, 1) * 100}%`,
+                          backgroundColor: simulationColor(simulationIds, p.simulation_id),
+                        }}
+                      />
+                    </span>
+                    <span className="w-9 text-right font-mono text-[13px] font-semibold">
+                      {value === null ? "—" : displayNumber(value, 0)}
+                    </span>
+                    <span
+                      className={cn(
+                        "w-10 font-mono text-xs",
+                        diff === null || diff === 0
+                          ? "text-transparent"
+                          : diff > 0
+                            ? "text-success"
+                            : "text-destructive",
+                      )}
+                    >
+                      {diff !== null && diff !== 0 ? `${diff > 0 ? "+" : "−"}${displayNumber(Math.abs(diff), 0)}` : "·"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

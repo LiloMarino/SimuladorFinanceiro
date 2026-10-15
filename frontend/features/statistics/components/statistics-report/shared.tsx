@@ -198,7 +198,7 @@ export function MetricsTable<T extends PlayerRef>({
         </TableHeader>
         <TableBody>
           {rows.map((row) => {
-            const label = playerLabel(row, simulationIds);
+            const label = playerLabel(row, simulationIds, currentPlayerName);
             const isYou = row.player_nickname === currentPlayerName;
             return (
               <TableRow key={playerKey(row)} variant={isYou ? "current" : "default"}>

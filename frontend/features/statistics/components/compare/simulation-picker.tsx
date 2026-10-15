@@ -19,11 +19,11 @@ interface SimulationPickerProps {
   onToggle: (id: number) => void;
 }
 
-/** "4 jogadores · vencedor Bia · Nota geral": o resumo de uma linha da lista. */
+/** "4 jogadores · você em 2º · Nota geral": o resumo de uma linha da lista. */
 function describe(s: SimulationListItem) {
   const players = s.players_count === 1 ? "Solo" : `${s.players_count} jogadores`;
-  const winner = s.players_count > 1 && s.winner_nickname ? ` · vencedor ${s.winner_nickname}` : "";
-  return `${players}${winner} · ${VICTORY_CRITERIA[s.victory_criterion].label}`;
+  const position = s.my_position !== null && s.players_count > 1 ? ` · você em ${s.my_position}º` : "";
+  return `${players}${position} · ${VICTORY_CRITERIA[s.victory_criterion].label}`;
 }
 
 /** A lista de simulações salvas: cada uma escolhida ganha a letra e a cor da ordem em que entrou. */
