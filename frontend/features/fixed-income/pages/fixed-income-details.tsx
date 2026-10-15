@@ -108,9 +108,9 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
       {/* Os quatro números */}
       <Card>
         <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0">
             {metrics.map((m) => (
-              <div key={m.label} className="grid gap-0.5">
+              <div key={m.label} className="grid gap-0.5 lg:border-l lg:pl-5 lg:first:border-l-0 lg:first:pl-0">
                 <span className="text-xs font-medium text-muted-foreground">{m.label}</span>
                 <span className="font-mono text-lg font-semibold">{m.value}</span>
                 {m.detail && <span className="text-xs text-muted-foreground">{m.detail}</span>}
@@ -142,20 +142,23 @@ function Projection({ quote }: { quote: FixedIncomeQuote }) {
       key: "applied",
       label: "Aplicado",
       value: displayMoney(quote.amount),
+      detail: null,
       share: Number(quote.amount) / gross,
       className: "bg-input",
     },
     {
       key: "yield",
       label: "Rendimento bruto",
-      value: `+${displayMoney(quote.gross_return)} (+${displayPercent(quote.gross_return_pct)})`,
+      value: `+${displayMoney(quote.gross_return)}`,
+      detail: `+${displayPercent(quote.gross_return_pct)}`,
       share: (Number(quote.gross_return) - Number(quote.income_tax)) / gross,
       className: "bg-success",
     },
     {
       key: "tax",
-      label: `IR (${displayPercent(quote.income_tax_rate, 1)})`,
+      label: "IR",
       value: `−${displayMoney(quote.income_tax)}`,
+      detail: `alíquota ${displayPercent(quote.income_tax_rate, 1)}`,
       share: Number(quote.income_tax) / gross,
       className: "bg-[repeating-linear-gradient(135deg,var(--destructive)_0_3px,transparent_3px_6px)]",
     },
@@ -189,16 +192,18 @@ function Projection({ quote }: { quote: FixedIncomeQuote }) {
                   <span className={cn("size-2.5 rounded-sm", p.className)} aria-hidden="true" />
                   {p.label}
                 </dt>
-                <dd className="font-mono text-[13px]">{hasAmount ? p.value : "—"}</dd>
+                <dd className="font-mono text-[13px] font-semibold">{hasAmount ? p.value : "—"}</dd>
+                {hasAmount && p.detail && <dd className="font-mono text-xs text-muted-foreground">{p.detail}</dd>}
               </div>
             ))}
             <div className="grid gap-0.5">
               <dt className="text-xs text-muted-foreground">Resgate líquido</dt>
               <dd className="font-mono text-[13px] font-semibold">
-                {hasAmount
-                  ? `${displayMoney(quote.net_amount)} (+${displayPercent(quote.net_return_pct)})`
-                  : `+${displayPercent(quote.net_return_pct)}`}
+                {hasAmount ? displayMoney(quote.net_amount) : `+${displayPercent(quote.net_return_pct)}`}
               </dd>
+              {hasAmount && (
+                <dd className="font-mono text-xs text-muted-foreground">+{displayPercent(quote.net_return_pct)}</dd>
+              )}
             </div>
           </dl>
         </div>

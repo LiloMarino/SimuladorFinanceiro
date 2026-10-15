@@ -1,8 +1,19 @@
+import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/shared/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableEmptyRow,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shared/components/ui/table";
 import { displayCompactNumber, displayMoney, displaySignedPercent } from "@/shared/lib/utils/display";
 import type { MarketQuote } from "@/types";
+
+const COLUMNS = 7;
 
 const CLASS_LABELS: Record<MarketQuote["asset_class"], string | null> = {
   STOCK: null,
@@ -53,9 +64,11 @@ function Sparkline({ values }: { values: number[] }) {
 type MarketTableProps = {
   quotes: MarketQuote[];
   holdings: Map<string, number>;
+  /** Erro, base vazia ou filtro sem resultado: ocupa uma linha, com o cabeçalho mantido */
+  message: ReactNode;
 };
 
-export function MarketTable({ quotes, holdings }: MarketTableProps) {
+export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
   const navigate = useNavigate();
 
   return (
@@ -72,15 +85,12 @@ export function MarketTable({ quotes, holdings }: MarketTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
+        {message && <TableEmptyRow colSpan={COLUMNS}>{message}</TableEmptyRow>}
         {quotes.map((q) => {
           const held = holdings.get(q.ticker);
           const classLabel = CLASS_LABELS[q.asset_class];
           return (
-            <TableRow
-              key={q.ticker}
-              className="cursor-pointer"
-              onClick={() => navigate(`/variable-income/${q.ticker}`)}
-            >
+            <TableRow key={q.ticker} onActivate={() => navigate(`/variable-income/${q.ticker}`)}>
               <TableCell>
                 <div className="grid">
                   <span className="flex items-center gap-2">

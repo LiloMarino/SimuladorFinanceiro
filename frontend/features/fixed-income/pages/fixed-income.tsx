@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -8,7 +8,15 @@ import { Empty, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
 import { Label } from "@/shared/components/ui/label";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Switch } from "@/shared/components/ui/switch";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableEmptyRow,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
@@ -18,6 +26,8 @@ import { displayDate, displayPercent, displayRateLabel, parseLocalDate } from "@
 import type { FixedIncomeOffer } from "@/types";
 import { useFixedIncomeAssets } from "../hooks/queries/useFixedIncomeAssets";
 import { INVESTMENT_TYPE_LABELS, timeToMaturity } from "../lib/labels";
+
+const COLUMNS = 7;
 
 type IndexFilter = "ALL" | FixedIncomeOffer["rate_index"];
 type TypeFilter = "ALL" | "CDB" | "LCI_LCA" | "Tesouro Direto";
@@ -41,6 +51,7 @@ const matchesType = (o: FixedIncomeOffer, filter: TypeFilter) =>
   (filter === "LCI_LCA" ? o.investment_type === "LCI" || o.investment_type === "LCA" : o.investment_type === filter);
 
 export default function FixedIncomePage() {
+  const navigate = useNavigate();
   const { data: offers, isLoading, error, refetch } = useFixedIncomeAssets();
   const { data: portfolio } = usePortfolio();
   const { data: simulation } = useSimulationState();
@@ -57,6 +68,22 @@ export default function FixedIncomePage() {
   const topRate = Math.max(...visible.map((o) => Number(o.effective_annual_rate)), 0.0001);
   const today = simulation?.current_date;
 
+  // Erro ou sem resultado: a tabela fica com o cabeçalho e a mensagem ocupa uma linha
+  const message = error ? (
+    <ErrorState
+      title="Não deu pra carregar os títulos"
+      description="A partida continua; tente de novo."
+      error={error}
+      onRetry={() => void refetch()}
+    />
+  ) : visible.length === 0 ? (
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle>{offers?.length ? "Nenhum título com esse filtro" : "Nenhum título disponível nesta partida"}</EmptyTitle>
+      </EmptyHeader>
+    </Empty>
+  ) : null;
+
   const renderBody = () => {
     if (isLoading) {
       return (
@@ -66,31 +93,6 @@ export default function FixedIncomePage() {
               <Skeleton key={i} className="h-10" />
             ))}
           </div>
-        </CardContent>
-      );
-    }
-    if (error) {
-      return (
-        <CardContent>
-          <ErrorState
-            title="Não deu pra carregar os títulos"
-            description="A partida continua; tente de novo."
-            error={error}
-            onRetry={() => void refetch()}
-          />
-        </CardContent>
-      );
-    }
-    if (visible.length === 0) {
-      return (
-        <CardContent>
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>
-                {offers?.length ? "Nenhum título com esse filtro" : "Nenhum título disponível nesta partida"}
-              </EmptyTitle>
-            </EmptyHeader>
-          </Empty>
         </CardContent>
       );
     }
@@ -110,8 +112,9 @@ export default function FixedIncomePage() {
           </TableRow>
         </TableHeader>
         <TableBody>
+          {message && <TableEmptyRow colSpan={COLUMNS}>{message}</TableEmptyRow>}
           {visible.map((o) => (
-            <TableRow key={o.asset_uuid}>
+            <TableRow key={o.asset_uuid} onActivate={() => navigate(`/fixed-income/${o.asset_uuid}`)}>
               <TableCell>
                 <div className="grid">
                   <span className="flex items-center gap-2 font-semibold">
@@ -162,7 +165,7 @@ export default function FixedIncomePage() {
                   variant="ghost"
                   size="sm"
                   nativeButton={false}
-                  render={<Link to={`/fixed-income/${o.asset_uuid}`} />}
+                  render={<Link to={`/fixed-income/${o.asset_uuid}`} onClick={(e) => e.stopPropagation()} />}
                 >
                   Investir
                 </Button>
@@ -181,6 +184,7 @@ export default function FixedIncomePage() {
         <div className="flex flex-wrap items-center gap-3">
           <ToggleGroup
             variant="segmented"
+            size="field"
             aria-label="Indexador"
             value={[indexFilter]}
             onValueChange={(values) => values[0] && setIndexFilter(values[0] as IndexFilter)}
@@ -193,6 +197,7 @@ export default function FixedIncomePage() {
           </ToggleGroup>
           <ToggleGroup
             variant="segmented"
+            size="field"
             aria-label="Tipo de título"
             value={[typeFilter]}
             onValueChange={(values) => values[0] && setTypeFilter(values[0] as TypeFilter)}
@@ -203,7 +208,7 @@ export default function FixedIncomePage() {
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-          <div className="flex items-center gap-2">
+          <div className="ml-auto flex h-10 items-center gap-2 rounded-lg border border-input px-3">
             <Switch id="only-exempt" checked={onlyExempt} onCheckedChange={setOnlyExempt} />
             <Label htmlFor="only-exempt">Só isentos de IR</Label>
           </div>

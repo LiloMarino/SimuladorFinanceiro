@@ -14,6 +14,7 @@ import { MarketTable } from "../components/market-table";
 
 type Filter = "ALL" | "HELD" | "STOCK" | "FII" | "ETF";
 const ALL_SECTORS = "__all__";
+const NO_SECTOR = "__none__";
 
 export default function VariableIncomePage() {
   const { data: quotes, isLoading, error, refetch } = useVariableIncomeStocks();
@@ -25,20 +26,55 @@ export default function VariableIncomePage() {
   const holdings = new Map((portfolio?.variable_income ?? []).map((p) => [p.ticker, p.size]));
   const all = quotes ?? [];
   const sectors = [...new Set(all.map((q) => q.sector).filter((s): s is string => !!s))].sort();
-  const sectorItems = [{ value: ALL_SECTORS, label: "Setor: todos" }, ...sectors.map((s) => ({ value: s, label: s }))];
+  const withoutSector = all.filter((q) => !q.sector).length;
+  // O menu mostra a contagem de cada setor; "Sem setor" fecha a lista
+  const sectorItems = [
+    { value: ALL_SECTORS, label: `Todos · ${all.length}` },
+    ...sectors.map((s) => ({ value: s, label: `${s} · ${all.filter((q) => q.sector === s).length}` })),
+    ...(withoutSector > 0 ? [{ value: NO_SECTOR, label: `Sem setor · ${withoutSector}` }] : []),
+  ];
+  const sectorName = (value: string) => (value === ALL_SECTORS ? "todos" : value === NO_SECTOR ? "sem setor" : value);
 
   const term = search.trim().toLowerCase();
   const visible = all.filter(
     (q) =>
       (!term || q.ticker.toLowerCase().includes(term) || q.name.toLowerCase().includes(term)) &&
       (filter === "ALL" || (filter === "HELD" ? holdings.has(q.ticker) : q.asset_class === filter)) &&
-      (sector === ALL_SECTORS || q.sector === sector),
+      (sector === ALL_SECTORS || (sector === NO_SECTOR ? !q.sector : q.sector === sector)),
   );
   const clearFilters = () => {
     setSearch("");
     setFilter("ALL");
     setSector(ALL_SECTORS);
   };
+
+  // Sem dado, com erro ou sem resultado: a tabela fica com o cabeçalho e a mensagem ocupa uma linha
+  const message = error ? (
+    <ErrorState
+      title="Não deu pra carregar os ativos"
+      description="A partida continua; tente de novo."
+      error={error}
+      onRetry={() => void refetch()}
+    />
+  ) : all.length === 0 ? (
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle>Nenhum ativo na base</EmptyTitle>
+        <EmptyDescription>O host importa ações na Central de dados, fora da partida.</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  ) : visible.length === 0 ? (
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle>{term ? `Nada com “${search.trim()}”` : "Nenhum ativo com esse filtro"}</EmptyTitle>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button variant="link" size="sm" onClick={clearFilters}>
+          Limpar filtros
+        </Button>
+      </EmptyContent>
+    </Empty>
+  ) : null;
 
   const renderBody = () => {
     if (isLoading) {
@@ -52,47 +88,7 @@ export default function VariableIncomePage() {
         </CardContent>
       );
     }
-    if (error) {
-      return (
-        <CardContent>
-          <ErrorState
-            title="Não deu pra carregar os ativos"
-            description="A partida continua; tente de novo."
-            error={error}
-            onRetry={() => void refetch()}
-          />
-        </CardContent>
-      );
-    }
-    if (all.length === 0) {
-      return (
-        <CardContent>
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>Nenhum ativo na base</EmptyTitle>
-              <EmptyDescription>O host importa ações na Central de dados, fora da partida.</EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        </CardContent>
-      );
-    }
-    if (visible.length === 0) {
-      return (
-        <CardContent>
-          <Empty>
-            <EmptyHeader>
-              <EmptyTitle>{term ? `Nada com “${search.trim()}”` : "Nenhum ativo com esse filtro"}</EmptyTitle>
-            </EmptyHeader>
-            <EmptyContent>
-              <Button variant="link" size="sm" onClick={clearFilters}>
-                Limpar filtros
-              </Button>
-            </EmptyContent>
-          </Empty>
-        </CardContent>
-      );
-    }
-    return <MarketTable quotes={visible} holdings={holdings} />;
+    return <MarketTable quotes={visible} holdings={holdings} message={message} />;
   };
 
   return (
@@ -100,7 +96,7 @@ export default function VariableIncomePage() {
       {/* Filtros */}
       <CardHeader>
         <div className="flex flex-wrap items-center gap-3">
-          <InputGroup className="w-64">
+          <InputGroup size="lg" className="w-64">
             <InputGroupAddon>
               <Search />
             </InputGroupAddon>
@@ -112,6 +108,7 @@ export default function VariableIncomePage() {
           </InputGroup>
           <ToggleGroup
             variant="segmented"
+            size="field"
             aria-label="Filtrar ativos"
             value={[filter]}
             onValueChange={(values) => values[0] && setFilter(values[0] as Filter)}
@@ -122,20 +119,30 @@ export default function VariableIncomePage() {
             <ToggleGroupItem value="FII">FII</ToggleGroupItem>
             <ToggleGroupItem value="ETF">ETF</ToggleGroupItem>
           </ToggleGroup>
-          {sectors.length > 0 && (
-            <Select items={sectorItems} value={sector} onValueChange={(value) => setSector(value ?? ALL_SECTORS)}>
-              <SelectTrigger size="sm" aria-label="Filtrar por setor">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {sectorItems.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+          {/* Sempre visível: sem setores na base, fica desabilitado */}
+          <Select
+            items={sectorItems}
+            value={sector}
+            disabled={sectors.length === 0}
+            onValueChange={(value) => setSector(value ?? ALL_SECTORS)}
+          >
+            <SelectTrigger size="lg" aria-label="Filtrar por setor" className="ml-auto">
+              <SelectValue>
+                {(value: string) => (
+                  <>
+                    <span className="text-muted-foreground">Setor:</span> {sectorName(value)}
+                  </>
+                )}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {sectorItems.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </CardHeader>
       {renderBody()}
