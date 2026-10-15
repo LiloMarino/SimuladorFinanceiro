@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.2">
 <title data-rh="true">Correlação entre Ativos | Simulador Financeiro</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://lilomarino.github.io/SimuladorFinanceiro/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://lilomarino.github.io/SimuladorFinanceiro/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://lilomarino.github.io/SimuladorFinanceiro/como-usar/correlacao"><meta data-rh="true" property="og:locale" content="pt_BR"><meta data-rh="true" name="docusaurus_locale" content="pt-BR"><meta data-rh="true" name="docsearch:language" content="pt-BR"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Correlação entre Ativos | Simulador Financeiro"><meta data-rh="true" name="description" content="A tela de Correlação mostra o quanto os ativos andam juntos, antes de você montar uma carteira ou uma estratégia. Diversificar só funciona entre ativos que não caem ao mesmo tempo. Sem essa medida, duas posições &quot;diferentes&quot; podem ser a mesma aposta."><meta data-rh="true" property="og:description" content="A tela de Correlação mostra o quanto os ativos andam juntos, antes de você montar uma carteira ou uma estratégia. Diversificar só funciona entre ativos que não caem ao mesmo tempo. Sem essa medida, duas posições &quot;diferentes&quot; podem ser a mesma aposta."><link data-rh="true" rel="icon" href="/SimuladorFinanceiro/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://lilomarino.github.io/SimuladorFinanceiro/como-usar/correlacao"><link data-rh="true" rel="alternate" href="https://lilomarino.github.io/SimuladorFinanceiro/como-usar/correlacao" hreflang="pt-BR"><link data-rh="true" rel="alternate" href="https://lilomarino.github.io/SimuladorFinanceiro/como-usar/correlacao" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Correlação entre Ativos","item":"https://lilomarino.github.io/SimuladorFinanceiro/como-usar/correlacao"}]}</script><link rel="stylesheet" href="/SimuladorFinanceiro/assets/css/styles.78e78d29.css">
-<script src="/SimuladorFinanceiro/assets/js/runtime~main.be4ff78d.js" defer="defer"></script>
-<script src="/SimuladorFinanceiro/assets/js/main.cfef756b.js" defer="defer"></script>
+<script src="/SimuladorFinanceiro/assets/js/runtime~main.bda484f1.js" defer="defer"></script>
+<script src="/SimuladorFinanceiro/assets/js/main.5eb02abd.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -16,16 +16,16 @@
 <p>Ela abre em dois lugares:</p>
 <ul>
 <li class=""><strong>Durante a partida</strong>, pelo menu <strong>Correlação</strong>. A janela termina sempre na data da simulação, para a ferramenta não revelar o futuro.</li>
-<li class=""><strong>No lobby</strong>, pelo botão <strong>Correlação entre ativos</strong>. Aqui a janela pode terminar em qualquer dia: o campo <strong>Termina em</strong> começa no último pregão importado.</li>
+<li class=""><strong>No lobby</strong>, pelo card <strong>Correlação entre ativos</strong>. Aqui a janela pode terminar em qualquer dia: a data final começa no último pregão importado.</li>
 </ul>
 <hr>
 <h2 class="anchor anchorTargetStickyNavbar_d4Hh" id="como-usar">Como usar<a href="#como-usar" class="hash-link" aria-label="Link direto para Como usar" title="Link direto para Como usar" translate="no">​</a></h2>
 <ol>
-<li class="">Marque os ativos na lista à esquerda (até 20).</li>
+<li class="">Marque os ativos na lista à esquerda, agrupada por setor (até 20). Os atalhos <strong>Minha carteira</strong> (na partida) e <strong>Um de cada setor</strong> marcam vários de uma vez.</li>
 <li class="">Escolha a <strong>janela</strong>: 6 meses, 1 ano, 3 anos ou 5 anos até a data final.</li>
-<li class="">Leia o mapa de calor. Cada célula é um par de ativos, e o <strong>Ibovespa</strong> entra como última linha e coluna, como referência do mercado.</li>
+<li class="">Leia a matriz. Cada célula é um par de ativos; como o par A × B é o mesmo que B × A, a matriz mostra só a metade de baixo. O <strong>Ibovespa</strong> fica numa linha à parte, como referência do mercado.</li>
 </ol>
-<p>Passe o mouse numa célula para ver o valor, a faixa de leitura e quantos pregões em comum entraram no cálculo.</p>
+<p>Clique numa célula para fixar o par no painel ao lado: o valor, a faixa de leitura e quantos pregões em comum entraram no cálculo. O painel também traz os <strong>destaques</strong>: o par que mais anda junto, o melhor par para diversificar (a menor correlação) e, na partida, a correlação média entre as ações da sua carteira.</p>
 <hr>
 <h2 class="anchor anchorTargetStickyNavbar_d4Hh" id="o-que-é-a-correlação">O que é a correlação<a href="#o-que-é-a-correlação" class="hash-link" aria-label="Link direto para O que é a correlação" title="Link direto para O que é a correlação" translate="no">​</a></h2>
 <p>A correlação compara os <strong>retornos diários</strong> de dois ativos: a variação de cada pregão sobre o pregão anterior. Ela responde se, nos dias em que um sobe mais que o normal, o outro também sobe. O resultado vai de −1 a 1:</p>
@@ -38,8 +38,8 @@
 <h2 class="anchor anchorTargetStickyNavbar_d4Hh" id="pregões-em-comum">Pregões em comum<a href="#pregões-em-comum" class="hash-link" aria-label="Link direto para Pregões em comum" title="Link direto para Pregões em comum" translate="no">​</a></h2>
 <p>Cada célula usa só os pregões em que <strong>os dois</strong> ativos negociaram, então a amostra muda de célula para célula. Uma ação listada há pouco tempo tem menos dias em comum com as outras.</p>
 <ul>
-<li class="">Com menos de <strong>20 pregões em comum</strong> (~1 mês), a célula mostra <strong>—</strong>. Com tão poucos dias, o número seria ruído.</li>
-<li class="">Com menos de <strong>63 pregões</strong> (~3 meses), a correlação muda muito de uma janela para outra. Leia com cautela.</li>
+<li class="">Com menos de <strong>63 pregões em comum</strong> (~3 meses), a célula mostra <strong>—</strong>. Com menos dias que isso, a correlação muda muito de uma janela para outra e o número seria ruído. Clicando na célula, o painel diz quantos pregões havia e o que fazer: aumentar a janela ou esperar a partida avançar.</li>
+<li class="">Se um dos dois ficou parado a janela inteira, a célula também mostra <strong>—</strong>: sem variação, não dá pra medir se andam juntos.</li>
 <li class="">Um dia sem preço válido no banco conta como dia sem pregão: o retorno seguinte cobre os dois dias.</li>
 </ul>
 <hr>
