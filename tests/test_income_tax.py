@@ -243,6 +243,23 @@ def test_asset_class_is_inferred_from_ticker_suffix(ticker, asset_class):
     assert infer_asset_class(ticker) == asset_class
 
 
+@pytest.mark.parametrize(
+    ("ticker", "info", "asset_class"),
+    [
+        ("BOVA11.SA", {"quoteType": "ETF"}, AssetClass.ETF),
+        ("PETR4.SA", {"quoteType": "EQUITY"}, AssetClass.STOCK),
+        ("SANB11.SA", {"quoteType": "EQUITY", "industry": "Banks - Regional"}, AssetClass.STOCK),
+        ("HGLG11.SA", {"quoteType": "EQUITY", "industry": "REIT - Industrial"}, AssetClass.FII),
+        ("XPLG11.SA", {"quoteType": "EQUITY", "longName": "FII XP LOG"}, AssetClass.FII),
+        ("AAPL34.SA", {"quoteType": "EQUITY"}, AssetClass.BDR),
+        ("HGLG11.SA", {}, AssetClass.FII),
+    ],
+)
+def test_asset_class_prefers_yfinance_quote_type(ticker, info, asset_class):
+    """O tipo do yfinance decide; o final do código só vale sem esse dado."""
+    assert infer_asset_class(ticker, info) == asset_class
+
+
 class _TaxEngine:
     """Motor mínimo para o débito no tick: apura os eventos dados e anota o DARF."""
 

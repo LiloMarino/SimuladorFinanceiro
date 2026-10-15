@@ -109,9 +109,8 @@ def from_csv(file: UploadFile, fillzero: bool = True) -> pd.DataFrame:
 BDR_SUFFIXES = ("31", "32", "33", "34", "35", "39")
 
 
-def infer_asset_class(ticker: str) -> AssetClass:
-    """Pelo sufixo do código, com ou sem o `.SA` do yfinance. O 11 é FII, ETF ou
-    unit, e quem decide é o usuário na Central de dados; FII é só o ponto de partida."""
+def _asset_class_by_suffix(ticker: str) -> AssetClass:
+    """Pelo sufixo do código, com ou sem o `.SA` do yfinance: 11 é FII, 31 a 39 é BDR."""
     suffix = re.search(r"(\d+)(?:\.SA)?$", ticker, re.IGNORECASE)
     digits = suffix.group(1) if suffix else ""
     if digits.endswith(BDR_SUFFIXES):
@@ -119,6 +118,28 @@ def infer_asset_class(ticker: str) -> AssetClass:
     if digits.endswith("11"):
         return AssetClass.FII
     return AssetClass.STOCK
+
+
+# Fundo imobiliário pelo nome: "FII ...", "Fundo de Investimento Imobiliário ..."
+FII_NAME = re.compile(r"\bFII\b|fundo\s+(de\s+investimento\s+)?imobili", re.IGNORECASE)
+
+
+def infer_asset_class(ticker: str, info: dict | None = None) -> AssetClass:
+    """A classe vem do tipo que o yfinance devolve (`quoteType`): ETF é ETF e ação
+    é ação, exceto fundo imobiliário (indústria REIT ou nome de fundo) e BDR (sufixo).
+    Sem o dado do yfinance, vale o final do código. O usuário confere na Central de dados."""
+    info = info or {}
+    quote_type = str(info.get("quoteType") or "").upper()
+    if quote_type == "ETF":
+        return AssetClass.ETF
+    if quote_type == "EQUITY":
+        name = f"{info.get('longName') or ''} {info.get('shortName') or ''}"
+        if str(info.get("industry") or "").upper().startswith("REIT") or FII_NAME.search(name):
+            return AssetClass.FII
+        by_suffix = _asset_class_by_suffix(ticker)
+        # Final 11 sem sinal de fundo imobiliário é unit de ação
+        return AssetClass.STOCK if by_suffix == AssetClass.FII else by_suffix
+    return _asset_class_by_suffix(ticker)
 
 
 # Os 11 setores do yfinance, nos nomes em português da classificação da B3
@@ -165,7 +186,7 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
 
     if not stock:
         nome = info.get("longName") or info.get("shortName") or ticker
-        asset_class = infer_asset_class(ticker)
+        asset_class = infer_asset_class(ticker, info)
         stock = repository.stock.add_stock(ticker, nome, asset_class)
         logger.info(
             f"Ativo '{ticker}' ({nome}) criado no banco como {asset_class.value}."
