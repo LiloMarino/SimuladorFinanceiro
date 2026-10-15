@@ -1,12 +1,20 @@
 import { Fragment, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { RefreshCw, TriangleAlert } from "lucide-react";
+import { ChevronDown, RefreshCw, TriangleAlert } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Spinner } from "@/shared/components/ui/spinner";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableEmptyRow,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
@@ -77,6 +85,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
   ].filter((g) => g.items.length > 0);
 
   const busy = refreshOne.isPending || refreshOutdated.isPending;
+  const updatingThis = (item: SeriesCoverage) => refreshOne.isPending && refreshOne.variables?.key === item.key;
 
   return (
     <Card className="overflow-hidden">
@@ -133,6 +142,11 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
           </TableRow>
         </TableHeader>
         <TableBody>
+          {groups.length === 0 && (
+            <TableEmptyRow colSpan={COLUMNS}>
+              <span className="text-muted-foreground">Nenhuma série precisa de atenção.</span>
+            </TableEmptyRow>
+          )}
           {groups.map((group) => (
             <Fragment key={group.label}>
               <TableRow variant="group">
@@ -155,9 +169,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                               {item.key}
                             </span>
                             {item.name !== item.key && (
-                              <span className="max-w-40 truncate text-xs text-muted-foreground" title={item.name}>
-                                {item.name}
-                              </span>
+                              <span className="text-xs whitespace-normal text-muted-foreground">{item.name}</span>
                             )}
                           </div>
                           {item.asset_class && (
@@ -189,25 +201,26 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                         {item.kind === "INDICATOR" ? (
                           <span className="text-faint-foreground">—</span>
                         ) : item.segment ? (
-                          <Button
-                            variant="link"
-                            size="xs"
-                            title={`${item.segment.sector} · ${item.segment.segment}`}
+                          <button
+                            type="button"
                             onClick={() => onClassify(item.key)}
+                            className="flex items-start gap-1.5 text-left whitespace-normal"
                           >
-                            <span className="max-w-40 truncate">
-                              {item.segment.sector} · {item.segment.segment}
+                            <span className="grid">
+                              <span className="text-[13px]">{item.segment.sector}</span>
+                              <span className="text-xs text-muted-foreground">{item.segment.segment}</span>
                             </span>
-                          </Button>
+                            <ChevronDown className="mt-0.5 size-3.5 shrink-0 text-faint-foreground" />
+                          </button>
                         ) : (
-                          <span className="flex items-center gap-2">
-                            <Badge variant="secondary" size="sm">
-                              Sem setor
-                            </Badge>
-                            <Button variant="link" size="xs" onClick={() => onClassify(item.key)}>
-                              Classificar
-                            </Button>
-                          </span>
+                          <button
+                            type="button"
+                            onClick={() => onClassify(item.key)}
+                            className="flex items-center gap-1.5 text-[13px] font-medium text-warning"
+                          >
+                            Classificar
+                            <ChevronDown className="size-3.5 shrink-0" />
+                          </button>
                         )}
                       </TableCell>
 
@@ -224,21 +237,31 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                             <TriangleAlert />
                             Parou em {displayDate(parseLocalDate(item.real_end))}
                           </Badge>
+                        ) : item.kind === "STOCK" && !item.segment ? (
+                          <Badge variant="secondary">Sem setor</Badge>
                         ) : (
                           <Badge variant="success">● Em dia</Badge>
                         )}
                       </TableCell>
 
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={`Atualizar ${item.key}`}
-                          disabled={busy}
-                          onClick={() => refreshOne.mutate(item)}
-                        >
-                          {refreshOne.isPending && refreshOne.variables?.key === item.key ? <Spinner /> : <RefreshCw />}
-                        </Button>
+                        {/* Só a linha desatualizada pede a ação por extenso */}
+                        {stale ? (
+                          <Button size="sm" disabled={busy} onClick={() => refreshOne.mutate(item)}>
+                            {updatingThis(item) ? <Spinner /> : <RefreshCw />}
+                            Atualizar
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={`Atualizar ${item.key}`}
+                            disabled={busy}
+                            onClick={() => refreshOne.mutate(item)}
+                          >
+                            {updatingThis(item) ? <Spinner /> : <RefreshCw />}
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
 

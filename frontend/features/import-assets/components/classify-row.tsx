@@ -1,18 +1,17 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { Info, Sparkles } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
+import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { TableCell, TableRow } from "@/shared/components/ui/table";
-import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { Sector, SeriesCoverage, StockSegment } from "@/types";
-
-const NEW_SECTOR = "__new__";
+import { SectorCombobox } from "./sector-combobox";
 
 type ClassifyRowProps = {
   series: SeriesCoverage;
@@ -20,7 +19,7 @@ type ClassifyRowProps = {
   onClose: () => void;
 };
 
-/** Classificação aberta na própria linha da tabela, com os setores que já existem em chips. */
+/** Classificação aberta na própria linha da tabela: sugestão do yFinance no topo, setor e segmento lado a lado. */
 export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
   const queryClient = useQueryClient();
   const { data: sectors } = useApiQuery({
@@ -36,14 +35,13 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
 
   const known = sectors?.map((s) => s.name) ?? [];
   const current = series.segment;
-  const [sectorChoice, setSectorChoice] = useState(
-    current && !known.includes(current.sector) && known.length ? NEW_SECTOR : (current?.sector ?? ""),
-  );
-  const [newSector, setNewSector] = useState(current?.sector ?? "");
+  const [sector, setSector] = useState(current?.sector ?? "");
   const [segment, setSegment] = useState(current?.segment ?? "");
 
-  const sector = sectorChoice === NEW_SECTOR ? newSector.trim() : sectorChoice;
   const segmentOptions = sectors?.find((s) => s.name === sector)?.segments ?? [];
+  const sectorId = `classify-sector-${series.key}`;
+  const segmentId = `classify-segment-${series.key}`;
+  const datalistId = `segments-${series.key}`;
 
   const onSettled = () => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.seriesCoverage() });
@@ -63,93 +61,81 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
     onSettled,
   });
 
-  const applySuggestion = (s: StockSegment) => {
-    setSectorChoice(known.includes(s.sector) ? s.sector : NEW_SECTOR);
-    setNewSector(s.sector);
-    setSegment(s.segment);
-  };
-
   const busy = save.isPending || remove.isPending;
-  const datalistId = `segments-${series.key}`;
 
   return (
     <TableRow variant="editing">
       <TableCell colSpan={columns}>
-        <div className="grid gap-3 py-1 whitespace-normal">
-          {/* Setor */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="w-16 text-xs font-medium text-muted-foreground">Setor</span>
-            <ToggleGroup
-              variant="outline"
-              size="sm"
-              aria-label="Setor"
-              value={sectorChoice ? [sectorChoice] : []}
-              onValueChange={(values) => setSectorChoice(values[0] ?? "")}
-              className="flex-wrap"
-            >
-              {known.map((name) => (
-                <ToggleGroupItem key={name} value={name}>
-                  {name}
-                </ToggleGroupItem>
-              ))}
-              <ToggleGroupItem value={NEW_SECTOR}>
-                <Plus />
-                Novo
-              </ToggleGroupItem>
-            </ToggleGroup>
-            {sectorChoice === NEW_SECTOR && (
-              <Input
-                aria-label="Nome do setor novo"
-                value={newSector}
-                onChange={(e) => setNewSector(e.target.value)}
-                placeholder="Nome do setor"
-                className="w-56"
-              />
-            )}
-          </div>
-
-          {/* Segmento */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="w-16 text-xs font-medium text-muted-foreground">Segmento</span>
-            <Input
-              aria-label="Segmento"
-              value={segment}
-              onChange={(e) => setSegment(e.target.value)}
-              list={datalistId}
-              className="w-64"
-            />
-            <datalist id={datalistId}>
-              {segmentOptions.map((name) => (
-                <option key={name} value={name} />
-              ))}
-            </datalist>
-            {suggestion && (
-              <span className="text-xs text-muted-foreground">
-                Sugestão do yFinance: {suggestion.sector} · {suggestion.segment}{" "}
-                <Button variant="link" size="xs" onClick={() => applySuggestion(suggestion)}>
-                  Usar
-                </Button>
+        <div className="grid gap-4 py-2 whitespace-normal">
+          {/* Sugestão do yFinance */}
+          {suggestion ? (
+            <div className="flex items-center gap-3 rounded-lg border border-info-border bg-card px-3 py-2">
+              <Sparkles className="size-4 shrink-0 text-primary" />
+              <span className="flex-1 text-[13px]">
+                O yFinance sugere{" "}
+                <b>
+                  {suggestion.sector} › {suggestion.segment}
+                </b>
               </span>
-            )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSector(suggestion.sector);
+                  setSegment(suggestion.segment);
+                }}
+              >
+                Usar sugestão
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 rounded-lg border border-dashed border-input px-3 py-2 text-[13px] text-muted-foreground">
+              <Info className="size-4 shrink-0" />
+              O yFinance não sugeriu setor pra esse código. Escolha um ou crie.
+            </div>
+          )}
+
+          {/* Setor e segmento */}
+          <div className="grid grid-cols-2 gap-4">
+            <Field>
+              <FieldLabel htmlFor={sectorId}>Setor</FieldLabel>
+              <SectorCombobox id={sectorId} sectors={known} value={sector} onChange={setSector} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor={segmentId}>
+                Segmento <span className="font-normal text-muted-foreground">· opcional</span>
+              </FieldLabel>
+              <Input id={segmentId} value={segment} onChange={(e) => setSegment(e.target.value)} list={datalistId} />
+              <datalist id={datalistId}>
+                {segmentOptions.map((name) => (
+                  <option key={name} value={name} />
+                ))}
+              </datalist>
+            </Field>
           </div>
 
           {/* Ações */}
-          <div className="flex justify-end gap-2">
-            {current && (
-              <Button variant="ghost" size="sm" disabled={busy} onClick={() => remove.mutate()}>
+          <div className="flex items-center justify-between gap-2">
+            {current ? (
+              <Button variant="link-destructive" size="sm" disabled={busy} onClick={() => remove.mutate()}>
                 Tirar classificação
               </Button>
+            ) : (
+              <span />
             )}
-            <Button variant="ghost" size="sm" disabled={busy} onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button
-              size="sm"
-              disabled={busy || !sector || !segment.trim()}
-              onClick={() => save.mutate({ sector, segment: segment.trim() })}
-            >
-              Salvar
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" disabled={busy} onClick={onClose}>
+                Cancelar
+              </Button>
+              {/* A API pede segmento: sem ele, vale o próprio setor, como na sugestão do yFinance */}
+              <Button
+                size="sm"
+                disabled={busy || !sector}
+                onClick={() => save.mutate({ sector, segment: segment.trim() || sector })}
+              >
+                Salvar
+              </Button>
+            </div>
           </div>
         </div>
       </TableCell>

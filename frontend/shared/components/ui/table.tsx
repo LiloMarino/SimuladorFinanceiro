@@ -83,10 +83,24 @@ function TableCell({ className, numeric = false, ...props }: React.ComponentProp
   );
 }
 
+/** Vazio, erro ou sem resultado: o cabeçalho das colunas fica e a mensagem ocupa uma linha inteira. */
+function TableEmptyRow({ colSpan, className, ...props }: React.ComponentProps<"td"> & { colSpan: number }) {
+  return (
+    <TableRow className="hover:bg-transparent">
+      <td
+        data-slot="table-empty-row"
+        colSpan={colSpan}
+        className={cn("px-4 py-12 text-center align-middle", className)}
+        {...props}
+      />
+    </TableRow>
+  );
+}
+
 function TableCaption({ className, ...props }: React.ComponentProps<"caption">) {
   return (
     <caption data-slot="table-caption" className={cn("mt-4 text-sm text-muted-foreground", className)} {...props} />
   );
 }
 
-export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption };
+export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableEmptyRow, TableCaption };

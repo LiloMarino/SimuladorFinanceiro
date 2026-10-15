@@ -25,11 +25,14 @@ import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
 import type { SeriesCoverage } from "@/types";
+import { tickerFromFileName, type CsvInspection } from "../lib/csv-file";
+import { CsvDropzone } from "./csv-dropzone";
 
 type Source = "YFINANCE" | "CSV";
 type ImportRequest = { source: Source; ticker: string; overwrite: boolean; file: File | null };
 
 export const ADD_ASSET_INPUT_ID = "add-asset-ticker";
+const ADD_ASSET_FILE_ID = "add-asset-file";
 
 const formatIso = (iso: string) => displayDate(parseLocalDate(iso));
 
@@ -38,7 +41,9 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
   const queryClient = useQueryClient();
   const [source, setSource] = useState<Source>("YFINANCE");
   const [ticker, setTicker] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [picked, setPicked] = useState<CsvInspection | null>(null);
+  // O código vem do nome do arquivo até a pessoa digitar o seu
+  const [tickerFromFile, setTickerFromFile] = useState(false);
   const [overwrite, setOverwrite] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
@@ -56,6 +61,7 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
     onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.seriesCoverage() }),
   });
 
+  const file = picked && !picked.problem ? picked.file : null;
   const request: ImportRequest = { source, ticker: ticker.trim().toUpperCase(), overwrite, file };
   const ready = !!request.ticker && (source === "YFINANCE" || !!file);
 
@@ -64,7 +70,17 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
   const startOver = () => {
     importAsset.reset();
     setTicker("");
-    setFile(null);
+    setPicked(null);
+    setTickerFromFile(false);
+  };
+
+  const pickFile = (next: CsvInspection | null) => {
+    setPicked(next);
+    const fromName = next && !next.problem ? tickerFromFileName(next.file.name) : "";
+    if (fromName && (!ticker.trim() || tickerFromFile)) {
+      setTicker(fromName);
+      setTickerFromFile(true);
+    }
   };
 
   const imported = importAsset.data;
@@ -108,31 +124,42 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
                 <ToggleGroupItem value="CSV">Arquivo CSV</ToggleGroupItem>
               </ToggleGroup>
 
+              {source === "CSV" && (
+                <Field>
+                  <FieldLabel htmlFor={ADD_ASSET_FILE_ID}>Arquivo</FieldLabel>
+                  <CsvDropzone
+                    id={ADD_ASSET_FILE_ID}
+                    picked={picked}
+                    disabled={importAsset.isPending}
+                    onPick={pickFile}
+                  />
+                  <FieldDescription>
+                    Colunas do Investing.com: <span className="font-mono">Data</span>,{" "}
+                    <span className="font-mono">Último</span>, <span className="font-mono">Abertura</span>,{" "}
+                    <span className="font-mono">Máxima</span>, <span className="font-mono">Mínima</span> e{" "}
+                    <span className="font-mono">Vol.</span>
+                  </FieldDescription>
+                </Field>
+              )}
+
               <Field>
                 <FieldLabel htmlFor={ADD_ASSET_INPUT_ID}>Código do ativo</FieldLabel>
                 <Input
                   id={ADD_ASSET_INPUT_ID}
                   numeric
                   value={ticker}
-                  onChange={(e) => setTicker(e.target.value)}
-                  placeholder="PETR4, VALE3, BTC-USD"
+                  onChange={(e) => {
+                    setTicker(e.target.value);
+                    setTickerFromFile(false);
+                  }}
+                  placeholder={source === "CSV" ? "Ex.: ITSA4" : "PETR4, VALE3, BTC-USD"}
+                  aria-invalid={importAsset.isError}
                   disabled={importAsset.isPending}
                 />
+                {source === "CSV" && tickerFromFile && (
+                  <FieldDescription>Tirado do nome do arquivo; confira.</FieldDescription>
+                )}
               </Field>
-
-              {source === "CSV" && (
-                <Field>
-                  <FieldLabel htmlFor="add-asset-file">Arquivo</FieldLabel>
-                  <Input
-                    id="add-asset-file"
-                    type="file"
-                    accept=".csv"
-                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                    disabled={importAsset.isPending}
-                  />
-                  <FieldDescription>Colunas de data, abertura, máxima, mínima, fechamento e volume.</FieldDescription>
-                </Field>
-              )}
 
               <Field orientation="horizontal">
                 <Checkbox

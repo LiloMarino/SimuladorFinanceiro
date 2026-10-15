@@ -15,9 +15,11 @@ export const buttonVariants = cva(
         ghost: "text-foreground hover:bg-muted aria-expanded:bg-muted",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:border-destructive/40 focus-visible:ring-destructive/20",
+        info: "bg-info-soft text-info hover:bg-info-soft/70 aria-expanded:bg-info-soft",
         success: "bg-success text-success-foreground hover:bg-success/90 focus-visible:ring-success/20",
         warning: "bg-warning text-warning-foreground hover:bg-warning/90 focus-visible:ring-warning/20",
         link: "h-auto px-0 text-primary hover:text-primary-hover",
+        "link-destructive": "h-auto px-0 text-destructive hover:text-destructive/80",
       },
       size: {
         default: "h-10 gap-2 px-4",
