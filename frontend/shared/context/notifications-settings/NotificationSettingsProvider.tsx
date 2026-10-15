@@ -6,8 +6,8 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
+import type ApiError from "@/shared/lib/models/ApiError";
 import type { NotificationPreferences } from "@/types";
-import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 const DEFAULT_PREFERENCES: NotificationPreferences = {
   orders: {
@@ -46,11 +46,10 @@ export function NotificationSettingsProvider({ children }: PropsWithChildren) {
     // mutação em voo: se o usuário já disparou outra mudança depois desta, é
     // ela quem manda no cache, e não deixamos o rollback desta atropelar o
     // sucesso da mais recente (ver "Concurrent Optimistic Updates" do TkDodo).
-    onError: (err, _next, context) => {
+    onError: (_err, _next, context) => {
       if (queryClient.isMutating({ mutationKey: queryKeys.notificationSettings() }) === 1) {
         queryClient.setQueryData(queryKeys.notificationSettings(), context?.previous);
       }
-      toastApiError(err);
     },
 
     onSettled: () => {
@@ -61,10 +60,10 @@ export function NotificationSettingsProvider({ children }: PropsWithChildren) {
   });
 
   const updatePreferences = useCallback(
-    (next: NotificationPreferences) => {
-      updateMutation.mutate(next);
+    (next: NotificationPreferences, options?: { onError?: (err: ApiError) => void }) => {
+      updateMutation.mutate(next, { onError: options?.onError });
     },
-    [updateMutation]
+    [updateMutation],
   );
 
   return (
