@@ -22,8 +22,8 @@ export default tseslint.config([
     },
     plugins: { shadcn },
     rules: {
-      'shadcn/no-restyle': ['warn', { allow: ['layout'] }],
-      'shadcn/no-raw-colors': 'warn',
+      'shadcn/no-restyle': ['error', { allow: ['layout'] }],
+      'shadcn/no-raw-colors': 'error',
     },
   },
   // Os componentes do design system definem o próprio visual

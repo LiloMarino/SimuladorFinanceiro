@@ -10,8 +10,8 @@ interface InfoHintProps {
 export function InfoHint({ children, label = "Como funciona" }: InfoHintProps) {
   return (
     <Tooltip>
-      <TooltipTrigger type="button" className="text-muted-foreground" aria-label={label}>
-        <Info className="size-4" />
+      <TooltipTrigger type="button" aria-label={label}>
+        <Info className="size-4 text-muted-foreground" />
       </TooltipTrigger>
       <TooltipContent side="top" className="max-w-72">
         {children}

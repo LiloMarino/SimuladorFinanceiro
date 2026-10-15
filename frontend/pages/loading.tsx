@@ -18,7 +18,9 @@ export function LoadingPage({ variant = "page", failed = false, onRetry, classNa
   if (variant === "page") {
     return (
       <section className={cn("flex min-h-[60vh] items-center justify-center", className)}>
-        <Spinner className="size-8 text-muted-foreground" />
+        <span className="text-muted-foreground">
+          <Spinner className="size-8" />
+        </span>
       </section>
     );
   }

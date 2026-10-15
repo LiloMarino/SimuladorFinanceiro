@@ -41,7 +41,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   return (
     <SidebarRoot collapsible="none" className="h-svh">
       {/* Marca e partida */}
-      <SidebarHeader className="flex-row items-center gap-3 px-4 pt-5 pb-2">
+      <SidebarHeader>
         <BrandMark size="sm" />
         <div className="grid min-w-0">
           <span className="text-[15px] font-bold text-sidebar-accent-foreground">FinSim</span>
@@ -50,7 +50,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
       </SidebarHeader>
 
       {/* Navegação por grupo */}
-      <SidebarContent className="px-1">
+      <SidebarContent>
         {NAV_GROUPS.map((group) => (
           <SidebarGroup key={group}>
             <SidebarGroupLabel>{group}</SidebarGroupLabel>
@@ -72,7 +72,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
       </SidebarContent>
 
       {/* Jogador */}
-      <SidebarFooter className="flex-row items-center gap-3 border-t border-sidebar-border px-4 py-4">
+      <SidebarFooter>
         <Avatar>
           <AvatarFallback color={stringToColor(nickname)}>{nickname.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
