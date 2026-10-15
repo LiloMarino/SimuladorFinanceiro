@@ -3,7 +3,15 @@ import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableEmptyRow,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
@@ -91,7 +99,8 @@ export function PlayerCell({ label, color, isYou }: { label: string; color: stri
         <AvatarFallback color={color}>{label.charAt(0).toUpperCase()}</AvatarFallback>
       </Avatar>
       {label}
-      {isYou && (
+      {/* Entre partidas o nome já diz "Você · A" */}
+      {isYou && !label.startsWith("Você") && (
         <Badge variant="info" size="sm">
           você
         </Badge>
@@ -197,6 +206,11 @@ export function MetricsTable<T extends PlayerRef>({
           </TableRow>
         </TableHeader>
         <TableBody>
+          {rows.length === 0 && (
+            <TableEmptyRow colSpan={columns.length + (extraColumn ? 2 : 1)}>
+              <span className="text-[13px] text-muted-foreground">Sem jogadores com patrimônio ainda.</span>
+            </TableEmptyRow>
+          )}
           {rows.map((row) => {
             const label = playerLabel(row, simulationIds, currentPlayerName);
             const isYou = row.player_nickname === currentPlayerName;

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Badge } from "@/shared/components/ui/badge";
 import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
@@ -44,13 +43,21 @@ function benchmarkLabel(benchmark: Benchmark, simulationIds: number[]) {
 }
 
 /** Cada mês da partida num quadradinho: colorido quando passou no teste da coluna, cinza quando não. */
-function MonthStrip({ months, passed }: { months: Player["monthly_returns"]; passed: (m: Player["monthly_returns"][number]) => boolean }) {
+function MonthStrip({
+  months,
+  passed,
+  color,
+}: {
+  months: Player["monthly_returns"];
+  passed: (m: Player["monthly_returns"][number]) => boolean;
+  color: string;
+}) {
   return (
     <span className="flex gap-0.5">
       {months.map((m) => (
         <Tooltip key={m.month}>
           <TooltipTrigger render={<span />}>
-            <span className={cn("block size-3 rounded-[3px]", passed(m) ? "bg-success" : "bg-muted")} />
+            <span className={cn("block size-3 rounded-[3px]", passed(m) ? color : "bg-muted")} />
           </TooltipTrigger>
           <TooltipContent>
             {displayMonthSlashYear(m.month)}: {displaySignedPercent(m.value)} · CDI {displayPercent(m.cdi)}
@@ -66,14 +73,16 @@ function MonthsCell({
   months,
   count,
   passed,
+  color,
 }: {
   months: Player["monthly_returns"];
   count: number;
   passed: (m: Player["monthly_returns"][number]) => boolean;
+  color: string;
 }) {
   return (
     <span className="flex items-center justify-end gap-2.5">
-      <MonthStrip months={months} passed={passed} />
+      <MonthStrip months={months} passed={passed} color={color} />
       <span className="font-mono">
         {count} de {months.length}
       </span>
@@ -217,12 +226,12 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
           {
             metric: MONTHS_ABOVE_CDI,
             value: (r) => r.months_above_cdi,
-            cell: (r) => <MonthsCell months={r.monthly_returns} count={r.months_above_cdi} passed={aboveCdi} />,
+            cell: (r) => <MonthsCell months={r.monthly_returns} count={r.months_above_cdi} passed={aboveCdi} color="bg-success" />,
           },
           {
             metric: POSITIVE_MONTHS,
             value: (r) => r.positive_months,
-            cell: (r) => <MonthsCell months={r.monthly_returns} count={r.positive_months} passed={positive} />,
+            cell: (r) => <MonthsCell months={r.monthly_returns} count={r.positive_months} passed={positive} color="bg-chart-1" />,
           },
         ]}
         footer={data.benchmarks.map((b) => (
@@ -238,7 +247,6 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
           </TableRow>
         ))}
       />
-      {data.players.length === 0 && <Badge variant="secondary">Sem jogadores com patrimônio ainda</Badge>}
     </div>
   );
 }

@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { displayList, displayNumber, displayPercent, displayPercentagePoints } from "@/shared/lib/utils/display";
+import { displayList, displayNumber, displayPercent } from "@/shared/lib/utils/display";
 import type { RiskReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { playerColors } from "../../lib/player-colors";
@@ -330,7 +330,7 @@ function RiskReturn({
                       <>
                         :{" "}
                         <b className="font-mono text-foreground">
-                          {displayPercentagePoints(Math.abs(Number(you.annual_return ?? 0) - cdi))}{" "}
+                          {displayNumber(Math.abs(Number(you.annual_return ?? 0) - cdi) * 100)} p.p.{" "}
                           {Number(you.annual_return ?? 0) >= cdi ? "acima" : "abaixo"} do CDI
                         </b>
                       </>

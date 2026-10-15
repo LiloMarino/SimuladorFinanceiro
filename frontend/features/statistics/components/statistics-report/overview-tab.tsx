@@ -97,7 +97,9 @@ function YouVersusYou({
               {mine.map((p, i) => {
                 const value = pointsOf(p, axis);
                 const reference = pointsOf(base, axis);
-                const diff = i > 0 && value !== null && reference !== null ? Number(value) - Number(reference) : null;
+                const rawDiff = i > 0 && value !== null && reference !== null ? Number(value) - Number(reference) : null;
+                // Diferença que arredonda para 0 não vira "+0"
+                const diff = rawDiff !== null && Math.round(rawDiff) !== 0 ? rawDiff : null;
                 return (
                   <div key={p.simulation_id} className="flex items-center gap-2.5">
                     <SimulationLetter
@@ -500,7 +502,7 @@ function ScoreAxes({
             </li>
           )}
           <li className="flex items-center gap-1.5">
-            <span className="h-2 w-5 rounded-full bg-chart-3" aria-hidden="true" />
+            <span className="size-2.5 rounded-sm bg-chart-3" aria-hidden="true" />
             abaixo do líder nesse eixo
           </li>
           <li className="flex items-center gap-1.5">

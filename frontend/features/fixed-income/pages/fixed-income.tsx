@@ -162,7 +162,7 @@ export default function FixedIncomePage() {
               </TableCell>
               <TableCell>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   nativeButton={false}
                   render={<Link to={`/fixed-income/${o.asset_uuid}`} onClick={(e) => e.stopPropagation()} />}

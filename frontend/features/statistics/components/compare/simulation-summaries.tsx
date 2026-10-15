@@ -82,6 +82,7 @@ function SimulationSummary({ simulationIds, simulationId, currentPlayerName }: S
                 label={YOUR_CRITERION[data.criterion]}
                 value={withoutUnit(displayCriterionValue(data.criterion, you.criterion_value))}
                 detail={`${you.position}º lugar`}
+                tone={data.criterion === "RETURN" && Number(you.criterion_value) < 0 ? "negative" : undefined}
               />
             ) : (
               <Figure label="Você" value="—" detail="não jogou esta partida" />

@@ -111,7 +111,7 @@ function EconomicIndicators() {
     : [];
 
   return (
-    <div className="grid content-start gap-2 rounded-lg bg-subtle p-4">
+    <div className="grid content-start gap-2 rounded-lg bg-subtle p-4 lg:ml-6 lg:border-l">
       <span className="text-xs font-medium text-muted-foreground">Indicadores hoje</span>
       {isLoading && <Skeleton className="h-20" />}
       {isError && (
