@@ -181,13 +181,15 @@ function EndLabels({ last, top }: { last: Point; top: number }) {
     }),
   ].filter((item) => !("visible" in item) || item.visible);
 
-  // Do topo para baixo, empurrando para baixo o rótulo que colide com o de cima
+  // Do topo para baixo, empurrando para baixo o rótulo que colide com o de cima;
+  // o rótulo com valor ocupa duas linhas e pede o dobro de espaço
+  const heightOf = (item: (typeof items)[number]) => (item.value !== null ? 2 * LABEL_SPACING : LABEL_SPACING);
   const placed = items
     .sort((a, b) => a.y - b.y)
     .reduce<((typeof items)[number] & { top: number })[]>((acc, item) => {
       const previous = acc.at(-1);
-      const y = previous ? Math.max(item.y, previous.top + LABEL_SPACING) : item.y;
-      return [...acc, { ...item, top: y }];
+      const minimum = previous ? previous.top + (heightOf(previous) + heightOf(item)) / 2 : item.y;
+      return [...acc, { ...item, top: Math.max(item.y, minimum) }];
     }, []);
 
   return (

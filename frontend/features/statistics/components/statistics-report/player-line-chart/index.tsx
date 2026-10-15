@@ -3,7 +3,7 @@ import { displayShortMonthYear } from "@/shared/lib/utils/display";
 import { useStaticChartVisibility } from "@/shared/hooks/useStaticChartVisibility";
 import { LineChartLegend } from "./chart-legend";
 import { LineChartTooltip } from "./chart-tooltip";
-import { buildChartData, niceTicks, type ChartAxis, type LineChartRow } from "./utils";
+import { buildChartData, monthStartTicks, niceTicks, type ChartAxis, type LineChartRow } from "./utils";
 import type { LineSeries } from "./series";
 
 export type { LineSeries } from "./series";
@@ -43,6 +43,9 @@ export function PlayerLineChart({ series, format, axisFormat, axis = "date", xTi
   const values = data.flatMap((row) => shown.map((s) => row.numbers[s.key]).filter((v) => v !== undefined));
   const ticks = niceTicks(Math.min(...values, 0), Math.max(...values, 0));
   const [floor, ceiling] = [ticks[0], ticks[ticks.length - 1]];
+  // No eixo de datas, uma marca por mês: sem isso o mesmo mês se repete em dias diferentes
+  const dateTicks =
+    xTicks ?? (axis === "date" ? monthStartTicks(data[0].x, data[data.length - 1].x) : undefined);
   const yOf = (value: number) => MARGIN.top + (1 - (value - floor) / (ceiling - floor || 1)) * PLOT_HEIGHT;
 
   // Último valor de cada linha visível, do topo para baixo; o rótulo que colide desce
@@ -73,7 +76,7 @@ export function PlayerLineChart({ series, format, axisFormat, axis = "date", xTi
               tickFormatter={(v: number) =>
                 xTickFormat ? xTickFormat(v) : axis === "date" ? displayShortMonthYear(new Date(v)) : `${v}º`
               }
-              ticks={xTicks}
+              ticks={dateTicks}
               minTickGap={56}
               tick={{ fontSize: 11, fill: "var(--faint-foreground)" }}
               axisLine={false}

@@ -33,6 +33,10 @@ export const buttonVariants = cva(
         "icon-lg": "size-11",
       },
     },
+    compoundVariants: [
+      // O link não tem caixa: o espaçamento do tamanho não se aplica
+      { variant: ["link", "link-destructive"], className: "px-0" },
+    ],
     defaultVariants: {
       variant: "default",
       size: "default",
