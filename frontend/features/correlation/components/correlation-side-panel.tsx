@@ -8,6 +8,8 @@ import type { PairPosition } from "./correlation-matrix";
 
 const valueTone = (value: number) => (value >= 0.3 ? "text-destructive" : value <= -0.3 ? "text-chart-1" : undefined);
 
+const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
 const nameOf = (label: string) => (label === REFERENCE ? "Ibovespa" : label);
 
 /** O par clicado na matriz: o número, a leitura e quantos pregões entraram; sem número, o motivo. */
@@ -36,9 +38,11 @@ function SelectedPair({ matrix, pinned }: { matrix: CorrelationMatrix; pinned: P
       ) : (
         <>
           <span className={cn("font-mono text-[22px] font-semibold", valueTone(value))}>{displayNumber(value)}</span>
-          <span className="flex items-center gap-1 text-[13px]">
-            {correlationReading(value)} · <span className="font-mono">{cell.days}</span> pregões em comum
-            <MetricHint metric={COMMON_DAYS} />
+          <span className="text-[13px]">
+            {capitalize(correlationReading(value))} · <span className="font-mono">{cell.days}</span> pregões em comum{" "}
+            <span className="inline-flex align-middle">
+              <MetricHint metric={COMMON_DAYS} />
+            </span>
           </span>
         </>
       )}
@@ -81,7 +85,7 @@ export function CorrelationSidePanel({ matrix, pinned }: { matrix: CorrelationMa
                 label="Mais parecidos"
                 names={`${similar.first} e ${similar.second}`}
                 value={similar.correlation}
-                note={`${correlationReading(Number(similar.correlation))}: ter os dois é quase a mesma aposta quanto mais perto de 1.`}
+                note={`${capitalize(correlationReading(Number(similar.correlation)))}: ter os dois é quase a mesma aposta quanto mais perto de 1.`}
               />
             )}
             {diversifier &&
@@ -90,7 +94,7 @@ export function CorrelationSidePanel({ matrix, pinned }: { matrix: CorrelationMa
                   label="Melhor par pra diversificar"
                   names={`${diversifier.first} e ${diversifier.second}`}
                   value={diversifier.correlation}
-                  note={`${correlationReading(Number(diversifier.correlation))}: quando um cai, o outro tende a não cair junto.`}
+                  note={`${capitalize(correlationReading(Number(diversifier.correlation)))}: quando um cai, o outro tende a não cair junto.`}
                 />
               )}
             {portfolio && (
