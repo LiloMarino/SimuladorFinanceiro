@@ -889,7 +889,7 @@ export interface paths {
         };
         /**
          * Matriz de correlação
-         * @description Correlação dos retornos diários de cada par de tickers, com o Ibovespa como referência, na janela que termina em `end`. Na partida, `end` é sempre a data da simulação.
+         * @description Correlação dos retornos diários de cada par de tickers, com o Ibovespa como referência, na janela que termina em `end`, e os pares que se destacam. Na partida, `end` é sempre a data da simulação e a média da carteira usa as ações de quem pede.
          */
         get: operations["get_correlation_api_correlation_get"];
         put?: never;
@@ -1247,10 +1247,17 @@ export interface components {
             /** Players */
             players: components["schemas"]["PlayerCompositionDTO"][];
         };
+        /** CorrelationAssetDTO */
+        CorrelationAssetDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Sector */
+            sector: string | null;
+        };
         /** CorrelationAssetsDTO */
         CorrelationAssetsDTO: {
-            /** Tickers */
-            tickers: string[];
+            /** Assets */
+            assets: components["schemas"]["CorrelationAssetDTO"][];
             /** Last Date */
             last_date: string | null;
             /** End Fixed */
@@ -1262,6 +1269,15 @@ export interface components {
             correlation: string | null;
             /** Days */
             days: number;
+            reason?: components["schemas"]["CorrelationGap"] | null;
+        };
+        /** @enum {string} */
+        CorrelationGap: "insufficient_days" | "constant_series";
+        /** CorrelationHighlightsDTO */
+        CorrelationHighlightsDTO: {
+            most_similar: components["schemas"]["CorrelationPairDTO"] | null;
+            best_diversifier: components["schemas"]["CorrelationPairDTO"] | null;
+            portfolio: components["schemas"]["PortfolioCorrelationDTO"] | null;
         };
         /** CorrelationMatrixDTO */
         CorrelationMatrixDTO: {
@@ -1281,6 +1297,16 @@ export interface components {
             end: string;
             /** Min Days */
             min_days: number;
+            highlights: components["schemas"]["CorrelationHighlightsDTO"];
+        };
+        /** CorrelationPairDTO */
+        CorrelationPairDTO: {
+            /** First */
+            first: string;
+            /** Second */
+            second: string;
+            /** Correlation */
+            correlation: string;
         };
         /** CreateSimulationRequest */
         CreateSimulationRequest: {
@@ -1863,6 +1889,13 @@ export interface components {
             annual_return: string | null;
             /** Days */
             days: number;
+        };
+        /** PortfolioCorrelationDTO */
+        PortfolioCorrelationDTO: {
+            /** Tickers */
+            tickers: string[];
+            /** Average */
+            average: string;
         };
         /** PortfolioDTO */
         PortfolioDTO: {

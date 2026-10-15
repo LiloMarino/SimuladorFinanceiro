@@ -7,14 +7,15 @@ import type { PortfolioState } from "@/types";
 
 /**
  * Carteira do jogador (posições, caixa, totais e rentabilidade, já calculados no
- * backend), substituída a cada tick via portfolio_update.
+ * backend), substituída a cada tick via portfolio_update. Existe só durante a partida.
  */
-export function usePortfolio() {
+export function usePortfolio({ enabled = true }: { enabled?: boolean } = {}) {
   const queryClient = useQueryClient();
 
   const query = useApiQuery({
     queryKey: queryKeys.portfolio(),
     queryFn: ({ signal }) => apiFetch<PortfolioState>("/api/portfolio", { signal }),
+    enabled,
   });
 
   useRealtime("portfolio_update", ({ portfolio }) => {

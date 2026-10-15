@@ -1,150 +1,180 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
+import { Clock, Grid3x3, TriangleAlert } from "lucide-react";
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/shared/components/ui/empty";
 import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { ErrorState } from "@/shared/components/error-state";
 import { MetricHint } from "@/shared/components/metric-hint";
+import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
 import type { CorrelationAssets, CorrelationWindow } from "@/types";
 import { useCorrelation } from "../hooks/queries/useCorrelation";
-import { COMMON_DAYS, CORRELATION, READING_BANDS, WINDOWS } from "../lib/correlation";
-import { CorrelationHeatmap } from "./correlation-heatmap";
-import { TickerPicker } from "./ticker-picker";
+import { MAX_TICKERS, oneOfEachSector } from "../lib/assets";
+import { CORRELATION, WINDOWS } from "../lib/correlation";
+import { AssetPicker } from "./asset-picker";
+import { CorrelationMatrixGrid, type PairPosition } from "./correlation-matrix";
+import { CorrelationSidePanel } from "./correlation-side-panel";
 
 interface CorrelationToolProps {
-  tickers: CorrelationAssets["tickers"];
+  assets: CorrelationAssets["assets"];
   lastDate: NonNullable<CorrelationAssets["last_date"]>;
   endFixed: CorrelationAssets["end_fixed"];
 }
 
 const showDate = (iso: string) => displayDate(parseLocalDate(iso));
 
-export function CorrelationTool({ tickers, lastDate, endFixed }: CorrelationToolProps) {
+export function CorrelationTool({ assets, lastDate, endFixed }: CorrelationToolProps) {
   const [selected, setSelected] = useState<string[]>([]);
   const [period, setPeriod] = useState<CorrelationWindow>("1y");
   const [end, setEnd] = useState(lastDate);
+  const [pinned, setPinned] = useState<PairPosition | null>(null);
+
+  // A carteira só existe na partida, e é nela que a data fica travada
+  const { data: portfolio } = usePortfolio({ enabled: endFixed });
+  const tickers = new Set(assets.map((a) => a.ticker));
+  const held = (portfolio?.variable_income ?? []).map((p) => p.ticker).filter((t) => tickers.has(t));
 
   // Na partida, o backend fecha a janela na data da simulação
-  const { data, isLoading, error } = useCorrelation(selected, period, endFixed ? null : end);
+  const { data, error, refetch } = useCorrelation(selected, period, endFixed ? null : end);
 
+  // A posição do par fixado vale para uma seleção: mudou a lista, ele sai
+  const replace = (next: string[]) => {
+    setSelected(next);
+    setPinned(null);
+  };
   const toggle = (ticker: string) =>
-    setSelected((prev) => (prev.includes(ticker) ? prev.filter((t) => t !== ticker) : [...prev, ticker]));
+    replace(selected.includes(ticker) ? selected.filter((t) => t !== ticker) : [...selected, ticker]);
 
   const renderMatrix = () => {
-    if (selected.length === 0) return <Placeholder>Selecione ativos na lista para ver a correlação.</Placeholder>;
-    if (isLoading) {
+    if (selected.length < 2) {
       return (
-        <Placeholder>
-          <Spinner className="size-6" />
-        </Placeholder>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Grid3x3 />
+            </EmptyMedia>
+            <EmptyTitle>Escolha pelo menos dois ativos</EmptyTitle>
+            <EmptyDescription>
+              Ou comece por um atalho: compare as ações que você já tem, ou uma de cada setor.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent className="flex-row justify-center">
+            {held.length >= 2 && (
+              <Button variant="outline" onClick={() => replace(held.slice(0, MAX_TICKERS))}>
+                Minha carteira
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => replace(oneOfEachSector(assets))}>
+              Um de cada setor
+            </Button>
+          </EmptyContent>
+        </Empty>
       );
     }
-    if (error || !data) return <Placeholder>Erro ao calcular a correlação.</Placeholder>;
+    if (!data) {
+      return error ? (
+        <ErrorState
+          title="Não deu pra calcular agora"
+          description="Confira se o servidor do host está ligado e tente de novo."
+          error={error}
+          onRetry={() => void refetch()}
+        />
+      ) : (
+        <Skeleton className="h-72" />
+      );
+    }
     return (
-      <div className="space-y-2">
-        <p className="text-sm text-muted-foreground">
-          Retornos diários de {showDate(data.start)} a {showDate(data.end)}
-        </p>
-        <CorrelationHeatmap matrix={data} />
+      <div className="grid gap-4">
+        {error && (
+          <Alert variant="destructive">
+            <TriangleAlert />
+            <AlertTitle>Não deu pra calcular agora</AlertTitle>
+            <AlertDescription>A matriz anterior continua valendo até o novo cálculo dar certo.</AlertDescription>
+            <AlertAction>
+              <Button variant="outline" size="sm" onClick={() => void refetch()}>
+                Tentar de novo
+              </Button>
+            </AlertAction>
+          </Alert>
+        )}
+        <CorrelationMatrixGrid matrix={data} pinned={pinned} onPin={setPinned} />
       </div>
     );
   };
 
-  return (
-    <div className="flex h-full flex-col md:flex-row">
-      <TickerPicker tickers={tickers} selected={selected} onToggle={toggle} />
+  const matrixReady = selected.length >= 2 && data;
 
-      <section className="min-w-0 flex-1 space-y-4 p-4">
-        {/* Controles */}
-        <div className="flex flex-wrap items-end gap-4">
-          <div className="space-y-1">
-            <Label htmlFor="correlation-window">Janela</Label>
-            <Select items={WINDOWS} value={period} onValueChange={(value) => setPeriod(value as CorrelationWindow)}>
-              <SelectTrigger id="correlation-window" className="w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {WINDOWS.map((w) => (
-                  <SelectItem key={w.value} value={w.value}>
-                    {w.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="correlation-end">{endFixed ? "Termina na data da simulação" : "Termina em"}</Label>
+  return (
+    <div className="grid gap-5">
+      {/* Janela e data final */}
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="text-xs font-medium text-muted-foreground">Janela</span>
+        <ToggleGroup
+          variant="segmented"
+          aria-label="Janela"
+          value={[period]}
+          onValueChange={(values) => values[0] && setPeriod(values[0] as CorrelationWindow)}
+        >
+          {WINDOWS.map((w) => (
+            <ToggleGroupItem key={w.value} value={w.value}>
+              {w.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        {endFixed ? (
+          <Badge variant="secondary">
+            <Clock />
+            <span className="font-mono">até {showDate(lastDate)}</span> · data da simulação
+          </Badge>
+        ) : (
+          <label className="flex items-center gap-2 text-[13px] text-muted-foreground">
+            até
             <Input
-              id="correlation-end"
               type="date"
-              className="w-44"
-              value={endFixed ? lastDate : end}
+              value={end}
               max={lastDate}
-              disabled={endFixed}
               onChange={(e) => e.target.value && setEnd(e.target.value)}
+              aria-label="Data final da janela"
             />
-          </div>
-        </div>
+          </label>
+        )}
+      </div>
 
-        <div className="grid gap-4 xl:grid-cols-[1fr_20rem]">
-          {/* Mapa de calor */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-1">
-                {CORRELATION.label}
+      <div className="grid items-start gap-5 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)_300px]">
+        <AssetPicker assets={assets} held={held} selected={selected} onToggle={toggle} onReplace={replace} />
+
+        {/* Matriz */}
+        <Card className="min-w-0">
+          <CardHeader>
+            <CardTitle>
+              <span className="flex items-center gap-1">
+                Quanto andam juntos
                 <MetricHint metric={CORRELATION} />
-              </CardTitle>
-              <CardDescription>{CORRELATION.description}. O Ibovespa entra como referência.</CardDescription>
-            </CardHeader>
-            <CardContent>{renderMatrix()}</CardContent>
-          </Card>
+              </span>
+            </CardTitle>
+            <CardDescription>
+              {data && matrixReady
+                ? `Correlação dos retornos diários de ${showDate(data.start)} a ${showDate(data.end)}. Clique numa célula pra ver o par.`
+                : CORRELATION.description}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>{renderMatrix()}</CardContent>
+        </Card>
 
-          {/* Como ler */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Como ler</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <p>{CORRELATION.reading}</p>
-              <ul className="space-y-1">
-                {READING_BANDS.map((band, i) => (
-                  <li key={band.label} className="flex justify-between gap-2">
-                    <span className="tabular-nums text-muted-foreground">{bandRange(i)}</span>
-                    <span className="text-right">{band.label}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="space-y-1 border-t pt-3">
-                <p className="flex items-center gap-1 font-medium">
-                  {COMMON_DAYS.label}
-                  <MetricHint metric={COMMON_DAYS} />
-                </p>
-                <p className="text-muted-foreground">
-                  {COMMON_DAYS.description}: aparece ao passar o mouse em cada célula. Com poucos pregões em comum, a
-                  célula fica com "—".
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-/** Intervalo da faixa `i` de READING_BANDS, como "0,3 a 0,7". */
-function bandRange(i: number) {
-  const fmt = (n: number) => n.toLocaleString("pt-BR").replace("-", "−");
-  const min = READING_BANDS[i].min;
-  const max = i === 0 ? 1 : READING_BANDS[i - 1].min;
-  return `${min === -Infinity ? "−1" : fmt(min)} a ${fmt(max)}`;
-}
-
-function Placeholder({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex h-72 items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
-      {children}
+        {matrixReady && <CorrelationSidePanel matrix={data} pinned={pinned} />}
+      </div>
     </div>
   );
 }

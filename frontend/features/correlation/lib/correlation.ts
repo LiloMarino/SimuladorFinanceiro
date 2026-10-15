@@ -1,14 +1,13 @@
 import { displayNumber } from "@/shared/lib/utils/display";
 import type { MetricInfo } from "@/shared/lib/metric-info";
-import type { CorrelationWindow } from "@/types";
+import type { CorrelationCell, CorrelationWindow } from "@/types";
 
 export const CORRELATION: MetricInfo = {
   label: "Correlação",
   description: "Quanto dois ativos sobem e caem nos mesmos dias, de −1 a 1",
   definition:
     "A correlação de Pearson entre os retornos diários de dois ativos: mede se, nos dias em que um sobe mais que o normal, o outro também sobe.",
-  example:
-    "Ex.: dois bancos como ITUB4 e BBDC4 ficam perto de 0,8, porque as mesmas notícias movem os dois.",
+  example: "Ex.: dois bancos como ITUB4 e BBDC4 ficam perto de 0,8, porque as mesmas notícias movem os dois.",
   reading:
     "Perto de 1, os dois andam juntos e somam a mesma aposta; perto de 0, um não diz nada sobre o outro; negativa, um tende a subir quando o outro cai. Para diversificar, quanto mais baixa, melhor.",
   format: (value) => displayNumber(value),
@@ -41,4 +40,20 @@ export const READING_BANDS = [
 /** Faixa de leitura de uma correlação; as faixas vão da mais alta para a mais baixa. */
 export function correlationReading(value: number) {
   return READING_BANDS.find((band) => value >= band.min)!.label;
+}
+
+// Última linha e coluna da matriz: o mercado como referência
+export const REFERENCE = "IBOV";
+
+/** Fundo da célula: vermelho para correlação positiva (ruim para diversificar), azul para negativa. */
+export function cellColor(value: number) {
+  const token = value >= 0 ? "--destructive" : "--chart-1";
+  return `color-mix(in oklch, var(${token}) ${Math.round(Math.abs(value) * 70)}%, transparent)`;
+}
+
+/** Por que o par ficou sem número, em português e com a saída. */
+export function gapReason(cell: CorrelationCell, minDays: number) {
+  return cell.reason === "constant_series"
+    ? "Um dos dois ficou parado na janela: sem variação, não dá pra medir se andam juntos."
+    : `Só ${cell.days} pregões em comum (mínimo ${minDays}). Aumente a janela ou espere a partida avançar.`;
 }

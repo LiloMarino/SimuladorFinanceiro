@@ -9,7 +9,8 @@ from types import SimpleNamespace
 import pytest
 
 from backend.core import repository
-from backend.core.dto.correlation import CorrelationCellDTO
+from backend.core.dto.correlation import CorrelationCellDTO, CorrelationPairDTO
+from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.series_coverage import OriginCoverageDTO
 from backend.core.enum import DataOrigin, IndicatorSeries
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -63,42 +64,49 @@ def market(monkeypatch: pytest.MonkeyPatch, indicators: SetIndicator):
                 for t, s in closes.items()
             ],
         )
+        monkeypatch.setattr(
+            repository.stock,
+            "get_classification",
+            lambda: {"ITUB4": StockSegmentDTO(sector="Financeiro", segment="Bancos")},
+        )
         indicators(IndicatorSeries.IBOV, {d: Decimal(str(v)) for d, v in ibov.items()})
 
     return _set
 
 
 def test_proportional_returns_correlate_at_one_and_opposite_at_minus_one():
-    days = business_days(40)
-    base = correlation.daily_returns(levels(days, wobble(39)))
-    double = correlation.daily_returns(levels(days, [2 * r for r in wobble(39)]))
-    mirror = correlation.daily_returns(levels(days, [-r for r in wobble(39)]))
+    days = business_days(70)
+    base = correlation.daily_returns(levels(days, wobble(69)))
+    double = correlation.daily_returns(levels(days, [2 * r for r in wobble(69)]))
+    mirror = correlation.daily_returns(levels(days, [-r for r in wobble(69)]))
 
     assert correlation.pair(base, double).correlation == Decimal(1)
     assert correlation.pair(base, mirror).correlation == Decimal(-1)
 
 
 def test_sample_counts_only_the_days_both_sides_have():
-    """Um ativo com 40 pregões e outro com os 25 últimos: 24 retornos em comum."""
-    days = business_days(40)
-    full = correlation.daily_returns(levels(days, wobble(39)))
-    late = correlation.daily_returns(levels(days[15:], wobble(24)))
+    """Um ativo com 100 pregões e outro com os 70 últimos: 69 retornos em comum."""
+    days = business_days(100)
+    full = correlation.daily_returns(levels(days, wobble(99)))
+    late = correlation.daily_returns(levels(days[30:], wobble(69)))
 
     cell = correlation.pair(full, late)
-    assert cell.days == 24
+    assert cell.days == 69
     assert cell.correlation is not None
 
 
-def test_short_sample_and_flat_series_have_no_correlation():
-    days = business_days(40)
-    moving = correlation.daily_returns(levels(days, wobble(39)))
+def test_short_sample_and_flat_series_have_no_correlation_and_say_why():
+    days = business_days(70)
+    moving = correlation.daily_returns(levels(days, wobble(69)))
     short = correlation.daily_returns(levels(days[:15], wobble(14)))
     flat = correlation.daily_returns(dict.fromkeys(days, 100.0))
 
     assert correlation.pair(moving, short) == CorrelationCellDTO(
-        correlation=None, days=14
+        correlation=None, days=14, reason="insufficient_days"
     )
-    assert correlation.pair(moving, flat).correlation is None
+    assert correlation.pair(moving, flat) == CorrelationCellDTO(
+        correlation=None, days=69, reason="constant_series"
+    )
 
 
 def test_invalid_price_counts_as_a_day_without_trading():
@@ -118,20 +126,20 @@ def test_subtract_months_lands_on_the_last_day_of_a_shorter_month():
 
 
 def test_matrix_is_symmetric_with_ibov_last(market):
-    days = business_days(60)
+    days = business_days(80)
     market(
         {
-            "ITUB4": levels(days, wobble(59)),
-            "VALE3": levels(days, [-r / 2 for r in wobble(59)]),
+            "ITUB4": levels(days, wobble(79)),
+            "VALE3": levels(days, [-r / 2 for r in wobble(79)]),
         },
-        levels(days, [r / 3 for r in wobble(59)]),
+        levels(days, [r / 3 for r in wobble(79)]),
     )
 
     matrix = correlation.build_correlation_matrix(["ITUB4", "VALE3"], "1y", None)
 
     assert matrix.labels == ["ITUB4", "VALE3", "IBOV"]
     assert matrix.end == days[-1]
-    assert matrix.rows[0][0] == CorrelationCellDTO(correlation=Decimal(1), days=59)
+    assert matrix.rows[0][0] == CorrelationCellDTO(correlation=Decimal(1), days=79)
     for i in range(3):
         for j in range(3):
             assert matrix.rows[i][j] == matrix.rows[j][i]
@@ -143,9 +151,9 @@ def test_window_ends_on_the_simulation_date_during_a_match(
     market, monkeypatch: pytest.MonkeyPatch
 ):
     """Na partida, pedir uma data além da simulação não alcança os preços futuros."""
-    days = business_days(80)
-    market({"ITUB4": levels(days, wobble(79))}, levels(days, wobble(79)))
-    today = days[49]
+    days = business_days(120)
+    market({"ITUB4": levels(days, wobble(119))}, levels(days, wobble(119)))
+    today = days[89]
     monkeypatch.setattr(
         SimulationManager,
         "_active_simulation",
@@ -157,8 +165,44 @@ def test_window_ends_on_the_simulation_date_during_a_match(
 
     assert asked_later == asked_none
     assert asked_later.end == today
-    assert asked_later.rows[0][0].days == 49
+    assert asked_later.rows[0][0].days == 89
 
     assets = correlation.build_correlation_assets()
     assert assets.last_date == today
     assert assets.end_fixed is True
+
+
+def test_highlights_pick_the_extremes_and_average_the_portfolio():
+    """Sem o Ibovespa: o par mais junto, o de menor correlação e a média das ações da carteira."""
+    cell = lambda value: CorrelationCellDTO(correlation=Decimal(value), days=100)  # noqa: E731
+    labels = ["ITUB4", "BBDC4", "VALE3", "IBOV"]
+    rows = [
+        [cell("1"), cell("0.8"), cell("0.3"), cell("0.9")],
+        [cell("0.8"), cell("1"), cell("-0.1"), cell("0.9")],
+        [cell("0.3"), cell("-0.1"), cell("1"), cell("0.9")],
+        [cell("0.9"), cell("0.9"), cell("0.9"), cell("1")],
+    ]
+
+    found = correlation.highlights(labels, rows, held={"ITUB4", "VALE3", "BBDC4"})
+
+    assert found.most_similar == CorrelationPairDTO(
+        first="ITUB4", second="BBDC4", correlation=Decimal("0.8")
+    )
+    assert found.best_diversifier == CorrelationPairDTO(
+        first="BBDC4", second="VALE3", correlation=Decimal("-0.1")
+    )
+    assert found.portfolio is not None
+    assert found.portfolio.average == Decimal("0.3333")
+    assert correlation.highlights(labels, rows, held={"ITUB4"}).portfolio is None
+
+
+def test_assets_carry_their_sector(market):
+    days = business_days(10)
+    market({"ITUB4": levels(days, wobble(9)), "VALE3": levels(days, wobble(9))}, {})
+
+    assets = correlation.build_correlation_assets().assets
+
+    assert [(a.ticker, a.sector) for a in assets] == [
+        ("ITUB4", "Financeiro"),
+        ("VALE3", None),
+    ]
