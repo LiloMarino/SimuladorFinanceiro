@@ -1,3 +1,4 @@
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { CompositionTab } from "./composition-tab";
 import { OperationsTab } from "./operations-tab";
@@ -19,22 +20,46 @@ const TABS = [
  * andamento, o fechamento e a comparação: muda só a lista de simulações. Cada aba busca
  * os próprios dados quando é aberta.
  */
-export function StatisticsReport({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
+export function StatisticsReport({
+  simulationIds,
+  currentPlayerName,
+  onlyPlayer,
+  title,
+}: ReportProps & {
+  /** Com título, as abas ficam no cabeçalho de um card, na mesma linha dele */
+  title?: string;
+}) {
+  const tabs = (
+    <TabsList>
+      {TABS.map((tab) => (
+        <TabsTrigger key={tab.value} value={tab.value}>
+          {tab.label}
+        </TabsTrigger>
+      ))}
+    </TabsList>
+  );
+  const contents = TABS.map(({ value, Content }) => (
+    <TabsContent key={value} value={value}>
+      <Content simulationIds={simulationIds} currentPlayerName={currentPlayerName} onlyPlayer={onlyPlayer} />
+    </TabsContent>
+  ));
+
   return (
     <Tabs defaultValue={TABS[0].value}>
-      <TabsList>
-        {TABS.map((tab) => (
-          <TabsTrigger key={tab.value} value={tab.value}>
-            {tab.label}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-
-      {TABS.map(({ value, Content }) => (
-        <TabsContent key={value} value={value}>
-          <Content simulationIds={simulationIds} currentPlayerName={currentPlayerName} onlyPlayer={onlyPlayer} />
-        </TabsContent>
-      ))}
+      {title ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{title}</CardTitle>
+            <CardAction>{tabs}</CardAction>
+          </CardHeader>
+          <CardContent>{contents}</CardContent>
+        </Card>
+      ) : (
+        <>
+          {tabs}
+          {contents}
+        </>
+      )}
     </Tabs>
   );
 }

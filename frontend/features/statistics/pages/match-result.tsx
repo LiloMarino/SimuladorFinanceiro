@@ -103,16 +103,12 @@ function MatchResult({ simulationId }: { simulationId: number }) {
         </>
       )}
 
-      {/* Relatório da partida */}
-      <section className="grid gap-3">
-        <div>
-          <h2 className="text-[15px] font-semibold">Relatório da partida</h2>
-          <p className="text-[13px] text-muted-foreground">
-            As mesmas abas das Estatísticas, congeladas no último dia da partida.
-          </p>
-        </div>
-        <StatisticsReport simulationIds={[simulationId]} currentPlayerName={user?.nickname} />
-      </section>
+      {/* Relatório da partida: as mesmas abas das Estatísticas, congeladas no último dia */}
+      <StatisticsReport
+        title="Relatório da partida"
+        simulationIds={[simulationId]}
+        currentPlayerName={user?.nickname}
+      />
     </div>
   );
 }

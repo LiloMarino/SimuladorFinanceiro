@@ -64,8 +64,8 @@ export function MatchHero({ report, simulation, currentPlayerName, colorOf }: Ma
                 Você ficou em <b className="text-white">{you.position}º</b>
                 {you.leader_gap !== null && (
                   <>
-                    , <b className="font-mono text-white">{displayCriterionGap(report.criterion, you.leader_gap)}</b>{" "}
-                    atrás de {winner.player_nickname}
+                    , a <b className="font-mono text-white">{displayCriterionGap(report.criterion, you.leader_gap)}</b>{" "}
+                    de {winner.player_nickname}
                   </>
                 )}
                 .
