@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import {
   AreaSeries,
@@ -188,9 +188,9 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
 
   return (
     <Card>
+      {/* Controles: período e tipo à esquerda, volta ao dia de hoje à direita */}
       <CardHeader>
-        <CardTitle>Histórico de preços</CardTitle>
-        <CardAction>
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
             <ToggleGroup
               variant="segmented"
@@ -213,11 +213,11 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
               <ToggleGroupItem value="line">Linha</ToggleGroupItem>
               <ToggleGroupItem value="candle">Velas</ToggleGroupItem>
             </ToggleGroup>
-            <Button variant="ghost" size="sm" onClick={() => chartInstance.current?.timeScale().scrollToRealTime()}>
-              Ir pro dia de hoje
-            </Button>
           </div>
-        </CardAction>
+          <Button variant="outline" size="sm" onClick={() => chartInstance.current?.timeScale().scrollToRealTime()}>
+            Ir pro dia de hoje
+          </Button>
+        </div>
       </CardHeader>
 
       <CardContent>

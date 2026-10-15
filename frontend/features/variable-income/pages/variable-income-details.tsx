@@ -51,7 +51,7 @@ export default function VariableIncomeDetailPage() {
           <OrderBookCard ticker={stock.ticker} orders={orders} />
         </div>
         <div className="grid gap-5">
-          <OrderTicket ticker={stock.ticker} />
+          <OrderTicket ticker={stock.ticker} assetClass={stock.asset_class} todayPrice={stock.close} />
           <PositionCard ticker={stock.ticker} position={position ?? null} />
           <Button variant="link" size="sm" nativeButton={false} render={<Link to="/portfolio" />}>
             Ver carteira

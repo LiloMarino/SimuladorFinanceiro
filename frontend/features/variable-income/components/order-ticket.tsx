@@ -16,7 +16,9 @@ import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
 import { displayDate, displayMoney, parseLocalDate } from "@/shared/lib/utils/display";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
-import type { OrderPreview } from "@/types";
+import { INCOME_TAX_RATE, salesMonthName } from "@/shared/lib/income-tax";
+import { displayPercent } from "@/shared/lib/utils/display";
+import type { AssetClass, OrderPreview } from "@/types";
 
 type Action = "buy" | "sell";
 type OrderKind = "market" | "limit";
@@ -27,8 +29,15 @@ const SHORTCUTS = [
   { label: "Máx", share: 1 },
 ];
 
+type OrderTicketProps = {
+  ticker: string;
+  assetClass: AssetClass;
+  /** Último fechamento: a referência de hoje sob o preço limite */
+  todayPrice: number;
+};
+
 /** Boleta: escolhe a ordem e mostra, antes de enviar, o que ela faz com o caixa e o IR. */
-export function OrderTicket({ ticker }: { ticker: string }) {
+export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps) {
   const queryClient = useQueryClient();
   const [action, setAction] = useState<Action>("buy");
   const [kind, setKind] = useState<OrderKind>("market");
@@ -83,13 +92,18 @@ export function OrderTicket({ ticker }: { ticker: string }) {
         <div className="grid gap-4">
           <ToggleGroup
             variant="segmented"
+            size="lg"
             aria-label="Comprar ou vender"
             value={[action]}
             onValueChange={(values) => values[0] && setAction(values[0] as Action)}
             className="w-full *:flex-1"
           >
-            <ToggleGroupItem value="buy">Comprar</ToggleGroupItem>
-            <ToggleGroupItem value="sell">Vender</ToggleGroupItem>
+            <ToggleGroupItem value="buy" tone="success">
+              Comprar
+            </ToggleGroupItem>
+            <ToggleGroupItem value="sell" tone="destructive">
+              Vender
+            </ToggleGroupItem>
           </ToggleGroup>
 
           {noPosition ? (
@@ -108,6 +122,7 @@ export function OrderTicket({ ticker }: { ticker: string }) {
                 aria-label="Tipo de ordem"
                 value={[kind]}
                 onValueChange={(values) => values[0] && setKind(values[0] as OrderKind)}
+                className="w-full *:flex-1"
               >
                 <ToggleGroupItem value="market">A mercado</ToggleGroupItem>
                 <ToggleGroupItem value="limit">Limitada</ToggleGroupItem>
@@ -154,37 +169,44 @@ export function OrderTicket({ ticker }: { ticker: string }) {
                     placeholder="0,00"
                   />
                   <FieldDescription>
-                    Só executa se alguém {selling ? "comprar" : "vender"} a esse preço ou {selling ? "mais" : "menos"}.
+                    Só executa se alguém {selling ? "comprar" : "vender"} a{" "}
+                    <b className="font-mono text-foreground">{limitPrice ? displayMoney(limitPrice) : "esse preço"}</b>{" "}
+                    ou {selling ? "mais" : "menos"}. Hoje:{" "}
+                    <b className="font-mono text-foreground">{displayMoney(todayPrice)}</b>.
                   </FieldDescription>
                 </Field>
               )}
 
-              {/* Resumo */}
+              {/* Resumo: a venda mostra só o total e o lucro */}
               {preview && (
                 <dl className="grid gap-1.5 border-t border-muted pt-3 text-[13px]">
-                  <Row
-                    label={
-                      kind === "limit"
-                        ? "Preço limite"
-                        : `Preço estimado · melhor ${selling ? "compra" : "venda"} no book`
-                    }
-                    value={preview.price ? displayMoney(preview.price) : "—"}
-                  />
-                  <Row
-                    label={selling ? "Total se executar" : "Total estimado"}
-                    value={displayMoney(preview.total)}
-                    strong
-                  />
-                  <Row label="Caixa agora" value={displayMoney(preview.cash_before)} />
-                  <Row label="Caixa depois" value={displayMoney(preview.cash_after)} />
-                  {preview.profit !== null && (
-                    <Row label="Lucro estimado · sobre o preço médio" value={displayMoney(preview.profit)} />
+                  {selling ? (
+                    <>
+                      <Row label="Total se executar" value={displayMoney(preview.total)} strong />
+                      {preview.profit !== null && (
+                        <Row
+                          label={`Lucro estimado · sobre preço médio ${displayMoney(averagePrice(preview, quantity))}`}
+                          value={`${Number(preview.profit) >= 0 ? "+" : "-"}${displayMoney(Math.abs(Number(preview.profit)))}`}
+                          tone={Number(preview.profit) >= 0 ? "positive" : "negative"}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <Row
+                        label={kind === "limit" ? "Preço limite" : "Preço estimado · melhor venda no book"}
+                        value={preview.price ? displayMoney(preview.price) : "—"}
+                      />
+                      <Row label="Total estimado" value={displayMoney(preview.total)} strong />
+                      <Row label="Caixa agora" value={displayMoney(preview.cash_before)} />
+                      <Row label="Caixa depois" value={displayMoney(preview.cash_after)} />
+                    </>
                   )}
                 </dl>
               )}
 
               {selling && preview?.tax !== null && preview?.tax !== undefined && quantity > 0 && (
-                <TaxEstimate preview={preview} />
+                <TaxEstimate preview={preview} assetClass={assetClass} />
               )}
 
               <Button
@@ -209,22 +231,44 @@ export function OrderTicket({ ticker }: { ticker: string }) {
   );
 }
 
-function Row({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
+/** Preço médio da posição: o preço da ordem menos o lucro por ação. */
+function averagePrice(preview: OrderPreview, quantity: number) {
+  return Number(preview.price) - Number(preview.profit) / quantity;
+}
+
+function Row({
+  label,
+  value,
+  strong = false,
+  tone,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+  tone?: "positive" | "negative";
+}) {
+  const color = tone === "positive" ? "text-success" : tone === "negative" ? "text-destructive" : "";
   return (
     <div className="flex justify-between gap-3">
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className={strong ? "font-mono font-semibold" : "font-mono"}>{value}</dd>
+      <dd className={`font-mono ${strong ? "font-semibold" : ""} ${color}`}>{value}</dd>
     </div>
   );
 }
 
 /** IR que a venda acrescenta ao mês, com a régua da isenção de ações. */
-function TaxEstimate({ preview }: { preview: OrderPreview }) {
-  const sales = Number(preview.month_stock_sales_after ?? 0);
+function TaxEstimate({ preview, assetClass }: { preview: OrderPreview; assetClass: AssetClass }) {
+  const after = Number(preview.month_stock_sales_after ?? 0);
   const limit = Number(preview.stock_sales_exemption);
-  const scale = Math.max(sales, limit) * 1.25;
+  // As vendas de ações do mês só crescem quando a venda é de ação
+  const before = assetClass === "STOCK" ? after - Number(preview.total) : after;
+  // A barra enche com vendas / limite; passando do limite, a marca recua para a posição real dele
+  const scale = Math.max(after, limit) || 1;
   const taxed = Number(preview.tax) > 0;
   const due = preview.tax_due_date ? displayDate(parseLocalDate(preview.tax_due_date)) : null;
+  const month = preview.tax_due_date ? salesMonthName(preview.tax_due_date) : null;
+  const rate = displayPercent(INCOME_TAX_RATE[assetClass], 0);
+  const profit = displayMoney(preview.profit ?? 0);
 
   return (
     <div className="grid gap-2 rounded-[10px] bg-warning-soft/60 p-3.5 text-[13px]">
@@ -237,20 +281,36 @@ function TaxEstimate({ preview }: { preview: OrderPreview }) {
       <div className="relative h-1.5 rounded-full bg-card">
         <span
           className={
-            sales > limit
+            after > limit
               ? "absolute inset-y-0 left-0 rounded-full bg-warning"
               : "absolute inset-y-0 left-0 rounded-full bg-primary"
           }
-          style={{ width: `${(sales / scale) * 100}%` }}
+          style={{ width: `${(after / scale) * 100}%` }}
         />
         <span className="absolute -top-1 h-3.5 w-0.5 bg-foreground" style={{ left: `${(limit / scale) * 100}%` }} />
       </div>
       <p className="text-muted-foreground">
-        {sales > limit
-          ? `Com esta venda, as vendas de ações do mês vão a ${displayMoney(sales)}, acima dos ${displayMoney(limit)} isentos. O lucro paga imposto${due ? `, cobrado em ${due}` : ""}.`
-          : taxed
-            ? `O lucro paga imposto mesmo dentro dos ${displayMoney(limit)}: FII, ETF, BDR e day trade não têm isenção${due ? `. Cobrado em ${due}` : ""}.`
-            : `As vendas de ações do mês ficam em ${displayMoney(sales)}, dentro dos ${displayMoney(limit)} isentos: o lucro não paga IR.`}
+        {assetClass === "STOCK" && after > limit ? (
+          <>
+            Em {month} você já vendeu {displayMoney(before)} em ações; com esta venda vai a {displayMoney(after)},
+            acima dos {displayMoney(limit)} isentos.{" "}
+            {taxed ? (
+              <>
+                O lucro de <b className="font-mono text-foreground">{profit}</b> paga {rate}
+                {due ? `, cobrado em ${due}` : ""}.
+              </>
+            ) : (
+              "Sem lucro, não há imposto."
+            )}
+          </>
+        ) : taxed ? (
+          <>
+            O lucro de <b className="font-mono text-foreground">{profit}</b> paga {rate}
+            {due ? `, cobrado em ${due}` : ""}. FII, ETF, BDR e day trade não têm isenção.
+          </>
+        ) : (
+          `As vendas de ações do mês ficam em ${displayMoney(after)}, dentro dos ${displayMoney(limit)} isentos: o lucro não paga IR.`
+        )}
       </p>
     </div>
   );

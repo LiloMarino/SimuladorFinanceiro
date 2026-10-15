@@ -9,6 +9,7 @@ import {
   PopoverTrigger,
 } from "@/shared/components/ui/popover";
 import { displayDate, displayMoney, parseLocalDate } from "@/shared/lib/utils/display";
+import { salesMonthName } from "@/shared/lib/income-tax";
 import type { PortfolioState } from "@/types";
 
 const RULES = [
@@ -16,12 +17,6 @@ const RULES = [
   ["FII e day trade", "20% do lucro"],
   ["ETF e BDR", "15%, sem isenção"],
 ] as const;
-
-/** Mês das vendas que geram o DARF: a cobrança sai no último dia útil do mês seguinte. */
-function salesMonthName(dueDate: string): string {
-  const due = parseLocalDate(dueDate);
-  return new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(new Date(due.getFullYear(), due.getMonth() - 1, 1));
-}
 
 /** IR da renda variável: o que já saiu, o que vai sair e a régua da isenção do mês. */
 export function IncomeTaxCard({ portfolio }: { portfolio: PortfolioState }) {

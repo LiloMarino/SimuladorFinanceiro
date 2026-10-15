@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
+import { MarketMark } from "@/shared/components/market-mark";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -21,7 +22,20 @@ import type { Order, Trade } from "@/types";
 
 type Tab = "OPEN" | "HISTORY";
 
-function Player({ nickname, isYou }: { nickname: string; isYou: boolean }) {
+// Hora da ordem, no relógio de quem olha
+const displayTime = (isoDateTime: string) =>
+  new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(new Date(isoDateTime));
+
+function Player({ nickname, isYou, market = false }: { nickname: string; isYou: boolean; market?: boolean }) {
+  // O Mercado é uma entidade do simulador: marca própria, sem "(você)"
+  if (market) {
+    return (
+      <span className="flex items-center gap-2 font-medium">
+        <MarketMark size="sm" />
+        Mercado
+      </span>
+    );
+  }
   return (
     <span className="flex items-center gap-2">
       <Avatar size="sm">
@@ -43,7 +57,7 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("OPEN");
 
-  const open = orders.filter((o) => !o.synthetic && (o.status === "pending" || o.status === "partial"));
+  const open = orders.filter((o) => o.status === "pending" || o.status === "partial");
   const myPartial = open.filter((o) => o.status === "partial" && o.player_nickname === user?.nickname);
 
   const { data: trades } = useApiQuery({
@@ -63,7 +77,7 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle>Livro de ofertas da sala</CardTitle>
-        <CardDescription>Ordens de todos os jogadores em {ticker}.</CardDescription>
+        <CardDescription>Ordens dos jogadores e do Mercado em {ticker}.</CardDescription>
         <CardAction>
           <ToggleGroup
             variant="segmented"
@@ -104,6 +118,7 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Quando</TableHead>
                 <TableHead>Quem</TableHead>
                 <TableHead>Lado</TableHead>
                 <TableHead numeric>Qtd.</TableHead>
@@ -118,9 +133,12 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
               {open.map((o) => {
                 const mine = o.player_nickname === user?.nickname;
                 return (
-                  <TableRow key={o.id}>
+                  <TableRow key={o.id} variant={o.synthetic ? "subtle" : "default"}>
                     <TableCell>
-                      <Player nickname={o.player_nickname} isYou={mine} />
+                      <span className="font-mono text-xs text-muted-foreground">{displayTime(o.created_at)}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Player nickname={o.player_nickname} isYou={mine} market={o.synthetic} />
                     </TableCell>
                     <TableCell>
                       <Side action={o.action} />
@@ -137,9 +155,9 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
                       )}
                     </TableCell>
                     <TableCell>
-                      {mine && (
+                      {mine && o.status === "pending" && (
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           disabled={cancel.isPending}
                           onClick={() => cancel.mutate(o.id)}
