@@ -38,9 +38,9 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
   return (
     <Card>
       <CardContent>
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_1.3fr_1fr]">
+        <div className="grid gap-6 lg:grid-cols-[1.1fr_1.5fr_1fr] lg:gap-0">
           {/* Patrimônio */}
-          <div className="grid content-start gap-1.5">
+          <div className="grid content-start gap-1.5 lg:pr-6">
             <span className="text-xs font-medium text-muted-foreground">Patrimônio total</span>
             <div className="flex items-center gap-3">
               <span className="font-mono text-[30px] leading-none font-semibold">
@@ -68,7 +68,7 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
           </div>
 
           {/* Alocação */}
-          <div className="grid content-start gap-2.5">
+          <div className="grid content-start gap-2.5 lg:border-l lg:px-6">
             <span className="text-xs font-medium text-muted-foreground">
               Alocação · investido {displayMoney(portfolio.invested_value)} · {displayPercent(portfolio.invested_pct)}
             </span>
@@ -77,13 +77,15 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
                 <span key={a.label} className={a.color} style={{ width: `${Number(a.pct) * 100}%` }} />
               ))}
             </div>
-            <ul className="grid gap-1 text-[13px]">
+            <ul className="grid grid-cols-3 gap-3">
               {allocation.map((a) => (
-                <li key={a.label} className="flex items-center gap-2">
-                  <span className={`size-2.5 rounded-sm ${a.color}`} aria-hidden="true" />
-                  <span className="flex-1 text-muted-foreground">{a.label}</span>
-                  <span className="font-mono">{displayMoney(a.value)}</span>
-                  <span className="w-16 text-right font-mono text-muted-foreground">{displayPercent(a.pct)}</span>
+                <li key={a.label} className="grid gap-0.5">
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span className={`size-2 rounded-sm ${a.color}`} aria-hidden="true" />
+                    {a.label}
+                  </span>
+                  <span className="font-mono text-sm font-semibold">{displayMoney(a.value)}</span>
+                  <span className="font-mono text-xs text-muted-foreground">{displayPercent(a.pct)}</span>
                 </li>
               ))}
             </ul>
@@ -109,7 +111,7 @@ function EconomicIndicators() {
     : [];
 
   return (
-    <div className="grid content-start gap-2">
+    <div className="grid content-start gap-2 rounded-lg bg-subtle p-4">
       <span className="text-xs font-medium text-muted-foreground">Indicadores hoje</span>
       {isLoading && <Skeleton className="h-20" />}
       {isError && (

@@ -1,5 +1,5 @@
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
   Popover,
   PopoverContent,
@@ -17,45 +17,76 @@ const RULES = [
   ["ETF e BDR", "15%, sem isenção"],
 ] as const;
 
+/** Mês das vendas que geram o DARF: a cobrança sai no último dia útil do mês seguinte. */
+function salesMonthName(dueDate: string): string {
+  const due = parseLocalDate(dueDate);
+  return new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(new Date(due.getFullYear(), due.getMonth() - 1, 1));
+}
+
 /** IR da renda variável: o que já saiu, o que vai sair e a régua da isenção do mês. */
 export function IncomeTaxCard({ portfolio }: { portfolio: PortfolioState }) {
   const sales = Number(portfolio.month_stock_sales);
   const limit = Number(portfolio.stock_sales_exemption);
-  // A régua vai um pouco além do limite para a marca da isenção ficar visível
-  const scale = Math.max(sales, limit) * 1.25;
+  // A barra enche com vendas / limite; passando do limite, a marca recua para a posição real dele
+  const scale = Math.max(sales, limit) || 1;
   const overLimit = sales > limit;
   const due = Number(portfolio.income_tax_due) > 0;
+  const dueDate = portfolio.income_tax_due_date;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Imposto de renda</CardTitle>
+        <CardAction>
+          <Popover>
+            <PopoverTrigger render={<Button variant="link" size="sm" />}>Como funciona</PopoverTrigger>
+            <PopoverContent className="w-[420px]">
+              <PopoverHeader>
+                <PopoverTitle>Como o IR é calculado</PopoverTitle>
+                <PopoverDescription>Lucro apurado por mês, sobre o preço médio.</PopoverDescription>
+              </PopoverHeader>
+              <dl className="grid gap-2 text-[13px]">
+                {RULES.map(([kind, rule]) => (
+                  <div key={kind} className="grid grid-cols-[110px_1fr] gap-2">
+                    <dt className="font-medium">{kind}</dt>
+                    <dd className="text-muted-foreground">{rule}</dd>
+                  </div>
+                ))}
+              </dl>
+              <ul className="grid list-disc gap-1 pl-4 text-[13px] text-muted-foreground">
+                <li>Prejuízo abate o lucro dos meses seguintes.</li>
+                <li>Sai do caixa no último dia útil do mês seguinte; abaixo de R$ 10, soma ao próximo.</li>
+              </ul>
+            </PopoverContent>
+          </Popover>
+        </CardAction>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-0.5">
               <span className="text-xs text-muted-foreground">Já pago</span>
-              <span className="font-mono font-semibold">{displayMoney(portfolio.income_tax_paid)}</span>
+              <span className="font-mono text-lg font-semibold">{displayMoney(portfolio.income_tax_paid)}</span>
             </div>
             <div className="grid gap-0.5">
               <span className="text-xs text-muted-foreground">A pagar</span>
-              <span className={due ? "font-mono font-semibold text-warning" : "font-mono font-semibold"}>
+              <span className={due ? "font-mono text-lg font-semibold text-warning" : "font-mono text-lg font-semibold"}>
                 {displayMoney(portfolio.income_tax_due)}
               </span>
             </div>
           </div>
-          {due && portfolio.income_tax_due_date && (
-            <p className="text-xs text-muted-foreground">
-              Sai do caixa em {displayDate(parseLocalDate(portfolio.income_tax_due_date))}.
+          {due && dueDate && (
+            <p className="text-[13px] text-muted-foreground">
+              Sai do caixa em <b className="font-mono text-foreground">{displayDate(parseLocalDate(dueDate))}</b>, pelo
+              lucro das vendas de {salesMonthName(dueDate)}.
             </p>
           )}
           {!due && Number(portfolio.income_tax_paid) === 0 && (
-            <p className="text-xs text-muted-foreground">Nenhuma venda com lucro ainda.</p>
+            <p className="text-[13px] text-muted-foreground">Nenhuma venda com lucro ainda</p>
           )}
 
           {/* Régua da isenção */}
-          <div className="grid gap-1.5">
+          <div className="grid gap-1.5 border-t border-border pt-3">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Vendas de ações no mês</span>
               <span className="font-mono">{displayMoney(sales)}</span>
@@ -80,28 +111,6 @@ export function IncomeTaxCard({ portfolio }: { portfolio: PortfolioState }) {
                 : `Até ${displayMoney(limit)} em vendas de ações no mês, o lucro com ações é isento.`}
             </p>
           </div>
-
-          <Popover>
-            <PopoverTrigger render={<Button variant="link" size="sm" />}>Como funciona</PopoverTrigger>
-            <PopoverContent className="w-[420px]">
-              <PopoverHeader>
-                <PopoverTitle>Como o IR é calculado</PopoverTitle>
-                <PopoverDescription>Lucro apurado por mês, sobre o preço médio.</PopoverDescription>
-              </PopoverHeader>
-              <dl className="grid gap-2 text-[13px]">
-                {RULES.map(([kind, rule]) => (
-                  <div key={kind} className="grid grid-cols-[110px_1fr] gap-2">
-                    <dt className="font-medium">{kind}</dt>
-                    <dd className="text-muted-foreground">{rule}</dd>
-                  </div>
-                ))}
-              </dl>
-              <ul className="grid list-disc gap-1 pl-4 text-[13px] text-muted-foreground">
-                <li>Prejuízo abate o lucro dos meses seguintes.</li>
-                <li>Sai do caixa no último dia útil do mês seguinte; abaixo de R$ 10, soma ao próximo.</li>
-              </ul>
-            </PopoverContent>
-          </Popover>
         </div>
       </CardContent>
     </Card>

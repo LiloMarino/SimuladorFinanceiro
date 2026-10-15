@@ -106,13 +106,12 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
               </TableHeader>
               <TableBody>
                 {stocks.map((p) => (
-                  <TableRow
-                    key={p.ticker}
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/variable-income/${p.ticker}`)}
-                  >
+                  <TableRow key={p.ticker} onActivate={() => navigate(`/variable-income/${p.ticker}`)}>
                     <TableCell>
-                      <span className="font-mono font-semibold">{p.ticker}</span>
+                      <div className="grid">
+                        <span className="font-mono font-semibold">{p.ticker}</span>
+                        <span className="text-xs text-muted-foreground">{p.name}</span>
+                      </div>
                     </TableCell>
                     <TableCell numeric>{p.size}</TableCell>
                     <TableCell numeric>{displayMoney(p.avg_price)}</TableCell>
@@ -157,11 +156,7 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
               </TableHeader>
               <TableBody>
                 {bonds.map((p) => (
-                  <TableRow
-                    key={p.asset.asset_uuid}
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/fixed-income/${p.asset.asset_uuid}`)}
-                  >
+                  <TableRow key={p.asset.asset_uuid} onActivate={() => navigate(`/fixed-income/${p.asset.asset_uuid}`)}>
                     <TableCell>
                       <span className="grid">
                         <span className="font-semibold">{p.asset.name}</span>

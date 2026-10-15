@@ -34,18 +34,33 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
 /**
  * `group`: linha de título de um grupo de linhas; `warning`: linha que pede atenção;
  * `editing`: linha aberta para edição logo abaixo de outra; `current`: a linha de quem está vendo.
+ * `onActivate`: a linha inteira é clicável e também abre com Enter pelo teclado.
  */
 function TableRow({
   className,
   variant = "default",
+  onActivate,
   ...props
-}: React.ComponentProps<"tr"> & { variant?: "default" | "group" | "warning" | "editing" | "current" }) {
+}: React.ComponentProps<"tr"> & {
+  variant?: "default" | "group" | "warning" | "editing" | "current";
+  onActivate?: () => void;
+}) {
   return (
     <tr
       data-slot="table-row"
       data-variant={variant}
+      data-activatable={onActivate ? "" : undefined}
+      tabIndex={onActivate ? 0 : undefined}
+      onClick={onActivate}
+      onKeyDown={
+        onActivate
+          ? (event) => {
+              if (event.target === event.currentTarget && event.key === "Enter") onActivate();
+            }
+          : undefined
+      }
       className={cn(
-        "border-b border-muted transition-colors hover:bg-subtle has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted data-[variant=current]:bg-info-soft/40 data-[variant=current]:font-semibold data-[variant=editing]:bg-info-soft/50 data-[variant=group]:bg-subtle data-[variant=warning]:bg-warning-soft/40 data-[variant=editing]:hover:bg-info-soft/50 data-[variant=warning]:hover:bg-warning-soft/60",
+        "border-b border-muted transition-colors outline-none hover:bg-subtle has-aria-expanded:bg-muted/50 focus-visible:bg-subtle focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset data-activatable:cursor-pointer data-[state=selected]:bg-muted data-[variant=current]:bg-info-soft/40 data-[variant=current]:font-semibold data-[variant=editing]:bg-info-soft/50 data-[variant=group]:bg-subtle data-[variant=warning]:bg-warning-soft/40 data-[variant=editing]:hover:bg-info-soft/50 data-[variant=warning]:hover:bg-warning-soft/60",
         className,
       )}
       {...props}
