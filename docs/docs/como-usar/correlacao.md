@@ -9,17 +9,17 @@ A tela de **Correlação** mostra o quanto os ativos andam juntos, antes de voc�
 Ela abre em dois lugares:
 
 - **Durante a partida**, pelo menu **Correlação**. A janela termina sempre na data da simulação, para a ferramenta não revelar o futuro.
-- **No lobby**, pelo botão **Correlação entre ativos**. Aqui a janela pode terminar em qualquer dia: o campo **Termina em** começa no último pregão importado.
+- **No lobby**, pelo card **Correlação entre ativos**. Aqui a janela pode terminar em qualquer dia: a data final começa no último pregão importado.
 
 ---
 
 ## Como usar
 
-1. Marque os ativos na lista à esquerda (até 20).
+1. Marque os ativos na lista à esquerda, agrupada por setor (até 20). Os atalhos **Minha carteira** (na partida) e **Um de cada setor** marcam vários de uma vez.
 2. Escolha a **janela**: 6 meses, 1 ano, 3 anos ou 5 anos até a data final.
-3. Leia o mapa de calor. Cada célula é um par de ativos, e o **Ibovespa** entra como última linha e coluna, como referência do mercado.
+3. Leia a matriz. Cada célula é um par de ativos; como o par A × B é o mesmo que B × A, a matriz mostra só a metade de baixo. O **Ibovespa** fica numa linha à parte, como referência do mercado.
 
-Passe o mouse numa célula para ver o valor, a faixa de leitura e quantos pregões em comum entraram no cálculo.
+Clique numa célula para fixar o par no painel ao lado: o valor, a faixa de leitura e quantos pregões em comum entraram no cálculo. O painel também traz os **destaques**: o par que mais anda junto, o melhor par para diversificar (a menor correlação) e, na partida, a correlação média entre as ações da sua carteira.
 
 ---
 
@@ -50,8 +50,8 @@ Uma correlação alta diz que os dois ativos se movem juntos, não que um move o
 
 Cada célula usa só os pregões em que **os dois** ativos negociaram, então a amostra muda de célula para célula. Uma ação listada há pouco tempo tem menos dias em comum com as outras.
 
-- Com menos de **20 pregões em comum** (~1 mês), a célula mostra **—**. Com tão poucos dias, o número seria ruído.
-- Com menos de **63 pregões** (~3 meses), a correlação muda muito de uma janela para outra. Leia com cautela.
+- Com menos de **63 pregões em comum** (~3 meses), a célula mostra **—**. Com menos dias que isso, a correlação muda muito de uma janela para outra e o número seria ruído. Clicando na célula, o painel diz quantos pregões havia e o que fazer: aumentar a janela ou esperar a partida avançar.
+- Se um dos dois ficou parado a janela inteira, a célula também mostra **—**: sem variação, não dá pra medir se andam juntos.
 - Um dia sem preço válido no banco conta como dia sem pregão: o retorno seguinte cobre os dois dias.
 
 ---

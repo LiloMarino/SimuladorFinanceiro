@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança:** registrada a N18 (correlação entre ativos); D9 decidida: o schema nasce dos models.
+> **Última mudança:** D11 decidida pelo Base UI, no fechamento do M12.
 
 ---
 
@@ -173,3 +173,6 @@ Quem decide pelo gráfico precisa dos indicadores (MACD, IFR, médias móveis, B
 2. **Base UI** — a biblioteca feita por parte de quem criou o Radix e o Material UI, estável desde a v1 e num pacote só. Compõe com a prop `render`. É a base do Finance Manager e do EconomicStatistics (preset `base-nova`), então componentes e padrões passam de um projeto ao outro sem adaptação.
 
 **Por quê está aberto:** a padronização (F36) recria todos os componentes de qualquer forma, então trocar de base custa quase o mesmo que ficar — sobra a conversão dos 13 `asChild` fora de `ui/`. A recomendação é o Base UI, pela coerência com os projetos irmãos de finanças; falta conferir, recriando dois ou três componentes nos dois presets, que nada do que o app usa hoje fica sem equivalente.
+
+**Atualização (2026-10-14):** decidida pelo **Base UI**, preset `base-nova`, na F36. Todos os componentes que o app usava têm equivalente, e os `asChild` viraram a prop `render`.
+**Status:** ✅ Decidida

@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-11):** Registradas a análise técnica (F33 indicadores, F34 gráfico em tela cheia) e a interface nova (F35 dependências, F36 shadcn, D11 Radix ou Base UI), com o redesign F26 no M12.
+> **Última mudança (2026-10-15):** M12 concluído: F35, F36 e F26 implementadas, D11 decidida pelo Base UI; F32 refeita com mínimo de 63 pregões; registrados o tema escuro (F37) e as mensagens do backend em português (F38).
 
 ## Glossário
 
@@ -30,14 +30,13 @@
 | **N12** | Continuar jogando depois do último dia com dado real | [F24](#f24) | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | [F21](#f21) | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F25](#f25) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F35](#f35), [F36](#f36) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F26](#f26), [F35](#f35), [F36](#f36), [F37](#f37), [F38](#f38) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | [F30](#f30) | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | [F31](#f31) | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | [F32](#f32) | — |
 | **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33) | — |
 | **D4** | Banco de dados embarcado no executável | [F4](#f4) | 🔍 |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
-| **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | [F36](#f36) | 🔍 |
 | [**F3**](#f3) | Spike: banco embarcado no executável | — | 🔍 |
 | [**F4**](#f4) | Executável sobe sem banco instalado | — | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
@@ -52,15 +51,14 @@
 | [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | — | 🔍 |
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ⏳ |
-| [**F26**](#f26) | Redesign visual | — | 🔍 |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | — | ⏳ |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
-| [**F35**](#f35) | Dependências em dia | — | ⏳ |
-| [**F36**](#f36) | Interface padronizada no shadcn | — | ⏳ |
+| [**F37**](#f37) | Tema escuro | — | 💤 |
+| [**F38**](#f38) | Mensagens do backend em português | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -72,6 +70,7 @@
 | **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F8](#f8), [F16](#f16), [F19](#f19), [F27](#f27) | ✅ |
 | **D9** | De onde nasce uma mudança de schema | [F25](#f25), [F31](#f31) | ✅ |
 | **D10** | Como a nota geral é calculada | [F18](#f18) | ✅ |
+| **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | [F36](#f36) | ✅ |
 | [**F1**](#f1) | Decimal como string do backend ao frontend | — | ✅ |
 | [**F2**](#f2) | Renda fixa com cálculo único no backend e retomada consistente | — | ✅ |
 | [**F11**](#f11) | Métricas de risco do desempenho | — | ✅ |
@@ -83,11 +82,14 @@
 | [**F20**](#f20) | Indicadores reais (CDI, SELIC, IPCA) do Banco Central | — | ✅ |
 | [**F21**](#f21) | Central de dados, fora da partida | — | ✅ |
 | [**F25**](#f25) | Migrations com Alembic | — | ✅ |
+| [**F26**](#f26) | Redesign visual | — | ✅ |
 | [**F27**](#f27) | Fechamento de partida: pódio e critério de vitória | — | ✅ |
 | [**F29**](#f29) | IR na venda de renda variável | — | ✅ |
 | [**F30**](#f30) | Setores e segmentos | — | ✅ |
 | [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ✅ |
+| [**F35**](#f35) | Dependências em dia | — | ✅ |
+| [**F36**](#f36) | Interface padronizada no shadcn | — | ✅ |
 
 </details>
 
@@ -101,11 +103,11 @@
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
-| [**F35**](#f35) | Dependências em dia | M12 | 2 | ⏳ |
 | [**F3**](#f3) | Spike: banco embarcado no executável | M2 | 1 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
+| [**F38**](#f38) | Mensagens do backend em português | — | 0 | ⏳ |
 
 ---
 
@@ -312,21 +314,31 @@
 >
 > **Serve:** N15
 >
-> **Progresso:** 0/3 concluídas
+> **Progresso:** 3/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F26**](#f26) | Redesign visual | [F36](#f36) | 🔍 |
-| [**F35**](#f35) | Dependências em dia | — | ⏳ |
-| [**F36**](#f36) | Interface padronizada no shadcn | [F35](#f35) | ⏳ |
+| — | *(nada em aberto)* | — | — |
+
+<details><summary>Concluído (3 itens)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F26**](#f26) | Redesign visual | [F36](#f36) | ✅ |
+| [**F35**](#f35) | Dependências em dia | — | ✅ |
+| [**F36**](#f36) | Interface padronizada no shadcn | [F35](#f35) | ✅ |
+
+</details>
 
 ### Sem marco
 
-> **Progresso:** 3/4 concluídas
+> **Progresso:** 3/6 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
+| [**F37**](#f37) | Tema escuro | [F26](#f26) | 💤 |
+| [**F38**](#f38) | Mensagens do backend em português | — | ⏳ |
 
 <details><summary>Concluído (3 itens)</summary>
 
@@ -368,8 +380,11 @@
 | **F32** | Ferramenta de correlação entre ativos | N18 | D2 | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F18** | Pontuação geral (overall) | N9 | D10 | M7 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F33** | Indicadores técnicos | N19, N4 | D2 | M11 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
-| **F35** | Dependências em dia | N15 | — | M12 | — | Médio | Médio | Baixo | Médio | ⏳ Pendente |
-| **F36** | Interface padronizada no shadcn | N15 | D11 | M12 | [F35](#f35) | Médio | Médio | Médio | Bom | ⏳ Pendente |
+| **F35** | Dependências em dia | N15 | — | M12 | — | Médio | Médio | Baixo | Médio | ✅ Concluído |
+| **F36** | Interface padronizada no shadcn | N15 | D11 | M12 | [F35](#f35) | Médio | Médio | Médio | Bom | ✅ Concluído |
+| **F26** | Redesign visual | N15 | — | M12 | [F36](#f36) | Alto | Médio | Alto | Bom | ✅ Concluído |
+| **F37** | Tema escuro | N15 | — | — | [F26](#f26) | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
+| **F38** | Mensagens do backend em português | N15 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -459,8 +474,30 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **Aceite:** tirar o `UK` de uma coluna na página, sem mudar o model, faz o `tests/test_erd.py` falhar.
 
 <a id="f32"></a>
-**F32 — Ferramenta de correlação entre ativos.** Serve N18; segue a D2. Uma rota só, `/correlation`: na partida é o item "Correlação" da sidebar, e no lobby o botão "Correlação entre ativos" a abre em tela cheia (`layouts/simulation-mode-layout.tsx` escolhe o layout pelo modo). Escolhem-se até 20 tickers e uma janela (6 meses, 1, 3 ou 5 anos). `GET /api/correlation` (`features/correlation/correlation.py`) calcula a correlação de Pearson dos retornos diários de cada par com `statistics.correlation`, usando só os pregões em que os dois lados têm retorno, e devolve a matriz completa com o IBOV como última linha e coluna; `GET /api/correlation/assets` dá os tickers e o último dia que a janela alcança. Célula com menos de 20 pregões em comum, ou com um lado parado na janela, vem `null` e aparece "—"; fechamento inválido (NaN, zero) conta como dia sem pregão. Na partida, a janela termina sempre na data da simulação, mesmo que o pedido traga outra; fora dela, o campo de data final começa no último pregão e vai para qualquer dia. A tela tem o mapa de calor (vermelho para positiva, azul para negativa), o card "Como ler" com as faixas (≥ 0,7 andam muito juntos; 0,3 a 0,7 em parte; −0,3 a 0,3 quase independentes; ≤ −0,3 opostos) e um tooltip por célula com o valor, a faixa e os pregões em comum; a página "Correlação entre Ativos" dos docs explica a leitura. `MetricInfo` e `MetricHint` subiram para `shared/`, porque a estatística e a correlação usam os dois. O CDI ficou de fora como referência: a taxa diária só muda quando o Copom mexe na Selic, então a correlação com ela fica perto de 0 e, numa janela com a Selic parada, nem existe. Quando a F23 existir, a mesma tela confere o gerador: o mesmo par medido num período histórico e num gerado.
-**Aceite:** com a janela de 1 ano terminando em 29/12/2023, ITUB4 × IBOV dá 0,74 e ITUB4 × PETR4 dá 0,27, com 248 pregões em comum; na partida, pedir uma data além da simulação devolve a mesma matriz que sem data (coberto em `tests/test_correlation.py`).
+**F32 — Ferramenta de correlação entre ativos.** Serve N18; segue a D2.
+
+**Onde abre.** Uma rota só, `/correlation`: na partida é o item "Correlação" da sidebar, e no lobby o card "Correlação entre ativos" a abre em tela cheia (`layouts/simulation-mode-layout.tsx` escolhe o layout pelo modo).
+
+**Escolha dos ativos.** Até 20 tickers, agrupados por setor (`GET /api/correlation/assets` traz o setor de cada um). Há dois atalhos: "Minha carteira", na partida, e "Um de cada setor". A janela é de 6 meses, 1, 3 ou 5 anos.
+
+**Cálculo.** `GET /api/correlation` (`features/correlation/correlation.py`) calcula a correlação de Pearson dos retornos diários de cada par com `statistics.correlation`. Cada par usa só os pregões em que os dois lados têm retorno. A resposta traz:
+- a matriz completa, com o IBOV como última linha e coluna;
+- os destaques entre os ativos escolhidos: o par mais parecido, o de menor correlação (o melhor para diversificar) e, na partida, a média entre as ações da carteira de quem pede.
+
+**Par sem número.** Um par com menos de 63 pregões em comum (~3 meses) vem `null`, com `reason: insufficient_days`; um par com um lado parado na janela vem `null` com `constant_series`. O motivo aparece ao clicar no par. Fechamento inválido (NaN, zero) conta como dia sem pregão.
+
+**Data final.** Na partida, a janela termina sempre na data da simulação, que aparece como selo. Fora dela, a data final é livre e começa no último pregão.
+
+**Tela.**
+- A matriz mostra só a metade de baixo, com o Ibovespa numa linha à parte: vermelho para positiva, azul para negativa.
+- Clicar numa célula fixa o par no painel lateral, com o número, a leitura e os pregões em comum.
+- A leitura segue as faixas: ≥ 0,7 andam muito juntos; 0,3 a 0,7 em parte; −0,3 a 0,3 quase independentes; ≤ −0,3 opostos.
+- Se o novo cálculo falha, a matriz anterior fica na tela com um aviso e "Tentar de novo".
+- Uma base sem preços leva à Central de dados.
+
+A página "Correlação entre Ativos" dos docs explica a leitura.
+
+**Fora da tela.** O CDI ficou de fora como referência: a taxa diária só muda quando o Copom mexe na Selic, então a correlação com ela fica perto de 0 e, numa janela com a Selic parada, nem existe. Quando a F23 existir, a mesma tela confere o gerador: o mesmo par medido num período histórico e num gerado.
 
 <a id="f18"></a>
 **F18 — Pontuação geral (overall).** Serve N9; segue a D10. Uma nota por jogador, decomposta por eixo e por métrica, na aba Geral da F17 e no ranking, que passou a ordenar por ela (quem ainda não tem nota vem depois, e o retorno desempata). `features/statistics/score.py` guarda as faixas como tabela de dados: cada métrica vira pontos numa reta entre o valor que vale 0 e o que vale 100, com chão 0 e sem teto; cada eixo é a média das suas métricas medidas, e a nota é a soma dos quatro. **Retorno:** retorno anual acima do CDI (−10 p.p. → 0, +10 p.p. → 100) e acima do Ibovespa (−15 → 0, +15 → 100). **Risco:** queda máxima (50% → 0, 0% → 100), volatilidade (40% → 0), maior tempo abaixo do pico (252 pregões → 0) e pior mês (−20% → 0). **Consistência:** fração dos meses acima do CDI e no positivo. **Eficiência:** Sharpe (−1 → 0, 2 → 100) e Sortino (−1 → 0, 3 → 100). A nota só aparece a partir de 63 pregões; antes, a aba Geral mostra quantos faltam. `ScoreDTO` vem em cada jogador de `/api/statistics/overview`, com o valor e os pontos de cada métrica, e o card "Nota" mostra cada eixo com uma barra e cada métrica como "queda máxima 13,65% → 72,7 pts". A página de estatísticas dos docs tem a fórmula em LaTeX (`remark-math` + `rehype-katex`, com o `$` simples desligado por causa do "R$"), a tabela de faixas e um exemplo completo. Limitação: risco e consistência param perto de 100 e retorno e eficiência não, então uma carteira parada em caixa fica com ~100, quase tudo do eixo Risco.
@@ -470,10 +507,66 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F33 — Indicadores técnicos.** Serve N19 e N4; segue a D2. Hoje o gráfico de ações mostra só o preço (área ou velas); os indicadores que um site como o Investing.com mostra não existem. `backend/features/technical_analysis/indicators.py` calcula, sobre o histórico de preço e volume (`stock_price_history` já guarda o volume), funções puras em pandas com parâmetros editáveis: médias móveis simples e exponencial (MMS, MME), MACD (12, 26, 9: linha, sinal e histograma), IFR (14), Bandas de Bollinger (20 pregões, 2 desvios), estocástico (14, 3), ATR (14) e OBV. Implementação própria, sem TA-Lib, que exige uma biblioteca em C no executável; cada função tem teste contra uma série curta com valores calculados à mão. `GET /api/stocks/{ticker}/indicators` devolve as séries alinhadas às datas do preço; na partida, só até a data da simulação, como na correlação (F32). No gráfico, o que se desenha sobre o preço (médias, Bollinger) vira série no mesmo painel, e os osciladores (MACD, IFR, estocástico, volume) ganham painéis próprios embaixo, que o `lightweight-charts` 5 tem nativos. Um seletor "Indicadores" liga e desliga cada um e edita os parâmetros, e cada indicador traz a dica com o que mede e como ler (IFR acima de 70 costuma ser lido como sobrecomprado, abaixo de 30 como sobrevendido). Ao lado do gráfico, um "Resumo técnico" no formato do Investing.com: o valor de cada indicador no dia e a leitura (compra, neutro, venda). As mesmas funções entram no contexto da estratégia (F8), para que a estratégia decida pelo mesmo número que aparece na tela. Uma página "Análise Técnica" nos docs explica cada indicador.
 
 <a id="f35"></a>
-**F35 — Dependências em dia.** Serve N15, porque o shadcn atual (F36) espera as versões recentes. Em dois passos, cada um fechado com `pnpm check` e o executável gerado e aberto até o lobby. (1) Versões menores, dentro da faixa do `package.json`: `pnpm update` no frontend (Radix, TanStack Query, React 19.3, Tailwind 4.3, React Router 7.18, Zod 4.6, `lightweight-charts` 5.2, `lucide-react` e o resto) e `uv lock --upgrade` no backend, onde hoje só há versões menores atrasadas (FastAPI, pandas, numpy, pydantic, PyInstaller). (2) Versões maiores, uma por commit: Vite 7 → 8 (o empacotamento passa a ser o Rolldown; conferir o `@vitejs/plugin-react-swc` ou trocar pelo `@vitejs/plugin-react`); TypeScript 5.9 → 7 (o compilador reescrito em Go, bem mais rápido; revisar o `tsconfig` pelas opções que o 6 removeu, e se o `typescript-eslint` ainda não suportar o 7, parar no 6); ESLint 9 → 10 com `eslint-plugin-react-hooks` 5 → 7, cujas regras novas, vindas do React Compiler, podem apontar código a corrigir; `framer-motion` 12 → 14 (um arquivo usa); `globals`, `eslint-plugin-react-refresh` e `@types/node`. O Recharts 2 → 3 fica para a F36, que traz o `chart.tsx` novo do shadcn já para a versão 3.
+**F35 — Dependências em dia.** Serve N15. Feito em dois passos, cada um fechado com `pnpm check`. (1) Versões menores: `pnpm update` no frontend e `uv lock --upgrade` no backend. (2) Versões maiores, uma por commit: Vite 8 com o `@vitejs/plugin-react` no lugar do `-swc`; ESLint 10 com `eslint-plugin-react-hooks` 7, cujas regras do React Compiler pediram ajustes (`useEffectEvent` no `useRealtime`, sem `setState` dentro de efeito); `globals`, `eslint-plugin-react-refresh` e `@types/node` atualizados. O TypeScript parou no 6: o `typescript-eslint` ainda não aceita o 7. O `framer-motion` saiu do projeto, porque o único uso era a página 404, refeita sem animação na F26. O Recharts 3 entrou na F36. Limitação: subir para o TypeScript 7 quando o `typescript-eslint` suportar.
 
 <a id="f36"></a>
-**F36 — Interface padronizada no shadcn.** Serve N15; decide a D11. Hoje o `components.json` está no estilo `new-york`, o antigo do shadcn, com 20 componentes em `shared/components/ui`, e 14 elementos feitos à mão com `<button>`/`<input>` e classes fora dela: o seletor de período e o de tipo do gráfico de ações, o botão "Realtime", os chips de jogador das estatísticas, as legendas clicáveis dos gráficos da carteira e das estatísticas, o botão da tabela de ordens pendentes, o input de arquivo do CSV, o da tela de estratégias e o da topbar. O plano: (1) decidir a D11 recriando dois ou três componentes nos dois presets; (2) `components.json` no preset escolhido e todos os componentes recriados pela CLI do shadcn (`add --overwrite`), com Recharts 3 e o `chart.tsx` novo; (3) os componentes que faltam entram pela CLI conforme o uso — Toggle Group nos seletores do gráfico e nos chips, Popover no seletor de indicadores da F33, Dropdown Menu, Accordion, Skeleton, Switch e Slider (a temperatura da F23); (4) cada elemento feito à mão vira o componente equivalente, e o que precisar de aparência nova ganha variante no componente (o "Realtime" vira `<Button variant="success">`), nunca classe por cima. Feita na mesma etapa da F26: o design no canvas é desenhado sobre os componentes do preset escolhido, então o redesign chega como tokens e variantes, não como componentes novos. Se a D11 escolher o Base UI, os 13 `asChild` fora de `ui/` viram a prop `render`.
+**F36 — Interface padronizada no shadcn.** Serve N15; decidiu a D11 pelo Base UI. O `components.json` está no preset `base-nova` (`@base-ui/react`), com o pacote `shadcn` importado no CSS (`@import "shadcn/tailwind.css"`, que traz as variantes `data-*` dos componentes). Os componentes de `shared/components/ui` foram recriados pela CLI, e os que faltavam entraram conforme as telas pediram: toggle-group, empty, avatar, field, radio-group, popover, progress, switch, input-group, textarea, sheet, skeleton e separator; o `form.tsx` saiu, sem uso. A CLI do registro grava `import ... from "cn"` e adiciona um pacote `cn` falso: o import é corrigido para `@/shared/lib/utils` a cada componente novo. Os `asChild` fora de `ui/` viraram a prop `render`; o Recharts foi para a versão 3. Aparência nova é sempre variante no componente, e o `@shadcn/lint` garante isso: `no-restyle` (só classes de layout por fora) e `no-raw-colors` (só tokens), que entraram como aviso durante a migração e terminaram como erro. Os 14 elementos feitos à mão viraram o componente equivalente na tela da F26 que os redesenhou.
+
+<a id="f26"></a>
+**F26 — Redesign visual.** Serve N15. O app inteiro no visual iterado no Claude Design, sobre os componentes da F36.
+
+**Base.** Tokens só do tema claro em `frontend/index.css`: superfícies, texto, primária azul, pares de estado com fundo suave (sucesso, aviso, perigo, info), sidebar escura, velas e oito cores de gráfico validadas para daltonismo. O tema escuro ficou para a F37. As fontes IBM Plex Sans e Mono vão empacotadas via `@fontsource`, porque o executável roda sem internet; números em mono `tabular-nums`. As variantes novas no DS são: Button `dark`, `inverse`, `success`, `warning` e tamanhos de `xs` a `xl`; Badge e Alert por estado; ToggleGroup `segmented`; Tabs em trilho; Card `sm`/`lg` e `destructive`; Table com linhas `current`/`warning` e coluna `numeric`; Input `numeric`; Avatar até `2xl`; Sheet `lg`. Os estados compartilhados são o `ErrorState` (título, saída e a linha "Erro 500 · …") e os skeletons. O `ApiError` traz a mensagem em português por status.
+
+**Shell.** Sidebar fixa em grupos (Mercado, Você, Ferramentas) com rodapé do jogador; topbar com data, pausa, velocidade segmentada e caixa; o loading avisa depois de 10 s e oferece tentar de novo; a 404 oferece uma saída só, conforme o contexto; os toasts agregam execuções seguidas e respeitam a preferência de entrada e saída.
+
+**Telas, com o que cada uma pediu do backend.**
+- Login: o conflito de nickname aparece no card, com "Sou eu, entrar".
+- Lobby: status da simulação salva derivado (pausada ou terminada, a mesma regra do `SimulationLoader`, sem coluna nova), jogadores e vencedor; regras em Sheet com prévia da curva de impacto (`GET /api/simulation/price-impact-preview`).
+- Central de dados: a importação devolve a série importada; `GET .../suggestion` sugere o setor.
+- Carteira: o `PortfolioDTO` ganhou IR do mês com régua da isenção, setores efetivos, aportado e as frações.
+- Renda variável:
+  - Lista: tabela de mercado com sparkline e setor.
+  - Detalhe: livro da sala e execuções lidas dos eventos (`GET .../trades`), além da boleta com prévia (`POST .../order-preview`: total, caixa depois, máximo, IR estimado).
+- Renda fixa: tabela comparável pela taxa equivalente de hoje e boleta com projeção (caixa antes e depois).
+- Estatísticas: colocação e distância do líder, eixo mais fraco, quadradinhos de meses, dispersão risco × retorno, mapa de calor de volume por mês e estilo de giro.
+- Fim de partida: vencedor, pódio e destaques da sala (`GET /api/statistics/highlights`).
+- Comparar: letra e cor por partida, "Você contra você", ranking ordenável, "Só você" e o eixo "desde o início" pelo número do pregão.
+- Correlação (F32 refeita): ativos por setor, meia matriz, par fixado e destaques.
+- Configurações: switches que voltam e explicam ao falhar; a exclusão só libera com o nickname digitado.
+- Estratégias: página "Em desenvolvimento" com as três prévias.
+
+**Limitações.**
+- A lista do Comparar mostra o vencedor de cada partida, mas não "você em Nº", que exigiria o ranking completo de cada simulação salva.
+- A variação do dia na renda variável continua intradiária, por causa do impacto de preço.
+- "Encerrar" antes do fim continua salvando e saindo.
+
+<a id="f37"></a>
+**F37 — Tema escuro.** Serve N15. Hoje só existe o tema claro (F26): o `:root` de `frontend/index.css` é a única fonte dos tokens, e o `@custom-variant dark` ficou inerte.
+
+**Plano.**
+1. Desenhar o tema escuro no canvas do Claude Design, sobre as mesmas telas da F26.
+2. Reescrever os mesmos tokens num bloco `.dark`, com passos próprios das mesmas rampas, sem inverter as cores claras.
+3. Validar as oito cores de gráfico contra a superfície escura com o validador de paleta da skill de dataviz.
+4. Fazer o `lightweight-charts` ler as cores do token (`getComputedStyle`) em vez de fixá-las, para o gráfico de velas acompanhar.
+5. Criar um card "Aparência" nas Configurações, com claro, escuro ou "seguir o sistema". A escolha fica no `localStorage`, por ser preferência deste navegador; o padrão é seguir o sistema (`prefers-color-scheme`).
+
+**Gatilho:** quando o design escuro estiver fechado no canvas.
+
+<a id="f38"></a>
+**F38 — Mensagens do backend em português.** Serve N15. O frontend mostra na tela a mensagem que o backend devolve, e parte delas ainda chega em inglês. Exemplos:
+- os textos padrão das exceções HTTP em `backend/core/exceptions/http_exceptions.py` ("An upstream service failed to answer the request.");
+- os erros 422 de validação do Pydantic ("Field required", "Input should be a valid integer");
+- mensagens soltas de rotas e serviços.
+
+**Plano.**
+1. Traduzir os `detail` padrão de `http_exceptions.py`.
+2. Registrar em `backend/routes/__init__.py` um handler de `RequestValidationError` que monta uma frase em português por tipo de erro do Pydantic (`missing`, `int_parsing`, `greater_than`...), com o nome do campo. O formato de erro que o frontend já lê continua o mesmo.
+3. Varrer as rotas e os serviços (`grep` por `detail=` e pelos `raise` com texto) atrás do que sobrou em inglês.
+4. Criar um teste que percorre as exceções padrão e confere que nenhum `detail` sai em inglês.
+
+O `ApiError` do frontend já cai numa mensagem em português por status quando o backend não manda texto.
+
+**Gatilho:** qualquer momento; não depende de outra feature.
 
 ---
 ## 2. Nice-to-have
@@ -505,7 +598,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F7** | Spike: estratégia Python escrita pelo usuário | Serve N4; decide D5 | M4 | — | 🔍 Em avaliação |
 | **F22** | Preço ajustado e proventos | Serve N3, N7; degrau falso na atualização incremental | M8 | — | 🔍 Em avaliação |
 | **F23** | Spike: gerador de séries sintéticas | Serve N12; fecha o método e o contrato da F24 | M9 | [F20](#f20) | 🔍 Em avaliação |
-| **F26** | Redesign visual | Serve N15; referência das telas das features em aberto | M12 | [F36](#f36) | 🔍 Em avaliação |
 | **F28** | Muitos futuros (Monte Carlo) | Serve N10; revisa ou confirma a D7 | M9 | [F19](#f19), [F23](#f23) | 🔍 Em avaliação |
 | **F34** | Gráfico de ações em tela cheia, com ferramentas de trader | Serve N19; escolhe a biblioteca de gráfico | M11 | [F33](#f33) | 🔍 Em avaliação |
 
@@ -530,9 +622,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 4. **Partida salva sobre dado gerado** quando o real chega e o substitui (D7) — congelar a geração para aquela partida, impedir a troca enquanto alguma partida usar o trecho, ou aceitar a mudança.
 
 Sai daqui com o método e o contrato fechados para a F24.
-
-<a id="f26"></a>
-**F26 — Redesign visual.** Serve N15. Remake visual do app inteiro, iterado no Claude Design: identidade visual, design system (tokens de cor, tipografia, espaçamento, tema claro e escuro), navegação e telas. O design system é o shadcn no preset da D11 (F36): o canvas desenha sobre os mesmos componentes que o frontend usa, então o redesign chega ao código como tokens e variantes. As features em aberto deste roadmap são a referência para as telas novas e as refeitas: o lobby com bots e backtest (F16, F19), as estatísticas em abas e o fechamento de partida (F17, F27), a central de dados com a linha do tempo real × gerado (F21, F24), o gráfico em tela cheia (F34). Pela D8, estatísticas, comparação, fechamento e resultado de backtest são uma família só de tela. Falta: fechar o design no canvas — design system e telas. Com ele fechado, o card ganha o plano de implementação: os tokens no CSS do frontend, as variantes novas nos componentes do shadcn, e a migração tela a tela.
 
 <a id="f28"></a>
 **F28 — Muitos futuros (Monte Carlo).** Serve N10. Em vez de testar a estratégia num futuro gerado só, testá-la em muitos (ex.: 100, cada um com uma semente) e mostrar o resultado como distribuição: "perdeu para o CDI em 23 de 100 futuros; no pior, −35%; no do meio, +40% em 5 anos". Lê-se pela fração de futuros ruins e pelo pior caso: poucos futuros perdendo para o CDI é bom; uma estratégia que só ganha no histórico real e perde na maioria dos futuros plausíveis teve sorte, não mérito. É o backtest da F19 repetido sobre gerações da F23. Falta definir: **onde vivem os 100 futuros.** A D7 guarda *um* futuro gerado nas tabelas de série, e Monte Carlo precisa de muitos ao mesmo tempo. Opções: (1) as tabelas de série ganham uma dimensão de cenário (o canônico é o cenário 0, e cada futuro de Monte Carlo é um cenário descartável); (2) o motor passa a ler as séries por um provedor, que pode ser o banco ou uma geração em memória — o que estende a D7 de "mesmas tabelas" para "mesma interface". Sai daqui com essa escolha, que revisa ou confirma a D7.
