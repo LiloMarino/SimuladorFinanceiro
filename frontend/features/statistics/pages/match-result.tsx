@@ -1,10 +1,24 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { Flag } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useParams } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/shared/components/ui/empty";
+import { ErrorState } from "@/shared/components/error-state";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { Podium } from "../components/podium";
+import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
+import { HighlightsRow, HighlightsSkeleton } from "../components/match-result/highlights-row";
+import { MatchHero, MatchHeroSkeleton } from "../components/match-result/match-hero";
 import { StatisticsReport } from "../components/statistics-report";
 import { useStatisticsReport } from "../hooks/queries/useStatisticsReport";
+import { playerColors } from "../lib/player-colors";
 
 export default function MatchResultPage() {
   const { simulationId } = useParams();
@@ -14,35 +28,91 @@ export default function MatchResultPage() {
   return <MatchResult simulationId={id} />;
 }
 
-/** Fechamento da partida: o pódio pelo critério de vitória e o relatório da partida inteira. */
+const backToLobby = (
+  <Button variant="outline" nativeButton={false} render={<Link to="/lobby" />}>
+    Voltar ao lobby
+  </Button>
+);
+
+/** Fechamento da partida: o vencedor e o pódio, os destaques e o relatório da partida inteira. */
 function MatchResult({ simulationId }: { simulationId: number }) {
-  const navigate = useNavigate();
   const { user } = useAuth();
-  const { data: overview, isLoading } = useStatisticsReport("overview", [simulationId]);
+  const { data: overview, error, refetch } = useStatisticsReport("overview", [simulationId]);
+  const { data: simulations } = useQuery(simulationListOptions());
+
+  if (error && !overview) {
+    return (
+      <Card>
+        <CardContent>
+          <ErrorState
+            title="Não conseguimos carregar o resultado"
+            description="A partida terminou e está salva. Tente de novo ou volte ao lobby: o resultado fica em “Simulações salvas”."
+            error={error}
+            onRetry={() => void refetch()}
+          >
+            {backToLobby}
+          </ErrorState>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (overview && overview.players.length === 0) {
+    return (
+      <Card>
+        <CardContent>
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Flag />
+              </EmptyMedia>
+              <EmptyTitle>Essa partida terminou sem resultado</EmptyTitle>
+              <EmptyDescription>
+                Ninguém chegou a ter patrimônio registrado: ela foi encerrada antes do primeiro pregão.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button nativeButton={false} render={<Link to="/lobby" />}>
+                Voltar ao lobby
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const colorOf = playerColors(overview?.players.map((p) => p.player_nickname) ?? []);
 
   return (
-    <section className="mx-auto max-w-6xl space-y-6 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Fim de partida</h1>
-          {overview?.players[0] && <p className="text-muted-foreground">{overview.players[0].simulation_name}</p>}
-        </div>
-        <Button onClick={() => navigate("/lobby")}>Voltar ao lobby</Button>
-      </div>
-
+    <div className="grid gap-5">
       {overview ? (
-        overview.players.length > 0 ? (
-          <Podium report={overview} />
-        ) : (
-          <p className="text-muted-foreground">Nenhum jogador chegou a ter patrimônio registrado nesta partida.</p>
-        )
+        <>
+          <MatchHero
+            report={overview}
+            simulation={simulations?.find((s) => s.id === simulationId)}
+            currentPlayerName={user?.nickname}
+            colorOf={colorOf}
+          />
+          <HighlightsRow simulationId={simulationId} currentPlayerName={user?.nickname} colorOf={colorOf} />
+        </>
       ) : (
-        <div className="flex h-40 items-center justify-center">
-          {isLoading ? <Spinner className="size-6" /> : "Erro ao carregar o resultado."}
-        </div>
+        <>
+          <MatchHeroSkeleton />
+          <HighlightsSkeleton />
+        </>
       )}
 
-      <StatisticsReport simulationIds={[simulationId]} showSimulation={false} currentPlayerName={user?.nickname} />
-    </section>
+      {/* Relatório da partida */}
+      <section className="grid gap-3">
+        <div>
+          <h2 className="text-[15px] font-semibold">Relatório da partida</h2>
+          <p className="text-[13px] text-muted-foreground">
+            As mesmas abas das Estatísticas, congeladas no último dia da partida.
+          </p>
+        </div>
+        <StatisticsReport simulationIds={[simulationId]} showSimulation={false} currentPlayerName={user?.nickname} />
+      </section>
+    </div>
   );
 }

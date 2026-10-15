@@ -7,6 +7,8 @@ export const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary-hover",
         dark: "bg-foreground text-primary-foreground hover:bg-foreground/90",
+        // Sobre fundo escuro (barra lateral, hero do fim de partida)
+        inverse: "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/80",
         outline:
           "border-input bg-card text-foreground hover:bg-subtle aria-expanded:bg-subtle aria-expanded:text-foreground",
         secondary: "bg-secondary text-foreground hover:bg-secondary/80 aria-expanded:bg-secondary",

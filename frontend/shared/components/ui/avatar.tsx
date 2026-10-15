@@ -7,14 +7,14 @@ function Avatar({
   size = "default",
   ...props
 }: AvatarPrimitive.Root.Props & {
-  size?: "default" | "sm" | "lg";
+  size?: "default" | "sm" | "lg" | "xl" | "2xl";
 }) {
   return (
     <AvatarPrimitive.Root
       data-slot="avatar"
       data-size={size}
       className={cn(
-        "group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten",
+        "group/avatar relative flex size-8 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=2xl]:size-16 data-[size=lg]:size-10 data-[size=sm]:size-6 data-[size=xl]:size-12 dark:after:mix-blend-lighten",
         className,
       )}
       {...props}
@@ -39,7 +39,7 @@ function AvatarFallback({ className, color, style, ...props }: AvatarPrimitive.F
       data-slot="avatar-fallback"
       data-colored={color ? "" : undefined}
       className={cn(
-        "flex size-full items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground group-data-[size=lg]/avatar:text-sm data-colored:text-white",
+        "flex size-full items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground group-data-[size=lg]/avatar:text-sm group-data-[size=xl]/avatar:text-xl group-data-[size=2xl]/avatar:text-[27px] data-colored:text-white",
         className,
       )}
       style={color ? { ...style, backgroundColor: color } : style}

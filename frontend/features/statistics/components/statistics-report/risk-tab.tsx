@@ -99,7 +99,7 @@ export function RiskTab({ simulationIds, showSimulation, currentPlayerName }: Re
         currentPlayerName={currentPlayerName}
         colorOf={colorOf}
         columns={[
-          { metric: MAX_DRAWDOWN, value: (r) => r.max_drawdown, best: "max" },
+          { metric: MAX_DRAWDOWN, value: (r) => r.max_drawdown, best: "min" },
           { metric: ANNUAL_VOLATILITY, value: (r) => r.annual_volatility, best: "min" },
           { metric: SHARPE_RATIO, value: (r) => r.sharpe_ratio, best: "max" },
           { metric: SORTINO_RATIO, value: (r) => r.sortino_ratio, best: "max" },

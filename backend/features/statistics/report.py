@@ -281,9 +281,13 @@ def build_highlights(simulation_ids: list[int], nickname: str | None) -> Highlig
     def top(items: list[PlayerHighlightDTO]) -> PlayerHighlightDTO | None:
         return max(items, key=lambda h: h.value, default=None)
 
+    # A queda é medida como magnitude positiva: a menor é a mais rasa
+    def bottom(items: list[PlayerHighlightDTO]) -> PlayerHighlightDTO | None:
+        return min(items, key=lambda h: h.value, default=None)
+
     return HighlightsDTO(
         biggest_return=top(returns),
-        smallest_drawdown=top(drawdowns),
+        smallest_drawdown=bottom(drawdowns),
         most_trades=top([t for t in trade_counts if t.value > 0]),
         most_tax=top([t for t in tax_paid if t.value > 0]),
         your_best_month=your_best,

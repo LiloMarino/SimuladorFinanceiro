@@ -152,7 +152,7 @@ function Ranking({
             {report.players.map((p: Player) => {
               const label = playerLabel(p, showSimulation);
               const isYou = p.player_nickname === currentPlayerName;
-              const positive = Number(p.return_percent) >= 0;
+              const change = Number(p.return_percent);
               return (
                 <TableRow key={playerLabel(p, true)} variant={isYou ? "current" : "default"}>
                   <TableCell>
@@ -181,7 +181,7 @@ function Ranking({
                   </TableCell>
                   <TableCell numeric>{displayMoney(p.total_networth)}</TableCell>
                   <TableCell numeric>
-                    <span className={positive ? "text-success" : "text-destructive"}>
+                    <span className={change > 0 ? "text-success" : change < 0 ? "text-destructive" : undefined}>
                       {displaySignedPercent(p.return_percent)}
                     </span>
                   </TableCell>
