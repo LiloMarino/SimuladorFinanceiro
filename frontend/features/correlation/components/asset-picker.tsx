@@ -40,21 +40,22 @@ export function AssetPicker({ assets, held, selected, onToggle, onReplace }: Ass
             <InputGroupInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar ticker" />
           </InputGroup>
 
-          {/* Atalhos */}
+          {/* Atalhos: sempre à vista, desabilitados quando não se aplicam */}
           <div className="flex flex-wrap gap-1.5">
-            {held.length > 0 && (
-              <Button variant="secondary" size="xs" onClick={() => onReplace(held.slice(0, MAX_TICKERS))}>
-                Minha carteira · {held.length}
-              </Button>
-            )}
+            <Button
+              variant="info"
+              size="xs"
+              disabled={held.length === 0}
+              onClick={() => onReplace(held.slice(0, MAX_TICKERS))}
+            >
+              Minha carteira · {held.length}
+            </Button>
             <Button variant="secondary" size="xs" onClick={() => onReplace(oneOfEachSector(assets))}>
               Um de cada setor
             </Button>
-            {selected.length > 0 && (
-              <Button variant="ghost" size="xs" onClick={() => onReplace([])}>
-                Limpar
-              </Button>
-            )}
+            <Button variant="secondary" size="xs" disabled={selected.length === 0} onClick={() => onReplace([])}>
+              Limpar
+            </Button>
           </div>
 
           {/* Ativos por setor */}

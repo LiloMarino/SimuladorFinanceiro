@@ -51,6 +51,14 @@ export function cellColor(value: number) {
   return `color-mix(in oklch, var(${token}) ${Math.round(Math.abs(value) * 70)}%, transparent)`;
 }
 
+/** Cor do número na mesma escala da matriz: vermelho positivo, azul negativo, neutro perto de zero. */
+export function valueColor(value: number) {
+  if (Math.abs(value) < 0.1) return undefined;
+  const token = value >= 0 ? "--destructive" : "--chart-1";
+  const strength = Math.round(Math.min(Math.abs(value) / 0.7, 1) * 100);
+  return `color-mix(in oklch, var(${token}) ${strength}%, var(--foreground))`;
+}
+
 /** Por que o par ficou sem número, em português e com a saída. */
 export function gapReason(cell: CorrelationCell, minDays: number) {
   return cell.reason === "constant_series"

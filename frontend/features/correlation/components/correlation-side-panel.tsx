@@ -1,12 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { MetricHint } from "@/shared/components/metric-hint";
-import { cn } from "@/shared/lib/utils";
 import { displayList, displayNumber } from "@/shared/lib/utils/display";
 import type { CorrelationMatrix } from "@/types";
-import { COMMON_DAYS, REFERENCE, correlationReading, gapReason } from "../lib/correlation";
+import { COMMON_DAYS, REFERENCE, correlationReading, gapReason, valueColor } from "../lib/correlation";
 import type { PairPosition } from "./correlation-matrix";
-
-const valueTone = (value: number) => (value >= 0.3 ? "text-destructive" : value <= -0.3 ? "text-chart-1" : undefined);
 
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -37,7 +34,9 @@ function SelectedPair({ matrix, pinned }: { matrix: CorrelationMatrix; pinned: P
         </>
       ) : (
         <>
-          <span className={cn("font-mono text-[22px] font-semibold", valueTone(value))}>{displayNumber(value)}</span>
+          <span className="font-mono text-[22px] font-semibold" style={{ color: valueColor(value) }}>
+            {displayNumber(value)}
+          </span>
           <span className="text-[13px]">
             {capitalize(correlationReading(value))} · <span className="font-mono">{cell.days}</span> pregões em comum{" "}
             <span className="inline-flex align-middle">
@@ -56,7 +55,9 @@ function Highlight({ label, names, value, note }: { label: string; names: string
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       <span className="flex justify-between gap-2 font-semibold">
         <span>{names}</span>
-        <span className={cn("font-mono", valueTone(Number(value)))}>{displayNumber(value)}</span>
+        <span className="font-mono" style={{ color: valueColor(Number(value)) }}>
+          {displayNumber(value)}
+        </span>
       </span>
       <span className="text-xs text-muted-foreground">{note}</span>
     </div>
