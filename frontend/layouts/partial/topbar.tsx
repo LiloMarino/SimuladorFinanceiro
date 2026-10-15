@@ -68,32 +68,34 @@ export default function Topbar({ pageLabel }: TopbarProps) {
         <h1 className="text-lg font-semibold">{pageLabel}</h1>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Data e velocidade */}
-          <span className="flex h-9 items-center rounded-lg border border-border px-3 font-mono text-[13px]">
-            {simData?.current_date ? displayShortDate(simData.current_date) : "—"}
-          </span>
-          <Button
-            variant="dark"
-            size="icon-sm"
-            disabled={loading}
-            aria-label={paused ? "Retomar simulação" : "Pausar simulação"}
-            onClick={() => handleSpeedChange(paused ? lastSpeed.current : 0)}
-          >
-            {paused ? <Play /> : <Pause />}
-          </Button>
-          <ToggleGroup
-            variant="segmented"
-            aria-label="Velocidade da simulação"
-            value={paused ? [] : [String(speed)]}
-            onValueChange={(values) => values[0] && handleSpeedChange(Number(values[0]))}
-            disabled={loading}
-          >
-            {SPEED_OPTIONS.map((option) => (
-              <ToggleGroupItem key={option} value={String(option)}>
-                {option}×
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
+          {/* Data, pausa e velocidade */}
+          <div className="flex items-center gap-2 rounded-lg border border-border bg-subtle p-1">
+            <span className="flex h-8 items-center px-3 font-mono text-[13px]">
+              {simData?.current_date ? displayShortDate(simData.current_date) : "—"}
+            </span>
+            <Button
+              variant="dark"
+              size="icon-sm"
+              disabled={loading}
+              aria-label={paused ? "Retomar simulação" : "Pausar simulação"}
+              onClick={() => handleSpeedChange(paused ? lastSpeed.current : 0)}
+            >
+              {paused ? <Play /> : <Pause />}
+            </Button>
+            <ToggleGroup
+              variant="segmented"
+              aria-label="Velocidade da simulação"
+              value={paused ? [] : [String(speed)]}
+              onValueChange={(values) => values[0] && handleSpeedChange(Number(values[0]))}
+              disabled={loading}
+            >
+              {SPEED_OPTIONS.map((option) => (
+                <ToggleGroupItem key={option} value={String(option)}>
+                  {option}×
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
 
           {/* Caixa */}
           <div className="grid border-l border-border pl-4">

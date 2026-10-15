@@ -63,6 +63,7 @@
   --color-trophy: var(--trophy);
   --color-candle-up: var(--candle-up);
   --color-candle-down: var(--candle-down);
+  --color-overlay: var(--overlay);
   --color-toast: var(--toast);
   --color-toast-foreground: var(--toast-foreground);
   --color-toast-muted: var(--toast-muted);
@@ -129,6 +130,7 @@
   --trophy: #f2c14e;
   --candle-up: #26a69a;
   --candle-down: #ef5350;
+  --overlay: rgb(15 23 41 / 0.45);
   --toast: #0f1729;
   --toast-foreground: #ffffff;
   --toast-muted: #9aa5ba;
