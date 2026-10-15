@@ -68,8 +68,23 @@ function DialogContent({
   );
 }
 
-function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="dialog-header" className={cn("flex flex-col gap-2", className)} {...props} />;
+/** `divided`: cabeçalho de ponta a ponta do diálogo, com divisória embaixo. */
+function DialogHeader({
+  className,
+  variant = "default",
+  ...props
+}: React.ComponentProps<"div"> & { variant?: "default" | "divided" }) {
+  return (
+    <div
+      data-slot="dialog-header"
+      data-variant={variant}
+      className={cn(
+        "flex flex-col gap-2 data-[variant=divided]:-mx-6 data-[variant=divided]:-mt-6 data-[variant=divided]:border-b data-[variant=divided]:px-6 data-[variant=divided]:py-5",
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 function DialogFooter({

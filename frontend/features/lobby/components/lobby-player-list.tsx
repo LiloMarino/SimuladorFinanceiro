@@ -64,24 +64,24 @@ export function LobbyPlayersList({ maxPlayers, hostNickname }: LobbyPlayersListP
             );
           })}
 
-          {/* Sala vazia: convite no lugar das vagas */}
-          {alone ? (
-            <div className="col-span-full grid gap-1 rounded-[10px] border border-dashed border-info-border bg-info-soft/40 p-4">
+          {/* Sozinho na sala: o convite ocupa a coluna ao lado do host, antes das vagas livres */}
+          {alone && (
+            <div className="grid content-center gap-1 rounded-[10px] border border-dashed border-info-border bg-info-soft/40 p-3">
               <span className="font-semibold">Só você por aqui</span>
               <span className="text-[13px] text-muted-foreground">
                 Mande o link acima pra quem vai jogar. Também dá pra jogar sozinho.
               </span>
             </div>
-          ) : (
-            Array.from({ length: freeSlots }, (_, i) => (
-              <div
-                key={i}
-                className="flex h-14.5 items-center justify-center rounded-[10px] border border-dashed border-input text-[13px] text-faint-foreground"
-              >
-                Vaga livre
-              </div>
-            ))
           )}
+
+          {Array.from({ length: freeSlots }, (_, i) => (
+            <div
+              key={i}
+              className="flex h-14.5 items-center justify-center rounded-[10px] border border-dashed border-input text-[13px] text-faint-foreground"
+            >
+              Vaga livre
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>

@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Search, Trophy } from "lucide-react";
+import { Play, Search, Trophy, Zap } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
@@ -13,6 +12,7 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
+import { cn } from "@/shared/lib/utils";
 import { displayDate, displayMonthSlashYear, parseLocalDate } from "@/shared/lib/utils/display";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
@@ -35,7 +35,7 @@ type SavedSimulationsDialogProps = {
 export function SavedSimulationsDialog({ open, onOpenChange, isHost }: SavedSimulationsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[640px]">
+      <DialogContent className="max-h-[calc(100vh-4rem)] overflow-y-auto sm:max-w-[640px]">
         <SavedSimulationsContent isHost={isHost} onLoaded={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>
@@ -62,6 +62,8 @@ function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoad
   });
 
   const term = search.trim().toLowerCase();
+  // A lista vem da mais recente para a mais antiga: a primeira é a que o lobby retoma
+  const lastSimulation = data?.[0];
   const items = (data ?? []).filter(
     (s) => (filter === "ALL" || s.status === filter) && (!term || s.name.toLowerCase().includes(term)),
   );
@@ -69,7 +71,7 @@ function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoad
   const renderList = () => {
     if (isLoading) {
       return Array.from({ length: 4 }, (_, i) => (
-        <div key={i} className="grid gap-2 border-b border-muted px-4 py-3.5">
+        <div key={i} className="grid gap-2 border-b border-muted px-6 py-3.5">
           <Skeleton className="h-4 w-48" />
           <Skeleton className="h-3 w-64" />
         </div>
@@ -94,8 +96,17 @@ function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoad
         </p>
       );
     }
-    return items.map((s) => (
-      <div key={s.id} className="flex items-center gap-4 border-b border-muted px-4 py-3.5 last:border-0">
+    return items.map((s) => {
+      // A primeira da lista inteira, se pausada, é a que "Continuar última simulação" retoma no lobby
+      const resumedByLobby = isHost && s.id === lastSimulation?.id && s.status === "PAUSED";
+      return (
+      <div
+        key={s.id}
+        className={cn(
+          "flex items-center gap-4 border-b border-muted px-6 py-3.5 last:border-0",
+          resumedByLobby && "bg-info-soft shadow-[inset_3px_0_0_var(--primary)]",
+        )}
+      >
         <div className="grid min-w-0 flex-1 gap-1">
           <div className="flex items-center gap-2">
             <span className="truncate font-semibold">{s.name}</span>
@@ -109,13 +120,18 @@ function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoad
               </Badge>
             )}
           </div>
+          <span className="font-mono text-xs text-muted-foreground">
+            {displayMonthSlashYear(s.start_date)} → {displayMonthSlashYear(s.end_date)}
+          </span>
           <span className="text-xs text-muted-foreground">
-            <span className="font-mono">
-              {displayMonthSlashYear(s.start_date)} → {displayMonthSlashYear(s.end_date)}
-            </span>{" "}
-            · {s.players_count <= 1 ? "Solo" : `${s.players_count} jogadores`} ·{" "}
+            {s.players_count <= 1 ? "Solo" : `${s.players_count} jogadores`} ·{" "}
             {VICTORY_CRITERIA[s.victory_criterion].label}
           </span>
+          {resumedByLobby && (
+            <span className="flex items-center gap-1 text-xs font-semibold text-primary">
+              <Zap className="size-3" />É esta que o “Continuar última simulação” do lobby retoma
+            </span>
+          )}
         </div>
         <Button variant="outline" size="sm" onClick={() => navigate(`/match-result/${s.id}`)}>
           <Trophy />
@@ -128,12 +144,13 @@ function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoad
           </Button>
         )}
       </div>
-    ));
+      );
+    });
   };
 
   return (
     <>
-      <DialogHeader>
+      <DialogHeader variant="divided">
         <DialogTitle>Simulações salvas</DialogTitle>
         <DialogDescription>
           {isHost
@@ -163,9 +180,8 @@ function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoad
         </ToggleGroup>
       </div>
 
-      <div className="overflow-hidden rounded-[10px] border border-border">
-        <ScrollArea className="h-80">{renderList()}</ScrollArea>
-      </div>
+      {/* Listagem sem altura fixa: quem rola é o diálogo */}
+      <div className="-mx-6 -mb-6 overflow-hidden rounded-b-xl border-t border-border">{renderList()}</div>
     </>
   );
 }

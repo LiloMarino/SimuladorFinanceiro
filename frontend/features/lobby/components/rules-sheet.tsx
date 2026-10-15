@@ -37,6 +37,7 @@ import {
   type PriceImpactMode,
 } from "../lib/price-impact";
 import { CoverageAlerts } from "./coverage-alerts";
+import { DateField } from "./date-field";
 import type { SimulationFormValues } from "./lobby-match";
 import { PriceImpactExample } from "./price-impact-example";
 
@@ -47,6 +48,8 @@ type RulesSheetProps = {
   isHost: boolean;
   hostNickname: string;
   coverageCheck: CoverageCheck;
+  /** Ativo citado no exemplo do impacto; vazio quando a base não tem ação */
+  exampleTicker: string | undefined;
   saveStatus: { savedAt: number | null; saving: boolean; saveError: ApiError | null };
 };
 
@@ -58,6 +61,7 @@ export function RulesSheet({
   isHost,
   hostNickname,
   coverageCheck,
+  exampleTicker,
   saveStatus,
 }: RulesSheetProps) {
   const [startDate, impactEnabled, impactK, impactT] = useWatch({
@@ -114,7 +118,13 @@ export function RulesSheet({
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor={`rules-${name}`}>{name === "startDate" ? "Início" : "Fim"}</FieldLabel>
-                      <Input {...field} id={`rules-${name}`} type="date" numeric aria-invalid={fieldState.invalid} />
+                      <DateField
+                        id={`rules-${name}`}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        invalid={fieldState.invalid}
+                      />
                       <FieldError errors={[fieldState.error]} />
                     </Field>
                   )}
@@ -190,9 +200,10 @@ export function RulesSheet({
               value={[impactMode]}
               onValueChange={(values) => values[0] && selectImpactMode(values[0] as PriceImpactMode)}
               disabled={readOnly}
+              className="w-full"
             >
               {(Object.keys(PRICE_IMPACT_MODE_LABELS) as PriceImpactMode[]).map((mode) => (
-                <ToggleGroupItem key={mode} value={mode}>
+                <ToggleGroupItem key={mode} value={mode} className="flex-1">
                   {PRICE_IMPACT_MODE_LABELS[mode]}
                 </ToggleGroupItem>
               ))}
@@ -232,7 +243,7 @@ export function RulesSheet({
               </div>
             )}
 
-            {impactEnabled && <PriceImpactExample k={impactK} decayDays={impactT} />}
+            {impactEnabled && <PriceImpactExample k={impactK} decayDays={impactT} ticker={exampleTicker} />}
           </FieldSet>
         </form>
 

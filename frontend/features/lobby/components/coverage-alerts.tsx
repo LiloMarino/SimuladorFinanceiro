@@ -14,6 +14,14 @@ type CoverageAlertsProps = {
 
 const formatIso = (iso: string) => displayDate(parseLocalDate(iso));
 
+// O aviso cita até 3 códigos; o resto vira "e mais N" e a lista completa fica na Central
+const MAX_LISTED_CODES = 3;
+
+function listCodes(keys: string[]): string {
+  if (keys.length <= MAX_LISTED_CODES) return keys.join(", ");
+  return `${keys.slice(0, MAX_LISTED_CODES).join(", ")} e mais ${keys.length - MAX_LISTED_CODES}`;
+}
+
 export function CoverageAlerts({ check, startDate, onChangeDate }: CoverageAlertsProps) {
   const { missingAtStart, endingBeforeEnd } = check;
 
@@ -57,7 +65,7 @@ export function CoverageAlerts({ check, startDate, onChangeDate }: CoverageAlert
           <TriangleAlert />
           <AlertDescription>
             Depois de <b className="font-mono">{formatIso(firstRealEnd)}</b> não há preço real: a partida repete o
-            último valor de {endingBeforeEnd.map((s) => s.key).join(", ")}.{" "}
+            último valor de {listCodes(endingBeforeEnd.map((s) => s.key))}.{" "}
             <Link to="/import-assets" className="font-medium text-primary hover:text-primary-hover">
               Ver séries
             </Link>

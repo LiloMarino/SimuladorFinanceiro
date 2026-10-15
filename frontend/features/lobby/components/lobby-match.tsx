@@ -20,15 +20,26 @@ import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { SimulationInfo, SimulationSettingsData, VictoryCriterion } from "@/types";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
 import { checkCoverage } from "../lib/coverage";
+import { dateFieldError, isIsoDate } from "../lib/date-field";
 import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "../lib/price-impact";
 import { CoverageAlerts } from "./coverage-alerts";
 import { RulesSheet } from "./rules-sheet";
 
+// O campo guarda ISO quando a data está completa e real; o texto em digitação é recusado aqui
+const dateField = (emptyMessage: string) =>
+  z
+    .string()
+    .min(1, emptyMessage)
+    .superRefine((value, ctx) => {
+      const message = dateFieldError(value);
+      if (message) ctx.addIssue({ code: "custom", message });
+    });
+
 const simulationFormSchema = z
   .object({
     name: z.string().min(1, "Dê um nome para a partida"),
-    startDate: z.string().min(1, "Escolha a data de início"),
-    endDate: z.string().min(1, "Escolha a data de fim"),
+    startDate: dateField("Escolha a data de início"),
+    endDate: dateField("Escolha a data de fim"),
     startingCash: z
       .string()
       .min(1, "O saldo inicial tem que ser maior que zero")
@@ -46,7 +57,7 @@ const simulationFormSchema = z
       .refine((val) => Number.isInteger(Number(val)) && Number(val) >= 1, "Informe ao menos 1 pregão"),
     victoryCriterion: z.custom<VictoryCriterion>((value) => typeof value === "string" && value in VICTORY_CRITERIA),
   })
-  .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
+  .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
     message: "Tem que ser depois do início",
     path: ["endDate"],
   });
@@ -83,8 +94,16 @@ export function LobbyMatch({ simulationData, isHost, hostNickname }: LobbyMatchP
   const values = useWatch({ control: form.control }) as SimulationFormValues;
 
   const { data: coverage } = useQuery(seriesCoverageOptions());
-  const coverageCheck = checkCoverage(coverage ?? [], values.startDate, values.endDate);
+  // A cobertura só se confere com as duas datas completas; digitando, o campo mostra o erro
+  const datesComplete = isIsoDate(values.startDate) && isIsoDate(values.endDate);
+  const coverageCheck = datesComplete
+    ? checkCoverage(coverage ?? [], values.startDate, values.endDate)
+    : { missingAtStart: [], endingBeforeEnd: [] };
   const blockedByCoverage = coverageCheck.missingAtStart.length > 0;
+
+  // Ativo do exemplo de impacto: PETR4 se existir na base, senão a primeira ação cadastrada
+  const stocks = (coverage ?? []).filter((s) => s.kind === "STOCK");
+  const exampleTicker = (stocks.find((s) => s.key === "PETR4") ?? stocks[0])?.key;
 
   // A lista vem da mais recente para a mais antiga: a primeira é a que "Continuar" retoma
   const { data: savedSimulations } = useQuery(simulationListOptions());
@@ -124,8 +143,8 @@ export function LobbyMatch({ simulationData, isHost, hostNickname }: LobbyMatchP
       label: "Período",
       value: (
         <span className="font-mono">
-          {values.startDate ? displayDate(parseLocalDate(values.startDate)) : "—"} →{" "}
-          {values.endDate ? displayDate(parseLocalDate(values.endDate)) : "—"}
+          {isIsoDate(values.startDate) ? displayDate(parseLocalDate(values.startDate)) : "—"} →{" "}
+          {isIsoDate(values.endDate) ? displayDate(parseLocalDate(values.endDate)) : "—"}
         </span>
       ),
     },
@@ -218,6 +237,7 @@ export function LobbyMatch({ simulationData, isHost, hostNickname }: LobbyMatchP
         isHost={isHost}
         hostNickname={hostNickname}
         coverageCheck={coverageCheck}
+        exampleTicker={exampleTicker}
         saveStatus={saveStatus}
       />
     </Card>
