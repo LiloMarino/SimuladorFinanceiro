@@ -69,6 +69,8 @@ class PlayerRankingDTO(PlayerRefDTO):
     return_percent: Decimal
     # Dias úteis com snapshot: o tamanho da amostra das métricas
     days: int
+    # Meses fechados na partida: o total dos "7 de 12" da nota
+    months: int
     # None até a amostra ter `min_score_days` retornos diários
     score: ScoreDTO | None
     sharpe_ratio: Decimal | None

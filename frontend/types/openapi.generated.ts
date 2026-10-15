@@ -1827,6 +1827,8 @@ export interface components {
             return_percent: string;
             /** Days */
             days: number;
+            /** Months */
+            months: number;
             score: components["schemas"]["ScoreDTO"] | null;
             /** Sharpe Ratio */
             sharpe_ratio: string | null;

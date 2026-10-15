@@ -40,6 +40,7 @@ def build_overview(
             return_value=return_value,
             return_percent=return_percent,
             days=len(player.history),
+            months=len(risk.monthly_returns(risk.daily_returns(player.history))),
             score=score,
             sharpe_ratio=sharpe,
             criterion_value=_criterion_value(criterion, performance),
