@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-15):** M12 concluído: F35, F36 e F26 implementadas, D11 decidida pelo Base UI; F32 refeita com mínimo de 63 pregões; registrados o tema escuro (F37) e as mensagens do backend em português (F38).
+> **Última mudança (2026-10-15):** F39 com sala de 10 jogadores, 10 cores exclusivas e sigla de duas letras.
 
 ## Glossário
 
@@ -35,6 +35,7 @@
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | [F31](#f31) | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | [F32](#f32) | — |
 | **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33) | — |
+| **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | [F39](#f39) | — |
 | **D4** | Banco de dados embarcado no executável | [F4](#f4) | 🔍 |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
 | [**F3**](#f3) | Spike: banco embarcado no executável | — | 🔍 |
@@ -56,6 +57,7 @@
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
 | [**F37**](#f37) | Tema escuro | — | 💤 |
 | [**F38**](#f38) | Mensagens do backend em português | — | ⏳ |
+| [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
@@ -108,6 +110,7 @@
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F38**](#f38) | Mensagens do backend em português | — | 0 | ⏳ |
+| [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | 0 | ⏳ |
 
 ---
 
@@ -332,13 +335,14 @@
 
 ### Sem marco
 
-> **Progresso:** 3/6 concluídas
+> **Progresso:** 3/7 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F37**](#f37) | Tema escuro | [F26](#f26) | 💤 |
 | [**F38**](#f38) | Mensagens do backend em português | — | ⏳ |
+| [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ⏳ |
 
 <details><summary>Concluído (3 itens)</summary>
 
@@ -385,6 +389,7 @@
 | **F26** | Redesign visual | N15 | — | M12 | [F36](#f36) | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F37** | Tema escuro | N15 | — | — | [F26](#f26) | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F38** | Mensagens do backend em português | N15 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F39** | Cor exclusiva e sigla de duas letras por jogador | N20 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -567,6 +572,10 @@ A página "Correlação entre Ativos" dos docs explica a leitura.
 O `ApiError` do frontend já cai numa mensagem em português por status quando o backend não manda texto.
 
 **Gatilho:** qualquer momento; não depende de outra feature.
+
+<a id="f39"></a>
+**F39 — Cor exclusiva e sigla de duas letras por jogador.** Serve N20. Inspiração: o Age of Empires II, que dá uma cor própria a cada um dos 8 jogadores da partida; aqui a sala vai a 10. Hoje a cor do jogador nasce em dois lugares que não se falam: o lobby, o perfil, a sidebar e o livro de ofertas pintam o avatar com um hash do apelido (`stringToColor`, em HSL), e as estatísticas escolhem a cor pela posição alfabética entre os jogadores do relatório (`playerColors`, com `% 8`). O mesmo jogador tem uma cor na sala e outra no gráfico. O limite de 8 jogadores só existe na tela (`MAX_PLAYERS` em `lobby.tsx`); o servidor não recusa o 9º, e com `% 8` o 9º repetiria a cor do 1º. E a sigla do avatar é a primeira letra do apelido, que repete com facilidade. O plano: (1) **cor é do jogador na partida.** Tabela nova `simulation_players` (`simulation_id`, `user_id`, `color`, chave composta), por migration (D9); a cor fica guardada com a partida para a tela de Estatísticas e o fechamento mostrarem as mesmas cores dias depois, sem partida ativa. Hoje nenhuma tabela liga jogador a partida: a participação é deduzida dos eventos e snapshots. (2) **Dez jogadores, dez cores.** A paleta do redesign (`--chart-1` a `--chart-8`, sem vermelho, para não se confundir com perda) ganha `--chart-9` e `--chart-10` em `frontend/index.css`, com o cinza e o marrom que o Age tem e a paleta não, conferidos contra as outras oito e contra daltonismo antes de fechar. O limite da sala sobe de 8 para 10 e passa a ser recusado pelo servidor (sala cheia), porque o teto de jogadores é o tamanho da paleta. Os bots da F16 contam no mesmo limite. Com dez linhas no mesmo gráfico o tom sozinho aperta: a legenda clicável que os gráficos já têm isola uma linha, e o tooltip traz o apelido. Passar de 10 exige um segundo diferenciador além do tom (linha tracejada, marcador). (3) **Conflito é impedido, não detectado.** O servidor é quem decide: ao entrar, o jogador recebe a cor que escolheu da última vez se ela estiver livre, ou a primeira livre da paleta; a troca é um evento do lobby que o servidor recusa se a cor já tiver dono (vale o primeiro pedido, e quem perdeu fica com a anterior). No seletor do lobby, a cor ocupada aparece desabilitada com a sigla de quem a tem. Assim a sala nunca chega ao "iniciar" com cor repetida. Quem sai libera a cor; o bot recebe a primeira livre e o host troca se quiser. (4) **A preferência de cor mora no navegador**, não no banco: cada host tem o próprio banco, e o `users` do convidado só existe no host em que ele entrou, então uma preferência ali não o acompanharia até outra sala. O cliente guarda a última cor e a envia ao entrar. (5) **Sigla sempre de duas letras.** Apelido com duas ou mais palavras usa a inicial das duas primeiras ("Ana Lima" vira AL); com uma palavra, as duas primeiras letras ("Bruno" vira BR, "Bianca" vira BI); com um caractere só, ele dobrado ("A" vira AA). A sigla sai do apelido, não do rótulo do gráfico, que na comparação traz o " · A" da partida. Uma função só, contando letras inteiras (acento e emoji não se partem), usada por um componente `PlayerAvatar` em `shared/` que recebe apelido, cor e tamanho e substitui os sete `Avatar` com `charAt(0)` espalhados; o tamanho `sm`, de 24 px, ganha fonte menor para caber duas letras. A sigla pode repetir entre jogadores (BA e BA), porque com cor exclusiva o par cor e sigla é único, e a sigla é o segundo canal para quem não distingue as cores; legenda e tooltip trazem sempre o apelido inteiro. (6) **Uma fonte de cor só no front.** `stringToColor` e `playerColors` saem; lobby, perfil, sidebar, ranking, pódio e gráficos leem a cor do próprio jogador no payload. A comparação de simulações continua colorindo por partida (a letra e a cor da F17): nela o que se distingue é a partida, não o jogador.
+**Aceite:** uma sala de 10 jogadores abre com 10 cores diferentes e siglas de duas letras; escolher no lobby a cor de outro é recusado e a anterior permanece; o 11º jogador é recusado pelo servidor; o jogador tem a mesma cor no lobby, no ranking e nos gráficos, inclusive ao abrir a partida salva depois.
 
 ---
 ## 2. Nice-to-have

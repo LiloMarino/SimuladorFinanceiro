@@ -82,6 +82,9 @@ Diversificar só funciona entre ativos que não caem juntos. Sem medir isso, dua
 **N19. Analisar um ativo com as ferramentas de um trader**
 Quem decide pelo gráfico precisa dos indicadores (MACD, IFR, médias móveis, Bandas de Bollinger) e das ferramentas de desenho (linha de tendência, suporte e resistência, Fibonacci) que sites como o Investing.com oferecem. Sem eles, quem usa análise técnica joga em desvantagem — e a estratégia automática não tem com o que decidir.
 
+**N20. Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar**
+Numa sala com vários jogadores, a cor é o que separa as linhas do gráfico e os nomes do ranking. Para valer como identidade, é do jogador: ele a escolhe, nenhum outro a tem na mesma partida, e é a mesma, junto com uma sigla de duas letras, no lobby, no ranking e nos gráficos.
+
 ---
 
 ## Decisões
