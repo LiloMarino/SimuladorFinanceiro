@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-16):** Concluído o diagrama do banco navegável (F50): ERD Editor gerado dentro do build dos docs.
+> **Última mudança (2026-10-16):** Descartada a separação em dois executáveis (F59); registrado o modo servidor dedicado (F60).
 
 ## Glossário
 
@@ -78,9 +78,10 @@
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F58**](#f58) | Entrar no meio da partida (hot-join) | — | ⏳ |
+| [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (36 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -119,6 +120,7 @@
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
 | [**F50**](#f50) | Diagrama do banco navegável | — | ✅ |
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
+| [**F59**](#f59) | Separar em dois executáveis: cliente e servidor | — | 🚫 |
 
 </details>
 
@@ -146,6 +148,7 @@
 | [**F42**](#f42) | Modo em equipes | M13 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F58**](#f58) | Entrar no meio da partida (hot-join) | — | 0 | ⏳ |
+| [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
 
 ---
 
@@ -408,7 +411,7 @@
 
 ### Sem marco
 
-> **Progresso:** 8/17 concluídas
+> **Progresso:** 8/18 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -421,6 +424,7 @@
 | [**F55**](#f55) | Modo aquisição hostil | [F44](#f44) | 🔍 |
 | [**F56**](#f56) | Novidades no app | [F51](#f51) | ⏳ |
 | [**F58**](#f58) | Entrar no meio da partida (hot-join) | [F39](#f39) | ⏳ |
+| [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 
 <details><summary>Concluído (8 itens)</summary>
 
@@ -728,6 +732,7 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F14** | Janela desktop nativa | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F46** | Console do navegador no terminal do dev | — | — | — | Baixo | Baixo | Baixo | Bom | ✅ Concluído |
+| **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -735,15 +740,22 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 <a id="f46"></a>
 **F46 — Console do navegador no terminal do dev.** O Vite 8 tem `server.forwardConsole`; em `frontend/vite.config.ts` ele está ligado com `{ unhandledErrors: true, logLevels: ["error", "warn"] }`. No `pnpm dev`, `console.error`, `console.warn`, exceção não tratada e promessa rejeitada sem tratamento aparecem no terminal do Vite como `[vite] (client) [console.error] ...`, as duas últimas com o trecho do código de origem; `console.log` fica de fora. Vale para o desenvolvimento, não para o executável. O ganho principal é para o agente de código, que lê o terminal mas não o console do navegador.
 
+<a id="f60"></a>
+**F60 — Modo servidor dedicado (`--headless`).** O mesmo executável, sem o navegador: para rodar numa VPS ou num PC ligado direto, sem ninguém jogando nele. `--headless` na linha de comando, ou `[server] headless = true` no `config.toml`, pula o `webbrowser.open` do `main.py`, que hoje roda sempre que o app é o executável, e imprime no terminal os endereços para entrar (o da rede local e, com a F6, o do túnel). O administrador é quem entra com o apelido de `[host] nickname`, que é como o host é definido hoje (`routes/simulation.py`). Como a recuperação de login é por apelido, num servidor exposto à internet qualquer um que digite esse apelido viraria o host; por isso, no modo servidor, o `config.toml` ganha `[host] pin`, e o login com o apelido do host só passa com ele. Serve a quem quer deixar uma sala aberta para os amigos entrarem quando quiserem, sem depender de o host estar com o computador ligado jogando.
+
 ---
 ## 3. Descartada
 
 | ID | Resumo | N# | Status |
 | --- | --- | --- | --- |
 | **F15** | Cliente desktop em Tauri | — | 🚫 Descartado |
+| **F59** | Separar em dois executáveis: cliente e servidor | N2 | 🚫 Descartado |
 
 <a id="f15"></a>
 **F15 — Descartado.** 🚫 O núcleo do Tauri é Rust: o backend Python iria como sidecar (o executável do PyInstaller dentro do pacote Tauri), o que dá dois executáveis, toolchain Rust nas três plataformas da CI e um WebView diferente em cada SO. O ganho — janela própria em vez de aba do navegador — é o mesmo da F14, que faz isso em Python dentro do executável atual. Electron daria o mesmo resultado com ~150 MB de Chromium a mais. Em qualquer dos dois, os convidados do multiplayer continuam no navegador.
+
+<a id="f59"></a>
+**F59 — Descartado.** 🚫 Separar o app em dois executáveis, um cliente e um servidor. Hoje o app já é cliente e servidor: o executável é o servidor, e o navegador é o cliente, que o próprio servidor entrega pronto. Separar não traz nada que isso não dê, e custa três coisas: (1) os convidados do multiplayer teriam de baixar um programa em vez de abrir um link, o que fere a N2; (2) quem hospeda passaria a abrir dois programas, e a versão do cliente teria de combinar com a do servidor, coisa que hoje é garantida porque o front vai dentro do servidor; (3) a CI geraria o dobro de artefatos nos três sistemas. O Tauri não muda a conta: o Rust nas três plataformas e o motor web diferente em cada sistema continuam (F15), e o ganho de uma janela própria é o da F14, em Python, dentro do executável atual. O que a ideia buscava, um servidor sem jogador na frente, é a F60.
 
 ---
 ## 4. Incerta / exploratória
