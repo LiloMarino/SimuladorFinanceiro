@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-16):** Concluídas as mensagens do backend em português (F38): erros 422 com frase por campo, 500 com texto fixo.
+> **Última mudança (2026-10-16):** Concluído o diagrama do banco navegável (F50): ERD Editor gerado dentro do build dos docs.
 
 ## Glossário
 
@@ -32,7 +32,7 @@
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F25](#f25), [F51](#f51), [F56](#f56) | — |
 | **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F26](#f26), [F35](#f35), [F36](#f36), [F37](#f37), [F38](#f38) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | [F30](#f30) | — |
-| **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | [F31](#f31) | — |
+| **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | [F31](#f31), [F50](#f50) | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | [F32](#f32) | — |
 | **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33) | — |
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | [F39](#f39) | — |
@@ -71,7 +71,6 @@
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ⏳ |
 | [**F48**](#f48) | README e docs que mostram o produto | — | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
-| [**F50**](#f50) | Diagrama do banco navegável | — | 🔍 |
 | [**F51**](#f51) | Versão única e changelog | — | ⏳ |
 | [**F52**](#f52) | Modo corrida à meta | — | ⏳ |
 | [**F53**](#f53) | Modo viver de renda | — | ⏳ |
@@ -80,7 +79,7 @@
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (33 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -90,7 +89,7 @@
 | **D6** | A retomada continua no dia seguinte ao último evento | [F2](#f2) | ✅ |
 | **D7** | O simulador lê as séries sem saber a origem | [F20](#f20), [F21](#f21), [F24](#f24) | ✅ |
 | **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F8](#f8), [F16](#f16), [F19](#f19), [F27](#f27) | ✅ |
-| **D9** | De onde nasce uma mudança de schema | [F25](#f25), [F31](#f31) | ✅ |
+| **D9** | De onde nasce uma mudança de schema | [F25](#f25), [F31](#f31), [F50](#f50) | ✅ |
 | **D10** | Como a nota geral é calculada | [F18](#f18) | ✅ |
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | [F36](#f36) | ✅ |
 | **D12** | Como numerar as versões | [F51](#f51) | ✅ |
@@ -116,6 +115,7 @@
 | [**F38**](#f38) | Mensagens do backend em português | — | ✅ |
 | [**F43**](#f43) | Spike: outros modos de jogo | — | ✅ |
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
+| [**F50**](#f50) | Diagrama do banco navegável | — | ✅ |
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
 
 </details>
@@ -143,7 +143,6 @@
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
-| [**F50**](#f50) | Diagrama do banco navegável | — | 0 | 🔍 |
 
 ---
 
@@ -406,7 +405,7 @@
 
 ### Sem marco
 
-> **Progresso:** 6/16 concluídas
+> **Progresso:** 7/16 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -415,13 +414,12 @@
 | [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 🔍 |
 | [**F45**](#f45) | Painel de desempenho | [F54](#f54) | ⏳ |
-| [**F50**](#f50) | Diagrama do banco navegável | — | 🔍 |
 | [**F51**](#f51) | Versão única e changelog | — | ⏳ |
 | [**F54**](#f54) | Modo debug | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | [F44](#f44) | 🔍 |
 | [**F56**](#f56) | Novidades no app | [F51](#f51) | ⏳ |
 
-<details><summary>Concluído (6 itens)</summary>
+<details><summary>Concluído (7 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -430,6 +428,7 @@
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ✅ |
 | [**F38**](#f38) | Mensagens do backend em português | — | ✅ |
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
+| [**F50**](#f50) | Diagrama do banco navegável | — | ✅ |
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
 
 </details>
@@ -483,6 +482,7 @@
 | **F54** | Modo debug | N24 | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
 | **F56** | Novidades no app | N14 | — | — | [F51](#f51) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F57** | Logs separados por assunto | N26 | — | — | — | Baixo | Baixo | Médio | Ótimo | ✅ Concluído |
+| **F50** | Diagrama do banco navegável | N17 | D9 | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -568,8 +568,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **Aceite:** importar ITUB4 e VALE3 pelo yfinance as classifica em Financeiro · Banks - Regional e Materiais Básicos · Other Industrial Metals & Mining, e a PETR4 classificada à mão continua como estava (coberto em `tests/test_sectors.py`).
 
 <a id="f31"></a>
-**F31 — Diagrama do banco sempre em dia.** Serve N17; segue a D9. `pnpm db:erd` (`scripts/erd.py`) lê o `Base.metadata` e escreve a página "Diagrama do Banco de Dados" (`docs/docs/desenvolvimento/diagrama-banco-dados.md`), logo depois do ciclo do banco na seção Desenvolvimento dos docs. A página tem um `erDiagram` em Mermaid por domínio — "Partidas e jogadores" e "Ativos e indicadores"; tabela nova sem seção cai em "Outras tabelas" —, cada tabela com tipo do Postgres, nome, `PK`/`FK`/`UK` e `nullable`, e as relações tiradas das chaves estrangeiras; os valores de cada `ENUM` ficam numa tabela no fim. O diagrama é desenhado da esquerda para a direita: num diagrama só, ou de cima para baixo, as tabelas de evento ficavam lado a lado e o Mermaid encolhia tudo até o texto ficar ilegível. `tests/test_erd.py` compara a página com o que o script geraria e falha pedindo `pnpm db:erd`. O `docs/erd/simulador_financeiro.erd` saiu do repositório, e o ciclo de desenvolvimento ganhou o passo do diagrama. Limitação: o diagrama não se edita pelo desenho; ideias de modelagem são esboçadas em Mermaid na conversa.
-**Aceite:** tirar o `UK` de uma coluna na página, sem mudar o model, faz o `tests/test_erd.py` falhar.
+**F31 — Diagrama do banco sempre em dia.** Serve N17; segue a D9. Primeira versão do diagrama: um `erDiagram` em Mermaid por domínio, gerado dos models por `scripts/erd.py` e conferido por `tests/test_erd.py`, que falhava enquanto a página estivesse defasada. Substituída pela [F50](#f50): um diagrama só, navegável, gerado dentro do build dos docs.
 
 <a id="f32"></a>
 **F32 — Ferramenta de correlação entre ativos.** Serve N18; segue a D2.
@@ -709,6 +708,10 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 <a id="f57"></a>
 **F57 — Logs separados por assunto.** Serve N26. Hoje o `setup_logging` (`backend/core/logger.py`) manda tudo para o console e para um `app.log` só (rotativo, 10 MB por arquivo, 5 arquivos), então um erro fica no meio das linhas de uma partida inteira: o `app.log` de uma sessão de desenvolvimento tem 3.541 linhas, 12 delas de erro, e seis dessas são de uma única busca no yfinance por um ticker que não existe. Inspirado nos logs da Paradox, que guardam um arquivo por assunto e um `error.log` só com os erros. O plano: (1) **`error.log`** — só `ERROR` e `CRITICAL`, com o traceback completo que `logger.exception` já gera, rotativo como o `app.log`; ficam de fora dele as bibliotecas que tratam falha esperada como erro (o `yfinance` para ticker inexistente), por filtro de prefixo de logger; a linha continua no `app.log`, e o importador loga a própria mensagem de erro, que é a que entra no `error.log`. (2) **Um arquivo por área**, escolhido pelo prefixo do nome do logger e com o mesmo formato de linha: `simulation.log` (motor, ticks, ordens), `realtime.log` (Socket.IO e SSE), `import.log` (yfinance e BCB) e `database.log` (migrations e banco). Cada linha vai para o arquivo da área e para o `app.log`, que segue como o registro completo e cronológico. A tabela "arquivo → prefixos de logger" mora só em `logger.py`; área nova é uma linha. (3) **O uvicorn passa a escrever nos mesmos arquivos.** Hoje o `uvicorn.run` instala a configuração de log própria dele, com `propagate` desligado, então as mensagens do servidor (início, erro de protocolo do WebSocket) saem só no console e não existem no `app.log`. Com `log_config=None` os loggers dele sobem para o raiz e entram em `app.log` e `error.log`; o `uvicorn.access`, uma linha por requisição, fica em `WARNING` para não encher o arquivo. A F54 (modo debug) sobe o nível do `app.log` e dos arquivos por área para `DEBUG`, com o `error.log` seguindo só com erros, e a F45 manda as requisições lentas para um `slow.log` com uma linha a mais nessa tabela. **Aceite:** uma exceção provocada numa rota deixa o traceback no `error.log`, uma partida inteira sem falha o deixa vazio, e uma queda do WebSocket por erro de protocolo aparece no `app.log`.
 
+<a id="f50"></a>
+**F50 — Diagrama do banco navegável.** Serve N17; segue a D9. A página "Diagrama do Banco de Dados" tem um diagrama só, com zoom, arraste, busca e os ENUMs numa tabela abaixo, no [ERD Editor](https://github.com/dineug/erd-editor) (`@dineug/erd-editor` 4.0, MIT) embutido como componente do Docusaurus. **100% gerado, sem passo manual:** `scripts/erd.py` lê o `Base.metadata` e escreve o DDL do Postgres (`CreateTable` do SQLAlchemy) em `docs/src/generated/schema.json` e a tabela dos ENUM em `docs/docs/desenvolvimento/_enums.md`; os dois rodam no `prestart`, `prebuild` e `pretypecheck` dos docs (`pnpm db:erd`) e no `deploy-docs.yml`, que ganhou `uv sync` e passou a disparar também por mudança em `backend/core/models/**`. Os arquivos gerados não são versionados, e o `tests/test_erd.py` saiu. O componente `DatabaseDiagram` (`BrowserOnly`) cria o `<erd-editor>`, carrega o DDL com `setSchemaSQL(..., { placement: 'auto' })`, enquadra o diagrama inteiro no zoom inicial e segue o tema claro/escuro do Docusaurus. O editor abre editável e nada é salvo: arrastar tabelas, reorganizar e esboçar uma modelagem ("e se fosse 1-N aqui?") valem só até recarregar, quando o diagrama volta ao schema dos models. **A escolha:** os dois visualizadores foram prototipados sobre o schema de hoje. O React Flow desenhava a notação do MySQL Workbench, mas as linhas se embaraçavam perto das tabelas de evento e foco numa tabela, layout automático e busca teriam de ser construídos. O ERD Editor traz isso pronto (foco numa tabela e nas vizinhas com `Alt+F`, *Auto Layout* por Force, Flow ou árvore, só as colunas de chave, busca por tabela e coluna), e a notação do Workbench foi dispensada: as chaves vêm coloridas (PK amarela, FK vermelha, PK que também é FK azul) e a obrigatoriedade aparece em texto. O modo somente leitura do editor trava também o arrasto, por isso ele não é usado. Limitação: o layout inicial ainda embaraça as linhas perto das tabelas de evento; *Auto Layout* → *Force* (`Ctrl+K`) as separa. O pacote pesa cerca de 11 MB, carregados só na página do diagrama.
+**Aceite:** alterar um model e subir `pnpm start` nos docs mostra a mudança no diagrama sem rodar nada à mão.
+
 ---
 ## 2. Nice-to-have
 
@@ -747,7 +750,6 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 | **F34** | Gráfico de ações em tela cheia, com ferramentas de trader | Serve N19; escolhe a biblioteca de gráfico | M11 | [F33](#f33) | 🔍 Em avaliação |
 | **F44** | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | Serve N23; faltam taxas padrão, rendimentos e protótipo do preço da cota | — | — | 🔍 Em avaliação |
 | **F49** | Spike: tutorial animado | Serve N25; compara vídeo, framer-motion e Remotion | M14 | — | 🔍 Em avaliação |
-| **F50** | Diagrama do banco navegável | Serve N17; escolhe entre React Flow e ERD Editor | — | — | 🔍 Em avaliação |
 | **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | — | [F44](#f44) | 🔍 Em avaliação |
 
 <a id="f3"></a>
@@ -783,9 +785,6 @@ Sai daqui com o método e o contrato fechados para a F24.
 
 <a id="f49"></a>
 **F49 — Spike: tutorial animado.** Serve N25. O tutorial é um diálogo quase em tela cheia, em passos (avançar, voltar, pular), que aparece na primeira vez no lobby e fica num botão "Como jogar"; cada passo mostra uma animação do próprio app (entrar na sala, comprar uma ação, aplicar em renda fixa, avançar o tempo, ler as estatísticas) com um texto curto. O spike faz o mesmo passo — comprar uma ação — dos três jeitos e compara: (1) **vídeo gravado pelo Playwright**, o mesmo da F47; mais barato e sempre fiel ao app, mas não acompanha o tema escuro nem fica nítido em qualquer tamanho; (2) **animação em código com o `framer-motion`**, que o projeto já tem — os componentes reais com dados de exemplo e um cursor roteirizado; nítido e segue o tema, mas cada passo é código; (3) **Remotion**, que escreve vídeo em React e tem skills oficiais para agentes de código (`npx remotion skills add`); junta a precisão do código com a saída em vídeo, ao custo de uma ferramenta a mais (a licença é gratuita para uso individual). Critérios: fidelidade ao que o usuário imaginou, nitidez, custo de manter quando a tela muda, e tamanho no executável. Entrada necessária: o roteiro desse passo (o que aparece, o que se mexe, quanto dura, o texto). Sai daqui com o jeito escolhido e o plano dos passos restantes.
-
-<a id="f50"></a>
-**F50 — Diagrama do banco navegável.** Serve N17; segue a D9. Hoje a página da F31 é Mermaid, dividida em seções para caber na largura, sem zoom e com a notação do Mermaid. A troca: um diagrama só, com zoom, arrastar para navegar e a notação do MySQL Workbench — PK como chave amarela, FK em vermelho, PK que também é FK como chave vermelha, coluna obrigatória com losango preenchido e anulável com losango vazio (azul ou vermelho conforme é FK). **100% gerado, sem passo manual:** o diagrama sai do schema que os models declaram (pela D9, o schema do banco nasce deles), e a geração roda dentro do build dos docs, no `deploy-docs.yml` e no `docs start` local, então o arquivo gerado nem é versionado e não há o que lembrar de rodar; o teste de defasagem da F31 deixa de ser necessário. Duas opções de visualizador: (1) **React Flow** num componente da página do Docusaurus — o script escreve um JSON com tabelas, colunas e relações, e o componente desenha cada tabela com a notação exata, com layout automático (ELK) e zoom, arraste e minimapa prontos; (2) **ERD Editor** embutido (`@dineug/erd-editor` 4.0, MIT, componente web instalável pelo npm), em modo somente leitura, carregando o DDL que o SQLAlchemy gera (`loadSQLDDL`); menos código e notação próxima da do MySQL, mas falta ver como posiciona as tabelas importadas, se o modo somente leitura trava a edição de verdade, e como roda no Docusaurus, onde precisa de `BrowserOnly` por mexer no DOM. O drawDB fica de fora: é um app, não um componente embutível, e só daria para exportar imagem. Sai daqui com um protótipo de cada um sobre o schema de hoje e a escolha.
 
 <a id="f55"></a>
 **F55 — Modo aquisição hostil.** Serve N23. Um modo de jogo da expansão "Gestoras" (F44) em que perder o controle tira o jogador da partida. Todo o patrimônio de cada jogador está na própria gestora, e quem juntar mais da metade das cotas de outra a incorpora: o dono anterior sai da partida e a gestora dele passa a ser controlada pelo comprador. Vence quem sobrar, ou quem tiver o maior patrimônio na data final. **Carência:** nos primeiros meses (padrão 12) ninguém pode passar de metade de outra gestora, para que abrir capital cedo não seja suicídio. **Ninguém fica invulnerável:** sem oferta pública, a gestora seria impossível de comprar, então no fim da carência todas precisam ter uma parte mínima das cotas no mercado (padrão 50%); quem não abriu capital entra numa oferta automática pelo patrimônio por cota. **Defesa:** recompra de cotas com o caixa da gestora e compra com as taxas recebidas, como uma empresa que recompra ações para não ser comprada. Falta decidir: a parte mínima no mercado; se o incorporado sai da partida ou vira co-gestor do comprador (como numa fusão); e se há um preço mínimo por cota durante a tentativa de aquisição, como nas ofertas públicas de aquisição reais.

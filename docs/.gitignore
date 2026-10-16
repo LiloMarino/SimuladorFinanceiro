@@ -18,3 +18,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Gerados a partir dos models por `pnpm db:erd` (prestart e prebuild)
+/src/generated
+/docs/desenvolvimento/_enums.md

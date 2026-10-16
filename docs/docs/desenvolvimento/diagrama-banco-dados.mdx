@@ -1,0 +1,31 @@
+---
+sidebar_position: 5
+hide_table_of_contents: true
+---
+
+import DatabaseDiagram from "@site/src/components/DatabaseDiagram";
+import Enums from "./_enums.md";
+
+# Diagrama do Banco de Dados
+
+O schema atual do banco, com cada tabela, suas colunas e as relações entre elas. Para a forma de alterar o schema, veja o [Ciclo de Desenvolvimento com Banco de Dados](./ciclo-banco-dados.md).
+
+:::info Página gerada
+O diagrama é gerado a partir de `backend/core/models/models.py` a cada `pnpm start` e `pnpm build` dos docs, então sempre acompanha os models.
+:::
+
+<DatabaseDiagram />
+
+## Como navegar
+
+* **Mover e dar zoom:** arraste o fundo para andar pelo diagrama e use a roda do mouse ou os botões da barra de baixo para o zoom. Arrastar uma tabela muda só a posição dela.
+* **Reorganizar:** `Ctrl+K`, digite `layout` e escolha *Auto Layout*; *Force* é o que mais afasta as tabelas muito ligadas entre si.
+* **Ver uma tabela com as vizinhas:** selecione a tabela e aperte `Alt+F`. O diagrama mostra só ela e as tabelas ligadas a ela; na barra de baixo, *Keys only* esconde as colunas que não são chave.
+* **Procurar:** `Ctrl+K` e `#nome` pula para uma tabela, `@nome` para uma coluna.
+* **Esboçar uma mudança:** o editor é editável de propósito. Adicione tabelas, colunas e relações para conversar sobre uma modelagem; nada é salvo, e recarregar a página volta ao schema dos models.
+
+Uma linha liga a tabela referenciada à que guarda a chave estrangeira. As chaves amarelas são chaves primárias, as vermelhas são chaves estrangeiras e as azuis são chaves primárias que também são estrangeiras.
+
+## Valores dos ENUM
+
+<Enums />
