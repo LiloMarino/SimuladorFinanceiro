@@ -100,6 +100,9 @@ Quando a partida trava, saber qual rota ou evento está custando caro, para depo
 **N25. Entender o que é o simulador e como se joga, sem ler um manual**
 Quem chega pelo GitHub decide em segundos se baixa, e decide pelo que vê funcionando. Quem abre o jogo pela primeira vez precisa aprender os passos básicos vendo, não lendo.
 
+**N26. Achar a causa de um erro sem vasculhar o log inteiro**
+Quando algo dá errado, na máquina de quem hospeda ou na de um amigo, o erro precisa estar num lugar curto para ler e para mandar, em vez de perdido entre as linhas de uma partida inteira.
+
 ---
 
 ## Decisões
