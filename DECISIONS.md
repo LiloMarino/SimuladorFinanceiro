@@ -103,6 +103,9 @@ Quem chega pelo GitHub decide em segundos se baixa, e decide pelo que vê funcio
 **N26. Achar a causa de um erro sem vasculhar o log inteiro**
 Quando algo dá errado, na máquina de quem hospeda ou na de um amigo, o erro precisa estar num lugar curto para ler e para mandar, em vez de perdido entre as linhas de uma partida inteira.
 
+**N27. Entrar numa partida que já começou**
+Quem chega depois do início, ou volta a uma partida salva sem ter jogado nela, precisa poder participar sem estragar a conta de quem já está jogando: com depósito inicial, cor própria e o mesmo ranking.
+
 ---
 
 ## Decisões

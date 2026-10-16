@@ -42,6 +42,7 @@
 | **N24** | Saber onde está a lentidão durante uma partida | [F45](#f45), [F54](#f54) | — |
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F47](#f47), [F48](#f48) | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | [F57](#f57) | — |
+| **N27** | Entrar numa partida que já começou | [F58](#f58) | — |
 | **D4** | Banco de dados embarcado no executável | [F4](#f4) | 🔍 |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
 | [**F3**](#f3) | Spike: banco embarcado no executável | — | 🔍 |
@@ -62,7 +63,6 @@
 | [**F33**](#f33) | Indicadores técnicos | — | ⏳ |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
 | [**F37**](#f37) | Tema escuro | — | 💤 |
-| [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ⏳ |
 | [**F40**](#f40) | Modo Especialista | — | ⏳ |
 | [**F41**](#f41) | Conquistas | — | ⏳ |
 | [**F42**](#f42) | Modo em equipes | — | ⏳ |
@@ -77,9 +77,10 @@
 | [**F54**](#f54) | Modo debug | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
+| [**F58**](#f58) | Entrar no meio da partida (hot-join) | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -113,6 +114,7 @@
 | [**F35**](#f35) | Dependências em dia | — | ✅ |
 | [**F36**](#f36) | Interface padronizada no shadcn | — | ✅ |
 | [**F38**](#f38) | Mensagens do backend em português | — | ✅ |
+| [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ✅ |
 | [**F43**](#f43) | Spike: outros modos de jogo | — | ✅ |
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
 | [**F50**](#f50) | Diagrama do banco navegável | — | ✅ |
@@ -133,7 +135,6 @@
 | [**F3**](#f3) | Spike: banco embarcado no executável | M2 | 1 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
-| [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
 | [**F47**](#f47) | Gravação automática de demonstrações | M14 | 1 | ⏳ |
 | [**F51**](#f51) | Versão única e changelog | — | 1 | ⏳ |
@@ -142,7 +143,9 @@
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
+| [**F42**](#f42) | Modo em equipes | M13 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
+| [**F58**](#f58) | Entrar no meio da partida (hot-join) | — | 0 | ⏳ |
 
 ---
 
@@ -405,21 +408,21 @@
 
 ### Sem marco
 
-> **Progresso:** 7/16 concluídas
+> **Progresso:** 8/17 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F37**](#f37) | Tema escuro | [F26](#f26) | 💤 |
-| [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 🔍 |
 | [**F45**](#f45) | Painel de desempenho | [F54](#f54) | ⏳ |
 | [**F51**](#f51) | Versão única e changelog | — | ⏳ |
 | [**F54**](#f54) | Modo debug | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | [F44](#f44) | 🔍 |
 | [**F56**](#f56) | Novidades no app | [F51](#f51) | ⏳ |
+| [**F58**](#f58) | Entrar no meio da partida (hot-join) | [F39](#f39) | ⏳ |
 
-<details><summary>Concluído (7 itens)</summary>
+<details><summary>Concluído (8 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -427,6 +430,7 @@
 | [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ✅ |
 | [**F38**](#f38) | Mensagens do backend em português | — | ✅ |
+| [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ✅ |
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
 | [**F50**](#f50) | Diagrama do banco navegável | — | ✅ |
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
@@ -468,7 +472,7 @@
 | **F26** | Redesign visual | N15 | — | M12 | [F36](#f36) | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F37** | Tema escuro | N15 | — | — | [F26](#f26) | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F38** | Mensagens do backend em português | N15 | — | — | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
-| **F39** | Cor exclusiva e sigla de duas letras por jogador | N20 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F39** | Cor exclusiva e sigla de duas letras por jogador | N20 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F40** | Modo Especialista | N21 | D2 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F41** | Conquistas | N22 | D1 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F42** | Modo em equipes | N23 | — | M13 | [F39](#f39) | Médio | Médio | Alto | Bom | ⏳ Pendente |
@@ -483,6 +487,7 @@
 | **F56** | Novidades no app | N14 | — | — | [F51](#f51) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F57** | Logs separados por assunto | N26 | — | — | — | Baixo | Baixo | Médio | Ótimo | ✅ Concluído |
 | **F50** | Diagrama do banco navegável | N17 | D9 | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
+| **F58** | Entrar no meio da partida (hot-join) | N27 | — | — | [F39](#f39) | Médio | Médio | Médio | Bom | ⏳ Pendente |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -666,7 +671,7 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 **Gatilho:** qualquer momento; não depende de outra feature.
 
 <a id="f39"></a>
-**F39 — Cor exclusiva e sigla de duas letras por jogador.** Serve N20. Inspiração: o Age of Empires II, que dá uma cor própria a cada um dos 8 jogadores da partida; aqui a sala vai a 10. Hoje a cor do jogador nasce em dois lugares que não se falam: o lobby, o perfil, a sidebar e o livro de ofertas pintam o avatar com um hash do apelido (`stringToColor`, em HSL), e as estatísticas escolhem a cor pela posição alfabética entre os jogadores do relatório (`playerColors`, com `% 8`). O mesmo jogador tem uma cor na sala e outra no gráfico. O limite de 8 jogadores só existe na tela (`MAX_PLAYERS` em `lobby.tsx`); o servidor não recusa o 9º, e com `% 8` o 9º repetiria a cor do 1º. E a sigla do avatar é a primeira letra do apelido, que repete com facilidade. O plano: (1) **cor é do jogador na partida.** Tabela nova `simulation_players` (`simulation_id`, `user_id`, `color`, chave composta), por migration (D9); a cor fica guardada com a partida para a tela de Estatísticas e o fechamento mostrarem as mesmas cores dias depois, sem partida ativa. Hoje nenhuma tabela liga jogador a partida: a participação é deduzida dos eventos e snapshots. (2) **Dez jogadores, dez cores.** A paleta do redesign (`--chart-1` a `--chart-8`, sem vermelho, para não se confundir com perda) ganha `--chart-9` e `--chart-10` em `frontend/index.css`, com o cinza e o marrom que o Age tem e a paleta não, conferidos contra as outras oito e contra daltonismo antes de fechar. O limite da sala sobe de 8 para 10 e passa a ser recusado pelo servidor (sala cheia), porque o teto de jogadores é o tamanho da paleta. Os bots da F16 contam no mesmo limite. Com dez linhas no mesmo gráfico o tom sozinho aperta: a legenda clicável que os gráficos já têm isola uma linha, e o tooltip traz o apelido. Passar de 10 exige um segundo diferenciador além do tom (linha tracejada, marcador). (3) **Conflito é impedido, não detectado.** O servidor é quem decide: ao entrar, o jogador recebe a cor que escolheu da última vez se ela estiver livre, ou a primeira livre da paleta; a troca é um evento do lobby que o servidor recusa se a cor já tiver dono (vale o primeiro pedido, e quem perdeu fica com a anterior). No seletor do lobby, a cor ocupada aparece desabilitada com a sigla de quem a tem. Assim a sala nunca chega ao "iniciar" com cor repetida. Quem sai libera a cor; o bot recebe a primeira livre e o host troca se quiser. (4) **A preferência de cor mora no navegador**, não no banco: cada host tem o próprio banco, e o `users` do convidado só existe no host em que ele entrou, então uma preferência ali não o acompanharia até outra sala. O cliente guarda a última cor e a envia ao entrar. (5) **Sigla sempre de duas letras.** Apelido com duas ou mais palavras usa a inicial das duas primeiras ("Ana Lima" vira AL); com uma palavra, as duas primeiras letras ("Bruno" vira BR, "Bianca" vira BI); com um caractere só, ele dobrado ("A" vira AA). A sigla sai do apelido, não do rótulo do gráfico, que na comparação traz o " · A" da partida. Uma função só, contando letras inteiras (acento e emoji não se partem), usada por um componente `PlayerAvatar` em `shared/` que recebe apelido, cor e tamanho e substitui os sete `Avatar` com `charAt(0)` espalhados; o tamanho `sm`, de 24 px, ganha fonte menor para caber duas letras. A sigla pode repetir entre jogadores (BA e BA), porque com cor exclusiva o par cor e sigla é único, e a sigla é o segundo canal para quem não distingue as cores; legenda e tooltip trazem sempre o apelido inteiro. (6) **Uma fonte de cor só no front.** `stringToColor` e `playerColors` saem; lobby, perfil, sidebar, ranking, pódio e gráficos leem a cor do próprio jogador no payload. A comparação de simulações continua colorindo por partida (a letra e a cor da F17): nela o que se distingue é a partida, não o jogador.
+**F39 — Cor exclusiva e sigla de duas letras por jogador.** Serve N20. Inspiração: o Age of Empires II, que dá uma cor própria a cada um dos 8 jogadores da partida; aqui a sala vai a 10. Antes, a cor do jogador nascia em dois lugares que não se falavam (um hash do apelido no lobby, no perfil, na sidebar e no livro de ofertas; a posição alfabética nas estatísticas) e a sigla era a primeira letra do apelido. Agora: (1) **a cor é do jogador na partida.** Enquanto está na sala ela vive na memória do servidor (`UserManager`); ao iniciar vira linha de `simulation_players` (`simulation_id`, `user_id`, `color`, chave composta, migration pela D9), que as Estatísticas e o fechamento leem, inclusive dias depois, sem partida ativa. As partidas salvas antes ganharam as linhas na própria migration. (2) **Dez jogadores, dez cores.** `--chart-9` (cinza) e `--chart-10` (marrom) entram na paleta do redesign. O teto da sala é o tamanho da paleta e o servidor recusa o 11º conectado (423, "a sala está cheia"). A conferência de daltonismo (lima × âmbar, verde-água × ciano) continua em aberto. (3) **Conflito é impedido, não detectado.** Ao entrar o jogador recebe a primeira cor livre; a troca é `PUT /api/simulation/players/me/color` e o servidor recusa com 409 se a cor já tem dono (vale o primeiro pedido, quem perdeu fica com a anterior); o evento `player_color` avisa a sala. No seletor "Sua cor" a cor ocupada aparece apagada com a sigla de quem a tem. (4) **A preferência mora no navegador** (`localStorage`): ao entrar o cliente pede a última cor escolhida e fica com a que recebeu se ela já tiver dono. (5) **Sigla sempre de duas letras**, calculada no front por `playerInitials` (acento e emoji contam inteiros) e desenhada pelo `PlayerAvatar` de `shared/`, que substituiu os sete `Avatar` com `charAt(0)`; a sigla sai do apelido, nunca do rótulo " · A". (6) **Uma fonte de cor só no front:** `stringToColor` e `playerColors` saíram; lobby, perfil, sidebar, livro de ofertas, ranking, pódio e gráficos leem a cor do payload. A comparação de simulações segue colorindo por partida (a letra e a cor da F17), com avatares neutros. (7) **Quem participa é quem está na sala ao iniciar**: só eles recebem o depósito inicial e snapshots (antes era toda conta do banco). Quem não participa de uma partida em andamento é barrado (423) até a F58. (8) **Continuar uma partida salva tem dois passos**: o host a seleciona (`PUT /api/simulation/selection`) e a sala inteira troca para as cores guardadas, travadas para quem já jogou e reservadas para os ausentes; depois clica em Continuar. Quem está na sala e nunca jogou a partida escolhe entre as cores que sobraram e entra com o depósito inicial na retomada. Os bots da F16 não existem ainda e contarão no mesmo teto.
 **Aceite:** uma sala de 10 jogadores abre com 10 cores diferentes e siglas de duas letras; escolher no lobby a cor de outro é recusado e a anterior permanece; o 11º jogador é recusado pelo servidor; o jogador tem a mesma cor no lobby, no ranking e nos gráficos, inclusive ao abrir a partida salva depois.
 
 <a id="f40"></a>
@@ -711,6 +716,10 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 <a id="f50"></a>
 **F50 — Diagrama do banco navegável.** Serve N17; segue a D9. A página "Diagrama do Banco de Dados" tem um diagrama só, com zoom, arraste, busca e os ENUMs numa tabela abaixo, no [ERD Editor](https://github.com/dineug/erd-editor) (`@dineug/erd-editor` 4.0, MIT) embutido como componente do Docusaurus. **100% gerado, sem passo manual:** `scripts/erd.py` lê o `Base.metadata` e escreve o DDL do Postgres (`CreateTable` do SQLAlchemy) em `docs/src/generated/schema.json` e a tabela dos ENUM em `docs/docs/desenvolvimento/_enums.md`; os dois rodam no `prestart`, `prebuild` e `pretypecheck` dos docs (`pnpm db:erd`) e no `deploy-docs.yml`, que ganhou `uv sync` e passou a disparar também por mudança em `backend/core/models/**`. Os arquivos gerados não são versionados, e o `tests/test_erd.py` saiu. O componente `DatabaseDiagram` (`BrowserOnly`) cria o `<erd-editor>`, carrega o DDL com `setSchemaSQL(..., { placement: 'auto' })`, enquadra o diagrama inteiro no zoom inicial e segue o tema claro/escuro do Docusaurus. O editor abre editável e nada é salvo: arrastar tabelas, reorganizar e esboçar uma modelagem ("e se fosse 1-N aqui?") valem só até recarregar, quando o diagrama volta ao schema dos models. **A escolha:** os dois visualizadores foram prototipados sobre o schema de hoje. O React Flow desenhava a notação do MySQL Workbench, mas as linhas se embaraçavam perto das tabelas de evento e foco numa tabela, layout automático e busca teriam de ser construídos. O ERD Editor traz isso pronto (foco numa tabela e nas vizinhas com `Alt+F`, *Auto Layout* por Force, Flow ou árvore, só as colunas de chave, busca por tabela e coluna), e a notação do Workbench foi dispensada: as chaves vêm coloridas (PK amarela, FK vermelha, PK que também é FK azul) e a obrigatoriedade aparece em texto. O modo somente leitura do editor trava também o arrasto, por isso ele não é usado. Limitação: o layout inicial ainda embaraça as linhas perto das tabelas de evento; *Auto Layout* → *Force* (`Ctrl+K`) as separa. O pacote pesa cerca de 11 MB, carregados só na página do diagrama.
 **Aceite:** alterar um model e subir `pnpm start` nos docs mostra a mudança no diagrama sem rodar nada à mão.
+
+<a id="f58"></a>
+**F58 — Entrar no meio da partida (hot-join).** Serve N27. Hoje só participa quem estava na sala ao iniciar (F39): quem tenta entrar depois, com conta nova ou antiga, é barrado com "a partida já começou". O plano: uma tela própria para quem chega com a partida em andamento, que mostra as cores que sobraram e deixa escolher uma; ao confirmar, o jogador ganha a linha em `simulation_players`, o depósito inicial na hora (o `Simulation.add_cash` que o cadastro mid-game já usou) e o primeiro snapshot do dia, e passa a entrar nas estatísticas e no ranking. O teto continua sendo o da paleta (10), então sempre sobra cor enquanto houver vaga. Quem sai e volta mantém a cor da partida.
+**Aceite:** com a partida em andamento e vaga na sala, um jogador novo escolhe uma cor livre, recebe o depósito inicial e aparece no ranking; com a sala cheia ele continua barrado.
 
 ---
 ## 2. Nice-to-have
