@@ -16,7 +16,6 @@ import {
 import type { OperationsReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { IMPACT_COST, INCOME_TAX_PAID, MONTHLY_VOLUME, TRADED_VOLUME, TURNOVER } from "../../lib/metrics";
-import { playerColors } from "../../lib/player-colors";
 import { playerKey, playerLabel } from "../../lib/player-label";
 import { PlayerCell, TabStatus, type ReportProps } from "./shared";
 
@@ -26,8 +25,6 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
   const { data, isLoading, error, refetch } = useStatisticsReport("operations", simulationIds, onlyPlayer);
   if (!data) return <TabStatus loading={isLoading} title="as Operações" error={error} onRetry={() => void refetch()} />;
 
-  const labels = data.players.map((p) => playerLabel(p, simulationIds, currentPlayerName));
-  const colorOf = playerColors(labels);
   const mostTrades = Math.max(...data.players.map((p) => p.buy_trades + p.sell_trades), 1);
   const impactOn = data.players.some((p) => p.impact_cost !== null);
 
@@ -37,7 +34,6 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
         players={data.players}
         simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
-        colorOf={colorOf}
       />
 
       <Card className="overflow-hidden">
@@ -73,7 +69,7 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
               return (
                 <TableRow key={playerKey(p)} variant={isYou ? "current" : "default"}>
                   <TableCell>
-                    <PlayerCell label={label} color={colorOf(label)} isYou={isYou} />
+                    <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={isYou} />
                   </TableCell>
                   <TableCell>
                     <div className="grid w-44 gap-1">
@@ -137,12 +133,10 @@ function VolumeHeatmap({
   players,
   simulationIds,
   currentPlayerName,
-  colorOf,
 }: {
   players: Player[];
   simulationIds: number[];
   currentPlayerName?: string;
-  colorOf: (label: string) => string;
 }) {
   const months = [...new Set(players.flatMap((p) => p.monthly_volume.map((m) => m.month)))].sort();
   const volumeOf = (m: Player["monthly_volume"][number]) => Number(m.bought) + Number(m.sold);
@@ -189,7 +183,7 @@ function VolumeHeatmap({
                 return (
                   <div key={playerKey(p)} className="contents">
                     <span className="min-w-0 self-center text-[13px]">
-                      <PlayerCell label={label} color={colorOf(label)} isYou={p.player_nickname === currentPlayerName} />
+                      <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={p.player_nickname === currentPlayerName} />
                     </span>
                     {months.map((month) => {
                       const entry = byMonth.get(month);

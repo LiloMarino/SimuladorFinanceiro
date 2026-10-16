@@ -3,13 +3,14 @@ import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { UsersRound } from "lucide-react";
+import { DoorClosed, UsersRound } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { useAuth } from "@/shared/hooks/useAuth";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
@@ -26,8 +27,12 @@ const nicknameSchema = z.object({
 
 type NicknameForm = z.infer<typeof nicknameSchema>;
 
+// A sala recusa a entrada com 423: cheia ou partida que já começou
+const ROOM_CLOSED_STATUS = 423;
+
 export function LoginPage() {
   const queryClient = useQueryClient();
+  const { entryError } = useAuth();
   // Nickname que já tem conta: a decisão (é você ou não) acontece dentro do card
   const [taken, setTaken] = useState<string | null>(null);
 
@@ -58,7 +63,9 @@ export function LoginPage() {
   };
 
   const busy = register.isPending || claim.isPending;
-  const registerFailed = register.isError && register.error.status !== 409;
+  const registerFailed =
+    register.isError && register.error.status !== 409 && register.error.status !== ROOM_CLOSED_STATUS;
+  const roomClosed = [entryError, register.error, claim.error].find((e) => e?.status === ROOM_CLOSED_STATUS);
 
   return (
     <div className="flex min-h-svh">
@@ -142,6 +149,14 @@ export function LoginPage() {
                   {register.isPending && <Spinner />}
                   {register.isPending ? "Entrando…" : "Entrar"}
                 </Button>
+              )}
+
+              {roomClosed && (
+                <Alert variant="warning">
+                  <DoorClosed />
+                  <AlertTitle>Não dá pra entrar agora</AlertTitle>
+                  <AlertDescription>{roomClosed.message}</AlertDescription>
+                </Alert>
               )}
 
               {registerFailed && (

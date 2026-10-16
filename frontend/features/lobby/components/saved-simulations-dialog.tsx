@@ -16,7 +16,7 @@ import { cn } from "@/shared/lib/utils";
 import { displayDate, displayMonthSlashYear, parseLocalDate } from "@/shared/lib/utils/display";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
-import type { SimulationInfo, SimulationListItem } from "@/types";
+import type { SimulationListItem } from "@/types";
 
 type StatusFilter = "ALL" | SimulationListItem["status"];
 
@@ -30,13 +30,23 @@ type SavedSimulationsDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isHost: boolean;
+  selectedSimulationId: number | null;
 };
 
-export function SavedSimulationsDialog({ open, onOpenChange, isHost }: SavedSimulationsDialogProps) {
+export function SavedSimulationsDialog({
+  open,
+  onOpenChange,
+  isHost,
+  selectedSimulationId,
+}: SavedSimulationsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[calc(100vh-4rem)] overflow-y-auto sm:max-w-[640px]">
-        <SavedSimulationsContent isHost={isHost} onLoaded={() => onOpenChange(false)} />
+        <SavedSimulationsContent
+          isHost={isHost}
+          selectedSimulationId={selectedSimulationId}
+          onSelected={() => onOpenChange(false)}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -44,7 +54,15 @@ export function SavedSimulationsDialog({ open, onOpenChange, isHost }: SavedSimu
 
 // O conteúdo desmonta quando o diálogo fecha: cada abertura nasce com busca e
 // filtro limpos e busca a lista de novo, trazendo as partidas recém-salvas.
-function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoaded: () => void }) {
+function SavedSimulationsContent({
+  isHost,
+  selectedSimulationId,
+  onSelected,
+}: {
+  isHost: boolean;
+  selectedSimulationId: number | null;
+  onSelected: () => void;
+}) {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<StatusFilter>("ALL");
@@ -52,17 +70,17 @@ function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoad
   const { data, isLoading, error, refetch } = useApiQuery({ ...simulationListOptions(), refetchOnMount: "always" });
 
   const {
-    mutate: loadSimulation,
+    mutate: selectSimulation,
     isPending: loading,
     variables,
   } = useApiMutation({
-    mutationFn: (id: number) => apiFetch<SimulationInfo>("/api/simulation/load", { method: "POST", body: { id } }),
-    onSuccess: onLoaded,
+    mutationFn: (id: number) => apiFetch<void>("/api/simulation/selection", { method: "PUT", body: { id } }),
+    onSuccess: onSelected,
     onError: (err) => toastApiError(err),
   });
 
   const term = search.trim().toLowerCase();
-  // A lista vem da mais recente para a mais antiga: a primeira é a que o lobby retoma
+  // A lista vem da mais recente para a mais antiga: a primeira é a que o atalho do lobby seleciona
   const lastSimulation = data?.[0];
   const items = (data ?? []).filter(
     (s) => (filter === "ALL" || s.status === filter) && (!term || s.name.toLowerCase().includes(term)),
@@ -97,8 +115,9 @@ function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoad
       );
     }
     return items.map((s) => {
-      // A primeira da lista inteira, se pausada, é a que "Continuar última simulação" retoma no lobby
+      // A primeira da lista inteira, se pausada, é a que o atalho "Selecionar a última simulação" escolhe
       const resumedByLobby = isHost && s.id === lastSimulation?.id && s.status === "PAUSED";
+      const selected = s.id === selectedSimulationId;
       return (
       <div
         key={s.id}
@@ -129,7 +148,7 @@ function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoad
           </span>
           {resumedByLobby && (
             <span className="flex items-center gap-1 text-xs font-semibold text-primary">
-              <Zap className="size-3" />É esta que o “Continuar última simulação” do lobby retoma
+              <Zap className="size-3" />É esta que o “Selecionar a última simulação” do lobby escolhe
             </span>
           )}
         </div>
@@ -138,9 +157,9 @@ function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoad
           Resultado
         </Button>
         {isHost && s.status === "PAUSED" && (
-          <Button size="sm" disabled={loading} onClick={() => loadSimulation(s.id)}>
+          <Button size="sm" disabled={loading || selected} onClick={() => selectSimulation(s.id)}>
             <Play />
-            {loading && variables === s.id ? "Carregando…" : "Continuar"}
+            {selected ? "Selecionada" : loading && variables === s.id ? "Selecionando…" : "Selecionar"}
           </Button>
         )}
       </div>
@@ -154,7 +173,7 @@ function SavedSimulationsContent({ isHost, onLoaded }: { isHost: boolean; onLoad
         <DialogTitle>Simulações salvas</DialogTitle>
         <DialogDescription>
           {isHost
-            ? "Continue de onde parou ou veja quem venceu."
+            ? "Selecione uma partida para continuar de onde parou ou veja quem venceu."
             : "Só o host continua uma partida; você pode ver os resultados."}
         </DialogDescription>
       </DialogHeader>

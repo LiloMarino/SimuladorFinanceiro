@@ -30,6 +30,8 @@ export type SimulationEvents = {
   order_partial_executed: OrderPartialExecutedEvent;
   player_join: RealtimeEventCatalog["player_join"];
   player_exit: RealtimeEventCatalog["player_exit"];
+  player_color: RealtimeEventCatalog["player_color"];
+  simulation_selected: RealtimeEventCatalog["simulation_selected"];
   simulation_settings_update: RealtimeEventCatalog["simulation_settings_update"];
 } & {
   [K in `stock_update:${string}`]: RealtimeEventCatalog["stock_update"];

@@ -12,8 +12,7 @@ import {
 } from "@/shared/lib/utils/display";
 import type { ReturnsReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
-import { playerColors } from "../../lib/player-colors";
-import { playerLabel, simulationColor, simulationLetter, youLabel } from "../../lib/player-label";
+import { playerLabel, simulationColor, simulationLetter, youLabel, labelColors } from "../../lib/player-label";
 import {
   ANNUAL_RETURN,
   CAPITAL_PROVIDED,
@@ -102,7 +101,7 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
 
   const comparing = simulationIds.length > 1;
   const players = data.players.map((p) => ({ player: p, label: playerLabel(p, simulationIds, currentPlayerName) }));
-  const colorOf = playerColors(players.map((p) => p.label));
+  const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
   const isYou = (p: Player) => p.player_nickname === currentPlayerName;
   const cdiOf = new Map(data.benchmarks.filter((b) => b.series === "CDI").map((b) => [b.simulation_id, b.annual_return]));
 
@@ -202,7 +201,6 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
         rows={data.players}
         simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
-        colorOf={colorOf}
         columns={[
           { metric: CAPITAL_PROVIDED, value: (r) => r.capital_provided },
           {

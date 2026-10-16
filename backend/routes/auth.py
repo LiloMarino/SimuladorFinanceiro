@@ -7,7 +7,11 @@ from backend.core import repository
 from backend.core.dependencies import ClientID
 from backend.core.dto.session import SessionDTO
 from backend.core.dto.user import UserDTO
-from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
+from backend.core.exceptions.http_exceptions import (
+    ConflictError,
+    LockedError,
+    NotFoundError,
+)
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import MATCH_IN_PROGRESS, UserManager
 
@@ -104,7 +108,7 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
 
     # Conta nova nunca participa de uma partida que já começou
     if SimulationManager.has_active_simulation():
-        raise ConflictError(MATCH_IN_PROGRESS)
+        raise LockedError(MATCH_IN_PROGRESS)
 
     # Verificar se já existe usuário com esse nickname
     existing_user = repository.user.get_by_nickname(nickname)
@@ -144,7 +148,7 @@ def user_claim(payload: UserClaimRequest, client_id: ClientID):
             SimulationManager.get_active_simulation_id()
         )
         if existing_user.id not in participants:
-            raise ConflictError(MATCH_IN_PROGRESS)
+            raise LockedError(MATCH_IN_PROGRESS)
 
     # Atualizar client_id do usuário
     updated_user = repository.user.update_client_id(existing_user.id, client_id)

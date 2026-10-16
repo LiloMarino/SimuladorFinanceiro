@@ -10,6 +10,7 @@ const HTTP_STATUS_TEXT: Record<number, string> = {
   413: "arquivo grande demais",
   415: "tipo de arquivo não aceito",
   422: "dados inválidos",
+  423: "sala fechada para você",
   429: "muitas requisições",
   500: "o servidor falhou",
   502: "o servidor não respondeu",

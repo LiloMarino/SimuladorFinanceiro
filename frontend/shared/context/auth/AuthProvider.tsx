@@ -19,7 +19,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
   });
 
   // Query: Sessão atual
-  const { data: session, isLoading: sessionLoading } = useApiQuery({
+  const {
+    data: session,
+    error: sessionError,
+    isLoading: sessionLoading,
+  } = useApiQuery({
     queryKey: queryKeys.authSession(),
     queryFn: ({ signal }) => apiFetch<Session>("/api/session/me", { signal }),
   });
@@ -70,6 +74,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         logout,
         deleteAccount,
         loading: sessionLoading || initLoading || logoutLoading || deleteLoading,
+        entryError: sessionError?.status === 423 ? sessionError : null,
       }}
     >
       {children}

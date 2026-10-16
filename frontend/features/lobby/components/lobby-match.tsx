@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronRight, Clock, Zap } from "lucide-react";
+import { ChevronRight, Clock, Play, X, Zap } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -68,10 +68,12 @@ type LobbyMatchProps = {
   simulationData: SimulationSettingsData;
   isHost: boolean;
   hostNickname: string;
+  /** Partida salva que o host selecionou para continuar; nula quando a partida é nova */
+  selectedSimulationId: number | null;
 };
 
 /** "Nova partida": as regras resumidas, os avisos de dado e o início da partida. */
-export function LobbyMatch({ simulationData, isHost, hostNickname }: LobbyMatchProps) {
+export function LobbyMatch({ simulationData, isHost, hostNickname, selectedSimulationId }: LobbyMatchProps) {
   const [rulesOpen, setRulesOpen] = useState(false);
 
   const form = useForm<SimulationFormValues>({
@@ -105,9 +107,10 @@ export function LobbyMatch({ simulationData, isHost, hostNickname }: LobbyMatchP
   const stocks = (coverage ?? []).filter((s) => s.kind === "STOCK");
   const exampleTicker = (stocks.find((s) => s.key === "PETR4") ?? stocks[0])?.key;
 
-  // A lista vem da mais recente para a mais antiga: a primeira é a que "Continuar" retoma
+  // A lista vem da mais recente para a mais antiga: a primeira é a que o atalho seleciona
   const { data: savedSimulations } = useQuery(simulationListOptions());
   const lastSimulation = savedSimulations?.[0];
+  const selectedSimulation = savedSimulations?.find((s) => s.id === selectedSimulationId);
 
   const { mutate: createSimulation, isPending: creating } = useApiMutation({
     mutationFn: () =>
@@ -133,8 +136,19 @@ export function LobbyMatch({ simulationData, isHost, hostNickname }: LobbyMatchP
     onError: (err) => toastApiError(err),
   });
 
+  // A seleção é estado da sala: o servidor avisa todos e o lobby busca de novo
+  const { mutate: selectSimulation, isPending: selecting } = useApiMutation({
+    mutationFn: (id: number) => apiFetch<void>("/api/simulation/selection", { method: "PUT", body: { id } }),
+    onError: (err) => toastApiError(err),
+  });
+
+  const { mutate: clearSelection, isPending: clearing } = useApiMutation({
+    mutationFn: () => apiFetch<void>("/api/simulation/selection", { method: "DELETE" }),
+    onError: (err) => toastApiError(err),
+  });
+
   const impactMode = priceImpactModeOf(values.priceImpactEnabled, values.priceImpactK, values.priceImpactDecayDays);
-  const busy = creating || continuing;
+  const busy = creating || continuing || selecting || clearing;
   const canStart = isHost && !busy && !blockedByCoverage && form.formState.isValid;
 
   const rows: { label: string; value: React.ReactNode }[] = [
@@ -202,29 +216,56 @@ export function LobbyMatch({ simulationData, isHost, hostNickname }: LobbyMatchP
                 {creating ? <Spinner /> : <Zap />}
                 Iniciar nova simulação
               </Button>
-              {lastSimulation && lastSimulation.status === "PAUSED" && (
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => continueSimulation()}
-                  className="flex w-full items-center justify-between rounded-[10px] border border-input bg-card px-3.5 py-3 text-left transition-colors hover:bg-subtle disabled:opacity-50"
-                >
+              {selectedSimulation ? (
+                <div className="grid gap-3 rounded-[10px] border border-info-border bg-info-soft p-3.5">
                   <span className="grid">
-                    <span className="font-semibold">Continuar última simulação</span>
+                    <span className="text-xs font-semibold text-info">Partida selecionada</span>
+                    <span className="font-semibold">{selectedSimulation.name}</span>
                     <span className="text-xs text-muted-foreground">
-                      {lastSimulation.name}
-                      {lastSimulation.resume_from &&
-                        ` · parou em ${displayDate(parseLocalDate(lastSimulation.resume_from))}`}
+                      {selectedSimulation.resume_from
+                        ? `Parou em ${displayDate(parseLocalDate(selectedSimulation.resume_from))}`
+                        : "Ainda não começou"}
                     </span>
                   </span>
-                  {continuing ? <Spinner /> : <ChevronRight className="size-4 text-faint-foreground" />}
-                </button>
+                  <span className="flex gap-2">
+                    <Button className="flex-1" disabled={busy} onClick={() => continueSimulation()}>
+                      {continuing ? <Spinner /> : <Play />}
+                      Continuar
+                    </Button>
+                    <Button variant="outline" disabled={busy} onClick={() => clearSelection()}>
+                      <X />
+                      Remover seleção
+                    </Button>
+                  </span>
+                </div>
+              ) : (
+                lastSimulation &&
+                lastSimulation.status === "PAUSED" && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => selectSimulation(lastSimulation.id)}
+                    className="flex w-full items-center justify-between rounded-[10px] border border-input bg-card px-3.5 py-3 text-left transition-colors hover:bg-subtle disabled:opacity-50"
+                  >
+                    <span className="grid">
+                      <span className="font-semibold">Selecionar a última simulação</span>
+                      <span className="text-xs text-muted-foreground">
+                        {lastSimulation.name}
+                        {lastSimulation.resume_from &&
+                          ` · parou em ${displayDate(parseLocalDate(lastSimulation.resume_from))}`}
+                      </span>
+                    </span>
+                    {selecting ? <Spinner /> : <ChevronRight className="size-4 text-faint-foreground" />}
+                  </button>
+                )
               )}
             </>
           ) : (
             <div className="flex items-center justify-center gap-2 rounded-[10px] bg-background px-4 py-3.5 text-muted-foreground">
               <Clock className="size-4" />
-              Esperando {hostNickname} iniciar
+              {selectedSimulation
+                ? `Esperando ${hostNickname} continuar ${selectedSimulation.name}`
+                : `Esperando ${hostNickname} iniciar`}
             </div>
           )}
         </div>

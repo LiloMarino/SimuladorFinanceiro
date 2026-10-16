@@ -1,5 +1,5 @@
 import { Trophy } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { cn } from "@/shared/lib/utils";
 import type { OverviewReport } from "@/types";
 import { displayCriterionValue } from "../../lib/criterion";
@@ -14,11 +14,10 @@ const STEPS = [
 interface PodiumProps {
   report: OverviewReport;
   currentPlayerName?: string;
-  colorOf: (label: string) => string;
 }
 
 /** Os três primeiros pelo critério de vitória, sobre o fundo escuro do topo. */
-export function Podium({ report, currentPlayerName, colorOf }: PodiumProps) {
+export function Podium({ report, currentPlayerName }: PodiumProps) {
   const byPosition = new Map(report.players.map((p) => [p.position, p]));
 
   return (
@@ -31,11 +30,7 @@ export function Podium({ report, currentPlayerName, colorOf }: PodiumProps) {
             {player ? (
               <>
                 {first && <Trophy className="size-[26px] text-trophy" />}
-                <Avatar size={first ? "2xl" : "xl"}>
-                  <AvatarFallback color={colorOf(player.player_nickname)}>
-                    {player.player_nickname.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <PlayerAvatar nickname={player.player_nickname} color={player.color} size={first ? "2xl" : "xl"} />
                 <span className={cn("max-w-full truncate font-semibold text-white", first ? "text-lg" : "text-[15px]")}>
                   {player.player_nickname}
                   {player.player_nickname === currentPlayerName && " (você)"}

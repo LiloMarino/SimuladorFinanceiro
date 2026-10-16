@@ -8,6 +8,7 @@ from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.enum import EquityEventType
 from backend.core.models.models import (
     EventEquity,
+    SimulationPlayers,
     Snapshots,
     Stock,
     Users,
@@ -47,9 +48,14 @@ class PortfolioRepository:
         """As últimas execuções de todos os jogadores da partida em `ticker`."""
         simulation_id = SimulationManager.get_active_simulation_id()
         rows = session.execute(
-            select(EventEquity, Users.nickname)
+            select(EventEquity, Users.nickname, SimulationPlayers.color)
             .join(Stock, Stock.id == EventEquity.stock_id)
             .join(Users, Users.id == EventEquity.user_id)
+            .join(
+                SimulationPlayers,
+                (SimulationPlayers.simulation_id == EventEquity.simulation_id)
+                & (SimulationPlayers.user_id == EventEquity.user_id),
+            )
             .where(Stock.ticker == ticker, EventEquity.simulation_id == simulation_id)
             .order_by(EventEquity.event_date.desc(), EventEquity.id.desc())
             .limit(limit)
@@ -58,11 +64,12 @@ class PortfolioRepository:
             TradeDTO(
                 event_date=event.event_date,
                 player_nickname=nickname,
+                player_color=color,
                 action=EquityEventType(event.event_type).value.lower(),
                 quantity=event.quantity,
                 price=event.price,
             )
-            for event, nickname in rows
+            for event, nickname, color in rows
         ]
 
     @transactional

@@ -35,11 +35,10 @@ interface MatchHeroProps {
   report: OverviewReport;
   simulation: SimulationListItem | undefined;
   currentPlayerName?: string;
-  colorOf: (label: string) => string;
 }
 
 /** Topo do fim de partida: quem venceu, por qual critério, onde você ficou e o pódio. */
-export function MatchHero({ report, simulation, currentPlayerName, colorOf }: MatchHeroProps) {
+export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroProps) {
   const winner = report.players[0];
   const you = report.players.find((p) => p.player_nickname === currentPlayerName);
   const criterion = VICTORY_CRITERIA[report.criterion];
@@ -96,7 +95,7 @@ export function MatchHero({ report, simulation, currentPlayerName, colorOf }: Ma
           </Button>
         </div>
       </div>
-      <Podium report={report} currentPlayerName={currentPlayerName} colorOf={colorOf} />
+      <Podium report={report} currentPlayerName={currentPlayerName} />
     </section>
   );
 }

@@ -1,3 +1,4 @@
+import { playerColorStyle } from "@/shared/lib/player-colors";
 import type { PlayerRef } from "@/types";
 
 // Cor de cada simulação na ordem da escolha: a mesma da letra no seletor
@@ -20,6 +21,22 @@ export function playerLabel(player: PlayerRef, simulationIds: number[], currentP
   if (simulationIds.length <= 1) return player.player_nickname;
   const letter = simulationLetter(simulationIds, player.simulation_id);
   return player.player_nickname === currentPlayerName ? `Você · ${letter}` : `${player.player_nickname} · ${letter}`;
+}
+
+/**
+ * Cor de cada rótulo em gráficos e legendas: a do jogador na partida, a mesma do lobby.
+ * Comparando simulações a cor é da partida (a mesma da letra A, B…), porque o que se
+ * distingue ali é a partida e não o jogador.
+ */
+export function labelColors(players: PlayerRef[], simulationIds: number[], currentPlayerName?: string) {
+  const comparing = simulationIds.length > 1;
+  const colors = new Map(
+    players.map((p) => [
+      playerLabel(p, simulationIds, currentPlayerName),
+      comparing ? simulationColor(simulationIds, p.simulation_id) : playerColorStyle(p.color).background,
+    ]),
+  );
+  return (label: string) => colors.get(label) ?? "var(--foreground)";
 }
 
 /** Nome em legenda e rótulo de linha: quem está vendo ganha "(você)" quando o nome ainda não diz isso. */

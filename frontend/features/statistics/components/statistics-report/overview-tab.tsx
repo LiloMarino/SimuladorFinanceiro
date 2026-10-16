@@ -19,8 +19,7 @@ import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { displayCriterionGap } from "../../lib/criterion";
 import { SCORE, SCORE_AXES, SCORE_METRICS, displayMetric } from "../../lib/metrics";
 import { SimulationLetter } from "../compare/simulation-letter";
-import { simulationColor, simulationLetter } from "../../lib/player-label";
-import { playerColors } from "../../lib/player-colors";
+import { simulationColor, simulationLetter, labelColors } from "../../lib/player-label";
 import { playerKey, playerLabel } from "../../lib/player-label";
 import { PlayerCell, PlayerToggle, TabStatus, type ReportProps } from "./shared";
 
@@ -38,15 +37,14 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
   const { data, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds, onlyPlayer);
   if (!data) return <TabStatus loading={isLoading} title="o Geral" error={error} onRetry={() => void refetch()} />;
 
-  const labels = data.players.map((p) => playerLabel(p, simulationIds, currentPlayerName));
-  const colorOf = playerColors(labels);
+  const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
 
   return (
     <div className="grid gap-5">
       {simulationIds.length === 1 && data.players.length > 0 && (
         <Headline report={data} currentPlayerName={currentPlayerName} />
       )}
-      <Ranking report={data} currentPlayerName={currentPlayerName} simulationIds={simulationIds} colorOf={colorOf} />
+      <Ranking report={data} currentPlayerName={currentPlayerName} simulationIds={simulationIds} />
       {data.players.length > 0 && (
         <ScoreAxes
           report={data}
@@ -227,12 +225,10 @@ function Ranking({
   report,
   currentPlayerName,
   simulationIds,
-  colorOf,
 }: {
   report: OverviewReport;
   currentPlayerName: string;
   simulationIds: number[];
-  colorOf: (label: string) => string;
 }) {
   const [sortBy, setSortBy] = useState<RankingSort>("SCORE");
   const topScore = Math.max(...report.players.map((p) => Number(p.score?.total ?? 0)), 1);
@@ -313,7 +309,7 @@ function Ranking({
                   </span>
                 </TableCell>
                 <TableCell>
-                  <PlayerCell label={label} color={colorOf(label)} isYou={isYou} />
+                  <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={isYou} />
                 </TableCell>
                 {comparing ? (
                   <TableCell numeric>{displayMetric(SCORE, p.score?.total)}</TableCell>

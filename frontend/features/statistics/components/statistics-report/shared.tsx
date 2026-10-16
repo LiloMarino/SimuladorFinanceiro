@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -14,6 +13,7 @@ import {
 } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
+import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 import type ApiError from "@/shared/lib/models/ApiError";
 import type { MetricInfo } from "@/shared/lib/metric-info";
@@ -91,13 +91,28 @@ export function ChartCard({
   );
 }
 
-/** Avatar na cor do jogador, o nome e a marca de quem está vendo. */
-export function PlayerCell({ label, color, isYou }: { label: string; color: string; isYou: boolean }) {
+/**
+ * Avatar do jogador, o nome e a marca de quem está vendo. Comparando simulações o
+ * avatar fica neutro: a cor ali é da partida, e a sigla continua a do apelido.
+ */
+export function PlayerCell({
+  player,
+  label,
+  simulationIds,
+  isYou,
+}: {
+  player: PlayerRef;
+  label: string;
+  simulationIds: number[];
+  isYou: boolean;
+}) {
   return (
     <span className="flex items-center gap-2">
-      <Avatar size="sm">
-        <AvatarFallback color={color}>{label.charAt(0).toUpperCase()}</AvatarFallback>
-      </Avatar>
+      <PlayerAvatar
+        nickname={player.player_nickname}
+        color={simulationIds.length > 1 ? undefined : player.color}
+        size="sm"
+      />
       {label}
       {/* Entre partidas o nome já diz "Você · A" */}
       {isYou && !label.startsWith("Você") && (
@@ -160,7 +175,6 @@ interface MetricsTableProps<T extends PlayerRef> {
   columns: MetricColumn<T>[];
   simulationIds: number[];
   currentPlayerName?: string;
-  colorOf: (label: string) => string;
   extraColumn?: { header: ReactNode; cell: (row: T) => ReactNode };
   footer?: ReactNode;
 }
@@ -173,7 +187,6 @@ export function MetricsTable<T extends PlayerRef>({
   columns,
   simulationIds,
   currentPlayerName,
-  colorOf,
   extraColumn,
   footer,
 }: MetricsTableProps<T>) {
@@ -217,7 +230,7 @@ export function MetricsTable<T extends PlayerRef>({
             return (
               <TableRow key={playerKey(row)} variant={isYou ? "current" : "default"}>
                 <TableCell>
-                  <PlayerCell label={label} color={colorOf(label)} isYou={isYou} />
+                  <PlayerCell player={row} label={label} simulationIds={simulationIds} isYou={isYou} />
                 </TableCell>
                 {extraColumn && <TableCell>{extraColumn.cell(row)}</TableCell>}
                 {columns.map((column, i) => {

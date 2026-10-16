@@ -3,10 +3,9 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
+import type { RoomPlayer } from "@/types";
 
-type RoomPlayer = { nickname: string };
-
-/** Jogadores conectados à sala, mantido vivo via player_join/player_exit. */
+/** Jogadores conectados à sala com a cor de cada um, mantido vivo via player_join/player_exit/player_color. */
 export function useRoomPlayers() {
   const queryClient = useQueryClient();
 
@@ -15,15 +14,15 @@ export function useRoomPlayers() {
     queryFn: ({ signal }) => apiFetch<RoomPlayer[]>("/api/simulation/players", { signal }),
   });
 
-  useRealtime("player_join", ({ nickname }) => {
+  useRealtime("player_join", (player) => {
     queryClient.setQueryData(queryKeys.simulationPlayers(), (prev: RoomPlayer[] | undefined) => {
-      if (!prev) return [{ nickname }];
+      if (!prev) return [player];
 
-      if (prev.some((p) => p.nickname === nickname)) {
+      if (prev.some((p) => p.nickname === player.nickname)) {
         return prev;
       }
 
-      return [...prev, { nickname }];
+      return [...prev, player];
     });
   });
 
@@ -32,6 +31,12 @@ export function useRoomPlayers() {
       if (!prev) return prev;
       return prev.filter((p) => p.nickname !== nickname);
     });
+  });
+
+  useRealtime("player_color", (player) => {
+    queryClient.setQueryData(queryKeys.simulationPlayers(), (prev: RoomPlayer[] | undefined) =>
+      prev?.map((p) => (p.nickname === player.nickname ? player : p)),
+    );
   });
 
   return query;

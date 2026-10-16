@@ -54,10 +54,10 @@ def color_of(user: UserDTO) -> str | None:
     return UserManager.get_color(user.id)
 
 
-def refusal(action: Callable[[], object]) -> str:
+def refusal(action: Callable[[], object], status: int = 409) -> str:
     with pytest.raises(HTTPException) as error:
         action()
-    assert error.value.status_code == 409
+    assert error.value.status_code == status
     return str(error.value.detail)
 
 
@@ -102,7 +102,9 @@ def test_eleventh_player_is_refused(join: Join):
     late = UserDTO(id=99, client_id=client("Late"), nickname="Late")
     UserManager._client_user_cache[late.client_id] = late
 
-    assert "sala está cheia" in refusal(lambda: UserManager.player_auth(late.client_id))
+    assert "sala está cheia" in refusal(
+        lambda: UserManager.player_auth(late.client_id), status=423
+    )
 
 
 def test_leaving_frees_the_color(join: Join):

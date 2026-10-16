@@ -29,6 +29,8 @@ class TradeDTO(BaseDTO):
 
     event_date: date
     player_nickname: str
+    # Chave da paleta do jogador nesta partida
+    player_color: str
     action: str
     quantity: int
     price: Decimal

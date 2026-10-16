@@ -47,7 +47,10 @@ export type Highlights = components["schemas"]["HighlightsDTO"];
 export type Score = NonNullable<OverviewReport["players"][number]["score"]>;
 export type ScoreAxis = Score["axes"][number]["axis"];
 export type ScoreMetric = Score["axes"][number]["metrics"][number]["metric"];
-export type PlayerRef = Pick<OverviewReport["players"][number], "player_nickname" | "simulation_id" | "simulation_name">;
+export type PlayerRef = Pick<
+  OverviewReport["players"][number],
+  "player_nickname" | "color" | "simulation_id" | "simulation_name"
+>;
 export type ReturnsReport = components["schemas"]["ReturnsReportDTO"];
 export type RiskReport = components["schemas"]["RiskReportDTO"];
 export type CompositionReport = components["schemas"]["CompositionReportDTO"];
@@ -74,6 +77,8 @@ export type SimulationState = Partial<components["schemas"]["SimulationStateResp
 export type SimulationData = components["schemas"]["SimulationDTO"];
 export type SimulationSettingsData = components["schemas"]["SimulationSettingsDTO"];
 export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];
+// Jogador da sala com a cor (chave da paleta) que o servidor deu a ele
+export type RoomPlayer = components["schemas"]["PlayerNickname"];
 export type SimulationInfo = components["schemas"]["SimulationStatusResponse"];
 export type SimulationListItem = components["schemas"]["SavedSimulationDTO"];
 export type PriceImpactPreview = components["schemas"]["PriceImpactPreviewDTO"];

@@ -12,14 +12,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/shared/components/ui/sidebar";
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { BrandMark } from "@/shared/components/brand-mark";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { simulationSettingsOptions } from "@/shared/lib/queries/simulationSettingsOptions";
-import { stringToColor } from "@/shared/lib/utils";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -73,9 +72,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
 
       {/* Jogador */}
       <SidebarFooter>
-        <Avatar>
-          <AvatarFallback color={stringToColor(nickname)}>{nickname.charAt(0).toUpperCase()}</AvatarFallback>
-        </Avatar>
+        <PlayerAvatar nickname={nickname} color={players?.find((p) => p.nickname === nickname)?.color} />
         <div className="grid min-w-0">
           <span className="truncate font-semibold text-sidebar-accent-foreground">{nickname}</span>
           <span className="text-xs text-sidebar-muted">

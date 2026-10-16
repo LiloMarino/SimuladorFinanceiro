@@ -8,6 +8,7 @@ from backend.core.dto.user import UserDTO
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
+    LockedError,
     NotFoundError,
     UnprocessableEntityError,
 )
@@ -18,6 +19,10 @@ from backend.core.utils.lazy_dict import LazyDict
 logger = logging.getLogger(__name__)
 
 MATCH_IN_PROGRESS = "A partida já começou e você não faz parte dela. Espere a próxima."
+ROOM_FULL = (
+    f"A sala está cheia: {MAX_PLAYERS} de {MAX_PLAYERS} jogadores. "
+    "Peça pro host liberar uma vaga ou crie sua própria sala."
+)
 
 
 class UserManager:
@@ -91,13 +96,11 @@ class UserManager:
                 return user
 
             if len(cls._active_players) >= MAX_PLAYERS:
-                raise ConflictError(
-                    f"A sala está cheia: {MAX_PLAYERS} de {MAX_PLAYERS} jogadores."
-                )
+                raise LockedError(ROOM_FULL)
 
             if match_colors is not None:
                 if user.id not in match_colors:
-                    raise ConflictError(MATCH_IN_PROGRESS)
+                    raise LockedError(MATCH_IN_PROGRESS)
                 color = match_colors[user.id]
             elif user.id in cls._saved_colors:
                 color = cls._saved_colors[user.id]
@@ -273,7 +276,7 @@ class UserManager:
         try:
             return first_free_color(taken)
         except ValueError:
-            raise ConflictError("A sala está cheia: não sobrou cor livre.") from None
+            raise LockedError(ROOM_FULL) from None
 
     # =========================
     # Eventos

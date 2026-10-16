@@ -1,16 +1,22 @@
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { PlayerAvatar } from "@/shared/components/player-avatar";
+import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
-import { cn, stringToColor } from "@/shared/lib/utils";
+import { MAX_PLAYERS } from "@/shared/lib/player-colors";
+import { cn } from "@/shared/lib/utils";
+import type { RoomPlayer } from "@/types";
+import { useApplyColorPreference } from "../hooks/useApplyColorPreference";
+import { LobbyColorPicker } from "./lobby-color-picker";
 
 type LobbyPlayersListProps = {
-  maxPlayers: number;
   hostNickname: string;
+  /** Quem jogou a partida salva selecionada, com a cor guardada */
+  savedPlayers: RoomPlayer[];
 };
 
 /** Jogadores da sala em cartões, com as vagas livres à vista. */
-export function LobbyPlayersList({ maxPlayers, hostNickname }: LobbyPlayersListProps) {
+export function LobbyPlayersList({ hostNickname, savedPlayers }: LobbyPlayersListProps) {
   const { user } = useAuth();
   const { data: players } = useRoomPlayers();
 
@@ -19,16 +25,26 @@ export function LobbyPlayersList({ maxPlayers, hostNickname }: LobbyPlayersListP
     (a, b) =>
       Number(b.nickname === hostNickname) - Number(a.nickname === hostNickname) || a.nickname.localeCompare(b.nickname),
   );
-  const freeSlots = Math.max(maxPlayers - sorted.length, 0);
+  const freeSlots = Math.max(MAX_PLAYERS - sorted.length, 0);
   const alone = sorted.length <= 1;
+  const full = sorted.length >= MAX_PLAYERS;
+
+  const me = sorted.find((p) => p.nickname === user?.nickname);
+  useApplyColorPreference(
+    me,
+    savedPlayers.some((p) => p.nickname === me?.nickname),
+  );
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Jogadores</CardTitle>
         <CardAction>
-          <span className="font-mono text-muted-foreground">
-            {sorted.length} / {maxPlayers}
+          <span className="flex items-center gap-2">
+            {full && <Badge variant="warning">Sala cheia</Badge>}
+            <span className="font-mono text-muted-foreground">
+              {sorted.length} / {MAX_PLAYERS}
+            </span>
           </span>
         </CardAction>
       </CardHeader>
@@ -46,12 +62,8 @@ export function LobbyPlayersList({ maxPlayers, hostNickname }: LobbyPlayersListP
                   isYou ? "border-info-border bg-info-soft" : "border-border bg-card",
                 )}
               >
-                <Avatar size="lg">
-                  <AvatarFallback color={stringToColor(player.nickname)}>
-                    {player.nickname.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid min-w-0">
+                <PlayerAvatar nickname={player.nickname} color={player.color} size="lg" />
+                <div className="grid min-w-0 flex-1">
                   <span className="truncate font-semibold">
                     {player.nickname}
                     {isYou && <span className="font-normal text-secondary-foreground"> (você)</span>}
@@ -60,6 +72,7 @@ export function LobbyPlayersList({ maxPlayers, hostNickname }: LobbyPlayersListP
                     {isHost ? "Host" : "● Online"}
                   </span>
                 </div>
+                {isYou && <LobbyColorPicker nickname={player.nickname} players={sorted} savedPlayers={savedPlayers} />}
               </div>
             );
           })}

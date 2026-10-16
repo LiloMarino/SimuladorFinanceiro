@@ -54,6 +54,16 @@ class ConflictError(HTTPException):
         super().__init__(status_code=409, detail=detail)
 
 
+class LockedError(HTTPException):
+    """423 Locked"""
+
+    def __init__(
+        self,
+        detail: str = "A sala está fechada para você agora.",
+    ):
+        super().__init__(status_code=423, detail=detail)
+
+
 class UnprocessableEntityError(HTTPException):
     """422 Unprocessable Entity"""
 

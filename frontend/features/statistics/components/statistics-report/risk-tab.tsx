@@ -15,8 +15,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { displayList, displayNumber, displayPercent } from "@/shared/lib/utils/display";
 import type { RiskReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
-import { playerColors } from "../../lib/player-colors";
-import { playerLabel, youLabel } from "../../lib/player-label";
+import { playerLabel, youLabel, labelColors } from "../../lib/player-label";
 import {
   ANNUAL_VOLATILITY,
   DRAWDOWN,
@@ -45,7 +44,7 @@ export function RiskTab({ simulationIds, currentPlayerName, onlyPlayer }: Report
 
   const labels = data.players.map((p) => playerLabel(p, simulationIds, currentPlayerName));
   const someoneIsYou = data.players.some((p) => p.player_nickname === currentPlayerName);
-  const colorOf = playerColors(labels);
+  const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
   const cdiReturn = returns?.benchmarks.find((b) => b.series === "CDI")?.annual_return ?? null;
 
   // Distância do pico: a sua linha ganha área e as dos outros ficam de fundo
@@ -101,7 +100,6 @@ export function RiskTab({ simulationIds, currentPlayerName, onlyPlayer }: Report
         rows={data.players}
         simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
-        colorOf={colorOf}
         columns={[
           { metric: MAX_DRAWDOWN, value: (r) => r.max_drawdown, best: "min" },
           { metric: ANNUAL_VOLATILITY, value: (r) => r.annual_volatility, best: "min" },

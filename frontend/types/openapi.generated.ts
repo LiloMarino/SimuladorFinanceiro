@@ -2377,6 +2377,8 @@ export interface components {
             simulation: components["schemas"]["SimulationSettingsDTO"];
             /** Selected Simulation Id */
             selected_simulation_id: number | null;
+            /** Selected Players */
+            selected_players: components["schemas"]["PlayerNickname"][];
         };
         /** SimulationStateResponse */
         SimulationStateResponse: {
@@ -2556,6 +2558,8 @@ export interface components {
             event_date: string;
             /** Player Nickname */
             player_nickname: string;
+            /** Player Color */
+            player_color: string;
             /** Action */
             action: string;
             /** Quantity */

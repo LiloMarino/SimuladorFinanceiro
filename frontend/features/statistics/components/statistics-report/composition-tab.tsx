@@ -14,7 +14,6 @@ import {
 import type { CompositionReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { EFFECTIVE_SECTORS, SECTOR_PROFIT } from "../../lib/metrics";
-import { playerColors } from "../../lib/player-colors";
 import { playerKey, playerLabel } from "../../lib/player-label";
 import { PlayerCell, TabStatus, type ReportProps } from "./shared";
 
@@ -41,8 +40,6 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
   const [unit, setUnit] = useState<Unit>("PCT");
   if (!data) return <TabStatus loading={isLoading} title="a Composição" error={error} onRetry={() => void refetch()} />;
 
-  const labels = data.players.map((p) => playerLabel(p, simulationIds, currentPlayerName));
-  const colorOf = playerColors(labels);
 
   return (
     <div className="grid gap-5">
@@ -83,7 +80,7 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
                     key={playerKey(p)}
                     player={p}
                     label={label}
-                    color={colorOf(label)}
+                    simulationIds={simulationIds}
                     isYou={p.player_nickname === currentPlayerName}
                     unit={unit}
                   />
@@ -98,7 +95,6 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
         players={data.players}
         simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
-        colorOf={colorOf}
       />
       <SectorProfit players={data.players} simulationIds={simulationIds} currentPlayerName={currentPlayerName} />
     </div>
@@ -108,13 +104,13 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
 function SmallMultiple({
   player,
   label,
-  color,
+  simulationIds,
   isYou,
   unit,
 }: {
   player: Player;
   label: string;
-  color: string;
+  simulationIds: number[];
   isYou: boolean;
   unit: Unit;
 }) {
@@ -132,7 +128,7 @@ function SmallMultiple({
   return (
     <div className="grid content-start gap-1.5">
       <span className="text-[13px] font-semibold">
-        <PlayerCell label={label} color={color} isYou={isYou} />
+        <PlayerCell player={player} label={label} simulationIds={simulationIds} isYou={isYou} />
       </span>
       {rows.length < 2 || !first || !last ? (
         <div className="flex h-36 items-center justify-center rounded-lg border border-dashed border-input text-xs text-muted-foreground">
@@ -191,12 +187,10 @@ function SectorExposure({
   players,
   simulationIds,
   currentPlayerName,
-  colorOf,
 }: {
   players: Player[];
   simulationIds: number[];
   currentPlayerName?: string;
-  colorOf: (label: string) => string;
 }) {
   const sectors = [...new Set(players.flatMap((p) => p.sectors.map((s) => s.sector ?? NO_SECTOR)))].sort((a, b) =>
     a === NO_SECTOR ? 1 : b === NO_SECTOR ? -1 : a.localeCompare(b),
@@ -241,7 +235,7 @@ function SectorExposure({
               return (
                 <TableRow key={playerKey(p)} variant={isYou ? "current" : "default"}>
                   <TableCell>
-                    <PlayerCell label={label} color={colorOf(label)} isYou={isYou} />
+                    <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={isYou} />
                   </TableCell>
                   {sectors.map((s) => {
                     const fraction = bySector.get(s);

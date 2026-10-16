@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { MarketMark } from "@/shared/components/market-mark";
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -15,7 +15,6 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { stringToColor } from "@/shared/lib/utils";
 import { displayDate, displayMoney, parseLocalDate } from "@/shared/lib/utils/display";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { Order, Trade } from "@/types";
@@ -26,7 +25,17 @@ type Tab = "OPEN" | "HISTORY";
 const displayTime = (isoDateTime: string) =>
   new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" }).format(new Date(isoDateTime));
 
-function Player({ nickname, isYou, market = false }: { nickname: string; isYou: boolean; market?: boolean }) {
+function Player({
+  nickname,
+  color,
+  isYou,
+  market = false,
+}: {
+  nickname: string;
+  color: string | null | undefined;
+  isYou: boolean;
+  market?: boolean;
+}) {
   // O Mercado é uma entidade do simulador: marca própria, sem "(você)"
   if (market) {
     return (
@@ -38,9 +47,7 @@ function Player({ nickname, isYou, market = false }: { nickname: string; isYou: 
   }
   return (
     <span className="flex items-center gap-2">
-      <Avatar size="sm">
-        <AvatarFallback color={stringToColor(nickname)}>{nickname.charAt(0).toUpperCase()}</AvatarFallback>
-      </Avatar>
+      <PlayerAvatar nickname={nickname} color={color ?? undefined} size="sm" />
       {nickname}
       {isYou && <span className="text-muted-foreground">(você)</span>}
     </span>
@@ -138,7 +145,7 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
                       <span className="font-mono text-xs text-muted-foreground">{displayTime(o.created_at)}</span>
                     </TableCell>
                     <TableCell>
-                      <Player nickname={o.player_nickname} isYou={mine} market={o.synthetic} />
+                      <Player nickname={o.player_nickname} color={o.player_color} isYou={mine} market={o.synthetic} />
                     </TableCell>
                     <TableCell>
                       <Side action={o.action} />
@@ -197,7 +204,7 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
                   <span className="font-mono">{displayDate(parseLocalDate(t.event_date))}</span>
                 </TableCell>
                 <TableCell>
-                  <Player nickname={t.player_nickname} isYou={t.player_nickname === user?.nickname} />
+                  <Player nickname={t.player_nickname} color={t.player_color} isYou={t.player_nickname === user?.nickname} />
                 </TableCell>
                 <TableCell>
                   <Side action={t.action} />

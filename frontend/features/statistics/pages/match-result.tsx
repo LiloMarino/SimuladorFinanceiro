@@ -18,7 +18,6 @@ import { HighlightsRow, HighlightsSkeleton } from "../components/match-result/hi
 import { MatchHero, MatchHeroSkeleton } from "../components/match-result/match-hero";
 import { StatisticsReport } from "../components/statistics-report";
 import { useStatisticsReport } from "../hooks/queries/useStatisticsReport";
-import { playerColors } from "../lib/player-colors";
 
 export default function MatchResultPage() {
   const { simulationId } = useParams();
@@ -82,8 +81,6 @@ function MatchResult({ simulationId }: { simulationId: number }) {
     );
   }
 
-  const colorOf = playerColors(overview?.players.map((p) => p.player_nickname) ?? []);
-
   return (
     <div className="grid gap-5">
       {overview ? (
@@ -92,9 +89,12 @@ function MatchResult({ simulationId }: { simulationId: number }) {
             report={overview}
             simulation={simulations?.find((s) => s.id === simulationId)}
             currentPlayerName={user?.nickname}
-            colorOf={colorOf}
           />
-          <HighlightsRow simulationId={simulationId} currentPlayerName={user?.nickname} colorOf={colorOf} />
+          <HighlightsRow
+            simulationId={simulationId}
+            currentPlayerName={user?.nickname}
+            currentPlayerColor={overview.players.find((p) => p.player_nickname === user?.nickname)?.color}
+          />
         </>
       ) : (
         <>

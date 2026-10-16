@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Card } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { MetricHint } from "@/shared/components/metric-hint";
@@ -22,7 +22,7 @@ interface HighlightProps {
   value: ReactNode;
   tone?: "positive" | "negative";
   player: string | undefined;
-  color: string;
+  color: string | undefined;
 }
 
 function Highlight({ label, metric, value, tone, player, color }: HighlightProps) {
@@ -45,9 +45,7 @@ function Highlight({ label, metric, value, tone, player, color }: HighlightProps
         <span className="flex items-center gap-1.5 text-xs">
           {player ? (
             <>
-              <Avatar size="sm">
-                <AvatarFallback color={color}>{player.charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
+              <PlayerAvatar nickname={player} color={color} size="sm" />
               {player}
             </>
           ) : (
@@ -68,17 +66,18 @@ function toneOf(value: string | undefined) {
 interface HighlightsRowProps {
   simulationId: number;
   currentPlayerName?: string;
-  colorOf: (label: string) => string;
+  /** Cor de quem está vendo, para o "seu melhor mês" */
+  currentPlayerColor?: string;
 }
 
 /** Quem foi melhor em quê na partida, e o seu melhor mês. */
-export function HighlightsRow({ simulationId, currentPlayerName, colorOf }: HighlightsRowProps) {
+export function HighlightsRow({ simulationId, currentPlayerName, currentPlayerColor }: HighlightsRowProps) {
   const { data } = useStatisticsReport("highlights", [simulationId]);
   if (!data) return <HighlightsSkeleton />;
 
   const item = (h: Highlights["biggest_return"]) => ({
     player: h?.player_nickname,
-    color: colorOf(h?.player_nickname ?? ""),
+    color: h?.color,
   });
   const best = data.your_best_month;
 
@@ -113,7 +112,7 @@ export function HighlightsRow({ simulationId, currentPlayerName, colorOf }: High
         value={best && `${displaySignedPercent(best.value)} · ${displayMonthSlashYear(best.month)}`}
         tone={toneOf(best?.value)}
         player={best ? currentPlayerName : undefined}
-        color={colorOf(currentPlayerName ?? "")}
+        color={currentPlayerColor}
       />
     </div>
   );

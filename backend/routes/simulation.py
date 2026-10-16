@@ -89,6 +89,8 @@ class SimulationSettingsResponse(BaseModel):
     simulation: SimulationSettingsDTO
     # Partida salva que o host escolheu para continuar; None quando é partida nova
     selected_simulation_id: int | None
+    # Quem jogou a partida selecionada, com a cor guardada: presentes ou ausentes
+    selected_players: list[PlayerNickname]
 
 
 @simulation_router.get(
@@ -298,11 +300,20 @@ def get_simulation_settings(client_id: ClientID):
     host_nickname = config.toml.host.nickname
 
     settings = SettingsManager.get()
+    selected_id = SettingsManager.get_selected_simulation_id()
+    selected_players = []
+    if selected_id is not None:
+        colors = repository.simulation_player.colors(selected_id)
+        selected_players = [
+            PlayerNickname(nickname=p.nickname, color=colors[p.id])
+            for p in repository.simulation_player.participants(selected_id)
+        ]
     return SimulationSettingsResponse(
         is_host=user.nickname == host_nickname,
         host_nickname=host_nickname,
         simulation=settings,
-        selected_simulation_id=SettingsManager.get_selected_simulation_id(),
+        selected_simulation_id=selected_id,
+        selected_players=selected_players,
     )
 
 
