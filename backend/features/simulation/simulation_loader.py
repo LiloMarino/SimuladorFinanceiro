@@ -9,6 +9,7 @@ from backend.core.exceptions.http_exceptions import UnprocessableEntityError
 from backend.core.indicators import ensure_indicator_coverage
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
+from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
 from backend.features.simulation.saved_simulation import is_finished, resume_point
 from backend.features.simulation.simulation import Simulation
@@ -18,12 +19,20 @@ from backend.features.simulation.simulation_loop import simulation_controller
 class SimulationLoader:
     @classmethod
     def create(cls, settings: SimulationSettingsDTO) -> SimulationDTO:
-        """Persiste, instancia e inicia uma nova simulação."""
+        """Persiste, instancia e inicia uma nova simulação com quem está na sala."""
         ensure_indicator_coverage(settings.start_date)
         simulation_id = repository.simulation.create_simulation(settings)
+
+        # O primeiro tick da Simulation já lê os participantes, que gravam antes dela
+        room_colors = UserManager.room_colors()
+        repository.simulation_player.save(simulation_id, room_colors)
         repository.user.seed_simulation_users(
-            simulation_id, settings.start_date, settings.starting_cash
+            simulation_id,
+            list(room_colors),
+            settings.start_date,
+            settings.starting_cash,
         )
+        UserManager.release_saved_colors()
 
         SimulationManager.clear_simulation()
         SimulationManager.set_simulation_id(simulation_id)
@@ -45,6 +54,9 @@ class SimulationLoader:
         Eventos são a fonte da verdade: um dia sem evento nem snapshot não mudou
         nada persistido, então reprocessar os dias depois do último registro chega
         ao mesmo estado em que o jogador parou.
+
+        Quem está na sala e nunca jogou essa partida entra nela agora, com a cor
+        que tem na sala e o depósito inicial datado do último dia processado.
         """
         resume_from = resume_point(summary.id)
 
@@ -53,6 +65,21 @@ class SimulationLoader:
                 "A simulação já chegou na data final e não pode ser continuada."
             )
         ensure_indicator_coverage(summary.start_date)
+
+        saved = repository.simulation_player.colors(summary.id)
+        newcomers = {
+            user_id: color
+            for user_id, color in UserManager.room_colors().items()
+            if user_id not in saved
+        }
+        repository.simulation_player.save(summary.id, newcomers)
+        repository.user.seed_simulation_users(
+            summary.id,
+            list(newcomers),
+            resume_from or summary.start_date,
+            summary.starting_cash,
+        )
+        UserManager.release_saved_colors()
 
         SimulationManager.clear_simulation()
         SimulationManager.set_simulation_id(summary.id)

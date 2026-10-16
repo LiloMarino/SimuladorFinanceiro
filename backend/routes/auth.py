@@ -7,10 +7,9 @@ from backend.core import repository
 from backend.core.dependencies import ClientID
 from backend.core.dto.session import SessionDTO
 from backend.core.dto.user import UserDTO
-from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.simulation_manager import SimulationManager
-from backend.core.runtime.user_manager import UserManager
+from backend.core.runtime.user_manager import MATCH_IN_PROGRESS, UserManager
 
 auth_router = APIRouter(prefix="/api", tags=["Authentication"])
 
@@ -103,25 +102,16 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
     """
     nickname = payload.nickname
 
+    # Conta nova nunca participa de uma partida que já começou
+    if SimulationManager.has_active_simulation():
+        raise ConflictError(MATCH_IN_PROGRESS)
+
     # Verificar se já existe usuário com esse nickname
     existing_user = repository.user.get_by_nickname(nickname)
     if existing_user:
         raise ConflictError("Esse nickname já está em uso.")
 
-    # Cria novo usuário
-    new_user = repository.user.create_user(client_id, nickname)
-
-    # Se houver uma simulação ativa, concede o depósito inicial usando o SimulationEngine
-    try:
-        sim = SimulationManager.get_active_simulation()
-    except NoActiveSimulationError:
-        sim = None
-
-    if sim:
-        starting = sim.settings.starting_cash
-        sim.add_cash(new_user.client_id, starting)
-
-    return new_user
+    return repository.user.create_user(client_id, nickname)
 
 
 @auth_router.post(
@@ -147,6 +137,14 @@ def user_claim(payload: UserClaimRequest, client_id: ClientID):
         raise ConflictError(
             "Esse jogador está conectado agora. Se é você, feche a outra aba e tente de novo."
         )
+
+    # Com partida em andamento só participante recupera a conta
+    if SimulationManager.has_active_simulation():
+        participants = repository.simulation_player.colors(
+            SimulationManager.get_active_simulation_id()
+        )
+        if existing_user.id not in participants:
+            raise ConflictError(MATCH_IN_PROGRESS)
 
     # Atualizar client_id do usuário
     updated_user = repository.user.update_client_id(existing_user.id, client_id)

@@ -20,6 +20,8 @@ class SeriesPointDTO(BaseDTO):
 
 class PlayerRefDTO(BaseDTO):
     player_nickname: str
+    # Chave da paleta: a cor do jogador nesta simulação
+    color: str
     simulation_id: int
     simulation_name: str
 
@@ -212,6 +214,7 @@ class OperationsReportDTO(BaseDTO):
 
 class PlayerHighlightDTO(BaseDTO):
     player_nickname: str
+    color: str
     value: Decimal
 
 

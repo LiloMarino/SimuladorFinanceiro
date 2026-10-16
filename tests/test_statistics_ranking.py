@@ -26,6 +26,7 @@ def player(
     )
     return PlayerHistoryDTO(
         player_nickname=nickname,
+        color="chart-1",
         simulation_id=1,
         simulation_name="Simulação #1",
         starting_cash=Decimal(starting_cash),

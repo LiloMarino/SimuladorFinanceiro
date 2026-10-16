@@ -12,6 +12,7 @@ from backend.core.enum import CashflowEventType, EquityEventType
 from backend.core.models.models import (
     EventCashflow,
     EventEquity,
+    SimulationPlayers,
     Simulations,
     Snapshots,
     Stock,
@@ -31,10 +32,19 @@ class StatisticsRepository:
         # garantindo métricas consistentes ao continuar/carregar simulações.
         rows = session.execute(
             select(
-                Snapshots, Users.nickname, Simulations.name, Simulations.starting_cash
+                Snapshots,
+                Users.nickname,
+                Simulations.name,
+                Simulations.starting_cash,
+                SimulationPlayers.color,
             )
             .join(Users, Users.id == Snapshots.user_id)
             .join(Simulations, Simulations.id == Snapshots.simulation_id)
+            .join(
+                SimulationPlayers,
+                (SimulationPlayers.simulation_id == Snapshots.simulation_id)
+                & (SimulationPlayers.user_id == Snapshots.user_id),
+            )
             .where(Snapshots.simulation_id.in_(simulation_ids))
             .order_by(
                 Snapshots.simulation_id, Snapshots.user_id, Snapshots.snapshot_date
@@ -49,6 +59,7 @@ class StatisticsRepository:
         return [
             PlayerHistoryDTO(
                 player_nickname=group[0].nickname,
+                color=group[0].color,
                 simulation_id=simulation_id,
                 simulation_name=group[0].name,
                 starting_cash=group[0].starting_cash,

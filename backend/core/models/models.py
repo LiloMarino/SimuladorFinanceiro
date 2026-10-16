@@ -263,6 +263,9 @@ class Simulations(Base):
     snapshots: Mapped[list["Snapshots"]] = relationship(
         "Snapshots", back_populates="simulation"
     )
+    simulation_players: Mapped[list["SimulationPlayers"]] = relationship(
+        "SimulationPlayers", back_populates="simulation"
+    )
 
 
 class Users(Base):
@@ -306,6 +309,44 @@ class Users(Base):
     )
     snapshots: Mapped[list["Snapshots"]] = relationship(
         "Snapshots", back_populates="user"
+    )
+    simulation_players: Mapped[list["SimulationPlayers"]] = relationship(
+        "SimulationPlayers", back_populates="user"
+    )
+
+
+class SimulationPlayers(Base):
+    __tablename__ = "simulation_players"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="simulation_players_simulation_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="simulation_players_user_id_fkey",
+        ),
+        PrimaryKeyConstraint(
+            "simulation_id", "user_id", name="simulation_players_pkey"
+        ),
+        UniqueConstraint(
+            "simulation_id", "color", name="simulation_players_simulation_id_color_key"
+        ),
+    )
+
+    simulation_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    color: Mapped[str] = mapped_column(Text, nullable=False)
+
+    user: Mapped["Users"] = relationship("Users", back_populates="simulation_players")
+    simulation: Mapped["Simulations"] = relationship(
+        "Simulations", back_populates="simulation_players"
     )
 
 

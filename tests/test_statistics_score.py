@@ -117,6 +117,7 @@ def test_ranking_puts_players_without_score_last(indicators: SetIndicator):
     """Quem já tem nota vem antes, mesmo com retorno menor; o retorno desempata."""
     scored = PlayerHistoryDTO(
         player_nickname="Ana",
+        color="chart-1",
         simulation_id=1,
         simulation_name="A",
         starting_cash=Decimal("10000"),
@@ -124,6 +125,7 @@ def test_ranking_puts_players_without_score_last(indicators: SetIndicator):
     )
     unscored = PlayerHistoryDTO(
         player_nickname="Lilo",
+        color="chart-1",
         simulation_id=2,
         simulation_name="B",
         starting_cash=Decimal("10000"),

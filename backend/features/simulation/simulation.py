@@ -97,9 +97,6 @@ class Simulation:
         # Roda o primeiro tick para a inicialização
         self.next_tick()
 
-    def add_cash(self, client_id: UUID, cash: Decimal) -> None:
-        self._engine.add_cash(client_id, cash)
-
     def buy_fixed_income(
         self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal
     ) -> None:
@@ -157,7 +154,8 @@ class Simulation:
         # Executa a estratégia
         self._engine.next(self._current_date)
 
-        users = repository.user.get_all_users()
+        # Só quem estava na sala ao iniciar participa: é quem tem depósito e cor
+        users = repository.simulation_player.participants(self.settings.id)
         month_changed = self._has_month_changed()
 
         # O aporte do mês e o DARF que vence hoje entram nos eventos antes do flush,

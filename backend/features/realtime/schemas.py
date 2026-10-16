@@ -36,7 +36,14 @@ class SimulationTickUpdateEventDTO(BaseDTO):
 
 
 class PlayerPresenceEventDTO(BaseDTO):
+    """Entrada, saída e troca de cor de um jogador: a cor é a chave da paleta."""
+
     nickname: str
+    color: str
+
+
+class SimulationSelectedEventDTO(BaseDTO):
+    simulation_id: int | None
 
 
 class SimulationEndedEventDTO(BaseDTO):
@@ -118,6 +125,8 @@ class RealtimeEventCatalog(BaseDTO):
     order_partial_executed: OrderPartialExecutedEventDTO
     player_join: PlayerPresenceEventDTO
     player_exit: PlayerPresenceEventDTO
+    player_color: PlayerPresenceEventDTO
+    simulation_selected: SimulationSelectedEventDTO
     simulation_settings_update: SimulationSettingsDTO
     stock_update: StockUpdateEventDTO
     position_update: PositionUpdateEventDTO

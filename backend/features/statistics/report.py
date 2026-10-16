@@ -190,6 +190,7 @@ def build_operations_report(simulation_ids: list[int]) -> OperationsReportDTO:
 def _ref(player: PlayerHistoryDTO) -> dict:
     return {
         "player_nickname": player.player_nickname,
+        "color": player.color,
         "simulation_id": player.simulation_id,
         "simulation_name": player.simulation_name,
     }
@@ -295,4 +296,6 @@ def build_highlights(simulation_ids: list[int], nickname: str | None) -> Highlig
 
 
 def _highlight(player: PlayerHistoryDTO, value: Decimal) -> PlayerHighlightDTO:
-    return PlayerHighlightDTO(player_nickname=player.player_nickname, value=value)
+    return PlayerHighlightDTO(
+        player_nickname=player.player_nickname, color=player.color, value=value
+    )

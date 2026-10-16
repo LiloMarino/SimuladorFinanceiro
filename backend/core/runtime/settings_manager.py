@@ -14,10 +14,12 @@ class SettingsManager:
 
     Armazena o SimulationSettingsDTO enquanto a simulação não foi iniciada.
     Inicializa defaults a partir de config e repository quando necessário.
+    Guarda também a partida salva que o host selecionou para continuar.
     """
 
     _lock = Lock()
     _settings: SimulationSettingsDTO | None = None
+    _selected_simulation_id: int | None = None
 
     @classmethod
     def get(cls) -> SimulationSettingsDTO:
@@ -47,6 +49,17 @@ class SettingsManager:
             return cls._settings
 
     @classmethod
+    def get_selected_simulation_id(cls) -> int | None:
+        with cls._lock:
+            return cls._selected_simulation_id
+
+    @classmethod
+    def select_simulation(cls, simulation_id: int | None) -> None:
+        with cls._lock:
+            cls._selected_simulation_id = simulation_id
+
+    @classmethod
     def clear(cls) -> None:
         with cls._lock:
             cls._settings = None
+            cls._selected_simulation_id = None

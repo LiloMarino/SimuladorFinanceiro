@@ -950,8 +950,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Continuar última simulação
-         * @description Continua a simulação jogada mais recentemente, a partir do dia seguinte ao último evento registrado.
+         * Continuar a simulação selecionada
+         * @description Retoma a simulação salva que o host selecionou, a partir do dia seguinte ao último evento registrado.
          */
         post: operations["continue_simulation_api_simulation_continue_post"];
         delete?: never;
@@ -960,7 +960,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/simulation/load": {
+    "/api/simulation/selection": {
         parameters: {
             query?: never;
             header?: never;
@@ -968,13 +968,17 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
         /**
-         * Carregar e iniciar simulação
-         * @description Carrega uma simulação específica pelo id e a retoma a partir de onde parou.
+         * Selecionar simulação salva
+         * @description Escolhe a simulação salva a continuar. As cores da sala passam a ser as guardadas nela. Apenas o host pode executar.
          */
-        post: operations["load_simulation_api_simulation_load_post"];
-        delete?: never;
+        put: operations["select_simulation_api_simulation_selection_put"];
+        post?: never;
+        /**
+         * Remover a seleção da simulação salva
+         * @description Volta ao lobby de partida nova; as cores da sala ficam como estão e podem ser trocadas. Apenas o host pode executar.
+         */
+        delete: operations["clear_selection_api_simulation_selection_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1049,10 +1053,30 @@ export interface paths {
         };
         /**
          * Listar jogadores ativos
-         * @description Retorna a lista de todos os usuários ativos na simulação atual.
+         * @description Retorna a lista de todos os usuários ativos na simulação atual, cada um com a sua cor.
          */
         get: operations["get_active_players_api_simulation_players_get"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/players/me/color": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Escolher a cor do jogador
+         * @description Troca a cor do jogador na sala. Vale o primeiro pedido: se a cor já tem dono, a resposta é 409 e o jogador fica com a que tinha.
+         */
+        put: operations["set_player_color_api_simulation_players_me_color_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -1522,11 +1546,6 @@ export interface components {
          * @enum {string}
          */
         IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV";
-        /** LoadSimulationRequest */
-        LoadSimulationRequest: {
-            /** Id */
-            id: number;
-        };
         /** MarketQuoteDTO */
         MarketQuoteDTO: {
             /** Id */
@@ -1611,6 +1630,8 @@ export interface components {
             id: string;
             /** Player Nickname */
             player_nickname: string;
+            /** Player Color */
+            player_color: string | null;
             action: components["schemas"]["OrderAction"];
             order_type: components["schemas"]["OrderType"];
             status: components["schemas"]["OrderStatus"];
@@ -1741,10 +1762,17 @@ export interface components {
             /** Total Contribution */
             total_contribution: string;
         };
+        /** PlayerColorRequest */
+        PlayerColorRequest: {
+            /** Color */
+            color: string;
+        };
         /** PlayerCompositionDTO */
         PlayerCompositionDTO: {
             /** Player Nickname */
             player_nickname: string;
+            /** Color */
+            color: string;
             /** Simulation Id */
             simulation_id: number;
             /** Simulation Name */
@@ -1762,6 +1790,8 @@ export interface components {
         PlayerHighlightDTO: {
             /** Player Nickname */
             player_nickname: string;
+            /** Color */
+            color: string;
             /** Value */
             value: string;
         };
@@ -1769,6 +1799,8 @@ export interface components {
         PlayerNickname: {
             /** Nickname */
             nickname: string;
+            /** Color */
+            color: string;
         };
         /** PlayerNotificationSettings */
         PlayerNotificationSettings: {
@@ -1779,6 +1811,8 @@ export interface components {
         PlayerOperationsDTO: {
             /** Player Nickname */
             player_nickname: string;
+            /** Color */
+            color: string;
             /** Simulation Id */
             simulation_id: number;
             /** Simulation Name */
@@ -1799,15 +1833,22 @@ export interface components {
             /** Monthly Volume */
             monthly_volume: components["schemas"]["MonthlyVolumeDTO"][];
         };
-        /** PlayerPresenceEventDTO */
+        /**
+         * PlayerPresenceEventDTO
+         * @description Entrada, saída e troca de cor de um jogador: a cor é a chave da paleta.
+         */
         PlayerPresenceEventDTO: {
             /** Nickname */
             nickname: string;
+            /** Color */
+            color: string;
         };
         /** PlayerRankingDTO */
         PlayerRankingDTO: {
             /** Player Nickname */
             player_nickname: string;
+            /** Color */
+            color: string;
             /** Simulation Id */
             simulation_id: number;
             /** Simulation Name */
@@ -1837,6 +1878,8 @@ export interface components {
         PlayerReturnsDTO: {
             /** Player Nickname */
             player_nickname: string;
+            /** Color */
+            color: string;
             /** Simulation Id */
             simulation_id: number;
             /** Simulation Name */
@@ -1862,6 +1905,8 @@ export interface components {
         PlayerRiskDTO: {
             /** Player Nickname */
             player_nickname: string;
+            /** Color */
+            color: string;
             /** Simulation Id */
             simulation_id: number;
             /** Simulation Name */
@@ -2061,6 +2106,8 @@ export interface components {
             order_partial_executed: components["schemas"]["OrderPartialExecutedEventDTO"];
             player_join: components["schemas"]["PlayerPresenceEventDTO"];
             player_exit: components["schemas"]["PlayerPresenceEventDTO"];
+            player_color: components["schemas"]["PlayerPresenceEventDTO"];
+            simulation_selected: components["schemas"]["SimulationSelectedEventDTO"];
             simulation_settings_update: components["schemas"]["SimulationSettingsDTO"];
             stock_update: components["schemas"]["StockUpdateEventDTO"];
             position_update: components["schemas"]["PositionUpdateEventDTO"];
@@ -2190,6 +2237,11 @@ export interface components {
             /** Fraction */
             fraction: string;
         };
+        /** SelectSimulationRequest */
+        SelectSimulationRequest: {
+            /** Id */
+            id: number;
+        };
         /** SeriesCoverageDTO */
         SeriesCoverageDTO: {
             kind: components["schemas"]["SeriesKind"];
@@ -2285,6 +2337,11 @@ export interface components {
             /** Simulation Id */
             simulation_id: number;
         };
+        /** SimulationSelectedEventDTO */
+        SimulationSelectedEventDTO: {
+            /** Simulation Id */
+            simulation_id: number | null;
+        };
         /** SimulationSettingsDTO */
         SimulationSettingsDTO: {
             /** Name */
@@ -2318,6 +2375,8 @@ export interface components {
             /** Host Nickname */
             host_nickname: string;
             simulation: components["schemas"]["SimulationSettingsDTO"];
+            /** Selected Simulation Id */
+            selected_simulation_id: number | null;
         };
         /** SimulationStateResponse */
         SimulationStateResponse: {
@@ -4648,7 +4707,7 @@ export interface operations {
             };
         };
     };
-    load_simulation_api_simulation_load_post: {
+    select_simulation_api_simulation_selection_put: {
         parameters: {
             query?: never;
             header?: never;
@@ -4657,18 +4716,52 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["LoadSimulationRequest"];
+                "application/json": components["schemas"]["SelectSimulationRequest"];
             };
         };
         responses: {
             /** @description Successful Response */
-            201: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SimulationStatusResponse"];
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    clear_selection_api_simulation_selection_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unprocessable Content */
             422: {
@@ -4824,6 +4917,46 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PlayerNickname"][];
                 };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_player_color_api_simulation_players_me_color_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlayerColorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unprocessable Content */
             422: {

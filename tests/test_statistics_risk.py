@@ -64,6 +64,7 @@ def test_api_reports_drawdown_from_peak_to_trough(monkeypatch: pytest.MonkeyPatc
     """Aceite do F11: pico de R$ 15.000 e vale de R$ 12.000 dão drawdown de 20%."""
     player = PlayerHistoryDTO(
         player_nickname="Lilo",
+        color="chart-1",
         simulation_id=1,
         simulation_name="Simulação #1",
         starting_cash=Decimal("10000"),

@@ -16,12 +16,15 @@ from backend.core.dto.simulation import (
 )
 from backend.core.enum import VictoryCriterion
 from backend.core.exceptions import NoActiveSimulationError
-from backend.core.exceptions.http_exceptions import NotFoundError
+from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
-from backend.features.realtime.schemas import SimulationEndedEventDTO
+from backend.features.realtime.schemas import (
+    SimulationEndedEventDTO,
+    SimulationSelectedEventDTO,
+)
 from backend.features.simulation.saved_simulation import describe
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.simulation.simulation_loop import simulation_controller
@@ -48,8 +51,12 @@ class CreateSimulationRequest(BaseModel):
         return self
 
 
-class LoadSimulationRequest(BaseModel):
+class SelectSimulationRequest(BaseModel):
     id: int
+
+
+class PlayerColorRequest(BaseModel):
+    color: str
 
 
 class UpdateSettingsRequest(BaseModel):
@@ -72,12 +79,16 @@ class UpdateSettingsRequest(BaseModel):
 
 class PlayerNickname(BaseModel):
     nickname: str
+    # Chave da paleta (chart-1 a chart-10)
+    color: str
 
 
 class SimulationSettingsResponse(BaseModel):
     is_host: bool
     host_nickname: str
     simulation: SimulationSettingsDTO
+    # Partida salva que o host escolheu para continuar; None quando é partida nova
+    selected_simulation_id: int | None
 
 
 @simulation_router.get(
@@ -118,38 +129,64 @@ def create_simulation(payload: CreateSimulationRequest, _: HostVerified):
     "/continue",
     status_code=201,
     response_model=SimulationStatusResponse,
-    summary="Continuar última simulação",
-    description="Continua a simulação jogada mais recentemente, a partir do dia seguinte ao último evento registrado.",
+    summary="Continuar a simulação selecionada",
+    description="Retoma a simulação salva que o host selecionou, a partir do dia seguinte ao último evento registrado.",
 )
 def continue_simulation(_: HostVerified):
     """
-    Continua a última simulação jogada.
+    Continua a simulação selecionada no lobby.
     """
-    summary = repository.simulation.get_last_simulated()
-    if summary is None:
-        raise NotFoundError("Nenhuma simulação encontrada para continuar.")
+    simulation_id = SettingsManager.get_selected_simulation_id()
+    if simulation_id is None:
+        raise ConflictError("Selecione uma partida salva para continuar.")
 
-    sim_dto = SimulationLoader.load(summary)
-    return SimulationStatusResponse(active=True, simulation=sim_dto)
-
-
-@simulation_router.post(
-    "/load",
-    status_code=201,
-    response_model=SimulationStatusResponse,
-    summary="Carregar e iniciar simulação",
-    description="Carrega uma simulação específica pelo id e a retoma a partir de onde parou.",
-)
-def load_simulation(payload: LoadSimulationRequest, _: HostVerified):
-    """
-    Carrega uma simulação salva e a inicia de onde parou.
-    """
-    summary = repository.simulation.get_simulation(payload.id)
+    summary = repository.simulation.get_simulation(simulation_id)
     if summary is None:
         raise NotFoundError("Simulação não encontrada.")
 
     sim_dto = SimulationLoader.load(summary)
     return SimulationStatusResponse(active=True, simulation=sim_dto)
+
+
+@simulation_router.put(
+    "/selection",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Selecionar simulação salva",
+    description="Escolhe a simulação salva a continuar. As cores da sala passam a ser as guardadas nela. Apenas o host pode executar.",
+)
+def select_simulation(payload: SelectSimulationRequest, _: HostVerified):
+    """
+    Seleciona a simulação salva que o host vai continuar.
+    """
+    if SimulationManager.has_active_simulation():
+        raise ConflictError("Já existe uma partida em andamento.")
+    if repository.simulation.get_simulation(payload.id) is None:
+        raise NotFoundError("Simulação não encontrada.")
+
+    UserManager.apply_saved_colors(repository.simulation_player.colors(payload.id))
+    SettingsManager.select_simulation(payload.id)
+    notify(
+        "simulation_selected",
+        SimulationSelectedEventDTO(simulation_id=payload.id).to_json(),
+    )
+
+
+@simulation_router.delete(
+    "/selection",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Remover a seleção da simulação salva",
+    description="Volta ao lobby de partida nova; as cores da sala ficam como estão e podem ser trocadas. Apenas o host pode executar.",
+)
+def clear_selection(_: HostVerified):
+    """
+    Remove a seleção da simulação salva.
+    """
+    UserManager.release_saved_colors()
+    SettingsManager.select_simulation(None)
+    notify(
+        "simulation_selected",
+        SimulationSelectedEventDTO(simulation_id=None).to_json(),
+    )
 
 
 @simulation_router.get(
@@ -218,14 +255,31 @@ def stop_simulation(_: HostVerified):
     "/players",
     response_model=list[PlayerNickname],
     summary="Listar jogadores ativos",
-    description="Retorna a lista de todos os usuários ativos na simulação atual.",
+    description="Retorna a lista de todos os usuários ativos na simulação atual, cada um com a sua cor.",
 )
 def get_active_players():
     """
     Lista todos os jogadores ativos na simulação.
     """
-    active_players = UserManager.list_active_players()
-    return [PlayerNickname(nickname=p.nickname) for p in active_players]
+    colors = UserManager.room_colors()
+    return [
+        PlayerNickname(nickname=p.nickname, color=colors[p.id])
+        for p in UserManager.list_active_players()
+        if p.id in colors
+    ]
+
+
+@simulation_router.put(
+    "/players/me/color",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Escolher a cor do jogador",
+    description="Troca a cor do jogador na sala. Vale o primeiro pedido: se a cor já tem dono, a resposta é 409 e o jogador fica com a que tinha.",
+)
+def set_player_color(payload: PlayerColorRequest, client_id: ClientID):
+    """
+    Troca a cor do jogador na sala.
+    """
+    UserManager.set_color(client_id, payload.color)
 
 
 @simulation_router.get(
@@ -248,6 +302,7 @@ def get_simulation_settings(client_id: ClientID):
         is_host=user.nickname == host_nickname,
         host_nickname=host_nickname,
         simulation=settings,
+        selected_simulation_id=SettingsManager.get_selected_simulation_id(),
     )
 
 

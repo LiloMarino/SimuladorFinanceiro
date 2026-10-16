@@ -367,14 +367,20 @@ const sidebar: SidebarsConfig = {
         {
           type: "doc",
           id: "api/continue-simulation-api-simulation-continue-post",
-          label: "Continuar última simulação",
+          label: "Continuar a simulação selecionada",
           className: "api-method post",
         },
         {
           type: "doc",
-          id: "api/load-simulation-api-simulation-load-post",
-          label: "Carregar e iniciar simulação",
-          className: "api-method post",
+          id: "api/select-simulation-api-simulation-selection-put",
+          label: "Selecionar simulação salva",
+          className: "api-method put",
+        },
+        {
+          type: "doc",
+          id: "api/clear-selection-api-simulation-selection-delete",
+          label: "Remover a seleção da simulação salva",
+          className: "api-method delete",
         },
         {
           type: "doc",
@@ -399,6 +405,12 @@ const sidebar: SidebarsConfig = {
           id: "api/get-active-players-api-simulation-players-get",
           label: "Listar jogadores ativos",
           className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/set-player-color-api-simulation-players-me-color-put",
+          label: "Escolher a cor do jogador",
+          className: "api-method put",
         },
         {
           type: "doc",

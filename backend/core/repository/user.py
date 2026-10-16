@@ -119,19 +119,6 @@ class UserRepository:
         )
 
     @transactional
-    def get_all_users(self, session: Session) -> list[UserDTO]:
-        users = session.execute(select(Users)).scalars().all()
-
-        return [
-            UserDTO(
-                id=user.id,
-                client_id=user.client_id,
-                nickname=user.nickname,
-            )
-            for user in users
-        ]
-
-    @transactional
     def update_client_id(
         self, session: Session, user_id: int, new_client_id: UUID
     ) -> UserDTO:
@@ -153,21 +140,20 @@ class UserRepository:
         self,
         session: Session,
         simulation_id: int,
+        user_ids: list[int],
         event_date: date,
         starting_cash: Decimal,
     ) -> None:
-        users = session.execute(select(Users)).scalars().all()
-
         now = datetime.now(UTC)
         new_cashflows = [
             EventCashflow(
                 simulation_id=simulation_id,
-                user_id=user.id,
+                user_id=user_id,
                 event_type="DEPOSIT",
                 amount=starting_cash,
                 event_date=event_date,
                 created_at=now,
             )
-            for user in users
+            for user_id in user_ids
         ]
         session.add_all(new_cashflows)
