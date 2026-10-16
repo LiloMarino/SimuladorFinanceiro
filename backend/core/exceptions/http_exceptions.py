@@ -6,10 +6,7 @@ class BadRequestError(HTTPException):
 
     def __init__(
         self,
-        detail: str = (
-            "The browser (or proxy) sent a request that this "
-            "server could not understand."
-        ),
+        detail: str = "O servidor não entendeu a requisição enviada.",
     ):
         super().__init__(status_code=400, detail=detail)
 
@@ -19,12 +16,7 @@ class UnauthorizedError(HTTPException):
 
     def __init__(
         self,
-        detail: str = (
-            "The server could not verify that you are authorized to access"
-            " the URL requested. You either supplied the wrong credentials"
-            " (e.g. a bad password), or your browser doesn't understand"
-            " how to supply the credentials required."
-        ),
+        detail: str = "Não foi possível confirmar sua identidade. Entre novamente.",
     ):
         super().__init__(status_code=401, detail=detail)
 
@@ -34,11 +26,7 @@ class ForbiddenError(HTTPException):
 
     def __init__(
         self,
-        detail: str = (
-            "You don't have the permission to access the requested"
-            " resource. It is either read-protected or not readable by the"
-            " server."
-        ),
+        detail: str = "Você não tem permissão para acessar este recurso.",
     ):
         super().__init__(status_code=403, detail=detail)
 
@@ -48,10 +36,7 @@ class NotFoundError(HTTPException):
 
     def __init__(
         self,
-        detail: str = (
-            "The requested URL was not found on the server. If you entered"
-            " the URL manually please check your spelling and try again."
-        ),
+        detail: str = "O recurso pedido não foi encontrado.",
     ):
         super().__init__(status_code=404, detail=detail)
 
@@ -62,8 +47,8 @@ class ConflictError(HTTPException):
     def __init__(
         self,
         detail: str = (
-            "A conflict happened while processing the request. The resource "
-            "might have been modified while the request was being processed."
+            "O pedido conflita com o estado atual. O recurso pode ter sido"
+            " alterado enquanto o pedido era processado."
         ),
     ):
         super().__init__(status_code=409, detail=detail)
@@ -75,8 +60,8 @@ class UnprocessableEntityError(HTTPException):
     def __init__(
         self,
         detail: str = (
-            "The request was well-formed but was unable to be followed due"
-            " to semantic errors."
+            "O pedido está bem formado, mas os dados enviados não podem ser"
+            " processados."
         ),
     ):
         super().__init__(status_code=422, detail=detail)
@@ -87,6 +72,6 @@ class BadGatewayError(HTTPException):
 
     def __init__(
         self,
-        detail: str = "An upstream service failed to answer the request.",
+        detail: str = "Um serviço externo não respondeu ao pedido.",
     ):
         super().__init__(status_code=502, detail=detail)

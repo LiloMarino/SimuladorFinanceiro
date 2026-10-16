@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-16):** Concluídos os logs separados por assunto, com error.log (F57); F54 e F45 registram o uso da tabela de logs.
+> **Última mudança (2026-10-16):** Concluídas as mensagens do backend em português (F38): erros 422 com frase por campo, 500 com texto fixo.
 
 ## Glossário
 
@@ -62,7 +62,6 @@
 | [**F33**](#f33) | Indicadores técnicos | — | ⏳ |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
 | [**F37**](#f37) | Tema escuro | — | 💤 |
-| [**F38**](#f38) | Mensagens do backend em português | — | ⏳ |
 | [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ⏳ |
 | [**F40**](#f40) | Modo Especialista | — | ⏳ |
 | [**F41**](#f41) | Conquistas | — | ⏳ |
@@ -81,7 +80,7 @@
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (33 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -114,6 +113,7 @@
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ✅ |
 | [**F35**](#f35) | Dependências em dia | — | ✅ |
 | [**F36**](#f36) | Interface padronizada no shadcn | — | ✅ |
+| [**F38**](#f38) | Mensagens do backend em português | — | ✅ |
 | [**F43**](#f43) | Spike: outros modos de jogo | — | ✅ |
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
@@ -140,7 +140,6 @@
 | [**F52**](#f52) | Modo corrida à meta | M13 | 1 | ⏳ |
 | [**F54**](#f54) | Modo debug | — | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
-| [**F38**](#f38) | Mensagens do backend em português | — | 0 | ⏳ |
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
@@ -407,13 +406,12 @@
 
 ### Sem marco
 
-> **Progresso:** 5/16 concluídas
+> **Progresso:** 6/16 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F37**](#f37) | Tema escuro | [F26](#f26) | 💤 |
-| [**F38**](#f38) | Mensagens do backend em português | — | ⏳ |
 | [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 🔍 |
 | [**F45**](#f45) | Painel de desempenho | [F54](#f54) | ⏳ |
@@ -423,13 +421,14 @@
 | [**F55**](#f55) | Modo aquisição hostil | [F44](#f44) | 🔍 |
 | [**F56**](#f56) | Novidades no app | [F51](#f51) | ⏳ |
 
-<details><summary>Concluído (5 itens)</summary>
+<details><summary>Concluído (6 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F30**](#f30) | Setores e segmentos | — | ✅ |
 | [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ✅ |
+| [**F38**](#f38) | Mensagens do backend em português | — | ✅ |
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
 
@@ -469,7 +468,7 @@
 | **F36** | Interface padronizada no shadcn | N15 | D11 | M12 | [F35](#f35) | Médio | Médio | Médio | Bom | ✅ Concluído |
 | **F26** | Redesign visual | N15 | — | M12 | [F36](#f36) | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F37** | Tema escuro | N15 | — | — | [F26](#f26) | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
-| **F38** | Mensagens do backend em português | N15 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F38** | Mensagens do backend em português | N15 | — | — | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F39** | Cor exclusiva e sigla de duas letras por jogador | N20 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F40** | Modo Especialista | N21 | D2 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F41** | Conquistas | N22 | D1 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
