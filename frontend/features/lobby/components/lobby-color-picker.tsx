@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Check, ChevronDown, TriangleAlert } from "lucide-react";
+import { ChevronDown, Lock, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger } from "@/shared/components/ui/popover";
-import { PLAYER_COLORS, playerColorName, playerColorStyle } from "@/shared/lib/player-colors";
-import { playerInitials } from "@/shared/lib/player-initials";
-import { cn } from "@/shared/lib/utils";
+import { PlayerColorGrid } from "@/shared/components/player-color-grid";
+import { playerColorName, playerColorStyle } from "@/shared/lib/player-colors";
 import type { RoomPlayer } from "@/types";
 import { useChooseColor } from "../hooks/useChooseColor";
 
@@ -38,7 +37,7 @@ export function LobbyColorPicker({ nickname, players, savedPlayers }: LobbyColor
           aria-hidden="true"
         />
         Sua cor
-        <ChevronDown />
+        {locked ? <Lock className="text-muted-foreground" /> : <ChevronDown />}
       </PopoverTrigger>
       <PopoverContent align="end" className="w-88">
         <PopoverHeader>
@@ -50,39 +49,12 @@ export function LobbyColorPicker({ nickname, players, savedPlayers }: LobbyColor
           </PopoverDescription>
         </PopoverHeader>
 
-        <div className="grid grid-cols-5 gap-x-1.5 gap-y-2.5">
-          {PLAYER_COLORS.map((color) => {
-            const owner = players.find((p) => p.color === color.key) ?? savedPlayers.find((p) => p.color === color.key);
-            const isMine = color.key === mine;
-            const taken = owner !== undefined && !isMine;
-            return (
-              <button
-                key={color.key}
-                type="button"
-                disabled={taken || locked || isPending}
-                aria-pressed={isMine}
-                aria-label={taken ? `${color.name}, de ${owner.nickname}` : color.name}
-                onClick={() => chooseColor(color.key)}
-                className="grid cursor-pointer justify-items-center gap-1 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-default"
-              >
-                <span
-                  className={cn(
-                    "grid size-10 place-content-center rounded-[10px] text-xs font-semibold",
-                    taken && "opacity-45",
-                    isMine && "ring-2 ring-foreground ring-offset-2 ring-offset-popover",
-                  )}
-                  style={{ backgroundColor: `var(--${color.key})`, color: color.foreground }}
-                >
-                  {taken && playerInitials(owner.nickname)}
-                  {isMine && <Check className="size-4.5" />}
-                </span>
-                <span className={cn("text-[11px]", isMine ? "font-semibold" : "text-muted-foreground")}>
-                  {color.name}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <PlayerColorGrid
+          owners={[...players, ...savedPlayers]}
+          selected={mine}
+          disabled={locked || isPending}
+          onSelect={chooseColor}
+        />
 
         {refusal && (
           <Alert variant="warning">

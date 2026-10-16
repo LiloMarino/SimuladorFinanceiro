@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+from types import SimpleNamespace
+from typing import cast
 
 import pytest
 
@@ -12,7 +14,9 @@ from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.events.fixed_income import FixedIncomeEventDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.sector import StockSegmentDTO
+from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.stock import StockDTO
+from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     AssetClass,
     CashflowEventType,
@@ -21,6 +25,8 @@ from backend.core.enum import (
     FixedIncomeType,
     RateIndexType,
 )
+from backend.core.runtime.event_manager import EventManager
+from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.order import OrderAction
@@ -220,3 +226,24 @@ def test_preview_sell_above_exemption_pays_fifteen_percent(player_book):
     assert preview.profit == Decimal("24900.0")
     assert preview.tax == Decimal("3735.00")
     assert preview.tax_due_date is not None
+
+
+def test_player_joining_mid_match_gets_the_starting_deposit_and_the_day_snapshot(
+    player_book, captured_events, monkeypatch: pytest.MonkeyPatch
+):
+    """Quem entra com a partida em andamento recebe o depósito inicial datado de hoje e o snapshot do dia."""
+    sim = object.__new__(Simulation)
+    sim._engine = _engine()
+    sim.settings = cast("SimulationDTO", SimpleNamespace(starting_cash=Decimal("500")))
+    snapshots = []
+    monkeypatch.setattr(
+        Simulation, "_snapshot_user", lambda _, user: snapshots.append(user)
+    )
+    monkeypatch.setattr(EventManager, "flush", lambda: None)
+    user = UserDTO(id=USER_ID, client_id=PLAYER, nickname="Duda")
+
+    sim.add_player(user)
+
+    assert _cashflows(captured_events) == [(CashflowEventType.DEPOSIT, Decimal("500"))]
+    assert [e.event_date for e in captured_events] == [TODAY]
+    assert snapshots == [user]

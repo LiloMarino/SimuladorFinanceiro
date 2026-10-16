@@ -414,6 +414,18 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/get-match-players-api-simulation-match-players-get",
+          label: "Listar jogadores da partida em andamento",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/join-match-api-simulation-join-post",
+          label: "Entrar na partida em andamento",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
           id: "api/get-simulation-settings-api-simulation-settings-get",
           label: "Obter configurações da simulação",
           className: "api-method get",

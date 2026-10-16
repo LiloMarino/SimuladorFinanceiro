@@ -34,6 +34,8 @@ class SavedSimulationDTO(SimulationSummaryDTO):
     winner_nickname: str | None
     # Colocação de quem pede a lista; None quando não jogou essa partida
     my_position: int | None
+    # Quem está na sala, nunca jogou essa partida e não cabe nela; vazio quando dá para selecionar
+    room_overflow: list[str]
 
 
 class PriceImpactPointDTO(BaseDTO):

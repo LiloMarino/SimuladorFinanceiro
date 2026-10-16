@@ -671,7 +671,7 @@ export interface paths {
         put?: never;
         /**
          * Registrar novo usuário
-         * @description Cria um novo usuário com o nickname fornecido para o client_id atual. Se houver simulação ativa, concede o depósito inicial.
+         * @description Cria um novo usuário com o nickname fornecido para o client_id atual. Com a partida em andamento, o depósito inicial só vem ao entrar nela.
          */
         post: operations["user_register_api_user_register_post"];
         delete?: never;
@@ -1078,6 +1078,46 @@ export interface paths {
          */
         put: operations["set_player_color_api_simulation_players_me_color_put"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/match-players": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar jogadores da partida em andamento
+         * @description Retorna todos que jogam a partida ativa, online ou não, cada um com a sua cor. Serve a quem chega e escolhe uma cor que sobrou.
+         */
+        get: operations["get_match_players_api_simulation_match_players_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/join": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Entrar na partida em andamento
+         * @description Quem chegou depois do início escolhe uma cor livre e passa a jogar: recebe o depósito inicial no dia corrente e entra nas estatísticas e no ranking. Se a cor já tem dono, a resposta é 409.
+         */
+        post: operations["join_match_api_simulation_join_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1546,6 +1586,11 @@ export interface components {
          * @enum {string}
          */
         IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV";
+        /** JoinMatchRequest */
+        JoinMatchRequest: {
+            /** Color */
+            color: string;
+        };
         /** MarketQuoteDTO */
         MarketQuoteDTO: {
             /** Id */
@@ -2175,6 +2220,8 @@ export interface components {
             winner_nickname: string | null;
             /** My Position */
             my_position: number | null;
+            /** Room Overflow */
+            room_overflow: string[];
         };
         /** @enum {string} */
         ScoreAxis: "return" | "risk" | "consistency" | "efficiency";
@@ -2278,6 +2325,11 @@ export interface components {
             /** Authenticated */
             authenticated: boolean;
             user: components["schemas"]["UserDTO"] | null;
+            /**
+             * Pending Join
+             * @default false
+             */
+            pending_join: boolean;
         };
         /** SetSpeedRequest */
         SetSpeedRequest: {
@@ -4952,6 +5004,84 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["PlayerColorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_match_players_api_simulation_match_players_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlayerNickname"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    join_match_api_simulation_join_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JoinMatchRequest"];
             };
         };
         responses: {

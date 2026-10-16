@@ -44,8 +44,16 @@ export function GuardLayout() {
     return <Outlet />;
   }
 
+  // Autenticado + COM simulação + ainda fora dela → /join escolher a cor e entrar
+  if (isAuthenticated && hasSimulation && session?.pending_join) {
+    if (pathname !== "/join") {
+      return <Navigate to="/join" replace />;
+    }
+    return <Outlet />;
+  }
+
   // Autenticado + COM simulação: a Central de dados só abre fora da partida
-  const blockedDuringSimulation = ["/login", "/lobby", "/import-assets"];
+  const blockedDuringSimulation = ["/login", "/lobby", "/import-assets", "/join"];
   if (isAuthenticated && hasSimulation) {
     if (blockedDuringSimulation.includes(pathname)) {
       return <Navigate to="/" replace />;

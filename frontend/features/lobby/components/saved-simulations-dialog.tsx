@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Play, Search, Trophy, Zap } from "lucide-react";
+import { Play, Search, TriangleAlert, Trophy, Zap } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
@@ -11,6 +12,8 @@ import { ErrorState } from "@/shared/components/error-state";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
+import { useRealtime } from "@/shared/hooks/useRealtime";
+import { queryKeys } from "@/shared/lib/queryKeys";
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
 import { cn } from "@/shared/lib/utils";
 import { displayDate, displayMonthSlashYear, parseLocalDate } from "@/shared/lib/utils/display";
@@ -64,6 +67,7 @@ function SavedSimulationsContent({
   onSelected: () => void;
 }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<StatusFilter>("ALL");
 
@@ -78,6 +82,11 @@ function SavedSimulationsContent({
     onSuccess: onSelected,
     onError: (err) => toastApiError(err),
   });
+
+  // Quem entra ou sai da sala muda quais partidas ainda cabem
+  const refreshFit = () => void queryClient.invalidateQueries({ queryKey: queryKeys.simulationList() });
+  useRealtime("player_join", refreshFit);
+  useRealtime("player_exit", refreshFit);
 
   const term = search.trim().toLowerCase();
   // A lista vem da mais recente para a mais antiga: a primeira é a que o atalho do lobby seleciona
@@ -146,6 +155,16 @@ function SavedSimulationsContent({
             {s.players_count <= 1 ? "Solo" : `${s.players_count} jogadores`} ·{" "}
             {VICTORY_CRITERIA[s.victory_criterion].label}
           </span>
+          {isHost && s.status === "PAUSED" && s.room_overflow.length > 0 && (
+            <span className="flex items-start gap-1.5 text-xs text-warning">
+              <TriangleAlert className="mt-0.5 size-3 shrink-0" />
+              <span>
+                Não cabe quem está na sala e nunca jogou nela:{" "}
+                <span className="font-semibold">{s.room_overflow.join(", ")}</span>. Eles saem da sala ou você escolhe
+                outra partida.
+              </span>
+            </span>
+          )}
           {resumedByLobby && (
             <span className="flex items-center gap-1 text-xs font-semibold text-primary">
               <Zap className="size-3" />É esta que o “Selecionar a última simulação” do lobby escolhe
@@ -157,7 +176,11 @@ function SavedSimulationsContent({
           Resultado
         </Button>
         {isHost && s.status === "PAUSED" && (
-          <Button size="sm" disabled={loading || selected} onClick={() => selectSimulation(s.id)}>
+          <Button
+            size="sm"
+            disabled={loading || selected || s.room_overflow.length > 0}
+            onClick={() => selectSimulation(s.id)}
+          >
             <Play />
             {selected ? "Selecionada" : loading && variables === s.id ? "Selecionando…" : "Selecionar"}
           </Button>

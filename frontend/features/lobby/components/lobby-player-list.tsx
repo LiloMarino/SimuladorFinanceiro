@@ -25,9 +25,13 @@ export function LobbyPlayersList({ hostNickname, savedPlayers }: LobbyPlayersLis
     (a, b) =>
       Number(b.nickname === hostNickname) - Number(a.nickname === hostNickname) || a.nickname.localeCompare(b.nickname),
   );
-  const freeSlots = Math.max(MAX_PLAYERS - sorted.length, 0);
-  const alone = sorted.length <= 1;
-  const full = sorted.length >= MAX_PLAYERS;
+
+  // Quem jogou a partida selecionada e não está na sala segue dono da vaga e da cor
+  const absent = savedPlayers.filter((saved) => !sorted.some((p) => p.nickname === saved.nickname));
+  const occupied = sorted.length + absent.length;
+  const freeSlots = Math.max(MAX_PLAYERS - occupied, 0);
+  const alone = sorted.length <= 1 && absent.length === 0;
+  const full = occupied >= MAX_PLAYERS;
 
   const me = sorted.find((p) => p.nickname === user?.nickname);
   useApplyColorPreference(
@@ -38,12 +42,20 @@ export function LobbyPlayersList({ hostNickname, savedPlayers }: LobbyPlayersLis
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Jogadores</CardTitle>
+        <div className="grid gap-1">
+          <CardTitle>Jogadores</CardTitle>
+          {absent.length > 0 && (
+            <span className="text-xs text-muted-foreground">
+              {sorted.length} na sala · {absent.length} {absent.length === 1 ? "ausente" : "ausentes"} da partida
+              selecionada
+            </span>
+          )}
+        </div>
         <CardAction>
           <span className="flex items-center gap-2">
             {full && <Badge variant="warning">Sala cheia</Badge>}
             <span className="font-mono text-muted-foreground">
-              {sorted.length} / {MAX_PLAYERS}
+              {occupied} / {MAX_PLAYERS}
             </span>
           </span>
         </CardAction>
@@ -54,6 +66,7 @@ export function LobbyPlayersList({ hostNickname, savedPlayers }: LobbyPlayersLis
           {sorted.map((player) => {
             const isYou = player.nickname === user?.nickname;
             const isHost = player.nickname === hostNickname;
+            const isNew = savedPlayers.length > 0 && !savedPlayers.some((p) => p.nickname === player.nickname);
             return (
               <div
                 key={player.nickname}
@@ -67,6 +80,11 @@ export function LobbyPlayersList({ hostNickname, savedPlayers }: LobbyPlayersLis
                   <span className="truncate font-semibold">
                     {player.nickname}
                     {isYou && <span className="font-normal text-secondary-foreground"> (você)</span>}
+                    {isNew && (
+                      <Badge variant="info" size="sm" className="ml-1.5 align-[1px]">
+                        Novo
+                      </Badge>
+                    )}
                   </span>
                   <span className={cn("text-xs font-medium", isHost ? "text-info" : "text-success")}>
                     {isHost ? "Host" : "● Online"}
@@ -76,6 +94,22 @@ export function LobbyPlayersList({ hostNickname, savedPlayers }: LobbyPlayersLis
               </div>
             );
           })}
+
+          {/* Ausentes da partida selecionada: a cor e a vaga ficam reservadas */}
+          {absent.map((player) => (
+            <div
+              key={player.nickname}
+              className="flex items-center gap-3 rounded-[10px] border border-dashed border-input p-3"
+            >
+              <span className="opacity-45">
+                <PlayerAvatar nickname={player.nickname} color={player.color} size="lg" />
+              </span>
+              <div className="grid min-w-0 flex-1">
+                <span className="truncate font-semibold text-muted-foreground">{player.nickname}</span>
+                <span className="text-xs font-medium text-faint-foreground">Ausente · cor reservada</span>
+              </div>
+            </div>
+          ))}
 
           {/* Sozinho na sala: o convite ocupa a coluna ao lado do host, antes das vagas livres */}
           {alone && (

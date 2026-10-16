@@ -27,7 +27,7 @@ const nicknameSchema = z.object({
 
 type NicknameForm = z.infer<typeof nicknameSchema>;
 
-// A sala recusa a entrada com 423: cheia ou partida que já começou
+// A sala recusa a entrada com 423: sala cheia ou partida sem vaga
 const ROOM_CLOSED_STATUS = 423;
 
 export function LoginPage() {

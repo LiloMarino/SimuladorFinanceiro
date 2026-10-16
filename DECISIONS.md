@@ -106,6 +106,9 @@ Quando algo dá errado, na máquina de quem hospeda ou na de um amigo, o erro pr
 **N27. Entrar numa partida que já começou**
 Quem chega depois do início, ou volta a uma partida salva sem ter jogado nela, precisa poder participar sem estragar a conta de quem já está jogando: com depósito inicial, cor própria e o mesmo ranking.
 
+**N28. Liberar uma vaga sem depender de o jogador sair**
+Com a sala cheia, ou com uma partida salva que não comporta quem está nela, o host precisa poder abrir a vaga sozinho, em vez de pedir pelo chat para alguém fechar a aba.
+
 ---
 
 ## Decisões

@@ -8,6 +8,7 @@ export const queryKeys = {
   trades: (ticker: string) => ["variable-income", ticker, "trades"] as const,
   priceImpactPreview: (k: number, decayDays: number) => ["simulation", "price-impact-preview", k, decayDays] as const,
   simulationPlayers: () => ["simulation", "players"] as const,
+  matchPlayers: () => ["simulation", "match-players"] as const,
   economicIndicators: () => ["economic-indicators"] as const,
   fixedIncomeList: () => ["fixed-income", "list"] as const,
   fixedIncomeAsset: (id: string) => ["fixed-income", id] as const,

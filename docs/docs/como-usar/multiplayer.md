@@ -43,6 +43,21 @@ Essa configuração é obrigatória:
 
 ---
 
+## Entrar com a Partida em Andamento
+
+Quem chega depois do início não precisa esperar a próxima partida. Ao entrar com o nickname, uma tela mostra quem já joga, as cores que sobraram e o saldo inicial; basta escolher uma cor e clicar em **Entrar na partida**.
+
+- **Saldo inicial na hora:** quem entra recebe o mesmo capital inicial dos outros, no dia em que a simulação está, e passa a aparecer no ranking e nas estatísticas.
+- **Aporte mensal só dali em diante:** quem chega no dia 20 não recebe os aportes dos meses anteriores. O ranking por retorno continua comparável; o ranking por patrimônio absoluto reflete a data de chegada.
+- **A vaga é de quem jogou, esteja online ou não:** a partida comporta até 10 jogadores. Quem saiu continua dono da vaga e da cor, então uma partida com 10 jogadores, seis deles offline, está cheia e ninguém novo entra.
+- **Quem sai e volta mantém a cor** e o saldo da partida.
+
+### Continuar uma partida salva
+
+Ao selecionar uma partida salva, as cores de quem já jogou ficam reservadas, mesmo para quem não está na sala. Quem estava na sala e nunca jogou essa partida entra ao continuar, com o saldo inicial.
+
+Se a partida salva não comporta a sala (jogadores da partida mais os novos passam de 10), o **Selecionar** fica desabilitado e o motivo aparece com os nomes. Com 10 jogadores salvos e um novato na sala, por exemplo, o novato precisa sair da sala ou o host escolhe outra partida; com 8 salvos e dois novatos, a partida carrega normalmente.
+
 ## Configuração de Rede
 
 O multiplayer funciona através de **rede local (LAN)** ou **VPN**, dependendo de onde os jogadores estão conectados.

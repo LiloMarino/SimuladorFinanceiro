@@ -12,6 +12,7 @@ import SettingsPage from "./features/settings/pages/settings";
 import FixedIncomePage from "./features/fixed-income/pages/fixed-income";
 import FixedIncomeDetailPage from "./features/fixed-income/pages/fixed-income-details";
 import StrategiesPage from "./features/strategies/pages/strategies";
+import { JoinMatchPage } from "./features/join/pages/join-match";
 import { LobbyPage } from "./features/lobby/pages/lobby";
 import ImportAssetsPage from "./features/import-assets/pages/import-assets";
 import { RealtimeProvider } from "@/shared/context/realtime";
@@ -62,6 +63,7 @@ export default function App() {
                     <Route element={<GuardLayout />}>
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/lobby" element={<LobbyPage />} />
+                      <Route path="/join" element={<JoinMatchPage />} />
                       <Route element={<PlainLayout />}>
                         <Route path="/import-assets" element={<ImportAssetsPage />} />
                         <Route path="/compare-simulations" element={<CompareSimulationsPage />} />

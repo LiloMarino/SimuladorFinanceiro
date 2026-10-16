@@ -75,6 +75,8 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
           isHost={settings.is_host}
           hostNickname={settings.host_nickname}
           selectedSimulationId={settings.selected_simulation_id}
+          savedPlayers={settings.selected_players}
+          onOpenSaved={() => setSavedOpen(true)}
         />
       </div>
 

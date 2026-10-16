@@ -330,39 +330,7 @@ class Simulation:
         inteiro de novo, então sai só na virada do mês; `snapshot_update` é um merge
         por data no cache da Carteira e sai todo dia.
         """
-        snapshots_payload = []
-
-        for user in users:
-            portfolio = self.get_portfolio(user.client_id)
-            snapshot = repository.snapshot.create_snapshot(
-                user_id=user.id,
-                snapshot_date=self._current_date,
-                total_equity=portfolio.variable_income_value,
-                total_fixed=portfolio.fixed_income_value,
-            )
-
-            # Portfolio (individual)
-            notify(
-                event="snapshot_update",
-                payload=SnapshotUpdateEventDTO(
-                    snapshot=self._history_point(
-                        PatrimonialHistoryDTO.model_validate(
-                            snapshot.model_dump(
-                                include=set(PatrimonialHistoryDTO.model_fields)
-                            )
-                        )
-                    )
-                ).to_json(),
-                to=user.client_id,
-            )
-
-            # Statistics (global)
-            snapshots_payload.append(
-                StatisticsSnapshotEntryDTO(
-                    player_nickname=user.nickname,
-                    snapshot=snapshot,
-                )
-            )
+        snapshots_payload = [self._snapshot_user(user) for user in users]
 
         if not month_changed:
             return
@@ -373,3 +341,41 @@ class Simulation:
                 snapshots=snapshots_payload
             ).to_json(),
         )
+
+    def _snapshot_user(self, user: UserDTO) -> StatisticsSnapshotEntryDTO:
+        """Grava o snapshot do dia de `user`, avisa a carteira dele e devolve a linha das Estatísticas."""
+        portfolio = self.get_portfolio(user.client_id)
+        snapshot = repository.snapshot.create_snapshot(
+            user_id=user.id,
+            snapshot_date=self._current_date,
+            total_equity=portfolio.variable_income_value,
+            total_fixed=portfolio.fixed_income_value,
+        )
+
+        notify(
+            event="snapshot_update",
+            payload=SnapshotUpdateEventDTO(
+                snapshot=self._history_point(
+                    PatrimonialHistoryDTO.model_validate(
+                        snapshot.model_dump(
+                            include=set(PatrimonialHistoryDTO.model_fields)
+                        )
+                    )
+                )
+            ).to_json(),
+            to=user.client_id,
+        )
+
+        return StatisticsSnapshotEntryDTO(
+            player_nickname=user.nickname, snapshot=snapshot
+        )
+
+    def add_player(self, user: UserDTO) -> None:
+        """
+        Quem entra com a partida em andamento recebe o depósito inicial no dia corrente
+        e o snapshot desse dia; o aporte mensal e os snapshots seguintes já o incluem
+        porque `participants` lê a linha dele em `simulation_players`.
+        """
+        self._engine.add_cash(user.client_id, self.settings.starting_cash)
+        EventManager.flush()
+        self._snapshot_user(user)

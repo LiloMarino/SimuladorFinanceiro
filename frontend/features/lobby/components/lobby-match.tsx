@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronRight, Clock, Play, X, Zap } from "lucide-react";
+import { ChevronRight, Clock, Play, RefreshCw, TriangleAlert, UserPlus, X, Zap } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
+import { useRealtime } from "@/shared/hooks/useRealtime";
+import { queryKeys } from "@/shared/lib/queryKeys";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { formatMoney } from "@/shared/lib/utils/format";
@@ -17,7 +21,7 @@ import { seriesCoverageOptions } from "@/shared/lib/queries/seriesCoverageOption
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
-import type { SimulationInfo, SimulationSettingsData, VictoryCriterion } from "@/types";
+import type { RoomPlayer, SimulationInfo, SimulationSettingsData, VictoryCriterion } from "@/types";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
 import { checkCoverage } from "../lib/coverage";
 import { dateFieldError, isIsoDate } from "../lib/date-field";
@@ -64,16 +68,32 @@ const simulationFormSchema = z
 
 export type SimulationFormValues = z.infer<typeof simulationFormSchema>;
 
+/** "Ana", "Ana e Caio", "Ana, Caio e Duda" */
+function joinNames(names: string[]) {
+  if (names.length <= 1) return names.join("");
+  return `${names.slice(0, -1).join(", ")} e ${names[names.length - 1]}`;
+}
+
 type LobbyMatchProps = {
   simulationData: SimulationSettingsData;
   isHost: boolean;
   hostNickname: string;
   /** Partida salva que o host selecionou para continuar; nula quando a partida é nova */
   selectedSimulationId: number | null;
+  /** Quem jogou a partida selecionada, com a cor guardada */
+  savedPlayers: RoomPlayer[];
+  onOpenSaved: () => void;
 };
 
 /** "Nova partida": as regras resumidas, os avisos de dado e o início da partida. */
-export function LobbyMatch({ simulationData, isHost, hostNickname, selectedSimulationId }: LobbyMatchProps) {
+export function LobbyMatch({
+  simulationData,
+  isHost,
+  hostNickname,
+  selectedSimulationId,
+  savedPlayers,
+  onOpenSaved,
+}: LobbyMatchProps) {
   const [rulesOpen, setRulesOpen] = useState(false);
 
   const form = useForm<SimulationFormValues>({
@@ -108,9 +128,20 @@ export function LobbyMatch({ simulationData, isHost, hostNickname, selectedSimul
   const exampleTicker = (stocks.find((s) => s.key === "PETR4") ?? stocks[0])?.key;
 
   // A lista vem da mais recente para a mais antiga: a primeira é a que o atalho seleciona
+  const queryClient = useQueryClient();
   const { data: savedSimulations } = useQuery(simulationListOptions());
+  // Quem entra ou sai da sala muda quais partidas salvas ainda cabem
+  const refreshFit = () => void queryClient.invalidateQueries({ queryKey: queryKeys.simulationList() });
+  useRealtime("player_join", refreshFit);
+  useRealtime("player_exit", refreshFit);
   const lastSimulation = savedSimulations?.[0];
   const selectedSimulation = savedSimulations?.find((s) => s.id === selectedSimulationId);
+
+  // Na sala e sem ter jogado a partida selecionada: entra ao continuar, com o saldo inicial
+  const { data: roomPlayers } = useRoomPlayers();
+  const newcomers = selectedSimulation
+    ? (roomPlayers ?? []).filter((p) => !savedPlayers.some((saved) => saved.nickname === p.nickname))
+    : [];
 
   const { mutate: createSimulation, isPending: creating } = useApiMutation({
     mutationFn: () =>
@@ -147,32 +178,47 @@ export function LobbyMatch({ simulationData, isHost, hostNickname, selectedSimul
     onError: (err) => toastApiError(err),
   });
 
-  const impactMode = priceImpactModeOf(values.priceImpactEnabled, values.priceImpactK, values.priceImpactDecayDays);
   const busy = creating || continuing || selecting || clearing;
   const canStart = isHost && !busy && !blockedByCoverage && form.formState.isValid;
 
+  // Com partida selecionada o card mostra as regras dela, em só leitura; sem seleção, as da nova partida
+  const rules = selectedSimulation
+    ? {
+        name: selectedSimulation.name,
+        startDate: selectedSimulation.start_date,
+        endDate: selectedSimulation.end_date,
+        startingCash: formatMoney(toCentsString(selectedSimulation.starting_cash)),
+        monthlyContribution: formatMoney(toCentsString(selectedSimulation.monthly_contribution)),
+        victoryCriterion: selectedSimulation.victory_criterion,
+        priceImpactEnabled: selectedSimulation.price_impact_enabled,
+        priceImpactK: displayDecimal(selectedSimulation.price_impact_k),
+        priceImpactDecayDays: String(selectedSimulation.price_impact_decay_days),
+      }
+    : values;
+  const rulesImpactMode = priceImpactModeOf(rules.priceImpactEnabled, rules.priceImpactK, rules.priceImpactDecayDays);
+
   const rows: { label: string; value: React.ReactNode }[] = [
-    { label: "Nome", value: values.name },
+    { label: "Nome", value: rules.name },
     {
       label: "Período",
       value: (
         <span className="font-mono">
-          {isIsoDate(values.startDate) ? displayDate(parseLocalDate(values.startDate)) : "—"} →{" "}
-          {isIsoDate(values.endDate) ? displayDate(parseLocalDate(values.endDate)) : "—"}
+          {isIsoDate(rules.startDate) ? displayDate(parseLocalDate(rules.startDate)) : "—"} →{" "}
+          {isIsoDate(rules.endDate) ? displayDate(parseLocalDate(rules.endDate)) : "—"}
         </span>
       ),
     },
-    { label: "Saldo inicial", value: <span className="font-mono">{values.startingCash}</span> },
-    { label: "Aporte mensal", value: <span className="font-mono">{values.monthlyContribution}</span> },
-    { label: "Vitória por", value: <Badge variant="info">{VICTORY_CRITERIA[values.victoryCriterion]?.label}</Badge> },
+    { label: "Saldo inicial", value: <span className="font-mono">{rules.startingCash}</span> },
+    { label: "Aporte mensal", value: <span className="font-mono">{rules.monthlyContribution}</span> },
+    { label: "Vitória por", value: <Badge variant="info">{VICTORY_CRITERIA[rules.victoryCriterion]?.label}</Badge> },
     {
       label: "Impacto de preço",
       value: (
         <span className="flex items-center gap-2">
-          <Badge variant={impactMode === "OFF" ? "secondary" : "info"}>{PRICE_IMPACT_MODE_LABELS[impactMode]}</Badge>
-          {impactMode !== "OFF" && (
+          <Badge variant={rulesImpactMode === "OFF" ? "secondary" : "info"}>{PRICE_IMPACT_MODE_LABELS[rulesImpactMode]}</Badge>
+          {rulesImpactMode !== "OFF" && (
             <span className="font-mono text-xs text-muted-foreground">
-              k {values.priceImpactK} · T {values.priceImpactDecayDays}
+              k {rules.priceImpactK} · T {rules.priceImpactDecayDays}
             </span>
           )}
         </span>
@@ -183,12 +229,23 @@ export function LobbyMatch({ simulationData, isHost, hostNickname, selectedSimul
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Nova partida</CardTitle>
-        <CardAction>
-          <Button variant="outline" size="sm" onClick={() => setRulesOpen(true)}>
-            {isHost ? "Editar regras" : "Ver regras"}
-          </Button>
-        </CardAction>
+        <div className="grid gap-1">
+          <CardTitle>{selectedSimulation ? "Continuar partida" : "Nova partida"}</CardTitle>
+          {selectedSimulation && (
+            <CardDescription>
+              {selectedSimulation.resume_from
+                ? `Parou em ${displayDate(parseLocalDate(selectedSimulation.resume_from))}`
+                : "Ainda não começou"}
+            </CardDescription>
+          )}
+        </div>
+        {!selectedSimulation && (
+          <CardAction>
+            <Button variant="outline" size="sm" onClick={() => setRulesOpen(true)}>
+              {isHost ? "Editar regras" : "Ver regras"}
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent>
@@ -203,63 +260,91 @@ export function LobbyMatch({ simulationData, isHost, hostNickname, selectedSimul
             ))}
           </dl>
 
-          <CoverageAlerts
-            check={coverageCheck}
-            startDate={values.startDate}
-            onChangeDate={isHost ? () => setRulesOpen(true) : undefined}
-          />
+          {!selectedSimulation && (
+            <CoverageAlerts
+              check={coverageCheck}
+              startDate={values.startDate}
+              onChangeDate={isHost ? () => setRulesOpen(true) : undefined}
+            />
+          )}
+
+          {/* Quem nunca jogou a partida selecionada entra ao continuar */}
+          {selectedSimulation && newcomers.length > 0 && (
+            <Alert variant="info">
+              <UserPlus />
+              <AlertTitle>
+                {joinNames(newcomers.map((p) => p.nickname))} nunca {newcomers.length === 1 ? "jogou" : "jogaram"} esta
+                partida
+              </AlertTitle>
+              <AlertDescription>
+                {newcomers.length === 1 ? "Entra" : "Entram"} agora, com o saldo inicial de {rules.startingCash} e a cor
+                que {newcomers.length === 1 ? "escolheu" : "escolheram"}.
+              </AlertDescription>
+            </Alert>
+          )}
 
           {/* Início da partida */}
           {isHost ? (
-            <>
-              <Button size="xl" disabled={!canStart} onClick={() => createSimulation()}>
-                {creating ? <Spinner /> : <Zap />}
-                Iniciar nova simulação
-              </Button>
-              {selectedSimulation ? (
-                <div className="grid gap-3 rounded-[10px] border border-info-border bg-info-soft p-3.5">
-                  <span className="grid">
-                    <span className="text-xs font-semibold text-info">Partida selecionada</span>
-                    <span className="font-semibold">{selectedSimulation.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {selectedSimulation.resume_from
-                        ? `Parou em ${displayDate(parseLocalDate(selectedSimulation.resume_from))}`
-                        : "Ainda não começou"}
-                    </span>
-                  </span>
-                  <span className="flex gap-2">
-                    <Button className="flex-1" disabled={busy} onClick={() => continueSimulation()}>
-                      {continuing ? <Spinner /> : <Play />}
-                      Continuar
-                    </Button>
-                    <Button variant="outline" disabled={busy} onClick={() => clearSelection()}>
-                      <X />
-                      Remover seleção
-                    </Button>
-                  </span>
-                </div>
-              ) : (
-                lastSimulation &&
-                lastSimulation.status === "PAUSED" && (
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => selectSimulation(lastSimulation.id)}
-                    className="flex w-full items-center justify-between rounded-[10px] border border-input bg-card px-3.5 py-3 text-left transition-colors hover:bg-subtle disabled:opacity-50"
-                  >
-                    <span className="grid">
-                      <span className="font-semibold">Selecionar a última simulação</span>
-                      <span className="text-xs text-muted-foreground">
-                        {lastSimulation.name}
-                        {lastSimulation.resume_from &&
-                          ` · parou em ${displayDate(parseLocalDate(lastSimulation.resume_from))}`}
+            selectedSimulation ? (
+              <div className="grid gap-2">
+                <Button size="xl" disabled={busy} onClick={() => continueSimulation()}>
+                  {continuing ? <Spinner /> : <Play />}
+                  Continuar {selectedSimulation.name}
+                </Button>
+                <span className="flex gap-2">
+                  <Button className="flex-1" variant="outline" disabled={busy} onClick={onOpenSaved}>
+                    <RefreshCw />
+                    Trocar partida
+                  </Button>
+                  <Button className="flex-1" variant="outline" disabled={busy} onClick={() => clearSelection()}>
+                    <X />
+                    Remover seleção
+                  </Button>
+                </span>
+              </div>
+            ) : (
+              <>
+                <Button size="xl" disabled={!canStart} onClick={() => createSimulation()}>
+                  {creating ? <Spinner /> : <Zap />}
+                  Iniciar nova simulação
+                </Button>
+                {lastSimulation && lastSimulation.status === "PAUSED" && (
+                  <>
+                    <button
+                      type="button"
+                      disabled={busy || lastSimulation.room_overflow.length > 0}
+                      onClick={() => selectSimulation(lastSimulation.id)}
+                      className="flex w-full items-center justify-between rounded-[10px] border border-input bg-card px-3.5 py-3 text-left transition-colors hover:bg-subtle disabled:opacity-50"
+                    >
+                      <span className="grid">
+                        <span className="font-semibold">Selecionar a última simulação</span>
+                        <span className="text-xs text-muted-foreground">
+                          {lastSimulation.name}
+                          {lastSimulation.resume_from &&
+                            ` · parou em ${displayDate(parseLocalDate(lastSimulation.resume_from))}`}
+                        </span>
                       </span>
-                    </span>
-                    {selecting ? <Spinner /> : <ChevronRight className="size-4 text-faint-foreground" />}
-                  </button>
-                )
-              )}
-            </>
+                      {selecting ? <Spinner /> : <ChevronRight className="size-4 text-faint-foreground" />}
+                    </button>
+                    {lastSimulation.room_overflow.length > 0 && (
+                      <p className="flex items-start gap-1.5 text-xs text-warning">
+                        <TriangleAlert className="mt-0.5 size-3 shrink-0" />
+                        <span>
+                          Não cabe quem está na sala e nunca jogou nela:{" "}
+                          <span className="font-semibold">{lastSimulation.room_overflow.join(", ")}</span>. Eles saem
+                          da sala ou você escolhe outra partida.
+                        </span>
+                      </p>
+                    )}
+                  </>
+                )}
+                {lastSimulation && (
+                  <Button variant="link" size="sm" onClick={onOpenSaved}>
+                    Ver todas as salvas
+                  </Button>
+                )}
+              </>
+            )
           ) : (
             <div className="flex items-center justify-center gap-2 rounded-[10px] bg-background px-4 py-3.5 text-muted-foreground">
               <Clock className="size-4" />

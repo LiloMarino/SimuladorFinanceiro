@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-16):** Descartada a separação em dois executáveis (F59); registrado o modo servidor dedicado (F60).
+> **Última mudança (2026-10-16):** Concluída a entrada no meio da partida (F58); registrado o host remover jogador da sala (F61).
 
 ## Glossário
 
@@ -43,6 +43,7 @@
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F47](#f47), [F48](#f48) | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | [F57](#f57) | — |
 | **N27** | Entrar numa partida que já começou | [F58](#f58) | — |
+| **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
 | **D4** | Banco de dados embarcado no executável | [F4](#f4) | 🔍 |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
 | [**F3**](#f3) | Spike: banco embarcado no executável | — | 🔍 |
@@ -77,11 +78,11 @@
 | [**F54**](#f54) | Modo debug | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
-| [**F58**](#f58) | Entrar no meio da partida (hot-join) | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
+| [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (36 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -120,6 +121,7 @@
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
 | [**F50**](#f50) | Diagrama do banco navegável | — | ✅ |
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
+| [**F58**](#f58) | Entrar no meio da partida (hot-join) | — | ✅ |
 | [**F59**](#f59) | Separar em dois executáveis: cliente e servidor | — | 🚫 |
 
 </details>
@@ -147,8 +149,8 @@
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
 | [**F42**](#f42) | Modo em equipes | M13 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
-| [**F58**](#f58) | Entrar no meio da partida (hot-join) | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
+| [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
 
 ---
 
@@ -411,7 +413,7 @@
 
 ### Sem marco
 
-> **Progresso:** 8/18 concluídas
+> **Progresso:** 9/19 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -423,10 +425,10 @@
 | [**F54**](#f54) | Modo debug | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | [F44](#f44) | 🔍 |
 | [**F56**](#f56) | Novidades no app | [F51](#f51) | ⏳ |
-| [**F58**](#f58) | Entrar no meio da partida (hot-join) | [F39](#f39) | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
+| [**F61**](#f61) | Host remove jogador da sala | [F58](#f58) | ⏳ |
 
-<details><summary>Concluído (8 itens)</summary>
+<details><summary>Concluído (9 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -438,6 +440,7 @@
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
 | [**F50**](#f50) | Diagrama do banco navegável | — | ✅ |
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
+| [**F58**](#f58) | Entrar no meio da partida (hot-join) | [F39](#f39) | ✅ |
 
 </details>
 
@@ -491,7 +494,8 @@
 | **F56** | Novidades no app | N14 | — | — | [F51](#f51) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F57** | Logs separados por assunto | N26 | — | — | — | Baixo | Baixo | Médio | Ótimo | ✅ Concluído |
 | **F50** | Diagrama do banco navegável | N17 | D9 | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
-| **F58** | Entrar no meio da partida (hot-join) | N27 | — | — | [F39](#f39) | Médio | Médio | Médio | Bom | ⏳ Pendente |
+| **F58** | Entrar no meio da partida (hot-join) | N27 | — | — | [F39](#f39) | Médio | Médio | Médio | Bom | ✅ Concluído |
+| **F61** | Host remove jogador da sala | N28 | — | — | [F58](#f58) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -675,8 +679,7 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 **Gatilho:** qualquer momento; não depende de outra feature.
 
 <a id="f39"></a>
-**F39 — Cor exclusiva e sigla de duas letras por jogador.** Serve N20. Inspiração: o Age of Empires II, que dá uma cor própria a cada um dos 8 jogadores da partida; aqui a sala vai a 10. Antes, a cor do jogador nascia em dois lugares que não se falavam (um hash do apelido no lobby, no perfil, na sidebar e no livro de ofertas; a posição alfabética nas estatísticas) e a sigla era a primeira letra do apelido. Agora: (1) **a cor é do jogador na partida.** Enquanto está na sala ela vive na memória do servidor (`UserManager`); ao iniciar vira linha de `simulation_players` (`simulation_id`, `user_id`, `color`, chave composta, migration pela D9), que as Estatísticas e o fechamento leem, inclusive dias depois, sem partida ativa. As partidas salvas antes ganharam as linhas na própria migration. (2) **Dez jogadores, dez cores.** `--chart-9` (cinza) e `--chart-10` (marrom) entram na paleta do redesign. O teto da sala é o tamanho da paleta e o servidor recusa o 11º conectado (423, "a sala está cheia"). A conferência de daltonismo (lima × âmbar, verde-água × ciano) continua em aberto. (3) **Conflito é impedido, não detectado.** Ao entrar o jogador recebe a primeira cor livre; a troca é `PUT /api/simulation/players/me/color` e o servidor recusa com 409 se a cor já tem dono (vale o primeiro pedido, quem perdeu fica com a anterior); o evento `player_color` avisa a sala. No seletor "Sua cor" a cor ocupada aparece apagada com a sigla de quem a tem. (4) **A preferência mora no navegador** (`localStorage`): ao entrar o cliente pede a última cor escolhida e fica com a que recebeu se ela já tiver dono. (5) **Sigla sempre de duas letras**, calculada no front por `playerInitials` (acento e emoji contam inteiros) e desenhada pelo `PlayerAvatar` de `shared/`, que substituiu os sete `Avatar` com `charAt(0)`; a sigla sai do apelido, nunca do rótulo " · A". (6) **Uma fonte de cor só no front:** `stringToColor` e `playerColors` saíram; lobby, perfil, sidebar, livro de ofertas, ranking, pódio e gráficos leem a cor do payload. A comparação de simulações segue colorindo por partida (a letra e a cor da F17), com avatares neutros. (7) **Quem participa é quem está na sala ao iniciar**: só eles recebem o depósito inicial e snapshots (antes era toda conta do banco). Quem não participa de uma partida em andamento é barrado (423) até a F58. (8) **Continuar uma partida salva tem dois passos**: o host a seleciona (`PUT /api/simulation/selection`) e a sala inteira troca para as cores guardadas, travadas para quem já jogou e reservadas para os ausentes; depois clica em Continuar. Quem está na sala e nunca jogou a partida escolhe entre as cores que sobraram e entra com o depósito inicial na retomada. Os bots da F16 não existem ainda e contarão no mesmo teto.
-**Aceite:** uma sala de 10 jogadores abre com 10 cores diferentes e siglas de duas letras; escolher no lobby a cor de outro é recusado e a anterior permanece; o 11º jogador é recusado pelo servidor; o jogador tem a mesma cor no lobby, no ranking e nos gráficos, inclusive ao abrir a partida salva depois.
+**F39 — Cor exclusiva e sigla de duas letras por jogador.** Serve N20. Inspiração: o Age of Empires II, que dá uma cor própria a cada um dos 8 jogadores da partida; aqui a sala vai a 10. Antes, a cor do jogador nascia em dois lugares que não se falavam (um hash do apelido no lobby, no perfil, na sidebar e no livro de ofertas; a posição alfabética nas estatísticas) e a sigla era a primeira letra do apelido. Agora: (1) **a cor é do jogador na partida.** Enquanto está na sala ela vive na memória do servidor (`UserManager`); ao iniciar vira linha de `simulation_players` (`simulation_id`, `user_id`, `color`, chave composta, migration pela D9), que as Estatísticas e o fechamento leem, inclusive dias depois, sem partida ativa. As partidas salvas antes ganharam as linhas na própria migration. (2) **Dez jogadores, dez cores.** `--chart-9` (cinza) e `--chart-10` (marrom) entram na paleta do redesign. O teto da sala é o tamanho da paleta e o servidor recusa o 11º conectado (423, "a sala está cheia"). A conferência de daltonismo (lima × âmbar, verde-água × ciano) continua em aberto. (3) **Conflito é impedido, não detectado.** Ao entrar o jogador recebe a primeira cor livre; a troca é `PUT /api/simulation/players/me/color` e o servidor recusa com 409 se a cor já tem dono (vale o primeiro pedido, quem perdeu fica com a anterior); o evento `player_color` avisa a sala. No seletor "Sua cor" a cor ocupada aparece apagada com a sigla de quem a tem. (4) **A preferência mora no navegador** (`localStorage`): ao entrar o cliente pede a última cor escolhida e fica com a que recebeu se ela já tiver dono. (5) **Sigla sempre de duas letras**, calculada no front por `playerInitials` (acento e emoji contam inteiros) e desenhada pelo `PlayerAvatar` de `shared/`, que substituiu os sete `Avatar` com `charAt(0)`; a sigla sai do apelido, nunca do rótulo " · A". (6) **Uma fonte de cor só no front:** `stringToColor` e `playerColors` saíram; lobby, perfil, sidebar, livro de ofertas, ranking, pódio e gráficos leem a cor do payload. A comparação de simulações segue colorindo por partida (a letra e a cor da F17), com avatares neutros. (7) **Quem participa é quem está na sala ao iniciar**: só eles recebem o depósito inicial e snapshots (antes era toda conta do banco). Quem não participa de uma partida em andamento escolhe uma cor e entra pela F58. (8) **Continuar uma partida salva tem dois passos**: o host a seleciona (`PUT /api/simulation/selection`) e a sala inteira troca para as cores guardadas, travadas para quem já jogou e reservadas para os ausentes; depois clica em Continuar. Quem está na sala e nunca jogou a partida escolhe entre as cores que sobraram e entra com o depósito inicial na retomada. Os bots da F16 não existem ainda e contarão no mesmo teto.
 
 <a id="f40"></a>
 **F40 — Modo Especialista.** Serve N21; segue a D2. Uma opção da partida no lobby, ao lado do critério de vitória, que tira as ajudas que decidem pelo jogador e o obriga a fazer as próprias contas. A filosofia é a do realismo de batalha do Total War e do Hardcore de Kingdom Come: Deliverance, que tiram da tela o que entrega a resposta. O que sai, pelo inventário de hoje: na renda fixa, a coluna e o card "Equivale hoje" (a taxa anual equivalente com CDI e IPCA do dia) e a ordenação por ela, que passa a ser por vencimento; no detalhe do título, a projeção "Quanto R$ X viram no vencimento", com o IR já descontado; e, quando existir, o "Resumo técnico" da F33 com a leitura compra/neutro/venda (os indicadores ficam). A pausa e a visão dos outros jogadores continuam como no modo normal. Guardado em `simulations` como uma coluna por ajuda (com o padrão "ligado"), por migration (D9); o lobby oferece os atalhos Normal e Especialista e mostra a lista para ajuste fino. O servidor omite os campos escondidos do DTO em vez de o front só não desenhá-los, porque no multiplayer quem abrir o DevTools veria a resposta.
@@ -722,8 +725,11 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 **Aceite:** alterar um model e subir `pnpm start` nos docs mostra a mudança no diagrama sem rodar nada à mão.
 
 <a id="f58"></a>
-**F58 — Entrar no meio da partida (hot-join).** Serve N27. Hoje só participa quem estava na sala ao iniciar (F39): quem tenta entrar depois, com conta nova ou antiga, é barrado com "a partida já começou". O plano: uma tela própria para quem chega com a partida em andamento, que mostra as cores que sobraram e deixa escolher uma; ao confirmar, o jogador ganha a linha em `simulation_players`, o depósito inicial na hora (o `Simulation.add_cash` que o cadastro mid-game já usou) e o primeiro snapshot do dia, e passa a entrar nas estatísticas e no ranking. O teto continua sendo o da paleta (10), então sempre sobra cor enquanto houver vaga. Quem sai e volta mantém a cor da partida.
-**Aceite:** com a partida em andamento e vaga na sala, um jogador novo escolhe uma cor livre, recebe o depósito inicial e aparece no ranking; com a sala cheia ele continua barrado.
+**F58 — Entrar no meio da partida (hot-join).** Serve N27. Antes só participava quem estava na sala ao iniciar (F39): quem chegava depois, com conta nova ou antiga, era barrado com 423 "a partida já começou". Agora: (1) **A vaga é do participante, online ou não.** A partida em andamento tem no máximo 10 participantes (linhas de `simulation_players`, o teto da paleta); quem jogou e saiu continua dono da vaga e da cor, então uma partida de 10 com seis offline está cheia e o 11º leva 423 ("a partida já tem 10 jogadores, 6 deles offline"). (2) **Quem chega entra "pendente".** `register`, `claim` e `/session/me` deixam de barrar: a sessão volta com `pending_join` e o front manda para a tela `/join`, sem cor e fora de `UserManager._active_players`. (3) **`/join` mostra quem joga (online ou offline), as cores livres e o saldo inicial.** A lista vem de `GET /api/simulation/match-players`; a cor já marcada é a preferência do navegador, se estiver livre, senão a primeira livre. (4) **`POST /api/simulation/join` vale o primeiro pedido.** Sob o mesmo lock `UserManager.join_match` confere o teto e a cor (409 "X pegou essa cor antes") e grava a linha; `Simulation.add_player` deposita o `starting_cash` pelo `add_cash` do motor, datado do dia corrente, e cria o snapshot do dia. O jogador entra no ranking e nas estatísticas. O aporte mensal vale só dali em diante: o ranking por retorno é comparável, mas o por patrimônio absoluto reflete a data de chegada. (5) **Quem sai e volta mantém a cor da partida.** (6) **A mesma conta de vagas vale para a partida salva.** O lobby desenha os ausentes da partida selecionada (cartão tracejado com a cor reservada), marca "Novo" em quem nunca jogou, conta presentes mais ausentes no `N / 10` e mostra o aviso de quem entra com o saldo inicial. Partida que não comporta a sala (jogadores da partida mais novatos passando de 10) não é selecionável: o diálogo de partidas salvas desabilita o "Selecionar" e diz o motivo com os nomes (`room_overflow`), e o servidor recusa com 409 citando os mesmos nomes. Com espaço para os novatos, a seleção segue normal. Quem resolve o excesso hoje é o próprio jogador saindo da sala (F61).
+**Aceite:** com a partida em andamento e vaga, um jogador novo escolhe uma cor livre, recebe o depósito inicial e aparece no ranking; com 10 participantes, online ou não, ele continua barrado; uma partida salva de 10 jogadores não é selecionável com um novato na sala, e uma de 8 é com dois.
+
+<a id="f61"></a>
+**F61 — Host remove jogador da sala.** Serve N28. Hoje a vaga só abre quando o jogador sai por conta própria: com a sala cheia ou a partida salva recusada por causa de novatos (F58), o host tem de pedir pelo chat para alguém fechar a aba. O plano: um botão "Remover" no cartão de cada jogador do lobby, só para o host, que encerra a sessão do jogador pelo mesmo caminho do `player_logout`, com um aviso "o host te removeu da sala" na tela dele, e libera a cor e a vaga na hora. Fica em aberto se a remoção também vale para participante offline da partida em andamento; a leitura provável é que não, porque tirar a linha de `simulation_players` apaga o saldo e o histórico dele.
 
 ---
 ## 2. Nice-to-have

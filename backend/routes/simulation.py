@@ -77,6 +77,10 @@ class UpdateSettingsRequest(BaseModel):
         return self
 
 
+class JoinMatchRequest(BaseModel):
+    color: str
+
+
 class PlayerNickname(BaseModel):
     nickname: str
     # Chave da paleta (chart-1 a chart-10)
@@ -204,7 +208,12 @@ def list_simulations(client_id: ClientID, search: str | None = None):
     user = UserManager.get_user(client_id)
     nickname = user.nickname if user else None
     return [
-        describe(s, nickname) for s in repository.simulation.list_simulations(search)
+        describe(
+            s,
+            nickname,
+            UserManager.room_overflow(repository.simulation_player.colors(s.id)),
+        )
+        for s in repository.simulation.list_simulations(search)
     ]
 
 
@@ -282,6 +291,39 @@ def set_player_color(payload: PlayerColorRequest, client_id: ClientID):
     Troca a cor do jogador na sala.
     """
     UserManager.set_color(client_id, payload.color)
+
+
+@simulation_router.get(
+    "/match-players",
+    response_model=list[PlayerNickname],
+    summary="Listar jogadores da partida em andamento",
+    description="Retorna todos que jogam a partida ativa, online ou não, cada um com a sua cor. Serve a quem chega e escolhe uma cor que sobrou.",
+)
+def get_match_players():
+    """
+    Lista os participantes da partida ativa.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    simulation_id = SimulationManager.get_active_simulation_id()
+    colors = repository.simulation_player.colors(simulation_id)
+    return [
+        PlayerNickname(nickname=p.nickname, color=colors[p.id])
+        for p in repository.simulation_player.participants(simulation_id)
+    ]
+
+
+@simulation_router.post(
+    "/join",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Entrar na partida em andamento",
+    description="Quem chegou depois do início escolhe uma cor livre e passa a jogar: recebe o depósito inicial no dia corrente e entra nas estatísticas e no ranking. Se a cor já tem dono, a resposta é 409.",
+)
+def join_match(payload: JoinMatchRequest, client_id: ClientID):
+    """
+    Entra na partida em andamento com a cor escolhida.
+    """
+    UserManager.join_match(client_id, payload.color)
 
 
 @simulation_router.get(
