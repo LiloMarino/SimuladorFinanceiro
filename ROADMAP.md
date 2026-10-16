@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-16):** Registrados os logs separados por assunto, com error.log (F57).
+> **Última mudança (2026-10-16):** Concluídos os logs separados por assunto, com error.log (F57); F54 e F45 registram o uso da tabela de logs.
 
 ## Glossário
 
@@ -79,10 +79,9 @@
 | [**F54**](#f54) | Modo debug | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
-| [**F57**](#f57) | Logs separados por assunto | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (31 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -117,6 +116,7 @@
 | [**F36**](#f36) | Interface padronizada no shadcn | — | ✅ |
 | [**F43**](#f43) | Spike: outros modos de jogo | — | ✅ |
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
+| [**F57**](#f57) | Logs separados por assunto | — | ✅ |
 
 </details>
 
@@ -145,7 +145,6 @@
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F50**](#f50) | Diagrama do banco navegável | — | 0 | 🔍 |
-| [**F57**](#f57) | Logs separados por assunto | — | 0 | ⏳ |
 
 ---
 
@@ -408,7 +407,7 @@
 
 ### Sem marco
 
-> **Progresso:** 4/16 concluídas
+> **Progresso:** 5/16 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -423,9 +422,8 @@
 | [**F54**](#f54) | Modo debug | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | [F44](#f44) | 🔍 |
 | [**F56**](#f56) | Novidades no app | [F51](#f51) | ⏳ |
-| [**F57**](#f57) | Logs separados por assunto | — | ⏳ |
 
-<details><summary>Concluído (4 itens)</summary>
+<details><summary>Concluído (5 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -433,6 +431,7 @@
 | [**F31**](#f31) | Diagrama do banco sempre em dia | — | ✅ |
 | [**F32**](#f32) | Ferramenta de correlação entre ativos | — | ✅ |
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
+| [**F57**](#f57) | Logs separados por assunto | — | ✅ |
 
 </details>
 
@@ -484,7 +483,7 @@
 | **F53** | Modo viver de renda | N23 | — | M13 | [F52](#f52) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F54** | Modo debug | N24 | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
 | **F56** | Novidades no app | N14 | — | — | [F51](#f51) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
-| **F57** | Logs separados por assunto | N26 | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
+| **F57** | Logs separados por assunto | N26 | — | — | — | Baixo | Baixo | Médio | Ótimo | ✅ Concluído |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -682,7 +681,7 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 **F42 — Modo em equipes.** Serve N23. Cada um opera a própria carteira, mas o placar é da equipe: quem vence é a equipe, não a pessoa. O host escolhe no lobby entre todos contra todos (o de hoje) e equipes; em equipes, cada jogador escolhe a equipe numa lista ao lado da cor, como no lobby de um RTS. A equipe é uma coluna `team` na `simulation_players` da F39, por migration (D9). O valor da equipe em cada critério de vitória (F27) é a média dos membros (média da nota, do retorno, do Sharpe), para que uma equipe de três não vença uma de dois só por somar mais patrimônio. Cada jogador mantém a própria cor; a equipe aparece como um selo ao lado do nome. As telas que mudam, a desenhar no Claude Design antes de implementar: o lobby (escolha de equipe e aviso de equipes desequilibradas); o ranking ao vivo, por equipe e com os membros abaixo; as estatísticas — na aba Geral, a classificação e a nota da equipe com os eixos da nota como média dos membros; nas abas com curva, a curva da equipe (média) com as dos membros mais apagadas; em Risco, Composição e Operações, os jogadores agrupados por equipe; e o fechamento (F27), com o pódio de equipes, os membros de cada uma e o destaque de quem mais contribuiu na equipe vencedora.
 
 <a id="f45"></a>
-**F45 — Painel de desempenho.** Serve N24. Mede onde o tempo vai durante uma partida, para depois investigar só o ponto caro. O app mede sozinho, sem serviço externo: o Sentry faz essa medição por rota, mas manda os dados para fora da máquina e é pago. Um coletor em memória (`backend/core/metrics.py`) recebe: (1) **HTTP** — um middleware ASGI mede cada requisição e agrupa pela rota declarada (`/api/stocks/{ticker}`, não o ticker); (2) **Socket.IO** — o tempo de cada handler de evento recebido e, para os emitidos, quantas mensagens e quantos bytes por segundo por nome de evento, que é o que pesa no navegador em velocidade alta; (3) **tick** — quanto o motor leva para processar um dia e quanto atrasa em relação à velocidade pedida. Para cada item: chamadas, tempo total, médio, p95 (95% das chamadas levam até esse tempo; média de 20 ms com p95 de 400 ms quer dizer que de vez em quando ela trava) e o máximo, sobre as últimas 1.000 medições. Com o modo debug ligado (F54), `GET /api/debug/metrics` alimenta uma tela "Desempenho" com a tabela ordenada pelo tempo total, e cada resposta HTTP ganha o cabeçalho `Server-Timing`, que a aba Rede do DevTools já mostra. Achado o ponto, a investigação segue com o `py-spy` (`py-spy record --pid`), que gera o gráfico de chamas do processo rodando sem mudar código; uma página dos docs ensina o caminho.
+**F45 — Painel de desempenho.** Serve N24. Mede onde o tempo vai durante uma partida, para depois investigar só o ponto caro. O app mede sozinho, sem serviço externo: o Sentry faz essa medição por rota, mas manda os dados para fora da máquina e é pago. Um coletor em memória (`backend/core/metrics.py`) recebe: (1) **HTTP** — um middleware ASGI mede cada requisição e agrupa pela rota declarada (`/api/stocks/{ticker}`, não o ticker); (2) **Socket.IO** — o tempo de cada handler de evento recebido e, para os emitidos, quantas mensagens e quantos bytes por segundo por nome de evento, que é o que pesa no navegador em velocidade alta; (3) **tick** — quanto o motor leva para processar um dia e quanto atrasa em relação à velocidade pedida. Para cada item: chamadas, tempo total, médio, p95 (95% das chamadas levam até esse tempo; média de 20 ms com p95 de 400 ms quer dizer que de vez em quando ela trava) e o máximo, sobre as últimas 1.000 medições. Com o modo debug ligado (F54), `GET /api/debug/metrics` alimenta uma tela "Desempenho" com a tabela ordenada pelo tempo total, e as requisições lentas vão para um `slow.log`, por um logger próprio (ex.: `backend.metrics`) e uma linha `"slow.log": ("backend.metrics",)` na tabela `AREA_LOGGERS` de `logger.py` (F57), sem handler novo; cada resposta HTTP ganha o cabeçalho `Server-Timing`, que a aba Rede do DevTools já mostra. Achado o ponto, a investigação segue com o `py-spy` (`py-spy record --pid`), que gera o gráfico de chamas do processo rodando sem mudar código; uma página dos docs ensina o caminho.
 
 <a id="f47"></a>
 **F47 — Gravação automática de demonstrações.** Serve N25. Um roteiro em Playwright (`scripts/demo/`) sobe o app num banco de demonstração, importa um conjunto fixo de ativos pelo CSV (sem depender do yfinance, para sair igual toda vez), e percorre as telas: lobby, compra de ação, renda fixa, avanço do tempo, estatísticas e fechamento. Em cada passo tira screenshot, e a sessão inteira é gravada em vídeo (`recordVideo`). O `ffmpeg` corta os trechos em MP4 para os docs e o `gifski` faz GIFs curtos (até ~10 MB) para o README, que no GitHub só anima GIF. A saída vai para `docs/static/demo/`, e o comando `pnpm demo` refaz tudo a cada mudança visual, o que mantém as imagens em dia: as de hoje em `docs/static/img/` são de fevereiro, anteriores ao redesign.
@@ -703,13 +702,13 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 **F53 — Modo viver de renda.** Serve N23. Uma corrida à meta (F52) em que a meta é a independência financeira, e o caminho tem a vida real no meio. O host define no lobby o salário e a despesa mensal (o aporte de hoje vira a diferença entre os dois) e a frequência dos imprevistos. Imprevistos são despesas inesperadas (conserto, saúde, demissão de um mês sem salário), sorteadas com uma semente da partida, para que todos os jogadores recebam os mesmos imprevistos nos mesmos dias. Eles saem do caixa; caixa negativo paga juros de cheque especial até ser coberto, o que obriga a ter reserva de emergência em algo que se resgata rápido. Salário, despesa e imprevisto entram como valores novos do `ENUM` `cashflow_event_type` (à mão na migration, D9). Vence quem primeiro atinge o patrimônio da regra dos 4%: 25 vezes a despesa anual (com R$ 5 mil de despesa por mês, R$ 1,5 milhão), porque retirar 4% ao ano desse patrimônio cobre as despesas, e o estudo Trinity, com dados dos Estados Unidos, mostrou essa retirada, corrigida pela inflação, durando 30 anos na maior parte dos períodos históricos. A taxa de retirada é configurável, e a explicação fica ao lado do campo. Quando os proventos existirem (F22), a meta pode passar a ser a renda passiva real (dividendos e juros recebidos cobrindo a despesa).
 
 <a id="f54"></a>
-**F54 — Modo debug.** Serve N24. Hoje há dois modos implícitos: no `pnpm dev`, o Vite roda em desenvolvimento, as ferramentas do TanStack Query aparecem e o `logger.ts` loga tudo; no executável, o front é o build de produção, de onde o `ReactQueryDevtools` sai sozinho. Falta o meio: ligar as ferramentas no executável, para investigar lentidão na máquina de quem joga, e desligá-las no dev, para ver o app como no executável. Um modo só, independente de como o app roda: `[debug] enabled` no `config.toml` (e `--debug` na linha de comando), ligado por padrão fora do executável e desligado nele. O backend o expõe em `/api/settings`. Ligado, ele: carrega as ferramentas do TanStack Query também no build de produção, por import dinâmico do build de produção delas, como a documentação do TanStack ensina; liga o painel de desempenho (F45) e o item dela no menu; e sobe o log do backend para `DEBUG`. Não há "staging": o projeto não tem servidor publicado, só quem roda o próprio executável.
+**F54 — Modo debug.** Serve N24. Hoje há dois modos implícitos: no `pnpm dev`, o Vite roda em desenvolvimento, as ferramentas do TanStack Query aparecem e o `logger.ts` loga tudo; no executável, o front é o build de produção, de onde o `ReactQueryDevtools` sai sozinho. Falta o meio: ligar as ferramentas no executável, para investigar lentidão na máquina de quem joga, e desligá-las no dev, para ver o app como no executável. Um modo só, independente de como o app roda: `[debug] enabled` no `config.toml` (e `--debug` na linha de comando), ligado por padrão fora do executável e desligado nele. O backend o expõe em `/api/settings`. Ligado, ele: carrega as ferramentas do TanStack Query também no build de produção, por import dinâmico do build de produção delas, como a documentação do TanStack ensina; liga o painel de desempenho (F45) e o item dela no menu; e sobe o nível do `app.log` e dos arquivos por área da F57 para `DEBUG` (o `setup_logging` já recebe o nível; o `config.toml` e o `--debug` o decidem no boot), com o `error.log` seguindo só com `ERROR`. Não há "staging": o projeto não tem servidor publicado, só quem roda o próprio executável.
 
 <a id="f56"></a>
 **F56 — Novidades no app.** Serve N14. Como as notas de patch de um jogo: o `CHANGELOG.md` da F51 vai junto no executável, o backend o serve com a versão, e o lobby mostra as novidades da versão atual. Na primeira abertura depois de atualizar, o card ou o selo de novidades fica em destaque até ser aberto (o navegador guarda a última versão vista); aberto, mostra "O que há de novo na versão X" e dá acesso ao histórico inteiro. O lugar exato no lobby, que já está cheio, sai de uma iteração no Claude Design antes de implementar.
 
 <a id="f57"></a>
-**F57 — Logs separados por assunto.** Serve N26. Hoje o `setup_logging` (`backend/core/logger.py`) manda tudo para o console e para um `app.log` só (rotativo, 10 MB por arquivo, 5 arquivos), então um erro fica no meio das linhas de uma partida inteira: o `app.log` de uma sessão de desenvolvimento tem 3.541 linhas, 12 delas de erro, e seis dessas são de uma única busca no yfinance por um ticker que não existe. Inspirado nos logs da Paradox, que guardam um arquivo por assunto e um `error.log` só com os erros. O plano: (1) **`error.log`** — só `ERROR` e `CRITICAL`, com o traceback completo que `logger.exception` já gera, rotativo como o `app.log`; ficam de fora dele as bibliotecas que tratam falha esperada como erro (o `yfinance` para ticker inexistente), por filtro de prefixo de logger; a linha continua no `app.log`, e o importador loga a própria mensagem de erro, que é a que entra no `error.log`. (2) **Um arquivo por área**, escolhido pelo prefixo do nome do logger e com o mesmo formato de linha: `simulation.log` (motor, ticks, ordens), `realtime.log` (Socket.IO e SSE), `import.log` (yfinance e BCB) e `database.log` (migrations e banco). Cada linha vai para o arquivo da área e para o `app.log`, que segue como o registro completo e cronológico. A tabela "arquivo → prefixos de logger" mora só em `logger.py`; área nova é uma linha. (3) **O uvicorn passa a escrever nos mesmos arquivos.** Hoje o `uvicorn.run` instala a configuração de log própria dele, com `propagate` desligado, então as mensagens do servidor (início, erro de protocolo do WebSocket) saem só no console e não existem no `app.log`. Com `log_config=None` os loggers dele sobem para o raiz e entram em `app.log` e `error.log`; o `uvicorn.access`, uma linha por requisição, fica em `WARNING` para não encher o arquivo. A F54 (modo debug) sobe o nível do `app.log` para `DEBUG`, e a F45 pode mandar as requisições lentas para um `slow.log` com a mesma tabela. **Aceite:** uma exceção provocada numa rota deixa o traceback no `error.log`, uma partida inteira sem falha o deixa vazio, e uma queda do WebSocket por erro de protocolo aparece no `app.log`.
+**F57 — Logs separados por assunto.** Serve N26. Hoje o `setup_logging` (`backend/core/logger.py`) manda tudo para o console e para um `app.log` só (rotativo, 10 MB por arquivo, 5 arquivos), então um erro fica no meio das linhas de uma partida inteira: o `app.log` de uma sessão de desenvolvimento tem 3.541 linhas, 12 delas de erro, e seis dessas são de uma única busca no yfinance por um ticker que não existe. Inspirado nos logs da Paradox, que guardam um arquivo por assunto e um `error.log` só com os erros. O plano: (1) **`error.log`** — só `ERROR` e `CRITICAL`, com o traceback completo que `logger.exception` já gera, rotativo como o `app.log`; ficam de fora dele as bibliotecas que tratam falha esperada como erro (o `yfinance` para ticker inexistente), por filtro de prefixo de logger; a linha continua no `app.log`, e o importador loga a própria mensagem de erro, que é a que entra no `error.log`. (2) **Um arquivo por área**, escolhido pelo prefixo do nome do logger e com o mesmo formato de linha: `simulation.log` (motor, ticks, ordens), `realtime.log` (Socket.IO e SSE), `import.log` (yfinance e BCB) e `database.log` (migrations e banco). Cada linha vai para o arquivo da área e para o `app.log`, que segue como o registro completo e cronológico. A tabela "arquivo → prefixos de logger" mora só em `logger.py`; área nova é uma linha. (3) **O uvicorn passa a escrever nos mesmos arquivos.** Hoje o `uvicorn.run` instala a configuração de log própria dele, com `propagate` desligado, então as mensagens do servidor (início, erro de protocolo do WebSocket) saem só no console e não existem no `app.log`. Com `log_config=None` os loggers dele sobem para o raiz e entram em `app.log` e `error.log`; o `uvicorn.access`, uma linha por requisição, fica em `WARNING` para não encher o arquivo. A F54 (modo debug) sobe o nível do `app.log` e dos arquivos por área para `DEBUG`, com o `error.log` seguindo só com erros, e a F45 manda as requisições lentas para um `slow.log` com uma linha a mais nessa tabela. **Aceite:** uma exceção provocada numa rota deixa o traceback no `error.log`, uma partida inteira sem falha o deixa vazio, e uma queda do WebSocket por erro de protocolo aparece no `app.log`.
 
 ---
 ## 2. Nice-to-have

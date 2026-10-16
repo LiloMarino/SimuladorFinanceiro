@@ -173,9 +173,11 @@ if __name__ == "__main__":
         logger.info(f"Abrindo navegador em {local_url}")
         Timer(1.0, lambda: webbrowser.open(local_url)).start()
 
+    # Os loggers do uvicorn sobem para o raiz: o servidor escreve nos mesmos arquivos
     uvicorn.run(
         asgi_app,
         host="0.0.0.0",
         port=config.toml.server.port,
         reload=False,
+        log_config=None,
     )
