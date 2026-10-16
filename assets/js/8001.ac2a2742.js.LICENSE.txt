@@ -1,0 +1,18 @@
+/*
+ * Konva JavaScript Framework v10.9.0
+ * http://konvajs.org/
+ * Licensed under the MIT
+ * Date: @@date
+ *
+ * Original work Copyright (C) 2011 - 2013 by Eric Rowell (KineticJS)
+ * Modified work Copyright (C) 2014 - present by Anton Lavrenov (Konva)
+ *
+ * @license
+ */
+
+/**
+ * @license lucide v1.57.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */

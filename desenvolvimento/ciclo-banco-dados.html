@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.2">
 <title data-rh="true">Ciclo de Desenvolvimento com Banco de Dados | Simulador Financeiro</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://lilomarino.github.io/SimuladorFinanceiro/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://lilomarino.github.io/SimuladorFinanceiro/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://lilomarino.github.io/SimuladorFinanceiro/desenvolvimento/ciclo-banco-dados"><meta data-rh="true" property="og:locale" content="pt_BR"><meta data-rh="true" name="docusaurus_locale" content="pt-BR"><meta data-rh="true" name="docsearch:language" content="pt-BR"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Ciclo de Desenvolvimento com Banco de Dados | Simulador Financeiro"><meta data-rh="true" name="description" content="O ciclo de desenvolvimento do projeto é feito exclusivamente com PostgreSQL."><meta data-rh="true" property="og:description" content="O ciclo de desenvolvimento do projeto é feito exclusivamente com PostgreSQL."><link data-rh="true" rel="icon" href="/SimuladorFinanceiro/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://lilomarino.github.io/SimuladorFinanceiro/desenvolvimento/ciclo-banco-dados"><link data-rh="true" rel="alternate" href="https://lilomarino.github.io/SimuladorFinanceiro/desenvolvimento/ciclo-banco-dados" hreflang="pt-BR"><link data-rh="true" rel="alternate" href="https://lilomarino.github.io/SimuladorFinanceiro/desenvolvimento/ciclo-banco-dados" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Ciclo de Desenvolvimento com Banco de Dados","item":"https://lilomarino.github.io/SimuladorFinanceiro/desenvolvimento/ciclo-banco-dados"}]}</script><link rel="stylesheet" href="/SimuladorFinanceiro/assets/css/styles.78e78d29.css">
-<script src="/SimuladorFinanceiro/assets/js/runtime~main.1e1751f6.js" defer="defer"></script>
-<script src="/SimuladorFinanceiro/assets/js/main.5eb02abd.js" defer="defer"></script>
+<script src="/SimuladorFinanceiro/assets/js/runtime~main.e22d0931.js" defer="defer"></script>
+<script src="/SimuladorFinanceiro/assets/js/main.8eae0a1e.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -51,12 +51,10 @@
 <p>🔍 <strong>Revisar o arquivo gerado</strong> — ele é um ponto de partida, não o resultado final</p>
 </li>
 <li class="">
-<p>🗺️ <strong>Atualizar o diagrama:</strong> <code>pnpm db:erd</code> regenera o <a class="" href="/SimuladorFinanceiro/desenvolvimento/diagrama-banco-dados">Diagrama do Banco de Dados</a></p>
-</li>
-<li class="">
-<p>✅ <strong>Rodar <code>pnpm test</code></strong> — o <code>tests/test_migrations.py</code> confere que as migrations chegam exatamente no schema dos models e que toda revisão desce e sobe de volta, e o <code>tests/test_erd.py</code>, que o diagrama acompanha os models</p>
+<p>✅ <strong>Rodar <code>pnpm test</code></strong> — o <code>tests/test_migrations.py</code> confere que as migrations chegam exatamente no schema dos models e que toda revisão desce e sobe de volta</p>
 </li>
 </ol>
+<p>O <a class="" href="/SimuladorFinanceiro/desenvolvimento/diagrama-banco-dados">Diagrama do Banco de Dados</a> é gerado dos models a cada <code>pnpm start</code> e <code>pnpm build</code> dos docs, sem passo manual.</p>
 <p>O banco do <code>.env</code> precisa estar no head antes de gerar uma revisão nova: subir o app uma vez já garante isso.</p>
 <h3 class="anchor anchorTargetStickyNavbar_d4Hh" id="o-que-o-autogenerate-não-cobre">O que o autogenerate não cobre<a href="#o-que-o-autogenerate-não-cobre" class="hash-link" aria-label="Link direto para O que o autogenerate não cobre" title="Link direto para O que o autogenerate não cobre" translate="no">​</a></h3>
 <ul>
