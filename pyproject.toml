@@ -74,6 +74,7 @@ build = [
     "pyinstaller>=6.20.0",
 ]
 dev = [
+    "httpx2>=2.13.1",
     "line-profiler>=5.0.2",
     "matplotlib>=3.10.9",
     "pyright>=1.1.410",
