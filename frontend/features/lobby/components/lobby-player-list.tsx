@@ -1,6 +1,7 @@
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Status } from "@/shared/components/ui/status";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { MAX_PLAYERS } from "@/shared/lib/player-colors";
@@ -46,8 +47,7 @@ export function LobbyPlayersList({ hostNickname, savedPlayers }: LobbyPlayersLis
           <CardTitle>Jogadores</CardTitle>
           {absent.length > 0 && (
             <span className="text-xs text-muted-foreground">
-              {sorted.length} na sala · {absent.length} {absent.length === 1 ? "ausente" : "ausentes"} da partida
-              selecionada
+              {sorted.length} na sala · {absent.length} offline da partida selecionada
             </span>
           )}
         </div>
@@ -86,9 +86,11 @@ export function LobbyPlayersList({ hostNickname, savedPlayers }: LobbyPlayersLis
                       </Badge>
                     )}
                   </span>
-                  <span className={cn("text-xs font-medium", isHost ? "text-info" : "text-success")}>
-                    {isHost ? "Host" : "● Online"}
-                  </span>
+                  {isHost ? (
+                    <span className="text-xs font-medium text-info">Host</span>
+                  ) : (
+                    <Status status="online">Online</Status>
+                  )}
                 </div>
                 {isYou && <LobbyColorPicker nickname={player.nickname} players={sorted} savedPlayers={savedPlayers} />}
               </div>
@@ -106,7 +108,7 @@ export function LobbyPlayersList({ hostNickname, savedPlayers }: LobbyPlayersLis
               </span>
               <div className="grid min-w-0 flex-1">
                 <span className="truncate font-semibold text-muted-foreground">{player.nickname}</span>
-                <span className="text-xs font-medium text-faint-foreground">Ausente · cor reservada</span>
+                <Status status="offline">Offline</Status>
               </div>
             </div>
           ))}

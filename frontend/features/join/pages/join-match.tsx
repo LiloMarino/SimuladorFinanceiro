@@ -7,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/aler
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { Status } from "@/shared/components/ui/status";
 import { ErrorState } from "@/shared/components/error-state";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
@@ -108,11 +109,7 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
                       <PlayerAvatar nickname={player.nickname} color={player.color} />
                       <div className="grid min-w-0">
                         <span className="truncate text-sm font-semibold">{player.nickname}</span>
-                        <span
-                          className={isOnline ? "text-xs font-medium text-success" : "text-xs font-medium text-faint-foreground"}
-                        >
-                          {isOnline ? "● Online" : "Offline"}
-                        </span>
+                        <Status status={isOnline ? "online" : "offline"}>{isOnline ? "Online" : "Offline"}</Status>
                       </div>
                     </div>
                   );
