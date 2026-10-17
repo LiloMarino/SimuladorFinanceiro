@@ -126,7 +126,12 @@ def run_initdb(server: Path, data: Path) -> None:
         errors="replace",
     )
     if result.returncode != 0:
-        raise SystemExit(f"initdb falhou:\n{result.stdout}\n{result.stderr}")
+        # O código em hexadecimal identifica o travamento quando a saída vem vazia
+        # (0xC0000135 é DLL não encontrada, 0xC0000142 é falha ao iniciar)
+        code = result.returncode & 0xFFFFFFFF
+        raise SystemExit(
+            f"initdb falhou (código 0x{code:08X}):\n{result.stdout}\n{result.stderr}"
+        )
 
 
 def main() -> None:
