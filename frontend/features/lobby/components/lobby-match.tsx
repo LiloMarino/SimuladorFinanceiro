@@ -370,6 +370,10 @@ export function LobbyMatch({
                 </>
               ) : (
                 <>
+                  <Button size="xl" disabled={!canStart} onClick={() => createSimulation()}>
+                    {creating ? <Spinner /> : <Zap />}
+                    Iniciar nova simulação
+                  </Button>
                   {savedSimulations?.length === 0 && (
                     <div className="grid gap-1.5 border-t border-muted pt-3">
                       <span className="text-[11px] font-semibold tracking-[0.06em] text-faint-foreground uppercase">
@@ -416,10 +420,6 @@ export function LobbyMatch({
                       </Button>
                     </div>
                   )}
-                  <Button size="xl" disabled={!canStart} onClick={() => createSimulation()}>
-                    {creating ? <Spinner /> : <Zap />}
-                    Iniciar nova simulação
-                  </Button>
                 </>
               )
             ) : (
