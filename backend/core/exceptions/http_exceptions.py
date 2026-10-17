@@ -85,3 +85,13 @@ class BadGatewayError(HTTPException):
         detail: str = "Um serviço externo não respondeu ao pedido.",
     ):
         super().__init__(status_code=502, detail=detail)
+
+
+class ServiceUnavailableError(HTTPException):
+    """503 Service Unavailable"""
+
+    def __init__(
+        self,
+        detail: str = "O serviço está indisponível no momento. Tente de novo em instantes.",
+    ):
+        super().__init__(status_code=503, detail=detail)

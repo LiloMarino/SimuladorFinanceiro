@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Info, Sparkles } from "lucide-react";
+import { Info, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
@@ -61,7 +61,20 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
     onSettled,
   });
 
+  const refreshProfile = useApiMutation({
+    mutationFn: () => apiFetch(`/api/import-assets/stocks/${series.key}/profile/refresh`, { method: "POST" }),
+    onError: (err) => toastApiError(err),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.segmentSuggestion(series.key) }),
+  });
+
   const busy = save.isPending || remove.isPending;
+
+  const refreshButton = (
+    <Button variant="ghost" size="sm" disabled={refreshProfile.isPending} onClick={() => refreshProfile.mutate()}>
+      <RefreshCw data-icon="inline-start" />
+      Atualizar perfil
+    </Button>
+  );
 
   return (
     <TableRow variant="editing">
@@ -77,6 +90,7 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
                   {suggestion.sector} › {suggestion.segment}
                 </b>
               </span>
+              {refreshButton}
               <Button
                 variant="outline"
                 size="sm"
@@ -91,7 +105,8 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
           ) : (
             <div className="flex items-center gap-3 rounded-lg border border-dashed border-input px-3 py-2 text-[13px] text-muted-foreground">
               <Info className="size-4 shrink-0" />
-              O yFinance não sugeriu setor pra esse código. Escolha um ou crie.
+              <span className="flex-1">O yFinance não sugeriu setor pra esse código. Escolha um ou crie.</span>
+              {refreshButton}
             </div>
           )}
 

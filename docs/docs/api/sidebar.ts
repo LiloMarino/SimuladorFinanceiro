@@ -196,6 +196,18 @@ const sidebar: SidebarsConfig = {
           label: "Sugestão de setor do yfinance",
           className: "api-method get",
         },
+        {
+          type: "doc",
+          id: "api/refresh-stock-profile-api-import-assets-stocks-ticker-profile-refresh-post",
+          label: "Atualizar o perfil do ativo",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/get-ticker-suggestions-api-import-assets-tickers-get",
+          label: "Sugestão de código de ativo",
+          className: "api-method get",
+        },
       ],
     },
     {

@@ -1,17 +1,20 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from pydantic import BaseModel, Field
 
 from backend.core import repository
 from backend.core.dependencies.simulation import require_no_active_simulation
 from backend.core.dto.sector import SectorDTO, StockSegmentDTO
 from backend.core.dto.series_coverage import SeriesCoverageDTO
+from backend.core.dto.ticker_profile import TickerSuggestionDTO
 from backend.core.enum import AssetClass, IndicatorSeries
 from backend.core.exceptions.http_exceptions import BadGatewayError, NotFoundError
 from backend.features.import_data.coverage import get_series_coverage
 from backend.features.import_data.importer_service import (
     fetch_info,
+    refresh_profile,
+    search_tickers,
     suggest_segment,
     update_from_csv,
     update_from_yfinance,
@@ -198,3 +201,23 @@ def import_assets_csv(
 )
 def get_segment_suggestion(ticker: str):
     return suggest_segment(fetch_info(ticker))
+
+
+@import_router.post(
+    "/stocks/{ticker}/profile/refresh",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Atualizar o perfil do ativo",
+    description="Refaz a consulta do perfil (nome, tipo, setor e indústria) ao yfinance e troca o que estava guardado.",
+)
+def refresh_stock_profile(ticker: str):
+    refresh_profile(ticker)
+
+
+@import_router.get(
+    "/tickers",
+    response_model=list[TickerSuggestionDTO],
+    summary="Sugestão de código de ativo",
+    description="Códigos da B3 que o yfinance acha para o texto digitado, com o nome da empresa. Com menos de 2 caracteres devolve vazio sem consultar a fonte.",
+)
+def get_ticker_suggestions(q: Annotated[str, Query(max_length=30)] = ""):
+    return search_tickers(q)

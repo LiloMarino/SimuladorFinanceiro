@@ -30,5 +30,6 @@ export const queryKeys = {
   seriesCoverage: () => ["import-assets", "coverage"] as const,
   sectors: () => ["import-assets", "sectors"] as const,
   segmentSuggestion: (ticker: string) => ["import-assets", "suggestion", ticker] as const,
+  tickerSearch: (query: string) => ["import-assets", "tickers", query] as const,
   tunnelStatus: () => ["tunnel", "status"] as const,
 } as const;

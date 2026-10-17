@@ -1,6 +1,7 @@
 from datetime import date
 
 from sqlalchemy import delete, func, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, selectinload
 
 from backend.core.decorators.transactional_method import transactional
@@ -10,12 +11,14 @@ from backend.core.dto.series_coverage import OriginCoverageDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
+from backend.core.dto.ticker_profile import TickerProfileDTO
 from backend.core.enum import AssetClass, DataOrigin
 from backend.core.models.models import (
     Sectors,
     Segments,
     Stock,
     StockPriceHistory,
+    TickerProfile,
 )
 
 
@@ -225,6 +228,28 @@ class StockRepository:
         """Todas as ações, inclusive as que ainda não têm preço, em ordem de ticker."""
         stocks = session.execute(select(Stock).order_by(Stock.ticker)).scalars().all()
         return [StockDTO.from_model(stock) for stock in stocks]
+
+    @transactional
+    def get_ticker_profile(
+        self, session: Session, ticker: str
+    ) -> TickerProfileDTO | None:
+        """O perfil guardado do código, ou None quando o yfinance ainda não foi consultado."""
+        profile = session.get(TickerProfile, ticker)
+        return TickerProfileDTO.from_model(profile) if profile else None
+
+    @transactional
+    def save_ticker_profile(self, session: Session, profile: TickerProfileDTO) -> None:
+        """Grava (ou troca) o perfil do código; o perfil vazio também vale, para o ativo
+        que o yfinance devolve sem dado não ser consultado de novo."""
+        values = profile.model_dump()
+        session.execute(
+            insert(TickerProfile)
+            .values(**values)
+            .on_conflict_do_update(
+                index_elements=[TickerProfile.ticker],
+                set_={**values, "fetched_at": func.now()},
+            )
+        )
 
     @transactional
     def classify(
