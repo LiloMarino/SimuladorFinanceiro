@@ -21,7 +21,6 @@ import platform
 import shutil
 import subprocess
 import sys
-import tempfile
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -51,6 +50,11 @@ VC_RUNTIME_WHEEL_LICENSE = "msvc_runtime-14.44.35112.dist-info/licenses/LICENSE"
 VC_RUNTIME_DLLS = ("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll")
 
 CACHE_DIR = Path(".cache/postgres")
+
+# O initdb se relança com token restrito, sem o grupo Administradores: a pasta de
+# trabalho herda a permissão da pasta pai (legível por Usuários), porque o `tempfile`
+# só dá acesso a SYSTEM, Administradores e ao proprietário
+WORK_DIR = Path(".cache/postgres_work")
 OUTPUT_DIR = Path("postgres_dist")
 
 # Executáveis necessários além das DLLs; o resto de `bin` são ferramentas de manutenção
@@ -169,6 +173,13 @@ def unloadable_modules(server: Path) -> list[str]:
     return failures
 
 
+def folder_permissions(folder: Path) -> str:
+    result = subprocess.run(
+        ["icacls", str(folder)], capture_output=True, text=True, errors="replace"
+    )
+    return result.stdout or result.stderr
+
+
 def run_initdb(server: Path, data: Path) -> None:
     result = subprocess.run(
         [str(server / "bin" / "initdb.exe"), "-D", str(data), *INITDB_ARGS],
@@ -184,7 +195,8 @@ def run_initdb(server: Path, data: Path) -> None:
         raise SystemExit(
             f"initdb falhou (código 0x{code:08X}) no {platform.platform()}:\n"
             f"{result.stdout}\n{result.stderr}\n"
-            f"Binários que não carregam:\n{broken}"
+            f"Binários que não carregam:\n{broken}\n"
+            f"Permissões da pasta do servidor:\n{folder_permissions(server)}"
         )
 
 
@@ -196,13 +208,17 @@ def main() -> None:
     official_zip = fetch_pinned(POSTGRES_ZIP_URL, POSTGRES_ZIP_SHA256, args.source_zip)
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    with tempfile.TemporaryDirectory(prefix="simfin_pg_") as work:
-        server = Path(work) / "server"
+    shutil.rmtree(WORK_DIR, ignore_errors=True)
+    work = WORK_DIR.resolve()
+    try:
+        server = work / "server"
         extract_server(official_zip, server)
         bundle_vc_runtime(server)
-        run_initdb(server, Path(work) / "cluster")
+        run_initdb(server, work / "cluster")
         zip_tree(server, OUTPUT_DIR / "postgres.zip")
-        zip_tree(Path(work) / "cluster", OUTPUT_DIR / "cluster.zip")
+        zip_tree(work / "cluster", OUTPUT_DIR / "cluster.zip")
+    finally:
+        shutil.rmtree(WORK_DIR, ignore_errors=True)
 
     (OUTPUT_DIR / "postgres.version").write_text(POSTGRES_VERSION, encoding="utf-8")
     for file in sorted(OUTPUT_DIR.iterdir()):
