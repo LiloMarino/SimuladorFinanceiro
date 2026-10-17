@@ -14,10 +14,13 @@ Saída em `postgres_dist/`, empacotada pelo `SimuladorFinanceiro.spec`:
 """
 
 import argparse
+import ctypes
 import hashlib
 import os
+import platform
 import shutil
 import subprocess
+import sys
 import tempfile
 import urllib.request
 import zipfile
@@ -146,6 +149,26 @@ def zip_tree(source: Path, destination: Path) -> None:
                 z.write(Path(directory) / name, (relative / name).as_posix())
 
 
+def unloadable_modules(server: Path) -> list[str]:
+    """Os binários de `bin` que o Windows não consegue carregar, com o erro de cada um."""
+    if sys.platform != "win32":
+        return []
+    free_library = ctypes.WinDLL("kernel32").FreeLibrary
+    free_library.argtypes = [ctypes.c_void_p]
+    failures = []
+    for module in sorted((server / "bin").iterdir()):
+        if module.suffix.lower() not in (".dll", ".exe"):
+            continue
+        try:
+            loaded = ctypes.WinDLL(str(module))
+        except OSError as error:
+            failures.append(f"{module.name}: {error}")
+        else:
+            # O módulo carregado trava o arquivo e a limpeza da pasta temporária
+            free_library(loaded._handle)
+    return failures
+
+
 def run_initdb(server: Path, data: Path) -> None:
     result = subprocess.run(
         [str(server / "bin" / "initdb.exe"), "-D", str(data), *INITDB_ARGS],
@@ -157,8 +180,11 @@ def run_initdb(server: Path, data: Path) -> None:
         # O código em hexadecimal identifica o travamento quando a saída vem vazia
         # (0xC0000135 é DLL não encontrada, 0xC0000142 é falha ao iniciar)
         code = result.returncode & 0xFFFFFFFF
+        broken = "\n".join(unloadable_modules(server)) or "nenhum"
         raise SystemExit(
-            f"initdb falhou (código 0x{code:08X}):\n{result.stdout}\n{result.stderr}"
+            f"initdb falhou (código 0x{code:08X}) no {platform.platform()}:\n"
+            f"{result.stdout}\n{result.stderr}\n"
+            f"Binários que não carregam:\n{broken}"
         )
 
 
