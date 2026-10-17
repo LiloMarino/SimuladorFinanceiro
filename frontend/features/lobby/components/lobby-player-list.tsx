@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -5,6 +6,7 @@ import { Status } from "@/shared/components/ui/status";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { MAX_PLAYERS } from "@/shared/lib/player-colors";
+import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
 import { cn } from "@/shared/lib/utils";
 import type { RoomPlayer } from "@/types";
 import { useApplyColorPreference } from "../hooks/useApplyColorPreference";
@@ -14,12 +16,16 @@ type LobbyPlayersListProps = {
   hostNickname: string;
   /** Quem jogou a partida salva selecionada, com a cor guardada */
   savedPlayers: RoomPlayer[];
+  /** Partida salva selecionada; nula quando a partida é nova */
+  selectedSimulationId: number | null;
 };
 
 /** Jogadores da sala em cartões, com as vagas livres à vista. */
-export function LobbyPlayersList({ hostNickname, savedPlayers }: LobbyPlayersListProps) {
+export function LobbyPlayersList({ hostNickname, savedPlayers, selectedSimulationId }: LobbyPlayersListProps) {
   const { user } = useAuth();
   const { data: players } = useRoomPlayers();
+  const { data: savedSimulations } = useQuery(simulationListOptions());
+  const simulationName = savedSimulations?.find((s) => s.id === selectedSimulationId)?.name;
 
   // Host primeiro, depois quem joga, em ordem alfabética
   const sorted = [...(players ?? [])].sort(
@@ -92,7 +98,12 @@ export function LobbyPlayersList({ hostNickname, savedPlayers }: LobbyPlayersLis
                     <Status status="online">Online</Status>
                   )}
                 </div>
-                {isYou && <LobbyColorPicker nickname={player.nickname} players={sorted} savedPlayers={savedPlayers} />}
+                {isYou && <LobbyColorPicker
+                    nickname={player.nickname}
+                    players={sorted}
+                    savedPlayers={savedPlayers}
+                    simulationName={simulationName}
+                  />}
               </div>
             );
           })}

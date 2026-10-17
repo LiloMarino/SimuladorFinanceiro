@@ -69,7 +69,11 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
       <LobbyHeader isHost={settings.is_host} hostNickname={settings.host_nickname} />
 
       <div className="grid items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
-        <LobbyPlayersList hostNickname={settings.host_nickname} savedPlayers={settings.selected_players} />
+        <LobbyPlayersList
+          hostNickname={settings.host_nickname}
+          savedPlayers={settings.selected_players}
+          selectedSimulationId={settings.selected_simulation_id}
+        />
         <LobbyMatch
           simulationData={settings.simulation}
           isHost={settings.is_host}

@@ -14,15 +14,19 @@ type LobbyColorPickerProps = {
   players: RoomPlayer[];
   /** Quem jogou a partida salva selecionada: as cores deles ficam reservadas */
   savedPlayers: RoomPlayer[];
+  /** Nome da partida salva selecionada, quando há */
+  simulationName?: string;
 };
 
 /** "Sua cor na partida": 10 cores, as que já têm dono ficam apagadas com a sigla de quem as tem. */
-export function LobbyColorPicker({ nickname, players, savedPlayers }: LobbyColorPickerProps) {
+export function LobbyColorPicker({ nickname, players, savedPlayers, simulationName }: LobbyColorPickerProps) {
   const [refusal, setRefusal] = useState<string | null>(null);
 
   const mine = players.find((p) => p.nickname === nickname)?.color;
   // Quem jogou a partida selecionada volta com a cor dela
   const locked = savedPlayers.some((p) => p.nickname === nickname);
+  // Quem nunca jogou a partida selecionada escolhe só entre as cores que sobraram
+  const joiningNew = savedPlayers.length > 0 && !locked;
 
   const { mutate, isPending } = useChooseColor();
   const chooseColor = (color: string) =>
@@ -41,11 +45,13 @@ export function LobbyColorPicker({ nickname, players, savedPlayers }: LobbyColor
       </PopoverTrigger>
       <PopoverContent align="end" className="w-88">
         <PopoverHeader>
-          <PopoverTitle>Sua cor na partida</PopoverTitle>
+          <PopoverTitle>{locked && simulationName ? `Sua cor em ${simulationName}` : "Sua cor na partida"}</PopoverTitle>
           <PopoverDescription>
             {locked
               ? "É a cor que você teve nessa partida: não dá pra trocar."
-              : "É como os outros te reconhecem no ranking e nos gráficos."}
+              : joiningNew && simulationName
+                ? `Você entra em ${simulationName} como jogador novo. As cores de quem já jogou ficam reservadas.`
+                : "É como os outros te reconhecem no ranking e nos gráficos."}
           </PopoverDescription>
         </PopoverHeader>
 
@@ -64,7 +70,11 @@ export function LobbyColorPicker({ nickname, players, savedPlayers }: LobbyColor
           </Alert>
         )}
 
-        <p className="text-xs text-muted-foreground">Fica guardada neste navegador pra próxima sala.</p>
+        <p className="text-xs text-muted-foreground">
+          {locked
+            ? "As apagadas são de quem já jogou, estando na sala ou não."
+            : "Fica guardada neste navegador pra próxima sala."}
+        </p>
       </PopoverContent>
     </Popover>
   );

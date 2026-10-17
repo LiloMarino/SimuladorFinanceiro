@@ -51,6 +51,8 @@ type RulesSheetProps = {
   /** Ativo citado no exemplo do impacto; vazio quando a base não tem ação */
   exampleTicker: string | undefined;
   saveStatus: { savedAt: number | null; saving: boolean; saveError: ApiError | null };
+  /** Regras gravadas numa partida salva: valem como estão, ninguém edita */
+  locked?: boolean;
 };
 
 /** Regras da partida num painel lateral, com o lobby atrás. Mudanças salvam sozinhas. */
@@ -63,6 +65,7 @@ export function RulesSheet({
   coverageCheck,
   exampleTicker,
   saveStatus,
+  locked = false,
 }: RulesSheetProps) {
   const [startDate, impactEnabled, impactK, impactT] = useWatch({
     control: form.control,
@@ -72,7 +75,7 @@ export function RulesSheet({
   const [customOpen, setCustomOpen] = useState(false);
   const derivedMode = priceImpactModeOf(impactEnabled, impactK, impactT);
   const impactMode: PriceImpactMode = customOpen && impactEnabled ? "CUSTOM" : derivedMode;
-  const readOnly = !isHost;
+  const readOnly = !isHost || locked;
 
   const selectImpactMode = (mode: PriceImpactMode) => {
     setCustomOpen(mode === "CUSTOM");
@@ -90,7 +93,11 @@ export function RulesSheet({
         <SheetHeader>
           <SheetTitle>Regras da partida</SheetTitle>
           <SheetDescription>
-            {isHost ? "Mudanças salvam sozinhas e aparecem pra todos." : "Modo visualização."}
+            {locked
+              ? "São as regras gravadas na partida salva: não mudam."
+              : isHost
+                ? "Mudanças salvam sozinhas e aparecem pra todos."
+                : "Modo visualização."}
           </SheetDescription>
         </SheetHeader>
 
@@ -250,6 +257,7 @@ export function RulesSheet({
         <SheetFooter>
           <SaveStatus
             isHost={isHost}
+            locked={locked}
             hostNickname={hostNickname}
             invalidFields={Object.keys(form.formState.errors).length}
             {...saveStatus}
@@ -263,13 +271,18 @@ export function RulesSheet({
 
 type SaveStatusProps = RulesSheetProps["saveStatus"] & {
   isHost: boolean;
+  locked: boolean;
   hostNickname: string;
   invalidFields: number;
 };
 
 /** Rodapé do painel: o que aconteceu com a última mudança, no lugar do toast repetido. */
-function SaveStatus({ isHost, hostNickname, invalidFields, savedAt, saving, saveError }: SaveStatusProps) {
+function SaveStatus({ isHost, locked, hostNickname, invalidFields, savedAt, saving, saveError }: SaveStatusProps) {
   const now = useNow(1000);
+
+  if (locked) {
+    return <span className="text-[13px] text-muted-foreground">Regras de uma partida salva não mudam.</span>;
+  }
 
   if (!isHost) {
     return (
