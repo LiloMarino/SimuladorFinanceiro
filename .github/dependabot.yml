@@ -1,0 +1,88 @@
+version: 2
+
+# Atualizações de versão rodam só pelo agendamento (1º dia do mês): push na main
+# não dispara nada. Cada ecossistema agrupa minor e patch numa PR única; versão
+# maior fica fora do grupo e vem em PR própria por pacote. Alerta de segurança
+# ignora o agendamento e a janela de espera, e chega na hora.
+# Os commits seguem o padrão do projeto, `tipo: Descrição` sem escopo.
+
+updates:
+  # Python (pyproject.toml e uv.lock)
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build"
+    groups:
+      python-minor-patch:
+        update-types: ["minor", "patch"]
+
+  # Frontend (React)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "monthly"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build"
+    groups:
+      frontend-minor-patch:
+        update-types: ["minor", "patch"]
+
+  # Documentação (Docusaurus)
+  - package-ecosystem: "npm"
+    directory: "/docs"
+    schedule:
+      interval: "monthly"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build"
+    groups:
+      docs-minor-patch:
+        update-types: ["minor", "patch"]
+
+  # Ferramentas de desenvolvimento da raiz (concurrently, cross-env)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build"
+    groups:
+      root-minor-patch:
+        update-types: ["minor", "patch"]
+
+  # Actions dos workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions-minor-patch:
+        update-types: ["minor", "patch"]
