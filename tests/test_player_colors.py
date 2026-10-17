@@ -368,7 +368,7 @@ def test_late_player_authenticates_pending_without_a_slot_in_the_room(
     assert color_of(late) is None
 
 
-def test_full_match_refuses_the_late_player_counting_the_offline_ones(
+def test_full_match_refuses_the_late_player(
     start_match: StartMatch,
 ):
     start_match({n: (f"P{n}", PLAYER_COLORS[n - 1]) for n in range(1, 11)})
@@ -377,7 +377,7 @@ def test_full_match_refuses_the_late_player_counting_the_offline_ones(
     message = refusal(lambda: UserManager.player_auth(late.client_id), status=423)
 
     assert "10 jogadores" in message
-    assert "10 deles offline" in message
+    assert "está lotada" in message
 
 
 def test_join_match_takes_the_free_color_and_the_deposit(start_match: StartMatch):

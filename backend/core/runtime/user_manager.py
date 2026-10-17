@@ -97,7 +97,7 @@ class UserManager:
         # Quem não joga a partida entra autenticado, sem vaga na sala: a cor ele escolhe em join_match
         if match_colors is not None and user.id not in match_colors:
             if len(match_colors) >= MAX_PLAYERS:
-                raise LockedError(cls._match_full(match_colors))
+                raise LockedError(cls._match_full())
             return user
 
         with cls._lock:
@@ -173,7 +173,7 @@ class UserManager:
             if user.id in colors:
                 raise ConflictError("Você já faz parte da partida.")
             if len(colors) >= MAX_PLAYERS:
-                raise LockedError(cls._match_full(colors))
+                raise LockedError(cls._match_full())
 
             owner_id = next((uid for uid, c in colors.items() if c == color), None)
             if owner_id is not None:
@@ -343,11 +343,9 @@ class UserManager:
         return newcomers if len(colors) + len(newcomers) > MAX_PLAYERS else []
 
     @classmethod
-    def _match_full(cls, match_colors: dict[int, str]) -> str:
+    def _match_full(cls) -> str:
         """Partida sem vaga: participante offline também ocupa a sua."""
-        offline = sum(1 for user_id in match_colors if user_id not in cls._colors)
-        detail = f", {offline} deles offline" if offline else ""
-        return f"A partida já tem {MAX_PLAYERS} jogadores{detail}. Espere a próxima."
+        return f"A partida já tem {MAX_PLAYERS} jogadores e está lotada."
 
     @classmethod
     def _free_color(cls) -> str:

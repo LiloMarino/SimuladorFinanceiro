@@ -49,7 +49,7 @@ Quem chega depois do início não precisa esperar a próxima partida. Ao entrar 
 
 - **Saldo inicial na hora:** quem entra recebe o mesmo capital inicial dos outros, no dia em que a simulação está, e passa a aparecer no ranking e nas estatísticas.
 - **Aporte mensal só dali em diante:** quem chega no dia 20 não recebe os aportes dos meses anteriores. O ranking por retorno continua comparável; o ranking por patrimônio absoluto reflete a data de chegada.
-- **A vaga é de quem jogou, esteja online ou não:** a partida comporta até 10 jogadores. Quem saiu continua dono da vaga e da cor, então uma partida com 10 jogadores, seis deles offline, está cheia e ninguém novo entra.
+- **A vaga é de quem jogou, esteja online ou não:** a partida comporta até 10 jogadores. Quem saiu continua dono da vaga e da cor, então uma partida com 10 jogadores, online ou não, está lotada e ninguém novo entra.
 - **Quem sai e volta mantém a cor** e o saldo da partida.
 
 ### Continuar uma partida salva
