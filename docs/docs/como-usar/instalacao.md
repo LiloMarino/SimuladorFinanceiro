@@ -23,6 +23,10 @@ Esta página explica como baixar e executar o Simulador Financeiro no seu sistem
 
 Os executáveis estão disponíveis na página de [Releases do GitHub](https://github.com/LiloMarino/SimuladorFinanceiro/releases). Escolha a versão mais recente e baixe `SimuladorFinanceiro-windows.exe`.
 
+:::note
+O banco de dados embutido usa o **Microsoft Visual C++ Redistributable (x64)**, que a maioria dos computadores já tem. Se o jogo avisar que ele falta, baixe `vc_redist.x64.exe` na mesma página de Releases (ou no [site da Microsoft](https://aka.ms/vs/17/release/vc_redist.x64.exe)), instale e abra o jogo de novo.
+:::
+
 ### 2) Executar
 
 1. Execute o arquivo (pode ser necessário permitir a execução nas configurações de segurança do Windows)
@@ -39,7 +43,7 @@ Não é preciso instalar PostgreSQL, criar senha nem editar o `.env`. Mantenha a
 
 O executável do Windows leva o servidor [PostgreSQL](https://www.postgresql.org/) oficial dentro dele. A cada abertura o servidor sobe só para o seu computador, numa porta livre e protegido por uma senha gerada na primeira vez, e desce quando o jogo fecha.
 
-Os dados ficam em `%LOCALAPPDATA%\SimuladorFinanceiro`:
+Os dados e as configurações ficam em `%LOCALAPPDATA%\SimuladorFinanceiro`, e não ao lado do executável. O jogo mostra essa pasta no início do registro da janela preta.
 
 | Item | O que é |
 |---|---|
@@ -47,10 +51,13 @@ Os dados ficam em `%LOCALAPPDATA%\SimuladorFinanceiro`:
 | `postgres\` | Os programas do PostgreSQL, extraídos na primeira abertura |
 | `db.password` | A senha do banco, gerada no seu computador |
 | `postgres.log` | O registro do servidor, útil quando algo falha |
+| `config.toml` | As configurações do jogo (criado com os valores padrão na primeira abertura) |
+| `logs\` | Os registros do jogo |
+| `.env` | Só existe se você usar um PostgreSQL seu |
 
 - **Backup:** com o jogo fechado, copie a pasta `%LOCALAPPDATA%\SimuladorFinanceiro`.
 - **Começar do zero:** com o jogo fechado, apague essa pasta. A próxima abertura cria tudo de novo, **sem as partidas salvas**.
-- **Usar um PostgreSQL seu em vez do embutido:** crie um arquivo `.env` na pasta de onde o executável é aberto com `POSTGRES_DATABASE_URL=...` (veja o formato na seção de Linux e macOS). Com a variável definida, o servidor embutido não sobe.
+- **Usar um PostgreSQL seu em vez do embutido:** crie um arquivo `.env` em `%LOCALAPPDATA%\SimuladorFinanceiro` com `POSTGRES_DATABASE_URL=...` (veja o formato na seção de Linux e macOS). Com a variável definida, o servidor embutido não sobe.
 - **Atualizações:** as partidas salvas passam para a versão nova sozinhas na primeira abertura. A página [Novidades](./novidades.md) diz, a cada versão, o que mudou e se as partidas salvas continuam valendo.
 
 O PostgreSQL é distribuído sob a [licença do PostgreSQL](https://www.postgresql.org/about/licence/), e os textos de licença acompanham os programas em `postgres\<versão>\licenses`.
@@ -90,7 +97,7 @@ Na página de [Releases do GitHub](https://github.com/LiloMarino/SimuladorFinanc
 O `.env` é criado automaticamente na primeira execução, mas você pode criar e configurar manualmente antes de rodar o executável para evitar o erro de conexão na primeira execução.
 :::
 
-1. Crie ou edite o arquivo `.env` na **pasta de onde você abre o executável**
+1. Crie ou edite o arquivo `.env` na **pasta de dados do app**: `~/.config/SimuladorFinanceiro` no Linux (ou em `$XDG_CONFIG_HOME/SimuladorFinanceiro`, se essa variável existir) e `~/Library/Application Support/SimuladorFinanceiro` no macOS. O `config.toml` e os `logs` ficam na mesma pasta, e o jogo mostra o caminho no início do registro.
 2. Configure a variável de ambiente com a URL de conexão do PostgreSQL, substituindo `<senha>` pela senha do usuário `postgres` que você definiu durante a instalação:
    ```env
    POSTGRES_DATABASE_URL=postgresql+psycopg://postgres:<senha>@localhost:5432/simulador_financeiro
@@ -121,7 +128,8 @@ Velocidades muito altas de simulação (como `100x`) podem causar muito lag no n
 A mensagem mostra o fim do `postgres.log`, em `%LOCALAPPDATA%\SimuladorFinanceiro`. As causas mais comuns:
 
 - **Antivírus bloqueando o servidor:** adicione `%LOCALAPPDATA%\SimuladorFinanceiro` às exceções do antivírus e abra o jogo de novo.
-- **Falta o Visual C++ Redistributable:** se o Windows reclamar de uma DLL como `vcruntime140.dll`, instale o [Microsoft Visual C++ Redistributable (x64)](https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist).
+- **Falta o Visual C++ Redistributable:** num Windows recém-instalado o jogo avisa que o Windows não encontrou uma DLL do Visual C++. Instale o `vc_redist.x64.exe` que acompanha a release (ou o [Microsoft Visual C++ Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe)) e abra o jogo de novo.
+- **Jogo aberto como administrador:** o PostgreSQL recusa rodar com permissão de administrador (a mensagem diz "Execution of PostgreSQL by a user with administrative permissions is not permitted"). Abra o jogo com um duplo clique normal, sem "Executar como administrador".
 - **Disco cheio ou pasta sem permissão de escrita:** o jogo precisa de cerca de 200 MB livres em `%LOCALAPPDATA%`.
 
 ### Windows: o jogo foi fechado à força ou o computador desligou

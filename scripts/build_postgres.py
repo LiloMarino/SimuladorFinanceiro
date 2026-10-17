@@ -30,22 +30,6 @@ POSTGRES_ZIP_URL = (
 )
 POSTGRES_ZIP_SHA256 = "fbe23da234ee31547bf8a36d29dfd81e82b849df2d2b78d2eecb43d360252f8c"
 
-# O zip oficial não traz o runtime do Visual C++ que o servidor e o ICU importam. As DLLs
-# vêm do wheel `msvc-runtime`, que reempacota sem alteração os arquivos assinados pela
-# Microsoft (Visual C++ 2022, versão 14.44), e entram na pasta bin do servidor: o
-# Postgres sobe em qualquer Windows, com ou sem o Redistributable instalado
-VC_RUNTIME_WHEEL_URL = (
-    "https://files.pythonhosted.org/packages/fe/17/"
-    "7a1eace5a7c6083bd99db861625c08bb37010dfbe90ed7a0194ae0281689/"
-    "msvc_runtime-14.44.35112-cp313-cp313-win_amd64.whl"
-)
-VC_RUNTIME_WHEEL_SHA256 = (
-    "d4f6cf106aaf235f2a90952f9ec7de49e9946323880d051abf9745a6d4bf60bf"
-)
-VC_RUNTIME_WHEEL_DATA = "msvc_runtime-14.44.35112.data/data/Scripts/"
-VC_RUNTIME_WHEEL_LICENSE = "msvc_runtime-14.44.35112.dist-info/licenses/LICENSE"
-VC_RUNTIME_DLLS = ("vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll")
-
 CACHE_DIR = Path(".cache/postgres")
 
 # O initdb se relança com token restrito, sem o grupo Administradores: a pasta de
@@ -87,16 +71,18 @@ def sha256_of(path: Path) -> str:
     return digest.hexdigest()
 
 
-def fetch_pinned(url: str, sha256: str, source: Path | None = None) -> Path:
-    """O arquivo no hash fixado: o informado, o do cache ou o baixado."""
+def fetch_official_zip(source: Path | None) -> Path:
+    """O zip oficial na versão fixada: o informado, o do cache ou o baixado."""
     if source is None:
-        source = CACHE_DIR / Path(url).name
+        source = CACHE_DIR / Path(POSTGRES_ZIP_URL).name
         if not source.exists():
             CACHE_DIR.mkdir(parents=True, exist_ok=True)
-            print(f"Baixando {url}")
-            urllib.request.urlretrieve(url, source)
-    if sha256_of(source) != sha256:
-        raise SystemExit(f"O hash de {source} não é o fixado para {url}.")
+            print(f"Baixando {POSTGRES_ZIP_URL}")
+            urllib.request.urlretrieve(POSTGRES_ZIP_URL, source)
+    if sha256_of(source) != POSTGRES_ZIP_SHA256:
+        raise SystemExit(
+            f"O hash de {source} não é o fixado para o Postgres {POSTGRES_VERSION}."
+        )
     return source
 
 
@@ -123,20 +109,6 @@ def extract_server(official_zip: Path, target: Path) -> None:
             destination.parent.mkdir(parents=True, exist_ok=True)
             with archive.open(entry) as source, destination.open("wb") as file:
                 shutil.copyfileobj(source, file)
-
-
-def bundle_vc_runtime(server: Path) -> None:
-    """Copia o runtime do Visual C++ e o texto de licença dele para o servidor."""
-    wheel = fetch_pinned(VC_RUNTIME_WHEEL_URL, VC_RUNTIME_WHEEL_SHA256)
-    with zipfile.ZipFile(wheel) as archive:
-        for name in VC_RUNTIME_DLLS:
-            (server / "bin" / name).write_bytes(
-                archive.read(VC_RUNTIME_WHEEL_DATA + name)
-            )
-        (server / "licenses").mkdir(exist_ok=True)
-        (server / "licenses" / "vc_runtime_license.txt").write_bytes(
-            archive.read(VC_RUNTIME_WHEEL_LICENSE)
-        )
 
 
 def zip_tree(source: Path, destination: Path) -> None:
@@ -171,7 +143,7 @@ def main() -> None:
     parser.add_argument("--source-zip", type=Path, help="zip oficial já baixado")
     args = parser.parse_args()
 
-    official_zip = fetch_pinned(POSTGRES_ZIP_URL, POSTGRES_ZIP_SHA256, args.source_zip)
+    official_zip = fetch_official_zip(args.source_zip)
     OUTPUT_DIR.mkdir(exist_ok=True)
 
     shutil.rmtree(WORK_DIR, ignore_errors=True)
@@ -179,7 +151,6 @@ def main() -> None:
     try:
         server = work / "server"
         extract_server(official_zip, server)
-        bundle_vc_runtime(server)
         run_initdb(server, work / "cluster")
         zip_tree(server, OUTPUT_DIR / "postgres.zip")
         zip_tree(work / "cluster", OUTPUT_DIR / "cluster.zip")

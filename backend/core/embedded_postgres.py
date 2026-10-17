@@ -37,6 +37,10 @@ SUPERUSER = "postgres"
 STARTUP_TIMEOUT_SECONDS = 60
 SHUTDOWN_TIMEOUT_SECONDS = 30
 
+# STATUS_DLL_NOT_FOUND: o Windows não achou uma DLL, a do Visual C++ numa instalação limpa
+MISSING_DLL_EXIT_CODE = 0xC0000135
+VC_REDIST_URL = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+
 # SQLSTATE de "o servidor está subindo"; sem SQLSTATE, a porta ainda não aceita conexão
 STARTING_UP = "57P03"
 
@@ -211,6 +215,14 @@ class EmbeddedPostgres:
             else:
                 return
             time.sleep(0.2)
+        exit_code = self._process.poll()
+        if exit_code is not None and exit_code & 0xFFFFFFFF == MISSING_DLL_EXIT_CODE:
+            raise EmbeddedPostgresError(
+                "O Windows não encontrou uma DLL do Visual C++ de que o banco de "
+                "dados precisa. Instale o Microsoft Visual C++ Redistributable (x64), "
+                f"que também acompanha a release do jogo: {VC_REDIST_URL}\n"
+                "Depois abra o jogo de novo."
+            )
         raise EmbeddedPostgresError(
             "O servidor PostgreSQL embarcado não subiu. "
             f"Fim do log ({self._log}):\n{self._log_tail()}"

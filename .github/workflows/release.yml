@@ -7,6 +7,12 @@ concurrency:
   group: release
   cancel-in-progress: false
 
+# Instalador oficial do Visual C++ Redistributable (x64) na versão e no hash fixos:
+# o build do Windows o instala e a release o publica para quem joga
+env:
+  VC_REDIST_URL: https://download.visualstudio.microsoft.com/download/pr/990c720a-46ce-4dc7-87b9-c2eb615d34b9/CC0FF0EB1DC3F5188AE6300FAEF32BF5BEEBA4BDD6E8E445A9184072096B713B/VC_redist.x64.exe
+  VC_REDIST_SHA256: cc0ff0eb1dc3f5188ae6300faef32bf5beeba4bdd6e8e445a9184072096b713b
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -115,6 +121,18 @@ jobs:
           path: .cache/postgres
           key: postgres-${{ hashFiles('scripts/build_postgres.py') }}
 
+      # O initdb do build e o servidor do jogador importam o runtime do Visual C++
+      - name: Instalar o Visual C++ Redistributable
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Invoke-WebRequest $env:VC_REDIST_URL -OutFile vc_redist.x64.exe
+          $hash = (Get-FileHash vc_redist.x64.exe -Algorithm SHA256).Hash.ToLower()
+          if ($hash -ne $env:VC_REDIST_SHA256) { throw "Hash do vc_redist diferente do fixado: $hash" }
+          # 0 instalou, 1638 já há versão igual ou mais nova, 3010 pede reinício
+          $process = Start-Process ./vc_redist.x64.exe -ArgumentList '/install','/quiet','/norestart' -Wait -PassThru
+          if ($process.ExitCode -notin 0, 1638, 3010) { throw "vc_redist falhou: $($process.ExitCode)" }
+
       - name: Preparar o Postgres embarcado
         if: runner.os == 'Windows'
         run: uv run python -m scripts.build_postgres
@@ -168,6 +186,12 @@ jobs:
           pattern: SimuladorFinanceiro-*
           merge-multiple: true
 
+      # O Postgres embarcado no Windows precisa dele; a release o leva para quem não o tem
+      - name: Baixar o Visual C++ Redistributable oficial
+        run: |
+          curl -fsSL "$VC_REDIST_URL" -o release-assets/vc_redist.x64.exe
+          echo "$VC_REDIST_SHA256  release-assets/vc_redist.x64.exe" | sha256sum -c -
+
       - name: Criar release e anexar executáveis
         uses: softprops/action-gh-release@v3
         with:
@@ -178,3 +202,4 @@ jobs:
             release-assets/SimuladorFinanceiro-windows.exe
             release-assets/SimuladorFinanceiro-linux
             release-assets/SimuladorFinanceiro-macos
+            release-assets/vc_redist.x64.exe

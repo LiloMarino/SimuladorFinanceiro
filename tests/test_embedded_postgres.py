@@ -13,6 +13,7 @@ import sys
 import time
 from collections.abc import Iterator
 from pathlib import Path
+from types import SimpleNamespace
 
 import psycopg
 import pytest
@@ -78,6 +79,18 @@ def test_missing_url_without_the_server_files_is_refused(
 
     with pytest.raises(EmbeddedPostgresError, match="POSTGRES_DATABASE_URL"):
         resolve_database_url()
+
+
+def test_missing_visual_cpp_dll_points_to_the_redistributable(tmp_path: Path):
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "postgres.version").write_text("18.6", "utf-8")
+    instance = EmbeddedPostgres(dist, tmp_path / "SimuladorFinanceiro")
+    # O Windows devolve STATUS_DLL_NOT_FOUND quando o processo nem chega a iniciar
+    instance._process = SimpleNamespace(poll=lambda: 0xC0000135)  # pyright: ignore[reportAttributeAccessIssue]
+
+    with pytest.raises(EmbeddedPostgresError, match="vc_redist"):
+        instance._wait_until_ready(5432)
 
 
 @pytest.fixture
