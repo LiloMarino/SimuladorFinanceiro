@@ -101,6 +101,9 @@ function SavedSimulationsContent({
   const term = search.trim().toLowerCase();
   // A lista vem da mais recente para a mais antiga: a primeira é a que o atalho do lobby seleciona
   const lastSimulation = data?.[0];
+  const empty = !isLoading && !error && data?.length === 0;
+  // Com o que escolher (ou ainda carregando) o host também começa uma partida nova daqui
+  const choosing = isHost && !empty;
   const items = (data ?? []).filter(
     (s) => (filter === "ALL" || s.status === filter) && (!term || s.name.toLowerCase().includes(term)),
   );
@@ -134,15 +137,15 @@ function SavedSimulationsContent({
       );
     }
     return items.map((s) => {
-      // A primeira da lista inteira, se pausada, é a que o atalho "Selecionar a última simulação" escolhe
-      const resumedByLobby = isHost && s.id === lastSimulation?.id && s.status === "PAUSED";
+      // A lista vem da jogada mais recente para a mais antiga: a primeira, se pausada, é a última partida salva
+      const isLast = s.id === lastSimulation?.id && s.status === "PAUSED";
       const selected = s.id === selectedSimulationId;
       return (
       <div
         key={s.id}
         className={cn(
           "flex items-center gap-4 border-b border-muted px-6 py-3.5 last:border-0",
-          resumedByLobby && "bg-info-soft shadow-[inset_3px_0_0_var(--primary)]",
+          selected && "bg-info-soft shadow-[inset_3px_0_0_var(--primary)]",
         )}
       >
         <div className="grid min-w-0 flex-1 gap-1">
@@ -168,9 +171,9 @@ function SavedSimulationsContent({
           {isHost && s.status === "PAUSED" && s.room_overflow.length > 0 && (
             <RoomOverflowAlert names={s.room_overflow} />
           )}
-          {resumedByLobby && (
+          {isLast && (
             <span className="flex items-center gap-1 text-xs font-semibold text-primary">
-              <Zap className="size-3" />É esta que o “Selecionar a última simulação” do lobby escolhe
+              <Zap className="size-3" />Última partida salva
             </span>
           )}
         </div>
@@ -202,16 +205,18 @@ function SavedSimulationsContent({
   return (
     <>
       <DialogHeader variant="divided">
-        <DialogTitle>{isHost ? "Escolher partida" : "Simulações salvas"}</DialogTitle>
+        <DialogTitle>{choosing ? "Escolher partida" : "Simulações salvas"}</DialogTitle>
         <DialogDescription>
-          {isHost
-            ? "Comece uma nova partida ou continue uma salva de onde parou."
-            : "Só o host continua uma partida; você pode ver os resultados."}
+          {!isHost
+            ? "Só o host continua uma partida; você pode ver os resultados."
+            : empty
+              ? "Aqui você continua partidas antigas e vê quem venceu."
+              : "Comece uma nova partida ou continue uma salva de onde parou."}
         </DialogDescription>
       </DialogHeader>
 
       {/* Nova partida: ação do host, em faixa própria acima da lista de salvas */}
-      {isHost && (
+      {choosing && (
         <div className="-mx-6 -mt-4 flex items-center gap-3 border-b border-info-border bg-info-soft px-6 py-4">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-[9px] bg-primary text-primary-foreground">
             <Zap className="size-[18px]" />
@@ -226,32 +231,35 @@ function SavedSimulationsContent({
         </div>
       )}
 
-      {isHost && (
+      {choosing && (
         <span className="-mb-2 text-[11px] font-semibold tracking-[0.06em] text-faint-foreground uppercase">
           Partidas salvas
         </span>
       )}
 
-      <div className="flex flex-wrap items-center gap-3">
-        <InputGroup className="flex-1">
-          <InputGroupAddon>
-            <Search />
-          </InputGroupAddon>
-          <InputGroupInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nome" />
-        </InputGroup>
-        <ToggleGroup
-          variant="segmented"
-          aria-label="Filtrar por situação"
-          value={[filter]}
-          onValueChange={(values) => values[0] && setFilter(values[0] as StatusFilter)}
-        >
-          {FILTERS.map((f) => (
-            <ToggleGroupItem key={f.value} value={f.value}>
-              {f.label}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
+      {/* Sem partida salva não há o que buscar nem filtrar */}
+      {!empty && (
+        <div className="flex flex-wrap items-center gap-3">
+          <InputGroup className="flex-1">
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+            <InputGroupInput value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nome" />
+          </InputGroup>
+          <ToggleGroup
+            variant="segmented"
+            aria-label="Filtrar por situação"
+            value={[filter]}
+            onValueChange={(values) => values[0] && setFilter(values[0] as StatusFilter)}
+          >
+            {FILTERS.map((f) => (
+              <ToggleGroupItem key={f.value} value={f.value}>
+                {f.label}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+      )}
 
       {/* Listagem sem altura fixa: quem rola é o diálogo */}
       <div className="-mx-6 -mb-6 overflow-hidden rounded-b-xl border-t border-border">{renderList()}</div>

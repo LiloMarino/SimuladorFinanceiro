@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleAlert, Clock, Play, RefreshCw, UserPlus, Zap } from "lucide-react";
+import { Clock, History, Play, RefreshCw, UserPlus, Zap } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -14,7 +14,6 @@ import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
-import { NETWORK_ERROR_STATUS } from "@/shared/lib/models/ApiError";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { displayDate, displayDecimal, parseLocalDate, toCentsString } from "@/shared/lib/utils/display";
@@ -30,7 +29,6 @@ import { dateFieldError, isIsoDate } from "../lib/date-field";
 import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "../lib/price-impact";
 import { CoverageAlerts } from "./coverage-alerts";
 import { joinNames } from "../lib/join-names";
-import { RoomOverflowAlert } from "./room-overflow-alert";
 import { RulesSheet } from "./rules-sheet";
 
 // O campo guarda ISO quando a data está completa e real; o texto em digitação é recusado aqui
@@ -141,7 +139,6 @@ export function LobbyMatch({
   const refreshFit = () => void queryClient.invalidateQueries({ queryKey: queryKeys.simulationList() });
   useRealtime("player_join", refreshFit);
   useRealtime("player_exit", refreshFit);
-  const lastSimulation = savedSimulations?.[0];
   const selectedSimulation = savedSimulations?.find((s) => s.id === selectedSimulationId);
 
   // Na sala e sem ter jogado a partida selecionada: entra ao continuar, com o saldo inicial
@@ -174,22 +171,7 @@ export function LobbyMatch({
     onError: (err) => toastApiError(err),
   });
 
-  // A seleção é estado da sala: o servidor avisa todos e o lobby busca de novo
-  const {
-    mutate: selectSimulation,
-    isPending: selecting,
-    error: selectError,
-    variables: triedId,
-    reset: resetSelect,
-  } = useApiMutation({
-    mutationFn: (id: number) => apiFetch<void>("/api/simulation/selection", { method: "PUT", body: { id } }),
-  });
-  // Sem resposta do servidor não há o que escolher: o card só oferece tentar de novo
-  const selectOffline =
-    selectError !== null && (selectError.status === NETWORK_ERROR_STATUS || selectError.status >= 500);
-  const triedName = savedSimulations?.find((sim) => sim.id === triedId)?.name;
-
-  const busy = creating || continuing || selecting;
+  const busy = creating || continuing;
   const canStart = isHost && !busy && !blockedByCoverage && form.formState.isValid;
 
   // Com partida selecionada o card mostra as regras dela, em só leitura; sem seleção, as da nova partida
@@ -212,7 +194,7 @@ export function LobbyMatch({
     defaultValues: values,
     values: selectedSimulation ? rules : undefined,
   });
-  const loadingSelection = selecting || (selectedSimulationId !== null && !selectedSimulation && listPending);
+  const loadingSelection = selectedSimulationId !== null && !selectedSimulation && listPending;
   const rulesImpactMode = priceImpactModeOf(rules.priceImpactEnabled, rules.priceImpactK, rules.priceImpactDecayDays);
 
   const rows: { label: string; value: React.ReactNode }[] = [
@@ -333,92 +315,18 @@ export function LobbyMatch({
                     Trocar partida
                   </Button>
                 </div>
-              ) : selectError ? (
-                <>
-                  <Alert variant="destructive">
-                    <CircleAlert />
-                    <AlertTitle>
-                      {selectOffline || !triedName ? "Não deu pra selecionar" : `Não deu pra selecionar ${triedName}`}
-                    </AlertTitle>
-                    <AlertDescription>
-                      {selectOffline
-                        ? "O servidor do host não respondeu. Confira se ele está ligado e na mesma rede."
-                        : selectError.message}
-                    </AlertDescription>
-                  </Alert>
-                  {selectOffline ? (
-                    <Button size="xl" disabled={busy || triedId === undefined} onClick={() => selectSimulation(triedId!)}>
-                      Tentar de novo
-                    </Button>
-                  ) : (
-                    <>
-                      <Button size="xl" disabled={!canStart} onClick={() => createSimulation()}>
-                        {creating ? <Spinner /> : <Zap />}
-                        Iniciar nova simulação
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          resetSelect();
-                          onOpenSaved();
-                        }}
-                      >
-                        Escolher outra partida
-                      </Button>
-                    </>
-                  )}
-                </>
               ) : (
                 <>
                   <Button size="xl" disabled={!canStart} onClick={() => createSimulation()}>
                     {creating ? <Spinner /> : <Zap />}
                     Iniciar nova simulação
                   </Button>
-                  {savedSimulations?.length === 0 && (
-                    <div className="grid gap-1.5 border-t border-muted pt-3">
-                      <span className="text-[11px] font-semibold tracking-[0.06em] text-faint-foreground uppercase">
-                        Partidas salvas
-                      </span>
-                      <p className="text-muted-foreground">
-                        Nenhuma ainda. Quando você pausar ou terminar uma partida, ela aparece aqui para continuar.
-                      </p>
-                    </div>
-                  )}
-                  {lastSimulation && (
-                    <div className="grid gap-2.5 border-t border-muted pt-3">
-                      {lastSimulation.status === "PAUSED" && (
-                        <>
-                          <span className="text-[11px] font-semibold tracking-[0.06em] text-faint-foreground uppercase">
-                            Ou continue uma partida salva
-                          </span>
-                          <div className="flex items-center gap-3 rounded-[10px] border border-input bg-card px-3.5 py-3">
-                            <div className="grid min-w-0 flex-1">
-                              <span className="truncate font-semibold">{lastSimulation.name}</span>
-                              <span className="truncate text-xs text-muted-foreground">
-                                Última salva
-                                {lastSimulation.resume_from &&
-                                  ` · parou em ${displayDate(parseLocalDate(lastSimulation.resume_from))}`}
-                                {` · ${lastSimulation.players_count <= 1 ? "Solo" : `${lastSimulation.players_count} jogadores`}`}
-                              </span>
-                            </div>
-                            <Button
-                              variant={lastSimulation.room_overflow.length > 0 ? "secondary" : "outline"}
-                              size="sm"
-                              disabled={busy || lastSimulation.room_overflow.length > 0}
-                              onClick={() => selectSimulation(lastSimulation.id)}
-                            >
-                              {lastSimulation.room_overflow.length > 0 ? "Indisponível" : "Selecionar"}
-                            </Button>
-                          </div>
-                          {lastSimulation.room_overflow.length > 0 && (
-                            <RoomOverflowAlert names={lastSimulation.room_overflow} />
-                          )}
-                        </>
-                      )}
-                      <Button variant="link" size="sm" onClick={onOpenSaved}>
-                        Ver todas as salvas
-                      </Button>
-                    </div>
+                  {/* Sem partida salva não há o que escolher */}
+                  {savedSimulations && savedSimulations.length > 0 && (
+                    <Button variant="outline" disabled={busy} onClick={onOpenSaved}>
+                      <History />
+                      Escolher partida salva
+                    </Button>
                   )}
                 </>
               )
