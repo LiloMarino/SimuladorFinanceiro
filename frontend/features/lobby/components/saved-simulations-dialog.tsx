@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Play, Search, TriangleAlert, Trophy, Zap } from "lucide-react";
+import { Search, Trophy, Zap } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
@@ -20,6 +20,7 @@ import { displayDate, displayMonthSlashYear, parseLocalDate } from "@/shared/lib
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { SimulationListItem } from "@/types";
+import { RoomOverflowAlert } from "./room-overflow-alert";
 
 type StatusFilter = "ALL" | SimulationListItem["status"];
 
@@ -82,6 +83,15 @@ function SavedSimulationsContent({
     onSuccess: onSelected,
     onError: (err) => toastApiError(err),
   });
+
+  const { mutate: clearSelection, isPending: clearing } = useApiMutation({
+    mutationFn: () => apiFetch<void>("/api/simulation/selection", { method: "DELETE" }),
+    onSuccess: onSelected,
+    onError: (err) => toastApiError(err),
+  });
+
+  // Sem salva selecionada o lobby já é de nova partida: "Começar" só fecha o diálogo
+  const startNew = () => (selectedSimulationId === null ? onSelected() : clearSelection());
 
   // Quem entra ou sai da sala muda quais partidas ainda cabem
   const refreshFit = () => void queryClient.invalidateQueries({ queryKey: queryKeys.simulationList() });
@@ -156,14 +166,7 @@ function SavedSimulationsContent({
             {VICTORY_CRITERIA[s.victory_criterion].label}
           </span>
           {isHost && s.status === "PAUSED" && s.room_overflow.length > 0 && (
-            <span className="flex items-start gap-1.5 text-xs text-warning">
-              <TriangleAlert className="mt-0.5 size-3 shrink-0" />
-              <span>
-                Não cabe quem está na sala e nunca jogou nela:{" "}
-                <span className="font-semibold">{s.room_overflow.join(", ")}</span>. Eles saem da sala ou você escolhe
-                outra partida.
-              </span>
-            </span>
+            <RoomOverflowAlert names={s.room_overflow} />
           )}
           {resumedByLobby && (
             <span className="flex items-center gap-1 text-xs font-semibold text-primary">
@@ -178,11 +181,17 @@ function SavedSimulationsContent({
         {isHost && s.status === "PAUSED" && (
           <Button
             size="sm"
+            variant={s.room_overflow.length > 0 ? "secondary" : "default"}
             disabled={loading || selected || s.room_overflow.length > 0}
             onClick={() => selectSimulation(s.id)}
           >
-            <Play />
-            {selected ? "Selecionada" : loading && variables === s.id ? "Selecionando…" : "Selecionar"}
+            {selected
+              ? "Selecionada"
+              : s.room_overflow.length > 0
+                ? "Indisponível"
+                : loading && variables === s.id
+                  ? "Selecionando…"
+                  : "Selecionar"}
           </Button>
         )}
       </div>
@@ -193,13 +202,35 @@ function SavedSimulationsContent({
   return (
     <>
       <DialogHeader variant="divided">
-        <DialogTitle>Simulações salvas</DialogTitle>
+        <DialogTitle>{isHost ? "Escolher partida" : "Simulações salvas"}</DialogTitle>
         <DialogDescription>
           {isHost
-            ? "Selecione uma partida para continuar de onde parou ou veja quem venceu."
+            ? "Comece uma nova partida ou continue uma salva de onde parou."
             : "Só o host continua uma partida; você pode ver os resultados."}
         </DialogDescription>
       </DialogHeader>
+
+      {/* Nova partida: ação do host, em faixa própria acima da lista de salvas */}
+      {isHost && (
+        <div className="-mx-6 -mt-4 flex items-center gap-3 border-b border-info-border bg-info-soft px-6 py-4">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-[9px] bg-primary text-primary-foreground">
+            <Zap className="size-[18px]" />
+          </span>
+          <div className="grid min-w-0 flex-1">
+            <span className="font-bold">Nova partida</span>
+            <span className="text-xs text-muted-foreground">Do zero, com as regras do lobby</span>
+          </div>
+          <Button size="sm" disabled={clearing || loading} onClick={startNew}>
+            Começar
+          </Button>
+        </div>
+      )}
+
+      {isHost && (
+        <span className="-mb-2 text-[11px] font-semibold tracking-[0.06em] text-faint-foreground uppercase">
+          Partidas salvas
+        </span>
+      )}
 
       <div className="flex flex-wrap items-center gap-3">
         <InputGroup className="flex-1">

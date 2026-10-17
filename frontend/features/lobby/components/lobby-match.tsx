@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronRight, Clock, Play, RefreshCw, TriangleAlert, UserPlus, X, Zap } from "lucide-react";
+import { ChevronRight, Clock, Play, RefreshCw, UserPlus, Zap } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -27,6 +27,8 @@ import { checkCoverage } from "../lib/coverage";
 import { dateFieldError, isIsoDate } from "../lib/date-field";
 import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "../lib/price-impact";
 import { CoverageAlerts } from "./coverage-alerts";
+import { joinNames } from "../lib/join-names";
+import { RoomOverflowAlert } from "./room-overflow-alert";
 import { RulesSheet } from "./rules-sheet";
 
 // O campo guarda ISO quando a data está completa e real; o texto em digitação é recusado aqui
@@ -67,12 +69,6 @@ const simulationFormSchema = z
   });
 
 export type SimulationFormValues = z.infer<typeof simulationFormSchema>;
-
-/** "Ana", "Ana e Caio", "Ana, Caio e Duda" */
-function joinNames(names: string[]) {
-  if (names.length <= 1) return names.join("");
-  return `${names.slice(0, -1).join(", ")} e ${names[names.length - 1]}`;
-}
 
 type LobbyMatchProps = {
   simulationData: SimulationSettingsData;
@@ -179,12 +175,7 @@ export function LobbyMatch({
     onError: (err) => toastApiError(err),
   });
 
-  const { mutate: clearSelection, isPending: clearing } = useApiMutation({
-    mutationFn: () => apiFetch<void>("/api/simulation/selection", { method: "DELETE" }),
-    onError: (err) => toastApiError(err),
-  });
-
-  const busy = creating || continuing || selecting || clearing;
+  const busy = creating || continuing || selecting;
   const canStart = isHost && !busy && !blockedByCoverage && form.formState.isValid;
 
   // Com partida selecionada o card mostra as regras dela, em só leitura; sem seleção, as da nova partida
@@ -297,16 +288,10 @@ export function LobbyMatch({
                   {continuing ? <Spinner /> : <Play />}
                   Continuar {selectedSimulation.name}
                 </Button>
-                <span className="flex gap-2">
-                  <Button className="flex-1" variant="outline" disabled={busy} onClick={onOpenSaved}>
-                    <RefreshCw />
-                    Trocar partida
-                  </Button>
-                  <Button className="flex-1" variant="outline" disabled={busy} onClick={() => clearSelection()}>
-                    <X />
-                    Remover seleção
-                  </Button>
-                </span>
+                <Button variant="outline" disabled={busy} onClick={onOpenSaved}>
+                  <RefreshCw />
+                  Trocar partida
+                </Button>
               </div>
             ) : (
               <>
@@ -333,14 +318,7 @@ export function LobbyMatch({
                       {selecting ? <Spinner /> : <ChevronRight className="size-4 text-faint-foreground" />}
                     </button>
                     {lastSimulation.room_overflow.length > 0 && (
-                      <p className="flex items-start gap-1.5 text-xs text-warning">
-                        <TriangleAlert className="mt-0.5 size-3 shrink-0" />
-                        <span>
-                          Não cabe quem está na sala e nunca jogou nela:{" "}
-                          <span className="font-semibold">{lastSimulation.room_overflow.join(", ")}</span>. Eles saem
-                          da sala ou você escolhe outra partida.
-                        </span>
-                      </p>
+                      <RoomOverflowAlert names={lastSimulation.room_overflow} />
                     )}
                   </>
                 )}
