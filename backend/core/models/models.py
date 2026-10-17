@@ -602,3 +602,17 @@ class StockPriceHistory(Base):
     )
 
     stock: Mapped["Stock"] = relationship("Stock", back_populates="stock_price_history")
+
+
+class TickerProfile(Base):
+    __tablename__ = "ticker_profile"
+    __table_args__ = (PrimaryKeyConstraint("ticker", name="ticker_profile_pkey"),)
+
+    ticker: Mapped[str] = mapped_column(Text, nullable=False)
+    name: Mapped[str | None] = mapped_column(Text)
+    quote_type: Mapped[str | None] = mapped_column(Text)
+    sector: Mapped[str | None] = mapped_column(Text)
+    industry: Mapped[str | None] = mapped_column(Text)
+    fetched_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False, server_default=text("now()")
+    )

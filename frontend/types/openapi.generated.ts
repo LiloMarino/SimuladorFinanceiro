@@ -500,6 +500,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/import-assets/stocks/{ticker}/profile/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Atualizar o perfil do ativo
+         * @description Refaz a consulta do perfil (nome, tipo, setor e indústria) ao yfinance e troca o que estava guardado.
+         */
+        post: operations["refresh_stock_profile_api_import_assets_stocks__ticker__profile_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-assets/tickers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sugestão de código de ativo
+         * @description Códigos da B3 que o yfinance acha para o texto digitado, com o nome da empresa. Com menos de 2 caracteres devolve vazio sem consultar a fonte.
+         */
+        get: operations["get_ticker_suggestions_api_import_assets_tickers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/stream": {
         parameters: {
             query?: never;
@@ -2598,6 +2638,13 @@ export interface components {
             /** Status */
             status: string;
         };
+        /** TickerSuggestionDTO */
+        TickerSuggestionDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+        };
         /**
          * TradeDTO
          * @description Uma execução de compra ou venda na sala, lida dos eventos.
@@ -3837,6 +3884,84 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StockSegmentDTO"] | null;
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    refresh_stock_profile_api_import_assets_stocks__ticker__profile_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_ticker_suggestions_api_import_assets_tickers_get: {
+        parameters: {
+            query?: {
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TickerSuggestionDTO"][];
                 };
             };
             /** @description Unprocessable Content */

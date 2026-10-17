@@ -16,7 +16,6 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Field, FieldContent, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
-import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
@@ -27,6 +26,7 @@ import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
 import type { SeriesCoverage } from "@/types";
 import { tickerFromFileName, type CsvInspection } from "../lib/csv-file";
 import { CsvDropzone } from "./csv-dropzone";
+import { TickerCombobox } from "./ticker-combobox";
 
 type Source = "YFINANCE" | "CSV";
 type ImportRequest = { source: Source; ticker: string; overwrite: boolean; file: File | null };
@@ -144,16 +144,16 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
 
               <Field>
                 <FieldLabel htmlFor={ADD_ASSET_INPUT_ID}>Código do ativo</FieldLabel>
-                <Input
+                <TickerCombobox
                   id={ADD_ASSET_INPUT_ID}
-                  numeric
                   value={ticker}
-                  onChange={(e) => {
-                    setTicker(e.target.value);
+                  onChange={(value) => {
+                    setTicker(value);
                     setTickerFromFile(false);
                   }}
+                  suggest={source === "YFINANCE"}
                   placeholder={source === "CSV" ? "Ex.: ITSA4" : "PETR4, VALE3, BTC-USD"}
-                  aria-invalid={importAsset.isError}
+                  invalid={importAsset.isError}
                   disabled={importAsset.isPending}
                 />
                 {source === "CSV" && tickerFromFile && (

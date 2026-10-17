@@ -10,8 +10,13 @@ from fastapi import UploadFile
 
 from backend.core import repository
 from backend.core.dto.sector import StockSegmentDTO
+from backend.core.dto.ticker_profile import TickerProfileDTO, TickerSuggestionDTO
 from backend.core.enum import AssetClass, DataOrigin
-from backend.core.exceptions.http_exceptions import NotFoundError
+from backend.core.exceptions.http_exceptions import (
+    BadGatewayError,
+    NotFoundError,
+    ServiceUnavailableError,
+)
 from backend.core.models.models import StockPriceHistory
 
 logger = logging.getLogger(__name__)
@@ -134,7 +139,9 @@ def infer_asset_class(ticker: str, info: dict | None = None) -> AssetClass:
         return AssetClass.ETF
     if quote_type == "EQUITY":
         name = f"{info.get('longName') or ''} {info.get('shortName') or ''}"
-        if str(info.get("industry") or "").upper().startswith("REIT") or FII_NAME.search(name):
+        if str(info.get("industry") or "").upper().startswith(
+            "REIT"
+        ) or FII_NAME.search(name):
             return AssetClass.FII
         by_suffix = _asset_class_by_suffix(ticker)
         # Final 11 sem sinal de fundo imobiliário é unit de ação
@@ -169,12 +176,81 @@ def suggest_segment(info: dict) -> StockSegmentDTO | None:
     )
 
 
+def _download_profile(ticker: str) -> TickerProfileDTO:
+    """Consulta o yfinance; levanta quando a fonte falha."""
+    info = yf.Ticker(ticker).info or {}
+    return TickerProfileDTO(
+        ticker=ticker,
+        name=info.get("longName") or info.get("shortName"),
+        quote_type=info.get("quoteType"),
+        sector=info.get("sector"),
+        industry=info.get("industry"),
+    )
+
+
+def _profile_to_info(profile: TickerProfileDTO) -> dict:
+    return {
+        "longName": profile.name,
+        "quoteType": profile.quote_type,
+        "sector": profile.sector,
+        "industry": profile.industry,
+    }
+
+
 def fetch_info(ticker: str) -> dict:
+    """O perfil do ativo: lê o guardado e só vai ao yfinance quando não há. A resposta
+    vazia também é guardada; se a fonte falhar, nada é gravado e volta vazio."""
+    if profile := repository.stock.get_ticker_profile(ticker):
+        return _profile_to_info(profile)
     try:
-        return yf.Ticker(ticker).info
+        profile = _download_profile(ticker)
     except Exception as e:
         logger.warning(f"Não foi possível obter dados de '{ticker}' no yfinance: {e}")
         return {}
+    repository.stock.save_ticker_profile(profile)
+    return _profile_to_info(profile)
+
+
+def refresh_profile(ticker: str) -> None:
+    """Refaz a consulta ao yfinance e troca o perfil guardado."""
+    try:
+        profile = _download_profile(ticker)
+    except Exception as e:
+        logger.warning(f"Não foi possível obter dados de '{ticker}' no yfinance: {e}")
+        raise BadGatewayError(
+            f"Não foi possível buscar o perfil de {ticker} no yfinance."
+        ) from e
+    repository.stock.save_ticker_profile(profile)
+
+
+# Código de ativo da B3: quatro caracteres e o número da classe (PETR4, KNRI11)
+B3_TICKER = re.compile(r"[A-Z0-9]{4}\d{1,2}")
+
+
+def search_tickers(query: str) -> list[TickerSuggestionDTO]:
+    """Códigos da B3 que o yfinance acha para o texto, com o nome da empresa."""
+    query = query.strip()
+    if len(query) < 2:
+        return []
+    try:
+        quotes = yf.Search(query, max_results=20, news_count=0, lists_count=0).quotes
+    except Exception as e:
+        logger.warning(f"Não foi possível buscar '{query}' no yfinance: {e}")
+        raise ServiceUnavailableError(
+            "A busca de códigos está indisponível. Digite o código à mão."
+        ) from e
+
+    found: dict[str, TickerSuggestionDTO] = {}
+    for quote in quotes:
+        symbol = str(quote.get("symbol") or "").upper()
+        if quote.get("exchange") != "SAO" or not symbol.endswith(".SA"):
+            continue
+        ticker = symbol.removesuffix(".SA")
+        if not B3_TICKER.fullmatch(ticker) or ticker in found:
+            continue
+        name = quote.get("longname") or quote.get("shortname") or ticker
+        found[ticker] = TickerSuggestionDTO(ticker=ticker, name=name)
+    return list(found.values())
 
 
 def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
