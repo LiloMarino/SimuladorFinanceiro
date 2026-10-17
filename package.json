@@ -34,7 +34,7 @@
     "clean:build": "uv run python -c \"import shutil; [shutil.rmtree(d, ignore_errors=True) for d in ['backend/static', 'build', 'dist']]\""
   },
   "devDependencies": {
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.6",
     "cross-env": "^10.1.0"
   }
 }
