@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança:** D11 decidida pelo Base UI, no fechamento do M12.
+> **Última mudança:** D4 decidida pelo Postgres oficial embarcado no executável do Windows, no fechamento do spike F3.
 
 ---
 
@@ -135,14 +135,18 @@ Com a sala cheia, ou com uma partida salva que não comporta quem está nela, o 
 **Consequências:** formatadores do front (`formatMoney` e afins) passam a aceitar string; cálculo com esses valores no front deixa de existir (ver D2).
 
 ### D4 — Banco de dados embarcado no executável
-**Status:** 🔍 Em aberto
+**Status:** ✅ Decidida
 
-**Decisão:** em aberto entre três finalistas, decidido pela F3:
-1. **Só SQLite** — o executável cria um arquivo e funciona; o Postgres sai do projeto. Um dialeto só, mas troca JSONB por JSON.
-2. **SQLite padrão + Postgres opcional** — o que existia antes do PR #82. Atende N1, mas devolve o custo de manter dois dialetos que motivou a remoção.
-3. **Postgres embarcado** — binários do Postgres empacotados e iniciados pelo próprio executável. Um dialeto só, mas o executável engorda e o startup fica mais lento.
+**Decisão:** Postgres oficial embarcado no executável do Windows, sem trocar de motor e sem fork. O release baixa o zip de binários oficiais (versão e hash fixados no CI) e leva só `postgres`, `initdb`, `pg_ctl`, as DLLs, `lib`, `share` e os textos de licença que acompanham o zip. O banco vazio é gerado uma vez no CI e vai no executável como template: o `initdb` não roda no computador do jogador. Na abertura o app copia o template para a pasta de dados do usuário, sobe o servidor com `pg_ctl` numa porta livre, só em `127.0.0.1`, e o derruba ao fechar. `POSTGRES_DATABASE_URL` continua valendo: definida, usa o Postgres externo e não sobe nada. Linux e macOS seguem com Postgres externo; a EDB publica o zip oficial para Windows e macOS, e o macOS pode entrar depois pelo mesmo caminho.
 
-**Por quê está aberto:** a remoção do SQLite resolveu uma dor de manutenção e criou a quebra de N1. A escolha depende de números (tamanho do executável, tempo de startup, concorrência de escrita com vários jogadores) que ainda não foram medidos.
+**Por quê:** o spike (F3) mediu o app real, com 10 jogadores e threads gravando em paralelo.
+- **Velocidade não decide.** Na carga realista (≈35 pedidos/s em paralelo, 3 ações, 250 ticks, 3 repetições), o tick levou 898 a 952 ms no Postgres e 599 a 634 ms no SQLite com a mesma garantia de durabilidade; com 100 ações (664 mil preços, 1 repetição), 1.640 contra 653 ms. Desligar a espera de disco no Postgres (`synchronous_commit=off`) não mudou o tick. Sob sobrecarga extrema (16 threads, ≈450 pedidos/s) o SQLite perdeu gravações (`database is locked`, 4 erros e um tick perdido com 3 ações) e o Postgres não deu erro. O laço da simulação dorme `1/velocidade` depois de cada tick, então com ~0,5 s por tick as velocidades ×10 e ×100 entregam cerca de 2 dias por segundo em qualquer motor: o gargalo é o custo do tick, não o banco.
+- **Fidelidade dos dados decide.** O SQLite guarda `Numeric` como número aproximado (`12345678901.123456` volta como `12345678901.123455`), devolve datas sem fuso, não checa `ENUM` e recusa `NaN` (2 das 19.919 linhas de preço importadas hoje). O Postgres preserva tudo isso.
+- **SQLite como reserva inverte o público.** Quem baixa o executável não tem Postgres, então rodaria no motor de menor fidelidade, diferente do de desenvolvimento, com dois conjuntos de migrations e testes. Foi esse custo que motivou a remoção do SQLite no PR #82.
+- **Binários oficiais, não o pacote que os embala.** O pacote `pixeltable-pgserver` (único com Python 3.13) é mantido por uma empresa para uso próprio, traz o Postgres 18.4 enquanto o oficial está no 18.6 e não deixa escolher a versão. O zip oficial da EDB, que o [postgresql.org indica](https://www.postgresql.org/download/windows/) "para quem quer incluir o Postgres como parte do instalador de outra aplicação", entrega a versão que o projeto fixar. A [licença do PostgreSQL](https://www.postgresql.org/about/licence/) permite redistribuir para qualquer fim, desde que o aviso de copyright e o texto da licença acompanhem as cópias. O Karaoke Mugen, aplicativo desktop de código aberto, também embarca o Postgres por padrão e aceita um externo por configuração.
+- **Custo medido.** O subconjunto mínimo tem 140 MB descompactado e 49 MB comprimido (no app completo, o pacote alternativo somou 29 MB: 60,4 para 89,5 MB). O servidor sobe em cerca de 0,4 s e para em 0,2 s; o template do banco vazio tem 5 MB comprimido e é extraído em 0,6 s, contra os 10 s do `initdb`.
+
+**Consequências:** o executável do Windows engorda cerca de 49 MB (a confirmar no app completo). Os binários oficiais exigem o runtime do Visual C++ da Microsoft, a verificar numa máquina limpa. O servidor roda a partir de uma pasta extraída, e caminhos do usuário com caracteres fora do ASCII pedem cuidado. O binário embutido não gera alerta de segurança automático; a versão fica fixada e um workflow agendado a compara com a mais recente. Reabre a decisão se o servidor embarcado se mostrar instável em máquinas limpas.
 
 ### D5 — Onde roda o código de estratégia escrito pelo usuário
 **Status:** 🔍 Em aberto

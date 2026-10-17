@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-17):** Registradas a sugestão de código ao digitar o ativo (F63) e o cache do perfil do ativo no yfinance (F64), no M8.
+> **Última mudança (2026-10-17):** D4 decidida pelo Postgres oficial embarcado no executável do Windows e F3 concluída; a F4 ganhou o plano.
 
 ## Glossário
 
@@ -16,7 +16,7 @@
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
-| **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | [F4](#f4), [F25](#f25) | — |
+| **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | [F3](#f3), [F4](#f4), [F25](#f25) | — |
 | **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — |
 | **N3** | Confiar que os números do simulador são exatos e reprodutíveis | [F1](#f1), [F2](#f2), [F21](#f21) | — |
 | **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F8](#f8), [F9](#f9), [F10](#f10), [F19](#f19), [F33](#f33) | — |
@@ -44,9 +44,7 @@
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | [F57](#f57) | — |
 | **N27** | Entrar numa partida que já começou | [F58](#f58) | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
-| **D4** | Banco de dados embarcado no executável | [F4](#f4) | 🔍 |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
-| [**F3**](#f3) | Spike: banco embarcado no executável | — | 🔍 |
 | [**F4**](#f4) | Executável sobe sem banco instalado | — | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
@@ -85,13 +83,14 @@
 | [**F64**](#f64) | Cache do perfil do ativo no yfinance | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (39 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
 | **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F2](#f2), [F11](#f11), [F13](#f13), [F29](#f29), [F41](#f41) | ✅ |
 | **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F2](#f2), [F11](#f11), [F12](#f12), [F17](#f17), [F32](#f32), [F33](#f33), [F40](#f40) | ✅ |
 | **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F1](#f1) | ✅ |
+| **D4** | Banco de dados embarcado no executável | [F3](#f3), [F4](#f4) | ✅ |
 | **D6** | A retomada continua no dia seguinte ao último evento | [F2](#f2) | ✅ |
 | **D7** | O simulador lê as séries sem saber a origem | [F20](#f20), [F21](#f21), [F24](#f24) | ✅ |
 | **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F8](#f8), [F16](#f16), [F19](#f19), [F27](#f27) | ✅ |
@@ -101,6 +100,7 @@
 | **D12** | Como numerar as versões | [F51](#f51) | ✅ |
 | [**F1**](#f1) | Decimal como string do backend ao frontend | — | ✅ |
 | [**F2**](#f2) | Renda fixa com cálculo único no backend e retomada consistente | — | ✅ |
+| [**F3**](#f3) | Spike: banco embarcado no executável | — | ✅ |
 | [**F11**](#f11) | Métricas de risco do desempenho | — | ✅ |
 | [**F12**](#f12) | Comparação entre simulações | — | ✅ |
 | [**F13**](#f13) | Impacto de preço de ordens grandes | — | ✅ |
@@ -138,8 +138,8 @@
 | ID | Resumo | Marco | Destrava | Status |
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
-| [**F3**](#f3) | Spike: banco embarcado no executável | M2 | 2 | 🔍 |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
+| [**F4**](#f4) | Executável sobe sem banco instalado | M2 | 1 | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
@@ -188,17 +188,17 @@
 >
 > **Serve:** N1, N14
 >
-> **Progresso:** 1/3 concluídas
+> **Progresso:** 2/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F3**](#f3) | Spike: banco embarcado no executável | — | 🔍 |
 | [**F4**](#f4) | Executável sobe sem banco instalado | [F3](#f3) | ⏳ |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F3**](#f3) | Spike: banco embarcado no executável | — | ✅ |
 | [**F25**](#f25) | Migrations com Alembic | — | ✅ |
 
 </details>
@@ -507,6 +507,7 @@
 | **F62** | Uma migration inicial só para a 2.0.0 | N14 | D9 | — | [F4](#f4) | Baixo | Médio | Médio | Bom | ⏳ Pendente |
 | **F63** | Sugestão de código ao digitar o ativo | N13 | — | M8 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F64** | Cache do perfil do ativo no yfinance | N13, N16 | D9 | M8 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F3** | Spike: banco embarcado no executável | N1 | D4 | M2 | — | Médio | Baixo | Alto | Excelente | ✅ Concluído |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -517,8 +518,9 @@
 **Aceite:** um prefixado comprado e levado ao vencimento credita o mesmo valor, ao centavo, rodando direto ou pausando e retomando no meio — e esse valor é igual à projeção mostrada no dia da compra (coberto em `tests/test_fixed_income_accrual.py` e verificado ponta a ponta: projeção R$ 12.778,14, resgate R$ 12.778,14 após parar e retomar).
 
 <a id="f4"></a>
-**F4 — Executável sobe sem banco instalado.** Serve N1. Na primeira execução o executável cria o banco sozinho numa pasta de dados do usuário (ex.: `%APPDATA%/SimuladorFinanceiro`), sem `.env` obrigatório; `database.py` deixa de falhar quando `POSTGRES_DATABASE_URL` não existe. O motor é o que a D4 decidir. A página de instalação dos docs e o README perdem a etapa de instalar o Postgres. Gatilho: assim que a F3 fechar a D4.
-**Aceite:** numa máquina sem Postgres, baixar o release e abrir o executável leva ao lobby sem nenhum passo extra.
+**F4 — Executável sobe sem banco instalado.** Serve N1; condicionada pela D4 (Postgres oficial embarcado, só no executável do Windows). No release, um passo do CI baixa o zip oficial de binários do Postgres (versão e hash SHA-256 fixados), extrai só `postgres`, `initdb`, `pg_ctl`, as DLLs, `lib` e `share` com os textos de licença do zip, roda o `initdb` uma vez (UTF8, locale fixo) e entrega o cluster vazio como template; o `.spec` empacota os dois como dados. Um módulo do backend cuida do ciclo de vida: na primeira abertura copia o template para a pasta de dados do usuário (ex.: `%APPDATA%/SimuladorFinanceiro`), define a senha do superusuário, sobe o servidor com `pg_ctl` numa porta livre só em `127.0.0.1`, espera as conexões com limite de tempo e o derruba ao fechar, limpando o `postmaster.pid` e o processo órfão de uma queda anterior. Sem `POSTGRES_DATABASE_URL`, `database.py` e `migrate()` usam o servidor embarcado; com ela, usam o Postgres externo e nada sobe, e o `.env` deixa de ser obrigatório. Linux e macOS não embarcam nada e pedem `POSTGRES_DATABASE_URL` com mensagem clara. No Windows, a abertura confere o runtime do Visual C++ (`vcruntime140.dll`) e avisa como instalar se faltar; caminhos do usuário com caracteres fora do ASCII são tratados ao extrair os binários. A página de instalação dos docs e o README perdem a etapa de instalar o Postgres no Windows, e um workflow agendado compara a versão embutida com a mais recente. Gatilho: livre, a F3 fechou a D4.
+
+**Aceite:** numa máquina Windows sem Postgres e sem `.env`, baixar o release e abrir o executável leva ao lobby sem nenhum passo extra, e a segunda abertura chega ao lobby sem rodar o `initdb`.
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
@@ -743,7 +745,7 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 **F61 — Host remove jogador da sala.** Serve N28. Hoje a vaga só abre quando o jogador sai por conta própria: com a sala cheia ou a partida salva recusada por causa de novatos (F58), o host tem de pedir pelo chat para alguém fechar a aba. O plano: um botão "Remover" no cartão de cada jogador do lobby, só para o host, que encerra a sessão do jogador pelo mesmo caminho do `player_logout`, com um aviso "o host te removeu da sala" na tela dele, e libera a cor e a vaga na hora. Fica em aberto se a remoção também vale para participante offline da partida em andamento; a leitura provável é que não, porque tirar a linha de `simulation_players` apaga o saldo e o histórico dele.
 
 <a id="f62"></a>
-**F62 — Uma migration inicial só para a 2.0.0.** Serve N14; segue a D9. Hoje `backend/migrations/versions/` tem seis arquivos, todos de outubro de 2026 (a inicial, os indicadores econômicos, a classe do ativo e o IR, setores e segmentos, o critério de vitória e a cor por jogador), escritos durante o desenvolvimento. Nenhum executável publicado os conhece: a v1.0.0 criava as tabelas com `create_all` e não guarda `alembic_version`. Condensá-los agora é de graça, porque ninguém tem um banco em revisão intermediária; depois da 2.0.0 nenhum banco de jogador pode ficar sem caminho de upgrade, e a cadeia passa a só crescer. O plano: no último passo antes da release, depois de a F4 fechar o banco e de qualquer outra mudança de schema da 2.0.0 (se a F4 trocar de motor, a inicial precisa ser gerada nele), apagar os seis arquivos e gerar uma inicial só, por `pnpm db:revision "create initial schema"` contra um banco vazio, revista à mão: os `ENUM` nativos, o `server_default` do JSONB e, no `downgrade`, o drop explícito de cada `ENUM`, que o autogenerate não faz. O `tests/test_migrations.py` confere que a inicial chega no schema dos models e que sobe e desce. O banco de desenvolvimento aponta para uma revisão que deixa de existir: troca-se o `alembic_version` pela nova (ou recria-se o banco), e o mesmo vale para os bancos de teste de quem experimentou builds anteriores. **Aceite:** um banco novo chega ao schema dos models só com a inicial, e `tests/test_migrations.py` passa.
+**F62 — Uma migration inicial só para a 2.0.0.** Serve N14; segue a D9. Hoje `backend/migrations/versions/` tem seis arquivos, todos de outubro de 2026 (a inicial, os indicadores econômicos, a classe do ativo e o IR, setores e segmentos, o critério de vitória e a cor por jogador), escritos durante o desenvolvimento. Nenhum executável publicado os conhece: a v1.0.0 criava as tabelas com `create_all` e não guarda `alembic_version`. Condensá-los agora é de graça, porque ninguém tem um banco em revisão intermediária; depois da 2.0.0 nenhum banco de jogador pode ficar sem caminho de upgrade, e a cadeia passa a só crescer. O plano: no último passo antes da release, depois de a F4 fechar o banco e de qualquer outra mudança de schema da 2.0.0, apagar os seis arquivos e gerar uma inicial só, por `pnpm db:revision "create initial schema"` contra um banco vazio, revista à mão: os `ENUM` nativos, o `server_default` do JSONB e, no `downgrade`, o drop explícito de cada `ENUM`, que o autogenerate não faz. O `tests/test_migrations.py` confere que a inicial chega no schema dos models e que sobe e desce. O banco de desenvolvimento aponta para uma revisão que deixa de existir: troca-se o `alembic_version` pela nova (ou recria-se o banco), e o mesmo vale para os bancos de teste de quem experimentou builds anteriores. **Aceite:** um banco novo chega ao schema dos models só com a inicial, e `tests/test_migrations.py` passa.
 
 <a id="f63"></a>
 **F63 — Sugestão de código ao digitar o ativo.** Serve N13. Mesma ideia do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): no campo "Código do ativo" do painel Adicionar ativo (fonte yFinance), a pessoa digita e a lista já mostra os códigos válidos com o nome da empresa, em vez de descobrir o erro só depois de tentar importar. Backend: `GET /api/import-assets/tickers?q=` (no router da Central, que já responde 409 com partida ativa) chama `yf.Search(q, max_results=20, news_count=0, lists_count=0).quotes`; abaixo de 2 caracteres devolve `[]` sem consultar a fonte, e falha da fonte vira 503. O filtro é o da B3: bolsa `SAO`, símbolo terminado em `.SA` e nome no formato `[A-Z0-9]{4}\d{1,2}` (PETR4, KNRI11); o `.SA` sai, repetidos saem e a ordem do Yahoo fica. Frontend: o `Input` do painel vira um campo com `Popover` + `Command` do design system, com debounce de 300 ms, `useQuery` com `staleTime: Infinity` por texto buscado e setas/Enter/Escape. A sugestão não restringe: o texto digitado continua valendo, então `BTC-USD` e o código tirado do nome do CSV seguem funcionando. A lista só aparece com a fonte yFinance; no CSV o campo fica como hoje. Limitação: códigos de fora da B3 não aparecem na lista, só digitados à mão.
@@ -752,6 +754,9 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 <a id="f64"></a>
 **F64 — Cache do perfil do ativo no yfinance.** Serve N13 e N16. Hoje cada importação de ativo ainda sem classificação chama `yf.Ticker(ticker).info` de novo (`fetch_info` em `importer_service.py`), inclusive no "Atualizar todos", e o ativo que o yfinance devolve sem setor (ETF, cripto) é reconsultado toda vez. O [Finance Manager](https://github.com/LiloMarino/Finance-Manager) guarda isso numa tabela `ticker_profiles` e só vai à fonte quando não há linha. Aqui: tabela `ticker_profile` (`ticker` como chave, `name`, `quote_type`, `sector`, `industry`, `fetched_at`), criada por migration do Alembic (D9) e lida por `fetch_info` antes da rede: com linha, usa a linha; sem linha, consulta o yfinance e grava a resposta, inclusive a vazia, para o ETF sem setor não ser reconsultado. `infer_asset_class`, `suggest_segment` e o nome do ativo passam a ler o perfil guardado. Sem expiração: setor e indústria quase não mudam, e a classificação feita à mão continua mandando sobre a sugestão. Se o yfinance falhar, nada é gravado e a importação segue sem sugestão, como hoje. Um botão "Atualizar perfil" na janela Classificar da Central refaz a consulta de um ativo. Se a F63 mostrar setor ao lado da sugestão, lê desta mesma tabela.
 **Aceite:** importar o mesmo ativo duas vezes chama o yfinance para o perfil uma vez só, e "Atualizar todos" não consulta o perfil de ativo já guardado (coberto em `tests/` com `fetch_info` falso contando chamadas).
+
+<a id="f3"></a>
+**F3 — Spike: banco embarcado no executável.** Decidiu a D4: Postgres oficial embarcado no executável do Windows. A medição usou um harness descartável que roda a `Simulation` real com 10 jogadores e threads gravando em paralelo, como requisições HTTP, sobre o Postgres e o SQLite, com os preços do banco de desenvolvimento (19.919 linhas) e uma variante de 100 ações (664 mil linhas); mais um executável de teste com o servidor embarcado, o app completo empacotado com um pacote de Postgres embarcado e o zip oficial da EDB extraído, iniciado e parado sem instalação. Os números e os argumentos estão na D4. Limitações: sobrecarga e 100 ações têm uma repetição cada; o Postgres rodou com a configuração padrão; o tempo de abertura do app completo e a máquina limpa (runtime do Visual C++) não foram medidos e ficam para o aceite da F4.
 
 ---
 ## 2. Nice-to-have
@@ -790,7 +795,6 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 
 | ID | Resumo | Conexão | Marco | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| **F3** | Spike: banco embarcado no executável | Serve N1; decide D4 | M2 | — | 🔍 Em avaliação |
 | **F5** | Spike: provider de túnel pela internet | Serve N2; escolhe o provider da F6 | M3 | — | 🔍 Em avaliação |
 | **F7** | Spike: estratégia Python escrita pelo usuário | Serve N4; decide D5 | M4 | — | 🔍 Em avaliação |
 | **F22** | Preço ajustado e proventos | Serve N3, N7; degrau falso na atualização incremental | M8 | — | 🔍 Em avaliação |
@@ -800,9 +804,6 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 | **F44** | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | Serve N23; faltam taxas padrão, rendimentos e protótipo do preço da cota | — | — | 🔍 Em avaliação |
 | **F49** | Spike: tutorial animado | Serve N25; compara vídeo, framer-motion e Remotion | M14 | — | 🔍 Em avaliação |
 | **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | — | [F44](#f44) | 🔍 Em avaliação |
-
-<a id="f3"></a>
-**F3 — Spike: banco embarcado no executável.** Decide a D4. Falta medir as três opções finalistas com o executável real: (1) aumento de tamanho do `.exe` e tempo até o lobby abrir; (2) quantos tipos específicos do Postgres os models usam hoje (JSONB e outros) e o custo de trocá-los; (3) escrita concorrente com 4+ jogadores no mesmo tick (SQLite em modo WAL aguenta?); (4) como ficam as migrations da F25 em cada opção (o SQLite exige o modo batch do Alembic para alterar coluna). Sai daqui com a D4 decidida e o plano da F4 fechado.
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO sem cair para polling. O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
