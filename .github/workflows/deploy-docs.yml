@@ -4,8 +4,8 @@ on:
   # Permite executar manualmente via botão no Actions
   workflow_dispatch:
 
-  # Executa automaticamente quando há mudanças na pasta docs/ ou nos models,
-  # de onde sai o diagrama do banco
+  # Executa automaticamente quando há mudanças na pasta docs/, nos models
+  # (o diagrama do banco) ou no CHANGELOG.md (a página de novidades)
   push:
     branches:
       - main
@@ -13,6 +13,8 @@ on:
       - "docs/**"
       - "backend/core/models/**"
       - "scripts/erd.py"
+      - "CHANGELOG.md"
+      - "scripts/changelog_page.py"
 
 # Garante que apenas um deploy rode por vez
 concurrency:

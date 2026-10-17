@@ -42,6 +42,7 @@ from backend.core.embedded_postgres import EmbeddedPostgresError, resolve_databa
 from backend.core.migration import MigrationError, migrate
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.tunnel_manager import TunnelManager
+from backend.core.version import get_version
 from backend.features.import_data.indicators import refresh_indicators
 from backend.features.realtime.sse_broker import SSEBroker
 from backend.features.realtime.ws_broker import SocketBroker
@@ -105,7 +106,7 @@ def create_api() -> FastAPI:
     """As rotas HTTP; o `create_app` acrescenta o canal de tempo real por cima."""
     app = FastAPI(
         title="Simulador Financeiro",
-        version="1.0.0",
+        version=get_version(),
         lifespan=lifespan,
     )
 

@@ -72,9 +72,13 @@ Sugestões de prefixo:
 
 ```bash
 git add .
-git commit -m "feat: descrição curta da mudança"
+git commit -m "feat: Adicionada a descrição curta da mudança"
 git push origin feature/minha-alteracao
 ```
+
+A mensagem do commit é só a linha de assunto, no formato `tipo: Descrição`: o tipo em minúsculas (`feat`, `fix`, `docs`, `refactor`, `build`, `test` ou `chore`), sem escopo, e a descrição em português, no particípio e com a primeira letra maiúscula (`fix: Corrigido o saldo negativo na compra`).
+
+O commit que quebra compatibilidade (partida salva que deixa de abrir, chave do `config.toml` removida ou renomeada) leva um `!` depois do tipo: `feat!: Removido o campo X do config.toml`. É dos commits que sai o número da próxima versão, como explica a página [Versionamento](./versionamento.md).
 
 ---
 

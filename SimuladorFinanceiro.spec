@@ -17,6 +17,7 @@ a = Analysis(
     datas=[
         ('backend/static', 'backend/static'),
         ('backend/migrations', 'backend/migrations'),
+        ('pyproject.toml', '.'),
     ] + postgres_datas,
     hiddenimports=[
         'psycopg_binary',

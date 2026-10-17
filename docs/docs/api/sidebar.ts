@@ -474,6 +474,18 @@ const sidebar: SidebarsConfig = {
         },
       ],
     },
+    {
+      type: "category",
+      label: "Version",
+      items: [
+        {
+          type: "doc",
+          id: "api/get-app-version-api-version-get",
+          label: "Obter a versão do app",
+          className: "api-method get",
+        },
+      ],
+    },
   ],
 };
 

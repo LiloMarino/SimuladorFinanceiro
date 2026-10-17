@@ -1,6 +1,6 @@
 [project]
 name = "simulador-financeiro"
-version = "0.1.0"
+version = "2.0.0"
 requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.20.0",
@@ -74,6 +74,7 @@ build = [
     "pyinstaller>=6.20.0",
 ]
 dev = [
+    "git-cliff>=2.14.2",
     "httpx2>=2.13.1",
     "line-profiler>=5.0.2",
     "matplotlib>=3.10.9",

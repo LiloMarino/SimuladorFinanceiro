@@ -26,6 +26,7 @@ from backend.routes.statistics import statistics_router
 from backend.routes.timespeed import timespeed_router
 from backend.routes.tunnel import tunnel_router
 from backend.routes.validation_messages import format_validation_errors, to_items
+from backend.routes.version import version_router
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,7 @@ def register_routes(app: FastAPI):
     app.include_router(correlation_router, responses=ERROR_RESPONSES)
     app.include_router(simulation_router, responses=ERROR_RESPONSES)
     app.include_router(tunnel_router, responses=ERROR_RESPONSES)
+    app.include_router(version_router, responses=ERROR_RESPONSES)
 
     # SPA FRONTEND (sempre por último para pegar todas as rotas não mapeadas)
     register_frontend_routes(app)

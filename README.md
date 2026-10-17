@@ -4,6 +4,8 @@
 
 **Simulador de investimentos do mercado financeiro brasileiro com modo multiplayer**
 
+**Acesso antecipado** · [Novidades de cada versão](CHANGELOG.md)
+
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python](https://img.shields.io/badge/Python-3.13+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![uv](https://img.shields.io/badge/uv-package%20manager-DE5FE9?logo=astral&logoColor=white)](https://docs.astral.sh/uv/)

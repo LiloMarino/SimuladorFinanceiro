@@ -51,7 +51,7 @@ Os dados ficam em `%LOCALAPPDATA%\SimuladorFinanceiro`:
 - **Backup:** com o jogo fechado, copie a pasta `%LOCALAPPDATA%\SimuladorFinanceiro`.
 - **Começar do zero:** com o jogo fechado, apague essa pasta. A próxima abertura cria tudo de novo, **sem as partidas salvas**.
 - **Usar um PostgreSQL seu em vez do embutido:** crie um arquivo `.env` na pasta de onde o executável é aberto com `POSTGRES_DATABASE_URL=...` (veja o formato na seção de Linux e macOS). Com a variável definida, o servidor embutido não sobe.
-- **Atualizações:** as partidas salvas passam para a versão nova sozinhas na primeira abertura.
+- **Atualizações:** as partidas salvas passam para a versão nova sozinhas na primeira abertura. A página [Novidades](./novidades.md) diz, a cada versão, o que mudou e se as partidas salvas continuam valendo.
 
 O PostgreSQL é distribuído sob a [licença do PostgreSQL](https://www.postgresql.org/about/licence/), e os textos de licença acompanham os programas em `postgres\<versão>\licenses`.
 

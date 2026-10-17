@@ -1,0 +1,64 @@
+# git-cliff: gera o CHANGELOG.md e calcula a próxima versão a partir dos commits.
+# Os commits seguem o Conventional Commits (`tipo: Descrição`, sem escopo);
+# a tabela de quando sobe cada número está em docs/docs/desenvolvimento/versionamento.md.
+
+[changelog]
+header = """
+# Changelog
+
+Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais antiga.
+O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
+deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
+
+"""
+body = """
+{% if version %}\
+## {{ version | trim_start_matches(pat="v") }} ({{ timestamp | date(format="%d/%m/%Y") }})
+{% else %}\
+## Não lançado
+{% endif %}\
+{% set breaking = commits | filter(attribute="breaking", value=true) %}\
+{% if breaking | length > 0 %}
+**Atenção, esta versão quebra a compatibilidade:** algo que funcionava deixa de funcionar para quem atualiza.
+
+### Quebras
+{% for commit in breaking %}
+- {{ commit.message | upper_first }}\
+{% endfor %}
+{% else %}
+Suas partidas salvas e o `config.toml` continuam valendo.
+{% endif %}
+{% for group, group_commits in commits | group_by(attribute="group") %}\
+{% if group != "<!-- 2 -->Interno" %}\
+{% set visible = group_commits | filter(attribute="breaking", value=false) %}\
+{% if visible | length > 0 %}
+### {{ group | striptags | trim }}
+{% for commit in visible %}
+- {{ commit.message | upper_first }}\
+{% endfor %}
+{% endif %}\
+{% endif %}\
+{% endfor %}
+"""
+trim = true
+
+[git]
+conventional_commits = true
+# Commit sem `tipo:` não conta no número nem aparece
+filter_unconventional = true
+filter_commits = true
+protect_breaking_commits = true
+sort_commits = "oldest"
+# Só as tags de versão (v1.0.0, v2.1.0, ...) delimitam as releases
+tag_pattern = "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+# Tipos que mexem no número mas não aparecem nas notas ficam no grupo "Interno".
+# O comentário numérico ordena os grupos (Novidades, Correções, Interno) e sai no striptags.
+commit_parsers = [
+  { message = "^feat", group = "<!-- 0 -->Novidades" },
+  { message = "^fix", group = "<!-- 1 -->Correções" },
+  { message = "^(docs|chore|refactor|build|test|ci|perf|style)", group = "<!-- 2 -->Interno" },
+]
+
+[bump]
+features_always_bump_minor = true
+breaking_always_bump_major = true
