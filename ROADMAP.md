@@ -76,10 +76,9 @@
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
-| [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (43 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (44 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -124,6 +123,7 @@
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
 | [**F58**](#f58) | Entrar no meio da partida (hot-join) | — | ✅ |
 | [**F59**](#f59) | Separar em dois executáveis: cliente e servidor | — | 🚫 |
+| [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | — | ✅ |
 | [**F63**](#f63) | Sugestão de código ao digitar o ativo | — | ✅ |
 | [**F64**](#f64) | Cache do perfil do ativo no yfinance | — | ✅ |
 
@@ -153,7 +153,6 @@
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
-| [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | — | 0 | ⏳ |
 
 ---
 
@@ -419,7 +418,7 @@
 
 ### Sem marco
 
-> **Progresso:** 10/20 concluídas
+> **Progresso:** 11/20 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -432,9 +431,8 @@
 | [**F56**](#f56) | Novidades no app | [F51](#f51) | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | [F58](#f58) | ⏳ |
-| [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | [F4](#f4) | ⏳ |
 
-<details><summary>Concluído (10 itens)</summary>
+<details><summary>Concluído (11 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -448,6 +446,7 @@
 | [**F51**](#f51) | Versão única e changelog | — | ✅ |
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
 | [**F58**](#f58) | Entrar no meio da partida (hot-join) | [F39](#f39) | ✅ |
+| [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | [F4](#f4) | ✅ |
 
 </details>
 
@@ -503,7 +502,7 @@
 | **F50** | Diagrama do banco navegável | N17 | D9 | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F58** | Entrar no meio da partida (hot-join) | N27 | — | — | [F39](#f39) | Médio | Médio | Médio | Bom | ✅ Concluído |
 | **F61** | Host remove jogador da sala | N28 | — | — | [F58](#f58) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F62** | Uma migration inicial só para a 2.0.0 | N14 | D9 | — | [F4](#f4) | Baixo | Médio | Médio | Bom | ⏳ Pendente |
+| **F62** | Uma migration inicial só para a 2.0.0 | N14 | D9 | — | [F4](#f4) | Baixo | Médio | Médio | Bom | ✅ Concluído |
 | **F63** | Sugestão de código ao digitar o ativo | N13 | — | M8 | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F64** | Cache do perfil do ativo no yfinance | N13, N16 | D9 | M8 | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F3** | Spike: banco embarcado no executável | N1 | D4 | M2 | — | Médio | Baixo | Alto | Excelente | ✅ Concluído |
@@ -745,7 +744,8 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 **F61 — Host remove jogador da sala.** Serve N28. Hoje a vaga só abre quando o jogador sai por conta própria: com a sala cheia ou a partida salva recusada por causa de novatos (F58), o host tem de pedir pelo chat para alguém fechar a aba. O plano: um botão "Remover" no cartão de cada jogador do lobby, só para o host, que encerra a sessão do jogador pelo mesmo caminho do `player_logout`, com um aviso "o host te removeu da sala" na tela dele, e libera a cor e a vaga na hora. Fica em aberto se a remoção também vale para participante offline da partida em andamento; a leitura provável é que não, porque tirar a linha de `simulation_players` apaga o saldo e o histórico dele.
 
 <a id="f62"></a>
-**F62 — Uma migration inicial só para a 2.0.0.** Serve N14; segue a D9. Hoje `backend/migrations/versions/` tem seis arquivos, todos de outubro de 2026 (a inicial, os indicadores econômicos, a classe do ativo e o IR, setores e segmentos, o critério de vitória e a cor por jogador), escritos durante o desenvolvimento. Nenhum executável publicado os conhece: a v1.0.0 criava as tabelas com `create_all` e não guarda `alembic_version`. Condensá-los agora é de graça, porque ninguém tem um banco em revisão intermediária; depois da 2.0.0 nenhum banco de jogador pode ficar sem caminho de upgrade, e a cadeia passa a só crescer. O plano: no último passo antes da release, depois de a F4 fechar o banco e de qualquer outra mudança de schema da 2.0.0, apagar os seis arquivos e gerar uma inicial só, por `pnpm db:revision "create initial schema"` contra um banco vazio, revista à mão: os `ENUM` nativos, o `server_default` do JSONB e, no `downgrade`, o drop explícito de cada `ENUM`, que o autogenerate não faz. O `tests/test_migrations.py` confere que a inicial chega no schema dos models e que sobe e desce. O banco de desenvolvimento aponta para uma revisão que deixa de existir: troca-se o `alembic_version` pela nova (ou recria-se o banco), e o mesmo vale para os bancos de teste de quem experimentou builds anteriores. **Aceite:** um banco novo chega ao schema dos models só com a inicial, e `tests/test_migrations.py` passa.
+**F62 — Uma migration inicial só para a 2.0.0.** Serve N14; segue a D9. `backend/migrations/versions/` tinha sete arquivos, todos de outubro de 2026 (a inicial, os indicadores econômicos, a classe do ativo e o IR, setores e segmentos, o critério de vitória, a cor por jogador e o perfil do ativo), escritos durante o desenvolvimento. Nenhum executável publicado os conhecia: a v1.0.0 criava as tabelas com `create_all` e não guarda `alembic_version`. Condensá-los foi de graça, porque ninguém tinha um banco em revisão intermediária; depois da 2.0.0 nenhum banco de jogador pode ficar sem caminho de upgrade, e a cadeia passa a só crescer. Os sete arquivos saíram e entrou uma inicial só, gerada por `pnpm db:revision "create initial schema"` contra um banco vazio e revista à mão: sem os comentários do autogenerate e, no `downgrade`, com o drop explícito de cada `ENUM` nativo (nove), que o autogenerate não faz. O `tests/test_migrations.py` confere que a inicial chega no schema dos models e que sobe e desce; o teste do ensaio com backup, que dependia de haver uma revisão anterior à última, passou a acrescentar ao head real uma revisão só do teste (`add_column` em `stock`), por um `version_locations` extra. O banco de desenvolvimento apontava para uma revisão que deixou de existir e foi recriado do zero, assim como valem os bancos de teste de quem experimentou builds anteriores.
+**Aceite:** um banco novo chega ao schema dos models só com a inicial, e `tests/test_migrations.py` passa.
 
 <a id="f63"></a>
 **F63 — Sugestão de código ao digitar o ativo.** Serve N13. Mesma ideia do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): no campo "Código do ativo" do painel Adicionar ativo (fonte yFinance), a pessoa digita e a lista mostra os códigos válidos com o nome da empresa, em vez de descobrir o erro só depois de tentar importar. Backend: `GET /api/import-assets/tickers?q=` (no router da Central, que já responde 409 com partida ativa) chama `yf.Search(q, max_results=20, news_count=0, lists_count=0).quotes`; abaixo de 2 caracteres devolve `[]` sem consultar a fonte, e falha da fonte vira 503. O filtro é o da B3: bolsa `SAO`, símbolo terminado em `.SA` e código no formato `[A-Z0-9]{4}\d{1,2}` (PETR4, KNRI11); o `.SA` sai, repetidos saem e a ordem do Yahoo fica. Frontend: o campo vira o `TickerCombobox` (`Input` + `Command` do design system, sem `Popover`, para o foco ficar no campo), com debounce de 300 ms, `useQuery` com `staleTime: Infinity` por texto buscado e setas/Enter/Escape. A sugestão não restringe: o texto digitado continua valendo, então `BTC-USD` e o código tirado do nome do CSV seguem funcionando. A lista só aparece com a fonte yFinance; no CSV o campo fica como antes. Limitação: códigos de fora da B3 não aparecem na lista, só digitados à mão.
