@@ -95,6 +95,17 @@ jobs:
       - name: Instalar dependências do Python
         run: uv sync --group build
 
+      - name: Cache do zip oficial do Postgres
+        if: runner.os == 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: .cache/postgres
+          key: postgres-${{ hashFiles('scripts/build_postgres.py') }}
+
+      - name: Preparar o Postgres embarcado
+        if: runner.os == 'Windows'
+        run: uv run python -m scripts.build_postgres
+
       - name: Gerar executável com PyInstaller
         run: uv run pyinstaller SimuladorFinanceiro.spec --clean --noconfirm
 

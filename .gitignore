@@ -79,3 +79,5 @@ lerna-debug.log*
 secret.key
 config.toml
 *.db
+postgres_dist/
+.cache/

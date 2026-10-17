@@ -1,0 +1,42 @@
+name: Versão do Postgres embarcado
+
+# O Postgres que vai no executável é fixado em scripts/build_postgres.py e não gera
+# alerta automático de segurança: este workflow avisa quando sai uma versão menor nova
+on:
+  schedule:
+    - cron: "0 12 * * 1"
+  workflow_dispatch:
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Comparar a versão fixada com a última do Postgres
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          import sys
+          import urllib.request
+
+          script = open("scripts/build_postgres.py", encoding="utf-8").read()
+          pinned = re.search(r'POSTGRES_VERSION = "([\d.]+)"', script).group(1)
+          major = pinned.split(".")[0]
+
+          with urllib.request.urlopen("https://www.postgresql.org/versions.json") as response:
+              versions = json.load(response)
+          latest = next(v for v in versions if v["major"] == major)
+          current = f"{major}.{latest['latestMinor']}"
+
+          print(f"Fixada: {pinned} | Última da série {major}: {current}")
+          if pinned != current:
+              print(f"::error::O Postgres embarcado está na {pinned} e a última é a {current}. "
+                    "Atualize POSTGRES_VERSION e POSTGRES_ZIP_SHA256 em scripts/build_postgres.py.")
+              sys.exit(1)
+          PY

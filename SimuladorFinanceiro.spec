@@ -1,4 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
+import sys
+from pathlib import Path
+
+# O servidor Postgres embarcado só existe no executável do Windows (`pnpm build:postgres`)
+postgres_dist = Path('postgres_dist')
+if sys.platform == 'win32' and os.environ.get('CI') and not postgres_dist.exists():
+    raise SystemExit('Rode `pnpm build:postgres` antes de empacotar no Windows.')
+postgres_datas = [(str(postgres_dist), 'backend/postgres')] if postgres_dist.exists() else []
 
 
 a = Analysis(
@@ -8,7 +17,7 @@ a = Analysis(
     datas=[
         ('backend/static', 'backend/static'),
         ('backend/migrations', 'backend/migrations'),
-    ],
+    ] + postgres_datas,
     hiddenimports=[
         'psycopg_binary',
     ],

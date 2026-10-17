@@ -19,6 +19,7 @@
     "check": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run front:check",
     "build": "pnpm run build:frontend && pnpm run build:exe",
     "build:frontend": "cd frontend && pnpm run build",
+    "build:postgres": "uv run python -m scripts.build_postgres",
     "build:exe": "uv run --group build pyinstaller SimuladorFinanceiro.spec --clean --noconfirm",
     "radon:mi": "uv run radon mi main.py backend/ -s",
     "radon:cc": "uv run radon cc main.py backend/ -s -a && uv run radon cc main.py backend/ -s -a -O cc.txt",

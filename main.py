@@ -38,6 +38,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.core.database import get_engine
+from backend.core.embedded_postgres import EmbeddedPostgresError, resolve_database_url
 from backend.core.migration import MigrationError, migrate
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.tunnel_manager import TunnelManager
@@ -158,8 +159,8 @@ def create_app():
 if __name__ == "__main__":
     # O app sobe com o banco já no head das migrations
     try:
-        migrate(config.env.postgres_url)
-    except MigrationError as error:
+        migrate(resolve_database_url())
+    except (MigrationError, EmbeddedPostgresError) as error:
         logger.critical(error)
         if getattr(sys, "frozen", False):
             input("Pressione Enter para fechar.")

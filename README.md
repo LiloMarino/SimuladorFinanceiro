@@ -44,7 +44,7 @@ Simule negociações em **renda variável** (Ações, FIIs, ETFs) e **renda fixa
 Baixe o executável disponível em [Releases](../../releases), escolha o arquivo conforme seu sistema operacional e execute-o diretamente. O navegador abrirá automaticamente em `http://localhost:8000`.
 
 > [!IMPORTANT]
-> O executável não requer instalação de Python ou Node.js, mas ainda depende do **PostgreSQL**. Configure as variáveis de ambiente no arquivo `.env` antes de executar.
+> O executável não requer instalação de Python nem de Node.js. No **Windows** o banco de dados (PostgreSQL) já vem dentro dele: basta abrir. No Linux e no macOS ainda é preciso ter o **PostgreSQL** instalado e configurar o `.env`, como descrito na [página de instalação](docs/docs/como-usar/instalacao.md).
 
 ### Instalação a partir do Código-Fonte
 Clone o repositório e instale as dependências:
@@ -119,6 +119,7 @@ Todos os comandos rodam a partir da raiz com `pnpm <script>`:
 | `lint` / `lint:fix` / `format` | ruff check / com correção automática / ruff format |
 | `typecheck` | pyright |
 | `build` / `build:frontend` / `build:exe` | build completo / só o frontend / só o executável (PyInstaller) |
+| `build:postgres` | no Windows, baixa o PostgreSQL oficial e prepara o servidor embarcado em `postgres_dist/`; rode antes de `build:exe` para o executável levar o banco |
 | `radon` / `radon:mi` / `radon:cc` | métricas de código (JSON) / índice de manutenibilidade / complexidade ciclomática |
 | `profile` / `profile:view` | cProfile do backend + snakeviz / reabre o último perfil |
 | `profile:line` / `profile:line:view` | line_profiler do backend / visualiza o resultado |
