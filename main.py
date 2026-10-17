@@ -17,11 +17,12 @@ junto com este programa. Caso não, veja <https://www.gnu.org/licenses/>.
 """
 
 from backend import config
+from backend.config.paths import app_files_dir
 from backend.core.logger import setup_logging
 
 setup_logging(
     level=config.toml.logging.logging_level,
-    logs_path=config.toml.logging.logs_path,
+    logs_path=app_files_dir() / config.toml.logging.logs_path,
 )
 # flake8: noqa: E402 - Setup de logging deve ser o primeiro para capturar logs de importação
 
@@ -172,6 +173,7 @@ if __name__ == "__main__":
 
     # O executável serve o front buildado; em dev o front é o do Vite
     if getattr(sys, "frozen", False):
+        logger.info(f"Configurações e logs em {app_files_dir()}")
         logger.info(f"Abrindo navegador em {local_url}")
         Timer(1.0, lambda: webbrowser.open(local_url)).start()
 

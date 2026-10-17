@@ -1,16 +1,16 @@
 import logging
 import tomllib
-from pathlib import Path
 
 import toml
 from pydantic import BaseModel, field_validator
 
+from backend.config.paths import app_files_dir
 from backend.features.tunnel.network_utils.network_types import NetworkType
 from backend.features.tunnel.providers import AVAILABLE_PROVIDERS
 
 logger = logging.getLogger(__package__ if __package__ else __name__)
 
-CONFIG_PATH = Path("config.toml")
+CONFIG_PATH = app_files_dir() / "config.toml"
 
 
 class DatabaseConfig(BaseModel):

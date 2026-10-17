@@ -1,11 +1,12 @@
 import logging
-from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from backend.config.paths import app_files_dir
+
 logger = logging.getLogger(__package__ if __package__ else __name__)
-ENV_PATH = Path(".env")
+ENV_PATH = app_files_dir() / ".env"
 
 
 class EnvSettings(BaseSettings):
@@ -16,7 +17,7 @@ class EnvSettings(BaseSettings):
     )
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=ENV_PATH,
         extra="ignore",
     )
 

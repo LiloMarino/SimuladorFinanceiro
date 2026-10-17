@@ -60,7 +60,7 @@ def _file_handler(path: Path, formatter: logging.Formatter) -> RotatingFileHandl
 def setup_logging(
     *,
     level: str = "INFO",
-    logs_path: str = "logs",
+    logs_path: str | Path = "logs",
     log_file: str = "app.log",
 ) -> None:
     """

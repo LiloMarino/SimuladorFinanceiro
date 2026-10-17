@@ -10,7 +10,6 @@ desce ao fechar. Com `POSTGRES_DATABASE_URL` definida nada disso roda e o banco 
 import atexit
 import ctypes
 import logging
-import os
 import secrets
 import shutil
 import socket
@@ -28,11 +27,11 @@ import psycopg
 from psycopg import sql
 
 from backend import config
+from backend.config.paths import user_data_dir
 from backend.core.utils import resource_path
 
 logger = logging.getLogger(__name__)
 
-APP_DIR_NAME = "SimuladorFinanceiro"
 DATABASE_NAME = "simulador_financeiro"
 SUPERUSER = "postgres"
 STARTUP_TIMEOUT_SECONDS = 60
@@ -54,12 +53,6 @@ host    all    all    ::1/128         scram-sha-256
 
 class EmbeddedPostgresError(RuntimeError):
     """O servidor embarcado não pôde ser preparado, subir ou aceitar conexões."""
-
-
-def user_data_dir() -> Path:
-    local_app_data = os.environ.get("LOCALAPPDATA")
-    base = Path(local_app_data) if local_app_data else Path.home() / "AppData" / "Local"
-    return base / APP_DIR_NAME
 
 
 def dist_dir() -> Path:
