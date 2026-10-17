@@ -69,7 +69,6 @@
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ⏳ |
 | [**F48**](#f48) | README e docs que mostram o produto | — | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
-| [**F51**](#f51) | Versão única e changelog | — | ⏳ |
 | [**F52**](#f52) | Modo corrida à meta | — | ⏳ |
 | [**F53**](#f53) | Modo viver de renda | — | ⏳ |
 | [**F54**](#f54) | Modo debug | — | ⏳ |
@@ -80,7 +79,7 @@
 | [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (42 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (43 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -121,6 +120,7 @@
 | [**F43**](#f43) | Spike: outros modos de jogo | — | ✅ |
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
 | [**F50**](#f50) | Diagrama do banco navegável | — | ✅ |
+| [**F51**](#f51) | Versão única e changelog | — | ✅ |
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
 | [**F58**](#f58) | Entrar no meio da partida (hot-join) | — | ✅ |
 | [**F59**](#f59) | Separar em dois executáveis: cliente e servidor | — | 🚫 |
@@ -143,7 +143,6 @@
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
 | [**F47**](#f47) | Gravação automática de demonstrações | M14 | 1 | ⏳ |
-| [**F51**](#f51) | Versão única e changelog | — | 1 | ⏳ |
 | [**F52**](#f52) | Modo corrida à meta | M13 | 1 | ⏳ |
 | [**F54**](#f54) | Modo debug | — | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
@@ -151,6 +150,7 @@
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
 | [**F42**](#f42) | Modo em equipes | M13 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
+| [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
 | [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | — | 0 | ⏳ |
@@ -419,7 +419,7 @@
 
 ### Sem marco
 
-> **Progresso:** 9/20 concluídas
+> **Progresso:** 10/20 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -427,7 +427,6 @@
 | [**F37**](#f37) | Tema escuro | [F26](#f26) | 💤 |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 🔍 |
 | [**F45**](#f45) | Painel de desempenho | [F54](#f54) | ⏳ |
-| [**F51**](#f51) | Versão única e changelog | — | ⏳ |
 | [**F54**](#f54) | Modo debug | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | [F44](#f44) | 🔍 |
 | [**F56**](#f56) | Novidades no app | [F51](#f51) | ⏳ |
@@ -435,7 +434,7 @@
 | [**F61**](#f61) | Host remove jogador da sala | [F58](#f58) | ⏳ |
 | [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | [F4](#f4) | ⏳ |
 
-<details><summary>Concluído (9 itens)</summary>
+<details><summary>Concluído (10 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -446,6 +445,7 @@
 | [**F39**](#f39) | Cor exclusiva e sigla de duas letras por jogador | — | ✅ |
 | [**F46**](#f46) | Console do navegador no terminal do dev | — | ✅ |
 | [**F50**](#f50) | Diagrama do banco navegável | — | ✅ |
+| [**F51**](#f51) | Versão única e changelog | — | ✅ |
 | [**F57**](#f57) | Logs separados por assunto | — | ✅ |
 | [**F58**](#f58) | Entrar no meio da partida (hot-join) | [F39](#f39) | ✅ |
 
@@ -493,7 +493,7 @@
 | **F45** | Painel de desempenho | N24 | — | — | [F54](#f54) | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
 | **F47** | Gravação automática de demonstrações | N25 | — | M14 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
-| **F51** | Versão única e changelog | N14 | D12 | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F51** | Versão única e changelog | N14 | D12 | — | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F43** | Spike: outros modos de jogo | N23 | — | M13 | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F52** | Modo corrida à meta | N23 | — | M13 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F53** | Modo viver de renda | N23 | — | M13 | [F52](#f52) | Médio | Médio | Alto | Bom | ⏳ Pendente |
@@ -712,7 +712,8 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 **F48 — README e docs que mostram o produto.** Serve N25. O README abre com um GIF do jogo rodando e, logo abaixo, o que ele faz, cada item com uma imagem ou um GIF curto da F47 (renda variável, renda fixa, estatísticas, multiplayer), o download e o link dos docs; a parte de desenvolvimento desce para o fim. Nos docs, uma página "Tour" com os vídeos, e as páginas de "Como usar" com as imagens novas. Junto, uma revisão do que está desatualizado em README e docs, página por página, contra o app de hoje. Feito com a skill de documentação (`engineering:documentation`).
 
 <a id="f51"></a>
-**F51 — Versão única e changelog.** Serve N14; segue a D12. Hoje a versão está em três lugares que não se falam: digitada à mão no `workflow_dispatch` do `release.yml` (a última tag é v1.0.0), `0.1.0` no `pyproject.toml`, e `0.0.0` nos `package.json` do frontend e dos docs; o app não sabe a própria versão. E não existe changelog: as notas da v1.0.0 são a lista automática de PRs do GitHub, com atualização de dependência do Dependabot, ilegível para quem joga. O plano: (1) **uma fonte só** — a versão mora no `pyproject.toml`, e o workflow de release a lê de lá e cria a tag, em vez de recebê-la digitada; os `package.json` são de pacotes privados que não se publicam, e o campo `version` deles sai; o backend expõe a versão. A próxima é a 2.0.0, com "Acesso antecipado" no título da release e no README (D12). (2) **A próxima versão sai dos commits** — o `git-cliff --bumped-version` calcula, e o workflow de release a mostra antes de publicar; testado em repositório descartável: só `docs:`, `refactor:` ou `fix:` dão correção (2.0.1), um `feat:` dá a menor (2.1.0), e um `!` depois do tipo dá a maior (3.0.0), até em `fix!:`; commit sem tipo não move o número. Os 109 commits desde a v1.0.0 estão todos no formato (tipo, descrição em português, sem emoji, sem escopo); os 559 anteriores, com emoji, ficam antes da tag e não entram em conta nenhuma. A única regra nova é o `!` no commit que quebra compatibilidade, que o `docs/docs/desenvolvimento/contribuindo.md` passa a trazer, junto com a tabela da D12 numa página "Versionamento" nos docs. (3) **`CHANGELOG.md` automático, sem LLM** — o `git-cliff` gera cada seção a partir dos commits desde a tag anterior: `feat:` vira "Novidades", `fix:` vira "Correções", e `docs:`, `chore:`, `refactor:`, `build:` e `test:` ficam de fora. O assunto dos commits já é escrito para ser lido (pt-BR, particípio, sem escopo), então a seção sai legível sem edição. Só a seção da 2.0.0, que cobre tudo desde fevereiro, ganha um resumo à mão no topo. Cada seção diz se as partidas salvas continuam valendo. (4) **Onde aparece** — o `CHANGELOG.md` na raiz do repositório (o GitHub o lista entre os arquivos, mas não o mostra numa aba ao lado do README); a seção da versão vira a descrição da release no GitHub, gerada pelo workflow (`git-cliff --latest`); e uma página "Novidades" nos docs, gerada no build a partir do mesmo arquivo.
+**F51 — Versão única e changelog.** Serve N14; segue a D12. A versão estava em quatro lugares que não se falam: digitada à mão no `workflow_dispatch` do `release.yml`, `0.1.0` no `pyproject.toml`, `0.0.0` nos `package.json` do frontend e dos docs, e `1.0.0` fixo no `FastAPI(...)` do `main.py`; e não existia changelog (as notas da v1.0.0 eram a lista automática de PRs, com atualização de dependência do Dependabot, ilegível para quem joga). Agora: (1) **Uma fonte só** — a versão mora no `pyproject.toml` (2.0.0) e o `get_version()` (`backend/core/version.py`) a lê com `tomllib`; o `pyproject.toml` vai no executável (`datas` do `.spec`), já que o projeto não é um pacote instalável e não há `importlib.metadata`. `GET /api/version` a expõe, e o `FastAPI(version=...)` (e com ele o `openapi.json`) usa o mesmo valor. O campo `version` saiu dos `package.json` (pacotes privados). O `release.yml` não recebe mais a versão digitada: o job `validate` a lê do `pyproject.toml`, falha se a tag já existir e confere com os commits; a release sai com o título "vX.Y.Z (Acesso antecipado)" (D12), e o README ganhou o rótulo. (2) **A próxima versão sai dos commits** — o `git-cliff --bumped-version`, com a `cliff.toml` na raiz, calcula; testado em repositórios descartáveis com a config final: só `docs:`/`refactor:`/`fix:` dão correção (2.0.1), um `feat:` dá a menor (2.1.0), um `!` depois do tipo dá a maior (3.0.0), até em `docs!:` e `fix!:`, e commit sem tipo não move o número. Os commits anteriores à tag v1.0.0 (com emoji) ficam fora de conta. O `pnpm release` (`scripts/release.py`) calcula, grava a versão no `pyproject.toml` e no `uv.lock`, acrescenta a seção ao `CHANGELOG.md` e não commita: o diff é revisado e vai num `chore: Versão X`. Se o `pyproject.toml` já está acima do calculado (como na 2.0.0, que sobe de 1.0.0 por decisão da D12), o número fica; o workflow roda `scripts.release --check` e só recusa o `pyproject.toml` que ficou abaixo do pedido pelos commits, e escreve os dois números no resumo da execução. A tabela da D12 e a convenção de commit estão na página "Versionamento" dos docs e em `contribuindo.md`. (3) **`CHANGELOG.md` automático, sem LLM** — o `git-cliff` gera cada seção: `feat:` vira "Novidades", `fix:` vira "Correções", e `docs:`, `chore:`, `refactor:`, `build:` e `test:` ficam de fora; um commit com `!` aparece à parte em "Quebras". Cada seção diz se as partidas salvas e o `config.toml` continuam valendo. Só a seção da 2.0.0, que cobre tudo desde fevereiro, ganhou um resumo à mão no topo, com o aviso de que as partidas salvas da 1.0.0 não abrem. (4) **Onde aparece** — o `CHANGELOG.md` na raiz; a seção da versão vira a descrição da release no GitHub (`scripts.release --notes` a extrai do arquivo, para que o resumo à mão da 2.0.0 também vá); e a página "Novidades" dos docs, gerada no build por `scripts/changelog_page.py` (`pnpm db:changelog`, no `prestart`/`prebuild`/`pretypecheck` junto do `db:erd`, sem versionar a saída), que o `deploy-docs.yml` também dispara por mudança no `CHANGELOG.md`.
+**Aceite:** `pnpm release` num repositório com commits novos sobe o número pelo tipo dos commits e acrescenta a seção ao `CHANGELOG.md`; o workflow de release publica a versão do `pyproject.toml` com as notas dessa seção e recusa a que ficou abaixo da pedida pelos commits; `GET /api/version` devolve a mesma versão no `pnpm dev` e no executável.
 
 <a id="f43"></a>
 **F43 — Spike: outros modos de jogo.** Serve N23. Decidido com o usuário: entram a corrida à meta (F52) e o viver de renda (F53), além das equipes (F42). Ficaram de fora, por ora: eliminação (a cada trimestre o último sai, até sobrar um), cenário com objetivo (começar numa crise histórica com uma meta, como uma campanha de RTS) e todos contra o índice (a sala inteira numa equipe contra o CDI e o Ibovespa).
