@@ -363,12 +363,17 @@ def get_simulation_settings(client_id: ClientID):
     "/settings",
     response_model=SimulationSettingsDTO,
     summary="Atualizar configurações da simulação",
-    description="Atualiza os parâmetros da simulação (datas, capital, contribuição mensal). Apenas o host pode executar.",
+    description="Atualiza os parâmetros da simulação (datas, capital, contribuição mensal). Recusa com 409 enquanto uma partida salva está selecionada: continuar usa as regras gravadas nela. Apenas o host pode executar.",
 )
 def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
     """
     Atualiza as configurações da simulação.
     """
+    # As regras de uma partida salva são as gravadas nela: com seleção ativa elas não mudam
+    if SettingsManager.get_selected_simulation_id() is not None:
+        raise ConflictError(
+            "As regras de uma partida salva não mudam. Remova a seleção para editar as de uma nova partida."
+        )
     settings = SettingsManager.update(SimulationSettingsDTO(**payload.model_dump()))
 
     notify("simulation_settings_update", settings.to_json())

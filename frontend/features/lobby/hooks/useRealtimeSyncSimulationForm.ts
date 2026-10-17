@@ -14,11 +14,14 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
   form,
   initial,
   isHost,
+  locked,
   debounceMs,
 }: {
   form: UseFormReturn<TForm>;
   initial: SimulationSettingsData;
   isHost: boolean;
+  /** Com partida salva selecionada as regras são as gravadas nela: o servidor recusa a edição */
+  locked: boolean;
   debounceMs: number;
 }) {
   const lock = useAsyncLock();
@@ -77,7 +80,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
   const [debouncedValues] = useDebounce(values, debounceMs);
 
   useEffect(() => {
-    if (!isHost) return;
+    if (!isHost || locked) return;
     if (!form.formState.isValid) return;
     if (!debouncedValues) return;
     if (lock.isLocked()) return;
@@ -116,7 +119,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       // A falha fica em `saveError`, mostrada no rodapé do painel de regras
       await updateSettings(payload).catch(() => undefined);
     });
-  }, [debouncedValues, isHost, updateSettings, form.formState.isValid, lock]);
+  }, [debouncedValues, isHost, locked, updateSettings, form.formState.isValid, lock]);
 
   return { savedAt, saving, saveError };
 }

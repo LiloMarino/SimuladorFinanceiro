@@ -112,7 +112,13 @@ export function LobbyMatch({
     },
   });
 
-  const saveStatus = useRealtimeSyncSimulationForm({ form, initial: simulationData, isHost, debounceMs: 400 });
+  const saveStatus = useRealtimeSyncSimulationForm({
+    form,
+    initial: simulationData,
+    isHost,
+    locked: selectedSimulationId !== null,
+    debounceMs: 400,
+  });
   const values = useWatch({ control: form.control }) as SimulationFormValues;
 
   const { data: coverage } = useQuery(seriesCoverageOptions());

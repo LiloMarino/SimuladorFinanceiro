@@ -1138,7 +1138,7 @@ export interface paths {
         get: operations["get_simulation_settings_api_simulation_settings_get"];
         /**
          * Atualizar configurações da simulação
-         * @description Atualiza os parâmetros da simulação (datas, capital, contribuição mensal). Apenas o host pode executar.
+         * @description Atualiza os parâmetros da simulação (datas, capital, contribuição mensal). Recusa com 409 enquanto uma partida salva está selecionada: continuar usa as regras gravadas nela. Apenas o host pode executar.
          */
         put: operations["update_simulation_settings_api_simulation_settings_put"];
         post?: never;
