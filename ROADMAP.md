@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-17):** Regra de SemVer na D12 (correção, menor e maior, com o ! no commit); F51 com a conta pelos commits; registrada a migration inicial única para a 2.0.0 (F62).
+> **Última mudança (2026-10-17):** Registradas a sugestão de código ao digitar o ativo (F63) e o cache do perfil do ativo no yfinance (F64), no M8.
 
 ## Glossário
 
@@ -28,10 +28,10 @@
 | **N10** | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | [F19](#f19) | — |
 | **N11** | Que o cenário econômico simulado seja o histórico real | [F20](#f20) | — |
 | **N12** | Continuar jogando depois do último dia com dado real | [F24](#f24) | — |
-| **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | [F21](#f21) | — |
+| **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | [F21](#f21), [F63](#f63), [F64](#f64) | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F25](#f25), [F51](#f51), [F56](#f56), [F62](#f62) | — |
 | **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F26](#f26), [F35](#f35), [F36](#f36), [F37](#f37), [F38](#f38) | — |
-| **N16** | Ver a carteira e o mercado por setor e segmento | [F30](#f30) | — |
+| **N16** | Ver a carteira e o mercado por setor e segmento | [F30](#f30), [F64](#f64) | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | [F31](#f31), [F50](#f50) | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | [F32](#f32) | — |
 | **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33) | — |
@@ -81,6 +81,8 @@
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | — | ⏳ |
+| [**F63**](#f63) | Sugestão de código ao digitar o ativo | — | ⏳ |
+| [**F64**](#f64) | Cache do perfil do ativo no yfinance | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
@@ -93,7 +95,7 @@
 | **D6** | A retomada continua no dia seguinte ao último evento | [F2](#f2) | ✅ |
 | **D7** | O simulador lê as séries sem saber a origem | [F20](#f20), [F21](#f21), [F24](#f24) | ✅ |
 | **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F8](#f8), [F16](#f16), [F19](#f19), [F27](#f27) | ✅ |
-| **D9** | De onde nasce uma mudança de schema | [F25](#f25), [F31](#f31), [F50](#f50), [F62](#f62) | ✅ |
+| **D9** | De onde nasce uma mudança de schema | [F25](#f25), [F31](#f31), [F50](#f50), [F62](#f62), [F64](#f64) | ✅ |
 | **D10** | Como a nota geral é calculada | [F18](#f18) | ✅ |
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | [F36](#f36) | ✅ |
 | **D12** | Como numerar as versões | [F51](#f51) | ✅ |
@@ -152,6 +154,8 @@
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
+| [**F63**](#f63) | Sugestão de código ao digitar o ativo | M8 | 0 | ⏳ |
+| [**F64**](#f64) | Cache do perfil do ativo no yfinance | M8 | 0 | ⏳ |
 
 ---
 
@@ -289,11 +293,13 @@
 >
 > **Serve:** N3, N11, N13
 >
-> **Progresso:** 2/3 concluídas
+> **Progresso:** 2/5 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
+| [**F63**](#f63) | Sugestão de código ao digitar o ativo | — | ⏳ |
+| [**F64**](#f64) | Cache do perfil do ativo no yfinance | — | ⏳ |
 
 <details><summary>Concluído (2 itens)</summary>
 
@@ -499,6 +505,8 @@
 | **F58** | Entrar no meio da partida (hot-join) | N27 | — | — | [F39](#f39) | Médio | Médio | Médio | Bom | ✅ Concluído |
 | **F61** | Host remove jogador da sala | N28 | — | — | [F58](#f58) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F62** | Uma migration inicial só para a 2.0.0 | N14 | D9 | — | [F4](#f4) | Baixo | Médio | Médio | Bom | ⏳ Pendente |
+| **F63** | Sugestão de código ao digitar o ativo | N13 | — | M8 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F64** | Cache do perfil do ativo no yfinance | N13, N16 | D9 | M8 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -736,6 +744,14 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 
 <a id="f62"></a>
 **F62 — Uma migration inicial só para a 2.0.0.** Serve N14; segue a D9. Hoje `backend/migrations/versions/` tem seis arquivos, todos de outubro de 2026 (a inicial, os indicadores econômicos, a classe do ativo e o IR, setores e segmentos, o critério de vitória e a cor por jogador), escritos durante o desenvolvimento. Nenhum executável publicado os conhece: a v1.0.0 criava as tabelas com `create_all` e não guarda `alembic_version`. Condensá-los agora é de graça, porque ninguém tem um banco em revisão intermediária; depois da 2.0.0 nenhum banco de jogador pode ficar sem caminho de upgrade, e a cadeia passa a só crescer. O plano: no último passo antes da release, depois de a F4 fechar o banco e de qualquer outra mudança de schema da 2.0.0 (se a F4 trocar de motor, a inicial precisa ser gerada nele), apagar os seis arquivos e gerar uma inicial só, por `pnpm db:revision "create initial schema"` contra um banco vazio, revista à mão: os `ENUM` nativos, o `server_default` do JSONB e, no `downgrade`, o drop explícito de cada `ENUM`, que o autogenerate não faz. O `tests/test_migrations.py` confere que a inicial chega no schema dos models e que sobe e desce. O banco de desenvolvimento aponta para uma revisão que deixa de existir: troca-se o `alembic_version` pela nova (ou recria-se o banco), e o mesmo vale para os bancos de teste de quem experimentou builds anteriores. **Aceite:** um banco novo chega ao schema dos models só com a inicial, e `tests/test_migrations.py` passa.
+
+<a id="f63"></a>
+**F63 — Sugestão de código ao digitar o ativo.** Serve N13. Mesma ideia do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): no campo "Código do ativo" do painel Adicionar ativo (fonte yFinance), a pessoa digita e a lista já mostra os códigos válidos com o nome da empresa, em vez de descobrir o erro só depois de tentar importar. Backend: `GET /api/import-assets/tickers?q=` (no router da Central, que já responde 409 com partida ativa) chama `yf.Search(q, max_results=20, news_count=0, lists_count=0).quotes`; abaixo de 2 caracteres devolve `[]` sem consultar a fonte, e falha da fonte vira 503. O filtro é o da B3: bolsa `SAO`, símbolo terminado em `.SA` e nome no formato `[A-Z0-9]{4}\d{1,2}` (PETR4, KNRI11); o `.SA` sai, repetidos saem e a ordem do Yahoo fica. Frontend: o `Input` do painel vira um campo com `Popover` + `Command` do design system, com debounce de 300 ms, `useQuery` com `staleTime: Infinity` por texto buscado e setas/Enter/Escape. A sugestão não restringe: o texto digitado continua valendo, então `BTC-USD` e o código tirado do nome do CSV seguem funcionando. A lista só aparece com a fonte yFinance; no CSV o campo fica como hoje. Limitação: códigos de fora da B3 não aparecem na lista, só digitados à mão.
+**Aceite:** digitar "petr" lista PETR3 e PETR4 com o nome da Petrobras; um provider falso cobre filtro, `.SA`, repetidos e o corte de menos de 2 caracteres em `tests/`.
+
+<a id="f64"></a>
+**F64 — Cache do perfil do ativo no yfinance.** Serve N13 e N16. Hoje cada importação de ativo ainda sem classificação chama `yf.Ticker(ticker).info` de novo (`fetch_info` em `importer_service.py`), inclusive no "Atualizar todos", e o ativo que o yfinance devolve sem setor (ETF, cripto) é reconsultado toda vez. O [Finance Manager](https://github.com/LiloMarino/Finance-Manager) guarda isso numa tabela `ticker_profiles` e só vai à fonte quando não há linha. Aqui: tabela `ticker_profile` (`ticker` como chave, `name`, `quote_type`, `sector`, `industry`, `fetched_at`), criada por migration do Alembic (D9) e lida por `fetch_info` antes da rede: com linha, usa a linha; sem linha, consulta o yfinance e grava a resposta, inclusive a vazia, para o ETF sem setor não ser reconsultado. `infer_asset_class`, `suggest_segment` e o nome do ativo passam a ler o perfil guardado. Sem expiração: setor e indústria quase não mudam, e a classificação feita à mão continua mandando sobre a sugestão. Se o yfinance falhar, nada é gravado e a importação segue sem sugestão, como hoje. Um botão "Atualizar perfil" na janela Classificar da Central refaz a consulta de um ativo. Se a F63 mostrar setor ao lado da sugestão, lê desta mesma tabela.
+**Aceite:** importar o mesmo ativo duas vezes chama o yfinance para o perfil uma vez só, e "Atualizar todos" não consulta o perfil de ativo já guardado (coberto em `tests/` com `fetch_info` falso contando chamadas).
 
 ---
 ## 2. Nice-to-have
