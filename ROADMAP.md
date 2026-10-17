@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-16):** Concluída a entrada no meio da partida (F58); registrado o host remover jogador da sala (F61).
+> **Última mudança (2026-10-17):** Regra de SemVer na D12 (correção, menor e maior, com o ! no commit); F51 com a conta pelos commits; registrada a migration inicial única para a 2.0.0 (F62).
 
 ## Glossário
 
@@ -29,7 +29,7 @@
 | **N11** | Que o cenário econômico simulado seja o histórico real | [F20](#f20) | — |
 | **N12** | Continuar jogando depois do último dia com dado real | [F24](#f24) | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | [F21](#f21) | — |
-| **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F25](#f25), [F51](#f51), [F56](#f56) | — |
+| **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F25](#f25), [F51](#f51), [F56](#f56), [F62](#f62) | — |
 | **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F26](#f26), [F35](#f35), [F36](#f36), [F37](#f37), [F38](#f38) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | [F30](#f30) | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | [F31](#f31), [F50](#f50) | — |
@@ -80,6 +80,7 @@
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
+| [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
@@ -92,7 +93,7 @@
 | **D6** | A retomada continua no dia seguinte ao último evento | [F2](#f2) | ✅ |
 | **D7** | O simulador lê as séries sem saber a origem | [F20](#f20), [F21](#f21), [F24](#f24) | ✅ |
 | **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F8](#f8), [F16](#f16), [F19](#f19), [F27](#f27) | ✅ |
-| **D9** | De onde nasce uma mudança de schema | [F25](#f25), [F31](#f31), [F50](#f50) | ✅ |
+| **D9** | De onde nasce uma mudança de schema | [F25](#f25), [F31](#f31), [F50](#f50), [F62](#f62) | ✅ |
 | **D10** | Como a nota geral é calculada | [F18](#f18) | ✅ |
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | [F36](#f36) | ✅ |
 | **D12** | Como numerar as versões | [F51](#f51) | ✅ |
@@ -135,8 +136,8 @@
 | ID | Resumo | Marco | Destrava | Status |
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
+| [**F3**](#f3) | Spike: banco embarcado no executável | M2 | 2 | 🔍 |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
-| [**F3**](#f3) | Spike: banco embarcado no executável | M2 | 1 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
@@ -413,7 +414,7 @@
 
 ### Sem marco
 
-> **Progresso:** 9/19 concluídas
+> **Progresso:** 9/20 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -427,6 +428,7 @@
 | [**F56**](#f56) | Novidades no app | [F51](#f51) | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | [F58](#f58) | ⏳ |
+| [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | [F4](#f4) | ⏳ |
 
 <details><summary>Concluído (9 itens)</summary>
 
@@ -496,6 +498,7 @@
 | **F50** | Diagrama do banco navegável | N17 | D9 | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F58** | Entrar no meio da partida (hot-join) | N27 | — | — | [F39](#f39) | Médio | Médio | Médio | Bom | ✅ Concluído |
 | **F61** | Host remove jogador da sala | N28 | — | — | [F58](#f58) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F62** | Uma migration inicial só para a 2.0.0 | N14 | D9 | — | [F4](#f4) | Baixo | Médio | Médio | Bom | ⏳ Pendente |
 
 <a id="f1"></a>
 **F1 — Decimal como string do backend ao frontend.** Origem: #86. O `BaseDTO` deixou de converter `Decimal` para `float`, e o Pydantic serializa como string; os DTOs de dinheiro, quantidade monetária e taxa (carteira, posições, renda fixa, simulação, indicadores, eventos realtime de caixa e execução) e os requests de valor passaram a `Decimal`. O motor guarda caixa e posições em `Decimal`; preço de ação continua `float` na origem (`StockPriceHistory` é `Double`) e vira `Decimal` pelo texto (`to_money`) onde entra no caixa ou num evento. No front, `displayMoney`/`displayPercent`/`displayMoneyCompact` formatam a string direto pelo `Intl` (lib `ES2023.Intl`), e os requests mandam a string digitada. A conta da tela de Carteira subiu para o backend: o `PortfolioDTO` traz totais, alocação e rentabilidade prontos, o histórico patrimonial virou `/api/portfolio/history`, e `portfolio_update` substitui a carteira a cada tick. Limitações: a pizza da carteira soma no front os itens visíveis (interação do gráfico); o compacto do eixo passou a usar o sufixo pt-BR ("mil", "mi").
@@ -700,7 +703,7 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 **F48 — README e docs que mostram o produto.** Serve N25. O README abre com um GIF do jogo rodando e, logo abaixo, o que ele faz, cada item com uma imagem ou um GIF curto da F47 (renda variável, renda fixa, estatísticas, multiplayer), o download e o link dos docs; a parte de desenvolvimento desce para o fim. Nos docs, uma página "Tour" com os vídeos, e as páginas de "Como usar" com as imagens novas. Junto, uma revisão do que está desatualizado em README e docs, página por página, contra o app de hoje. Feito com a skill de documentação (`engineering:documentation`).
 
 <a id="f51"></a>
-**F51 — Versão única e changelog.** Serve N14; segue a D12. Hoje a versão está em três lugares que não se falam: digitada à mão no `workflow_dispatch` do `release.yml` (a última tag é v1.0.0), `0.1.0` no `pyproject.toml`, e `0.0.0` nos `package.json` do frontend e dos docs; o app não sabe a própria versão. E não existe changelog: as notas da v1.0.0 são a lista automática de PRs do GitHub, com atualização de dependência do Dependabot, ilegível para quem joga. Desde a v1.0.0 entraram 42 commits `feat:` e 10 `fix:`. O plano: (1) **uma fonte só** — a versão mora no `pyproject.toml`, sobe com `uv version --bump major|minor|patch`, e o workflow de release a lê de lá e cria a tag, em vez de recebê-la digitada; os `package.json` são de pacotes privados que não se publicam, e o campo `version` deles sai; o backend expõe a versão. A próxima é a 2.0.0, com "Acesso antecipado" no título da release e no README (D12). (2) **`CHANGELOG.md` automático, sem LLM** — o `git-cliff` (CLI gratuita, roda por `uvx`) gera cada seção a partir dos commits desde a tag anterior: `feat:` vira "Novidades", `fix:` vira "Correções", e `docs:`, `chore:`, `refactor:`, `build:` e `test:` ficam de fora. O assunto dos commits já é escrito para ser lido (pt-BR, particípio, sem escopo), então a seção sai legível sem edição; a curadoria acontece ao escrever o commit. Só a seção da 2.0.0, que cobre tudo desde fevereiro, ganha um resumo à mão no topo. Cada seção diz se as partidas salvas continuam valendo. (3) **Onde aparece** — o `CHANGELOG.md` na raiz do repositório (o GitHub o lista entre os arquivos, mas não o mostra numa aba ao lado do README); a seção da versão vira a descrição da release no GitHub, gerada pelo workflow (`git-cliff --latest`); e uma página "Novidades" nos docs, gerada no build a partir do mesmo arquivo.
+**F51 — Versão única e changelog.** Serve N14; segue a D12. Hoje a versão está em três lugares que não se falam: digitada à mão no `workflow_dispatch` do `release.yml` (a última tag é v1.0.0), `0.1.0` no `pyproject.toml`, e `0.0.0` nos `package.json` do frontend e dos docs; o app não sabe a própria versão. E não existe changelog: as notas da v1.0.0 são a lista automática de PRs do GitHub, com atualização de dependência do Dependabot, ilegível para quem joga. O plano: (1) **uma fonte só** — a versão mora no `pyproject.toml`, e o workflow de release a lê de lá e cria a tag, em vez de recebê-la digitada; os `package.json` são de pacotes privados que não se publicam, e o campo `version` deles sai; o backend expõe a versão. A próxima é a 2.0.0, com "Acesso antecipado" no título da release e no README (D12). (2) **A próxima versão sai dos commits** — o `git-cliff --bumped-version` calcula, e o workflow de release a mostra antes de publicar; testado em repositório descartável: só `docs:`, `refactor:` ou `fix:` dão correção (2.0.1), um `feat:` dá a menor (2.1.0), e um `!` depois do tipo dá a maior (3.0.0), até em `fix!:`; commit sem tipo não move o número. Os 109 commits desde a v1.0.0 estão todos no formato (tipo, descrição em português, sem emoji, sem escopo); os 559 anteriores, com emoji, ficam antes da tag e não entram em conta nenhuma. A única regra nova é o `!` no commit que quebra compatibilidade, que o `docs/docs/desenvolvimento/contribuindo.md` passa a trazer, junto com a tabela da D12 numa página "Versionamento" nos docs. (3) **`CHANGELOG.md` automático, sem LLM** — o `git-cliff` gera cada seção a partir dos commits desde a tag anterior: `feat:` vira "Novidades", `fix:` vira "Correções", e `docs:`, `chore:`, `refactor:`, `build:` e `test:` ficam de fora. O assunto dos commits já é escrito para ser lido (pt-BR, particípio, sem escopo), então a seção sai legível sem edição. Só a seção da 2.0.0, que cobre tudo desde fevereiro, ganha um resumo à mão no topo. Cada seção diz se as partidas salvas continuam valendo. (4) **Onde aparece** — o `CHANGELOG.md` na raiz do repositório (o GitHub o lista entre os arquivos, mas não o mostra numa aba ao lado do README); a seção da versão vira a descrição da release no GitHub, gerada pelo workflow (`git-cliff --latest`); e uma página "Novidades" nos docs, gerada no build a partir do mesmo arquivo.
 
 <a id="f43"></a>
 **F43 — Spike: outros modos de jogo.** Serve N23. Decidido com o usuário: entram a corrida à meta (F52) e o viver de renda (F53), além das equipes (F42). Ficaram de fora, por ora: eliminação (a cada trimestre o último sai, até sobrar um), cenário com objetivo (começar numa crise histórica com uma meta, como uma campanha de RTS) e todos contra o índice (a sala inteira numa equipe contra o CDI e o Ibovespa).
@@ -730,6 +733,9 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 
 <a id="f61"></a>
 **F61 — Host remove jogador da sala.** Serve N28. Hoje a vaga só abre quando o jogador sai por conta própria: com a sala cheia ou a partida salva recusada por causa de novatos (F58), o host tem de pedir pelo chat para alguém fechar a aba. O plano: um botão "Remover" no cartão de cada jogador do lobby, só para o host, que encerra a sessão do jogador pelo mesmo caminho do `player_logout`, com um aviso "o host te removeu da sala" na tela dele, e libera a cor e a vaga na hora. Fica em aberto se a remoção também vale para participante offline da partida em andamento; a leitura provável é que não, porque tirar a linha de `simulation_players` apaga o saldo e o histórico dele.
+
+<a id="f62"></a>
+**F62 — Uma migration inicial só para a 2.0.0.** Serve N14; segue a D9. Hoje `backend/migrations/versions/` tem seis arquivos, todos de outubro de 2026 (a inicial, os indicadores econômicos, a classe do ativo e o IR, setores e segmentos, o critério de vitória e a cor por jogador), escritos durante o desenvolvimento. Nenhum executável publicado os conhece: a v1.0.0 criava as tabelas com `create_all` e não guarda `alembic_version`. Condensá-los agora é de graça, porque ninguém tem um banco em revisão intermediária; depois da 2.0.0 nenhum banco de jogador pode ficar sem caminho de upgrade, e a cadeia passa a só crescer. O plano: no último passo antes da release, depois de a F4 fechar o banco e de qualquer outra mudança de schema da 2.0.0 (se a F4 trocar de motor, a inicial precisa ser gerada nele), apagar os seis arquivos e gerar uma inicial só, por `pnpm db:revision "create initial schema"` contra um banco vazio, revista à mão: os `ENUM` nativos, o `server_default` do JSONB e, no `downgrade`, o drop explícito de cada `ENUM`, que o autogenerate não faz. O `tests/test_migrations.py` confere que a inicial chega no schema dos models e que sobe e desce. O banco de desenvolvimento aponta para uma revisão que deixa de existir: troca-se o `alembic_version` pela nova (ou recria-se o banco), e o mesmo vale para os bancos de teste de quem experimentou builds anteriores. **Aceite:** um banco novo chega ao schema dos models só com a inicial, e `tests/test_migrations.py` passa.
 
 ---
 ## 2. Nice-to-have

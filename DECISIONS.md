@@ -210,3 +210,15 @@ Com a sala cheia, ou com uma partida salva que não comporta quem está nela, o 
 **Decisão:** SemVer daqui em diante, com a próxima release em 2.0.0. O número diz compatibilidade, não maturidade: maior quando partidas salvas ou o `config.toml` deixam de valer, menor para feature nova, correção no último. A maturidade vai num rótulo à parte, "Acesso antecipado", no README e no título da release.
 **Por quê:** a v1.0.0 saiu em fevereiro de 2026 com uma fração das features de hoje, e o número passa a impressão de produto acabado. Os bancos da v1.0.0 não migram (a F25 partiu do schema atual), então pelo próprio SemVer a próxima já é maior. Recomeçar em 0.x inverteria a ordem (0.2.0 depois de 1.0.0) e prometeria instabilidade justo quando as migrations passaram a garantir que as partidas salvas sobrevivem; versão por data (2026.10.0) deixaria de avisar quando uma atualização quebra algo.
 **Consequências:** a release que não mantém as partidas salvas é sempre maior, e o changelog de cada versão diz se elas continuam valendo (F51). Sair do "Acesso antecipado" é uma decisão de produto, separada do número.
+
+**Atualização (2026-10-16): quando sobe cada número.** O número responde a uma pergunta sobre quem já tem o app instalado:
+
+| Sobe | Quando | Exemplo |
+| --- | --- | --- |
+| **Correção** (2.0.1) | corrige bug, sem feature nova | uma tela que errava um número |
+| **Menor** (2.1.0) | feature nova e nada quebra: as partidas salvas abrem e o `config.toml` antigo funciona | bots, modo Especialista, indicadores técnicos |
+| **Maior** (3.0.0) | algo deixa de funcionar para quem atualiza: partida salva que não abre, chave do `config.toml` removida ou renomeada, troca de banco sem migrar os dados | trocar o Postgres pelo SQLite sem importar os dados |
+
+Migration que acrescenta tabela ou coluna não é maior, porque a F25 a aplica sozinha nas partidas salvas. Ritmo: um marco concluído vira uma versão menor, correção solta vira correção, e a maior só com quebra de compatibilidade.
+
+O número sai dos commits, que seguem o Conventional Commits: `feat:` pede a menor, `fix:`, `docs:`, `refactor:` e os demais pedem a correção, e um `!` depois do tipo (`feat!: Removido o campo X do config.toml`) pede a maior. O `!` é a única marca de quebra de compatibilidade, e quem faz o commit que quebra é quem o coloca. Commit sem tipo não conta. O escopo (`feat(lobby):`) é opcional e não entra na conta, então o projeto segue sem ele. A conta é do `git-cliff --bumped-version` (F51), conferida antes de cada release.
