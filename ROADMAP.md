@@ -8,7 +8,7 @@
 >
 > **Regra de sincronização:** os dois documentos usam os mesmos IDs (`N#`, `D#`) e devem sempre concordar sobre a decisão vigente de cada item.
 >
-> **Última mudança (2026-10-17):** D4 decidida pelo Postgres oficial embarcado no executável do Windows e F3 concluída; a F4 ganhou o plano.
+> **Última mudança (2026-10-17):** F4 concluída: o executável do Windows leva o Postgres oficial e abre sem instalar nada; fecha o M2.
 
 ## Glossário
 
@@ -45,7 +45,6 @@
 | **N27** | Entrar numa partida que já começou | [F58](#f58) | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
-| [**F4**](#f4) | Executável sobe sem banco instalado | — | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | 🔍 |
@@ -83,7 +82,7 @@
 | [**F64**](#f64) | Cache do perfil do ativo no yfinance | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (39 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (40 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -101,6 +100,7 @@
 | [**F1**](#f1) | Decimal como string do backend ao frontend | — | ✅ |
 | [**F2**](#f2) | Renda fixa com cálculo único no backend e retomada consistente | — | ✅ |
 | [**F3**](#f3) | Spike: banco embarcado no executável | — | ✅ |
+| [**F4**](#f4) | Executável sobe sem banco instalado | — | ✅ |
 | [**F11**](#f11) | Métricas de risco do desempenho | — | ✅ |
 | [**F12**](#f12) | Comparação entre simulações | — | ✅ |
 | [**F13**](#f13) | Impacto de preço de ordens grandes | — | ✅ |
@@ -139,7 +139,6 @@
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
-| [**F4**](#f4) | Executável sobe sem banco instalado | M2 | 1 | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
@@ -154,6 +153,7 @@
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
+| [**F62**](#f62) | Uma migration inicial só para a 2.0.0 | — | 0 | ⏳ |
 | [**F63**](#f63) | Sugestão de código ao digitar o ativo | M8 | 0 | ⏳ |
 | [**F64**](#f64) | Cache do perfil do ativo no yfinance | M8 | 0 | ⏳ |
 
@@ -188,17 +188,18 @@
 >
 > **Serve:** N1, N14
 >
-> **Progresso:** 2/3 concluídas
+> **Progresso:** 3/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F4**](#f4) | Executável sobe sem banco instalado | [F3](#f3) | ⏳ |
+| — | *(nada em aberto)* | — | — |
 
-<details><summary>Concluído (2 itens)</summary>
+<details><summary>Concluído (3 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F3**](#f3) | Spike: banco embarcado no executável | — | ✅ |
+| [**F4**](#f4) | Executável sobe sem banco instalado | [F3](#f3) | ✅ |
 | [**F25**](#f25) | Migrations com Alembic | — | ✅ |
 
 </details>
@@ -460,7 +461,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F1** | Decimal como string do backend ao frontend | N3 | D3 | M1 | — | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F2** | Renda fixa com cálculo único no backend e retomada consistente | N3 | D1, D2, D6 | M1 | — | Alto | Alto | Alto | Bom | ✅ Concluído |
-| **F4** | Executável sobe sem banco instalado | N1 | D4 | M2 | [F3](#f3) | Médio | Médio | Alto | Excelente | ⏳ Pendente |
+| **F4** | Executável sobe sem banco instalado | N1 | D4 | M2 | [F3](#f3) | Médio | Médio | Alto | Excelente | ✅ Concluído |
 | **F6** | Link de convite pela internet no lobby | N2 | — | M3 | [F5](#f5) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F8** | Modo automático: estratégia do jogador roda a cada tick | N4 | D5, D8 | M4 | [F7](#f7) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F9** | Estratégias prontas de exemplo | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
@@ -518,7 +519,7 @@
 **Aceite:** um prefixado comprado e levado ao vencimento credita o mesmo valor, ao centavo, rodando direto ou pausando e retomando no meio — e esse valor é igual à projeção mostrada no dia da compra (coberto em `tests/test_fixed_income_accrual.py` e verificado ponta a ponta: projeção R$ 12.778,14, resgate R$ 12.778,14 após parar e retomar).
 
 <a id="f4"></a>
-**F4 — Executável sobe sem banco instalado.** Serve N1; condicionada pela D4 (Postgres oficial embarcado, só no executável do Windows). No release, um passo do CI baixa o zip oficial de binários do Postgres (versão e hash SHA-256 fixados), extrai só `postgres`, `initdb`, `pg_ctl`, as DLLs, `lib` e `share` com os textos de licença do zip, roda o `initdb` uma vez (UTF8, locale fixo) e entrega o cluster vazio como template; o `.spec` empacota os dois como dados. Um módulo do backend cuida do ciclo de vida: na primeira abertura copia o template para a pasta de dados do usuário (ex.: `%APPDATA%/SimuladorFinanceiro`), define a senha do superusuário, sobe o servidor com `pg_ctl` numa porta livre só em `127.0.0.1`, espera as conexões com limite de tempo e o derruba ao fechar, limpando o `postmaster.pid` e o processo órfão de uma queda anterior. Sem `POSTGRES_DATABASE_URL`, `database.py` e `migrate()` usam o servidor embarcado; com ela, usam o Postgres externo e nada sobe, e o `.env` deixa de ser obrigatório. Linux e macOS não embarcam nada e pedem `POSTGRES_DATABASE_URL` com mensagem clara. No Windows, a abertura confere o runtime do Visual C++ (`vcruntime140.dll`) e avisa como instalar se faltar; caminhos do usuário com caracteres fora do ASCII são tratados ao extrair os binários. A página de instalação dos docs e o README perdem a etapa de instalar o Postgres no Windows, e um workflow agendado compara a versão embutida com a mais recente. Gatilho: livre, a F3 fechou a D4.
+**F4 — Executável sobe sem banco instalado.** Serve N1; condicionada pela D4. No Windows o executável leva o Postgres oficial e abre sem nenhum passo extra. `scripts/build_postgres.py` (`pnpm build:postgres`, rodado pelo release só no job do Windows) baixa o zip oficial com versão e SHA-256 fixados, extrai `postgres`, `initdb`, `pg_ctl`, as DLLs, `lib`, `share` e as licenças, e roda o `initdb` uma vez (UTF8, localidade `C.UTF-8` embutida, fuso America/Sao_Paulo), gerando `postgres.zip` e `cluster.zip`, que o `.spec` empacota em `backend/postgres`. `backend/core/embedded_postgres.py` cuida do ciclo de vida: `resolve_database_url()` devolve o `POSTGRES_DATABASE_URL` quando definida (o `.env` deixa de ser obrigatório e o servidor não sobe) ou sobe o embarcado; extrai binários e banco uma vez em `%LOCALAPPDATA%/SimuladorFinanceiro`, sobe o `postgres.exe` numa porta livre só em 127.0.0.1, sorteia a senha do superusuário na primeira abertura e passa a exigir `scram-sha-256`. O servidor fica preso ao processo do app por um Job Object, que o Windows encerra em qualquer queda, e o encerramento limpo roda no `atexit` e nos eventos de console (Ctrl+Break, fechar a janela, logoff, desligamento). `database.py` e `main.py` passaram a usar `resolve_database_url()`; Linux e macOS não embarcam nada e seguem com `POSTGRES_DATABASE_URL`. A página de instalação e o README foram reescritos, e o workflow `postgres-version.yml` compara toda segunda a versão fixada com a mais recente. Referência de desenho: o Karaoke Mugen, aplicativo desktop de código aberto, embarca o Postgres por padrão, aceita um externo por configuração, confere o runtime do Visual C++ e limpa servidor órfão. Medido no app completo: 112,1 MB (eram 60,4); primeira abertura numa máquina limpa simulada em cerca de 10 s; reabertura em 6,8 s, igual à do mesmo executável com banco externo; fechar o app à força não deixa servidor para trás. Limitações: a verificação foi num Windows que já tem Postgres instalado (o executável não o usa) e com o runtime do Visual C++ presente, então a máquina realmente limpa continua por testar; o fechamento pelo X da janela não foi exercitado, só Ctrl+Break; o macOS não embarca (a EDB tem o zip oficial e entra pelo mesmo caminho); uma versão principal nova do Postgres exige exportar e importar o banco.
 
 **Aceite:** numa máquina Windows sem Postgres e sem `.env`, baixar o release e abrir o executável leva ao lobby sem nenhum passo extra, e a segunda abertura chega ao lobby sem rodar o `initdb`.
 

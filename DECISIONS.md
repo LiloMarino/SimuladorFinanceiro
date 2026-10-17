@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança:** D4 decidida pelo Postgres oficial embarcado no executável do Windows, no fechamento do spike F3.
+> **Última mudança:** D4 com os números medidos no app completo, no fechamento do M2.
 
 ---
 
@@ -144,9 +144,9 @@ Com a sala cheia, ou com uma partida salva que não comporta quem está nela, o 
 - **Fidelidade dos dados decide.** O SQLite guarda `Numeric` como número aproximado (`12345678901.123456` volta como `12345678901.123455`), devolve datas sem fuso, não checa `ENUM` e recusa `NaN` (2 das 19.919 linhas de preço importadas hoje). O Postgres preserva tudo isso.
 - **SQLite como reserva inverte o público.** Quem baixa o executável não tem Postgres, então rodaria no motor de menor fidelidade, diferente do de desenvolvimento, com dois conjuntos de migrations e testes. Foi esse custo que motivou a remoção do SQLite no PR #82.
 - **Binários oficiais, não o pacote que os embala.** O pacote `pixeltable-pgserver` (único com Python 3.13) é mantido por uma empresa para uso próprio, traz o Postgres 18.4 enquanto o oficial está no 18.6 e não deixa escolher a versão. O zip oficial da EDB, que o [postgresql.org indica](https://www.postgresql.org/download/windows/) "para quem quer incluir o Postgres como parte do instalador de outra aplicação", entrega a versão que o projeto fixar. A [licença do PostgreSQL](https://www.postgresql.org/about/licence/) permite redistribuir para qualquer fim, desde que o aviso de copyright e o texto da licença acompanhem as cópias. O Karaoke Mugen, aplicativo desktop de código aberto, também embarca o Postgres por padrão e aceita um externo por configuração.
-- **Custo medido.** O subconjunto mínimo tem 140 MB descompactado e 49 MB comprimido (no app completo, o pacote alternativo somou 29 MB: 60,4 para 89,5 MB). O servidor sobe em cerca de 0,4 s e para em 0,2 s; o template do banco vazio tem 5 MB comprimido e é extraído em 0,6 s, contra os 10 s do `initdb`.
+- **Custo medido no app completo.** O executável do Windows passa de 60,4 para 112,1 MB. A primeira abertura numa máquina limpa leva cerca de 10 s até o lobby responder, porque extrai os binários e o banco; as seguintes levam 6,8 s, o mesmo tempo do mesmo executável com banco externo, porque o servidor sobe em cerca de 0,4 s. O subconjunto mínimo de binários tem 140 MB descompactado e 49 MB comprimido, e o template do banco vazio tem 5 MB comprimido.
 
-**Consequências:** o executável do Windows engorda cerca de 49 MB (a confirmar no app completo). Os binários oficiais exigem o runtime do Visual C++ da Microsoft, a verificar numa máquina limpa. O servidor roda a partir de uma pasta extraída, e caminhos do usuário com caracteres fora do ASCII pedem cuidado. O binário embutido não gera alerta de segurança automático; a versão fica fixada e um workflow agendado a compara com a mais recente. Reabre a decisão se o servidor embarcado se mostrar instável em máquinas limpas.
+**Consequências:** o executável do Windows engorda cerca de 52 MB, e o formato de arquivo único extrai tudo a cada abertura (a maior parte dos ~7 s de abertura, com ou sem banco embarcado). Os binários oficiais exigem o runtime do Visual C++ da Microsoft, a verificar numa máquina limpa. O servidor roda de pastas com caracteres fora do ASCII (testado com binários e dados em pasta acentuada); só o `initdb`, que roda no CI, falha nesses caminhos. O servidor é filho do app dentro de um Job Object do Windows, que o encerra junto com o app em qualquer queda; o encerramento limpo roda no fim normal e nos eventos do console que matam o processo sem `atexit`. O binário embutido não gera alerta de segurança automático: a versão fica fixada em `scripts/build_postgres.py` e o workflow `postgres-version.yml` a compara toda semana com a mais recente. Reabre a decisão se o servidor embarcado se mostrar instável em máquinas limpas.
 
 ### D5 — Onde roda o código de estratégia escrito pelo usuário
 **Status:** 🔍 Em aberto
