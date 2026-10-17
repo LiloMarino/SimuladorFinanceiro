@@ -3,12 +3,17 @@ num banco existente quando nada se perde."""
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 import pytest
 from alembic import command
+from alembic.config import Config
 from sqlalchemy import Engine, create_engine, inspect, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.pool import NullPool
 
+from backend.core import migration
 from backend.core.migration import (
     MigrationError,
     TableFingerprint,
@@ -45,26 +50,62 @@ def test_downgrade_then_upgrade_again(pg_url: str, engine: Engine) -> None:
 
 
 def test_versioned_database_migrates_through_the_dry_run(
-    pg_url: str, engine: Engine
+    pg_url: str, engine: Engine, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Banco com dado uma revisão atrás passa pelo ensaio e pelo backup até o head."""
+    """Banco com dado no head antigo passa pelo ensaio e pelo backup até o head novo."""
     migrate(pg_url)
-    command.downgrade(alembic_config(pg_url), "-1")
     with engine.begin() as connection:
         connection.execute(
             text(
                 "INSERT INTO stock (ticker, name, asset_class) VALUES ('T', 'T', 'STOCK')"
             )
         )
+    _add_newer_revision(tmp_path, monkeypatch)
 
     try:
         migrate(pg_url)
 
-        assert current_revision(engine) == head_revision()
+        assert current_revision(engine) == NEWER_REVISION
         with engine.connect() as connection:
             assert connection.execute(text("SELECT ticker FROM stock")).scalar() == "T"
     finally:
         drop_databases(make_url(pg_url), _backups(pg_url))
+
+
+NEWER_REVISION = "test_newer"
+
+
+def _add_newer_revision(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Acrescenta ao head real uma revisão só do teste, que dá ao banco uma versão a subir."""
+    (tmp_path / "newer.py").write_text(
+        f'''
+import sqlalchemy as sa
+from alembic import op
+
+revision = "{NEWER_REVISION}"
+down_revision = "{head_revision()}"
+branch_labels = None
+depends_on = None
+
+
+def upgrade() -> None:
+    op.add_column("stock", sa.Column("test_note", sa.Text(), nullable=True))
+
+
+def downgrade() -> None:
+    op.drop_column("stock", "test_note")
+''',
+        encoding="utf-8",
+    )
+
+    def config_with_newer_revision(database_url: str = "") -> Config:
+        config = alembic_config(database_url)
+        versions = Path(config.get_main_option("script_location") or "") / "versions"
+        config.set_main_option("path_separator", "os")
+        config.set_main_option("version_locations", f"{versions}{os.pathsep}{tmp_path}")
+        return config
+
+    monkeypatch.setattr(migration, "alembic_config", config_with_newer_revision)
 
 
 def _backups(pg_url: str) -> list[str]:
