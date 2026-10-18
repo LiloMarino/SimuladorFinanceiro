@@ -77,10 +77,9 @@
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F65**](#f65) | Rework dos loggings | — | ⏳ |
-| [**F66**](#f66) | Spike: reavaliar a manutenção do SSE | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (13 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -95,8 +94,10 @@
 | **D10** | Como a nota geral é calculada | — | ✅ |
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | ✅ |
 | **D12** | Como numerar as versões | — | ✅ |
+| **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | [F66](#f66) | ✅ |
 | [**F45**](#f45) | Painel de desempenho | — | ✅ |
 | [**F54**](#f54) | Modo debug | — | ✅ |
+| [**F66**](#f66) | Spike: reavaliar a manutenção do SSE | — | ✅ |
 
 </details>
 
@@ -124,7 +125,6 @@
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
 | [**F65**](#f65) | Rework dos loggings | — | 0 | ⏳ |
-| [**F66**](#f66) | Spike: reavaliar a manutenção do SSE | — | 0 | 🔍 |
 
 ---
 
@@ -242,7 +242,7 @@
 
 ### Sem marco
 
-> **Progresso:** 2/11 concluídas
+> **Progresso:** 3/11 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -254,14 +254,14 @@
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F65**](#f65) | Rework dos loggings | [F54](#f54) | ⏳ |
-| [**F66**](#f66) | Spike: reavaliar a manutenção do SSE | — | 🔍 |
 
-<details><summary>Concluído (2 itens)</summary>
+<details><summary>Concluído (3 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F45**](#f45) | Painel de desempenho | [F54](#f54) | ✅ |
 | [**F54**](#f54) | Modo debug | — | ✅ |
+| [**F66**](#f66) | Spike: reavaliar a manutenção do SSE | — | ✅ |
 
 </details>
 
@@ -378,12 +378,16 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F14** | Janela desktop nativa | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
+| **F66** | Spike: reavaliar a manutenção do SSE | D13 | — | — | — | — | — | — | ✅ Concluído |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
 
 <a id="f60"></a>
 **F60 — Modo servidor dedicado (`--headless`).** O mesmo executável, sem o navegador: para rodar numa VPS ou num PC ligado direto, sem ninguém jogando nele. `--headless` na linha de comando, ou `[server] headless = true` no `config.toml`, pula o `webbrowser.open` do `main.py`, que hoje roda sempre que o app é o executável, e imprime no terminal os endereços para entrar (o da rede local e, com a F6, o do túnel). O administrador é quem entra com o apelido de `[host] nickname`, que é como o host é definido hoje (`routes/simulation.py`). Como a recuperação de login é por apelido, num servidor exposto à internet qualquer um que digite esse apelido viraria o host; por isso, no modo servidor, o `config.toml` ganha `[host] pin`, e o login com o apelido do host só passa com ele. Serve a quem quer deixar uma sala aberta para os amigos entrarem quando quiserem, sem depender de o host estar com o computador ligado jogando.
+
+<a id="f66"></a>
+**F66 — Spike: reavaliar a manutenção do SSE.** Decidiu a D13: remover o SSE e dar ao Socket.IO o fallback de polling. O SSE não rodava (o front fixava o modo WebSocket e ligar `use_sse` desmontava o Socket.IO do servidor), não tinha teste e tinha defeitos no broker; o Quick Tunnel da Cloudflare, candidato da F5, não suporta SSE, e o polling do Socket.IO cobre o proxy que barra o WebSocket. Saíram o `SSEBroker`, a rota `/api/stream`, a `/api/update-subscription`, o `SSEClient`, o `use_sse` e a doc; o cliente passou a usar `transports: ["websocket", "polling"]`. Não foi testado em túnel real: a F5 confere se ao menos o polling atravessa cada candidato.
 
 ---
 ## 3. Descartada
@@ -404,10 +408,9 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F44** | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | Serve N23; faltam taxas padrão, rendimentos e protótipo do preço da cota | — | — | 🔍 Em avaliação |
 | **F49** | Spike: tutorial animado | Serve N25; compara vídeo, framer-motion e Remotion | M14 | — | 🔍 Em avaliação |
 | **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | — | [F44](#f44) | 🔍 Em avaliação |
-| **F66** | Spike: reavaliar a manutenção do SSE | Cruza com a F5 (túnel); decide manter ou remover o SSE | — | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
-**F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO sem cair para polling. O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
+**F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
 
 <a id="f7"></a>
 **F7 — Spike: estratégia Python escrita pelo usuário.** Origem: #2, #12. Decide a D5 e define a API da classe base. Falta responder: (1) carregar um `.py` externo via `importlib` funciona dentro do executável do PyInstaller, e quais bibliotecas a estratégia enxerga (só as empacotadas — pandas sim, outras não); (2) como proteger o tick de uma estratégia em loop infinito ou lenta (timeout por tick); (3) o que a estratégia vê e pode fazer — hoje `BaseStrategy` só recebe `matching_engine`/`market_data`, ou seja, renda variável, e faltam caixa, posição, renda fixa e o setor e segmento de cada ativo (já no banco pela F30, em `repository.stock.get_classification`); (4) onde o código fica guardado — numa pasta (fácil de editar no editor) ou no banco junto da simulação (retomar reusa exatamente a mesma versão do código); (5) a viabilidade da opção "bot cliente da API" no multiplayer.
@@ -439,6 +442,3 @@ Sai daqui com o método e o contrato fechados para a F24.
 
 <a id="f55"></a>
 **F55 — Modo aquisição hostil.** Serve N23. Um modo de jogo da expansão "Gestoras" (F44) em que perder o controle tira o jogador da partida. Todo o patrimônio de cada jogador está na própria gestora, e quem juntar mais da metade das cotas de outra a incorpora: o dono anterior sai da partida e a gestora dele passa a ser controlada pelo comprador. Vence quem sobrar, ou quem tiver o maior patrimônio na data final. **Carência:** nos primeiros meses (padrão 12) ninguém pode passar de metade de outra gestora, para que abrir capital cedo não seja suicídio. **Ninguém fica invulnerável:** sem oferta pública, a gestora seria impossível de comprar, então no fim da carência todas precisam ter uma parte mínima das cotas no mercado (padrão 50%); quem não abriu capital entra numa oferta automática pelo patrimônio por cota. **Defesa:** recompra de cotas com o caixa da gestora e compra com as taxas recebidas, como uma empresa que recompra ações para não ser comprada. Falta decidir: a parte mínima no mercado; se o incorporado sai da partida ou vira co-gestor do comprador (como numa fusão); e se há um preço mínimo por cota durante a tentativa de aquisição, como nas ofertas públicas de aquisição reais.
-
-<a id="f66"></a>
-**F66 — Spike: reavaliar a manutenção do SSE.** Hoje o app mantém dois canais de tempo real, Socket.IO (WebSocket) e SSE, mas só o primeiro é usado: o front fixa `<RealtimeProvider mode="ws">` (`App.tsx:57`) e não existe tela, config ou detecção que escolha o SSE. O que sobra do SSE: `backend/features/realtime/sse_broker.py` (123 linhas), `/api/stream` em `routes/realtime.py`, `SSEClient.ts` (50 linhas), `[realtime] use_sse` no `config.toml` (que escolhe o broker no `main.py`) e uma linha em `setup.md`. Não há teste do `SSEBroker`, nem decisão registrada sobre por que ele existe. Pelo código, ligar `use_sse = true` hoje quebra o tempo real: o servidor deixa de montar o Socket.IO e o front continua falando Socket.IO (a conferir rodando). O argumento a favor de manter é real e é o que o spike precisa medir: o SSE é HTTP puro e atravessa proxies e túneis que barram WebSocket, e o `SocketClient` usa `transports: ["websocket"]`, sem o fallback para polling que o Socket.IO traria por padrão. Falta responder: (1) **o SSE funciona hoje?** subir com `use_sse = true` e um front em `mode="sse"` e ver a partida inteira (eventos, inscrição, reconexão); (2) **algum provedor de túnel da F5 barra WebSocket?** testar o WebSocket por cada candidato (LocalTunnel, Playit, zrok, Cloudflare Quick Tunnel); (3) **o fallback para polling do Socket.IO cobre esse caso** sem manter um segundo canal? É só tirar `transports: ["websocket"]` ou pôr `["websocket", "polling"]`; (4) **comparação de robustez**: o SSE é só do servidor para o navegador (o resto vai por HTTP), fica sujeito ao limite de conexões por domínio sem HTTP/2 e não tem o reconhecimento e as salas do Socket.IO. **Saídas:** (a) **remover o SSE** (apaga o broker, o cliente, a rota, o `use_sse` e a doc; a interface `RealtimeBroker` pode ficar enxuta com uma implementação só), se o WebSocket, com ou sem fallback de polling, passa por todos os túneis; (b) **terminar o SSE de verdade** (o front escolhe o modo, ou cai nele sozinho quando o WebSocket falha, com teste do broker), se algum túnel exigir. Decide junto com a F5 e a F6.
