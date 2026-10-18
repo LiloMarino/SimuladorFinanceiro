@@ -28,10 +28,6 @@ class SimulationConfig(BaseModel):
     victory_criterion: str = "SCORE"
 
 
-class RealtimeConfig(BaseModel):
-    use_sse: bool = False
-
-
 class HostConfig(BaseModel):
     nickname: str = "host"
 
@@ -76,7 +72,6 @@ class DebugConfig(BaseModel):
 class TomlSettings(BaseModel):
     database: DatabaseConfig = DatabaseConfig()
     simulation: SimulationConfig = SimulationConfig()
-    realtime: RealtimeConfig = RealtimeConfig()
     host: HostConfig = HostConfig()
     server: ServerConfig = ServerConfig()
     logging: LoggingConfig = LoggingConfig()

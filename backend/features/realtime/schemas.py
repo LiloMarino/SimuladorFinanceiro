@@ -1,5 +1,5 @@
 """
-DTOs dos payloads emitidos via `notify(...)` (WebSocket/SSE).
+DTOs dos payloads emitidos via `notify(...)` (WebSocket).
 
 Servem para dois propósitos:
 1. Tipar os call sites de `notify(...)` em vez de dicts soltos.

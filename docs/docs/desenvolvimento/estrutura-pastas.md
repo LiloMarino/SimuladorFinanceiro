@@ -68,7 +68,7 @@ SimuladorFinanceiro/
 │   │   │   ├── entities/               # Entidades de domínio (CDB, Tesouro, etc)
 │   │   │   └── factory/                # Factories para criação de ativos de RF
 │   │   ├── import_data/                # Serviço de importação de dados externos
-│   │   ├── realtime/                   # Sistema de comunicação em tempo real (WebSocket/SSE)
+│   │   ├── realtime/                   # Sistema de comunicação em tempo real (WebSocket)
 │   │   ├── simulation/                 # Engine de simulação do mercado financeiro
 │   │   ├── strategy/                   # Algoritmos de estratégias de investimento
 │   │   ├── tunnel/                     # Sistema de túnel para multiplayer (ngrok, etc)
@@ -130,7 +130,7 @@ SimuladorFinanceiro/
 │   │   ├── hooks/                      # Hooks customizados reutilizáveis
 │   │   ├── lib/                        # Bibliotecas internas e utilitários
 │   │   │   ├── models/                 # Classes e models (ApiError, etc)
-│   │   │   ├── realtime/               # Cliente de WebSocket/SSE
+│   │   │   ├── realtime/               # Cliente de WebSocket
 │   │   │   ├── schemas/                # Schemas de validação (Zod)
 │   │   │   └── utils/                  # Funções utilitárias (formatação, API, etc)
 │   │   └── notifications/              # Sistema global de notificações

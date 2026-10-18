@@ -59,7 +59,6 @@ from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.tunnel_manager import TunnelManager
 from backend.core.version import get_version
 from backend.features.import_data.indicators import refresh_indicators
-from backend.features.realtime.sse_broker import SSEBroker
 from backend.features.realtime.ws_broker import SocketBroker
 from backend.features.realtime.ws_handlers import register_ws_handlers
 from backend.features.simulation.simulation_loop import simulation_controller
@@ -155,29 +154,18 @@ def create_app():
     # ------------------------------------------------------------
     # 🔌 WebSocket (Socket.IO)
     # ------------------------------------------------------------
-    if not config.toml.realtime.use_sse:
-        logger.info("Rodando em modo WebSocket (Socket.IO).")
+    sio = socketio.AsyncServer(
+        async_mode="asgi",
+        cors_allowed_origins="*",
+    )
 
-        sio = socketio.AsyncServer(
-            async_mode="asgi",
-            cors_allowed_origins="*",
-        )
+    register_ws_handlers(sio)
+    RealtimeBrokerManager.set_broker(SocketBroker(sio))
 
-        register_ws_handlers(sio)
-        RealtimeBrokerManager.set_broker(SocketBroker(sio))
-
-        return socketio.ASGIApp(
-            sio,
-            other_asgi_app=app,
-        )
-
-    # ------------------------------------------------------------
-    # 🌐 SSE
-    # ------------------------------------------------------------
-    else:
-        logger.info("Rodando em modo SSE (Server-Sent Events).")
-        RealtimeBrokerManager.set_broker(SSEBroker())
-        return app
+    return socketio.ASGIApp(
+        sio,
+        other_asgi_app=app,
+    )
 
 
 # ---------------------------------------------------------------------

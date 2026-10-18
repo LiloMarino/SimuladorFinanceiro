@@ -10,7 +10,7 @@ class RealtimeBroker(ABC):
     Implementa o padrão Publish/Subscribe (Pub/Sub) de forma simplificada.
 
     Um RealtimeBroker gerencia:
-      - Subscribers (clientes SSE/WS conectados)
+      - Subscribers (clientes WebSocket conectados)
       - Publicações de eventos (via notify)
     """
 

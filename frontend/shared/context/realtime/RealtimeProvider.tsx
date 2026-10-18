@@ -1,17 +1,14 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { SSEClient } from "@/shared/lib/realtime/SSEClient";
 import { SocketClient } from "@/shared/lib/realtime/SocketClient";
 import { RealtimeContext } from "./RealtimeContext";
 import { useAuth } from "@/shared/hooks/useAuth";
 
-type Mode = "sse" | "ws";
-
-export function RealtimeProvider({ children, mode = "sse" }: { children: ReactNode; mode?: Mode }) {
+export function RealtimeProvider({ children }: { children: ReactNode }) {
   const [connected, setConnected] = useState(false);
   const { session, loading: authLoading } = useAuth();
 
   const subscriber = useMemo(() => {
-    const instance = mode === "sse" ? new SSEClient() : new SocketClient();
+    const instance = new SocketClient();
 
     // Hooks simples de lifecycle
     instance.onConnect(() => {
@@ -23,7 +20,7 @@ export function RealtimeProvider({ children, mode = "sse" }: { children: ReactNo
     });
 
     return instance;
-  }, [mode]);
+  }, []);
 
   useEffect(() => {
     // Só conecta quando auth terminar E usuário estiver autenticado
