@@ -7,6 +7,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from backend.routes.auth import auth_router
 from backend.routes.correlation import correlation_router
+from backend.routes.debug import debug_router
 from backend.routes.error import (
     ERROR_RESPONSES,
     STARLETTE_FALLBACK_MESSAGE,
@@ -45,6 +46,7 @@ def register_routes(app: FastAPI):
     app.include_router(simulation_router, responses=ERROR_RESPONSES)
     app.include_router(tunnel_router, responses=ERROR_RESPONSES)
     app.include_router(version_router, responses=ERROR_RESPONSES)
+    app.include_router(debug_router, responses=ERROR_RESPONSES)
 
     # SPA FRONTEND (sempre por último para pegar todas as rotas não mapeadas)
     register_frontend_routes(app)

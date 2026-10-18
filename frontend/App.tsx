@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import MainLayout from "@/layouts/main-layout";
 import { PlainLayout } from "@/layouts/plain-layout";
-import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3 } from "lucide-react";
+import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge } from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
 import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
@@ -11,6 +11,7 @@ import SettingsPage from "./features/settings/pages/settings";
 import FixedIncomePage from "./features/fixed-income/pages/fixed-income";
 import FixedIncomeDetailPage from "./features/fixed-income/pages/fixed-income-details";
 import StrategiesPage from "./features/strategies/pages/strategies";
+import PerformancePage from "./features/performance/pages/performance";
 import { JoinMatchPage } from "./features/join/pages/join-match";
 import { LobbyPage } from "./features/lobby/pages/lobby";
 import ImportAssetsPage from "./features/import-assets/pages/import-assets";
@@ -39,6 +40,7 @@ const navItems: NavItem[] = [
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: Trophy, group: "Você" },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
   { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: Bot, group: "Ferramentas", badge: "Em breve" },
+  { key: "performance", label: "Desempenho", endpoint: "/performance", icon: Gauge, group: "Ferramentas", badge: "Debug", badgeTone: "warning", debugOnly: true },
   { key: "settings", label: "Configurações", endpoint: "/settings", icon: Settings, group: "Ferramentas" },
 ];
 
@@ -77,6 +79,7 @@ export default function App() {
                         <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
                         <Route path="/portfolio" element={<PortfolioPage />} />
                         <Route path="/strategies" element={<StrategiesPage />} />
+                        <Route path="/performance" element={<PerformancePage />} />
                         <Route path="/settings" element={<SettingsPage />} />
                         <Route path="/statistics" element={<StatisticsPage />} />
                       </Route>

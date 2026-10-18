@@ -524,13 +524,19 @@ function SidebarMenuAction({
   });
 }
 
-function SidebarMenuBadge({ className, ...props }: React.ComponentProps<"div">) {
+/** `tone="warning"`: selo âmbar, para o que só existe em modo debug. */
+function SidebarMenuBadge({
+  className,
+  tone = "default",
+  ...props
+}: React.ComponentProps<"div"> & { tone?: "default" | "warning" }) {
   return (
     <div
       data-slot="sidebar-menu-badge"
+      data-tone={tone}
       data-sidebar="menu-badge"
       className={cn(
-        "pointer-events-none absolute right-2 flex h-5 min-w-5 items-center justify-center rounded-sm bg-sidebar-accent px-2 text-[11px] font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground",
+        "pointer-events-none absolute right-2 flex h-5 min-w-5 items-center justify-center rounded-sm bg-sidebar-accent px-2 text-[11px] font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground data-[tone=warning]:bg-sidebar-warning-soft data-[tone=warning]:text-sidebar-warning peer-hover/menu-button:data-[tone=warning]:text-sidebar-warning peer-data-active/menu-button:data-[tone=warning]:text-sidebar-warning",
         className,
       )}
       {...props}

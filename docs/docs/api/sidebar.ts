@@ -486,6 +486,24 @@ const sidebar: SidebarsConfig = {
         },
       ],
     },
+    {
+      type: "category",
+      label: "Debug",
+      items: [
+        {
+          type: "doc",
+          id: "api/get-metrics-api-debug-metrics-get",
+          label: "Medições de desempenho",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/reset-metrics-api-debug-metrics-reset-post",
+          label: "Zerar as medições",
+          className: "api-method post",
+        },
+      ],
+    },
   ],
 };
 

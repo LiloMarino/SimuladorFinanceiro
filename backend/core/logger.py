@@ -17,6 +17,7 @@ AREA_LOGGERS: dict[str, tuple[str, ...]] = {
         "engineio",
     ),
     "import.log": ("backend.features.import_data", "yfinance"),
+    "slow.log": ("backend.metrics",),
     "database.log": (
         "backend.core.database",
         "backend.core.migration",

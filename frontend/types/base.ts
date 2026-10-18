@@ -9,6 +9,10 @@ export interface NavItem {
   icon: LucideIcon;
   group: "Mercado" | "Você" | "Ferramentas";
   badge?: string;
+  /** `warning`: selo âmbar (ferramentas de debug) */
+  badgeTone?: "warning";
+  /** Só aparece com o modo debug ligado e para o host */
+  debugOnly?: boolean;
 }
 
 export type RedirectState = {

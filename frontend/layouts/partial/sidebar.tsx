@@ -15,6 +15,7 @@ import {
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { BrandMark } from "@/shared/components/brand-mark";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { useDebugMode } from "@/shared/hooks/useDebugMode";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
@@ -33,6 +34,10 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const { data: players } = useRoomPlayers();
   const { data: settings } = useApiQuery(simulationSettingsOptions());
 
+  const debug = useDebugMode();
+
+  // As ferramentas de diagnóstico medem o servidor do host: só ele as vê
+  const showDebugTools = debug && !!settings?.is_host;
   const nickname = user?.nickname ?? "";
   const role = settings?.is_host ? "Host" : "Jogador";
   const playerCount = players?.length ?? 0;
@@ -55,14 +60,14 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
             <SidebarGroupLabel>{group}</SidebarGroupLabel>
             <SidebarMenu>
               {navItems
-                .filter((item) => item.group === group)
+                .filter((item) => item.group === group && (!item.debugOnly || showDebugTools))
                 .map((item) => (
                   <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton isActive={activePage === item.key} render={<NavLink to={item.endpoint} />}>
                       <item.icon />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
-                    {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
+                    {item.badge && <SidebarMenuBadge tone={item.badgeTone}>{item.badge}</SidebarMenuBadge>}
                   </SidebarMenuItem>
                 ))}
             </SidebarMenu>

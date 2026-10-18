@@ -5,6 +5,7 @@ from datetime import date
 from enum import Enum
 
 from backend.core.exceptions import NoActiveSimulationError
+from backend.core.metrics import ENGINE_DAY, metrics
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.realtime import notify
@@ -114,7 +115,9 @@ class SimulationLoopController:
                     continue
 
                 try:
-                    simulation.next_tick()
+                    metrics.set_engine_speed(speed)
+                    with metrics.measure("engine", ENGINE_DAY):
+                        simulation.next_tick()
                 except StopIteration:
                     # A partida acaba como no stop(): eventos no banco e simulação
                     # liberada, então o fechamento lê a partida inteira

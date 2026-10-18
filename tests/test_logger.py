@@ -72,6 +72,7 @@ def test_expected_library_failure_stays_out_of_error_log(logs: Path) -> None:
         ("backend.features.import_data.importer_service", "import.log"),
         ("backend.core.migration", "database.log"),
         ("sqlalchemy.engine", "database.log"),
+        ("backend.metrics", "slow.log"),
     ],
 )
 def test_line_goes_to_area_file_and_app_log(
@@ -81,7 +82,13 @@ def test_line_goes_to_area_file_and_app_log(
 
     assert "linha da área" in read(logs, file_name)
     assert "linha da área" in read(logs, "app.log")
-    other_areas = {"simulation.log", "realtime.log", "import.log", "database.log"}
+    other_areas = {
+        "simulation.log",
+        "realtime.log",
+        "import.log",
+        "database.log",
+        "slow.log",
+    }
     for other in other_areas - {file_name}:
         assert read(logs, other) == ""
 

@@ -53,6 +53,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.core.database import get_engine
 from backend.core.embedded_postgres import EmbeddedPostgresError, resolve_database_url
+from backend.core.metrics import MetricsMiddleware, metrics
 from backend.core.migration import MigrationError, migrate
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.tunnel_manager import TunnelManager
@@ -138,6 +139,13 @@ def create_api() -> FastAPI:
     )
 
     register_routes(app)
+
+    # O painel de desempenho só mede com o debug ligado; fora dele nem há middleware.
+    # Por último, para ficar por fora de tudo e medir o CORS junto.
+    if config.toml.debug.enabled:
+        metrics.enabled = True
+        app.add_middleware(MetricsMiddleware)
+
     return app
 
 

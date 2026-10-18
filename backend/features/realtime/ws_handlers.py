@@ -4,6 +4,7 @@ from uuid import UUID
 
 from socketio import AsyncServer
 
+from backend.core.metrics import metrics
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import get_socket_broker
 
@@ -17,6 +18,7 @@ def register_ws_handlers(sio: AsyncServer):
         return UUID(client.value) if client else None
 
     @sio.event
+    @metrics.timed("socket", "connect")
     async def connect(sid, environ):  # type: ignore
         broker = get_socket_broker()
         client_id = await _extract_client_id(environ)
@@ -32,6 +34,7 @@ def register_ws_handlers(sio: AsyncServer):
         return True
 
     @sio.event
+    @metrics.timed("socket", "disconnect")
     async def disconnect(sid):  # type: ignore
         broker = get_socket_broker()
         client_id = broker.get_client_id_by_sid(sid)
@@ -42,6 +45,7 @@ def register_ws_handlers(sio: AsyncServer):
             logger.info(f"WS client disconnected: {client_id} (sid={sid})")
 
     @sio.event
+    @metrics.timed("socket", "subscribe")
     async def subscribe(sid, data):  # type: ignore
         broker = get_socket_broker()
         client_id = broker.get_client_id_by_sid(sid)
