@@ -19,7 +19,7 @@ As **regras de remuneração são definidas no momento do investimento**, o que 
 - 🛡️ Menor risco de mercado
 - 📅 Prazos definidos ou estimáveis
 
-<!-- Espaço reservado para screenshot da tela de renda fixa -->
+{/* Espaço reservado para screenshot da tela de renda fixa */}
 
 ## Tipos de Renda Fixa
 

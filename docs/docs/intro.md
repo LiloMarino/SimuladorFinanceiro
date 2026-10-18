@@ -13,7 +13,7 @@ O **Simulador Financeiro** é uma aplicação web interativa inspirada em jogos 
 
 Simule negociações em **renda variável** (Ações, FIIs, ETFs) e **renda fixa** (CDB, LCI, LCA, Tesouro Direto), acompanhe métricas de desempenho em tempo real e compita com outros jogadores no modo multiplayer.
 
-<!-- Espaço reservado para screenshots e GIFs -->
+{/* Espaço reservado para screenshots e GIFs */}
 
 ## Principais Características
 
