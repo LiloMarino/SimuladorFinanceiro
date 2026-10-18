@@ -197,6 +197,7 @@ Ligado, o modo debug:
 - mostra as ferramentas do TanStack Query (o botão no canto da tela) e libera os logs `debug` e `log` do console do navegador, inclusive no executável. Desligado, o front se comporta igual em desenvolvimento e no executável.
 
 O servidor informa o modo em `GET /api/settings` (campo `debug`, somente leitura).
+- libera o painel **Desempenho** (só para o host), que mede onde o tempo vai na partida. Veja [Investigando lentidão](./investigando-lentidao.md).
 
 
 ---
