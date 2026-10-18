@@ -43,7 +43,7 @@
 | **N23** | Jogar com os amigos de outras formas além de cada um por si | [F42](#f42), [F52](#f52), [F53](#f53) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | [F45](#f45), [F54](#f54) | — |
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F47](#f47), [F48](#f48) | — |
-| **N26** | Achar a causa de um erro sem vasculhar o log inteiro | — | — |
+| **N26** | Achar a causa de um erro sem vasculhar o log inteiro | [F65](#f65) | — |
 | **N27** | Entrar numa partida que já começou | — | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
@@ -76,6 +76,8 @@
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
+| [**F65**](#f65) | Rework dos loggings | — | ⏳ |
+| [**F66**](#f66) | Spike: reavaliar a manutenção do SSE | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (13 itens — clique pra expandir)</strong></summary>
@@ -121,6 +123,8 @@
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
+| [**F65**](#f65) | Rework dos loggings | — | 0 | ⏳ |
+| [**F66**](#f66) | Spike: reavaliar a manutenção do SSE | — | 0 | 🔍 |
 
 ---
 
@@ -238,7 +242,7 @@
 
 ### Sem marco
 
-> **Progresso:** 2/9 concluídas
+> **Progresso:** 2/11 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -249,6 +253,8 @@
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
+| [**F65**](#f65) | Rework dos loggings | [F54](#f54) | ⏳ |
+| [**F66**](#f66) | Spike: reavaliar a manutenção do SSE | — | 🔍 |
 
 <details><summary>Concluído (2 itens)</summary>
 
@@ -285,6 +291,7 @@
 | **F54** | Modo debug | N24 | — | — | — | Baixo | Baixo | Médio | Ótimo | ✅ Concluído |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F65** | Rework dos loggings | N26 | — | — | [F54](#f54) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
@@ -361,6 +368,9 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 <a id="f61"></a>
 **F61 — Host remove jogador da sala.** Serve N28. Hoje a vaga só abre quando o jogador sai por conta própria: com a sala cheia ou a partida salva recusada por causa de novatos (F58), o host tem de pedir pelo chat para alguém fechar a aba. O plano: um botão "Remover" no cartão de cada jogador do lobby, só para o host, que encerra a sessão do jogador pelo mesmo caminho do `player_logout`, com um aviso "o host te removeu da sala" na tela dele, e libera a cor e a vaga na hora. Fica em aberto se a remoção também vale para participante offline da partida em andamento; a leitura provável é que não, porque tirar a linha de `simulation_players` apaga o saldo e o histórico dele.
 
+<a id="f65"></a>
+**F65 — Rework dos loggings.** Serve N26. Reavalia **todos** os logs do app: o que vale registrar, em que nível, de que jeito, para onde vai (terminal ou arquivo, e em qual arquivo) e o que aparece fora do modo debug e dentro dele (F54). Não é só tirar ruído: é decidir, log a log, se ele compensa. **Ponto de partida medido:** o backend tem cerca de 94 chamadas de log (64 `info`, 18 `warning`, 9 `exception`, 2 `critical` e **1 `debug`**; nenhum `print`), concentradas em `import_data` (21), `simulation` (17), `main.py` (12), `tunnel` (11), `core` (11) e `realtime` (6); o front tem o `logger.ts` e 5 `console.*` diretos. O terminal de mil linhas por segundo **não vem dessas chamadas**, vem das bibliotecas: (1) com `echo_sql = false` e nível `INFO`, o SQLAlchemy imprime cada consulta no console e no `app.log` (5 consultas = 12 linhas), então o `echo_sql` do `config.toml` não muda nada; (2) o modo debug sobe o logger raiz para `DEBUG` e liga o DEBUG de tudo, e o `NOISY_LOGGERS` da F54 só ameniza, sem tirar o SQL; (3) o console recebe o mesmo fluxo do `app.log`. E o inverso também: como o app quase não tem `debug` próprio, o modo debug mostra o que as bibliotecas dizem e quase nada do que o app faz. **O plano:** (a) **inventário**: uma tabela com cada chamada (área, nível atual, mensagem, frequência: uma vez, por partida, por tick, por requisição, por evento), com as linhas por logger medidas numa partida inteira; (b) **critério por log**: quem lê e quando (quem roda o app no terminal, o host investigando, o dev em debug), se dá para agir sobre ele, quantas vezes sai e o que custa; cada log termina como "fica como está", "muda de nível", "muda de destino", "vira estatística do painel (F45)" ou "sai"; (c) **destinos**: o console fica só com o que quem roda o app precisa ver (ciclo de vida, avisos, erros), com formato mais curto, e nunca SQL nem DEBUG, nem no modo debug; avaliar se faltam arquivos além dos da F57 e do `slow.log` (candidatos: túnel e rede, login e entrada de jogadores, ordens) ou se algum deve se fundir; área nova continua sendo uma linha em `AREA_LOGGERS`; (d) **normal x debug**: definir o que aparece fora do debug (`INFO` enxuto) e o que só nele; **escrever os `debug` que faltam** onde ajudam a investigar (ordem recebida e casada, tick lento, import linha a linha), já que hoje há um; no debug, subir os loggers `backend.*` em vez do raiz, deixar as bibliotecas em `WARNING` com opt-in por área e tirar o `NOISY_LOGGERS`; (e) **SQL é coisa do debug**: o `[database] echo_sql` sai do `config.toml` (a chave antiga é ignorada) e o SQL passa a ser `DEBUG` do `sqlalchemy.engine`, escrito só no `database.log` e só com o debug ligado; (f) **como logar**: padrão de mensagem em português e consistente, `%s` em vez de f-string nos logs de alta frequência (a f-string monta o texto mesmo com o nível desligado), `logger.exception` só dentro de `except`, nome do logger = módulo, e no front um `logger.ts` só (os 5 `console.*` diretos passam por ele ou ganham justificativa); (g) **custo**: medir o motor com `DEBUG` ligado e, se pesar, trocar os handlers de arquivo por `QueueHandler` com `QueueListener`, que tira a escrita da thread do motor. **Aceite:** a tabela de decisões fica registrada (no card ou nos docs); uma partida inteira em modo normal imprime dezenas de linhas no console, não milhares, e o `app.log` não tem SQL; com `--debug`, o SQL e o DEBUG do app (ordens, ticks lentos, imports) vão só para os arquivos; uma seção "Logs" nos docs diz o que cada arquivo guarda, e `setup.md` e "Investigando lentidão" acompanham.
+
 ---
 ## 2. Nice-to-have
 
@@ -394,6 +404,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F44** | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | Serve N23; faltam taxas padrão, rendimentos e protótipo do preço da cota | — | — | 🔍 Em avaliação |
 | **F49** | Spike: tutorial animado | Serve N25; compara vídeo, framer-motion e Remotion | M14 | — | 🔍 Em avaliação |
 | **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | — | [F44](#f44) | 🔍 Em avaliação |
+| **F66** | Spike: reavaliar a manutenção do SSE | Cruza com a F5 (túnel); decide manter ou remover o SSE | — | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO sem cair para polling. O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -428,3 +439,6 @@ Sai daqui com o método e o contrato fechados para a F24.
 
 <a id="f55"></a>
 **F55 — Modo aquisição hostil.** Serve N23. Um modo de jogo da expansão "Gestoras" (F44) em que perder o controle tira o jogador da partida. Todo o patrimônio de cada jogador está na própria gestora, e quem juntar mais da metade das cotas de outra a incorpora: o dono anterior sai da partida e a gestora dele passa a ser controlada pelo comprador. Vence quem sobrar, ou quem tiver o maior patrimônio na data final. **Carência:** nos primeiros meses (padrão 12) ninguém pode passar de metade de outra gestora, para que abrir capital cedo não seja suicídio. **Ninguém fica invulnerável:** sem oferta pública, a gestora seria impossível de comprar, então no fim da carência todas precisam ter uma parte mínima das cotas no mercado (padrão 50%); quem não abriu capital entra numa oferta automática pelo patrimônio por cota. **Defesa:** recompra de cotas com o caixa da gestora e compra com as taxas recebidas, como uma empresa que recompra ações para não ser comprada. Falta decidir: a parte mínima no mercado; se o incorporado sai da partida ou vira co-gestor do comprador (como numa fusão); e se há um preço mínimo por cota durante a tentativa de aquisição, como nas ofertas públicas de aquisição reais.
+
+<a id="f66"></a>
+**F66 — Spike: reavaliar a manutenção do SSE.** Hoje o app mantém dois canais de tempo real, Socket.IO (WebSocket) e SSE, mas só o primeiro é usado: o front fixa `<RealtimeProvider mode="ws">` (`App.tsx:57`) e não existe tela, config ou detecção que escolha o SSE. O que sobra do SSE: `backend/features/realtime/sse_broker.py` (123 linhas), `/api/stream` em `routes/realtime.py`, `SSEClient.ts` (50 linhas), `[realtime] use_sse` no `config.toml` (que escolhe o broker no `main.py`) e uma linha em `setup.md`. Não há teste do `SSEBroker`, nem decisão registrada sobre por que ele existe. Pelo código, ligar `use_sse = true` hoje quebra o tempo real: o servidor deixa de montar o Socket.IO e o front continua falando Socket.IO (a conferir rodando). O argumento a favor de manter é real e é o que o spike precisa medir: o SSE é HTTP puro e atravessa proxies e túneis que barram WebSocket, e o `SocketClient` usa `transports: ["websocket"]`, sem o fallback para polling que o Socket.IO traria por padrão. Falta responder: (1) **o SSE funciona hoje?** subir com `use_sse = true` e um front em `mode="sse"` e ver a partida inteira (eventos, inscrição, reconexão); (2) **algum provedor de túnel da F5 barra WebSocket?** testar o WebSocket por cada candidato (LocalTunnel, Playit, zrok, Cloudflare Quick Tunnel); (3) **o fallback para polling do Socket.IO cobre esse caso** sem manter um segundo canal? É só tirar `transports: ["websocket"]` ou pôr `["websocket", "polling"]`; (4) **comparação de robustez**: o SSE é só do servidor para o navegador (o resto vai por HTTP), fica sujeito ao limite de conexões por domínio sem HTTP/2 e não tem o reconhecimento e as salas do Socket.IO. **Saídas:** (a) **remover o SSE** (apaga o broker, o cliente, a rota, o `use_sse` e a doc; a interface `RealtimeBroker` pode ficar enxuta com uma implementação só), se o WebSocket, com ou sem fallback de polling, passa por todos os túneis; (b) **terminar o SSE de verdade** (o front escolhe o modo, ou cai nele sozinho quando o WebSocket falha, com teste do broker), se algum túnel exigir. Decide junto com a F5 e a F6.
