@@ -12,7 +12,7 @@ export class SocketClient<
 
     if (this.socket) return;
 
-    this.socket = io(baseUrl, { autoConnect: true, path: "/socket.io", transports: ["websocket"] });
+    this.socket = io(baseUrl, { autoConnect: true, path: "/socket.io", transports: ["websocket", "polling"] });
 
     this.socket.onAny((event: string, payload: unknown) => {
       logger.debug("[SocketClient] event", event, payload);
