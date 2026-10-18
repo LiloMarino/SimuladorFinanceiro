@@ -73,14 +73,13 @@
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
 | [**F52**](#f52) | Modo corrida à meta | — | ⏳ |
 | [**F53**](#f53) | Modo viver de renda | — | ⏳ |
-| [**F54**](#f54) | Modo debug | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (11 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (12 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -95,6 +94,7 @@
 | **D10** | Como a nota geral é calculada | — | ✅ |
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | ✅ |
 | **D12** | Como numerar as versões | — | ✅ |
+| [**F54**](#f54) | Modo debug | — | ✅ |
 
 </details>
 
@@ -113,11 +113,11 @@
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
 | [**F47**](#f47) | Gravação automática de demonstrações | M14 | 1 | ⏳ |
 | [**F52**](#f52) | Modo corrida à meta | M13 | 1 | ⏳ |
-| [**F54**](#f54) | Modo debug | — | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
 | [**F42**](#f42) | Modo em equipes | M13 | 0 | ⏳ |
+| [**F45**](#f45) | Painel de desempenho | — | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
@@ -239,7 +239,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/9 concluídas
+> **Progresso:** 1/9 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -247,11 +247,18 @@
 | [**F37**](#f37) | Tema escuro | — | 💤 |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 🔍 |
 | [**F45**](#f45) | Painel de desempenho | [F54](#f54) | ⏳ |
-| [**F54**](#f54) | Modo debug | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | [F44](#f44) | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F54**](#f54) | Modo debug | — | ✅ |
+
+</details>
 
 ---
 
@@ -276,7 +283,7 @@
 | **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F52** | Modo corrida à meta | N23 | — | M13 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F53** | Modo viver de renda | N23 | — | M13 | [F52](#f52) | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F54** | Modo debug | N24 | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
+| **F54** | Modo debug | N24 | — | — | — | Baixo | Baixo | Médio | Ótimo | ✅ Concluído |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
@@ -347,7 +354,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F53 — Modo viver de renda.** Serve N23. Uma corrida à meta (F52) em que a meta é a independência financeira, e o caminho tem a vida real no meio. O host define no lobby o salário e a despesa mensal (o aporte de hoje vira a diferença entre os dois) e a frequência dos imprevistos. Imprevistos são despesas inesperadas (conserto, saúde, demissão de um mês sem salário), sorteadas com uma semente da partida, para que todos os jogadores recebam os mesmos imprevistos nos mesmos dias. Eles saem do caixa; caixa negativo paga juros de cheque especial até ser coberto, o que obriga a ter reserva de emergência em algo que se resgata rápido. Salário, despesa e imprevisto entram como valores novos do `ENUM` `cashflow_event_type` (à mão na migration, D9). Vence quem primeiro atinge o patrimônio da regra dos 4%: 25 vezes a despesa anual (com R$ 5 mil de despesa por mês, R$ 1,5 milhão), porque retirar 4% ao ano desse patrimônio cobre as despesas, e o estudo Trinity, com dados dos Estados Unidos, mostrou essa retirada, corrigida pela inflação, durando 30 anos na maior parte dos períodos históricos. A taxa de retirada é configurável, e a explicação fica ao lado do campo. Quando os proventos existirem (F22), a meta pode passar a ser a renda passiva real (dividendos e juros recebidos cobrindo a despesa).
 
 <a id="f54"></a>
-**F54 — Modo debug.** Serve N24. Hoje há dois modos implícitos: no `pnpm dev`, o Vite roda em desenvolvimento, as ferramentas do TanStack Query aparecem e o `logger.ts` loga tudo; no executável, o front é o build de produção, de onde o `ReactQueryDevtools` sai sozinho. Falta o meio: ligar as ferramentas no executável, para investigar lentidão na máquina de quem joga, e desligá-las no dev, para ver o app como no executável. Um modo só, independente de como o app roda: `[debug] enabled` no `config.toml` (e `--debug` na linha de comando), ligado por padrão fora do executável e desligado nele. O backend o expõe em `/api/settings`. Ligado, ele: carrega as ferramentas do TanStack Query também no build de produção, por import dinâmico do build de produção delas, como a documentação do TanStack ensina; liga o painel de desempenho (F45) e o item dela no menu; e sobe o nível do `app.log` e dos arquivos por área da F57 para `DEBUG` (o `setup_logging` já recebe o nível; o `config.toml` e o `--debug` o decidem no boot), com o `error.log` seguindo só com `ERROR`. Não há "staging": o projeto não tem servidor publicado, só quem roda o próprio executável.
+**F54 — Modo debug.** Serve N24. Um flag só, decidido ao subir o servidor: `[debug] enabled` no `config.toml` ou `--debug` na linha de comando (que liga mesmo com o arquivo desligado). **Vem desligado em todo lugar**, em desenvolvimento e no executável: "dev" e "executável" só dizem como o front é servido (Vite ou build), não são modos de debug, e não há botão na interface, mudar exige fechar e abrir o app. O backend o expõe em `GET /api/settings` (campo `debug`, somente leitura: o `PUT` não o grava e o valor do `config.toml` vale sobre qualquer coisa guardada). Ligado: (1) `TomlSettings.effective_logging_level()` força `DEBUG` no `app.log` e nos arquivos por área da F57, com `error.log` seguindo só em `ERROR`; `sqlalchemy`, `engineio`, `socketio`, `urllib3` e `asyncio` ficam em `INFO` (`NOISY_LOGGERS` em `logger.py`) para o DEBUG não afogar o arquivo; (2) o front carrega o TanStack Query Devtools pelo build de produção dele (`@tanstack/react-query-devtools/production`, em `lazy`), que funciona também no executável, e libera os `logger.debug`/`logger.log` do console. Desligado, o front é igual em dev e no executável: sem devtools e sem esses logs. O front lê o flag pelo hook `useDebugMode`, que a F45 usa para mostrar o painel e o item de menu; essas duas peças são da F45, não desta. Limitação: os logs do front anteriores à resposta de `/api/settings` se perdem; `warn` e `error` nunca são silenciados.
 
 <a id="f56"></a>
 **F56 — Novidades no app.** Serve N14. Como as notas de patch de um jogo: o `CHANGELOG.md` da F51 vai junto no executável, o backend o serve com a versão, e o lobby mostra as novidades da versão atual. Na primeira abertura depois de atualizar, o card ou o selo de novidades fica em destaque até ser aberto (o navegador guarda a última versão vista); aberto, mostra "O que há de novo na versão X" e dá acesso ao histórico inteiro. O lugar exato no lobby, que já está cheio, sai de uma iteração no Claude Design antes de implementar.
