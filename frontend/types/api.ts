@@ -73,6 +73,9 @@ export type Order = components["schemas"]["OrderDTO"];
 // Notifications
 export type NotificationPreferences = Pick<components["schemas"]["SettingsRequest"], "orders" | "players">;
 
+// Modo debug: definido no boot do servidor, só leitura
+export type DebugMode = components["schemas"]["SettingsResponse"]["debug"];
+
 // Simulation
 export type SimulationState = Partial<components["schemas"]["SimulationStateResponse"]>;
 export type SimulationData = components["schemas"]["SimulationDTO"];

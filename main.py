@@ -16,12 +16,25 @@ Você deve ter recebido uma cópia da Licença Pública Geral GNU
 junto com este programa. Caso não, veja <https://www.gnu.org/licenses/>.
 """
 
+import argparse
+
 from backend import config
 from backend.config.paths import app_files_dir
 from backend.core.logger import setup_logging
 
+# O modo debug se decide no boot: `--debug` força o que o config.toml deixou desligado
+if __name__ == "__main__":
+    _parser = argparse.ArgumentParser(description="Simulador Financeiro")
+    _parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="liga o modo debug (equivale a [debug] enabled = true no config.toml)",
+    )
+    if _parser.parse_args().debug:
+        config.toml.debug.enabled = True
+
 setup_logging(
-    level=config.toml.logging.logging_level,
+    level=config.toml.effective_logging_level(),
     logs_path=app_files_dir() / config.toml.logging.logs_path,
 )
 # flake8: noqa: E402 - Setup de logging deve ser o primeiro para capturar logs de importação
@@ -52,6 +65,11 @@ from backend.features.simulation.simulation_loop import simulation_controller
 from backend.routes import register_routes
 
 logger = logging.getLogger(__name__)
+
+if config.toml.debug.enabled:
+    logger.info(
+        "Modo debug ligado: logs em DEBUG e ferramentas de diagnóstico no front."
+    )
 
 
 # ---------------------------------------------------------------------

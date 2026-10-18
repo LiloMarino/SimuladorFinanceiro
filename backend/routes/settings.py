@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel, ConfigDict
 
+from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID
 from backend.core.runtime.user_manager import UserManager
@@ -24,6 +25,12 @@ class SettingsRequest(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
+class SettingsResponse(SettingsRequest):
+    """As preferências do usuário mais o modo debug do servidor, só leitura."""
+
+    debug: bool
+
+
 DEFAULT_SETTINGS = SettingsRequest(
     orders=OrderNotificationSettings(
         executed=True,
@@ -33,18 +40,28 @@ DEFAULT_SETTINGS = SettingsRequest(
 )
 
 
+def _with_debug(settings: dict) -> SettingsResponse:
+    """Sobrepõe o `debug` do config.toml, mesmo que o banco tenha um valor antigo."""
+    return SettingsResponse.model_validate(
+        {**settings, "debug": config.toml.debug.enabled}
+    )
+
+
 @settings_router.get(
     "",
-    response_model=SettingsRequest,
+    response_model=SettingsResponse,
     summary="Obter configurações do usuário",
-    description="Retorna as configurações pessoais do usuário (notificações de ordens, etc.).",
+    description=(
+        "Retorna as configurações pessoais do usuário (notificações de ordens, etc.) "
+        "e se o servidor está em modo debug, definido no boot (`--debug` ou config.toml)."
+    ),
 )
 def get_settings(client_id: ClientID):
     """
     Retorna as configurações do usuário.
     """
     settings = repository.settings.get_by_user_id(UserManager.get_user_id(client_id))
-    return SettingsRequest.model_validate(
+    return _with_debug(
         {
             **DEFAULT_SETTINGS.model_dump(),
             **settings,
@@ -54,7 +71,7 @@ def get_settings(client_id: ClientID):
 
 @settings_router.put(
     "",
-    response_model=SettingsRequest,
+    response_model=SettingsResponse,
     summary="Atualizar configurações do usuário",
     description="Atualiza as configurações pessoais do usuário.",
 )
@@ -64,7 +81,8 @@ def update_settings(client_id: ClientID, data: SettingsRequest):
     """
     user_id = UserManager.get_user_id(client_id)
 
-    repository.settings.update_by_user_id(user_id, data.model_dump())
+    # O debug é do servidor: o cliente não o grava (`extra="allow"` deixaria passar)
+    repository.settings.update_by_user_id(user_id, data.model_dump(exclude={"debug"}))
     settings = repository.settings.get_by_user_id(user_id)
 
-    return SettingsRequest.model_validate(settings)
+    return _with_debug(settings)

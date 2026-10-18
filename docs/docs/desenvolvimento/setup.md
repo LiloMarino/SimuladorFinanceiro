@@ -169,7 +169,34 @@ nickname = "host"
 port = 8000
 provider = "lan"
 preferred_vpn = null  # ou "radmin", "hamachi", "tailscale"
+
+[logging]
+logging_level = "INFO"  # DEBUG, INFO, WARNING, ERROR ou CRITICAL
+logs_path = "logs"
+
+[debug]
+enabled = false  # true liga o modo debug (veja abaixo)
 ```
+
+### Modo debug
+
+O modo debug serve para investigar lentidão e comportamento estranho na máquina de quem joga. Ele é decidido **ao subir o servidor**: não existe botão na interface, e para mudá-lo é preciso fechar e abrir o app de novo. Vem desligado, tanto em desenvolvimento quanto no executável. Para ligar, use uma das formas:
+
+- `enabled = true` na seção `[debug]` do `config.toml`;
+- `--debug` na linha de comando, que liga mesmo com o `config.toml` desligado:
+
+  ```bash
+  uv run python main.py --debug
+  # ou, no executável
+  SimuladorFinanceiro.exe --debug
+  ```
+
+Ligado, o modo debug:
+
+- sobe o nível do `app.log` e dos arquivos por área (`simulation.log`, `realtime.log`, `import.log`, `database.log`) para `DEBUG`, ignorando o `logging_level`. Bibliotecas muito verbosas (`sqlalchemy`, `engineio`, `socketio`, `urllib3`, `asyncio`) continuam em `INFO`. O `error.log` segue só com `ERROR` e `CRITICAL`;
+- mostra as ferramentas do TanStack Query (o botão no canto da tela) e libera os logs `debug` e `log` do console do navegador, inclusive no executável. Desligado, o front se comporta igual em desenvolvimento e no executável.
+
+O servidor informa o modo em `GET /api/settings` (campo `debug`, somente leitura).
 
 
 ---

@@ -29,6 +29,10 @@ AREA_LOGGERS: dict[str, tuple[str, ...]] = {
 # a linha fica no app.log e a mensagem de erro é a do código que chamou a biblioteca.
 EXPECTED_FAILURE_LOGGERS = ("yfinance",)
 
+# Bibliotecas que em DEBUG logam cada pacote ou consulta e afogam o app.log: no modo
+# debug ficam em INFO, enquanto o código do próprio app sobe para DEBUG.
+NOISY_LOGGERS = ("sqlalchemy", "engineio", "socketio", "urllib3", "asyncio")
+
 
 class _PrefixFilter(logging.Filter):
     """Aceita o logger de nome igual ao prefixo ou descendente dele (`a.b` e `a.b.c`)."""
@@ -111,6 +115,9 @@ def setup_logging(
         area_handler = _file_handler(log_dir / file_name, formatter)
         area_handler.addFilter(_PrefixFilter(prefixes))
         root_logger.addHandler(area_handler)
+
+    for name in NOISY_LOGGERS:
+        logging.getLogger(name).setLevel(max(numeric_level, logging.INFO))
 
     # O uvicorn.access registra uma linha por requisição
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)

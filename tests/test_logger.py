@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from backend.core.logger import setup_logging
+from backend.core.logger import NOISY_LOGGERS, setup_logging
 
 
 @pytest.fixture
@@ -102,3 +102,57 @@ def test_uvicorn_reaches_app_log_without_access_lines(logs: Path) -> None:
     content = read(logs, "app.log")
     assert "erro de protocolo do WebSocket" in content
     assert "GET /api/x" not in content
+
+
+@pytest.fixture
+def debug_logs(tmp_path: Path) -> Iterator[Path]:
+    """Como `logs`, mas com o modo debug ligado (nível DEBUG)."""
+    root = logging.getLogger()
+    saved_handlers, saved_level = root.handlers[:], root.level
+    saved_factory = logging.getLogRecordFactory()
+    saved_access_level = logging.getLogger("uvicorn.access").level
+    saved_noisy = {name: logging.getLogger(name).level for name in NOISY_LOGGERS}
+    root.handlers = []
+
+    setup_logging(level="DEBUG", logs_path=str(tmp_path))
+    yield tmp_path
+
+    for handler in root.handlers:
+        handler.close()
+    root.handlers = saved_handlers
+    root.setLevel(saved_level)
+    logging.setLogRecordFactory(saved_factory)
+    logging.getLogger("uvicorn.access").setLevel(saved_access_level)
+    for name, level in saved_noisy.items():
+        logging.getLogger(name).setLevel(level)
+
+
+def test_info_level_drops_debug_lines(logs: Path) -> None:
+    logging.getLogger("backend.features.simulation.simulation").debug("detalhe do tick")
+
+    assert "detalhe do tick" not in read(logs, "app.log")
+
+
+def test_debug_level_writes_debug_to_app_and_area_logs(debug_logs: Path) -> None:
+    logging.getLogger("backend.features.simulation.simulation").debug("detalhe do tick")
+
+    assert "detalhe do tick" in read(debug_logs, "app.log")
+    assert "detalhe do tick" in read(debug_logs, "simulation.log")
+
+
+def test_debug_level_keeps_error_log_to_errors_only(debug_logs: Path) -> None:
+    logging.getLogger("backend.routes").debug("só debug")
+    logging.getLogger("backend.routes").error("falhou")
+
+    content = read(debug_logs, "error.log")
+    assert "falhou" in content
+    assert "só debug" not in content
+
+
+def test_debug_level_keeps_chatty_libraries_at_info(debug_logs: Path) -> None:
+    logging.getLogger("engineio.server").debug("pacote 42")
+    logging.getLogger("engineio.server").info("cliente conectou")
+
+    content = read(debug_logs, "realtime.log")
+    assert "pacote 42" not in content
+    assert "cliente conectou" in content

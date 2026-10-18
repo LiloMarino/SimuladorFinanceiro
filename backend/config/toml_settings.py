@@ -69,6 +69,10 @@ class LoggingConfig(BaseModel):
         return level
 
 
+class DebugConfig(BaseModel):
+    enabled: bool = False
+
+
 class TomlSettings(BaseModel):
     database: DatabaseConfig = DatabaseConfig()
     simulation: SimulationConfig = SimulationConfig()
@@ -76,6 +80,11 @@ class TomlSettings(BaseModel):
     host: HostConfig = HostConfig()
     server: ServerConfig = ServerConfig()
     logging: LoggingConfig = LoggingConfig()
+    debug: DebugConfig = DebugConfig()
+
+    def effective_logging_level(self) -> str:
+        """O modo debug sobe o nível dos logs para DEBUG; senão vale o configurado."""
+        return "DEBUG" if self.debug.enabled else self.logging.logging_level
 
 
 def _load_toml_settings() -> TomlSettings:  # pyright: ignore[reportUnusedFunction]
