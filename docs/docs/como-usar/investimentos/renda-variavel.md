@@ -22,7 +22,7 @@ Aprenda a investir em ações, FIIs e ETFs no simulador.
 - ⚠️ Maior risco (volatilidade)
 - 💰 Possibilidade de dividendos/proventos
 
-<!-- Espaço reservado para screenshot da tela de renda variável -->
+{/* Espaço reservado para screenshot da tela de renda variável */}
 
 ---
 
