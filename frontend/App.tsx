@@ -54,7 +54,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
-          <RealtimeProvider mode="ws">
+          <RealtimeProvider>
             <NotificationSettingsProvider>
               {/* Listeners globais de notificações */}
               <GlobalNotifications />

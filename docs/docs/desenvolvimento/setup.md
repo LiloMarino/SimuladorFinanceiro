@@ -159,9 +159,6 @@ price_impact_enabled = false  # Padrão do lobby para o impacto de preço das or
 price_impact_k = 0.02         # Intensidade do impacto
 price_impact_decay_days = 20  # Pregões até o preço voltar ao histórico
 
-[realtime]
-use_sse = false  # true para usar SSE ao invés de WebSocket
-
 [host]
 nickname = "host"
 

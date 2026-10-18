@@ -540,46 +540,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/stream": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Stream de eventos SSE
-         * @description Retorna um stream de eventos em tempo real via Server-Sent Events (SSE).
-         */
-        get: operations["stream_api_stream_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/update-subscription": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Atualizar inscrição de eventos
-         * @description Atualiza a lista de eventos em tempo real que o cliente deseja receber.
-         */
-        post: operations["update_subscription_api_update_subscription_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/internal/realtime-events-schema": {
         parameters: {
             query?: never;
@@ -589,7 +549,7 @@ export interface paths {
         };
         /**
          * [DEV] Catálogo de payloads de eventos realtime
-         * @description Existe apenas para expor os schemas dos payloads WS/SSE no OpenAPI e alimentar `pnpm run types:generate` (types/events.ts). Nunca deve ser chamada por clientes reais.
+         * @description Existe apenas para expor os schemas dos payloads WebSocket no OpenAPI e alimentar `pnpm run types:generate` (types/events.ts). Nunca deve ser chamada por clientes reais.
          */
         get: operations["get_realtime_events_schema_api_internal_realtime_events_schema_get"];
         put?: never;
@@ -2844,24 +2804,6 @@ export interface components {
             /** @default SCORE */
             victory_criterion: components["schemas"]["VictoryCriterion"];
         };
-        /** UpdateSubscriptionRequest */
-        UpdateSubscriptionRequest: {
-            /**
-             * Events
-             * @default []
-             */
-            events: string[];
-        };
-        /** UpdateSubscriptionResponse */
-        UpdateSubscriptionResponse: {
-            /**
-             * Client Id
-             * Format: uuid
-             */
-            client_id: string;
-            /** Events */
-            events: string[];
-        };
         /** UserClaimRequest */
         UserClaimRequest: {
             /** Nickname */
@@ -4101,86 +4043,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TickerSuggestionDTO"][];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ValidationErrorResponse"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    stream_api_stream_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ValidationErrorResponse"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    update_subscription_api_update_subscription_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateSubscriptionRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UpdateSubscriptionResponse"];
                 };
             };
             /** @description Unprocessable Content */

@@ -1,13 +1,12 @@
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.features.realtime.realtime_broker import RealtimeBroker
-from backend.features.realtime.sse_broker import SSEBroker
 from backend.features.realtime.ws_broker import SocketBroker
 from backend.types import ClientID, Event, JSONValue
 
 
 def get_broker() -> RealtimeBroker:
     """
-    Retorna o broker Singleton Pub/Sub ativo (SSE, WebSocket, etc.).
+    Retorna o broker Singleton Pub/Sub ativo.
     """
     return RealtimeBrokerManager.get_broker()
 
@@ -16,13 +15,6 @@ def get_socket_broker() -> SocketBroker:
     broker = get_broker()
     if not isinstance(broker, SocketBroker):
         raise TypeError("Broker não é SocketBroker")
-    return broker
-
-
-def get_sse_broker() -> SSEBroker:
-    broker = get_broker()
-    if not isinstance(broker, SSEBroker):
-        raise TypeError("Broker não é SSEBroker")
     return broker
 
 

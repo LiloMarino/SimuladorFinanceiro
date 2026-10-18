@@ -8,7 +8,7 @@ type EventKey<T> = keyof T;
 type EventCallback<T, K extends keyof T> = (data: T[K]) => void;
 
 /**
- * Base para qualquer cliente de eventos em tempo real (SSE ou WebSocket).
+ * Base para qualquer cliente de eventos em tempo real (WebSocket).
  *
  * Gerencia callbacks locais e mantém o backend informado sobre quais eventos
  * o cliente deseja receber.

@@ -31,8 +31,8 @@ SLOW_MS = 500.0  # uma chamada acima disso vai para o slow.log
 TRAFFIC_WINDOW_SECONDS = 10.0  # janela das taxas de mensagens enviadas
 ENGINE_DAY = "Processar um dia"
 
-# O stream SSE dura a conexão inteira e o debug não se mede a si mesmo
-_IGNORED_PREFIXES = ("/api/stream", "/api/debug")
+# O debug não se mede a si mesmo
+_IGNORED_PREFIXES = ("/api/debug",)
 
 
 @dataclass(frozen=True)

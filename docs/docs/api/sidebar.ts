@@ -216,18 +216,6 @@ const sidebar: SidebarsConfig = {
       items: [
         {
           type: "doc",
-          id: "api/stream-api-stream-get",
-          label: "Stream de eventos SSE",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "api/update-subscription-api-update-subscription-post",
-          label: "Atualizar inscrição de eventos",
-          className: "api-method post",
-        },
-        {
-          type: "doc",
           id: "api/get-realtime-events-schema-api-internal-realtime-events-schema-get",
           label: "[DEV] Catálogo de payloads de eventos realtime",
           className: "api-method get",

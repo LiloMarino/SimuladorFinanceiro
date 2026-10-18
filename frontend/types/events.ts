@@ -8,13 +8,13 @@ import type { components } from "./openapi.generated";
  */
 type RealtimeEventCatalog = components["schemas"]["RealtimeEventCatalog"];
 
-/** Snapshot de patrimônio emitido via WebSocket/SSE */
+/** Snapshot de patrimônio emitido via WebSocket */
 export type Snapshot = RealtimeEventCatalog["snapshot_update"]["snapshot"];
 
 export type OrderExecutedEvent = RealtimeEventCatalog["order_executed"];
 export type OrderPartialExecutedEvent = RealtimeEventCatalog["order_partial_executed"];
 
-/** Eventos emitidos pelo servidor via WebSocket ou SSE */
+/** Eventos emitidos pelo servidor via WebSocket */
 export type SimulationEvents = {
   simulation_started: RealtimeEventCatalog["simulation_started"];
   simulation_ended: RealtimeEventCatalog["simulation_ended"];

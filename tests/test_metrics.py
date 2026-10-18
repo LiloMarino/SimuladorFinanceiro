@@ -162,10 +162,6 @@ def client(live: Metrics) -> Iterator[TestClient]:
     def stock(ticker: str) -> dict[str, str]:  # type: ignore[reportUnusedFunction]
         return {"ticker": ticker}
 
-    @app.get("/api/stream")
-    def stream() -> dict[str, bool]:  # type: ignore[reportUnusedFunction]
-        return {"ok": True}
-
     @app.get("/api/falha")
     def failure() -> None:  # type: ignore[reportUnusedFunction]
         raise RuntimeError("falhou")
@@ -193,8 +189,7 @@ def test_response_carries_server_timing(client: TestClient) -> None:
     assert header.startswith("app;dur=")
 
 
-def test_stream_and_the_spa_are_not_measured(client: TestClient, live: Metrics) -> None:
-    client.get("/api/stream")
+def test_the_spa_is_not_measured(client: TestClient, live: Metrics) -> None:
     client.get("/assets/index.js")
 
     assert live.snapshot().stats == []

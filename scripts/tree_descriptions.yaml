@@ -19,7 +19,7 @@ backend/features/fixed_income/: Lógica de negócio de Renda Fixa
 backend/features/fixed_income/entities/: Entidades de domínio (CDB, Tesouro, etc)
 backend/features/fixed_income/factory/: Factories para criação de ativos de RF
 backend/features/import_data/: Serviço de importação de dados externos
-backend/features/realtime/: Sistema de comunicação em tempo real (WebSocket/SSE)
+backend/features/realtime/: Sistema de comunicação em tempo real (WebSocket)
 backend/features/simulation/: Engine de simulação do mercado financeiro
 backend/features/strategy/: Algoritmos de estratégias de investimento
 backend/features/tunnel/: Sistema de túnel para multiplayer (ngrok, etc)
@@ -81,7 +81,7 @@ frontend/shared/context/simulation/: Context de estado da simulação
 frontend/shared/hooks/: Hooks customizados reutilizáveis
 frontend/shared/lib/: Bibliotecas internas e utilitários
 frontend/shared/lib/models/: Classes e models (ApiError, etc)
-frontend/shared/lib/realtime/: Cliente de WebSocket/SSE
+frontend/shared/lib/realtime/: Cliente de WebSocket
 frontend/shared/lib/schemas/: Schemas de validação (Zod)
 frontend/shared/lib/utils/: Funções utilitárias (formatação, API, etc)
 frontend/shared/notifications/: Sistema global de notificações
