@@ -281,7 +281,7 @@ export interface paths {
         };
         /**
          * Obter configurações do usuário
-         * @description Retorna as configurações pessoais do usuário (notificações de ordens, etc.).
+         * @description Retorna as configurações pessoais do usuário (notificações de ordens, etc.) e se o servidor está em modo debug, definido no boot (`--debug` ou config.toml).
          */
         get: operations["get_settings_api_settings_get"];
         /**
@@ -2411,6 +2411,18 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /**
+         * SettingsResponse
+         * @description As preferências do usuário mais o modo debug do servidor, só leitura.
+         */
+        SettingsResponse: {
+            orders: components["schemas"]["OrderNotificationSettings"];
+            players: components["schemas"]["PlayerNotificationSettings"];
+            /** Debug */
+            debug: boolean;
+        } & {
+            [key: string]: unknown;
+        };
         /** SimulationDTO */
         SimulationDTO: {
             /** Name */
@@ -3430,7 +3442,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SettingsRequest"];
+                    "application/json": components["schemas"]["SettingsResponse"];
                 };
             };
             /** @description Unprocessable Content */
@@ -3472,7 +3484,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SettingsRequest"];
+                    "application/json": components["schemas"]["SettingsResponse"];
                 };
             };
             /** @description Unprocessable Content */

@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import MainLayout from "@/layouts/main-layout";
 import { PlainLayout } from "@/layouts/plain-layout";
 import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3 } from "lucide-react";
@@ -31,6 +30,7 @@ import { SimulationProvider } from "./shared/context/simulation";
 import { GuardLayout } from "./layouts/guard-layout";
 import { SimulationModeLayout } from "./layouts/simulation-mode-layout";
 import { queryClient } from "@/shared/lib/queryClient";
+import { DebugTools } from "@/shared/components/debug-tools";
 
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda variável", endpoint: "/variable-income", icon: TrendingUp, group: "Mercado" },
@@ -50,13 +50,13 @@ const routeLabels = navItems.reduce<Record<string, string>>((acc, item) => {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} />
       <BrowserRouter>
         <AuthProvider>
           <RealtimeProvider mode="ws">
             <NotificationSettingsProvider>
               {/* Listeners globais de notificações */}
               <GlobalNotifications />
+              <DebugTools />
               <PageLabelProvider routeLabels={routeLabels}>
                 <SimulationProvider>
                   <Routes>
