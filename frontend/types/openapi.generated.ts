@@ -1268,6 +1268,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/debug/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Medições de desempenho
+         * @description Tempo gasto pelas requisições HTTP, pelos eventos Socket.IO recebidos e pelo motor, e o volume enviado ao navegador, sobre as últimas 1.000 medições de cada item. Só com o modo debug ligado e só para o host.
+         */
+        get: operations["get_metrics_api_debug_metrics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/debug/metrics/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Zerar as medições
+         * @description Apaga as medições guardadas, para medir só um trecho da partida.
+         */
+        post: operations["reset_metrics_api_debug_metrics_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1473,6 +1513,13 @@ export interface components {
             selic: string;
             /** Cdi */
             cdi: string;
+        };
+        /** EngineInfo */
+        EngineInfo: {
+            /** Speed */
+            speed: number;
+            /** Budget Ms */
+            budget_ms: number | null;
         };
         /** ErrorResponse */
         ErrorResponse: {
@@ -1686,6 +1733,40 @@ export interface components {
             /** Segment */
             segment: string | null;
         };
+        /** MetricItem */
+        MetricItem: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "http" | "socket" | "engine";
+            /** Name */
+            name: string;
+            /** Calls */
+            calls: number;
+            /** Total Ms */
+            total_ms: number;
+            /** Mean Ms */
+            mean_ms: number;
+            /** P95 Ms */
+            p95_ms: number;
+            /** Max Ms */
+            max_ms: number;
+        };
+        /** MetricsResponse */
+        MetricsResponse: {
+            /** Pid */
+            pid: number;
+            /** Players */
+            players: number;
+            engine: components["schemas"]["EngineInfo"];
+            /** Items */
+            items: components["schemas"]["MetricItem"][];
+            /** Overall */
+            overall: components["schemas"]["OverallItem"][];
+            /** Traffic */
+            traffic: components["schemas"]["TrafficItem"][];
+        };
         /** MonthlyReturnDTO */
         MonthlyReturnDTO: {
             /**
@@ -1839,6 +1920,16 @@ export interface components {
          * @enum {string}
          */
         OrderType: "market" | "limit";
+        /** OverallItem */
+        OverallItem: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "http" | "socket" | "engine";
+            /** P95 Ms */
+            p95_ms: number;
+        };
         /** OverviewReportDTO */
         OverviewReportDTO: {
             /** Players */
@@ -2697,6 +2788,17 @@ export interface components {
             quantity: number;
             /** Price */
             price: string;
+        };
+        /** TrafficItem */
+        TrafficItem: {
+            /** Event */
+            event: string;
+            /** Msgs Per S */
+            msgs_per_s: number;
+            /** Bytes Per S */
+            bytes_per_s: number;
+            /** Bytes Per Msg */
+            bytes_per_msg: number;
         };
         /** TunnelStatusDTO */
         TunnelStatusDTO: {
@@ -5483,6 +5585,80 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["VersionResponse"];
                 };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_metrics_api_debug_metrics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricsResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reset_metrics_api_debug_metrics_reset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unprocessable Content */
             422: {

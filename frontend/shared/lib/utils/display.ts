@@ -168,3 +168,26 @@ export function displayMonthYear(date: Date | string) {
 export function displayList(items: string[]) {
   return new Intl.ListFormat("pt-BR", { style: "long", type: "conjunction" }).format(items);
 }
+
+/** Tempo em ms legível: "2,5 ms", "38 ms", "11,8 s", "1 min 31 s", "2 h 14 min". */
+export function displayDuration(ms: number) {
+  if (ms < 10) return `${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(ms)} ms`;
+  if (ms < 1000) return `${Math.round(ms)} ms`;
+  const seconds = ms / 1000;
+  if (seconds < 60) return `${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(seconds)} s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min ${String(Math.floor(seconds % 60)).padStart(2, "0")} s`;
+  return `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, "0")} min`;
+}
+
+/** Tamanho em bytes legível: "80 B", "5,2 KB", "120 KB", "1,55 MB". */
+export function displayBytes(bytes: number) {
+  if (bytes >= 1_000_000) {
+    return `${new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(bytes / 1_000_000)} MB`;
+  }
+  if (bytes >= 100) {
+    const kb = bytes / 1000;
+    return `${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: kb < 100 ? 1 : 0 }).format(kb)} KB`;
+  }
+  return `${Math.round(bytes)} B`;
+}

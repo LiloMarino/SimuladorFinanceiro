@@ -8,6 +8,7 @@ from uuid import UUID
 
 from fastapi.responses import StreamingResponse
 
+from backend.core.metrics import metrics
 from backend.core.runtime.user_manager import UserManager
 from backend.types import ClientID, Event, JSONValue
 
@@ -80,10 +81,15 @@ class SSEBroker(RealtimeBroker):
             else:
                 target_clients = subscribers
 
+        delivered = 0
         for cid in target_clients:
             q = self._clients.get(cid)
             if q:
                 q.put(packet)
+                delivered += 1
+
+        if metrics.enabled:
+            metrics.record_sent(event, delivered, len(packet.encode("utf-8")))
 
     # --------------------------------------------------------------------- #
     # Connection handler

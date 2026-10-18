@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 from collections import defaultdict
 from collections.abc import Iterable
@@ -6,6 +7,7 @@ from threading import Lock
 
 from socketio import AsyncServer
 
+from backend.core.metrics import metrics
 from backend.types import SID, ClientID, Event, JSONValue
 
 from .realtime_broker import RealtimeBroker
@@ -96,6 +98,9 @@ class SocketBroker(RealtimeBroker):
 
         if self._loop is None:
             raise RuntimeError("Event loop não está vinculado ao SocketBroker")
+
+        if metrics.enabled:
+            metrics.record_sent(event, len(targets), len(json.dumps(payload)))
 
         for sid in targets:
             asyncio.run_coroutine_threadsafe(

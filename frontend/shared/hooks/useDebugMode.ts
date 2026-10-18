@@ -8,13 +8,14 @@ import type { DebugMode } from "@/types";
  * Se o servidor subiu em modo debug (`--debug` ou `[debug] enabled` no config.toml).
  * O valor é do boot do servidor e não muda com o app aberto, então é lido uma vez.
  * Query própria: o cache das notificações recebe o valor otimista sem esse campo.
+ * `isPending` separa "ainda não sei" de "desligado", para a tela não decidir cedo demais.
  */
-export function useDebugMode(): DebugMode {
+export function useDebugStatus(): { debug: DebugMode; isPending: boolean } {
   // O endpoint é por usuário: só responde depois do login (então as ferramentas não
   // aparecem na tela de login). Ao entrar, a sessão muda e a query dispara sozinha.
   const { session } = useAuth();
 
-  const { data } = useApiQuery({
+  const { data, isPending } = useApiQuery({
     queryKey: queryKeys.debugMode(),
     queryFn: ({ signal }) => apiFetch<{ debug: DebugMode }>("/api/settings", { signal }),
     select: (settings) => settings.debug,
@@ -22,5 +23,9 @@ export function useDebugMode(): DebugMode {
     enabled: !!session?.authenticated,
   });
 
-  return data ?? false;
+  return { debug: data ?? false, isPending };
+}
+
+export function useDebugMode(): DebugMode {
+  return useDebugStatus().debug;
 }

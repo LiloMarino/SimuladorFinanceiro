@@ -76,6 +76,11 @@ export type NotificationPreferences = Pick<components["schemas"]["SettingsReques
 // Modo debug: definido no boot do servidor, só leitura
 export type DebugMode = components["schemas"]["SettingsResponse"]["debug"];
 
+// Painel de desempenho
+export type MetricsData = components["schemas"]["MetricsResponse"];
+export type MetricItem = components["schemas"]["MetricItem"];
+export type TrafficItem = components["schemas"]["TrafficItem"];
+
 // Simulation
 export type SimulationState = Partial<components["schemas"]["SimulationStateResponse"]>;
 export type SimulationData = components["schemas"]["SimulationDTO"];

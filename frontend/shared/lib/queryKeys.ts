@@ -28,6 +28,7 @@ export const queryKeys = {
     ["correlation", window, end, ...tickers] as const,
   notificationSettings: () => ["notifications", "settings"] as const,
   debugMode: () => ["settings", "debug"] as const,
+  debugMetrics: () => ["debug", "metrics"] as const,
   seriesCoverage: () => ["import-assets", "coverage"] as const,
   sectors: () => ["import-assets", "sectors"] as const,
   segmentSuggestion: (ticker: string) => ["import-assets", "suggestion", ticker] as const,
