@@ -67,7 +67,6 @@
 | [**F41**](#f41) | Conquistas | — | ⏳ |
 | [**F42**](#f42) | Modo em equipes | — | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 🔍 |
-| [**F45**](#f45) | Painel de desempenho | — | ⏳ |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ⏳ |
 | [**F48**](#f48) | README e docs que mostram o produto | — | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
@@ -79,7 +78,7 @@
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (12 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (13 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -94,6 +93,7 @@
 | **D10** | Como a nota geral é calculada | — | ✅ |
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | ✅ |
 | **D12** | Como numerar as versões | — | ✅ |
+| [**F45**](#f45) | Painel de desempenho | — | ✅ |
 | [**F54**](#f54) | Modo debug | — | ✅ |
 
 </details>
@@ -117,7 +117,6 @@
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
 | [**F42**](#f42) | Modo em equipes | M13 | 0 | ⏳ |
-| [**F45**](#f45) | Painel de desempenho | — | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
@@ -239,23 +238,23 @@
 
 ### Sem marco
 
-> **Progresso:** 1/9 concluídas
+> **Progresso:** 2/9 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F37**](#f37) | Tema escuro | — | 💤 |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 🔍 |
-| [**F45**](#f45) | Painel de desempenho | [F54](#f54) | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | [F44](#f44) | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F45**](#f45) | Painel de desempenho | [F54](#f54) | ✅ |
 | [**F54**](#f54) | Modo debug | — | ✅ |
 
 </details>
@@ -278,7 +277,7 @@
 | **F40** | Modo Especialista | N21 | D2 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F41** | Conquistas | N22 | D1 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F42** | Modo em equipes | N23 | — | M13 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F45** | Painel de desempenho | N24 | — | — | [F54](#f54) | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
+| **F45** | Painel de desempenho | N24 | — | — | [F54](#f54) | Baixo | Baixo | Médio | Ótimo | ✅ Concluído |
 | **F47** | Gravação automática de demonstrações | N25 | — | M14 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F52** | Modo corrida à meta | N23 | — | M13 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
@@ -339,7 +338,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F42 — Modo em equipes.** Serve N23. Cada um opera a própria carteira, mas o placar é da equipe: quem vence é a equipe, não a pessoa. O host escolhe no lobby entre todos contra todos (o de hoje) e equipes; em equipes, cada jogador escolhe a equipe numa lista ao lado da cor, como no lobby de um RTS. A equipe é uma coluna `team` na `simulation_players` da F39, por migration (D9). O valor da equipe em cada critério de vitória (F27) é a média dos membros (média da nota, do retorno, do Sharpe), para que uma equipe de três não vença uma de dois só por somar mais patrimônio. Cada jogador mantém a própria cor; a equipe aparece como um selo ao lado do nome. As telas que mudam, a desenhar no Claude Design antes de implementar: o lobby (escolha de equipe e aviso de equipes desequilibradas); o ranking ao vivo, por equipe e com os membros abaixo; as estatísticas — na aba Geral, a classificação e a nota da equipe com os eixos da nota como média dos membros; nas abas com curva, a curva da equipe (média) com as dos membros mais apagadas; em Risco, Composição e Operações, os jogadores agrupados por equipe; e o fechamento (F27), com o pódio de equipes, os membros de cada uma e o destaque de quem mais contribuiu na equipe vencedora.
 
 <a id="f45"></a>
-**F45 — Painel de desempenho.** Serve N24. Mede onde o tempo vai durante uma partida, para depois investigar só o ponto caro. O app mede sozinho, sem serviço externo: o Sentry faz essa medição por rota, mas manda os dados para fora da máquina e é pago. Um coletor em memória (`backend/core/metrics.py`) recebe: (1) **HTTP** — um middleware ASGI mede cada requisição e agrupa pela rota declarada (`/api/stocks/{ticker}`, não o ticker); (2) **Socket.IO** — o tempo de cada handler de evento recebido e, para os emitidos, quantas mensagens e quantos bytes por segundo por nome de evento, que é o que pesa no navegador em velocidade alta; (3) **tick** — quanto o motor leva para processar um dia e quanto atrasa em relação à velocidade pedida. Para cada item: chamadas, tempo total, médio, p95 (95% das chamadas levam até esse tempo; média de 20 ms com p95 de 400 ms quer dizer que de vez em quando ela trava) e o máximo, sobre as últimas 1.000 medições. Com o modo debug ligado (F54), `GET /api/debug/metrics` alimenta uma tela "Desempenho" com a tabela ordenada pelo tempo total, e as requisições lentas vão para um `slow.log`, por um logger próprio (ex.: `backend.metrics`) e uma linha `"slow.log": ("backend.metrics",)` na tabela `AREA_LOGGERS` de `logger.py` (F57), sem handler novo; cada resposta HTTP ganha o cabeçalho `Server-Timing`, que a aba Rede do DevTools já mostra. Achado o ponto, a investigação segue com o `py-spy` (`py-spy record --pid`), que gera o gráfico de chamas do processo rodando sem mudar código; uma página dos docs ensina o caminho.
+**F45 — Painel de desempenho.** Serve N24. Mede onde o tempo vai durante uma partida, para depois investigar só o ponto caro, sem serviço externo (o Sentry faz essa medição por rota, mas manda os dados para fora da máquina e é pago). Só funciona com o modo debug (F54) ligado: fora dele o coletor fica desligado, o middleware nem é instalado e a rota `/api/debug/*` responde 404. Um coletor em memória (`backend/core/metrics.py`) guarda, por item, as últimas 1.000 medições e calcula chamadas, tempo total, médio, p95 e máximo: (1) **HTTP** — `MetricsMiddleware` (ASGI puro) mede cada requisição pela rota declarada (`/api/stocks/{ticker}`, não o ticker) e devolve o tempo no cabeçalho `Server-Timing`; fora da conta ficam `/api/stream` (resposta infinita) e o próprio `/api/debug`; (2) **Socket.IO** — o tempo de cada handler recebido (`connect`, `disconnect`, `subscribe`) e, para os enviados, mensagens e bytes por segundo por evento, contados por destinatário dentro do `SocketBroker` e do `SSEBroker` (`stock_update:PETR4` e os demais tickers viram `stock_update:*`); (3) **motor** — quanto leva `next_tick()` para processar um dia, contra o tempo que cabe na velocidade (`1000 / velocidade` ms). Chamadas acima de 500 ms vão para o `slow.log`, pelo logger `backend.metrics` (linha em `AREA_LOGGERS`, F57). `GET /api/debug/metrics` e `POST /api/debug/metrics/reset` são **só do host** (`verify_host`): as medições são do servidor dele. A tela "Desempenho" (`features/performance`, variante A do canvas) atualiza a cada 2 s, com Pausar e Zerar medições: quatro cartões (ritmo do motor com a velocidade real quando atrasa, HTTP com o p95 geral e as rotas lentas, volume enviado ao navegador, onde mais vai tempo), a tabela de tempo com filtro por origem, busca, ordenação e "Mostrar todas", marcando **lenta** (p95 acima de 500 ms) e **trava às vezes** (p95 de 10 vezes a média ou mais), o tráfego por evento e o cartão do py-spy com o comando e o PID. O item "Desempenho" (selo "Debug") em Ferramentas só aparece com o debug ligado e para o host; a URL direta mostra como ligar o debug ou que só o host vê. Achado o ponto, a investigação segue com o `py-spy record --pid`, que gera o gráfico de chamas sem mudar código; a página "Investigando lentidão" dos docs ensina o caminho. Limitações: as medições somem ao reiniciar o app, um 500 tratado pelo servidor entra na conta mas fica sem `Server-Timing`, e o "p95 geral" do cartão HTTP é calculado sobre as janelas atuais de todas as rotas.
 
 <a id="f47"></a>
 **F47 — Gravação automática de demonstrações.** Serve N25. Um roteiro em Playwright (`scripts/demo/`) sobe o app num banco de demonstração, importa um conjunto fixo de ativos pelo CSV (sem depender do yfinance, para sair igual toda vez), e percorre as telas: lobby, compra de ação, renda fixa, avanço do tempo, estatísticas e fechamento. Em cada passo tira screenshot, e a sessão inteira é gravada em vídeo (`recordVideo`). O `ffmpeg` corta os trechos em MP4 para os docs e o `gifski` faz GIFs curtos (até ~10 MB) para o README, que no GitHub só anima GIF. A saída vai para `docs/static/demo/`, e o comando `pnpm demo` refaz tudo a cada mudança visual, o que mantém as imagens em dia: as de hoje em `docs/static/img/` são de fevereiro, anteriores ao redesign.
