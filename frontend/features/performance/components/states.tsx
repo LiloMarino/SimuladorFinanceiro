@@ -69,7 +69,8 @@ export function PerformanceDebugOff() {
             O painel de desempenho só funciona com o modo debug
           </h2>
           <p className="text-muted-foreground">
-            Ele vem desligado, para não pesar. Para ligar, feche o app e escolha
+            No executável ele vem desligado, para não pesar. Para ligar, feche o
+            app e escolha
             um dos caminhos:
           </p>
           <pre className="rounded-lg bg-foreground px-3 py-2.5 font-mono text-[12.5px] leading-relaxed text-sidebar-foreground">

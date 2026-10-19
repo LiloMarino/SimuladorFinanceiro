@@ -44,6 +44,15 @@ import {
 } from "../lib/stats";
 import { P95_INFO } from "../lib/p95-info";
 
+const SORT_LABEL: Record<SortKey, string> = {
+  calls: "chamadas",
+  total_ms: "tempo total",
+  mean_ms: "tempo médio",
+  p95_ms: "p95",
+  max_ms: "tempo máximo",
+  share: "fatia do tempo",
+};
+
 const KIND_STYLE: Record<Kind, string> = {
   http: "bg-info-soft text-info",
   socket: "bg-purple-100 text-purple-700",
@@ -129,7 +138,11 @@ export function TimeTable({ rows, id }: TimeTableProps) {
   return (
     <Card id={id}>
       <CardHeader>
-        <CardTitle>Tempo gasto, do maior para o menor</CardTitle>
+        <CardTitle>
+          {sortKey === "total_ms"
+            ? "Tempo gasto, do maior para o menor"
+            : `Tempo gasto, ordenado por ${SORT_LABEL[sortKey]}`}
+        </CardTitle>
         <CardDescription>
           Requisições HTTP, eventos recebidos pelo Socket.IO e o processamento
           de cada dia.

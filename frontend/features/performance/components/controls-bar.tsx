@@ -3,7 +3,9 @@ import { Button } from "@/shared/components/ui/button";
 
 interface ControlsBarProps {
   paused: boolean;
-  /** Instante da última leitura (ms), mostrado quando a atualização está pausada. */
+  /** A última leitura falhou: os números na tela são de antes. */
+  failed: boolean;
+  /** Instante da última leitura (ms), mostrado quando a atualização está pausada ou falhou. */
   updatedAt: number;
   resetting: boolean;
   onTogglePause: () => void;
@@ -12,6 +14,7 @@ interface ControlsBarProps {
 
 export function ControlsBar({
   paused,
+  failed,
   updatedAt,
   resetting,
   onTogglePause,
@@ -24,7 +27,12 @@ export function ControlsBar({
         as últimas 1.000 medições dela.
       </p>
       <div className="flex items-center gap-2">
-        {paused ? (
+        {failed ? (
+          <Badge variant="destructive">
+            Sem conexão · dados de{" "}
+            {new Date(updatedAt).toLocaleTimeString("pt-BR")}
+          </Badge>
+        ) : paused ? (
           <Badge variant="warning">
             Pausado · dados de {new Date(updatedAt).toLocaleTimeString("pt-BR")}
           </Badge>
