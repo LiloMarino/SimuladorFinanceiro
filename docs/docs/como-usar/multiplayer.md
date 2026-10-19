@@ -122,6 +122,16 @@ Este é o IP que deve ser usado para conexão.
 
 ---
 
+## Amigos não conseguem entrar?
+
+Se o link abre no seu computador mas não abre no dos amigos, o firewall do Windows costuma ser o motivo. Ele bloqueia conexões que chegam de fora, e o simulador precisa recebê-las:
+
+- Na primeira abertura, o Windows pergunta se o app pode se comunicar na rede. Marque **Redes privadas** (e **Redes públicas** se a VPN aparecer como pública).
+- Se você negou sem querer, abra o **Firewall do Windows Defender** → **Permitir um aplicativo** e marque o simulador, ou libere a porta `8000` (a de `[server] port` no `config.toml`) para conexões de entrada.
+- Confira também se vocês estão na mesma rede ou na mesma VPN: o terminal do host lista todas as interfaces detectadas, com o endereço de cada uma.
+
+---
+
 ## Configuração do `preferred_vpn`
 
 O simulador tenta detectar automaticamente a VPN ativa e exibir o IP correto na tela do lobby do host.

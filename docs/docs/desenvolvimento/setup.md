@@ -147,9 +147,6 @@ O projeto usa PostgreSQL. Configure o `.env` com a connection string do PostgreS
 Na primeira execução, um arquivo `config.toml` será criado automaticamente com configurações padrão. Você pode editá-lo para personalizar:
 
 ```toml
-[database]
-echo_sql = false  # Mostrar SQL queries no console
-
 [simulation]
 start_date = "2000-01-01"
 end_date = "2026-01-01"
@@ -168,12 +165,14 @@ provider = "lan"
 preferred_vpn = null  # ou "radmin", "hamachi", "tailscale"
 
 [logging]
-logging_level = "INFO"  # DEBUG, INFO, WARNING, ERROR ou CRITICAL
 logs_path = "logs"
 
 [debug]
 enabled = false  # true liga o modo debug (veja abaixo)
+sql = false      # com o debug ligado, grava o SQL no database.log
 ```
+
+O que cada arquivo de `logs_path` guarda e o que aparece no terminal está em [Logs](./logs.md).
 
 ### Modo debug
 
@@ -190,11 +189,12 @@ O modo debug serve para investigar lentidão e comportamento estranho na máquin
 
 Ligado, o modo debug:
 
-- sobe o nível do `app.log` e dos arquivos por área (`simulation.log`, `realtime.log`, `import.log`, `database.log`) para `DEBUG`, ignorando o `logging_level`. Bibliotecas muito verbosas (`sqlalchemy`, `engineio`, `socketio`, `urllib3`, `asyncio`) continuam em `INFO`. O `error.log` segue só com `ERROR` e `CRITICAL`;
-- mostra as ferramentas do TanStack Query (o botão no canto da tela) e libera os logs `debug` e `log` do console do navegador, inclusive no executável. Desligado, o front se comporta igual em desenvolvimento e no executável.
+- grava o `DEBUG` do código do app (ordem recebida e casada, dia simulado, importação por ticker) no `app.log` e nos arquivos por área (`simulation.log`, `realtime.log`, `import.log`). As bibliotecas (`sqlalchemy`, `engineio`, `socketio`, `urllib3`, `asyncio`) continuam em `WARNING`, o `error.log` segue só com `ERROR` e `CRITICAL`, e o terminal não muda;
+- com `sql = true`, grava as consultas SQL no `database.log` (e só nele);
+- mostra as ferramentas do TanStack Query (o botão no canto da tela) e libera os logs `debug` e `log` do console do navegador, inclusive no executável. Desligado, o front se comporta igual em desenvolvimento e no executável;
+- libera o painel **Desempenho** (só para o host), que mede onde o tempo vai na partida. Veja [Investigando lentidão](./investigando-lentidao.md).
 
 O servidor informa o modo em `GET /api/settings` (campo `debug`, somente leitura).
-- libera o painel **Desempenho** (só para o host), que mede onde o tempo vai na partida. Veja [Investigando lentidão](./investigando-lentidao.md).
 
 
 ---

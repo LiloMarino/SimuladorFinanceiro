@@ -41,7 +41,7 @@ Eventos enviados pelo servidor não gastam tempo dele, gastam **volume**: mensag
 
 - **`Server-Timing`**: com o debug ligado, toda resposta HTTP traz esse cabeçalho com o tempo do servidor. Abra a aba **Rede** (F12) do navegador e veja a coluna de tempo da resposta. Um 500 tratado pelo servidor não traz o cabeçalho, mas entra na medição.
 - **`logs/slow.log`**: qualquer chamada acima de 500 ms (HTTP, evento ou dia do motor) vai para esse arquivo, com a rota e o tempo.
-- **`logs/app.log`** e os arquivos por área ficam em nível `DEBUG` no modo debug.
+- **`logs/app.log`** e os arquivos por área ganham o `DEBUG` do app no modo debug (veja [Logs](./logs.md)). O SQL só entra com `sql = true` em `[debug]`, no `database.log`.
 
 ## 4. Olhando dentro do ponto caro com o py-spy
 
