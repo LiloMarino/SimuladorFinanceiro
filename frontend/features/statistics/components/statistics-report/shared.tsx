@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Fragment, type CSSProperties, type ReactNode } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -14,10 +14,12 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
+import { TeamBadge } from "@/shared/components/team-badge";
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
+import { teamColor } from "@/shared/lib/teams";
 import type ApiError from "@/shared/lib/models/ApiError";
 import type { MetricInfo } from "@/shared/lib/metric-info";
-import type { PlayerRef } from "@/types";
+import type { PlayerRef, TeamNaming } from "@/types";
 import { displayMetric } from "../../lib/metrics";
 import { playerKey, playerLabel } from "../../lib/player-label";
 
@@ -100,11 +102,14 @@ export function PlayerCell({
   label,
   simulationIds,
   isYou,
+  teamNaming,
 }: {
   player: PlayerRef;
   label: string;
   simulationIds: number[];
   isYou: boolean;
+  /** Informado, o selo curto da equipe aparece ao lado do nome (partida em equipes) */
+  teamNaming?: TeamNaming;
 }) {
   return (
     <span className="flex items-center gap-2">
@@ -120,6 +125,7 @@ export function PlayerCell({
           você
         </Badge>
       )}
+      {teamNaming && player.team && <TeamBadge team={player.team} naming={teamNaming} size="sm" />}
     </span>
   );
 }
@@ -158,7 +164,7 @@ export function PlayerToggle({
   );
 }
 
-export interface MetricColumn<T> {
+export interface MetricColumn<T, G = never> {
   metric: MetricInfo;
   value: (row: T) => string | number | null | undefined;
   /** Destaca o melhor da sala: o maior ou o menor valor da coluna */
@@ -166,21 +172,35 @@ export interface MetricColumn<T> {
   tone?: (row: T) => "positive" | "negative" | undefined;
   /** Célula própria no lugar do valor formatado (ex.: os meses em quadradinhos) */
   cell?: (row: T) => ReactNode;
+  /** Valor da equipe nesta coluna, quando a tabela agrupa por equipe */
+  teamValue?: (team: G) => string | number | null | undefined;
+  /** Célula própria da equipe no lugar do valor formatado */
+  teamCell?: (team: G, members: T[]) => ReactNode;
 }
 
-interface MetricsTableProps<T extends PlayerRef> {
+/** Equipes de uma tabela agrupada: uma linha por equipe com os membros logo abaixo. */
+export interface TeamGroups<G> {
+  naming: TeamNaming;
+  teams: G[];
+  /** O que a linha da equipe diz ao lado do nome, quando não é a média (ex.: "total da equipe") */
+  note?: (team: G) => string;
+}
+
+interface MetricsTableProps<T extends PlayerRef, G extends { team: number } = never> {
   title: string;
   description?: string;
   rows: T[];
-  columns: MetricColumn<T>[];
+  columns: MetricColumn<T, G>[];
   simulationIds: number[];
   currentPlayerName?: string;
-  extraColumn?: { header: ReactNode; cell: (row: T) => ReactNode };
+  extraColumn?: { header: ReactNode; cell: (row: T) => ReactNode; teamCell?: (team: G, members: T[]) => ReactNode };
   footer?: ReactNode;
+  /** Partida em equipes: as linhas se agrupam por equipe, com a da equipe no topo de cada grupo */
+  groups?: TeamGroups<G>;
 }
 
 /** Uma linha por jogador e uma coluna por métrica, cada uma com a sua dica; o melhor da sala em verde. */
-export function MetricsTable<T extends PlayerRef>({
+export function MetricsTable<T extends PlayerRef, G extends { team: number } = never>({
   title,
   description,
   rows,
@@ -189,7 +209,8 @@ export function MetricsTable<T extends PlayerRef>({
   currentPlayerName,
   extraColumn,
   footer,
-}: MetricsTableProps<T>) {
+  groups,
+}: MetricsTableProps<T, G>) {
   const bestOf = columns.map((column) => {
     if (!column.best || rows.length < 2) return null;
     const values = rows
@@ -200,6 +221,81 @@ export function MetricsTable<T extends PlayerRef>({
     return column.best === "max" ? Math.max(...values) : Math.min(...values);
   });
 
+  const renderRow = (row: T, member: boolean) => {
+    const label = playerLabel(row, simulationIds, currentPlayerName);
+    const isYou = row.player_nickname === currentPlayerName;
+    return (
+      <TableRow
+        key={playerKey(row)}
+        variant={member ? "member" : isYou ? "current" : "default"}
+        style={member && row.team ? ({ "--team": teamColor(row.team) } as CSSProperties) : undefined}
+      >
+        <TableCell>
+          {member ? (
+            <span className="block pl-5">
+              <PlayerCell player={row} label={label} simulationIds={simulationIds} isYou={isYou} />
+            </span>
+          ) : (
+            <PlayerCell player={row} label={label} simulationIds={simulationIds} isYou={isYou} />
+          )}
+        </TableCell>
+        {extraColumn && <TableCell>{extraColumn.cell(row)}</TableCell>}
+        {columns.map((column, i) => {
+          const value = column.value(row);
+          const best = bestOf[i] !== null && value !== null && value !== undefined && Number(value) === bestOf[i];
+          const tone = column.tone?.(row);
+          return (
+            <TableCell key={column.metric.label} numeric>
+              {column.cell ? (
+                column.cell(row)
+              ) : best ? (
+                <Badge variant="success">{displayMetric(column.metric, value)}</Badge>
+              ) : (
+                <span
+                  className={tone === "negative" ? "text-destructive" : tone === "positive" ? "text-success" : undefined}
+                >
+                  {displayMetric(column.metric, value)}
+                </span>
+              )}
+            </TableCell>
+          );
+        })}
+      </TableRow>
+    );
+  };
+
+  const renderTeam = (team: G, naming: TeamNaming, note: string | undefined) => {
+    const members = rows.filter((r) => r.team === team.team);
+    return (
+      <Fragment key={`team-${team.team}`}>
+        <TableRow variant="team" style={{ "--team": teamColor(team.team) } as CSSProperties}>
+          <TableCell>
+            <span className="flex items-center gap-2.5">
+              <TeamBadge team={team.team} naming={naming} form="full" />
+              <span className="flex -space-x-1.5">
+                {members.map((m) => (
+                  <PlayerAvatar key={m.player_nickname} nickname={m.player_nickname} color={m.color} size="sm" />
+                ))}
+              </span>
+              {note && <span className="text-xs font-normal text-muted-foreground">{note}</span>}
+            </span>
+          </TableCell>
+          {extraColumn && <TableCell>{extraColumn.teamCell?.(team, members)}</TableCell>}
+          {columns.map((column) => (
+            <TableCell key={column.metric.label} numeric>
+              {column.teamCell ? (
+                column.teamCell(team, members)
+              ) : (
+                <span className="font-semibold">{displayMetric(column.metric, column.teamValue?.(team))}</span>
+              )}
+            </TableCell>
+          ))}
+        </TableRow>
+        {members.map((m) => renderRow(m, true))}
+      </Fragment>
+    );
+  };
+
   return (
     <Card className="overflow-hidden">
       <CardHeader>
@@ -209,7 +305,7 @@ export function MetricsTable<T extends PlayerRef>({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Jogador</TableHead>
+            <TableHead>{groups ? "Equipe e membros" : "Jogador"}</TableHead>
             {extraColumn && <TableHead>{extraColumn.header}</TableHead>}
             {columns.map((column) => (
               <TableHead key={column.metric.label} numeric>
@@ -224,41 +320,9 @@ export function MetricsTable<T extends PlayerRef>({
               <span className="text-[13px] text-muted-foreground">Sem jogadores com patrimônio ainda.</span>
             </TableEmptyRow>
           )}
-          {rows.map((row) => {
-            const label = playerLabel(row, simulationIds, currentPlayerName);
-            const isYou = row.player_nickname === currentPlayerName;
-            return (
-              <TableRow key={playerKey(row)} variant={isYou ? "current" : "default"}>
-                <TableCell>
-                  <PlayerCell player={row} label={label} simulationIds={simulationIds} isYou={isYou} />
-                </TableCell>
-                {extraColumn && <TableCell>{extraColumn.cell(row)}</TableCell>}
-                {columns.map((column, i) => {
-                  const value = column.value(row);
-                  const best =
-                    bestOf[i] !== null && value !== null && value !== undefined && Number(value) === bestOf[i];
-                  const tone = column.tone?.(row);
-                  return (
-                    <TableCell key={column.metric.label} numeric>
-                      {column.cell ? (
-                        column.cell(row)
-                      ) : best ? (
-                        <Badge variant="success">{displayMetric(column.metric, value)}</Badge>
-                      ) : (
-                        <span
-                          className={
-                            tone === "negative" ? "text-destructive" : tone === "positive" ? "text-success" : undefined
-                          }
-                        >
-                          {displayMetric(column.metric, value)}
-                        </span>
-                      )}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            );
-          })}
+          {groups
+            ? groups.teams.map((team) => renderTeam(team, groups.naming, groups.note?.(team)))
+            : rows.map((row) => renderRow(row, false))}
           {footer}
         </TableBody>
       </Table>

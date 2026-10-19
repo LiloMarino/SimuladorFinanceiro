@@ -1,3 +1,4 @@
+import { Fragment, type CSSProperties } from "react";
 import { Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
@@ -5,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
+import { TeamBadge } from "@/shared/components/team-badge";
+import { teamColor, teamName } from "@/shared/lib/teams";
 import {
   displayMoney,
   displayMoneyCompact,
@@ -13,25 +16,37 @@ import {
   displayNumber,
   displayShortMonthYear,
 } from "@/shared/lib/utils/display";
-import type { OperationsReport } from "@/types";
+import type { OperationsReport, TeamNaming } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { IMPACT_COST, INCOME_TAX_PAID, MONTHLY_VOLUME, TRADED_VOLUME, TURNOVER } from "../../lib/metrics";
 import { playerKey, playerLabel } from "../../lib/player-label";
+import { groupByTeam } from "../../lib/teams";
 import { PlayerCell, TabStatus, type ReportProps } from "./shared";
 
 type Player = OperationsReport["players"][number];
+type TeamOperations = OperationsReport["teams"][number];
 
 export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("operations", simulationIds, onlyPlayer);
   if (!data) return <TabStatus loading={isLoading} title="as Operações" error={error} onRetry={() => void refetch()} />;
 
   const mostTrades = Math.max(...data.players.map((p) => p.buy_trades + p.sell_trades), 1);
+  const mostTeamTrades = Math.max(...data.teams.map((t) => t.buy_trades + t.sell_trades), 1);
   const impactOn = data.players.some((p) => p.impact_cost !== null);
+  const naming = data.team_naming;
+  const groups = groupByTeam(
+    data.players,
+    data.teams.map((t) => t.team),
+  );
+  const teamOf = (team: number | null) => data.teams.find((t) => t.team === team);
 
   return (
     <div className="grid gap-5">
       <VolumeHeatmap
         players={data.players}
+        groups={groups}
+        naming={naming}
+        teams={data.teams}
         simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
       />
@@ -39,12 +54,15 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
       <Card className="overflow-hidden">
         <CardHeader>
           <CardTitle>Como cada um operou</CardTitle>
-          <CardDescription>Giro = volume ÷ patrimônio médio. Não é bom nem ruim: mostra o estilo.</CardDescription>
+          <CardDescription>
+            Giro = volume ÷ patrimônio médio. Não é bom nem ruim: mostra o estilo.
+            {data.teams.length > 0 && " Na equipe, volume, IR e negócios são a soma dos membros; o giro é a média."}
+          </CardDescription>
         </CardHeader>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Jogador</TableHead>
+              <TableHead>{data.teams.length > 0 ? "Equipe e membros" : "Jogador"}</TableHead>
               <TableHead>Negócios</TableHead>
               <TableHead numeric>
                 <MetricLabel metric={TRADED_VOLUME} />
@@ -61,55 +79,68 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.players.map((p: Player) => {
-              const label = playerLabel(p, simulationIds, currentPlayerName);
-              const isYou = p.player_nickname === currentPlayerName;
-              const trades = p.buy_trades + p.sell_trades;
-              const impact = p.impact_cost !== null ? Number(p.impact_cost) : null;
+            {groups.map((group) => {
+              const team = teamOf(group.team);
+              const teamStyle = group.team !== null ? ({ "--team": teamColor(group.team) } as CSSProperties) : undefined;
               return (
-                <TableRow key={playerKey(p)} variant={isYou ? "current" : "default"}>
-                  <TableCell>
-                    <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={isYou} />
-                  </TableCell>
-                  <TableCell>
-                    <div className="grid w-44 gap-1">
-                      {/* Barra proporcional ao jogador que mais negociou, com no mínimo 20 px */}
-                      <span
-                        className="flex h-2 gap-0.5 overflow-hidden rounded-full bg-muted"
-                        style={{ width: trades > 0 ? `max(20px, ${(trades / mostTrades) * 100}%)` : "20px" }}
+                <Fragment key={group.team ?? "all"}>
+                  {group.team !== null && team && (
+                    <TableRow variant="team" style={teamStyle}>
+                      <TableCell>
+                        <span className="flex items-center gap-2.5">
+                          <TeamBadge team={group.team} naming={naming} form="full" />
+                          <span className="text-xs font-normal text-muted-foreground">total da equipe</span>
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <TradesBar buys={team.buy_trades} sells={team.sell_trades} most={mostTeamTrades} />
+                      </TableCell>
+                      <TableCell numeric>
+                        <span className="font-semibold">{displayMoney(team.traded_volume)}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-mono">{team.turnover !== null ? displayNumber(team.turnover) : "—"}</span>
+                      </TableCell>
+                      <TableCell numeric>
+                        <span className="font-semibold">{displayMoney(team.income_tax_paid)}</span>
+                      </TableCell>
+                      <TableCell numeric>
+                        <ImpactCost value={team.impact_cost} />
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {group.players.map((p: Player) => {
+                    const label = playerLabel(p, simulationIds, currentPlayerName);
+                    const isYou = p.player_nickname === currentPlayerName;
+                    return (
+                      <TableRow
+                        key={playerKey(p)}
+                        variant={group.team !== null ? "member" : isYou ? "current" : "default"}
+                        style={teamStyle}
                       >
-                        {trades > 0 && (
-                          <>
-                            <span className="bg-success" style={{ width: `${(p.buy_trades / trades) * 100}%` }} />
-                            <span className="bg-destructive" style={{ width: `${(p.sell_trades / trades) * 100}%` }} />
-                          </>
-                        )}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        <span className="text-success">{p.buy_trades} compras</span> ·{" "}
-                        <span className="text-destructive">{p.sell_trades} vendas</span>
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell numeric>{displayMoney(p.traded_volume)}</TableCell>
-                  <TableCell>
-                    <span className="flex items-center gap-2">
-                      <span className="font-mono">{p.turnover !== null ? displayNumber(p.turnover) : "—"}</span>
-                      {p.turnover_style && <Badge variant="secondary">{p.turnover_style}</Badge>}
-                    </span>
-                  </TableCell>
-                  <TableCell numeric>{displayMoney(p.income_tax_paid)}</TableCell>
-                  <TableCell numeric>
-                    {impact === null || impact === 0 ? (
-                      <span className="text-faint-foreground">{impact === 0 ? displayMoney(0) : "—"}</span>
-                    ) : (
-                      <span className={impact > 0 ? "text-destructive" : "text-success"}>
-                        {impact > 0 ? "+" : ""}
-                        {displayMoney(impact)}
-                      </span>
-                    )}
-                  </TableCell>
-                </TableRow>
+                        <TableCell>
+                          <span className={group.team !== null ? "block pl-5" : undefined}>
+                            <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={isYou} />
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <TradesBar buys={p.buy_trades} sells={p.sell_trades} most={mostTrades} />
+                        </TableCell>
+                        <TableCell numeric>{displayMoney(p.traded_volume)}</TableCell>
+                        <TableCell>
+                          <span className="flex items-center gap-2">
+                            <span className="font-mono">{p.turnover !== null ? displayNumber(p.turnover) : "—"}</span>
+                            {p.turnover_style && <Badge variant="secondary">{p.turnover_style}</Badge>}
+                          </span>
+                        </TableCell>
+                        <TableCell numeric>{displayMoney(p.income_tax_paid)}</TableCell>
+                        <TableCell numeric>
+                          <ImpactCost value={p.impact_cost} />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </Fragment>
               );
             })}
           </TableBody>
@@ -128,13 +159,56 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
   );
 }
 
+/** Barra de negócios: compras e vendas, proporcional a quem mais negociou, com no mínimo 20 px. */
+function TradesBar({ buys, sells, most }: { buys: number; sells: number; most: number }) {
+  const trades = buys + sells;
+  return (
+    <div className="grid w-44 gap-1">
+      <span
+        className="flex h-2 gap-0.5 overflow-hidden rounded-full bg-muted"
+        style={{ width: trades > 0 ? `max(20px, ${(trades / most) * 100}%)` : "20px" }}
+      >
+        {trades > 0 && (
+          <>
+            <span className="bg-success" style={{ width: `${(buys / trades) * 100}%` }} />
+            <span className="bg-destructive" style={{ width: `${(sells / trades) * 100}%` }} />
+          </>
+        )}
+      </span>
+      <span className="text-xs text-muted-foreground">
+        <span className="text-success">{buys} compras</span> · <span className="text-destructive">{sells} vendas</span>
+      </span>
+    </div>
+  );
+}
+
+/** Custo de impacto: vermelho é custo, verde o impacto a favor; sem o impacto ligado fica "—". */
+function ImpactCost({ value }: { value: string | null }) {
+  const impact = value !== null ? Number(value) : null;
+  if (impact === null || impact === 0) {
+    return <span className="text-faint-foreground">{impact === 0 ? displayMoney(0) : "—"}</span>;
+  }
+  return (
+    <span className={impact > 0 ? "text-destructive" : "text-success"}>
+      {impact > 0 ? "+" : ""}
+      {displayMoney(impact)}
+    </span>
+  );
+}
+
 /** Quando cada um negociou: jogador × mês, mais escuro é mais dinheiro girando; cinza, mês só segurando. */
 function VolumeHeatmap({
   players,
+  groups,
+  naming,
+  teams,
   simulationIds,
   currentPlayerName,
 }: {
   players: Player[];
+  groups: { team: number | null; players: Player[] }[];
+  naming: TeamNaming;
+  teams: TeamOperations[];
   simulationIds: number[];
   currentPlayerName?: string;
 }) {
@@ -157,7 +231,9 @@ function VolumeHeatmap({
           </span>
         </CardTitle>
         <CardDescription>
-          Volume de compras + vendas de ações por mês. Mais escuro, mais dinheiro girando; cinza, mês só segurando.
+          {teams.length > 0
+            ? "Volume de compras + vendas por mês, agrupado por equipe e na cor dela: mais escuro, mais dinheiro girando. Passando o mouse, o valor exato."
+            : "Volume de compras + vendas de ações por mês. Mais escuro, mais dinheiro girando; cinza, mês só segurando."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -176,48 +252,71 @@ function VolumeHeatmap({
                 </span>
               ))}
               <span className="text-right text-[11px] font-medium text-muted-foreground">Total</span>
-              {players.map((p) => {
-                const byMonth = new Map(p.monthly_volume.map((m) => [m.month, m]));
-                const label = playerLabel(p, simulationIds, currentPlayerName);
-                const total = p.monthly_volume.reduce((sum, m) => sum + volumeOf(m), 0);
-                return (
-                  <div key={playerKey(p)} className="contents">
-                    <span className="min-w-0 self-center text-[13px]">
-                      <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={p.player_nickname === currentPlayerName} />
+              {groups.map((group) => (
+                <Fragment key={group.team ?? "all"}>
+                  {group.team !== null && (
+                    <span
+                      className="col-span-full mt-2 flex items-center gap-2.5 border-l-[3px] border-(--team) pl-3 text-xs text-muted-foreground"
+                      style={{ "--team": teamColor(group.team) } as CSSProperties}
+                    >
+                      <TeamBadge team={group.team} naming={naming} form="full" />
+                      total da equipe{" "}
+                      <b className="font-mono text-foreground">
+                        {displayMoneyCompact(
+                          teams
+                            .find((t) => t.team === group.team)
+                            ?.monthly_volume.reduce((sum, m) => sum + volumeOf(m), 0) ?? 0,
+                        )}
+                      </b>
                     </span>
-                    {months.map((month) => {
-                      const entry = byMonth.get(month);
-                      const volume = entry ? volumeOf(entry) : 0;
-                      return (
-                        <Tooltip key={month}>
-                          <TooltipTrigger render={<span />}>
-                            <span
-                              className="flex h-7 items-center justify-center rounded text-[11px] text-faint-foreground"
-                              style={{
-                                backgroundColor: volume
-                                  ? `color-mix(in oklab, var(--primary) ${Math.round(15 + (volume / max) * 85)}%, transparent)`
-                                  : "var(--muted)",
-                              }}
-                            >
-                              {volume ? "" : "—"}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {label} · {displayMonthSlashYear(month)}
-                            <br />
-                            {entry && volume
-                              ? `${displayMoney(volume)} · ${entry.buy_count} compras, ${entry.sell_count} vendas`
-                              : "Sem negócios"}
-                          </TooltipContent>
-                        </Tooltip>
-                      );
-                    })}
-                    <span className="self-center text-right font-mono text-xs">
-                      {total ? displayMoneyCompact(total) : "—"}
-                    </span>
-                  </div>
-                );
-              })}
+                  )}
+                  {group.players.map((p) => {
+                    const byMonth = new Map(p.monthly_volume.map((m) => [m.month, m]));
+                    const label = playerLabel(p, simulationIds, currentPlayerName);
+                    const total = p.monthly_volume.reduce((sum, m) => sum + volumeOf(m), 0);
+                    const heat = group.team !== null ? teamColor(group.team) : "var(--primary)";
+                    return (
+                      <div key={playerKey(p)} className="contents">
+                        <span className="min-w-0 self-center text-[13px]">
+                          <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={p.player_nickname === currentPlayerName} />
+                        </span>
+                        {months.map((month) => {
+                          const entry = byMonth.get(month);
+                          const volume = entry ? volumeOf(entry) : 0;
+                          return (
+                            <Tooltip key={month}>
+                              <TooltipTrigger render={<span />}>
+                                <span
+                                  className="flex h-7 items-center justify-center rounded text-[11px] text-faint-foreground"
+                                  style={{
+                                    backgroundColor: volume
+                                      ? `color-mix(in oklab, ${heat} ${Math.round(15 + (volume / max) * 85)}%, transparent)`
+                                      : "var(--muted)",
+                                  }}
+                                >
+                                  {volume ? "" : "—"}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {label}
+                                {group.team !== null && ` · ${teamName(group.team, naming)}`} ·{" "}
+                                {displayMonthSlashYear(month)}
+                                <br />
+                                {entry && volume
+                                  ? `${displayMoney(volume)} · ${entry.buy_count} compras, ${entry.sell_count} vendas`
+                                  : "Sem negócios"}
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        })}
+                        <span className="self-center text-right font-mono text-xs">
+                          {total ? displayMoneyCompact(total) : "—"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </Fragment>
+              ))}
             </div>
             <div className="mt-3 flex items-center gap-2 text-[11px] text-faint-foreground">
               R$ 0

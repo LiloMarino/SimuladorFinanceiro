@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { Fragment, useState, type CSSProperties } from "react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { MetricHint } from "@/shared/components/metric-hint";
+import { TeamBadge } from "@/shared/components/team-badge";
+import { teamColor } from "@/shared/lib/teams";
 import {
   displayMoney,
   displayMonthSlashYear,
@@ -11,13 +13,15 @@ import {
   displayPercent,
   displayShortMonthYear,
 } from "@/shared/lib/utils/display";
-import type { CompositionReport } from "@/types";
+import type { CompositionReport, TeamNaming } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { EFFECTIVE_SECTORS, SECTOR_PROFIT } from "../../lib/metrics";
 import { playerKey, playerLabel } from "../../lib/player-label";
+import { groupByTeam } from "../../lib/teams";
 import { PlayerCell, TabStatus, type ReportProps } from "./shared";
 
 type Player = CompositionReport["players"][number];
+type TeamComposition = CompositionReport["teams"][number];
 type Unit = "PCT" | "MONEY";
 
 const SERIES = [
@@ -40,6 +44,12 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
   const [unit, setUnit] = useState<Unit>("PCT");
   if (!data) return <TabStatus loading={isLoading} title="a Composição" error={error} onRetry={() => void refetch()} />;
 
+  const naming = data.team_naming;
+  const groups = groupByTeam(
+    data.players,
+    data.teams.map((t) => t.team),
+  );
+  const teamOf = (team: number | null) => data.teams.find((t) => t.team === team);
 
   return (
     <div className="grid gap-5">
@@ -48,7 +58,9 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
         <CardHeader>
           <CardTitle>Como cada um dividiu o dinheiro</CardTitle>
           <CardDescription>
-            Fatia do patrimônio em caixa, ações e renda fixa, dia a dia. Todos lado a lado.
+            {data.teams.length > 0
+              ? "Agrupado por equipe. A média da equipe fica no cabeçalho do grupo."
+              : "Fatia do patrimônio em caixa, ações e renda fixa, dia a dia. Todos lado a lado."}
           </CardDescription>
           <CardAction>
             <ToggleGroup
@@ -72,31 +84,73 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
                 </span>
               ))}
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {data.players.map((p) => {
-                const label = playerLabel(p, simulationIds, currentPlayerName);
-                return (
-                  <SmallMultiple
-                    key={playerKey(p)}
-                    player={p}
-                    label={label}
-                    simulationIds={simulationIds}
-                    isYou={p.player_nickname === currentPlayerName}
-                    unit={unit}
-                  />
-                );
-              })}
-            </div>
+            {groups.map((group) => (
+              <div key={group.team ?? "all"} className="grid gap-3">
+                {group.team !== null && <TeamGroupHeader team={group.team} naming={naming} composition={teamOf(group.team)} />}
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  {group.players.map((p) => {
+                    const label = playerLabel(p, simulationIds, currentPlayerName);
+                    return (
+                      <SmallMultiple
+                        key={playerKey(p)}
+                        player={p}
+                        label={label}
+                        simulationIds={simulationIds}
+                        isYou={p.player_nickname === currentPlayerName}
+                        unit={unit}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
 
       <SectorExposure
         players={data.players}
+        groups={groups}
+        naming={naming}
         simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
       />
-      <SectorProfit players={data.players} simulationIds={simulationIds} currentPlayerName={currentPlayerName} />
+      <SectorProfit
+        players={data.players}
+        groups={groups}
+        naming={naming}
+        simulationIds={simulationIds}
+        currentPlayerName={currentPlayerName}
+      />
+    </div>
+  );
+}
+
+type Groups = ReturnType<typeof groupByTeam<Player>>;
+
+/** Cabeçalho do grupo da equipe: o selo, e a divisão média do dinheiro dos membros. */
+function TeamGroupHeader({
+  team,
+  naming,
+  composition,
+}: {
+  team: number;
+  naming: TeamNaming;
+  composition: TeamComposition | undefined;
+}) {
+  const share = (value: string | null | undefined) => (value === null || value === undefined ? "—" : displayPercent(value, 0));
+  return (
+    <div
+      className="flex flex-wrap items-center gap-3 border-l-[3px] border-(--team) pl-3"
+      style={{ "--team": teamColor(team) } as CSSProperties}
+    >
+      <TeamBadge team={team} naming={naming} form="full" />
+      {composition && (
+        <span className="text-xs text-muted-foreground">
+          média: {share(composition.cash_share)} caixa · {share(composition.equity_share)} RV ·{" "}
+          {share(composition.fixed_share)} RF
+        </span>
+      )}
     </div>
   );
 }
@@ -185,10 +239,14 @@ function SmallMultiple({
 /** Jogador × setor: quanto mais escuro, maior a aposta; a diversificação em número e em palavras. */
 function SectorExposure({
   players,
+  groups,
+  naming,
   simulationIds,
   currentPlayerName,
 }: {
   players: Player[];
+  groups: Groups;
+  naming: TeamNaming;
   simulationIds: number[];
   currentPlayerName?: string;
 }) {
@@ -227,48 +285,63 @@ function SectorExposure({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {players.map((p) => {
-              const label = playerLabel(p, simulationIds, currentPlayerName);
-              const isYou = p.player_nickname === currentPlayerName;
-              const bySector = new Map(p.sectors.map((s) => [s.sector ?? NO_SECTOR, Number(s.fraction)]));
-              const effective = p.effective_sectors !== null ? Number(p.effective_sectors) : null;
-              return (
-                <TableRow key={playerKey(p)} variant={isYou ? "current" : "default"}>
-                  <TableCell>
-                    <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={isYou} />
-                  </TableCell>
-                  {sectors.map((s) => {
-                    const fraction = bySector.get(s);
-                    return (
-                      <TableCell key={s} numeric>
-                        {fraction ? (
-                          <span
-                            className="inline-block w-14 rounded px-1.5 py-1 text-center"
-                            style={{
-                              backgroundColor: `color-mix(in oklab, var(--primary) ${Math.round(fraction * 80)}%, transparent)`,
-                              color: fraction > 0.45 ? "var(--primary-foreground)" : undefined,
-                            }}
-                          >
-                            {displayPercent(fraction, 0)}
-                          </span>
+            {groups.map((group) => (
+              <Fragment key={group.team ?? "all"}>
+                {group.team !== null && (
+                  <TableRow variant="team" style={{ "--team": teamColor(group.team) } as CSSProperties}>
+                    <TableCell colSpan={sectors.length + 2}>
+                      <TeamBadge team={group.team} naming={naming} form="full" />
+                    </TableCell>
+                  </TableRow>
+                )}
+                {group.players.map((p) => {
+                  const label = playerLabel(p, simulationIds, currentPlayerName);
+                  const isYou = p.player_nickname === currentPlayerName;
+                  const bySector = new Map(p.sectors.map((s) => [s.sector ?? NO_SECTOR, Number(s.fraction)]));
+                  const effective = p.effective_sectors !== null ? Number(p.effective_sectors) : null;
+                  return (
+                    <TableRow
+                      key={playerKey(p)}
+                      variant={group.team !== null ? "member" : isYou ? "current" : "default"}
+                      style={group.team !== null ? ({ "--team": teamColor(group.team) } as CSSProperties) : undefined}
+                    >
+                      <TableCell>
+                        <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={isYou} />
+                      </TableCell>
+                      {sectors.map((s) => {
+                        const fraction = bySector.get(s);
+                        return (
+                          <TableCell key={s} numeric>
+                            {fraction ? (
+                              <span
+                                className="inline-block w-14 rounded px-1.5 py-1 text-center"
+                                style={{
+                                  backgroundColor: `color-mix(in oklab, var(--primary) ${Math.round(fraction * 80)}%, transparent)`,
+                                  color: fraction > 0.45 ? "var(--primary-foreground)" : undefined,
+                                }}
+                              >
+                                {displayPercent(fraction, 0)}
+                              </span>
+                            ) : (
+                              <span className="text-faint-foreground">·</span>
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                      <TableCell>
+                        {effective === null ? (
+                          <span className="text-[13px] text-muted-foreground">Sem ações no último dia</span>
                         ) : (
-                          <span className="text-faint-foreground">·</span>
+                          <span className="text-[13px]">
+                            <b className="font-mono">{displayNumber(effective, 2)}</b> · {diversificationWord(effective)}
+                          </span>
                         )}
                       </TableCell>
-                    );
-                  })}
-                  <TableCell>
-                    {effective === null ? (
-                      <span className="text-[13px] text-muted-foreground">Sem ações no último dia</span>
-                    ) : (
-                      <span className="text-[13px]">
-                        <b className="font-mono">{displayNumber(effective, 2)}</b> · {diversificationWord(effective)}
-                      </span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                    </TableRow>
+                  );
+                })}
+              </Fragment>
+            ))}
           </TableBody>
         </Table>
       )}
@@ -279,10 +352,14 @@ function SectorExposure({
 /** Lucro ou prejuízo por setor, em barras para os dois lados e com a mesma escala pra todos. */
 function SectorProfit({
   players,
+  groups,
+  naming,
   simulationIds,
   currentPlayerName,
 }: {
   players: Player[];
+  groups: Groups;
+  naming: TeamNaming;
   simulationIds: number[];
   currentPlayerName?: string;
 }) {
@@ -302,8 +379,19 @@ function SectorProfit({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 md:grid-cols-2">
-          {players.map((p) => {
+        <div className="grid gap-5">
+          {groups.map((group) => (
+            <div key={group.team ?? "all"} className="grid gap-3">
+              {group.team !== null && (
+                <div
+                  className="border-l-[3px] border-(--team) pl-3"
+                  style={{ "--team": teamColor(group.team) } as CSSProperties}
+                >
+                  <TeamBadge team={group.team} naming={naming} form="full" />
+                </div>
+              )}
+              <div className="grid gap-4 md:grid-cols-2">
+          {group.players.map((p) => {
             const total = p.sector_profit.reduce((sum, s) => sum + Number(s.profit), 0);
             return (
               <div key={playerKey(p)} className="grid content-start gap-2 rounded-[10px] border border-border p-4">
@@ -351,6 +439,9 @@ function SectorProfit({
               </div>
             );
           })}
+              </div>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>

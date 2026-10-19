@@ -43,7 +43,7 @@ function TableRow({
   onActivate,
   ...props
 }: React.ComponentProps<"tr"> & {
-  variant?: "default" | "group" | "warning" | "editing" | "current" | "subtle";
+  variant?: "default" | "group" | "warning" | "editing" | "current" | "subtle" | "team" | "member";
   onActivate?: () => void;
 }) {
   return (
@@ -61,7 +61,7 @@ function TableRow({
           : undefined
       }
       className={cn(
-        "border-b border-muted transition-colors outline-none hover:bg-subtle has-aria-expanded:bg-muted/50 focus-visible:bg-subtle focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset data-activatable:cursor-pointer data-[state=selected]:bg-muted data-[variant=current]:bg-info-soft/40 data-[variant=current]:font-semibold data-[variant=editing]:bg-info-soft/50 data-[variant=group]:bg-subtle data-[variant=subtle]:bg-subtle data-[variant=warning]:bg-warning-soft/40 data-[variant=editing]:hover:bg-info-soft/50 data-[variant=warning]:hover:bg-warning-soft/60",
+        "border-b border-muted transition-colors outline-none hover:bg-subtle has-aria-expanded:bg-muted/50 focus-visible:bg-subtle focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset data-activatable:cursor-pointer data-[state=selected]:bg-muted data-[variant=current]:bg-info-soft/40 data-[variant=current]:font-semibold data-[variant=editing]:bg-info-soft/50 data-[variant=group]:bg-subtle data-[variant=subtle]:bg-subtle data-[variant=team]:bg-[color-mix(in_srgb,var(--team)_6%,transparent)] data-[variant=team]:shadow-[inset_3px_0_0_var(--team)] data-[variant=member]:shadow-[inset_3px_0_0_color-mix(in_srgb,var(--team)_35%,transparent)] data-[variant=warning]:bg-warning-soft/40 data-[variant=editing]:hover:bg-info-soft/50 data-[variant=warning]:hover:bg-warning-soft/60",
         className,
       )}
       {...props}

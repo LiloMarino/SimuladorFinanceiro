@@ -14,14 +14,17 @@ import { MetricLabel } from "@/shared/components/metric-hint";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
-import type { OverviewReport, ScoreMetric } from "@/types";
+import type { OverviewReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { displayCriterionGap } from "../../lib/criterion";
-import { SCORE, SCORE_AXES, SCORE_METRICS, displayMetric } from "../../lib/metrics";
+import { SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics";
 import { SimulationLetter } from "../compare/simulation-letter";
 import { simulationColor, simulationLetter, labelColors } from "../../lib/player-label";
 import { playerKey, playerLabel } from "../../lib/player-label";
+import { PlayerScoreCard } from "./player-score-card";
 import { PlayerCell, PlayerToggle, TabStatus, type ReportProps } from "./shared";
+import { TeamHeadline, TeamRanking } from "./team-ranking";
+import { TeamScore } from "./team-score";
 
 type Player = OverviewReport["players"][number];
 
@@ -30,14 +33,35 @@ type RankingSort = "SCORE" | "RETURN" | "NETWORTH";
 // Régua dos eixos da nota: ~100 é um bom desempenho, a escala vai a 200
 const AXIS_SCALE = 200;
 
-// Métricas da nota que o relatório lê como contagem de meses ("7 de 12"), não como percentual
-const MONTH_COUNT_METRICS: ScoreMetric[] = ["months_above_cdi", "positive_months"];
-
 export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds, onlyPlayer);
   if (!data) return <TabStatus loading={isLoading} title="o Geral" error={error} onRetry={() => void refetch()} />;
 
   const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
+
+  // Partida em equipes: o ranking, a nota e os membros são da equipe, com os jogadores abaixo
+  if (data.teams.length > 0) {
+    return (
+      <div className="grid gap-5">
+        <TeamHeadline report={data} currentPlayerName={currentPlayerName} />
+        <TeamRanking
+          report={data}
+          currentPlayerName={currentPlayerName}
+          playerRanking={(viewToggle) => (
+            <Ranking
+              report={data}
+              currentPlayerName={currentPlayerName}
+              simulationIds={simulationIds}
+              title="Ranking por jogador"
+              description={`Ordenado pelo critério da partida: ${VICTORY_CRITERIA[data.criterion].label}`}
+              action={viewToggle}
+            />
+          )}
+        />
+        <TeamScore report={data} currentPlayerName={currentPlayerName} />
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-5">
@@ -225,10 +249,17 @@ function Ranking({
   report,
   currentPlayerName,
   simulationIds,
+  title,
+  description,
+  action,
 }: {
   report: OverviewReport;
   currentPlayerName: string;
   simulationIds: number[];
+  /** Título, descrição e ação próprios, quando o ranking é uma das visões de outro cartão */
+  title?: string;
+  description?: string;
+  action?: React.ReactNode;
 }) {
   const [sortBy, setSortBy] = useState<RankingSort>("SCORE");
   const topScore = Math.max(...report.players.map((p) => Number(p.score?.total ?? 0)), 1);
@@ -247,12 +278,14 @@ function Ranking({
   return (
     <Card className="overflow-hidden">
       <CardHeader>
-        <CardTitle>{comparing ? `Ranking das ${simulationIds.length} partidas` : "Ranking"}</CardTitle>
+        <CardTitle>{title ?? (comparing ? `Ranking das ${simulationIds.length} partidas` : "Ranking")}</CardTitle>
         <CardDescription>
-          {comparing
-            ? "A Nota compara partidas de períodos diferentes de forma justa; o retorno depende de quanto o mercado andou em cada período. Sem nota (menos de 63 pregões) fica no fim."
-            : `Ordenado pelo critério da partida: ${VICTORY_CRITERIA[report.criterion].label}`}
+          {description ??
+            (comparing
+              ? "A Nota compara partidas de períodos diferentes de forma justa; o retorno depende de quanto o mercado andou em cada período. Sem nota (menos de 63 pregões) fica no fim."
+              : `Ordenado pelo critério da partida: ${VICTORY_CRITERIA[report.criterion].label}`)}
         </CardDescription>
+        {action && <CardAction>{action}</CardAction>}
         {comparing && (
           <CardAction>
             <ToggleGroup
@@ -309,7 +342,13 @@ function Ranking({
                   </span>
                 </TableCell>
                 <TableCell>
-                  <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={isYou} />
+                  <PlayerCell
+                    player={p}
+                    label={label}
+                    simulationIds={simulationIds}
+                    isYou={isYou}
+                    teamNaming={report.team_naming}
+                  />
                 </TableCell>
                 {comparing ? (
                   <TableCell numeric>{displayMetric(SCORE, p.score?.total)}</TableCell>
@@ -362,14 +401,6 @@ function Ranking({
   );
 }
 
-/** Valor da métrica na nota; os meses entram como contagem ("7 de 12"), como a Rentabilidade mostra. */
-function displayScoreMetric(metric: ScoreMetric, value: string | null, months: number) {
-  if (value !== null && MONTH_COUNT_METRICS.includes(metric) && months > 0) {
-    return `${Math.round(Number(value) * months)} de ${months}`;
-  }
-  return displayMetric(SCORE_METRICS[metric], value);
-}
-
 /** A nota em 4 eixos, cada um numa régua de 0 a 200 com a marca do 100 e a do líder. */
 function ScoreAxes({
   report,
@@ -390,7 +421,6 @@ function ScoreAxes({
   );
   const player =
     scored.find((p) => playerLabel(p, simulationIds, currentPlayerName) === selected) ?? scored[0];
-  const leader = report.players[0]?.score ? report.players[0] : undefined;
 
   if (!player?.score) {
     return (
@@ -406,107 +436,11 @@ function ScoreAxes({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          {player.player_nickname === currentPlayerName ? "Sua nota" : `Nota de ${player.player_nickname}`}:{" "}
-          {displayNumber(player.score.total, 0)} pontos
-        </CardTitle>
-        <CardDescription>
-          Soma de quatro eixos; cada eixo é a média dos pontos das suas métricas. ~100 por eixo é um bom desempenho.
-        </CardDescription>
-        <CardAction>
-          <PlayerToggle labels={labels} current={selected} onSelect={setSelected} colorOf={colorOf} />
-        </CardAction>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {player.score.axes.map((axis) => {
-            const points = Number(axis.points ?? 0);
-            const leaderPoints = leader?.score?.axes.find((a) => a.axis === axis.axis)?.points;
-            const belowLeader = leaderPoints !== null && leaderPoints !== undefined && points < Number(leaderPoints);
-            return (
-              <div key={axis.axis} className="grid content-start gap-3 rounded-[10px] border border-border p-4">
-                <div className="grid gap-0.5">
-                  <span className="flex items-baseline justify-between">
-                    <span className="font-semibold">{SCORE_AXES[axis.axis].label}</span>
-                    <span className="font-mono text-xl font-semibold">{displayNumber(points, 0)}</span>
-                  </span>
-                  <span className="text-xs text-muted-foreground">{SCORE_AXES[axis.axis].description}</span>
-                </div>
-                <div className="grid gap-1">
-                  <div className="relative h-2 rounded-full bg-muted">
-                    <span
-                      className={cn("absolute inset-y-0 left-0 rounded-full", belowLeader ? "bg-chart-3" : "bg-primary")}
-                      style={{ width: `${Math.min(points / AXIS_SCALE, 1) * 100}%` }}
-                    />
-                    <span
-                      className="absolute -top-1 h-4 w-px bg-faint-foreground"
-                      style={{ left: "50%" }}
-                      title="100 = bom"
-                    />
-                    {leaderPoints !== null && leaderPoints !== undefined && (
-                      <span
-                        className="absolute -top-1 h-4 w-0.5 bg-foreground"
-                        style={{ left: `${Math.min(Number(leaderPoints) / AXIS_SCALE, 1) * 100}%` }}
-                        title={`Líder: ${displayNumber(leaderPoints, 0)}`}
-                      />
-                    )}
-                  </div>
-                  <span className="font-mono text-[11px] text-faint-foreground">0 · 100 = bom · {AXIS_SCALE}</span>
-                </div>
-                {/* Métrica, valor e pontos: tabela compacta dentro do cartão do eixo */}
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="text-[11px] text-faint-foreground">
-                      <th scope="col" className="pb-1 text-left font-medium">
-                        Métrica
-                      </th>
-                      <th scope="col" className="pb-1 text-right font-medium">
-                        Valor
-                      </th>
-                      <th scope="col" className="pb-1 pl-2 text-right font-medium">
-                        Pts
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {axis.metrics.map((m) => (
-                      <tr key={m.metric} className="border-t border-muted">
-                        <td className="py-1.5 pr-2 text-muted-foreground">{SCORE_METRICS[m.metric].label}</td>
-                        <td className="py-1.5 text-right font-mono whitespace-nowrap">
-                          {displayScoreMetric(m.metric, m.value, player.months)}
-                        </td>
-                        <td className="py-1.5 pl-2 text-right font-mono text-muted-foreground">
-                          {m.points === null ? "—" : displayNumber(m.points, 0)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Legenda com as amostras das marcas */}
-        <ul className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
-          {leader && (
-            <li className="flex items-center gap-1.5">
-              <span className="h-3.5 w-0.5 bg-foreground" aria-hidden="true" />
-              líder ({leader.player_nickname})
-            </li>
-          )}
-          <li className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-sm bg-chart-3" aria-hidden="true" />
-            abaixo do líder nesse eixo
-          </li>
-          <li className="flex items-center gap-1.5">
-            <span className="h-2 w-5 rounded-full bg-primary" aria-hidden="true" />
-            igual ou acima
-          </li>
-        </ul>
-      </CardContent>
-    </Card>
+    <PlayerScoreCard
+      report={report}
+      player={player}
+      currentPlayerName={currentPlayerName}
+      action={<PlayerToggle labels={labels} current={selected} onSelect={setSelected} colorOf={colorOf} />}
+    />
   );
 }

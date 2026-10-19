@@ -4,6 +4,7 @@ import {
   LabelList,
   ReferenceArea,
   ResponsiveContainer,
+  ReferenceLine,
   Scatter,
   ScatterChart,
   Tooltip,
@@ -13,7 +14,8 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { displayList, displayNumber, displayPercent } from "@/shared/lib/utils/display";
-import type { RiskReport } from "@/types";
+import { teamColor, teamName, teamShortName } from "@/shared/lib/teams";
+import type { RiskReport, TeamNaming } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { playerLabel, youLabel, labelColors } from "../../lib/player-label";
 import {
@@ -31,6 +33,7 @@ import { PlayerLineChart, type LineSeries } from "./player-line-chart";
 import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
 
 type Player = RiskReport["players"][number];
+type TeamRisk = RiskReport["teams"][number];
 type View = "DRAWDOWN" | "VOLATILITY";
 
 // A dispersão precisa de alguns pregões para a oscilação existir
@@ -66,6 +69,8 @@ export function RiskTab({ simulationIds, currentPlayerName, onlyPlayer }: Report
     <div className="grid gap-5">
       <RiskReturn
         players={data.players}
+        teams={data.teams}
+        naming={data.team_naming}
         cdiReturn={cdiReturn}
         currentPlayerName={currentPlayerName}
         simulationIds={simulationIds}
@@ -95,18 +100,23 @@ export function RiskTab({ simulationIds, currentPlayerName, onlyPlayer }: Report
       </ChartCard>
 
       <MetricsTable
-        title="Risco por jogador"
-        description="Verde = melhor da sala em cada métrica. Com menos de ~63 pregões, leia com cautela."
+        title={data.teams.length > 0 ? "Risco por equipe" : "Risco por jogador"}
+        description={
+          data.teams.length > 0
+            ? "A linha da equipe é a média simples dos membros em cada métrica. Verde = melhor jogador da sala."
+            : "Verde = melhor da sala em cada métrica. Com menos de ~63 pregões, leia com cautela."
+        }
+        groups={data.teams.length > 0 ? { naming: data.team_naming, teams: data.teams } : undefined}
         rows={data.players}
         simulationIds={simulationIds}
         currentPlayerName={currentPlayerName}
         columns={[
-          { metric: MAX_DRAWDOWN, value: (r) => r.max_drawdown, best: "min" },
-          { metric: ANNUAL_VOLATILITY, value: (r) => r.annual_volatility, best: "min" },
-          { metric: SHARPE_RATIO, value: (r) => r.sharpe_ratio, best: "max" },
-          { metric: SORTINO_RATIO, value: (r) => r.sortino_ratio, best: "max" },
-          { metric: TIME_UNDERWATER, value: (r) => r.time_underwater, best: "min" },
-          { metric: WORST_MONTH, value: (r) => r.worst_month, best: "max" },
+          { metric: MAX_DRAWDOWN, value: (r) => r.max_drawdown, teamValue: (t) => t.max_drawdown, best: "min" },
+          { metric: ANNUAL_VOLATILITY, value: (r) => r.annual_volatility, teamValue: (t) => t.annual_volatility, best: "min" },
+          { metric: SHARPE_RATIO, value: (r) => r.sharpe_ratio, teamValue: (t) => t.sharpe_ratio, best: "max" },
+          { metric: SORTINO_RATIO, value: (r) => r.sortino_ratio, teamValue: (t) => t.sortino_ratio, best: "max" },
+          { metric: TIME_UNDERWATER, value: (r) => r.time_underwater, teamValue: (t) => (t.time_underwater === null ? null : Math.round(Number(t.time_underwater))), best: "min" },
+          { metric: WORST_MONTH, value: (r) => r.worst_month, teamValue: (t) => t.worst_month, best: "max" },
           { metric: SAMPLE_DAYS, value: (r) => r.days },
         ]}
       />
@@ -125,12 +135,17 @@ function sharpeVerdict(sharpe: number) {
 /** Um ponto por jogador: quanto oscilou × quanto rendeu, com o CDI como referência sem oscilar. */
 function RiskReturn({
   players,
+  teams,
+  naming,
   cdiReturn,
   currentPlayerName,
   simulationIds,
   colorOf,
 }: {
   players: Player[];
+  /** Partida em equipes: um losango por equipe, na média dos membros */
+  teams: TeamRisk[];
+  naming: TeamNaming;
   cdiReturn: string | null;
   currentPlayerName?: string;
   simulationIds: number[];
@@ -159,8 +174,18 @@ function RiskReturn({
     colorKey: p.keys[0],
   }));
   const cdi = cdiReturn !== null ? Number(cdiReturn) : null;
-  const maxX = Math.max(...points.map((p) => p.x), 0.01) * 1.15;
-  const ys = [...points.map((p) => p.y), cdi ?? 0];
+  // Losango da equipe: volatilidade média × retorno médio; o tracejado liga cada membro a ele
+  const teamPoints = teams
+    .filter((t) => t.annual_volatility !== null && t.annual_return !== null)
+    .map((t) => ({
+      team: t.team,
+      x: Number(t.annual_volatility),
+      y: Number(t.annual_return),
+      sharpe: t.sharpe_ratio,
+      label: teamShortName(t.team, naming),
+    }));
+  const maxX = Math.max(...points.map((p) => p.x), ...teamPoints.map((t) => t.x), 0.01) * 1.15;
+  const ys = [...points.map((p) => p.y), ...teamPoints.map((t) => t.y), cdi ?? 0];
   const minY = Math.min(...ys, 0) * 1.15;
   const maxY = Math.max(...ys, 0.01) * 1.15;
   const medianX = points.length ? [...points].sort((a, b) => a.x - b.x)[Math.floor(points.length / 2)].x : maxX / 2;
@@ -173,13 +198,16 @@ function RiskReturn({
       : undefined;
   const belowCdi = cdi !== null ? measured.filter((p) => Number(p.annual_return) < cdi) : [];
   const you = measured.find((p) => p.player_nickname === currentPlayerName);
+  const bestTeam = teamPoints.filter((t) => t.sharpe !== null).sort((a, b) => Number(b.sharpe) - Number(a.sharpe))[0];
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Risco × retorno</CardTitle>
         <CardDescription>
-          Um ponto por jogador no período inteiro. Quanto mais pra cima e pra esquerda, melhor.
+          {teams.length > 0
+            ? "Um ponto por jogador, na cor dele; um losango por equipe, na cor da equipe. Quanto mais pra cima e pra esquerda, melhor."
+            : "Um ponto por jogador no período inteiro. Quanto mais pra cima e pra esquerda, melhor."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -249,6 +277,24 @@ function RiskReturn({
                     contentStyle={{ borderRadius: 10, borderColor: "var(--border)", fontSize: 12 }}
                     formatter={(v, name) => [displayPercent(Number(v)), name]}
                   />
+                  {measured
+                    .filter((p) => p.team !== null)
+                    .map((p) => {
+                      const target = teamPoints.find((t) => t.team === p.team);
+                      return target ? (
+                        <ReferenceLine
+                          key={`${p.player_nickname}-link`}
+                          segment={[
+                            { x: Number(p.annual_volatility), y: Number(p.annual_return) },
+                            { x: target.x, y: target.y },
+                          ]}
+                          stroke={teamColor(target.team)}
+                          strokeDasharray="4 3"
+                          strokeOpacity={0.6}
+                          ifOverflow="hidden"
+                        />
+                      ) : null;
+                    })}
                   <Scatter
                     data={points}
                     isAnimationActive={false}
@@ -286,6 +332,26 @@ function RiskReturn({
                       }}
                     />
                   </Scatter>
+                  {teamPoints.length > 0 && (
+                    <Scatter
+                      data={teamPoints}
+                      isAnimationActive={false}
+                      shape={(props: { cx?: number; cy?: number; payload?: (typeof teamPoints)[number] }) => (
+                        <rect
+                          x={(props.cx ?? 0) - 7}
+                          y={(props.cy ?? 0) - 7}
+                          width={14}
+                          height={14}
+                          transform={`rotate(45 ${props.cx ?? 0} ${props.cy ?? 0})`}
+                          fill={teamColor(props.payload?.team ?? 1)}
+                          stroke="var(--card)"
+                          strokeWidth={2}
+                        />
+                      )}
+                    >
+                      <LabelList dataKey="label" position="top" fontSize={11} fontWeight={700} fill="var(--foreground)" />
+                    </Scatter>
+                  )}
                   {cdi !== null && (
                     <Scatter
                       data={[{ x: 0, y: cdi, label: `CDI · ${displayPercent(cdi)} sem oscilar` }]}
@@ -301,6 +367,14 @@ function RiskReturn({
             <div className="grid content-start gap-3">
               <div className="grid gap-1 rounded-[10px] bg-subtle p-3.5 text-[13px]">
                 <span className="font-semibold">Leitura rápida</span>
+                {bestTeam && teamPoints.length > 1 && (
+                  <span className="text-muted-foreground">
+                    A <b className="text-foreground">{teamName(bestTeam.team, naming)}</b> rendeu mais por unidade de
+                    oscilação: Sharpe médio{" "}
+                    <b className="font-mono text-foreground">{displayNumber(bestTeam.sharpe ?? 0)}</b>, o melhor entre as
+                    equipes.
+                  </span>
+                )}
                 {bestSharpe && (
                   <span className="text-muted-foreground">
                     <b className="text-foreground">{bestSharpe.player_nickname}</b> rendeu mais por unidade de
@@ -318,6 +392,15 @@ function RiskReturn({
                   </span>
                 )}
               </div>
+              {teamPoints.length > 0 && (
+                <div className="grid gap-1 rounded-[10px] bg-subtle p-3.5 text-[13px]">
+                  <span className="font-semibold">Losango e tracejado</span>
+                  <span className="text-muted-foreground">
+                    O losango é a média da equipe (volatilidade média × retorno médio). O tracejado liga cada membro à
+                    média da equipe dele.
+                  </span>
+                </div>
+              )}
               {you && (
                 <div className="grid gap-1 rounded-[10px] bg-warning-soft/60 p-3.5 text-[13px]">
                   <span className="font-semibold">Você</span>

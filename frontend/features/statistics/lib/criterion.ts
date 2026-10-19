@@ -31,3 +31,21 @@ export function displayCriterionValue(criterion: VictoryCriterion, value: string
       return `Sharpe ${missing ? "—" : displayNumber(value, 2)}`;
   }
 }
+
+/** Quanto o jogador passa (+) ou fica abaixo (−) da média da equipe, na unidade do critério. */
+export function displayCriterionContribution(criterion: VictoryCriterion, value: string | null | undefined) {
+  if (value === null || value === undefined) return "—";
+  const amount = Number(value);
+  const sign = amount > 0 ? "+" : amount < 0 ? "−" : "";
+  const size = Math.abs(amount);
+  switch (criterion) {
+    case "SCORE":
+      return `${sign}${displayNumber(size, 0)}`;
+    case "RETURN":
+      return `${sign}${displayNumber(size * 100, 2)} p.p.`;
+    case "NETWORTH":
+      return `${sign}${displayMoney(size)}`;
+    case "SHARPE":
+      return `${sign}${displayNumber(size, 2)}`;
+  }
+}
