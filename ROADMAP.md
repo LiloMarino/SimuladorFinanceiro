@@ -75,11 +75,11 @@
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
-| [**F65**](#f65) | Rework dos loggings | — | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
+| [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (12 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (13 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -95,6 +95,7 @@
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | ✅ |
 | **D12** | Como numerar as versões | — | ✅ |
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
+| [**F65**](#f65) | Rework dos loggings | — | ✅ |
 
 </details>
 
@@ -120,8 +121,8 @@
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
-| [**F65**](#f65) | Rework dos loggings | — | 0 | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
+| [**F68**](#f68) | Dica de firewall no lobby | — | 0 | ⏳ |
 
 ---
 
@@ -238,7 +239,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/9 concluídas
+> **Progresso:** 1/10 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -249,8 +250,16 @@
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
-| [**F65**](#f65) | Rework dos loggings | — | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
+| [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F65**](#f65) | Rework dos loggings | — | ✅ |
+
+</details>
 
 ---
 
@@ -275,7 +284,7 @@
 | **F53** | Modo viver de renda | N23 | — | M13 | [F52](#f52) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F65** | Rework dos loggings | N26 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F65** | Rework dos loggings | N26 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
@@ -344,7 +353,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F61 — Host remove jogador da sala.** Serve N28. Hoje a vaga só abre quando o jogador sai por conta própria: com a sala cheia ou a partida salva recusada por causa de novatos (F58), o host tem de pedir pelo chat para alguém fechar a aba. O plano: um botão "Remover" no cartão de cada jogador do lobby, só para o host, que encerra a sessão do jogador pelo mesmo caminho do `player_logout`, com um aviso "o host te removeu da sala" na tela dele, e libera a cor e a vaga na hora. Fica em aberto se a remoção também vale para participante offline da partida em andamento; a leitura provável é que não, porque tirar a linha de `simulation_players` apaga o saldo e o histórico dele.
 
 <a id="f65"></a>
-**F65 — Rework dos loggings.** Serve N26. Reavalia **todos** os logs do app: o que vale registrar, em que nível, de que jeito, para onde vai (terminal ou arquivo, e em qual arquivo) e o que aparece fora do modo debug e dentro dele (F54). Não é só tirar ruído: é decidir, log a log, se ele compensa. **Ponto de partida medido:** o backend tem cerca de 94 chamadas de log (64 `info`, 18 `warning`, 9 `exception`, 2 `critical` e **1 `debug`**; nenhum `print`), concentradas em `import_data` (21), `simulation` (17), `main.py` (12), `tunnel` (11), `core` (11) e `realtime` (6); o front tem o `logger.ts` e 5 `console.*` diretos. O terminal de mil linhas por segundo **não vem dessas chamadas**, vem das bibliotecas: (1) com `echo_sql = false` e nível `INFO`, o SQLAlchemy imprime cada consulta no console e no `app.log` (5 consultas = 12 linhas), então o `echo_sql` do `config.toml` não muda nada; (2) o modo debug sobe o logger raiz para `DEBUG` e liga o DEBUG de tudo, e o `NOISY_LOGGERS` da F54 só ameniza, sem tirar o SQL; (3) o console recebe o mesmo fluxo do `app.log`. E o inverso também: como o app quase não tem `debug` próprio, o modo debug mostra o que as bibliotecas dizem e quase nada do que o app faz. **O plano:** (a) **inventário**: uma tabela com cada chamada (área, nível atual, mensagem, frequência: uma vez, por partida, por tick, por requisição, por evento), com as linhas por logger medidas numa partida inteira; (b) **critério por log**: quem lê e quando (quem roda o app no terminal, o host investigando, o dev em debug), se dá para agir sobre ele, quantas vezes sai e o que custa; cada log termina como "fica como está", "muda de nível", "muda de destino", "vira estatística do painel (F45)" ou "sai"; (c) **destinos**: o console fica só com o que quem roda o app precisa ver (ciclo de vida, avisos, erros), com formato mais curto, e nunca SQL nem DEBUG, nem no modo debug; avaliar se faltam arquivos além dos da F57 e do `slow.log` (candidatos: túnel e rede, login e entrada de jogadores, ordens) ou se algum deve se fundir; área nova continua sendo uma linha em `AREA_LOGGERS`; (d) **normal x debug**: definir o que aparece fora do debug (`INFO` enxuto) e o que só nele; **escrever os `debug` que faltam** onde ajudam a investigar (ordem recebida e casada, tick lento, import linha a linha), já que hoje há um; no debug, subir os loggers `backend.*` em vez do raiz, deixar as bibliotecas em `WARNING` com opt-in por área e tirar o `NOISY_LOGGERS`; (e) **SQL é coisa do debug**: o `[database] echo_sql` sai do `config.toml` (a chave antiga é ignorada) e o SQL passa a ser `DEBUG` do `sqlalchemy.engine`, escrito só no `database.log` e só com o debug ligado; (f) **como logar**: padrão de mensagem em português e consistente, `%s` em vez de f-string nos logs de alta frequência (a f-string monta o texto mesmo com o nível desligado), `logger.exception` só dentro de `except`, nome do logger = módulo, e no front um `logger.ts` só (os 5 `console.*` diretos passam por ele ou ganham justificativa); (g) **custo**: medir o motor com `DEBUG` ligado e, se pesar, trocar os handlers de arquivo por `QueueHandler` com `QueueListener`, que tira a escrita da thread do motor. **Aceite:** a tabela de decisões fica registrada (no card ou nos docs); uma partida inteira em modo normal imprime dezenas de linhas no console, não milhares, e o `app.log` não tem SQL; com `--debug`, o SQL e o DEBUG do app (ordens, ticks lentos, imports) vão só para os arquivos; uma seção "Logs" nos docs diz o que cada arquivo guarda, e `setup.md` e "Investigando lentidão" acompanham.
+**F65 — Rework dos loggings.** Serve N26. Terminal e arquivos de log viraram destinos separados: o terminal do host é a tela de status do servidor, e os arquivos guardam o histórico. **Terminal:** só o bloco de abertura (banco, interfaces de rede, URL local, pasta de configurações e logs, modo debug), o que explica uma espera ou muda o banco (extração do PostgreSQL, migração) e todo aviso e erro, em uma linha curta; o traceback fica no `error.log`. Uma mensagem vai ao terminal quando leva `extra=TERMINAL`; o nível `INFO` deixou de decidir isso. **Níveis:** o raiz fica em `INFO`; o modo debug sobe só o `backend.*` para `DEBUG`, nos arquivos, e o terminal nunca mostra `DEBUG`. As bibliotecas (`sqlalchemy`, `engineio`, `socketio`, `urllib3`, `asyncio`) ficam em `WARNING` (`LIBRARY_LEVELS`, no lugar do `NOISY_LOGGERS`). O `logging_level` e o `[database] echo_sql` saíram do `config.toml` (as chaves antigas são ignoradas). **SQL:** só com `[debug] sql = true` junto do debug, e só no `database.log` (nível `INFO` do `sqlalchemy.engine`: consulta e parâmetros, sem as linhas de resultado). **Dica de firewall:** saiu do terminal e do `config.toml` (`show_firewall_hint`) e virou uma seção da página de multiplayer. **Logs revistos:** por dia, por ordem e por conexão de WebSocket viraram `DEBUG` com `%s`; os de ciclo da partida e de jogadores ficam em `INFO` só nos arquivos; mensagens em português; duplicatas unidas; `main.py` loga como `backend.main`. **`DEBUG` novos:** ordem recebida, cancelamento recebido e ordem casada, dia simulado, leitura do CSV e download por ticker. No front, o único `console.error` fora do `logger.ts` passou a usá-lo. A tabela de decisões log a log, os arquivos e o custo medido estão em `docs/docs/desenvolvimento/logs.md`. **Custo:** em micro-benchmark da escrita, uma linha `DEBUG` do app custa cerca de 84 µs e uma de SQL cerca de 57 µs; não pesou o bastante para o `QueueHandler`.
 
 ---
 ## 2. Nice-to-have
@@ -354,6 +363,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F14** | Janela desktop nativa | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F68** | Dica de firewall no lobby | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -365,6 +375,9 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F67 — Abrir a pasta de configurações.** O executável guarda `config.toml`, `.env` e `logs` na pasta de dados do usuário (`%LOCALAPPDATA%\SimuladorFinanceiro` no Windows), que o Windows esconde. Em vez de mudar os arquivos de lugar, a tela de configurações ganha o botão "Abrir pasta de configurações", como o "abrir pasta de mods" de vários jogos. (1) **Rota** `POST /api/settings/open-folder` em `routes/settings.py`, protegida por `verify_host` e que só aceita requisição vinda do próprio computador (`request.client.host` em `127.0.0.1` ou `::1`): o servidor também atende a rede local, e um convidado não pode abrir janelas na máquina do host. (2) **Abertura** da pasta de `app_files_dir()` com `os.startfile` no Windows, `open` no macOS e `xdg-open` no Linux, por `subprocess` sem shell. (3) **Sem interface gráfica** (servidor dedicado, Linux sem `xdg-open`) ou pedido fora do computador do host: a rota responde 409 com o caminho, e o front o mostra num campo com botão "Copiar". O caminho aparece sempre ao lado do botão, então o jogador também o encontra sem abrir nada. (4) Um segundo botão, "Abrir pasta de logs", usa a mesma rota com `target=logs`. Um aviso junto aos botões diz que `db` e `postgres` são do banco e não devem ser editados. Teste: a rota recusa quem não é o host e quem vem de outro IP, e chama o abridor do sistema (substituído por um dublê) com a pasta certa. Não serve nenhuma necessidade listada: o ganho é achar o `config.toml` sem caçar uma pasta oculta.
 
 **Aceite:** no executável do Windows aberto por duplo clique, o botão abre o Explorer na pasta que contém o `config.toml`; um convidado da rede local que chama a rota recebe 403.
+
+<a id="f68"></a>
+**F68 — Dica de firewall no lobby.** Quando o link do lobby abre no computador do host mas não abre no dos amigos, o motivo costuma ser o firewall do Windows, e a orientação hoje só existe na página de multiplayer dos docs. Plano: no `frontend/features/lobby/components/lobby-header.tsx`, abaixo do link copiável, uma linha curta "Amigos não conseguem entrar?" que leva à seção "Amigos não conseguem entrar?" da página de multiplayer (o link do site de docs, em nova aba). Sem rota nova e sem estado: é texto estático com link. A tela do lobby é desenhada no canvas, então a linha entra primeiro lá (estado do lobby com a dica) e só depois no código.
 
 ---
 ## 3. Descartada
