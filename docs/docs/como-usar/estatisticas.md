@@ -34,6 +34,17 @@ A mesma tela abre depois, para qualquer partida salva, pelo botão **Ver resulta
 
 ---
 
+## Partida em equipes
+
+Quando a partida é **em equipes**, as telas agrupam os jogadores por equipe e mostram o valor da equipe como a **média simples dos membros** em cada métrica. Volume negociado, IR pago e número de negócios são a **soma**, porque são totais, não desempenho.
+
+- **Geral:** o ranking é por equipe, com os membros abaixo e a coluna "Distância do líder" dizendo quanto cada um puxa a média da equipe para cima ou para baixo (ex.: "+16 na média"). A nota da equipe aparece em quatro eixos, com a comparação de todas as equipes em cada eixo, e os membros eixo a eixo. "Jogadores" volta ao ranking individual.
+- **Rentabilidade:** o gráfico tem três visões. **Equipes** mostra uma linha por equipe, a média dos membros. **Jogadores** é o gráfico de sempre. **Dentro da equipe** mostra os membros e a média da equipe, com as outras equipes finas e apagadas. Nos meses acima do CDI, a equipe mostra a média arredondada e, entre parênteses, a exata.
+- **Risco, Composição e Operações:** os jogadores ficam agrupados por equipe. No risco × retorno, o losango é a média da equipe e o tracejado liga cada membro a ela.
+- **Fechamento:** o pódio é de equipes, e cada equipe ganha um cartão de **quem mais puxou** a média dela, com quanto cada membro puxou.
+
+---
+
 ## Geral
 
 - **Resumo da partida:** a sua posição, o seu retorno, a média da sala e o melhor e o pior retorno.

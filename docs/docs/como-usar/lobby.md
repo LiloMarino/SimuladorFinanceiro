@@ -166,6 +166,28 @@ O cálculo está detalhado em [Impacto de preço](/como-usar/investimentos/renda
 
 ---
 
+### Modo de jogo
+
+**O que é:**
+Como a sala compete. É uma regra da partida, e só o host muda, nas regras (**Editar regras › Modo de jogo**).
+
+**Opções:**
+
+* **Todos contra todos** (padrão): cada um por si, vence a melhor carteira.
+* **Em equipes:** cada um opera a própria carteira, mas o placar é da equipe e vence a equipe com a melhor média dos membros.
+
+Em equipes:
+
+* Cada jogador escolhe a equipe no próprio card, numa lista de 10 equipes, ao lado da cor. A equipe tem cor própria (escudo e faixa), e a cor do jogador continua sendo a dele.
+* Ao ligar o modo, todo mundo começa **sem equipe** e o botão **Iniciar** fica travado. O host tem **Distribuir quem falta**, que põe cada um sem equipe na equipe com menos gente.
+* A partida precisa de pelo menos duas equipes. Equipes desiguais valem, com um aviso: a equipe maior não ganha por somar mais, porque o que conta é a **média**.
+* O valor da equipe em cada critério de vitória é a média simples dos membros. Quem ainda não tem o valor no critério (ex.: a nota antes de 63 pregões) fica fora daquela média, e a equipe mostra "2 de 3". Se duas equipes empatam, vence a de maior patrimônio médio. Equipe de uma pessoa vale o valor dela.
+* **Nome das equipes** muda só o rótulo: pelo nome da cor (Índigo, Carmim, Floresta...) ou pelo número (Equipe 1, Equipe 2...).
+* Numa partida salva, quem já jogou não troca de equipe. Quem é novo, ou entra com a partida rodando, escolhe a equipe antes de entrar.
+* Voltar para **Todos contra todos** apaga as equipes: nada foi jogado ainda.
+
+---
+
 ### Critério de vitória
 
 **O que é:**
