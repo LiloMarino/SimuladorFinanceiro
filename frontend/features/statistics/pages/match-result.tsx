@@ -16,6 +16,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
 import { HighlightsRow, HighlightsSkeleton } from "../components/match-result/highlights-row";
 import { MatchHero, MatchHeroSkeleton } from "../components/match-result/match-hero";
+import { TeamPullers } from "../components/match-result/team-pullers";
 import { StatisticsReport } from "../components/statistics-report";
 import { useStatisticsReport } from "../hooks/queries/useStatisticsReport";
 
@@ -90,10 +91,13 @@ function MatchResult({ simulationId }: { simulationId: number }) {
             simulation={simulations?.find((s) => s.id === simulationId)}
             currentPlayerName={user?.nickname}
           />
+          {overview.teams.length > 0 && <TeamPullers report={overview} currentPlayerName={user?.nickname} />}
           <HighlightsRow
             simulationId={simulationId}
             currentPlayerName={user?.nickname}
             currentPlayerColor={overview.players.find((p) => p.player_nickname === user?.nickname)?.color}
+            teamOf={overview.teams.length > 0 ? (nickname) => overview.players.find((p) => p.player_nickname === nickname)?.team : undefined}
+            teamNaming={overview.team_naming}
           />
         </>
       ) : (

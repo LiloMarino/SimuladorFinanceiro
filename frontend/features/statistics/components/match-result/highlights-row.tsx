@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
+import { TeamBadge } from "@/shared/components/team-badge";
 import { Card } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { MetricHint } from "@/shared/components/metric-hint";
@@ -12,7 +13,7 @@ import {
   displayPercent,
   displaySignedPercent,
 } from "@/shared/lib/utils/display";
-import type { Highlights } from "@/types";
+import type { Highlights, TeamNaming } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { CUMULATIVE_RETURN, INCOME_TAX_PAID, MAX_DRAWDOWN } from "../../lib/metrics";
 
@@ -23,9 +24,11 @@ interface HighlightProps {
   tone?: "positive" | "negative";
   player: string | undefined;
   color: string | undefined;
+  /** Equipe de quem lidera, quando a partida é em equipes: o escudo vai ao lado do nome */
+  team?: { index: number | null | undefined; naming: TeamNaming };
 }
 
-function Highlight({ label, metric, value, tone, player, color }: HighlightProps) {
+function Highlight({ label, metric, value, tone, player, color, team }: HighlightProps) {
   return (
     <Card size="sm">
       <div className="grid gap-1.5 px-4">
@@ -47,6 +50,7 @@ function Highlight({ label, metric, value, tone, player, color }: HighlightProps
             <>
               <PlayerAvatar nickname={player} color={color} size="sm" />
               {player}
+              {team?.index ? <TeamBadge team={team.index} naming={team.naming} form="icon" size="sm" /> : null}
             </>
           ) : (
             <span className="text-muted-foreground">Ninguém nesta partida</span>
@@ -68,16 +72,26 @@ interface HighlightsRowProps {
   currentPlayerName?: string;
   /** Cor de quem está vendo, para o "seu melhor mês" */
   currentPlayerColor?: string;
+  /** Equipe de cada jogador (por apelido) e como as equipes se chamam; vazio fora do modo em equipes */
+  teamOf?: (nickname: string | undefined) => number | null | undefined;
+  teamNaming?: TeamNaming;
 }
 
 /** Quem foi melhor em quê na partida, e o seu melhor mês. */
-export function HighlightsRow({ simulationId, currentPlayerName, currentPlayerColor }: HighlightsRowProps) {
+export function HighlightsRow({
+  simulationId,
+  currentPlayerName,
+  currentPlayerColor,
+  teamOf,
+  teamNaming = "COLOR",
+}: HighlightsRowProps) {
   const { data } = useStatisticsReport("highlights", [simulationId]);
   if (!data) return <HighlightsSkeleton />;
 
   const item = (h: Highlights["biggest_return"]) => ({
     player: h?.player_nickname,
     color: h?.color,
+    team: teamOf ? { index: teamOf(h?.player_nickname), naming: teamNaming } : undefined,
   });
   const best = data.your_best_month;
 
@@ -113,6 +127,7 @@ export function HighlightsRow({ simulationId, currentPlayerName, currentPlayerCo
         tone={toneOf(best?.value)}
         player={best ? currentPlayerName : undefined}
         color={currentPlayerColor}
+        team={teamOf ? { index: teamOf(currentPlayerName), naming: teamNaming } : undefined}
       />
     </div>
   );

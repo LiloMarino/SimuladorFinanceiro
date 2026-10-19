@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
+import { teamName, teamShortName } from "@/shared/lib/teams";
 import {
   displayDate,
   displayMoney,
@@ -9,8 +10,9 @@ import {
 } from "@/shared/lib/utils/display";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { OverviewReport, SimulationListItem } from "@/types";
-import { displayCriterionGap } from "../../lib/criterion";
+import { displayCriterionGap, displayCriterionValue } from "../../lib/criterion";
 import { Podium } from "./podium";
+import { TeamPodium } from "./team-podium";
 
 type Player = OverviewReport["players"][number];
 
@@ -31,6 +33,94 @@ function headline(criterion: OverviewReport["criterion"], winner: Player) {
   }
 }
 
+/** A frase da equipe vencedora; empate na média vai para o patrimônio médio. */
+function teamHeadline(report: OverviewReport) {
+  const [first, second] = report.teams;
+  const name = teamName(first.team, report.team_naming);
+  const value = first.criterion_value;
+  if (value === null) return `${name} ficou em 1ª`;
+  if (second && second.criterion_value !== null && Number(second.criterion_value) === Number(value)) {
+    return `${name} venceu no desempate`;
+  }
+  switch (report.criterion) {
+    case "SCORE":
+      return `${name} venceu com ${displayNumber(value, 0)} pontos de média`;
+    case "RETURN":
+      return `${name} venceu com ${displaySignedPercent(value)} de retorno médio`;
+    case "NETWORTH":
+      return `${name} venceu com ${displayMoney(value)} de patrimônio médio`;
+    case "SHARPE":
+      return `${name} venceu com Sharpe médio ${displayNumber(value, 2)}`;
+  }
+}
+
+/** O que a frase do topo diz da sua equipe, do empate e de quem ficou fora da média. */
+function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; currentPlayerName?: string }) {
+  const { teams, criterion, team_naming: naming } = report;
+  const [first, second] = teams;
+  const you = report.players.find((p) => p.player_nickname === currentPlayerName);
+  const mine = teams.find((t) => t.team === you?.team);
+  const tie =
+    second && first.criterion_value !== null && second.criterion_value !== null &&
+    Number(first.criterion_value) === Number(second.criterion_value);
+  const partial = teams.find((t) => t.measured_members < t.members);
+
+  return (
+    <>
+      {tie && (
+        <>
+          {" "}
+          As duas fecharam com <b className="font-mono text-white">{displayCriterionValue(criterion, first.criterion_value)}</b>{" "}
+          de média. Desempata o patrimônio médio:{" "}
+          <b className="font-mono text-white">{displayMoney(first.total_networth)}</b> contra{" "}
+          <b className="font-mono text-white">{displayMoney(second.total_networth)}</b>.
+        </>
+      )}
+      {mine &&
+        !tie &&
+        (mine.position === 1 ? (
+          <>
+            {" "}
+            Sua equipe venceu
+            {second && second.leader_gap !== null && (
+              <>
+                ,{" "}
+                <b className="font-mono text-white">{displayCriterionGap(criterion, second.leader_gap)}</b> à frente da{" "}
+                {teamName(second.team, naming)}
+              </>
+            )}
+            .
+          </>
+        ) : (
+          <>
+            {" "}
+            Sua equipe ficou em <b className="text-white">{mine.position}º</b>
+            {mine.leader_gap !== null && (
+              <>
+                , a <b className="font-mono text-white">{displayCriterionGap(criterion, mine.leader_gap)}</b>
+              </>
+            )}
+            .
+            {mine.top_puller && mine.top_puller.player_nickname === currentPlayerName && (
+              <>
+                {" "}
+                Você foi quem mais puxou a {teamShortName(mine.team, naming)} para cima:{" "}
+                <b className="font-mono text-white">+{displayCriterionGap(criterion, mine.top_puller.contribution)}</b> na
+                média.
+              </>
+            )}
+          </>
+        ))}
+      {partial && (
+        <>
+          {" "}
+          Na {teamName(partial.team, naming)} a média usa quem tem valor ({partial.measured_members} de {partial.members}).
+        </>
+      )}
+    </>
+  );
+}
+
 interface MatchHeroProps {
   report: OverviewReport;
   simulation: SimulationListItem | undefined;
@@ -40,6 +130,7 @@ interface MatchHeroProps {
 /** Topo do fim de partida: quem venceu, por qual critério, onde você ficou e o pódio. */
 export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroProps) {
   const winner = report.players[0];
+  const inTeams = report.teams.length > 0;
   const you = report.players.find((p) => p.player_nickname === currentPlayerName);
   const criterion = VICTORY_CRITERIA[report.criterion];
   const tradingDays = Math.max(...report.players.map((p) => p.days));
@@ -50,11 +141,24 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
       <div className="grid max-w-[520px] gap-3.5">
         <span className="text-[11px] font-semibold tracking-[0.06em] text-sidebar-primary uppercase">
           Fim de partida · {winner.simulation_name}
+          {inTeams && " · em equipes"}
         </span>
-        <h1 className="text-[34px] leading-tight font-bold text-white">{headline(report.criterion, winner)}</h1>
+        <h1 className="text-[34px] leading-tight font-bold text-white">
+          {inTeams ? teamHeadline(report) : headline(report.criterion, winner)}
+        </h1>
         <p className="text-[15px]">
-          Vitória por <b className="text-white">{criterion.label}</b>: {criterion.description}
-          {you &&
+          {inTeams ? (
+            <>
+              Vitória por <b className="text-white">{criterion.label}</b>, em equipes: vale a média dos membros.
+              <TeamSummary report={report} currentPlayerName={currentPlayerName} />
+            </>
+          ) : (
+            <>
+              Vitória por <b className="text-white">{criterion.label}</b>: {criterion.description}
+            </>
+          )}
+          {!inTeams &&
+            you &&
             (you.position === 1 ? (
               <> Você venceu.</>
             ) : (
@@ -79,6 +183,7 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
           )}
           <span>
             {report.players.length} {report.players.length === 1 ? "jogador" : "jogadores"}
+            {inTeams && ` · ${report.teams.length} equipes`}
           </span>
           <span>{tradingDays} pregões</span>
         </div>
@@ -95,7 +200,7 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
           </Button>
         </div>
       </div>
-      <Podium report={report} currentPlayerName={currentPlayerName} />
+      {inTeams ? <TeamPodium report={report} /> : <Podium report={report} currentPlayerName={currentPlayerName} />}
     </section>
   );
 }

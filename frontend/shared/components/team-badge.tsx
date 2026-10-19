@@ -11,11 +11,13 @@ type TeamBadgeProps = {
   /** `short` mostra só a cor ("Índigo"); `full`, "Equipe Índigo"; `icon`, só o escudo */
   form?: "short" | "full" | "icon";
   size?: React.ComponentProps<typeof Badge>["size"];
+  /** Cor cheia com texto branco, para fundos escuros */
+  solid?: boolean;
   className?: string;
 };
 
 /** Selo da equipe: escudo na cor dela (a bolinha é do jogador). Sem equipe vira "Sem equipe". */
-export function TeamBadge({ team, naming, form = "short", size, className }: TeamBadgeProps) {
+export function TeamBadge({ team, naming, form = "short", size, solid, className }: TeamBadgeProps) {
   if (!team) {
     return (
       <Badge variant="secondary" size={size} className={className}>
@@ -27,7 +29,7 @@ export function TeamBadge({ team, naming, form = "short", size, className }: Tea
   const label = form === "full" ? teamName(team, naming) : teamShortName(team, naming);
   return (
     <Badge
-      variant="team"
+      variant={solid ? "team-solid" : "team"}
       size={size}
       className={className}
       style={{ "--team": teamColor(team) } as CSSProperties}
