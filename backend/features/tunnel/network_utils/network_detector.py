@@ -86,9 +86,9 @@ class NetworkDetector:
                         found.add(ip)
 
         except subprocess.TimeoutExpired:
-            logger.warning(f"Comando {' '.join(command)} expirou (timeout)")
+            logger.warning("Comando %s expirou (timeout)", " ".join(command))
         except OSError as e:
-            logger.debug(f"Erro ao executar {' '.join(command)}: {e}")
+            logger.debug("Erro ao executar %s: %s", " ".join(command), e)
 
         return found
 

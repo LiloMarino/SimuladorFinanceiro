@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 
 from backend.core.dto.order import OrderDTO
@@ -24,6 +25,8 @@ from backend.features.variable_income.entities.order import (
 from backend.features.variable_income.market_data import MarketData
 from backend.features.variable_income.market_liquidity import MarketLiquidity
 from backend.features.variable_income.order_book import OrderBook
+
+logger = logging.getLogger(__name__)
 
 
 class MatchingEngine:
@@ -169,6 +172,15 @@ class MatchingEngine:
         Se falhar, maker é removido do book e notificado com rejeição.
         """
         qty = min(taker.remaining, maker.remaining)
+        logger.debug(
+            "Ordem casada: %s %sx %s a R$ %s (taker %s, maker %s)",
+            taker.action.value,
+            qty,
+            taker.ticker,
+            price,
+            taker.id,
+            maker.id,
+        )
 
         self.broker.execute_trade(
             taker_order=taker,

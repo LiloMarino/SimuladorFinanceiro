@@ -30,18 +30,19 @@ def from_yfinance(
     ticker: str, start: str | None = None, end: str | None = None
 ) -> pd.DataFrame:
     if start:
-        logger.info(
-            f"Baixando dados do YFinance para {ticker} de {start} a {end or datetime.today().strftime('%Y-%m-%d')}"
+        end = end or datetime.today().strftime("%Y-%m-%d")
+        logger.debug(
+            "Baixando dados do YFinance para %s de %s a %s", ticker, start, end
         )
         df = yf.download(
             ticker,
             start=start,
-            end=end or datetime.today().strftime("%Y-%m-%d"),
+            end=end,
             auto_adjust=True,
             multi_level_index=False,
         )
     else:
-        logger.info(f"Baixando dados do YFinance para {ticker} (Periodo completo)")
+        logger.debug("Baixando dados do YFinance para %s (período completo)", ticker)
         df = yf.download(
             ticker,
             period="max",
@@ -55,8 +56,11 @@ def from_yfinance(
 
 
 def from_csv(file: UploadFile, fillzero: bool = True) -> pd.DataFrame:
-    logger.info(f"Lendo arquivo CSV '{file.filename}'...")
+    logger.debug("Lendo o arquivo CSV '%s'", file.filename)
     df = pd.read_csv(file.file)
+    logger.debug(
+        "CSV '%s': %s linhas, colunas %s", file.filename, len(df), list(df.columns)
+    )
 
     # Converte datas (formato dd.mm.yyyy → datetime)
     df["Data"] = pd.to_datetime(df["Data"], format="%d.%m.%Y", errors="coerce")
@@ -273,7 +277,7 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
 
     # 2. Lógica de sobrescrever
     if overwrite:
-        logger.info(f"Sobrescrevendo dados de '{ticker}'...")
+        logger.debug("Sobrescrevendo os dados de '%s'", ticker)
         repository.stock.delete_stock_price_history(stock.id)
 
     # 3. Inserção incremental
@@ -282,7 +286,7 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
         if last_date:
             df = pd.DataFrame(df[df.index > pd.Timestamp(last_date.price_date)])
             if df.empty:
-                logger.info(f"'{ticker}' já está atualizado.")
+                logger.debug("'%s' já está atualizado.", ticker)
                 return
 
     # 4. Inserir dados no banco
@@ -301,7 +305,7 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
     ]
 
     repository.stock.add_stock_price_history(registros)
-    logger.info(f"{len(registros)} registros inseridos para '{ticker}'.")
+    logger.info("%s registros inseridos para '%s'.", len(registros), ticker)
 
 
 # -------------------

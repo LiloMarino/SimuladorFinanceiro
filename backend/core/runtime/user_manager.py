@@ -75,13 +75,7 @@ class UserManager:
     # =========================
 
     @classmethod
-    def register(cls, client_id: UUID):
-        logger.info(f"User connected: {client_id}")
-
-    @classmethod
     def unregister(cls, client_id: UUID):
-        logger.info(f"User disconnected: {client_id}")
-
         with cls._lock:
             player = cls._active_players.pop(client_id, None)
             color = cls._colors.pop(player.id, None) if player else None
@@ -153,7 +147,7 @@ class UserManager:
         # Limpa cache lazy (força sessão a virar "guest")
         cls._client_user_cache.pop(client_id, None)
 
-        logger.info(f"User logged out: client_id={client_id}")
+        logger.info("Usuário saiu (logout): client_id=%s", client_id)
 
     @classmethod
     def is_pending_join(cls, user: UserDTO) -> bool:
@@ -559,7 +553,7 @@ class UserManager:
             PlayerPresenceEventDTO,
         )
 
-        logger.info(f"Player joined: {user.nickname}")
+        logger.info("Jogador entrou na partida: %s", user.nickname)
         notify(
             "player_join",
             PlayerPresenceEventDTO(
@@ -574,7 +568,7 @@ class UserManager:
             PlayerPresenceEventDTO,
         )
 
-        logger.info(f"Player exited: {user.nickname}")
+        logger.info("Jogador saiu da partida: %s", user.nickname)
         notify(
             "player_exit",
             PlayerPresenceEventDTO(nickname=user.nickname, color=color).to_json(),

@@ -253,7 +253,7 @@ class Broker:
             )
         )
 
-        logger.info(f"Executado BUY {size}x {ticker} @ R$ {price}")
+        logger.debug("Compra executada: %sx %s a R$ %s", size, ticker, price)
 
     def _execute_sell(self, order: Order, size: int, price: float):
         client_id = order.client_id
@@ -284,4 +284,4 @@ class Broker:
             )
         )
 
-        logger.info(f"Executado SELL {size}x {ticker} @ R$ {price}")
+        logger.debug("Venda executada: %sx %s a R$ %s", size, ticker, price)

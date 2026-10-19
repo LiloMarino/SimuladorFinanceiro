@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal
 from typing import Annotated
 
@@ -23,6 +24,8 @@ from backend.features.variable_income.entities.order import (
     OrderAction,
     OrderType,
 )
+
+logger = logging.getLogger(__name__)
 
 operation_router = APIRouter(prefix="/api", tags=["Operations"])
 
@@ -123,6 +126,14 @@ def submit_order(
             price=price,
         )
 
+    logger.debug(
+        "Ordem recebida: %s %s %sx %s (cliente %s)",
+        order_type_enum.value,
+        action_enum.value,
+        size,
+        asset,
+        client_id,
+    )
     simulation.create_order(order)
     return SubmitOrderResponse(order_id=order.id, status=order.status.name)
 
@@ -143,6 +154,7 @@ def cancel_order(
     Cancela uma ordem existente.
     """
     order_id = payload.order_id
+    logger.debug("Cancelamento recebido: ordem %s de %s", order_id, asset)
 
     canceled = simulation.cancel_order(order_id=order_id, client_id=client_id)
     if not canceled:

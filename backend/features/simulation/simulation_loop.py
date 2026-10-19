@@ -60,7 +60,7 @@ class SimulationLoopController:
             )
             self._state = SimulationState.RUNNING
             self._thread.start()
-            logger.info("Thread da simulação iniciada.")
+            logger.info("Simulação iniciada.")
 
     def pause(self):
         logger.info("Simulação pausada.")
@@ -80,7 +80,7 @@ class SimulationLoopController:
             self._pause_event.set()
 
         if self._thread and self._thread.is_alive():
-            logger.info("Aguardando thread da simulação encerrar...")
+            logger.debug("Aguardando a thread da simulação encerrar.")
             self._thread.join(timeout=5.0)
             if self._thread.is_alive():
                 logger.warning("Thread não encerrou no timeout.")
@@ -95,8 +95,6 @@ class SimulationLoopController:
         SimulationManager.clear_simulation()
 
     def _run(self):
-        logger.info("Loop da simulação iniciado.")
-
         try:
             simulation = SimulationManager.get_active_simulation()
         except NoActiveSimulationError:
@@ -134,8 +132,7 @@ class SimulationLoopController:
                 time.sleep(1 / speed)
 
         except Exception:
-            logger.critical("Erro fatal no loop da simulação")
-            logger.exception("Detalhes do erro:")
+            logger.critical("Erro fatal no loop da simulação", exc_info=True)
         finally:
             with self._lock:
                 self._state = SimulationState.STOPPED

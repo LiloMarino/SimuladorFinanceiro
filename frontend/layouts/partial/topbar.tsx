@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
+import { logger } from "@/shared/lib/logger";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { Button } from "@/shared/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
@@ -42,7 +43,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
       if (queryClient.isMutating({ mutationKey: queryKeys.simulationState() }) === 1) {
         queryClient.setQueryData(queryKeys.simulationState(), context?.previous);
       }
-      console.error("Erro ao alterar velocidade:", err);
+      logger.error("Erro ao alterar velocidade:", err);
     },
     onSettled: () => {
       if (queryClient.isMutating({ mutationKey: queryKeys.simulationState() }) === 1) {

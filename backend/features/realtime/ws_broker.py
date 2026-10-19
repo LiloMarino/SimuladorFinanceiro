@@ -1,6 +1,5 @@
 import asyncio
 import json
-import logging
 from collections import defaultdict
 from collections.abc import Iterable
 from threading import Lock
@@ -11,8 +10,6 @@ from backend.core.metrics import metrics
 from backend.types import SID, ClientID, Event, JSONValue
 
 from .realtime_broker import RealtimeBroker
-
-logger = logging.getLogger(__name__)
 
 
 class SocketBroker(RealtimeBroker):

@@ -56,7 +56,7 @@ def register_routes(app: FastAPI):
         """
         Exceções normais do python serão tratadas como Internal Server Error
         """
-        logger.exception(f"{e.__class__.__name__}: {e}")
+        logger.exception("%s: %s", e.__class__.__name__, e)
         return JSONResponse(
             status_code=500,
             content=ErrorResponse(message=UNEXPECTED_ERROR_MESSAGE).model_dump(),

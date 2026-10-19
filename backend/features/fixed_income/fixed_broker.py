@@ -149,8 +149,8 @@ class FixedBroker:
                 event_date=self._simulation_engine.current_date,
             )
         )
-        logger.info(
-            f"Investido {value:.2f} em {asset.name} ({asset.investment_type.value})"
+        logger.debug(
+            "Investido %.2f em %s (%s)", value, asset.name, asset.investment_type.value
         )
 
     def apply_daily_interest(self, current_date: date):
@@ -188,6 +188,6 @@ class FixedBroker:
                 event_date=current_date,
             )
         )
-        logger.info(
-            f"REDEEM de {redeem_value:.2f} em {position.asset.name} (vencimento)"
+        logger.debug(
+            "Resgate de %.2f em %s (vencimento)", redeem_value, position.asset.name
         )

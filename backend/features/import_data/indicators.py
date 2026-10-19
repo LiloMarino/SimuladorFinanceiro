@@ -73,7 +73,7 @@ def refresh_indicators(
     failed = []
     for s in series or INDICATOR_SOURCES:
         if not force and _attempted_recently(s, now):
-            logger.info(f"{s.value}: busca recente, nada a fazer.")
+            logger.debug("%s: busca recente, nada a fazer.", s.value)
             continue
         if not refresh_series(s, now):
             failed.append(s)
@@ -100,9 +100,11 @@ def refresh_series(series: IndicatorSeries, now: datetime) -> bool:
         if rows:
             repository.economic.save_history(series, rows)
         succeeded = True
-        logger.info(f"{series.value}: {len(rows)} valores desde {start:%d/%m/%Y}.")
+        logger.info(
+            "%s: %s valores desde %s.", series.value, len(rows), f"{start:%d/%m/%Y}"
+        )
     except Exception:
-        logger.exception(f"{series.value}: falha na busca; o banco fica como está.")
+        logger.exception("%s: falha na busca; o banco fica como está.", series.value)
 
     repository.economic.save_fetch_attempt(series, now, succeeded)
     return succeeded

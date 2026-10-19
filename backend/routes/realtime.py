@@ -1,12 +1,8 @@
-import logging
-
 from fastapi import APIRouter, HTTPException
 
 from backend.features.realtime.schemas import RealtimeEventCatalog
 
 realtime_router = APIRouter(prefix="/api", tags=["Realtime"])
-
-logger = logging.getLogger(__name__)
 
 
 @realtime_router.get(

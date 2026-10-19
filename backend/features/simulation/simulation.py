@@ -131,13 +131,9 @@ class Simulation:
         )
 
     def next_tick(self):
-        # Verifica se a simulação terminou
-        if self._current_date > self.settings.end_date:
-            logger.info("Fim da simulação")
-            raise StopIteration()
-
-        # Avança para o próximo dia útil
-        self._current_date = next_business_day(self._current_date)
+        # Avança para o próximo dia útil; passou do fim, a simulação terminou
+        if self._current_date <= self.settings.end_date:
+            self._current_date = next_business_day(self._current_date)
         if self._current_date > self.settings.end_date:
             logger.info("Fim da simulação")
             raise StopIteration()
@@ -168,7 +164,12 @@ class Simulation:
         self._create_daily_snapshots(users, month_changed)
 
         # Emite notificações
-        logger.info(f"Dia atual: {self.get_current_date_formatted()}")
+        logger.debug(
+            "Dia simulado: %s (%s ativos, %s jogadores)",
+            self.get_current_date_formatted(),
+            len(stocks),
+            len(users),
+        )
         for stock in stocks:
             ticker = stock.ticker
             notify(
@@ -196,7 +197,7 @@ class Simulation:
         return self._current_date.strftime("%d/%m/%Y")
 
     def set_speed(self, speed: int):
-        logger.info(f"Velocidade da simulação alterada para {speed}x")
+        logger.info("Velocidade da simulação alterada para %sx", speed)
         self._speed = speed
 
     def get_speed(self) -> int:

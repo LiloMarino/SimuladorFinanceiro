@@ -24,13 +24,12 @@ def register_ws_handlers(sio: AsyncServer):
         client_id = await _extract_client_id(environ)
         # Recusa conexão se não tiver client_id
         if not client_id:
-            logger.warning("WS connection rejected (no client_id)")
+            logger.warning("Conexão WS recusada: sem client_id")
             return False
 
         broker.register_client(client_id, sid)
-        UserManager.register(client_id)
 
-        logger.info(f"WS client connected: {client_id} (sid={sid})")
+        logger.debug("Cliente WS conectado: %s (sid=%s)", client_id, sid)
         return True
 
     @sio.event
@@ -42,7 +41,7 @@ def register_ws_handlers(sio: AsyncServer):
         if client_id:
             broker.remove_client(client_id, sid)
             UserManager.unregister(client_id)
-            logger.info(f"WS client disconnected: {client_id} (sid={sid})")
+            logger.debug("Cliente WS desconectado: %s (sid=%s)", client_id, sid)
 
     @sio.event
     @metrics.timed("socket", "subscribe")
@@ -57,4 +56,4 @@ def register_ws_handlers(sio: AsyncServer):
         broker.update_subscription(client_id, events)
 
         await sio.emit("subscribed", {"events": events}, to=sid)
-        logger.info(f"WS client subscribed: {client_id} -> {events}")
+        logger.debug("Cliente WS inscrito: %s -> %s", client_id, events)

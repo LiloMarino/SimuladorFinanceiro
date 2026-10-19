@@ -1,13 +1,10 @@
 import asyncio
-import logging
 from typing import ClassVar
 
 from backend import config
 from backend.core.dto.tunnel_status import TunnelStatusDTO
 from backend.features.tunnel.providers import AVAILABLE_PROVIDERS
 from backend.features.tunnel.tunnel_provider import TunnelProvider
-
-logger = logging.getLogger(__name__)
 
 
 class TunnelManager:
