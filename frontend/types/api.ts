@@ -50,7 +50,7 @@ export type ScoreAxis = Score["axes"][number]["axis"];
 export type ScoreMetric = Score["axes"][number]["metrics"][number]["metric"];
 export type PlayerRef = Pick<
   OverviewReport["players"][number],
-  "player_nickname" | "color" | "simulation_id" | "simulation_name"
+  "player_nickname" | "color" | "simulation_id" | "simulation_name" | "team"
 >;
 export type ReturnsReport = components["schemas"]["ReturnsReportDTO"];
 export type RiskReport = components["schemas"]["RiskReportDTO"];
@@ -92,3 +92,5 @@ export type SimulationInfo = components["schemas"]["SimulationStatusResponse"];
 export type SimulationListItem = components["schemas"]["SavedSimulationDTO"];
 export type PriceImpactPreview = components["schemas"]["PriceImpactPreviewDTO"];
 export type VictoryCriterion = components["schemas"]["VictoryCriterion"];
+export type PlayerGrouping = components["schemas"]["PlayerGrouping"];
+export type TeamNaming = components["schemas"]["TeamNaming"];

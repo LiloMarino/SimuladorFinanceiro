@@ -37,6 +37,7 @@ class StatisticsRepository:
                 Simulations.name,
                 Simulations.starting_cash,
                 SimulationPlayers.color,
+                SimulationPlayers.team,
             )
             .join(Users, Users.id == Snapshots.user_id)
             .join(Simulations, Simulations.id == Snapshots.simulation_id)
@@ -60,6 +61,7 @@ class StatisticsRepository:
             PlayerHistoryDTO(
                 player_nickname=group[0].nickname,
                 color=group[0].color,
+                team=group[0].team,
                 simulation_id=simulation_id,
                 simulation_name=group[0].name,
                 starting_cash=group[0].starting_cash,

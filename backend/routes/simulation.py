@@ -14,7 +14,7 @@ from backend.core.dto.simulation import (
     SimulationSettingsDTO,
     SimulationStatusResponse,
 )
-from backend.core.enum import VictoryCriterion
+from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.settings_manager import SettingsManager
@@ -43,6 +43,8 @@ class CreateSimulationRequest(BaseModel):
     price_impact_k: float = Field(ge=0)
     price_impact_decay_days: int = Field(ge=1)
     victory_criterion: VictoryCriterion = VictoryCriterion.SCORE
+    player_grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL
+    team_naming: TeamNaming = TeamNaming.COLOR
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -59,6 +61,10 @@ class PlayerColorRequest(BaseModel):
     color: str
 
 
+class PlayerTeamRequest(BaseModel):
+    team: int
+
+
 class UpdateSettingsRequest(BaseModel):
     name: str
     start_date: date
@@ -69,6 +75,8 @@ class UpdateSettingsRequest(BaseModel):
     price_impact_k: float = Field(ge=0)
     price_impact_decay_days: int = Field(ge=1)
     victory_criterion: VictoryCriterion = VictoryCriterion.SCORE
+    player_grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL
+    team_naming: TeamNaming = TeamNaming.COLOR
 
     @model_validator(mode="after")
     def validate_dates(self):
@@ -79,12 +87,16 @@ class UpdateSettingsRequest(BaseModel):
 
 class JoinMatchRequest(BaseModel):
     color: str
+    # Obrigatória quando a partida é em equipes
+    team: int | None = None
 
 
 class PlayerNickname(BaseModel):
     nickname: str
     # Chave da paleta (chart-1 a chart-10)
     color: str
+    # Índice da equipe (1 a 10); nulo fora do modo em equipes ou enquanto não escolheu
+    team: int | None = None
 
 
 class SimulationSettingsResponse(BaseModel):
@@ -158,7 +170,7 @@ def continue_simulation(_: HostVerified):
     "/selection",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Selecionar simulação salva",
-    description="Escolhe a simulação salva a continuar. As cores da sala passam a ser as guardadas nela. Apenas o host pode executar.",
+    description="Escolhe a simulação salva a continuar. As cores e as equipes da sala passam a ser as guardadas nela. Apenas o host pode executar.",
 )
 def select_simulation(payload: SelectSimulationRequest, _: HostVerified):
     """
@@ -169,7 +181,10 @@ def select_simulation(payload: SelectSimulationRequest, _: HostVerified):
     if repository.simulation.get_simulation(payload.id) is None:
         raise NotFoundError("Simulação não encontrada.")
 
-    UserManager.apply_saved_colors(repository.simulation_player.colors(payload.id))
+    UserManager.apply_saved_colors(
+        repository.simulation_player.colors(payload.id),
+        repository.simulation_player.teams(payload.id),
+    )
     SettingsManager.select_simulation(payload.id)
     notify(
         "simulation_selected",
@@ -273,8 +288,9 @@ def get_active_players():
     Lista todos os jogadores ativos na simulação.
     """
     colors = UserManager.room_colors()
+    teams = UserManager.room_teams()
     return [
-        PlayerNickname(nickname=p.nickname, color=colors[p.id])
+        PlayerNickname(nickname=p.nickname, color=colors[p.id], team=teams.get(p.id))
         for p in UserManager.list_active_players()
         if p.id in colors
     ]
@@ -293,6 +309,32 @@ def set_player_color(payload: PlayerColorRequest, client_id: ClientID):
     UserManager.set_color(client_id, payload.color)
 
 
+@simulation_router.put(
+    "/players/me/team",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Escolher a equipe do jogador",
+    description="Escolhe a equipe do jogador na sala, quando a partida é em equipes. Equipe não tem dono nem limite de membros; quem já jogou a partida salva selecionada não troca.",
+)
+def set_player_team(payload: PlayerTeamRequest, client_id: ClientID):
+    """
+    Escolhe a equipe do jogador na sala.
+    """
+    UserManager.set_team(client_id, payload.team)
+
+
+@simulation_router.post(
+    "/teams/distribute",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Distribuir quem falta nas equipes",
+    description="Põe cada jogador sem equipe na equipe com menos gente. Apenas o host pode executar.",
+)
+def distribute_teams(_: HostVerified):
+    """
+    Distribui os jogadores sem equipe.
+    """
+    UserManager.distribute_teams()
+
+
 @simulation_router.get(
     "/match-players",
     response_model=list[PlayerNickname],
@@ -307,8 +349,9 @@ def get_match_players():
         raise ConflictError("Não há partida em andamento.")
     simulation_id = SimulationManager.get_active_simulation_id()
     colors = repository.simulation_player.colors(simulation_id)
+    teams = repository.simulation_player.teams(simulation_id)
     return [
-        PlayerNickname(nickname=p.nickname, color=colors[p.id])
+        PlayerNickname(nickname=p.nickname, color=colors[p.id], team=teams.get(p.id))
         for p in repository.simulation_player.participants(simulation_id)
     ]
 
@@ -317,13 +360,13 @@ def get_match_players():
     "/join",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Entrar na partida em andamento",
-    description="Quem chegou depois do início escolhe uma cor livre e passa a jogar: recebe o depósito inicial no dia corrente e entra nas estatísticas e no ranking. Se a cor já tem dono, a resposta é 409.",
+    description="Quem chegou depois do início escolhe uma cor livre (e a equipe, em partida em equipes) e passa a jogar: recebe o depósito inicial no dia corrente e entra nas estatísticas e no ranking. Se a cor já tem dono, a resposta é 409.",
 )
 def join_match(payload: JoinMatchRequest, client_id: ClientID):
     """
     Entra na partida em andamento com a cor escolhida.
     """
-    UserManager.join_match(client_id, payload.color)
+    UserManager.join_match(client_id, payload.color, payload.team)
 
 
 @simulation_router.get(
@@ -346,8 +389,11 @@ def get_simulation_settings(client_id: ClientID):
     selected_players = []
     if selected_id is not None:
         colors = repository.simulation_player.colors(selected_id)
+        teams = repository.simulation_player.teams(selected_id)
         selected_players = [
-            PlayerNickname(nickname=p.nickname, color=colors[p.id])
+            PlayerNickname(
+                nickname=p.nickname, color=colors[p.id], team=teams.get(p.id)
+            )
             for p in repository.simulation_player.participants(selected_id)
         ]
     return SimulationSettingsResponse(
@@ -374,7 +420,10 @@ def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
         raise ConflictError(
             "As regras de uma partida salva não mudam. Remova a seleção para editar as de uma nova partida."
         )
+    regrouped = SettingsManager.get().player_grouping != payload.player_grouping
     settings = SettingsManager.update(SimulationSettingsDTO(**payload.model_dump()))
+    if regrouped:
+        UserManager.reset_teams()
 
     notify("simulation_settings_update", settings.to_json())
     return settings

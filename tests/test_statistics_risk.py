@@ -73,6 +73,7 @@ def test_api_reports_drawdown_from_peak_to_trough(monkeypatch: pytest.MonkeyPatc
     monkeypatch.setattr(
         repository.statistics, "get_players_history", lambda _ids: [player]
     )
+    monkeypatch.setattr(repository.simulation, "get_simulation", lambda _id: None)
 
     report = build_risk_report([1])
 

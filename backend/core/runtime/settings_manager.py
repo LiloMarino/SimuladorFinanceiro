@@ -5,7 +5,7 @@ from threading import Lock
 from backend import config
 from backend.core import repository
 from backend.core.dto.simulation import SimulationSettingsDTO
-from backend.core.enum import VictoryCriterion
+from backend.core.enum import PlayerGrouping, VictoryCriterion
 
 
 class SettingsManager:
@@ -57,6 +57,16 @@ class SettingsManager:
     def select_simulation(cls, simulation_id: int | None) -> None:
         with cls._lock:
             cls._selected_simulation_id = simulation_id
+
+    @classmethod
+    def effective_grouping(cls) -> PlayerGrouping:
+        """Como a sala joga: a partida salva selecionada manda; sem ela, as regras da nova."""
+        selected_id = cls.get_selected_simulation_id()
+        if selected_id is not None:
+            summary = repository.simulation.get_simulation(selected_id)
+            if summary is not None:
+                return summary.player_grouping
+        return cls.get().player_grouping
 
     @classmethod
     def clear(cls) -> None:

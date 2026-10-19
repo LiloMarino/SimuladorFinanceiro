@@ -5,7 +5,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { RoomPlayer } from "@/types";
 
-/** Jogadores conectados à sala com a cor de cada um, mantido vivo via player_join/player_exit/player_color. */
+/** Jogadores conectados à sala com a cor e a equipe de cada um, mantido vivo via player_join/player_exit/player_color/player_team. */
 export function useRoomPlayers() {
   const queryClient = useQueryClient();
 
@@ -34,6 +34,12 @@ export function useRoomPlayers() {
   });
 
   useRealtime("player_color", (player) => {
+    queryClient.setQueryData(queryKeys.simulationPlayers(), (prev: RoomPlayer[] | undefined) =>
+      prev?.map((p) => (p.nickname === player.nickname ? player : p)),
+    );
+  });
+
+  useRealtime("player_team", (player) => {
     queryClient.setQueryData(queryKeys.simulationPlayers(), (prev: RoomPlayer[] | undefined) =>
       prev?.map((p) => (p.nickname === player.nickname ? player : p)),
     );

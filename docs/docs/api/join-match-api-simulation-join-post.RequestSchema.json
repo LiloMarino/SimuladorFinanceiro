@@ -1,1 +1,1 @@
-{"title":"Body","body":{"content":{"application/json":{"schema":{"properties":{"color":{"type":"string","title":"Color"}},"type":"object","required":["color"],"title":"JoinMatchRequest"}}},"required":true}}
+{"title":"Body","body":{"content":{"application/json":{"schema":{"properties":{"color":{"type":"string","title":"Color"},"team":{"anyOf":[{"type":"integer"},{"type":"null"}],"title":"Team"}},"type":"object","required":["color"],"title":"JoinMatchRequest"}}},"required":true}}

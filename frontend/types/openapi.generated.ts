@@ -970,7 +970,7 @@ export interface paths {
         get?: never;
         /**
          * Selecionar simulação salva
-         * @description Escolhe a simulação salva a continuar. As cores da sala passam a ser as guardadas nela. Apenas o host pode executar.
+         * @description Escolhe a simulação salva a continuar. As cores e as equipes da sala passam a ser as guardadas nela. Apenas o host pode executar.
          */
         put: operations["select_simulation_api_simulation_selection_put"];
         post?: never;
@@ -1084,6 +1084,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/players/me/team": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Escolher a equipe do jogador
+         * @description Escolhe a equipe do jogador na sala, quando a partida é em equipes. Equipe não tem dono nem limite de membros; quem já jogou a partida salva selecionada não troca.
+         */
+        put: operations["set_player_team_api_simulation_players_me_team_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/teams/distribute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Distribuir quem falta nas equipes
+         * @description Põe cada jogador sem equipe na equipe com menos gente. Apenas o host pode executar.
+         */
+        post: operations["distribute_teams_api_simulation_teams_distribute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/match-players": {
         parameters: {
             query?: never;
@@ -1115,7 +1155,7 @@ export interface paths {
         put?: never;
         /**
          * Entrar na partida em andamento
-         * @description Quem chegou depois do início escolhe uma cor livre e passa a jogar: recebe o depósito inicial no dia corrente e entra nas estatísticas e no ranking. Se a cor já tem dono, a resposta é 409.
+         * @description Quem chegou depois do início escolhe uma cor livre (e a equipe, em partida em equipes) e passa a jogar: recebe o depósito inicial no dia corrente e entra nas estatísticas e no ranking. Se a cor já tem dono, a resposta é 409.
          */
         post: operations["join_match_api_simulation_join_post"];
         delete?: never;
@@ -1368,8 +1408,11 @@ export interface components {
         };
         /** CompositionReportDTO */
         CompositionReportDTO: {
+            team_naming: components["schemas"]["TeamNaming"];
             /** Players */
             players: components["schemas"]["PlayerCompositionDTO"][];
+            /** Teams */
+            teams: components["schemas"]["TeamCompositionDTO"][];
         };
         /** CorrelationAssetDTO */
         CorrelationAssetDTO: {
@@ -1464,6 +1507,10 @@ export interface components {
             price_impact_decay_days: number;
             /** @default SCORE */
             victory_criterion: components["schemas"]["VictoryCriterion"];
+            /** @default INDIVIDUAL */
+            player_grouping: components["schemas"]["PlayerGrouping"];
+            /** @default COLOR */
+            team_naming: components["schemas"]["TeamNaming"];
         };
         /** EconomicIndicatorsDTO */
         EconomicIndicatorsDTO: {
@@ -1657,6 +1704,8 @@ export interface components {
         JoinMatchRequest: {
             /** Color */
             color: string;
+            /** Team */
+            team?: number | null;
         };
         /** MarketQuoteDTO */
         MarketQuoteDTO: {
@@ -1757,8 +1806,11 @@ export interface components {
         };
         /** OperationsReportDTO */
         OperationsReportDTO: {
+            team_naming: components["schemas"]["TeamNaming"];
             /** Players */
             players: components["schemas"]["PlayerOperationsDTO"][];
+            /** Teams */
+            teams: components["schemas"]["TeamOperationsDTO"][];
         };
         /**
          * OrderAction
@@ -1892,8 +1944,11 @@ export interface components {
         };
         /** OverviewReportDTO */
         OverviewReportDTO: {
+            team_naming: components["schemas"]["TeamNaming"];
             /** Players */
             players: components["schemas"]["PlayerRankingDTO"][];
+            /** Teams */
+            teams: components["schemas"]["TeamRankingDTO"][];
             /** Average Return */
             average_return: string | null;
             /** Min Score Days */
@@ -1933,6 +1988,8 @@ export interface components {
             simulation_id: number;
             /** Simulation Name */
             simulation_name: string;
+            /** Team */
+            team: number | null;
             /** History */
             history: components["schemas"]["PatrimonialHistoryDTO"][];
             /** Sectors */
@@ -1942,6 +1999,12 @@ export interface components {
             /** Sector Profit */
             sector_profit: components["schemas"]["SectorProfitDTO"][];
         };
+        /**
+         * PlayerGrouping
+         * @description Como a sala compete: cada um por si ou em equipes.
+         * @enum {string}
+         */
+        PlayerGrouping: "INDIVIDUAL" | "TEAMS";
         /** PlayerHighlightDTO */
         PlayerHighlightDTO: {
             /** Player Nickname */
@@ -1957,6 +2020,8 @@ export interface components {
             nickname: string;
             /** Color */
             color: string;
+            /** Team */
+            team?: number | null;
         };
         /** PlayerNotificationSettings */
         PlayerNotificationSettings: {
@@ -1973,6 +2038,8 @@ export interface components {
             simulation_id: number;
             /** Simulation Name */
             simulation_name: string;
+            /** Team */
+            team: number | null;
             /** Buy Trades */
             buy_trades: number;
             /** Sell Trades */
@@ -1991,13 +2058,15 @@ export interface components {
         };
         /**
          * PlayerPresenceEventDTO
-         * @description Entrada, saída e troca de cor de um jogador: a cor é a chave da paleta.
+         * @description Entrada, saída e troca de cor ou equipe de um jogador: a cor é a chave da paleta.
          */
         PlayerPresenceEventDTO: {
             /** Nickname */
             nickname: string;
             /** Color */
             color: string;
+            /** Team */
+            team?: number | null;
         };
         /** PlayerRankingDTO */
         PlayerRankingDTO: {
@@ -2009,6 +2078,8 @@ export interface components {
             simulation_id: number;
             /** Simulation Name */
             simulation_name: string;
+            /** Team */
+            team: number | null;
             /** Position */
             position: number;
             /** Total Networth */
@@ -2029,6 +2100,8 @@ export interface components {
             /** Leader Gap */
             leader_gap: string | null;
             weakest_axis: components["schemas"]["ScoreAxis"] | null;
+            /** Team Contribution */
+            team_contribution: string | null;
         };
         /** PlayerReturnsDTO */
         PlayerReturnsDTO: {
@@ -2040,6 +2113,8 @@ export interface components {
             simulation_id: number;
             /** Simulation Name */
             simulation_name: string;
+            /** Team */
+            team: number | null;
             /** Networth */
             networth: components["schemas"]["SeriesPointDTO"][];
             /** Cumulative Return */
@@ -2067,6 +2142,8 @@ export interface components {
             simulation_id: number;
             /** Simulation Name */
             simulation_name: string;
+            /** Team */
+            team: number | null;
             /** Drawdown */
             drawdown: components["schemas"]["SeriesPointDTO"][];
             /** Rolling Volatility */
@@ -2087,6 +2164,11 @@ export interface components {
             annual_return: string | null;
             /** Days */
             days: number;
+        };
+        /** PlayerTeamRequest */
+        PlayerTeamRequest: {
+            /** Team */
+            team: number;
         };
         /** PortfolioCorrelationDTO */
         PortfolioCorrelationDTO: {
@@ -2263,6 +2345,7 @@ export interface components {
             player_join: components["schemas"]["PlayerPresenceEventDTO"];
             player_exit: components["schemas"]["PlayerPresenceEventDTO"];
             player_color: components["schemas"]["PlayerPresenceEventDTO"];
+            player_team: components["schemas"]["PlayerPresenceEventDTO"];
             simulation_selected: components["schemas"]["SimulationSelectedEventDTO"];
             simulation_settings_update: components["schemas"]["SimulationSettingsDTO"];
             stock_update: components["schemas"]["StockUpdateEventDTO"];
@@ -2273,15 +2356,21 @@ export interface components {
         };
         /** ReturnsReportDTO */
         ReturnsReportDTO: {
+            team_naming: components["schemas"]["TeamNaming"];
             /** Players */
             players: components["schemas"]["PlayerReturnsDTO"][];
+            /** Teams */
+            teams: components["schemas"]["TeamReturnsDTO"][];
             /** Benchmarks */
             benchmarks: components["schemas"]["BenchmarkDTO"][];
         };
         /** RiskReportDTO */
         RiskReportDTO: {
+            team_naming: components["schemas"]["TeamNaming"];
             /** Players */
             players: components["schemas"]["PlayerRiskDTO"][];
+            /** Teams */
+            teams: components["schemas"]["TeamRiskDTO"][];
             /** Rolling Window */
             rolling_window: number;
         };
@@ -2310,6 +2399,10 @@ export interface components {
             /** Price Impact Decay Days */
             price_impact_decay_days: number;
             victory_criterion: components["schemas"]["VictoryCriterion"];
+            /** @default INDIVIDUAL */
+            player_grouping: components["schemas"]["PlayerGrouping"];
+            /** @default COLOR */
+            team_naming: components["schemas"]["TeamNaming"];
             /** Id */
             id: number;
             /**
@@ -2499,6 +2592,10 @@ export interface components {
             /** Price Impact Decay Days */
             price_impact_decay_days: number;
             victory_criterion: components["schemas"]["VictoryCriterion"];
+            /** @default INDIVIDUAL */
+            player_grouping: components["schemas"]["PlayerGrouping"];
+            /** @default COLOR */
+            team_naming: components["schemas"]["TeamNaming"];
             /** Id */
             id: number;
         };
@@ -2542,6 +2639,10 @@ export interface components {
             /** Price Impact Decay Days */
             price_impact_decay_days: number;
             victory_criterion: components["schemas"]["VictoryCriterion"];
+            /** @default INDIVIDUAL */
+            player_grouping: components["schemas"]["PlayerGrouping"];
+            /** @default COLOR */
+            team_naming: components["schemas"]["TeamNaming"];
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
@@ -2721,6 +2822,154 @@ export interface components {
             /** Status */
             status: string;
         };
+        /**
+         * TeamCompositionDTO
+         * @description Como a equipe dividiu o dinheiro no último dia: média das frações dos membros.
+         */
+        TeamCompositionDTO: {
+            /** Team */
+            team: number;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Members */
+            members: number;
+            /** Cash Share */
+            cash_share: string | null;
+            /** Equity Share */
+            equity_share: string | null;
+            /** Fixed Share */
+            fixed_share: string | null;
+        };
+        /**
+         * TeamNaming
+         * @description Como a equipe é chamada: pelo nome da cor (Índigo) ou pelo número.
+         * @enum {string}
+         */
+        TeamNaming: "COLOR" | "NUMBER";
+        /**
+         * TeamOperationsDTO
+         * @description Operações da equipe: volume, IR e negócios são somas (totais, não desempenho).
+         */
+        TeamOperationsDTO: {
+            /** Team */
+            team: number;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Members */
+            members: number;
+            /** Buy Trades */
+            buy_trades: number;
+            /** Sell Trades */
+            sell_trades: number;
+            /** Traded Volume */
+            traded_volume: string;
+            /** Income Tax Paid */
+            income_tax_paid: string;
+            /** Turnover */
+            turnover: string | null;
+            /** Impact Cost */
+            impact_cost: string | null;
+            /** Monthly Volume */
+            monthly_volume: components["schemas"]["MonthlyVolumeDTO"][];
+        };
+        /**
+         * TeamPullerDTO
+         * @description Quem mais puxou a média da equipe para cima.
+         */
+        TeamPullerDTO: {
+            /** Player Nickname */
+            player_nickname: string;
+            /** Color */
+            color: string;
+            /** Contribution */
+            contribution: string;
+            axis: components["schemas"]["ScoreAxis"] | null;
+            /** Axis Gap */
+            axis_gap: string | null;
+        };
+        /**
+         * TeamRankingDTO
+         * @description Equipe no ranking: o valor dela em cada critério é a média dos membros.
+         */
+        TeamRankingDTO: {
+            /** Team */
+            team: number;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Position */
+            position: number;
+            /** Members */
+            members: number;
+            /** Measured Members */
+            measured_members: number;
+            /** Total Networth */
+            total_networth: string;
+            /** Return Value */
+            return_value: string;
+            /** Return Percent */
+            return_percent: string;
+            score: components["schemas"]["ScoreDTO"] | null;
+            /** Sharpe Ratio */
+            sharpe_ratio: string | null;
+            /** Criterion Value */
+            criterion_value: string | null;
+            /** Leader Gap */
+            leader_gap: string | null;
+            weakest_axis: components["schemas"]["ScoreAxis"] | null;
+            top_puller: components["schemas"]["TeamPullerDTO"] | null;
+        };
+        /**
+         * TeamReturnsDTO
+         * @description Curvas e contagens da equipe: a média dos membros em cada dia.
+         */
+        TeamReturnsDTO: {
+            /** Team */
+            team: number;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Members */
+            members: number;
+            /** Networth */
+            networth: components["schemas"]["SeriesPointDTO"][];
+            /** Cumulative Return */
+            cumulative_return: components["schemas"]["SeriesPointDTO"][];
+            /** Capital Provided */
+            capital_provided: string;
+            /** Annual Return */
+            annual_return: string | null;
+            /** Months Above Cdi */
+            months_above_cdi: string;
+            /** Positive Months */
+            positive_months: string;
+            /** Months */
+            months: number;
+        };
+        /**
+         * TeamRiskDTO
+         * @description Métricas de risco da equipe: média simples dos membros em cada uma.
+         */
+        TeamRiskDTO: {
+            /** Team */
+            team: number;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Members */
+            members: number;
+            /** Max Drawdown */
+            max_drawdown: string | null;
+            /** Annual Volatility */
+            annual_volatility: string | null;
+            /** Sharpe Ratio */
+            sharpe_ratio: string | null;
+            /** Sortino Ratio */
+            sortino_ratio: string | null;
+            /** Time Underwater */
+            time_underwater: string | null;
+            /** Worst Month */
+            worst_month: string | null;
+            /** Annual Return */
+            annual_return: string | null;
+        };
         /** TickerSuggestionDTO */
         TickerSuggestionDTO: {
             /** Ticker */
@@ -2803,6 +3052,10 @@ export interface components {
             price_impact_decay_days: number;
             /** @default SCORE */
             victory_criterion: components["schemas"]["VictoryCriterion"];
+            /** @default INDIVIDUAL */
+            player_grouping: components["schemas"]["PlayerGrouping"];
+            /** @default COLOR */
+            team_naming: components["schemas"]["TeamNaming"];
         };
         /** UserClaimRequest */
         UserClaimRequest: {
@@ -5132,6 +5385,82 @@ export interface operations {
                 "application/json": components["schemas"]["PlayerColorRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_player_team_api_simulation_players_me_team_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlayerTeamRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    distribute_teams_api_simulation_teams_distribute_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             204: {

@@ -3,6 +3,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DoorOpen, TriangleAlert } from "lucide-react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { PlayerColorGrid } from "@/shared/components/player-color-grid";
+import { TeamBadge } from "@/shared/components/team-badge";
+import { TeamGrid } from "@/shared/components/team-grid";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -69,6 +71,9 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
   const { data: online } = useRoomPlayers();
   const { mutate: join, isPending, error, reset } = useJoinMatch();
   const [choice, setChoice] = useState<string | null>(null);
+  // Em equipes a escolha é obrigatória e não tem padrão: quem entra decide em qual equipe joga
+  const inTeams = match.player_grouping === "TEAMS";
+  const [team, setTeam] = useState<number | null>(null);
 
   const isFree = (color: string | null): color is string => color !== null && !players.some((p) => p.color === color);
   const firstFree = PLAYER_COLORS.find((c) => isFree(c.key))?.key;
@@ -86,7 +91,7 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
             Entrar na partida
           </CardTitle>
           <CardDescription>
-            {match.name} já está em andamento. Escolha uma cor e comece a jogar com o saldo inicial de{" "}
+            {match.name} já está em andamento. Escolha uma cor{inTeams ? " e uma equipe" : ""} e comece a jogar com o saldo inicial de{" "}
             <span className="font-mono">{formatMoney(toCentsString(match.starting_cash))}</span>.
           </CardDescription>
         </CardHeader>
@@ -107,10 +112,11 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
                       className="flex items-center gap-2.5 rounded-[10px] border border-border p-2.5"
                     >
                       <PlayerAvatar nickname={player.nickname} color={player.color} />
-                      <div className="grid min-w-0">
+                      <div className="grid min-w-0 flex-1">
                         <span className="truncate text-sm font-semibold">{player.nickname}</span>
                         <Status status={isOnline ? "online" : "offline"}>{isOnline ? "Online" : "Offline"}</Status>
                       </div>
+                      {inTeams && <TeamBadge team={player.team} naming={match.team_naming} form="icon" />}
                     </div>
                   );
                 })}
@@ -133,16 +139,37 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
               />
             </div>
 
+            {/* Escolha da equipe */}
+            {inTeams && (
+              <div className="grid gap-2">
+                <span className="text-xs font-semibold text-muted-foreground">Sua equipe</span>
+                <TeamGrid
+                  players={players}
+                  naming={match.team_naming}
+                  selected={team}
+                  disabled={isPending}
+                  onSelect={(next) => {
+                    reset();
+                    setTeam(next);
+                  }}
+                />
+              </div>
+            )}
+
             {error && (
               <Alert variant="warning">
                 <TriangleAlert />
                 <AlertTitle>{error.message}</AlertTitle>
-                <AlertDescription>Escolha outra cor livre.</AlertDescription>
+                <AlertDescription>Escolha outra cor livre{inTeams ? " e confira a equipe" : ""}.</AlertDescription>
               </Alert>
             )}
 
             <div className="grid gap-2">
-              <Button size="lg" disabled={!selected || isPending} onClick={() => selected && join(selected)}>
+              <Button
+                size="lg"
+                disabled={!selected || isPending || (inTeams && team === null)}
+                onClick={() => selected && join({ color: selected, team: team ?? undefined })}
+              >
                 {isPending ? <Spinner /> : <DoorOpen />}
                 Entrar na partida
               </Button>

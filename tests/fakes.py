@@ -5,6 +5,8 @@ from collections import defaultdict
 from datetime import date
 from decimal import Decimal
 
+from backend.core.dto.simulation import SimulationSettingsDTO
+from backend.core.enum import PlayerGrouping, VictoryCriterion
 from backend.core.utils import is_business_day, next_business_day
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.entities.position import Position
@@ -30,6 +32,24 @@ def monthly_series(start: date, months: int, value: str) -> dict[date, Decimal]:
         values[date(year, month, 1)] = Decimal(value)
         year, month = (year + 1, 1) if month == 12 else (year, month + 1)
     return values
+
+
+def simulation_settings(
+    grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL,
+) -> SimulationSettingsDTO:
+    """Regras de uma partida de teste, individual ou em equipes."""
+    return SimulationSettingsDTO(
+        name="Partida",
+        start_date=date(2020, 1, 1),
+        end_date=date(2020, 12, 31),
+        starting_cash=Decimal(10000),
+        monthly_contribution=Decimal(0),
+        price_impact_enabled=False,
+        price_impact_k=0.02,
+        price_impact_decay_days=20,
+        victory_criterion=VictoryCriterion.SCORE,
+        player_grouping=grouping,
+    )
 
 
 def client(name: str) -> uuid.UUID:

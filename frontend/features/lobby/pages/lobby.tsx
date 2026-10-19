@@ -12,6 +12,7 @@ import { LoadingPage } from "@/pages/loading";
 import type { SimulationSettings } from "@/types";
 import { LobbyHeader } from "../components/lobby-header";
 import { LobbyMatch } from "../components/lobby-match";
+import { useLobbyRules } from "../hooks/useLobbyRules";
 import { LobbyPlayersList } from "../components/lobby-player-list";
 import { OfflineTools } from "../components/offline-tools";
 import { SavedSimulationsDialog } from "../components/saved-simulations-dialog";
@@ -28,9 +29,18 @@ export function LobbyPage() {
     }
   });
 
-  // A partida selecionada pelo host muda as cores da sala e quem está travado
+  // A partida selecionada pelo host muda as cores e as equipes da sala e quem está travado
   useRealtime("simulation_selected", () => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.simulationSettings() });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.simulationPlayers() });
+  });
+
+  // As regras mudam para todos na hora: o modo e o nome das equipes valem na lista de jogadores
+  useRealtime("simulation_settings_update", (simulation) => {
+    queryClient.setQueryData(
+      simulationSettingsOptions().queryKey,
+      (prev: SimulationSettings | undefined) => prev && { ...prev, simulation },
+    );
   });
 
   if (isLoading) {
@@ -63,6 +73,7 @@ export function LobbyPage() {
 
 function LobbyContent({ settings }: { settings: SimulationSettings }) {
   const [savedOpen, setSavedOpen] = useState(false);
+  const { grouping, naming } = useLobbyRules(settings);
 
   return (
     <div className="mx-auto flex max-w-280 flex-col gap-5 px-7 py-10">
@@ -73,6 +84,8 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
           hostNickname={settings.host_nickname}
           savedPlayers={settings.selected_players}
           selectedSimulationId={settings.selected_simulation_id}
+          grouping={grouping}
+          naming={naming}
         />
         <LobbyMatch
           simulationData={settings.simulation}

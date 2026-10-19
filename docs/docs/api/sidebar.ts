@@ -414,6 +414,18 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/set-player-team-api-simulation-players-me-team-put",
+          label: "Escolher a equipe do jogador",
+          className: "api-method put",
+        },
+        {
+          type: "doc",
+          id: "api/distribute-teams-api-simulation-teams-distribute-post",
+          label: "Distribuir quem falta nas equipes",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
           id: "api/get-match-players-api-simulation-match-players-get",
           label: "Listar jogadores da partida em andamento",
           className: "api-method get",

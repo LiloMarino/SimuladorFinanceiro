@@ -12,6 +12,7 @@ export function useMatchPlayers() {
   const refresh = () => void queryClient.invalidateQueries({ queryKey: queryKeys.matchPlayers() });
   useRealtime("player_join", refresh);
   useRealtime("player_color", refresh);
+  useRealtime("player_team", refresh);
 
   return useApiQuery({
     queryKey: queryKeys.matchPlayers(),

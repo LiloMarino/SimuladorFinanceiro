@@ -16,13 +16,16 @@ from backend import config
 from backend.core import repository
 from backend.core.decorators import transactional_method
 from backend.core.dto.events.base_event import BaseEventDTO
-from backend.core.enum import IndicatorSeries
+from backend.core.dto.user import UserDTO
+from backend.core.enum import IndicatorSeries, PlayerGrouping
 from backend.core.migration import drop_databases, ensure_database, migrate
 from backend.core.repository.economic import IndicatorHistory
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
+from backend.core.runtime.settings_manager import SettingsManager
+from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
-from tests.fakes import USER_ID
+from tests.fakes import USER_ID, client, simulation_settings
 
 
 class _SilentRealtimeBroker:
@@ -99,3 +102,37 @@ def database(pg_url: str, engine: Engine, monkeypatch: pytest.MonkeyPatch) -> En
     factory = sessionmaker(bind=engine, autocommit=False, autoflush=False)
     monkeypatch.setattr(transactional_method, "get_session_factory", lambda: factory)
     return engine
+
+
+type Join = Callable[[str], UserDTO]
+
+
+@pytest.fixture
+def team_room(monkeypatch: pytest.MonkeyPatch) -> Join:
+    """Sala vazia, em equipes e sem partida; `join("Ana")` conecta um jogador."""
+    monkeypatch.setattr(UserManager, "_active_players", {})
+    monkeypatch.setattr(UserManager, "_colors", {})
+    monkeypatch.setattr(UserManager, "_saved_colors", {})
+    monkeypatch.setattr(UserManager, "_teams", {})
+    monkeypatch.setattr(UserManager, "_saved_teams", {})
+    monkeypatch.setattr(SimulationManager, "_active_simulation", None)
+    monkeypatch.setattr(SimulationManager, "_simulation_id", None)
+    monkeypatch.setattr(
+        SettingsManager, "_settings", simulation_settings(PlayerGrouping.TEAMS)
+    )
+    monkeypatch.setattr(SettingsManager, "_selected_simulation_id", None)
+    monkeypatch.setattr(
+        RealtimeBrokerManager, "get_broker", lambda: _SilentRealtimeBroker()
+    )
+    users: dict[str, UserDTO] = {}
+
+    def _join(nickname: str) -> UserDTO:
+        user = users.setdefault(
+            nickname,
+            UserDTO(id=len(users) + 1, client_id=client(nickname), nickname=nickname),
+        )
+        UserManager._client_user_cache[user.client_id] = user
+        UserManager.player_auth(user.client_id)
+        return user
+
+    return _join

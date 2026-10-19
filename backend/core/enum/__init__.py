@@ -85,6 +85,20 @@ class VictoryCriterion(Enum):
     SHARPE = "SHARPE"
 
 
+class PlayerGrouping(Enum):
+    """Como a sala compete: cada um por si ou em equipes."""
+
+    INDIVIDUAL = "INDIVIDUAL"
+    TEAMS = "TEAMS"
+
+
+class TeamNaming(Enum):
+    """Como a equipe é chamada: pelo nome da cor (Índigo) ou pelo número."""
+
+    COLOR = "COLOR"
+    NUMBER = "NUMBER"
+
+
 class FixedIncomeEventType(Enum):
     BUY = "BUY"
     REDEEM = "REDEEM"

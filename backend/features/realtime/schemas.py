@@ -36,10 +36,12 @@ class SimulationTickUpdateEventDTO(BaseDTO):
 
 
 class PlayerPresenceEventDTO(BaseDTO):
-    """Entrada, saída e troca de cor de um jogador: a cor é a chave da paleta."""
+    """Entrada, saída e troca de cor ou equipe de um jogador: a cor é a chave da paleta."""
 
     nickname: str
     color: str
+    # Índice da equipe (1 a 10); nulo fora do modo em equipes ou enquanto não escolheu
+    team: int | None = None
 
 
 class SimulationSelectedEventDTO(BaseDTO):
@@ -126,6 +128,7 @@ class RealtimeEventCatalog(BaseDTO):
     player_join: PlayerPresenceEventDTO
     player_exit: PlayerPresenceEventDTO
     player_color: PlayerPresenceEventDTO
+    player_team: PlayerPresenceEventDTO
     simulation_selected: SimulationSelectedEventDTO
     simulation_settings_update: SimulationSettingsDTO
     stock_update: StockUpdateEventDTO

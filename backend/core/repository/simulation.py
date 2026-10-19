@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationSummaryDTO
-from backend.core.enum import VictoryCriterion
+from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.models.models import Simulations
 
@@ -31,6 +31,8 @@ class SimulationRepository:
             price_impact_k=settings.price_impact_k,
             price_impact_decay_days=settings.price_impact_decay_days,
             victory_criterion=settings.victory_criterion.value,
+            player_grouping=settings.player_grouping.value,
+            team_naming=settings.team_naming.value,
             created_at=now,
             last_simulated_at=now,
         )
@@ -123,6 +125,8 @@ class SimulationRepository:
             price_impact_k=simulation.price_impact_k,
             price_impact_decay_days=simulation.price_impact_decay_days,
             victory_criterion=VictoryCriterion(simulation.victory_criterion),
+            player_grouping=PlayerGrouping(simulation.player_grouping),
+            team_naming=TeamNaming(simulation.team_naming),
             created_at=simulation.created_at,
             last_simulated_at=simulation.last_simulated_at,
         )

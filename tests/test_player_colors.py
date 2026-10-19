@@ -14,13 +14,14 @@ from sqlalchemy import Engine, text
 from backend.core import repository
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import VictoryCriterion
+from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.core.player_colors import MAX_PLAYERS, PLAYER_COLORS
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
+from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from tests.conftest import _SilentRealtimeBroker
-from tests.fakes import client
+from tests.fakes import client, simulation_settings
 
 type Join = Callable[[str], UserDTO]
 
@@ -31,6 +32,10 @@ def join(monkeypatch: pytest.MonkeyPatch) -> Join:
     monkeypatch.setattr(UserManager, "_active_players", {})
     monkeypatch.setattr(UserManager, "_colors", {})
     monkeypatch.setattr(UserManager, "_saved_colors", {})
+    monkeypatch.setattr(UserManager, "_teams", {})
+    monkeypatch.setattr(UserManager, "_saved_teams", {})
+    monkeypatch.setattr(SettingsManager, "_settings", simulation_settings())
+    monkeypatch.setattr(SettingsManager, "_selected_simulation_id", None)
     monkeypatch.setattr(SimulationManager, "_active_simulation", None)
     monkeypatch.setattr(SimulationManager, "_simulation_id", None)
     monkeypatch.setattr(
@@ -305,6 +310,7 @@ class MatchStore:
     def __init__(self, participants: dict[int, tuple[str, str]]):
         # user_id -> (apelido, cor)
         self.participants = participants
+        self.saved_teams: dict[int, int] = {}
 
     def colors(self, _simulation_id: int) -> dict[int, str]:
         return {uid: color for uid, (_, color) in self.participants.items()}
@@ -315,29 +321,44 @@ class MatchStore:
             for uid, (nick, _) in self.participants.items()
         ]
 
-    def save(self, _simulation_id: int, colors: dict[int, str]) -> None:
+    def teams(self, _simulation_id: int) -> dict[int, int]:
+        return dict(self.saved_teams)
+
+    def save(
+        self,
+        _simulation_id: int,
+        colors: dict[int, str],
+        teams: dict[int, int] | None = None,
+    ) -> None:
         for uid, color in colors.items():
             self.participants[uid] = (f"U{uid}", color)
+        self.saved_teams.update(teams or {})
 
 
 class FakeRunningSimulation:
-    def __init__(self):
+    def __init__(self, grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL):
         self.added: list[UserDTO] = []
+        self.settings = simulation_settings(grouping)
 
     def add_player(self, user: UserDTO) -> None:
         self.added.append(user)
 
 
-type StartMatch = Callable[[dict[int, tuple[str, str]]], FakeRunningSimulation]
+type StartMatch = Callable[..., FakeRunningSimulation]
 
 
 @pytest.fixture
 def start_match(monkeypatch: pytest.MonkeyPatch, join: Join) -> StartMatch:
     """Partida em andamento com os participantes informados (`user_id -> (apelido, cor)`)."""
 
-    def _start(participants: dict[int, tuple[str, str]]) -> FakeRunningSimulation:
+    def _start(
+        participants: dict[int, tuple[str, str]],
+        grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL,
+        teams: dict[int, int] | None = None,
+    ) -> FakeRunningSimulation:
         store = MatchStore(dict(participants))
-        sim = FakeRunningSimulation()
+        store.saved_teams = dict(teams or {})
+        sim = FakeRunningSimulation(grouping)
         monkeypatch.setattr(SimulationManager, "_active_simulation", sim)
         monkeypatch.setattr(SimulationManager, "_simulation_id", 1)
         monkeypatch.setattr(repository.simulation_player, "colors", store.colors)
@@ -345,6 +366,7 @@ def start_match(monkeypatch: pytest.MonkeyPatch, join: Join) -> StartMatch:
             repository.simulation_player, "participants", store.participants_of
         )
         monkeypatch.setattr(repository.simulation_player, "save", store.save)
+        monkeypatch.setattr(repository.simulation_player, "teams", store.teams)
         return sim
 
     return _start
@@ -435,3 +457,83 @@ def test_player_who_left_and_returned_keeps_the_match_color(
     UserManager.player_auth(ana.client_id)
 
     assert color_of(ana) == PLAYER_COLORS[2]
+
+
+def test_join_match_in_teams_needs_a_valid_team(start_match: StartMatch):
+    start_match(
+        {1: ("Ana", PLAYER_COLORS[0])}, grouping=PlayerGrouping.TEAMS, teams={1: 1}
+    )
+    late = register("Duda", 4)
+    UserManager.player_auth(late.client_id)
+
+    refusal(
+        lambda: UserManager.join_match(late.client_id, PLAYER_COLORS[3]), status=422
+    )
+    refusal(
+        lambda: UserManager.join_match(late.client_id, PLAYER_COLORS[3], 11),
+        status=422,
+    )
+    assert late.id not in repository.simulation_player.colors(1)
+
+
+def test_join_match_in_teams_saves_the_team_with_the_color(start_match: StartMatch):
+    start_match(
+        {1: ("Ana", PLAYER_COLORS[0])}, grouping=PlayerGrouping.TEAMS, teams={1: 1}
+    )
+    late = register("Duda", 4)
+    UserManager.player_auth(late.client_id)
+
+    UserManager.join_match(late.client_id, PLAYER_COLORS[3], 2)
+
+    assert repository.simulation_player.teams(1) == {1: 1, late.id: 2}
+    assert UserManager.get_team(late.id) == 2
+
+
+def test_join_match_individual_has_no_team(start_match: StartMatch):
+    start_match({1: ("Ana", PLAYER_COLORS[0])})
+    late = register("Duda", 4)
+    UserManager.player_auth(late.client_id)
+
+    UserManager.join_match(late.client_id, PLAYER_COLORS[3], 2)
+
+    assert repository.simulation_player.teams(1) == {}
+    assert UserManager.get_team(late.id) is None
+
+
+def test_team_is_saved_with_the_color_and_read_back(database: Engine):
+    ana = repository.user.create_user(client("Ana"), "Ana")
+    bia = repository.user.create_user(client("Bia"), "Bia")
+    simulation_id = new_simulation("Em equipes")
+
+    repository.simulation_player.save(
+        simulation_id,
+        {ana.id: PLAYER_COLORS[0], bia.id: PLAYER_COLORS[1]},
+        {ana.id: 3, bia.id: 7},
+    )
+
+    assert repository.simulation_player.teams(simulation_id) == {ana.id: 3, bia.id: 7}
+
+
+def test_player_without_a_team_is_not_listed_in_teams(database: Engine):
+    ana = repository.user.create_user(client("Ana"), "Ana")
+    simulation_id = new_simulation("Individual")
+
+    repository.simulation_player.save(simulation_id, {ana.id: PLAYER_COLORS[0]})
+
+    assert repository.simulation_player.teams(simulation_id) == {}
+    assert repository.simulation_player.colors(simulation_id) == {
+        ana.id: PLAYER_COLORS[0]
+    }
+
+
+def test_simulation_keeps_the_grouping_and_the_team_naming(database: Engine):
+    settings = simulation_settings(PlayerGrouping.TEAMS).model_copy(
+        update={"name": "Salva", "team_naming": TeamNaming.NUMBER}
+    )
+
+    simulation_id = repository.simulation.create_simulation(settings)
+
+    saved = repository.simulation.get_simulation(simulation_id)
+    assert saved is not None
+    assert saved.player_grouping is PlayerGrouping.TEAMS
+    assert saved.team_naming is TeamNaming.NUMBER

@@ -62,6 +62,16 @@
   --color-chart-8: var(--chart-8);
   --color-chart-9: var(--chart-9);
   --color-chart-10: var(--chart-10);
+  --color-team-1: var(--team-1);
+  --color-team-2: var(--team-2);
+  --color-team-3: var(--team-3);
+  --color-team-4: var(--team-4);
+  --color-team-5: var(--team-5);
+  --color-team-6: var(--team-6);
+  --color-team-7: var(--team-7);
+  --color-team-8: var(--team-8);
+  --color-team-9: var(--team-9);
+  --color-team-10: var(--team-10);
   --color-trophy: var(--trophy);
   --color-candle-up: var(--candle-up);
   --color-candle-down: var(--candle-down);
@@ -133,6 +143,17 @@
   --chart-10: #8b5e34;
   /* O lightweight-charts desenha em canvas e lê a cor por getComputedStyle: precisa ser hex */
   --chart-1-canvas: #2350d8;
+  /* Equipes: tons escuros, sempre em escudo, faixa ou linha grossa; a bolinha é do jogador */
+  --team-1: #4338ca;
+  --team-2: #be123c;
+  --team-3: #166534;
+  --team-4: #a16207;
+  --team-5: #155e75;
+  --team-6: #701a75;
+  --team-7: #1f2937;
+  --team-8: #3f6212;
+  --team-9: #9a3412;
+  --team-10: #1e3a8a;
   --trophy: #f2c14e;
   --candle-up: #26a69a;
   --candle-down: #ef5350;

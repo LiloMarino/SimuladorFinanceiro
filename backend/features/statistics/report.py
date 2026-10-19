@@ -28,19 +28,43 @@ from backend.core.dto.statistics_report import (
     RiskReportDTO,
     SeriesPointDTO,
 )
-from backend.core.enum import EquityEventType, VictoryCriterion
+from backend.core.enum import (
+    EquityEventType,
+    PlayerGrouping,
+    TeamNaming,
+    VictoryCriterion,
+)
 from backend.core.sectors import allocate_by_sector
 from backend.features.statistics import operations, returns, risk, sectors
 from backend.features.statistics.ranking import build_overview, capital_provided
+from backend.features.statistics.teams import (
+    team_composition,
+    team_operations,
+    team_returns,
+    team_risk,
+)
 from backend.features.variable_income.broker import to_money
 from backend.features.variable_income.price_impact import PriceImpact
 
 
 def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
+    team_naming, in_teams = _team_context(simulation_ids)
     return build_overview(
         repository.statistics.get_players_history(simulation_ids),
         _shared_criterion(simulation_ids),
+        in_teams=in_teams,
+        team_naming=team_naming,
     )
+
+
+def _team_context(simulation_ids: list[int]) -> tuple[TeamNaming, bool]:
+    """Como chamar as equipes e se a partida é em equipes; só uma simulação tem equipes."""
+    if len(simulation_ids) != 1:
+        return TeamNaming.COLOR, False
+    simulation = repository.simulation.get_simulation(simulation_ids[0])
+    if simulation is None:
+        return TeamNaming.COLOR, False
+    return simulation.team_naming, simulation.player_grouping is PlayerGrouping.TEAMS
 
 
 def _shared_criterion(simulation_ids: list[int]) -> VictoryCriterion:
@@ -51,6 +75,7 @@ def _shared_criterion(simulation_ids: list[int]) -> VictoryCriterion:
 
 
 def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
+    team_naming, in_teams = _team_context(simulation_ids)
     players = repository.statistics.get_players_history(simulation_ids)
 
     entries = []
@@ -97,10 +122,16 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
                     )
                 )
 
-    return ReturnsReportDTO(players=entries, benchmarks=benchmarks)
+    return ReturnsReportDTO(
+        team_naming=team_naming,
+        players=entries,
+        teams=team_returns(entries) if in_teams else [],
+        benchmarks=benchmarks,
+    )
 
 
 def build_risk_report(simulation_ids: list[int]) -> RiskReportDTO:
+    team_naming, in_teams = _team_context(simulation_ids)
     entries = []
     for player in repository.statistics.get_players_history(simulation_ids):
         days = risk.daily_returns(player.history)
@@ -121,10 +152,16 @@ def build_risk_report(simulation_ids: list[int]) -> RiskReportDTO:
                 days=len(days),
             )
         )
-    return RiskReportDTO(players=entries, rolling_window=risk.ROLLING_WINDOW)
+    return RiskReportDTO(
+        team_naming=team_naming,
+        players=entries,
+        teams=team_risk(entries) if in_teams else [],
+        rolling_window=risk.ROLLING_WINDOW,
+    )
 
 
 def build_composition_report(simulation_ids: list[int]) -> CompositionReportDTO:
+    team_naming, in_teams = _team_context(simulation_ids)
     players = repository.statistics.get_players_history(simulation_ids)
     trades = repository.statistics.get_players_trades(simulation_ids)
     classification = repository.stock.get_classification()
@@ -152,10 +189,15 @@ def build_composition_report(simulation_ids: list[int]) -> CompositionReportDTO:
                 ),
             )
         )
-    return CompositionReportDTO(players=entries)
+    return CompositionReportDTO(
+        team_naming=team_naming,
+        players=entries,
+        teams=team_composition(entries) if in_teams else [],
+    )
 
 
 def build_operations_report(simulation_ids: list[int]) -> OperationsReportDTO:
+    team_naming, in_teams = _team_context(simulation_ids)
     players = repository.statistics.get_players_history(simulation_ids)
     trades = repository.statistics.get_players_trades(simulation_ids)
     taxes = repository.statistics.get_players_tax(simulation_ids)
@@ -184,7 +226,11 @@ def build_operations_report(simulation_ids: list[int]) -> OperationsReportDTO:
                 monthly_volume=operations.monthly_volume(player_trades, player.history),
             )
         )
-    return OperationsReportDTO(players=entries)
+    return OperationsReportDTO(
+        team_naming=team_naming,
+        players=entries,
+        teams=team_operations(entries) if in_teams else [],
+    )
 
 
 def _ref(player: PlayerHistoryDTO) -> dict:
@@ -193,6 +239,7 @@ def _ref(player: PlayerHistoryDTO) -> dict:
         "color": player.color,
         "simulation_id": player.simulation_id,
         "simulation_name": player.simulation_name,
+        "team": player.team,
     }
 
 

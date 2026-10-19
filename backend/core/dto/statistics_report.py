@@ -10,7 +10,7 @@ from typing import Literal
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.sector import SectorAllocationDTO
-from backend.core.enum import VictoryCriterion
+from backend.core.enum import TeamNaming, VictoryCriterion
 
 
 class SeriesPointDTO(BaseDTO):
@@ -24,6 +24,14 @@ class PlayerRefDTO(BaseDTO):
     color: str
     simulation_id: int
     simulation_name: str
+    # Índice da equipe (1 a 10); nulo fora do modo em equipes
+    team: int | None
+
+
+class TeamReportDTO(BaseDTO):
+    """Base dos relatórios: como chamar as equipes, escolha do host nas regras."""
+
+    team_naming: TeamNaming
 
 
 # Geral
@@ -81,11 +89,47 @@ class PlayerRankingDTO(PlayerRefDTO):
     leader_gap: Decimal | None
     # Eixo da nota com menos pontos: onde o jogador mais pode subir
     weakest_axis: ScoreAxis | None
+    # Quanto o valor dele no critério passa (ou fica abaixo) da média da equipe; None fora de equipes
+    team_contribution: Decimal | None
 
 
-class OverviewReportDTO(BaseDTO):
+class TeamPullerDTO(BaseDTO):
+    """Quem mais puxou a média da equipe para cima."""
+
+    player_nickname: str
+    color: str
+    contribution: Decimal
+    # Eixo da nota em que mais puxou e quanto; None quando o critério não é a nota geral
+    axis: ScoreAxis | None
+    axis_gap: Decimal | None
+
+
+class TeamRankingDTO(BaseDTO):
+    """Equipe no ranking: o valor dela em cada critério é a média dos membros."""
+
+    team: int
+    simulation_id: int
+    position: int
+    members: int
+    # Membros com valor no critério: só eles entram na média ("2 de 3")
+    measured_members: int
+    total_networth: Decimal
+    return_value: Decimal
+    return_percent: Decimal
+    # Eixos da nota na média dos membros; None até algum membro ter a nota
+    score: ScoreDTO | None
+    sharpe_ratio: Decimal | None
+    criterion_value: Decimal | None
+    leader_gap: Decimal | None
+    weakest_axis: ScoreAxis | None
+    top_puller: TeamPullerDTO | None
+
+
+class OverviewReportDTO(TeamReportDTO):
     # Ordenado pelo ranking: o primeiro é o melhor
     players: list[PlayerRankingDTO]
+    # Uma entrada por equipe, ordenada pelo ranking; vazio fora do modo em equipes
+    teams: list[TeamRankingDTO]
     average_return: Decimal | None
     min_score_days: int
     # O critério que ordenou o ranking: o da partida, ou a nota entre partidas diferentes
@@ -125,8 +169,25 @@ class BenchmarkDTO(BaseDTO):
     annual_return: Decimal | None
 
 
-class ReturnsReportDTO(BaseDTO):
+class TeamReturnsDTO(BaseDTO):
+    """Curvas e contagens da equipe: a média dos membros em cada dia."""
+
+    team: int
+    simulation_id: int
+    members: int
+    networth: list[SeriesPointDTO]
+    cumulative_return: list[SeriesPointDTO]
+    capital_provided: Decimal
+    annual_return: Decimal | None
+    # Média de meses entre os membros: exata, quem mostra arredonda
+    months_above_cdi: Decimal
+    positive_months: Decimal
+    months: int
+
+
+class ReturnsReportDTO(TeamReportDTO):
     players: list[PlayerReturnsDTO]
+    teams: list[TeamReturnsDTO]
     # Uma linha de cada referência por simulação, no período dela
     benchmarks: list[BenchmarkDTO]
 
@@ -149,8 +210,24 @@ class PlayerRiskDTO(PlayerRefDTO):
     days: int
 
 
-class RiskReportDTO(BaseDTO):
+class TeamRiskDTO(BaseDTO):
+    """Métricas de risco da equipe: média simples dos membros em cada uma."""
+
+    team: int
+    simulation_id: int
+    members: int
+    max_drawdown: Decimal | None
+    annual_volatility: Decimal | None
+    sharpe_ratio: Decimal | None
+    sortino_ratio: Decimal | None
+    time_underwater: Decimal | None
+    worst_month: Decimal | None
+    annual_return: Decimal | None
+
+
+class RiskReportDTO(TeamReportDTO):
     players: list[PlayerRiskDTO]
+    teams: list[TeamRiskDTO]
     rolling_window: int
 
 
@@ -173,8 +250,20 @@ class PlayerCompositionDTO(PlayerRefDTO):
     sector_profit: list[SectorProfitDTO]
 
 
-class CompositionReportDTO(BaseDTO):
+class TeamCompositionDTO(BaseDTO):
+    """Como a equipe dividiu o dinheiro no último dia: média das frações dos membros."""
+
+    team: int
+    simulation_id: int
+    members: int
+    cash_share: Decimal | None
+    equity_share: Decimal | None
+    fixed_share: Decimal | None
+
+
+class CompositionReportDTO(TeamReportDTO):
     players: list[PlayerCompositionDTO]
+    teams: list[TeamCompositionDTO]
 
 
 # Operações
@@ -205,8 +294,25 @@ class PlayerOperationsDTO(PlayerRefDTO):
     monthly_volume: list[MonthlyVolumeDTO]
 
 
-class OperationsReportDTO(BaseDTO):
+class TeamOperationsDTO(BaseDTO):
+    """Operações da equipe: volume, IR e negócios são somas (totais, não desempenho)."""
+
+    team: int
+    simulation_id: int
+    members: int
+    buy_trades: int
+    sell_trades: int
+    traded_volume: Decimal
+    income_tax_paid: Decimal
+    # Média dos membros que têm o giro
+    turnover: Decimal | None
+    impact_cost: Decimal | None
+    monthly_volume: list[MonthlyVolumeDTO]
+
+
+class OperationsReportDTO(TeamReportDTO):
     players: list[PlayerOperationsDTO]
+    teams: list[TeamOperationsDTO]
 
 
 # Fechamento da partida

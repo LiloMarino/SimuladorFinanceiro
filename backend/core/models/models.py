@@ -5,6 +5,7 @@ import uuid
 from sqlalchemy import (
     BigInteger,
     Boolean,
+    CheckConstraint,
     Date,
     DateTime,
     Double,
@@ -14,6 +15,7 @@ from sqlalchemy import (
     Integer,
     Numeric,
     PrimaryKeyConstraint,
+    SmallInteger,
     Text,
     UniqueConstraint,
     Uuid,
@@ -244,6 +246,16 @@ class Simulations(Base):
         nullable=False,
         server_default=text("'SCORE'"),
     )
+    player_grouping: Mapped[str] = mapped_column(
+        Enum("INDIVIDUAL", "TEAMS", name="player_grouping"),
+        nullable=False,
+        server_default=text("'INDIVIDUAL'"),
+    )
+    team_naming: Mapped[str] = mapped_column(
+        Enum("COLOR", "NUMBER", name="team_naming"),
+        nullable=False,
+        server_default=text("'COLOR'"),
+    )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )
@@ -338,11 +350,14 @@ class SimulationPlayers(Base):
         UniqueConstraint(
             "simulation_id", "color", name="simulation_players_simulation_id_color_key"
         ),
+        CheckConstraint("team BETWEEN 1 AND 10", name="simulation_players_team_check"),
     )
 
     simulation_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     color: Mapped[str] = mapped_column(Text, nullable=False)
+    # Índice da equipe (1 a 10); nulo fora do modo em equipes
+    team: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
 
     user: Mapped["Users"] = relationship("Users", back_populates="simulation_players")
     simulation: Mapped["Simulations"] = relationship(

@@ -3,8 +3,9 @@ import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Clock, History, Play, RefreshCw, UserPlus, Zap } from "lucide-react";
+import { Clock, History, Play, RefreshCw, UserPlus, Users, Zap } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { GroupingBadge } from "@/shared/components/grouping-badge";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -22,8 +23,17 @@ import { seriesCoverageOptions } from "@/shared/lib/queries/seriesCoverageOption
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
-import type { RoomPlayer, SimulationInfo, SimulationSettingsData, VictoryCriterion } from "@/types";
+import type {
+  PlayerGrouping,
+  RoomPlayer,
+  SimulationInfo,
+  SimulationSettingsData,
+  TeamNaming,
+  VictoryCriterion,
+} from "@/types";
+import { useDistributeTeams } from "../hooks/useDistributeTeams";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
+import { checkTeams } from "../lib/teams-check";
 import { checkCoverage } from "../lib/coverage";
 import { dateFieldError, isIsoDate } from "../lib/date-field";
 import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "../lib/price-impact";
@@ -62,6 +72,8 @@ const simulationFormSchema = z
       .string()
       .refine((val) => Number.isInteger(Number(val)) && Number(val) >= 1, "Informe ao menos 1 pregão"),
     victoryCriterion: z.custom<VictoryCriterion>((value) => typeof value === "string" && value in VICTORY_CRITERIA),
+    playerGrouping: z.custom<PlayerGrouping>((value) => value === "INDIVIDUAL" || value === "TEAMS"),
+    teamNaming: z.custom<TeamNaming>((value) => value === "COLOR" || value === "NUMBER"),
   })
   .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
     message: "Tem que ser depois do início",
@@ -108,6 +120,8 @@ export function LobbyMatch({
       priceImpactK: displayDecimal(simulationData.price_impact_k),
       priceImpactDecayDays: String(simulationData.price_impact_decay_days),
       victoryCriterion: simulationData.victory_criterion,
+      playerGrouping: simulationData.player_grouping,
+      teamNaming: simulationData.team_naming,
     },
   });
 
@@ -161,6 +175,8 @@ export function LobbyMatch({
           price_impact_k: Number(normalizeNumberString(values.priceImpactK)),
           price_impact_decay_days: Number(values.priceImpactDecayDays),
           victory_criterion: values.victoryCriterion,
+          player_grouping: values.playerGrouping,
+          team_naming: values.teamNaming,
         },
       }),
     onError: (err) => toastApiError(err),
@@ -171,8 +187,14 @@ export function LobbyMatch({
     onError: (err) => toastApiError(err),
   });
 
+  const { mutate: distributeTeams, isPending: distributing } = useDistributeTeams();
+
   const busy = creating || continuing;
-  const canStart = isHost && !busy && !blockedByCoverage && form.formState.isValid;
+  // Em equipes todo mundo precisa estar numa e a partida, ter pelo menos duas
+  const inTeams = (selectedSimulation?.player_grouping ?? values.playerGrouping) === "TEAMS";
+  const teams = checkTeams(roomPlayers ?? [], savedPlayers, selectedSimulation?.team_naming ?? values.teamNaming);
+  const teamsBlock = inTeams && !teams.ready;
+  const canStart = isHost && !busy && !blockedByCoverage && form.formState.isValid && !teamsBlock;
 
   // Com partida selecionada o card mostra as regras dela, em só leitura; sem seleção, as da nova partida
   const rules = selectedSimulation
@@ -186,6 +208,8 @@ export function LobbyMatch({
         priceImpactEnabled: selectedSimulation.price_impact_enabled,
         priceImpactK: displayDecimal(selectedSimulation.price_impact_k),
         priceImpactDecayDays: String(selectedSimulation.price_impact_decay_days),
+        playerGrouping: selectedSimulation.player_grouping,
+        teamNaming: selectedSimulation.team_naming,
       }
     : values;
   // Painel "Ver regras" da salva: o formulário acompanha as regras gravadas nela, sem edição
@@ -210,6 +234,7 @@ export function LobbyMatch({
     },
     { label: "Saldo inicial", value: <span className="font-mono">{rules.startingCash}</span> },
     { label: "Aporte mensal", value: <span className="font-mono">{rules.monthlyContribution}</span> },
+    { label: "Modo", value: <GroupingBadge grouping={rules.playerGrouping} /> },
     { label: "Vitória por", value: <Badge variant="info">{VICTORY_CRITERIA[rules.victoryCriterion]?.label}</Badge> },
     {
       label: "Impacto de preço",
@@ -302,11 +327,28 @@ export function LobbyMatch({
               </Alert>
             )}
 
+            {/* Equipes: o que falta para iniciar e o atalho do host */}
+            {inTeams && teamsBlock && (
+              <div className="grid gap-2">
+                <span className="text-[13px] text-muted-foreground">
+                  {teams.missing.length > 0
+                    ? "Para iniciar, todo mundo precisa estar numa equipe"
+                    : "Todos na mesma equipe: não dá pra iniciar"}
+                </span>
+                {isHost && teams.missing.length > 0 && (
+                  <Button variant="outline" disabled={distributing} onClick={() => distributeTeams()}>
+                    {distributing ? <Spinner /> : <Users />}
+                    Distribuir quem falta
+                  </Button>
+                )}
+              </div>
+            )}
+
             {/* Início da partida */}
             {isHost ? (
               selectedSimulation ? (
                 <div className="grid gap-2">
-                  <Button size="xl" className="min-w-0" disabled={busy} onClick={() => continueSimulation()}>
+                  <Button size="xl" className="min-w-0" disabled={busy || teamsBlock} onClick={() => continueSimulation()}>
                     {continuing ? <Spinner /> : <Play />}
                     <span className="min-w-0 truncate">Continuar {selectedSimulation.name}</span>
                   </Button>

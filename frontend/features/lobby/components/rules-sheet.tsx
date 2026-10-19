@@ -28,7 +28,8 @@ import type ApiError from "@/shared/lib/models/ApiError";
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import { displayDecimal } from "@/shared/lib/utils/display";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
-import type { VictoryCriterion } from "@/types";
+import { teamShortName } from "@/shared/lib/teams";
+import type { PlayerGrouping, TeamNaming, VictoryCriterion } from "@/types";
 import type { CoverageCheck } from "../lib/coverage";
 import {
   PRICE_IMPACT_MODE_LABELS,
@@ -40,6 +41,15 @@ import { CoverageAlerts } from "./coverage-alerts";
 import { DateField } from "./date-field";
 import type { SimulationFormValues } from "./lobby-match";
 import { PriceImpactExample } from "./price-impact-example";
+
+const GROUPING_OPTIONS: { value: PlayerGrouping; label: string; description: string }[] = [
+  { value: "INDIVIDUAL", label: "Todos contra todos", description: "Cada um por si: vence a melhor carteira." },
+  {
+    value: "TEAMS",
+    label: "Em equipes",
+    description: "Cada um opera a própria carteira, mas vence a equipe com a melhor média.",
+  },
+];
 
 type RulesSheetProps = {
   open: boolean;
@@ -67,9 +77,9 @@ export function RulesSheet({
   saveStatus,
   locked = false,
 }: RulesSheetProps) {
-  const [startDate, impactEnabled, impactK, impactT] = useWatch({
+  const [startDate, impactEnabled, impactK, impactT, grouping] = useWatch({
     control: form.control,
-    name: ["startDate", "priceImpactEnabled", "priceImpactK", "priceImpactDecayDays"],
+    name: ["startDate", "priceImpactEnabled", "priceImpactK", "priceImpactDecayDays", "playerGrouping"],
   });
   // Personalizado fica aberto mesmo quando k e T coincidem com um preset
   const [customOpen, setCustomOpen] = useState(false);
@@ -169,9 +179,73 @@ export function RulesSheet({
             </div>
           </FieldSet>
 
+          {/* Modo de jogo */}
+          <FieldSet disabled={readOnly}>
+            <FieldLegend variant="caption">Modo de jogo</FieldLegend>
+            <Controller
+              control={form.control}
+              name="playerGrouping"
+              render={({ field }) => (
+                <RadioGroup
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(value as PlayerGrouping)}
+                  disabled={readOnly}
+                  className="grid-cols-2"
+                >
+                  {GROUPING_OPTIONS.map((option) => (
+                    <FieldLabel key={option.value} htmlFor={`grouping-${option.value}`}>
+                      <Field orientation="horizontal">
+                        <RadioGroupItem value={option.value} id={`grouping-${option.value}`} />
+                        <FieldContent>
+                          <FieldTitle>{option.label}</FieldTitle>
+                          <FieldDescription>{option.description}</FieldDescription>
+                        </FieldContent>
+                      </Field>
+                    </FieldLabel>
+                  ))}
+                </RadioGroup>
+              )}
+            />
+            {grouping === "TEAMS" && (
+              <>
+                <Controller
+                  control={form.control}
+                  name="teamNaming"
+                  render={({ field }) => (
+                    <Field>
+                      <FieldLabel>Nome das equipes</FieldLabel>
+                      <ToggleGroup
+                        variant="segmented"
+                        aria-label="Nome das equipes"
+                        value={[field.value]}
+                        onValueChange={(values) => values[0] && field.onChange(values[0] as TeamNaming)}
+                        disabled={readOnly}
+                        className="w-full"
+                      >
+                        <ToggleGroupItem value="COLOR" className="flex-1">
+                          Pelo nome da cor · {teamShortName(2, "COLOR")}
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="NUMBER" className="flex-1">
+                          Pelo número · {teamShortName(2, "NUMBER")}
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                      <FieldDescription>Muda só o rótulo; a cor é a mesma.</FieldDescription>
+                    </Field>
+                  )}
+                />
+                <p className="text-[13px] text-muted-foreground">
+                  Cada jogador escolhe a equipe no próprio card. Começa todo mundo sem equipe. Equipes desiguais valem:
+                  conta a média.
+                </p>
+              </>
+            )}
+          </FieldSet>
+
           {/* Quem vence */}
           <FieldSet disabled={readOnly}>
-            <FieldLegend variant="caption">Quem vence</FieldLegend>
+            <FieldLegend variant="caption">
+              Quem vence{grouping === "TEAMS" ? " (em equipes: a média dos membros)" : ""}
+            </FieldLegend>
             <Controller
               control={form.control}
               name="victoryCriterion"

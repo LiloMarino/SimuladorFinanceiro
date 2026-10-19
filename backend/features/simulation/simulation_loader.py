@@ -5,6 +5,7 @@ from backend.core.dto.simulation import (
     SimulationStatusResponse,
     SimulationSummaryDTO,
 )
+from backend.core.enum import PlayerGrouping
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
 from backend.core.indicators import ensure_indicator_coverage
 from backend.core.runtime.settings_manager import SettingsManager
@@ -21,11 +22,16 @@ class SimulationLoader:
     def create(cls, settings: SimulationSettingsDTO) -> SimulationDTO:
         """Persiste, instancia e inicia uma nova simulação com quem está na sala."""
         ensure_indicator_coverage(settings.start_date)
+        in_teams = settings.player_grouping is PlayerGrouping.TEAMS
+        if in_teams:
+            UserManager.ensure_teams_ready({})
         simulation_id = repository.simulation.create_simulation(settings)
 
         # O primeiro tick da Simulation já lê os participantes, que gravam antes dela
         room_colors = UserManager.room_colors()
-        repository.simulation_player.save(simulation_id, room_colors)
+        repository.simulation_player.save(
+            simulation_id, room_colors, UserManager.chosen_teams() if in_teams else None
+        )
         repository.user.seed_simulation_users(
             simulation_id,
             list(room_colors),
@@ -33,6 +39,7 @@ class SimulationLoader:
             settings.starting_cash,
         )
         UserManager.release_saved_colors()
+        UserManager.release_room_teams()
 
         SimulationManager.clear_simulation()
         SimulationManager.set_simulation_id(simulation_id)
@@ -67,12 +74,24 @@ class SimulationLoader:
         ensure_indicator_coverage(summary.start_date)
 
         saved = repository.simulation_player.colors(summary.id)
+        in_teams = summary.player_grouping is PlayerGrouping.TEAMS
+        if in_teams:
+            UserManager.ensure_teams_ready(
+                repository.simulation_player.teams(summary.id)
+            )
         newcomers = {
             user_id: color
             for user_id, color in UserManager.room_colors().items()
             if user_id not in saved
         }
-        repository.simulation_player.save(summary.id, newcomers)
+        room_teams = UserManager.chosen_teams() if in_teams else {}
+        repository.simulation_player.save(
+            summary.id,
+            newcomers,
+            {user_id: room_teams[user_id] for user_id in newcomers}
+            if in_teams
+            else None,
+        )
         repository.user.seed_simulation_users(
             summary.id,
             list(newcomers),
@@ -80,6 +99,7 @@ class SimulationLoader:
             summary.starting_cash,
         )
         UserManager.release_saved_colors()
+        UserManager.release_room_teams()
 
         SimulationManager.clear_simulation()
         SimulationManager.set_simulation_id(summary.id)
@@ -95,6 +115,8 @@ class SimulationLoader:
                 price_impact_k=summary.price_impact_k,
                 price_impact_decay_days=summary.price_impact_decay_days,
                 victory_criterion=summary.victory_criterion,
+                player_grouping=summary.player_grouping,
+                team_naming=summary.team_naming,
             ),
             resume_from=resume_from,
         )
