@@ -40,8 +40,8 @@
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | [F40](#f40) | — |
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F41](#f41) | — |
-| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F42](#f42), [F52](#f52), [F53](#f53) | — |
-| **N24** | Saber onde está a lentidão durante uma partida | [F45](#f45), [F54](#f54) | — |
+| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F52](#f52), [F53](#f53) | — |
+| **N24** | Saber onde está a lentidão durante uma partida | — | — |
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F47](#f47), [F48](#f48) | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | [F65](#f65) | — |
 | **N27** | Entrar numa partida que já começou | — | — |
@@ -65,7 +65,6 @@
 | [**F37**](#f37) | Tema escuro | — | 💤 |
 | [**F40**](#f40) | Modo Especialista | — | ⏳ |
 | [**F41**](#f41) | Conquistas | — | ⏳ |
-| [**F42**](#f42) | Modo em equipes | — | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 🔍 |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ⏳ |
 | [**F48**](#f48) | README e docs que mostram o produto | — | ⏳ |
@@ -80,7 +79,7 @@
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (12 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -95,10 +94,7 @@
 | **D10** | Como a nota geral é calculada | — | ✅ |
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | ✅ |
 | **D12** | Como numerar as versões | — | ✅ |
-| **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | [F66](#f66) | ✅ |
-| [**F45**](#f45) | Painel de desempenho | — | ✅ |
-| [**F54**](#f54) | Modo debug | — | ✅ |
-| [**F66**](#f66) | Spike: reavaliar a manutenção do SSE | — | ✅ |
+| **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
 
 </details>
 
@@ -120,7 +116,6 @@
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
-| [**F42**](#f42) | Modo em equipes | M13 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
@@ -218,13 +213,12 @@
 >
 > **Serve:** N21, N22, N23
 >
-> **Progresso:** 0/5 concluídas
+> **Progresso:** 0/4 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F40**](#f40) | Modo Especialista | — | ⏳ |
 | [**F41**](#f41) | Conquistas | — | ⏳ |
-| [**F42**](#f42) | Modo em equipes | — | ⏳ |
 | [**F52**](#f52) | Modo corrida à meta | — | ⏳ |
 | [**F53**](#f53) | Modo viver de renda | [F52](#f52) | ⏳ |
 
@@ -244,7 +238,7 @@
 
 ### Sem marco
 
-> **Progresso:** 3/12 concluídas
+> **Progresso:** 0/9 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -255,18 +249,8 @@
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
-| [**F65**](#f65) | Rework dos loggings | [F54](#f54) | ⏳ |
+| [**F65**](#f65) | Rework dos loggings | — | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
-
-<details><summary>Concluído (3 itens)</summary>
-
-| ID | Resumo | Depende de | Status |
-| --- | --- | --- | --- |
-| [**F45**](#f45) | Painel de desempenho | [F54](#f54) | ✅ |
-| [**F54**](#f54) | Modo debug | — | ✅ |
-| [**F66**](#f66) | Spike: reavaliar a manutenção do SSE | — | ✅ |
-
-</details>
 
 ---
 
@@ -285,16 +269,13 @@
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F40** | Modo Especialista | N21 | D2 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F41** | Conquistas | N22 | D1 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F42** | Modo em equipes | N23 | — | M13 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F45** | Painel de desempenho | N24 | — | — | [F54](#f54) | Baixo | Baixo | Médio | Ótimo | ✅ Concluído |
 | **F47** | Gravação automática de demonstrações | N25 | — | M14 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F52** | Modo corrida à meta | N23 | — | M13 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F53** | Modo viver de renda | N23 | — | M13 | [F52](#f52) | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F54** | Modo debug | N24 | — | — | — | Baixo | Baixo | Médio | Ótimo | ✅ Concluído |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F65** | Rework dos loggings | N26 | — | — | [F54](#f54) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F65** | Rework dos loggings | N26 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
@@ -344,12 +325,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 <a id="f41"></a>
 **F41 — Conquistas.** Serve N22; segue a D1. Um catálogo no código (`backend/features/achievements/catalog.py`): cada conquista tem código, nome, descrição, ícone (do `lucide-react`), se é secreta, e uma condição avaliada sobre os eventos e snapshots do jogador no fim de cada tick. Exemplos: primeira compra de ação; primeiro R$ 1 milhão; bater o CDI 12 meses seguidos; atravessar uma queda de 30% do Ibovespa perdendo menos que ele; vencer uma sala cheia; vencer sem assistências (F40). A conquista desbloqueada vai para a tabela `achievements` (`user_id`, `code`, `simulation_id`, `unlocked_at`), por migration (D9), e chega ao jogador por um evento do Socket.IO que abre um toast rico, no estilo da Steam: ícone, nome e descrição, com `toast.custom` do sonner. Uma tela "Conquistas" mostra as do jogador: desbloqueadas com data e partida, bloqueadas em cinza, e as secretas sem descrição até sair. As conquistas ficam no banco do host, como o resto do histórico: sem conta online, o jogador que entra na sala de outro host começa lá do zero.
 
-<a id="f42"></a>
-**F42 — Modo em equipes.** Serve N23. Cada um opera a própria carteira, mas o placar é da equipe: quem vence é a equipe, não a pessoa. O host escolhe no lobby entre todos contra todos (o de hoje) e equipes; em equipes, cada jogador escolhe a equipe numa lista ao lado da cor, como no lobby de um RTS. A equipe é uma coluna `team` na `simulation_players` da F39, por migration (D9). O valor da equipe em cada critério de vitória (F27) é a média dos membros (média da nota, do retorno, do Sharpe), para que uma equipe de três não vença uma de dois só por somar mais patrimônio. Cada jogador mantém a própria cor; a equipe aparece como um selo ao lado do nome. As telas que mudam, a desenhar no Claude Design antes de implementar: o lobby (escolha de equipe e aviso de equipes desequilibradas); o ranking ao vivo, por equipe e com os membros abaixo; as estatísticas — na aba Geral, a classificação e a nota da equipe com os eixos da nota como média dos membros; nas abas com curva, a curva da equipe (média) com as dos membros mais apagadas; em Risco, Composição e Operações, os jogadores agrupados por equipe; e o fechamento (F27), com o pódio de equipes, os membros de cada uma e o destaque de quem mais contribuiu na equipe vencedora.
-
-<a id="f45"></a>
-**F45 — Painel de desempenho.** Serve N24. Mede onde o tempo vai durante uma partida, para depois investigar só o ponto caro, sem serviço externo (o Sentry faz essa medição por rota, mas manda os dados para fora da máquina e é pago). Só funciona com o modo debug (F54) ligado: fora dele o coletor fica desligado, o middleware nem é instalado e a rota `/api/debug/*` responde 404. Um coletor em memória (`backend/core/metrics.py`) guarda, por item, as últimas 1.000 medições e calcula chamadas, tempo total, médio, p95 e máximo: (1) **HTTP** — `MetricsMiddleware` (ASGI puro) mede cada requisição pela rota declarada (`/api/stocks/{ticker}`, não o ticker) e devolve o tempo no cabeçalho `Server-Timing`; fora da conta ficam `/api/stream` (resposta infinita) e o próprio `/api/debug`; (2) **Socket.IO** — o tempo de cada handler recebido (`connect`, `disconnect`, `subscribe`) e, para os enviados, mensagens e bytes por segundo por evento, contados por destinatário dentro do `SocketBroker` e do `SSEBroker` (`stock_update:PETR4` e os demais tickers viram `stock_update:*`); (3) **motor** — quanto leva `next_tick()` para processar um dia, contra o tempo que cabe na velocidade (`1000 / velocidade` ms). Chamadas acima de 500 ms vão para o `slow.log`, pelo logger `backend.metrics` (linha em `AREA_LOGGERS`, F57). `GET /api/debug/metrics` e `POST /api/debug/metrics/reset` são **só do host** (`verify_host`): as medições são do servidor dele. A tela "Desempenho" (`features/performance`, variante A do canvas) atualiza a cada 2 s, com Pausar e Zerar medições: quatro cartões (ritmo do motor com a velocidade real quando atrasa, HTTP com o p95 geral e as rotas lentas, volume enviado ao navegador, onde mais vai tempo), a tabela de tempo com filtro por origem, busca, ordenação e "Mostrar todas", marcando **lenta** (p95 acima de 500 ms) e **trava às vezes** (p95 de 10 vezes a média ou mais), o tráfego por evento e o cartão do py-spy com o comando e o PID. O item "Desempenho" (selo "Debug") em Ferramentas só aparece com o debug ligado e para o host; a URL direta mostra como ligar o debug ou que só o host vê. Achado o ponto, a investigação segue com o `py-spy record --pid`, que gera o gráfico de chamas sem mudar código; a página "Investigando lentidão" dos docs ensina o caminho. Limitações: as medições somem ao reiniciar o app, um 500 tratado pelo servidor entra na conta mas fica sem `Server-Timing`, e o "p95 geral" do cartão HTTP é calculado sobre as janelas atuais de todas as rotas.
-
 <a id="f47"></a>
 **F47 — Gravação automática de demonstrações.** Serve N25. Um roteiro em Playwright (`scripts/demo/`) sobe o app num banco de demonstração, importa um conjunto fixo de ativos pelo CSV (sem depender do yfinance, para sair igual toda vez), e percorre as telas: lobby, compra de ação, renda fixa, avanço do tempo, estatísticas e fechamento. Em cada passo tira screenshot, e a sessão inteira é gravada em vídeo (`recordVideo`). O `ffmpeg` corta os trechos em MP4 para os docs e o `gifski` faz GIFs curtos (até ~10 MB) para o README, que no GitHub só anima GIF. A saída vai para `docs/static/demo/`, e o comando `pnpm demo` refaz tudo a cada mudança visual, o que mantém as imagens em dia: as de hoje em `docs/static/img/` são de fevereiro, anteriores ao redesign.
 
@@ -361,9 +336,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f53"></a>
 **F53 — Modo viver de renda.** Serve N23. Uma corrida à meta (F52) em que a meta é a independência financeira, e o caminho tem a vida real no meio. O host define no lobby o salário e a despesa mensal (o aporte de hoje vira a diferença entre os dois) e a frequência dos imprevistos. Imprevistos são despesas inesperadas (conserto, saúde, demissão de um mês sem salário), sorteadas com uma semente da partida, para que todos os jogadores recebam os mesmos imprevistos nos mesmos dias. Eles saem do caixa; caixa negativo paga juros de cheque especial até ser coberto, o que obriga a ter reserva de emergência em algo que se resgata rápido. Salário, despesa e imprevisto entram como valores novos do `ENUM` `cashflow_event_type` (à mão na migration, D9). Vence quem primeiro atinge o patrimônio da regra dos 4%: 25 vezes a despesa anual (com R$ 5 mil de despesa por mês, R$ 1,5 milhão), porque retirar 4% ao ano desse patrimônio cobre as despesas, e o estudo Trinity, com dados dos Estados Unidos, mostrou essa retirada, corrigida pela inflação, durando 30 anos na maior parte dos períodos históricos. A taxa de retirada é configurável, e a explicação fica ao lado do campo. Quando os proventos existirem (F22), a meta pode passar a ser a renda passiva real (dividendos e juros recebidos cobrindo a despesa).
-
-<a id="f54"></a>
-**F54 — Modo debug.** Serve N24. Um flag só, decidido ao subir o servidor: `[debug] enabled` no `config.toml` ou `--debug` na linha de comando (que liga mesmo com o arquivo desligado). **Vem desligado em todo lugar**, em desenvolvimento e no executável: "dev" e "executável" só dizem como o front é servido (Vite ou build), não são modos de debug, e não há botão na interface, mudar exige fechar e abrir o app. O backend o expõe em `GET /api/settings` (campo `debug`, somente leitura: o `PUT` não o grava e o valor do `config.toml` vale sobre qualquer coisa guardada). Ligado: (1) `TomlSettings.effective_logging_level()` força `DEBUG` no `app.log` e nos arquivos por área da F57, com `error.log` seguindo só em `ERROR`; `sqlalchemy`, `engineio`, `socketio`, `urllib3` e `asyncio` ficam em `INFO` (`NOISY_LOGGERS` em `logger.py`) para o DEBUG não afogar o arquivo; (2) o front carrega o TanStack Query Devtools pelo build de produção dele (`@tanstack/react-query-devtools/production`, em `lazy`), que funciona também no executável, e libera os `logger.debug`/`logger.log` do console. Desligado, o front é igual em dev e no executável: sem devtools e sem esses logs. O front lê o flag pelo hook `useDebugMode`, que a F45 usa para mostrar o painel e o item de menu; essas duas peças são da F45, não desta. Limitação: os logs do front anteriores à resposta de `/api/settings` se perdem; `warn` e `error` nunca são silenciados.
 
 <a id="f56"></a>
 **F56 — Novidades no app.** Serve N14. Como as notas de patch de um jogo: o `CHANGELOG.md` da F51 vai junto no executável, o backend o serve com a versão, e o lobby mostra as novidades da versão atual. Na primeira abertura depois de atualizar, o card ou o selo de novidades fica em destaque até ser aberto (o navegador guarda a última versão vista); aberto, mostra "O que há de novo na versão X" e dá acesso ao histórico inteiro. O lugar exato no lobby, que já está cheio, sai de uma iteração no Claude Design antes de implementar.
@@ -381,7 +353,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F14** | Janela desktop nativa | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
-| **F66** | Spike: reavaliar a manutenção do SSE | D13 | — | — | — | — | — | — | ✅ Concluído |
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 
 <a id="f14"></a>
@@ -389,9 +360,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f60"></a>
 **F60 — Modo servidor dedicado (`--headless`).** O mesmo executável, sem o navegador: para rodar numa VPS ou num PC ligado direto, sem ninguém jogando nele. `--headless` na linha de comando, ou `[server] headless = true` no `config.toml`, pula o `webbrowser.open` do `main.py`, que hoje roda sempre que o app é o executável, e imprime no terminal os endereços para entrar (o da rede local e, com a F6, o do túnel). O administrador é quem entra com o apelido de `[host] nickname`, que é como o host é definido hoje (`routes/simulation.py`). Como a recuperação de login é por apelido, num servidor exposto à internet qualquer um que digite esse apelido viraria o host; por isso, no modo servidor, o `config.toml` ganha `[host] pin`, e o login com o apelido do host só passa com ele. Serve a quem quer deixar uma sala aberta para os amigos entrarem quando quiserem, sem depender de o host estar com o computador ligado jogando.
-
-<a id="f66"></a>
-**F66 — Spike: reavaliar a manutenção do SSE.** Decidiu a D13: remover o SSE e dar ao Socket.IO o fallback de polling. O SSE não rodava (o front fixava o modo WebSocket e ligar `use_sse` desmontava o Socket.IO do servidor), não tinha teste e tinha defeitos no broker; o Quick Tunnel da Cloudflare, candidato da F5, não suporta SSE, e o polling do Socket.IO cobre o proxy que barra o WebSocket. Saíram o `SSEBroker`, a rota `/api/stream`, a `/api/update-subscription`, o `SSEClient`, o `use_sse` e a doc; o cliente passou a usar `transports: ["websocket", "polling"]`. Não foi testado em túnel real: a F5 confere se ao menos o polling atravessa cada candidato.
 
 <a id="f67"></a>
 **F67 — Abrir a pasta de configurações.** O executável guarda `config.toml`, `.env` e `logs` na pasta de dados do usuário (`%LOCALAPPDATA%\SimuladorFinanceiro` no Windows), que o Windows esconde. Em vez de mudar os arquivos de lugar, a tela de configurações ganha o botão "Abrir pasta de configurações", como o "abrir pasta de mods" de vários jogos. (1) **Rota** `POST /api/settings/open-folder` em `routes/settings.py`, protegida por `verify_host` e que só aceita requisição vinda do próprio computador (`request.client.host` em `127.0.0.1` ou `::1`): o servidor também atende a rede local, e um convidado não pode abrir janelas na máquina do host. (2) **Abertura** da pasta de `app_files_dir()` com `os.startfile` no Windows, `open` no macOS e `xdg-open` no Linux, por `subprocess` sem shell. (3) **Sem interface gráfica** (servidor dedicado, Linux sem `xdg-open`) ou pedido fora do computador do host: a rota responde 409 com o caminho, e o front o mostra num campo com botão "Copiar". O caminho aparece sempre ao lado do botão, então o jogador também o encontra sem abrir nada. (4) Um segundo botão, "Abrir pasta de logs", usa a mesma rota com `target=logs`. Um aviso junto aos botões diz que `db` e `postgres` são do banco e não devem ser editados. Teste: a rota recusa quem não é o host e quem vem de outro IP, e chama o abridor do sistema (substituído por um dublê) com a pasta certa. Não serve nenhuma necessidade listada: o ganho é achar o `config.toml` sem caçar uma pasta oculta.
