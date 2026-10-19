@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-17):** Concluídas a sugestão de código ao digitar o ativo (F63) e o cache do perfil do ativo no yfinance (F64).
+> **Última mudança (2026-10-19):** Registrada a feature de abrir a pasta de configurações (F67), em vez de mudar o config.toml, o .env e os logs de lugar.
 
 ## Glossário
 
@@ -77,6 +77,7 @@
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F65**](#f65) | Rework dos loggings | — | ⏳ |
+| [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
@@ -125,6 +126,7 @@
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
 | [**F65**](#f65) | Rework dos loggings | — | 0 | ⏳ |
+| [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
 
 ---
 
@@ -242,7 +244,7 @@
 
 ### Sem marco
 
-> **Progresso:** 3/11 concluídas
+> **Progresso:** 3/12 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -254,6 +256,7 @@
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F65**](#f65) | Rework dos loggings | [F54](#f54) | ⏳ |
+| [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 
 <details><summary>Concluído (3 itens)</summary>
 
@@ -379,6 +382,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F14** | Janela desktop nativa | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F66** | Spike: reavaliar a manutenção do SSE | D13 | — | — | — | — | — | — | ✅ Concluído |
+| **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -388,6 +392,11 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f66"></a>
 **F66 — Spike: reavaliar a manutenção do SSE.** Decidiu a D13: remover o SSE e dar ao Socket.IO o fallback de polling. O SSE não rodava (o front fixava o modo WebSocket e ligar `use_sse` desmontava o Socket.IO do servidor), não tinha teste e tinha defeitos no broker; o Quick Tunnel da Cloudflare, candidato da F5, não suporta SSE, e o polling do Socket.IO cobre o proxy que barra o WebSocket. Saíram o `SSEBroker`, a rota `/api/stream`, a `/api/update-subscription`, o `SSEClient`, o `use_sse` e a doc; o cliente passou a usar `transports: ["websocket", "polling"]`. Não foi testado em túnel real: a F5 confere se ao menos o polling atravessa cada candidato.
+
+<a id="f67"></a>
+**F67 — Abrir a pasta de configurações.** O executável guarda `config.toml`, `.env` e `logs` na pasta de dados do usuário (`%LOCALAPPDATA%\SimuladorFinanceiro` no Windows), que o Windows esconde. Em vez de mudar os arquivos de lugar, a tela de configurações ganha o botão "Abrir pasta de configurações", como o "abrir pasta de mods" de vários jogos. (1) **Rota** `POST /api/settings/open-folder` em `routes/settings.py`, protegida por `verify_host` e que só aceita requisição vinda do próprio computador (`request.client.host` em `127.0.0.1` ou `::1`): o servidor também atende a rede local, e um convidado não pode abrir janelas na máquina do host. (2) **Abertura** da pasta de `app_files_dir()` com `os.startfile` no Windows, `open` no macOS e `xdg-open` no Linux, por `subprocess` sem shell. (3) **Sem interface gráfica** (servidor dedicado, Linux sem `xdg-open`) ou pedido fora do computador do host: a rota responde 409 com o caminho, e o front o mostra num campo com botão "Copiar". O caminho aparece sempre ao lado do botão, então o jogador também o encontra sem abrir nada. (4) Um segundo botão, "Abrir pasta de logs", usa a mesma rota com `target=logs`. Um aviso junto aos botões diz que `db` e `postgres` são do banco e não devem ser editados. Teste: a rota recusa quem não é o host e quem vem de outro IP, e chama o abridor do sistema (substituído por um dublê) com a pasta certa. Não serve nenhuma necessidade listada: o ganho é achar o `config.toml` sem caçar uma pasta oculta.
+
+**Aceite:** no executável do Windows aberto por duplo clique, o botão abre o Explorer na pasta que contém o `config.toml`; um convidado da rede local que chama a rota recebe 403.
 
 ---
 ## 3. Descartada
