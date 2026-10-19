@@ -13,7 +13,7 @@ import {
 } from "@/shared/lib/utils/display";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { teamColor, teamName, teamShortName } from "@/shared/lib/teams";
+import { teamColor, teamName } from "@/shared/lib/teams";
 import type { ReturnsReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
 import { playerLabel, simulationColor, simulationLetter, youLabel, labelColors } from "../../lib/player-label";
@@ -168,7 +168,7 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
   const playerPoints = view === "RETURN" ? (p: Player) => p.cumulative_return : (p: Player) => p.networth;
   const teamSeries = (t: TeamReturns, options: Partial<LineSeries> = {}): LineSeries => ({
     key: `team-${t.team}`,
-    label: `${teamShortName(t.team, naming)} · média`,
+    label: `${teamName(t.team, naming)} · média`,
     color: teamColor(t.team),
     points: view === "RETURN" ? t.cumulative_return : t.networth,
     emphasis: true,

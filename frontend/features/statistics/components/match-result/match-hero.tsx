@@ -10,7 +10,7 @@ import {
 } from "@/shared/lib/utils/display";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { OverviewReport, SimulationListItem } from "@/types";
-import { displayCriterionGap, displayCriterionValue } from "../../lib/criterion";
+import { displayCriterionContribution, displayCriterionGap, displayCriterionValue } from "../../lib/criterion";
 import { Podium } from "./podium";
 import { TeamPodium } from "./team-podium";
 
@@ -44,7 +44,10 @@ function teamHeadline(report: OverviewReport) {
   }
   switch (report.criterion) {
     case "SCORE":
-      return `${name} venceu com ${displayNumber(value, 0)} pontos de média`;
+      // Equipe de uma pessoa vale a nota dela: não há média a dizer
+      return first.members === 1
+        ? `${name} venceu com ${displayNumber(value, 0)} pontos`
+        : `${name} venceu com ${displayNumber(value, 0)} pontos de média`;
     case "RETURN":
       return `${name} venceu com ${displaySignedPercent(value)} de retorno médio`;
     case "NETWORTH":
@@ -105,7 +108,10 @@ function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; cu
               <>
                 {" "}
                 Você foi quem mais puxou a {teamShortName(mine.team, naming)} para cima:{" "}
-                <b className="font-mono text-white">+{displayCriterionGap(criterion, mine.top_puller.contribution)}</b> na
+                <b className="font-mono text-white">
+                  {displayCriterionContribution(criterion, mine.top_puller.contribution)}
+                </b>{" "}
+                na
                 média.
               </>
             )}

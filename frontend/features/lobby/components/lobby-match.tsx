@@ -256,9 +256,9 @@ export function LobbyMatch({
       <CardHeader>
         <div className="grid gap-1">
           <CardTitle>{selectedSimulation || loadingSelection ? "Continuar partida" : "Nova partida"}</CardTitle>
-          {selectedSimulation && (
+          {(selectedSimulation || !loadingSelection) && (
             <CardDescription>
-              {selectedSimulation.resume_from
+              {selectedSimulation?.resume_from
                 ? `Parou em ${displayDate(parseLocalDate(selectedSimulation.resume_from))}`
                 : "Ainda não começou"}
             </CardDescription>
@@ -322,7 +322,7 @@ export function LobbyMatch({
                 </AlertTitle>
                 <AlertDescription>
                   {newcomers.length === 1 ? "Entra" : "Entram"} agora, com o saldo inicial de {rules.startingCash} e a
-                  cor que {newcomers.length === 1 ? "escolheu" : "escolheram"}.
+                  cor{inTeams && " e a equipe"} que {newcomers.length === 1 ? "escolheu" : "escolheram"}.
                 </AlertDescription>
               </Alert>
             )}
