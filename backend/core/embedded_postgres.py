@@ -28,6 +28,7 @@ from psycopg import sql
 
 from backend import config
 from backend.config.paths import user_data_dir
+from backend.core.logger import TERMINAL
 from backend.core.utils import resource_path
 
 logger = logging.getLogger(__name__)
@@ -110,7 +111,12 @@ class EmbeddedPostgres:
         _stop_on_console_events(self)
         port = self._start_server()
         password = self._secure(port)
-        logger.info(f"PostgreSQL {self._version} embarcado em 127.0.0.1:{port}")
+        logger.info(
+            "PostgreSQL %s embarcado em 127.0.0.1:%s",
+            self._version,
+            port,
+            extra=TERMINAL,
+        )
         return f"postgresql+psycopg://{SUPERUSER}:{password}@127.0.0.1:{port}/{DATABASE_NAME}"
 
     def stop(self) -> None:
@@ -145,12 +151,19 @@ class EmbeddedPostgres:
     def _install_binaries(self) -> None:
         if (self._bin / "postgres.exe").exists():
             return
-        logger.info(f"Extraindo o PostgreSQL {self._version} (só na primeira abertura)")
+        logger.info(
+            "Extraindo o PostgreSQL %s (só na primeira abertura)",
+            self._version,
+            extra=TERMINAL,
+        )
         self._extract(self._dist / "postgres.zip", self._bin.parent)
 
     def _install_cluster(self) -> None:
         if not (self._data / "PG_VERSION").exists():
-            logger.info("Criando o banco de dados do jogo (só na primeira abertura)")
+            logger.info(
+                "Criando o banco de dados do jogo (só na primeira abertura)",
+                extra=TERMINAL,
+            )
             self._extract(self._dist / "cluster.zip", self._data)
         found = (self._data / "PG_VERSION").read_text("utf-8").strip()
         expected = self._version.split(".")[0]

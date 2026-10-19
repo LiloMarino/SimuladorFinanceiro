@@ -8,13 +8,9 @@ from backend.config.paths import app_files_dir
 from backend.features.tunnel.network_utils.network_types import NetworkType
 from backend.features.tunnel.providers import AVAILABLE_PROVIDERS
 
-logger = logging.getLogger(__package__ if __package__ else __name__)
+logger = logging.getLogger(__name__)
 
 CONFIG_PATH = app_files_dir() / "config.toml"
-
-
-class DatabaseConfig(BaseModel):
-    echo_sql: bool = False
 
 
 class SimulationConfig(BaseModel):
@@ -36,7 +32,6 @@ class ServerConfig(BaseModel):
     port: int = 8000
     provider: str = "lan"
     preferred_vpn: NetworkType | None = None
-    show_firewall_hint: bool = True
 
     @field_validator("provider")
     @classmethod
@@ -50,36 +45,20 @@ class ServerConfig(BaseModel):
 
 
 class LoggingConfig(BaseModel):
-    logging_level: str = "INFO"
     logs_path: str = "logs"
-
-    @field_validator("logging_level")
-    @classmethod
-    def validate_level(cls, v: str) -> str:
-        level = v.upper()
-        if not hasattr(logging, level):
-            raise ValueError(
-                f"logging_level inválido: {v}. "
-                "Use DEBUG, INFO, WARNING, ERROR ou CRITICAL."
-            )
-        return level
 
 
 class DebugConfig(BaseModel):
     enabled: bool = False
+    sql: bool = False
 
 
 class TomlSettings(BaseModel):
-    database: DatabaseConfig = DatabaseConfig()
     simulation: SimulationConfig = SimulationConfig()
     host: HostConfig = HostConfig()
     server: ServerConfig = ServerConfig()
     logging: LoggingConfig = LoggingConfig()
     debug: DebugConfig = DebugConfig()
-
-    def effective_logging_level(self) -> str:
-        """O modo debug sobe o nível dos logs para DEBUG; senão vale o configurado."""
-        return "DEBUG" if self.debug.enabled else self.logging.logging_level
 
 
 def _load_toml_settings() -> TomlSettings:  # pyright: ignore[reportUnusedFunction]

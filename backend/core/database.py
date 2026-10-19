@@ -5,7 +5,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from backend import config
 from backend.core.embedded_postgres import resolve_database_url
 
 logger = logging.getLogger(__name__)
@@ -21,11 +20,7 @@ def get_engine() -> Engine:
     o primeiro uso é o lifespan do main.py, então as threads de request e do loop
     da simulação já a encontram criada.
     """
-    engine = create_engine(
-        resolve_database_url(),
-        pool_pre_ping=True,
-        echo=config.toml.database.echo_sql,
-    )
+    engine = create_engine(resolve_database_url(), pool_pre_ping=True)
     logger.info("Conectado ao PostgreSQL.")
     return engine
 

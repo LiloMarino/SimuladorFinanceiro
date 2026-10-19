@@ -18,6 +18,7 @@ from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.pool import NullPool
 
+from backend.core.logger import TERMINAL
 from backend.core.models.models import Base
 from backend.core.utils import resource_path
 
@@ -135,7 +136,9 @@ def ensure_database(url: URL) -> None:
                 {"name": name},
             ).scalar()
             if not exists:
-                logger.info(f"Criando database PostgreSQL: {name}")
+                logger.info(
+                    "Criando o banco de dados PostgreSQL: %s", name, extra=TERMINAL
+                )
                 quote = admin.dialect.identifier_preparer.quote
                 connection.execute(text(f"CREATE DATABASE {quote(name)}"))
     finally:
@@ -211,7 +214,7 @@ def _dry_run(url: URL) -> None:
 def _backup(url: URL) -> None:
     name = f"{url.database}_bkp_{datetime.now():%Y%m%d_%H%M%S}"
     _copy_database(url, name)
-    logger.info(f"Backup do banco antes da migration: {name}")
+    logger.info("Backup do banco antes da migration: %s", name)
     drop_databases(url, backups_to_drop(_list_backups(url)))
 
 
@@ -239,7 +242,7 @@ def migrate(database_url: str) -> None:
         return
     if revision is None and not tables:
         command.upgrade(config, "head")
-        logger.info(f"Banco criado no head {head}")
+        logger.info("Banco criado na revisão %s", head, extra=TERMINAL)
         return
     if revision is None:
         # Banco do `create_all`, anterior às migrations: só o que bate com os
@@ -251,10 +254,10 @@ def migrate(database_url: str) -> None:
                 "aponte o POSTGRES_DATABASE_URL para um banco novo."
             )
         command.stamp(config, "head")
-        logger.info(f"Banco existente marcado no head {head}")
+        logger.info("Banco existente marcado na revisão %s", head)
         return
 
     _dry_run(url)
     _backup(url)
     command.upgrade(config, "head")
-    logger.info(f"Banco migrado de {revision} até {head}")
+    logger.info("Banco migrado de %s até %s", revision, head, extra=TERMINAL)

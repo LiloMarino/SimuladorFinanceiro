@@ -20,7 +20,7 @@ import argparse
 
 from backend import config
 from backend.config.paths import app_files_dir
-from backend.core.logger import setup_logging
+from backend.core.logger import TERMINAL, setup_logging
 
 # O modo debug se decide no boot: `--debug` força o que o config.toml deixou desligado
 if __name__ == "__main__":
@@ -34,7 +34,8 @@ if __name__ == "__main__":
         config.toml.debug.enabled = True
 
 setup_logging(
-    level=config.toml.effective_logging_level(),
+    debug=config.toml.debug.enabled,
+    sql=config.toml.debug.sql,
     logs_path=app_files_dir() / config.toml.logging.logs_path,
 )
 # flake8: noqa: E402 - Setup de logging deve ser o primeiro para capturar logs de importação
@@ -64,11 +65,16 @@ from backend.features.realtime.ws_handlers import register_ws_handlers
 from backend.features.simulation.simulation_loop import simulation_controller
 from backend.routes import register_routes
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("backend.main")
+
+LOCAL_URL = f"http://localhost:{config.toml.server.port}"
 
 if config.toml.debug.enabled:
     logger.info(
-        "Modo debug ligado: logs em DEBUG e ferramentas de diagnóstico no front."
+        "Modo debug ligado: detalhes do app nos arquivos de log%s e ferramentas de "
+        "diagnóstico no front.",
+        " (com SQL em database.log)" if config.toml.debug.sql else "",
+        extra=TERMINAL,
     )
 
 
@@ -81,13 +87,15 @@ if config.toml.debug.enabled:
 async def lifespan(app: FastAPI):
     engine = get_engine()
     backend = engine.url.get_backend_name()
-    logger.info(f"Banco de dados em uso: {backend.upper()} ({engine.url})")
+    logger.info(
+        "Banco de dados em uso: %s (%s)", backend.upper(), engine.url, extra=TERMINAL
+    )
 
     # --------------------------------------------------
     # 🔌 Inicialização do TunnelProvider (LAN)
     # --------------------------------------------------
     if config.toml.server.provider == "lan":
-        logger.info("🌐 Inicializando LANProvider no startup...")
+        logger.debug("Inicializando o provider LAN no startup.")
         await TunnelManager._provider.start(config.toml.server.port)
 
     # --------------------------------------------------
@@ -97,23 +105,23 @@ async def lifespan(app: FastAPI):
         broker = RealtimeBrokerManager.get_broker()
         if isinstance(broker, SocketBroker):
             broker.bind_event_loop(asyncio.get_running_loop())
-            logger.info("Event loop vinculado ao SocketBroker.")
+            logger.debug("Event loop vinculado ao SocketBroker.")
     except Exception as e:
-        logger.warning(f"Não foi possível vincular o event loop ao SocketBroker: {e}")
+        logger.warning("Não foi possível vincular o event loop ao SocketBroker: %s", e)
 
     # --------------------------------------------------
     # Indicadores econômicos: o boot segue sem esperar a rede
     # --------------------------------------------------
     Thread(target=refresh_indicators, name="indicators-refresh", daemon=True).start()
 
-    logger.info("Acesse localmente: http://localhost:8000")
+    logger.info("Acesse localmente: %s", LOCAL_URL, extra=TERMINAL)
     yield
 
     # --------------------------------------------------
     # Shutdown
     # --------------------------------------------------
     simulation_controller.shutdown()
-    logger.info("Aplicação finalizada.")
+    logger.info("Aplicação finalizada.", extra=TERMINAL)
 
 
 # ---------------------------------------------------------------------
@@ -183,13 +191,12 @@ if __name__ == "__main__":
         sys.exit(1)
 
     asgi_app = create_app()
-    local_url = f"http://localhost:{config.toml.server.port}"
 
     # O executável serve o front buildado; em dev o front é o do Vite
     if getattr(sys, "frozen", False):
-        logger.info(f"Configurações e logs em {app_files_dir()}")
-        logger.info(f"Abrindo navegador em {local_url}")
-        Timer(1.0, lambda: webbrowser.open(local_url)).start()
+        logger.info("Configurações e logs em %s", app_files_dir(), extra=TERMINAL)
+        logger.debug("Abrindo o navegador em %s", LOCAL_URL)
+        Timer(1.0, lambda: webbrowser.open(LOCAL_URL)).start()
 
     # Os loggers do uvicorn sobem para o raiz: o servidor escreve nos mesmos arquivos
     uvicorn.run(

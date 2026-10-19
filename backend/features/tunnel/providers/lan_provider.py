@@ -1,6 +1,7 @@
 import logging
 
 from backend import config
+from backend.core.logger import TERMINAL
 from backend.features.tunnel.network_utils.network_detector import NetworkDetector
 from backend.features.tunnel.network_utils.network_interface import NetworkInterface
 from backend.features.tunnel.network_utils.network_policy import NetworkPolicy
@@ -24,7 +25,6 @@ class LANProvider(TunnelProvider):
         self._detector = NetworkDetector()
         self._policy = NetworkPolicy()
         self._preferred = config.toml.server.preferred_vpn
-        self._show_firewall_hint = config.toml.server.show_firewall_hint
         self._interfaces: list[NetworkInterface] = []
         self._active = False
         self._port: int | None = None
@@ -39,7 +39,7 @@ class LANProvider(TunnelProvider):
 
         if not self._interfaces:
             logger.warning(
-                "⚠️ Nenhuma interface LAN/VPN detectada. "
+                "Nenhuma interface LAN/VPN detectada. "
                 "Ative Radmin/Hamachi ou conecte-se a uma rede local."
             )
             self._active = False
@@ -47,14 +47,16 @@ class LANProvider(TunnelProvider):
 
         self._active = True
 
-        logger.info(f"🌐 Interfaces detectadas (porta {port}):")
+        logger.info("Interfaces detectadas (porta %s):", port, extra=TERMINAL)
         for interface in self._interfaces:
             logger.info(
-                f"  {interface.icon} [{interface.name}] http://{interface.ip}:{port}"
+                "  %s [%s] http://%s:%s",
+                interface.icon,
+                interface.name,
+                interface.ip,
+                port,
+                extra=TERMINAL,
             )
-
-        if self._show_firewall_hint:
-            self._log_firewall_hint(port)
 
         best = self._policy.select(self._interfaces, self._preferred)
         return self._url_for(best) if best else ""
@@ -98,8 +100,3 @@ class LANProvider(TunnelProvider):
         if not interface or not self._port:
             return ""
         return f"http://{interface.ip}:{self._port}"
-
-    def _log_firewall_hint(self, port: int) -> None:
-        logger.info(
-            f"Para acesso externo, pode ser necessário permitir o aplicativo no firewall ou liberar a porta {port}."
-        )

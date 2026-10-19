@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from backend.config.paths import app_files_dir
 
-logger = logging.getLogger(__package__ if __package__ else __name__)
+logger = logging.getLogger(__name__)
 ENV_PATH = app_files_dir() / ".env"
 
 
