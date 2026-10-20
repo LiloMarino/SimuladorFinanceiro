@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 
-from backend.types import ClientID, Event, JSONValue
+from backend.types import SID, ClientID, Event, JSONValue
 
 
 class RealtimeBroker(ABC):
@@ -15,8 +15,8 @@ class RealtimeBroker(ABC):
     """
 
     @abstractmethod
-    def update_subscription(self, client_id: ClientID, events: Iterable[Event]) -> None:
-        """Atualiza os eventos de interesse do cliente."""
+    def update_subscription(self, sid: SID, events: Iterable[Event]) -> None:
+        """Atualiza os eventos de interesse de uma conexão."""
         raise NotImplementedError
 
     @abstractmethod

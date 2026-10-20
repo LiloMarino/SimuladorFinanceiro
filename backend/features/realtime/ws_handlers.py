@@ -38,8 +38,8 @@ def register_ws_handlers(sio: AsyncServer):
         broker = get_socket_broker()
         client_id = broker.get_client_id_by_sid(sid)
 
-        if client_id:
-            broker.remove_client(client_id, sid)
+        # O jogador sai da sala quando fecha a última aba: as outras seguem com ele dentro
+        if client_id and broker.remove_client(client_id, sid):
             UserManager.unregister(client_id)
             logger.debug("Cliente WS desconectado: %s (sid=%s)", client_id, sid)
 
@@ -53,7 +53,7 @@ def register_ws_handlers(sio: AsyncServer):
             return
 
         events = data.get("events", [])
-        broker.update_subscription(client_id, events)
+        broker.update_subscription(sid, events)
 
         await sio.emit("subscribed", {"events": events}, to=sid)
         logger.debug("Cliente WS inscrito: %s -> %s", client_id, events)

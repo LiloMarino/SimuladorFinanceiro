@@ -28,9 +28,8 @@ class SocketBroker(RealtimeBroker):
         self.sio = sio
         self._lock = Lock()
         self._loop: asyncio.AbstractEventLoop | None = None
-        self._subscriptions: dict[Event, set[ClientID]] = defaultdict(
-            set
-        )  # event -> set(client_id)
+        # Cada aba assina os eventos da própria página: a assinatura é da conexão
+        self._subscriptions: dict[Event, set[SID]] = defaultdict(set)  # event -> sids
         self._client_to_sids: dict[ClientID, set[SID]] = defaultdict(
             set
         )  # client_id -> sids
@@ -46,33 +45,35 @@ class SocketBroker(RealtimeBroker):
             self._client_to_sids[client_id].add(sid)
             self._sid_to_client[sid] = client_id
 
-    def remove_client(self, client_id: ClientID, sid: SID) -> None:
-        """Remove um cliente desconectado."""
+    def remove_client(self, client_id: ClientID, sid: SID) -> bool:
+        """Remove a conexão encerrada; True quando era a última aberta do cliente."""
         with self._lock:
             self._sid_to_client.pop(sid, None)
+            for subs in self._subscriptions.values():
+                subs.discard(sid)
 
             sids = self._client_to_sids.get(client_id)
-            if not sids:
-                return
+            if sids is None:
+                return True
 
             sids.discard(sid)
+            if sids:
+                return False
 
-            if not sids:
-                del self._client_to_sids[client_id]
-                for subs in self._subscriptions.values():
-                    subs.discard(client_id)
+            del self._client_to_sids[client_id]
+            return True
 
     def get_client_id_by_sid(self, sid: SID) -> ClientID | None:
         with self._lock:
             return self._sid_to_client.get(sid)
 
-    def update_subscription(self, client_id: ClientID, events: Iterable[Event]) -> None:
-        """Atualiza os eventos que o cliente está inscrito."""
+    def update_subscription(self, sid: SID, events: Iterable[Event]) -> None:
+        """Troca os eventos que a conexão assina pela lista nova."""
         with self._lock:
             for subs in self._subscriptions.values():
-                subs.discard(client_id)
+                subs.discard(sid)
             for event in events:
-                self._subscriptions[event].add(client_id)
+                self._subscriptions[event].add(sid)
 
     def notify(
         self,
@@ -81,17 +82,9 @@ class SocketBroker(RealtimeBroker):
         to: ClientID | None = None,
     ) -> None:
         with self._lock:
-            subscribers = self._subscriptions.get(event, set()).copy()
+            targets = set(self._subscriptions.get(event, set()))
             if to is not None:
-                target_clients = {to} if to in subscribers else set()
-            else:
-                target_clients = subscribers
-
-            targets = {
-                sid
-                for cid in target_clients
-                for sid in self._client_to_sids.get(cid, set())
-            }
+                targets &= self._client_to_sids.get(to, set())
 
         if self._loop is None:
             raise RuntimeError("Event loop não está vinculado ao SocketBroker")
