@@ -1164,6 +1164,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/life": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Vida financeira do jogador
+         * @description No viver de renda: o salário e a despesa do mês, as demissões que tiram salário, a meta do dia, o juro que o caixa negativo paga por pregão e quantos meses de despesa o caixa cobre.
+         */
+        get: operations["get_life_status_api_simulation_life_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/life-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Histórico do viver de renda
+         * @description Imprevistos, demissões, entrada e saída do cheque especial e o juro de cada mês, do mais recente ao mais antigo, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria.
+         */
+        get: operations["get_life_history_api_simulation_life_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/join": {
         parameters: {
             query?: never;
@@ -1532,6 +1572,31 @@ export interface components {
             game_type: components["schemas"]["GameType"];
             /** Goal Net Worth */
             goal_net_worth: number | string;
+            /**
+             * Monthly Salary
+             * @default 0
+             */
+            monthly_salary: number | string;
+            /**
+             * Monthly Expense
+             * @default 0
+             */
+            monthly_expense: number | string;
+            /**
+             * Unexpected Per Year
+             * @default 0
+             */
+            unexpected_per_year: number;
+            /**
+             * Withdrawal Rate
+             * @default 0.04
+             */
+            withdrawal_rate: number | string;
+            /**
+             * Inflation Adjusted
+             * @default false
+             */
+            inflation_adjusted: boolean;
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -1758,6 +1823,105 @@ export interface components {
             color: string;
             /** Team */
             team?: number | null;
+        };
+        /**
+         * LifeEventDTO
+         * @description Imprevisto sorteado no pregão: o mesmo para todos os jogadores.
+         */
+        LifeEventDTO: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            effect: components["schemas"]["LifeEventEffect"];
+            /** Amount */
+            amount: string;
+            /**
+             * Event Date
+             * Format: date
+             */
+            event_date: string;
+        };
+        /**
+         * LifeEventEffect
+         * @enum {string}
+         */
+        LifeEventEffect: "CASH_OUT" | "SKIP_NEXT_SALARY";
+        /**
+         * LifeHistoryCategory
+         * @description Os filtros do histórico do viver de renda.
+         * @enum {string}
+         */
+        LifeHistoryCategory: "UNEXPECTED" | "LAYOFF" | "OVERDRAFT";
+        /** LifeHistoryCountsDTO */
+        LifeHistoryCountsDTO: {
+            /** All */
+            all: number;
+            /** Unexpected */
+            unexpected: number;
+            /** Layoff */
+            layoff: number;
+            /** Overdraft */
+            overdraft: number;
+        };
+        /**
+         * LifeHistoryKind
+         * @enum {string}
+         */
+        LifeHistoryKind: "UNEXPECTED_EXPENSE" | "LAYOFF" | "OVERDRAFT_STARTED" | "OVERDRAFT_ENDED" | "OVERDRAFT_INTEREST";
+        /** LifeHistoryPageDTO */
+        LifeHistoryPageDTO: {
+            /** Items */
+            items: components["schemas"]["LifeHistoryRowDTO"][];
+            /** Total */
+            total: number;
+            counts: components["schemas"]["LifeHistoryCountsDTO"];
+        };
+        /** LifeHistoryRowDTO */
+        LifeHistoryRowDTO: {
+            /**
+             * Event Date
+             * Format: date
+             */
+            event_date: string;
+            category: components["schemas"]["LifeHistoryCategory"];
+            kind: components["schemas"]["LifeHistoryKind"];
+            /** Life Event Key */
+            life_event_key?: string | null;
+            /** Label */
+            label?: string | null;
+            /** Amount */
+            amount?: string | null;
+            /** Cash After */
+            cash_after: string;
+        };
+        /**
+         * LifeStatusDTO
+         * @description A vida financeira de quem pede, no pregão corrente do viver de renda.
+         */
+        LifeStatusDTO: {
+            /** Monthly Salary */
+            monthly_salary: string;
+            /** Monthly Expense */
+            monthly_expense: string;
+            /** Salary Skipped By */
+            salary_skipped_by: string | null;
+            /** Next Salary Skipped By */
+            next_salary_skipped_by: string | null;
+            /** Goal */
+            goal: string;
+            /** Inflation Adjusted */
+            inflation_adjusted: boolean;
+            /** Withdrawal Rate */
+            withdrawal_rate: string;
+            /** Unexpected Per Year */
+            unexpected_per_year: number;
+            /** Overdraft Monthly Rate */
+            overdraft_monthly_rate: string;
+            /** Overdraft Daily Interest */
+            overdraft_daily_interest: string;
+            /** Reserve Months */
+            reserve_months: string;
         };
         /** MarketQuoteDTO */
         MarketQuoteDTO: {
@@ -2011,6 +2175,8 @@ export interface components {
             game_type: components["schemas"]["GameType"];
             /** Goal Net Worth */
             goal_net_worth: string | null;
+            /** Goal Steps */
+            goal_steps: components["schemas"]["SeriesPointDTO"][];
         };
         /** PatrimonialHistoryDTO */
         PatrimonialHistoryDTO: {
@@ -2398,6 +2564,7 @@ export interface components {
             portfolio_update: components["schemas"]["PortfolioUpdateEventDTO"];
             statistics_snapshot_update: components["schemas"]["StatisticsSnapshotUpdateEventDTO"];
             goal_progress_update: components["schemas"]["GoalProgressDTO"];
+            life_event: components["schemas"]["LifeEventDTO"];
             order_executed: components["schemas"]["OrderExecutedEventDTO"];
             order_partial_executed: components["schemas"]["OrderPartialExecutedEventDTO"];
             player_join: components["schemas"]["PlayerPresenceEventDTO"];
@@ -2462,6 +2629,16 @@ export interface components {
             game_type: components["schemas"]["GameType"];
             /** Goal Net Worth */
             goal_net_worth: string;
+            /** Monthly Salary */
+            monthly_salary: string;
+            /** Monthly Expense */
+            monthly_expense: string;
+            /** Unexpected Per Year */
+            unexpected_per_year: number;
+            /** Withdrawal Rate */
+            withdrawal_rate: string;
+            /** Inflation Adjusted */
+            inflation_adjusted: boolean;
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -2658,6 +2835,16 @@ export interface components {
             game_type: components["schemas"]["GameType"];
             /** Goal Net Worth */
             goal_net_worth: string;
+            /** Monthly Salary */
+            monthly_salary: string;
+            /** Monthly Expense */
+            monthly_expense: string;
+            /** Unexpected Per Year */
+            unexpected_per_year: number;
+            /** Withdrawal Rate */
+            withdrawal_rate: string;
+            /** Inflation Adjusted */
+            inflation_adjusted: boolean;
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -2708,6 +2895,16 @@ export interface components {
             game_type: components["schemas"]["GameType"];
             /** Goal Net Worth */
             goal_net_worth: string;
+            /** Monthly Salary */
+            monthly_salary: string;
+            /** Monthly Expense */
+            monthly_expense: string;
+            /** Unexpected Per Year */
+            unexpected_per_year: number;
+            /** Withdrawal Rate */
+            withdrawal_rate: string;
+            /** Inflation Adjusted */
+            inflation_adjusted: boolean;
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -3125,6 +3322,31 @@ export interface components {
             game_type: components["schemas"]["GameType"];
             /** Goal Net Worth */
             goal_net_worth: number | string;
+            /**
+             * Monthly Salary
+             * @default 0
+             */
+            monthly_salary: number | string;
+            /**
+             * Monthly Expense
+             * @default 0
+             */
+            monthly_expense: number | string;
+            /**
+             * Unexpected Per Year
+             * @default 0
+             */
+            unexpected_per_year: number;
+            /**
+             * Withdrawal Rate
+             * @default 0.04
+             */
+            withdrawal_rate: number | string;
+            /**
+             * Inflation Adjusted
+             * @default false
+             */
+            inflation_adjusted: boolean;
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -5616,6 +5838,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GoalProgressDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_life_status_api_simulation_life_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LifeStatusDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_life_history_api_simulation_life_history_get: {
+        parameters: {
+            query?: {
+                category?: components["schemas"]["LifeHistoryCategory"] | null;
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LifeHistoryPageDTO"];
                 };
             };
             /** @description Unprocessable Content */

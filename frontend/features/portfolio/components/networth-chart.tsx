@@ -10,7 +10,8 @@ import {
   displayNumber,
   parseLocalDate,
 } from "@/shared/lib/utils/display";
-import type { PortfolioHistoryPoint } from "@/types";
+import { goalAt } from "@/shared/lib/goal";
+import type { PortfolioHistoryPoint, SeriesPoint } from "@/types";
 
 // Da base para o topo da pilha: caixa, renda fixa, renda variável
 const BANDS = [
@@ -26,7 +27,7 @@ type Point = {
   equity: number;
   total: number;
   provided: number;
-  /** Meta da corrida, reta; ausente fora da corrida */
+  /** Meta vigente no dia: reta na corrida, em degraus no viver de renda; ausente fora da corrida */
   goal?: number;
 };
 
@@ -54,7 +55,7 @@ const displayThousands = (value: number) => {
 };
 
 /** Evolução da carteira: uma faixa por classe e, por cima, a linha tracejada do que foi aportado. */
-export function NetworthChart({ history, goal }: { history: PortfolioHistoryPoint[]; goal?: number }) {
+export function NetworthChart({ history, goalSteps }: { history: PortfolioHistoryPoint[]; goalSteps?: SeriesPoint[] }) {
   // Recharts desenha número; os valores seguem em string até aqui
   const data: Point[] = history.map((p) => ({
     date: p.snapshot_date,
@@ -63,10 +64,11 @@ export function NetworthChart({ history, goal }: { history: PortfolioHistoryPoin
     equity: Number(p.total_equity),
     total: Number(p.total_networth),
     provided: Number(p.total_provided),
-    goal,
+    goal: goalAt(goalSteps ?? [], p.snapshot_date),
   }));
   const last = data.at(-1);
-  const scale = niceScale(Math.max(0, goal ?? 0, ...data.map((p) => Math.max(p.total, p.provided))));
+  const hasGoal = data.some((p) => p.goal !== undefined);
+  const scale = niceScale(Math.max(0, ...data.map((p) => Math.max(p.total, p.provided, p.goal ?? 0))));
 
   return (
     <Card>
@@ -137,9 +139,9 @@ export function NetworthChart({ history, goal }: { history: PortfolioHistoryPoin
                     dot={false}
                     isAnimationActive={false}
                   />
-                  {goal !== undefined && (
+                  {hasGoal && (
                     <Line
-                      type="linear"
+                      type="stepAfter"
                       dataKey="goal"
                       stroke="var(--foreground)"
                       strokeWidth={2}
@@ -166,7 +168,7 @@ export function NetworthChart({ history, goal }: { history: PortfolioHistoryPoin
                 <span className="w-4 border-t-2 border-dashed border-foreground" aria-hidden="true" />
                 Aportado
               </li>
-              {goal !== undefined && (
+              {hasGoal && (
                 <li className="flex items-center gap-1.5">
                   <span className="w-4 border-t-2 border-dotted border-foreground" aria-hidden="true" />
                   Meta

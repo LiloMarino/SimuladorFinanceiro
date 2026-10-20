@@ -176,6 +176,11 @@ def new_simulation(name: str) -> int:
             victory_criterion=VictoryCriterion.SCORE,
             game_type=GameType.CLASSIC,
             goal_net_worth=Decimal(10000),
+            monthly_salary=Decimal(0),
+            monthly_expense=Decimal(0),
+            unexpected_per_year=0,
+            withdrawal_rate=Decimal("0.04"),
+            inflation_adjusted=False,
         )
     )
 

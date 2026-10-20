@@ -8,6 +8,7 @@ from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.goal import GoalProgressDTO
+from backend.core.dto.life import LifeHistoryPageDTO, LifeStatusDTO
 from backend.core.dto.simulation import (
     PriceImpactPointDTO,
     PriceImpactPreviewDTO,
@@ -15,7 +16,13 @@ from backend.core.dto.simulation import (
     SimulationSettingsDTO,
     SimulationStatusResponse,
 )
-from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
+from backend.core.enum import (
+    GameType,
+    LifeHistoryCategory,
+    PlayerGrouping,
+    TeamNaming,
+    VictoryCriterion,
+)
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.settings_manager import SettingsManager
@@ -26,6 +33,7 @@ from backend.features.realtime.schemas import (
     SimulationEndedEventDTO,
     SimulationSelectedEventDTO,
 )
+from backend.features.simulation.life_history import build_history, history_page
 from backend.features.simulation.saved_simulation import describe
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.simulation.simulation_loop import simulation_controller
@@ -46,6 +54,13 @@ class SimulationRulesRequest(BaseModel):
     victory_criterion: VictoryCriterion = VictoryCriterion.SCORE
     game_type: GameType = GameType.CLASSIC
     goal_net_worth: Decimal = Field(gt=0)
+    monthly_salary: Decimal = Field(ge=0, default=Decimal(0))
+    monthly_expense: Decimal = Field(ge=0, default=Decimal(0))
+    unexpected_per_year: int = Field(ge=0, le=52, default=0)
+    withdrawal_rate: Decimal = Field(
+        ge=Decimal("0.01"), le=Decimal("0.10"), default=Decimal("0.04")
+    )
+    inflation_adjusted: bool = False
     player_grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL
     team_naming: TeamNaming = TeamNaming.COLOR
 
@@ -62,6 +77,20 @@ class SimulationRulesRequest(BaseModel):
             and self.goal_net_worth <= self.starting_cash
         ):
             raise ValueError("A meta precisa ser maior que o saldo inicial.")
+        return self
+
+    @model_validator(mode="after")
+    def validate_life(self):
+        if self.game_type is not GameType.FINANCIAL_INDEPENDENCE:
+            return self
+        if self.monthly_salary <= 0 or self.monthly_expense <= 0:
+            raise ValueError("Salário e despesa mensais precisam ser maiores que zero.")
+        goal = 12 * self.monthly_expense / self.withdrawal_rate
+        if goal <= self.starting_cash:
+            raise ValueError(
+                "A meta de independência (12 x a despesa ÷ a taxa de retirada) "
+                "precisa ser maior que o saldo inicial."
+            )
         return self
 
 
@@ -372,6 +401,48 @@ def get_goal_progress():
     if progress is None:
         raise ConflictError("A partida em andamento não tem meta.")
     return progress
+
+
+@simulation_router.get(
+    "/life",
+    response_model=LifeStatusDTO,
+    summary="Vida financeira do jogador",
+    description="No viver de renda: o salário e a despesa do mês, as demissões que tiram salário, a meta do dia, o juro que o caixa negativo paga por pregão e quantos meses de despesa o caixa cobre.",
+)
+def get_life_status(client_id: ClientID):
+    """
+    Retorna a vida financeira de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    status_ = SimulationManager.get_active_simulation().get_life_status(client_id)
+    if status_ is None:
+        raise ConflictError("A partida em andamento não é de viver de renda.")
+    return status_
+
+
+@simulation_router.get(
+    "/life-history",
+    response_model=LifeHistoryPageDTO,
+    summary="Histórico do viver de renda",
+    description="Imprevistos, demissões, entrada e saída do cheque especial e o juro de cada mês, do mais recente ao mais antigo, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria.",
+)
+def get_life_history(
+    client_id: ClientID,
+    category: LifeHistoryCategory | None = None,
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=6, ge=1, le=100),
+):
+    """
+    Retorna uma página do histórico de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    events = repository.event.get_cashflow_events(
+        SimulationManager.get_active_simulation_id(),
+        UserManager.get_user_id(client_id),
+    )
+    return history_page(build_history(events), category, offset, limit)
 
 
 @simulation_router.post(

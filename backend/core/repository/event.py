@@ -10,6 +10,7 @@ from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.events.fixed_income import FixedIncomeEventDTO
+from backend.core.enum import CashflowEventType
 from backend.core.models.models import (
     EventCashflow,
     EventEquity,
@@ -37,6 +38,32 @@ class EventRepository:
 
         if FixedIncomeEventDTO in buckets:
             self._insert_fixed_income(session, buckets[FixedIncomeEventDTO])
+
+    @transactional
+    def get_cashflow_events(
+        self, session: Session, simulation_id: int, user_id: int
+    ) -> list[CashflowEventDTO]:
+        """Os eventos de caixa do jogador na ordem em que aconteceram."""
+        rows = session.scalars(
+            select(EventCashflow)
+            .where(
+                EventCashflow.simulation_id == simulation_id,
+                EventCashflow.user_id == user_id,
+            )
+            .order_by(EventCashflow.event_date, EventCashflow.id)
+        ).all()
+        return [
+            CashflowEventDTO(
+                simulation_id=row.simulation_id,
+                user_id=row.user_id,
+                event_type=CashflowEventType(row.event_type),
+                amount=row.amount,
+                event_date=row.event_date,
+                created_at=row.created_at,
+                life_event_key=row.life_event_key,
+            )
+            for row in rows
+        ]
 
     @transactional
     def get_last_event_date(self, session: Session, simulation_id: int) -> date | None:
@@ -96,6 +123,7 @@ class EventRepository:
                 amount=e.amount,
                 event_date=e.event_date,
                 created_at=e.created_at,
+                life_event_key=e.life_event_key,
             )
             for e in cashflow_events
         ]

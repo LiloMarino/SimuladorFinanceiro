@@ -14,7 +14,7 @@ import {
   displaySignedPercent,
 } from "@/shared/lib/utils/display";
 import type { Highlights, TeamNaming } from "@/types";
-import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
+import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { CUMULATIVE_RETURN, INCOME_TAX_PAID, MAX_DRAWDOWN } from "../../lib/metrics";
 
 interface HighlightProps {

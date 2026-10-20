@@ -1,4 +1,4 @@
-import { Flag, Trophy, type LucideIcon } from "lucide-react";
+import { Flag, Sun, Trophy, type LucideIcon } from "lucide-react";
 import type { GameType, VictoryCriterion } from "@/types";
 import { VICTORY_CRITERIA } from "./victory-criteria";
 
@@ -18,6 +18,11 @@ export const GAME_TYPES: Partial<Record<GameType, GameTypeInfo>> = {
     label: "Corrida à meta",
     description: "Vence quem chegar primeiro a um patrimônio-alvo.",
     icon: Flag,
+  },
+  FINANCIAL_INDEPENDENCE: {
+    label: "Viver de renda",
+    description: "Salário, despesa e imprevistos; vence quem chegar à independência.",
+    icon: Sun,
   },
 };
 

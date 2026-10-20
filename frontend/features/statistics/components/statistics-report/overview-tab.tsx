@@ -16,7 +16,7 @@ import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
 import type { OverviewReport } from "@/types";
-import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
+import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import {
   criterionLabel,
   displayCriterionContribution,

@@ -36,6 +36,7 @@ from backend.core.enum import (
     VictoryCriterion,
 )
 from backend.core.sectors import allocate_by_sector
+from backend.features.simulation.goal import goal_on, goal_steps
 from backend.features.statistics import operations, returns, risk, sectors
 from backend.features.statistics.ranking import build_overview, capital_provided
 from backend.features.statistics.teams import (
@@ -50,15 +51,52 @@ from backend.features.variable_income.price_impact import PriceImpact
 
 def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
     team_naming, in_teams = _team_context(simulation_ids)
-    criterion, game_type, goal = _shared_rules(simulation_ids)
+    criterion, game_type = _shared_rules(simulation_ids)
+    players = _with_goal_of_the_day(
+        repository.statistics.get_players_history(simulation_ids)
+    )
+    goals = {p.goal_net_worth for p in players}
     return build_overview(
-        repository.statistics.get_players_history(simulation_ids),
+        players,
         criterion,
         game_type=game_type,
-        goal_net_worth=goal,
+        goal_net_worth=goals.pop() if len(goals) == 1 else None,
+        goal_steps=_goal_steps(simulation_ids, players),
         in_teams=in_teams,
         team_naming=team_naming,
     )
+
+
+def _with_goal_of_the_day(players: list[PlayerHistoryDTO]) -> list[PlayerHistoryDTO]:
+    """No viver de renda a meta sobe com a despesa: vale a do último dia de cada jogador."""
+    summaries = {
+        i: repository.simulation.get_simulation(i)
+        for i in {p.simulation_id for p in players}
+    }
+    result = []
+    for player in players:
+        summary = summaries[player.simulation_id]
+        if summary is not None:
+            goal = goal_on(summary, player.history[-1].snapshot_date)
+            player = player.model_copy(update={"goal_net_worth": goal})
+        result.append(player)
+    return result
+
+
+def _goal_steps(
+    simulation_ids: list[int], players: list[PlayerHistoryDTO]
+) -> list[SeriesPointDTO]:
+    """A meta em degraus de uma partida só, até o último dia jogado; vazia entre partidas."""
+    if len(simulation_ids) != 1 or not players:
+        return []
+    summary = repository.simulation.get_simulation(simulation_ids[0])
+    if summary is None or summary.game_type is GameType.CLASSIC:
+        return []
+    until = max(p.history[-1].snapshot_date for p in players)
+    return [
+        SeriesPointDTO(date=day, value=value)
+        for day, value in goal_steps(summary, until)
+    ]
 
 
 def _team_context(simulation_ids: list[int]) -> tuple[TeamNaming, bool]:
@@ -77,11 +115,11 @@ def _grouping(in_teams: bool) -> PlayerGrouping:
 
 def _shared_rules(
     simulation_ids: list[int],
-) -> tuple[VictoryCriterion, GameType, Decimal | None]:
+) -> tuple[VictoryCriterion, GameType]:
     """
     O que ordena o ranking entre as simulações: o tipo de partida quando todas têm o
-    mesmo (senão, a Clássica), o critério quando todas usam o mesmo (senão, a nota
-    geral) e a meta quando é uma só.
+    mesmo (senão, a Clássica) e o critério quando todas usam o mesmo (senão, a nota
+    geral).
     """
     simulations = [
         s
@@ -90,11 +128,9 @@ def _shared_rules(
     ]
     criteria = {s.victory_criterion for s in simulations}
     game_types = {s.game_type for s in simulations}
-    goals = {s.goal_net_worth for s in simulations}
     return (
         criteria.pop() if len(criteria) == 1 else VictoryCriterion.SCORE,
         game_types.pop() if len(game_types) == 1 else GameType.CLASSIC,
-        goals.pop() if len(goals) == 1 else None,
     )
 
 

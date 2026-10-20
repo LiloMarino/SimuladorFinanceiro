@@ -17,10 +17,23 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { formatMoney } from "@/shared/lib/utils/format";
-import { displayDate, displayDecimal, parseLocalDate, toCentsString } from "@/shared/lib/utils/display";
+import {
+  displayDate,
+  displayDecimal,
+  displayMoneyCompact,
+  displayMoneyWhole,
+  parseLocalDate,
+  toCentsString,
+} from "@/shared/lib/utils/display";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { seriesCoverageOptions } from "@/shared/lib/queries/seriesCoverageOptions";
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
+import {
+  displayRatePercent,
+  unexpectedLabel,
+  UNEXPECTED_OPTIONS,
+  withdrawalRateToField,
+} from "@/shared/lib/financial-independence";
 import { GAME_TYPES } from "@/shared/lib/game-types";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
@@ -37,6 +50,14 @@ import { useDistributeTeams } from "../hooks/useDistributeTeams";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
 import { checkTeams } from "../lib/teams-check";
 import { checkCoverage } from "../lib/coverage";
+import {
+  calculatedGoal,
+  isPositiveMoney,
+  isWithdrawalRate,
+  WITHDRAWAL_RATE_MESSAGE,
+  withdrawalRateFraction,
+  withdrawalRateToBody,
+} from "../lib/life-rules";
 import { dateFieldError, isIsoDate } from "../lib/date-field";
 import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "../lib/price-impact";
 import { CoverageAlerts } from "./coverage-alerts";
@@ -79,6 +100,21 @@ const simulationFormSchema = z
       .string()
       .min(1, "Informe a meta")
       .refine((val) => Number(normalizeNumberString(val)) > 0, "A meta tem que ser maior que zero"),
+    monthlySalary: z
+      .string()
+      .min(1, "Informe o salário")
+      .refine(isPositiveMoney, "O salário tem que ser maior que zero"),
+    monthlyExpense: z
+      .string()
+      .min(1, "Informe a despesa")
+      .refine(isPositiveMoney, "A despesa tem que ser maior que zero"),
+    unexpectedPerYear: z.number().refine((value) => UNEXPECTED_OPTIONS.some((o) => o.perYear === value)),
+    // Percentual ao ano como o jogador digita: "4" é 4%
+    withdrawalRate: z
+      .string()
+      .min(1, "Informe a taxa")
+      .refine((val) => isWithdrawalRate(withdrawalRateFraction(val)), WITHDRAWAL_RATE_MESSAGE),
+    inflationAdjusted: z.boolean(),
     playerGrouping: z.custom<PlayerGrouping>((value) => value === "INDIVIDUAL" || value === "TEAMS"),
     teamNaming: z.custom<TeamNaming>((value) => value === "COLOR" || value === "NUMBER"),
   })
@@ -94,6 +130,17 @@ const simulationFormSchema = z
       code: "custom",
       message: `A meta precisa passar do saldo inicial (${data.startingCash}).`,
       path: ["goalNetWorth"],
+    });
+  })
+  // No viver de renda a meta calculada fica acima do que o jogador já tem no primeiro dia
+  .superRefine((data, ctx) => {
+    if (data.gameType !== "FINANCIAL_INDEPENDENCE") return;
+    const goal = calculatedGoal(data.monthlyExpense, data.withdrawalRate);
+    if (goal === null || goal > Number(normalizeNumberString(data.startingCash))) return;
+    ctx.addIssue({
+      code: "custom",
+      message: `A meta calculada (${displayMoneyWhole(goal)}) precisa passar do saldo inicial (${data.startingCash}).`,
+      path: ["monthlyExpense"],
     });
   });
 
@@ -139,6 +186,11 @@ export function LobbyMatch({
       victoryCriterion: simulationData.victory_criterion,
       gameType: simulationData.game_type,
       goalNetWorth: formatMoney(toCentsString(simulationData.goal_net_worth)),
+      monthlySalary: formatMoney(toCentsString(simulationData.monthly_salary)),
+      monthlyExpense: formatMoney(toCentsString(simulationData.monthly_expense)),
+      unexpectedPerYear: simulationData.unexpected_per_year,
+      withdrawalRate: withdrawalRateToField(simulationData.withdrawal_rate),
+      inflationAdjusted: simulationData.inflation_adjusted,
       playerGrouping: simulationData.player_grouping,
       teamNaming: simulationData.team_naming,
     },
@@ -196,6 +248,11 @@ export function LobbyMatch({
           victory_criterion: values.victoryCriterion,
           game_type: values.gameType,
           goal_net_worth: normalizeNumberString(values.goalNetWorth),
+          monthly_salary: normalizeNumberString(values.monthlySalary),
+          monthly_expense: normalizeNumberString(values.monthlyExpense),
+          unexpected_per_year: values.unexpectedPerYear,
+          withdrawal_rate: withdrawalRateToBody(values.withdrawalRate),
+          inflation_adjusted: values.inflationAdjusted,
           player_grouping: values.playerGrouping,
           team_naming: values.teamNaming,
         },
@@ -228,6 +285,11 @@ export function LobbyMatch({
         victoryCriterion: selectedSimulation.victory_criterion,
         gameType: selectedSimulation.game_type,
         goalNetWorth: formatMoney(toCentsString(selectedSimulation.goal_net_worth)),
+        monthlySalary: formatMoney(toCentsString(selectedSimulation.monthly_salary)),
+        monthlyExpense: formatMoney(toCentsString(selectedSimulation.monthly_expense)),
+        unexpectedPerYear: selectedSimulation.unexpected_per_year,
+        withdrawalRate: withdrawalRateToField(selectedSimulation.withdrawal_rate),
+        inflationAdjusted: selectedSimulation.inflation_adjusted,
         priceImpactEnabled: selectedSimulation.price_impact_enabled,
         priceImpactK: displayDecimal(selectedSimulation.price_impact_k),
         priceImpactDecayDays: String(selectedSimulation.price_impact_decay_days),
@@ -251,6 +313,54 @@ export function LobbyMatch({
     ? `${rules.goalNetWorth} · ${goalMultiple}× o saldo`
     : rules.goalNetWorth;
 
+  // O que só existe no tipo escolhido: o critério, a meta fixa ou a vida real
+  const independence = rules.gameType === "FINANCIAL_INDEPENDENCE";
+  const independenceGoalValue = calculatedGoal(rules.monthlyExpense, rules.withdrawalRate);
+  const typeRows: { label: string; value: React.ReactNode }[] = independence
+    ? [
+        {
+          label: "Salário · despesa",
+          value: (
+            <span className="font-mono">
+              {displayMoneyWhole(Number(normalizeNumberString(rules.monthlySalary)))} ·{" "}
+              {displayMoneyWhole(Number(normalizeNumberString(rules.monthlyExpense)))}
+            </span>
+          ),
+        },
+        {
+          label: "Meta",
+          value: (
+            <span>
+              <span className="font-mono">
+                {independenceGoalValue === null ? "—" : displayMoneyCompact(independenceGoalValue)}
+              </span>{" "}
+              · {displayRatePercent(withdrawalRateFraction(rules.withdrawalRate))} ao ano
+            </span>
+          ),
+        },
+        {
+          label: "Imprevistos",
+          value: `${unexpectedLabel(rules.unexpectedPerYear)} · ${rules.unexpectedPerYear} por ano`,
+        },
+        {
+          label: "Inflação",
+          value: rules.inflationAdjusted ? "Corrigido pelo IPCA" : "Reais fixos",
+        },
+      ]
+    : rules.gameType === "CLASSIC"
+      ? [
+          {
+            label: "Vitória por",
+            value: <Badge variant="info">{VICTORY_CRITERIA[rules.victoryCriterion]?.label}</Badge>,
+          },
+        ]
+      : [
+          {
+            label: "Meta",
+            value: <span className="font-mono">{goalSummary}</span>,
+          },
+        ];
+
   const rows: { label: string; value: React.ReactNode }[] = [
     { label: "Nome", value: rules.name },
     {
@@ -263,12 +373,12 @@ export function LobbyMatch({
       ),
     },
     { label: "Saldo inicial", value: <span className="font-mono">{rules.startingCash}</span> },
-    { label: "Aporte mensal", value: <span className="font-mono">{rules.monthlyContribution}</span> },
+    ...(independence
+      ? []
+      : [{ label: "Aporte mensal", value: <span className="font-mono">{rules.monthlyContribution}</span> }]),
     { label: "Modo", value: <GroupingBadge grouping={rules.playerGrouping} /> },
     { label: "Tipo de partida", value: <Badge variant="info">{GAME_TYPES[rules.gameType]?.label}</Badge> },
-    rules.gameType === "CLASSIC"
-      ? { label: "Vitória por", value: <Badge variant="info">{VICTORY_CRITERIA[rules.victoryCriterion]?.label}</Badge> }
-      : { label: "Meta", value: <span className="font-mono">{goalSummary}</span> },
+    ...typeRows,
     {
       label: "Impacto de preço",
       value: (

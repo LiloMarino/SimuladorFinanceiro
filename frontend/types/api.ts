@@ -97,3 +97,10 @@ export type GoalProgress = components["schemas"]["GoalProgressDTO"];
 export type GoalRunner = GoalProgress["players"][number];
 export type PlayerGrouping = components["schemas"]["PlayerGrouping"];
 export type TeamNaming = components["schemas"]["TeamNaming"];
+
+// Viver de renda
+export type LifeStatus = components["schemas"]["LifeStatusDTO"];
+export type LifeHistoryPage = components["schemas"]["LifeHistoryPageDTO"];
+export type LifeHistoryRow = LifeHistoryPage["items"][number];
+export type LifeHistoryCategory = components["schemas"]["LifeHistoryCategory"];
+export type LifeHistoryKind = LifeHistoryRow["kind"];

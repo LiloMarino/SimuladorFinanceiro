@@ -16,7 +16,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { displayList, displayNumber, displayPercent } from "@/shared/lib/utils/display";
 import { teamColor, teamName, teamShortName } from "@/shared/lib/teams";
 import type { RiskReport, TeamNaming } from "@/types";
-import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
+import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { playerLabel, youLabel, labelColors } from "../../lib/player-label";
 import {
   ANNUAL_VOLATILITY,

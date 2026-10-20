@@ -1,3 +1,4 @@
+import random
 import re
 from datetime import UTC, datetime
 
@@ -33,6 +34,13 @@ class SimulationRepository:
             victory_criterion=settings.victory_criterion.value,
             game_type=settings.game_type.value,
             goal_net_worth=settings.goal_net_worth,
+            monthly_salary=settings.monthly_salary,
+            monthly_expense=settings.monthly_expense,
+            unexpected_per_year=settings.unexpected_per_year,
+            withdrawal_rate=settings.withdrawal_rate,
+            inflation_adjusted=settings.inflation_adjusted,
+            # Os imprevistos saem dela: fica no servidor, fora das configurações
+            random_seed=random.SystemRandom().randrange(2**31),
             player_grouping=settings.player_grouping.value,
             team_naming=settings.team_naming.value,
             created_at=now,
@@ -74,6 +82,12 @@ class SimulationRepository:
         if simulation is None:
             return None
         return self._to_summary(simulation)
+
+    @transactional
+    def get_random_seed(self, session: Session, simulation_id: int) -> int:
+        return session.execute(
+            select(Simulations.random_seed).where(Simulations.id == simulation_id)
+        ).scalar_one()
 
     @transactional
     def touch_last_simulated(self, session: Session, simulation_id: int) -> None:
@@ -129,6 +143,11 @@ class SimulationRepository:
             victory_criterion=VictoryCriterion(simulation.victory_criterion),
             game_type=GameType(simulation.game_type),
             goal_net_worth=simulation.goal_net_worth,
+            monthly_salary=simulation.monthly_salary,
+            monthly_expense=simulation.monthly_expense,
+            unexpected_per_year=simulation.unexpected_per_year,
+            withdrawal_rate=simulation.withdrawal_rate,
+            inflation_adjusted=simulation.inflation_adjusted,
             player_grouping=PlayerGrouping(simulation.player_grouping),
             team_naming=TeamNaming(simulation.team_naming),
             created_at=simulation.created_at,

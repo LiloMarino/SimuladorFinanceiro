@@ -48,7 +48,10 @@ class SimulationLoader:
 
         SimulationManager.clear_simulation()
         SimulationManager.set_simulation_id(simulation_id)
-        sim = Simulation(SimulationDTO(id=simulation_id, **settings.model_dump()))
+        sim = Simulation(
+            SimulationDTO(id=simulation_id, **settings.model_dump()),
+            random_seed=repository.simulation.get_random_seed(simulation_id),
+        )
         SimulationManager.register_simulation(sim)
         SettingsManager.clear()
         simulation_controller.start()
@@ -117,6 +120,7 @@ class SimulationLoader:
                 summary.model_dump(include=set(SimulationDTO.model_fields))
             ),
             resume_from=resume_from,
+            random_seed=repository.simulation.get_random_seed(summary.id),
         )
         repository.simulation.touch_last_simulated(summary.id)
         SimulationManager.register_simulation(sim)

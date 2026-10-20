@@ -16,7 +16,8 @@ export function rankingMeasure(report: Pick<OverviewReport, "game_type" | "crite
 /** O nome do que decide a partida: o critério, ou "Primeiro a chegar à meta (R$ 1,5 mi)". */
 export function criterionLabel(report: Pick<OverviewReport, "game_type" | "criterion" | "goal_net_worth">) {
   if (report.game_type === "CLASSIC") return VICTORY_CRITERIA[report.criterion].label;
-  return `Primeiro a chegar à meta${report.goal_net_worth ? ` (${displayMoneyCompact(report.goal_net_worth)})` : ""}`;
+  const target = report.game_type === "FINANCIAL_INDEPENDENCE" ? "independência financeira" : "meta";
+  return `Primeiro a chegar à ${target}${report.goal_net_worth ? ` (${displayMoneyCompact(report.goal_net_worth)})` : ""}`;
 }
 
 /**

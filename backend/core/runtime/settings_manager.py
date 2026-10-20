@@ -42,6 +42,15 @@ class SettingsManager:
                     ),
                     game_type=GameType.CLASSIC,
                     goal_net_worth=starting_cash * config.toml.simulation.goal_multiple,
+                    monthly_salary=Decimal(str(config.toml.simulation.monthly_salary)),
+                    monthly_expense=Decimal(
+                        str(config.toml.simulation.monthly_expense)
+                    ),
+                    unexpected_per_year=config.toml.simulation.unexpected_per_year,
+                    withdrawal_rate=Decimal(
+                        str(config.toml.simulation.withdrawal_rate)
+                    ),
+                    inflation_adjusted=False,
                 )
             return cls._settings
 

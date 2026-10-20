@@ -41,6 +41,12 @@ export function displayMoney(value: Numeric) {
   return MONEY_FORMAT.format(value as Intl.StringNumericLiteral | number);
 }
 
+/** Reais com o sinal de menos tipográfico para negativos ("−R$ 2.340,00"), como as telas de saldo. */
+export function displaySignedMoney(value: Numeric) {
+  const amount = Number(value);
+  return `${amount < 0 ? "−" : ""}${displayMoney(Math.abs(amount))}`;
+}
+
 export function displayMoneyCompact(value: Numeric): string {
   return MONEY_COMPACT_FORMAT.format(value as Intl.StringNumericLiteral | number);
 }
@@ -159,6 +165,13 @@ export function displayShortMonthYear(value: Date | string) {
   const d = typeof value === "string" ? parseLocalDate(value) : value;
   const month = new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(d).replace(".", "");
   return `${month}/${String(d.getFullYear()).slice(-2)}`;
+}
+
+/** "2024-03-14" → "março"; com `monthsAhead`, o mês seguinte ("abril"). */
+export function displayMonthName(isoDate: string, monthsAhead = 0) {
+  const d = parseLocalDate(isoDate);
+  d.setMonth(d.getMonth() + monthsAhead, 1);
+  return new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(d);
 }
 
 /** Só o mês curto ("abr"), para colunas em que o ano aparece uma vez. */

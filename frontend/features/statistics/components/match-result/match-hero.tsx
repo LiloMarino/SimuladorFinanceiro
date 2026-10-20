@@ -10,6 +10,7 @@ import {
   displaySignedPercent,
   parseLocalDate,
 } from "@/shared/lib/utils/display";
+import { displayAnnualMultiple, displayRatePercent, unexpectedLabel } from "@/shared/lib/financial-independence";
 import { displayGoalPercent } from "@/shared/lib/goal";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { OverviewReport, SimulationListItem } from "@/types";
@@ -34,6 +35,11 @@ function headline(report: OverviewReport, winner: Player) {
   if (value === null) return `${name} ficou em 1º`;
   switch (rankingMeasure(report)) {
     case "GOAL":
+      if (report.game_type === "FINANCIAL_INDEPENDENCE") {
+        return reachedGoal(value)
+          ? `${name} conquistou a independência financeira`
+          : `Ninguém chegou à independência financeira; ${name} ficou mais perto`;
+      }
       return reachedGoal(value) ? `${name} chegou primeiro à meta` : `Ninguém chegou à meta; ${name} ficou mais perto`;
     case "SCORE":
       return `${name} venceu com ${displayNumber(value, 0)} pontos`;
@@ -57,6 +63,11 @@ function teamHeadline(report: OverviewReport) {
   }
   switch (rankingMeasure(report)) {
     case "GOAL":
+      if (report.game_type === "FINANCIAL_INDEPENDENCE") {
+        return reachedGoal(value)
+          ? `${name} conquistou a independência financeira`
+          : `Nenhuma equipe chegou à independência financeira; ${name} ficou mais perto`;
+      }
       return reachedGoal(value)
         ? `${name} chegou primeiro à meta`
         : `Nenhuma equipe chegou à meta; ${name} ficou mais perto`;
@@ -158,6 +169,15 @@ function displayLeadTime(days: number) {
   return `${days} ${days === 1 ? "dia" : "dias"}`;
 }
 
+/** As regras da vida real da partida em uma linha: "Imprevistos normais · IPCA ligado". */
+function displayLifeRules(simulation: SimulationListItem) {
+  const unexpected =
+    simulation.unexpected_per_year === 0
+      ? "Sem imprevistos"
+      : `Imprevistos ${unexpectedLabel(simulation.unexpected_per_year).toLowerCase()}`;
+  return `${unexpected} · IPCA ${simulation.inflation_adjusted ? "ligado" : "desligado"}`;
+}
+
 /** O que a frase do topo diz da corrida: quando e com quanto alguém chegou, ou quem ficou mais perto. */
 function GoalSummary({
   report,
@@ -181,6 +201,7 @@ function GoalSummary({
       ? Math.round((parseLocalDate(simulation.end_date).getTime() - parseLocalDate(lastDay).getTime()) / 86_400_000)
       : 0;
   const goalText = goal ? ` (meta ${displayMoneyCompact(goal)})` : "";
+  const independence = report.game_type === "FINANCIAL_INDEPENDENCE";
   const leaderName = "player_nickname" in leader ? leader.player_nickname : teamName(leader.team, report.team_naming);
 
   return (
@@ -192,15 +213,26 @@ function GoalSummary({
               Em <b className="font-mono text-white">{displayDate(parseLocalDate(lastDay))}</b>,{" "}
             </>
           )}
-          com <b className="font-mono text-white">{displayMoney(leader.total_networth)}</b>{" "}
-          de {inTeams ? "patrimônio médio" : "patrimônio"}
-          {goalText}.
+          {independence && simulation ? (
+            <>
+              {inTeams ? "a média do patrimônio da" : "o patrimônio de"} <b className="text-white">{leaderName}</b>{" "}
+              chegou a <b className="text-white">{displayAnnualMultiple(Number(simulation.withdrawal_rate))}</b> a despesa
+              anual: retirando {displayRatePercent(simulation.withdrawal_rate)} ao ano, dá para viver de renda.
+            </>
+          ) : (
+            <>
+              com <b className="font-mono text-white">{displayMoney(leader.total_networth)}</b>{" "}
+              de {inTeams ? "patrimônio médio" : "patrimônio"}
+              {goalText}.
+            </>
+          )}
           {daysEarly > 0 && <> A partida terminou nesse dia, {displayLeadTime(daysEarly)} antes da data final.</>}
         </>
       ) : (
         <>
           Chegou a data final com <b className="text-white">{leaderName}</b> em{" "}
-          <b className="font-mono text-white">{displayCriterionValue("GOAL", leader.criterion_value)}</b> da meta
+          <b className="font-mono text-white">{displayCriterionValue("GOAL", leader.criterion_value)}</b> da{" "}
+          {independence ? "independência" : "meta"}
           {goal ? <> de {displayMoneyCompact(goal)}</> : null}: quem fica mais perto vence.
         </>
       )}
@@ -290,7 +322,11 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
             {report.players.length} {report.players.length === 1 ? "jogador" : "jogadores"}
             {inTeams && ` · ${report.teams.length} equipes`}
           </span>
-          <span>{tradingDays} pregões</span>
+          <span>
+            {report.game_type === "FINANCIAL_INDEPENDENCE" && simulation
+              ? displayLifeRules(simulation)
+              : `${tradingDays} pregões`}
+          </span>
         </div>
         <div className="mt-1.5 flex flex-wrap gap-2">
           <Button nativeButton={false} render={<Link to="/lobby" />}>

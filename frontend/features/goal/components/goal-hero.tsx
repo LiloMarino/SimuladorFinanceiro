@@ -1,26 +1,35 @@
 import { MetricHint } from "@/shared/components/metric-hint";
 import { Progress } from "@/shared/components/ui/progress";
+import { displayAnnualMultiple } from "@/shared/lib/financial-independence";
+import { GAME_TYPES } from "@/shared/lib/game-types";
 import {
   displayGoalPercent,
+  type GoalProjection,
   ownStanding,
   playerStandings,
   remainingToGoal,
   teamStandings,
 } from "@/shared/lib/goal";
 import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
+import { GOAL_ETA } from "@/shared/lib/life-metrics";
 import { teamName } from "@/shared/lib/teams";
 import { displayMoneyWhole } from "@/shared/lib/utils/display";
-import type { GoalProgress, PlayerGrouping, TeamNaming } from "@/types";
+import type { GameType, GoalProgress, LifeStatus, PlayerGrouping, TeamNaming } from "@/types";
 
 type GoalHeroProps = {
+  gameType: GameType;
   progress: GoalProgress;
+  /** A vida financeira, que o viver de renda tem; ausente na corrida à meta */
+  life: LifeStatus | undefined;
+  /** Previsão da chegada à meta pelo ritmo dos últimos 12 meses; nula quando não há como estimar */
+  projection: GoalProjection | null;
   grouping: PlayerGrouping;
   teamNaming: TeamNaming;
   nickname: string;
 };
 
 /** Topo da página Meta: o seu progresso até a meta, o que falta e a distância para o líder. */
-export function GoalHero({ progress, grouping, teamNaming, nickname }: GoalHeroProps) {
+export function GoalHero({ gameType, progress, life, projection, grouping, teamNaming, nickname }: GoalHeroProps) {
   const inTeams = grouping === "TEAMS";
   const yours = ownStanding(progress, grouping, nickname);
 
@@ -40,7 +49,14 @@ export function GoalHero({ progress, grouping, teamNaming, nickname }: GoalHeroP
       <div className="flex items-end justify-between gap-5">
         <div className="grid gap-1.5">
           <span className="text-[11px] font-semibold tracking-[.06em] text-sidebar-primary uppercase">
-            {inTeams ? "A corrida da sua equipe · média dos membros" : "Sua corrida"} · Corrida à meta
+            {inTeams ? "A corrida da sua equipe · média dos membros" : "Sua corrida"} · {GAME_TYPES[gameType]?.label}
+            {life && (
+              <>
+                {" "}
+                · {displayAnnualMultiple(Number(life.withdrawal_rate))} a despesa anual de{" "}
+                {displayMoneyWhole(Number(life.monthly_expense) * 12)}
+              </>
+            )}
           </span>
           <span className="text-[28px] font-bold text-white">
             <span className="font-mono">{yours ? displayMoneyWhole(yours.networth) : "—"}</span>{" "}
@@ -62,18 +78,26 @@ export function GoalHero({ progress, grouping, teamNaming, nickname }: GoalHeroP
       />
 
       {yours && (
-        <p className="flex flex-wrap items-center gap-x-1.5 text-[13px]">
-          <span className="inline-flex items-center gap-1">
-            Falta para a meta <MetricHint metric={GOAL_REMAINING} />
-          </span>
-          <b className="font-mono text-white">{displayMoneyWhole(remainingToGoal(yours.networth, progress.goal))}</b>
-          {rival && (
-            <>
-              · {position}º lugar, <b className="font-mono text-white">{displayMoneyWhole(gap)}</b>{" "}
-              {position === 1 ? "à frente de" : "atrás de"} {rival.name}
-            </>
+        <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 text-[13px]">
+          <p className="flex flex-wrap items-center gap-x-1.5">
+            <span className="inline-flex items-center gap-1">
+              Falta para a meta <MetricHint metric={GOAL_REMAINING} />
+            </span>
+            <b className="font-mono text-white">{displayMoneyWhole(remainingToGoal(yours.networth, progress.goal))}</b>
+            {rival && (
+              <>
+                · {position}º lugar, <b className="font-mono text-white">{displayMoneyWhole(gap)}</b>{" "}
+                {position === 1 ? "à frente de" : "atrás de"} {rival.name}
+              </>
+            )}
+          </p>
+          {projection && !inTeams && (
+            <p className="inline-flex items-center gap-1">
+              No ritmo atual, chega em <b className="text-white">{projection.monthYear}</b>
+              <MetricHint metric={GOAL_ETA} />
+            </p>
           )}
-        </p>
+        </div>
       )}
     </section>
   );

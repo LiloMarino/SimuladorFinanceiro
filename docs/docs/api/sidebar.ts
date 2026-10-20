@@ -438,6 +438,18 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/get-life-status-api-simulation-life-get",
+          label: "Vida financeira do jogador",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/get-life-history-api-simulation-life-history-get",
+          label: "Histórico do viver de renda",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
           id: "api/join-match-api-simulation-join-post",
           label: "Entrar na partida em andamento",
           className: "api-method post",

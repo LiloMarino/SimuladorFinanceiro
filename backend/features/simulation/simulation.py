@@ -3,12 +3,14 @@ from datetime import date, timedelta
 from decimal import Decimal
 from uuid import UUID
 
+from backend import config
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO, MarketQuoteDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, FixedIncomeOfferDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
 from backend.core.dto.goal import GoalProgressDTO, GoalRunnerDTO
+from backend.core.dto.life import LifeEventDTO, LifeStatusDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO
 from backend.core.dto.patrimonial_history import (
@@ -35,7 +37,14 @@ from backend.features.realtime.schemas import (
     StocksUpdateEventDTO,
     StockUpdateEventDTO,
 )
-from backend.features.simulation.goal import goal_reached
+from backend.features.simulation.goal import goal_on, goal_reached
+from backend.features.simulation.life_events import (
+    LifeBudget,
+    layoff_in,
+    overdraft_interest,
+    salary_skipped,
+    unexpected_on,
+)
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.strategy.manual import ManualStrategy
 from backend.features.variable_income.entities.order import OrderAction
@@ -45,6 +54,10 @@ from backend.features.variable_income.price_impact import PriceImpact
 SPARKLINE_DAYS = 30
 
 logger = logging.getLogger(__name__)
+
+
+def _overdraft_rate() -> Decimal:
+    return Decimal(str(config.toml.simulation.overdraft_monthly_rate))
 
 
 class Simulation:
@@ -61,13 +74,26 @@ class Simulation:
     - Limpar caches de usuários ao fazer logout
     """
 
-    def __init__(self, settings: SimulationDTO, resume_from: date | None = None):
+    def __init__(
+        self,
+        settings: SimulationDTO,
+        resume_from: date | None = None,
+        *,
+        random_seed: int,
+    ):
         """
         `resume_from` é o último dia já processado de uma simulação retomada; o
         primeiro tick é o dia útil seguinte. Sem ele, o primeiro tick é o `start_date`.
+        `random_seed` é a semente gravada na partida, de onde saem os imprevistos.
         """
         self._speed = 0
         self.settings = settings
+        self._random_seed = random_seed
+        self._life = (
+            LifeBudget.of(settings)
+            if settings.game_type is GameType.FINANCIAL_INDEPENDENCE
+            else None
+        )
         self._current_date = resume_from or self.settings.start_date - timedelta(days=1)
         self._engine = SimulationEngine(
             self._current_date,
@@ -165,11 +191,16 @@ class Simulation:
         users = repository.simulation_player.participants(self.settings.id)
         month_changed = self._has_month_changed()
 
-        # O aporte do mês e o DARF que vence hoje entram nos eventos antes do flush,
-        # para o snapshot do dia já contá-los
-        if month_changed:
+        # O aporte (ou o salário, a despesa e o imprevisto) e o DARF que vence hoje
+        # entram nos eventos antes do flush, para o snapshot do dia já contá-los; o
+        # juro do cheque especial vem por último, sobre o caixa que sobrou do dia
+        if self._life is not None:
+            self._live(self._life, users, month_changed)
+        elif month_changed:
             self._apply_monthly_contributions(users)
         self._collect_income_tax(users)
+        if self._life is not None:
+            self._charge_overdraft(users)
         EventManager.flush()
 
         snapshots = self._create_daily_snapshots(users, month_changed)
@@ -210,7 +241,7 @@ class Simulation:
         """Avisa onde cada um está na meta e marca o fim da partida quando alguém chega."""
         colors = repository.simulation_player.colors(self.settings.id)
         teams = repository.simulation_player.teams(self.settings.id)
-        goal = self.settings.goal_net_worth
+        goal = goal_on(self.settings, self._current_date)
         self._goal_progress = GoalProgressDTO(
             goal=goal,
             players=[
@@ -229,6 +260,72 @@ class Simulation:
             teams,
             goal,
             self.settings.player_grouping is PlayerGrouping.TEAMS,
+        )
+
+    def _live(self, life: LifeBudget, users: list[UserDTO], month_changed: bool):
+        """
+        No 1º pregão do mês o salário entra (menos depois de uma demissão) e a despesa
+        sai; todo pregão pode sortear um imprevisto, o mesmo para todos.
+        """
+        day = self._current_date
+        per_year = self.settings.unexpected_per_year
+        if month_changed:
+            skipped = salary_skipped(
+                self._random_seed, day, per_year, self.settings.start_date
+            )
+            for user in users:
+                if not skipped:
+                    self._engine.pay_salary(user.client_id, life.salary_on(day))
+                self._engine.pay_expense(user.client_id, life.expense_on(day))
+
+        event = unexpected_on(self._random_seed, day, per_year)
+        if event is None:
+            return
+        amount = event.expense_multiple * life.expense_on(day)
+        for user in users:
+            self._engine.charge_unexpected(user.client_id, amount, event.key)
+        notify(
+            "life_event",
+            LifeEventDTO(
+                key=event.key,
+                label=event.label,
+                effect=event.effect,
+                amount=amount,
+                event_date=day,
+            ).to_json(),
+        )
+
+    def _charge_overdraft(self, users: list[UserDTO]):
+        rate = _overdraft_rate()
+        for user in users:
+            interest = overdraft_interest(self.get_cash(user.client_id), rate)
+            if interest > 0:
+                self._engine.charge_overdraft_interest(user.client_id, interest)
+
+    def get_life_status(self, client_id: UUID) -> LifeStatusDTO | None:
+        """A vida financeira de `client_id` hoje; None fora do viver de renda."""
+        if self._life is None:
+            return None
+        day = self._current_date
+        seed, per_year = self._random_seed, self.settings.unexpected_per_year
+        start = self.settings.start_date
+        expense = self._life.expense_on(day)
+        cash = self.get_cash(client_id)
+        rate = _overdraft_rate()
+        return LifeStatusDTO(
+            monthly_salary=self._life.salary_on(day),
+            monthly_expense=expense,
+            salary_skipped_by=layoff_in(
+                seed, day.replace(day=1) - timedelta(days=1), per_year, start
+            ),
+            next_salary_skipped_by=layoff_in(seed, day, per_year, start, until=day),
+            goal=self._life.goal_on(day),
+            inflation_adjusted=self.settings.inflation_adjusted,
+            withdrawal_rate=self.settings.withdrawal_rate,
+            unexpected_per_year=per_year,
+            overdraft_monthly_rate=rate,
+            overdraft_daily_interest=overdraft_interest(cash, rate),
+            reserve_months=max(cash, Decimal(0)) / expense,
         )
 
     def get_current_date(self) -> date:

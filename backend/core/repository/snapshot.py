@@ -1,15 +1,17 @@
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
-from sqlalchemy import Case, func, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.snapshot import SnapshotDTO
+from backend.core.enum import CONTRIBUTION_TYPES
 from backend.core.models.models import (
     EventCashflow,
     Snapshots,
 )
+from backend.core.repository.cashflow import cash_delta
 from backend.core.runtime.simulation_manager import SimulationManager
 
 
@@ -35,26 +37,7 @@ class SnapshotRepository:
         # --------------------------------------------------
         total_cash = Decimal(
             session.execute(
-                select(
-                    func.coalesce(
-                        func.sum(
-                            Case(
-                                (
-                                    EventCashflow.event_type.in_(
-                                        ["DEPOSIT", "DIVIDEND", "CONTRIBUTION"]
-                                    ),
-                                    EventCashflow.amount,
-                                ),
-                                (
-                                    EventCashflow.event_type.in_(["WITHDRAW", "TAX"]),
-                                    -EventCashflow.amount,
-                                ),
-                                else_=Decimal("0"),
-                            )
-                        ),
-                        0,
-                    )
-                ).where(
+                select(cash_delta()).where(
                     EventCashflow.user_id == user_id,
                     EventCashflow.simulation_id == simulation_id,
                     EventCashflow.event_date <= snapshot_date,
@@ -67,15 +50,9 @@ class SnapshotRepository:
         # --------------------------------------------------
         total_contribution = Decimal(
             session.execute(
-                select(
-                    func.coalesce(
-                        func.sum(EventCashflow.amount),
-                        0,
-                    )
-                ).where(
+                select(cash_delta(CONTRIBUTION_TYPES)).where(
                     EventCashflow.user_id == user_id,
                     EventCashflow.simulation_id == simulation_id,
-                    EventCashflow.event_type == "CONTRIBUTION",
                     EventCashflow.event_date <= snapshot_date,
                 )
             ).scalar_one()

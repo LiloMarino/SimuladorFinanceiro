@@ -9,6 +9,8 @@ import type { SimulationFormValues } from "../components/lobby-match";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { displayDecimal, displayMoney, toCentsString } from "@/shared/lib/utils/display";
+import { withdrawalRateToField } from "@/shared/lib/financial-independence";
+import { withdrawalRateToBody } from "../lib/life-rules";
 
 export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues>({
   form,
@@ -34,6 +36,9 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
     starting_cash: toCentsString(initial.starting_cash),
     monthly_contribution: toCentsString(initial.monthly_contribution),
     goal_net_worth: toCentsString(initial.goal_net_worth),
+    monthly_salary: toCentsString(initial.monthly_salary),
+    monthly_expense: toCentsString(initial.monthly_expense),
+    withdrawal_rate: Number(initial.withdrawal_rate).toFixed(4),
   });
 
   const {
@@ -53,6 +58,11 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       victory_criterion: VictoryCriterion;
       game_type: GameType;
       goal_net_worth: string;
+      monthly_salary: string;
+      monthly_expense: string;
+      unexpected_per_year: number;
+      withdrawal_rate: string;
+      inflation_adjusted: boolean;
       player_grouping: PlayerGrouping;
       team_naming: TeamNaming;
     }) => apiFetch<SimulationSettingsData>("/api/simulation/settings", { method: "PUT", body }),
@@ -76,6 +86,11 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
           victoryCriterion: data.victory_criterion,
           gameType: data.game_type,
           goalNetWorth: displayMoney(data.goal_net_worth),
+          monthlySalary: displayMoney(data.monthly_salary),
+          monthlyExpense: displayMoney(data.monthly_expense),
+          unexpectedPerYear: data.unexpected_per_year,
+          withdrawalRate: withdrawalRateToField(data.withdrawal_rate),
+          inflationAdjusted: data.inflation_adjusted,
           playerGrouping: data.player_grouping,
           teamNaming: data.team_naming,
         } as TForm);
@@ -106,6 +121,11 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       victoryCriterion,
       gameType,
       goalNetWorth,
+      monthlySalary,
+      monthlyExpense,
+      unexpectedPerYear,
+      withdrawalRate,
+      inflationAdjusted,
       playerGrouping,
       teamNaming,
     } = debouncedValues;
@@ -123,6 +143,11 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       victory_criterion: victoryCriterion,
       game_type: gameType,
       goal_net_worth: toCentsString(normalizeNumberString(goalNetWorth)),
+      monthly_salary: toCentsString(normalizeNumberString(monthlySalary)),
+      monthly_expense: toCentsString(normalizeNumberString(monthlyExpense)),
+      unexpected_per_year: unexpectedPerYear,
+      withdrawal_rate: withdrawalRateToBody(withdrawalRate),
+      inflation_adjusted: inflationAdjusted,
       player_grouping: playerGrouping,
       team_naming: teamNaming,
     };

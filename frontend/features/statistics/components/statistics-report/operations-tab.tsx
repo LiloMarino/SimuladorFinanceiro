@@ -17,7 +17,7 @@ import {
   displayShortMonthYear,
 } from "@/shared/lib/utils/display";
 import type { OperationsReport, TeamNaming } from "@/types";
-import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
+import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { IMPACT_COST, INCOME_TAX_PAID, MONTHLY_VOLUME, TRADED_VOLUME, TURNOVER } from "../../lib/metrics";
 import { playerKey, playerLabel } from "../../lib/player-label";
 import { groupByTeam } from "../../lib/teams";

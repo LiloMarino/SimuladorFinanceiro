@@ -78,7 +78,11 @@ class SimulationEngine:
             return self._cash[client_id]
 
     def _move_cash(
-        self, client_id: UUID, delta: Decimal, event_type: CashflowEventType
+        self,
+        client_id: UUID,
+        delta: Decimal,
+        event_type: CashflowEventType,
+        life_event_key: str | None = None,
     ) -> None:
         with self._lock:
             self._cash[client_id] += delta
@@ -90,6 +94,7 @@ class SimulationEngine:
                 event_type=event_type,
                 amount=abs(delta),
                 event_date=self.current_date,
+                life_event_key=life_event_key,
             )
         )
         notify("cash_update", CashUpdateEventDTO(cash=new_cash).to_json(), to=client_id)
@@ -108,6 +113,20 @@ class SimulationEngine:
     def pay_income_tax(self, client_id: UUID, amount: Decimal) -> None:
         """Debita o DARF; o caixa pode ficar negativo, como uma dívida com a Receita."""
         self._move_cash(client_id, -amount, CashflowEventType.TAX)
+
+    def pay_salary(self, client_id: UUID, amount: Decimal) -> None:
+        self._move_cash(client_id, amount, CashflowEventType.SALARY)
+
+    def pay_expense(self, client_id: UUID, amount: Decimal) -> None:
+        """Debita a despesa do mês; o caixa pode ficar negativo e cair no cheque especial."""
+        self._move_cash(client_id, -amount, CashflowEventType.EXPENSE)
+
+    def charge_unexpected(self, client_id: UUID, amount: Decimal, key: str) -> None:
+        """Debita um imprevisto; a demissão entra com valor zero, para ficar no histórico."""
+        self._move_cash(client_id, -amount, CashflowEventType.UNEXPECTED_EXPENSE, key)
+
+    def charge_overdraft_interest(self, client_id: UUID, amount: Decimal) -> None:
+        self._move_cash(client_id, -amount, CashflowEventType.OVERDRAFT_INTEREST)
 
     def assess_income_tax(self, user_id: int) -> list[MonthlyTax]:
         asset_classes = {s.ticker: s.asset_class for s in repository.stock.get_stocks()}
@@ -238,8 +257,8 @@ class SimulationEngine:
 
         # Aporte mensal é capital do jogador, não rendimento
         user_id = UserManager.get_user_id(client_id)
-        capital_provided = self.starting_cash + repository.user.get_total_cashflow(
-            user_id, CashflowEventType.CONTRIBUTION
+        capital_provided = self.starting_cash + repository.user.get_total_contribution(
+            user_id
         )
 
         # A pagar: o apurado que ainda não venceu, o saldo abaixo do mínimo do DARF

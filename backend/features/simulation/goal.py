@@ -1,9 +1,31 @@
 """Regra da corrida à meta: quem chega ao patrimônio-alvo encerra a partida."""
 
 from collections import defaultdict
+from datetime import date
 from decimal import Decimal
 
+from backend.core.dto.simulation import SimulationSettingsDTO
+from backend.core.enum import GameType
+from backend.features.simulation.life_events import LifeBudget
 from backend.features.statistics.teams import mean
+
+
+def goal_on(settings: SimulationSettingsDTO, day: date) -> Decimal:
+    """A meta do dia: a fixa da corrida, ou a do viver de renda, que sobe com a despesa."""
+    if settings.game_type is GameType.FINANCIAL_INDEPENDENCE:
+        return LifeBudget.of(settings).goal_on(day)
+    return settings.goal_net_worth
+
+
+def goal_steps(
+    settings: SimulationSettingsDTO, until: date
+) -> list[tuple[date, Decimal]]:
+    """A meta em degraus até `until`: um ponto no início e outro a cada reajuste pelo IPCA."""
+    if settings.game_type is GameType.FINANCIAL_INDEPENDENCE:
+        days = LifeBudget.of(settings).readjustments(until)
+    else:
+        days = [settings.start_date]
+    return [(day, goal_on(settings, day)) for day in days]
 
 
 def goal_reached(

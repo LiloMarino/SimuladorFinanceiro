@@ -18,7 +18,7 @@ import { HighlightsRow, HighlightsSkeleton } from "../components/match-result/hi
 import { MatchHero, MatchHeroSkeleton } from "../components/match-result/match-hero";
 import { TeamPullers } from "../components/match-result/team-pullers";
 import { StatisticsReport } from "../components/statistics-report";
-import { useStatisticsReport } from "../hooks/queries/useStatisticsReport";
+import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 
 export default function MatchResultPage() {
   const { simulationId } = useParams();

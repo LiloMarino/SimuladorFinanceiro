@@ -254,6 +254,18 @@ class Simulations(Base):
     goal_net_worth: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
     )
+    monthly_salary: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
+    monthly_expense: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
+    unexpected_per_year: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    withdrawal_rate: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(10, 6), nullable=False
+    )
+    inflation_adjusted: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    random_seed: Mapped[int] = mapped_column(BigInteger, nullable=False)
     player_grouping: Mapped[str] = mapped_column(
         Enum("INDIVIDUAL", "TEAMS", name="player_grouping"),
         nullable=False,
@@ -415,11 +427,17 @@ class EventCashflow(Base):
             "DIVIDEND",
             "CONTRIBUTION",
             "TAX",
+            "SALARY",
+            "EXPENSE",
+            "UNEXPECTED_EXPENSE",
+            "OVERDRAFT_INTEREST",
             name="cashflow_event_type",
         ),
         nullable=False,
     )
     amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    # Qual imprevisto foi, para o histórico; nulo nos outros eventos
+    life_event_key: Mapped[str | None] = mapped_column(Text)
     event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False

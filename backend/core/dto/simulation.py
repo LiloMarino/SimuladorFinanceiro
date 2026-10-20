@@ -25,6 +25,13 @@ class SimulationSettingsDTO(BaseDTO):
     game_type: GameType
     # Patrimônio-alvo da corrida à meta
     goal_net_worth: Decimal
+    # Viver de renda: o salário e a despesa do mês, os imprevistos por ano e a
+    # fração retirada por ano que dá a meta (12 x despesa / taxa)
+    monthly_salary: Decimal
+    monthly_expense: Decimal
+    unexpected_per_year: int
+    withdrawal_rate: Decimal
+    inflation_adjusted: bool
     player_grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL
     team_naming: TeamNaming = TeamNaming.COLOR
 

@@ -13,9 +13,10 @@ import {
 } from "@/shared/lib/utils/display";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { goalAt } from "@/shared/lib/goal";
 import { teamColor, teamName } from "@/shared/lib/teams";
 import type { ReturnsReport } from "@/types";
-import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
+import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { playerLabel, simulationColor, simulationLetter, youLabel, labelColors } from "../../lib/player-label";
 import {
   ANNUAL_RETURN,
@@ -178,8 +179,9 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
     emphasis: true,
     ...options,
   });
-  // A meta é uma reta com os pontos do eixo da série mais longa; só existe com uma meta única
+  // A meta acompanha o eixo da série mais longa: em degraus quando o servidor manda os reajustes, reta quando é uma só
   const goal = overview?.game_type !== "CLASSIC" ? overview?.goal_net_worth : null;
+  const goalSteps = overview?.goal_steps ?? [];
   const longestNetworth = [...data.players.map((p) => p.networth), ...data.teams.map((t) => t.networth)].reduce(
     (longest, points) => (points.length > longest.length ? points : longest),
     [],
@@ -192,7 +194,7 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
             label: "Meta",
             color: "var(--foreground)",
             dashed: true,
-            points: longestNetworth.map((p) => ({ date: p.date, value: goal })),
+            points: longestNetworth.map((p) => ({ date: p.date, value: String(goalAt(goalSteps, p.date) ?? goal) })),
           },
         ]
       : [];

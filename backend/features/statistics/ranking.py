@@ -11,6 +11,7 @@ from backend.core.dto.statistics_report import (
     ScoreAxisDTO,
     ScoreDTO,
     ScoreMetricDTO,
+    SeriesPointDTO,
     TeamPullerDTO,
     TeamRankingDTO,
 )
@@ -26,6 +27,7 @@ def build_overview(
     *,
     game_type: GameType = GameType.CLASSIC,
     goal_net_worth: Decimal | None = None,
+    goal_steps: list[SeriesPointDTO] | None = None,
     in_teams: bool = False,
     team_naming: TeamNaming = TeamNaming.COLOR,
 ) -> OverviewReportDTO:
@@ -106,6 +108,7 @@ def build_overview(
         criterion=criterion,
         game_type=game_type,
         goal_net_worth=goal_net_worth,
+        goal_steps=goal_steps or [],
     )
 
 

@@ -9,8 +9,9 @@ import { logger } from "@/shared/lib/logger";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { Button } from "@/shared/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { displayMoney, displayShortDate } from "@/shared/lib/utils/display";
+import { displayShortDate } from "@/shared/lib/utils/display";
 import type { SimulationState } from "@/types";
+import { TopbarCash } from "./topbar-cash";
 import { TopbarGoal } from "./topbar-goal";
 
 interface TopbarProps {
@@ -75,7 +76,11 @@ export default function Topbar({ pageLabel }: TopbarProps) {
         <div className="flex flex-wrap items-center gap-3">
           {/* Corrida à meta */}
           {match && match.game_type !== "CLASSIC" && (
-            <TopbarGoal grouping={match.player_grouping} teamNaming={match.team_naming} />
+            <TopbarGoal
+              grouping={match.player_grouping}
+              teamNaming={match.team_naming}
+              currentDate={simData?.current_date}
+            />
           )}
 
           {/* Data, pausa e velocidade */}
@@ -108,14 +113,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
           </div>
 
           {/* Caixa */}
-          <div className="grid border-l border-border pl-4">
-            <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
-              Caixa disponível
-            </span>
-            <span className="font-mono text-[15px] font-semibold">
-              {simData?.cash !== undefined ? displayMoney(simData.cash) : "—"}
-            </span>
-          </div>
+          <TopbarCash cash={simData?.cash} independence={match?.game_type === "FINANCIAL_INDEPENDENCE"} />
         </div>
       </div>
     </header>

@@ -138,8 +138,11 @@ class OverviewReportDTO(TeamReportDTO):
     criterion: VictoryCriterion
     # Fora da Clássica, `criterion_value` é a fração da meta (patrimônio ÷ meta)
     game_type: GameType
-    # A meta das partidas quando todas têm a mesma; None entre metas diferentes
+    # A meta das partidas no último dia quando todas têm a mesma; None entre metas diferentes
     goal_net_worth: Decimal | None
+    # A meta em degraus (o início e cada reajuste pelo IPCA) de uma partida com meta;
+    # vazia na Clássica e entre partidas
+    goal_steps: list[SeriesPointDTO]
 
 
 # Rentabilidade

@@ -59,6 +59,44 @@ class CashflowEventType(Enum):
     DIVIDEND = "DIVIDEND"
     CONTRIBUTION = "CONTRIBUTION"
     TAX = "TAX"
+    SALARY = "SALARY"
+    EXPENSE = "EXPENSE"
+    UNEXPECTED_EXPENSE = "UNEXPECTED_EXPENSE"
+    OVERDRAFT_INTEREST = "OVERDRAFT_INTEREST"
+
+    @property
+    def sign(self) -> int:
+        """+1 quando o evento entra no caixa, -1 quando sai: o valor gravado é sempre positivo."""
+        return CASH_SIGN[self]
+
+    @property
+    def is_contribution(self) -> bool:
+        """Conta no capital aportado do jogador, não no rendimento nem na perda."""
+        return self in CONTRIBUTION_TYPES
+
+
+CASH_SIGN: dict[CashflowEventType, int] = {
+    CashflowEventType.DEPOSIT: 1,
+    CashflowEventType.WITHDRAW: -1,
+    CashflowEventType.DIVIDEND: 1,
+    CashflowEventType.CONTRIBUTION: 1,
+    CashflowEventType.TAX: -1,
+    CashflowEventType.SALARY: 1,
+    CashflowEventType.EXPENSE: -1,
+    CashflowEventType.UNEXPECTED_EXPENSE: -1,
+    CashflowEventType.OVERDRAFT_INTEREST: -1,
+}
+
+# Aporte, salário, despesa e imprevisto são o dinheiro da vida do jogador; o juro
+# do cheque especial é perda dele, como o IR
+CONTRIBUTION_TYPES = frozenset(
+    {
+        CashflowEventType.CONTRIBUTION,
+        CashflowEventType.SALARY,
+        CashflowEventType.EXPENSE,
+        CashflowEventType.UNEXPECTED_EXPENSE,
+    }
+)
 
 
 class EquityEventType(Enum):
@@ -91,6 +129,30 @@ class GameType(Enum):
     CLASSIC = "CLASSIC"
     GOAL_RACE = "GOAL_RACE"
     FINANCIAL_INDEPENDENCE = "FINANCIAL_INDEPENDENCE"
+
+
+class LifeEventEffect(Enum):
+    # Sai do caixa o múltiplo da despesa mensal do dia
+    CASH_OUT = "CASH_OUT"
+    # O salário do mês seguinte não entra
+    SKIP_NEXT_SALARY = "SKIP_NEXT_SALARY"
+
+
+class LifeHistoryCategory(Enum):
+    """Os filtros do histórico do viver de renda."""
+
+    UNEXPECTED = "UNEXPECTED"
+    LAYOFF = "LAYOFF"
+    OVERDRAFT = "OVERDRAFT"
+
+
+class LifeHistoryKind(Enum):
+    UNEXPECTED_EXPENSE = "UNEXPECTED_EXPENSE"
+    LAYOFF = "LAYOFF"
+    OVERDRAFT_STARTED = "OVERDRAFT_STARTED"
+    OVERDRAFT_ENDED = "OVERDRAFT_ENDED"
+    # Soma do juro cobrado por pregão no mês
+    OVERDRAFT_INTEREST = "OVERDRAFT_INTEREST"
 
 
 class PlayerGrouping(Enum):

@@ -24,6 +24,13 @@ class SimulationConfig(BaseModel):
     victory_criterion: str = "SCORE"
     # Meta padrão da corrida à meta, em múltiplos do saldo inicial
     goal_multiple: int = 10
+    # Viver de renda
+    monthly_salary: float = 8000.0
+    monthly_expense: float = 5000.0
+    unexpected_per_year: int = 3
+    withdrawal_rate: float = 0.04
+    # Juro do cheque especial sobre o caixa negativo, ao mês
+    overdraft_monthly_rate: float = 0.08
 
 
 class HostConfig(BaseModel):

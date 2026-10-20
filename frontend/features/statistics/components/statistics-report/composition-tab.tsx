@@ -14,7 +14,7 @@ import {
   displayShortMonthYear,
 } from "@/shared/lib/utils/display";
 import type { CompositionReport, TeamNaming } from "@/types";
-import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
+import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { EFFECTIVE_SECTORS, SECTOR_PROFIT } from "../../lib/metrics";
 import { playerKey, playerLabel } from "../../lib/player-label";
 import { groupByTeam } from "../../lib/teams";

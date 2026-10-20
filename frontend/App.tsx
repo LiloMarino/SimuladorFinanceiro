@@ -54,7 +54,8 @@ const routeLabels = navItems.reduce<Record<string, string>>((acc, item) => {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      {/* A troca de rota é urgente: o fim da partida leva ao resultado antes do status inativo chegar ao guard */}
+      <BrowserRouter useTransitions={false}>
         <AuthProvider>
           <RealtimeProvider>
             <NotificationSettingsProvider>

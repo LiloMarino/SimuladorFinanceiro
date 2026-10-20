@@ -2,16 +2,17 @@ from datetime import UTC, date, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import Case, delete, func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.user import UserDTO
-from backend.core.enum import CashflowEventType
+from backend.core.enum import CONTRIBUTION_TYPES, CashflowEventType
 from backend.core.models.models import (
     EventCashflow,
     Users,
 )
+from backend.core.repository.cashflow import cash_delta
 from backend.core.runtime.simulation_manager import SimulationManager
 
 
@@ -75,26 +76,7 @@ class UserRepository:
         # --------------------------------------------------
         total_cash = Decimal(
             session.execute(
-                select(
-                    func.coalesce(
-                        func.sum(
-                            Case(
-                                (
-                                    EventCashflow.event_type.in_(
-                                        ["DEPOSIT", "DIVIDEND", "CONTRIBUTION"]
-                                    ),
-                                    EventCashflow.amount,
-                                ),
-                                (
-                                    EventCashflow.event_type.in_(["WITHDRAW", "TAX"]),
-                                    -EventCashflow.amount,
-                                ),
-                                else_=Decimal("0"),
-                            )
-                        ),
-                        0,
-                    )
-                ).where(
+                select(cash_delta()).where(
                     EventCashflow.user_id == user.id,
                     EventCashflow.simulation_id == simulation_id,
                 )
@@ -114,6 +96,19 @@ class UserRepository:
                     EventCashflow.user_id == user_id,
                     EventCashflow.simulation_id == simulation_id,
                     EventCashflow.event_type == event_type.value,
+                )
+            ).scalar_one()
+        )
+
+    @transactional
+    def get_total_contribution(self, session: Session, user_id: int) -> Decimal:
+        """Capital que o jogador pôs além do saldo inicial: aportes, salários, despesas e imprevistos."""
+        simulation_id = SimulationManager.get_active_simulation_id()
+        return Decimal(
+            session.execute(
+                select(cash_delta(CONTRIBUTION_TYPES)).where(
+                    EventCashflow.user_id == user_id,
+                    EventCashflow.simulation_id == simulation_id,
                 )
             ).scalar_one()
         )

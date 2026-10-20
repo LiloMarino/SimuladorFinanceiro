@@ -4,7 +4,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
 import type { OverviewReport } from "@/types";
-import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
+import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { criterionLabel, displayCriterionValue, rankingMeasure, type RankingMeasure } from "../../lib/criterion";
 import { simulationColor, simulationLetter } from "../../lib/player-label";
 import { SimulationLetter } from "./simulation-letter";

@@ -50,6 +50,11 @@ def simulation_settings(
         victory_criterion=VictoryCriterion.SCORE,
         game_type=GameType.CLASSIC,
         goal_net_worth=Decimal(100000),
+        monthly_salary=Decimal(8000),
+        monthly_expense=Decimal(5000),
+        unexpected_per_year=3,
+        withdrawal_rate=Decimal("0.04"),
+        inflation_adjusted=False,
         player_grouping=grouping,
     )
 

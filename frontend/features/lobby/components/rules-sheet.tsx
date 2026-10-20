@@ -29,13 +29,15 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import type ApiError from "@/shared/lib/models/ApiError";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
-import { displayDecimal } from "@/shared/lib/utils/display";
+import { displayDecimal, toCentsString } from "@/shared/lib/utils/display";
+import { LIFE_DEFAULTS, withdrawalRateToField } from "@/shared/lib/financial-independence";
 import { GAME_TYPE_OPTIONS } from "@/shared/lib/game-types";
 import { DEFAULT_GOAL_MULTIPLE, GOAL_SHORTCUTS } from "@/shared/lib/goal";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { teamColor, teamShortName } from "@/shared/lib/teams";
 import type { GameType, PlayerGrouping, TeamNaming, VictoryCriterion } from "@/types";
 import type { CoverageCheck } from "../lib/coverage";
+import { isPositiveMoney, isWithdrawalRate, withdrawalRateFraction } from "../lib/life-rules";
 import {
   PRICE_IMPACT_MODE_LABELS,
   PRICE_IMPACT_PRESETS,
@@ -44,8 +46,25 @@ import {
 } from "../lib/price-impact";
 import { CoverageAlerts } from "./coverage-alerts";
 import { DateField } from "./date-field";
+import { LifeFields } from "./life-fields";
 import type { SimulationFormValues } from "./lobby-match";
 import { PriceImpactExample } from "./price-impact-example";
+
+// Os campos da vida real somem fora do viver de renda; um valor inutilizável neles volta ao padrão do servidor
+const LIFE_FIELD_FALLBACKS = {
+  monthlySalary: {
+    usable: isPositiveMoney,
+    fallback: formatMoney(toCentsString(LIFE_DEFAULTS.monthlySalary).replace(".", "")),
+  },
+  monthlyExpense: {
+    usable: isPositiveMoney,
+    fallback: formatMoney(toCentsString(LIFE_DEFAULTS.monthlyExpense).replace(".", "")),
+  },
+  withdrawalRate: {
+    usable: (value: string) => isWithdrawalRate(withdrawalRateFraction(value)),
+    fallback: withdrawalRateToField(LIFE_DEFAULTS.withdrawalRate),
+  },
+} as const;
 
 const GROUPING_OPTIONS: { value: PlayerGrouping; label: string; description: string; icon: LucideIcon }[] = [
   {
@@ -110,7 +129,8 @@ export function RulesSheet({
   const goalAmount = Number(normalizeNumberString(goalNetWorth));
 
   // A meta segue no formulário em todos os tipos e o servidor a exige positiva:
-  // sair da corrida com a meta vazia devolve o valor padrão, já que o campo some da tela
+  // sair da corrida com a meta vazia devolve o valor padrão, já que o campo some da tela.
+  // O que foi digitado em cada tipo fica guardado; só o valor inutilizável de um campo escondido volta ao padrão
   const selectGameType = (value: GameType, onChange: (value: GameType) => void) => {
     onChange(value);
     if (value === "CLASSIC" && !(goalAmount > 0)) {
@@ -118,6 +138,13 @@ export function RulesSheet({
         shouldValidate: true,
       });
     }
+    if (value !== "FINANCIAL_INDEPENDENCE") {
+      for (const [name, { usable, fallback }] of Object.entries(LIFE_FIELD_FALLBACKS)) {
+        const field = name as keyof typeof LIFE_FIELD_FALLBACKS;
+        if (!usable(form.getValues(field))) form.setValue(field, fallback);
+      }
+    }
+    void form.trigger();
   };
 
   const selectImpactMode = (mode: PriceImpactMode) => {
@@ -188,27 +215,29 @@ export function RulesSheet({
                   ["startingCash", "Saldo inicial"],
                   ["monthlyContribution", "Aporte mensal"],
                 ] as const
-              ).map(([name, label]) => (
-                <Controller
-                  key={name}
-                  control={form.control}
-                  name={name}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor={`rules-${name}`}>{label}</FieldLabel>
-                      <Input
-                        {...field}
-                        id={`rules-${name}`}
-                        inputMode="decimal"
-                        numeric
-                        aria-invalid={fieldState.invalid}
-                        onChange={(e) => field.onChange(formatMoney(e.target.value))}
-                      />
-                      <FieldError errors={[fieldState.error]} />
-                    </Field>
-                  )}
-                />
-              ))}
+              )
+                .filter(([name]) => !(gameType === "FINANCIAL_INDEPENDENCE" && name === "monthlyContribution"))
+                .map(([name, label]) => (
+                  <Controller
+                    key={name}
+                    control={form.control}
+                    name={name}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={`rules-${name}`}>{label}</FieldLabel>
+                        <Input
+                          {...field}
+                          id={`rules-${name}`}
+                          inputMode="decimal"
+                          numeric
+                          aria-invalid={fieldState.invalid}
+                          onChange={(e) => field.onChange(formatMoney(e.target.value))}
+                        />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
+                  />
+                ))}
             </div>
           </FieldSet>
 
@@ -373,6 +402,9 @@ export function RulesSheet({
               </Alert>
             </FieldSet>
           )}
+
+          {/* Vida real */}
+          {gameType === "FINANCIAL_INDEPENDENCE" && <LifeFields form={form} readOnly={readOnly} />}
 
           {/* Quem vence */}
           {gameType === "CLASSIC" && (
