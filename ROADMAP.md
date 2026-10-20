@@ -70,7 +70,6 @@
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ⏳ |
 | [**F48**](#f48) | README e docs que mostram o produto | — | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
-| [**F53**](#f53) | Modo viver de renda | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
@@ -82,7 +81,7 @@
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (14 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -99,6 +98,7 @@
 | **D12** | Como numerar as versões | — | ✅ |
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
 | [**F52**](#f52) | Modo corrida à meta | — | ✅ |
+| [**F53**](#f53) | Modo viver de renda | — | ✅ |
 | [**F65**](#f65) | Rework dos loggings | — | ✅ |
 
 </details>
@@ -113,7 +113,6 @@
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
-| [**F53**](#f53) | Modo viver de renda | M13 | 2 | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
@@ -127,7 +126,9 @@
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | 0 | ⏳ |
+| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | 0 | ⏳ |
+| [**F71**](#f71) | Renda fixa com liquidez diária | — | 0 | ⏳ |
 
 ---
 
@@ -219,19 +220,19 @@
 >
 > **Serve:** N21, N22, N23
 >
-> **Progresso:** 1/4 concluídas
+> **Progresso:** 2/4 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F40**](#f40) | Modo Especialista | — | ⏳ |
 | [**F41**](#f41) | Conquistas | — | ⏳ |
-| [**F53**](#f53) | Modo viver de renda | [F52](#f52) | ⏳ |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F52**](#f52) | Modo corrida à meta | — | ✅ |
+| [**F53**](#f53) | Modo viver de renda | [F52](#f52) | ✅ |
 
 </details>
 
@@ -296,7 +297,7 @@
 | **F47** | Gravação automática de demonstrações | N25 | — | M14 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F52** | Modo corrida à meta | N23 | — | M13 | — | Médio | Baixo | Alto | Ótimo | ✅ Concluído |
-| **F53** | Modo viver de renda | N23 | — | M13 | [F52](#f52) | Médio | Médio | Alto | Bom | ⏳ Pendente |
+| **F53** | Modo viver de renda | N23 | — | M13 | [F52](#f52) | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F65** | Rework dos loggings | N26 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
@@ -362,7 +363,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F52 — Modo corrida à meta.** Serve N23. Vence quem chega primeiro a um patrimônio-alvo, como a vitória por Maravilha do Age of Empires. **Tipo de partida:** em vez de um valor novo no critério de vitória, a partida ganhou um eixo próprio, o `ENUM` `game_type` (`CLASSIC`, `GOAL_RACE`, `FINANCIAL_INDEPENDENCE`) em `simulations`; os 4 critérios da F27 continuam e só valem na Clássica. No lobby, "Tipo de partida" são 3 cards entre "Modo de jogo" e o resto, e "Quem vence" some fora da Clássica. **Meta:** coluna `goal_net_worth`, escolhida pelo host com atalhos de 5×, 10× e 20× o saldo inicial (padrão 10×, `goal_multiple` no `config.toml`) e maior que o saldo inicial; as partidas salvas receberam 10× o saldo. **Fim:** depois dos snapshots do dia, `goal_reached` confere se alguém (ou, em equipes, a média do patrimônio dos membros) chegou; a partida encerra no pregão seguinte com `simulation_ended` e vai ao fechamento, e a partida salva terminada por meta aparece como terminada e não continua. **Ranking:** fora da Clássica o valor do critério é a fração da meta (patrimônio ÷ meta, 1 = chegou); ordenar por ela já dá as regras do card (dois no mesmo dia: o maior patrimônio; ninguém na meta: o mais perto), e em equipes a média das frações é o patrimônio médio ÷ meta. As Estatísticas mostram "% da meta" e "Falta para a meta", os gráficos de patrimônio ganham a linha da meta e o fechamento diz quem chegou primeiro ou que ninguém chegou. **Tempo real:** o evento `goal_progress_update` (meta e patrimônio de cada jogador) sai todo pregão e a rota `GET /api/simulation/goal-progress` dá o estado inicial; a topbar mostra a trilha com um marcador por jogador (um escudo por equipe) e a página "Meta" traz o progresso e a corrida de todos. A meta é em reais do dia, e o aporte mensal continua valendo.
 
 <a id="f53"></a>
-**F53 — Modo viver de renda.** Serve N23. Uma corrida à meta (F52) em que a meta é a independência financeira, e o caminho tem a vida real no meio. O host define no lobby o salário e a despesa mensal (o aporte de hoje vira a diferença entre os dois) e a frequência dos imprevistos. Imprevistos são despesas inesperadas (conserto, saúde, demissão de um mês sem salário), sorteadas com uma semente da partida, para que todos os jogadores recebam os mesmos imprevistos nos mesmos dias. Eles saem do caixa; caixa negativo paga juros de cheque especial até ser coberto, o que obriga a ter reserva de emergência em algo que se resgata rápido. Salário, despesa e imprevisto entram como valores novos do `ENUM` `cashflow_event_type` (à mão na migration, D9). Vence quem primeiro atinge o patrimônio da regra dos 4%: 25 vezes a despesa anual (com R$ 5 mil de despesa por mês, R$ 1,5 milhão), porque retirar 4% ao ano desse patrimônio cobre as despesas, e o estudo Trinity, com dados dos Estados Unidos, mostrou essa retirada, corrigida pela inflação, durando 30 anos na maior parte dos períodos históricos. A taxa de retirada é configurável, e a explicação fica ao lado do campo. Quando os proventos existirem (F22), a meta pode passar a ser a renda passiva real (dividendos e juros recebidos cobrindo a despesa).
+**F53 — Modo viver de renda.** Serve N23. Uma corrida à meta (F52) em que a meta é a independência financeira e o caminho tem a vida real no meio. **Tipo de partida:** o terceiro valor do `game_type`, `FINANCIAL_INDEPENDENCE`; o fim, o ranking por fração da meta e o fechamento são os da corrida. **Regras:** o host define no lobby o salário e a despesa mensal (padrões R$ 8 mil e R$ 5 mil no `config.toml`), a frequência dos imprevistos por ano (padrão 3), a taxa de retirada (padrão 4%, entre 1% e 10%, com a explicação da regra dos 4% e do estudo Trinity ao lado do campo) e se salário e despesa sobem pelo IPCA. Não há aporte: o salário entra no primeiro pregão do mês e a despesa sai no mesmo dia. **Meta:** 12 × a despesa ÷ a taxa de retirada (R$ 5 mil por mês a 4% dá R$ 1,5 milhão), maior que o saldo inicial. Com a correção ligada, salário, despesa e meta sobem uma vez por ano, no aniversário da partida, pelo IPCA acumulado dos 12 meses; o relatório guarda a meta em degraus (`goal_steps`) para a linha da meta nos gráficos, e a topbar avisa por 30 dias que a meta subiu. **Imprevistos:** um registro de tipos (`LIFE_EVENTS`), cada um com nome, efeito, peso no sorteio e múltiplo da despesa: conserto do carro (1 despesa), saúde (2 despesas) e demissão (o salário do mês seguinte não entra). O sorteio de cada pregão sai da semente da partida (`random_seed` em `simulations`) e da data, então todos recebem os mesmos imprevistos nos mesmos dias, inclusive ao continuar uma partida salva. **Caixa:** salário, despesa, imprevisto e juro do cheque especial são valores novos do `cashflow_event_type`, cada tipo com o próprio sinal; o imprevisto guarda a chave do tipo em `life_event_key`. Caixa negativo paga 8% ao mês de cheque especial (`overdraft_monthly_rate` no `config.toml`), composto por pregão, até ser coberto. Salário, despesa e imprevisto contam no capital aportado e o juro conta como perda. **Telas:** a página "Meta" ganha a vida financeira (salário, despesa, reserva em meses de despesa, juro do cheque especial, aviso de demissão) e o histórico com filtros por imprevisto, demissão e cheque especial, com o juro somado por mês; a topbar mostra o caixa e "Cheque especial" quando negativo; cada imprevisto e a entrada no negativo viram um aviso que leva ao histórico. **Desvios:** a reserva de emergência conta só o caixa, porque a renda fixa só volta no vencimento (fecha com a F71); o fechamento não diz quantos imprevistos cada um passou, o histórico não soma os juros pagos na partida, e a previsão de quando a meta chega fica fora em equipes. A meta pela renda passiva real, quando os proventos existirem (F22), segue em aberto.
 
 <a id="f56"></a>
 **F56 — Novidades no app.** Serve N14. Como as notas de patch de um jogo: o `CHANGELOG.md` da F51 vai junto no executável, o backend o serve com a versão, e o lobby mostra as novidades da versão atual. Na primeira abertura depois de atualizar, o card ou o selo de novidades fica em destaque até ser aberto (o navegador guarda a última versão vista); aberto, mostra "O que há de novo na versão X" e dá acesso ao histórico inteiro. O lugar exato no lobby, que já está cheio, sai de uma iteração no Claude Design antes de implementar.
