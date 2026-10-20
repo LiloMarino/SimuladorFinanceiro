@@ -130,6 +130,18 @@ def test_logger_outside_the_table_stays_in_app_log(logs: Path) -> None:
     assert read(logs, "database.log") == ""
 
 
+def test_debug_mode_keeps_access_lines_out_of_the_console(setup: Setup) -> None:
+    logs = setup(debug=True)
+    stream = io.StringIO()
+    next(
+        h for h in logging.getLogger().handlers if type(h) is logging.StreamHandler
+    ).setStream(stream)
+    logging.getLogger("uvicorn.access").info("GET /api/x 200")
+
+    assert "GET /api/x" in read(logs, "app.log")
+    assert stream.getvalue() == ""
+
+
 def test_uvicorn_reaches_app_log_without_access_lines(logs: Path) -> None:
     logging.getLogger("uvicorn.error").info("erro de protocolo do WebSocket")
     logging.getLogger("uvicorn.access").info("GET /api/x 200")

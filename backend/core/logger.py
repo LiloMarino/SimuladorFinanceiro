@@ -151,8 +151,11 @@ def setup_logging(
     if debug and sql:
         logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
-    # O uvicorn.access registra uma linha por requisição
-    logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+    # O uvicorn.access registra uma linha por requisição: só o modo debug a guarda,
+    # e só nos arquivos
+    logging.getLogger("uvicorn.access").setLevel(
+        logging.INFO if debug else logging.WARNING
+    )
 
     # Evita handlers duplicados
     if root_logger.handlers:

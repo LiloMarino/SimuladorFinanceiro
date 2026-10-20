@@ -189,7 +189,7 @@ O modo debug serve para investigar lentidão e comportamento estranho na máquin
 
 Ligado, o modo debug:
 
-- grava o `DEBUG` do código do app (ordem recebida e casada, dia simulado, importação por ticker) no `app.log` e nos arquivos por área (`simulation.log`, `realtime.log`, `import.log`). As bibliotecas (`sqlalchemy`, `engineio`, `socketio`, `urllib3`, `asyncio`) continuam em `WARNING`, o `error.log` segue só com `ERROR` e `CRITICAL`, e o terminal não muda;
+- grava o `DEBUG` do código do app (ordem recebida e casada, dia simulado, importação por ticker, cada requisição HTTP) no `app.log` e nos arquivos por área (`simulation.log`, `realtime.log`, `import.log`). As bibliotecas (`sqlalchemy`, `engineio`, `socketio`, `urllib3`, `asyncio`) continuam em `WARNING`, o `error.log` segue só com `ERROR` e `CRITICAL`, e o terminal não muda;
 - com `sql = true`, grava as consultas SQL no `database.log` (e só nele);
 - mostra as ferramentas do TanStack Query (o botão no canto da tela) e libera os logs `debug` e `log` do console do navegador, inclusive no executável. Desligado, o front se comporta igual em desenvolvimento e no executável;
 - libera o painel **Desempenho** (só para o host), que mede onde o tempo vai na partida. Veja [Investigando lentidão](./investigando-lentidao.md).

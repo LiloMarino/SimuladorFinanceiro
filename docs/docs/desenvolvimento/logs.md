@@ -37,10 +37,11 @@ Ficam na pasta de logs (`logs_path` em `[logging]` do `config.toml`). Cada linha
 | --- | --- | --- |
 | Código do app (`backend.*`) | `INFO` | `DEBUG` |
 | Bibliotecas (`sqlalchemy`, `engineio`, `socketio`, `urllib3`, `asyncio`) | `WARNING` | `WARNING` |
+| Requisições HTTP (uma linha por chamada) | não aparecem | `app.log`, nunca no terminal |
 | Terminal | abertura, avisos e erros | igual |
 | SQL | não aparece | só com `[debug] sql = true`, só no `database.log` |
 
-O `DEBUG` do app é o rastro do que ele faz: ordem recebida, cancelada e casada, dia simulado, conexão de WebSocket, importação por ticker. Ele só existe nos arquivos. O `logging_level` e o `[database] echo_sql` do `config.toml` não existem mais; se estiverem num arquivo antigo, são ignorados.
+O `DEBUG` do app é o rastro do que ele faz: ordem recebida, cancelada e casada, dia simulado, conexão de WebSocket, importação por ticker e cada requisição HTTP (método, rota e status). Ele só existe nos arquivos. O `logging_level` e o `[database] echo_sql` do `config.toml` não existem mais; se estiverem num arquivo antigo, são ignorados.
 
 O SQL é a parte mais volumosa: cada tick da simulação faz dezenas de consultas. Por isso ele fica atrás de uma chave própria, e só vale com o modo debug ligado:
 
@@ -87,6 +88,7 @@ Frequência: "uma vez" (na abertura ou no encerramento), "partida", "tick" (por 
 | Importação | Ticker sem dado, falha de download ou de CSV | lote | terminal + `import.log`/`error.log`, `WARNING`/`ERROR` |
 | Rede | Comando de detecção com erro | abertura | `app.log`, `DEBUG` |
 | Erros | Exceção não tratada numa rota | evento | terminal (uma linha) + `error.log`, `ERROR` |
+| Requisições | Método, rota e status de cada chamada HTTP | evento | `app.log`, só no modo debug |
 | SQL | Consultas do SQLAlchemy | evento | `database.log`, só com `[debug] sql = true` |
 | Lentidão | Chamada acima de 500 ms | evento | `slow.log`, `WARNING`, só com o modo debug |
 
