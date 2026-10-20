@@ -26,9 +26,15 @@ Várias métricas usam a **cota**, como a de um fundo de investimento: um valor 
 
 Quando a partida chega à data final ou o host a encerra, todos os jogadores vão para a tela **Fim de partida**:
 
-- **Pódio** com os três primeiros pelo [critério de vitória](./lobby#critério-de-vitória) escolhido no lobby, e o valor que decidiu cada posição (ex.: "212 pts" pela nota geral).
+- **Pódio** com os três primeiros pelo [critério de vitória](./lobby#critério-de-vitória) escolhido no lobby, e o valor que decidiu cada posição (ex.: "212 pts" pela nota geral). Na Corrida à meta e no Viver de renda, o pódio vai pelo % da meta (ex.: "91% · R$ 1,37 mi").
 - **O relatório inteiro** em abas, sobre a partida toda.
 - **Voltar ao lobby** leva de volta ao lobby, para a próxima partida.
+
+O conteúdo do fechamento depende do [tipo de partida](./lobby#tipo-de-partida):
+
+- **Alguém chegou primeiro à meta** (Corrida à meta): a tela anuncia quem chegou primeiro.
+- **Ninguém chegou à meta** (Corrida à meta): a partida acaba na data final sem chegada, e vence quem ficou mais perto, ou seja, quem tem o maior **% da meta**. Como ler o % está na seção [Ranking](#ranking-na-corrida-à-meta-e-no-viver-de-renda).
+- **Independência financeira** (Viver de renda): a versão do fechamento que mostra quem alcançou a meta de independência. Veja [Viver de renda](./lobby#viver-de-renda).
 
 A mesma tela abre depois, para qualquer partida salva, pelo botão **Ver resultado** na lista de simulações salvas do lobby.
 
@@ -50,6 +56,13 @@ Quando a partida é **em equipes**, as telas agrupam os jogadores por equipe e m
 - **Resumo da partida:** a sua posição, o seu retorno, a média da sala e o melhor e o pior retorno.
 - **Ranking de jogadores:** ordenado pela **nota geral**. Mostra também patrimônio, retorno em R$ e em % sobre o capital aportado (saldo inicial + aportes) e quantos dias foram simulados. Quem ainda não tem nota vem depois, e o retorno desempata.
 - **Nota:** a decomposição da nota de cada jogador, eixo por eixo e métrica por métrica (ex.: "Queda máxima 13,65% → 72,7 pts"). Mostra o que puxou a nota para baixo.
+
+### Ranking na Corrida à meta e no Viver de renda
+
+Nessas modalidades, o ranking ganha duas colunas de progresso até a meta:
+
+- **% da meta:** patrimônio ÷ meta. Ex.: meta de R$ 100.000 e patrimônio de R$ 62.000 dão 62%, ou seja, falta pouco mais de um terço do caminho. Quanto maior, mais perto. 100% significa que o jogador chegou.
+- **Falta para a meta:** quanto de patrimônio ainda falta, em reais. No mesmo exemplo, são R$ 38.000 (meta de R$ 100.000 menos patrimônio de R$ 62.000).
 
 ### Como a nota é calculada
 
@@ -110,6 +123,8 @@ Com pouco tempo de partida, anualizar engana: 10 dias com +2% viram ~64% ao ano.
 
   Acima das duas, a carteira bateu tanto a renda fixa quanto a bolsa.
 - **Patrimônio:** caixa + investimentos, dia a dia, com os aportes.
+
+  Na Corrida à meta e no Viver de renda, uma linha tracejada mostra a meta. Quando a linha do patrimônio encosta nela, o jogador chegou. Se a meta sobe pelo IPCA (o índice oficial de inflação), a linha tracejada sobe em degraus, a cada reajuste anual.
 - **Tabela:**
   - **Capital aportado.**
   - **Retorno anual:** a cota composta para um ano. Ex.: +2% em 63 pregões (~3 meses) equivale a ~8,2% ao ano.

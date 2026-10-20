@@ -188,10 +188,75 @@ Em equipes:
 
 ---
 
+### Tipo de partida
+
+**O que é:**
+Como a partida se decide. A partida pode terminar na data final, decidida pelo critério de vitória, ou quando alguém chega a uma meta de patrimônio. A escolha fica gravada na simulação.
+
+#### Clássica
+
+É o jogo de sempre: a partida vai até a **data final**, e quem vence é decidido pelo [critério de vitória](#critério-de-vitória) escolhido. Esse critério só existe na Clássica: nas outras duas modalidades a vitória vem da meta.
+
+#### Corrida à meta
+
+Vence quem chega primeiro a um **patrimônio-alvo**, a meta. O host escolhe a meta com atalhos de **5×, 10× e 20× o saldo inicial** (o padrão é 10×). Ex.: com saldo inicial de R$ 10.000 e meta de 10×, a meta é R$ 100.000. A meta precisa ser maior que o saldo inicial.
+
+- A partida termina sozinha no dia em que alguém chega à meta.
+- Se dois chegam no mesmo dia, vence o maior patrimônio.
+- Se ninguém chega até a data final, vence quem ficou mais perto, ou seja, quem tem o maior **% da meta** (patrimônio ÷ meta). Ex.: meta de R$ 100.000 e patrimônio de R$ 62.000 dão 62%, e falta R$ 38.000.
+
+Em equipes, conta a média do patrimônio dos membros: a equipe chega à meta quando a média chega. O aporte mensal continua valendo.
+
+Na **topbar** aparece a trilha da corrida, com um marcador por jogador (ou um escudo por equipe) e o seu percentual. Clicar nela abre a lista. No menu, a página **Meta** mostra o seu progresso e a corrida de todos.
+
+#### Viver de renda
+
+É uma corrida à meta em que a meta é a **independência financeira**: ter um patrimônio que paga a sua despesa do ano retirando só uma fração dele por ano.
+
+**Como a meta é calculada:** meta = 12 × despesa mensal ÷ taxa de retirada.
+
+A **taxa de retirada** é a porcentagem do patrimônio que você tira por ano (padrão 4%, aceita de 1% a 10%). Ex.: despesa de R$ 5.000 por mês são R$ 60.000 por ano. Com taxa de 4%, a meta é R$ 1.500.000 (25× a despesa anual). Com taxa de 3%, a meta sobe para R$ 2.000.000 (cerca de 33× a despesa anual). Taxa menor deixa a meta maior e mais segura.
+
+:::info A regra dos 4%
+Ela vem do estudo **Trinity**, feito com dados dos EUA. O estudo viu que retirar 4% do patrimônio no primeiro ano, e corrigir essa retirada pela inflação nos anos seguintes, durou 30 anos na maior parte dos períodos analisados. É uma referência histórica, não uma garantia.
+:::
+
+**Sem aporte.** Nesta modalidade o host define o **salário** e a **despesa** mensais (padrão R$ 8.000 e R$ 5.000). No primeiro pregão de cada mês, o salário entra e a despesa sai; a sobra é o que dá para investir. Despesa maior que o salário é permitida, só aparece um aviso.
+
+**Imprevistos.** Eles são sorteados iguais para todos os jogadores, nos mesmos dias. A frequência define quantos imprevistos caem em cada ano:
+
+| Frequência | Quantos por ano |
+| --- | --- |
+| Nenhum | 0 |
+| Raros | 1 |
+| Normais (padrão) | 3 |
+| Frequentes | 6 |
+
+Os tipos são:
+
+- **Conserto do carro:** 1× a despesa mensal.
+- **Despesa de saúde:** 2× a despesa mensal.
+- **Demissão:** o salário do mês seguinte não entra.
+
+Cada imprevisto aparece num aviso na tela.
+
+**Caixa negativo.** Se o caixa ficar no negativo, ele cai no **cheque especial**: juros de 8% ao mês, cobrados a cada pregão, até o caixa voltar ao positivo. Ex.: R$ 1.000 no vermelho custam cerca de R$ 80 por mês em juros. Para sair, venda ou resgate algo.
+
+**Correção pelo IPCA (opcional).** O IPCA é o índice oficial de inflação: mede a alta média dos preços para o consumidor. Quando a correção está ligada, uma vez por ano, no aniversário da partida, salário e despesa sobem pela inflação dos 12 meses anteriores, como um reajuste, e a meta sobe junto. Ex.: inflação de 5% no ano faz o salário de R$ 8.000 virar R$ 8.400 e a despesa de R$ 5.000 virar R$ 5.250. Desligada, tudo fica nos reais do início.
+
+**Retorno.** Salário, despesa e imprevistos contam como dinheiro que você colocou ou tirou (o **capital aportado**), e não como ganho ou perda dos investimentos. Já os juros do cheque especial contam como perda.
+
+**A página Meta** mostra:
+
+- **Vida financeira:** salário, despesa e sobra do mês, e a **reserva de emergência**, que é quantos meses de despesa o seu caixa cobre. Ex.: despesa de R$ 5.000 e caixa de R$ 15.000 dão uma reserva de 3 meses. Zero é ruim, 3 é razoável e 6 ou mais é confortável.
+- **Histórico:** imprevistos, demissões, entrada e saída do cheque especial e os juros de cada mês, com a data na partida e o seu caixa depois de cada evento. Dá para filtrar por tipo.
+
+---
+
 ### Critério de vitória
 
 **O que é:**
-O que decide quem vence a partida. Ordena o ranking durante a partida e o pódio do fechamento.
+O que decide quem vence a partida [Clássica](#clássica). Ordena o ranking durante a partida e o pódio do fechamento. Na Corrida à meta e no Viver de renda o campo some: quem vence é quem chega à meta.
 
 **Opções:**
 
