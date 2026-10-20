@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
-import { CircleCheck, Info, Shield, TriangleAlert } from "lucide-react";
+import { CircleCheck, Info, Shield, Swords, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -43,12 +43,18 @@ import { DateField } from "./date-field";
 import type { SimulationFormValues } from "./lobby-match";
 import { PriceImpactExample } from "./price-impact-example";
 
-const GROUPING_OPTIONS: { value: PlayerGrouping; label: string; description: string }[] = [
-  { value: "INDIVIDUAL", label: "Todos contra todos", description: "Cada um por si: vence a melhor carteira." },
+const GROUPING_OPTIONS: { value: PlayerGrouping; label: string; description: string; icon: LucideIcon }[] = [
+  {
+    value: "INDIVIDUAL",
+    label: "Todos contra todos",
+    description: "Cada um por si: vence a melhor carteira.",
+    icon: Swords,
+  },
   {
     value: "TEAMS",
     label: "Em equipes",
     description: "Cada um opera a própria carteira, mas vence a equipe com a melhor média.",
+    icon: Users,
   },
 ];
 
@@ -198,7 +204,10 @@ export function RulesSheet({
                       <Field orientation="horizontal">
                         <RadioGroupItem value={option.value} id={`grouping-${option.value}`} />
                         <FieldContent>
-                          <FieldTitle>{option.label}</FieldTitle>
+                          <FieldTitle>
+                            <option.icon className="size-3.5 text-muted-foreground" />
+                            {option.label}
+                          </FieldTitle>
                           <FieldDescription>{option.description}</FieldDescription>
                         </FieldContent>
                       </Field>
