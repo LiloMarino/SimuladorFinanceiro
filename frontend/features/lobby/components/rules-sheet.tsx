@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
-import { CircleCheck, TriangleAlert } from "lucide-react";
+import { CircleCheck, Info, Shield, TriangleAlert } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import {
   Field,
@@ -28,7 +29,7 @@ import type ApiError from "@/shared/lib/models/ApiError";
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import { displayDecimal } from "@/shared/lib/utils/display";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
-import { teamShortName } from "@/shared/lib/teams";
+import { teamColor, teamShortName } from "@/shared/lib/teams";
 import type { PlayerGrouping, TeamNaming, VictoryCriterion } from "@/types";
 import type { CoverageCheck } from "../lib/coverage";
 import {
@@ -212,31 +213,33 @@ export function RulesSheet({
                   control={form.control}
                   name="teamNaming"
                   render={({ field }) => (
-                    <Field>
-                      <FieldLabel>Nome das equipes</FieldLabel>
+                    <div className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-[10px] border p-3">
+                      <FieldContent>
+                        <FieldTitle>Nome das equipes</FieldTitle>
+                        <FieldDescription>Muda só o rótulo; a cor é a mesma.</FieldDescription>
+                      </FieldContent>
                       <ToggleGroup
                         variant="segmented"
                         aria-label="Nome das equipes"
                         value={[field.value]}
                         onValueChange={(values) => values[0] && field.onChange(values[0] as TeamNaming)}
                         disabled={readOnly}
-                        className="w-full"
                       >
-                        <ToggleGroupItem value="COLOR" className="flex-1">
-                          Pelo nome da cor · {teamShortName(2, "COLOR")}
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="NUMBER" className="flex-1">
-                          Pelo número · {teamShortName(2, "NUMBER")}
-                        </ToggleGroupItem>
+                        {(["COLOR", "NUMBER"] as const).map((naming) => (
+                          <ToggleGroupItem key={naming} value={naming} style={{ "--team": teamColor(2) } as CSSProperties}>
+                            <Shield className="fill-(--team) stroke-(--team)" />
+                            {teamShortName(2, naming)}
+                          </ToggleGroupItem>
+                        ))}
                       </ToggleGroup>
-                      <FieldDescription>Muda só o rótulo; a cor é a mesma.</FieldDescription>
-                    </Field>
+                    </div>
                   )}
                 />
-                <p className="text-[13px] text-muted-foreground">
-                  Cada jogador escolhe a equipe no próprio card. Começa todo mundo sem equipe. Equipes desiguais valem:
-                  conta a média.
-                </p>
+                <Alert variant="info">
+                  <Info />
+                  <AlertTitle>Cada jogador escolhe a equipe no próprio card</AlertTitle>
+                  <AlertDescription>Começa todo mundo sem equipe. Equipes desiguais valem: conta a média.</AlertDescription>
+                </Alert>
               </>
             )}
           </FieldSet>
