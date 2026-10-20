@@ -8,6 +8,7 @@ from backend.core.dto.candle import CandleDTO, MarketQuoteDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, FixedIncomeOfferDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
+from backend.core.dto.goal import GoalProgressDTO, GoalRunnerDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO
 from backend.core.dto.patrimonial_history import (
@@ -18,7 +19,7 @@ from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import IndicatorSeries
+from backend.core.enum import GameType, IndicatorSeries, PlayerGrouping
 from backend.core.indicators import annual_index_rate
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -34,6 +35,7 @@ from backend.features.realtime.schemas import (
     StocksUpdateEventDTO,
     StockUpdateEventDTO,
 )
+from backend.features.simulation.goal import goal_reached
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.strategy.manual import ManualStrategy
 from backend.features.variable_income.entities.order import OrderAction
@@ -79,6 +81,10 @@ class Simulation:
             settings.price_impact_k,
             settings.price_impact_decay_days,
         )
+
+        # Fora da Clássica: onde cada um está na meta e se alguém já chegou
+        self._goal_progress: GoalProgressDTO | None = None
+        self._goal_reached = False
 
         # O mês do último dia processado já recebeu o aporte
         self._last_contribution_month: tuple[int, int] | None = (
@@ -131,6 +137,11 @@ class Simulation:
         )
 
     def next_tick(self):
+        # O dia em que alguém chegou à meta foi processado inteiro; a partida acaba no seguinte
+        if self._goal_reached:
+            logger.info("Meta alcançada")
+            raise StopIteration()
+
         # Avança para o próximo dia útil; passou do fim, a simulação terminou
         if self._current_date <= self.settings.end_date:
             self._current_date = next_business_day(self._current_date)
@@ -161,7 +172,7 @@ class Simulation:
         self._collect_income_tax(users)
         EventManager.flush()
 
-        self._create_daily_snapshots(users, month_changed)
+        snapshots = self._create_daily_snapshots(users, month_changed)
 
         # Emite notificações
         logger.debug(
@@ -189,6 +200,36 @@ class Simulation:
                 ).to_json(),
                 to=player.client_id,
             )
+        if self.settings.game_type is not GameType.CLASSIC:
+            self._track_goal(snapshots)
+
+    def get_goal_progress(self) -> GoalProgressDTO | None:
+        return self._goal_progress
+
+    def _track_goal(self, snapshots: list[StatisticsSnapshotEntryDTO]) -> None:
+        """Avisa onde cada um está na meta e marca o fim da partida quando alguém chega."""
+        colors = repository.simulation_player.colors(self.settings.id)
+        teams = repository.simulation_player.teams(self.settings.id)
+        goal = self.settings.goal_net_worth
+        self._goal_progress = GoalProgressDTO(
+            goal=goal,
+            players=[
+                GoalRunnerDTO(
+                    nickname=entry.player_nickname,
+                    color=colors[entry.snapshot.user_id],
+                    team=teams.get(entry.snapshot.user_id),
+                    networth=entry.snapshot.total_networth,
+                )
+                for entry in snapshots
+            ],
+        )
+        notify("goal_progress_update", self._goal_progress.to_json())
+        self._goal_reached = goal_reached(
+            {e.snapshot.user_id: e.snapshot.total_networth for e in snapshots},
+            teams,
+            goal,
+            self.settings.player_grouping is PlayerGrouping.TEAMS,
+        )
 
     def get_current_date(self) -> date:
         return self._current_date
@@ -325,7 +366,9 @@ class Simulation:
             if darf:
                 self._engine.pay_income_tax(user.client_id, darf)
 
-    def _create_daily_snapshots(self, users: list[UserDTO], month_changed: bool):
+    def _create_daily_snapshots(
+        self, users: list[UserDTO], month_changed: bool
+    ) -> list[StatisticsSnapshotEntryDTO]:
         """
         `statistics_snapshot_update` faz a tela de Estatísticas buscar o histórico
         inteiro de novo, então sai só na virada do mês; `snapshot_update` é um merge
@@ -333,15 +376,14 @@ class Simulation:
         """
         snapshots_payload = [self._snapshot_user(user) for user in users]
 
-        if not month_changed:
-            return
-
-        notify(
-            event="statistics_snapshot_update",
-            payload=StatisticsSnapshotUpdateEventDTO(
-                snapshots=snapshots_payload
-            ).to_json(),
-        )
+        if month_changed:
+            notify(
+                event="statistics_snapshot_update",
+                payload=StatisticsSnapshotUpdateEventDTO(
+                    snapshots=snapshots_payload
+                ).to_json(),
+            )
+        return snapshots_payload
 
     def _snapshot_user(self, user: UserDTO) -> StatisticsSnapshotEntryDTO:
         """Grava o snapshot do dia de `user`, avisa a carteira dele e devolve a linha das Estatísticas."""

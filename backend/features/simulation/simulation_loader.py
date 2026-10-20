@@ -12,9 +12,14 @@ from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
-from backend.features.simulation.saved_simulation import is_finished, resume_point
+from backend.features.simulation.saved_simulation import (
+    is_finished,
+    leader_reached_goal,
+    resume_point,
+)
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_loop import simulation_controller
+from backend.features.statistics.report import build_overview_report
 
 
 class SimulationLoader:
@@ -71,6 +76,10 @@ class SimulationLoader:
             raise UnprocessableEntityError(
                 "A simulação já chegou na data final e não pode ser continuada."
             )
+        if leader_reached_goal(build_overview_report([summary.id])):
+            raise UnprocessableEntityError(
+                "Alguém já chegou à meta dessa simulação: ela não pode ser continuada."
+            )
         ensure_indicator_coverage(summary.start_date)
 
         saved = repository.simulation_player.colors(summary.id)
@@ -104,19 +113,8 @@ class SimulationLoader:
         SimulationManager.clear_simulation()
         SimulationManager.set_simulation_id(summary.id)
         sim = Simulation(
-            SimulationDTO(
-                id=summary.id,
-                name=summary.name,
-                start_date=summary.start_date,
-                end_date=summary.end_date,
-                starting_cash=summary.starting_cash,
-                monthly_contribution=summary.monthly_contribution,
-                price_impact_enabled=summary.price_impact_enabled,
-                price_impact_k=summary.price_impact_k,
-                price_impact_decay_days=summary.price_impact_decay_days,
-                victory_criterion=summary.victory_criterion,
-                player_grouping=summary.player_grouping,
-                team_naming=summary.team_naming,
+            SimulationDTO.model_validate(
+                summary.model_dump(include=set(SimulationDTO.model_fields))
             ),
             resume_from=resume_from,
         )

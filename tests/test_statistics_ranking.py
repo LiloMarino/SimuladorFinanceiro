@@ -30,6 +30,7 @@ def player(
         simulation_id=1,
         simulation_name="Simulação #1",
         starting_cash=Decimal(starting_cash),
+        goal_net_worth=Decimal("100000"),
         history=[snapshot],
     )
 

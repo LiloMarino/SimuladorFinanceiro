@@ -14,6 +14,7 @@ from typing import Literal
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
+from backend.core.dto.goal import GoalProgressDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.patrimonial_history import PortfolioHistoryPointDTO
 from backend.core.dto.portfolio import PortfolioDTO
@@ -123,6 +124,7 @@ class RealtimeEventCatalog(BaseDTO):
     snapshot_update: SnapshotUpdateEventDTO
     portfolio_update: PortfolioUpdateEventDTO
     statistics_snapshot_update: StatisticsSnapshotUpdateEventDTO
+    goal_progress_update: GoalProgressDTO
     order_executed: OrderExecutedEventDTO
     order_partial_executed: OrderPartialExecutedEventDTO
     player_join: PlayerPresenceEventDTO

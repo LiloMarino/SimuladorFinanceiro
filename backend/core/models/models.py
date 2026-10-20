@@ -246,6 +246,14 @@ class Simulations(Base):
         nullable=False,
         server_default=text("'SCORE'"),
     )
+    game_type: Mapped[str] = mapped_column(
+        Enum("CLASSIC", "GOAL_RACE", "FINANCIAL_INDEPENDENCE", name="game_type"),
+        nullable=False,
+        server_default=text("'CLASSIC'"),
+    )
+    goal_net_worth: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
     player_grouping: Mapped[str] = mapped_column(
         Enum("INDIVIDUAL", "TEAMS", name="player_grouping"),
         nullable=False,

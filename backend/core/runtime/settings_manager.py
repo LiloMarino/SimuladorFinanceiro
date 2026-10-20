@@ -5,7 +5,7 @@ from threading import Lock
 from backend import config
 from backend.core import repository
 from backend.core.dto.simulation import SimulationSettingsDTO
-from backend.core.enum import PlayerGrouping, VictoryCriterion
+from backend.core.enum import GameType, PlayerGrouping, VictoryCriterion
 
 
 class SettingsManager:
@@ -25,11 +25,12 @@ class SettingsManager:
     def get(cls) -> SimulationSettingsDTO:
         with cls._lock:
             if cls._settings is None:
+                starting_cash = Decimal(str(config.toml.simulation.starting_cash))
                 cls._settings = SimulationSettingsDTO(
                     name=repository.simulation.generate_default_name(),
                     start_date=date.fromisoformat(config.toml.simulation.start_date),
                     end_date=date.fromisoformat(config.toml.simulation.end_date),
-                    starting_cash=Decimal(str(config.toml.simulation.starting_cash)),
+                    starting_cash=starting_cash,
                     monthly_contribution=Decimal(
                         str(config.toml.simulation.monthly_contribution)
                     ),
@@ -39,6 +40,8 @@ class SettingsManager:
                     victory_criterion=VictoryCriterion(
                         config.toml.simulation.victory_criterion
                     ),
+                    game_type=GameType.CLASSIC,
+                    goal_net_worth=starting_cash * config.toml.simulation.goal_multiple,
                 )
             return cls._settings
 

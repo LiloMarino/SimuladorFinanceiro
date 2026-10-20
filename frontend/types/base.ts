@@ -13,6 +13,8 @@ export interface NavItem {
   badgeTone?: "warning";
   /** Só aparece com o modo debug ligado e para o host */
   debugOnly?: boolean;
+  /** Só aparece nas partidas com meta (fora da Clássica); o selo mostra o seu percentual */
+  goalOnly?: boolean;
 }
 
 export type RedirectState = {

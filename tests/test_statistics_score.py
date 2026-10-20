@@ -121,6 +121,7 @@ def test_ranking_puts_players_without_score_last(indicators: SetIndicator):
         simulation_id=1,
         simulation_name="A",
         starting_cash=Decimal("10000"),
+        goal_net_worth=Decimal("100000"),
         history=history(["10000"] * (MIN_SCORE_DAYS + 1)),
     )
     unscored = PlayerHistoryDTO(
@@ -129,6 +130,7 @@ def test_ranking_puts_players_without_score_last(indicators: SetIndicator):
         simulation_id=2,
         simulation_name="B",
         starting_cash=Decimal("10000"),
+        goal_net_worth=Decimal("100000"),
         history=history(["10000", "12000"]),
     )
 

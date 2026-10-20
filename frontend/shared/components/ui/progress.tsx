@@ -1,9 +1,33 @@
 "use client";
 
+import type { CSSProperties, ReactNode } from "react";
 import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
+import { type VariantProps } from "class-variance-authority";
 import { cn } from "@/shared/lib/utils";
+import { progressIndicatorVariants, progressTrackVariants } from "./variants/progressVariants";
 
-function Progress({ className, children, value, ...props }: ProgressPrimitive.Root.Props) {
+type ProgressProps = ProgressPrimitive.Root.Props &
+  VariantProps<typeof progressTrackVariants> & {
+    /** Tom do preenchimento; o padrão acompanha o tom da trilha */
+    indicatorTone?: VariantProps<typeof progressIndicatorVariants>["tone"];
+    /** Cor própria do preenchimento (valor CSS), para barras na cor de um jogador */
+    color?: string;
+    /** `ProgressMarker`s e `ProgressEndMark`, desenhados sobre a trilha da variante `markers` */
+    markers?: ReactNode;
+  };
+
+function Progress({
+  className,
+  children,
+  value,
+  variant,
+  size,
+  tone,
+  indicatorTone,
+  color,
+  markers,
+  ...props
+}: ProgressProps) {
   return (
     <ProgressPrimitive.Root
       value={value}
@@ -12,29 +36,84 @@ function Progress({ className, children, value, ...props }: ProgressPrimitive.Ro
       {...props}
     >
       {children}
-      <ProgressTrack>
-        <ProgressIndicator />
+      <ProgressTrack variant={variant} size={size} tone={tone}>
+        <ProgressIndicator tone={indicatorTone ?? (tone === "inverse" ? "inverse" : "default")} color={color} />
+        {markers}
       </ProgressTrack>
     </ProgressPrimitive.Root>
   );
 }
 
-function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
+function ProgressTrack({
+  className,
+  variant,
+  size,
+  tone,
+  ...props
+}: ProgressPrimitive.Track.Props & VariantProps<typeof progressTrackVariants>) {
   return (
     <ProgressPrimitive.Track
-      className={cn("relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted", className)}
+      className={cn(progressTrackVariants({ variant, size, tone }), className)}
       data-slot="progress-track"
       {...props}
     />
   );
 }
 
-function ProgressIndicator({ className, ...props }: ProgressPrimitive.Indicator.Props) {
+function ProgressIndicator({
+  className,
+  tone,
+  color,
+  style,
+  ...props
+}: ProgressPrimitive.Indicator.Props & VariantProps<typeof progressIndicatorVariants> & { color?: string }) {
   return (
     <ProgressPrimitive.Indicator
       data-slot="progress-indicator"
-      className={cn("h-full bg-primary transition-all", className)}
+      className={cn(progressIndicatorVariants({ tone }), className)}
+      style={color ? ({ ...style, backgroundColor: color } as CSSProperties) : style}
       {...props}
+    />
+  );
+}
+
+type ProgressMarkerProps = {
+  /** Posição na trilha, de 0 (início) a 1 (meta) */
+  position: number;
+  /** Fundo do marcador (valor CSS) e cor do conteúdo */
+  color: string;
+  foreground: string;
+  /** O marcador de quem vê a tela: maior e com anel */
+  highlighted?: boolean;
+  title: string;
+  children: ReactNode;
+};
+
+/** Marcador sobre a trilha (variante `markers`): a sigla de um jogador ou o escudo de uma equipe. */
+function ProgressMarker({ position, color, foreground, highlighted, title, children }: ProgressMarkerProps) {
+  const clamped = Math.min(Math.max(position, 0), 1);
+  return (
+    <span
+      data-slot="progress-marker"
+      title={title}
+      className={cn(
+        "absolute top-1/2 inline-flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-[9px] font-bold tracking-[.02em] shadow-[0_0_0_2px_var(--card)] [&_svg]:size-3",
+        highlighted ? "z-10 size-6.5 text-[10px] shadow-[0_0_0_2px_var(--card),0_0_0_4px_var(--primary)]" : "size-5.5",
+      )}
+      style={{ left: `${clamped * 100}%`, backgroundColor: color, color: foreground }}
+    >
+      {children}
+    </span>
+  );
+}
+
+/** Traço no fim da trilha: onde fica a meta. */
+function ProgressEndMark() {
+  return (
+    <span
+      data-slot="progress-end-mark"
+      aria-hidden="true"
+      className="absolute top-1/2 -right-0.5 h-4.5 w-0.5 -translate-y-1/2 rounded-[1px] bg-foreground"
     />
   );
 }
@@ -55,4 +134,12 @@ function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
   );
 }
 
-export { Progress, ProgressTrack, ProgressIndicator, ProgressLabel, ProgressValue };
+export {
+  Progress,
+  ProgressTrack,
+  ProgressIndicator,
+  ProgressEndMark,
+  ProgressLabel,
+  ProgressMarker,
+  ProgressValue,
+};

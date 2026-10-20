@@ -85,6 +85,14 @@ class VictoryCriterion(Enum):
     SHARPE = "SHARPE"
 
 
+class GameType(Enum):
+    """O que decide a partida: o critério de vitória (Clássica) ou chegar a uma meta de patrimônio."""
+
+    CLASSIC = "CLASSIC"
+    GOAL_RACE = "GOAL_RACE"
+    FINANCIAL_INDEPENDENCE = "FINANCIAL_INDEPENDENCE"
+
+
 class PlayerGrouping(Enum):
     """Como a sala compete: cada um por si ou em equipes."""
 

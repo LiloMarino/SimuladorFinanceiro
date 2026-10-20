@@ -56,6 +56,7 @@ def member(
         simulation_name="Simulação #1",
         team=team,
         starting_cash=Decimal(starting_cash),
+        goal_net_worth=Decimal("100000"),
         history=history(days or [networth]),
     )
 

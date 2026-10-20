@@ -18,6 +18,8 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useDebugMode } from "@/shared/hooks/useDebugMode";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
+import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
+import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
 import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { simulationSettingsOptions } from "@/shared/lib/queries/simulationSettingsOptions";
 
@@ -33,6 +35,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const { simulation } = useSimulation();
   const { data: players } = useRoomPlayers();
   const { data: settings } = useApiQuery(simulationSettingsOptions());
+  const { data: goal } = useGoalProgress();
 
   const debug = useDebugMode();
 
@@ -41,6 +44,9 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const nickname = user?.nickname ?? "";
   const role = settings?.is_host ? "Host" : "Jogador";
   const playerCount = players?.length ?? 0;
+  const match = simulation?.simulation;
+  const hasGoal = !!match && match.game_type !== "CLASSIC";
+  const ownGoal = goal && match ? ownStanding(goal, match.player_grouping, nickname) : undefined;
 
   return (
     <SidebarRoot collapsible="none" className="h-svh">
@@ -60,7 +66,9 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
             <SidebarGroupLabel>{group}</SidebarGroupLabel>
             <SidebarMenu>
               {navItems
-                .filter((item) => item.group === group && (!item.debugOnly || showDebugTools))
+                .filter(
+                  (item) => item.group === group && (!item.debugOnly || showDebugTools) && (!item.goalOnly || hasGoal),
+                )
                 .map((item) => (
                   <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton isActive={activePage === item.key} render={<NavLink to={item.endpoint} />}>
@@ -68,6 +76,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                       <span>{item.label}</span>
                     </SidebarMenuButton>
                     {item.badge && <SidebarMenuBadge tone={item.badgeTone}>{item.badge}</SidebarMenuBadge>}
+                    {item.goalOnly && ownGoal && <SidebarMenuBadge>{displayGoalPercent(ownGoal.fraction)}</SidebarMenuBadge>}
                   </SidebarMenuItem>
                 ))}
             </SidebarMenu>

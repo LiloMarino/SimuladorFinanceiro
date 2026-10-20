@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, model_validator
 from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
+from backend.core.dto.goal import GoalProgressDTO
 from backend.core.dto.simulation import (
     PriceImpactPointDTO,
     PriceImpactPreviewDTO,
@@ -14,7 +15,7 @@ from backend.core.dto.simulation import (
     SimulationSettingsDTO,
     SimulationStatusResponse,
 )
-from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
+from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.settings_manager import SettingsManager
@@ -33,7 +34,7 @@ from backend.features.variable_income.price_impact import decay, impact
 simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
 
 
-class CreateSimulationRequest(BaseModel):
+class SimulationRulesRequest(BaseModel):
     name: str
     start_date: date
     end_date: date
@@ -43,6 +44,8 @@ class CreateSimulationRequest(BaseModel):
     price_impact_k: float = Field(ge=0)
     price_impact_decay_days: int = Field(ge=1)
     victory_criterion: VictoryCriterion = VictoryCriterion.SCORE
+    game_type: GameType = GameType.CLASSIC
+    goal_net_worth: Decimal = Field(gt=0)
     player_grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL
     team_naming: TeamNaming = TeamNaming.COLOR
 
@@ -51,6 +54,19 @@ class CreateSimulationRequest(BaseModel):
         if self.start_date > self.end_date:
             raise ValueError("Data de início deve ser antes da data de fim.")
         return self
+
+    @model_validator(mode="after")
+    def validate_goal(self):
+        if (
+            self.game_type is GameType.GOAL_RACE
+            and self.goal_net_worth <= self.starting_cash
+        ):
+            raise ValueError("A meta precisa ser maior que o saldo inicial.")
+        return self
+
+
+class CreateSimulationRequest(SimulationRulesRequest):
+    pass
 
 
 class SelectSimulationRequest(BaseModel):
@@ -65,24 +81,8 @@ class PlayerTeamRequest(BaseModel):
     team: int
 
 
-class UpdateSettingsRequest(BaseModel):
-    name: str
-    start_date: date
-    end_date: date
-    starting_cash: Decimal = Field(gt=0)
-    monthly_contribution: Decimal = Field(ge=0, default=Decimal(0))
-    price_impact_enabled: bool = False
-    price_impact_k: float = Field(ge=0)
-    price_impact_decay_days: int = Field(ge=1)
-    victory_criterion: VictoryCriterion = VictoryCriterion.SCORE
-    player_grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL
-    team_naming: TeamNaming = TeamNaming.COLOR
-
-    @model_validator(mode="after")
-    def validate_dates(self):
-        if self.start_date > self.end_date:
-            raise ValueError("Data de início deve ser antes da data de fim.")
-        return self
+class UpdateSettingsRequest(SimulationRulesRequest):
+    pass
 
 
 class JoinMatchRequest(BaseModel):
@@ -354,6 +354,24 @@ def get_match_players():
         PlayerNickname(nickname=p.nickname, color=colors[p.id], team=teams.get(p.id))
         for p in repository.simulation_player.participants(simulation_id)
     ]
+
+
+@simulation_router.get(
+    "/goal-progress",
+    response_model=GoalProgressDTO,
+    summary="Progresso da corrida à meta",
+    description="A meta e o patrimônio de cada jogador no último pregão simulado, para a trilha da corrida. Depois disso, o evento `goal_progress_update` traz cada dia. Só existe fora da partida Clássica.",
+)
+def get_goal_progress():
+    """
+    Retorna onde cada jogador está na meta.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    progress = SimulationManager.get_active_simulation().get_goal_progress()
+    if progress is None:
+        raise ConflictError("A partida em andamento não tem meta.")
+    return progress
 
 
 @simulation_router.post(

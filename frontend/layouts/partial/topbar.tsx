@@ -4,12 +4,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
+import { useSimulation } from "@/shared/hooks/useSimulation";
 import { logger } from "@/shared/lib/logger";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { Button } from "@/shared/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { displayMoney, displayShortDate } from "@/shared/lib/utils/display";
 import type { SimulationState } from "@/types";
+import { TopbarGoal } from "./topbar-goal";
 
 interface TopbarProps {
   pageLabel: string;
@@ -20,6 +22,8 @@ const SPEED_OPTIONS = [1, 2, 4, 10, 100];
 export default function Topbar({ pageLabel }: TopbarProps) {
   const queryClient = useQueryClient();
   const { data: simData } = useSimulationState();
+  const { simulation } = useSimulation();
+  const match = simulation?.simulation;
 
   // Mutação para alterar velocidade — atualiza o cache otimisticamente no
   // clique. O evento WS speed_update (via useSimulationState()) mantém os
@@ -69,6 +73,11 @@ export default function Topbar({ pageLabel }: TopbarProps) {
         <h1 className="text-lg font-semibold">{pageLabel}</h1>
 
         <div className="flex flex-wrap items-center gap-3">
+          {/* Corrida à meta */}
+          {match && match.game_type !== "CLASSIC" && (
+            <TopbarGoal grouping={match.player_grouping} teamNaming={match.team_naming} />
+          )}
+
           {/* Data, pausa e velocidade */}
           <div className="flex items-center gap-2 rounded-lg border border-border bg-subtle p-1">
             <span className="flex h-8 items-center px-3 font-mono text-[13px]">

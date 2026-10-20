@@ -1144,6 +1144,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/goal-progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Progresso da corrida à meta
+         * @description A meta e o patrimônio de cada jogador no último pregão simulado, para a trilha da corrida. Depois disso, o evento `goal_progress_update` traz cada dia. Só existe fora da partida Clássica.
+         */
+        get: operations["get_goal_progress_api_simulation_goal_progress_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/join": {
         parameters: {
             query?: never;
@@ -1508,6 +1528,10 @@ export interface components {
             price_impact_decay_days: number;
             /** @default SCORE */
             victory_criterion: components["schemas"]["VictoryCriterion"];
+            /** @default CLASSIC */
+            game_type: components["schemas"]["GameType"];
+            /** Goal Net Worth */
+            goal_net_worth: number | string;
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -1661,6 +1685,33 @@ export interface components {
          * @enum {string}
          */
         FixedIncomeType: "CDB" | "LCI" | "LCA" | "Tesouro Direto";
+        /**
+         * GameType
+         * @description O que decide a partida: o critério de vitória (Clássica) ou chegar a uma meta de patrimônio.
+         * @enum {string}
+         */
+        GameType: "CLASSIC" | "GOAL_RACE" | "FINANCIAL_INDEPENDENCE";
+        /**
+         * GoalProgressDTO
+         * @description Onde cada jogador está na corrida à meta, no último pregão simulado.
+         */
+        GoalProgressDTO: {
+            /** Goal */
+            goal: string;
+            /** Players */
+            players: components["schemas"]["GoalRunnerDTO"][];
+        };
+        /** GoalRunnerDTO */
+        GoalRunnerDTO: {
+            /** Nickname */
+            nickname: string;
+            /** Color */
+            color: string;
+            /** Team */
+            team: number | null;
+            /** Networth */
+            networth: string;
+        };
         /** HighlightsDTO */
         HighlightsDTO: {
             biggest_return: components["schemas"]["PlayerHighlightDTO"] | null;
@@ -1957,6 +2008,9 @@ export interface components {
             /** Min Score Days */
             min_score_days: number;
             criterion: components["schemas"]["VictoryCriterion"];
+            game_type: components["schemas"]["GameType"];
+            /** Goal Net Worth */
+            goal_net_worth: string | null;
         };
         /** PatrimonialHistoryDTO */
         PatrimonialHistoryDTO: {
@@ -2343,6 +2397,7 @@ export interface components {
             snapshot_update: components["schemas"]["SnapshotUpdateEventDTO"];
             portfolio_update: components["schemas"]["PortfolioUpdateEventDTO"];
             statistics_snapshot_update: components["schemas"]["StatisticsSnapshotUpdateEventDTO"];
+            goal_progress_update: components["schemas"]["GoalProgressDTO"];
             order_executed: components["schemas"]["OrderExecutedEventDTO"];
             order_partial_executed: components["schemas"]["OrderPartialExecutedEventDTO"];
             player_join: components["schemas"]["PlayerPresenceEventDTO"];
@@ -2404,6 +2459,9 @@ export interface components {
             /** Price Impact Decay Days */
             price_impact_decay_days: number;
             victory_criterion: components["schemas"]["VictoryCriterion"];
+            game_type: components["schemas"]["GameType"];
+            /** Goal Net Worth */
+            goal_net_worth: string;
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -2597,6 +2655,9 @@ export interface components {
             /** Price Impact Decay Days */
             price_impact_decay_days: number;
             victory_criterion: components["schemas"]["VictoryCriterion"];
+            game_type: components["schemas"]["GameType"];
+            /** Goal Net Worth */
+            goal_net_worth: string;
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -2644,6 +2705,9 @@ export interface components {
             /** Price Impact Decay Days */
             price_impact_decay_days: number;
             victory_criterion: components["schemas"]["VictoryCriterion"];
+            game_type: components["schemas"]["GameType"];
+            /** Goal Net Worth */
+            goal_net_worth: string;
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -3057,6 +3121,10 @@ export interface components {
             price_impact_decay_days: number;
             /** @default SCORE */
             victory_criterion: components["schemas"]["VictoryCriterion"];
+            /** @default CLASSIC */
+            game_type: components["schemas"]["GameType"];
+            /** Goal Net Worth */
+            goal_net_worth: number | string;
             /** @default INDIVIDUAL */
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
@@ -5510,6 +5578,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlayerNickname"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_goal_progress_api_simulation_goal_progress_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalProgressDTO"];
                 };
             };
             /** @description Unprocessable Content */

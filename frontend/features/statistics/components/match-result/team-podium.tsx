@@ -5,7 +5,8 @@ import { TeamBadge } from "@/shared/components/team-badge";
 import { teamColor } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
 import type { OverviewReport } from "@/types";
-import { displayCriterionValue } from "../../lib/criterion";
+import { displayMoneyCompact } from "@/shared/lib/utils/display";
+import { displayCriterionValue, rankingMeasure } from "../../lib/criterion";
 import { membersOf } from "../../lib/teams";
 
 // Degraus na ordem visual: 2º à esquerda, 1º no meio e mais alto, 3º à direita
@@ -18,6 +19,7 @@ const STEPS = [
 /** Pódio de equipes: o degrau é da cor da equipe e o selo dela fica em cima, com os membros. */
 export function TeamPodium({ report }: { report: OverviewReport }) {
   const byPosition = new Map(report.teams.map((t) => [t.position, t]));
+  const measure = rankingMeasure(report);
 
   return (
     <div className="flex w-full max-w-[480px] items-end gap-3">
@@ -51,7 +53,8 @@ export function TeamPodium({ report }: { report: OverviewReport }) {
                   </span>
                 )}
                 <span className={cn("font-mono text-[13px]", first ? "text-trophy" : "text-sidebar-muted")}>
-                  {displayCriterionValue(report.criterion, team.criterion_value)}
+                  {displayCriterionValue(measure, team.criterion_value)}
+                  {measure === "GOAL" && ` · ${displayMoneyCompact(team.total_networth)}`}
                   {team.measured_members < team.members && ` · ${team.measured_members} de ${team.members}`}
                 </span>
               </>

@@ -2,7 +2,8 @@ from datetime import date
 
 from backend.core import repository
 from backend.core.dto.simulation import SavedSimulationDTO, SimulationSummaryDTO
-from backend.core.enum import SimulationStatus
+from backend.core.dto.statistics_report import OverviewReportDTO
+from backend.core.enum import GameType, SimulationStatus
 from backend.core.teams import team_name
 from backend.core.utils import next_business_day
 from backend.features.statistics.report import build_overview_report
@@ -29,6 +30,15 @@ def is_finished(end_date: date, resume_from: date | None) -> bool:
     return resume_from is not None and next_business_day(resume_from) > end_date
 
 
+def leader_reached_goal(overview: OverviewReportDTO) -> bool:
+    """Fora da Clássica, o valor do líder é a fração da meta: 1 é ter chegado."""
+    if overview.game_type is GameType.CLASSIC:
+        return False
+    leaders = overview.teams or overview.players
+    value = leaders[0].criterion_value if leaders else None
+    return value is not None and value >= 1
+
+
 def describe(
     summary: SimulationSummaryDTO, nickname: str | None, room_overflow: list[str]
 ) -> SavedSimulationDTO:
@@ -36,8 +46,10 @@ def describe(
     em que colocação `nickname` ficou e quem da sala não cabe nela. Em equipes, vence e
     ranqueia a equipe: o vencedor é o nome dela e a colocação é a da equipe de `nickname`."""
     resume_from = resume_point(summary.id)
-    finished = is_finished(summary.end_date, resume_from)
     overview = build_overview_report([summary.id])
+    finished = is_finished(summary.end_date, resume_from) or leader_reached_goal(
+        overview
+    )
     players = overview.players
 
     mine = next((p for p in players if p.player_nickname == nickname), None)

@@ -18,9 +18,17 @@ import { MetricLabel } from "@/shared/components/metric-hint";
 import { teamColor, teamName } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
+import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { OverviewReport } from "@/types";
-import { displayCriterionContribution, displayCriterionGap, displayCriterionValue } from "../../lib/criterion";
+import {
+  criterionLabel,
+  displayCriterionContribution,
+  displayCriterionGap,
+  displayCriterionValue,
+  displayRemainingToGoal,
+  rankingMeasure,
+} from "../../lib/criterion";
 import { SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics";
 import { membersOf } from "../../lib/teams";
 
@@ -36,7 +44,8 @@ const MEMBER_PLURAL = (count: number) => `${count} ${count === 1 ? "jogador" : "
 
 /** Topo: a colocação da sua equipe, a distância para a líder e a sua parte na média; ao lado, a sala em números. */
 export function TeamHeadline({ report, currentPlayerName }: { report: OverviewReport; currentPlayerName: string }) {
-  const { players, teams, criterion, average_return, team_naming } = report;
+  const { players, teams, average_return, team_naming, goal_net_worth } = report;
+  const measure = rankingMeasure(report);
   const you = players.find((p) => p.player_nickname === currentPlayerName);
   const mine = teams.find((t) => t.team === you?.team);
   const byReturn = [...players].sort((a, b) => Number(b.return_percent) - Number(a.return_percent));
@@ -67,39 +76,45 @@ export function TeamHeadline({ report, currentPlayerName }: { report: OverviewRe
               <span className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                 {mine ? "Sua equipe" : "Equipe líder"}
                 <TeamBadge team={subject.team} naming={team_naming} size="sm" />· vitória por{" "}
-                <b className="text-foreground">{VICTORY_CRITERIA[criterion].label}</b> · média dos membros
+                <b className="text-foreground">{criterionLabel(report)}</b> · média dos membros
               </span>
               <span className="text-lg font-semibold">
-                {criterion === "SCORE" ? "Nota da equipe" : VICTORY_CRITERIA[criterion].label}{" "}
-                {subject.criterion_value === null
-                  ? "ainda sem valor"
-                  : criterion === "SCORE"
-                    ? displayNumber(subject.criterion_value, 0)
-                    : displayCriterionValue(criterion, subject.criterion_value)}{" "}
+                {measure === "GOAL" ? (
+                  <>{displayCriterionValue(measure, subject.criterion_value)} da meta</>
+                ) : (
+                  <>
+                    {measure === "SCORE" ? "Nota da equipe" : VICTORY_CRITERIA[measure].label}{" "}
+                    {subject.criterion_value === null
+                      ? "ainda sem valor"
+                      : measure === "SCORE"
+                        ? displayNumber(subject.criterion_value, 0)
+                        : displayCriterionValue(measure, subject.criterion_value)}
+                  </>
+                )}{" "}
                 · retorno médio {displaySignedPercent(subject.return_percent)}
               </span>
               <span className="text-[13px] text-muted-foreground">
                 {next && subject.position === 1 && (
                   <>
-                    <b className="font-mono text-foreground">{displayCriterionGap(criterion, next.leader_gap)}</b> à
+                    <b className="font-mono text-foreground">{displayCriterionGap(measure, next.leader_gap, goal_net_worth)}</b> à
                     frente da {teamName(next.team, team_naming)}.{" "}
                   </>
                 )}
                 {next && subject.position > 1 && (
                   <>
                     Faltam{" "}
-                    <b className="text-foreground">{displayCriterionGap(criterion, subject.leader_gap)}</b> pra passar a{" "}
+                    <b className="text-foreground">{displayCriterionGap(measure, subject.leader_gap, goal_net_worth)}</b> pra passar a{" "}
                     {teamName(next.team, team_naming)} (1ª).{" "}
                   </>
                 )}
                 {mine && you && you.team_contribution !== null && Number(you.team_contribution) !== 0 && (
                   <>
-                    Sua parte ({displayCriterionValue(criterion, you.criterion_value)}) fica{" "}
+                    Sua parte ({displayCriterionValue(measure, you.criterion_value)}) fica{" "}
                     <b className="text-foreground">
-                      {displayCriterionGap(criterion, String(Math.abs(Number(you.team_contribution))))}
+                      {displayCriterionGap(measure, String(Math.abs(Number(you.team_contribution))), goal_net_worth)}
                     </b>{" "}
                     {Number(you.team_contribution) > 0 ? "acima" : "abaixo"} da média da equipe
-                    {you.weakest_axis && criterion === "SCORE" && (
+                    {you.weakest_axis && measure === "SCORE" && (
                       <>
                         ; seu eixo mais fraco é <b className="text-foreground">{SCORE_AXES[you.weakest_axis].label}</b>
                       </>
@@ -166,6 +181,7 @@ export function TeamRanking({
 
   if (view === "PLAYERS") return playerRanking(toggle);
 
+  const goalRace = rankingMeasure(report) === "GOAL";
   const topScore = Math.max(...report.teams.map((t) => Number(t.score?.total ?? 0)), 1);
 
   return (
@@ -173,7 +189,7 @@ export function TeamRanking({
       <CardHeader>
         <CardTitle>Ranking por equipe</CardTitle>
         <CardDescription>
-          Ordenado pela média da equipe no critério da partida: {VICTORY_CRITERIA[report.criterion].label}
+          Ordenado pela média da equipe no critério da partida: {criterionLabel(report)}
         </CardDescription>
         <CardAction>{toggle}</CardAction>
       </CardHeader>
@@ -183,12 +199,14 @@ export function TeamRanking({
             <TableHead>#</TableHead>
             <TableHead>Equipe e membros</TableHead>
             <TableHead>
-              <MetricLabel metric={SCORE} />
+              <MetricLabel metric={goalRace ? GOAL_PERCENT : SCORE} />
             </TableHead>
             <TableHead numeric>Patrimônio</TableHead>
             <TableHead numeric>Retorno</TableHead>
             <TableHead numeric>Pregões</TableHead>
-            <TableHead numeric>Distância do líder</TableHead>
+            <TableHead numeric>
+              {goalRace && report.goal_net_worth ? <MetricLabel metric={GOAL_REMAINING} /> : "Distância do líder"}
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -240,6 +258,7 @@ function TeamRows({
   const style = { "--team": teamColor(team.team) } as CSSProperties;
   const naming = report.team_naming;
   const maxScore = topScore;
+  const measure = rankingMeasure(report);
 
   return (
     <>
@@ -265,7 +284,7 @@ function TeamRows({
           </span>
         </TableCell>
         <TableCell>
-          <ScoreBar value={team.score?.total} max={maxScore} tint="solid" />
+          <ScoreBar {...barOf(measure, team.score?.total, team.criterion_value, maxScore)} tint="solid" />
         </TableCell>
         <TableCell numeric>
           <span className="font-semibold">{displayMoney(team.total_networth)}</span>
@@ -276,7 +295,11 @@ function TeamRows({
         <TableCell numeric>{daysOf(members)}</TableCell>
         <TableCell numeric>
           <span className="font-semibold">
-            {team.position === 1 ? "—" : displayCriterionGap(report.criterion, team.leader_gap)}
+            {measure === "GOAL" && report.goal_net_worth
+              ? displayRemainingToGoal(team.criterion_value, report.goal_net_worth)
+              : team.position === 1
+                ? "—"
+                : displayCriterionGap(measure, team.leader_gap, report.goal_net_worth)}
           </span>
         </TableCell>
       </TableRow>
@@ -301,7 +324,7 @@ function TeamRows({
                 </span>
               </TableCell>
               <TableCell>
-                <ScoreBar value={m.score?.total} max={maxScore} tint="light" />
+                <ScoreBar {...barOf(measure, m.score?.total, m.criterion_value, maxScore)} tint="light" />
               </TableCell>
               <TableCell numeric>
                 <span className="text-muted-foreground">{displayMoney(m.total_networth)}</span>
@@ -323,7 +346,7 @@ function TeamRows({
                         : "text-muted-foreground",
                   )}
                 >
-                  {displayCriterionContribution(report.criterion, m.team_contribution)}
+                  {displayCriterionContribution(measure, m.team_contribution)}
                 </span>{" "}
                 <span className="text-xs text-muted-foreground">na média</span>
               </TableCell>
@@ -339,15 +362,22 @@ function returnTone(value: string) {
   return change > 0 ? "text-success" : change < 0 ? "text-destructive" : undefined;
 }
 
-/** Nota e barra na cor da equipe (cheia na linha da equipe, mais clara nos membros). */
-function ScoreBar({ value, max, tint }: { value: string | undefined; max: number; tint: "solid" | "light" }) {
+/** O texto e o comprimento (0 a 1) da barra: a nota contra a maior nota, ou a fração da meta. */
+function barOf(measure: ReturnType<typeof rankingMeasure>, score: string | undefined, fraction: string | null, max: number) {
+  return measure === "GOAL"
+    ? { text: displayCriterionValue(measure, fraction), ratio: Math.min(Number(fraction ?? 0), 1) }
+    : { text: displayMetric(SCORE, score), ratio: Number(score ?? 0) / max };
+}
+
+/** Valor e barra na cor da equipe (cheia na linha da equipe, mais clara nos membros). */
+function ScoreBar({ text, ratio, tint }: { text: string; ratio: number; tint: "solid" | "light" }) {
   return (
     <span className="flex items-center gap-2">
-      <span className="w-10 font-mono font-semibold">{displayMetric(SCORE, value)}</span>
+      <span className="w-10 font-mono font-semibold">{text}</span>
       <span className="h-1.5 w-28 overflow-hidden rounded-full bg-muted">
         <span
           className={cn("block h-full rounded-full", tint === "solid" ? "bg-(--team)" : "bg-(--team)/45")}
-          style={{ width: `${(Number(value ?? 0) / max) * 100}%` }}
+          style={{ width: `${ratio * 100}%` }}
         />
       </span>
     </span>

@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ErrorState } from "@/shared/components/error-state";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
+import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { usePatrimonialHistory } from "@/features/portfolio/hooks/queries/usePatrimonialHistory";
 import { AllocationDonut } from "../components/allocation-donut";
 import { IncomeTaxCard } from "../components/income-tax-card";
@@ -15,6 +16,7 @@ export default function PortfolioPage() {
   usePageLabel("Carteira");
   const { data: portfolio, isLoading, error, refetch } = usePortfolio();
   const { data: history } = usePatrimonialHistory();
+  const { data: goal } = useGoalProgress();
 
   if (isLoading) {
     return (
@@ -48,7 +50,7 @@ export default function PortfolioPage() {
       <PortfolioSummary portfolio={portfolio} />
 
       <div className="grid items-start gap-5 lg:grid-cols-[1.3fr_1fr]">
-        <NetworthChart history={history ?? []} />
+        <NetworthChart history={history ?? []} goal={goal ? Number(goal.goal) : undefined} />
         <AllocationDonut portfolio={portfolio} />
       </div>
 

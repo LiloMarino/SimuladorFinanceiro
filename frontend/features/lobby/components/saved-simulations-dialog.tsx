@@ -17,7 +17,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
 import { cn } from "@/shared/lib/utils";
 import { displayDate, displayMonthSlashYear, parseLocalDate } from "@/shared/lib/utils/display";
-import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
+import { winRuleLabel } from "@/shared/lib/game-types";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { SimulationListItem } from "@/types";
 import { RoomOverflowAlert } from "./room-overflow-alert";
@@ -166,7 +166,7 @@ function SavedSimulationsContent({
           </span>
           <span className="text-xs text-muted-foreground">
             {s.players_count <= 1 ? "Solo" : `${s.players_count} jogadores`} ·{" "}
-            {VICTORY_CRITERIA[s.victory_criterion].label}
+            {winRuleLabel(s.game_type, s.victory_criterion)}
           </span>
           {isHost && s.status === "PAUSED" && s.room_overflow.length > 0 && (
             <RoomOverflowAlert names={s.room_overflow} />

@@ -30,6 +30,7 @@ from backend.core.dto.statistics_report import (
 )
 from backend.core.enum import (
     EquityEventType,
+    GameType,
     PlayerGrouping,
     TeamNaming,
     VictoryCriterion,
@@ -49,9 +50,12 @@ from backend.features.variable_income.price_impact import PriceImpact
 
 def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
     team_naming, in_teams = _team_context(simulation_ids)
+    criterion, game_type, goal = _shared_rules(simulation_ids)
     return build_overview(
         repository.statistics.get_players_history(simulation_ids),
-        _shared_criterion(simulation_ids),
+        criterion,
+        game_type=game_type,
+        goal_net_worth=goal,
         in_teams=in_teams,
         team_naming=team_naming,
     )
@@ -71,11 +75,27 @@ def _grouping(in_teams: bool) -> PlayerGrouping:
     return PlayerGrouping.TEAMS if in_teams else PlayerGrouping.INDIVIDUAL
 
 
-def _shared_criterion(simulation_ids: list[int]) -> VictoryCriterion:
-    """O critério das simulações quando todas usam o mesmo; senão, a nota geral."""
-    simulations = [repository.simulation.get_simulation(i) for i in simulation_ids]
-    criteria = {s.victory_criterion for s in simulations if s is not None}
-    return criteria.pop() if len(criteria) == 1 else VictoryCriterion.SCORE
+def _shared_rules(
+    simulation_ids: list[int],
+) -> tuple[VictoryCriterion, GameType, Decimal | None]:
+    """
+    O que ordena o ranking entre as simulações: o tipo de partida quando todas têm o
+    mesmo (senão, a Clássica), o critério quando todas usam o mesmo (senão, a nota
+    geral) e a meta quando é uma só.
+    """
+    simulations = [
+        s
+        for s in (repository.simulation.get_simulation(i) for i in simulation_ids)
+        if s is not None
+    ]
+    criteria = {s.victory_criterion for s in simulations}
+    game_types = {s.game_type for s in simulations}
+    goals = {s.goal_net_worth for s in simulations}
+    return (
+        criteria.pop() if len(criteria) == 1 else VictoryCriterion.SCORE,
+        game_types.pop() if len(game_types) == 1 else GameType.CLASSIC,
+        goals.pop() if len(goals) == 1 else None,
+    )
 
 
 def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:

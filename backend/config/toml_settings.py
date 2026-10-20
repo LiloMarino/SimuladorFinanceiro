@@ -22,6 +22,8 @@ class SimulationConfig(BaseModel):
     price_impact_k: float = 0.02
     price_impact_decay_days: int = 20
     victory_criterion: str = "SCORE"
+    # Meta padrão da corrida à meta, em múltiplos do saldo inicial
+    goal_multiple: int = 10
 
 
 class HostConfig(BaseModel):

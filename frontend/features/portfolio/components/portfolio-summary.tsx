@@ -4,8 +4,14 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { InfoHint } from "@/shared/components/info-hint";
+import { MetricHint } from "@/shared/components/metric-hint";
+import { useAuth } from "@/shared/hooks/useAuth";
+import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
+import { useSimulation } from "@/shared/hooks/useSimulation";
+import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
+import { GOAL_PERCENT } from "@/shared/lib/goal-metrics";
 import { economicIndicatorsOptions } from "@/shared/lib/queries/economicIndicatorsOptions";
-import { displayMoney, displayPercent } from "@/shared/lib/utils/display";
+import { displayMoney, displayMoneyCompact, displayPercent } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
 
 const INDICATOR_HINTS = {
@@ -17,6 +23,11 @@ const INDICATOR_HINTS = {
 
 /** Faixa-resumo: patrimônio, como ele está dividido e os indicadores do dia. */
 export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
+  const { user } = useAuth();
+  const { simulation } = useSimulation();
+  const { data: goal } = useGoalProgress();
+  const match = simulation?.simulation;
+  const ownGoal = goal && match ? ownStanding(goal, match.player_grouping, user?.nickname ?? "") : undefined;
   const positive = Number(portfolio.total_return_value) >= 0;
   const allocation = [
     {
@@ -65,6 +76,13 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
                 </>
               )}
             </span>
+            {goal && ownGoal && (
+              <span className="flex items-center gap-1 text-[13px] text-muted-foreground">
+                <b className="font-mono text-foreground">{displayGoalPercent(ownGoal.fraction)}</b> da meta de{" "}
+                {displayMoneyCompact(goal.goal)}
+                <MetricHint metric={GOAL_PERCENT} />
+              </span>
+            )}
           </div>
 
           {/* Alocação */}

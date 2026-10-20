@@ -14,7 +14,7 @@ from sqlalchemy import Engine, text
 from backend.core import repository
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
+from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.core.player_colors import MAX_PLAYERS, PLAYER_COLORS
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.settings_manager import SettingsManager
@@ -174,6 +174,8 @@ def new_simulation(name: str) -> int:
             price_impact_k=0.0,
             price_impact_decay_days=1,
             victory_criterion=VictoryCriterion.SCORE,
+            game_type=GameType.CLASSIC,
+            goal_net_worth=Decimal(10000),
         )
     )
 

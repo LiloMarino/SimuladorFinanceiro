@@ -6,7 +6,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { teamColor, teamName, teamShortName } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
 import type { OverviewReport } from "@/types";
-import { displayCriterionContribution, displayCriterionValue } from "../../lib/criterion";
+import { displayCriterionContribution, displayCriterionValue, rankingMeasure } from "../../lib/criterion";
 import { SCORE_AXES } from "../../lib/metrics";
 import { membersOf } from "../../lib/teams";
 
@@ -32,7 +32,8 @@ function TeamPullerCard({
   team: Team;
   currentPlayerName?: string;
 }) {
-  const { criterion, team_naming: naming } = report;
+  const { team_naming: naming } = report;
+  const criterion = rankingMeasure(report);
   const winner = team.position === 1;
   const members = membersOf(report, team.team);
   const puller = team.top_puller;

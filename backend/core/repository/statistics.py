@@ -36,6 +36,7 @@ class StatisticsRepository:
                 Users.nickname,
                 Simulations.name,
                 Simulations.starting_cash,
+                Simulations.goal_net_worth,
                 SimulationPlayers.color,
                 SimulationPlayers.team,
             )
@@ -65,6 +66,7 @@ class StatisticsRepository:
                 simulation_id=simulation_id,
                 simulation_name=group[0].name,
                 starting_cash=group[0].starting_cash,
+                goal_net_worth=group[0].goal_net_worth,
                 history=[
                     PatrimonialHistoryDTO(
                         snapshot_date=r.Snapshots.snapshot_date,

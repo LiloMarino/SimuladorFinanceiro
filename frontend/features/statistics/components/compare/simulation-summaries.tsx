@@ -3,16 +3,16 @@ import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/c
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
-import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
-import type { OverviewReport, VictoryCriterion } from "@/types";
+import type { OverviewReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
-import { displayCriterionValue } from "../../lib/criterion";
+import { criterionLabel, displayCriterionValue, rankingMeasure, type RankingMeasure } from "../../lib/criterion";
 import { simulationColor, simulationLetter } from "../../lib/player-label";
 import { SimulationLetter } from "./simulation-letter";
 
 type Player = OverviewReport["players"][number];
 
-const YOUR_CRITERION: Record<VictoryCriterion, string> = {
+const YOUR_CRITERION: Record<RankingMeasure, string> = {
+  GOAL: "Sua meta",
   SCORE: "Sua nota",
   RETURN: "Seu retorno",
   NETWORTH: "Seu patrimônio",
@@ -53,6 +53,7 @@ function SimulationSummary({ simulationIds, simulationId, currentPlayerName }: S
   const { data } = useStatisticsReport("overview", [simulationId]);
   if (!data) return <Skeleton className="h-36" />;
 
+  const measure = rankingMeasure(data);
   const winner = data.players[0] as Player | undefined;
   const you = data.players.find((p) => p.player_nickname === currentPlayerName);
   const name = winner?.simulation_name ?? "Sem jogadores";
@@ -72,17 +73,17 @@ function SimulationSummary({ simulationIds, simulationId, currentPlayerName }: S
             </span>
           </CardTitle>
           <CardAction>
-            <Badge variant="secondary">vitória por {VICTORY_CRITERIA[data.criterion].label}</Badge>
+            <Badge variant="secondary">vitória por {criterionLabel(data)}</Badge>
           </CardAction>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
             {you ? (
               <Figure
-                label={YOUR_CRITERION[data.criterion]}
-                value={withoutUnit(displayCriterionValue(data.criterion, you.criterion_value))}
+                label={YOUR_CRITERION[measure]}
+                value={withoutUnit(displayCriterionValue(measure, you.criterion_value))}
                 detail={`${you.position}º lugar`}
-                tone={data.criterion === "RETURN" && Number(you.criterion_value) < 0 ? "negative" : undefined}
+                tone={measure === "RETURN" && Number(you.criterion_value) < 0 ? "negative" : undefined}
               />
             ) : (
               <Figure label="Você" value="—" detail="não jogou esta partida" />
@@ -90,12 +91,12 @@ function SimulationSummary({ simulationIds, simulationId, currentPlayerName }: S
             {winner && (
               <Figure
                 label="Vencedor"
-                value={withoutUnit(displayCriterionValue(data.criterion, winner.criterion_value))}
+                value={withoutUnit(displayCriterionValue(measure, winner.criterion_value))}
                 detail={winner.player_nickname}
               />
             )}
             {you &&
-              (data.criterion === "RETURN" ? (
+              (measure === "RETURN" ? (
                 <Figure label="Sua nota" value={you.score ? displayNumber(you.score.total, 0) : "sem nota"} />
               ) : (
                 <Figure

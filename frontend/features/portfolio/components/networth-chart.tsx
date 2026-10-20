@@ -26,6 +26,8 @@ type Point = {
   equity: number;
   total: number;
   provided: number;
+  /** Meta da corrida, reta; ausente fora da corrida */
+  goal?: number;
 };
 
 // A altura do gráfico e a do eixo X são fixas: com elas, os rótulos do fim ficam na posição exata
@@ -52,7 +54,7 @@ const displayThousands = (value: number) => {
 };
 
 /** Evolução da carteira: uma faixa por classe e, por cima, a linha tracejada do que foi aportado. */
-export function NetworthChart({ history }: { history: PortfolioHistoryPoint[] }) {
+export function NetworthChart({ history, goal }: { history: PortfolioHistoryPoint[]; goal?: number }) {
   // Recharts desenha número; os valores seguem em string até aqui
   const data: Point[] = history.map((p) => ({
     date: p.snapshot_date,
@@ -61,9 +63,10 @@ export function NetworthChart({ history }: { history: PortfolioHistoryPoint[] })
     equity: Number(p.total_equity),
     total: Number(p.total_networth),
     provided: Number(p.total_provided),
+    goal,
   }));
   const last = data.at(-1);
-  const scale = niceScale(Math.max(0, ...data.map((p) => Math.max(p.total, p.provided))));
+  const scale = niceScale(Math.max(0, goal ?? 0, ...data.map((p) => Math.max(p.total, p.provided))));
 
   return (
     <Card>
@@ -134,6 +137,18 @@ export function NetworthChart({ history }: { history: PortfolioHistoryPoint[] })
                     dot={false}
                     isAnimationActive={false}
                   />
+                  {goal !== undefined && (
+                    <Line
+                      type="linear"
+                      dataKey="goal"
+                      stroke="var(--foreground)"
+                      strokeWidth={2}
+                      strokeDasharray="2 4"
+                      strokeLinecap="round"
+                      dot={false}
+                      isAnimationActive={false}
+                    />
+                  )}
                 </AreaChart>
               </ResponsiveContainer>
               <EndLabels last={last} top={scale.top} />
@@ -151,6 +166,12 @@ export function NetworthChart({ history }: { history: PortfolioHistoryPoint[] })
                 <span className="w-4 border-t-2 border-dashed border-foreground" aria-hidden="true" />
                 Aportado
               </li>
+              {goal !== undefined && (
+                <li className="flex items-center gap-1.5">
+                  <span className="w-4 border-t-2 border-dotted border-foreground" aria-hidden="true" />
+                  Meta
+                </li>
+              )}
             </ul>
           </div>
         )}
@@ -166,6 +187,9 @@ function EndLabels({ last, top }: { last: Point; top: number }) {
   const items = [
     { key: "total", y: yOf(last.total), name: "Patrimônio", value: last.total, strong: true },
     { key: "provided", y: yOf(last.provided), name: "aportado", value: last.provided, strong: false },
+    ...(last.goal !== undefined
+      ? [{ key: "goal", y: yOf(last.goal), name: "Meta", value: last.goal, strong: false }]
+      : []),
     ...BANDS.map((band, i) => {
       const below = BANDS.slice(0, i).reduce((sum, b) => sum + last[b.key], 0);
       return {
@@ -201,7 +225,7 @@ function EndLabels({ last, top }: { last: Point; top: number }) {
           style={{ top: item.top }}
         >
           <span className={item.strong ? "font-semibold" : undefined}>
-            {item.key === "provided" ? "┄ " : ""}
+            {item.key === "provided" ? "┄ " : item.key === "goal" ? "··· " : ""}
             {item.name}
           </span>
           {item.value !== null && (
@@ -246,6 +270,12 @@ function NetworthTooltip({ active, payload }: TooltipProps) {
         {positive ? "+" : "-"}
         {displayMoney(Math.abs(gain))} {positive ? "acima" : "abaixo"} do aportado
       </span>
+      {point.goal !== undefined && (
+        <div className="flex items-center justify-between gap-4 text-muted-foreground">
+          <span>··· Falta para a meta</span>
+          <span className="font-mono">{displayMoney(Math.max(0, point.goal - point.total))}</span>
+        </div>
+      )}
     </div>
   );
 }

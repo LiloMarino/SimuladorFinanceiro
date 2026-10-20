@@ -10,13 +10,21 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { MetricLabel } from "@/shared/components/metric-hint";
+import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
+import { Progress } from "@/shared/components/ui/progress";
+import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
-import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { OverviewReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
-import { displayCriterionContribution, displayCriterionGap } from "../../lib/criterion";
+import {
+  criterionLabel,
+  displayCriterionContribution,
+  displayCriterionGap,
+  displayCriterionValue,
+  displayRemainingToGoal,
+  rankingMeasure,
+} from "../../lib/criterion";
 import { SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics";
 import { SimulationLetter } from "../compare/simulation-letter";
 import { simulationColor, simulationLetter, labelColors } from "../../lib/player-label";
@@ -53,7 +61,7 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
               currentPlayerName={currentPlayerName}
               simulationIds={simulationIds}
               title="Ranking por jogador"
-              description={`Ordenado pelo critério da partida: ${VICTORY_CRITERIA[data.criterion].label}`}
+              description={`Ordenado pelo critério da partida: ${criterionLabel(data)}`}
               action={viewToggle}
             />
           )}
@@ -165,7 +173,8 @@ function YouVersusYou({
 
 /** Topo: a sua colocação, quanto falta pro líder e o eixo mais fraco; ao lado, a sala em números. */
 function Headline({ report, currentPlayerName }: { report: OverviewReport; currentPlayerName: string }) {
-  const { players, criterion, average_return, min_score_days } = report;
+  const { players, average_return, min_score_days, goal_net_worth } = report;
+  const measure = rankingMeasure(report);
   const you = players.find((p) => p.player_nickname === currentPlayerName);
   const leader = players[0];
   const byReturn = [...players].sort((a, b) => Number(b.return_percent) - Number(a.return_percent));
@@ -189,14 +198,20 @@ function Headline({ report, currentPlayerName }: { report: OverviewReport; curre
             </span>
             <div className="grid gap-1">
               <span className="text-xs text-muted-foreground">
-                Sua colocação · vitória por <b className="text-foreground">{VICTORY_CRITERIA[criterion].label}</b>
+                Sua colocação · vitória por <b className="text-foreground">{criterionLabel(report)}</b>
               </span>
-              {you?.score && (
+              {you && measure === "GOAL" && (
+                <span className="flex items-center gap-1.5 text-lg font-semibold">
+                  {displayCriterionValue(measure, you.criterion_value)} da meta
+                  <MetricHint metric={GOAL_PERCENT} />
+                </span>
+              )}
+              {you?.score && measure !== "GOAL" && (
                 <span className="text-lg font-semibold">
                   Nota {displayNumber(you.score.total, 0)} · retorno {displaySignedPercent(you.return_percent)}
                 </span>
               )}
-              {you && !you.score && (
+              {you && !you.score && measure !== "GOAL" && (
                 <>
                   <span className="text-xl font-semibold">
                     Nota sai em {Math.max(min_score_days - you.days, 0)} pregões
@@ -218,9 +233,24 @@ function Headline({ report, currentPlayerName }: { report: OverviewReport; curre
                   </span>
                 </>
               )}
-              {you && you.position > 1 && (
+              {you && measure === "GOAL" && goal_net_worth && (
                 <span className="text-[13px] text-muted-foreground">
-                  Faltam <b className="text-foreground">{displayCriterionGap(criterion, you.leader_gap)}</b> pra passar{" "}
+                  Faltam{" "}
+                  <b className="font-mono text-foreground">{displayRemainingToGoal(you.criterion_value, goal_net_worth)}</b>{" "}
+                  para a meta
+                  {you.position > 1 && (
+                    <>
+                      {" "}
+                      e <b className="font-mono text-foreground">{displayCriterionGap(measure, you.leader_gap, goal_net_worth)}</b>{" "}
+                      para passar {leader.player_nickname} (1º)
+                    </>
+                  )}
+                  . A meta é a mesma para todos, então quem tem mais patrimônio está mais perto.
+                </span>
+              )}
+              {you && measure !== "GOAL" && you.position > 1 && (
+                <span className="text-[13px] text-muted-foreground">
+                  Faltam <b className="text-foreground">{displayCriterionGap(measure, you.leader_gap)}</b> pra passar{" "}
                   {leader.player_nickname} (1º).
                   {you.weakest_axis && (
                     <>
@@ -262,10 +292,14 @@ function Ranking({
   action?: React.ReactNode;
 }) {
   const [sortBy, setSortBy] = useState<RankingSort>("SCORE");
+  const measure = rankingMeasure(report);
+  const goalRace = measure === "GOAL";
   const topScore = Math.max(...report.players.map((p) => Number(p.score?.total ?? 0)), 1);
   const largestReturn = Math.max(...report.players.map((p) => Math.abs(Number(p.return_percent))), 0.0001);
   const comparing = simulationIds.length > 1;
   const inTeams = report.teams.length > 0;
+  // A meta só é uma entre as partidas comparadas quando todas têm a mesma
+  const showRemaining = goalRace && !comparing && !!report.goal_net_worth;
   // A ordem do servidor é a do critério; entre partidas dá para reordenar por retorno ou patrimônio
   const players =
     comparing && sortBy !== "SCORE"
@@ -284,7 +318,7 @@ function Ranking({
           {description ??
             (comparing
               ? "A Nota compara partidas de períodos diferentes de forma justa; o retorno depende de quanto o mercado andou em cada período. Sem nota (menos de 63 pregões) fica no fim."
-              : `Ordenado pelo critério da partida: ${VICTORY_CRITERIA[report.criterion].label}`)}
+              : `Ordenado pelo critério da partida: ${criterionLabel(report)}`)}
         </CardDescription>
         {action && <CardAction>{action}</CardAction>}
         {comparing && (
@@ -295,7 +329,7 @@ function Ranking({
               value={[sortBy]}
               onValueChange={(values) => values[0] && setSortBy(values[0] as RankingSort)}
             >
-              <ToggleGroupItem value="SCORE">Nota</ToggleGroupItem>
+              <ToggleGroupItem value="SCORE">{goalRace ? "% da meta" : "Nota"}</ToggleGroupItem>
               <ToggleGroupItem value="RETURN">Retorno</ToggleGroupItem>
               <ToggleGroupItem value="NETWORTH">Patrimônio</ToggleGroupItem>
             </ToggleGroup>
@@ -308,18 +342,25 @@ function Ranking({
             <TableHead>#</TableHead>
             <TableHead>Jogador</TableHead>
             <TableHead numeric={comparing}>
-              <MetricLabel metric={SCORE} />
+              <MetricLabel metric={goalRace ? GOAL_PERCENT : SCORE} />
             </TableHead>
             <TableHead numeric>Patrimônio</TableHead>
-            <TableHead numeric={!comparing}>Retorno</TableHead>
-            <TableHead numeric>Pregões</TableHead>
-            {!comparing && <TableHead numeric>Distância do líder</TableHead>}
+            {showRemaining && (
+              <TableHead numeric>
+                <MetricLabel metric={GOAL_REMAINING} />
+              </TableHead>
+            )}
+            <TableHead numeric={!comparing}>{goalRace ? "Rentabilidade" : "Retorno"}</TableHead>
+            {!goalRace && <TableHead numeric>Pregões</TableHead>}
+            {!comparing && !goalRace && <TableHead numeric>Distância do líder</TableHead>}
             {inTeams && <TableHead numeric>Na média da equipe</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
           {report.players.length === 0 && (
-            <TableEmptyRow colSpan={(comparing ? 6 : 7) + (inTeams ? 1 : 0)}>
+            <TableEmptyRow
+              colSpan={5 + (goalRace ? 0 : 1) + (goalRace || comparing ? 0 : 1) + (showRemaining ? 1 : 0) + (inTeams ? 1 : 0)}
+            >
               <p className="text-[13px] text-muted-foreground">
                 Ninguém tem patrimônio registrado ainda. O ranking aparece depois do primeiro pregão.
               </p>
@@ -353,21 +394,32 @@ function Ranking({
                   />
                 </TableCell>
                 {comparing ? (
-                  <TableCell numeric>{displayMetric(SCORE, p.score?.total)}</TableCell>
+                  <TableCell numeric>
+                    {goalRace ? displayCriterionValue(measure, p.criterion_value) : displayMetric(SCORE, p.score?.total)}
+                  </TableCell>
                 ) : (
                   <TableCell>
                     <span className="flex items-center gap-2">
-                      <span className="w-10 font-mono font-semibold">{displayMetric(SCORE, p.score?.total)}</span>
-                      <span className="h-1.5 w-28 overflow-hidden rounded-full bg-muted">
-                        <span
-                          className="block h-full rounded-full bg-primary"
-                          style={{ width: `${(Number(p.score?.total ?? 0) / topScore) * 100}%` }}
-                        />
+                      <span className="w-10 font-mono font-semibold">
+                        {goalRace ? displayCriterionValue(measure, p.criterion_value) : displayMetric(SCORE, p.score?.total)}
                       </span>
+                      {goalRace ? (
+                        <Progress value={Math.min(Number(p.criterion_value ?? 0), 1) * 100} size="sm" className="w-28" />
+                      ) : (
+                        <span className="h-1.5 w-28 overflow-hidden rounded-full bg-muted">
+                          <span
+                            className="block h-full rounded-full bg-primary"
+                            style={{ width: `${(Number(p.score?.total ?? 0) / topScore) * 100}%` }}
+                          />
+                        </span>
+                      )}
                     </span>
                   </TableCell>
                 )}
                 <TableCell numeric>{displayMoney(p.total_networth)}</TableCell>
+                {showRemaining && (
+                  <TableCell numeric>{displayRemainingToGoal(p.criterion_value, report.goal_net_worth)}</TableCell>
+                )}
                 {comparing ? (
                   <TableCell>
                     {/* Barra divergente: o zero fica no meio, ganho para a direita e perda para a esquerda */}
@@ -392,8 +444,10 @@ function Ranking({
                     <span className={returnTone}>{displaySignedPercent(p.return_percent)}</span>
                   </TableCell>
                 )}
-                <TableCell numeric>{p.days}</TableCell>
-                {!comparing && <TableCell numeric>{displayCriterionGap(report.criterion, p.leader_gap)}</TableCell>}
+                {!goalRace && <TableCell numeric>{p.days}</TableCell>}
+                {!comparing && !goalRace && (
+                  <TableCell numeric>{displayCriterionGap(measure, p.leader_gap)}</TableCell>
+                )}
                 {inTeams && (
                   <TableCell numeric>
                     <span
@@ -406,7 +460,7 @@ function Ranking({
                             : "text-muted-foreground",
                       )}
                     >
-                      {displayCriterionContribution(report.criterion, p.team_contribution)}
+                      {displayCriterionContribution(measure, p.team_contribution)}
                     </span>
                   </TableCell>
                 )}

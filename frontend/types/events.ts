@@ -34,6 +34,7 @@ export type SimulationEvents = {
   player_team: RealtimeEventCatalog["player_team"];
   simulation_selected: RealtimeEventCatalog["simulation_selected"];
   simulation_settings_update: RealtimeEventCatalog["simulation_settings_update"];
+  goal_progress_update: RealtimeEventCatalog["goal_progress_update"];
 } & {
   [K in `stock_update:${string}`]: RealtimeEventCatalog["stock_update"];
 } & {

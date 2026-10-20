@@ -432,6 +432,12 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/get-goal-progress-api-simulation-goal-progress-get",
+          label: "Progresso da corrida à meta",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
           id: "api/join-match-api-simulation-join-post",
           label: "Entrar na partida em andamento",
           className: "api-method post",

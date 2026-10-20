@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import MainLayout from "@/layouts/main-layout";
 import { PlainLayout } from "@/layouts/plain-layout";
-import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge } from "lucide-react";
+import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge, Flag } from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
 import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
@@ -18,6 +18,7 @@ import ImportAssetsPage from "./features/import-assets/pages/import-assets";
 import { RealtimeProvider } from "@/shared/context/realtime";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { PageLabelProvider } from "@/shared/context/page-label";
+import GoalPage from "./features/goal/pages/goal";
 import StatisticsPage from "./features/statistics/pages/statistics";
 import CompareSimulationsPage from "./features/statistics/pages/compare-simulations";
 import MatchResultPage from "./features/statistics/pages/match-result";
@@ -37,6 +38,7 @@ const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda variável", endpoint: "/variable-income", icon: TrendingUp, group: "Mercado" },
   { key: "fixed-income", label: "Renda fixa", endpoint: "/fixed-income", icon: Coins, group: "Mercado" },
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet, group: "Você" },
+  { key: "goal", label: "Meta", endpoint: "/goal", icon: Flag, group: "Você", goalOnly: true },
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: Trophy, group: "Você" },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
   { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: Bot, group: "Ferramentas", badge: "Em breve" },
@@ -81,6 +83,7 @@ export default function App() {
                         <Route path="/strategies" element={<StrategiesPage />} />
                         <Route path="/performance" element={<PerformancePage />} />
                         <Route path="/settings" element={<SettingsPage />} />
+                        <Route path="/goal" element={<GoalPage />} />
                         <Route path="/statistics" element={<StatisticsPage />} />
                       </Route>
                       <Route element={<SimulationModeLayout navItems={navItems} />}>

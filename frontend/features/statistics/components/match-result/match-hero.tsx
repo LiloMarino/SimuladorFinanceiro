@@ -1,27 +1,40 @@
 import { Link } from "react-router-dom";
+import { Flag } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { teamName, teamShortName } from "@/shared/lib/teams";
 import {
   displayDate,
   displayMoney,
+  displayMoneyCompact,
   displayNumber,
   displaySignedPercent,
   parseLocalDate,
 } from "@/shared/lib/utils/display";
+import { displayGoalPercent } from "@/shared/lib/goal";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { OverviewReport, SimulationListItem } from "@/types";
-import { displayCriterionContribution, displayCriterionGap, displayCriterionValue } from "../../lib/criterion";
+import {
+  displayCriterionContribution,
+  displayCriterionGap,
+  displayCriterionValue,
+  rankingMeasure,
+} from "../../lib/criterion";
 import { Podium } from "./podium";
 import { TeamPodium } from "./team-podium";
 
 type Player = OverviewReport["players"][number];
 
+/** A meta foi atingida quando a fração da meta do líder chega a 1. */
+const reachedGoal = (fraction: string | null) => fraction !== null && Number(fraction) >= 1;
+
 /** A frase do vencedor na unidade do critério; sem valor no critério, só a colocação. */
-function headline(criterion: OverviewReport["criterion"], winner: Player) {
+function headline(report: OverviewReport, winner: Player) {
   const value = winner.criterion_value;
   const name = winner.player_nickname;
   if (value === null) return `${name} ficou em 1º`;
-  switch (criterion) {
+  switch (rankingMeasure(report)) {
+    case "GOAL":
+      return reachedGoal(value) ? `${name} chegou primeiro à meta` : `Ninguém chegou à meta; ${name} ficou mais perto`;
     case "SCORE":
       return `${name} venceu com ${displayNumber(value, 0)} pontos`;
     case "RETURN":
@@ -42,7 +55,11 @@ function teamHeadline(report: OverviewReport) {
   if (second && second.criterion_value !== null && Number(second.criterion_value) === Number(value)) {
     return `${name} venceu no desempate`;
   }
-  switch (report.criterion) {
+  switch (rankingMeasure(report)) {
+    case "GOAL":
+      return reachedGoal(value)
+        ? `${name} chegou primeiro à meta`
+        : `Nenhuma equipe chegou à meta; ${name} ficou mais perto`;
     case "SCORE":
       // Equipe de uma pessoa vale a nota dela: não há média a dizer
       return first.members === 1
@@ -59,7 +76,8 @@ function teamHeadline(report: OverviewReport) {
 
 /** O que a frase do topo diz da sua equipe, do empate e de quem ficou fora da média. */
 function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; currentPlayerName?: string }) {
-  const { teams, criterion, team_naming: naming } = report;
+  const { teams, team_naming: naming, goal_net_worth } = report;
+  const criterion = rankingMeasure(report);
   const [first, second] = teams;
   const you = report.players.find((p) => p.player_nickname === currentPlayerName);
   const mine = teams.find((t) => t.team === you?.team);
@@ -88,7 +106,7 @@ function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; cu
             {second && second.leader_gap !== null && (
               <>
                 ,{" "}
-                <b className="font-mono text-white">{displayCriterionGap(criterion, second.leader_gap)}</b> à frente da{" "}
+                <b className="font-mono text-white">{displayCriterionGap(criterion, second.leader_gap, goal_net_worth)}</b> à frente da{" "}
                 {teamName(second.team, naming)}
               </>
             )}
@@ -100,7 +118,7 @@ function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; cu
             Sua equipe ficou em <b className="text-white">{mine.position}º</b>
             {mine.leader_gap !== null && (
               <>
-                , a <b className="font-mono text-white">{displayCriterionGap(criterion, mine.leader_gap)}</b>
+                , a <b className="font-mono text-white">{displayCriterionGap(criterion, mine.leader_gap, goal_net_worth)}</b>
               </>
             )}
             .
@@ -127,6 +145,81 @@ function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; cu
   );
 }
 
+/** Pluraliza "N anos", "N meses" ou "N dias" para a antecedência do fim da partida. */
+function displayLeadTime(days: number) {
+  if (days >= 365) {
+    const years = Math.floor(days / 365);
+    return `${years} ${years === 1 ? "ano" : "anos"}`;
+  }
+  if (days >= 30) {
+    const months = Math.floor(days / 30);
+    return `${months} ${months === 1 ? "mês" : "meses"}`;
+  }
+  return `${days} ${days === 1 ? "dia" : "dias"}`;
+}
+
+/** O que a frase do topo diz da corrida: quando e com quanto alguém chegou, ou quem ficou mais perto. */
+function GoalSummary({
+  report,
+  simulation,
+  reached,
+  currentPlayerName,
+}: {
+  report: OverviewReport;
+  simulation: SimulationListItem | undefined;
+  reached: boolean;
+  currentPlayerName?: string;
+}) {
+  const { goal_net_worth: goal, teams } = report;
+  const inTeams = teams.length > 0;
+  const leader = inTeams ? teams[0] : report.players[0];
+  const you = report.players.find((p) => p.player_nickname === currentPlayerName);
+  const yourRank = inTeams ? teams.find((t) => t.team === you?.team) : you;
+  const lastDay = simulation?.resume_from ?? simulation?.end_date;
+  const daysEarly =
+    simulation && lastDay
+      ? Math.round((parseLocalDate(simulation.end_date).getTime() - parseLocalDate(lastDay).getTime()) / 86_400_000)
+      : 0;
+  const goalText = goal ? ` (meta ${displayMoneyCompact(goal)})` : "";
+  const leaderName = "player_nickname" in leader ? leader.player_nickname : teamName(leader.team, report.team_naming);
+
+  return (
+    <>
+      {reached ? (
+        <>
+          {lastDay && (
+            <>
+              Em <b className="font-mono text-white">{displayDate(parseLocalDate(lastDay))}</b>,{" "}
+            </>
+          )}
+          com <b className="font-mono text-white">{displayMoney(leader.total_networth)}</b>{" "}
+          de {inTeams ? "patrimônio médio" : "patrimônio"}
+          {goalText}.
+          {daysEarly > 0 && <> A partida terminou nesse dia, {displayLeadTime(daysEarly)} antes da data final.</>}
+        </>
+      ) : (
+        <>
+          Chegou a data final com <b className="text-white">{leaderName}</b> em{" "}
+          <b className="font-mono text-white">{displayCriterionValue("GOAL", leader.criterion_value)}</b> da meta
+          {goal ? <> de {displayMoneyCompact(goal)}</> : null}: quem fica mais perto vence.
+        </>
+      )}
+      {yourRank &&
+        (yourRank.position === 1 ? (
+          <> Você venceu.</>
+        ) : (
+          <>
+            {" "}
+            Você ficou em <b className="text-white">{yourRank.position}º</b>, com{" "}
+            <b className="font-mono text-white">{displayGoalPercentOf(yourRank.criterion_value)}</b> da meta.
+          </>
+        ))}
+    </>
+  );
+}
+
+const displayGoalPercentOf = (fraction: string | null) => (fraction === null ? "—" : displayGoalPercent(Number(fraction)));
+
 interface MatchHeroProps {
   report: OverviewReport;
   simulation: SimulationListItem | undefined;
@@ -138,7 +231,9 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
   const winner = report.players[0];
   const inTeams = report.teams.length > 0;
   const you = report.players.find((p) => p.player_nickname === currentPlayerName);
-  const criterion = VICTORY_CRITERIA[report.criterion];
+  const measure = rankingMeasure(report);
+  const criterion = measure === "GOAL" ? null : VICTORY_CRITERIA[measure];
+  const reached = measure === "GOAL" && reachedGoal((inTeams ? report.teams[0] : winner).criterion_value);
   const tradingDays = Math.max(...report.players.map((p) => p.days));
   const lastDay = simulation?.resume_from ?? simulation?.end_date;
 
@@ -149,21 +244,25 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
           Fim de partida · {winner.simulation_name}
           {inTeams && " · em equipes"}
         </span>
-        <h1 className="text-[34px] leading-tight font-bold text-white">
-          {inTeams ? teamHeadline(report) : headline(report.criterion, winner)}
+        <h1 className="flex items-center gap-3 text-[34px] leading-tight font-bold text-white">
+          {reached && <Flag className="size-7 shrink-0 text-trophy" />}
+          {inTeams ? teamHeadline(report) : headline(report, winner)}
         </h1>
         <p className="text-[15px]">
-          {inTeams ? (
+          {measure === "GOAL" ? (
+            <GoalSummary report={report} simulation={simulation} reached={reached} currentPlayerName={currentPlayerName} />
+          ) : inTeams ? (
             <>
-              Vitória por <b className="text-white">{criterion.label}</b>, em equipes: vale a média dos membros.
+              Vitória por <b className="text-white">{criterion?.label}</b>, em equipes: vale a média dos membros.
               <TeamSummary report={report} currentPlayerName={currentPlayerName} />
             </>
           ) : (
             <>
-              Vitória por <b className="text-white">{criterion.label}</b>: {criterion.description}
+              Vitória por <b className="text-white">{criterion?.label}</b>: {criterion?.description}
             </>
           )}
           {!inTeams &&
+            measure !== "GOAL" &&
             you &&
             (you.position === 1 ? (
               <> Você venceu.</>
@@ -173,8 +272,8 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
                 Você ficou em <b className="text-white">{you.position}º</b>
                 {you.leader_gap !== null && (
                   <>
-                    , a <b className="font-mono text-white">{displayCriterionGap(report.criterion, you.leader_gap)}</b>{" "}
-                    de {winner.player_nickname}
+                    , a <b className="font-mono text-white">{displayCriterionGap(measure, you.leader_gap)}</b> de{" "}
+                    {winner.player_nickname}
                   </>
                 )}
                 .

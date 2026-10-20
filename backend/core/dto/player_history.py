@@ -12,4 +12,6 @@ class PlayerHistoryDTO(BaseDTO):
     # Índice da equipe (1 a 10); nulo fora do modo em equipes
     team: int | None = None
     starting_cash: Decimal
+    # Patrimônio-alvo da simulação, para a fração da meta no ranking
+    goal_net_worth: Decimal
     history: list[PatrimonialHistoryDTO]

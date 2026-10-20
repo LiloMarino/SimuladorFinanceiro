@@ -10,7 +10,7 @@ from typing import Literal
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.sector import SectorAllocationDTO
-from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
+from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
 
 
 class SeriesPointDTO(BaseDTO):
@@ -136,6 +136,10 @@ class OverviewReportDTO(TeamReportDTO):
     min_score_days: int
     # O critério que ordenou o ranking: o da partida, ou a nota entre partidas diferentes
     criterion: VictoryCriterion
+    # Fora da Clássica, `criterion_value` é a fração da meta (patrimônio ÷ meta)
+    game_type: GameType
+    # A meta das partidas quando todas têm a mesma; None entre metas diferentes
+    goal_net_worth: Decimal | None
 
 
 # Rentabilidade

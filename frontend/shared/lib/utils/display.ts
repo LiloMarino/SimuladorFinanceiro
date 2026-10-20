@@ -26,6 +26,17 @@ const MONEY_COMPACT_FORMAT = new Intl.NumberFormat("pt-BR", {
   maximumFractionDigits: 1,
 });
 
+const MONEY_WHOLE_FORMAT = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  maximumFractionDigits: 0,
+});
+
+/** Reais inteiros, sem centavos ("R$ 930.200"), para totais que o jogador lê de relance. */
+export function displayMoneyWhole(value: Numeric) {
+  return MONEY_WHOLE_FORMAT.format(value as Intl.StringNumericLiteral | number);
+}
+
 export function displayMoney(value: Numeric) {
   return MONEY_FORMAT.format(value as Intl.StringNumericLiteral | number);
 }

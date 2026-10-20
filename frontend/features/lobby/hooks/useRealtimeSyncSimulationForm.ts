@@ -3,7 +3,7 @@ import { useWatch, type UseFormReturn } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { useRealtime } from "@/shared/hooks/useRealtime";
-import type { PlayerGrouping, SimulationSettingsData, TeamNaming, VictoryCriterion } from "@/types";
+import type { GameType, PlayerGrouping, SimulationSettingsData, TeamNaming, VictoryCriterion } from "@/types";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import type { SimulationFormValues } from "../components/lobby-match";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
@@ -33,6 +33,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
     ...initial,
     starting_cash: toCentsString(initial.starting_cash),
     monthly_contribution: toCentsString(initial.monthly_contribution),
+    goal_net_worth: toCentsString(initial.goal_net_worth),
   });
 
   const {
@@ -50,6 +51,8 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       price_impact_k: number;
       price_impact_decay_days: number;
       victory_criterion: VictoryCriterion;
+      game_type: GameType;
+      goal_net_worth: string;
       player_grouping: PlayerGrouping;
       team_naming: TeamNaming;
     }) => apiFetch<SimulationSettingsData>("/api/simulation/settings", { method: "PUT", body }),
@@ -71,6 +74,8 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
           priceImpactK: displayDecimal(data.price_impact_k),
           priceImpactDecayDays: String(data.price_impact_decay_days),
           victoryCriterion: data.victory_criterion,
+          gameType: data.game_type,
+          goalNetWorth: displayMoney(data.goal_net_worth),
           playerGrouping: data.player_grouping,
           teamNaming: data.team_naming,
         } as TForm);
@@ -99,6 +104,8 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       priceImpactK,
       priceImpactDecayDays,
       victoryCriterion,
+      gameType,
+      goalNetWorth,
       playerGrouping,
       teamNaming,
     } = debouncedValues;
@@ -114,6 +121,8 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
       price_impact_k: Number(normalizeNumberString(priceImpactK)),
       price_impact_decay_days: Number(priceImpactDecayDays),
       victory_criterion: victoryCriterion,
+      game_type: gameType,
+      goal_net_worth: toCentsString(normalizeNumberString(goalNetWorth)),
       player_grouping: playerGrouping,
       team_naming: teamNaming,
     };

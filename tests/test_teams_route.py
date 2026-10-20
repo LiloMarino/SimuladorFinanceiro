@@ -71,6 +71,7 @@ def settings_body(grouping: PlayerGrouping) -> dict[str, object]:
         "start_date": "2020-01-01",
         "end_date": "2020-12-31",
         "starting_cash": "10000",
+        "goal_net_worth": "100000",
         "monthly_contribution": "0",
         "price_impact_k": 0.02,
         "price_impact_decay_days": 20,

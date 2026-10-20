@@ -51,6 +51,7 @@ def _settings_payload() -> UpdateSettingsRequest:
         start_date=date(2023, 1, 2),
         end_date=END,
         starting_cash=Decimal(10000),
+        goal_net_worth=Decimal(100000),
         price_impact_k=0.02,
         price_impact_decay_days=20,
     )

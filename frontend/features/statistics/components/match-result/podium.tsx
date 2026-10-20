@@ -2,7 +2,8 @@ import { Trophy } from "lucide-react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { cn } from "@/shared/lib/utils";
 import type { OverviewReport } from "@/types";
-import { displayCriterionValue } from "../../lib/criterion";
+import { displayMoneyCompact } from "@/shared/lib/utils/display";
+import { displayCriterionValue, rankingMeasure } from "../../lib/criterion";
 
 // Degraus na ordem visual: 2º à esquerda, 1º no meio e mais alto, 3º à direita
 const STEPS = [
@@ -19,6 +20,7 @@ interface PodiumProps {
 /** Os três primeiros pelo critério de vitória, sobre o fundo escuro do topo. */
 export function Podium({ report, currentPlayerName }: PodiumProps) {
   const byPosition = new Map(report.players.map((p) => [p.position, p]));
+  const measure = rankingMeasure(report);
 
   return (
     <div className="flex w-full max-w-[480px] items-end gap-3">
@@ -36,7 +38,8 @@ export function Podium({ report, currentPlayerName }: PodiumProps) {
                   {player.player_nickname === currentPlayerName && " (você)"}
                 </span>
                 <span className={cn("font-mono text-[13px]", first ? "text-trophy" : "text-sidebar-muted")}>
-                  {displayCriterionValue(report.criterion, player.criterion_value)}
+                  {displayCriterionValue(measure, player.criterion_value)}
+                  {measure === "GOAL" && ` · ${displayMoneyCompact(player.total_networth)}`}
                 </span>
               </>
             ) : (

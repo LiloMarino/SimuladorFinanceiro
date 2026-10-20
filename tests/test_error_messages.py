@@ -71,6 +71,7 @@ VALID_BODY = {
     "start_date": "2020-01-01",
     "end_date": "2021-01-01",
     "starting_cash": "1000",
+    "goal_net_worth": "10000",
     "price_impact_k": 0.1,
     "price_impact_decay_days": 5,
 }

@@ -9,7 +9,7 @@ import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
 import { cn } from "@/shared/lib/utils";
 import { displayMonthSlashYear } from "@/shared/lib/utils/display";
-import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
+import { winRuleLabel } from "@/shared/lib/game-types";
 import type { SimulationListItem } from "@/types";
 import { simulationColor, simulationLetter } from "../../lib/player-label";
 import { SimulationLetter } from "./simulation-letter";
@@ -23,7 +23,7 @@ interface SimulationPickerProps {
 function describe(s: SimulationListItem) {
   const players = s.players_count === 1 ? "Solo" : `${s.players_count} jogadores`;
   const position = s.my_position !== null && s.players_count > 1 ? ` · você em ${s.my_position}º` : "";
-  return `${players}${position} · ${VICTORY_CRITERIA[s.victory_criterion].label}`;
+  return `${players}${position} · ${winRuleLabel(s.game_type, s.victory_criterion)}`;
 }
 
 /** A lista de simulações salvas: cada uma escolhida ganha a letra e a cor da ordem em que entrou. */

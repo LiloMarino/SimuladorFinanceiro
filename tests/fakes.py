@@ -6,7 +6,7 @@ from datetime import date
 from decimal import Decimal
 
 from backend.core.dto.simulation import SimulationSettingsDTO
-from backend.core.enum import PlayerGrouping, VictoryCriterion
+from backend.core.enum import GameType, PlayerGrouping, VictoryCriterion
 from backend.core.utils import is_business_day, next_business_day
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.entities.position import Position
@@ -48,6 +48,8 @@ def simulation_settings(
         price_impact_k=0.02,
         price_impact_decay_days=20,
         victory_criterion=VictoryCriterion.SCORE,
+        game_type=GameType.CLASSIC,
+        goal_net_worth=Decimal(100000),
         player_grouping=grouping,
     )
 

@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
-import { CircleCheck, Info, Shield, Swords, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import { CircleCheck, Flag, Info, Shield, Swords, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import {
   FieldSet,
   FieldTitle,
 } from "@/shared/components/ui/field";
+import { InfoHint } from "@/shared/components/info-hint";
 import { Input } from "@/shared/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import {
@@ -26,11 +27,14 @@ import {
 } from "@/shared/components/ui/sheet";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import type ApiError from "@/shared/lib/models/ApiError";
+import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import { displayDecimal } from "@/shared/lib/utils/display";
+import { GAME_TYPE_OPTIONS } from "@/shared/lib/game-types";
+import { DEFAULT_GOAL_MULTIPLE, GOAL_SHORTCUTS } from "@/shared/lib/goal";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { teamColor, teamShortName } from "@/shared/lib/teams";
-import type { PlayerGrouping, TeamNaming, VictoryCriterion } from "@/types";
+import type { GameType, PlayerGrouping, TeamNaming, VictoryCriterion } from "@/types";
 import type { CoverageCheck } from "../lib/coverage";
 import {
   PRICE_IMPACT_MODE_LABELS,
@@ -84,15 +88,37 @@ export function RulesSheet({
   saveStatus,
   locked = false,
 }: RulesSheetProps) {
-  const [startDate, impactEnabled, impactK, impactT, grouping] = useWatch({
+  const [startDate, impactEnabled, impactK, impactT, grouping, gameType, startingCash, goalNetWorth] = useWatch({
     control: form.control,
-    name: ["startDate", "priceImpactEnabled", "priceImpactK", "priceImpactDecayDays", "playerGrouping"],
+    name: [
+      "startDate",
+      "priceImpactEnabled",
+      "priceImpactK",
+      "priceImpactDecayDays",
+      "playerGrouping",
+      "gameType",
+      "startingCash",
+      "goalNetWorth",
+    ],
   });
   // Personalizado fica aberto mesmo quando k e T coincidem com um preset
   const [customOpen, setCustomOpen] = useState(false);
   const derivedMode = priceImpactModeOf(impactEnabled, impactK, impactT);
   const impactMode: PriceImpactMode = customOpen && impactEnabled ? "CUSTOM" : derivedMode;
   const readOnly = !isHost || locked;
+  const startingCashAmount = Number(normalizeNumberString(startingCash));
+  const goalAmount = Number(normalizeNumberString(goalNetWorth));
+
+  // A meta segue no formulário em todos os tipos e o servidor a exige positiva:
+  // sair da corrida com a meta vazia devolve o valor padrão, já que o campo some da tela
+  const selectGameType = (value: GameType, onChange: (value: GameType) => void) => {
+    onChange(value);
+    if (value === "CLASSIC" && !(goalAmount > 0)) {
+      form.setValue("goalNetWorth", formatMoney(String(Math.round(startingCashAmount * DEFAULT_GOAL_MULTIPLE * 100))), {
+        shouldValidate: true,
+      });
+    }
+  };
 
   const selectImpactMode = (mode: PriceImpactMode) => {
     setCustomOpen(mode === "CUSTOM");
@@ -253,28 +279,29 @@ export function RulesSheet({
             )}
           </FieldSet>
 
-          {/* Quem vence */}
+          {/* Tipo de partida */}
           <FieldSet disabled={readOnly}>
-            <FieldLegend variant="caption">
-              Quem vence{grouping === "TEAMS" ? " (em equipes: a média dos membros)" : ""}
-            </FieldLegend>
+            <FieldLegend variant="caption">Tipo de partida</FieldLegend>
             <Controller
               control={form.control}
-              name="victoryCriterion"
+              name="gameType"
               render={({ field }) => (
                 <RadioGroup
                   value={field.value}
-                  onValueChange={(value) => field.onChange(value as VictoryCriterion)}
+                  onValueChange={(value) => selectGameType(value as GameType, field.onChange)}
                   disabled={readOnly}
-                  className="grid-cols-2"
+                  className="grid-flow-col auto-cols-fr"
                 >
-                  {Object.entries(VICTORY_CRITERIA).map(([value, criterion]) => (
-                    <FieldLabel key={value} htmlFor={`criterion-${value}`}>
-                      <Field orientation="horizontal">
-                        <RadioGroupItem value={value} id={`criterion-${value}`} />
+                  {GAME_TYPE_OPTIONS.map(([value, type]) => (
+                    <FieldLabel key={value} htmlFor={`game-type-${value}`}>
+                      <Field>
+                        <div className="flex items-center justify-between">
+                          <type.icon className="size-[18px] text-muted-foreground" />
+                          <RadioGroupItem value={value} id={`game-type-${value}`} />
+                        </div>
                         <FieldContent>
-                          <FieldTitle>{criterion.label}</FieldTitle>
-                          <FieldDescription>{criterion.description}</FieldDescription>
+                          <FieldTitle>{type.label}</FieldTitle>
+                          <FieldDescription>{type.description}</FieldDescription>
                         </FieldContent>
                       </Field>
                     </FieldLabel>
@@ -283,6 +310,102 @@ export function RulesSheet({
               )}
             />
           </FieldSet>
+
+          {/* Meta */}
+          {gameType === "GOAL_RACE" && (
+            <FieldSet disabled={readOnly}>
+              <FieldLegend variant="caption">Meta</FieldLegend>
+              <Controller
+                control={form.control}
+                name="goalNetWorth"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="rules-goalNetWorth">
+                      Meta de patrimônio
+                      <InfoHint label="Como funciona a meta">
+                        <div className="space-y-1 text-left">
+                          <p>É o patrimônio (caixa, renda fixa e ações) que um jogador precisa atingir para vencer.</p>
+                          <p>Ex.: com saldo inicial de R$ 100.000, a meta de 10× é R$ 1.000.000.</p>
+                          <p>Meta alta demais pode não ser alcançada até a data final; nesse caso vence quem chegar mais perto.</p>
+                        </div>
+                      </InfoHint>
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="rules-goalNetWorth"
+                      inputMode="decimal"
+                      numeric
+                      aria-invalid={fieldState.invalid}
+                      onChange={(e) => field.onChange(formatMoney(e.target.value))}
+                    />
+                    <div className="flex flex-wrap gap-1.5">
+                      {GOAL_SHORTCUTS.map((multiple) => (
+                        <Button
+                          key={multiple}
+                          type="button"
+                          size="xs"
+                          variant={startingCashAmount > 0 && goalAmount === startingCashAmount * multiple ? "info" : "outline"}
+                          onClick={() => field.onChange(formatMoney(String(Math.round(startingCashAmount * multiple * 100))))}
+                        >
+                          {multiple}× o saldo inicial
+                        </Button>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <FieldDescription>Em reais do dia, sem descontar a inflação</FieldDescription>
+                      <InfoHint label="Meta e inflação">
+                        Numa partida longa, R$ 1 milhão no fim compra bem menos do que no começo: o valor da meta não
+                        acompanha os preços.
+                      </InfoHint>
+                    </div>
+                    <FieldError errors={[fieldState.error]} />
+                  </Field>
+                )}
+              />
+              <Alert variant="info">
+                <Flag />
+                <AlertTitle>Quem vence já está definido</AlertTitle>
+                <AlertDescription>
+                  A partida termina no dia em que alguém chega à meta. Chegando dois no mesmo dia, vence o maior
+                  patrimônio. Se ninguém chegar até a data final, vence quem ficou mais perto. Em equipes, conta a média
+                  do patrimônio dos membros.
+                </AlertDescription>
+              </Alert>
+            </FieldSet>
+          )}
+
+          {/* Quem vence */}
+          {gameType === "CLASSIC" && (
+            <FieldSet disabled={readOnly}>
+              <FieldLegend variant="caption">
+                Quem vence{grouping === "TEAMS" ? " (em equipes: a média dos membros)" : ""}
+              </FieldLegend>
+              <Controller
+                control={form.control}
+                name="victoryCriterion"
+                render={({ field }) => (
+                  <RadioGroup
+                    value={field.value}
+                    onValueChange={(value) => field.onChange(value as VictoryCriterion)}
+                    disabled={readOnly}
+                    className="grid-cols-2"
+                  >
+                    {Object.entries(VICTORY_CRITERIA).map(([value, criterion]) => (
+                      <FieldLabel key={value} htmlFor={`criterion-${value}`}>
+                        <Field orientation="horizontal">
+                          <RadioGroupItem value={value} id={`criterion-${value}`} />
+                          <FieldContent>
+                            <FieldTitle>{criterion.label}</FieldTitle>
+                            <FieldDescription>{criterion.description}</FieldDescription>
+                          </FieldContent>
+                        </Field>
+                      </FieldLabel>
+                    ))}
+                  </RadioGroup>
+                )}
+              />
+            </FieldSet>
+          )}
 
           {/* Impacto de preço */}
           <FieldSet disabled={readOnly}>

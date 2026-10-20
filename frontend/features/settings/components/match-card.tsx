@@ -15,7 +15,7 @@ import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useApiMutation } from "@/shared/lib/api/useApiMutation";
-import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
+import { winRuleLabel } from "@/shared/lib/game-types";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 
 /** Só para o host: encerra a partida e leva todos ao resultado, que chega pelo evento de fim. */
@@ -31,7 +31,8 @@ export function MatchCard() {
   });
 
   const count = players?.length ?? 0;
-  const criterion = simulation?.simulation ? VICTORY_CRITERIA[simulation.simulation.victory_criterion].label : null;
+  const match = simulation?.simulation;
+  const criterion = match ? winRuleLabel(match.game_type, match.victory_criterion) : null;
 
   return (
     <Card>

@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import (
+    GameType,
     PlayerGrouping,
     SimulationStatus,
     TeamNaming,
@@ -19,7 +20,11 @@ class SimulationSettingsDTO(BaseDTO):
     price_impact_enabled: bool
     price_impact_k: float
     price_impact_decay_days: int
+    # Só decide a partida na Clássica; nos outros tipos vence quem chega à meta
     victory_criterion: VictoryCriterion
+    game_type: GameType
+    # Patrimônio-alvo da corrida à meta
+    goal_net_worth: Decimal
     player_grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL
     team_naming: TeamNaming = TeamNaming.COLOR
 

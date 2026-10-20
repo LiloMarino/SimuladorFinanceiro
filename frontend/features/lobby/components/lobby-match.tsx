@@ -21,9 +21,11 @@ import { displayDate, displayDecimal, parseLocalDate, toCentsString } from "@/sh
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { seriesCoverageOptions } from "@/shared/lib/queries/seriesCoverageOptions";
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
+import { GAME_TYPES } from "@/shared/lib/game-types";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type {
+  GameType,
   PlayerGrouping,
   RoomPlayer,
   SimulationInfo,
@@ -72,12 +74,27 @@ const simulationFormSchema = z
       .string()
       .refine((val) => Number.isInteger(Number(val)) && Number(val) >= 1, "Informe ao menos 1 pregão"),
     victoryCriterion: z.custom<VictoryCriterion>((value) => typeof value === "string" && value in VICTORY_CRITERIA),
+    gameType: z.custom<GameType>((value) => typeof value === "string" && value in GAME_TYPES),
+    goalNetWorth: z
+      .string()
+      .min(1, "Informe a meta")
+      .refine((val) => Number(normalizeNumberString(val)) > 0, "A meta tem que ser maior que zero"),
     playerGrouping: z.custom<PlayerGrouping>((value) => value === "INDIVIDUAL" || value === "TEAMS"),
     teamNaming: z.custom<TeamNaming>((value) => value === "COLOR" || value === "NUMBER"),
   })
   .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
     message: "Tem que ser depois do início",
     path: ["endDate"],
+  })
+  // Na corrida a meta fica acima do que o jogador já tem no primeiro dia
+  .superRefine((data, ctx) => {
+    if (data.gameType !== "GOAL_RACE") return;
+    if (Number(normalizeNumberString(data.goalNetWorth)) > Number(normalizeNumberString(data.startingCash))) return;
+    ctx.addIssue({
+      code: "custom",
+      message: `A meta precisa passar do saldo inicial (${data.startingCash}).`,
+      path: ["goalNetWorth"],
+    });
   });
 
 export type SimulationFormValues = z.infer<typeof simulationFormSchema>;
@@ -120,6 +137,8 @@ export function LobbyMatch({
       priceImpactK: displayDecimal(simulationData.price_impact_k),
       priceImpactDecayDays: String(simulationData.price_impact_decay_days),
       victoryCriterion: simulationData.victory_criterion,
+      gameType: simulationData.game_type,
+      goalNetWorth: formatMoney(toCentsString(simulationData.goal_net_worth)),
       playerGrouping: simulationData.player_grouping,
       teamNaming: simulationData.team_naming,
     },
@@ -175,6 +194,8 @@ export function LobbyMatch({
           price_impact_k: Number(normalizeNumberString(values.priceImpactK)),
           price_impact_decay_days: Number(values.priceImpactDecayDays),
           victory_criterion: values.victoryCriterion,
+          game_type: values.gameType,
+          goal_net_worth: normalizeNumberString(values.goalNetWorth),
           player_grouping: values.playerGrouping,
           team_naming: values.teamNaming,
         },
@@ -205,6 +226,8 @@ export function LobbyMatch({
         startingCash: formatMoney(toCentsString(selectedSimulation.starting_cash)),
         monthlyContribution: formatMoney(toCentsString(selectedSimulation.monthly_contribution)),
         victoryCriterion: selectedSimulation.victory_criterion,
+        gameType: selectedSimulation.game_type,
+        goalNetWorth: formatMoney(toCentsString(selectedSimulation.goal_net_worth)),
         priceImpactEnabled: selectedSimulation.price_impact_enabled,
         priceImpactK: displayDecimal(selectedSimulation.price_impact_k),
         priceImpactDecayDays: String(selectedSimulation.price_impact_decay_days),
@@ -221,6 +244,13 @@ export function LobbyMatch({
   const loadingSelection = selectedSimulationId !== null && !selectedSimulation && listPending;
   const rulesImpactMode = priceImpactModeOf(rules.priceImpactEnabled, rules.priceImpactK, rules.priceImpactDecayDays);
 
+  // A meta com o múltiplo do saldo inicial quando ele é redondo: "R$ 1.000.000,00 · 10× o saldo"
+  const startingCashAmount = Number(normalizeNumberString(rules.startingCash));
+  const goalMultiple = startingCashAmount > 0 ? Number(normalizeNumberString(rules.goalNetWorth)) / startingCashAmount : NaN;
+  const goalSummary = Number.isInteger(goalMultiple)
+    ? `${rules.goalNetWorth} · ${goalMultiple}× o saldo`
+    : rules.goalNetWorth;
+
   const rows: { label: string; value: React.ReactNode }[] = [
     { label: "Nome", value: rules.name },
     {
@@ -235,7 +265,10 @@ export function LobbyMatch({
     { label: "Saldo inicial", value: <span className="font-mono">{rules.startingCash}</span> },
     { label: "Aporte mensal", value: <span className="font-mono">{rules.monthlyContribution}</span> },
     { label: "Modo", value: <GroupingBadge grouping={rules.playerGrouping} /> },
-    { label: "Vitória por", value: <Badge variant="info">{VICTORY_CRITERIA[rules.victoryCriterion]?.label}</Badge> },
+    { label: "Tipo de partida", value: <Badge variant="info">{GAME_TYPES[rules.gameType]?.label}</Badge> },
+    rules.gameType === "CLASSIC"
+      ? { label: "Vitória por", value: <Badge variant="info">{VICTORY_CRITERIA[rules.victoryCriterion]?.label}</Badge> }
+      : { label: "Meta", value: <span className="font-mono">{goalSummary}</span> },
     {
       label: "Impacto de preço",
       value: (

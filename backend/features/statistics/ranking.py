@@ -1,4 +1,5 @@
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal
 
@@ -13,7 +14,7 @@ from backend.core.dto.statistics_report import (
     TeamPullerDTO,
     TeamRankingDTO,
 )
-from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
+from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.features.statistics import risk
 from backend.features.statistics.score import MIN_SCORE_DAYS, player_score
 from backend.features.statistics.teams import mean
@@ -23,6 +24,8 @@ def build_overview(
     players: list[PlayerHistoryDTO],
     criterion: VictoryCriterion = VictoryCriterion.SCORE,
     *,
+    game_type: GameType = GameType.CLASSIC,
+    goal_net_worth: Decimal | None = None,
     in_teams: bool = False,
     team_naming: TeamNaming = TeamNaming.COLOR,
 ) -> OverviewReportDTO:
@@ -31,25 +34,30 @@ def build_overview(
     (nota antes de 63 pregões, Sharpe sem oscilação) vem depois, e o retorno
     percentual sobre o capital aportado (saldo inicial + aportes) desempata.
 
+    Fora da Clássica, o valor é a fração da meta (patrimônio ÷ meta; 1 = chegou).
+    Ordenar por ela já põe na frente quem chegou e, entre quem chegou no mesmo
+    dia, o maior patrimônio; sem ninguém na meta, vence quem ficou mais perto.
+
     Em equipes, o valor da equipe em cada critério é a média dos membros e a
-    equipe com a melhor média vence; o patrimônio médio desempata.
+    equipe com a melhor média vence; o patrimônio médio desempata. Na meta, a
+    média das frações é o patrimônio médio ÷ meta.
     """
+    measure = _measure(criterion, game_type)
     performances = sorted(
         (_performance(player) for player in players),
-        key=lambda p: _ranking_key(criterion, p),
+        key=lambda p: _ranking_key(measure, p),
         reverse=True,
     )
 
-    teams = _rank_teams(performances, criterion) if in_teams else []
+    by_score = game_type is GameType.CLASSIC and criterion is VictoryCriterion.SCORE
+    teams = _rank_teams(performances, measure, by_score) if in_teams else []
     contributions = {
         (member.simulation_id, member.player_nickname): contribution
         for team in teams
         for member, contribution in team.contributions
     }
 
-    leader_value = (
-        _criterion_value(criterion, performances[0]) if performances else None
-    )
+    leader_value = measure(performances[0]) if performances else None
     ranked = [
         PlayerRankingDTO(
             player_nickname=player.player_nickname,
@@ -65,8 +73,8 @@ def build_overview(
             months=len(risk.monthly_returns(risk.daily_returns(player.history))),
             score=score,
             sharpe_ratio=sharpe,
-            criterion_value=_criterion_value(criterion, performance),
-            leader_gap=_gap(leader_value, _criterion_value(criterion, performance)),
+            criterion_value=measure(performance),
+            leader_gap=_gap(leader_value, measure(performance)),
             weakest_axis=_weakest_axis(score),
             team_contribution=contributions.get(
                 (player.simulation_id, player.player_nickname)
@@ -96,6 +104,8 @@ def build_overview(
         average_return=average_return,
         min_score_days=MIN_SCORE_DAYS,
         criterion=criterion,
+        game_type=game_type,
+        goal_net_worth=goal_net_worth,
     )
 
 
@@ -106,6 +116,8 @@ def capital_provided(player: PlayerHistoryDTO) -> Decimal:
 type Performance = tuple[
     PlayerHistoryDTO, Decimal, Decimal, Decimal, ScoreDTO | None, Decimal | None
 ]
+# O valor que ordena o ranking; `None` quando o jogador ainda não o tem
+type Measure = Callable[[Performance], Decimal | None]
 
 
 @dataclass(frozen=True)
@@ -117,7 +129,7 @@ class _RankedTeam:
 
 
 def _rank_teams(
-    performances: list[Performance], criterion: VictoryCriterion
+    performances: list[Performance], measure: Measure, by_score: bool
 ) -> list[_RankedTeam]:
     groups: dict[int, list[Performance]] = defaultdict(list)
     for performance in performances:
@@ -125,7 +137,7 @@ def _rank_teams(
             groups[performance[0].team].append(performance)
 
     aggregates = [
-        (team, members, _team_value(criterion, members), _team_networth(members))
+        (team, members, _team_value(measure, members), _team_networth(members))
         for team, members in groups.items()
     ]
     aggregates.sort(
@@ -137,7 +149,7 @@ def _rank_teams(
     for position, (team, members, value, networth) in enumerate(aggregates, start=1):
         score = _team_score(members)
         contributions = [
-            (member, _contribution(criterion, member, value)) for member in members
+            (member, _contribution(measure, member, value)) for member in members
         ]
         ranked.append(
             _RankedTeam(
@@ -146,9 +158,7 @@ def _rank_teams(
                     simulation_id=members[0][0].simulation_id,
                     position=position,
                     members=len(members),
-                    measured_members=sum(
-                        1 for m in members if _criterion_value(criterion, m) is not None
-                    ),
+                    measured_members=sum(1 for m in members if measure(m) is not None),
                     total_networth=networth,
                     return_value=mean(m[3] for m in members) or Decimal(0),
                     return_percent=mean(m[1] for m in members) or Decimal(0),
@@ -157,7 +167,7 @@ def _rank_teams(
                     criterion_value=value,
                     leader_gap=_gap(leader_value, value),
                     weakest_axis=_weakest_axis(score),
-                    top_puller=_top_puller(criterion, contributions, score),
+                    top_puller=_top_puller(by_score, contributions, score),
                 ),
                 [(member[0], c) for member, c in contributions],
             )
@@ -165,10 +175,8 @@ def _rank_teams(
     return ranked
 
 
-def _team_value(
-    criterion: VictoryCriterion, members: list[Performance]
-) -> Decimal | None:
-    return mean(_criterion_value(criterion, m) for m in members)
+def _team_value(measure: Measure, members: list[Performance]) -> Decimal | None:
+    return mean(measure(m) for m in members)
 
 
 def _team_networth(members: list[Performance]) -> Decimal:
@@ -201,15 +209,15 @@ def _team_score(members: list[Performance]) -> ScoreDTO | None:
 
 
 def _contribution(
-    criterion: VictoryCriterion, member: Performance, team_value: Decimal | None
+    measure: Measure, member: Performance, team_value: Decimal | None
 ) -> Decimal | None:
     """Quanto o membro passa (ou fica abaixo) da média da equipe no critério."""
-    value = _criterion_value(criterion, member)
+    value = measure(member)
     return value - team_value if value is not None and team_value is not None else None
 
 
 def _top_puller(
-    criterion: VictoryCriterion,
+    by_score: bool,
     contributions: list[tuple[Performance, Decimal | None]],
     team_score: ScoreDTO | None,
 ) -> TeamPullerDTO | None:
@@ -222,9 +230,7 @@ def _top_puller(
     member, contribution = max(pulling, key=lambda item: item[1] or Decimal(0))
     player = member[0]
     axis, axis_gap = (
-        _strongest_axis(member[4], team_score)
-        if criterion is VictoryCriterion.SCORE
-        else (None, None)
+        _strongest_axis(member[4], team_score) if by_score else (None, None)
     )
     return TeamPullerDTO(
         player_nickname=player.player_nickname,
@@ -251,6 +257,12 @@ def _strongest_axis(
     return max(gaps, key=lambda item: item[1])
 
 
+def _measure(criterion: VictoryCriterion, game_type: GameType) -> Measure:
+    if game_type is GameType.CLASSIC:
+        return lambda performance: _criterion_value(criterion, performance)
+    return lambda performance: performance[2] / performance[0].goal_net_worth
+
+
 def _criterion_value(
     criterion: VictoryCriterion, performance: Performance
 ) -> Decimal | None:
@@ -274,8 +286,8 @@ def _weakest_axis(score: ScoreDTO | None) -> ScoreAxis | None:
     )
 
 
-def _ranking_key(criterion: VictoryCriterion, performance: Performance):
-    value = _criterion_value(criterion, performance)
+def _ranking_key(measure: Measure, performance: Performance):
+    value = measure(performance)
     return (value is not None, value or Decimal(0), performance[1])
 
 

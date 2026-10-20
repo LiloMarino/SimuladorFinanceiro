@@ -68,6 +68,7 @@ def test_api_reports_drawdown_from_peak_to_trough(monkeypatch: pytest.MonkeyPatc
         simulation_id=1,
         simulation_name="Simulação #1",
         starting_cash=Decimal("10000"),
+        goal_net_worth=Decimal("100000"),
         history=history("10000", "15000", "12000"),
     )
     monkeypatch.setattr(

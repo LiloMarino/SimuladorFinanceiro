@@ -26,6 +26,8 @@ export const buttonVariants = cva(
         xs: "h-6 gap-1 rounded-md px-2 text-xs [&_svg:not([class*='size-'])]:size-3",
         sm: "h-8 gap-1.5 px-3 text-[13px] [&_svg:not([class*='size-'])]:size-3.5",
         lg: "h-11 gap-2 px-5",
+        // Altura do conteúdo: botão que carrega mais de uma linha (bloco da corrida na topbar)
+        auto: "h-auto gap-3 py-1.5 pr-3 pl-2.5 text-left",
         xl: "h-12 gap-2 px-6 text-base [&_svg:not([class*='size-'])]:size-[18px]",
         icon: "size-10",
         "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",

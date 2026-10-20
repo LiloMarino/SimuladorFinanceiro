@@ -33,6 +33,8 @@ import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
 // Pregões por mês, para ler o eixo "desde o início" em meses
 const TRADING_DAYS_PER_MONTH = 21;
 
+const GOAL_KEY = "goal-line";
+
 const BENCHMARK_COLORS = { CDI: "var(--faint-foreground)", IBOV: "var(--warning)" } as const;
 const BENCHMARK_NAMES = { CDI: "CDI", IBOV: "Ibovespa" } as const;
 
@@ -120,6 +122,7 @@ const positive = (m: Player["monthly_returns"][number]) => Number(m.value) > 0;
 
 export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("returns", simulationIds, onlyPlayer);
+  const { data: overview } = useStatisticsReport("overview", simulationIds);
   const [view, setView] = useState<View>("RETURN");
   const [axis, setAxis] = useState<ChartAxis>("index");
   const [scopeChoice, setScope] = useState<Scope>("TEAMS");
@@ -175,7 +178,25 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
     emphasis: true,
     ...options,
   });
-  const references = view === "RETURN" ? benchmarkSeries : [];
+  // A meta é uma reta com os pontos do eixo da série mais longa; só existe com uma meta única
+  const goal = overview?.game_type !== "CLASSIC" ? overview?.goal_net_worth : null;
+  const longestNetworth = [...data.players.map((p) => p.networth), ...data.teams.map((t) => t.networth)].reduce(
+    (longest, points) => (points.length > longest.length ? points : longest),
+    [],
+  );
+  const goalSeries: LineSeries[] =
+    goal && longestNetworth.length > 0
+      ? [
+          {
+            key: GOAL_KEY,
+            label: "Meta",
+            color: "var(--foreground)",
+            dashed: true,
+            points: longestNetworth.map((p) => ({ date: p.date, value: goal })),
+          },
+        ]
+      : [];
+  const references = view === "RETURN" ? benchmarkSeries : goalSeries;
   const focusMembers = new Set(
     data.players.filter((p) => p.team === focus).map((p) => playerLabel(p, simulationIds, currentPlayerName)),
   );
@@ -198,7 +219,7 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
                     },
               ),
             ),
-            ...references.filter((r) => r.key === "CDI"),
+            ...references.filter((r) => r.key === "CDI" || r.key === GOAL_KEY),
           ]
         : [...playerSeries(playerPoints), ...references];
   const chartAxis = comparing ? axis : "date";
