@@ -1,4 +1,4 @@
-import type { SeriesPoint } from "@/types";
+import type { SeriesPoint, TeamNaming } from "@/types";
 
 /** Uma linha do gráfico: um jogador, ou uma referência tracejada (CDI, Ibovespa). */
 export interface LineSeries {
@@ -14,4 +14,6 @@ export interface LineSeries {
   /** Área leve sob a linha, para a série em destaque */
   area?: boolean;
   defaultVisible?: boolean;
+  /** Equipe do jogador: o escudo dela aparece na legenda */
+  team?: { index: number | null; naming: TeamNaming };
 }

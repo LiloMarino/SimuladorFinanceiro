@@ -125,9 +125,10 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
   const [scopeChoice, setScope] = useState<Scope>("TEAMS");
   const [focusChoice, setFocus] = useState<number | null>(null);
   if (!data)
-    return <TabStatus loading={isLoading} title="a Rentabilidade" error={error} onRetry={() => void refetch()} />;
+    return <TabStatus simulationIds={simulationIds} loading={isLoading} title="a Rentabilidade" error={error} onRetry={() => void refetch()} />;
 
   const comparing = simulationIds.length > 1;
+  const inTeams = data.player_grouping === "TEAMS";
   const players = data.players.map((p) => ({ player: p, label: playerLabel(p, simulationIds, currentPlayerName) }));
   const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
   const isYou = (p: Player) => p.player_nickname === currentPlayerName;
@@ -144,6 +145,7 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
           ? simulationColor(simulationIds, player.simulation_id)
           : "var(--faint-foreground)",
       points: points(player),
+      team: inTeams ? { index: player.team, naming: data.team_naming } : undefined,
       emphasis: isYou(player),
       muted: comparing && !isYou(player),
     }));
@@ -160,7 +162,6 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
     };
   });
 
-  const inTeams = data.teams.length > 0;
   const naming = data.team_naming;
   const scope: Scope = inTeams ? scopeChoice : "PLAYERS";
   const myTeam = data.players.find(isYou)?.team ?? data.teams[0]?.team ?? null;

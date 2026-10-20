@@ -13,7 +13,7 @@ from backend.core.dto.statistics_report import (
     TeamPullerDTO,
     TeamRankingDTO,
 )
-from backend.core.enum import TeamNaming, VictoryCriterion
+from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.features.statistics import risk
 from backend.features.statistics.score import MIN_SCORE_DAYS, player_score
 from backend.features.statistics.teams import mean
@@ -89,6 +89,7 @@ def build_overview(
         else None
     )
     return OverviewReportDTO(
+        player_grouping=PlayerGrouping.TEAMS if in_teams else PlayerGrouping.INDIVIDUAL,
         team_naming=team_naming,
         players=ranked,
         teams=[team.dto for team in teams],

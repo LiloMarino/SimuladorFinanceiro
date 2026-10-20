@@ -1408,6 +1408,7 @@ export interface components {
         };
         /** CompositionReportDTO */
         CompositionReportDTO: {
+            player_grouping: components["schemas"]["PlayerGrouping"];
             team_naming: components["schemas"]["TeamNaming"];
             /** Players */
             players: components["schemas"]["PlayerCompositionDTO"][];
@@ -1806,6 +1807,7 @@ export interface components {
         };
         /** OperationsReportDTO */
         OperationsReportDTO: {
+            player_grouping: components["schemas"]["PlayerGrouping"];
             team_naming: components["schemas"]["TeamNaming"];
             /** Players */
             players: components["schemas"]["PlayerOperationsDTO"][];
@@ -1944,6 +1946,7 @@ export interface components {
         };
         /** OverviewReportDTO */
         OverviewReportDTO: {
+            player_grouping: components["schemas"]["PlayerGrouping"];
             team_naming: components["schemas"]["TeamNaming"];
             /** Players */
             players: components["schemas"]["PlayerRankingDTO"][];
@@ -2356,6 +2359,7 @@ export interface components {
         };
         /** ReturnsReportDTO */
         ReturnsReportDTO: {
+            player_grouping: components["schemas"]["PlayerGrouping"];
             team_naming: components["schemas"]["TeamNaming"];
             /** Players */
             players: components["schemas"]["PlayerReturnsDTO"][];
@@ -2366,6 +2370,7 @@ export interface components {
         };
         /** RiskReportDTO */
         RiskReportDTO: {
+            player_grouping: components["schemas"]["PlayerGrouping"];
             team_naming: components["schemas"]["TeamNaming"];
             /** Players */
             players: components["schemas"]["PlayerRiskDTO"][];

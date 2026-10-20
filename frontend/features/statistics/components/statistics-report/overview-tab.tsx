@@ -16,7 +16,7 @@ import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { OverviewReport } from "@/types";
 import { useStatisticsReport } from "../../hooks/queries/useStatisticsReport";
-import { displayCriterionGap } from "../../lib/criterion";
+import { displayCriterionContribution, displayCriterionGap } from "../../lib/criterion";
 import { SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics";
 import { SimulationLetter } from "../compare/simulation-letter";
 import { simulationColor, simulationLetter, labelColors } from "../../lib/player-label";
@@ -35,15 +35,15 @@ const AXIS_SCALE = 200;
 
 export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds, onlyPlayer);
-  if (!data) return <TabStatus loading={isLoading} title="o Geral" error={error} onRetry={() => void refetch()} />;
+  if (!data) return <TabStatus simulationIds={simulationIds} loading={isLoading} title="o Geral" error={error} onRetry={() => void refetch()} />;
 
   const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
 
   // Partida em equipes: o ranking, a nota e os membros são da equipe, com os jogadores abaixo
-  if (data.teams.length > 0) {
+  if (data.player_grouping === "TEAMS") {
     return (
       <div className="grid gap-5">
-        <TeamHeadline report={data} currentPlayerName={currentPlayerName} />
+        {data.teams.length > 0 && <TeamHeadline report={data} currentPlayerName={currentPlayerName} />}
         <TeamRanking
           report={data}
           currentPlayerName={currentPlayerName}
@@ -265,6 +265,7 @@ function Ranking({
   const topScore = Math.max(...report.players.map((p) => Number(p.score?.total ?? 0)), 1);
   const largestReturn = Math.max(...report.players.map((p) => Math.abs(Number(p.return_percent))), 0.0001);
   const comparing = simulationIds.length > 1;
+  const inTeams = report.teams.length > 0;
   // A ordem do servidor é a do critério; entre partidas dá para reordenar por retorno ou patrimônio
   const players =
     comparing && sortBy !== "SCORE"
@@ -313,11 +314,12 @@ function Ranking({
             <TableHead numeric={!comparing}>Retorno</TableHead>
             <TableHead numeric>Pregões</TableHead>
             {!comparing && <TableHead numeric>Distância do líder</TableHead>}
+            {inTeams && <TableHead numeric>Na média da equipe</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
           {report.players.length === 0 && (
-            <TableEmptyRow colSpan={comparing ? 6 : 7}>
+            <TableEmptyRow colSpan={(comparing ? 6 : 7) + (inTeams ? 1 : 0)}>
               <p className="text-[13px] text-muted-foreground">
                 Ninguém tem patrimônio registrado ainda. O ranking aparece depois do primeiro pregão.
               </p>
@@ -392,6 +394,22 @@ function Ranking({
                 )}
                 <TableCell numeric>{p.days}</TableCell>
                 {!comparing && <TableCell numeric>{displayCriterionGap(report.criterion, p.leader_gap)}</TableCell>}
+                {inTeams && (
+                  <TableCell numeric>
+                    <span
+                      className={cn(
+                        "text-xs",
+                        Number(p.team_contribution ?? 0) > 0
+                          ? "text-success"
+                          : Number(p.team_contribution ?? 0) < 0
+                            ? "text-destructive"
+                            : "text-muted-foreground",
+                      )}
+                    >
+                      {displayCriterionContribution(report.criterion, p.team_contribution)}
+                    </span>
+                  </TableCell>
+                )}
               </TableRow>
             );
           })}

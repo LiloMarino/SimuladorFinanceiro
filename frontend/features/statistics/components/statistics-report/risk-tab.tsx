@@ -43,7 +43,7 @@ export function RiskTab({ simulationIds, currentPlayerName, onlyPlayer }: Report
   const { data, isLoading, error, refetch } = useStatisticsReport("risk", simulationIds, onlyPlayer);
   const { data: returns } = useStatisticsReport("returns", simulationIds);
   const [view, setView] = useState<View>("DRAWDOWN");
-  if (!data) return <TabStatus loading={isLoading} title="o Risco" error={error} onRetry={() => void refetch()} />;
+  if (!data) return <TabStatus simulationIds={simulationIds} loading={isLoading} title="o Risco" error={error} onRetry={() => void refetch()} />;
 
   const labels = data.players.map((p) => playerLabel(p, simulationIds, currentPlayerName));
   const someoneIsYou = data.players.some((p) => p.player_nickname === currentPlayerName);

@@ -17,7 +17,9 @@ import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 import { teamColor } from "@/shared/lib/teams";
+import { useQuery } from "@tanstack/react-query";
 import type ApiError from "@/shared/lib/models/ApiError";
+import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import type { PlayerRef, TeamNaming } from "@/types";
 import { displayMetric } from "../../lib/metrics";
@@ -36,12 +38,20 @@ export function TabStatus({
   title,
   error,
   onRetry,
+  simulationIds,
 }: {
   loading: boolean;
   title: string;
   error?: ApiError | null;
   onRetry?: () => void;
+  /** Com a partida em equipes, o esqueleto tem o formato equipe → membros */
+  simulationIds?: number[];
 }) {
+  const { data: simulations } = useQuery(simulationListOptions());
+  const inTeams =
+    simulationIds?.length === 1 && simulations?.find((s) => s.id === simulationIds[0])?.player_grouping === "TEAMS";
+
+  if (loading && inTeams) return <TeamsSkeleton />;
   if (loading) {
     return (
       <div className="grid gap-5">
@@ -59,6 +69,26 @@ export function TabStatus({
           error={error}
           onRetry={onRetry}
         />
+      </CardContent>
+    </Card>
+  );
+}
+
+/** Esqueleto no formato do ranking por equipe: a linha da equipe e os membros abaixo dela. */
+function TeamsSkeleton() {
+  return (
+    <Card aria-busy="true">
+      <CardContent>
+        <div className="grid gap-2">
+          {[2, 3].map((members) => (
+            <div key={members} className="grid gap-2">
+              <Skeleton className="h-10" />
+              {Array.from({ length: members }, (_, i) => (
+                <Skeleton key={i} className="ml-7 h-8" />
+              ))}
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

@@ -67,6 +67,10 @@ def _team_context(simulation_ids: list[int]) -> tuple[TeamNaming, bool]:
     return simulation.team_naming, simulation.player_grouping is PlayerGrouping.TEAMS
 
 
+def _grouping(in_teams: bool) -> PlayerGrouping:
+    return PlayerGrouping.TEAMS if in_teams else PlayerGrouping.INDIVIDUAL
+
+
 def _shared_criterion(simulation_ids: list[int]) -> VictoryCriterion:
     """O critério das simulações quando todas usam o mesmo; senão, a nota geral."""
     simulations = [repository.simulation.get_simulation(i) for i in simulation_ids]
@@ -123,6 +127,7 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
                 )
 
     return ReturnsReportDTO(
+        player_grouping=_grouping(in_teams),
         team_naming=team_naming,
         players=entries,
         teams=team_returns(entries) if in_teams else [],
@@ -153,6 +158,7 @@ def build_risk_report(simulation_ids: list[int]) -> RiskReportDTO:
             )
         )
     return RiskReportDTO(
+        player_grouping=_grouping(in_teams),
         team_naming=team_naming,
         players=entries,
         teams=team_risk(entries) if in_teams else [],
@@ -190,6 +196,7 @@ def build_composition_report(simulation_ids: list[int]) -> CompositionReportDTO:
             )
         )
     return CompositionReportDTO(
+        player_grouping=_grouping(in_teams),
         team_naming=team_naming,
         players=entries,
         teams=team_composition(entries) if in_teams else [],
@@ -227,6 +234,7 @@ def build_operations_report(simulation_ids: list[int]) -> OperationsReportDTO:
             )
         )
     return OperationsReportDTO(
+        player_grouping=_grouping(in_teams),
         team_naming=team_naming,
         players=entries,
         teams=team_operations(entries) if in_teams else [],

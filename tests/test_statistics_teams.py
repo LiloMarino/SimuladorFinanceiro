@@ -15,7 +15,7 @@ from backend.core.dto.statistics_report import (
     PlayerReturnsDTO,
     SeriesPointDTO,
 )
-from backend.core.enum import TeamNaming, VictoryCriterion
+from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.features.statistics.ranking import build_overview
 from backend.features.statistics.score import MIN_SCORE_DAYS
 from backend.features.statistics.teams import (
@@ -305,3 +305,12 @@ def test_team_operations_sum_totals_and_average_turnover():
     assert team.impact_cost is None
     assert team.monthly_volume[0].bought == Decimal(4000)
     assert team.monthly_volume[0].buy_count == 6
+
+
+def test_report_says_it_is_in_teams_even_without_players():
+    """Antes do primeiro pregão não há equipes para listar, mas a tela precisa saber o modo."""
+    report = build_overview([], in_teams=True)
+
+    assert report.teams == []
+    assert report.player_grouping is PlayerGrouping.TEAMS
+    assert build_overview([]).player_grouping is PlayerGrouping.INDIVIDUAL

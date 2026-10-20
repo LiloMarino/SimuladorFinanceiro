@@ -10,7 +10,7 @@ from typing import Literal
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.sector import SectorAllocationDTO
-from backend.core.enum import TeamNaming, VictoryCriterion
+from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
 
 
 class SeriesPointDTO(BaseDTO):
@@ -29,8 +29,10 @@ class PlayerRefDTO(BaseDTO):
 
 
 class TeamReportDTO(BaseDTO):
-    """Base dos relatórios: como chamar as equipes, escolha do host nas regras."""
+    """Base dos relatórios: o modo da partida e como chamar as equipes, escolhas do host nas regras."""
 
+    # Em equipes mesmo antes do primeiro pregão, quando ainda não há `teams` para mostrar
+    player_grouping: PlayerGrouping
     team_naming: TeamNaming
 
 

@@ -28,7 +28,7 @@ type TeamOperations = OperationsReport["teams"][number];
 
 export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("operations", simulationIds, onlyPlayer);
-  if (!data) return <TabStatus loading={isLoading} title="as Operações" error={error} onRetry={() => void refetch()} />;
+  if (!data) return <TabStatus simulationIds={simulationIds} loading={isLoading} title="as Operações" error={error} onRetry={() => void refetch()} />;
 
   const mostTrades = Math.max(...data.players.map((p) => p.buy_trades + p.sell_trades), 1);
   const mostTeamTrades = Math.max(...data.teams.map((t) => t.buy_trades + t.sell_trades), 1);

@@ -1,3 +1,4 @@
+import { TeamBadge } from "@/shared/components/team-badge";
 import { Toggle } from "@/shared/components/ui/toggle";
 import type { LineSeries } from "./series";
 
@@ -19,6 +20,7 @@ export function LineChartLegend({ series, visible, toggle }: Props) {
             aria-hidden="true"
           />
           {s.label}
+          {s.team?.index ? <TeamBadge team={s.team.index} naming={s.team.naming} form="icon" size="sm" /> : null}
         </Toggle>
       ))}
     </div>

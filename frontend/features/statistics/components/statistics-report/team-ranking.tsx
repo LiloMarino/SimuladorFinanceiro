@@ -194,6 +194,7 @@ export function TeamRanking({
         <TableBody>
           {report.teams.length === 0 && (
             <TableEmptyRow colSpan={7}>
+              <p className="font-semibold">Ainda sem placar</p>
               <p className="text-[13px] text-muted-foreground">
                 Ninguém tem patrimônio registrado ainda. O ranking por equipe aparece depois do primeiro pregão, com as
                 equipes do lobby.

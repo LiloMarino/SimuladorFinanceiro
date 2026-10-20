@@ -42,7 +42,7 @@ function diversificationWord(value: number) {
 export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("composition", simulationIds, onlyPlayer);
   const [unit, setUnit] = useState<Unit>("PCT");
-  if (!data) return <TabStatus loading={isLoading} title="a Composição" error={error} onRetry={() => void refetch()} />;
+  if (!data) return <TabStatus simulationIds={simulationIds} loading={isLoading} title="a Composição" error={error} onRetry={() => void refetch()} />;
 
   const naming = data.team_naming;
   const groups = groupByTeam(
