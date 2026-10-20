@@ -109,6 +109,9 @@ Quem chega depois do início, ou volta a uma partida salva sem ter jogado nela, 
 **N28. Liberar uma vaga sem depender de o jogador sair**
 Com a sala cheia, ou com uma partida salva que não comporta quem está nela, o host precisa poder abrir a vaga sozinho, em vez de pedir pelo chat para alguém fechar a aba.
 
+**N29. Saber o que cada jogador está fazendo enquanto a partida não começa**
+Na espera do lobby, "Online" diz só que a pessoa está lá. Saber que ela está na Central de dados ou olhando o resultado da última partida dá vida à sala e explica a demora de quem ainda não está pronto, como o "Navegando nos menus" dos jogos online.
+
 ---
 
 ## Decisões

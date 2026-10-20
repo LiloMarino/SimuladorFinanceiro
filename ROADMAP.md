@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-19):** Registrada a feature de abrir a pasta de configurações (F67), em vez de mudar o config.toml, o .env e os logs de lugar.
+> **Última mudança (2026-10-20):** Registrada a atividade de cada jogador na sala (F70), pela N29.
 
 ## Glossário
 
@@ -40,12 +40,13 @@
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | [F40](#f40) | — |
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F41](#f41) | — |
-| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F52](#f52), [F53](#f53) | — |
+| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F52](#f52), [F53](#f53), [F69](#f69) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | — | — |
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F47](#f47), [F48](#f48) | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | [F65](#f65) | — |
 | **N27** | Entrar numa partida que já começou | — | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
+| **N29** | Saber o que cada jogador está fazendo enquanto a partida não começa | [F70](#f70) | — |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
@@ -77,6 +78,8 @@
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
+| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | ⏳ |
+| [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (13 itens — clique pra expandir)</strong></summary>
@@ -109,11 +112,11 @@
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
+| [**F52**](#f52) | Modo corrida à meta | M13 | 2 | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
 | [**F47**](#f47) | Gravação automática de demonstrações | M14 | 1 | ⏳ |
-| [**F52**](#f52) | Modo corrida à meta | M13 | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
@@ -123,6 +126,7 @@
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | 0 | ⏳ |
+| [**F70**](#f70) | O que cada jogador está fazendo na sala | — | 0 | ⏳ |
 
 ---
 
@@ -239,7 +243,7 @@
 
 ### Sem marco
 
-> **Progresso:** 1/10 concluídas
+> **Progresso:** 1/12 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -252,6 +256,8 @@
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
+| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | [F53](#f53) | ⏳ |
+| [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ⏳ |
 
 <details><summary>Concluído (1 item)</summary>
 
@@ -285,6 +291,8 @@
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F65** | Rework dos loggings | N26 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
+| **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | [F53](#f53) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F70** | O que cada jogador está fazendo na sala | N29 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
@@ -354,6 +362,12 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f65"></a>
 **F65 — Rework dos loggings.** Serve N26. Terminal e arquivos de log viraram destinos separados: o terminal do host é a tela de status do servidor, e os arquivos guardam o histórico. **Terminal:** só o bloco de abertura (banco, interfaces de rede, URL local, pasta de configurações e logs, modo debug), o que explica uma espera ou muda o banco (extração do PostgreSQL, migração) e todo aviso e erro, em uma linha curta; o traceback fica no `error.log`. Uma mensagem vai ao terminal quando leva `extra=TERMINAL`; o nível `INFO` deixou de decidir isso. **Níveis:** o raiz fica em `INFO`; o modo debug sobe só o `backend.*` para `DEBUG`, nos arquivos, e o terminal nunca mostra `DEBUG`. As bibliotecas (`sqlalchemy`, `engineio`, `socketio`, `urllib3`, `asyncio`) ficam em `WARNING` (`LIBRARY_LEVELS`, no lugar do `NOISY_LOGGERS`). O `logging_level` e o `[database] echo_sql` saíram do `config.toml` (as chaves antigas são ignoradas). **SQL:** só com `[debug] sql = true` junto do debug, e só no `database.log` (nível `INFO` do `sqlalchemy.engine`: consulta e parâmetros, sem as linhas de resultado). **Dica de firewall:** saiu do terminal e do `config.toml` (`show_firewall_hint`) e virou uma seção da página de multiplayer. **Logs revistos:** por dia, por ordem e por conexão de WebSocket viraram `DEBUG` com `%s`; os de ciclo da partida e de jogadores ficam em `INFO` só nos arquivos; mensagens em português; duplicatas unidas; `main.py` loga como `backend.main`. **`DEBUG` novos:** ordem recebida, cancelamento recebido e ordem casada, dia simulado, leitura do CSV e download por ticker. No front, o único `console.error` fora do `logger.ts` passou a usá-lo. A tabela de decisões log a log, os arquivos e o custo medido estão em `docs/docs/desenvolvimento/logs.md`. **Custo:** em micro-benchmark da escrita, uma linha `DEBUG` do app custa cerca de 84 µs e uma de SQL cerca de 57 µs; não pesou o bastante para o `QueueHandler`.
+
+<a id="f69"></a>
+**F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
+
+<a id="f70"></a>
+**F70 — O que cada jogador está fazendo na sala.** Serve N29. Inspiração: a presença rica da Steam e dos jogos online ("Navegando nos menus", "No lobby"). **Onde aparece:** no lugar do selo "Online" do cartão de cada jogador no lobby, mantendo a bolinha verde e trocando só o texto ("Na Central de dados", "Vendo o resultado de uma partida"); a lista da tela `/join` usa o mesmo selo para quem está online. O host continua com o selo "Host" e ganha a atividade ao lado. **Mecanismo:** o front sabe a tela pela rota; um mapa único em `shared/` liga cada rota ao texto da atividade (`/lobby` → "No lobby", `/import-assets` → "Na Central de dados", `/compare-simulations` → "Comparando simulações", `/match-result/:id` → "Vendo o resultado de uma partida", `/settings` → "Nas configurações"), e toda rota fora do mapa cai em "Navegando nos menus". Tela nova ganha atividade própria acrescentando uma entrada no mapa. A cada troca de rota o cliente manda o evento `presence` pelo Socket.IO com a chave da tela; com a aba escondida (`visibilitychange`) manda "ausente" e o selo vira "Ausente", em amarelo. O servidor guarda a chave em memória no `UserManager`, junto do jogador ativo, devolve no payload dos jogadores da sala e avisa a sala pelo evento `player_activity`, sem banco e sem migration. **Durante a partida** a atividade fica de fora: dizer quem está na renda variável ou num ticker entrega a jogada aos adversários. Gatilho: quando houver mais telas fora da partida para a atividade dizer algo além de "No lobby".
 
 ---
 ## 2. Nice-to-have
