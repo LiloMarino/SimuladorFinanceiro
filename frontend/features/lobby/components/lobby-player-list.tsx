@@ -54,8 +54,9 @@ export function LobbyPlayersList({
   // Quem jogou a partida selecionada e não está na sala segue dono da vaga e da cor
   const absent = savedPlayers.filter((saved) => !sorted.some((p) => p.nickname === saved.nickname));
   const occupied = sorted.length + absent.length;
-  const freeSlots = Math.max(MAX_PLAYERS - occupied, 0);
   const alone = sorted.length <= 1 && absent.length === 0;
+  // O convite de "sozinho" ocupa uma vaga livre, para a grade fechar em MAX_PLAYERS células
+  const freeSlots = Math.max(MAX_PLAYERS - occupied - Number(alone), 0);
   const full = occupied >= MAX_PLAYERS;
   const teams = checkTeams(sorted, savedPlayers, naming);
 
@@ -167,9 +168,14 @@ export function LobbyPlayersList({
             </div>
           ))}
 
-          {/* Sozinho na sala: o convite ocupa a coluna ao lado do host, antes das vagas livres */}
+          {/* Convite de quem está sozinho na sala: conta como uma vaga */}
           {alone && (
-            <div className="grid content-center gap-1 rounded-[10px] border border-dashed border-info-border bg-info-soft/40 p-3">
+            <div
+              className={cn(
+                "grid content-center gap-1 rounded-[10px] border border-dashed border-info-border bg-info-soft/40 p-3",
+                inTeams && "col-span-2",
+              )}
+            >
               <span className="font-semibold">Só você por aqui</span>
               <span className="text-[13px] text-muted-foreground">
                 Mande o link acima pra quem vai jogar. Também dá pra jogar sozinho.
