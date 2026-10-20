@@ -40,7 +40,7 @@
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | [F40](#f40) | — |
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F41](#f41) | — |
-| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F52](#f52), [F53](#f53), [F69](#f69) | — |
+| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F52](#f52), [F53](#f53), [F69](#f69), [F71](#f71) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | — | — |
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F47](#f47), [F48](#f48) | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | [F65](#f65) | — |
@@ -80,6 +80,7 @@
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | ⏳ |
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ⏳ |
+| [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (13 itens — clique pra expandir)</strong></summary>
@@ -111,8 +112,8 @@
 | ID | Resumo | Marco | Destrava | Status |
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
+| [**F52**](#f52) | Modo corrida à meta | M13 | 3 | ⏳ |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
-| [**F52**](#f52) | Modo corrida à meta | M13 | 2 | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
@@ -243,7 +244,7 @@
 
 ### Sem marco
 
-> **Progresso:** 1/12 concluídas
+> **Progresso:** 1/13 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -258,6 +259,7 @@
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | [F53](#f53) | ⏳ |
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ⏳ |
+| [**F71**](#f71) | Renda fixa com liquidez diária | [F53](#f53) | ⏳ |
 
 <details><summary>Concluído (1 item)</summary>
 
@@ -293,6 +295,7 @@
 | **F65** | Rework dos loggings | N26 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | [F53](#f53) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F70** | O que cada jogador está fazendo na sala | N29 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F71** | Renda fixa com liquidez diária | N23 | — | — | [F53](#f53) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
@@ -368,6 +371,9 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f70"></a>
 **F70 — O que cada jogador está fazendo na sala.** Serve N29. Inspiração: a presença rica da Steam e dos jogos online ("Navegando nos menus", "No lobby"). **Onde aparece:** no lugar do selo "Online" do cartão de cada jogador no lobby, mantendo a bolinha verde e trocando só o texto ("Na Central de dados", "Vendo o resultado de uma partida"); a lista da tela `/join` usa o mesmo selo para quem está online. O host continua com o selo "Host" e ganha a atividade ao lado. **Mecanismo:** o front sabe a tela pela rota; um mapa único em `shared/` liga cada rota ao texto da atividade (`/lobby` → "No lobby", `/import-assets` → "Na Central de dados", `/compare-simulations` → "Comparando simulações", `/match-result/:id` → "Vendo o resultado de uma partida", `/settings` → "Nas configurações"), e toda rota fora do mapa cai em "Navegando nos menus". Tela nova ganha atividade própria acrescentando uma entrada no mapa. A cada troca de rota o cliente manda o evento `presence` pelo Socket.IO com a chave da tela; com a aba escondida (`visibilitychange`) manda "ausente" e o selo vira "Ausente", em amarelo. O servidor guarda a chave em memória no `UserManager`, junto do jogador ativo, devolve no payload dos jogadores da sala e avisa a sala pelo evento `player_activity`, sem banco e sem migration. **Durante a partida** a atividade fica de fora: dizer quem está na renda variável ou num ticker entrega a jogada aos adversários. Gatilho: quando houver mais telas fora da partida para a atividade dizer algo além de "No lobby".
+
+<a id="f71"></a>
+**F71 — Renda fixa com liquidez diária.** Serve N23. Hoje todo título de renda fixa só volta ao caixa no vencimento, então não existe onde guardar uma reserva de emergência que renda e se resgate no mesmo dia, como o CDB de liquidez diária ou o Tesouro Selic do mercado real. O plano: ofertas marcadas com liquidez diária, que o jogador resgata em qualquer pregão pelo valor corrigido até aquele dia, com o IR regressivo do prazo que passou (como já vale no vencimento); se o IOF dos primeiros 30 dias entra, fica em aberto. Fecha um desvio do modo viver de renda (F53): a reserva de emergência da página Meta conta só o caixa, porque não há o que resgatar rápido, e com esta feature passa a contar caixa + renda fixa de liquidez diária, como o design previa ("dá pra resgatar no mesmo dia, sem vender ação na baixa"). Isso dá peso de verdade ao imprevisto: quem tem a reserva aplicada cobre o conserto sem cair no cheque especial.
 
 ---
 ## 2. Nice-to-have
