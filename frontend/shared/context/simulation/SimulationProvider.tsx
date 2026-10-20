@@ -30,6 +30,8 @@ export function SimulationProvider({ children }: PropsWithChildren) {
     (payload) => {
       if (payload?.active) {
         queryClient.setQueryData(queryKeys.simulationStatus(), payload);
+        // A partida começou com as regras do lobby, e o servidor já as zerou para a próxima
+        void queryClient.invalidateQueries({ queryKey: queryKeys.simulationSettings() });
       }
     },
     true,
