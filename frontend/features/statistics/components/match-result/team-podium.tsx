@@ -44,8 +44,15 @@ export function TeamPodium({ report }: { report: OverviewReport }) {
                   ))}
                 </span>
                 <TeamBadge team={team.team} naming={report.team_naming} form="full" solid />
+                {/* Equipe de uma pessoa: o nome dela, já que o selo só diz a equipe */}
+                {team.members === 1 && (
+                  <span className="max-w-full truncate text-[13px] font-semibold text-white">
+                    {membersOf(report, team.team)[0]?.player_nickname}
+                  </span>
+                )}
                 <span className={cn("font-mono text-[13px]", first ? "text-trophy" : "text-sidebar-muted")}>
                   {displayCriterionValue(report.criterion, team.criterion_value)}
+                  {team.measured_members < team.members && ` · ${team.measured_members} de ${team.members}`}
                 </span>
               </>
             ) : (

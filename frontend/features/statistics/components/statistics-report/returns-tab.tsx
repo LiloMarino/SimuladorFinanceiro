@@ -186,7 +186,17 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
         ? [
             ...playerSeries(playerPoints).filter((s) => focusMembers.has(s.key)),
             ...data.teams.map((t) =>
-              teamSeries(t, t.team === focus ? {} : { emphasis: false, muted: true, dashed: true }),
+              teamSeries(
+                t,
+                t.team === focus
+                  ? {}
+                  : {
+                      emphasis: false,
+                      muted: true,
+                      dashed: true,
+                      legendGroup: { key: "other-teams", label: "Outras equipes · média" },
+                    },
+              ),
             ),
             ...references.filter((r) => r.key === "CDI"),
           ]

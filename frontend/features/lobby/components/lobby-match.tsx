@@ -323,6 +323,13 @@ export function LobbyMatch({
                 <AlertDescription>
                   {newcomers.length === 1 ? "Entra" : "Entram"} agora, com o saldo inicial de {rules.startingCash} e a
                   cor{inTeams && " e a equipe"} que {newcomers.length === 1 ? "escolheu" : "escolheram"}.
+                  {inTeams && (
+                    <>
+                      {" "}
+                      {newcomers.length === 1 ? "Escolhe" : "Escolhem"} uma equipe antes de entrar. Vale também para
+                      quem entra com a partida já rodando: a equipe se escolhe na tela de entrada.
+                    </>
+                  )}
                 </AlertDescription>
               </Alert>
             )}

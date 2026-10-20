@@ -199,6 +199,20 @@ function RiskReturn({
   const belowCdi = cdi !== null ? measured.filter((p) => Number(p.annual_return) < cdi) : [];
   const you = measured.find((p) => p.player_nickname === currentPlayerName);
   const bestTeam = teamPoints.filter((t) => t.sharpe !== null).sort((a, b) => Number(b.sharpe) - Number(a.sharpe))[0];
+  // A equipe que rendeu mais oscilando menos que a seguinte: o losango dela fica acima e à esquerda
+  const byReturn = [...teamPoints].sort((a, b) => b.y - a.y);
+  const dominant = byReturn.length > 1 && byReturn[0].x < byReturn[1].x ? { winner: byReturn[0], other: byReturn[1] } : undefined;
+  // Em cada equipe com três ou mais, quem segura a média (o mais perto do losango) e quem puxa
+  // para baixo e para a direita (menos retorno e mais oscilação que a média)
+  const holders = teamPoints.flatMap((t) => {
+    const members = measured.filter((p) => p.team === t.team);
+    if (members.length < 3) return [];
+    const distance = (p: Player) => Math.hypot(Number(p.annual_volatility) - t.x, Number(p.annual_return) - t.y);
+    const worse = (p: Player) => Number(p.annual_volatility) - t.x - (Number(p.annual_return) - t.y);
+    const holder = [...members].sort((a, b) => distance(a) - distance(b))[0];
+    const dragger = [...members].sort((a, b) => worse(b) - worse(a))[0];
+    return [{ team: t.team, holder, dragger: worse(dragger) > 0 && dragger !== holder ? dragger : undefined }];
+  });
 
   return (
     <Card>
@@ -367,7 +381,25 @@ function RiskReturn({
             <div className="grid content-start gap-3">
               <div className="grid gap-1 rounded-[10px] bg-subtle p-3.5 text-[13px]">
                 <span className="font-semibold">Leitura rápida</span>
-                {bestTeam && teamPoints.length > 1 && (
+                {dominant && (
+                  <span className="text-muted-foreground">
+                    A <b className="text-foreground">{teamName(dominant.winner.team, naming)}</b> rendeu mais oscilando
+                    menos: o losango dela fica acima e à esquerda do da {teamShortName(dominant.other.team, naming)}.
+                  </span>
+                )}
+                {holders.map(({ team, holder, dragger }) => (
+                  <span key={team} className="text-muted-foreground">
+                    Na {teamShortName(team, naming)}, <b className="text-foreground">{holder.player_nickname}</b> segura a
+                    média
+                    {dragger && (
+                      <>
+                        ; <b className="text-foreground">{dragger.player_nickname}</b> puxa para baixo e para a direita
+                      </>
+                    )}
+                    .
+                  </span>
+                ))}
+                {bestTeam && teamPoints.length > 1 && !dominant && (
                   <span className="text-muted-foreground">
                     A <b className="text-foreground">{teamName(bestTeam.team, naming)}</b> rendeu mais por unidade de
                     oscilação: Sharpe médio{" "}

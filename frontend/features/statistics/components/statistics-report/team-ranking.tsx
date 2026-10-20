@@ -288,9 +288,11 @@ function TeamRows({
             <TableRow key={m.player_nickname} variant="member" style={style}>
               <TableCell />
               <TableCell>
-                <span className="flex items-center gap-2 pl-7">
+                <span className="flex max-w-72 items-center gap-2 pl-7">
                   <PlayerAvatar nickname={m.player_nickname} color={m.color} size="sm" />
-                  {m.player_nickname}
+                  <span className="truncate" title={m.player_nickname}>
+                    {m.player_nickname}
+                  </span>
                   {isYou && (
                     <Badge variant="info" size="sm">
                       você

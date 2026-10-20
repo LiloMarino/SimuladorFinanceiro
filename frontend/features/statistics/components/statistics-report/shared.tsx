@@ -148,7 +148,9 @@ export function PlayerCell({
         color={simulationIds.length > 1 ? undefined : player.color}
         size="sm"
       />
-      {label}
+      <span className="max-w-56 truncate" title={label}>
+        {label}
+      </span>
       {/* Entre partidas o nome já diz "Você · A" */}
       {isYou && !label.startsWith("Você") && (
         <Badge variant="info" size="sm">
