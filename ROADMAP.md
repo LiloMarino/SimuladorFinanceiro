@@ -70,7 +70,6 @@
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ⏳ |
 | [**F48**](#f48) | README e docs que mostram o produto | — | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
-| [**F52**](#f52) | Modo corrida à meta | — | ⏳ |
 | [**F53**](#f53) | Modo viver de renda | — | ⏳ |
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
@@ -83,7 +82,7 @@
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (13 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (14 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -99,6 +98,7 @@
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | ✅ |
 | **D12** | Como numerar as versões | — | ✅ |
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
+| [**F52**](#f52) | Modo corrida à meta | — | ✅ |
 | [**F65**](#f65) | Rework dos loggings | — | ✅ |
 
 </details>
@@ -112,8 +112,8 @@
 | ID | Resumo | Marco | Destrava | Status |
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
-| [**F52**](#f52) | Modo corrida à meta | M13 | 3 | ⏳ |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
+| [**F53**](#f53) | Modo viver de renda | M13 | 2 | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
@@ -219,14 +219,21 @@
 >
 > **Serve:** N21, N22, N23
 >
-> **Progresso:** 0/4 concluídas
+> **Progresso:** 1/4 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F40**](#f40) | Modo Especialista | — | ⏳ |
 | [**F41**](#f41) | Conquistas | — | ⏳ |
-| [**F52**](#f52) | Modo corrida à meta | — | ⏳ |
 | [**F53**](#f53) | Modo viver de renda | [F52](#f52) | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F52**](#f52) | Modo corrida à meta | — | ✅ |
+
+</details>
 
 ### M14 — Vitrine e primeiros passos
 
@@ -288,7 +295,7 @@
 | **F41** | Conquistas | N22 | D1 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F47** | Gravação automática de demonstrações | N25 | — | M14 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
-| **F52** | Modo corrida à meta | N23 | — | M13 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
+| **F52** | Modo corrida à meta | N23 | — | M13 | — | Médio | Baixo | Alto | Ótimo | ✅ Concluído |
 | **F53** | Modo viver de renda | N23 | — | M13 | [F52](#f52) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
@@ -352,7 +359,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F48 — README e docs que mostram o produto.** Serve N25. O README abre com um GIF do jogo rodando e, logo abaixo, o que ele faz, cada item com uma imagem ou um GIF curto da F47 (renda variável, renda fixa, estatísticas, multiplayer), o download e o link dos docs; a parte de desenvolvimento desce para o fim. Nos docs, uma página "Tour" com os vídeos, e as páginas de "Como usar" com as imagens novas. Junto, uma revisão do que está desatualizado em README e docs, página por página, contra o app de hoje. Feito com a skill de documentação (`engineering:documentation`).
 
 <a id="f52"></a>
-**F52 — Modo corrida à meta.** Serve N23. Vence quem chega primeiro a um patrimônio-alvo, como a vitória por Maravilha do Age of Empires. O host define a meta no lobby (por padrão, 10 vezes o capital inicial), guardada numa coluna `goal_net_worth` em `simulations`, e o critério de vitória da F27 ganha o valor "Primeiro a chegar à meta" (valor novo no `ENUM` nativo `victory_criterion`, com `ALTER TYPE ... ADD VALUE` à mão na migration, D9). No fim de cada dia, depois dos snapshots, o motor confere quem passou da meta; o primeiro encerra a partida e leva ao fechamento (F27). Dois no mesmo dia: vence o maior patrimônio. Se a data final chega sem ninguém na meta, vence quem estiver mais perto. A meta é em reais do dia, sem descontar inflação; numa partida de décadas, isso fica explicado ao lado do campo. A topbar mostra a barra de progresso de cada jogador até a meta. Em equipes (F42), a equipe chega à meta pela média do patrimônio dos membros.
+**F52 — Modo corrida à meta.** Serve N23. Vence quem chega primeiro a um patrimônio-alvo, como a vitória por Maravilha do Age of Empires. **Tipo de partida:** em vez de um valor novo no critério de vitória, a partida ganhou um eixo próprio, o `ENUM` `game_type` (`CLASSIC`, `GOAL_RACE`, `FINANCIAL_INDEPENDENCE`) em `simulations`; os 4 critérios da F27 continuam e só valem na Clássica. No lobby, "Tipo de partida" são 3 cards entre "Modo de jogo" e o resto, e "Quem vence" some fora da Clássica. **Meta:** coluna `goal_net_worth`, escolhida pelo host com atalhos de 5×, 10× e 20× o saldo inicial (padrão 10×, `goal_multiple` no `config.toml`) e maior que o saldo inicial; as partidas salvas receberam 10× o saldo. **Fim:** depois dos snapshots do dia, `goal_reached` confere se alguém (ou, em equipes, a média do patrimônio dos membros) chegou; a partida encerra no pregão seguinte com `simulation_ended` e vai ao fechamento, e a partida salva terminada por meta aparece como terminada e não continua. **Ranking:** fora da Clássica o valor do critério é a fração da meta (patrimônio ÷ meta, 1 = chegou); ordenar por ela já dá as regras do card (dois no mesmo dia: o maior patrimônio; ninguém na meta: o mais perto), e em equipes a média das frações é o patrimônio médio ÷ meta. As Estatísticas mostram "% da meta" e "Falta para a meta", os gráficos de patrimônio ganham a linha da meta e o fechamento diz quem chegou primeiro ou que ninguém chegou. **Tempo real:** o evento `goal_progress_update` (meta e patrimônio de cada jogador) sai todo pregão e a rota `GET /api/simulation/goal-progress` dá o estado inicial; a topbar mostra a trilha com um marcador por jogador (um escudo por equipe) e a página "Meta" traz o progresso e a corrida de todos. A meta é em reais do dia, e o aporte mensal continua valendo.
 
 <a id="f53"></a>
 **F53 — Modo viver de renda.** Serve N23. Uma corrida à meta (F52) em que a meta é a independência financeira, e o caminho tem a vida real no meio. O host define no lobby o salário e a despesa mensal (o aporte de hoje vira a diferença entre os dois) e a frequência dos imprevistos. Imprevistos são despesas inesperadas (conserto, saúde, demissão de um mês sem salário), sorteadas com uma semente da partida, para que todos os jogadores recebam os mesmos imprevistos nos mesmos dias. Eles saem do caixa; caixa negativo paga juros de cheque especial até ser coberto, o que obriga a ter reserva de emergência em algo que se resgata rápido. Salário, despesa e imprevisto entram como valores novos do `ENUM` `cashflow_event_type` (à mão na migration, D9). Vence quem primeiro atinge o patrimônio da regra dos 4%: 25 vezes a despesa anual (com R$ 5 mil de despesa por mês, R$ 1,5 milhão), porque retirar 4% ao ano desse patrimônio cobre as despesas, e o estudo Trinity, com dados dos Estados Unidos, mostrou essa retirada, corrigida pela inflação, durando 30 anos na maior parte dos períodos históricos. A taxa de retirada é configurável, e a explicação fica ao lado do campo. Quando os proventos existirem (F22), a meta pode passar a ser a renda passiva real (dividendos e juros recebidos cobrindo a despesa).
