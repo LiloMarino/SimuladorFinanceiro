@@ -70,7 +70,6 @@
 | [**F40**](#f40) | Modo Especialista | — | ⏳ |
 | [**F41**](#f41) | Conquistas | — | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 🔍 |
-| [**F47**](#f47) | Gravação automática de demonstrações | — | ⏳ |
 | [**F48**](#f48) | README e docs que mostram o produto | — | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
@@ -109,7 +108,7 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (14 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -127,6 +126,7 @@
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | [F24](#f24) | ✅ |
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ✅ |
+| [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
 
 </details>
 
@@ -143,12 +143,12 @@
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | 2 | ⏳ |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
-| [**F47**](#f47) | Gravação automática de demonstrações | M14 | 1 | ⏳ |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | 1 | ⏳ |
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 1 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
+| [**F48**](#f48) | README e docs que mostram o produto | M14 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
@@ -280,13 +280,20 @@
 >
 > **Serve:** N25
 >
-> **Progresso:** 0/3 concluídas
+> **Progresso:** 1/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F47**](#f47) | Gravação automática de demonstrações | — | ⏳ |
 | [**F48**](#f48) | README e docs que mostram o produto | [F47](#f47) | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
+
+</details>
 
 ### M15 — Notícias e resumo do mês
 
@@ -359,7 +366,7 @@
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F40** | Modo Especialista | N21 | D2 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F41** | Conquistas | N22 | D1 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F47** | Gravação automática de demonstrações | N25 | — | M14 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
+| **F47** | Gravação automática de demonstrações | N25 | — | M14 | — | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
@@ -425,10 +432,10 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F41 — Conquistas.** Serve N22; segue a D1. Um catálogo no código (`backend/features/achievements/catalog.py`): cada conquista tem código, nome, descrição, ícone (do `lucide-react`), categoria (Primeiros passos, Patrimônio, Mercado, Partida ou Secretas), se é secreta, e uma condição avaliada sobre os eventos e snapshots do jogador no fim de cada tick. As de meta numérica (R$ 1 milhão, 12 meses seguidos acima do CDI) trazem também uma regra de progresso, que devolve o valor atual e a meta. Exemplos: primeira compra de ação; primeiro R$ 1 milhão; bater o CDI 12 meses seguidos; atravessar uma queda de 30% do Ibovespa perdendo menos que ele; vencer uma sala cheia; vencer sem assistências (F40). A conquista desbloqueada vai para a tabela `achievements` (`user_id`, `code`, `simulation_id`, `unlocked_at`), por migration (D9), e chega ao jogador por um evento do Socket.IO que abre um toast rico, no estilo da Steam: ícone, nome e descrição, com `toast.custom` do sonner; várias no mesmo dia viram um toast só. Uma tela "Conquistas" mostra as do jogador em lista, das mais recentes para as mais antigas, com data real, partida e busca: desbloqueadas com data e partida, bloqueadas embaixo em cinza com a barra de progresso, e as secretas sem descrição até sair. Ao lado, um painel com o total, as três mais próximas de sair e o progresso por categoria. A tela fica na sidebar, em Você, e abre também no lobby, por um botão "Conquistas" no cabeçalho da sala, em rota própria sem a sidebar do jogo. As conquistas ficam no banco do host, como o resto do histórico: sem conta online, o jogador que entra na sala de outro host começa lá do zero.
 
 <a id="f47"></a>
-**F47 — Gravação automática de demonstrações.** Serve N25. Um roteiro em Playwright (`scripts/demo/`) sobe o app num banco de demonstração, importa um conjunto fixo de ativos pelo CSV (sem depender do yfinance, para sair igual toda vez), e percorre as telas: lobby, compra de ação, renda fixa, avanço do tempo, estatísticas e fechamento. Em cada passo tira screenshot, e a sessão inteira é gravada em vídeo (`recordVideo`). O `ffmpeg` corta os trechos em MP4 para os docs e o `gifski` faz GIFs curtos (até ~10 MB) para o README, que no GitHub só anima GIF. A saída vai para `docs/static/demo/`, e o comando `pnpm demo` refaz tudo a cada mudança visual, o que mantém as imagens em dia: as de hoje em `docs/static/img/` são de fevereiro, anteriores ao redesign.
+**F47 — Gravação automática de demonstrações.** Serve N25. `pnpm demo` (`scripts/demo/`) sobe o backend numa pasta de trabalho com o `config.toml` da demo. O banco-base (`POSTGRES_DEMO_DATABASE_URL` no `.env`) guarda cinco ações fixas, importadas dos CSVs de `scripts/demo/data/` (baixados uma vez com `pnpm demo fetch-data`), e os indicadores, que só são buscados no Banco Central quando faltam. Cada gravação roda numa cópia do banco-base, apagada no fim, e por isso sai sempre do mesmo estado. O roteiro percorre em Playwright o lobby, a compra de ação, a renda fixa, o avanço do tempo, as estatísticas e o fechamento. A gravação é o screencast do DevTools em 2× (e não o `recordVideo`, de bitrate baixo e sem o instante de cada quadro), com um cursor desenhado na página, porque o Chromium headless grava sem cursor. O zoom automático segue a ideia do Recordly: o roteiro anota onde e quando clica, e a câmera aproxima antes da ação, segura enquanto as ações seguem perto e afasta depois. Cada cena vira um GIF do `gifski` com até 10 MB, a partir de um MP4 intermediário que fica em `build/demo/`; as screenshots saem em `docs/static/demo/screens/`. As imagens não entram no `main`: `pnpm demo publish` as põe no branch `demo`, que guarda só a última publicação (um commit sem pai, com force-push), e o deploy dos docs as busca de lá; o `gh-pages` também passou a guardar só o último deploy. O link de convite é trocado por um IP de rede local fictício, para não expor o da máquina que grava. Os títulos de renda fixa são sorteados por partida, então essa cena muda um pouco a cada gravação.
 
 <a id="f48"></a>
-**F48 — README e docs que mostram o produto.** Serve N25. O README abre com um GIF do jogo rodando e, logo abaixo, o que ele faz, cada item com uma imagem ou um GIF curto da F47 (renda variável, renda fixa, estatísticas, multiplayer), o download e o link dos docs; a parte de desenvolvimento desce para o fim. Nos docs, uma página "Tour" com os vídeos, e as páginas de "Como usar" com as imagens novas. Junto, uma revisão do que está desatualizado em README e docs, página por página, contra o app de hoje. Feito com a skill de documentação (`engineering:documentation`).
+**F48 — README e docs que mostram o produto.** Serve N25. O README abre com um GIF do jogo rodando e, logo abaixo, o que ele faz, cada item com uma imagem ou um GIF curto da F47 (renda variável, renda fixa, estatísticas, multiplayer), o download e o link dos docs; a parte de desenvolvimento desce para o fim. Nos docs, uma página "Tour" com os GIFs das cenas, e as páginas de "Como usar" com as screenshots novas. As imagens moram no branch `demo`: o README aponta para os arquivos de lá (`github.com/<repo>/raw/demo/gifs/<cena>.gif`) e os docs usam `/demo/...`, que o deploy copia do branch. Junto, uma revisão do que está desatualizado em README e docs, página por página, contra o app de hoje. Feito com a skill de documentação (`engineering:documentation`).
 
 <a id="f56"></a>
 **F56 — Novidades no app.** Serve N14. Como as notas de patch de um jogo: o `CHANGELOG.md` da F51 vai junto no executável, o backend o serve com a versão, e o lobby mostra as novidades da versão atual. Na primeira abertura depois de atualizar, o card ou o selo de novidades fica em destaque até ser aberto (o navegador guarda a última versão vista); aberto, mostra "O que há de novo na versão X" e dá acesso ao histórico inteiro. O lugar exato no lobby, que já está cheio, sai de uma iteração no Claude Design antes de implementar.
