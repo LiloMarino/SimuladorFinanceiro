@@ -11,8 +11,11 @@ import { ErrorState } from "@/shared/components/error-state";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useVariableIncomeStocks } from "@/features/variable-income/hooks/queries/useVariableIncomeStocks";
 import { MarketTable } from "../components/market-table";
+import type { AssetClass } from "@/types";
 
-type Filter = "ALL" | "HELD" | "STOCK" | "FII" | "ETF";
+type Filter = "ALL" | "HELD" | AssetClass;
+// Um botão por classe da API: classe nova sem rótulo não compila
+const CLASS_FILTER_LABELS: Record<AssetClass, string> = { STOCK: "Ações", FII: "FII", ETF: "ETF", BDR: "BDR" };
 const ALL_SECTORS = "__all__";
 const NO_SECTOR = "__none__";
 
@@ -115,9 +118,11 @@ export default function VariableIncomePage() {
           >
             <ToggleGroupItem value="ALL">Todos · {all.length}</ToggleGroupItem>
             <ToggleGroupItem value="HELD">Na carteira · {holdings.size}</ToggleGroupItem>
-            <ToggleGroupItem value="STOCK">Ações</ToggleGroupItem>
-            <ToggleGroupItem value="FII">FII</ToggleGroupItem>
-            <ToggleGroupItem value="ETF">ETF</ToggleGroupItem>
+            {(Object.entries(CLASS_FILTER_LABELS) as [AssetClass, string][]).map(([value, label]) => (
+              <ToggleGroupItem key={value} value={value}>
+                {label}
+              </ToggleGroupItem>
+            ))}
           </ToggleGroup>
           {/* Sempre visível: sem setores na base, fica desabilitado */}
           <Select

@@ -15,21 +15,19 @@ import type { PortfolioHistoryPoint, SeriesPoint } from "@/types";
 
 // Da base para o topo da pilha: caixa, renda fixa, renda variável
 const BANDS = [
-  { key: "cash", label: "Caixa", color: "var(--input)" },
-  { key: "fixed", label: "Renda fixa", color: "var(--chart-2)" },
-  { key: "equity", label: "Renda variável", color: "var(--chart-1)" },
+  { key: "total_cash", label: "Caixa", color: "var(--input)" },
+  { key: "total_fixed", label: "Renda fixa", color: "var(--chart-2)" },
+  { key: "total_equity", label: "Renda variável", color: "var(--chart-1)" },
 ] as const;
 
-type Point = {
-  date: string;
-  cash: number;
-  fixed: number;
-  equity: number;
-  total: number;
-  provided: number;
+type ChartPoint = PortfolioHistoryPoint & {
   /** Meta vigente no dia: reta na corrida, em degraus no viver de renda; ausente fora da corrida */
   goal?: number;
 };
+
+// A API entrega os valores em string decimal; o gráfico e as contas leem sempre via num
+type MoneyKey = (typeof BANDS)[number]["key"] | "total_networth" | "total_provided";
+const num = (point: ChartPoint, key: MoneyKey) => Number(point[key]);
 
 // A altura do gráfico e a do eixo X são fixas: com elas, os rótulos do fim ficam na posição exata
 const CHART_HEIGHT = 300;
@@ -56,19 +54,10 @@ const displayThousands = (value: number) => {
 
 /** Evolução da carteira: uma faixa por classe e, por cima, a linha tracejada do que foi aportado. */
 export function NetworthChart({ history, goalSteps }: { history: PortfolioHistoryPoint[]; goalSteps?: SeriesPoint[] }) {
-  // Recharts desenha número; os valores seguem em string até aqui
-  const data: Point[] = history.map((p) => ({
-    date: p.snapshot_date,
-    cash: Number(p.total_cash),
-    fixed: Number(p.total_fixed),
-    equity: Number(p.total_equity),
-    total: Number(p.total_networth),
-    provided: Number(p.total_provided),
-    goal: goalAt(goalSteps ?? [], p.snapshot_date),
-  }));
+  const data: ChartPoint[] = history.map((p) => ({ ...p, goal: goalAt(goalSteps ?? [], p.snapshot_date) }));
   const last = data.at(-1);
   const hasGoal = data.some((p) => p.goal !== undefined);
-  const scale = niceScale(Math.max(0, ...data.map((p) => Math.max(p.total, p.provided, p.goal ?? 0))));
+  const scale = niceScale(Math.max(0, ...data.map((p) => Math.max(num(p, "total_networth"), num(p, "total_provided"), p.goal ?? 0))));
 
   return (
     <Card>
@@ -96,7 +85,7 @@ export function NetworthChart({ history, goalSteps }: { history: PortfolioHistor
                 <AreaChart data={data} margin={CHART_MARGIN}>
                   <CartesianGrid vertical={false} stroke="var(--border)" />
                   <XAxis
-                    dataKey="date"
+                    dataKey="snapshot_date"
                     tickFormatter={(d: string) => displayMonthSlashYear(d)}
                     tick={{ fontSize: 11, fill: "var(--faint-foreground)" }}
                     axisLine={false}
@@ -122,7 +111,7 @@ export function NetworthChart({ history, goalSteps }: { history: PortfolioHistor
                       key={band.key}
                       type="monotone"
                       stackId="networth"
-                      dataKey={band.key}
+                      dataKey={(p: ChartPoint) => num(p, band.key)}
                       stroke="var(--card)"
                       strokeWidth={1}
                       fill={band.color}
@@ -132,7 +121,7 @@ export function NetworthChart({ history, goalSteps }: { history: PortfolioHistor
                   ))}
                   <Line
                     type="linear"
-                    dataKey="provided"
+                    dataKey={(p: ChartPoint) => num(p, "total_provided")}
                     stroke="var(--foreground)"
                     strokeWidth={1.6}
                     strokeDasharray="6 4"
@@ -183,26 +172,30 @@ export function NetworthChart({ history, goalSteps }: { history: PortfolioHistor
 }
 
 /** Nome e valor de cada faixa na ponta direita, sem se sobrepor. */
-function EndLabels({ last, top }: { last: Point; top: number }) {
+function EndLabels({ last, top }: { last: ChartPoint; top: number }) {
   const yOf = (value: number) => CHART_MARGIN.top + (1 - value / top) * PLOT_HEIGHT;
 
+  const total = num(last, "total_networth");
+  const provided = num(last, "total_provided");
+
   const items = [
-    { key: "total", y: yOf(last.total), name: "Patrimônio", value: last.total, strong: true },
-    { key: "provided", y: yOf(last.provided), name: "aportado", value: last.provided, strong: false },
+    { key: "total", y: yOf(total), name: "Patrimônio", value: total, strong: true },
+    { key: "provided", y: yOf(provided), name: "aportado", value: provided, strong: false },
     ...(last.goal !== undefined
       ? [{ key: "goal", y: yOf(last.goal), name: "Meta", value: last.goal, strong: false }]
       : []),
     ...BANDS.map((band, i) => {
-      const below = BANDS.slice(0, i).reduce((sum, b) => sum + last[b.key], 0);
+      const below = BANDS.slice(0, i).reduce((sum, b) => sum + num(last, b.key), 0);
+      const value = num(last, band.key);
       return {
         key: band.key,
-        y: yOf(below + last[band.key] / 2),
+        y: yOf(below + value / 2),
         name: band.label,
         value: null,
         strong: false,
         // Faixa fina demais não comporta o nome
-        visible: (last[band.key] / top) * PLOT_HEIGHT >= LABEL_SPACING,
-        color: band.key === "fixed" ? "text-chart-2" : band.key === "equity" ? "text-chart-1" : "text-faint-foreground",
+        visible: (value / top) * PLOT_HEIGHT >= LABEL_SPACING,
+        color: band.key === "total_fixed" ? "text-chart-2" : band.key === "total_equity" ? "text-chart-1" : "text-faint-foreground",
       };
     }),
   ].filter((item) => !("visible" in item) || item.visible);
@@ -239,21 +232,23 @@ function EndLabels({ last, top }: { last: Point; top: number }) {
   );
 }
 
-type TooltipProps = { active?: boolean; payload?: { payload: Point }[] };
+type TooltipProps = { active?: boolean; payload?: { payload: ChartPoint }[] };
 
 function NetworthTooltip({ active, payload }: TooltipProps) {
   const point = payload?.[0]?.payload;
   if (!active || !point) return null;
 
-  const gain = point.total - point.provided;
+  const total = num(point, "total_networth");
+  const provided = num(point, "total_provided");
+  const gain = total - provided;
   const positive = gain >= 0;
 
   return (
     <div className="grid min-w-52 gap-1.5 rounded-[10px] border border-border bg-popover p-3 text-xs shadow-md">
-      <span className="font-mono text-muted-foreground">{displayDate(parseLocalDate(point.date))}</span>
+      <span className="font-mono text-muted-foreground">{displayDate(parseLocalDate(point.snapshot_date))}</span>
       <div className="flex items-center justify-between gap-4 text-[13px] font-bold">
         <span>Patrimônio</span>
-        <span className="font-mono">{displayMoney(point.total)}</span>
+        <span className="font-mono">{displayMoney(total)}</span>
       </div>
       {[...BANDS].reverse().map((band) => (
         <div key={band.key} className="flex items-center justify-between gap-4">
@@ -261,12 +256,12 @@ function NetworthTooltip({ active, payload }: TooltipProps) {
             <span className="size-2 rounded-sm" style={{ backgroundColor: band.color }} aria-hidden="true" />
             {band.label}
           </span>
-          <span className="font-mono">{displayMoney(point[band.key])}</span>
+          <span className="font-mono">{displayMoney(num(point, band.key))}</span>
         </div>
       ))}
       <div className="flex items-center justify-between gap-4 border-t border-border pt-1.5 text-muted-foreground">
         <span>┄ Aportado</span>
-        <span className="font-mono">{displayMoney(point.provided)}</span>
+        <span className="font-mono">{displayMoney(provided)}</span>
       </div>
       <span className={positive ? "font-mono text-success" : "font-mono text-destructive"}>
         {positive ? "+" : "-"}
@@ -275,7 +270,7 @@ function NetworthTooltip({ active, payload }: TooltipProps) {
       {point.goal !== undefined && (
         <div className="flex items-center justify-between gap-4 text-muted-foreground">
           <span>··· Falta para a meta</span>
-          <span className="font-mono">{displayMoney(Math.max(0, point.goal - point.total))}</span>
+          <span className="font-mono">{displayMoney(Math.max(0, point.goal - total))}</span>
         </div>
       )}
     </div>
