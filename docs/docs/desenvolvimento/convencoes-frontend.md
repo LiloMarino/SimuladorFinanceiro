@@ -121,3 +121,25 @@ por digitação, ou quando quem valida é o servidor:
   contra o `max_quantity` que a prévia da ordem devolve;
 - a zona de perigo (`features/settings/components/danger-zone-card.tsx`) só libera o botão
   quando o nickname digitado confere.
+
+---
+
+## Testes
+
+O Vitest cobre as contas que o navegador faz: função pura de cálculo ou de formatação, sem
+componente, tela ou teste ponta a ponta.
+
+- o teste mora ao lado do arquivo testado: `shared/lib/goal.ts` → `shared/lib/goal.test.ts`;
+- o valor esperado é calculado à mão, com a conta num comentário quando não é óbvia;
+- `describe`, `it` e `expect` vêm de `import { ... } from "vitest"`, e o `tsc` confere os testes
+  junto com o resto;
+- o Vitest reaproveita o `vite.config.ts` (alias `@` incluído) e roda com `pnpm run front:test`,
+  que também entra no `pnpm run check`.
+
+```typescript
+// shared/lib/financial-independence.test.ts
+it("é a despesa de um ano dividida pela taxa de retirada", () => {
+  // 12 × 5.000 = 60.000 por ano; a 4%, precisa de 1.500.000
+  expect(independenceGoal(5000, 0.04)).toBeCloseTo(1_500_000, 6);
+});
+```

@@ -116,8 +116,9 @@ Todos os comandos rodam a partir da raiz com `pnpm <script>`:
 
 | Script | O que faz |
 |---|---|
-| `check` | lint + typecheck + testes do backend + check do frontend |
+| `check` | lint + typecheck + testes do backend + check e testes do frontend |
 | `test` / `test:cov` | testes do backend (pytest) / com relatório de cobertura |
+| `front:test` | testes das contas do frontend (Vitest) |
 | `lint` / `lint:fix` / `format` | ruff check / com correção automática / ruff format |
 | `typecheck` | pyright |
 | `build` / `build:frontend` / `build:exe` | build completo / só o frontend / só o executável (PyInstaller) |
