@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-21):** Concluído o spike do gerador de séries sintéticas (F23): decididos o método (D14) e o congelamento por partida (D7); registrados os defeitos de importação achados no caminho (F85 a F87).
+> **Última mudança (2026-10-21):** Concluídos os indicadores gerados que reagem uns aos outros (F88): encaixe de nível e choque de inflação na D14; registrados os presets de partida (F89) e os cenários (F90), pela N30.
 
 ## Glossário
 
@@ -47,6 +47,7 @@
 | **N27** | Entrar numa partida que já começou | — | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
 | **N29** | Saber o que cada jogador está fazendo enquanto a partida não começa | [F70](#f70) | — |
+| **N30** | Repetir uma configuração de partida sem montá-la de novo | [F89](#f89) | — |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
@@ -94,6 +95,8 @@
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
+| [**F89**](#f89) | Presets de partida | — | ⏳ |
+| [**F90**](#f90) | Cenários | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (13 itens — clique pra expandir)</strong></summary>
@@ -112,7 +115,7 @@
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | ✅ |
 | **D12** | Como numerar as versões | — | ✅ |
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
-| **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas | [F24](#f24) | ✅ |
+| **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | [F24](#f24) | ✅ |
 
 </details>
 
@@ -126,6 +129,7 @@
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
+| [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | 2 | ⏳ |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
 | [**F47**](#f47) | Gravação automática de demonstrações | M14 | 1 | ⏳ |
@@ -143,7 +147,6 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | 0 | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | 0 | ⏳ |
-| [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | 0 | ⏳ |
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | 0 | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | 0 | ⏳ |
 | [**F78**](#f78) | Release só sai com o check passando | — | 0 | ⏳ |
@@ -268,7 +271,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/28 concluídas
+> **Progresso:** 0/30 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -300,6 +303,8 @@
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
+| [**F89**](#f89) | Presets de partida | [F73](#f73) | ⏳ |
+| [**F90**](#f90) | Cenários | [F89](#f89) | 🔍 |
 
 ---
 
@@ -329,6 +334,7 @@
 | **F76** | Testes das contas feitas no frontend | N3 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F85** | Importar duas ações da mesma empresa | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F86** | Sugestão de ticker que a importação aceita | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F89** | Presets de partida | N30 | — | — | [F73](#f73) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
@@ -347,7 +353,7 @@
 **F16 — Bots na sala.** Serve N8; segue a D8. No lobby, o host clica "Adicionar bot" e escolhe a estratégia — as prontas da F9 ou as escritas pelo usuário na F8; cada estratégia é um "tipo de IA", como as IAs do OpenTTD — e um nome. O bot é um jogador sem socket: registro em `users` marcado como bot, carteira própria, e o motor chama o `next()` da estratégia dele a cada tick, como faz com a de um humano no automático. Aparece no ranking e nas estatísticas como qualquer jogador, com um ícone que o distingue. Quem escolhe o código do bot é o host, então ele roda no processo do host qualquer que seja a D5 — a restrição da D5 é sobre código vindo de jogador remoto. Com a F13 ligada, as ordens do bot movem preço como as de qualquer jogador. Gatilho: F8 concluída.
 
 <a id="f24"></a>
-**F24 — Gerar dados futuros na Central de dados.** Serve N12; segue a D7 e a D14. (1) **Tela:** na Central (F21), "Gerar dados" pede até quando gerar (cada série começa no dia útil seguinte ao seu último dado real), a semente, a temperatura (0 a 3, padrão 1) e "começar em" (mercado de hoje, calmaria, normal ou crise, o `start_regime`). A temperatura ganha descrição curta e dica com a leitura medida: em 1 o histórico como foi, em 2 dois de cada três anos com queda acima de 30%, em 3 crise permanente. O preview monta um `SeriesGenerator` uma vez e gera sem gravar poucos ativos a cada mudança de parâmetro (cerca de 0,1 s). (2) **Gravação:** os repositórios montam o `MarketHistory` (preços, segmento e setor de cada ativo e indicadores, só a origem real) e gravam o `GeneratedSeries` com origem "gerado"; indicador vira `Decimal` a partir do valor já arredondado; regerar troca o gerado comum, passando pela cópia na troca. A barra da linha do tempo já mostra o trecho gerado pelo `generated_end` da cobertura. (3) **Cenário (D7):** `stock_price_history` e `economic_indicator_history` ganham a coluna de cenário na chave (o comum e o de cada partida), por migration (D9). As leituras do motor (`get_stocks_by_date`, `get_recent_closes`, `get_closes_on`, `get_stock_details` e o histórico de indicadores) passam a preferir o cenário da partida. A cópia na troca: antes de trocar ou apagar gerado, cada partida salva cujo período, de `start_date` ao último dia simulado, cobre linhas geradas recebe a cópia delas no próprio cenário. (4) **Importador:** "Atualizar" troca o gerado pelo real à medida que o real chega. Hoje o `upsert_dataframe` incremental compara com a última data de qualquer origem, e um gerado no fim faria o real ser descartado: passa a comparar com a última data real e a trocar o gerado das datas que o real cobre. O `overwrite=True` apaga o histórico inteiro, gerado junto, e passa pela mesma troca. O upsert de indicador sobrescreve a origem no conflito, então a cópia na troca roda antes dele. Gatilho: F21 e F23 concluídas.
+**F24 — Gerar dados futuros na Central de dados.** Serve N12; segue a D7 e a D14. (1) **Tela:** na Central (F21), "Gerar dados" pede até quando gerar (cada série começa no dia útil seguinte ao seu último dado real), a semente, a temperatura (0 a 3, padrão 1), "começar em" (mercado de hoje, calmaria, normal ou crise, o `start_regime`) e o choque de inflação (−5 a +20 pontos, padrão 0, o `inflation_shock`). Temperatura e choque ganham descrição curta e dica com a leitura medida, como na página "Como o futuro é gerado" dos docs: temperatura 1 é o histórico como foi, 2 dá dois de cada três anos com queda acima de 30%, 3 é crise permanente; choque de +10 leva a inflação a uns 14% e a SELIC a 28%. O preview monta um `SeriesGenerator` uma vez e gera sem gravar poucos ativos a cada mudança de parâmetro (cerca de 0,1 s). (2) **Gravação:** os repositórios montam o `MarketHistory` (preços, segmento e setor de cada ativo e indicadores, só a origem real) e gravam o `GeneratedSeries` com origem "gerado"; indicador vira `Decimal` a partir do valor já arredondado; regerar troca o gerado comum, passando pela cópia na troca. A barra da linha do tempo já mostra o trecho gerado pelo `generated_end` da cobertura. (3) **Versão das séries (D7):** `stock_price_history` e `economic_indicator_history` ganham a coluna de versão na chave (a comum e a de cada partida), por migration (D9). As leituras do motor (`get_stocks_by_date`, `get_recent_closes`, `get_closes_on`, `get_stock_details` e o histórico de indicadores) passam a preferir a versão da partida. A cópia na troca: antes de trocar ou apagar gerado, cada partida salva cujo período, de `start_date` ao último dia simulado, cobre linhas geradas recebe a cópia delas na própria versão. (4) **Importador:** "Atualizar" troca o gerado pelo real à medida que o real chega. Hoje o `upsert_dataframe` incremental compara com a última data de qualquer origem, e um gerado no fim faria o real ser descartado: passa a comparar com a última data real e a trocar o gerado das datas que o real cobre. O `overwrite=True` apaga o histórico inteiro, gerado junto, e passa pela mesma troca. O upsert de indicador sobrescreve a origem no conflito, então a cópia na troca roda antes dele. Gatilho: livre; o gerador está pronto.
 
 <a id="f19"></a>
 **F19 — Modo backtest: partida só de estratégias, sem interação.** Serve N4 e N10; segue a D8. No lobby, "Rodar backtest" escolhe período, capital inicial, aporte e as estratégias participantes; cada estratégia vira um bot (F16) e a partida roda sem `sleep` entre ticks e sem eventos de socket por tick, mandando o progresso a cada N dias para a tela animar o gráfico. Ao fim, a partida fica salva como qualquer outra e abre no relatório da F17, já comparando as estratégias.
@@ -410,6 +416,9 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f86"></a>
 **F86 — Sugestão de ticker que a importação aceita.** Serve N13. Na Central, a busca do yfinance (`search_tickers`) devolve o código sem o `.SA` (`PETR4`), o combobox preenche esse valor e a importação baixa `PETR4`, que o yfinance responde com 404; a doc de importação e a base usam `PETR4.SA`. Plano: `search_tickers` devolve o símbolo como o yfinance o conhece (`PETR4.SA`), o `tests/test_ticker_profile.py` passa a esperar o sufixo, e o placeholder do campo vira "PETR4.SA, VALE3.SA, BTC-USD". Gatilho: livre.
+
+<a id="f89"></a>
+**F89 — Presets de partida.** Serve N30. No lobby, o host salva a configuração atual com um nome ("Salvar como preset") e carrega um preset salvo, que preenche o formulário inteiro: período, capital inicial, aporte, regras, modo de jogo e os parâmetros do futuro gerado (temperatura, bioma inicial e choque de inflação). Os presets moram numa tabela própria (nome, data, configuração em JSON validada pelo mesmo DTO de criação da partida), por migration (D9), com rotas para listar, salvar, renomear e apagar. Alguns vêm prontos e não se apagam ("Iniciante", "Clássico", "Realista"). Preset que traz um campo que a versão atual não conhece ignora o campo, e o que falta vem do padrão, então um preset antigo continua abrindo. Gatilho: F73 concluída, porque salvar e carregar é mais um lugar que converte entre as regras da partida e o formulário, e a F73 deixa essa conversão num lugar só.
 
 ---
 ## 2. Nice-to-have
@@ -500,6 +509,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F49** | Spike: tutorial animado | Serve N25; compara vídeo, framer-motion e Remotion | M14 | — | 🔍 Em avaliação |
 | **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | — | [F44](#f44) | 🔍 Em avaliação |
 | **F87** | Erros de dado do yfinance na base | Serve N3; encosta na F22 | — | — | 🔍 Em avaliação |
+| **F90** | Cenários | Serve N22; um preset com objetivo | — | [F89](#f89) | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -511,7 +521,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F22 — Preço ajustado e proventos.** Serve N3 e N7. O importador usa `yf.download(auto_adjust=True)`: o preço vem ajustado por dividendos e desdobramentos *até o dia da importação*. A atualização incremental (`upsert_dataframe` só grava linhas depois da última data guardada) emenda duas séries ajustadas em dias diferentes, então um provento ou desdobramento ocorrido entre a importação e a atualização vira um degrau falso na emenda — num desdobramento 2:1, uma queda de 50% que não existiu. Além disso, o preço exibido não é o que se negociava na época, e dividendo nunca entra no caixa. Falta escolher: (1) **atualizar sempre baixando a série inteira** e sobrescrevendo — corrige o degrau com pouca mudança, mas reescreve o passado de partidas salvas a cada provento novo; (2) **preço bruto + proventos como evento** — `auto_adjust=False`; desdobramento ajusta a quantidade da posição e dividendo credita o caixa na data ex (o `yfinance` traz as duas listas); fiel e reprodutível, mas mexe no motor, na carteira e na F13. Sai daqui com a escolha e o plano de implementação.
 
 <a id="f28"></a>
-**F28 — Muitos futuros (Monte Carlo).** Serve N10. Em vez de testar a estratégia num futuro gerado só, testá-la em muitos (ex.: 100, cada um com uma semente) e mostrar o resultado como distribuição: "perdeu para o CDI em 23 de 100 futuros; no pior, −35%; no do meio, +40% em 5 anos". Lê-se pela fração de futuros ruins e pelo pior caso: poucos futuros perdendo para o CDI é bom; uma estratégia que só ganha no histórico real e perde na maioria dos futuros plausíveis teve sorte, não mérito. É o backtest da F19 repetido sobre gerações do gerador da D14. Falta definir: **onde vivem os 100 futuros.** A D7 dá às tabelas de série uma dimensão de cenário, que a F24 implementa para congelar partidas salvas. Opções: (1) cada futuro de Monte Carlo é um cenário descartável nessa dimensão, gravando 100 vezes as linhas geradas (cerca de 5 milhões para 37 ativos × 5 anos); (2) o motor lê as séries por um provedor que pode ser o banco ou uma geração em memória (o `SeriesGenerator` gera 37 ativos × 5 anos em cerca de 1 s), o que estende a D7 de "mesmas tabelas" para "mesma interface". Sai daqui com essa escolha, que revisa ou confirma a D7.
+**F28 — Muitos futuros (Monte Carlo).** Serve N10. Em vez de testar a estratégia num futuro gerado só, testá-la em muitos (ex.: 100, cada um com uma semente) e mostrar o resultado como distribuição: "perdeu para o CDI em 23 de 100 futuros; no pior, −35%; no do meio, +40% em 5 anos". Lê-se pela fração de futuros ruins e pelo pior caso: poucos futuros perdendo para o CDI é bom; uma estratégia que só ganha no histórico real e perde na maioria dos futuros plausíveis teve sorte, não mérito. É o backtest da F19 repetido sobre gerações do gerador da D14. Falta definir: **onde vivem os 100 futuros.** A D7 dá às tabelas de série uma dimensão de versão, que a F24 implementa para congelar partidas salvas. Opções: (1) cada futuro de Monte Carlo é uma versão descartável nessa dimensão, gravando 100 vezes as linhas geradas (cerca de 5 milhões para 37 ativos × 5 anos); (2) o motor lê as séries por um provedor que pode ser o banco ou uma geração em memória (o `SeriesGenerator` gera 37 ativos × 5 anos em cerca de 1 s), o que estende a D7 de "mesmas tabelas" para "mesma interface". Sai daqui com essa escolha, que revisa ou confirma a D7.
 
 <a id="f34"></a>
 **F34 — Gráfico de ações em tela cheia, com ferramentas de trader.** Serve N19; segue a D2. Um botão no card "Histórico de Preços" abre o gráfico em tela cheia, com os indicadores da F33 e o que uma plataforma de trader oferece: barra de ferramentas de desenho (linha de tendência, linha horizontal de suporte e resistência, canal, retângulo, retração de Fibonacci, texto), régua que mede variação % e pregões entre dois pontos, escala logarítmica, legenda com abertura, máxima, mínima, fechamento e volume do candle sob o cursor, comparação com outro ticker ou com o Ibovespa em %, e uma boleta compacta para comprar e vender sem sair da tela. Os desenhos ficam salvos por jogador e ticker numa tabela nova (`chart_drawings`, com os pontos em JSON), entrando por migration (D9). Falta escolher a biblioteca: (1) continuar no `lightweight-charts` e escrever as ferramentas de desenho como plugins (a API de primitives da versão 5; os exemplos oficiais trazem linha de tendência e retângulo); (2) trocar pelo KLineChart (Apache 2.0), que já vem com cerca de 15 ferramentas de desenho, mas calcula indicadores no navegador, e pela D2 eles viriam do backend como indicador customizado; (3) o Advanced Charts da TradingView tem tudo pronto, mas a licença pede cadastro e não permite publicar a biblioteca em repositório público, o que o deixa fora deste projeto. Sai daqui com um protótipo de linha de tendência e Fibonacci nas opções 1 e 2, e a escolha.
@@ -527,3 +537,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f87"></a>
 **F87 — Erros de dado do yfinance na base.** Serve N3. A base tem dias em que o preço vai a quase zero e volta: CMIG4 sobe 878% e cai 90% em agosto de 2003, XPML11 cai 99% em 14/01/2026 e volta 758 vezes cinco dias depois, e UGPA3, GOAU4, LREN3 e SUZB3 têm dias de −100%. A partida mostra esses dias como reais. O gerador (D14) já os trata como dia sem pregão. Falta escolher o que a importação faz com eles: (1) descartar a linha, deixando o dia sem pregão; (2) interpolar o fechamento entre os vizinhos; (3) só sinalizar na Central para o usuário decidir. Parte dos saltos que não voltam (B3SA3 −66% em 2011) pode ser ajuste de desdobramento, que é assunto da F22. Sai daqui com a regra e o limiar.
+
+<a id="f90"></a>
+**F90 — Cenários.** Serve N22. Como nos jogos de estratégia: uma partida montada com intenção, um preset (F89) com objetivo e texto de abertura. Exemplos: "Crise de 2008" (começa em setembro de 2008 com R$ 100 mil, meta de não perder mais de 20%), "Década perdida" (futuro gerado com choque de inflação de +15 pontos) e "Plano Real". O objetivo usa os modos de jogo que já existem (corrida à meta, viver de renda) e o ranking. Falta definir: quais cenários entram primeiro e o objetivo de cada um; se o objetivo pode ser algo que os modos não cobrem (perda máxima, bater o CDI); se há campanha, com um cenário liberando o seguinte; e se o usuário cria os próprios cenários ou só joga os que vêm com o app.
