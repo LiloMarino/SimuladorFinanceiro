@@ -104,10 +104,9 @@
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F96**](#f96) | Dicas de análise técnica | — | 💤 |
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
-| [**F98**](#f98) | Excluir partida salva | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -129,6 +128,7 @@
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
+| [**F98**](#f98) | Excluir partida salva | — | ✅ |
 
 </details>
 
@@ -168,7 +168,6 @@
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | 0 | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
-| [**F98**](#f98) | Excluir partida salva | — | 0 | ⏳ |
 
 ---
 
@@ -311,7 +310,7 @@
 
 ### Sem marco
 
-> **Progresso:** 3/34 concluídas
+> **Progresso:** 4/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -345,15 +344,15 @@
 | [**F94**](#f94) | Crédito | — | 💤 |
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
-| [**F98**](#f98) | Excluir partida salva | — | ⏳ |
 
-<details><summary>Concluído (3 itens)</summary>
+<details><summary>Concluído (4 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
+| [**F98**](#f98) | Excluir partida salva | — | ✅ |
 
 </details>
 
@@ -390,7 +389,7 @@
 | **F92** | Noticiário da partida | N31 | D7 | M15 | [F91](#f91) | Médio | Baixo | Alto | Bom | 💤 Registrado, sem prioridade |
 | **F94** | Crédito | N33 | D1 | — | — | Alto | Médio | Alto | Bom | 💤 Registrado, sem prioridade |
 | **F96** | Dicas de análise técnica | N19 | — | M11 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F98** | Excluir partida salva | N35 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F98** | Excluir partida salva | N35 | — | — | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
