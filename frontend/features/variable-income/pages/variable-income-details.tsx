@@ -8,7 +8,7 @@ import { StockHeader } from "../components/stock-header";
 import { OrderBookCard } from "../components/order-book-card";
 import { OrderTicket } from "../components/order-ticket";
 import { PositionCard } from "../components/position-card";
-import { usePendingOrders } from "../hooks/usePendingOrders";
+import { usePendingOrders } from "../hooks/queries/usePendingOrders";
 import { useVariableIncomeStock } from "../hooks/queries/useVariableIncomeStock";
 import { usePortfolioPosition } from "../hooks/queries/usePortfolioPosition";
 

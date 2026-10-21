@@ -1,6 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { simulationSettingsOptions } from "@/shared/lib/queries/simulationSettingsOptions";
+import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
 import { DangerZoneCard } from "../components/danger-zone-card";
 import { MatchCard } from "../components/match-card";
 import { NotificationsCard } from "../components/notifications-card";
@@ -8,7 +7,7 @@ import { ProfileCard } from "../components/profile-card";
 
 export default function SettingsPage() {
   const { user } = useAuth();
-  const { data: settings } = useQuery(simulationSettingsOptions());
+  const { data: settings } = useSimulationSettings();
   if (!user) return null;
 
   return (

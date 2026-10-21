@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { NavLink } from "react-router-dom";
 import type { NavItem } from "@/types";
 import {
@@ -16,12 +15,12 @@ import {
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { BrandMark } from "@/shared/components/brand-mark";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { useDebugMode } from "@/shared/hooks/useDebugMode";
+import { useDebugMode } from "@/shared/hooks/queries/useDebugMode";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
-import { simulationSettingsOptions } from "@/shared/lib/queries/simulationSettingsOptions";
+import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -34,7 +33,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const { user } = useAuth();
   const { simulation } = useSimulation();
   const { data: players } = useRoomPlayers();
-  const { data: settings } = useQuery(simulationSettingsOptions());
+  const { data: settings } = useSimulationSettings();
   const { data: goal } = useGoalProgress();
 
   const debug = useDebugMode();

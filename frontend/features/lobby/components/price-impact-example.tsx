@@ -1,9 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { queryKeys } from "@/shared/lib/queryKeys";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { displayPercent } from "@/shared/lib/utils/display";
-import type { PriceImpactPreview } from "@/types";
+import { usePriceImpactPreview } from "../hooks/queries/usePriceImpactPreview";
 
 const WIDTH = 190;
 const HEIGHT = 88;
@@ -24,12 +21,7 @@ export function PriceImpactExample({ k, decayDays, ticker }: PriceImpactExampleP
   const tValue = Number(decayDays);
   const valid = Number.isFinite(kValue) && kValue >= 0 && Number.isInteger(tValue) && tValue >= 1;
 
-  const { data: preview } = useQuery({
-    queryKey: queryKeys.priceImpactPreview(kValue, tValue),
-    queryFn: ({ signal }) =>
-      apiFetch<PriceImpactPreview>(`/api/simulation/price-impact-preview?k=${kValue}&decay_days=${tValue}`, { signal }),
-    enabled: valid,
-  });
+  const { data: preview } = usePriceImpactPreview(kValue, tValue, { enabled: valid });
 
   if (!preview) return null;
 

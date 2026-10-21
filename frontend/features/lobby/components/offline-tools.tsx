@@ -1,10 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, GitCompareArrows, Grid3x3, List, type LucideIcon } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { isOutdatedStock } from "@/shared/lib/series-coverage";
-import { seriesCoverageOptions } from "@/shared/lib/queries/seriesCoverageOptions";
-import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
+import { useSeriesCoverage } from "@/shared/hooks/queries/useSeriesCoverage";
+import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 
 type Tool = {
   icon: LucideIcon;
@@ -17,8 +16,8 @@ type Tool = {
 /** Ferramentas de fora da partida, com contadores do que pede atenção. */
 export function OfflineTools({ onOpenSaved }: { onOpenSaved: () => void }) {
   const navigate = useNavigate();
-  const { data: saved } = useQuery(simulationListOptions());
-  const { data: coverage } = useQuery(seriesCoverageOptions());
+  const { data: saved } = useSimulationList();
+  const { data: coverage } = useSeriesCoverage();
 
   const savedCount = saved?.length ?? 0;
   const outdatedCount = (coverage ?? []).filter(isOutdatedStock).length;

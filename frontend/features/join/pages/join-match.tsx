@@ -23,7 +23,7 @@ import { toCentsString } from "@/shared/lib/utils/display";
 import { LoadingPage } from "@/pages/loading";
 import type { RoomPlayer, SimulationData } from "@/types";
 import { useJoinMatch } from "../hooks/useJoinMatch";
-import { useMatchPlayers } from "../hooks/useMatchPlayers";
+import { useMatchPlayers } from "../hooks/queries/useMatchPlayers";
 
 /** Tela de quem chegou com a partida em andamento: escolhe uma cor que sobrou e entra jogando. */
 export function JoinMatchPage() {

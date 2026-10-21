@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -7,7 +7,7 @@ import { ErrorState } from "@/shared/components/error-state";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { simulationSettingsOptions } from "@/shared/lib/queries/simulationSettingsOptions";
+import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
 import { LoadingPage } from "@/pages/loading";
 import type { SimulationSettings } from "@/types";
 import { LobbyHeader } from "../components/lobby-header";
@@ -21,7 +21,7 @@ export function LobbyPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { logout } = useAuth();
-  const { data: settings, isLoading, error, refetch } = useQuery(simulationSettingsOptions());
+  const { data: settings, isLoading, error, refetch } = useSimulationSettings();
 
   useRealtime("simulation_started", (simulation) => {
     if (simulation.active) {
@@ -33,14 +33,6 @@ export function LobbyPage() {
   useRealtime("simulation_selected", () => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.simulationSettings() });
     void queryClient.invalidateQueries({ queryKey: queryKeys.simulationPlayers() });
-  });
-
-  // As regras mudam para todos na hora: o modo e o nome das equipes valem na lista de jogadores
-  useRealtime("simulation_settings_update", (simulation) => {
-    queryClient.setQueryData(
-      simulationSettingsOptions().queryKey,
-      (prev: SimulationSettings | undefined) => prev && { ...prev, simulation },
-    );
   });
 
   if (isLoading) {

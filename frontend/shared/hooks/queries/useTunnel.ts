@@ -3,12 +3,7 @@ import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
-
-export type TunnelStatus = {
-    active: boolean;
-    url: string | null;
-    provider: string | null;
-};
+import type { TunnelStatus } from "@/types";
 
 export function useTunnel() {
     const queryClient = useQueryClient();
@@ -21,14 +16,10 @@ export function useTunnel() {
 
     // Mutation para iniciar túnel
     const { mutate: startTunnelMutate, isPending: startingTunnel } = useMutation({
-        mutationFn: () => apiFetch<{ url: string; provider: string }>("/api/tunnel/start", { method: "POST" }),
+        mutationFn: () => apiFetch<TunnelStatus>("/api/tunnel/start", { method: "POST" }),
         onSuccess: (data) => {
             toast.success(`Túnel iniciado com sucesso!`);
-            queryClient.setQueryData(queryKeys.tunnelStatus(), {
-                active: true,
-                url: data.url,
-                provider: data.provider,
-            });
+            queryClient.setQueryData(queryKeys.tunnelStatus(), data);
         },
         onError: (err) => {
             toast.error(`Erro ao iniciar túnel: ${err.message}`);
@@ -37,7 +28,7 @@ export function useTunnel() {
 
     // Mutation para parar túnel
     const { mutate: stopTunnelMutate, isPending: stoppingTunnel } = useMutation({
-        mutationFn: () => apiFetch<{ message: string }>("/api/tunnel/stop", { method: "POST" }),
+        mutationFn: () => apiFetch<void>("/api/tunnel/stop", { method: "POST" }),
         onSuccess: () => {
             toast.success("Túnel parado com sucesso!");
             queryClient.setQueryData(queryKeys.tunnelStatus(), {

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, type PropsWithChildren } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AuthContext } from "./AuthContext";
 import type { Session } from "@/types";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
+import { useSession } from "@/shared/hooks/queries/useSession";
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
@@ -16,15 +17,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     },
   });
 
-  // Query: Sessão atual
-  const {
-    data: session,
-    error: sessionError,
-    isLoading: sessionLoading,
-  } = useQuery({
-    queryKey: queryKeys.authSession(),
-    queryFn: ({ signal }) => apiFetch<Session>("/api/session/me", { signal }),
-  });
+  const { data: session, error: sessionError, isLoading: sessionLoading } = useSession();
 
   // Mutation: Logout
   const { mutateAsync: logoutApi, isPending: logoutLoading } = useMutation({

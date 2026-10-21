@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CircleAlert } from "lucide-react";
 import usePageLabel from "@/shared/hooks/usePageLabel";
-import { useDebugStatus } from "@/shared/hooks/useDebugMode";
+import { useDebugStatus } from "@/shared/hooks/queries/useDebugMode";
 import {
   Alert,
   AlertAction,
@@ -24,7 +24,7 @@ import {
 } from "../components/states";
 import { TimeTable } from "../components/time-table";
 import { TrafficTable } from "../components/traffic-table";
-import { useMetrics, useResetMetrics } from "../hooks/useMetrics";
+import { useMetrics, useResetMetrics } from "../hooks/queries/useMetrics";
 import { buildRows, engineStatus, sortRows } from "../lib/stats";
 
 const TABLE_ID = "tabela-tempo";

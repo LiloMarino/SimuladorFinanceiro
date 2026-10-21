@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { MarketMark } from "@/shared/components/market-mark";
@@ -15,7 +15,8 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayDate, displayMoney, parseLocalDate } from "@/shared/lib/utils/display";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
-import type { Order, Trade } from "@/types";
+import type { Order } from "@/types";
+import { useTrades } from "../hooks/queries/useTrades";
 
 type Tab = "OPEN" | "HISTORY";
 
@@ -65,11 +66,7 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
   const open = orders.filter((o) => o.status === "pending" || o.status === "partial");
   const myPartial = open.filter((o) => o.status === "partial" && o.player_nickname === user?.nickname);
 
-  const { data: trades } = useQuery({
-    queryKey: queryKeys.trades(ticker),
-    queryFn: ({ signal }) => apiFetch<Trade[]>(`/api/variable-income/${ticker}/trades`, { signal }),
-    enabled: tab === "HISTORY",
-  });
+  const { data: trades } = useTrades(ticker, { enabled: tab === "HISTORY" });
 
   const cancel = useMutation({
     mutationFn: (orderId: string) =>

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { useDebugMode } from "@/shared/hooks/useDebugMode";
+import { useDebugMode } from "@/shared/hooks/queries/useDebugMode";
 import { setDebugLogging } from "@/shared/lib/logger";
 
 // O export padrão do pacote vira um componente vazio no build de produção; o `/production`

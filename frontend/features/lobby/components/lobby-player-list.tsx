@@ -1,5 +1,4 @@
 import type { CSSProperties } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { TriangleAlert } from "lucide-react";
 import { GroupingBadge } from "@/shared/components/grouping-badge";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
@@ -12,7 +11,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { MAX_PLAYERS } from "@/shared/lib/player-colors";
 import { teamColor } from "@/shared/lib/teams";
-import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
+import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { cn } from "@/shared/lib/utils";
 import type { PlayerGrouping, RoomPlayer, TeamNaming } from "@/types";
 import { useApplyColorPreference } from "../hooks/useApplyColorPreference";
@@ -42,7 +41,7 @@ export function LobbyPlayersList({
 }: LobbyPlayersListProps) {
   const { user } = useAuth();
   const { data: players } = useRoomPlayers();
-  const { data: savedSimulations } = useQuery(simulationListOptions());
+  const { data: savedSimulations } = useSimulationList();
   const simulationName = savedSimulations?.find((s) => s.id === selectedSimulationId)?.name;
 
   // Em equipes, quem vê vem primeiro e ocupa a linha toda (cabem a cor e a equipe); depois o host e quem joga, em ordem alfabética

@@ -17,9 +17,8 @@ import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 import { teamColor } from "@/shared/lib/teams";
-import { useQuery } from "@tanstack/react-query";
 import type ApiError from "@/shared/lib/models/ApiError";
-import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
+import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import type { PlayerRef, TeamNaming } from "@/types";
 import { displayMetric } from "../../lib/metrics";
@@ -47,7 +46,7 @@ export function TabStatus({
   /** Com a partida em equipes, o esqueleto tem o formato equipe → membros */
   simulationIds?: number[];
 }) {
-  const { data: simulations } = useQuery(simulationListOptions());
+  const { data: simulations } = useSimulationList();
   const inTeams =
     simulationIds?.length === 1 && simulations?.find((s) => s.id === simulationIds[0])?.player_grouping === "TEAMS";
 

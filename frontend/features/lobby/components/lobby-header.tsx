@@ -4,7 +4,7 @@ import { Copy, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { BrandMark } from "@/shared/components/brand-mark";
-import { useTunnel } from "@/shared/hooks/useTunnel";
+import { useTunnel } from "@/shared/hooks/queries/useTunnel";
 
 type LobbyHeaderProps = {
   isHost: boolean;

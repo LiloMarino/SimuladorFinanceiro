@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -10,7 +9,7 @@ import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
 import { GOAL_PERCENT } from "@/shared/lib/goal-metrics";
-import { economicIndicatorsOptions } from "@/shared/lib/queries/economicIndicatorsOptions";
+import { useEconomicIndicators } from "@/shared/hooks/queries/useEconomicIndicators";
 import { displayMoney, displayMoneyCompact, displayPercent } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
 
@@ -118,7 +117,7 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
 }
 
 function EconomicIndicators() {
-  const { data, isLoading, isError, refetch } = useQuery(economicIndicatorsOptions());
+  const { data, isLoading, isError, refetch } = useEconomicIndicators();
 
   const items = data
     ? [

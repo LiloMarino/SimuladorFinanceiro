@@ -1,28 +1,17 @@
 import type { PropsWithChildren } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { SimulationContext } from "./SimulationContext";
-import type { SimulationInfo } from "@/types";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useNavigate } from "react-router-dom";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
+import { useSimulationStatus } from "@/shared/hooks/queries/useSimulationStatus";
 import { LifeNotifications } from "@/shared/notifications/life-notifications";
 
 export function SimulationProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const {
-    data: simulation,
-    isLoading: loading,
-    isError: failed,
-    refetch,
-  } = useQuery({
-    queryKey: queryKeys.simulationStatus(),
-    queryFn: ({ signal }) => apiFetch<SimulationInfo>("/api/simulation/status", { signal }),
-    staleTime: 1 * 60 * 1000, // 1min (simulação muda mais rápido)
-    gcTime: 5 * 60 * 1000, // 5min cache
-  });
+  const { data: simulation, isLoading: loading, isError: failed, refetch } = useSimulationStatus();
 
   useRealtime(
     "simulation_started",

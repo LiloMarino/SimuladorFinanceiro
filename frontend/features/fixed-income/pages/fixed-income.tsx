@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/shared/components/ui/card";
@@ -21,7 +20,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { ErrorState } from "@/shared/components/error-state";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
-import { economicIndicatorsOptions } from "@/shared/lib/queries/economicIndicatorsOptions";
+import { useEconomicIndicators } from "@/shared/hooks/queries/useEconomicIndicators";
 import { displayDate, displayPercent, displayRateLabel, parseLocalDate } from "@/shared/lib/utils/display";
 import type { FixedIncomeOffer } from "@/types";
 import { useFixedIncomeAssets } from "../hooks/queries/useFixedIncomeAssets";
@@ -55,7 +54,7 @@ export default function FixedIncomePage() {
   const { data: offers, isLoading, error, refetch } = useFixedIncomeAssets();
   const { data: portfolio } = usePortfolio();
   const { data: simulation } = useSimulationState();
-  const { data: indicators } = useQuery(economicIndicatorsOptions());
+  const { data: indicators } = useEconomicIndicators();
   const [indexFilter, setIndexFilter] = useState<IndexFilter>("ALL");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
   const [onlyExempt, setOnlyExempt] = useState(false);

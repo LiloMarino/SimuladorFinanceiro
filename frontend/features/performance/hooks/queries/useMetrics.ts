@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { MetricsData } from "@/types";
-import { REFRESH_MS } from "../lib/stats";
+import { REFRESH_MS } from "../../lib/stats";
 
 /**
  * Lê as medições a cada 2 s; pausado, a tabela fica parada para dar tempo de ler.

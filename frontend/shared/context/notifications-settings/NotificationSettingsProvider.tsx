@@ -1,9 +1,10 @@
 import { useCallback } from "react";
 import type { PropsWithChildren } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { NotificationSettingsContext } from "./NotificationSettingsContext";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
+import { useNotificationSettings } from "@/shared/hooks/queries/useNotificationSettings";
 import type ApiError from "@/shared/lib/models/ApiError";
 import type { NotificationPreferences } from "@/types";
 
@@ -20,10 +21,7 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
 export function NotificationSettingsProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
 
-  const { data } = useQuery({
-    queryKey: queryKeys.notificationSettings(),
-    queryFn: ({ signal }) => apiFetch<NotificationPreferences>("/api/settings", { signal }),
-  });
+  const { data } = useNotificationSettings();
 
   const preferences: NotificationPreferences = { ...DEFAULT_PREFERENCES, ...(data ?? {}) };
 

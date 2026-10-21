@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { differenceInCalendarDays } from "date-fns";
@@ -10,8 +9,6 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ErrorPage } from "@/pages/error";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { queryKeys } from "@/shared/lib/queryKeys";
 import { cn, normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import {
@@ -23,6 +20,7 @@ import {
 } from "@/shared/lib/utils/display";
 import type { FixedIncomeOffer, FixedIncomeQuote } from "@/types";
 import { InvestmentTicket } from "../components/investment-ticket";
+import { useFixedIncomeAsset } from "../hooks/queries/useFixedIncomeAsset";
 import { useFixedIncomeProjection } from "../hooks/queries/useFixedIncomeProjection";
 import { INVESTMENT_TYPE_LABELS, RATE_KIND_LABELS } from "../lib/labels";
 
@@ -38,11 +36,7 @@ const NOT_FOUND = (
 export default function FixedIncomeDetailPage() {
   usePageLabel("Renda fixa");
   const { id } = useParams<{ id: string }>();
-  const { data: offer, isLoading } = useQuery({
-    queryKey: queryKeys.fixedIncomeAsset(id ?? ""),
-    queryFn: ({ signal }) => apiFetch<FixedIncomeOffer>(`/api/fixed-income/${id}`, { signal }),
-    enabled: !!id,
-  });
+  const { data: offer, isLoading } = useFixedIncomeAsset(id);
   const { data: simulation } = useSimulationState();
 
   if (isLoading || !simulation?.current_date) {

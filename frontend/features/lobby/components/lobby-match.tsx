@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Clock, History, Play, RefreshCw, UserPlus, Users, Zap } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
@@ -25,8 +25,8 @@ import {
   toCentsString,
 } from "@/shared/lib/utils/display";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { seriesCoverageOptions } from "@/shared/lib/queries/seriesCoverageOptions";
-import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
+import { useSeriesCoverage } from "@/shared/hooks/queries/useSeriesCoverage";
+import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import {
   displayRatePercent,
   unexpectedLabel,
@@ -204,7 +204,7 @@ export function LobbyMatch({
   });
   const values = useWatch({ control: form.control }) as SimulationFormValues;
 
-  const { data: coverage } = useQuery(seriesCoverageOptions());
+  const { data: coverage } = useSeriesCoverage();
   // A cobertura só se confere com as duas datas completas; digitando, o campo mostra o erro
   const datesComplete = isIsoDate(values.startDate) && isIsoDate(values.endDate);
   const coverageCheck = datesComplete
@@ -218,7 +218,7 @@ export function LobbyMatch({
 
   // A lista vem da mais recente para a mais antiga: a primeira é a que o atalho seleciona
   const queryClient = useQueryClient();
-  const { data: savedSimulations, isPending: listPending } = useQuery(simulationListOptions());
+  const { data: savedSimulations, isPending: listPending } = useSimulationList();
   // Quem entra ou sai da sala muda quais partidas salvas ainda cabem
   const refreshFit = () => void queryClient.invalidateQueries({ queryKey: queryKeys.simulationList() });
   useRealtime("player_join", refreshFit);

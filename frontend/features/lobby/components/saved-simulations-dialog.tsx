@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Search, Trophy, Zap } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
@@ -12,7 +12,7 @@ import { ErrorState } from "@/shared/components/error-state";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
+import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { cn } from "@/shared/lib/utils";
 import { displayDate, displayMonthSlashYear, parseLocalDate } from "@/shared/lib/utils/display";
 import { winRuleLabel } from "@/shared/lib/game-types";
@@ -70,7 +70,7 @@ function SavedSimulationsContent({
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<StatusFilter>("ALL");
 
-  const { data, isLoading, error, refetch } = useQuery({ ...simulationListOptions(), refetchOnMount: "always" });
+  const { data, isLoading, error, refetch } = useSimulationList({ refetchOnMount: "always" });
 
   const {
     mutate: selectSimulation,

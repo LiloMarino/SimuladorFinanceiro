@@ -1,11 +1,8 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import { Command, CommandItem, CommandList } from "@/shared/components/ui/command";
 import { Input } from "@/shared/components/ui/input";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { queryKeys } from "@/shared/lib/queryKeys";
-import type { TickerSuggestion } from "@/types";
+import { useTickerSearch } from "../hooks/queries/useTickerSearch";
 
 type TickerComboboxProps = {
   id: string;
@@ -26,14 +23,7 @@ export function TickerCombobox({ id, value, onChange, suggest, placeholder, inva
   const [debounced] = useDebounce(value.trim(), 300);
 
   const enabled = suggest && debounced.length >= MIN_CHARS;
-  const { data: suggestions = [] } = useQuery({
-    queryKey: queryKeys.tickerSearch(debounced.toUpperCase()),
-    queryFn: ({ signal }) =>
-      apiFetch<TickerSuggestion[]>(`/api/import-assets/tickers?q=${encodeURIComponent(debounced)}`, { signal }),
-    enabled,
-    staleTime: Infinity,
-    retry: false,
-  });
+  const { data: suggestions = [] } = useTickerSearch(debounced, { enabled });
 
   const showList = open && enabled && suggestions.length > 0;
 

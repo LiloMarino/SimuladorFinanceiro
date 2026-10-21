@@ -1,5 +1,4 @@
 import { Flag } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -13,7 +12,7 @@ import {
 } from "@/shared/components/ui/empty";
 import { ErrorState } from "@/shared/components/error-state";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
+import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { HighlightsRow, HighlightsSkeleton } from "../components/match-result/highlights-row";
 import { MatchHero, MatchHeroSkeleton } from "../components/match-result/match-hero";
 import { TeamPullers } from "../components/match-result/team-pullers";
@@ -38,7 +37,7 @@ const backToLobby = (
 function MatchResult({ simulationId }: { simulationId: number }) {
   const { user } = useAuth();
   const { data: overview, error, refetch } = useStatisticsReport("overview", [simulationId]);
-  const { data: simulations } = useQuery(simulationListOptions());
+  const { data: simulations } = useSimulationList();
 
   if (error && !overview) {
     return (

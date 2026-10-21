@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -17,6 +17,7 @@ import { toastApiError } from "@/shared/notifications/toast-api-error";
 import { INCOME_TAX_RATE, salesMonthName } from "@/shared/lib/income-tax";
 import { displayPercent } from "@/shared/lib/utils/display";
 import type { AssetClass, OrderPreview } from "@/types";
+import { useOrderPreview } from "../hooks/queries/useOrderPreview";
 
 type Action = "buy" | "sell";
 type OrderKind = "market" | "limit";
@@ -46,12 +47,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
   const limitPrice = kind === "limit" ? Number(normalizeNumberString(limitText)) || null : null;
   const [request] = useDebounce({ action, quantity, limit_price: limitPrice }, 250);
 
-  const { data: preview } = useQuery({
-    queryKey: queryKeys.orderPreview(ticker, request),
-    queryFn: ({ signal }) =>
-      apiFetch<OrderPreview>(`/api/variable-income/${ticker}/order-preview`, { method: "POST", body: request, signal }),
-    placeholderData: keepPreviousData,
-  });
+  const { data: preview } = useOrderPreview(ticker, request);
 
   const submit = useMutation({
     mutationFn: () =>

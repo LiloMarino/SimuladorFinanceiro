@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Info, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
@@ -8,7 +8,9 @@ import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
-import type { Sector, SeriesCoverage, StockSegment } from "@/types";
+import type { SeriesCoverage, StockSegment } from "@/types";
+import { useSectors } from "../hooks/queries/useSectors";
+import { useSegmentSuggestion } from "../hooks/queries/useSegmentSuggestion";
 import { SectorCombobox } from "./sector-combobox";
 
 type ClassifyRowProps = {
@@ -20,16 +22,8 @@ type ClassifyRowProps = {
 /** Classificação aberta na própria linha da tabela: sugestão do yFinance no topo, setor e segmento lado a lado. */
 export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
   const queryClient = useQueryClient();
-  const { data: sectors } = useQuery({
-    queryKey: queryKeys.sectors(),
-    queryFn: ({ signal }) => apiFetch<Sector[]>("/api/import-assets/sectors", { signal }),
-  });
-  const { data: suggestion } = useQuery({
-    queryKey: queryKeys.segmentSuggestion(series.key),
-    queryFn: ({ signal }) =>
-      apiFetch<StockSegment | null>(`/api/import-assets/stocks/${series.key}/suggestion`, { signal }),
-    staleTime: Infinity,
-  });
+  const { data: sectors } = useSectors();
+  const { data: suggestion } = useSegmentSuggestion(series.key);
 
   const known = sectors?.map((s) => s.name) ?? [];
   const current = series.segment;
