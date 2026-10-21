@@ -2,13 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { Users } from "lucide-react";
 import { toast } from "sonner";
 import { useRealtime } from "@/shared/hooks/useRealtime";
-import { useNotificationSettings } from "@/shared/hooks/useNotificationSettings";
+import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { displayMoney } from "../lib/utils/display";
 
 /** Avisos do que acontece longe da tela atual, com atalho para ver. */
 export function GlobalNotifications() {
   const navigate = useNavigate();
-  const { preferences } = useNotificationSettings();
+  const { preferences } = useNotificationPreferences();
 
   useRealtime(
     "order_executed",

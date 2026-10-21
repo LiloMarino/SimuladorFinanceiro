@@ -3,7 +3,7 @@ import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Switch } from "@/shared/components/ui/switch";
-import { useNotificationSettings } from "@/shared/hooks/useNotificationSettings";
+import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import type { NotificationPreferences } from "@/types";
 
 type Option = {
@@ -28,7 +28,7 @@ const OPTIONS: Option[] = [
 
 /** Os avisos do canto da tela; um que não salvou volta ao valor anterior e diz isso no lugar. */
 export function NotificationsCard() {
-  const { preferences, updatePreferences } = useNotificationSettings();
+  const { preferences, updatePreferences } = useNotificationPreferences();
   const [failure, setFailure] = useState<string | null>(null);
 
   const valueOf = (o: Option) => (preferences[o.section] as Record<string, boolean>)[o.item];
