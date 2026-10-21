@@ -26,10 +26,10 @@ def register_frontend_routes(app: FastAPI):
         name="assets",
     )
 
-    # Arquivos soltos (vite.svg etc)
-    @app.get("/vite.svg", include_in_schema=False)
-    async def serve_vite():  # type: ignore
-        return FileResponse(static_dir / "vite.svg")
+    # Arquivos soltos (logo.svg etc)
+    @app.get("/logo.svg", include_in_schema=False)
+    async def serve_logo():  # type: ignore
+        return FileResponse(static_dir / "logo.svg")
 
     # SPA fallback (React Router)
     @app.get(
