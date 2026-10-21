@@ -1,9 +1,10 @@
 import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { niceTicks } from "@/shared/lib/chart-scale";
 import { displayShortMonthYear } from "@/shared/lib/utils/display";
 import { useStaticChartVisibility } from "@/shared/hooks/useStaticChartVisibility";
 import { LineChartLegend } from "./chart-legend";
 import { LineChartTooltip } from "./chart-tooltip";
-import { buildChartData, monthStartTicks, niceTicks, type ChartAxis, type LineChartRow } from "./utils";
+import { buildChartData, monthStartTicks, type ChartAxis, type LineChartRow } from "./utils";
 import type { LineSeries } from "./series";
 
 export type { LineSeries } from "./series";

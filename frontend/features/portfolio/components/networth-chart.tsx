@@ -2,6 +2,7 @@ import { Area, AreaChart, CartesianGrid, Line, ResponsiveContainer, Tooltip, XAx
 import { LineChart as LineChartIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
+import { niceTicks } from "@/shared/lib/chart-scale";
 import {
   displayDate,
   displayMoney,
@@ -36,15 +37,6 @@ const X_AXIS_HEIGHT = 24;
 const PLOT_HEIGHT = CHART_HEIGHT - CHART_MARGIN.top - X_AXIS_HEIGHT;
 const LABEL_SPACING = 16;
 
-/** Eixo Y em múltiplos redondos, com no máximo 5 divisões acima de zero. */
-function niceScale(max: number) {
-  if (max <= 0) return { ticks: [0, 1], top: 1 };
-  const base = 10 ** Math.floor(Math.log10(max / 4));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * base).find((s) => max / s <= 5) ?? 10 * base;
-  const count = Math.ceil(max / step);
-  return { ticks: Array.from({ length: count + 1 }, (_, i) => i * step), top: count * step };
-}
-
 const displayThousands = (value: number) => {
   if (value === 0) return "0";
   return value >= 1_000_000
@@ -57,7 +49,10 @@ export function NetworthChart({ history, goalSteps }: { history: PortfolioHistor
   const data: ChartPoint[] = history.map((p) => ({ ...p, goal: goalAt(goalSteps ?? [], p.snapshot_date) }));
   const last = data.at(-1);
   const hasGoal = data.some((p) => p.goal !== undefined);
-  const scale = niceScale(Math.max(0, ...data.map((p) => Math.max(num(p, "total_networth"), num(p, "total_provided"), p.goal ?? 0))));
+  const peak = Math.max(0, ...data.map((p) => Math.max(num(p, "total_networth"), num(p, "total_provided"), p.goal ?? 0)));
+  // Eixo Y em múltiplos redondos, a partir de zero; sem patrimônio, a escala é 0 a 1
+  const ticks = peak > 0 ? niceTicks(0, peak) : [0, 1];
+  const top = ticks[ticks.length - 1];
 
   return (
     <Card>
@@ -94,8 +89,8 @@ export function NetworthChart({ history, goalSteps }: { history: PortfolioHistor
                     height={X_AXIS_HEIGHT}
                   />
                   <YAxis
-                    ticks={scale.ticks}
-                    domain={[0, scale.top]}
+                    ticks={ticks}
+                    domain={[0, top]}
                     tickFormatter={displayThousands}
                     tick={{ fontSize: 11, fill: "var(--faint-foreground)" }}
                     axisLine={false}
@@ -142,7 +137,7 @@ export function NetworthChart({ history, goalSteps }: { history: PortfolioHistor
                   )}
                 </AreaChart>
               </ResponsiveContainer>
-              <EndLabels last={last} top={scale.top} />
+              <EndLabels last={last} top={top} />
             </div>
 
             {/* Legenda */}
