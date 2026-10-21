@@ -29,7 +29,7 @@ def brazilian_decimal(value: float) -> str:
 
 def write_csv(ticker: str) -> Path:
     """Grava no formato que a importação por CSV lê (`importer_service.from_csv`)."""
-    frame = from_yfinance(f"{ticker}.SA", START, END)
+    frame = from_yfinance(ticker, START, END)
     path = DATA_DIR / f"{ticker}.csv"
     with path.open("w", encoding="utf-8", newline="") as file:
         writer = csv.writer(file, quoting=csv.QUOTE_ALL)

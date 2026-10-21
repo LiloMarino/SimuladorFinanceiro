@@ -22,6 +22,22 @@ from backend.core.models.models import StockPriceHistory
 
 logger = logging.getLogger(__name__)
 
+# Código de ativo da B3: quatro caracteres e o número da classe (PETR4, KNRI11)
+B3_TICKER = re.compile(r"[A-Z0-9]{4}\d{1,2}")
+B3_SUFFIX = ".SA"
+
+
+def bare_ticker(text: str) -> str:
+    """O código como a base o guarda: sem o `.SA` do yfinance."""
+    return text.strip().upper().removesuffix(B3_SUFFIX)
+
+
+def yfinance_symbol(ticker: str) -> str:
+    """O símbolo que o yfinance conhece: o código da B3 ganha o `.SA`; cripto, bolsa
+    estrangeira e índice (`BTC-USD`, `AAPL`, `^BVSP`) seguem como estão."""
+    return f"{ticker}{B3_SUFFIX}" if B3_TICKER.fullmatch(ticker) else ticker
+
+
 # -------------------
 # Origens de dados
 # -------------------
@@ -30,22 +46,23 @@ logger = logging.getLogger(__name__)
 def from_yfinance(
     ticker: str, start: str | None = None, end: str | None = None
 ) -> pd.DataFrame:
+    symbol = yfinance_symbol(ticker)
     if start:
         end = end or datetime.today().strftime("%Y-%m-%d")
         logger.debug(
-            "Baixando dados do YFinance para %s de %s a %s", ticker, start, end
+            "Baixando dados do YFinance para %s de %s a %s", symbol, start, end
         )
         df = yf.download(
-            ticker,
+            symbol,
             start=start,
             end=end,
             auto_adjust=True,
             multi_level_index=False,
         )
     else:
-        logger.debug("Baixando dados do YFinance para %s (período completo)", ticker)
+        logger.debug("Baixando dados do YFinance para %s (período completo)", symbol)
         df = yf.download(
-            ticker,
+            symbol,
             period="max",
             auto_adjust=True,
             multi_level_index=False,
@@ -183,7 +200,7 @@ def suggest_segment(info: dict) -> StockSegmentDTO | None:
 
 def _download_profile(ticker: str) -> TickerProfileDTO:
     """Consulta o yfinance; levanta quando a fonte falha."""
-    info = yf.Ticker(ticker).info or {}
+    info = yf.Ticker(yfinance_symbol(ticker)).info or {}
     return TickerProfileDTO(
         ticker=ticker,
         name=info.get("longName") or info.get("shortName"),
@@ -228,10 +245,6 @@ def refresh_profile(ticker: str) -> None:
     repository.stock.save_ticker_profile(profile)
 
 
-# Código de ativo da B3: quatro caracteres e o número da classe (PETR4, KNRI11)
-B3_TICKER = re.compile(r"[A-Z0-9]{4}\d{1,2}")
-
-
 def search_tickers(query: str) -> list[TickerSuggestionDTO]:
     """Códigos da B3 que o yfinance acha para o texto, com o nome da empresa."""
     query = query.strip()
@@ -248,9 +261,9 @@ def search_tickers(query: str) -> list[TickerSuggestionDTO]:
     found: dict[str, TickerSuggestionDTO] = {}
     for quote in quotes:
         symbol = str(quote.get("symbol") or "").upper()
-        if quote.get("exchange") != "SAO" or not symbol.endswith(".SA"):
+        if quote.get("exchange") != "SAO" or not symbol.endswith(B3_SUFFIX):
             continue
-        ticker = symbol.removesuffix(".SA")
+        ticker = bare_ticker(symbol)
         if not B3_TICKER.fullmatch(ticker) or ticker in found:
             continue
         name = quote.get("longname") or quote.get("shortname") or ticker
@@ -326,9 +339,13 @@ def from_yfinance_batch(tickers: list[str]) -> dict[str, pd.DataFrame]:
     if len(tickers) == 1:
         return {tickers[0]: from_yfinance(tickers[0])}
 
-    logger.info(f"Baixando dados em lote do YFinance para: {', '.join(tickers)}")
+    # O lote vem indexado pelo símbolo do yfinance; o resultado, pelo código da base
+    symbols = {ticker: yfinance_symbol(ticker) for ticker in tickers}
+    logger.info(
+        f"Baixando dados em lote do YFinance para: {', '.join(symbols.values())}"
+    )
     df = yf.download(
-        tickers,
+        list(symbols.values()),
         period="max",
         group_by="ticker",
         auto_adjust=True,
@@ -338,9 +355,9 @@ def from_yfinance_batch(tickers: list[str]) -> dict[str, pd.DataFrame]:
         return {}
 
     result = {}
-    for ticker in tickers:
+    for ticker, symbol in symbols.items():
         try:
-            ticker_df = df[ticker].dropna(how="all")
+            ticker_df = df[symbol].dropna(how="all")
             if not ticker_df.empty:
                 result[ticker] = ticker_df
             else:

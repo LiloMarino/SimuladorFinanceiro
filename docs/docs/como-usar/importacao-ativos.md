@@ -114,9 +114,11 @@ O simulador pode buscar dados diretamente do **Yahoo Finance** usando a bibliote
 5. Confirme a ação na janela de confirmação
 
 **Exemplos de tickers brasileiros:**
-- Ações: `VALE3.SA`, `PETR4.SA`, `BBAS3.SA`, `ITUB4.SA`
-- FIIs: `XPML11.SA`, `HGLG11.SA`, `MXRF11.SA`
-- ETFs: `BOVA11.SA` (Ibovespa), `SMAL11.SA` (Small Caps)
+- Ações: `VALE3`, `PETR4`, `BBAS3`, `ITUB4`
+- FIIs: `XPML11`, `HGLG11`, `MXRF11`
+- ETFs: `BOVA11` (Ibovespa), `SMAL11` (Small Caps)
+
+O campo sugere os códigos da B3 enquanto você digita. O simulador guarda o código da B3 sem o sufixo `.SA` do Yahoo Finance e o acrescenta sozinho ao buscar; se você digitar `PETR4.SA`, ele vira `PETR4`. Cripto e ativos de outras bolsas (`BTC-USD`, `AAPL`) seguem como o Yahoo Finance os conhece.
 
 :::warning Limitações do Yahoo Finance
 A importação via Yahoo Finance depende da **API externa** deles, que pode ter:

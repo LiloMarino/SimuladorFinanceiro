@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
-from pydantic import BaseModel, Field
+from pydantic import AfterValidator, BaseModel, Field
 
 from backend.core import repository
 from backend.core.dependencies.simulation import require_no_active_simulation
@@ -27,6 +27,7 @@ from backend.features.import_data.future import (
     record,
 )
 from backend.features.import_data.importer_service import (
+    bare_ticker,
     fetch_info,
     refresh_profile,
     search_tickers,
@@ -151,8 +152,12 @@ def str_to_bool(value: str | bool | None) -> bool:
     return False
 
 
+# O código chega ao serviço como a base o guarda: `PETR4.SA` digitado vira `PETR4`
+ImportedTicker = Annotated[str, AfterValidator(bare_ticker)]
+
+
 class ImportYFinanceRequest(BaseModel):
-    ticker: str
+    ticker: ImportedTicker
     overwrite: bool = False
 
 
@@ -181,7 +186,7 @@ def import_assets_json(request: ImportYFinanceRequest):
 
 
 class ImportYFinanceBatchRequest(BaseModel):
-    tickers: list[str]
+    tickers: list[ImportedTicker]
     overwrite: bool = False
 
 
@@ -202,7 +207,7 @@ def import_assets_batch(request: ImportYFinanceBatchRequest):
     description="Importa dados de ativos a partir de um arquivo CSV enviado via multipart/form-data e devolve a série como ficou na base e os dias gerados que o real ocupou.",
 )
 def import_assets_csv(
-    ticker: Annotated[str, Form(...)],
+    ticker: Annotated[ImportedTicker, Form(...)],
     csv_file: Annotated[UploadFile, File(...)],
     overwrite: Annotated[str, Form(...)] = "false",
 ):

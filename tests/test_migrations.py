@@ -72,6 +72,50 @@ def test_versioned_database_migrates_through_the_dry_run(
         drop_databases(make_url(pg_url), _backups(pg_url))
 
 
+BEFORE_SUFFIX_STRIP = "9707da5dfa82"
+
+
+def _tickers_before_strip(pg_url: str, engine: Engine, tickers: list[str]) -> None:
+    """Banco na revisão anterior à que tira o `.SA`, com estes códigos em `stock`."""
+    command.upgrade(alembic_config(pg_url), BEFORE_SUFFIX_STRIP)
+    with engine.begin() as connection:
+        for position, ticker in enumerate(tickers):
+            connection.execute(
+                text(
+                    "INSERT INTO stock (ticker, name, asset_class) "
+                    f"VALUES ('{ticker}', 'Nome {position}', 'STOCK')"
+                )
+            )
+        connection.execute(
+            text("INSERT INTO ticker_profile (ticker) VALUES ('VALE3.SA')")
+        )
+
+
+def test_suffix_is_stripped_from_stored_tickers(pg_url: str, engine: Engine) -> None:
+    """Os códigos importados com o `.SA` passam a valer sem ele; os outros ficam."""
+    _tickers_before_strip(pg_url, engine, ["PETR4.SA", "ITSA4", "BTC-USD"])
+
+    command.upgrade(alembic_config(pg_url), "head")
+
+    with engine.connect() as connection:
+        stocks = connection.execute(text("SELECT ticker FROM stock")).scalars().all()
+        profiles = connection.execute(
+            text("SELECT ticker FROM ticker_profile")
+        ).scalars()
+        assert sorted(stocks) == ["BTC-USD", "ITSA4", "PETR4"]
+        assert list(profiles) == ["VALE3"]
+
+
+def test_suffix_strip_stops_when_the_bare_code_exists(
+    pg_url: str, engine: Engine
+) -> None:
+    """Com `PETR4` e `PETR4.SA` na base, a migration para em vez de mesclar."""
+    _tickers_before_strip(pg_url, engine, ["PETR4.SA", "PETR4"])
+
+    with pytest.raises(RuntimeError, match=r"PETR4.SA"):
+        command.upgrade(alembic_config(pg_url), "head")
+
+
 NEWER_REVISION = "test_newer"
 
 
