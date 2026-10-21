@@ -62,8 +62,14 @@ jobs:
         run: |
           uv run python -m scripts.release --check | tee -a "$GITHUB_STEP_SUMMARY"
 
+  # Check vermelho: nenhum executável é montado nem publicado
+  check:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/check.yml
+
   build:
-    needs: validate
+    needs: [validate, check]
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read

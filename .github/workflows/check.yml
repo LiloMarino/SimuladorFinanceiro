@@ -1,0 +1,62 @@
+name: Checagem do projeto
+
+# A mesma checagem roda nas PRs do Dependabot e antes de cada release: lint,
+# typecheck, pytest e eslint + tsc do frontend, com PostgreSQL para os testes de banco
+on:
+  workflow_call:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    # A imagem oficial sobe em UTF-8; o job só começa com o banco aceitando conexão
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # Os testes criam e apagam bancos `simfin_test_*` neste servidor
+    env:
+      POSTGRES_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.13"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Instalar dependências do Python
+        run: uv sync --dev
+
+      - name: Instalar dependências do frontend
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      # lint, typecheck, pytest e eslint + tsc do frontend
+      - name: Rodar a checagem do projeto
+        run: pnpm run check
