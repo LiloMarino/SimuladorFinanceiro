@@ -52,9 +52,8 @@ import { useRealtime } from "@/shared/hooks/useRealtime";
 import { cn } from "@/shared/lib/utils";
 import { dateFieldError } from "@/shared/lib/utils/date-field";
 import {
-  displayDate,
+  displayIsoDate,
   displayNumber,
-  parseLocalDate,
 } from "@/shared/lib/utils/display";
 import type {
   FutureParams,
@@ -98,8 +97,6 @@ const SHORTCUT_YEARS = [1, 2, 5, 10];
 const PREVIEW_TICKERS = 3;
 const SEED_DIGITS = 15;
 
-const formatIso = (iso: string) => displayDate(parseLocalDate(iso));
-
 const futureFormSchema = (lastRealIso: string | null) =>
   z.object({
     // O campo guarda ISO quando a data está completa e real; o texto em digitação é recusado aqui
@@ -115,7 +112,7 @@ const futureFormSchema = (lastRealIso: string | null) =>
         if (lastRealIso && value <= lastRealIso) {
           ctx.addIssue({
             code: "custom",
-            message: `Escolha uma data depois de ${formatIso(lastRealIso)}, o último dado real do Ibovespa.`,
+            message: `Escolha uma data depois de ${displayIsoDate(lastRealIso)}, o último dado real do Ibovespa.`,
           });
         }
       }),
@@ -234,7 +231,7 @@ export function FutureForm({
     onRecordingChange(true);
     record.mutate(params, {
       onSuccess: () => {
-        toast.success(`Futuro gravado até ${formatIso(params.until)}`, {
+        toast.success(`Futuro gravado até ${displayIsoDate(params.until)}`, {
           description: `${countLabel(assets, "ativo", "ativos")} e ${countLabel(indicators, "indicador", "indicadores")}`,
         });
         onClose();
@@ -272,7 +269,7 @@ export function FutureForm({
           <>
             {" "}
             até{" "}
-            <span className="font-mono">{formatIso(parsed.data.until)}</span> ·
+            <span className="font-mono">{displayIsoDate(parsed.data.until)}</span> ·
             cerca de {displayNumber(preview.trading_days, 0)} pregões por série
           </>
         )}
@@ -319,7 +316,7 @@ export function FutureForm({
           <Alert variant="warning" role="status">
             <TriangleAlert />
             <p>
-              <b>Já há um futuro gerado até {formatIso(future.until)}.</b>{" "}
+              <b>Já há um futuro gerado até {displayIsoDate(future.until)}.</b>{" "}
               Gravar troca esse futuro pelo novo em todas as séries.
             </p>
             {future.saved_simulations_on_future > 0 && (
@@ -417,13 +414,13 @@ export function FutureForm({
                           Cada série continua do dia útil seguinte ao seu último
                           dado real: Ibovespa em{" "}
                           <span className="font-mono">
-                            {formatIso(preview.ibov_start.start)}
+                            {displayIsoDate(preview.ibov_start.start)}
                           </span>
                           {preview.laggard_start && (
                             <>
                               , {preview.laggard_start.key} em{" "}
                               <span className="font-mono">
-                                {formatIso(preview.laggard_start.start)}
+                                {displayIsoDate(preview.laggard_start.start)}
                               </span>
                             </>
                           )}

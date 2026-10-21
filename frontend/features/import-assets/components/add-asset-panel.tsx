@@ -17,7 +17,7 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Field, FieldContent, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
+import { displayIsoDate } from "@/shared/lib/utils/display";
 import { useImportAsset, type ImportRequest, type Source } from "../hooks/mutations/useImportAsset";
 import { tickerFromFileName, type CsvInspection } from "../lib/csv-file";
 import { CsvDropzone } from "./csv-dropzone";
@@ -25,8 +25,6 @@ import { TickerCombobox } from "./ticker-combobox";
 
 export const ADD_ASSET_INPUT_ID = "add-asset-ticker";
 const ADD_ASSET_FILE_ID = "add-asset-file";
-
-const formatIso = (iso: string) => displayDate(parseLocalDate(iso));
 
 /** Importar uma ação: progresso, sucesso e erro aparecem aqui mesmo, sem toast. */
 export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => void }) {
@@ -78,8 +76,8 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
                 <CircleCheck />
                 <AlertTitle>{imported.key} entrou na base</AlertTitle>
                 <AlertDescription>
-                  Dado real de {imported.start && formatIso(imported.start)} a{" "}
-                  {imported.real_end && formatIso(imported.real_end)}
+                  Dado real de {imported.start && displayIsoDate(imported.start)} a{" "}
+                  {imported.real_end && displayIsoDate(imported.real_end)}
                   {imported.segment && ` · setor sugerido ${imported.segment.sector} · ${imported.segment.segment}`}
                   <br />
                   <Button variant="link" size="xs" onClick={() => onClassify(imported.key)}>

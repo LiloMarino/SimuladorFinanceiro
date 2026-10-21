@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Ban, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
-import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
+import { displayIsoDate } from "@/shared/lib/utils/display";
 import type { CoverageCheck } from "../lib/coverage";
 
 type CoverageAlertsProps = {
@@ -11,8 +11,6 @@ type CoverageAlertsProps = {
   /** Abre as regras para trocar a data; só o host tem essa saída */
   onChangeDate?: () => void;
 };
-
-const formatIso = (iso: string) => displayDate(parseLocalDate(iso));
 
 // O aviso cita até 3 códigos; o resto vira "e mais N" e a lista completa fica na Central
 const MAX_LISTED_CODES = 3;
@@ -39,12 +37,12 @@ export function CoverageAlerts({ check, startDate, onChangeDate }: CoverageAlert
       {missingAtStart.length > 0 && (
         <Alert variant="destructive">
           <Ban />
-          <AlertTitle>Não dá pra começar em {startDate ? formatIso(startDate) : "—"}</AlertTitle>
+          <AlertTitle>Não dá pra começar em {startDate ? displayIsoDate(startDate) : "—"}</AlertTitle>
           <AlertDescription>
             {missingAtStart.map((s) => s.key).join(" e ")} não {missingAtStart.length > 1 ? "têm" : "tem"} dado nessa
             data.{" "}
             {firstCoveredStart
-              ? `Escolha um início a partir de ${formatIso(firstCoveredStart)} ou atualize os indicadores.`
+              ? `Escolha um início a partir de ${displayIsoDate(firstCoveredStart)} ou atualize os indicadores.`
               : "Atualize os indicadores na Central de dados."}
           </AlertDescription>
           <div className="col-span-full mt-1 flex gap-4">
@@ -64,7 +62,7 @@ export function CoverageAlerts({ check, startDate, onChangeDate }: CoverageAlert
         <Alert variant="warning">
           <TriangleAlert />
           <AlertDescription>
-            Depois de <b className="font-mono">{formatIso(firstRealEnd)}</b> não há preço real: a partida repete o
+            Depois de <b className="font-mono">{displayIsoDate(firstRealEnd)}</b> não há preço real: a partida repete o
             último valor de {listCodes(endingBeforeEnd.map((s) => s.key))}.{" "}
             <Link to="/import-assets" className="font-medium text-primary hover:text-primary-hover">
               Ver séries

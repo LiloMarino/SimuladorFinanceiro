@@ -1,5 +1,5 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
-import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
+import { displayIsoDate } from "@/shared/lib/utils/display";
 import type { SeriesCoverage } from "@/types";
 import { timelineOffset, type TimelineRange } from "../lib/timeline";
 
@@ -7,8 +7,6 @@ type CoverageBarProps = {
   series: SeriesCoverage;
   range: TimelineRange;
 };
-
-const formatIso = (iso: string) => displayDate(parseLocalDate(iso));
 
 /** Até onde vai o dado de uma série no eixo comum: real, gerado e o trecho que repete o último valor. */
 export function CoverageBar({ series, range }: CoverageBarProps) {
@@ -47,8 +45,8 @@ export function CoverageBar({ series, range }: CoverageBarProps) {
         </div>
       </TooltipTrigger>
       <TooltipContent side="top">
-        Real: {formatIso(series.start)} → {formatIso(series.real_end)}
-        {series.generated_end && ` · gerado até ${formatIso(series.generated_end)}`}
+        Real: {displayIsoDate(series.start)} → {displayIsoDate(series.real_end)}
+        {series.generated_end && ` · gerado até ${displayIsoDate(series.generated_end)}`}
         {dataEnd < 100 && " · depois repete o último valor"}
       </TooltipContent>
     </Tooltip>

@@ -144,6 +144,9 @@ export function displayDate(date: Date | string) {
   }).format(d);
 }
 
+/** "2020-01-02" exibido como data local, sem o recuo de um dia do fuso. */
+export const displayIsoDate = (isoDate: string) => displayDate(parseLocalDate(isoDate));
+
 /** "2023-03-14" → "14 mar 2023", a data curta do topo. */
 export function displayShortDate(date: Date | string) {
   const parts = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).formatToParts(

@@ -3,12 +3,10 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { isOutdatedStock } from "@/shared/lib/series-coverage";
 import { cn } from "@/shared/lib/utils";
-import { displayDate, displayDecimal, parseLocalDate } from "@/shared/lib/utils/display";
+import { displayDecimal, displayIsoDate } from "@/shared/lib/utils/display";
 import type { GeneratedFuture, SeriesCoverage } from "@/types";
 import { REGIME_NAMES, withMinus } from "../lib/future-readings";
 import { displayRecordedAt } from "../lib/recorded-at";
-
-const formatIso = (iso: string) => displayDate(parseLocalDate(iso));
 
 type Stat = {
   label: string;
@@ -43,11 +41,11 @@ export function CoverageSummary({ series, future, onGenerate }: CoverageSummaryP
   const unclassified = series.filter((s) => s.kind === "STOCK" && !s.segment).length;
 
   const attentionDetail = () => {
-    if (future) return `Partidas depois de ${formatIso(future.until)} repetem o último valor`;
+    if (future) return `Partidas depois de ${displayIsoDate(future.until)} repetem o último valor`;
     if (!earliestEnd) return "Nada pra ver aqui";
     return (
       <>
-        Partidas depois de {formatIso(earliestEnd.real_end as string)} repetem o preço de {earliestEnd.key}
+        Partidas depois de {displayIsoDate(earliestEnd.real_end as string)} repetem o preço de {earliestEnd.key}
         {future === null && (
           <>
             {" "}
@@ -67,7 +65,7 @@ export function CoverageSummary({ series, future, onGenerate }: CoverageSummaryP
       value:
         latestStart && earliestEnd ? (
           <span className="font-mono">
-            {formatIso(latestStart.start as string)} → {formatIso(earliestEnd.real_end as string)}
+            {displayIsoDate(latestStart.start as string)} → {displayIsoDate(earliestEnd.real_end as string)}
           </span>
         ) : (
           "—"
@@ -87,7 +85,7 @@ export function CoverageSummary({ series, future, onGenerate }: CoverageSummaryP
           {
             label: "Futuro gerado",
             variant: "warning" as const,
-            value: <span className="font-mono">até {formatIso(future.until)}</span>,
+            value: <span className="font-mono">até {displayIsoDate(future.until)}</span>,
             detail: (
               <>
                 Semente <span className="font-mono">{future.seed}</span> · temperatura{" "}
@@ -96,7 +94,7 @@ export function CoverageSummary({ series, future, onGenerate }: CoverageSummaryP
                 {withMinus(String(future.inflation_shock))}
                 {future.real_advanced_until && (
                   <>
-                    <br />O real chegou até {formatIso(future.real_advanced_until)} depois deste futuro
+                    <br />O real chegou até {displayIsoDate(future.real_advanced_until)} depois deste futuro
                   </>
                 )}
                 <br />
