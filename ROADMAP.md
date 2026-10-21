@@ -68,7 +68,6 @@
 | [**F33**](#f33) | Indicadores técnicos | — | ⏳ |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
 | [**F37**](#f37) | Tema escuro | — | 💤 |
-| [**F40**](#f40) | Modo Especialista | — | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 🔍 |
 | [**F48**](#f48) | README e docs que mostram o produto | — | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
@@ -99,7 +98,7 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -117,6 +116,7 @@
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | [F24](#f24) | ✅ |
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ✅ |
+| [**F40**](#f40) | Modo Especialista | — | ✅ |
 | [**F41**](#f41) | Conquistas | — | ✅ |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ✅ |
@@ -147,7 +147,6 @@
 | [**F89**](#f89) | Presets de partida | — | 1 | ⏳ |
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 1 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
-| [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F48**](#f48) | README e docs que mostram o produto | M14 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
@@ -261,16 +260,17 @@
 >
 > **Serve:** N21, N22, N23
 >
-> **Progresso:** 1/2 concluídas
+> **Progresso:** 2/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F40**](#f40) | Modo Especialista | — | ⏳ |
+| — | *(nada em aberto)* | — | — |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F40**](#f40) | Modo Especialista | — | ✅ |
 | [**F41**](#f41) | Conquistas | — | ✅ |
 
 </details>
@@ -373,7 +373,7 @@
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F33** | Indicadores técnicos | N19, N4 | D2 | M11 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
-| **F40** | Modo Especialista | N21 | D2 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F40** | Modo Especialista | N21 | D2 | M13 | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F41** | Conquistas | N22 | D1 | M13 | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F47** | Gravação automática de demonstrações | N25 | — | M14 | — | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
