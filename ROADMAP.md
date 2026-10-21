@@ -92,7 +92,6 @@
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ⏳ |
-| [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
@@ -109,7 +108,7 @@
 | [**F98**](#f98) | Excluir partida salva | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (16 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -129,6 +128,7 @@
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ✅ |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
+| [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
 
 </details>
 
@@ -165,7 +165,6 @@
 | [**F78**](#f78) | Release só sai com o check passando | — | 0 | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | 0 | ⏳ |
-| [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | 0 | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | 0 | ⏳ |
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | 0 | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | 0 | ⏳ |
@@ -313,7 +312,7 @@
 
 ### Sem marco
 
-> **Progresso:** 1/34 concluídas
+> **Progresso:** 2/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -339,7 +338,6 @@
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ⏳ |
-| [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
@@ -351,11 +349,12 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 | [**F98**](#f98) | Excluir partida salva | — | ⏳ |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
+| [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
 
 </details>
 
@@ -511,7 +510,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F80** | Cotações do dia numa consulta só | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
 | **F82** | Repetições pequenas do frontend | — | — | — | Baixo | Baixo | Baixo | Médio | ⏳ Pendente |
-| **F83** | Proxy do Vite na porta do config.toml | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
+| **F83** | Proxy do Vite na porta do config.toml | — | — | — | Baixo | Baixo | Baixo | Bom | ✅ Concluído |
 | **F84** | Dependências do backend num sentido só | — | — | — | Médio | Médio | Baixo | Médio | ⏳ Pendente |
 
 <a id="f14"></a>
