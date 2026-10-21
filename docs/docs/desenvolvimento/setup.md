@@ -172,6 +172,8 @@ enabled = false  # true liga o modo debug (veja abaixo)
 sql = false      # com o debug ligado, grava o SQL no database.log
 ```
 
+O proxy do `pnpm dev` do frontend (`/api` e `/socket.io`) segue o `[server] port` deste arquivo, ou 8000 quando ele não existe. Ao mudar a porta, reinicie o `pnpm dev`.
+
 O que cada arquivo de `logs_path` guarda e o que aparece no terminal está em [Logs](./logs.md).
 
 ### Modo debug
