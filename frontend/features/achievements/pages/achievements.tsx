@@ -17,16 +17,12 @@ export default function AchievementsPage() {
 
   // Convidado lê as conquistas guardadas no computador do host
   const guestOf = settings && !settings.is_host ? settings.host_nickname : undefined;
-  const room = guestOf ? `Sala de ${guestOf}` : settings?.simulation.name;
 
   return (
     <section className="grid gap-5">
       {/* Título: dentro da partida quem o mostra é a barra do topo */}
       {!simulationActive && (
-        <header className="grid gap-0.5">
-          <h1 className="text-lg font-semibold">Conquistas</h1>
-          <span className="text-muted-foreground">Você{room ? ` · ${room}` : ""}</span>
-        </header>
+        <h1 className="text-lg font-semibold">Conquistas</h1>
       )}
 
       <span className="max-w-190 text-muted-foreground">
