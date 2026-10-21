@@ -14,14 +14,11 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { formatMoney } from "@/shared/lib/utils/format";
 import {
   displayDate,
-  displayDecimal,
   displayMoneyCompact,
   displayMoneyWhole,
   parseLocalDate,
-  toCentsString,
 } from "@/shared/lib/utils/display";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { useSeriesCoverage } from "@/shared/hooks/queries/useSeriesCoverage";
@@ -30,12 +27,10 @@ import {
   displayRatePercent,
   unexpectedLabel,
   UNEXPECTED_OPTIONS,
-  withdrawalRateToField,
 } from "@/shared/lib/financial-independence";
 import { GAME_TYPES } from "@/shared/lib/game-types";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type {
-  CreateSimulationRequest,
   GameType,
   PlayerGrouping,
   RoomPlayer,
@@ -47,6 +42,7 @@ import { useContinueSimulation } from "../hooks/mutations/useContinueSimulation"
 import { useCreateSimulation } from "../hooks/mutations/useCreateSimulation";
 import { useDistributeTeams } from "../hooks/mutations/useDistributeTeams";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
+import { toFormValues, toSettingsBody } from "../lib/simulation-form";
 import { checkTeams } from "../lib/teams-check";
 import { checkCoverage } from "../lib/coverage";
 import {
@@ -55,7 +51,6 @@ import {
   isWithdrawalRate,
   WITHDRAWAL_RATE_MESSAGE,
   withdrawalRateFraction,
-  withdrawalRateToBody,
 } from "../lib/life-rules";
 import { dateFieldError, isIsoDate } from "@/shared/lib/utils/date-field";
 import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "../lib/price-impact";
@@ -173,26 +168,7 @@ export function LobbyMatch({
   const form = useForm<SimulationFormValues>({
     resolver: zodResolver(simulationFormSchema),
     mode: "onChange",
-    defaultValues: {
-      name: simulationData.name,
-      startDate: simulationData.start_date,
-      endDate: simulationData.end_date,
-      startingCash: formatMoney(toCentsString(simulationData.starting_cash)),
-      monthlyContribution: formatMoney(toCentsString(simulationData.monthly_contribution)),
-      priceImpactEnabled: simulationData.price_impact_enabled,
-      priceImpactK: displayDecimal(simulationData.price_impact_k),
-      priceImpactDecayDays: String(simulationData.price_impact_decay_days),
-      victoryCriterion: simulationData.victory_criterion,
-      gameType: simulationData.game_type,
-      goalNetWorth: formatMoney(toCentsString(simulationData.goal_net_worth)),
-      monthlySalary: formatMoney(toCentsString(simulationData.monthly_salary)),
-      monthlyExpense: formatMoney(toCentsString(simulationData.monthly_expense)),
-      unexpectedPerYear: simulationData.unexpected_per_year,
-      withdrawalRate: withdrawalRateToField(simulationData.withdrawal_rate),
-      inflationAdjusted: simulationData.inflation_adjusted,
-      playerGrouping: simulationData.player_grouping,
-      teamNaming: simulationData.team_naming,
-    },
+    defaultValues: toFormValues(simulationData),
   });
 
   const saveStatus = useRealtimeSyncSimulationForm({
@@ -232,26 +208,7 @@ export function LobbyMatch({
     ? (roomPlayers ?? []).filter((p) => !savedPlayers.some((saved) => saved.nickname === p.nickname))
     : [];
 
-  const createSimulationBody: CreateSimulationRequest = {
-    name: values.name,
-    start_date: values.startDate,
-    end_date: values.endDate,
-    starting_cash: normalizeNumberString(values.startingCash),
-    monthly_contribution: normalizeNumberString(values.monthlyContribution),
-    price_impact_enabled: values.priceImpactEnabled,
-    price_impact_k: Number(normalizeNumberString(values.priceImpactK)),
-    price_impact_decay_days: Number(values.priceImpactDecayDays),
-    victory_criterion: values.victoryCriterion,
-    game_type: values.gameType,
-    goal_net_worth: normalizeNumberString(values.goalNetWorth),
-    monthly_salary: normalizeNumberString(values.monthlySalary),
-    monthly_expense: normalizeNumberString(values.monthlyExpense),
-    unexpected_per_year: values.unexpectedPerYear,
-    withdrawal_rate: withdrawalRateToBody(values.withdrawalRate),
-    inflation_adjusted: values.inflationAdjusted,
-    player_grouping: values.playerGrouping,
-    team_naming: values.teamNaming,
-  };
+  const createSimulationBody = toSettingsBody(values);
   const { mutate: createSimulation, isPending: creating } = useCreateSimulation();
   const { mutate: continueSimulation, isPending: continuing } = useContinueSimulation();
 
@@ -265,28 +222,7 @@ export function LobbyMatch({
   const canStart = isHost && !busy && !blockedByCoverage && form.formState.isValid && !teamsBlock;
 
   // Com partida selecionada o card mostra as regras dela, em só leitura; sem seleção, as da nova partida
-  const rules = selectedSimulation
-    ? {
-        name: selectedSimulation.name,
-        startDate: selectedSimulation.start_date,
-        endDate: selectedSimulation.end_date,
-        startingCash: formatMoney(toCentsString(selectedSimulation.starting_cash)),
-        monthlyContribution: formatMoney(toCentsString(selectedSimulation.monthly_contribution)),
-        victoryCriterion: selectedSimulation.victory_criterion,
-        gameType: selectedSimulation.game_type,
-        goalNetWorth: formatMoney(toCentsString(selectedSimulation.goal_net_worth)),
-        monthlySalary: formatMoney(toCentsString(selectedSimulation.monthly_salary)),
-        monthlyExpense: formatMoney(toCentsString(selectedSimulation.monthly_expense)),
-        unexpectedPerYear: selectedSimulation.unexpected_per_year,
-        withdrawalRate: withdrawalRateToField(selectedSimulation.withdrawal_rate),
-        inflationAdjusted: selectedSimulation.inflation_adjusted,
-        priceImpactEnabled: selectedSimulation.price_impact_enabled,
-        priceImpactK: displayDecimal(selectedSimulation.price_impact_k),
-        priceImpactDecayDays: String(selectedSimulation.price_impact_decay_days),
-        playerGrouping: selectedSimulation.player_grouping,
-        teamNaming: selectedSimulation.team_naming,
-      }
-    : values;
+  const rules = selectedSimulation ? toFormValues(selectedSimulation) : values;
   // Painel "Ver regras" da salva: o formulário acompanha as regras gravadas nela, sem edição
   const savedRulesForm = useForm<SimulationFormValues>({
     resolver: zodResolver(simulationFormSchema),
