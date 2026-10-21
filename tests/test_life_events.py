@@ -6,10 +6,10 @@ from decimal import Decimal
 import pytest
 
 from backend.core.enum import IndicatorSeries, LifeEventEffect
+from backend.core.life_budget import LifeBudget
 from backend.core.utils import next_business_day
 from backend.features.simulation.life_events import (
     LIFE_EVENTS,
-    LifeBudget,
     LifeEventType,
     overdraft_interest,
     salary_skipped,

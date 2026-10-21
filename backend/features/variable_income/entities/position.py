@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
 
+from backend.core.dto.position import PositionDTO
 from backend.core.exceptions import InsufficentPositionError
+from backend.core.utils import ratio
 
 
 @dataclass
@@ -37,3 +39,18 @@ class Position:
     def release(self, size: int):
         """Libera parte da posição reservada."""
         self.reserved = max(0, self.reserved - size)
+
+    def to_dto(self, current_price: Decimal) -> PositionDTO:
+        current_value = current_price * self.size
+        return_value = current_value - self.total_cost
+        return PositionDTO(
+            ticker=self.ticker,
+            size=self.size,
+            reserved=self.reserved,
+            total_cost=self.total_cost,
+            avg_price=self.avg_price,
+            current_price=current_price,
+            current_value=current_value,
+            return_value=return_value,
+            return_pct=ratio(return_value, self.total_cost),
+        )

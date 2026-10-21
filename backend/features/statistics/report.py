@@ -36,8 +36,8 @@ from backend.core.enum import (
     VictoryCriterion,
 )
 from backend.core.sectors import allocate_by_sector
-from backend.features.simulation.goal import goal_on, goal_steps
 from backend.features.statistics import operations, returns, risk, sectors
+from backend.features.statistics.goal import goal_on, goal_steps
 from backend.features.statistics.ranking import build_overview, capital_provided
 from backend.features.statistics.teams import (
     team_composition,

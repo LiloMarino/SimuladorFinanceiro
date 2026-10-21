@@ -1,7 +1,7 @@
 import logging
 from uuid import UUID
 
-from backend.core.dto.order import OrderDTO
+from backend.core.enum import OrderAction, OrderStatus
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     ForbiddenError,
@@ -16,11 +16,10 @@ from backend.features.realtime.schemas import (
 )
 from backend.features.variable_income.broker import Broker, to_money
 from backend.features.variable_income.entities.order import (
+    MARKET_CLIENT_ID,
     LimitOrder,
     MarketOrder,
     Order,
-    OrderAction,
-    OrderStatus,
 )
 from backend.features.variable_income.market_data import MarketData
 from backend.features.variable_income.market_liquidity import MarketLiquidity
@@ -73,7 +72,7 @@ class MatchingEngine:
                 self.order_book.add(order)
                 notify(
                     event=f"order_added:{order.ticker}",
-                    payload=OrderEventDTO(order=OrderDTO.from_model(order)).to_json(),
+                    payload=OrderEventDTO(order=order.to_dto()).to_json(),
                 )
 
     def on_tick(self, ticker: str) -> None:
@@ -89,10 +88,7 @@ class MatchingEngine:
         notify(
             event=f"order_book_snapshot:{candle.ticker}",
             payload=OrderBookSnapshotEventDTO(
-                orders=[
-                    OrderDTO.from_model(o)
-                    for o in self.order_book.get_orders(candle.ticker)
-                ]
+                orders=[o.to_dto() for o in self.order_book.get_orders(candle.ticker)]
             ).to_json(),
         )
 
@@ -113,7 +109,7 @@ class MatchingEngine:
         order.remaining = 0
         notify(
             event=f"order_updated:{order.ticker}",
-            payload=OrderEventDTO(order=OrderDTO.from_model(order)).to_json(),
+            payload=OrderEventDTO(order=order.to_dto()).to_json(),
         )
         self.order_book.remove(order)
         return True
@@ -231,11 +227,11 @@ class MatchingEngine:
                 quantity=quantity,
             ).to_json()
 
-        if order.client_id != MarketLiquidity.MARKET_CLIENT_ID:
+        if order.client_id != MARKET_CLIENT_ID:
             notify(event=event, payload=payload, to=order.client_id)
 
         if isinstance(order, LimitOrder):
             notify(
                 event=f"order_updated:{order.ticker}",
-                payload=OrderEventDTO(order=OrderDTO.from_model(order)).to_json(),
+                payload=OrderEventDTO(order=order.to_dto()).to_json(),
             )

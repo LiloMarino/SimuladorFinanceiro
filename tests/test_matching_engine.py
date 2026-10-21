@@ -6,16 +6,12 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 import backend.features.variable_income.matching_engine as me
+from backend.core.enum import OrderAction, OrderStatus
 from backend.core.exceptions import InsufficentCashError, InsufficentPositionError
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.runtime import user_manager
 from backend.features.variable_income.broker import Broker
-from backend.features.variable_income.entities.order import (
-    LimitOrder,
-    MarketOrder,
-    OrderAction,
-    OrderStatus,
-)
+from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
 from backend.features.variable_income.matching_engine import MatchingEngine
 
 

@@ -3,7 +3,8 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from backend.features.variable_income.entities.order import LimitOrder, OrderAction
+from backend.core.enum import OrderAction
+from backend.features.variable_income.entities.order import LimitOrder
 from backend.features.variable_income.order_book import OrderBook
 
 T0 = datetime(2020, 1, 6, tzinfo=UTC)

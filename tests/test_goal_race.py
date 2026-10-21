@@ -9,8 +9,8 @@ from pydantic import ValidationError
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.enum import GameType
-from backend.features.simulation.goal import goal_reached
 from backend.features.simulation.saved_simulation import leader_reached_goal
+from backend.features.statistics.goal import goal_reached
 from backend.features.statistics.ranking import build_overview
 from backend.routes.simulation import CreateSimulationRequest
 

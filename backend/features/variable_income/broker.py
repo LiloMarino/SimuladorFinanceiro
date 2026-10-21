@@ -9,8 +9,7 @@ from uuid import UUID
 
 from backend.core import repository
 from backend.core.dto.events.equity import EquityEventDTO
-from backend.core.dto.position import PositionDTO
-from backend.core.enum import EquityEventType
+from backend.core.enum import EquityEventType, OrderAction
 from backend.core.exceptions import InsufficentCashError, InsufficentPositionError
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -18,13 +17,12 @@ from backend.core.utils.lazy_dict import LazyDict
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import PositionUpdateEventDTO
 from backend.features.variable_income.entities.order import (
+    MARKET_CLIENT_ID,
     LimitOrder,
     MarketOrder,
     Order,
-    OrderAction,
 )
 from backend.features.variable_income.entities.position import Position
-from backend.features.variable_income.market_liquidity import MarketLiquidity
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
@@ -87,7 +85,7 @@ class Broker:
             return max(0, position.size - position.reserved)
 
     def reserve_limit_order(self, order: LimitOrder) -> None:
-        if order.client_id == MarketLiquidity.MARKET_CLIENT_ID:
+        if order.client_id == MARKET_CLIENT_ID:
             return
 
         with self._lock:
@@ -110,7 +108,7 @@ class Broker:
                 )
 
     def release_limit_order(self, order: LimitOrder) -> None:
-        if order.client_id == MarketLiquidity.MARKET_CLIENT_ID:
+        if order.client_id == MARKET_CLIENT_ID:
             return
 
         with self._lock:
@@ -168,7 +166,7 @@ class Broker:
         price: float,
     ):
         # Executa a ordem para o cliente (se não for MARKET)
-        if order.client_id != MarketLiquidity.MARKET_CLIENT_ID:
+        if order.client_id != MARKET_CLIENT_ID:
             match order.action:
                 case OrderAction.BUY:
                     self._execute_buy(order, size, price)
@@ -176,7 +174,7 @@ class Broker:
                     self._execute_sell(order, size, price)
 
     def _validate_market_order(self, order: MarketOrder, size: int, price: float):
-        if order.client_id != MarketLiquidity.MARKET_CLIENT_ID:
+        if order.client_id != MARKET_CLIENT_ID:
             if (
                 order.action == OrderAction.SELL
                 and self.get_available_position(order.client_id, order.ticker) < size
@@ -211,8 +209,8 @@ class Broker:
                 del self._positions[client_id][ticker]
 
             position_payload = PositionUpdateEventDTO(
-                position=PositionDTO.from_model(
-                    position, self._simulation_engine.get_current_price(position)
+                position=position.to_dto(
+                    self._simulation_engine.get_current_price(position)
                 )
             ).to_json()
 

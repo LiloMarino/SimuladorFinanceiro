@@ -23,8 +23,9 @@ from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import GameType, IndicatorSeries, PlayerGrouping
+from backend.core.enum import GameType, IndicatorSeries, OrderAction, PlayerGrouping
 from backend.core.indicators import annual_index_rate
+from backend.core.life_budget import LifeBudget
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import next_business_day
@@ -49,17 +50,15 @@ from backend.features.realtime.schemas import (
     StocksUpdateEventDTO,
     StockUpdateEventDTO,
 )
-from backend.features.simulation.goal import goal_on, goal_reached
 from backend.features.simulation.life_events import (
-    LifeBudget,
     layoff_in,
     overdraft_interest,
     salary_skipped,
     unexpected_on,
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.statistics.goal import goal_on, goal_reached
 from backend.features.strategy.manual import ManualStrategy
-from backend.features.variable_income.entities.order import OrderAction
 from backend.features.variable_income.price_impact import PriceImpact
 
 # Pregões no mini gráfico da lista de mercado
@@ -452,7 +451,7 @@ class Simulation:
         positions = self._engine.get_positions(client_id)
         position = positions.get(ticker)
         return (
-            PositionDTO.from_model(position, self._engine.get_current_price(position))
+            position.to_dto(self._engine.get_current_price(position))
             if position
             else PositionDTO(
                 ticker=ticker,
@@ -488,7 +487,7 @@ class Simulation:
 
     def get_orders(self, ticker: str) -> list[OrderDTO]:
         orders = self._engine.matching_engine.order_book.get_orders(ticker)
-        return [OrderDTO.from_model(o) for o in orders]
+        return [o.to_dto() for o in orders]
 
     def clear_user_cache(self, client_id: UUID) -> None:
         # Remove saldo em cache

@@ -6,7 +6,7 @@ from decimal import Decimal
 
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.enum import GameType
-from backend.features.simulation.life_events import LifeBudget
+from backend.core.life_budget import LifeBudget
 from backend.features.statistics.teams import mean
 
 

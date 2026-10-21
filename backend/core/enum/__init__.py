@@ -99,6 +99,23 @@ CONTRIBUTION_TYPES = frozenset(
 )
 
 
+class OrderType(Enum):
+    MARKET = "market"
+    LIMIT = "limit"
+
+
+class OrderAction(Enum):
+    BUY = "buy"
+    SELL = "sell"
+
+
+class OrderStatus(Enum):
+    EXECUTED = "executed"
+    PARTIAL = "partial"
+    PENDING = "pending"
+    CANCELED = "canceled"
+
+
 class EquityEventType(Enum):
     BUY = "BUY"
     SELL = "SELL"

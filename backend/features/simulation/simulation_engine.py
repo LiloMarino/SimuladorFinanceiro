@@ -11,9 +11,9 @@ from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.order_preview import OrderPreviewDTO
 from backend.core.dto.portfolio import PortfolioDTO
-from backend.core.dto.position import PortfolioPositionDTO, PositionDTO
+from backend.core.dto.position import PortfolioPositionDTO
 from backend.core.dto.sector import StockSegmentDTO
-from backend.core.enum import CashflowEventType, EquityEventType
+from backend.core.enum import CashflowEventType, EquityEventType, OrderAction
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.sectors import allocate_by_sector
@@ -27,7 +27,6 @@ from backend.features.statistics.sectors import effective_sectors
 from backend.features.strategy.base_strategy import BaseStrategy
 from backend.features.variable_income.broker import Broker, to_money
 from backend.features.variable_income.entities.candle import Candle
-from backend.features.variable_income.entities.order import OrderAction
 from backend.features.variable_income.entities.position import Position
 from backend.features.variable_income.income_tax import (
     STOCK_EXEMPTION_LIMIT,
@@ -243,7 +242,7 @@ class SimulationEngine:
     def get_portfolio(self, client_id: UUID) -> PortfolioDTO:
         with self._lock:
             equity = [
-                PositionDTO.from_model(pos, self.get_current_price(pos))
+                pos.to_dto(self.get_current_price(pos))
                 for pos in self.broker.get_positions(client_id).values()
                 if pos.size > 0
             ]

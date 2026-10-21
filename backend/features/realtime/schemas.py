@@ -23,7 +23,7 @@ from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
-from backend.features.variable_income.entities.order import OrderAction
+from backend.core.enum import OrderAction
 
 
 class CashUpdateEventDTO(BaseDTO):

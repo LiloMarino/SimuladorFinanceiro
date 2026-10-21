@@ -4,8 +4,9 @@ from datetime import date
 
 import pytest
 
+from backend.core.enum import OrderAction
 from backend.features.variable_income.entities.candle import Candle
-from backend.features.variable_income.entities.order import LimitOrder, OrderAction
+from backend.features.variable_income.entities.order import MARKET_CLIENT_ID, LimitOrder
 from backend.features.variable_income.liquidity.beta_distribution import (
     BetaLiquidityDistribution,
 )
@@ -77,7 +78,7 @@ def test_buys_below_and_sells_above_typical_price():
     assert all(candle.low <= o.price <= candle.high for o in generated)
     assert all(o.price < typical for o in generated if o.action == OrderAction.BUY)
     assert all(o.price > typical for o in generated if o.action == OrderAction.SELL)
-    assert all(o.client_id == MarketLiquidity.MARKET_CLIENT_ID for o in generated)
+    assert all(o.client_id == MARKET_CLIENT_ID for o in generated)
 
 
 def test_refresh_replaces_previous_liquidity():

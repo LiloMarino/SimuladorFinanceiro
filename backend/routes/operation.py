@@ -13,16 +13,12 @@ from backend.core.dto.fixed_income_projection import FixedIncomeQuoteDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO, TradeDTO
 from backend.core.dto.stock_details import StockDetailsDTO
+from backend.core.enum import OrderAction, OrderType
 from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
-from backend.features.variable_income.entities.order import (
-    LimitOrder,
-    MarketOrder,
-    OrderAction,
-    OrderType,
-)
+from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
 
 logger = logging.getLogger(__name__)
 

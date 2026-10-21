@@ -18,8 +18,8 @@ from backend.core.enum import (
     LifeHistoryCategory,
     LifeHistoryKind,
 )
+from backend.core.life_budget import LifeBudget
 from backend.features.simulation.life_events import (
-    LifeBudget,
     layoff_in,
     salary_skipped,
     unexpected_on,

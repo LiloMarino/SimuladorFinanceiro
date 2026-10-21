@@ -2,24 +2,13 @@ import uuid
 from abc import ABC
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from enum import Enum
 
+from backend.core.dto.order import OrderDTO
+from backend.core.enum import OrderAction, OrderStatus, OrderType
+from backend.core.runtime.user_manager import UserManager
 
-class OrderType(Enum):
-    MARKET = "market"
-    LIMIT = "limit"
-
-
-class OrderAction(Enum):
-    BUY = "buy"
-    SELL = "sell"
-
-
-class OrderStatus(Enum):
-    EXECUTED = "executed"
-    PARTIAL = "partial"
-    PENDING = "pending"
-    CANCELED = "canceled"
+# Dono das ordens da liquidez do mercado simulado, que não é um jogador
+MARKET_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__MARKET__")
 
 
 @dataclass(kw_only=True)
@@ -37,6 +26,31 @@ class Order(ABC):
 
     def __post_init__(self):
         self.remaining = self.size
+
+    def to_dto(self) -> OrderDTO:
+        synthetic = self.client_id == MARKET_CLIENT_ID
+        color = None
+        if synthetic:
+            nickname = "Mercado"
+        else:
+            user = UserManager.get_user(self.client_id)
+            nickname = "Unknown" if user is None else user.nickname
+            color = None if user is None else UserManager.get_color(user.id)
+        return OrderDTO(
+            id=self.id,
+            player_nickname=nickname,
+            player_color=color,
+            action=self.action,
+            order_type=OrderType.LIMIT
+            if isinstance(self, LimitOrder)
+            else OrderType.MARKET,
+            limit_price=getattr(self, "price", None),
+            size=self.size,
+            remaining=self.remaining,
+            status=self.status,
+            created_at=self.created_at,
+            synthetic=synthetic,
+        )
 
 
 @dataclass(kw_only=True)

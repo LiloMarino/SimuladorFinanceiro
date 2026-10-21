@@ -2,11 +2,8 @@ import heapq
 from collections import defaultdict
 from datetime import datetime
 
-from backend.features.variable_income.entities.order import (
-    LimitOrder,
-    Order,
-    OrderAction,
-)
+from backend.core.enum import OrderAction
+from backend.features.variable_income.entities.order import LimitOrder, Order
 
 
 class OrderBook:

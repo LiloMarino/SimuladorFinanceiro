@@ -9,22 +9,21 @@ import pytest
 from backend.core import repository
 from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
-from backend.core.enum import EquityEventType
+from backend.core.enum import EquityEventType, OrderAction
 from backend.core.exceptions import InsufficentCashError, InsufficentPositionError
 from backend.core.runtime.user_manager import UserManager
 from backend.features.variable_income.broker import Broker, load_positions, to_money
 from backend.features.variable_income.entities.order import (
+    MARKET_CLIENT_ID,
     LimitOrder,
     MarketOrder,
-    OrderAction,
 )
-from backend.features.variable_income.market_liquidity import MarketLiquidity
 from backend.features.variable_income.matching_engine import MatchingEngine
 from tests.fakes import FakeSimulationEngine, client
 
 BUYER = client("buyer")
 SELLER = client("seller")
-MARKET = MarketLiquidity.MARKET_CLIENT_ID
+MARKET = MARKET_CLIENT_ID
 
 type History = dict[str, list[tuple[EquityEventType, str, int]]]
 

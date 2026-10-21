@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import uuid
 from collections import defaultdict
 from collections.abc import Callable
 
+from backend.core.enum import OrderAction
 from backend.features.variable_income.entities.candle import Candle
-from backend.features.variable_income.entities.order import LimitOrder, OrderAction
+from backend.features.variable_income.entities.order import MARKET_CLIENT_ID, LimitOrder
 from backend.features.variable_income.liquidity.beta_distribution import (
     BetaLiquidityDistribution,
 )
@@ -26,8 +26,6 @@ class MarketLiquidity:
     - Calcular Typical Price para separar zona de BUY vs SELL
     - Rastrear ordens de mercado por ticker para limpeza eficiente
     """
-
-    MARKET_CLIENT_ID: uuid.UUID = uuid.uuid5(uuid.NAMESPACE_DNS, "__MARKET__")
 
     def __init__(
         self,
@@ -97,7 +95,7 @@ class MarketLiquidity:
 
             orders.append(
                 LimitOrder(
-                    client_id=self.MARKET_CLIENT_ID,
+                    client_id=MARKET_CLIENT_ID,
                     ticker=candle.ticker,
                     price=level.price,
                     size=level.volume,
@@ -122,14 +120,14 @@ class MarketLiquidity:
 
         return [
             LimitOrder(
-                client_id=self.MARKET_CLIENT_ID,
+                client_id=MARKET_CLIENT_ID,
                 ticker=candle.ticker,
                 price=price - tick,
                 size=half_volume,
                 action=OrderAction.BUY,
             ),
             LimitOrder(
-                client_id=self.MARKET_CLIENT_ID,
+                client_id=MARKET_CLIENT_ID,
                 ticker=candle.ticker,
                 price=price + tick,
                 size=candle.volume - half_volume,

@@ -23,13 +23,13 @@ from backend.core.enum import (
     EquityEventType,
     FixedIncomeEventType,
     FixedIncomeType,
+    OrderAction,
     RateIndexType,
 )
 from backend.core.runtime.event_manager import EventManager
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.entities.candle import Candle
-from backend.features.variable_income.entities.order import OrderAction
 from backend.features.variable_income.entities.position import Position
 from tests.fakes import USER_ID, client
 
