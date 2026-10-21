@@ -82,7 +82,6 @@
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
-| [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ⏳ |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
@@ -100,7 +99,7 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -121,6 +120,7 @@
 | [**F41**](#f41) | Conquistas | — | ✅ |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ✅ |
+| [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ✅ |
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | ✅ |
 | [**F78**](#f78) | Release só sai com o check passando | — | ✅ |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
@@ -144,7 +144,6 @@
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
-| [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | 1 | ⏳ |
 | [**F89**](#f89) | Presets de partida | — | 1 | ⏳ |
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 1 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
@@ -159,6 +158,7 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | 0 | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | 0 | ⏳ |
+| [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | 0 | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | 0 | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | 0 | ⏳ |
@@ -312,7 +312,7 @@
 
 ### Sem marco
 
-> **Progresso:** 9/34 concluídas
+> **Progresso:** 10/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -329,7 +329,6 @@
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
-| [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ⏳ |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | [F74](#f74) | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
@@ -342,11 +341,12 @@
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 
-<details><summary>Concluído (9 itens)</summary>
+<details><summary>Concluído (10 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ✅ |
+| [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ✅ |
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | ✅ |
 | [**F78**](#f78) | Release só sai com o check passando | — | ✅ |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
@@ -502,7 +502,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F68** | Dica de firewall no lobby | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
 | **F73** | Mapeamento único entre as regras da partida e o formulário do lobby | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
-| **F74** | Testes da conexão em tempo real e do loop da partida | — | — | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F74** | Testes da conexão em tempo real e do loop da partida | — | — | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F75** | Encerramento do loop sem thread viva nem simulação presa | — | — | [F74](#f74) | Baixo | Médio | Médio | Bom | ⏳ Pendente |
 | **F77** | Dependências em dia, com o TypeScript 7 | — | — | — | Baixo | Médio | Baixo | Médio | ⏳ Pendente |
 | **F78** | Release só sai com o check passando | — | — | — | Baixo | Baixo | Alto | Excelente | ✅ Concluído |
