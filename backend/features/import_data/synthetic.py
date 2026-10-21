@@ -9,20 +9,34 @@ transições medidas no histórico, e a temperatura pesa o sorteio pela
 volatilidade de cada trecho: em 1 o histórico como foi, abaixo favorece os
 calmos, acima os agitados.
 
+Encaixe de nível: entre os trechos do bioma, o sorteio favorece os que começam
+com SELIC, inflação de 12 meses e tendência da inflação parecidas com as do
+momento gerado. É o que mantém o juro real plausível e a SELIC reagindo à
+inflação como no histórico.
+
+Choque de inflação: uma camada por cima do sorteio, que sobe em seis meses e
+decai pela metade a cada ano. Soma X pontos à inflação anual, 1,5·X à SELIC
+(princípio de Taylor: o juro sobe mais que a inflação) e, à bolsa, a reação
+histórica do Ibovespa à SELIC, cada ativo pelo seu beta.
+
 É uma conta pura sobre o histórico recebido: nada aqui lê ou grava no banco.
 """
 
 import zlib
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 from enum import IntEnum
 
 import numpy as np
 import pandas as pd
 
 from backend.core.enum import IndicatorSeries
-from backend.core.utils import business_days_between, next_business_day
+from backend.core.utils import (
+    business_days_between,
+    next_business_day,
+    subtract_months,
+)
 
 BLOCK_DAYS = 60
 TRADING_DAYS_PER_YEAR = 252
@@ -40,6 +54,15 @@ MAX_DAILY_UP, MAX_DAILY_DOWN = np.log(2.0), np.log(0.5)
 
 # Pregões em comum para estimar o beta de um ativo contra a referência
 MIN_FIT_DAYS = 60
+
+# Largura do encaixe de nível, em desvios-padrão do estado dos trechos
+MATCH_BANDWIDTH = 0.5
+# Choque de inflação, em pontos percentuais da inflação anual
+MIN_INFLATION_SHOCK, MAX_INFLATION_SHOCK = -5.0, 20.0
+SHOCK_RAMP_YEARS, SHOCK_HALF_LIFE_YEARS = 0.5, 1.0
+SELIC_SHOCK_RESPONSE = 1.5
+SELIC_FLOOR = 0.005
+QUARTER_DAYS = 63
 
 PRICE_COLUMNS = ["open", "high", "low", "close", "volume"]
 
@@ -103,6 +126,20 @@ def _block_of(day: date) -> tuple[int, int]:
     return divmod(_day_number(day), BLOCK_DAYS)
 
 
+def _day_from_number(number: int) -> date:
+    """Inverso de `_day_number`: POOL_START é uma segunda-feira."""
+    weeks, rest = divmod(number, 5)
+    return POOL_START + timedelta(days=weeks * 7 + rest)
+
+
+def _first_business_day(month: date) -> date:
+    return month if month.weekday() < 5 else next_business_day(month)
+
+
+def _accumulated(monthly_pct: list[float]) -> float:
+    return float(np.prod(1 + np.array(monthly_pct) / 100) - 1)
+
+
 def _by_datetime[T: (pd.Series, pd.DataFrame)](data: T) -> T:
     out = data.astype(float)
     out.index = pd.to_datetime(out.index)
@@ -126,22 +163,11 @@ def _business_days(after: date, until: date) -> list[date]:
     return days
 
 
-def _months(after: date, until: date) -> list[date]:
-    """Primeiro dia de cada mês depois do mês de `after`, até `until`."""
-    months: list[date] = []
-    year, month = after.year, after.month
-    while True:
-        year, month = (year + 1, 1) if month == 12 else (year, month + 1)
-        first = date(year, month, 1)
-        if first > until:
-            return months
-        months.append(first)
-
-
 class SeriesGenerator:
     """
-    Pré-calcula o histórico uma vez (calendário, trechos, biomas, retornos) para
-    que gerações seguidas, como as de um preview, saiam baratas.
+    Pré-calcula o histórico uma vez (calendário, trechos, biomas, estado
+    econômico, retornos) para que gerações seguidas, como as de um preview, saiam
+    baratas.
     """
 
     def __init__(self, history: MarketHistory):
@@ -181,11 +207,72 @@ class SeriesGenerator:
             int(np.digitize(np.nanstd(self.market[-BLOCK_DAYS:]), cuts))
         )
         self.anchor_block = _block_of(self.calendar_days[-1])[0]
+        # O choque começa no primeiro dia depois do último pregão real
+        self.shock_start = _day_number(self.calendar_days[-1]) + 1
+        self._prepare_economy()
 
-        self._chains: dict[tuple[int, float, Regime], dict[int, int]] = {}
+        self._paths: dict[tuple[int, float, Regime], _Path] = {}
         self._bars: dict[str, pd.DataFrame] = {}
         self._returns: dict[str, np.ndarray] = {}
         self._group_means: dict[tuple[str, str], np.ndarray] = {}
+
+    def _prepare_economy(self) -> None:
+        """SELIC anual e IPCA de 12 meses em cada pregão, e o estado de cada trecho."""
+        n = len(self.calendar)
+        selic = self.indicators.get(IndicatorSeries.SELIC)
+        ipca = self.indicators.get(IndicatorSeries.IPCA)
+        self.selic_end = _last_day(selic) if selic is not None else None
+        self.ipca_end = _last_day(ipca) if ipca is not None else None
+
+        self.selic_annual = np.full(n, np.nan)
+        self.last_selic = np.nan
+        if selic is not None:
+            self.selic_annual = _to_annual(
+                selic.reindex(self.calendar, method="ffill").to_numpy()
+            )
+            self.last_selic = float(_to_annual(np.array([selic.iloc[-1]]))[0])
+        self.selic_changes = np.nan_to_num(np.diff(self.selic_annual, prepend=np.nan))
+        with np.errstate(all="ignore"):
+            self.selic_floor = np.nanmin(self.selic_annual, initial=np.inf)
+            self.selic_ceiling = np.nanmax(self.selic_annual, initial=-np.inf)
+
+        self.ipca_by_month: dict[date, float] = {}
+        self.last_ipca: list[float] = []
+        ipca12 = np.full(n, np.nan)
+        trend = np.full(n, np.nan)
+        if ipca is not None:
+            months = _dates(ipca.index)
+            self.ipca_by_month = dict(zip(months, ipca.to_numpy(), strict=True))
+            self.last_ipca = list(ipca.to_numpy()[-12:])
+            rolling = (ipca / 100 + 1).rolling(12).apply(np.prod) - 1
+            accumulated = dict(zip(months, rolling.to_numpy(), strict=True))
+            for i, day in enumerate(self.calendar_days):
+                month = day.replace(day=1)
+                before = subtract_months(month, 3)
+                ipca12[i] = accumulated.get(month, np.nan)
+                trend[i] = ipca12[i] - accumulated.get(before, np.nan)
+
+        # Estado no início de cada trecho, em desvios-padrão, para o encaixe
+        state = np.vstack([self.selic_annual, ipca12, trend])[:, self.starts]
+        with np.errstate(all="ignore"):
+            scale = np.nanstd(state, axis=1, keepdims=True)
+        self.state_scale = np.where(scale > 0, scale, 1.0)
+        self.trecho_state = state / self.state_scale
+
+        # Reação histórica do Ibovespa à SELIC: retorno do trimestre por ponto de
+        # variação da SELIC no mesmo trimestre
+        self.market_selic_beta = 0.0
+        if selic is not None:
+            edges = np.arange(1, n - QUARTER_DAYS, QUARTER_DAYS)
+            moves = np.array(
+                [np.nansum(self.market[e : e + QUARTER_DAYS]) for e in edges]
+            )
+            ends = self.selic_annual[edges + QUARTER_DAYS - 1]
+            changes = ends - self.selic_annual[edges - 1]
+            if np.var(changes) > 0:
+                self.market_selic_beta = float(
+                    np.cov(changes, moves)[0, 1] / np.var(changes, ddof=1)
+                )
 
     def generate(
         self,
@@ -193,22 +280,30 @@ class SeriesGenerator:
         seed: int,
         temperature: float = 1.0,
         start_regime: Regime | None = None,
+        inflation_shock: float = 0.0,
         tickers: Iterable[str] | None = None,
     ) -> GeneratedSeries:
         """
         Cada série recebe os dias úteis desde o dia seguinte ao seu último dado
         real até `until`. O trecho sorteado para cada data depende só da semente,
         da temperatura, do bioma inicial e da data: gerar um ativo sozinho dá as
-        mesmas linhas que gerá-lo junto com os outros.
+        mesmas linhas que gerá-lo junto com os outros. O choque de inflação, em
+        pontos percentuais, muda os níveis sem mudar os trechos.
         """
         if not MIN_TEMPERATURE <= temperature <= MAX_TEMPERATURE:
             raise ValueError(
                 f"Temperatura fora de [{MIN_TEMPERATURE}, {MAX_TEMPERATURE}]."
             )
+        if not MIN_INFLATION_SHOCK <= inflation_shock <= MAX_INFLATION_SHOCK:
+            raise ValueError(
+                "Choque de inflação fora de "
+                f"[{MIN_INFLATION_SHOCK}, {MAX_INFLATION_SHOCK}] pontos."
+            )
         draw = _Draw(
             seed,
             temperature,
             self.current_regime if start_regime is None else start_regime,
+            inflation_shock / 100,
         )
         selected = self.history.assets if tickers is None else tickers
         result = GeneratedSeries()
@@ -220,36 +315,108 @@ class SeriesGenerator:
         return result
 
     # ------------------------------------------------------------------
-    # Sorteio dos trechos
+    # Sorteio dos trechos e caminho da economia
 
-    def _chain(self, draw: "_Draw", last_block: int) -> dict[int, int]:
-        """Início do trecho de cada bloco, da âncora até `last_block`."""
+    def _path(self, draw: "_Draw", last_day: date) -> "_Path":
+        """
+        Percorre os dias desde o bloco âncora sorteando um trecho por bloco e
+        levando junto a SELIC e o IPCA sem choque: o encaixe do próximo trecho
+        depende do estado a que os anteriores levaram.
+        """
         key = (draw.seed, draw.temperature, draw.start_regime)
-        chain = self._chains.setdefault(key, {})
-        if chain and max(chain) >= last_block:
-            return chain
+        cached = self._paths.get(key)
+        if cached is not None and cached.last_day >= last_day:
+            return cached
 
         relative = self.block_vol / np.median(self.block_vol)
-        weights = relative ** (TEMPERATURE_STEEPNESS * (draw.temperature - 1))
-        within = [np.cumsum(weights[m] / weights[m].sum()) for m in self.members]
-        # A temperatura também inclina as transições para os biomas mais pesados
-        tilted = self.transitions * np.array([weights[m].mean() for m in self.members])
-        tilted = np.cumsum(tilted / tilted.sum(axis=1, keepdims=True), axis=1)
+        heat = relative ** (TEMPERATURE_STEEPNESS * (draw.temperature - 1))
+        path = _Path(last_day)
+        level = self.last_selic
+        recent_ipca = list(self.last_ipca)
+        ipca12 = [_accumulated(recent_ipca)] * 4 if recent_ipca else [np.nan] * 4
+        regime = draw.start_regime
 
-        state = draw.start_regime
-        for block in range(self.anchor_block, last_block + 1):
-            u_regime, u_block = np.random.default_rng([draw.seed, block]).random(2)
-            if block > self.anchor_block:
-                state = Regime(int(min(np.searchsorted(tilted[state], u_regime), 2)))
-            i = min(np.searchsorted(within[state], u_block), len(within[state]) - 1)
-            chain[block] = int(self.starts[self.members[state][i]])
-        return chain
+        number = self.anchor_block * BLOCK_DAYS
+        day = _day_from_number(number)
+        while day <= last_day:
+            block, offset = divmod(number, BLOCK_DAYS)
+            if block not in path.chain:
+                current = np.array([level, ipca12[-1], ipca12[-1] - ipca12[-4]])
+                distance = np.nansum(
+                    (self.trecho_state - current[:, None] / self.state_scale) ** 2,
+                    axis=0,
+                )
+                fit = np.exp(-0.5 * (distance - distance.min()) / MATCH_BANDWIDTH**2)
+                weights = heat * fit
+                u_regime, u_block = np.random.default_rng([draw.seed, block]).random(2)
+                if block > self.anchor_block:
+                    # A temperatura e o encaixe também inclinam a troca de bioma
+                    tilted = self.transitions[regime] * np.array(
+                        [weights[m].mean() for m in self.members]
+                    )
+                    cdf = np.cumsum(tilted / tilted.sum())
+                    regime = Regime(int(min(np.searchsorted(cdf, u_regime), 2)))
+                members = self.members[regime]
+                cdf = np.cumsum(weights[members] / weights[members].sum())
+                i = min(np.searchsorted(cdf, u_block), len(members) - 1)
+                path.chain[block] = int(self.starts[members[i]])
+            source = path.chain[block] + offset
+
+            # IPCA do mês: o do mês sorteado para o primeiro dia útil dele
+            month = day.replace(day=1)
+            if (
+                self.ipca_end is not None
+                and month > self.ipca_end
+                and day == _first_business_day(month)
+            ):
+                value = self.ipca_by_month.get(
+                    self.calendar_days[source].replace(day=1), recent_ipca[-1]
+                )
+                path.ipca[month] = value
+                recent_ipca = [*recent_ipca[-11:], value]
+                ipca12.append(_accumulated(recent_ipca))
+
+            # SELIC: nível de hoje mais as variações dos trechos, nos limites
+            if self.selic_end is not None and day > self.selic_end:
+                level = min(
+                    max(level + self.selic_changes[source], self.selic_floor),
+                    self.selic_ceiling,
+                )
+                path.selic[day] = level
+
+            number += 1
+            day = _day_from_number(number)
+        self._paths[key] = path
+        return path
 
     def _sources(self, draw: "_Draw", days: list[date]) -> np.ndarray:
         """Posição no calendário do sorteio do pregão real que cada dia copia."""
-        blocks = [_block_of(day) for day in days]
-        chain = self._chain(draw, max(b for b, _ in blocks))
-        return np.array([chain[max(b, self.anchor_block)] + off for b, off in blocks])
+        chain = self._path(draw, days[-1]).chain
+        return np.array(
+            [
+                chain[max(block, self.anchor_block)] + offset
+                for block, offset in map(_block_of, days)
+            ]
+        )
+
+    def _shock(self, draw: "_Draw", day: date) -> float:
+        """Choque vigente no dia: sobe em seis meses e decai pela metade a cada ano."""
+        if not draw.shock:
+            return 0.0
+        years = max(_day_number(day) - self.shock_start, 0) / TRADING_DAYS_PER_YEAR
+        ramp = min(years / SHOCK_RAMP_YEARS, 1.0)
+        decay = 0.5 ** (max(years - SHOCK_RAMP_YEARS, 0) / SHOCK_HALF_LIFE_YEARS)
+        return draw.shock * ramp * decay
+
+    def _shock_moves(self, draw: "_Draw", days: list[date]) -> np.ndarray:
+        """Retorno extra do Ibovespa em cada dia pela SELIC que o choque empurrou."""
+        if not draw.shock:
+            return np.zeros(len(days))
+        previous = _day_from_number(_day_number(days[0]) - 1)
+        selic_push = SELIC_SHOCK_RESPONSE * np.array(
+            [self._shock(draw, d) for d in [previous, *days]]
+        )
+        return self.market_selic_beta * np.diff(selic_push)
 
     # ------------------------------------------------------------------
     # Ativos
@@ -351,6 +518,10 @@ class SeriesGenerator:
                     beta * ref[source] + residuals[rng.integers(len(residuals))]
                 )
 
+        # O choque chega ao ativo pelo beta dele contra o Ibovespa
+        market_beta = next((b for ref, b, _ in fits if ref is self.market), 1.0)
+        generated += market_beta * self._shock_moves(draw, days)
+
         last_close = float(bars["close"].iloc[-1])
         close = last_close * np.exp(np.cumsum(generated))
         previous = np.concatenate([[last_close], close[:-1]])
@@ -376,25 +547,22 @@ class SeriesGenerator:
     def _generate_indicators(
         self, draw: "_Draw", until: date, out: dict[IndicatorSeries, pd.Series]
     ) -> None:
-        indicators = self.indicators
-
         # Ibovespa: pontos, como o fechamento de um ativo
-        ibov = indicators[IndicatorSeries.IBOV]
+        ibov = self.indicators[IndicatorSeries.IBOV]
         days = _business_days(_last_day(ibov), until)
         if days:
             moves = self.market[self._sources(draw, days)]
+            moves = moves + self._shock_moves(draw, days)
             out[IndicatorSeries.IBOV] = pd.Series(
                 float(ibov.iloc[-1]) * np.exp(np.cumsum(moves)), index=days
             )
 
-        selic = indicators.get(IndicatorSeries.SELIC)
-        cdi = indicators.get(IndicatorSeries.CDI)
+        selic = self.indicators.get(IndicatorSeries.SELIC)
+        cdi = self.indicators.get(IndicatorSeries.CDI)
         if selic is not None and cdi is not None:
             self._generate_rates(draw, until, selic, cdi, out)
-
-        ipca = indicators.get(IndicatorSeries.IPCA)
-        if ipca is not None:
-            self._generate_ipca(draw, until, ipca, out)
+        if self.ipca_end is not None:
+            self._generate_ipca(draw, until, out)
 
     def _generate_rates(
         self,
@@ -405,55 +573,62 @@ class SeriesGenerator:
         out: dict[IndicatorSeries, pd.Series],
     ) -> None:
         """
-        A SELIC é nível: parte do último valor real e soma as variações dos
-        trechos sorteados, presa ao mínimo e ao máximo desde POOL_START. O CDI
-        anda colado nela, com o spread do último dia real.
+        A SELIC do caminho mais o empurrão do choque; o CDI anda colado nela,
+        com o spread do último dia real.
         """
-        annual = _to_annual(selic.reindex(self.calendar, method="ffill").to_numpy())
-        changes = np.nan_to_num(np.diff(annual, prepend=np.nan))
-        floor, ceiling = np.nanmin(annual), np.nanmax(annual)
-
-        selic_end, cdi_end = _last_day(selic), _last_day(cdi)
-        days = _business_days(min(selic_end, cdi_end), until)
+        cdi_end = _last_day(cdi)
+        days = _business_days(min(_last_day(selic), cdi_end), until)
         if not days:
             return
-        level = float(_to_annual(np.array([selic.iloc[-1]]))[0])
-        spread = level - float(_to_annual(np.array([cdi.iloc[-1]]))[0])
-        path = np.empty(len(days))
-        for j, source in enumerate(self._sources(draw, days)):
-            level = min(max(level + changes[source], floor), ceiling)
-            path[j] = level
-
-        for series, end, annual_path in (
-            (IndicatorSeries.SELIC, selic_end, path),
-            (IndicatorSeries.CDI, cdi_end, path - spread),
-        ):
-            after = np.array([day > end for day in days])
-            out[series] = pd.Series(
-                np.round(_to_daily(annual_path[after]), 6),
-                index=[day for day in days if day > end],
-            )
+        path = self._path(draw, days[-1]).selic
+        spread = self.last_selic - float(_to_annual(np.array([cdi.iloc[-1]]))[0])
+        selic_days = [day for day in days if day in path]
+        annual = np.array(
+            [
+                max(
+                    path[day] + SELIC_SHOCK_RESPONSE * self._shock(draw, day),
+                    SELIC_FLOOR,
+                )
+                for day in selic_days
+            ]
+        )
+        out[IndicatorSeries.SELIC] = pd.Series(
+            np.round(_to_daily(annual), 6), index=selic_days
+        )
+        cdi_annual = {
+            day: rate - spread for day, rate in zip(selic_days, annual, strict=True)
+        }
+        cdi_days = [day for day in days if day > cdi_end]
+        # Dia em que só o CDI falta (o real da SELIC já saiu) segue o último real
+        out[IndicatorSeries.CDI] = pd.Series(
+            np.round(
+                _to_daily(
+                    np.array(
+                        [
+                            cdi_annual.get(day, self.last_selic - spread)
+                            for day in cdi_days
+                        ]
+                    )
+                ),
+                6,
+            ),
+            index=cdi_days,
+        )
 
     def _generate_ipca(
-        self,
-        draw: "_Draw",
-        until: date,
-        ipca: pd.Series,
-        out: dict[IndicatorSeries, pd.Series],
+        self, draw: "_Draw", until: date, out: dict[IndicatorSeries, pd.Series]
     ) -> None:
-        """
-        O IPCA de cada mês gerado é o do mês sorteado para o primeiro dia útil
-        dele: a inflação mensal oscila em torno de uma média e não acumula.
-        """
-        months = _months(_last_day(ipca), until)
+        """O IPCA do mês sorteado mais o choque do mês, convertido para % ao mês."""
+        months = [
+            m for m in self._path(draw, until).ipca if _first_business_day(m) <= until
+        ]
         if not months:
             return
-        first_days = [m if m.weekday() < 5 else next_business_day(m) for m in months]
-        by_month = dict(zip(_dates(ipca.index), ipca.to_numpy(), strict=True))
-        last = float(ipca.iloc[-1])
+        path = self._path(draw, until).ipca
         values = [
-            by_month.get(self.calendar_days[source].replace(day=1), last)
-            for source in self._sources(draw, first_days)
+            path[m]
+            + ((1 + self._shock(draw, _first_business_day(m))) ** (1 / 12) - 1) * 100
+            for m in months
         ]
         out[IndicatorSeries.IPCA] = pd.Series(np.round(values, 2), index=months)
 
@@ -463,3 +638,14 @@ class _Draw:
     seed: int
     temperature: float
     start_regime: Regime
+    shock: float
+
+
+@dataclass
+class _Path:
+    """Trecho de cada bloco e os níveis sem choque de SELIC (anual) e IPCA (% ao mês)."""
+
+    last_day: date
+    chain: dict[int, int] = field(default_factory=dict)
+    selic: dict[date, float] = field(default_factory=dict)
+    ipca: dict[date, float] = field(default_factory=dict)

@@ -52,7 +52,10 @@ def build_history() -> MarketHistory:
     rng = np.random.default_rng(42)
     days = business_days(synthetic.POOL_START, LAST_REAL)
     vol = np.repeat(rng.choice([0.004, 0.012, 0.035], size=len(days) // 60 + 1), 60)
+    # SELIC sobe e desce em ondas, e o mercado cai quando ela sobe, como no real
+    selic_annual = 0.12 + 0.06 * np.sin(np.arange(len(days)) / 200)
     market = rng.standard_normal(len(days)) * vol[: len(days)]
+    market -= 5 * np.diff(selic_annual, prepend=selic_annual[0])
     bank_a = 1.1 * market + rng.standard_normal(len(days)) * 0.008
     bank_b = 0.9 * market + rng.standard_normal(len(days)) * 0.008
     bank_c = bank_a + rng.standard_normal(len(days)) * 0.004
@@ -75,8 +78,7 @@ def build_history() -> MarketHistory:
         ),
     }
 
-    # SELIC sobe e desce em degraus; o CDI anda um pouco abaixo
-    selic_annual = 0.12 + 0.06 * np.sin(np.arange(len(days)) / 200)
+    # O CDI anda um pouco abaixo da SELIC
     selic = ((1 + selic_annual) ** (1 / 252) - 1) * 100
     cdi = ((1 + selic_annual - 0.001) ** (1 / 252) - 1) * 100
     months = pd.date_range(synthetic.POOL_START, LAST_REAL, freq="MS")
@@ -199,6 +201,67 @@ def test_higher_temperature_means_a_more_agitated_market(generator):
 def test_temperature_outside_the_range_is_refused(generator):
     with pytest.raises(ValueError, match="Temperatura"):
         generator.generate(UNTIL, seed=1, temperature=3.5)
+
+
+def test_inflation_shock_outside_the_range_is_refused(generator):
+    with pytest.raises(ValueError, match="Choque"):
+        generator.generate(UNTIL, seed=1, inflation_shock=25)
+
+
+def test_inflation_shock_raises_rates_and_hits_the_market(generator):
+    calm = generator.generate(UNTIL, seed=4)
+    shocked = generator.generate(UNTIL, seed=4, inflation_shock=10)
+
+    # O choque é camada por cima dos mesmos trechos: tudo muda na mesma direção
+    ipca_push = (
+        shocked.indicators[IndicatorSeries.IPCA] - calm.indicators[IndicatorSeries.IPCA]
+    )
+    selic_push = synthetic._to_annual(
+        shocked.indicators[IndicatorSeries.SELIC].to_numpy()
+    ) - synthetic._to_annual(calm.indicators[IndicatorSeries.SELIC].to_numpy())
+    assert (ipca_push.iloc[1:] > 0).all()
+    assert (selic_push[5:] > 0).all()
+
+    # No pico, seis meses depois, a SELIC subiu 1,5x o que subiu a inflação anual
+    peak = date(2005, 7, 1)
+    selic_peak = selic_push[
+        list(calm.indicators[IndicatorSeries.SELIC].index).index(peak)
+    ]
+    assert selic_peak == pytest.approx(0.15, abs=0.005)
+
+    ibov_ratio = (
+        shocked.indicators[IndicatorSeries.IBOV] / calm.indicators[IndicatorSeries.IBOV]
+    )
+    assert ibov_ratio.loc[peak] < 0.9
+    bank_ratio = shocked.assets["BANK_A"]["close"] / calm.assets["BANK_A"]["close"]
+    assert bank_ratio.loc[peak] < ibov_ratio.loc[peak]  # beta do banco acima de 1
+
+
+def test_inflation_shock_keeps_the_subset_invariant(generator):
+    full = generator.generate(UNTIL, seed=6, inflation_shock=-5)
+    alone = generator.generate(UNTIL, seed=6, inflation_shock=-5, tickers=["POWER"])
+
+    pd.testing.assert_frame_equal(alone.assets["POWER"], full.assets["POWER"])
+
+
+def test_next_stretch_starts_close_to_the_current_economy(generator, history):
+    # O encaixe de nível sorteia o trecho que começa com SELIC parecida com a de hoje
+    today = synthetic._to_annual(
+        history.indicators[IndicatorSeries.SELIC].to_numpy()[-1:]
+    )[0]
+    chosen = [
+        generator.selic_annual[
+            generator._path(draw, UNTIL).chain[generator.anchor_block]
+        ]
+        for draw in (
+            synthetic._Draw(seed, 1.0, generator.current_regime, 0.0)
+            for seed in range(40)
+        )
+    ]
+    anywhere = generator.selic_annual[generator.starts]
+    assert np.mean(np.abs(np.array(chosen) - today)) < 0.5 * np.mean(
+        np.abs(anywhere - today)
+    )
 
 
 def test_starting_in_a_crisis_begins_agitated(generator):
