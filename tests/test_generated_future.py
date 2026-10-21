@@ -15,8 +15,7 @@ from backend.core.dto.generated_future import (
     FuturePreviewRequest,
     GeneratedFutureDTO,
 )
-from backend.core.dto.sector import StockSegmentDTO
-from backend.core.enum import AssetClass, DataOrigin, IndicatorSeries
+from backend.core.enum import DataOrigin, IndicatorSeries
 from backend.core.exceptions.http_exceptions import BadRequestError, ConflictError
 from backend.core.models.models import (
     EconomicIndicatorHistory,
@@ -27,7 +26,7 @@ from backend.features.import_data import future
 from backend.features.import_data.coverage import get_series_coverage
 from backend.features.import_data.importer_service import upsert_dataframe
 from tests.fakes import simulation_settings
-from tests.test_synthetic_series import LAST_REAL, build_history
+from tests.test_synthetic_series import LAST_REAL
 
 UNTIL = date(2005, 6, 30)
 PLAYED_UNTIL = date(2005, 2, 15)
@@ -45,48 +44,8 @@ def progress(monkeypatch: pytest.MonkeyPatch) -> list[dict]:
 
 
 @pytest.fixture
-def base(database: Engine, progress: list[dict]) -> Engine:
-    """O histórico do teste do gerador gravado como real, com os ativos classificados."""
-    history = build_history()
-    for ticker, asset in history.assets.items():
-        stock = repository.stock.add_stock(ticker, ticker, AssetClass.STOCK)
-        repository.stock.classify(
-            ticker,
-            StockSegmentDTO(sector=asset.sector or "", segment=asset.segment or ""),
-        )
-        repository.stock.save_real_prices(
-            stock.id,
-            [
-                StockPriceHistory(
-                    stock_id=stock.id,
-                    price_date=day,
-                    open=open_,
-                    high=high,
-                    low=low,
-                    close=close,
-                    volume=int(volume),
-                    origin=DataOrigin.REAL.value,
-                )
-                for day, (open_, high, low, close, volume) in zip(
-                    days_of(asset.bars), asset.bars.to_numpy(dtype=float), strict=True
-                )
-            ],
-        )
-    for series, values in history.indicators.items():
-        repository.economic.save_history(
-            series,
-            [
-                (day, Decimal(str(round(value, 8))))
-                for day, value in zip(
-                    days_of(values), values.to_numpy(dtype=float), strict=True
-                )
-            ],
-        )
-    return database
-
-
-def days_of(data: pd.Series | pd.DataFrame) -> list[date]:
-    return data.index.to_numpy().astype("datetime64[D]").tolist()
+def base(market: Engine, progress: list[dict]) -> Engine:
+    return market
 
 
 def stored_future() -> GeneratedFutureDTO:

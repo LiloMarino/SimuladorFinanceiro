@@ -15,16 +15,21 @@ def register_ws_handlers(sio: AsyncServer):
     async def _extract_client_id(environ) -> UUID | None:
         cookies = SimpleCookie(environ.get("HTTP_COOKIE", ""))
         client = cookies.get("client_id")
-        return UUID(client.value) if client else None
+        if not client:
+            logger.warning("Conexão WS recusada: sem client_id")
+            return None
+        try:
+            return UUID(client.value)
+        except ValueError:
+            logger.warning("Conexão WS recusada: client_id inválido (%r)", client.value)
+            return None
 
     @sio.event
     @metrics.timed("socket", "connect")
     async def connect(sid, environ):  # type: ignore
         broker = get_socket_broker()
         client_id = await _extract_client_id(environ)
-        # Recusa conexão se não tiver client_id
         if not client_id:
-            logger.warning("Conexão WS recusada: sem client_id")
             return False
 
         broker.register_client(client_id, sid)

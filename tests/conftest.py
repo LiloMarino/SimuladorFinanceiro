@@ -5,6 +5,7 @@ from collections.abc import Callable, Iterator
 from datetime import date
 from decimal import Decimal
 
+import pandas as pd
 import pytest
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.engine import make_url
@@ -16,9 +17,11 @@ from backend import config
 from backend.core import repository
 from backend.core.decorators import transactional_method
 from backend.core.dto.events.base_event import BaseEventDTO
+from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import IndicatorSeries, PlayerGrouping
+from backend.core.enum import AssetClass, DataOrigin, IndicatorSeries, PlayerGrouping
 from backend.core.migration import drop_databases, ensure_database, migrate
+from backend.core.models.models import StockPriceHistory
 from backend.core.repository.economic import IndicatorHistory
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
@@ -26,6 +29,7 @@ from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from tests.fakes import USER_ID, client, simulation_settings
+from tests.test_synthetic_series import build_history
 
 
 class _SilentRealtimeBroker:
@@ -102,6 +106,51 @@ def database(pg_url: str, engine: Engine, monkeypatch: pytest.MonkeyPatch) -> En
     factory = sessionmaker(bind=engine, autocommit=False, autoflush=False)
     monkeypatch.setattr(transactional_method, "get_session_factory", lambda: factory)
     return engine
+
+
+@pytest.fixture
+def market(database: Engine) -> Engine:
+    """O histórico sintético de 2000 a 2004 gravado como real, com os ativos classificados."""
+    history = build_history()
+    for ticker, asset in history.assets.items():
+        stock = repository.stock.add_stock(ticker, ticker, AssetClass.STOCK)
+        repository.stock.classify(
+            ticker,
+            StockSegmentDTO(sector=asset.sector or "", segment=asset.segment or ""),
+        )
+        repository.stock.save_real_prices(
+            stock.id,
+            [
+                StockPriceHistory(
+                    stock_id=stock.id,
+                    price_date=day,
+                    open=open_,
+                    high=high,
+                    low=low,
+                    close=close,
+                    volume=int(volume),
+                    origin=DataOrigin.REAL.value,
+                )
+                for day, (open_, high, low, close, volume) in zip(
+                    _days_of(asset.bars), asset.bars.to_numpy(dtype=float), strict=True
+                )
+            ],
+        )
+    for series, values in history.indicators.items():
+        repository.economic.save_history(
+            series,
+            [
+                (day, Decimal(str(round(value, 8))))
+                for day, value in zip(
+                    _days_of(values), values.to_numpy(dtype=float), strict=True
+                )
+            ],
+        )
+    return database
+
+
+def _days_of(data: pd.Series | pd.DataFrame) -> list[date]:
+    return data.index.to_numpy().astype("datetime64[D]").tolist()
 
 
 type Join = Callable[[str], UserDTO]
