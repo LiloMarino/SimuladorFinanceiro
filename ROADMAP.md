@@ -59,7 +59,6 @@
 | [**F16**](#f16) | Bots na sala | — | ⏳ |
 | [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
-| [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | — | ⏳ |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
@@ -99,7 +98,7 @@
 | [**F90**](#f90) | Cenários | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (13 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (14 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -116,6 +115,7 @@
 | **D12** | Como numerar as versões | — | ✅ |
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | [F24](#f24) | ✅ |
+| [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ✅ |
 
 </details>
 
@@ -135,7 +135,6 @@
 | [**F47**](#f47) | Gravação automática de demonstrações | M14 | 1 | ⏳ |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
-| [**F24**](#f24) | Gerar dados futuros na Central de dados | M9 | 0 | ⏳ |
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
@@ -222,12 +221,19 @@
 >
 > **Serve:** N12
 >
-> **Progresso:** 0/2 concluídas
+> **Progresso:** 1/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | [F19](#f19) | 🔍 |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ✅ |
+
+</details>
 
 ### M11 — Análise técnica
 
@@ -317,7 +323,7 @@
 | **F9** | Estratégias prontas de exemplo | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F16** | Bots na sala | N8 | D8 | M6 | [F8](#f8) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
-| **F24** | Gerar dados futuros na Central de dados | N12 | D7, D14 | M9 | — | Médio | Alto | Alto | Bom | ⏳ Pendente |
+| **F24** | Gerar dados futuros na Central de dados | N12 | D7, D14 | M9 | — | Médio | Alto | Alto | Bom | ✅ Concluído |
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F33** | Indicadores técnicos | N19, N4 | D2 | M11 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
@@ -353,7 +359,7 @@
 **F16 — Bots na sala.** Serve N8; segue a D8. No lobby, o host clica "Adicionar bot" e escolhe a estratégia — as prontas da F9 ou as escritas pelo usuário na F8; cada estratégia é um "tipo de IA", como as IAs do OpenTTD — e um nome. O bot é um jogador sem socket: registro em `users` marcado como bot, carteira própria, e o motor chama o `next()` da estratégia dele a cada tick, como faz com a de um humano no automático. Aparece no ranking e nas estatísticas como qualquer jogador, com um ícone que o distingue. Quem escolhe o código do bot é o host, então ele roda no processo do host qualquer que seja a D5 — a restrição da D5 é sobre código vindo de jogador remoto. Com a F13 ligada, as ordens do bot movem preço como as de qualquer jogador. Gatilho: F8 concluída.
 
 <a id="f24"></a>
-**F24 — Gerar dados futuros na Central de dados.** Serve N12; segue a D7 e a D14. (1) **Tela:** na Central (F21), o botão "Gerar dados futuros" abre um diálogo, com os controles à esquerda e a prévia à direita (desenho aprovado no canvas), que pede até quando gerar (cada série começa no dia útil seguinte ao seu último dado real), a semente, a temperatura (0 a 3, padrão 1), "começar em" (mercado de hoje, calmaria, normal ou crise, o `start_regime`) e o choque de inflação (−5 a +20 pontos, padrão 0, o `inflation_shock`). Temperatura e choque ganham descrição curta e dica com a leitura medida, como na página "Como o futuro é gerado" dos docs: temperatura 1 é o histórico como foi, 2 dá dois de cada três anos com queda acima de 30%, 3 é crise permanente; choque de +10 leva a inflação a uns 14% e a SELIC a 28%. O preview monta um `SeriesGenerator` uma vez e gera sem gravar poucos ativos a cada mudança de parâmetro (cerca de 0,1 s). (2) **Gravação:** os repositórios montam o `MarketHistory` (preços, segmento e setor de cada ativo e indicadores, só a origem real) e gravam o `GeneratedSeries` com origem "gerado"; indicador vira `Decimal` a partir do valor já arredondado; regerar troca o gerado comum, passando pela cópia na troca. A barra da linha do tempo já mostra o trecho gerado pelo `generated_end` da cobertura. (3) **Versão das séries (D7):** `stock_price_history` e `economic_indicator_history` ganham a coluna de versão na chave (a comum e a de cada partida), por migration (D9). As leituras do motor (`get_stocks_by_date`, `get_recent_closes`, `get_closes_on`, `get_stock_details` e o histórico de indicadores) passam a preferir a versão da partida. A cópia na troca: antes de trocar ou apagar gerado, cada partida salva cujo período, de `start_date` ao último dia simulado, cobre linhas geradas recebe a cópia delas na própria versão. (4) **Importador:** "Atualizar" troca o gerado pelo real à medida que o real chega. Hoje o `upsert_dataframe` incremental compara com a última data de qualquer origem, e um gerado no fim faria o real ser descartado: passa a comparar com a última data real e a trocar o gerado das datas que o real cobre. O `overwrite=True` apaga o histórico inteiro, gerado junto, e passa pela mesma troca. O upsert de indicador sobrescreve a origem no conflito, então a cópia na troca roda antes dele. (5) **Parâmetros do futuro gravado:** a semente, a temperatura, o "começar em" e o choque do futuro gravado ficam guardados; a Central mostra "semente 4821 · temperatura 1 · começo: hoje · choque 0" ao lado de "gerado até", e "Gerar de novo" abre o diálogo com esses valores. Não há "apagar o futuro gerado": gerar de novo substitui o anterior. Gatilho: livre; o gerador está pronto.
+**F24 — Gerar dados futuros na Central de dados.** Serve N12; segue a D7 e a D14. (1) **Tela:** na Central (F21), o botão "Gerar dados futuros" abre um diálogo, com os controles à esquerda e a prévia à direita (desenho aprovado no canvas), que pede até quando gerar (cada série começa no dia útil seguinte ao seu último dado real), a semente, a temperatura (0 a 3, padrão 1), "começar em" (mercado de hoje, calmaria, normal ou crise, o `start_regime`) e o choque de inflação (−5 a +20 pontos, padrão 0, o `inflation_shock`). Temperatura e choque ganham descrição curta e dica com a leitura medida, como na página "Como o futuro é gerado" dos docs: temperatura 1 é o histórico como foi, 2 dá dois de cada três anos com queda acima de 30%, 3 é crise permanente; choque de +10 leva a inflação a uns 14% e a SELIC a 28%. O preview monta um `SeriesGenerator` uma vez e gera sem gravar poucos ativos a cada mudança de parâmetro (cerca de 0,1 s). (2) **Gravação:** os repositórios montam o `MarketHistory` (preços, segmento e setor de cada ativo e indicadores, só a origem real) e gravam o `GeneratedSeries` com origem "gerado"; indicador vira `Decimal` a partir do valor já arredondado; regerar troca o gerado comum, passando pela cópia na troca. A barra da linha do tempo já mostra o trecho gerado pelo `generated_end` da cobertura. (3) **Versão das séries (D7):** `stock_price_history` e `economic_indicator_history` ganham a coluna de versão na chave (a comum e a de cada partida), por migration (D9). As leituras do motor (`get_stocks_by_date`, `get_recent_closes`, `get_closes_on`, `get_stock_details` e o histórico de indicadores) passam a preferir a versão da partida. A cópia na troca: antes de trocar ou apagar gerado, cada partida salva cujo período, de `start_date` ao último dia simulado, cobre linhas geradas recebe a cópia delas na própria versão. (4) **Importador:** "Atualizar" troca o gerado pelo real à medida que o real chega. Hoje o `upsert_dataframe` incremental compara com a última data de qualquer origem, e um gerado no fim faria o real ser descartado: passa a comparar com a última data real e a trocar o gerado das datas que o real cobre. O `overwrite=True` apaga o histórico inteiro, gerado junto, e passa pela mesma troca. O upsert de indicador sobrescreve a origem no conflito, então a cópia na troca roda antes dele. O gerado que sobra depois do real continua do real antigo, com um salto no dia da emenda: a Central guarda até onde o real chegou e sugere "Gerar de novo" com os controles guardados, que emenda todas as séries a partir do real novo. (5) **Parâmetros do futuro gravado:** a semente, a temperatura, o "começar em" e o choque do futuro gravado ficam guardados; a Central mostra "semente 4821 · temperatura 1 · começo: hoje · choque 0" ao lado de "gerado até", e "Gerar de novo" abre o diálogo com esses valores. Não há "apagar o futuro gerado": gerar de novo substitui o anterior. Gatilho: livre; o gerador está pronto.
 
 <a id="f19"></a>
 **F19 — Modo backtest: partida só de estratégias, sem interação.** Serve N4 e N10; segue a D8. No lobby, "Rodar backtest" escolhe período, capital inicial, aporte e as estratégias participantes; cada estratégia vira um bot (F16) e a partida roda sem `sleep` entre ticks e sem eventos de socket por tick, mandando o progresso a cada N dias para a tela animar o gráfico. Ao fim, a partida fica salva como qualquer outra e abre no relatório da F17, já comparando as estratégias.
