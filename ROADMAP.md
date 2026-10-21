@@ -84,7 +84,6 @@
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ⏳ |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
-| [**F76**](#f76) | Testes das contas feitas no frontend | — | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
@@ -101,7 +100,7 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -122,6 +121,7 @@
 | [**F41**](#f41) | Conquistas | — | ✅ |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ✅ |
+| [**F76**](#f76) | Testes das contas feitas no frontend | — | ✅ |
 | [**F78**](#f78) | Release só sai com o check passando | — | ✅ |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
@@ -159,7 +159,6 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | 0 | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | 0 | ⏳ |
-| [**F76**](#f76) | Testes das contas feitas no frontend | — | 0 | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | 0 | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | 0 | ⏳ |
@@ -313,7 +312,7 @@
 
 ### Sem marco
 
-> **Progresso:** 8/34 concluídas
+> **Progresso:** 9/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -332,7 +331,6 @@
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ⏳ |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | [F74](#f74) | ⏳ |
-| [**F76**](#f76) | Testes das contas feitas no frontend | — | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
@@ -344,11 +342,12 @@
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 
-<details><summary>Concluído (8 itens)</summary>
+<details><summary>Concluído (9 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ✅ |
+| [**F76**](#f76) | Testes das contas feitas no frontend | — | ✅ |
 | [**F78**](#f78) | Release só sai com o check passando | — | ✅ |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
@@ -384,7 +383,7 @@
 | **F70** | O que cada jogador está fazendo na sala | N29 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F71** | Renda fixa com liquidez diária | N23 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F76** | Testes das contas feitas no frontend | N3 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F76** | Testes das contas feitas no frontend | N3 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F85** | Importar duas ações da mesma empresa | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F86** | Sugestão de ticker que a importação aceita | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F89** | Presets de partida | N30 | — | — | [F73](#f73) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
