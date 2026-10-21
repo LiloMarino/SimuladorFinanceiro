@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -9,7 +9,6 @@ import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
@@ -38,7 +37,7 @@ export function InvestmentTicket({ assetId, amountText, onAmountChange, quote }:
   const overCash = amount > Number(quote.cash_before);
   const zero = amount <= 0;
 
-  const invest = useApiMutation({
+  const invest = useMutation({
     mutationFn: () =>
       apiFetch(`/api/fixed-income/${assetId}/buy`, {
         method: "POST",

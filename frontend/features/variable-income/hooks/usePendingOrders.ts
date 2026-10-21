@@ -1,14 +1,13 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Order } from "@/types";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 
 export function usePendingOrders(ticker: string | undefined) {
   const queryClient = useQueryClient();
 
-  const { data: pendingOrders } = useApiQuery({
+  const { data: pendingOrders } = useQuery({
     queryKey: queryKeys.variableIncomeOrders(ticker ?? ""),
     queryFn: ({ signal }) => apiFetch<Order[]>(`/api/variable-income/${ticker}/orders`, { signal }),
     enabled: !!ticker,

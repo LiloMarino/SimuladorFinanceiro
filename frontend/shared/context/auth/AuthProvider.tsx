@@ -1,17 +1,15 @@
 import { useCallback, useEffect, type PropsWithChildren } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AuthContext } from "./AuthContext";
 import type { Session } from "@/types";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
 
   // Mutation: Inicializa uma nova sessão
-  const { mutateAsync: initSession, isPending: initLoading } = useApiMutation({
+  const { mutateAsync: initSession, isPending: initLoading } = useMutation({
     mutationFn: () => apiFetch<Session>("/api/session/init", { method: "POST", body: {} }),
     onSuccess: (data) => {
       queryClient.setQueryData(queryKeys.authSession(), data);
@@ -23,13 +21,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
     data: session,
     error: sessionError,
     isLoading: sessionLoading,
-  } = useApiQuery({
+  } = useQuery({
     queryKey: queryKeys.authSession(),
     queryFn: ({ signal }) => apiFetch<Session>("/api/session/me", { signal }),
   });
 
   // Mutation: Logout
-  const { mutateAsync: logoutApi, isPending: logoutLoading } = useApiMutation({
+  const { mutateAsync: logoutApi, isPending: logoutLoading } = useMutation({
     mutationFn: () => apiFetch<void>("/api/session/logout", { method: "POST", body: {} }),
     onSuccess: async () => {
       queryClient.setQueryData(queryKeys.authSession(), null);
@@ -37,7 +35,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   });
 
   // Mutation: Delete account
-  const { mutateAsync: deleteAccountApi, isPending: deleteLoading } = useApiMutation({
+  const { mutateAsync: deleteAccountApi, isPending: deleteLoading } = useMutation({
     mutationFn: () => apiFetch<void>("/api/user", { method: "DELETE" }),
     onSuccess: async () => {
       queryClient.setQueryData(queryKeys.authSession(), null);

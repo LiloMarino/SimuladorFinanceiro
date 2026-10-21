@@ -1,10 +1,8 @@
 import { useCallback } from "react";
 import type { PropsWithChildren } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { NotificationSettingsContext } from "./NotificationSettingsContext";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type ApiError from "@/shared/lib/models/ApiError";
 import type { NotificationPreferences } from "@/types";
@@ -22,14 +20,14 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
 export function NotificationSettingsProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
 
-  const { data } = useApiQuery({
+  const { data } = useQuery({
     queryKey: queryKeys.notificationSettings(),
     queryFn: ({ signal }) => apiFetch<NotificationPreferences>("/api/settings", { signal }),
   });
 
   const preferences: NotificationPreferences = { ...DEFAULT_PREFERENCES, ...(data ?? {}) };
 
-  const updateMutation = useApiMutation({
+  const updateMutation = useMutation({
     mutationKey: queryKeys.notificationSettings(),
     mutationFn: (next: NotificationPreferences) =>
       apiFetch<NotificationPreferences>("/api/settings", { method: "PUT", body: next }),

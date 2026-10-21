@@ -1,6 +1,13 @@
 import { QueryClient } from "@tanstack/react-query";
 import ApiError from "@/shared/lib/models/ApiError";
 
+// `apiFetch` sempre rejeita com ApiError: toda query e mutation herda esse tipo de erro
+declare module "@tanstack/react-query" {
+  interface Register {
+    defaultError: ApiError;
+  }
+}
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

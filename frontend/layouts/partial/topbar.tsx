@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { Pause, Play } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { useSimulation } from "@/shared/hooks/useSimulation";
@@ -32,7 +31,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
   // segurança caso esse broadcast se perca. mutationKey + o guard isMutating
   // evitam que uma mutação antiga atropele o resultado de uma mais recente
   // (ver https://tkdodo.eu/blog/concurrent-optimistic-updates-in-react-query).
-  const { mutate: setSpeedApi, isPending: loading } = useApiMutation({
+  const { mutate: setSpeedApi, isPending: loading } = useMutation({
     mutationKey: queryKeys.simulationState(),
     mutationFn: (speed: number) => apiFetch<{ speed: number }>("/api/set-speed", { method: "POST", body: { speed } }),
     onMutate: async (speed) => {

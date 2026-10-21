@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -15,7 +15,6 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ErrorState } from "@/shared/components/error-state";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { seriesCoverageOptions } from "@/shared/lib/queries/seriesCoverageOptions";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
@@ -30,7 +29,7 @@ export default function ImportAssetsPage() {
   // Ação com a classificação aberta na própria linha da tabela
   const [classifying, setClassifying] = useState<string | null>(null);
 
-  const downloadIndicators = useApiMutation({
+  const downloadIndicators = useMutation({
     mutationFn: () => apiFetch("/api/import-assets/indicators", { method: "POST" }),
     onError: (err) => toastApiError(err),
     onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.seriesCoverage() }),

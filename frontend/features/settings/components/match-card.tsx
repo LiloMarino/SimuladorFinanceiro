@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -14,7 +15,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { winRuleLabel } from "@/shared/lib/game-types";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 
@@ -24,7 +24,7 @@ export function MatchCard() {
   const { simulation } = useSimulation();
   const { data: players } = useRoomPlayers();
 
-  const { mutate: stop, isPending } = useApiMutation({
+  const { mutate: stop, isPending } = useMutation({
     mutationFn: () => apiFetch("/api/simulation/stop", { method: "POST" }),
     onSuccess: () => setConfirming(false),
     onError: (err) => toastApiError(err),

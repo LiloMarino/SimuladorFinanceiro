@@ -1,6 +1,5 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { saveColorPreference } from "@/shared/lib/player-color-preference";
 
@@ -8,7 +7,7 @@ import { saveColorPreference } from "@/shared/lib/player-color-preference";
 export function useJoinMatch() {
   const queryClient = useQueryClient();
 
-  return useApiMutation({
+  return useMutation({
     mutationFn: ({ color, team }: { color: string; team?: number }) =>
       apiFetch<void>("/api/simulation/join", { method: "POST", body: { color, team } }),
     onSuccess: async (_, { color }) => {

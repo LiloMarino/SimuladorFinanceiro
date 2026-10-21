@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
@@ -5,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ErrorState } from "@/shared/components/error-state";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
 import { cn } from "@/shared/lib/utils";
 import { displayMonthSlashYear } from "@/shared/lib/utils/display";
@@ -29,7 +29,7 @@ function describe(s: SimulationListItem) {
 /** A lista de simulações salvas: cada uma escolhida ganha a letra e a cor da ordem em que entrou. */
 export function SimulationPicker({ selected, onToggle }: SimulationPickerProps) {
   const [search, setSearch] = useState("");
-  const { data, isLoading, error, refetch } = useApiQuery(simulationListOptions());
+  const { data, isLoading, error, refetch } = useQuery(simulationListOptions());
 
   const term = search.trim().toLowerCase();
   const items = (data ?? []).filter((s) => s.name.toLowerCase().includes(term));

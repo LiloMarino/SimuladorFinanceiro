@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { GitCompareArrows } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
@@ -13,7 +14,6 @@ import {
 } from "@/shared/components/ui/empty";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
 import { SimulationPicker } from "../components/compare/simulation-picker";
 import { SimulationSummaries } from "../components/compare/simulation-summaries";
@@ -34,7 +34,7 @@ export default function CompareSimulationsPage() {
   const [selected, setSelected] = useState<number[]>(() => idsFromQuery(params));
   const [show, setShow] = useState<Show>("ALL");
   const { user } = useAuth();
-  const { data: simulations } = useApiQuery(simulationListOptions());
+  const { data: simulations } = useQuery(simulationListOptions());
 
   // A ordem de escolha define a letra: quem entra depois fica com a próxima
   const toggle = (id: number) =>

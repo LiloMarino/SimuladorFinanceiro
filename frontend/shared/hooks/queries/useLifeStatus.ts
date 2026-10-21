@@ -1,5 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import type { LifeStatus } from "@/types";
@@ -13,7 +13,7 @@ export function useLifeStatus() {
   const { simulation } = useSimulation();
   const current = simulation?.active ? simulation.simulation : null;
 
-  return useApiQuery({
+  return useQuery({
     queryKey: queryKeys.lifeStatus(current?.id ?? 0),
     queryFn: ({ signal }) => apiFetch<LifeStatus>("/api/simulation/life", { signal }),
     enabled: current?.game_type === "FINANCIAL_INDEPENDENCE",

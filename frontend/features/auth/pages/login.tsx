@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DoorClosed, UsersRound } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -12,7 +12,6 @@ import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { User } from "@/types";
 import { LoginShowcase } from "../components/login-showcase";
@@ -38,7 +37,7 @@ export function LoginPage() {
 
   const enter = () => queryClient.invalidateQueries({ queryKey: queryKeys.authSession() });
 
-  const register = useApiMutation({
+  const register = useMutation({
     mutationFn: (body: NicknameForm) => apiFetch<User>("/api/user/register", { method: "POST", body }),
     onSuccess: enter,
     onError: (err, body) => {
@@ -46,7 +45,7 @@ export function LoginPage() {
     },
   });
 
-  const claim = useApiMutation({
+  const claim = useMutation({
     mutationFn: (body: NicknameForm) => apiFetch<User>("/api/user/claim", { method: "POST", body }),
     onSuccess: enter,
   });

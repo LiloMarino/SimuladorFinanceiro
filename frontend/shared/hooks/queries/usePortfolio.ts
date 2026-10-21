@@ -1,6 +1,5 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { PortfolioState } from "@/types";
@@ -12,7 +11,7 @@ import type { PortfolioState } from "@/types";
 export function usePortfolio({ enabled = true }: { enabled?: boolean } = {}) {
   const queryClient = useQueryClient();
 
-  const query = useApiQuery({
+  const query = useQuery({
     queryKey: queryKeys.portfolio(),
     queryFn: ({ signal }) => apiFetch<PortfolioState>("/api/portfolio", { signal }),
     enabled,

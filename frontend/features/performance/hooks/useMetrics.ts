@@ -1,7 +1,5 @@
-import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { MetricsData } from "@/types";
 import { REFRESH_MS } from "../lib/stats";
@@ -17,7 +15,7 @@ export function useMetrics({
   paused: boolean;
   enabled: boolean;
 }) {
-  return useApiQuery({
+  return useQuery({
     enabled,
     queryKey: queryKeys.debugMetrics(),
     queryFn: ({ signal }) =>
@@ -32,7 +30,7 @@ export function useMetrics({
 
 export function useResetMetrics() {
   const queryClient = useQueryClient();
-  return useApiMutation({
+  return useMutation({
     mutationFn: () =>
       apiFetch<void>("/api/debug/metrics/reset", { method: "POST", body: {} }),
     onSuccess: () =>

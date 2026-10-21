@@ -1,6 +1,5 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { SimulationState } from "@/types";
@@ -14,7 +13,7 @@ import type { SimulationState } from "@/types";
 export function useSimulationState() {
   const queryClient = useQueryClient();
 
-  const query = useApiQuery({
+  const query = useQuery({
     queryKey: queryKeys.simulationState(),
     queryFn: ({ signal }) => apiFetch<SimulationState>("/api/get-simulation-state", { signal }),
   });

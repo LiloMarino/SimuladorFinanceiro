@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck, CircleX } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import {
@@ -20,7 +20,6 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { toFormData } from "@/shared/lib/api/toFormData";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
 import type { SeriesCoverage } from "@/types";
@@ -47,7 +46,7 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
   const [overwrite, setOverwrite] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
-  const importAsset = useApiMutation({
+  const importAsset = useMutation({
     mutationFn: (req: ImportRequest) =>
       req.source === "CSV"
         ? apiFetch<SeriesCoverage>("/api/import-assets/csv", {

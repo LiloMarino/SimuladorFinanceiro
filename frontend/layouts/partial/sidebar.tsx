@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { NavLink } from "react-router-dom";
 import type { NavItem } from "@/types";
 import {
@@ -20,7 +21,6 @@ import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { simulationSettingsOptions } from "@/shared/lib/queries/simulationSettingsOptions";
 
 interface SidebarProps {
@@ -34,7 +34,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const { user } = useAuth();
   const { simulation } = useSimulation();
   const { data: players } = useRoomPlayers();
-  const { data: settings } = useApiQuery(simulationSettingsOptions());
+  const { data: settings } = useQuery(simulationSettingsOptions());
   const { data: goal } = useGoalProgress();
 
   const debug = useDebugMode();

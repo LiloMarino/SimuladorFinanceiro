@@ -1,6 +1,5 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { FixedIncomeOffer } from "@/types";
@@ -9,7 +8,7 @@ import type { FixedIncomeOffer } from "@/types";
 export function useFixedIncomeAssets() {
   const queryClient = useQueryClient();
 
-  const query = useApiQuery({
+  const query = useQuery({
     queryKey: queryKeys.fixedIncomeList(),
     queryFn: ({ signal }) => apiFetch<FixedIncomeOffer[]>("/api/fixed-income", { signal }),
   });

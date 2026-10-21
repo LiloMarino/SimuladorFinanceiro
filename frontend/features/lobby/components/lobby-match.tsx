@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Clock, History, Play, RefreshCw, UserPlus, Users, Zap } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
@@ -14,7 +14,6 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { formatMoney } from "@/shared/lib/utils/format";
 import {
@@ -232,7 +231,7 @@ export function LobbyMatch({
     ? (roomPlayers ?? []).filter((p) => !savedPlayers.some((saved) => saved.nickname === p.nickname))
     : [];
 
-  const { mutate: createSimulation, isPending: creating } = useApiMutation({
+  const { mutate: createSimulation, isPending: creating } = useMutation({
     mutationFn: () =>
       apiFetch<SimulationInfo>("/api/simulation/create", {
         method: "POST",
@@ -260,7 +259,7 @@ export function LobbyMatch({
     onError: (err) => toastApiError(err),
   });
 
-  const { mutate: continueSimulation, isPending: continuing } = useApiMutation({
+  const { mutate: continueSimulation, isPending: continuing } = useMutation({
     mutationFn: () => apiFetch<SimulationInfo>("/api/simulation/continue", { method: "POST" }),
     onError: (err) => toastApiError(err),
   });

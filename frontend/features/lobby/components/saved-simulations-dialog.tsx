@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Search, Trophy, Zap } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
@@ -10,8 +10,6 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { simulationListOptions } from "@/shared/lib/queries/simulationListOptions";
@@ -72,19 +70,19 @@ function SavedSimulationsContent({
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<StatusFilter>("ALL");
 
-  const { data, isLoading, error, refetch } = useApiQuery({ ...simulationListOptions(), refetchOnMount: "always" });
+  const { data, isLoading, error, refetch } = useQuery({ ...simulationListOptions(), refetchOnMount: "always" });
 
   const {
     mutate: selectSimulation,
     isPending: loading,
     variables,
-  } = useApiMutation({
+  } = useMutation({
     mutationFn: (id: number) => apiFetch<void>("/api/simulation/selection", { method: "PUT", body: { id } }),
     onSuccess: onSelected,
     onError: (err) => toastApiError(err),
   });
 
-  const { mutate: clearSelection, isPending: clearing } = useApiMutation({
+  const { mutate: clearSelection, isPending: clearing } = useMutation({
     mutationFn: () => apiFetch<void>("/api/simulation/selection", { method: "DELETE" }),
     onSuccess: onSelected,
     onError: (err) => toastApiError(err),

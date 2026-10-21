@@ -1,6 +1,5 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { MarketQuote } from "@/types";
@@ -13,7 +12,7 @@ import type { MarketQuote } from "@/types";
 export function useVariableIncomeStocks() {
   const queryClient = useQueryClient();
 
-  const query = useApiQuery({
+  const query = useQuery({
     queryKey: queryKeys.variableIncomeList(),
     queryFn: ({ signal }) => apiFetch<MarketQuote[]>("/api/variable-income", { signal }),
   });

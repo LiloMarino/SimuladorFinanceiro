@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Info, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { Sector, SeriesCoverage, StockSegment } from "@/types";
@@ -22,11 +20,11 @@ type ClassifyRowProps = {
 /** Classificação aberta na própria linha da tabela: sugestão do yFinance no topo, setor e segmento lado a lado. */
 export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
   const queryClient = useQueryClient();
-  const { data: sectors } = useApiQuery({
+  const { data: sectors } = useQuery({
     queryKey: queryKeys.sectors(),
     queryFn: ({ signal }) => apiFetch<Sector[]>("/api/import-assets/sectors", { signal }),
   });
-  const { data: suggestion } = useApiQuery({
+  const { data: suggestion } = useQuery({
     queryKey: queryKeys.segmentSuggestion(series.key),
     queryFn: ({ signal }) =>
       apiFetch<StockSegment | null>(`/api/import-assets/stocks/${series.key}/suggestion`, { signal }),
@@ -47,21 +45,21 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
     void queryClient.invalidateQueries({ queryKey: queryKeys.seriesCoverage() });
     void queryClient.invalidateQueries({ queryKey: queryKeys.sectors() });
   };
-  const save = useApiMutation({
+  const save = useMutation({
     mutationFn: (body: StockSegment) =>
       apiFetch(`/api/import-assets/stocks/${series.key}/segment`, { method: "PUT", body }),
     onSuccess: onClose,
     onError: (err) => toastApiError(err),
     onSettled,
   });
-  const remove = useApiMutation({
+  const remove = useMutation({
     mutationFn: () => apiFetch(`/api/import-assets/stocks/${series.key}/segment`, { method: "DELETE" }),
     onSuccess: onClose,
     onError: (err) => toastApiError(err),
     onSettled,
   });
 
-  const refreshProfile = useApiMutation({
+  const refreshProfile = useMutation({
     mutationFn: () => apiFetch(`/api/import-assets/stocks/${series.key}/profile/refresh`, { method: "POST" }),
     onError: (err) => toastApiError(err),
     onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.segmentSuggestion(series.key) }),

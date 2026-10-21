@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { DebugMode } from "@/types";
 
@@ -16,7 +16,7 @@ export function useDebugStatus() {
   // aparecem na tela de login). Ao entrar, a sessão muda e a query dispara sozinha.
   const { session } = useAuth();
 
-  const { data, isPending, error, refetch } = useApiQuery({
+  const { data, isPending, error, refetch } = useQuery({
     queryKey: queryKeys.debugMode(),
     queryFn: ({ signal }) => apiFetch<{ debug: DebugMode }>("/api/settings", { signal }),
     select: (settings) => settings.debug,

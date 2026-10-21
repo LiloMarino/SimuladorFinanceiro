@@ -1,6 +1,5 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { RoomPlayer } from "@/types";
@@ -14,7 +13,7 @@ export function useMatchPlayers() {
   useRealtime("player_color", refresh);
   useRealtime("player_team", refresh);
 
-  return useApiQuery({
+  return useQuery({
     queryKey: queryKeys.matchPlayers(),
     queryFn: ({ signal }) => apiFetch<RoomPlayer[]>("/api/simulation/match-players", { signal }),
   });

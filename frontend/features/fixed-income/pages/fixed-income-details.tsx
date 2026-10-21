@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { differenceInCalendarDays } from "date-fns";
@@ -10,7 +11,6 @@ import { ErrorPage } from "@/pages/error";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { cn, normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
@@ -38,7 +38,7 @@ const NOT_FOUND = (
 export default function FixedIncomeDetailPage() {
   usePageLabel("Renda fixa");
   const { id } = useParams<{ id: string }>();
-  const { data: offer, isLoading } = useApiQuery({
+  const { data: offer, isLoading } = useQuery({
     queryKey: queryKeys.fixedIncomeAsset(id ?? ""),
     queryFn: ({ signal }) => apiFetch<FixedIncomeOffer>(`/api/fixed-income/${id}`, { signal }),
     enabled: !!id,

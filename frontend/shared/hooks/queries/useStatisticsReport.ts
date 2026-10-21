@@ -1,6 +1,5 @@
-import { keepPreviousData } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type {
   CompositionReport,
@@ -29,7 +28,7 @@ export type StatisticsTab = keyof StatisticsReports;
 export function useStatisticsReport<T extends StatisticsTab>(tab: T, simulationIds: number[], onlyPlayer?: string) {
   const params = new URLSearchParams(simulationIds.map((id) => ["simulation_ids", String(id)]));
 
-  return useApiQuery({
+  return useQuery({
     queryKey: queryKeys.statisticsReport(tab, simulationIds),
     queryFn: ({ signal }) => apiFetch<StatisticsReports[T]>(`/api/statistics/${tab}?${params}`, { signal }),
     enabled: simulationIds.length > 0,

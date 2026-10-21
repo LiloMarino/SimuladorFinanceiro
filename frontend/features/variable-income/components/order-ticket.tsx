@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { keepPreviousData, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -9,8 +9,6 @@ import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
@@ -48,14 +46,14 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
   const limitPrice = kind === "limit" ? Number(normalizeNumberString(limitText)) || null : null;
   const [request] = useDebounce({ action, quantity, limit_price: limitPrice }, 250);
 
-  const { data: preview } = useApiQuery({
+  const { data: preview } = useQuery({
     queryKey: queryKeys.orderPreview(ticker, request),
     queryFn: ({ signal }) =>
       apiFetch<OrderPreview>(`/api/variable-income/${ticker}/order-preview`, { method: "POST", body: request, signal }),
     placeholderData: keepPreviousData,
   });
 
-  const submit = useApiMutation({
+  const submit = useMutation({
     mutationFn: () =>
       apiFetch(`/api/variable-income/${ticker}/orders`, {
         method: "POST",

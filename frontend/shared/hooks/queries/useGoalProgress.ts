@@ -1,6 +1,5 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiQuery } from "@/shared/lib/api/useApiQuery";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useSimulation } from "@/shared/hooks/useSimulation";
@@ -24,7 +23,7 @@ export function useGoalProgress() {
   const { current, simulationId } = currentMatchId(simulation);
   const racing = !!current && current.game_type !== "CLASSIC";
 
-  const query = useApiQuery({
+  const query = useQuery({
     queryKey: queryKeys.goalProgress(simulationId),
     queryFn: ({ signal }) => apiFetch<GoalProgress>("/api/simulation/goal-progress", { signal }),
     enabled: racing,

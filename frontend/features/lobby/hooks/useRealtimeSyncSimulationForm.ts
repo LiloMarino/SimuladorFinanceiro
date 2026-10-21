@@ -1,7 +1,7 @@
+import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { useDebounce } from "use-debounce";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { GameType, PlayerGrouping, SimulationSettingsData, TeamNaming, VictoryCriterion } from "@/types";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
@@ -45,7 +45,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
     mutateAsync: updateSettings,
     isPending: saving,
     error: saveError,
-  } = useApiMutation({
+  } = useMutation({
     mutationFn: (body: {
       name: string;
       start_date: string;

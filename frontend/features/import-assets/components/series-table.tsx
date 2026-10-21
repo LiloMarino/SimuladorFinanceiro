@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, RefreshCw, TriangleAlert } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -17,7 +17,6 @@ import {
 } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { useApiMutation } from "@/shared/lib/api/useApiMutation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { isOutdatedStock } from "@/shared/lib/series-coverage";
 import { cn } from "@/shared/lib/utils";
@@ -53,7 +52,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
   const [filter, setFilter] = useState<Filter>("ALL");
   const invalidateCoverage = () => queryClient.invalidateQueries({ queryKey: queryKeys.seriesCoverage() });
 
-  const refreshOne = useApiMutation({
+  const refreshOne = useMutation({
     mutationFn: (item: SeriesCoverage) =>
       item.kind === "INDICATOR"
         ? apiFetch(`/api/import-assets/indicators/${item.key}`, { method: "POST" })
@@ -61,13 +60,13 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
     onError: (err) => toastApiError(err),
     onSettled: invalidateCoverage,
   });
-  const refreshOutdated = useApiMutation({
+  const refreshOutdated = useMutation({
     mutationFn: (tickers: string[]) =>
       apiFetch("/api/import-assets/yfinance/batch", { method: "POST", body: { tickers, overwrite: false } }),
     onError: (err) => toastApiError(err),
     onSettled: invalidateCoverage,
   });
-  const assetClass = useApiMutation({
+  const assetClass = useMutation({
     mutationFn: ({ ticker, value }: { ticker: string; value: AssetClass }) =>
       apiFetch(`/api/import-assets/stocks/${ticker}/asset-class`, { method: "PUT", body: { asset_class: value } }),
     onError: (err) => toastApiError(err),
