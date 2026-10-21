@@ -85,7 +85,6 @@
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
-| [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
 | [**F90**](#f90) | Cenários | — | 🔍 |
@@ -98,7 +97,7 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -126,6 +125,7 @@
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
+| [**F84**](#f84) | Dependências do backend num sentido só | — | ✅ |
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | ✅ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ✅ |
 | [**F98**](#f98) | Excluir partida salva | — | ✅ |
@@ -160,7 +160,6 @@
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | 0 | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | 0 | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
-| [**F84**](#f84) | Dependências do backend num sentido só | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 
 ---
@@ -312,7 +311,7 @@
 
 ### Sem marco
 
-> **Progresso:** 10/34 concluídas
+> **Progresso:** 11/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -333,7 +332,6 @@
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
-| [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | [F73](#f73) | ⏳ |
 | [**F90**](#f90) | Cenários | [F89](#f89) | 🔍 |
@@ -341,7 +339,7 @@
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 
-<details><summary>Concluído (10 itens)</summary>
+<details><summary>Concluído (11 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -352,6 +350,7 @@
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
+| [**F84**](#f84) | Dependências do backend num sentido só | — | ✅ |
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | ✅ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ✅ |
 | [**F98**](#f98) | Excluir partida salva | — | ✅ |
@@ -511,7 +510,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
 | **F82** | Repetições pequenas do frontend | — | — | — | Baixo | Baixo | Baixo | Médio | ✅ Concluído |
 | **F83** | Proxy do Vite na porta do config.toml | — | — | — | Baixo | Baixo | Baixo | Bom | ✅ Concluído |
-| **F84** | Dependências do backend num sentido só | — | — | — | Médio | Médio | Baixo | Médio | ⏳ Pendente |
+| **F84** | Dependências do backend num sentido só | — | — | — | Médio | Médio | Baixo | Médio | ✅ Concluído |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -560,7 +559,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F83 — Proxy do Vite na porta do config.toml.** O proxy de `/api` e `/socket.io` em `frontend/vite.config.ts` aponta para `localhost:8000` fixo, enquanto o backend sobe na porta de `[server] port` do `config.toml`. Mudando a porta, o `pnpm dev` perde o backend sem erro claro. O `vite.config.ts` passa a ler `../config.toml` com o `smol-toml` (dependência de desenvolvimento) e usa `server.port`, com 8000 quando o arquivo não existe, que é o mesmo padrão do backend. Gatilho: a qualquer momento; é uma mudança de um arquivo.
 
 <a id="f84"></a>
-**F84 — Dependências do backend num sentido só.** Dois pontos do backend importam nos dois sentidos. (1) **Simulação e estatísticas:** `features/simulation/goal.py` usa o `mean` de `features/statistics/teams.py`, e `features/statistics/report.py` usa o `goal_on` e o `goal_steps` de `simulation/goal.py`. As contas de meta são estatística da partida: `goal.py` passa para `features/statistics/`, e a simulação (`simulation.py`, que usa `goal_on` e `goal_reached`) importa de lá. A simulação já depende das estatísticas pelo relatório, então tudo fica num sentido só. (2) **Core e renda variável:** `core/dto/order.py` e `core/dto/position.py` importam as entidades de `features/variable_income` para converter entidade em DTO. A conversão passa para a entidade (`Order.to_dto()`, `Position.to_dto()`), e o `core/dto` deixa de conhecer a feature. Fora do escopo: os imports dentro de métodos do `UserManager` para emitir eventos de tempo real, que só se desfazem mudando quem emite. Gatilho: a próxima mexida nas contas de meta ou nas ordens.
+**F84 — Dependências do backend num sentido só.** Dois pontos do backend importam nos dois sentidos. (1) **Simulação e estatísticas:** `features/simulation/goal.py` usa o `mean` de `features/statistics/teams.py`, e `features/statistics/report.py` usa o `goal_on` e o `goal_steps` de `simulation/goal.py`. As contas de meta são estatística da partida: `goal.py` passa para `features/statistics/`, e a simulação (`simulation.py`, que usa `goal_on` e `goal_reached`) importa de lá. A simulação já depende das estatísticas pelo relatório, então tudo fica num sentido só. (2) **Core e renda variável:** `core/dto/order.py` e `core/dto/position.py` importam as entidades de `features/variable_income` para converter entidade em DTO. A conversão passa para a entidade (`Order.to_dto()`, `Position.to_dto()`), e o `core/dto` deixa de conhecer a feature. Fora do escopo: os imports dentro de métodos do `UserManager` para emitir eventos de tempo real, que só se desfazem mudando quem emite. Na implementação, o `LifeBudget` foi para `core/life_budget.py`, porque o `goal.py` depende dele e continuaria apontando para a simulação. Os enums de ordem foram para `core/enum`, e o `MARKET_CLIENT_ID` virou constante de `entities/order.py`, para o `Order.to_dto()` não fechar ciclo com o `market_liquidity.py`.
 
 ---
 ## 3. Descartada
