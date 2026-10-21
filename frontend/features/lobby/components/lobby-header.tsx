@@ -4,7 +4,8 @@ import { Copy, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { BrandMark } from "@/shared/components/brand-mark";
-import { useTunnel } from "@/shared/hooks/queries/useTunnel";
+import { useTunnelStatus } from "../hooks/queries/useTunnelStatus";
+import { useStartTunnel } from "../hooks/mutations/useStartTunnel";
 
 type LobbyHeaderProps = {
   isHost: boolean;
@@ -13,7 +14,8 @@ type LobbyHeaderProps = {
 
 /** Topo do lobby: de quem é a sala e o link para chamar os outros. */
 export function LobbyHeader({ isHost, hostNickname }: LobbyHeaderProps) {
-  const { status: tunnelStatus, startTunnel, loading: tunnelLoading } = useTunnel();
+  const { data: tunnelStatus } = useTunnelStatus();
+  const { mutate: startTunnel, isPending: tunnelLoading } = useStartTunnel();
   const [copyFailed, setCopyFailed] = useState(false);
 
   // O provider "lan" também responde como ativo, mas o link dele só vale na rede local
@@ -66,7 +68,7 @@ export function LobbyHeader({ isHost, hostNickname }: LobbyHeaderProps) {
           </Alert>
         )}
         {isHost && tunnelStatus && !tunnelStatus.active && (
-          <Button variant="link" size="sm" className="self-start" disabled={tunnelLoading} onClick={startTunnel}>
+          <Button variant="link" size="sm" className="self-start" disabled={tunnelLoading} onClick={() => startTunnel()}>
             {tunnelLoading ? "Gerando link público…" : "Gerar link público pra quem está fora da rede →"}
           </Button>
         )}

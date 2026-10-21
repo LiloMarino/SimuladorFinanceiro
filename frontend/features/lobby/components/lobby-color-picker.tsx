@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitl
 import { PlayerColorGrid } from "@/shared/components/player-color-grid";
 import { playerColorName, playerColorStyle } from "@/shared/lib/player-colors";
 import type { RoomPlayer } from "@/types";
-import { useChooseColor } from "../hooks/useChooseColor";
+import { useChooseColor } from "../hooks/mutations/useChooseColor";
 
 type LobbyColorPickerProps = {
   nickname: string;

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -8,13 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { queryKeys } from "@/shared/lib/queryKeys";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { displayDate, displayMoney, parseLocalDate, toCentsString } from "@/shared/lib/utils/display";
-import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { FixedIncomeQuote } from "@/types";
+import { useBuyFixedIncome } from "../hooks/mutations/useBuyFixedIncome";
 
 const SHORTCUTS = [
   { label: "R$ 1 mil", value: "1000" },
@@ -31,24 +28,12 @@ type InvestmentTicketProps = {
 
 /** Boleta da renda fixa: valor, caixa antes e depois e o resgate líquido no vencimento. */
 export function InvestmentTicket({ assetId, amountText, onAmountChange, quote }: InvestmentTicketProps) {
-  const queryClient = useQueryClient();
   const [touched, setTouched] = useState(false);
   const amount = Number(normalizeNumberString(amountText)) || 0;
   const overCash = amount > Number(quote.cash_before);
   const zero = amount <= 0;
 
-  const invest = useMutation({
-    mutationFn: () =>
-      apiFetch(`/api/fixed-income/${assetId}/buy`, {
-        method: "POST",
-        body: { quantity: normalizeNumberString(amountText) },
-      }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.simulationState() });
-    },
-    onError: (err) => toastApiError(err),
-  });
+  const invest = useBuyFixedIncome(assetId);
 
   const fill = (value: string) => {
     setTouched(true);
@@ -150,7 +135,7 @@ export function InvestmentTicket({ assetId, amountText, onAmountChange, quote }:
             size="lg"
             variant="success"
             disabled={zero || overCash || invest.isPending}
-            onClick={() => invest.mutate()}
+            onClick={() => invest.mutate({ quantity: normalizeNumberString(amountText) })}
           >
             {invest.isPending && <Spinner />}
             {invest.isPending ? "Investindo…" : `Investir ${displayMoney(amount)}`}

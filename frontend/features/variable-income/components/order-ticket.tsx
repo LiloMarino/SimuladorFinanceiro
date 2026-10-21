@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -8,16 +7,14 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/compon
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { queryKeys } from "@/shared/lib/queryKeys";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
 import { displayDate, displayMoney, parseLocalDate } from "@/shared/lib/utils/display";
-import { toastApiError } from "@/shared/notifications/toast-api-error";
 import { INCOME_TAX_RATE, salesMonthName } from "@/shared/lib/income-tax";
 import { displayPercent } from "@/shared/lib/utils/display";
 import type { AssetClass, OrderPreview } from "@/types";
 import { useOrderPreview } from "../hooks/queries/useOrderPreview";
+import { useSubmitOrder } from "../hooks/mutations/useSubmitOrder";
 
 type Action = "buy" | "sell";
 type OrderKind = "market" | "limit";
@@ -37,7 +34,6 @@ type OrderTicketProps = {
 
 /** Boleta: escolhe a ordem e mostra, antes de enviar, o que ela faz com o caixa e o IR. */
 export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps) {
-  const queryClient = useQueryClient();
   const [action, setAction] = useState<Action>("buy");
   const [kind, setKind] = useState<OrderKind>("market");
   const [quantityText, setQuantityText] = useState("");
@@ -49,18 +45,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
 
   const { data: preview } = useOrderPreview(ticker, request);
 
-  const submit = useMutation({
-    mutationFn: () =>
-      apiFetch(`/api/variable-income/${ticker}/orders`, {
-        method: "POST",
-        body: { action, type: kind, quantity, limit_price: limitPrice },
-      }),
-    onSuccess: () => {
-      setQuantityText("");
-      void queryClient.invalidateQueries({ queryKey: queryKeys.portfolioPosition(ticker) });
-    },
-    onError: (err) => toastApiError(err),
-  });
+  const submit = useSubmitOrder(ticker);
 
   const selling = action === "sell";
   const maxQuantity = preview?.max_quantity ?? 0;
@@ -207,7 +192,12 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                 size="lg"
                 variant={selling ? "destructive" : "success"}
                 disabled={!canSubmit || submit.isPending}
-                onClick={() => submit.mutate()}
+                onClick={() =>
+                  submit.mutate(
+                    { action, type: kind, quantity, limit_price: limitPrice },
+                    { onSuccess: () => setQuantityText("") },
+                  )
+                }
               >
                 {submit.isPending && <Spinner />}
                 {selling ? "Vender" : "Comprar"} {quantity || ""} {ticker}

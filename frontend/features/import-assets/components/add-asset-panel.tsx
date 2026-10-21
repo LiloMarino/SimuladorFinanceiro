@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck, CircleX } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import {
@@ -18,17 +17,11 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Field, FieldContent, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { toFormData } from "@/shared/lib/api/toFormData";
-import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
-import type { SeriesCoverage } from "@/types";
+import { useImportAsset, type ImportRequest, type Source } from "../hooks/mutations/useImportAsset";
 import { tickerFromFileName, type CsvInspection } from "../lib/csv-file";
 import { CsvDropzone } from "./csv-dropzone";
 import { TickerCombobox } from "./ticker-combobox";
-
-type Source = "YFINANCE" | "CSV";
-type ImportRequest = { source: Source; ticker: string; overwrite: boolean; file: File | null };
 
 export const ADD_ASSET_INPUT_ID = "add-asset-ticker";
 const ADD_ASSET_FILE_ID = "add-asset-file";
@@ -37,7 +30,6 @@ const formatIso = (iso: string) => displayDate(parseLocalDate(iso));
 
 /** Importar uma ação: progresso, sucesso e erro aparecem aqui mesmo, sem toast. */
 export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => void }) {
-  const queryClient = useQueryClient();
   const [source, setSource] = useState<Source>("YFINANCE");
   const [ticker, setTicker] = useState("");
   const [picked, setPicked] = useState<CsvInspection | null>(null);
@@ -46,19 +38,7 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
   const [overwrite, setOverwrite] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
-  const importAsset = useMutation({
-    mutationFn: (req: ImportRequest) =>
-      req.source === "CSV"
-        ? apiFetch<SeriesCoverage>("/api/import-assets/csv", {
-            method: "POST",
-            body: toFormData({ ticker: req.ticker, overwrite: req.overwrite, csv_file: req.file }),
-          })
-        : apiFetch<SeriesCoverage>("/api/import-assets/yfinance", {
-            method: "POST",
-            body: { ticker: req.ticker, overwrite: req.overwrite },
-          }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.seriesCoverage() }),
-  });
+  const importAsset = useImportAsset();
 
   const file = picked && !picked.problem ? picked.file : null;
   const request: ImportRequest = { source, ticker: ticker.trim().toUpperCase(), overwrite, file };

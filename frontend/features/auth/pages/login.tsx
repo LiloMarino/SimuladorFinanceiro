@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DoorClosed, UsersRound } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -11,10 +10,9 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/compon
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { queryKeys } from "@/shared/lib/queryKeys";
-import type { User } from "@/types";
 import { LoginShowcase } from "../components/login-showcase";
+import { useClaimUser } from "../hooks/mutations/useClaimUser";
+import { useRegisterUser } from "../hooks/mutations/useRegisterUser";
 
 const nicknameSchema = z.object({
   nickname: z
@@ -30,25 +28,12 @@ type NicknameForm = z.infer<typeof nicknameSchema>;
 const ROOM_CLOSED_STATUS = 423;
 
 export function LoginPage() {
-  const queryClient = useQueryClient();
   const { entryError } = useAuth();
   // Nickname que já tem conta: a decisão (é você ou não) acontece dentro do card
   const [taken, setTaken] = useState<string | null>(null);
 
-  const enter = () => queryClient.invalidateQueries({ queryKey: queryKeys.authSession() });
-
-  const register = useMutation({
-    mutationFn: (body: NicknameForm) => apiFetch<User>("/api/user/register", { method: "POST", body }),
-    onSuccess: enter,
-    onError: (err, body) => {
-      if (err.status === 409) setTaken(body.nickname);
-    },
-  });
-
-  const claim = useMutation({
-    mutationFn: (body: NicknameForm) => apiFetch<User>("/api/user/claim", { method: "POST", body }),
-    onSuccess: enter,
-  });
+  const register = useRegisterUser();
+  const claim = useClaimUser();
 
   const form = useForm<NicknameForm>({
     resolver: zodResolver(nicknameSchema),
@@ -82,7 +67,16 @@ export function LoginPage() {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={form.handleSubmit((values) => register.mutate(values))} className="grid gap-5">
+            <form
+              onSubmit={form.handleSubmit((values) =>
+                register.mutate(values, {
+                  onError: (err, body) => {
+                    if (err.status === 409) setTaken(body.nickname);
+                  },
+                }),
+              )}
+              className="grid gap-5"
+            >
               <Controller
                 control={form.control}
                 name="nickname"

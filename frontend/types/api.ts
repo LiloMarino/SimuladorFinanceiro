@@ -5,6 +5,8 @@ export type Stock = Omit<components["schemas"]["CandleDTO"], "id">;
 export type MarketQuote = components["schemas"]["MarketQuoteDTO"];
 export type OrderPreview = components["schemas"]["OrderPreviewDTO"];
 export type OrderPreviewRequest = components["schemas"]["OrderPreviewRequest"];
+export type SubmitOrderRequest = components["schemas"]["SubmitOrderRequest"];
+export type SubmitOrderResponse = components["schemas"]["SubmitOrderResponse"];
 export type Trade = components["schemas"]["TradeDTO"];
 export type StockCandle = components["schemas"]["StockPriceHistoryDTO"];
 export type StockDetails = Omit<components["schemas"]["StockDetailsDTO"], "id">;
@@ -25,6 +27,7 @@ export type InvestmentType = components["schemas"]["FixedIncomeType"];
 export type FixedIncomeAssetApi = components["schemas"]["FixedIncomeAssetDTO"];
 export type FixedIncomeOffer = components["schemas"]["FixedIncomeOfferDTO"];
 export type FixedIncomeQuote = components["schemas"]["FixedIncomeQuoteDTO"];
+export type BuyFixedIncomeRequest = components["schemas"]["BuyFixedIncomeRequest"];
 
 // Economic
 export type EconomicIndicators = components["schemas"]["EconomicIndicatorsDTO"];
@@ -40,6 +43,8 @@ export type TickerSuggestion = components["schemas"]["TickerSuggestionDTO"];
 // User
 export type User = components["schemas"]["UserDTO"];
 export type Session = components["schemas"]["SessionDTO"];
+export type UserRegisterRequest = components["schemas"]["UserRegisterRequest"];
+export type UserClaimRequest = components["schemas"]["UserClaimRequest"];
 
 // Statistics
 export type SeriesPoint = components["schemas"]["SeriesPointDTO"];
@@ -85,7 +90,10 @@ export type TrafficItem = components["schemas"]["TrafficItem"];
 // Simulation
 export type SimulationState = Partial<components["schemas"]["SimulationStateResponse"]>;
 export type SimulationData = components["schemas"]["SimulationDTO"];
+export type CreateSimulationRequest = components["schemas"]["CreateSimulationRequest"];
 export type SimulationSettingsData = components["schemas"]["SimulationSettingsDTO"];
+export type SetSpeedResponse = components["schemas"]["SetSpeedResponse"];
+export type UpdateSettingsRequest = components["schemas"]["UpdateSettingsRequest"];
 export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];
 // Jogador da sala com a cor (chave da paleta) que o servidor deu a ele
 export type RoomPlayer = components["schemas"]["PlayerNickname"];

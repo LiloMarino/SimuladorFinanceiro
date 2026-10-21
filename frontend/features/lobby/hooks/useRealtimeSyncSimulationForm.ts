@@ -1,16 +1,15 @@
-import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { useRealtime } from "@/shared/hooks/useRealtime";
-import type { GameType, PlayerGrouping, SimulationSettingsData, TeamNaming, VictoryCriterion } from "@/types";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
+import type { SimulationSettingsData } from "@/types";
 import type { SimulationFormValues } from "../components/lobby-match";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { displayDecimal, displayMoney, toCentsString } from "@/shared/lib/utils/display";
 import { withdrawalRateToField } from "@/shared/lib/financial-independence";
 import { withdrawalRateToBody } from "../lib/life-rules";
+import { useUpdateSimulationSettings } from "./mutations/useUpdateSimulationSettings";
 
 export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues>({
   form,
@@ -45,29 +44,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
     mutateAsync: updateSettings,
     isPending: saving,
     error: saveError,
-  } = useMutation({
-    mutationFn: (body: {
-      name: string;
-      start_date: string;
-      end_date: string;
-      starting_cash: string;
-      monthly_contribution: string;
-      price_impact_enabled: boolean;
-      price_impact_k: number;
-      price_impact_decay_days: number;
-      victory_criterion: VictoryCriterion;
-      game_type: GameType;
-      goal_net_worth: string;
-      monthly_salary: string;
-      monthly_expense: string;
-      unexpected_per_year: number;
-      withdrawal_rate: string;
-      inflation_adjusted: boolean;
-      player_grouping: PlayerGrouping;
-      team_naming: TeamNaming;
-    }) => apiFetch<SimulationSettingsData>("/api/simulation/settings", { method: "PUT", body }),
-    onSuccess: () => setSavedAt(Date.now()),
-  });
+  } = useUpdateSimulationSettings();
 
   /** 🔹 Realtime → Form */
   useRealtime(
@@ -159,7 +136,7 @@ export function useRealtimeSyncSimulationForm<TForm extends SimulationFormValues
 
     void lock.runExclusive(async () => {
       // A falha fica em `saveError`, mostrada no rodapé do painel de regras
-      await updateSettings(payload).catch(() => undefined);
+      await updateSettings(payload, { onSuccess: () => setSavedAt(Date.now()) }).catch(() => undefined);
     });
   }, [debouncedValues, isHost, locked, updateSettings, form.formState.isValid, lock]);
 

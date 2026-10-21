@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { useForm, useWatch } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Clock, History, Play, RefreshCw, UserPlus, Users, Zap } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
@@ -14,7 +14,6 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { formatMoney } from "@/shared/lib/utils/format";
 import {
   displayDate,
@@ -35,16 +34,18 @@ import {
 } from "@/shared/lib/financial-independence";
 import { GAME_TYPES } from "@/shared/lib/game-types";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
-import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type {
+  CreateSimulationRequest,
   GameType,
   PlayerGrouping,
   RoomPlayer,
-  SimulationInfo,
   SimulationSettingsData,
   TeamNaming,
   VictoryCriterion,
 } from "@/types";
+import { useContinueSimulation } from "../hooks/mutations/useContinueSimulation";
+import { useCreateSimulation } from "../hooks/mutations/useCreateSimulation";
+import { useDistributeTeams } from "../hooks/mutations/useDistributeTeams";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
 import { checkTeams } from "../lib/teams-check";
 import { checkCoverage } from "../lib/coverage";
@@ -230,44 +231,30 @@ export function LobbyMatch({
     ? (roomPlayers ?? []).filter((p) => !savedPlayers.some((saved) => saved.nickname === p.nickname))
     : [];
 
-  const { mutate: createSimulation, isPending: creating } = useMutation({
-    mutationFn: () =>
-      apiFetch<SimulationInfo>("/api/simulation/create", {
-        method: "POST",
-        body: {
-          name: values.name,
-          start_date: values.startDate,
-          end_date: values.endDate,
-          starting_cash: normalizeNumberString(values.startingCash),
-          monthly_contribution: normalizeNumberString(values.monthlyContribution),
-          price_impact_enabled: values.priceImpactEnabled,
-          price_impact_k: Number(normalizeNumberString(values.priceImpactK)),
-          price_impact_decay_days: Number(values.priceImpactDecayDays),
-          victory_criterion: values.victoryCriterion,
-          game_type: values.gameType,
-          goal_net_worth: normalizeNumberString(values.goalNetWorth),
-          monthly_salary: normalizeNumberString(values.monthlySalary),
-          monthly_expense: normalizeNumberString(values.monthlyExpense),
-          unexpected_per_year: values.unexpectedPerYear,
-          withdrawal_rate: withdrawalRateToBody(values.withdrawalRate),
-          inflation_adjusted: values.inflationAdjusted,
-          player_grouping: values.playerGrouping,
-          team_naming: values.teamNaming,
-        },
-      }),
-    onError: (err) => toastApiError(err),
-  });
+  const createSimulationBody: CreateSimulationRequest = {
+    name: values.name,
+    start_date: values.startDate,
+    end_date: values.endDate,
+    starting_cash: normalizeNumberString(values.startingCash),
+    monthly_contribution: normalizeNumberString(values.monthlyContribution),
+    price_impact_enabled: values.priceImpactEnabled,
+    price_impact_k: Number(normalizeNumberString(values.priceImpactK)),
+    price_impact_decay_days: Number(values.priceImpactDecayDays),
+    victory_criterion: values.victoryCriterion,
+    game_type: values.gameType,
+    goal_net_worth: normalizeNumberString(values.goalNetWorth),
+    monthly_salary: normalizeNumberString(values.monthlySalary),
+    monthly_expense: normalizeNumberString(values.monthlyExpense),
+    unexpected_per_year: values.unexpectedPerYear,
+    withdrawal_rate: withdrawalRateToBody(values.withdrawalRate),
+    inflation_adjusted: values.inflationAdjusted,
+    player_grouping: values.playerGrouping,
+    team_naming: values.teamNaming,
+  };
+  const { mutate: createSimulation, isPending: creating } = useCreateSimulation();
+  const { mutate: continueSimulation, isPending: continuing } = useContinueSimulation();
 
-  const { mutate: continueSimulation, isPending: continuing } = useMutation({
-    mutationFn: () => apiFetch<SimulationInfo>("/api/simulation/continue", { method: "POST" }),
-    onError: (err) => toastApiError(err),
-  });
-
-  // O host põe cada jogador sem equipe na equipe com menos gente
-  const { mutate: distributeTeams, isPending: distributing } = useMutation({
-    mutationFn: () => apiFetch<void>("/api/simulation/teams/distribute", { method: "POST" }),
-    onError: (err) => toastApiError(err),
-  });
+  const { mutate: distributeTeams, isPending: distributing } = useDistributeTeams();
 
   const busy = creating || continuing;
   // Em equipes todo mundo precisa estar numa e a partida, ter pelo menos duas
@@ -511,7 +498,7 @@ export function LobbyMatch({
                 </div>
               ) : (
                 <>
-                  <Button size="xl" disabled={!canStart} onClick={() => createSimulation()}>
+                  <Button size="xl" disabled={!canStart} onClick={() => createSimulation(createSimulationBody)}>
                     {creating ? <Spinner /> : <Zap />}
                     Iniciar nova simulação
                   </Button>

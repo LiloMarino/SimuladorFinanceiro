@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Search, Trophy, Zap } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
@@ -9,15 +9,15 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/component
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { cn } from "@/shared/lib/utils";
 import { displayDate, displayMonthSlashYear, parseLocalDate } from "@/shared/lib/utils/display";
 import { winRuleLabel } from "@/shared/lib/game-types";
-import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { SimulationListItem } from "@/types";
+import { useClearSimulationSelection } from "../hooks/mutations/useClearSimulationSelection";
+import { useSelectSimulation } from "../hooks/mutations/useSelectSimulation";
 import { RoomOverflowAlert } from "./room-overflow-alert";
 
 type StatusFilter = "ALL" | SimulationListItem["status"];
@@ -76,20 +76,13 @@ function SavedSimulationsContent({
     mutate: selectSimulation,
     isPending: loading,
     variables,
-  } = useMutation({
-    mutationFn: (id: number) => apiFetch<void>("/api/simulation/selection", { method: "PUT", body: { id } }),
-    onSuccess: onSelected,
-    onError: (err) => toastApiError(err),
-  });
+  } = useSelectSimulation();
 
-  const { mutate: clearSelection, isPending: clearing } = useMutation({
-    mutationFn: () => apiFetch<void>("/api/simulation/selection", { method: "DELETE" }),
-    onSuccess: onSelected,
-    onError: (err) => toastApiError(err),
-  });
+  const { mutate: clearSelection, isPending: clearing } = useClearSimulationSelection();
 
   // Sem salva selecionada o lobby já é de nova partida: "Começar" só fecha o diálogo
-  const startNew = () => (selectedSimulationId === null ? onSelected() : clearSelection());
+  const startNew = () =>
+    selectedSimulationId === null ? onSelected() : clearSelection(undefined, { onSuccess: onSelected });
 
   // Quem entra ou sai da sala muda quais partidas ainda cabem
   const refreshFit = () => void queryClient.invalidateQueries({ queryKey: queryKeys.simulationList() });
@@ -184,7 +177,7 @@ function SavedSimulationsContent({
             size="sm"
             variant={s.room_overflow.length > 0 ? "secondary" : "default"}
             disabled={loading || selected || s.room_overflow.length > 0}
-            onClick={() => selectSimulation(s.id)}
+            onClick={() => selectSimulation(s.id, { onSuccess: onSelected })}
           >
             {selected
               ? "Selecionada"

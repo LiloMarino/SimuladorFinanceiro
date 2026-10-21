@@ -1,5 +1,4 @@
 import { Fragment, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, RefreshCw, TriangleAlert } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -16,13 +15,13 @@ import {
   TableRow,
 } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { queryKeys } from "@/shared/lib/queryKeys";
 import { isOutdatedStock } from "@/shared/lib/series-coverage";
 import { cn } from "@/shared/lib/utils";
 import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
-import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { AssetClass, SeriesCoverage } from "@/types";
+import { useChangeAssetClass } from "../hooks/mutations/useChangeAssetClass";
+import { useRefreshOutdatedStocks } from "../hooks/mutations/useRefreshOutdatedStocks";
+import { useRefreshSeries } from "../hooks/mutations/useRefreshSeries";
 import { timelineRange, timelineTicks } from "../lib/timeline";
 import { ClassifyRow } from "./classify-row";
 import { CoverageBar } from "./coverage-bar";
@@ -48,30 +47,11 @@ type SeriesTableProps = {
 
 /** As séries da base num eixo de tempo comum, com a situação de cada uma. */
 export function SeriesTable({ series, classifying, onClassify }: SeriesTableProps) {
-  const queryClient = useQueryClient();
   const [filter, setFilter] = useState<Filter>("ALL");
-  const invalidateCoverage = () => queryClient.invalidateQueries({ queryKey: queryKeys.seriesCoverage() });
 
-  const refreshOne = useMutation({
-    mutationFn: (item: SeriesCoverage) =>
-      item.kind === "INDICATOR"
-        ? apiFetch(`/api/import-assets/indicators/${item.key}`, { method: "POST" })
-        : apiFetch("/api/import-assets/yfinance", { method: "POST", body: { ticker: item.key, overwrite: false } }),
-    onError: (err) => toastApiError(err),
-    onSettled: invalidateCoverage,
-  });
-  const refreshOutdated = useMutation({
-    mutationFn: (tickers: string[]) =>
-      apiFetch("/api/import-assets/yfinance/batch", { method: "POST", body: { tickers, overwrite: false } }),
-    onError: (err) => toastApiError(err),
-    onSettled: invalidateCoverage,
-  });
-  const assetClass = useMutation({
-    mutationFn: ({ ticker, value }: { ticker: string; value: AssetClass }) =>
-      apiFetch(`/api/import-assets/stocks/${ticker}/asset-class`, { method: "PUT", body: { asset_class: value } }),
-    onError: (err) => toastApiError(err),
-    onSettled: invalidateCoverage,
-  });
+  const refreshOne = useRefreshSeries();
+  const refreshOutdated = useRefreshOutdatedStocks();
+  const assetClass = useChangeAssetClass();
 
   const range = timelineRange(series);
   const ticks = timelineTicks(range);

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { loadColorPreference } from "@/shared/lib/player-color-preference";
 import type { RoomPlayer } from "@/types";
-import { useChooseColor } from "./useChooseColor";
+import { useChooseColor } from "./mutations/useChooseColor";
 
 /**
  * Ao entrar na sala o servidor dá a primeira cor livre; aqui o jogador pede a que

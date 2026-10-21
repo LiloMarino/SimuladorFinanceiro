@@ -1,39 +1,17 @@
 import { useCallback, useEffect, type PropsWithChildren } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AuthContext } from "./AuthContext";
-import type { Session } from "@/types";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { queryKeys } from "@/shared/lib/queryKeys";
 import { useSession } from "@/shared/hooks/queries/useSession";
+import { useDeleteAccount } from "@/shared/hooks/mutations/useDeleteAccount";
+import { useInitSession } from "@/shared/hooks/mutations/useInitSession";
+import { useLogout } from "@/shared/hooks/mutations/useLogout";
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const queryClient = useQueryClient();
-
-  // Mutation: Inicializa uma nova sessão
-  const { mutateAsync: initSession, isPending: initLoading } = useMutation({
-    mutationFn: () => apiFetch<Session>("/api/session/init", { method: "POST", body: {} }),
-    onSuccess: (data) => {
-      queryClient.setQueryData(queryKeys.authSession(), data);
-    },
-  });
+  const { mutateAsync: initSession, isPending: initLoading } = useInitSession();
 
   const { data: session, error: sessionError, isLoading: sessionLoading } = useSession();
 
-  // Mutation: Logout
-  const { mutateAsync: logoutApi, isPending: logoutLoading } = useMutation({
-    mutationFn: () => apiFetch<void>("/api/session/logout", { method: "POST", body: {} }),
-    onSuccess: async () => {
-      queryClient.setQueryData(queryKeys.authSession(), null);
-    },
-  });
-
-  // Mutation: Delete account
-  const { mutateAsync: deleteAccountApi, isPending: deleteLoading } = useMutation({
-    mutationFn: () => apiFetch<void>("/api/user", { method: "DELETE" }),
-    onSuccess: async () => {
-      queryClient.setQueryData(queryKeys.authSession(), null);
-    },
-  });
+  const { mutateAsync: logoutApi, isPending: logoutLoading } = useLogout();
+  const { mutateAsync: deleteAccountApi, isPending: deleteLoading } = useDeleteAccount();
 
   // Inicializa sessão apenas uma vez na montagem
   useEffect(() => {

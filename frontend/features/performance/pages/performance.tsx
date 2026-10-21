@@ -24,7 +24,8 @@ import {
 } from "../components/states";
 import { TimeTable } from "../components/time-table";
 import { TrafficTable } from "../components/traffic-table";
-import { useMetrics, useResetMetrics } from "../hooks/queries/useMetrics";
+import { useMetrics } from "../hooks/queries/useMetrics";
+import { useResetMetrics } from "../hooks/mutations/useResetMetrics";
 import { buildRows, engineStatus, sortRows } from "../lib/stats";
 
 const TABLE_ID = "tabela-tempo";

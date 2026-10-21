@@ -1,4 +1,3 @@
-import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -14,9 +13,8 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useSimulation } from "@/shared/hooks/useSimulation";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { winRuleLabel } from "@/shared/lib/game-types";
-import { toastApiError } from "@/shared/notifications/toast-api-error";
+import { useStopSimulation } from "../hooks/mutations/useStopSimulation";
 
 /** Só para o host: encerra a partida e leva todos ao resultado, que chega pelo evento de fim. */
 export function MatchCard() {
@@ -24,11 +22,7 @@ export function MatchCard() {
   const { simulation } = useSimulation();
   const { data: players } = useRoomPlayers();
 
-  const { mutate: stop, isPending } = useMutation({
-    mutationFn: () => apiFetch("/api/simulation/stop", { method: "POST" }),
-    onSuccess: () => setConfirming(false),
-    onError: (err) => toastApiError(err),
-  });
+  const { mutate: stop, isPending } = useStopSimulation();
 
   const count = players?.length ?? 0;
   const match = simulation?.simulation;
@@ -65,7 +59,11 @@ export function MatchCard() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel variant="outline">Cancelar</AlertDialogCancel>
-            <AlertDialogAction variant="dark" onClick={() => stop()} disabled={isPending}>
+            <AlertDialogAction
+              variant="dark"
+              onClick={() => stop(undefined, { onSuccess: () => setConfirming(false) })}
+              disabled={isPending}
+            >
               Encerrar partida
             </AlertDialogAction>
           </AlertDialogFooter>

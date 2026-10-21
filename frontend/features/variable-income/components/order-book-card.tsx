@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { MarketMark } from "@/shared/components/market-mark";
@@ -11,12 +10,10 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/shared/compo
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { useAuth } from "@/shared/hooks/useAuth";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayDate, displayMoney, parseLocalDate } from "@/shared/lib/utils/display";
-import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { Order } from "@/types";
 import { useTrades } from "../hooks/queries/useTrades";
+import { useCancelOrder } from "../hooks/mutations/useCancelOrder";
 
 type Tab = "OPEN" | "HISTORY";
 
@@ -59,7 +56,6 @@ function Side({ action }: { action: string }) {
 
 /** Ordens de todos os jogadores no ativo: as abertas e as execuções da sala. */
 export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Order[] }) {
-  const queryClient = useQueryClient();
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("OPEN");
 
@@ -68,12 +64,7 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
 
   const { data: trades } = useTrades(ticker, { enabled: tab === "HISTORY" });
 
-  const cancel = useMutation({
-    mutationFn: (orderId: string) =>
-      apiFetch(`/api/variable-income/${ticker}/orders`, { method: "DELETE", body: { order_id: orderId } }),
-    onError: (err) => toastApiError(err),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.variableIncomeOrders(ticker) }),
-  });
+  const cancel = useCancelOrder(ticker);
 
   return (
     <Card className="overflow-hidden">

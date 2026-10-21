@@ -1,14 +1,13 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Info, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { TableCell, TableRow } from "@/shared/components/ui/table";
-import { apiFetch } from "@/shared/lib/api/apiFetch";
-import { queryKeys } from "@/shared/lib/queryKeys";
-import { toastApiError } from "@/shared/notifications/toast-api-error";
-import type { SeriesCoverage, StockSegment } from "@/types";
+import type { SeriesCoverage } from "@/types";
+import { useRefreshStockProfile } from "../hooks/mutations/useRefreshStockProfile";
+import { useRemoveStockSegment } from "../hooks/mutations/useRemoveStockSegment";
+import { useSaveStockSegment } from "../hooks/mutations/useSaveStockSegment";
 import { useSectors } from "../hooks/queries/useSectors";
 import { useSegmentSuggestion } from "../hooks/queries/useSegmentSuggestion";
 import { SectorCombobox } from "./sector-combobox";
@@ -21,7 +20,6 @@ type ClassifyRowProps = {
 
 /** Classificação aberta na própria linha da tabela: sugestão do yFinance no topo, setor e segmento lado a lado. */
 export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
-  const queryClient = useQueryClient();
   const { data: sectors } = useSectors();
   const { data: suggestion } = useSegmentSuggestion(series.key);
 
@@ -35,29 +33,10 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
   const segmentId = `classify-segment-${series.key}`;
   const datalistId = `segments-${series.key}`;
 
-  const onSettled = () => {
-    void queryClient.invalidateQueries({ queryKey: queryKeys.seriesCoverage() });
-    void queryClient.invalidateQueries({ queryKey: queryKeys.sectors() });
-  };
-  const save = useMutation({
-    mutationFn: (body: StockSegment) =>
-      apiFetch(`/api/import-assets/stocks/${series.key}/segment`, { method: "PUT", body }),
-    onSuccess: onClose,
-    onError: (err) => toastApiError(err),
-    onSettled,
-  });
-  const remove = useMutation({
-    mutationFn: () => apiFetch(`/api/import-assets/stocks/${series.key}/segment`, { method: "DELETE" }),
-    onSuccess: onClose,
-    onError: (err) => toastApiError(err),
-    onSettled,
-  });
+  const save = useSaveStockSegment(series.key);
+  const remove = useRemoveStockSegment(series.key);
 
-  const refreshProfile = useMutation({
-    mutationFn: () => apiFetch(`/api/import-assets/stocks/${series.key}/profile/refresh`, { method: "POST" }),
-    onError: (err) => toastApiError(err),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.segmentSuggestion(series.key) }),
-  });
+  const refreshProfile = useRefreshStockProfile(series.key);
 
   const busy = save.isPending || remove.isPending;
 
@@ -124,7 +103,7 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
           {/* Ações */}
           <div className="flex items-center justify-between gap-2">
             {current ? (
-              <Button variant="link-destructive" size="sm" disabled={busy} onClick={() => remove.mutate()}>
+              <Button variant="link-destructive" size="sm" disabled={busy} onClick={() => remove.mutate(undefined, { onSuccess: onClose })}>
                 Tirar classificação
               </Button>
             ) : (
@@ -138,7 +117,9 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
               <Button
                 size="sm"
                 disabled={busy || !sector}
-                onClick={() => save.mutate({ sector, segment: segment.trim() || sector })}
+                onClick={() =>
+                  save.mutate({ sector, segment: segment.trim() || sector }, { onSuccess: onClose })
+                }
               >
                 Salvar
               </Button>
