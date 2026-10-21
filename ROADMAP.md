@@ -91,7 +91,6 @@
 | [**F78**](#f78) | Release só sai com o check passando | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
-| [**F82**](#f82) | Repetições pequenas do frontend | — | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
@@ -108,7 +107,7 @@
 | [**F98**](#f98) | Excluir partida salva | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -128,6 +127,7 @@
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ✅ |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
+| [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
 
 </details>
@@ -164,7 +164,6 @@
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | 0 | ⏳ |
 | [**F78**](#f78) | Release só sai com o check passando | — | 0 | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
-| [**F82**](#f82) | Repetições pequenas do frontend | — | 0 | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | 0 | ⏳ |
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | 0 | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | 0 | ⏳ |
@@ -312,7 +311,7 @@
 
 ### Sem marco
 
-> **Progresso:** 2/34 concluídas
+> **Progresso:** 3/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -337,7 +336,6 @@
 | [**F78**](#f78) | Release só sai com o check passando | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
-| [**F82**](#f82) | Repetições pequenas do frontend | — | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
@@ -349,11 +347,12 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 | [**F98**](#f98) | Excluir partida salva | — | ⏳ |
 
-<details><summary>Concluído (2 itens)</summary>
+<details><summary>Concluído (3 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
+| [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
 
 </details>
@@ -509,7 +508,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F79** | Tipos do frontend que vêm da API | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F80** | Cotações do dia numa consulta só | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
-| **F82** | Repetições pequenas do frontend | — | — | — | Baixo | Baixo | Baixo | Médio | ⏳ Pendente |
+| **F82** | Repetições pequenas do frontend | — | — | — | Baixo | Baixo | Baixo | Médio | ✅ Concluído |
 | **F83** | Proxy do Vite na porta do config.toml | — | — | — | Baixo | Baixo | Baixo | Bom | ✅ Concluído |
 | **F84** | Dependências do backend num sentido só | — | — | — | Médio | Médio | Baixo | Médio | ⏳ Pendente |
 
@@ -554,7 +553,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F81 — CORS restrito à mesma origem.** O backend libera CORS para qualquer origem com credenciais (`allow_origins=["*"]` e `allow_credentials=True` no FastAPI, `cors_allowed_origins="*"` no Socket.IO). Não é necessário: o front é servido pelo próprio backend e, no `pnpm dev`, chega pelo proxy do Vite. Hoje o que protege o jogador de um site malicioso aberto durante a partida é o cookie `client_id` com `SameSite=Lax`, que o navegador não manda em requisição de outro site; o CORS liberado só deixa outro site ler as rotas que não pedem identidade. (1) Sai o `CORSMiddleware` de `main.py`. (2) O Socket.IO fica com `cors_allowed_origins` na mesma origem, mais `http://localhost:5173` quando o modo debug estiver ligado: o proxy do Vite troca o `Host` (`changeOrigin: true`) mas mantém o `Origin` do Vite, e o Socket.IO recusaria a conexão em dev sem essa exceção. (3) Teste manual antes de fechar: jogo pelo `localhost`, por outro computador da LAN pelo IP e pelo `pnpm dev`. Gatilho: junto com o link de convite pela internet, quando o servidor passa a ficar exposto fora da LAN.
 
 <a id="f82"></a>
-**F82 — Repetições pequenas do frontend.** Cada uma é pequena; juntas, são lugares onde um ajuste precisa ser feito duas a quatro vezes. (1) `formatIso` (`displayDate(parseLocalDate(iso))`) copiado em `add-asset-panel.tsx`, `coverage-bar.tsx`, `coverage-summary.tsx` e `coverage-alerts.tsx`: vira uma função de `shared/lib/utils/display.ts`. (2) A escala do eixo Y em `networth-chart.tsx` (`niceScale`) e em `player-line-chart/utils.ts` (`niceTicks`), com os mesmos passos 1, 2, 2,5 e 5: uma função em `shared/lib/chart-scale.ts`, com as constantes de altura que os dois repetem. (3) `podium.tsx` e `team-podium.tsx`, com o mesmo `STEPS`: um componente de pódio que recebe a lista de colocados. (4) `AXIS_SCALE = 200` em `overview-tab.tsx`, `player-score-card.tsx` e `team-score.tsx`: uma constante em `features/statistics/lib`. (5) O alias `Player` (item da lista de jogadores do relatório) redeclarado em 10 arquivos das estatísticas e `Team` em 3: declarados uma vez em `types/api.ts`, por acesso indexado, como os outros aliases. (6) Dois hooks chamados `useNotificationSettings`, um de query (`shared/hooks/queries/`) e um de context (`shared/hooks/`): o de context passa a se chamar `useNotificationPreferences`. Gatilho: oportunista, item por item, quando a feature passar pelo arquivo.
+**F82 — Repetições pequenas do frontend.** Seis repetições pequenas do frontend viraram uma definição cada. (1) `displayIsoDate` em `shared/lib/utils/display.ts` substitui o `formatIso` de cinco arquivos (`future-form.tsx` também tinha a cópia). (2) `niceTicks` mora em `shared/lib/chart-scale.ts` e o gráfico de patrimônio a usa no lugar do `niceScale`; as constantes de altura ficam em cada gráfico, porque os valores são diferentes. (3) `PodiumSteps` (`match-result/podium-steps.tsx`) guarda os degraus e o layout; `podium.tsx` e `team-podium.tsx` trazem só o conteúdo da coluna. (4) `AXIS_SCALE` está em `features/statistics/lib/metrics.ts`. (5) `Player` e `Team` (do relatório de visão geral) e `RiskPlayer`, `ReturnsPlayer`, `OperationsPlayer`, `CompositionPlayer` (um por aba, pois cada DTO tem formato próprio) estão em `types/api.ts`. (6) O hook de context virou `useNotificationPreferences`.
 
 <a id="f83"></a>
 **F83 — Proxy do Vite na porta do config.toml.** O proxy de `/api` e `/socket.io` em `frontend/vite.config.ts` aponta para `localhost:8000` fixo, enquanto o backend sobe na porta de `[server] port` do `config.toml`. Mudando a porta, o `pnpm dev` perde o backend sem erro claro. O `vite.config.ts` passa a ler `../config.toml` com o `smol-toml` (dependência de desenvolvimento) e usa `server.port`, com 8000 quando o arquivo não existe, que é o mesmo padrão do backend. Gatilho: a qualquer momento; é uma mudança de um arquivo.
