@@ -89,7 +89,6 @@
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
 | [**F78**](#f78) | Release só sai com o check passando | — | ⏳ |
-| [**F79**](#f79) | Tipos do frontend que vêm da API | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ⏳ |
@@ -110,7 +109,7 @@
 | [**F98**](#f98) | Excluir partida salva | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (16 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -129,6 +128,7 @@
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | [F24](#f24) | ✅ |
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ✅ |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
+| [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 
 </details>
 
@@ -163,7 +163,6 @@
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | 0 | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | 0 | ⏳ |
 | [**F78**](#f78) | Release só sai com o check passando | — | 0 | ⏳ |
-| [**F79**](#f79) | Tipos do frontend que vêm da API | — | 0 | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | 0 | ⏳ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | 0 | ⏳ |
@@ -314,7 +313,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/34 concluídas
+> **Progresso:** 1/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -337,7 +336,6 @@
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
 | [**F78**](#f78) | Release só sai com o check passando | — | ⏳ |
-| [**F79**](#f79) | Tipos do frontend que vêm da API | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ⏳ |
@@ -352,6 +350,14 @@
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 | [**F98**](#f98) | Excluir partida salva | — | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
+
+</details>
 
 ---
 
@@ -501,7 +507,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F75** | Encerramento do loop sem thread viva nem simulação presa | — | — | [F74](#f74) | Baixo | Médio | Médio | Bom | ⏳ Pendente |
 | **F77** | Dependências em dia, com o TypeScript 7 | — | — | — | Baixo | Médio | Baixo | Médio | ⏳ Pendente |
 | **F78** | Release só sai com o check passando | — | — | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
-| **F79** | Tipos do frontend que vêm da API | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F79** | Tipos do frontend que vêm da API | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F80** | Cotações do dia numa consulta só | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
 | **F82** | Repetições pequenas do frontend | — | — | — | Baixo | Baixo | Baixo | Médio | ⏳ Pendente |
