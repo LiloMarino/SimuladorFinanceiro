@@ -71,6 +71,7 @@ def test_settings_update_is_refused_while_a_saved_simulation_is_selected(
     assert SettingsManager._settings is None  # type: ignore[reportPrivateUsage]
 
 
+@pytest.mark.usefixtures("database")
 def test_settings_update_is_accepted_without_a_selection(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
