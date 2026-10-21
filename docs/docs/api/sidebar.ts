@@ -408,6 +408,12 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/delete-simulation-api-simulation-simulation-id-delete",
+          label: "Excluir simulação salva",
+          className: "api-method delete",
+        },
+        {
+          type: "doc",
           id: "api/list-simulations-api-simulation-list-get",
           label: "Listar simulações salvas",
           className: "api-method get",

@@ -18,6 +18,7 @@ import { winRuleLabel } from "@/shared/lib/game-types";
 import type { SimulationListItem } from "@/types";
 import { useClearSimulationSelection } from "../hooks/mutations/useClearSimulationSelection";
 import { useSelectSimulation } from "../hooks/mutations/useSelectSimulation";
+import { DeleteSimulationButton } from "./delete-simulation-button";
 import { RoomOverflowAlert } from "./room-overflow-alert";
 
 type StatusFilter = "ALL" | SimulationListItem["status"];
@@ -84,10 +85,11 @@ function SavedSimulationsContent({
   const startNew = () =>
     selectedSimulationId === null ? onSelected() : clearSelection(undefined, { onSuccess: onSelected });
 
-  // Quem entra ou sai da sala muda quais partidas ainda cabem
+  // Quem entra ou sai da sala muda quais partidas ainda cabem; uma partida excluída sai da lista
   const refreshFit = () => void queryClient.invalidateQueries({ queryKey: queryKeys.simulationList() });
   useRealtime("player_join", refreshFit);
   useRealtime("player_exit", refreshFit);
+  useRealtime("simulation_deleted", refreshFit);
 
   const term = search.trim().toLowerCase();
   // A lista vem da mais recente para a mais antiga: a primeira é a que o atalho do lobby seleciona
@@ -188,6 +190,7 @@ function SavedSimulationsContent({
                   : "Selecionar"}
           </Button>
         )}
+        {isHost && <DeleteSimulationButton simulation={s} disabled={selected} />}
       </div>
       );
     });

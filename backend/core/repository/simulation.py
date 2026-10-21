@@ -2,7 +2,7 @@ import random
 import re
 from datetime import UTC, datetime
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -10,7 +10,11 @@ from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationSummaryDTO
 from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.core.exceptions.http_exceptions import ConflictError
-from backend.core.models.models import Simulations
+from backend.core.models.models import (
+    EconomicIndicatorHistory,
+    Simulations,
+    StockPriceHistory,
+)
 
 _DEFAULT_NAME_PREFIX = "Simulação #"
 _DEFAULT_NAME_PATTERN = re.compile(r"^Simulação #(\d+)$")
@@ -127,6 +131,26 @@ class SimulationRepository:
                 f"Já existe uma simulação com o nome '{name}'."
             ) from exc
         return self._to_summary(simulation)
+
+    @transactional
+    def delete(self, session: Session, simulation_id: int) -> bool:
+        # Jogadores, eventos e snapshots saem em cascata pelas chaves estrangeiras;
+        # a cópia congelada das séries (version = id da partida) não tem chave
+        # estrangeira e sai na mesma transação.
+        session.execute(
+            delete(EconomicIndicatorHistory).where(
+                EconomicIndicatorHistory.version == simulation_id
+            )
+        )
+        session.execute(
+            delete(StockPriceHistory).where(StockPriceHistory.version == simulation_id)
+        )
+        deleted_id = session.scalar(
+            delete(Simulations)
+            .where(Simulations.id == simulation_id)
+            .returning(Simulations.id)
+        )
+        return deleted_id is not None
 
     @staticmethod
     def _to_summary(simulation: Simulations) -> SimulationSummaryDTO:

@@ -171,6 +171,26 @@ def test_regenerating_copies_the_played_days_to_the_saved_match(base: Engine):
     assert common["BANK_A"] == generated_closes(base)[day] != first[day]
 
 
+def test_deleting_a_match_drops_its_frozen_copy_and_keeps_the_rest(base: Engine):
+    future.record(params(1))
+    first = saved_match(base, date(2004, 10, 1), PLAYED_UNTIL)
+    other = saved_match(base, date(2004, 10, 1), PLAYED_UNTIL)
+    future.record(params(2))
+    assert generated_closes(base, first) and generated_closes(base, other)
+
+    assert repository.simulation.delete(first)
+
+    assert generated_closes(base, first) == {}
+    assert generated_closes(base, other)
+    assert generated_closes(base)
+    with Session(base) as session:
+        snapshots = session.scalars(
+            select(Snapshots.simulation_id).where(Snapshots.simulation_id == first)
+        ).all()
+    assert snapshots == []
+    assert not repository.simulation.delete(first)
+
+
 def test_real_arriving_takes_the_place_of_the_generated(base: Engine):
     future.record(params(1))
     simulation_id = saved_match(base, date(2004, 10, 1), PLAYED_UNTIL)

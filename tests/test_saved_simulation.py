@@ -5,12 +5,14 @@ from decimal import Decimal
 
 import pytest
 
-from backend.core.exceptions.http_exceptions import ConflictError
+from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.settings_manager import SettingsManager
+from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.simulation.saved_simulation import is_finished
 from backend.routes import simulation as simulation_routes
 from backend.routes.simulation import (
     UpdateSettingsRequest,
+    delete_simulation,
     price_impact_preview,
     update_simulation_settings,
 )
@@ -79,3 +81,77 @@ def test_settings_update_is_accepted_without_a_selection(
     settings = update_simulation_settings(_settings_payload(), None)  # type: ignore[arg-type]
 
     assert settings.name == "Teste"
+
+
+@pytest.fixture
+def deleted(monkeypatch: pytest.MonkeyPatch) -> list[int]:
+    """Os ids que o repositório apagou; só a partida 5 existe."""
+    ids: list[int] = []
+
+    def delete(simulation_id: int) -> bool:
+        ids.append(simulation_id)
+        return simulation_id == 5
+
+    monkeypatch.setattr(simulation_routes.repository.simulation, "delete", delete)
+    monkeypatch.setattr(SimulationManager, "_active_simulation", None)
+    monkeypatch.setattr(SimulationManager, "_simulation_id", None)
+    monkeypatch.setattr(SettingsManager, "_selected_simulation_id", None)
+    return ids
+
+
+def test_delete_removes_the_match_and_notifies_the_room(
+    monkeypatch: pytest.MonkeyPatch, deleted: list[int]
+) -> None:
+    sent: list[tuple[str, dict]] = []
+    monkeypatch.setattr(
+        simulation_routes, "notify", lambda event, payload: sent.append((event, payload))
+    )
+
+    delete_simulation(5, None)
+
+    assert deleted == [5]
+    assert sent == [("simulation_deleted", {"simulation_id": 5})]
+
+
+def test_delete_is_refused_for_the_selected_match(
+    monkeypatch: pytest.MonkeyPatch, deleted: list[int]
+) -> None:
+    monkeypatch.setattr(SettingsManager, "_selected_simulation_id", 5)
+
+    with pytest.raises(ConflictError):
+        delete_simulation(5, None)
+
+    assert deleted == []
+
+
+def test_delete_is_refused_for_the_active_match(
+    monkeypatch: pytest.MonkeyPatch, deleted: list[int]
+) -> None:
+    monkeypatch.setattr(SimulationManager, "_active_simulation", object())
+    monkeypatch.setattr(SimulationManager, "_simulation_id", 5)
+
+    with pytest.raises(ConflictError):
+        delete_simulation(5, None)
+
+    assert deleted == []
+
+
+def test_delete_is_accepted_for_a_saved_match_while_another_is_active(
+    monkeypatch: pytest.MonkeyPatch, deleted: list[int]
+) -> None:
+    monkeypatch.setattr(SimulationManager, "_active_simulation", object())
+    monkeypatch.setattr(SimulationManager, "_simulation_id", 9)
+    monkeypatch.setattr(simulation_routes, "notify", lambda *_args, **_kwargs: None)
+
+    delete_simulation(5, None)
+
+    assert deleted == [5]
+
+
+def test_delete_of_a_missing_match_is_not_found(
+    monkeypatch: pytest.MonkeyPatch, deleted: list[int]
+) -> None:
+    monkeypatch.setattr(simulation_routes, "notify", lambda *_args, **_kwargs: None)
+
+    with pytest.raises(NotFoundError):
+        delete_simulation(404, None)

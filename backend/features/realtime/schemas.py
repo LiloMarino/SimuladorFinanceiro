@@ -50,6 +50,10 @@ class SimulationSelectedEventDTO(BaseDTO):
     simulation_id: int | None
 
 
+class SimulationDeletedEventDTO(BaseDTO):
+    simulation_id: int
+
+
 class SimulationEndedEventDTO(BaseDTO):
     reason: Literal["completed", "stopped_by_host"]
     simulation_id: int
@@ -142,6 +146,7 @@ class RealtimeEventCatalog(BaseDTO):
     player_color: PlayerPresenceEventDTO
     player_team: PlayerPresenceEventDTO
     simulation_selected: SimulationSelectedEventDTO
+    simulation_deleted: SimulationDeletedEventDTO
     simulation_settings_update: SimulationSettingsDTO
     stock_update: StockUpdateEventDTO
     position_update: PositionUpdateEventDTO

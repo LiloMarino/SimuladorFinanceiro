@@ -1048,6 +1048,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/{simulation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Excluir simulação salva
+         * @description Apaga a partida salva e tudo o que ela guarda; não dá para desfazer. Recusa a partida em andamento e a selecionada no lobby. Apenas o host pode executar.
+         */
+        delete: operations["delete_simulation_api_simulation__simulation_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/list": {
         parameters: {
             query?: never;
@@ -2801,6 +2821,7 @@ export interface components {
             player_color: components["schemas"]["PlayerPresenceEventDTO"];
             player_team: components["schemas"]["PlayerPresenceEventDTO"];
             simulation_selected: components["schemas"]["SimulationSelectedEventDTO"];
+            simulation_deleted: components["schemas"]["SimulationDeletedEventDTO"];
             simulation_settings_update: components["schemas"]["SimulationSettingsDTO"];
             stock_update: components["schemas"]["StockUpdateEventDTO"];
             position_update: components["schemas"]["PositionUpdateEventDTO"];
@@ -3112,6 +3133,11 @@ export interface components {
             team_naming: components["schemas"]["TeamNaming"];
             /** Id */
             id: number;
+        };
+        /** SimulationDeletedEventDTO */
+        SimulationDeletedEventDTO: {
+            /** Simulation Id */
+            simulation_id: number;
         };
         /** SimulationEndedEventDTO */
         SimulationEndedEventDTO: {
@@ -5903,6 +5929,44 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_simulation_api_simulation__simulation_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                simulation_id: number;
+            };
             cookie?: never;
         };
         requestBody?: never;

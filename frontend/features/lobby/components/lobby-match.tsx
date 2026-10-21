@@ -219,10 +219,11 @@ export function LobbyMatch({
   // A lista vem da mais recente para a mais antiga: a primeira é a que o atalho seleciona
   const queryClient = useQueryClient();
   const { data: savedSimulations, isPending: listPending } = useSimulationList();
-  // Quem entra ou sai da sala muda quais partidas salvas ainda cabem
+  // Quem entra ou sai da sala muda quais partidas salvas ainda cabem; uma partida excluída sai da lista
   const refreshFit = () => void queryClient.invalidateQueries({ queryKey: queryKeys.simulationList() });
   useRealtime("player_join", refreshFit);
   useRealtime("player_exit", refreshFit);
+  useRealtime("simulation_deleted", refreshFit);
   const selectedSimulation = savedSimulations?.find((s) => s.id === selectedSimulationId);
 
   // Na sala e sem ter jogado a partida selecionada: entra ao continuar, com o saldo inicial

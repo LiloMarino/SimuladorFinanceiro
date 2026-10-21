@@ -30,6 +30,7 @@ from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
+    SimulationDeletedEventDTO,
     SimulationEndedEventDTO,
     SimulationSelectedEventDTO,
 )
@@ -236,6 +237,32 @@ def clear_selection(_: HostVerified):
     notify(
         "simulation_selected",
         SimulationSelectedEventDTO(simulation_id=None).to_json(),
+    )
+
+
+@simulation_router.delete(
+    "/{simulation_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Excluir simulação salva",
+    description="Apaga a partida salva e tudo o que ela guarda; não dá para desfazer. Recusa a partida em andamento e a selecionada no lobby. Apenas o host pode executar.",
+)
+def delete_simulation(simulation_id: int, _: HostVerified):
+    """
+    Exclui uma simulação salva e avisa a sala para atualizar a lista.
+    """
+    if (
+        SimulationManager.has_active_simulation()
+        and SimulationManager.get_active_simulation_id() == simulation_id
+    ):
+        raise ConflictError("Esta partida está em andamento.")
+    if SettingsManager.get_selected_simulation_id() == simulation_id:
+        raise ConflictError("Esta partida está selecionada no lobby.")
+    if not repository.simulation.delete(simulation_id):
+        raise NotFoundError("Simulação não encontrada.")
+
+    notify(
+        "simulation_deleted",
+        SimulationDeletedEventDTO(simulation_id=simulation_id).to_json(),
     )
 
 

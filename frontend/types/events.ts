@@ -35,6 +35,7 @@ export type SimulationEvents = {
   player_color: RealtimeEventCatalog["player_color"];
   player_team: RealtimeEventCatalog["player_team"];
   simulation_selected: RealtimeEventCatalog["simulation_selected"];
+  simulation_deleted: RealtimeEventCatalog["simulation_deleted"];
   simulation_settings_update: RealtimeEventCatalog["simulation_settings_update"];
   goal_progress_update: RealtimeEventCatalog["goal_progress_update"];
   life_event: LifeEvent;
