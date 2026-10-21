@@ -1,3 +1,4 @@
+from backend.core.repository.achievements import AchievementsRepository
 from backend.core.repository.economic import EconomicRepository
 from backend.core.repository.event import EventRepository
 from backend.core.repository.fixed_income import FixedIncomeRepository
@@ -23,3 +24,4 @@ settings = SettingsRepository()
 simulation = SimulationRepository()
 simulation_player = SimulationPlayerRepository()
 generated_future = GeneratedFutureRepository()
+achievements = AchievementsRepository()

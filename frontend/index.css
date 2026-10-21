@@ -45,6 +45,8 @@
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-warning-soft: var(--warning-soft);
+  --color-secret: var(--secret);
+  --color-secret-soft: var(--secret-soft);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-info-soft: var(--info-soft);
@@ -124,6 +126,8 @@
   --warning: #a15c07;
   --warning-foreground: #ffffff;
   --warning-soft: #fdf1dc;
+  --secret: #6b3fc4;
+  --secret-soft: #f1eafe;
   --info: #1a3da8;
   --info-foreground: #ffffff;
   --info-soft: #eaf0ff;

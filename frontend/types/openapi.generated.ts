@@ -924,6 +924,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/achievements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Conquistas do jogador
+         * @description O catálogo inteiro com o que o jogador já desbloqueou e o progresso das que têm meta. Conquista secreta bloqueada não traz nome nem descrição.
+         */
+        get: operations["list_achievements_api_achievements_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/achievements/seen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Marcar conquistas como vistas
+         * @description Chamado ao abrir a tela de conquistas: tira o selo de nova das desbloqueadas até aqui.
+         */
+        post: operations["mark_achievements_seen_api_achievements_seen_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/correlation/assets": {
         parameters: {
             query?: never;
@@ -1456,6 +1496,76 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AchievementCategory
+         * @enum {string}
+         */
+        AchievementCategory: "FIRST_STEPS" | "WEALTH" | "MARKET" | "MATCH" | "SECRET";
+        /** AchievementDTO */
+        AchievementDTO: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string | null;
+            /** Description */
+            description: string | null;
+            icon: components["schemas"]["AchievementIcon"];
+            category: components["schemas"]["AchievementCategory"];
+            /** Secret */
+            secret: boolean;
+            unlock: components["schemas"]["AchievementUnlockDTO"] | null;
+            progress: components["schemas"]["AchievementProgressDTO"] | null;
+        };
+        /**
+         * AchievementIcon
+         * @description Nomes dos ícones do `lucide-react`; o front tem um ícone para cada valor.
+         * @enum {string}
+         */
+        AchievementIcon: "SHOPPING_CART" | "LANDMARK" | "HAND_COINS" | "HAMMER" | "TRENDING_UP" | "PIGGY_BANK" | "GEM" | "CROWN" | "EGG" | "CLOUD_LIGHTNING" | "SNOWFLAKE" | "PERCENT" | "TARGET" | "SHIELD_CHECK" | "TROPHY" | "USERS" | "FLAG" | "ROCKET" | "HOURGLASS" | "SUNRISE" | "WALLET" | "FLAME";
+        /**
+         * AchievementProgressDTO
+         * @description Onde a conquista com meta numérica está: `current` de `goal`, na unidade `unit`.
+         */
+        AchievementProgressDTO: {
+            /** Current */
+            current: string;
+            /** Goal */
+            goal: string;
+            unit: components["schemas"]["AchievementUnit"];
+        };
+        /**
+         * AchievementUnit
+         * @description Como o progresso da conquista é escrito: dinheiro, contagem ou meses.
+         * @enum {string}
+         */
+        AchievementUnit: "BRL" | "COUNT" | "MONTHS" | "DAYS";
+        /** AchievementUnlockDTO */
+        AchievementUnlockDTO: {
+            /**
+             * Unlocked At
+             * Format: date-time
+             */
+            unlocked_at: string;
+            /**
+             * Game Date
+             * Format: date
+             */
+            game_date: string;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Simulation Name */
+            simulation_name: string;
+            /** Is New */
+            is_new: boolean;
+        };
+        /**
+         * AchievementUnlockedEventDTO
+         * @description As conquistas que saíram no último tick, de uma vez, para um toast só.
+         */
+        AchievementUnlockedEventDTO: {
+            /** Achievements */
+            achievements: components["schemas"]["UnlockedAchievementDTO"][];
+        };
         /**
          * AssetClass
          * @enum {string}
@@ -2829,6 +2939,7 @@ export interface components {
             order_updated: components["schemas"]["OrderEventDTO"];
             order_book_snapshot: components["schemas"]["OrderBookSnapshotEventDTO"];
             future_recording_progress: components["schemas"]["FutureRecordingProgressEventDTO"];
+            achievement_unlocked: components["schemas"]["AchievementUnlockedEventDTO"];
         };
         /**
          * ReplacedGeneratedDTO
@@ -3573,6 +3684,18 @@ export interface components {
         };
         /** @enum {string} */
         TurnoverStyle: "Segura" | "Moderado" | "Ativo" | "Muito ativo";
+        /** UnlockedAchievementDTO */
+        UnlockedAchievementDTO: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            icon: components["schemas"]["AchievementIcon"];
+            /** Secret */
+            secret: boolean;
+        };
         /** UpdateSettingsRequest */
         UpdateSettingsRequest: {
             /** Name */
@@ -5665,6 +5788,80 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["EconomicIndicatorsDTO"];
                 };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_achievements_api_achievements_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AchievementDTO"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    mark_achievements_seen_api_achievements_seen_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unprocessable Content */
             422: {

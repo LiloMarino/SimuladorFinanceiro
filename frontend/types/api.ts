@@ -129,3 +129,9 @@ export type LifeHistoryPage = components["schemas"]["LifeHistoryPageDTO"];
 export type LifeHistoryRow = LifeHistoryPage["items"][number];
 export type LifeHistoryCategory = components["schemas"]["LifeHistoryCategory"];
 export type LifeHistoryKind = LifeHistoryRow["kind"];
+
+// Conquistas
+export type Achievement = components["schemas"]["AchievementDTO"];
+export type AchievementCategory = components["schemas"]["AchievementCategory"];
+export type AchievementIconName = components["schemas"]["AchievementIcon"];
+export type AchievementUnit = components["schemas"]["AchievementUnit"];

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Copy, TriangleAlert } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Copy, Medal, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { BrandMark } from "@/shared/components/brand-mark";
+import { useAchievementTally } from "@/shared/hooks/queries/useAchievementTally";
 import { useTunnelStatus } from "../hooks/queries/useTunnelStatus";
 import { useStartTunnel } from "../hooks/mutations/useStartTunnel";
 
@@ -17,6 +19,7 @@ export function LobbyHeader({ isHost, hostNickname }: LobbyHeaderProps) {
   const { data: tunnelStatus } = useTunnelStatus();
   const { mutate: startTunnel, isPending: tunnelLoading } = useStartTunnel();
   const [copyFailed, setCopyFailed] = useState(false);
+  const tally = useAchievementTally();
 
   // O provider "lan" também responde como ativo, mas o link dele só vale na rede local
   const publicLink = tunnelStatus?.active && tunnelStatus.provider !== "lan" ? tunnelStatus.url : null;
@@ -43,6 +46,17 @@ export function LobbyHeader({ isHost, hostNickname }: LobbyHeaderProps) {
             {isHost ? "Aguardando você iniciar · você é o host" : `Aguardando ${hostNickname} iniciar`}
           </span>
         </div>
+        {/* Conquistas */}
+        <Button variant="outline" nativeButton={false} render={<Link to="/achievements" />} className="ml-2">
+          <Medal />
+          Conquistas
+          {tally && (
+            <span className="text-muted-foreground tabular-nums">
+              {tally.unlocked}/{tally.total}
+            </span>
+          )}
+          {tally?.hasNew && <span aria-label="Conquista nova" className="size-1.5 rounded-full bg-toast-warning" />}
+        </Button>
       </div>
 
       {/* Convite */}

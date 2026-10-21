@@ -131,6 +131,50 @@ class GameType(Enum):
     FINANCIAL_INDEPENDENCE = "FINANCIAL_INDEPENDENCE"
 
 
+class AchievementCategory(Enum):
+    FIRST_STEPS = "FIRST_STEPS"
+    WEALTH = "WEALTH"
+    MARKET = "MARKET"
+    MATCH = "MATCH"
+    SECRET = "SECRET"
+
+
+class AchievementIcon(Enum):
+    """Nomes dos ícones do `lucide-react`; o front tem um ícone para cada valor."""
+
+    SHOPPING_CART = "SHOPPING_CART"
+    LANDMARK = "LANDMARK"
+    HAND_COINS = "HAND_COINS"
+    HAMMER = "HAMMER"
+    TRENDING_UP = "TRENDING_UP"
+    PIGGY_BANK = "PIGGY_BANK"
+    GEM = "GEM"
+    CROWN = "CROWN"
+    EGG = "EGG"
+    CLOUD_LIGHTNING = "CLOUD_LIGHTNING"
+    SNOWFLAKE = "SNOWFLAKE"
+    PERCENT = "PERCENT"
+    TARGET = "TARGET"
+    SHIELD_CHECK = "SHIELD_CHECK"
+    TROPHY = "TROPHY"
+    USERS = "USERS"
+    FLAG = "FLAG"
+    ROCKET = "ROCKET"
+    HOURGLASS = "HOURGLASS"
+    SUNRISE = "SUNRISE"
+    WALLET = "WALLET"
+    FLAME = "FLAME"
+
+
+class AchievementUnit(Enum):
+    """Como o progresso da conquista é escrito: dinheiro, contagem ou meses."""
+
+    BRL = "BRL"
+    COUNT = "COUNT"
+    MONTHS = "MONTHS"
+    DAYS = "DAYS"
+
+
 class LifeEventEffect(Enum):
     # Sai do caixa o múltiplo da despesa mensal do dia
     CASH_OUT = "CASH_OUT"

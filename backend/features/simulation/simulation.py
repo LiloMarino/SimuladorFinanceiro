@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Callable
 from datetime import date, timedelta
 from decimal import Decimal
 from uuid import UUID
@@ -19,6 +20,7 @@ from backend.core.dto.patrimonial_history import (
 )
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationDTO
+from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import GameType, IndicatorSeries, PlayerGrouping
@@ -26,6 +28,12 @@ from backend.core.indicators import annual_index_rate
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import next_business_day
+from backend.features.achievements.catalog import Achievement
+from backend.features.achievements.evaluator import (
+    AchievementEvaluator,
+    match_result,
+    unlocked_event,
+)
 from backend.features.fixed_income.accrual import offer, project
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
@@ -111,6 +119,10 @@ class Simulation:
         # Fora da Clássica: onde cada um está na meta e se alguém já chegou
         self._goal_progress: GoalProgressDTO | None = None
         self._goal_reached = False
+
+        # Os snapshots do último pregão são a base da avaliação final das conquistas
+        self._achievements = AchievementEvaluator(settings)
+        self._last_snapshots: dict[int, SnapshotDTO] = {}
 
         # O mês do último dia processado já recebeu o aporte
         self._last_contribution_month: tuple[int, int] | None = (
@@ -233,6 +245,48 @@ class Simulation:
             )
         if self.settings.game_type is not GameType.CLASSIC:
             self._track_goal(snapshots)
+
+        self._last_snapshots = {e.snapshot.user_id: e.snapshot for e in snapshots}
+        self._unlock_achievements(
+            users,
+            lambda: self._achievements.on_tick(self._last_snapshots, month_changed),
+        )
+
+    def end_match(self) -> None:
+        """
+        Conquistas que dependem do resultado: roda com a partida ainda ativa, depois
+        do último flush.
+        """
+        users = repository.simulation_player.participants(self.settings.id)
+        self._unlock_achievements(
+            users,
+            lambda: self._achievements.on_match_end(
+                self._last_snapshots,
+                match_result(self.settings.id, users, self._goal_reached),
+            ),
+        )
+
+    def _unlock_achievements(
+        self,
+        users: list[UserDTO],
+        evaluate: Callable[[], dict[int, list[Achievement]]],
+    ) -> None:
+        """
+        Avalia e avisa cada jogador, uma vez, com tudo o que saiu agora (o toast é um
+        só). As conquistas são um extra: um erro ao avaliá-las não interrompe a partida.
+        """
+        try:
+            unlocked = evaluate()
+        except Exception:
+            logger.exception("Erro ao avaliar as conquistas")
+            return
+        for user in users:
+            if achievements := unlocked.get(user.id):
+                notify(
+                    "achievement_unlocked",
+                    unlocked_event(achievements).to_json(),
+                    to=user.client_id,
+                )
 
     def get_goal_progress(self) -> GoalProgressDTO | None:
         return self._goal_progress

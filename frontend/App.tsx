@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import MainLayout from "@/layouts/main-layout";
 import { PlainLayout } from "@/layouts/plain-layout";
-import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge, Flag } from "lucide-react";
+import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge, Flag, Medal } from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
 import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
@@ -22,6 +22,7 @@ import GoalPage from "./features/goal/pages/goal";
 import StatisticsPage from "./features/statistics/pages/statistics";
 import CompareSimulationsPage from "./features/statistics/pages/compare-simulations";
 import MatchResultPage from "./features/statistics/pages/match-result";
+import AchievementsPage from "./features/achievements/pages/achievements";
 import CorrelationPage from "./features/correlation/pages/correlation";
 import { LoginPage } from "./features/auth/pages/login";
 import { AuthProvider } from "./shared/context/auth";
@@ -40,6 +41,7 @@ const navItems: NavItem[] = [
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet, group: "Você" },
   { key: "goal", label: "Meta", endpoint: "/goal", icon: Flag, group: "Você", goalOnly: true },
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: Trophy, group: "Você" },
+  { key: "achievements", label: "Conquistas", endpoint: "/achievements", icon: Medal, group: "Você", achievementTally: true },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
   { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: Bot, group: "Ferramentas", badge: "Em breve" },
   { key: "performance", label: "Desempenho", endpoint: "/performance", icon: Gauge, group: "Ferramentas", badge: "Debug", badgeTone: "warning", debugOnly: true },
@@ -89,6 +91,7 @@ export default function App() {
                       </Route>
                       <Route element={<SimulationModeLayout navItems={navItems} />}>
                         <Route path="/correlation" element={<CorrelationPage />} />
+                        <Route path="/achievements" element={<AchievementsPage />} />
                       </Route>
                     </Route>
                     {/* 404 */}

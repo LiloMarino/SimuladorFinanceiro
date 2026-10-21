@@ -105,7 +105,9 @@ def test_delete_removes_the_match_and_notifies_the_room(
 ) -> None:
     sent: list[tuple[str, dict]] = []
     monkeypatch.setattr(
-        simulation_routes, "notify", lambda event, payload: sent.append((event, payload))
+        simulation_routes,
+        "notify",
+        lambda event, payload: sent.append((event, payload)),
     )
 
     delete_simulation(5, None)

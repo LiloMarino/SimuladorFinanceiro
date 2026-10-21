@@ -11,6 +11,7 @@ export const badgeVariants = cva(
         warning: "bg-warning-soft text-warning",
         destructive: "bg-destructive-soft text-destructive",
         info: "bg-info-soft text-info",
+        secret: "bg-secret-soft text-secret",
         outline: "border-input bg-card text-foreground",
         // Selo de equipe: a cor vem da variável --team, definida por quem renderiza
         // Selo de equipe sobre fundo escuro: cor cheia e texto branco
@@ -20,6 +21,8 @@ export const badgeVariants = cva(
       size: {
         default: "h-6",
         sm: "h-5 px-1.5",
+        // Etiqueta de estado ao lado de um nome ("Nova", "Secreta")
+        tag: "h-5 rounded-md px-[7px] text-[11px] font-semibold",
       },
       // Valores e códigos: fonte mono com algarismos alinhados
       numeric: {

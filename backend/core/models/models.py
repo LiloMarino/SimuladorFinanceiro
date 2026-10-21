@@ -647,6 +647,59 @@ class Snapshots(Base):
     )
 
 
+class Achievements(Base):
+    __tablename__ = "achievements"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="achievements_simulation_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="achievements_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("user_id", "code", name="achievements_pkey"),
+    )
+
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    # Código estável do catálogo; o texto e o ícone vivem no código
+    code: Mapped[str] = mapped_column(Text, primary_key=True)
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    unlocked_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+    # Dia da partida em que saiu
+    game_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    # Nulo até o jogador abrir a tela de conquistas
+    seen_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(True))
+
+
+class AchievementProgress(Base):
+    """O melhor valor já alcançado numa conquista com meta, em qualquer partida."""
+
+    __tablename__ = "achievement_progress"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="achievement_progress_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("user_id", "code", name="achievement_progress_pkey"),
+    )
+
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    code: Mapped[str] = mapped_column(Text, primary_key=True)
+    best: Mapped[decimal.Decimal] = mapped_column(Numeric(30, 6), nullable=False)
+
+
 class StockPriceHistory(Base):
     __tablename__ = "stock_price_history"
     __table_args__ = (

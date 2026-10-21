@@ -11,6 +11,7 @@ from datetime import date
 from decimal import Decimal
 from typing import Literal
 
+from backend.core.dto.achievements import AchievementUnlockedEventDTO
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
@@ -154,3 +155,4 @@ class RealtimeEventCatalog(BaseDTO):
     order_updated: OrderEventDTO
     order_book_snapshot: OrderBookSnapshotEventDTO
     future_recording_progress: FutureRecordingProgressEventDTO
+    achievement_unlocked: AchievementUnlockedEventDTO

@@ -35,6 +35,7 @@ export function GuardLayout() {
     "/import-assets",
     "/compare-simulations",
     "/correlation",
+    "/achievements",
     "/match-result/:simulationId",
   ];
   if (isAuthenticated && !hasSimulation) {

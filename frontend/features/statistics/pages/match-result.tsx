@@ -14,6 +14,7 @@ import { ErrorState } from "@/shared/components/error-state";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { HighlightsRow, HighlightsSkeleton } from "../components/match-result/highlights-row";
+import { MatchAchievements } from "../components/match-result/match-achievements";
 import { MatchHero, MatchHeroSkeleton } from "../components/match-result/match-hero";
 import { TeamPullers } from "../components/match-result/team-pullers";
 import { StatisticsReport } from "../components/statistics-report";
@@ -98,6 +99,7 @@ function MatchResult({ simulationId }: { simulationId: number }) {
             teamOf={overview.teams.length > 0 ? (nickname) => overview.players.find((p) => p.player_nickname === nickname)?.team : undefined}
             teamNaming={overview.team_naming}
           />
+          <MatchAchievements simulationId={simulationId} />
         </>
       ) : (
         <>

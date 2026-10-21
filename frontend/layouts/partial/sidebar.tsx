@@ -18,6 +18,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useDebugMode } from "@/shared/hooks/queries/useDebugMode";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
+import { useAchievementTally } from "@/shared/hooks/queries/useAchievementTally";
 import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
@@ -35,6 +36,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const { data: players } = useRoomPlayers();
   const { data: settings } = useSimulationSettings();
   const { data: goal } = useGoalProgress();
+  const tally = useAchievementTally();
 
   const debug = useDebugMode();
 
@@ -76,6 +78,16 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                     </SidebarMenuButton>
                     {item.badge && <SidebarMenuBadge tone={item.badgeTone}>{item.badge}</SidebarMenuBadge>}
                     {item.goalOnly && ownGoal && <SidebarMenuBadge>{displayGoalPercent(ownGoal.fraction)}</SidebarMenuBadge>}
+                    {item.achievementTally && tally && (
+                      <SidebarMenuBadge>
+                        <span className="inline-flex items-center gap-1.5">
+                          {tally.hasNew && activePage !== item.key && (
+                            <span aria-label="Conquista nova" className="size-1.5 rounded-full bg-toast-warning" />
+                          )}
+                          {tally.unlocked}/{tally.total}
+                        </span>
+                      </SidebarMenuBadge>
+                    )}
                   </SidebarMenuItem>
                 ))}
             </SidebarMenu>

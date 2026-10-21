@@ -5,6 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from backend.routes.achievements import achievements_router
 from backend.routes.auth import auth_router
 from backend.routes.correlation import correlation_router
 from backend.routes.debug import debug_router
@@ -42,6 +43,7 @@ def register_routes(app: FastAPI):
     app.include_router(timespeed_router, responses=ERROR_RESPONSES)
     app.include_router(auth_router, responses=ERROR_RESPONSES)
     app.include_router(statistics_router, responses=ERROR_RESPONSES)
+    app.include_router(achievements_router, responses=ERROR_RESPONSES)
     app.include_router(correlation_router, responses=ERROR_RESPONSES)
     app.include_router(simulation_router, responses=ERROR_RESPONSES)
     app.include_router(tunnel_router, responses=ERROR_RESPONSES)

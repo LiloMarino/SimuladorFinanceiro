@@ -120,6 +120,7 @@ class SimulationLoopController:
                     # A partida acaba como no stop(): eventos no banco e simulação
                     # liberada, então o fechamento lê a partida inteira
                     EventManager.flush()
+                    simulation.end_match()
                     SimulationManager.clear_simulation()
                     notify(
                         "simulation_ended",

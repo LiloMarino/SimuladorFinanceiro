@@ -15,6 +15,8 @@ export interface NavItem {
   debugOnly?: boolean;
   /** Só aparece nas partidas com meta (fora da Clássica); o selo mostra o seu percentual */
   goalOnly?: boolean;
+  /** O selo mostra o placar de conquistas ("9/24"), com um ponto dourado quando há alguma nova */
+  achievementTally?: boolean;
 }
 
 export type RedirectState = {

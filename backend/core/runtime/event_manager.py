@@ -16,12 +16,23 @@ class EventManager:
     """
 
     _events: ClassVar[list[BaseEventDTO]] = []
+    # Quem gerou evento desde a última leitura; o flush não o esvazia
+    _touched_users: ClassVar[set[int]] = set()
     _lock = Lock()
 
     @classmethod
     def push_event(cls, event: BaseEventDTO) -> None:
         with cls._lock:
             cls._events.append(event)
+            cls._touched_users.add(event.user_id)
+
+    @classmethod
+    def pop_touched_users(cls) -> set[int]:
+        """Quem gerou evento desde a última chamada; zera a marcação."""
+        with cls._lock:
+            touched = set(cls._touched_users)
+            cls._touched_users.clear()
+            return touched
 
     @classmethod
     def flush(cls) -> None:

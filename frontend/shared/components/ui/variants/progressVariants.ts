@@ -29,6 +29,8 @@ export const progressIndicatorVariants = cva("h-full rounded-full transition-all
       inverse: "bg-sidebar-primary",
       // Progresso de quem vê a tela, claro para os marcadores aparecerem sobre ele
       soft: "bg-info-border",
+      // Conquistas: o dourado do selo desbloqueado
+      gold: "bg-toast-warning",
       // Faixas de uma régua: boa, de atenção e crítica
       success: "bg-success",
       warning: "bg-warning",

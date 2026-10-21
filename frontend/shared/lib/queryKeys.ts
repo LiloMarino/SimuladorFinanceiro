@@ -40,4 +40,5 @@ export const queryKeys = {
   futurePreview: (request: object) => ["import-assets", "future-preview", request] as const,
   tickerSearch: (query: string) => ["import-assets", "tickers", query] as const,
   tunnelStatus: () => ["tunnel", "status"] as const,
+  achievements: () => ["achievements"] as const,
 } as const;

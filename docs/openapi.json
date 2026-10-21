@@ -2611,6 +2611,97 @@
         }
       }
     },
+    "/api/achievements": {
+      "get": {
+        "tags": [
+          "Achievements"
+        ],
+        "summary": "Conquistas do jogador",
+        "description": "O catálogo inteiro com o que o jogador já desbloqueou e o progresso das que têm meta. Conquista secreta bloqueada não traz nome nem descrição.",
+        "operationId": "list_achievements_api_achievements_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AchievementDTO"
+                  },
+                  "type": "array",
+                  "title": "Response List Achievements Api Achievements Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/achievements/seen": {
+      "post": {
+        "tags": [
+          "Achievements"
+        ],
+        "summary": "Marcar conquistas como vistas",
+        "description": "Chamado ao abrir a tela de conquistas: tira o selo de nova das desbloqueadas até aqui.",
+        "operationId": "mark_achievements_seen_api_achievements_seen_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/correlation/assets": {
       "get": {
         "tags": [
@@ -4030,6 +4121,208 @@
   },
   "components": {
     "schemas": {
+      "AchievementCategory": {
+        "type": "string",
+        "enum": [
+          "FIRST_STEPS",
+          "WEALTH",
+          "MARKET",
+          "MATCH",
+          "SECRET"
+        ],
+        "title": "AchievementCategory"
+      },
+      "AchievementDTO": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "icon": {
+            "$ref": "#/components/schemas/AchievementIcon"
+          },
+          "category": {
+            "$ref": "#/components/schemas/AchievementCategory"
+          },
+          "secret": {
+            "type": "boolean",
+            "title": "Secret"
+          },
+          "unlock": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AchievementUnlockDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AchievementProgressDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "name",
+          "description",
+          "icon",
+          "category",
+          "secret",
+          "unlock",
+          "progress"
+        ],
+        "title": "AchievementDTO"
+      },
+      "AchievementIcon": {
+        "type": "string",
+        "enum": [
+          "SHOPPING_CART",
+          "LANDMARK",
+          "HAND_COINS",
+          "HAMMER",
+          "TRENDING_UP",
+          "PIGGY_BANK",
+          "GEM",
+          "CROWN",
+          "EGG",
+          "CLOUD_LIGHTNING",
+          "SNOWFLAKE",
+          "PERCENT",
+          "TARGET",
+          "SHIELD_CHECK",
+          "TROPHY",
+          "USERS",
+          "FLAG",
+          "ROCKET",
+          "HOURGLASS",
+          "SUNRISE",
+          "WALLET",
+          "FLAME"
+        ],
+        "title": "AchievementIcon",
+        "description": "Nomes dos ícones do `lucide-react`; o front tem um ícone para cada valor."
+      },
+      "AchievementProgressDTO": {
+        "properties": {
+          "current": {
+            "type": "string",
+            "title": "Current"
+          },
+          "goal": {
+            "type": "string",
+            "title": "Goal"
+          },
+          "unit": {
+            "$ref": "#/components/schemas/AchievementUnit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "current",
+          "goal",
+          "unit"
+        ],
+        "title": "AchievementProgressDTO",
+        "description": "Onde a conquista com meta numérica está: `current` de `goal`, na unidade `unit`."
+      },
+      "AchievementUnit": {
+        "type": "string",
+        "enum": [
+          "BRL",
+          "COUNT",
+          "MONTHS",
+          "DAYS"
+        ],
+        "title": "AchievementUnit",
+        "description": "Como o progresso da conquista é escrito: dinheiro, contagem ou meses."
+      },
+      "AchievementUnlockDTO": {
+        "properties": {
+          "unlocked_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Unlocked At"
+          },
+          "game_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Game Date"
+          },
+          "simulation_id": {
+            "type": "integer",
+            "title": "Simulation Id"
+          },
+          "simulation_name": {
+            "type": "string",
+            "title": "Simulation Name"
+          },
+          "is_new": {
+            "type": "boolean",
+            "title": "Is New"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "unlocked_at",
+          "game_date",
+          "simulation_id",
+          "simulation_name",
+          "is_new"
+        ],
+        "title": "AchievementUnlockDTO"
+      },
+      "AchievementUnlockedEventDTO": {
+        "properties": {
+          "achievements": {
+            "items": {
+              "$ref": "#/components/schemas/UnlockedAchievementDTO"
+            },
+            "type": "array",
+            "title": "Achievements"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "achievements"
+        ],
+        "title": "AchievementUnlockedEventDTO",
+        "description": "As conquistas que saíram no último tick, de uma vez, para um toast só."
+      },
       "AssetClass": {
         "type": "string",
         "enum": [
@@ -7967,6 +8260,9 @@
           },
           "future_recording_progress": {
             "$ref": "#/components/schemas/FutureRecordingProgressEventDTO"
+          },
+          "achievement_unlocked": {
+            "$ref": "#/components/schemas/AchievementUnlockedEventDTO"
           }
         },
         "additionalProperties": false,
@@ -7998,7 +8294,8 @@
           "order_added",
           "order_updated",
           "order_book_snapshot",
-          "future_recording_progress"
+          "future_recording_progress",
+          "achievement_unlocked"
         ],
         "title": "RealtimeEventCatalog",
         "description": "Um campo por nome de evento realtime, tipado para o DTO do payload\ncorrespondente. Nunca é instanciado de verdade — só existe para que seu\nschema apareça em `/openapi.json` via a rota dev-only em `routes/realtime.py`."
@@ -10103,6 +10400,39 @@
           "Ativo",
           "Muito ativo"
         ]
+      },
+      "UnlockedAchievementDTO": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "icon": {
+            "$ref": "#/components/schemas/AchievementIcon"
+          },
+          "secret": {
+            "type": "boolean",
+            "title": "Secret"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "name",
+          "description",
+          "icon",
+          "secret"
+        ],
+        "title": "UnlockedAchievementDTO"
       },
       "UpdateSettingsRequest": {
         "properties": {
