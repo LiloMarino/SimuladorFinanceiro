@@ -4,6 +4,37 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 2.1.0 (21/10/2026)
+
+Suas partidas salvas e o `config.toml` continuam valendo.
+
+
+### Novidades
+
+- Adicionado o modo debug
+- Adicionado o painel de desempenho
+- Adicionado o fallback de polling ao Socket.IO
+- Adicionado o modo em equipes ao backend e ao lobby
+- Adicionado o modo em equipes às estatísticas
+- Adicionado o modo em equipes ao fechamento da partida
+- Completado o modo em equipes com esqueleto, placar vazio, legenda e coluna na média
+- Completado o modo em equipes com legenda única, leitura do risco e nomes longos
+- Registradas as requisições HTTP nos arquivos de log no modo debug
+- Adicionado o modo corrida à meta
+- Adicionado o modo viver de renda
+- Adicionado o gerador de séries sintéticas
+- Adicionados o encaixe de nível e o choque de inflação ao gerador de séries
+- Adicionada a geração de dados futuros na Central de dados
+
+### Correções
+
+- Corrigidos os avisos e o título do painel de desempenho
+- Ajustados textos do modo em equipes conforme o design
+- Ajustado o convite do lobby para ocupar uma vaga e a linha toda no modo em equipes
+- Alinhado o nome das equipes nas regras da partida ao design
+- Adicionados os ícones do modo de jogo nas regras da partida
+- Corrigidas as regras do lobby que voltavam com o nome da partida anterior
+- Corrigida a saída do jogador da sala ao fechar uma de duas abas abertas
 ## 2.0.0 (17/10/2026)
 
 **Acesso antecipado.** A primeira versão desde a 1.0.0, de fevereiro de 2026. Muita coisa mudou, em resumo:
