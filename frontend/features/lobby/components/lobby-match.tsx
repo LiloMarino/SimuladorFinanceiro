@@ -45,7 +45,6 @@ import type {
   TeamNaming,
   VictoryCriterion,
 } from "@/types";
-import { useDistributeTeams } from "../hooks/useDistributeTeams";
 import { useRealtimeSyncSimulationForm } from "../hooks/useRealtimeSyncSimulationForm";
 import { checkTeams } from "../lib/teams-check";
 import { checkCoverage } from "../lib/coverage";
@@ -264,7 +263,11 @@ export function LobbyMatch({
     onError: (err) => toastApiError(err),
   });
 
-  const { mutate: distributeTeams, isPending: distributing } = useDistributeTeams();
+  // O host põe cada jogador sem equipe na equipe com menos gente
+  const { mutate: distributeTeams, isPending: distributing } = useMutation({
+    mutationFn: () => apiFetch<void>("/api/simulation/teams/distribute", { method: "POST" }),
+    onError: (err) => toastApiError(err),
+  });
 
   const busy = creating || continuing;
   // Em equipes todo mundo precisa estar numa e a partida, ter pelo menos duas

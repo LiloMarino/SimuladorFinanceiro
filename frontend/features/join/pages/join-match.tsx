@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DoorOpen, TriangleAlert } from "lucide-react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { PlayerColorGrid } from "@/shared/components/player-color-grid";
@@ -16,13 +16,13 @@ import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { PLAYER_COLORS, playerColorName } from "@/shared/lib/player-colors";
-import { loadColorPreference } from "@/shared/lib/player-color-preference";
+import { loadColorPreference, saveColorPreference } from "@/shared/lib/player-color-preference";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { toCentsString } from "@/shared/lib/utils/display";
 import { LoadingPage } from "@/pages/loading";
 import type { RoomPlayer, SimulationData } from "@/types";
-import { useJoinMatch } from "../hooks/useJoinMatch";
 import { useMatchPlayers } from "../hooks/queries/useMatchPlayers";
 
 /** Tela de quem chegou com a partida em andamento: escolhe uma cor que sobrou e entra jogando. */
@@ -69,7 +69,18 @@ type JoinMatchContentProps = {
 function JoinMatchContent({ match, players }: JoinMatchContentProps) {
   const { logout } = useAuth();
   const { data: online } = useRoomPlayers();
-  const { mutate: join, isPending, error, reset } = useJoinMatch();
+  const queryClient = useQueryClient();
+  // Vale o primeiro pedido pela cor; quem entra deixa de ter sessão pendente
+  const { mutate: join, isPending, error, reset } = useMutation({
+    mutationFn: ({ color, team }: { color: string; team?: number }) =>
+      apiFetch<void>("/api/simulation/join", { method: "POST", body: { color, team } }),
+    onSuccess: async (_, { color }) => {
+      saveColorPreference(color);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.authSession() });
+    },
+    // Quem perdeu a disputa pela cor vê a grade atualizada
+    onError: () => void queryClient.invalidateQueries({ queryKey: queryKeys.matchPlayers() }),
+  });
   const [choice, setChoice] = useState<string | null>(null);
   // Em equipes a escolha é obrigatória e não tem padrão: quem entra decide em qual equipe joga
   const inTeams = match.player_grouping === "TEAMS";

@@ -1,4 +1,5 @@
 import { useState, type CSSProperties } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { ChevronDown, Lock, Shield, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -12,8 +13,8 @@ import {
 } from "@/shared/components/ui/popover";
 import { TeamGrid } from "@/shared/components/team-grid";
 import { teamColor, teamName, teamShortName } from "@/shared/lib/teams";
+import { apiFetch } from "@/shared/lib/api/apiFetch";
 import type { RoomPlayer, TeamNaming } from "@/types";
-import { useChooseTeam } from "../hooks/useChooseTeam";
 
 type LobbyTeamPickerProps = {
   nickname: string;
@@ -35,7 +36,10 @@ export function LobbyTeamPicker({ nickname, players, savedPlayers, naming, simul
   const locked = savedPlayers.some((p) => p.nickname === nickname);
   const joiningNew = savedPlayers.length > 0 && !locked;
 
-  const { mutate, isPending } = useChooseTeam();
+  // Quem muda a lista é o evento player_team
+  const { mutate, isPending } = useMutation({
+    mutationFn: (team: number) => apiFetch<void>("/api/simulation/players/me/team", { method: "PUT", body: { team } }),
+  });
   const chooseTeam = (team: number) =>
     mutate(team, { onSuccess: () => setRefusal(null), onError: (err) => setRefusal(err.message) });
 
