@@ -88,7 +88,6 @@
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
-| [**F78**](#f78) | Release só sai com o check passando | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
@@ -104,7 +103,7 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -123,6 +122,7 @@
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | [F24](#f24) | ✅ |
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ✅ |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
+| [**F78**](#f78) | Release só sai com o check passando | — | ✅ |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
@@ -162,7 +162,6 @@
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | 0 | ⏳ |
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | 0 | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | 0 | ⏳ |
-| [**F78**](#f78) | Release só sai com o check passando | — | 0 | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
@@ -308,7 +307,7 @@
 
 ### Sem marco
 
-> **Progresso:** 6/34 concluídas
+> **Progresso:** 7/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -330,7 +329,6 @@
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | [F74](#f74) | ⏳ |
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
-| [**F78**](#f78) | Release só sai com o check passando | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
@@ -341,10 +339,11 @@
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 
-<details><summary>Concluído (6 itens)</summary>
+<details><summary>Concluído (7 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F78**](#f78) | Release só sai com o check passando | — | ✅ |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
@@ -501,7 +500,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F74** | Testes da conexão em tempo real e do loop da partida | — | — | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F75** | Encerramento do loop sem thread viva nem simulação presa | — | — | [F74](#f74) | Baixo | Médio | Médio | Bom | ⏳ Pendente |
 | **F77** | Dependências em dia, com o TypeScript 7 | — | — | — | Baixo | Médio | Baixo | Médio | ⏳ Pendente |
-| **F78** | Release só sai com o check passando | — | — | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F78** | Release só sai com o check passando | — | — | — | Baixo | Baixo | Alto | Excelente | ✅ Concluído |
 | **F79** | Tipos do frontend que vêm da API | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F80** | Cotações do dia numa consulta só | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
