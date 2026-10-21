@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-21):** Registrados doze itens de débito técnico (F73 a F84), da auditoria de frontend e backend: testes, consultas, tipos da API, CORS, release e repetições.
+> **Última mudança (2026-10-21):** Concluído o spike do gerador de séries sintéticas (F23): decididos o método (D14) e o congelamento por partida (D7); registrados os defeitos de importação achados no caminho (F85 a F87).
 
 ## Glossário
 
@@ -30,7 +30,7 @@
 | **N10** | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | [F19](#f19) | — |
 | **N11** | Que o cenário econômico simulado seja o histórico real | — | — |
 | **N12** | Continuar jogando depois do último dia com dado real | [F24](#f24) | — |
-| **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
+| **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | [F85](#f85), [F86](#f86) | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
 | **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
@@ -40,10 +40,10 @@
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | [F40](#f40) | — |
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F41](#f41) | — |
-| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F52](#f52), [F53](#f53), [F69](#f69), [F71](#f71) | — |
+| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F71](#f71) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | — | — |
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F47](#f47), [F48](#f48) | — |
-| **N26** | Achar a causa de um erro sem vasculhar o log inteiro | [F65](#f65) | — |
+| **N26** | Achar a causa de um erro sem vasculhar o log inteiro | — | — |
 | **N27** | Entrar numa partida que já começou | — | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
 | **N29** | Saber o que cada jogador está fazendo enquanto a partida não começa | [F70](#f70) | — |
@@ -58,7 +58,6 @@
 | [**F16**](#f16) | Bots na sala | — | ⏳ |
 | [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
-| [**F23**](#f23) | Spike: gerador de séries sintéticas | — | 🔍 |
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | — | ⏳ |
@@ -92,9 +91,12 @@
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ⏳ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
+| [**F85**](#f85) | Importar duas ações da mesma empresa | — | ⏳ |
+| [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
+| [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (13 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -110,9 +112,7 @@
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | ✅ |
 | **D12** | Como numerar as versões | — | ✅ |
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
-| [**F52**](#f52) | Modo corrida à meta | — | ✅ |
-| [**F53**](#f53) | Modo viver de renda | — | ✅ |
-| [**F65**](#f65) | Rework dos loggings | — | ✅ |
+| **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas | [F24](#f24) | ✅ |
 
 </details>
 
@@ -126,12 +126,12 @@
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
-| [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
 | [**F47**](#f47) | Gravação automática de demonstrações | M14 | 1 | ⏳ |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
+| [**F24**](#f24) | Gerar dados futuros na Central de dados | M9 | 0 | ⏳ |
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
@@ -152,6 +152,9 @@
 | [**F82**](#f82) | Repetições pequenas do frontend | — | 0 | ⏳ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | 0 | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | 0 | ⏳ |
+| [**F85**](#f85) | Importar duas ações da mesma empresa | — | 0 | ⏳ |
+| [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | 0 | ⏳ |
+| [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 
 ---
 
@@ -216,13 +219,12 @@
 >
 > **Serve:** N12
 >
-> **Progresso:** 0/3 concluídas
+> **Progresso:** 0/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F23**](#f23) | Spike: gerador de séries sintéticas | — | 🔍 |
-| [**F24**](#f24) | Gerar dados futuros na Central de dados | [F23](#f23) | ⏳ |
-| [**F28**](#f28) | Muitos futuros (Monte Carlo) | [F19](#f19), [F23](#f23) | 🔍 |
+| [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ⏳ |
+| [**F28**](#f28) | Muitos futuros (Monte Carlo) | [F19](#f19) | 🔍 |
 
 ### M11 — Análise técnica
 
@@ -243,21 +245,12 @@
 >
 > **Serve:** N21, N22, N23
 >
-> **Progresso:** 2/4 concluídas
+> **Progresso:** 0/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F40**](#f40) | Modo Especialista | — | ⏳ |
 | [**F41**](#f41) | Conquistas | — | ⏳ |
-
-<details><summary>Concluído (2 itens)</summary>
-
-| ID | Resumo | Depende de | Status |
-| --- | --- | --- | --- |
-| [**F52**](#f52) | Modo corrida à meta | — | ✅ |
-| [**F53**](#f53) | Modo viver de renda | [F52](#f52) | ✅ |
-
-</details>
 
 ### M14 — Vitrine e primeiros passos
 
@@ -275,7 +268,7 @@
 
 ### Sem marco
 
-> **Progresso:** 1/26 concluídas
+> **Progresso:** 0/28 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -288,9 +281,9 @@
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
-| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | [F53](#f53) | ⏳ |
+| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | ⏳ |
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ⏳ |
-| [**F71**](#f71) | Renda fixa com liquidez diária | [F53](#f53) | ⏳ |
+| [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ⏳ |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ⏳ |
@@ -304,14 +297,9 @@
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ⏳ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
-
-<details><summary>Concluído (1 item)</summary>
-
-| ID | Resumo | Depende de | Status |
-| --- | --- | --- | --- |
-| [**F65**](#f65) | Rework dos loggings | — | ✅ |
-
-</details>
+| [**F85**](#f85) | Importar duas ações da mesma empresa | — | ⏳ |
+| [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
+| [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 
 ---
 
@@ -324,7 +312,7 @@
 | **F9** | Estratégias prontas de exemplo | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F16** | Bots na sala | N8 | D8 | M6 | [F8](#f8) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
-| **F24** | Gerar dados futuros na Central de dados | N12 | D7 | M9 | [F23](#f23) | Médio | Alto | Alto | Bom | ⏳ Pendente |
+| **F24** | Gerar dados futuros na Central de dados | N12 | D7, D14 | M9 | — | Médio | Alto | Alto | Bom | ⏳ Pendente |
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F33** | Indicadores técnicos | N19, N4 | D2 | M11 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
@@ -332,16 +320,15 @@
 | **F41** | Conquistas | N22 | D1 | M13 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F47** | Gravação automática de demonstrações | N25 | — | M14 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
-| **F52** | Modo corrida à meta | N23 | — | M13 | — | Médio | Baixo | Alto | Ótimo | ✅ Concluído |
-| **F53** | Modo viver de renda | N23 | — | M13 | [F52](#f52) | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F65** | Rework dos loggings | N26 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
-| **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | [F53](#f53) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F70** | O que cada jogador está fazendo na sala | N29 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F71** | Renda fixa com liquidez diária | N23 | — | — | [F53](#f53) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F71** | Renda fixa com liquidez diária | N23 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F76** | Testes das contas feitas no frontend | N3 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F85** | Importar duas ações da mesma empresa | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F86** | Sugestão de ticker que a importação aceita | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
@@ -360,7 +347,7 @@
 **F16 — Bots na sala.** Serve N8; segue a D8. No lobby, o host clica "Adicionar bot" e escolhe a estratégia — as prontas da F9 ou as escritas pelo usuário na F8; cada estratégia é um "tipo de IA", como as IAs do OpenTTD — e um nome. O bot é um jogador sem socket: registro em `users` marcado como bot, carteira própria, e o motor chama o `next()` da estratégia dele a cada tick, como faz com a de um humano no automático. Aparece no ranking e nas estatísticas como qualquer jogador, com um ícone que o distingue. Quem escolhe o código do bot é o host, então ele roda no processo do host qualquer que seja a D5 — a restrição da D5 é sobre código vindo de jogador remoto. Com a F13 ligada, as ordens do bot movem preço como as de qualquer jogador. Gatilho: F8 concluída.
 
 <a id="f24"></a>
-**F24 — Gerar dados futuros na Central de dados.** Serve N12; segue a D7. Na Central (F21), "Gerar dados": o usuário escolhe até quando gerar (o início é sempre o dia útil seguinte ao último dado real de cada série), a semente e a temperatura, vendo no preview como a geração fica antes de gravar; o gerador da F23 grava as linhas nas mesmas tabelas de preço e de indicadores, com origem "gerado", e a barra da linha do tempo mostra o trecho. "Atualizar" passa a trocar o trecho gerado pelo real à medida que o real fica disponível, seguindo a regra para partidas salvas que a F23 fechar. A simulação lê as séries como sempre. Gatilho: F21 e F23 concluídas.
+**F24 — Gerar dados futuros na Central de dados.** Serve N12; segue a D7 e a D14. (1) **Tela:** na Central (F21), "Gerar dados" pede até quando gerar (cada série começa no dia útil seguinte ao seu último dado real), a semente, a temperatura (0 a 3, padrão 1) e "começar em" (mercado de hoje, calmaria, normal ou crise, o `start_regime`). A temperatura ganha descrição curta e dica com a leitura medida: em 1 o histórico como foi, em 2 dois de cada três anos com queda acima de 30%, em 3 crise permanente. O preview monta um `SeriesGenerator` uma vez e gera sem gravar poucos ativos a cada mudança de parâmetro (cerca de 0,1 s). (2) **Gravação:** os repositórios montam o `MarketHistory` (preços, segmento e setor de cada ativo e indicadores, só a origem real) e gravam o `GeneratedSeries` com origem "gerado"; indicador vira `Decimal` a partir do valor já arredondado; regerar troca o gerado comum, passando pela cópia na troca. A barra da linha do tempo já mostra o trecho gerado pelo `generated_end` da cobertura. (3) **Cenário (D7):** `stock_price_history` e `economic_indicator_history` ganham a coluna de cenário na chave (o comum e o de cada partida), por migration (D9). As leituras do motor (`get_stocks_by_date`, `get_recent_closes`, `get_closes_on`, `get_stock_details` e o histórico de indicadores) passam a preferir o cenário da partida. A cópia na troca: antes de trocar ou apagar gerado, cada partida salva cujo período, de `start_date` ao último dia simulado, cobre linhas geradas recebe a cópia delas no próprio cenário. (4) **Importador:** "Atualizar" troca o gerado pelo real à medida que o real chega. Hoje o `upsert_dataframe` incremental compara com a última data de qualquer origem, e um gerado no fim faria o real ser descartado: passa a comparar com a última data real e a trocar o gerado das datas que o real cobre. O `overwrite=True` apaga o histórico inteiro, gerado junto, e passa pela mesma troca. O upsert de indicador sobrescreve a origem no conflito, então a cópia na troca roda antes dele. Gatilho: F21 e F23 concluídas.
 
 <a id="f19"></a>
 **F19 — Modo backtest: partida só de estratégias, sem interação.** Serve N4 e N10; segue a D8. No lobby, "Rodar backtest" escolhe período, capital inicial, aporte e as estratégias participantes; cada estratégia vira um bot (F16) e a partida roda sem `sleep` entre ticks e sem eventos de socket por tick, mandando o progresso a cada N dias para a tela animar o gráfico. Ao fim, a partida fica salva como qualquer outra e abre no relatório da F17, já comparando as estratégias.
@@ -397,20 +384,11 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 <a id="f48"></a>
 **F48 — README e docs que mostram o produto.** Serve N25. O README abre com um GIF do jogo rodando e, logo abaixo, o que ele faz, cada item com uma imagem ou um GIF curto da F47 (renda variável, renda fixa, estatísticas, multiplayer), o download e o link dos docs; a parte de desenvolvimento desce para o fim. Nos docs, uma página "Tour" com os vídeos, e as páginas de "Como usar" com as imagens novas. Junto, uma revisão do que está desatualizado em README e docs, página por página, contra o app de hoje. Feito com a skill de documentação (`engineering:documentation`).
 
-<a id="f52"></a>
-**F52 — Modo corrida à meta.** Serve N23. Vence quem chega primeiro a um patrimônio-alvo, como a vitória por Maravilha do Age of Empires. **Tipo de partida:** em vez de um valor novo no critério de vitória, a partida ganhou um eixo próprio, o `ENUM` `game_type` (`CLASSIC`, `GOAL_RACE`, `FINANCIAL_INDEPENDENCE`) em `simulations`; os 4 critérios da F27 continuam e só valem na Clássica. No lobby, "Tipo de partida" são 3 cards entre "Modo de jogo" e o resto, e "Quem vence" some fora da Clássica. **Meta:** coluna `goal_net_worth`, escolhida pelo host com atalhos de 5×, 10× e 20× o saldo inicial (padrão 10×, `goal_multiple` no `config.toml`) e maior que o saldo inicial; as partidas salvas receberam 10× o saldo. **Fim:** depois dos snapshots do dia, `goal_reached` confere se alguém (ou, em equipes, a média do patrimônio dos membros) chegou; a partida encerra no pregão seguinte com `simulation_ended` e vai ao fechamento, e a partida salva terminada por meta aparece como terminada e não continua. **Ranking:** fora da Clássica o valor do critério é a fração da meta (patrimônio ÷ meta, 1 = chegou); ordenar por ela já dá as regras do card (dois no mesmo dia: o maior patrimônio; ninguém na meta: o mais perto), e em equipes a média das frações é o patrimônio médio ÷ meta. As Estatísticas mostram "% da meta" e "Falta para a meta", os gráficos de patrimônio ganham a linha da meta e o fechamento diz quem chegou primeiro ou que ninguém chegou. **Tempo real:** o evento `goal_progress_update` (meta e patrimônio de cada jogador) sai todo pregão e a rota `GET /api/simulation/goal-progress` dá o estado inicial; a topbar mostra a trilha com um marcador por jogador (um escudo por equipe) e a página "Meta" traz o progresso e a corrida de todos. A meta é em reais do dia, e o aporte mensal continua valendo.
-
-<a id="f53"></a>
-**F53 — Modo viver de renda.** Serve N23. Uma corrida à meta (F52) em que a meta é a independência financeira e o caminho tem a vida real no meio. **Tipo de partida:** o terceiro valor do `game_type`, `FINANCIAL_INDEPENDENCE`; o fim, o ranking por fração da meta e o fechamento são os da corrida. **Regras:** o host define no lobby o salário e a despesa mensal (padrões R$ 8 mil e R$ 5 mil no `config.toml`), a frequência dos imprevistos por ano (padrão 3), a taxa de retirada (padrão 4%, entre 1% e 10%, com a explicação da regra dos 4% e do estudo Trinity ao lado do campo) e se salário e despesa sobem pelo IPCA. Não há aporte: o salário entra no primeiro pregão do mês e a despesa sai no mesmo dia. **Meta:** 12 × a despesa ÷ a taxa de retirada (R$ 5 mil por mês a 4% dá R$ 1,5 milhão), maior que o saldo inicial. Com a correção ligada, salário, despesa e meta sobem uma vez por ano, no aniversário da partida, pelo IPCA acumulado dos 12 meses; o relatório guarda a meta em degraus (`goal_steps`) para a linha da meta nos gráficos, e a topbar avisa por 30 dias que a meta subiu. **Imprevistos:** um registro de tipos (`LIFE_EVENTS`), cada um com nome, efeito, peso no sorteio e múltiplo da despesa: conserto do carro (1 despesa), saúde (2 despesas) e demissão (o salário do mês seguinte não entra). O sorteio de cada pregão sai da semente da partida (`random_seed` em `simulations`) e da data, então todos recebem os mesmos imprevistos nos mesmos dias, inclusive ao continuar uma partida salva. **Caixa:** salário, despesa, imprevisto e juro do cheque especial são valores novos do `cashflow_event_type`, cada tipo com o próprio sinal; o imprevisto guarda a chave do tipo em `life_event_key`. Caixa negativo paga 8% ao mês de cheque especial (`overdraft_monthly_rate` no `config.toml`), composto por pregão, até ser coberto. Salário, despesa e imprevisto contam no capital aportado e o juro conta como perda. **Telas:** a página "Meta" ganha a vida financeira (salário, despesa, reserva em meses de despesa, juro do cheque especial, aviso de demissão) e o histórico com filtros por imprevisto, demissão e cheque especial, com o juro somado por mês; a topbar mostra o caixa e "Cheque especial" quando negativo; cada imprevisto e a entrada no negativo viram um aviso que leva ao histórico. **Desvios:** a reserva de emergência conta só o caixa, porque a renda fixa só volta no vencimento (fecha com a F71); o fechamento não diz quantos imprevistos cada um passou, o histórico não soma os juros pagos na partida, e a previsão de quando a meta chega fica fora em equipes. A meta pela renda passiva real, quando os proventos existirem (F22), segue em aberto.
-
 <a id="f56"></a>
 **F56 — Novidades no app.** Serve N14. Como as notas de patch de um jogo: o `CHANGELOG.md` da F51 vai junto no executável, o backend o serve com a versão, e o lobby mostra as novidades da versão atual. Na primeira abertura depois de atualizar, o card ou o selo de novidades fica em destaque até ser aberto (o navegador guarda a última versão vista); aberto, mostra "O que há de novo na versão X" e dá acesso ao histórico inteiro. O lugar exato no lobby, que já está cheio, sai de uma iteração no Claude Design antes de implementar.
 
 <a id="f61"></a>
 **F61 — Host remove jogador da sala.** Serve N28. Hoje a vaga só abre quando o jogador sai por conta própria: com a sala cheia ou a partida salva recusada por causa de novatos (F58), o host tem de pedir pelo chat para alguém fechar a aba. O plano: um botão "Remover" no cartão de cada jogador do lobby, só para o host, que encerra a sessão do jogador pelo mesmo caminho do `player_logout`, com um aviso "o host te removeu da sala" na tela dele, e libera a cor e a vaga na hora. Fica em aberto se a remoção também vale para participante offline da partida em andamento; a leitura provável é que não, porque tirar a linha de `simulation_players` apaga o saldo e o histórico dele.
-
-<a id="f65"></a>
-**F65 — Rework dos loggings.** Serve N26. Terminal e arquivos de log viraram destinos separados: o terminal do host é a tela de status do servidor, e os arquivos guardam o histórico. **Terminal:** só o bloco de abertura (banco, interfaces de rede, URL local, pasta de configurações e logs, modo debug), o que explica uma espera ou muda o banco (extração do PostgreSQL, migração) e todo aviso e erro, em uma linha curta; o traceback fica no `error.log`. Uma mensagem vai ao terminal quando leva `extra=TERMINAL`; o nível `INFO` deixou de decidir isso. **Níveis:** o raiz fica em `INFO`; o modo debug sobe só o `backend.*` para `DEBUG`, nos arquivos, e o terminal nunca mostra `DEBUG`. As bibliotecas (`sqlalchemy`, `engineio`, `socketio`, `urllib3`, `asyncio`) ficam em `WARNING` (`LIBRARY_LEVELS`, no lugar do `NOISY_LOGGERS`). O `logging_level` e o `[database] echo_sql` saíram do `config.toml` (as chaves antigas são ignoradas). **SQL:** só com `[debug] sql = true` junto do debug, e só no `database.log` (nível `INFO` do `sqlalchemy.engine`: consulta e parâmetros, sem as linhas de resultado). **Dica de firewall:** saiu do terminal e do `config.toml` (`show_firewall_hint`) e virou uma seção da página de multiplayer. **Logs revistos:** por dia, por ordem e por conexão de WebSocket viraram `DEBUG` com `%s`; os de ciclo da partida e de jogadores ficam em `INFO` só nos arquivos; mensagens em português; duplicatas unidas; `main.py` loga como `backend.main`. **`DEBUG` novos:** ordem recebida, cancelamento recebido e ordem casada, dia simulado, leitura do CSV e download por ticker. No front, o único `console.error` fora do `logger.ts` passou a usá-lo. A tabela de decisões log a log, os arquivos e o custo medido estão em `docs/docs/desenvolvimento/logs.md`. **Custo:** em micro-benchmark da escrita, uma linha `DEBUG` do app custa cerca de 84 µs e uma de SQL cerca de 57 µs; não pesou o bastante para o `QueueHandler`.
 
 <a id="f69"></a>
 **F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
@@ -426,6 +404,12 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f76"></a>
 **F76 — Testes das contas feitas no frontend.** Serve N3. Parte dos números da tela é calculada no navegador e não tem teste nenhum: o frontend não tem runner configurado. O escopo é só função pura de cálculo, sem teste de componente, de tela ou ponta a ponta. (1) **Runner:** Vitest como dependência de desenvolvimento, sem configuração própria (reaproveita o `vite.config.ts` e o alias `@`), script `test` no `frontend/package.json` e entrada no `pnpm run check` da raiz. (2) **Alvos:** `shared/lib/goal.ts` (fração e restante até a meta, projeção da data da meta, classificação de jogadores e equipes), `shared/lib/financial-independence.ts` (meta de independência e múltiplo de despesa anual pela taxa de retirada), `features/performance/lib/stats.ts`, `features/statistics/lib/criterion.ts`, `features/correlation/lib/correlation.ts`, `features/goal/lib/life-history.ts` e os formatadores de `shared/lib/utils/display.ts`, que são a última etapa de todo número na tela (vírgula decimal, milhar, sinal, porcentagem). (3) **Casos:** valores calculados à mão, como nos testes do backend, mais as bordas: patrimônio zero, meta já batida, histórico de um ponto só, taxa de retirada nos limites de 1% e 10%. Arquivo de teste ao lado do arquivo testado (`goal.test.ts`). Gatilho: a próxima feature que mexa numa dessas contas.
+
+<a id="f85"></a>
+**F85 — Importar duas ações da mesma empresa.** Serve N13. A importação de PETR3 depois da PETR4 cai com `UniqueViolation` em `stock_name_key`: o yfinance dá o mesmo nome às duas ("Petróleo Brasileiro S.A. - Petrobras"), o `stock.name` é único e o `upsert_dataframe` cria o ativo com esse nome; no lote (`update_from_yfinance_batch`), a exceção derruba os ativos seguintes também. Nenhum código busca ação pelo nome, então a restrição só barra: uma migration (D9) remove o `UniqueConstraint("name", name="stock_name_key")` de `stock`, mantendo o `ticker` único. Teste: importar dois tickers com o mesmo nome cria os dois. Gatilho: livre.
+
+<a id="f86"></a>
+**F86 — Sugestão de ticker que a importação aceita.** Serve N13. Na Central, a busca do yfinance (`search_tickers`) devolve o código sem o `.SA` (`PETR4`), o combobox preenche esse valor e a importação baixa `PETR4`, que o yfinance responde com 404; a doc de importação e a base usam `PETR4.SA`. Plano: `search_tickers` devolve o símbolo como o yfinance o conhece (`PETR4.SA`), o `tests/test_ticker_profile.py` passa a esperar o sufixo, e o placeholder do campo vira "PETR4.SA, VALE3.SA, BTC-USD". Gatilho: livre.
 
 ---
 ## 2. Nice-to-have
@@ -510,12 +494,12 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F5** | Spike: provider de túnel pela internet | Serve N2; escolhe o provider da F6 | M3 | — | 🔍 Em avaliação |
 | **F7** | Spike: estratégia Python escrita pelo usuário | Serve N4; decide D5 | M4 | — | 🔍 Em avaliação |
 | **F22** | Preço ajustado e proventos | Serve N3, N7; degrau falso na atualização incremental | M8 | — | 🔍 Em avaliação |
-| **F23** | Spike: gerador de séries sintéticas | Serve N12; fecha o método e o contrato da F24 | M9 | — | 🔍 Em avaliação |
-| **F28** | Muitos futuros (Monte Carlo) | Serve N10; revisa ou confirma a D7 | M9 | [F19](#f19), [F23](#f23) | 🔍 Em avaliação |
+| **F28** | Muitos futuros (Monte Carlo) | Serve N10; revisa ou confirma a D7 | M9 | [F19](#f19) | 🔍 Em avaliação |
 | **F34** | Gráfico de ações em tela cheia, com ferramentas de trader | Serve N19; escolhe a biblioteca de gráfico | M11 | [F33](#f33) | 🔍 Em avaliação |
 | **F44** | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | Serve N23; faltam taxas padrão, rendimentos e protótipo do preço da cota | — | — | 🔍 Em avaliação |
 | **F49** | Spike: tutorial animado | Serve N25; compara vídeo, framer-motion e Remotion | M14 | — | 🔍 Em avaliação |
 | **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | — | [F44](#f44) | 🔍 Em avaliação |
+| **F87** | Erros de dado do yfinance na base | Serve N3; encosta na F22 | — | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -526,18 +510,8 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 <a id="f22"></a>
 **F22 — Preço ajustado e proventos.** Serve N3 e N7. O importador usa `yf.download(auto_adjust=True)`: o preço vem ajustado por dividendos e desdobramentos *até o dia da importação*. A atualização incremental (`upsert_dataframe` só grava linhas depois da última data guardada) emenda duas séries ajustadas em dias diferentes, então um provento ou desdobramento ocorrido entre a importação e a atualização vira um degrau falso na emenda — num desdobramento 2:1, uma queda de 50% que não existiu. Além disso, o preço exibido não é o que se negociava na época, e dividendo nunca entra no caixa. Falta escolher: (1) **atualizar sempre baixando a série inteira** e sobrescrevendo — corrige o degrau com pouca mudança, mas reescreve o passado de partidas salvas a cada provento novo; (2) **preço bruto + proventos como evento** — `auto_adjust=False`; desdobramento ajusta a quantidade da posição e dividendo credita o caixa na data ex (o `yfinance` traz as duas listas); fiel e reprodutível, mas mexe no motor, na carteira e na F13. Sai daqui com a escolha e o plano de implementação.
 
-<a id="f23"></a>
-**F23 — Spike: gerador de séries sintéticas.** Serve N12. Gera um futuro plausível para depois do último dia real, gravado como dado comum (D7), sempre numa lacuna sem dado canônico e emendando no último valor real. Plausível quer dizer com a estrutura do mercado real: quedas bruscas, períodos agitados que duram, e ativos parecidos andando juntos (uma crise bancária derruba todos os bancos). Falta definir:
-
-1. **O método** — recomendado: *bootstrap em blocos conjunto*, que sorteia trechos reais de algumas semanas do passado (o mesmo trecho para todos os ativos e indicadores ao mesmo tempo) e emenda os retornos diários desses trechos a partir do último preço real. Preserva as crises, a volatilidade e a correlação entre ativos e setores do histórico sem modelo para treinar, e com semente fixa a mesma geração sai igual (N3); o limite é não inventar um tipo de crise que nunca aconteceu. Alternativas: passeio aleatório com volatilidade constante (GBM — simples, mas sem crises nem correlação), GARCH (volatilidade que vem em ondas como no mercado real, mas um modelo por ativo e a correlação à parte) e rede neural treinada no histórico (MLP/LSTM — tende a prever a média e gerar uma curva lisa, porque o preço diário é quase imprevisível).
-2. **A "temperatura"** — um controle só, como a temperatura de uma LLM: em 1 o sorteio dos trechos é uniforme (o histórico como foi); abaixo de 1 favorece trechos calmos; acima de 1 favorece trechos agitados (o peso de cada trecho cresce com a volatilidade dele). Com um preview: gerar sem gravar uma amostra de poucos ativos e mostrar o gráfico a cada mudança de parâmetro.
-3. **Indicador é nível, não retorno** — a SELIC gerada a partir de variações sorteadas pode derivar para valores absurdos e precisa de limites, e o CDI anda colado na SELIC.
-4. **Partida salva sobre dado gerado** quando o real chega e o substitui (D7) — congelar a geração para aquela partida, impedir a troca enquanto alguma partida usar o trecho, ou aceitar a mudança.
-
-Sai daqui com o método e o contrato fechados para a F24.
-
 <a id="f28"></a>
-**F28 — Muitos futuros (Monte Carlo).** Serve N10. Em vez de testar a estratégia num futuro gerado só, testá-la em muitos (ex.: 100, cada um com uma semente) e mostrar o resultado como distribuição: "perdeu para o CDI em 23 de 100 futuros; no pior, −35%; no do meio, +40% em 5 anos". Lê-se pela fração de futuros ruins e pelo pior caso: poucos futuros perdendo para o CDI é bom; uma estratégia que só ganha no histórico real e perde na maioria dos futuros plausíveis teve sorte, não mérito. É o backtest da F19 repetido sobre gerações da F23. Falta definir: **onde vivem os 100 futuros.** A D7 guarda *um* futuro gerado nas tabelas de série, e Monte Carlo precisa de muitos ao mesmo tempo. Opções: (1) as tabelas de série ganham uma dimensão de cenário (o canônico é o cenário 0, e cada futuro de Monte Carlo é um cenário descartável); (2) o motor passa a ler as séries por um provedor, que pode ser o banco ou uma geração em memória — o que estende a D7 de "mesmas tabelas" para "mesma interface". Sai daqui com essa escolha, que revisa ou confirma a D7.
+**F28 — Muitos futuros (Monte Carlo).** Serve N10. Em vez de testar a estratégia num futuro gerado só, testá-la em muitos (ex.: 100, cada um com uma semente) e mostrar o resultado como distribuição: "perdeu para o CDI em 23 de 100 futuros; no pior, −35%; no do meio, +40% em 5 anos". Lê-se pela fração de futuros ruins e pelo pior caso: poucos futuros perdendo para o CDI é bom; uma estratégia que só ganha no histórico real e perde na maioria dos futuros plausíveis teve sorte, não mérito. É o backtest da F19 repetido sobre gerações do gerador da D14. Falta definir: **onde vivem os 100 futuros.** A D7 dá às tabelas de série uma dimensão de cenário, que a F24 implementa para congelar partidas salvas. Opções: (1) cada futuro de Monte Carlo é um cenário descartável nessa dimensão, gravando 100 vezes as linhas geradas (cerca de 5 milhões para 37 ativos × 5 anos); (2) o motor lê as séries por um provedor que pode ser o banco ou uma geração em memória (o `SeriesGenerator` gera 37 ativos × 5 anos em cerca de 1 s), o que estende a D7 de "mesmas tabelas" para "mesma interface". Sai daqui com essa escolha, que revisa ou confirma a D7.
 
 <a id="f34"></a>
 **F34 — Gráfico de ações em tela cheia, com ferramentas de trader.** Serve N19; segue a D2. Um botão no card "Histórico de Preços" abre o gráfico em tela cheia, com os indicadores da F33 e o que uma plataforma de trader oferece: barra de ferramentas de desenho (linha de tendência, linha horizontal de suporte e resistência, canal, retângulo, retração de Fibonacci, texto), régua que mede variação % e pregões entre dois pontos, escala logarítmica, legenda com abertura, máxima, mínima, fechamento e volume do candle sob o cursor, comparação com outro ticker ou com o Ibovespa em %, e uma boleta compacta para comprar e vender sem sair da tela. Os desenhos ficam salvos por jogador e ticker numa tabela nova (`chart_drawings`, com os pontos em JSON), entrando por migration (D9). Falta escolher a biblioteca: (1) continuar no `lightweight-charts` e escrever as ferramentas de desenho como plugins (a API de primitives da versão 5; os exemplos oficiais trazem linha de tendência e retângulo); (2) trocar pelo KLineChart (Apache 2.0), que já vem com cerca de 15 ferramentas de desenho, mas calcula indicadores no navegador, e pela D2 eles viriam do backend como indicador customizado; (3) o Advanced Charts da TradingView tem tudo pronto, mas a licença pede cadastro e não permite publicar a biblioteca em repositório público, o que o deixa fora deste projeto. Sai daqui com um protótipo de linha de tendência e Fibonacci nas opções 1 e 2, e a escolha.
@@ -550,3 +524,6 @@ Sai daqui com o método e o contrato fechados para a F24.
 
 <a id="f55"></a>
 **F55 — Modo aquisição hostil.** Serve N23. Um modo de jogo da expansão "Gestoras" (F44) em que perder o controle tira o jogador da partida. Todo o patrimônio de cada jogador está na própria gestora, e quem juntar mais da metade das cotas de outra a incorpora: o dono anterior sai da partida e a gestora dele passa a ser controlada pelo comprador. Vence quem sobrar, ou quem tiver o maior patrimônio na data final. **Carência:** nos primeiros meses (padrão 12) ninguém pode passar de metade de outra gestora, para que abrir capital cedo não seja suicídio. **Ninguém fica invulnerável:** sem oferta pública, a gestora seria impossível de comprar, então no fim da carência todas precisam ter uma parte mínima das cotas no mercado (padrão 50%); quem não abriu capital entra numa oferta automática pelo patrimônio por cota. **Defesa:** recompra de cotas com o caixa da gestora e compra com as taxas recebidas, como uma empresa que recompra ações para não ser comprada. Falta decidir: a parte mínima no mercado; se o incorporado sai da partida ou vira co-gestor do comprador (como numa fusão); e se há um preço mínimo por cota durante a tentativa de aquisição, como nas ofertas públicas de aquisição reais.
+
+<a id="f87"></a>
+**F87 — Erros de dado do yfinance na base.** Serve N3. A base tem dias em que o preço vai a quase zero e volta: CMIG4 sobe 878% e cai 90% em agosto de 2003, XPML11 cai 99% em 14/01/2026 e volta 758 vezes cinco dias depois, e UGPA3, GOAU4, LREN3 e SUZB3 têm dias de −100%. A partida mostra esses dias como reais. O gerador (D14) já os trata como dia sem pregão. Falta escolher o que a importação faz com eles: (1) descartar a linha, deixando o dia sem pregão; (2) interpolar o fechamento entre os vizinhos; (3) só sinalizar na Central para o usuário decidir. Parte dos saltos que não voltam (B3SA3 −66% em 2011) pode ser ajuste de desdobramento, que é assunto da F22. Sai daqui com a regra e o limiar.
