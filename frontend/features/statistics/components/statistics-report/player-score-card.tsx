@@ -2,12 +2,9 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
 import type { OverviewReport, ScoreMetric } from "@/types";
-import { SCORE_AXES, SCORE_METRICS, displayMetric } from "../../lib/metrics";
+import { AXIS_SCALE, SCORE_AXES, SCORE_METRICS, displayMetric } from "../../lib/metrics";
 
 type Player = OverviewReport["players"][number];
-
-// Régua dos eixos da nota: ~100 é um bom desempenho, a escala vai a 200
-const AXIS_SCALE = 200;
 
 // Métricas da nota que o relatório lê como contagem de meses ("7 de 12"), não como percentual
 const MONTH_COUNT_METRICS: ScoreMetric[] = ["months_above_cdi", "positive_months"];

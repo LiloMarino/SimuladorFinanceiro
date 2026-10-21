@@ -25,7 +25,7 @@ import {
   displayRemainingToGoal,
   rankingMeasure,
 } from "../../lib/criterion";
-import { SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics";
+import { AXIS_SCALE, SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics";
 import { SimulationLetter } from "../compare/simulation-letter";
 import { simulationColor, simulationLetter, labelColors } from "../../lib/player-label";
 import { playerKey, playerLabel } from "../../lib/player-label";
@@ -37,9 +37,6 @@ import { TeamScore } from "./team-score";
 type Player = OverviewReport["players"][number];
 
 type RankingSort = "SCORE" | "RETURN" | "NETWORTH";
-
-// Régua dos eixos da nota: ~100 é um bom desempenho, a escala vai a 200
-const AXIS_SCALE = 200;
 
 export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds, onlyPlayer);

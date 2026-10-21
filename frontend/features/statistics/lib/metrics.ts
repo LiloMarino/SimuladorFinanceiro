@@ -302,6 +302,9 @@ export const SCORE_METRICS: Record<ScoreMetric, MetricInfo> = {
   sortino_ratio: SORTINO_RATIO,
 };
 
+// Régua dos eixos da nota: ~100 é um bom desempenho, a escala vai a 200
+export const AXIS_SCALE = 200;
+
 export const SCORE_AXES: Record<ScoreAxis, { label: string; description: string }> = {
   return: { label: "Retorno", description: "Quanto ganhou além do CDI e do Ibovespa" },
   risk: { label: "Risco", description: "O tamanho e a duração das quedas, e o quanto oscilou" },

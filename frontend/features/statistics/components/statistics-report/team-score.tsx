@@ -18,15 +18,12 @@ import { teamColor, teamName, teamShortName } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
 import type { OverviewReport, ScoreAxis } from "@/types";
-import { SCORE_AXES } from "../../lib/metrics";
+import { AXIS_SCALE, SCORE_AXES } from "../../lib/metrics";
 import { PlayerScoreCard } from "./player-score-card";
 import { membersOf } from "../../lib/teams";
 
 type Team = OverviewReport["teams"][number];
 type Player = OverviewReport["players"][number];
-
-// Régua dos eixos da nota: ~100 é um bom desempenho, a escala vai a 200
-const AXIS_SCALE = 200;
 
 const AXES = Object.keys(SCORE_AXES) as ScoreAxis[];
 
