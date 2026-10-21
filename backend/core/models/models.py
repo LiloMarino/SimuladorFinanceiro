@@ -206,7 +206,6 @@ class Stock(Base):
             name="stock_segment_id_fkey",
         ),
         PrimaryKeyConstraint("id", name="stock_pkey"),
-        UniqueConstraint("name", name="stock_name_key"),
         UniqueConstraint("ticker", name="stock_ticker_key"),
     )
 

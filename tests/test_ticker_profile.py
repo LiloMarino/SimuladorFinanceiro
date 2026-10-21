@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, ClassVar
 
+import pandas as pd
 import pytest
 from sqlalchemy import Engine
 
@@ -139,6 +140,21 @@ def test_source_failure_stores_nothing(
     source.info = {"sector": "Energy"}
     assert importer_service.fetch_info("PETR4")["sector"] == "Energy"
     assert source.calls == 2
+
+
+def test_import_creates_two_stocks_with_the_same_name(
+    database: Engine, source: type[FakeTicker]
+) -> None:
+    """O yfinance dá o mesmo nome às classes da empresa (PETR3 e PETR4): as duas entram."""
+    source.info = {"longName": "Petróleo Brasileiro S.A. - Petrobras"}
+    prices = pd.DataFrame(
+        {"Open": [1.0], "High": [1.0], "Low": [1.0], "Close": [1.0], "Volume": [1.0]},
+        index=pd.to_datetime(["2024-01-02"]),
+    )
+    importer_service.upsert_dataframe(prices, "PETR4")
+    importer_service.upsert_dataframe(prices, "PETR3")
+    stocks = [repository.stock.get_by_ticker(t) for t in ("PETR4", "PETR3")]
+    assert [s.name for s in stocks if s] == ["Petróleo Brasileiro S.A. - Petrobras"] * 2
 
 
 def test_refresh_replaces_the_stored_profile(
