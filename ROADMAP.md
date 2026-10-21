@@ -92,7 +92,6 @@
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
-| [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
 | [**F90**](#f90) | Cenários | — | 🔍 |
@@ -105,7 +104,7 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -128,6 +127,7 @@
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | ✅ |
+| [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ✅ |
 | [**F98**](#f98) | Excluir partida salva | — | ✅ |
 
 </details>
@@ -165,7 +165,6 @@
 | [**F78**](#f78) | Release só sai com o check passando | — | 0 | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | 0 | ⏳ |
-| [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 
 ---
@@ -309,7 +308,7 @@
 
 ### Sem marco
 
-> **Progresso:** 5/34 concluídas
+> **Progresso:** 6/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -335,7 +334,6 @@
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
-| [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | [F73](#f73) | ⏳ |
 | [**F90**](#f90) | Cenários | [F89](#f89) | 🔍 |
@@ -343,7 +341,7 @@
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 
-<details><summary>Concluído (5 itens)</summary>
+<details><summary>Concluído (6 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -351,6 +349,7 @@
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | ✅ |
+| [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ✅ |
 | [**F98**](#f98) | Excluir partida salva | — | ✅ |
 
 </details>
@@ -382,7 +381,7 @@
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F76** | Testes das contas feitas no frontend | N3 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F85** | Importar duas ações da mesma empresa | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
-| **F86** | Sugestão de ticker que a importação aceita | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F86** | Sugestão de ticker que a importação aceita | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F89** | Presets de partida | N30 | — | — | [F73](#f73) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F91** | Caixa de entrada e resumo do mês | N32 | — | M15 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F92** | Noticiário da partida | N31 | D7 | M15 | [F91](#f91) | Médio | Baixo | Alto | Bom | 💤 Registrado, sem prioridade |
@@ -469,7 +468,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F85 — Importar duas ações da mesma empresa.** Serve N13. A importação de PETR3 depois da PETR4 caía com `UniqueViolation` em `stock_name_key`: o yfinance dá o mesmo nome às duas ("Petróleo Brasileiro S.A. - Petrobras") e o `upsert_dataframe` cria o ativo com esse nome. Feito: uma migration (D9) removeu o `UniqueConstraint("name", name="stock_name_key")` de `stock`, mantendo o `ticker` único; nenhum código busca ação pelo nome. Teste em `tests/test_ticker_profile.py`: importar dois tickers com o mesmo nome cria os dois.
 
 <a id="f86"></a>
-**F86 — Sugestão de ticker que a importação aceita.** Serve N13. Na Central, a busca do yfinance (`search_tickers`) devolve o código sem o `.SA` (`PETR4`), o combobox preenche esse valor e a importação baixa `PETR4`, que o yfinance responde com 404; a doc de importação e a base usam `PETR4.SA`. Plano: `search_tickers` devolve o símbolo como o yfinance o conhece (`PETR4.SA`), o `tests/test_ticker_profile.py` passa a esperar o sufixo, e o placeholder do campo vira "PETR4.SA, VALE3.SA, BTC-USD". Gatilho: livre.
+**F86 — Sugestão de ticker que a importação aceita.** Serve N13. A busca do yfinance sugeria `PETR4`, o combobox preenchia esse valor e a importação baixava `PETR4`, que o yfinance responde com 404 (ele só conhece `PETR4.SA`). Feito, no caminho do Finance Manager: a base guarda o código da B3 sem o `.SA` (o mesmo formato do CSV e da demonstração) e o sufixo entra só na chamada ao yfinance. `bare_ticker` tira o `.SA` digitado na entrada das rotas de importação (`PETR4.SA` vira `PETR4`), e `yfinance_symbol` o acrescenta em `from_yfinance`, no lote e no perfil quando o código tem o formato da B3; `BTC-USD`, `AAPL` e `^BVSP` seguem como estão. Uma migration de dados tirou o `.SA` dos ativos que já estavam gravados com ele, em `stock` e `ticker_profile`, e para sem mesclar quando o código já existe com e sem o sufixo. A doc de importação passou a mostrar os códigos sem `.SA`. Testes em `tests/test_import_ticker.py` e `tests/test_migrations.py`.
 
 <a id="f89"></a>
 **F89 — Presets de partida.** Serve N30. No lobby, o host salva a configuração atual com um nome ("Salvar como preset") e carrega um preset salvo, que preenche o formulário inteiro: período, capital inicial, aporte, regras, modo de jogo e os parâmetros do futuro gerado (temperatura, bioma inicial e choque de inflação). Os presets moram numa tabela própria (nome, data, configuração em JSON validada pelo mesmo DTO de criação da partida), por migration (D9), com rotas para listar, salvar, renomear e apagar. Alguns vêm prontos e não se apagam ("Iniciante", "Clássico", "Realista"). Preset que traz um campo que a versão atual não conhece ignora o campo, e o que falta vem do padrão, então um preset antigo continua abrindo. Gatilho: F73 concluída, porque salvar e carregar é mais um lugar que converte entre as regras da partida e o formulário, e a F73 deixa essa conversão num lugar só.
