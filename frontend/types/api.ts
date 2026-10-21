@@ -71,6 +71,12 @@ export type ReturnsReport = components["schemas"]["ReturnsReportDTO"];
 export type RiskReport = components["schemas"]["RiskReportDTO"];
 export type CompositionReport = components["schemas"]["CompositionReportDTO"];
 export type OperationsReport = components["schemas"]["OperationsReportDTO"];
+export type Player = OverviewReport["players"][number];
+export type Team = OverviewReport["teams"][number];
+export type ReturnsPlayer = ReturnsReport["players"][number];
+export type RiskPlayer = RiskReport["players"][number];
+export type CompositionPlayer = CompositionReport["players"][number];
+export type OperationsPlayer = OperationsReport["players"][number];
 
 // Correlation
 export type CorrelationAssets = components["schemas"]["CorrelationAssetsDTO"];

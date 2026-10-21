@@ -15,7 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { displayList, displayNumber, displayPercent } from "@/shared/lib/utils/display";
 import { teamColor, teamName, teamShortName } from "@/shared/lib/teams";
-import type { RiskReport, TeamNaming } from "@/types";
+import type { RiskPlayer, RiskReport, TeamNaming } from "@/types";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { playerLabel, youLabel, labelColors } from "../../lib/player-label";
 import {
@@ -32,7 +32,6 @@ import {
 import { PlayerLineChart, type LineSeries } from "./player-line-chart";
 import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
 
-type Player = RiskReport["players"][number];
 type TeamRisk = RiskReport["teams"][number];
 type View = "DRAWDOWN" | "VOLATILITY";
 
@@ -142,7 +141,7 @@ function RiskReturn({
   simulationIds,
   colorOf,
 }: {
-  players: Player[];
+  players: RiskPlayer[];
   /** Partida em equipes: um losango por equipe, na média dos membros */
   teams: TeamRisk[];
   naming: TeamNaming;
@@ -207,8 +206,8 @@ function RiskReturn({
   const holders = teamPoints.flatMap((t) => {
     const members = measured.filter((p) => p.team === t.team);
     if (members.length < 3) return [];
-    const distance = (p: Player) => Math.hypot(Number(p.annual_volatility) - t.x, Number(p.annual_return) - t.y);
-    const worse = (p: Player) => Number(p.annual_volatility) - t.x - (Number(p.annual_return) - t.y);
+    const distance = (p: RiskPlayer) => Math.hypot(Number(p.annual_volatility) - t.x, Number(p.annual_return) - t.y);
+    const worse = (p: RiskPlayer) => Number(p.annual_volatility) - t.x - (Number(p.annual_return) - t.y);
     const holder = [...members].sort((a, b) => distance(a) - distance(b))[0];
     const dragger = [...members].sort((a, b) => worse(b) - worse(a))[0];
     return [{ team: t.team, holder, dragger: worse(dragger) > 0 && dragger !== holder ? dragger : undefined }];

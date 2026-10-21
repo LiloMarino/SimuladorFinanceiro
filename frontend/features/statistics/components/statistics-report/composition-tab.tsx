@@ -13,14 +13,13 @@ import {
   displayPercent,
   displayShortMonthYear,
 } from "@/shared/lib/utils/display";
-import type { CompositionReport, TeamNaming } from "@/types";
+import type { CompositionPlayer, CompositionReport, TeamNaming } from "@/types";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { EFFECTIVE_SECTORS, SECTOR_PROFIT } from "../../lib/metrics";
 import { playerKey, playerLabel } from "../../lib/player-label";
 import { groupByTeam } from "../../lib/teams";
 import { PlayerCell, TabStatus, type ReportProps } from "./shared";
 
-type Player = CompositionReport["players"][number];
 type TeamComposition = CompositionReport["teams"][number];
 type Unit = "PCT" | "MONEY";
 
@@ -126,7 +125,7 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
   );
 }
 
-type Groups = ReturnType<typeof groupByTeam<Player>>;
+type Groups = ReturnType<typeof groupByTeam<CompositionPlayer>>;
 
 /** Cabeçalho do grupo da equipe: o selo, e a divisão média do dinheiro dos membros. */
 function TeamGroupHeader({
@@ -162,7 +161,7 @@ function SmallMultiple({
   isYou,
   unit,
 }: {
-  player: Player;
+  player: CompositionPlayer;
   label: string;
   simulationIds: number[];
   isYou: boolean;
@@ -244,7 +243,7 @@ function SectorExposure({
   simulationIds,
   currentPlayerName,
 }: {
-  players: Player[];
+  players: CompositionPlayer[];
   groups: Groups;
   naming: TeamNaming;
   simulationIds: number[];
@@ -357,7 +356,7 @@ function SectorProfit({
   simulationIds,
   currentPlayerName,
 }: {
-  players: Player[];
+  players: CompositionPlayer[];
   groups: Groups;
   naming: TeamNaming;
   simulationIds: number[];

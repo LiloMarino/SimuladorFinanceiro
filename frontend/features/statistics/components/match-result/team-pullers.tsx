@@ -5,12 +5,10 @@ import { TeamBadge } from "@/shared/components/team-badge";
 import { Badge } from "@/shared/components/ui/badge";
 import { teamColor, teamName, teamShortName } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
-import type { OverviewReport } from "@/types";
+import type { OverviewReport, Team } from "@/types";
 import { displayCriterionContribution, displayCriterionValue, rankingMeasure } from "../../lib/criterion";
 import { SCORE_AXES } from "../../lib/metrics";
 import { membersOf } from "../../lib/teams";
-
-type Team = OverviewReport["teams"][number];
 
 /** Um cartão por equipe com quem mais puxou a média dela e quanto cada membro puxou, para cima ou para baixo. */
 export function TeamPullers({ report, currentPlayerName }: { report: OverviewReport; currentPlayerName?: string }) {

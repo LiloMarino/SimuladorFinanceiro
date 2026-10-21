@@ -20,7 +20,7 @@ import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
 import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
-import type { OverviewReport } from "@/types";
+import type { OverviewReport, Player, Team } from "@/types";
 import {
   criterionLabel,
   displayCriterionContribution,
@@ -31,9 +31,6 @@ import {
 } from "../../lib/criterion";
 import { SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics";
 import { membersOf } from "../../lib/teams";
-
-type Team = OverviewReport["teams"][number];
-type Player = OverviewReport["players"][number];
 
 /** Quanto tempo cabe de pregões: a equipe tem tantos pregões quanto o membro que mais jogou. */
 function daysOf(members: Player[]) {

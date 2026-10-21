@@ -16,14 +16,13 @@ import {
   displayNumber,
   displayShortMonthYear,
 } from "@/shared/lib/utils/display";
-import type { OperationsReport, TeamNaming } from "@/types";
+import type { OperationsPlayer, OperationsReport, TeamNaming } from "@/types";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { IMPACT_COST, INCOME_TAX_PAID, MONTHLY_VOLUME, TRADED_VOLUME, TURNOVER } from "../../lib/metrics";
 import { playerKey, playerLabel } from "../../lib/player-label";
 import { groupByTeam } from "../../lib/teams";
 import { PlayerCell, TabStatus, type ReportProps } from "./shared";
 
-type Player = OperationsReport["players"][number];
 type TeamOperations = OperationsReport["teams"][number];
 
 export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
@@ -109,7 +108,7 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
                       </TableCell>
                     </TableRow>
                   )}
-                  {group.players.map((p: Player) => {
+                  {group.players.map((p: OperationsPlayer) => {
                     const label = playerLabel(p, simulationIds, currentPlayerName);
                     const isYou = p.player_nickname === currentPlayerName;
                     return (
@@ -205,15 +204,15 @@ function VolumeHeatmap({
   simulationIds,
   currentPlayerName,
 }: {
-  players: Player[];
-  groups: { team: number | null; players: Player[] }[];
+  players: OperationsPlayer[];
+  groups: { team: number | null; players: OperationsPlayer[] }[];
   naming: TeamNaming;
   teams: TeamOperations[];
   simulationIds: number[];
   currentPlayerName?: string;
 }) {
   const months = [...new Set(players.flatMap((p) => p.monthly_volume.map((m) => m.month)))].sort();
-  const volumeOf = (m: Player["monthly_volume"][number]) => Number(m.bought) + Number(m.sold);
+  const volumeOf = (m: OperationsPlayer["monthly_volume"][number]) => Number(m.bought) + Number(m.sold);
   const max = Math.max(...players.flatMap((p) => p.monthly_volume.map(volumeOf)), 1);
   // O ano aparece só no primeiro mês e na virada
   const monthLabel = (month: string, i: number) =>

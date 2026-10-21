@@ -1,10 +1,8 @@
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
-import type { OverviewReport, ScoreMetric } from "@/types";
+import type { OverviewReport, Player, ScoreMetric } from "@/types";
 import { AXIS_SCALE, SCORE_AXES, SCORE_METRICS, displayMetric } from "../../lib/metrics";
-
-type Player = OverviewReport["players"][number];
 
 // Métricas da nota que o relatório lê como contagem de meses ("7 de 12"), não como percentual
 const MONTH_COUNT_METRICS: ScoreMetric[] = ["months_above_cdi", "positive_months"];

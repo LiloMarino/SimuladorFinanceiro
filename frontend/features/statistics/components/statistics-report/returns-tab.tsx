@@ -15,7 +15,7 @@ import { TeamBadge } from "@/shared/components/team-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { goalAt } from "@/shared/lib/goal";
 import { teamColor, teamName } from "@/shared/lib/teams";
-import type { ReturnsReport } from "@/types";
+import type { ReturnsPlayer, ReturnsReport } from "@/types";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { playerLabel, simulationColor, simulationLetter, youLabel, labelColors } from "../../lib/player-label";
 import {
@@ -40,7 +40,6 @@ const BENCHMARK_COLORS = { CDI: "var(--faint-foreground)", IBOV: "var(--warning)
 const BENCHMARK_NAMES = { CDI: "CDI", IBOV: "Ibovespa" } as const;
 
 type Benchmark = ReturnsReport["benchmarks"][number];
-type Player = ReturnsReport["players"][number];
 type View = "RETURN" | "NETWORTH";
 // Partida em equipes: só as médias das equipes, os jogadores, ou os membros de uma equipe contra as outras
 type Scope = "TEAMS" | "PLAYERS" | "TEAM";
@@ -57,8 +56,8 @@ function MonthStrip({
   passed,
   color,
 }: {
-  months: Player["monthly_returns"];
-  passed: (m: Player["monthly_returns"][number]) => boolean;
+  months: ReturnsPlayer["monthly_returns"];
+  passed: (m: ReturnsPlayer["monthly_returns"][number]) => boolean;
   color: string;
 }) {
   return (
@@ -84,9 +83,9 @@ function MonthsCell({
   passed,
   color,
 }: {
-  months: Player["monthly_returns"];
+  months: ReturnsPlayer["monthly_returns"];
   count: number;
-  passed: (m: Player["monthly_returns"][number]) => boolean;
+  passed: (m: ReturnsPlayer["monthly_returns"][number]) => boolean;
   color: string;
 }) {
   return (
@@ -118,8 +117,8 @@ function TeamMonthsCell({ average, months, color }: { average: string; months: n
   );
 }
 
-const aboveCdi = (m: Player["monthly_returns"][number]) => Number(m.value) > Number(m.cdi);
-const positive = (m: Player["monthly_returns"][number]) => Number(m.value) > 0;
+const aboveCdi = (m: ReturnsPlayer["monthly_returns"][number]) => Number(m.value) > Number(m.cdi);
+const positive = (m: ReturnsPlayer["monthly_returns"][number]) => Number(m.value) > 0;
 
 export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("returns", simulationIds, onlyPlayer);
@@ -135,11 +134,11 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
   const inTeams = data.player_grouping === "TEAMS";
   const players = data.players.map((p) => ({ player: p, label: playerLabel(p, simulationIds, currentPlayerName) }));
   const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
-  const isYou = (p: Player) => p.player_nickname === currentPlayerName;
+  const isYou = (p: ReturnsPlayer) => p.player_nickname === currentPlayerName;
   const cdiOf = new Map(data.benchmarks.filter((b) => b.series === "CDI").map((b) => [b.simulation_id, b.annual_return]));
 
   // Comparando partidas, a cor é da partida: você nela em destaque, os outros em cinza
-  const playerSeries = (points: (p: Player) => Player["networth"]): LineSeries[] =>
+  const playerSeries = (points: (p: ReturnsPlayer) => ReturnsPlayer["networth"]): LineSeries[] =>
     players.map(({ player, label }) => ({
       key: label,
       label: youLabel(label, isYou(player)),
@@ -170,7 +169,7 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
   const scope: Scope = inTeams ? scopeChoice : "PLAYERS";
   const myTeam = data.players.find(isYou)?.team ?? data.teams[0]?.team ?? null;
   const focus = data.teams.some((t) => t.team === focusChoice) ? focusChoice : myTeam;
-  const playerPoints = view === "RETURN" ? (p: Player) => p.cumulative_return : (p: Player) => p.networth;
+  const playerPoints = view === "RETURN" ? (p: ReturnsPlayer) => p.cumulative_return : (p: ReturnsPlayer) => p.networth;
   const teamSeries = (t: TeamReturns, options: Partial<LineSeries> = {}): LineSeries => ({
     key: `team-${t.team}`,
     label: `${teamName(t.team, naming)} · média`,

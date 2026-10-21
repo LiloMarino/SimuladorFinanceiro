@@ -13,7 +13,7 @@ import {
 import { displayAnnualMultiple, displayRatePercent, unexpectedLabel } from "@/shared/lib/financial-independence";
 import { displayGoalPercent } from "@/shared/lib/goal";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
-import type { OverviewReport, SimulationListItem } from "@/types";
+import type { OverviewReport, Player, SimulationListItem } from "@/types";
 import {
   displayCriterionContribution,
   displayCriterionGap,
@@ -22,8 +22,6 @@ import {
 } from "../../lib/criterion";
 import { Podium } from "./podium";
 import { TeamPodium } from "./team-podium";
-
-type Player = OverviewReport["players"][number];
 
 /** A meta foi atingida quando a fração da meta do líder chega a 1. */
 const reachedGoal = (fraction: string | null) => fraction !== null && Number(fraction) >= 1;

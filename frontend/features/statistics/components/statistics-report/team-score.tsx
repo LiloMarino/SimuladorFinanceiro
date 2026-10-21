@@ -17,13 +17,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/
 import { teamColor, teamName, teamShortName } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
-import type { OverviewReport, ScoreAxis } from "@/types";
+import type { OverviewReport, Player, ScoreAxis, Team } from "@/types";
 import { AXIS_SCALE, SCORE_AXES } from "../../lib/metrics";
 import { PlayerScoreCard } from "./player-score-card";
 import { membersOf } from "../../lib/teams";
-
-type Team = OverviewReport["teams"][number];
-type Player = OverviewReport["players"][number];
 
 const AXES = Object.keys(SCORE_AXES) as ScoreAxis[];
 

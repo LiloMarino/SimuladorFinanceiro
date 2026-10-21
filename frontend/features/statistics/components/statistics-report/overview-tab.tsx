@@ -15,7 +15,7 @@ import { Progress } from "@/shared/components/ui/progress";
 import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
-import type { OverviewReport } from "@/types";
+import type { OverviewReport, Player } from "@/types";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import {
   criterionLabel,
@@ -33,8 +33,6 @@ import { PlayerScoreCard } from "./player-score-card";
 import { PlayerCell, PlayerToggle, TabStatus, type ReportProps } from "./shared";
 import { TeamHeadline, TeamRanking } from "./team-ranking";
 import { TeamScore } from "./team-score";
-
-type Player = OverviewReport["players"][number];
 
 type RankingSort = "SCORE" | "RETURN" | "NETWORTH";
 
