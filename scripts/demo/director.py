@@ -129,13 +129,13 @@ class Director:
     def hover(self, target: Locator) -> None:
         self._reach(target)
 
-    def shot(self, name: str) -> Path:
-        """Screenshot em pixels CSS, sem o cursor desenhado."""
+    def shot(self, name: str, target: Locator | None = None) -> Path:
+        """Screenshot em pixels CSS, sem o cursor desenhado; com `target`, só dele."""
         self.shots_dir.mkdir(parents=True, exist_ok=True)
         path = self.shots_dir / f"{name}.png"
         cursor = self.page.locator("#demo-cursor")
         cursor.evaluate("el => (el.hidden = true)")
-        self.page.screenshot(path=path, scale="css", animations="disabled")
+        (target or self.page).screenshot(path=path, scale="css", animations="disabled")
         cursor.evaluate("el => (el.hidden = false)")
         return path
 

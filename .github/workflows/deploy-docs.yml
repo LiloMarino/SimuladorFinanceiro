@@ -32,13 +32,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # As imagens da demonstração moram no branch `demo` (`pnpm demo publish`)
-      - name: Fetch demo images
-        run: |
-          mkdir -p docs/static/demo
-          if git fetch --depth=1 origin demo; then
-            git archive FETCH_HEAD | tar -x -C docs/static/demo
-          fi
+      # As imagens da demonstração moram no branch `demo`: o `generate` dos docs as baixa
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

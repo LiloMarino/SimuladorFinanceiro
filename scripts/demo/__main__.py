@@ -5,13 +5,14 @@ Uso:
     pnpm demo                    # builda o front, grava e exporta
     pnpm demo --skip-build       # usa o front já buildado em backend/static
     pnpm demo publish            # publica docs/static/demo no branch `demo`
+    pnpm demo pull               # baixa o branch `demo` para docs/static/demo, se a pasta estiver vazia
     pnpm demo fetch-data         # baixa de novo as cotações fixas (muda as imagens)
 
 Pede o ffmpeg no PATH, `POSTGRES_DEMO_DATABASE_URL` no .env e, uma vez,
 `uv run playwright install chromium`.
 
 As imagens moram no branch `demo`, que guarda só a última publicação: o `main` não
-acumula binários a cada regravação. O deploy dos docs as busca de lá.
+acumula binários a cada regravação. O build dos docs as busca de lá (`pull`).
 """
 
 import argparse
@@ -203,10 +204,38 @@ def publish() -> None:
     print(f"Publicado no branch {PUBLISH_BRANCH}; deploy dos docs disparado.")
 
 
+def pull() -> None:
+    """
+    Baixa o branch `demo` para `docs/static/demo/`. Só age com a pasta vazia: o build do
+    CI sempre baixa, e a gravação local fica intacta até ser publicada.
+    """
+    if OUTPUT_DIR.exists() and any(OUTPUT_DIR.iterdir()):
+        print(f"{OUTPUT_DIR} já tem imagens; nada a baixar.")
+        return
+    try:
+        git("fetch", "--depth=1", "origin", PUBLISH_BRANCH)
+    except subprocess.CalledProcessError as error:
+        raise RuntimeError(
+            f"O branch `{PUBLISH_BRANCH}` não está no remoto: rode `pnpm demo` e "
+            f"`pnpm demo publish`.\n{error.stderr}"
+        ) from error
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    archive = subprocess.run(
+        ["git", "archive", "FETCH_HEAD"],
+        cwd=PROJECT_ROOT,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["tar", "-x", "-C", str(OUTPUT_DIR)], input=archive.stdout, check=True
+    )
+    print(f"Imagens do branch {PUBLISH_BRANCH} baixadas em {OUTPUT_DIR}.")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="pnpm demo", description=__doc__)
     parser.add_argument(
-        "command", nargs="?", choices=["record", "publish", "fetch-data"]
+        "command", nargs="?", choices=["record", "publish", "pull", "fetch-data"]
     )
     parser.add_argument("--skip-build", action="store_true")
     args = parser.parse_args()
@@ -216,6 +245,9 @@ def main() -> None:
         return
     if args.command == "publish":
         publish()
+        return
+    if args.command == "pull":
+        pull()
         return
     if not args.skip_build:
         build_frontend()
