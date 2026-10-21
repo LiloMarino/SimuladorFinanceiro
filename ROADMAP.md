@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-20):** Registrada a atividade de cada jogador na sala (F70), pela N29.
+> **Última mudança (2026-10-21):** Registrados doze itens de débito técnico (F73 a F84), da auditoria de frontend e backend: testes, consultas, tipos da API, CORS, release e repetições.
 
 ## Glossário
 
@@ -20,7 +20,7 @@
 | --- | --- | --- | --- |
 | **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — |
 | **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — |
-| **N3** | Confiar que os números do simulador são exatos e reprodutíveis | — | — |
+| **N3** | Confiar que os números do simulador são exatos e reprodutíveis | [F76](#f76) | — |
 | **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F8](#f8), [F9](#f9), [F10](#f10), [F19](#f19), [F33](#f33) | — |
 | **N5** | Saber quanto risco foi corrido para chegar num resultado | — | — |
 | **N6** | Comparar resultados de simulações diferentes | — | — |
@@ -80,6 +80,18 @@
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
+| [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ⏳ |
+| [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ⏳ |
+| [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
+| [**F76**](#f76) | Testes das contas feitas no frontend | — | ⏳ |
+| [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
+| [**F78**](#f78) | Release só sai com o check passando | — | ⏳ |
+| [**F79**](#f79) | Tipos do frontend que vêm da API | — | ⏳ |
+| [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
+| [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
+| [**F82**](#f82) | Repetições pequenas do frontend | — | ⏳ |
+| [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ⏳ |
+| [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
@@ -113,11 +125,12 @@
 | ID | Resumo | Marco | Destrava | Status |
 | --- | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
+| [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F23**](#f23) | Spike: gerador de séries sintéticas | M9 | 2 | 🔍 |
-| [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 1 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
 | [**F47**](#f47) | Gravação automática de demonstrações | M14 | 1 | ⏳ |
+| [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | 1 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
@@ -130,6 +143,15 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | 0 | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | 0 | ⏳ |
+| [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | 0 | ⏳ |
+| [**F76**](#f76) | Testes das contas feitas no frontend | — | 0 | ⏳ |
+| [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | 0 | ⏳ |
+| [**F78**](#f78) | Release só sai com o check passando | — | 0 | ⏳ |
+| [**F79**](#f79) | Tipos do frontend que vêm da API | — | 0 | ⏳ |
+| [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
+| [**F82**](#f82) | Repetições pequenas do frontend | — | 0 | ⏳ |
+| [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | 0 | ⏳ |
+| [**F84**](#f84) | Dependências do backend num sentido só | — | 0 | ⏳ |
 
 ---
 
@@ -253,7 +275,7 @@
 
 ### Sem marco
 
-> **Progresso:** 1/14 concluídas
+> **Progresso:** 1/26 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -270,6 +292,18 @@
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | [F53](#f53) | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
+| [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ⏳ |
+| [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ⏳ |
+| [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | [F74](#f74) | ⏳ |
+| [**F76**](#f76) | Testes das contas feitas no frontend | — | ⏳ |
+| [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
+| [**F78**](#f78) | Release só sai com o check passando | — | ⏳ |
+| [**F79**](#f79) | Tipos do frontend que vêm da API | — | ⏳ |
+| [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
+| [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
+| [**F82**](#f82) | Repetições pequenas do frontend | — | ⏳ |
+| [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ⏳ |
+| [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
 
 <details><summary>Concluído (1 item)</summary>
 
@@ -307,6 +341,7 @@
 | **F70** | O que cada jogador está fazendo na sala | N29 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F71** | Renda fixa com liquidez diária | N23 | — | — | [F53](#f53) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
+| **F76** | Testes das contas feitas no frontend | N3 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
@@ -389,6 +424,9 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 <a id="f72"></a>
 **F72 — Gráficos padronizados sobre o `ChartContainer` do shadcn.** Serve N15; continua a padronização da interface no shadcn, que deixou o `shared/components/ui/chart.tsx` sem nenhum consumidor. Hoje cada gráfico Recharts repete o `ResponsiveContainer`, a cor da grade e um array `{ key, label, color }` de séries (que é o `ChartConfig`), e uns cinco cards de tooltip feitos à mão reimplementam o `ChartTooltipContent`. Plano: (1) antes|depois no canvas de `player-line-chart` e `networth-chart` com `ChartContainer` + `ChartTooltipContent`, para aprovar o visual do tooltip (texto menor, indicador) e decidir se o `ui/chart.tsx` ganha variante; (2) convenção de pasta por gráfico: `<nome>-chart/` com `<nome>-chart.tsx` (componente puro, recebe o dado da API por prop), `chart-data.ts` (`ChartConfig`, tipos de linha e `build*`), `chart-legend.tsx` opcional (a legenda clicável que liga e desliga série continua própria) e `index.ts` exportando só o componente; gráfico sem legenda nem transformação fica arquivo solto `<nome>-chart.tsx`; (3) migrar `player-line-chart/` (`utils.ts` + `series.ts` → `chart-data.ts`, sai o tooltip próprio), `networth-chart`, `allocation-donut` e os gráficos embutidos em `composition-tab.tsx` (`AreaChart`) e `risk-tab.tsx` (`ScatterChart`), extraídos para pastas próprias; o `stock-chart` (lightweight-charts, imperativo) fica fora do `ChartContainer`; (4) a seção Gráficos entra em `docs/docs/desenvolvimento/convencoes-frontend.md`. Gatilho: a próxima rodada de design no canvas, ou o próximo gráfico novo.
 
+<a id="f76"></a>
+**F76 — Testes das contas feitas no frontend.** Serve N3. Parte dos números da tela é calculada no navegador e não tem teste nenhum: o frontend não tem runner configurado. O escopo é só função pura de cálculo, sem teste de componente, de tela ou ponta a ponta. (1) **Runner:** Vitest como dependência de desenvolvimento, sem configuração própria (reaproveita o `vite.config.ts` e o alias `@`), script `test` no `frontend/package.json` e entrada no `pnpm run check` da raiz. (2) **Alvos:** `shared/lib/goal.ts` (fração e restante até a meta, projeção da data da meta, classificação de jogadores e equipes), `shared/lib/financial-independence.ts` (meta de independência e múltiplo de despesa anual pela taxa de retirada), `features/performance/lib/stats.ts`, `features/statistics/lib/criterion.ts`, `features/correlation/lib/correlation.ts`, `features/goal/lib/life-history.ts` e os formatadores de `shared/lib/utils/display.ts`, que são a última etapa de todo número na tela (vírgula decimal, milhar, sinal, porcentagem). (3) **Casos:** valores calculados à mão, como nos testes do backend, mais as bordas: patrimônio zero, meta já batida, histórico de um ponto só, taxa de retirada nos limites de 1% e 10%. Arquivo de teste ao lado do arquivo testado (`goal.test.ts`). Gatilho: a próxima feature que mexa numa dessas contas.
+
 ---
 ## 2. Nice-to-have
 
@@ -398,6 +436,17 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F68** | Dica de firewall no lobby | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
+| **F73** | Mapeamento único entre as regras da partida e o formulário do lobby | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F74** | Testes da conexão em tempo real e do loop da partida | — | — | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F75** | Encerramento do loop sem thread viva nem simulação presa | — | — | [F74](#f74) | Baixo | Médio | Médio | Bom | ⏳ Pendente |
+| **F77** | Dependências em dia, com o TypeScript 7 | — | — | — | Baixo | Médio | Baixo | Médio | ⏳ Pendente |
+| **F78** | Release só sai com o check passando | — | — | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F79** | Tipos do frontend que vêm da API | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F80** | Cotações do dia numa consulta só | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
+| **F82** | Repetições pequenas do frontend | — | — | — | Baixo | Baixo | Baixo | Médio | ⏳ Pendente |
+| **F83** | Proxy do Vite na porta do config.toml | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
+| **F84** | Dependências do backend num sentido só | — | — | — | Médio | Médio | Baixo | Médio | ⏳ Pendente |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -412,6 +461,41 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f68"></a>
 **F68 — Dica de firewall no lobby.** Quando o link do lobby abre no computador do host mas não abre no dos amigos, o motivo costuma ser o firewall do Windows, e a orientação hoje só existe na página de multiplayer dos docs. Plano: no `frontend/features/lobby/components/lobby-header.tsx`, abaixo do link copiável, uma linha curta "Amigos não conseguem entrar?" que leva à seção "Amigos não conseguem entrar?" da página de multiplayer (o link do site de docs, em nova aba). Sem rota nova e sem estado: é texto estático com link. A tela do lobby é desenhada no canvas, então a linha entra primeiro lá (estado do lobby com a dica) e só depois no código.
+
+<a id="f73"></a>
+**F73 — Mapeamento único entre as regras da partida e o formulário do lobby.** As regras da partida viram valores do formulário em três lugares (`defaultValues` e o painel "Ver regras" em `lobby-match.tsx`, e o `form.reset` do `useRealtimeSyncSimulationForm`) e voltam para o corpo da API em dois (`createSimulationBody` em `lobby-match.tsx` e o `payload` do mesmo hook). As cópias já divergem: dinheiro sai por `formatMoney(toCentsString(...))` num lugar e por `displayMoney(...)` em outro, e o corpo da criação não passa por `toCentsString` enquanto o da sincronização passa. Cada campo novo de regra precisa ser lembrado nos cinco, e a regra que volta com o nome da partida anterior foi um erro desse tipo. (1) `features/lobby/lib/simulation-form.ts` com `toFormValues(settings)`, que recebe o tipo da API (`SimulationSettingsData`) e devolve `SimulationFormValues`, e `toSettingsBody(values)`, que devolve `CreateSimulationRequest`. Os dois tipos vêm da API e do schema do formulário, então um campo novo que falte numa das funções vira erro do `tsc`. (2) Os cinco lugares passam a chamar as duas funções; o `as TForm` do hook sai. (3) A ordem de chaves que o descarte de duplicata do hook compara por JSON passa a ser a da função. Se o Vitest da feature de testes de cálculo já existir, um teste de ida e volta (`toSettingsBody(toFormValues(x))` igual a `x`) fecha o contrato. Gatilho: a próxima regra de partida nova, ou qualquer mexida no lobby.
+
+<a id="f74"></a>
+**F74 — Testes da conexão em tempo real e do loop da partida.** Os módulos do multiplayer são os menos cobertos do backend: `ws_handlers.py` 21%, `simulation_loop.py` 30%, `simulation_loader.py` 30% e `simulation.py` 45% (o total é 80%). A saída do jogador ao fechar uma de duas abas foi corrigida justamente na desconexão de `ws_handlers.py`, sem teste que a cobrisse. (1) **Conexão:** testes de `register_ws_handlers` com um `AsyncServer` dublê, chamando `connect`, `disconnect` e `subscribe` direto: recusa sem cookie, cookie `client_id` que não é UUID (hoje estoura `ValueError`; passa a recusar a conexão com aviso no log), duas abas do mesmo cliente com uma fechando (o jogador fica) e a última fechando (`UserManager.unregister`). (2) **Loop:** testes do `SimulationLoopController` com um `Simulation` dublê de tick instantâneo: start, pausa, retomada, velocidade, fim natural da partida (evento `simulation_ended`, flush e simulação liberada) e exceção no meio do tick. (3) **Carga:** `simulation_loader` com o banco de teste, carregando uma partida salva e conferindo jogadores, carteira e data. Gatilho: a próxima mudança em sala, abas ou loop; junto com a correção do encerramento do loop, que precisa desses testes para provar a corrida.
+
+<a id="f75"></a>
+**F75 — Encerramento do loop sem thread viva nem simulação presa.** Dois caminhos deixam o estado da partida inconsistente. (1) O `stop()` de `simulation_loop.py` espera a thread por 5 s e, se ela não terminar, só loga e segue: marca STOPPED, roda `EventManager.flush()` e `SimulationManager.clear_simulation()` enquanto a thread ainda pode processar um tick, gravando eventos de uma simulação que já foi liberada. (2) Uma exceção no loop cai no `finally`, que só muda o estado para STOPPED: a simulação continua registrada no `SimulationManager` sem loop rodando, e o `stop()` seguinte recusa com "Nenhuma simulação está em execução". Plano: o encerramento passa a ter um dono só, a própria thread: o `stop()` sinaliza e espera, e o flush e a liberação rodam no `finally` do loop, o mesmo caminho do fim natural da partida, que já faz isso. Se o join estourar o tempo, o `stop()` devolve erro em vez de liberar por cima. A exceção no tick também notifica os clientes (`simulation_ended` com motivo de erro), para a tela não ficar congelada. `pause()` e `unpause()` passam a usar o mesmo `_lock` de start e stop. Teste: o tick dublê que bloqueia além do tempo e o que lança exceção, nos testes do loop. Depende dos testes do loop para reproduzir os dois casos. Gatilho: junto com os testes do loop.
+
+<a id="f77"></a>
+**F77 — Dependências em dia, com o TypeScript 7.** Mesmo processo da rodada anterior de dependências: dois passos, cada um fechado com `pnpm run check`. (1) **Versões menores:** `pnpm update` no frontend e `uv lock --upgrade` no backend; o maior salto é o FastAPI, de 0.143 para 0.156, com a regeneração do `docs/openapi.json` e dos tipos do front (`pnpm openapi`) para pegar mudança de schema. (2) **Versões maiores, uma por commit:** `@hookform/resolvers` 6 (o `zodResolver` é o único uso; conferir a assinatura nos formulários do lobby, da importação e das configurações) e TypeScript 7. O TypeScript 7 é o compilador reescrito em Go, que checa o projeto bem mais rápido; ele já foi testado aqui e esbarra no lint, porque o `typescript-eslint` (8.72, a versão atual) só aceita o TypeScript abaixo de 6.1. O passo do TypeScript espera essa faixa abrir; até lá o 6 continua. Gatilho: as versões menores a qualquer momento; o TypeScript 7 quando o `typescript-eslint` publicar suporte.
+
+<a id="f78"></a>
+**F78 — Release só sai com o check passando.** O `release.yml` valida a versão e monta o executável nos três sistemas sem rodar teste nem lint; o único workflow que roda `pnpm run check` é o `dependabot-check.yml`, e sem banco, então os testes que precisam do PostgreSQL são pulados lá. A validação fica no release, não em cada push. (1) O job de check do `dependabot-check.yml` vira um workflow reutilizável, `check.yml` com `on: workflow_call`, chamado pelo `dependabot-check.yml` e pelo `release.yml`, para os dois rodarem a mesma coisa. (2) O job ganha um serviço `postgres` (a imagem oficial já sobe em UTF-8) e `POSTGRES_DATABASE_URL` apontando para ele, para os testes de banco rodarem. (3) No `release.yml`, o job `build` passa a ter `needs: [validate, check]`: check vermelho, nenhum executável é montado nem publicado. Gatilho: antes do próximo release.
+
+<a id="f79"></a>
+**F79 — Tipos do frontend que vêm da API.** Dois lugares do front escrevem à mão um tipo que a API já define, e o `tsc` não acusa quando a API muda. (1) `features/portfolio/components/networth-chart.tsx` declara um `Point` com `date`, `cash`, `fixed`, `equity`, `total` e `provided` e converte para ele os campos de `PortfolioHistoryPoint` (`snapshot_date`, `total_cash`, `total_networth`…). O gráfico passa a ler `PortfolioHistoryPoint` direto (só o `goal`, que não vem do ponto, fica como campo calculado ao lado), e o mapeamento sai. (2) `features/variable-income/pages/variable-income.tsx` escreve o filtro como `"ALL" | "HELD" | "STOCK" | "FII" | "ETF"`, sem o `BDR` que o `AssetClass` da API tem: BDR só aparece em "Todos". O tipo vira `"ALL" | "HELD" | AssetClass`, e os botões saem de um `Record<AssetClass, string>` com o rótulo de cada classe, que obriga um rótulo para toda classe nova. O `LCI_LCA` da renda fixa é agrupamento de tela intencional e fica. Gatilho: a próxima mexida na carteira ou na renda variável.
+
+<a id="f80"></a>
+**F80 — Cotações do dia numa consulta só.** `StockRepository.get_stocks_by_date` faz uma consulta para listar as ações e mais uma por ação para achar o último preço até a data, e é chamado a cada dia simulado (`Simulation.next_tick` via `get_stocks`) e de novo em `get_market`; `get_recent_closes`, do mini gráfico do mercado, repete o padrão. Com 50 ações são 51 consultas por tick, multiplicadas pela velocidade da partida. (1) `get_stocks_by_date`: uma consulta com `DISTINCT ON (stock_id)` do PostgreSQL, ordenada por `stock_id, price_date DESC`, filtrando `price_date <= current_date` e trazendo a ação junto (`joinedload`). (2) `get_recent_closes`: uma consulta com `row_number() OVER (PARTITION BY stock_id ORDER BY price_date DESC)`, filtrando as `days` primeiras de cada ação e reordenando por data. (3) O cálculo de `change` e `change_pct` sai do repositório para o `CandleDTO` (um campo calculado), e o repositório só devolve dado. Conferir se o índice de `stock_price_history` cobre `(stock_id, price_date)`; se não, ele entra por migration. Teste: as duas funções devolvem o mesmo resultado que hoje numa base de teste com várias ações. Gatilho: a próxima vez que o painel de desempenho apontar o tick como lento, ou junto com mudanças no mercado.
+
+**Aceite:** cada função faz uma consulta só, qualquer que seja o número de ações (contado por um listener `before_cursor_execute` no teste).
+
+<a id="f81"></a>
+**F81 — CORS restrito à mesma origem.** O backend libera CORS para qualquer origem com credenciais (`allow_origins=["*"]` e `allow_credentials=True` no FastAPI, `cors_allowed_origins="*"` no Socket.IO). Não é necessário: o front é servido pelo próprio backend e, no `pnpm dev`, chega pelo proxy do Vite. Hoje o que protege o jogador de um site malicioso aberto durante a partida é o cookie `client_id` com `SameSite=Lax`, que o navegador não manda em requisição de outro site; o CORS liberado só deixa outro site ler as rotas que não pedem identidade. (1) Sai o `CORSMiddleware` de `main.py`. (2) O Socket.IO fica com `cors_allowed_origins` na mesma origem, mais `http://localhost:5173` quando o modo debug estiver ligado: o proxy do Vite troca o `Host` (`changeOrigin: true`) mas mantém o `Origin` do Vite, e o Socket.IO recusaria a conexão em dev sem essa exceção. (3) Teste manual antes de fechar: jogo pelo `localhost`, por outro computador da LAN pelo IP e pelo `pnpm dev`. Gatilho: junto com o link de convite pela internet, quando o servidor passa a ficar exposto fora da LAN.
+
+<a id="f82"></a>
+**F82 — Repetições pequenas do frontend.** Cada uma é pequena; juntas, são lugares onde um ajuste precisa ser feito duas a quatro vezes. (1) `formatIso` (`displayDate(parseLocalDate(iso))`) copiado em `add-asset-panel.tsx`, `coverage-bar.tsx`, `coverage-summary.tsx` e `coverage-alerts.tsx`: vira uma função de `shared/lib/utils/display.ts`. (2) A escala do eixo Y em `networth-chart.tsx` (`niceScale`) e em `player-line-chart/utils.ts` (`niceTicks`), com os mesmos passos 1, 2, 2,5 e 5: uma função em `shared/lib/chart-scale.ts`, com as constantes de altura que os dois repetem. (3) `podium.tsx` e `team-podium.tsx`, com o mesmo `STEPS`: um componente de pódio que recebe a lista de colocados. (4) `AXIS_SCALE = 200` em `overview-tab.tsx`, `player-score-card.tsx` e `team-score.tsx`: uma constante em `features/statistics/lib`. (5) O alias `Player` (item da lista de jogadores do relatório) redeclarado em 10 arquivos das estatísticas e `Team` em 3: declarados uma vez em `types/api.ts`, por acesso indexado, como os outros aliases. (6) Dois hooks chamados `useNotificationSettings`, um de query (`shared/hooks/queries/`) e um de context (`shared/hooks/`): o de context passa a se chamar `useNotificationPreferences`. Gatilho: oportunista, item por item, quando a feature passar pelo arquivo.
+
+<a id="f83"></a>
+**F83 — Proxy do Vite na porta do config.toml.** O proxy de `/api` e `/socket.io` em `frontend/vite.config.ts` aponta para `localhost:8000` fixo, enquanto o backend sobe na porta de `[server] port` do `config.toml`. Mudando a porta, o `pnpm dev` perde o backend sem erro claro. O `vite.config.ts` passa a ler `../config.toml` com o `smol-toml` (dependência de desenvolvimento) e usa `server.port`, com 8000 quando o arquivo não existe, que é o mesmo padrão do backend. Gatilho: a qualquer momento; é uma mudança de um arquivo.
+
+<a id="f84"></a>
+**F84 — Dependências do backend num sentido só.** Dois pontos do backend importam nos dois sentidos. (1) **Simulação e estatísticas:** `features/simulation/goal.py` usa o `mean` de `features/statistics/teams.py`, e `features/statistics/report.py` usa o `goal_on` e o `goal_steps` de `simulation/goal.py`. As contas de meta são estatística da partida: `goal.py` passa para `features/statistics/`, e a simulação (`simulation.py`, que usa `goal_on` e `goal_reached`) importa de lá. A simulação já depende das estatísticas pelo relatório, então tudo fica num sentido só. (2) **Core e renda variável:** `core/dto/order.py` e `core/dto/position.py` importam as entidades de `features/variable_income` para converter entidade em DTO. A conversão passa para a entidade (`Order.to_dto()`, `Position.to_dto()`), e o `core/dto` deixa de conhecer a feature. Fora do escopo: os imports dentro de métodos do `UserManager` para emitir eventos de tempo real, que só se desfazem mudando quem emite. Gatilho: a próxima mexida nas contas de meta ou nas ordens.
 
 ---
 ## 3. Descartada
