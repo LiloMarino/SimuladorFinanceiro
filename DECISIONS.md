@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança:** D4 com os números medidos no app completo, no fechamento do M2.
+> **Última mudança:** registradas as necessidades de noticiário, resumo do mês, crédito e governo (N31–N34).
 
 ---
 
@@ -114,6 +114,18 @@ Na espera do lobby, "Online" diz só que a pessoa está lá. Saber que ela está
 
 **N30. Repetir uma configuração de partida sem montá-la de novo**
 A cada feature nova a partida ganha mais o que configurar (período, capital, regras, modo de jogo, o futuro gerado). O host quer salvar a combinação que gosta e voltar a ela num clique, em vez de refazer tudo a cada partida.
+
+**N31. Saber o que está movendo o mercado da partida, como quem lê o noticiário**
+Hoje o preço só se mexe: a SELIC sobe, uma ação despenca, e nada na tela diz que aconteceu algo. Quem investe de verdade decide lendo o que acontece no mundo, e um mercado que conta a própria história também ensina a ligar o fato ao preço.
+
+**N32. Saber como foi o mês sem montar a conta**
+Com o tempo correndo, um mês passa em segundos. Quanto o patrimônio andou, se bateu o CDI, o que rendeu e o que afundou, quanto entrou de provento e saiu de imposto: tudo isso existe espalhado pelas telas, e ninguém para a partida para juntar.
+
+**N33. Investir com dinheiro emprestado, pagando o juro do momento**
+Pegar crédito para aproveitar uma oportunidade é uma decisão real de quem investe, e a mais perigosa: com a SELIC alta, o juro come o ganho; com a carteira caindo, a dívida continua lá. Sem crédito, o jogo não deixa errar (nem acertar) nessa decisão.
+
+**N34. Disputar o poder de mudar as regras da economia da partida**
+Em vez de só reagir aos impostos e ao cenário, chegar ao governo e mexer neles, como nos jogos em que o empresário vira prefeito. É outro jeito de ganhar e de atrapalhar os amigos, e precisa custar caro o bastante para o governo não virar o jogador mais forte da sala.
 
 ---
 

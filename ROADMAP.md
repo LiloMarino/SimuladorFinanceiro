@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-21):** Concluídos os indicadores gerados que reagem uns aos outros (F88): encaixe de nível e choque de inflação na D14; registrados os presets de partida (F89) e os cenários (F90), pela N30.
+> **Última mudança (2026-10-21):** Registrados a caixa de entrada com resumo do mês, o noticiário sintético, os rumores, o crédito, as dicas de análise técnica e a expansão Governo com a SELIC controlável (F91–F97).
 
 ## Glossário
 
@@ -36,7 +36,7 @@
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
-| **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33) | — |
+| **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33), [F96](#f96) | — |
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | [F40](#f40) | — |
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F41](#f41) | — |
@@ -48,6 +48,10 @@
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
 | **N29** | Saber o que cada jogador está fazendo enquanto a partida não começa | [F70](#f70) | — |
 | **N30** | Repetir uma configuração de partida sem montá-la de novo | [F89](#f89) | — |
+| **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92) | — |
+| **N32** | Saber como foi o mês sem montar a conta | [F91](#f91) | — |
+| **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F94](#f94) | — |
+| **N34** | Disputar o poder de mudar as regras da economia da partida | — | — |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
@@ -96,18 +100,25 @@
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
 | [**F90**](#f90) | Cenários | — | 🔍 |
+| [**F91**](#f91) | Caixa de entrada e resumo do mês | — | 💤 |
+| [**F92**](#f92) | Noticiário da partida | — | 💤 |
+| [**F93**](#f93) | Rumores antecipados | — | 🔍 |
+| [**F94**](#f94) | Crédito | — | 💤 |
+| [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
+| [**F96**](#f96) | Dicas de análise técnica | — | 💤 |
+| [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (14 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
-| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F41](#f41) | ✅ |
+| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F41](#f41), [F94](#f94) | ✅ |
 | **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F33](#f33), [F40](#f40) | ✅ |
 | **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | — | ✅ |
 | **D4** | Banco de dados embarcado no executável | — | ✅ |
 | **D6** | A retomada continua no dia seguinte ao último evento | — | ✅ |
-| **D7** | O simulador lê as séries sem saber a origem | [F24](#f24) | ✅ |
+| **D7** | O simulador lê as séries sem saber a origem | [F24](#f24), [F92](#f92) | ✅ |
 | **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F8](#f8), [F16](#f16), [F19](#f19) | ✅ |
 | **D9** | De onde nasce uma mudança de schema | — | ✅ |
 | **D10** | Como a nota geral é calculada | — | ✅ |
@@ -134,6 +145,7 @@
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 1 | 🔍 |
 | [**F47**](#f47) | Gravação automática de demonstrações | M14 | 1 | ⏳ |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | 1 | ⏳ |
+| [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 1 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
 | [**F40**](#f40) | Modo Especialista | M13 | 0 | ⏳ |
 | [**F41**](#f41) | Conquistas | M13 | 0 | ⏳ |
@@ -241,12 +253,13 @@
 >
 > **Serve:** N19
 >
-> **Progresso:** 0/2 concluídas
+> **Progresso:** 0/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F33**](#f33) | Indicadores técnicos | — | ⏳ |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | [F33](#f33) | 🔍 |
+| [**F96**](#f96) | Dicas de análise técnica | — | 💤 |
 
 ### M13 — Mais jeitos de jogar
 
@@ -275,9 +288,23 @@
 | [**F48**](#f48) | README e docs que mostram o produto | [F47](#f47) | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
 
+### M15 — Notícias e resumo do mês
+
+> **Objetivo:** A partida conta o que acontece no mercado e como foi o mês de cada jogador.
+>
+> **Serve:** N31, N32
+>
+> **Progresso:** 0/3 concluídas
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F91**](#f91) | Caixa de entrada e resumo do mês | — | 💤 |
+| [**F92**](#f92) | Noticiário da partida | [F91](#f91) | 💤 |
+| [**F93**](#f93) | Rumores antecipados | [F92](#f92) | 🔍 |
+
 ### Sem marco
 
-> **Progresso:** 0/30 concluídas
+> **Progresso:** 0/33 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -311,6 +338,9 @@
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | [F73](#f73) | ⏳ |
 | [**F90**](#f90) | Cenários | [F89](#f89) | 🔍 |
+| [**F94**](#f94) | Crédito | — | 💤 |
+| [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
+| [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 
 ---
 
@@ -341,6 +371,10 @@
 | **F85** | Importar duas ações da mesma empresa | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F86** | Sugestão de ticker que a importação aceita | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F89** | Presets de partida | N30 | — | — | [F73](#f73) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F91** | Caixa de entrada e resumo do mês | N32 | — | M15 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
+| **F92** | Noticiário da partida | N31 | D7 | M15 | [F91](#f91) | Médio | Baixo | Alto | Bom | 💤 Registrado, sem prioridade |
+| **F94** | Crédito | N33 | D1 | — | — | Alto | Médio | Alto | Bom | 💤 Registrado, sem prioridade |
+| **F96** | Dicas de análise técnica | N19 | — | M11 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
@@ -425,6 +459,18 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f89"></a>
 **F89 — Presets de partida.** Serve N30. No lobby, o host salva a configuração atual com um nome ("Salvar como preset") e carrega um preset salvo, que preenche o formulário inteiro: período, capital inicial, aporte, regras, modo de jogo e os parâmetros do futuro gerado (temperatura, bioma inicial e choque de inflação). Os presets moram numa tabela própria (nome, data, configuração em JSON validada pelo mesmo DTO de criação da partida), por migration (D9), com rotas para listar, salvar, renomear e apagar. Alguns vêm prontos e não se apagam ("Iniciante", "Clássico", "Realista"). Preset que traz um campo que a versão atual não conhece ignora o campo, e o que falta vem do padrão, então um preset antigo continua abrindo. Gatilho: F73 concluída, porque salvar e carregar é mais um lugar que converte entre as regras da partida e o formulário, e a F73 deixa essa conversão num lugar só.
+
+<a id="f91"></a>
+**F91 — Caixa de entrada e resumo do mês.** Serve N32. Como a caixa de entrada dos jogos de gerência de time: tudo o que a partida tem a contar chega num lugar só, sem pausar. (1) **Caixa de entrada:** um envelope na barra da partida, com o número de não lidas, abre um painel lateral com as entradas por data. Cada entrada tem um tipo (resumo, e depois notícia e conquista) e é de um jogador ou da sala inteira. Fica numa tabela `inbox_entries` (simulação, jogador ou nulo para a sala, data do jogo, tipo, conteúdo em JSONB, lida), é criada pelo motor da simulação na virada do mês e chega pelo Socket.IO com um aviso curto que some sozinho. (2) **Resumo do mês, de cada jogador:** patrimônio no início e no fim, rentabilidade do mês ao lado do CDI e do Ibovespa, melhor e pior posição, proventos recebidos, IR pago, aportes e a posição no ranking com quanto ela andou. Sai dos snapshots e dos eventos do mês, calculado no backend. (3) **Retrospectiva do ano:** na virada do ano, uma entrada maior com o ano mês a mês num gráfico pequeno, o melhor mês e a maior queda. Gatilho: antes do noticiário, que entrega as notícias por esta caixa.
+
+<a id="f92"></a>
+**F92 — Noticiário da partida.** Serve N31; segue a D7. Um noticiário sintético: as manchetes nascem das séries que a partida já lê, e por isso funcionam igual no futuro gerado, que é onde o jogo passa a maior parte do tempo, e na história real. Sem LLM e sem internet. (1) **Motor genérico:** uma lista de regras, cada uma olhando as séries no tick e, quando dispara, criando uma entrada da sala na caixa de entrada (F91) a partir de um modelo de texto com algumas variações, para a mesma frase não se repetir. Regra nova é só mais um item da lista. (2) **Macro, as manchetes padrão:** Copom subiu, baixou ou manteve a SELIC, com o tamanho ("Copom sobe a SELIC em 0,5 ponto, para 14,25%"); IPCA do mês acima ou abaixo do anterior; Ibovespa no recorde ou na maior queda do ano. (3) **Empresas:** a mesma lógica para um ativo que sobe ou cai mais de um limite no dia, chega à máxima de 52 semanas ou anuncia provento. O movimento ganha uma causa sintética plausível, sorteada de um banco de causas por setor e direção ("resultado do trimestre acima do esperado", "troca no comando", "vendas de fim de ano fracas" para o varejo). A notícia sai depois do movimento: dá contexto e não dá vantagem. (4) As notícias de um ativo aparecem também na tela dele, como marcadores no gráfico de preço. (5) **Extra, para período real:** marcos históricos curados à mão (crise de 2008, Joesley Day em 2017, Covid em março de 2020), num arquivo de dados com data, manchete e ativos ligados. O futuro gerado sempre começa depois do último dia real, então um marco datado só aparece em período real, e um cenário (F90) pode trazer os seus. Gatilho: depois da caixa de entrada.
+
+<a id="f94"></a>
+**F94 — Crédito.** Serve N33; segue a D1. Uma tela "Crédito" na partida, no molde dos empréstimos do Capitalism Lab. (1) **Nota de risco** de AAA a D, recalculada todo mês a partir da alavancagem (dívida ÷ patrimônio), da volatilidade da carteira e do histórico de pagamento (parcelas atrasadas nos últimos 12 meses). A tela mostra a nota, o peso de cada parte e o que a melhoraria. (2) **Oferta:** valor e prazo (6 a 60 meses), com o juro travado na contratação em SELIC do dia mais um spread que cresce com a nota pior (por exemplo, AAA paga SELIC + 3 pontos ao ano; nota D não recebe crédito novo), e um limite de dívida total proporcional ao patrimônio, menor quanto pior a nota. Antes de assinar, a tela mostra quanto se paga de juro no prazo todo e quanto a carteira precisa render ao ano para o empréstimo valer a pena. **Regra que impede dinheiro infinito:** o juro mais barato fica sempre acima da renda fixa mais cara oferecida no dia; senão, pegar emprestado e aplicar num CDB daria lucro sem risco. (3) **Parcelas** mensais fixas (Tabela Price), debitadas do caixa na data. Quitação antecipada, total ou parcial, com abatimento proporcional dos juros, como garante o Código de Defesa do Consumidor (art. 52, § 2º). (4) **Sem caixa na data:** a parcela fica em atraso, com multa de 2% (o teto do mesmo art. 52) e juro de mora por dia; a nota cai e novos empréstimos ficam mais caros ou bloqueados. Nada é vendido à força: pagar o atraso é decisão do jogador. (5) **Eventos novos** (contratação, parcela paga, parcela em atraso, amortização, quitação), para a dívida se reconstruir numa retomada, e o patrimônio passa a ser carteira menos dívida em todo lugar: ranking, estatísticas e nota geral. Gatilho: quando houver vontade de abrir a alavancagem no jogo.
+
+<a id="f96"></a>
+**F96 — Dicas de análise técnica.** Serve N19. Aprender análise técnica jogando: o gráfico aponta e explica o que um trader enxergaria, para quem quer jogar pelo gráfico sem já saber as regras. É ajuda, então o modo Especialista (F40) a desliga, como as outras. (1) **Padrões de vela:** regras fixas sobre abertura, máxima, mínima e fechamento de cada pregão detectam uns dez padrões clássicos (martelo, estrela cadente, engolfo de alta e de baixa, doji, três soldados brancos). O candle ganha um marcador; ao passar o mouse, um card com o nome, o desenho do padrão e o que ele costuma sugerir. **E se ele acertou:** o card conta quantas vezes o padrão apareceu neste ativo no período já jogado e em quantas o preço foi para o lado sugerido nos 5 pregões seguintes ("apareceu 12 vezes; em 7 o preço subiu"), o que ensina também que padrão não é garantia. (2) **Indicadores (F33):** as faixas ganham legenda (IFR acima de 70, "sobrecomprado": subiu rápido demais e costuma devolver; abaixo de 30, "sobrevendido") e os cruzamentos do MACD e das médias móveis ganham marcador com uma frase do que significam. (3) **Desafio da vela:** quando aparece um padrão, o jogo pergunta "e agora, sobe ou desce?" e confere dias depois, com um placar de acertos que pode virar conquista (F41). Gatilho: com o gráfico de indicadores; os padrões de vela não dependem dele.
 
 ---
 ## 2. Nice-to-have
@@ -516,6 +562,9 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | — | [F44](#f44) | 🔍 Em avaliação |
 | **F87** | Erros de dado do yfinance na base | Serve N3; encosta na F22 | — | — | 🔍 Em avaliação |
 | **F90** | Cenários | Serve N22; um preset com objetivo | — | [F89](#f89) | 🔍 Em avaliação |
+| **F93** | Rumores antecipados | N31; opção da partida | M15 | [F92](#f92) | 🔍 Em avaliação |
+| **F95** | Expansão Governo: ganhar a eleição e mexer nas regras | N34, N23; mesmo molde da F44 | — | — | 🔍 Em avaliação |
+| **F97** | SELIC nas mãos do governo | N34; opção da expansão Governo | — | [F95](#f95) | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -546,3 +595,12 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f90"></a>
 **F90 — Cenários.** Serve N22. Como nos jogos de estratégia: uma partida montada com intenção, um preset (F89) com objetivo e texto de abertura. Exemplos: "Crise de 2008" (começa em setembro de 2008 com R$ 100 mil, meta de não perder mais de 20%), "Década perdida" (futuro gerado com choque de inflação de +15 pontos) e "Plano Real". O objetivo usa os modos de jogo que já existem (corrida à meta, viver de renda) e o ranking. Falta definir: quais cenários entram primeiro e o objetivo de cada um; se o objetivo pode ser algo que os modos não cobrem (perda máxima, bater o CDI); se há campanha, com um cenário liberando o seguinte; e se o usuário cria os próprios cenários ou só joga os que vêm com o app.
+
+<a id="f93"></a>
+**F93 — Rumores antecipados.** Ligado à N31; uma opção da partida, desligada por padrão. O simulador já sabe o futuro: as séries até a data final estão no banco antes de a partida começar, sejam reais ou geradas. O rumor usa isso e chega antes do fato, ao contrário do noticiário (F92): dias antes de um movimento grande (queda forte de um setor, mudança da SELIC), aparece na caixa de entrada algo como "analistas veem risco no varejo". O valor do rumor é obrigar o jogador a pensar: pode acontecer ou não, e a frase pede interpretação. Por isso só uma parte dos rumores se confirma, outra parte é alarme falso sorteado onde nada vai acontecer, e alguns não dizem a direção ("mudanças na diretoria da X"). Falta definir: a taxa de acerto e a antecedência; quão vago o rumor é (setor ou ativo, com ou sem direção); se é da sala inteira ou informação de um jogador só (comprada, como um informante); e se vale no modo Especialista.
+
+<a id="f95"></a>
+**F95 — Expansão "Governo": ganhar a eleição e mexer nas regras.** Ligado à N34 e à N23. Mesmo molde da expansão "Gestoras" (F44): ligável por partida no lobby, com nome, emblema e card próprios. Inspiração: a expansão de cidades do Capitalism Lab, em que o empresário funda um partido e disputa a prefeitura. (1) **Eleição:** a candidatura abre um ano antes da eleição. Concorrem os jogadores que se inscrevem e candidatos do computador. Cada um define uma verba mensal de campanha, que sai do caixa e não volta, e assim compete com investir; a verba vira apoio aos poucos e com retorno decrescente (dobrar a verba não dobra o voto), e por isso começar cedo pesa. Cada candidato marca a promessa numa régua de "impostos baixos" a "gasto alto". Uma pesquisa de intenção de voto mostra a corrida num gráfico ao longo dos meses, com a cor e a sigla de cada jogador. Mandato de 4 anos, com uma reeleição. (2) **Impostos por setor:** o governo mexe nos impostos que o jogo já cobra (os 15% e 20% da renda variável, a isenção de vendas de ações até R$ 20 mil, a tabela regressiva da renda fixa, a isenção de LCI e LCA) e pode taxar ou isentar um setor ou segmento, que todo ativo já tem: "isentar o IR de energia", "taxar bancos em mais 5 pontos". Imposto vale em qualquer período, porque não mexe em preço. (3) **Gasto público e inflação, como o impacto de preço:** a medida vira um efeito por cima das séries, do mesmo jeito que o impacto de preço de ordens grandes: o preço do dia é o da série vezes (1 + a soma dos efeitos ativos), cada efeito nasce de um evento, vale cheio no começo e decai com o tempo, e tudo se reconstrói a partir dos eventos numa retomada. Aqui o efeito soma pontos ao IPCA, e o resto segue os coeficientes que a D14 já mediu: a SELIC reage com 1,5 vez a inflação (quando é autônoma) e a bolsa cai 2,9% no trimestre por ponto de alta da SELIC, ativo a ativo pelo beta. A série guardada não muda, e por isso vale também na história real. (4) **SELIC:** configurável na expansão. Por padrão o Banco Central é autônomo, como é no Brasil desde 2021, e a SELIC continua reagindo à inflação como no gerador; a outra opção a põe nas mãos do governo (F97). (5) **Popularidade:** uma métrica de aprovação do governo atual, sempre à vista, com o histórico num gráfico. Cai com inflação alta, que deixa as pessoas nervosas, com imposto novo e com promessa descumprida (o que foi feito contra a régua da campanha); sobe com inflação controlada e bolsa subindo. **Freio decidido: aprovação e reeleição.** Aprovação baixa perde a reeleição e, abaixo de um piso por meses seguidos, leva a impeachment. Falta definir: os outros freios (um Congresso que vota cada medida, com chance pela aprovação; o prazo para valer, como a noventena e a anterioridade, que dão aos outros tempo de reagir a um imposto novo; o truste cego, que congela a carteira do presidente ou a entrega a um bot, porque ele sabe da medida antes de todos); os pesos da aprovação; como o presidente vence a partida, se pelo patrimônio, pela aprovação ou pelos dois; e quem são os candidatos do computador.
+
+<a id="f97"></a>
+**F97 — SELIC nas mãos do governo.** Ligado à N34; uma opção da expansão "Governo" (F95), no lugar do Banco Central autônomo. (1) **Ritmo do Copom:** o governo decide a SELIC em reuniões a cada 45 dias, como o Copom, que se reúne 8 vezes por ano desde 2006; entre reuniões ela não muda. (2) **Teto por reunião, pelo que aconteceu de verdade.** Das 150 mudanças da meta da SELIC entre 2000 e outubro de 2026 (série do Banco Central): 34 foram de 0,25 ponto, 67 de 0,5, 19 de 0,75, 19 de 1, 7 de 1,5, uma de 2, uma de 2,5 (cortes de 2003) e duas de 3 (as altas da crise de 2002); desde 2006, nunca passou de 1,5. O teto acompanha isso: até 0,75 ponto por reunião em tempo normal (80% das mudanças reais), 1,5 com a inflação bem acima da meta, como em 2021 e 2022, e 3 só com a inflação explodindo, como em 2002. (3) **O preço de cada lado:** a SELIC abaixo do que o Banco Central autônomo faria (a da série, ou a do gerador) faz a inflação subir com alguns meses de atraso, pelo mesmo mecanismo de efeito por cima das séries da F95, e inflação alta derruba a aprovação; a SELIC alta demais derruba a bolsa pelo coeficiente da D14, o que também pesa na aprovação. Falta definir: quanto a inflação reage à SELIC e com quanto atraso (medir no histórico, como a D14 mediu a reação da SELIC à inflação), e os limites de inflação que liberam cada degrau do teto.
