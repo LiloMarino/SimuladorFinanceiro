@@ -92,7 +92,6 @@
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
-| [**F85**](#f85) | Importar duas ações da mesma empresa | — | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
@@ -106,7 +105,7 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -128,6 +127,7 @@
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
+| [**F85**](#f85) | Importar duas ações da mesma empresa | — | ✅ |
 | [**F98**](#f98) | Excluir partida salva | — | ✅ |
 
 </details>
@@ -165,7 +165,6 @@
 | [**F78**](#f78) | Release só sai com o check passando | — | 0 | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | 0 | ⏳ |
-| [**F85**](#f85) | Importar duas ações da mesma empresa | — | 0 | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 
@@ -310,7 +309,7 @@
 
 ### Sem marco
 
-> **Progresso:** 4/34 concluídas
+> **Progresso:** 5/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -336,7 +335,6 @@
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
 | [**F84**](#f84) | Dependências do backend num sentido só | — | ⏳ |
-| [**F85**](#f85) | Importar duas ações da mesma empresa | — | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | [F73](#f73) | ⏳ |
@@ -345,13 +343,14 @@
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 
-<details><summary>Concluído (4 itens)</summary>
+<details><summary>Concluído (5 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
 | [**F83**](#f83) | Proxy do Vite na porta do config.toml | — | ✅ |
+| [**F85**](#f85) | Importar duas ações da mesma empresa | — | ✅ |
 | [**F98**](#f98) | Excluir partida salva | — | ✅ |
 
 </details>
@@ -382,7 +381,7 @@
 | **F71** | Renda fixa com liquidez diária | N23 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F76** | Testes das contas feitas no frontend | N3 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F85** | Importar duas ações da mesma empresa | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F85** | Importar duas ações da mesma empresa | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F86** | Sugestão de ticker que a importação aceita | N13 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F89** | Presets de partida | N30 | — | — | [F73](#f73) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F91** | Caixa de entrada e resumo do mês | N32 | — | M15 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
@@ -467,7 +466,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F76 — Testes das contas feitas no frontend.** Serve N3. Parte dos números da tela é calculada no navegador e não tem teste nenhum: o frontend não tem runner configurado. O escopo é só função pura de cálculo, sem teste de componente, de tela ou ponta a ponta. (1) **Runner:** Vitest como dependência de desenvolvimento, sem configuração própria (reaproveita o `vite.config.ts` e o alias `@`), script `test` no `frontend/package.json` e entrada no `pnpm run check` da raiz. (2) **Alvos:** `shared/lib/goal.ts` (fração e restante até a meta, projeção da data da meta, classificação de jogadores e equipes), `shared/lib/financial-independence.ts` (meta de independência e múltiplo de despesa anual pela taxa de retirada), `features/performance/lib/stats.ts`, `features/statistics/lib/criterion.ts`, `features/correlation/lib/correlation.ts`, `features/goal/lib/life-history.ts` e os formatadores de `shared/lib/utils/display.ts`, que são a última etapa de todo número na tela (vírgula decimal, milhar, sinal, porcentagem). (3) **Casos:** valores calculados à mão, como nos testes do backend, mais as bordas: patrimônio zero, meta já batida, histórico de um ponto só, taxa de retirada nos limites de 1% e 10%. Arquivo de teste ao lado do arquivo testado (`goal.test.ts`). Gatilho: a próxima feature que mexa numa dessas contas.
 
 <a id="f85"></a>
-**F85 — Importar duas ações da mesma empresa.** Serve N13. A importação de PETR3 depois da PETR4 cai com `UniqueViolation` em `stock_name_key`: o yfinance dá o mesmo nome às duas ("Petróleo Brasileiro S.A. - Petrobras"), o `stock.name` é único e o `upsert_dataframe` cria o ativo com esse nome; no lote (`update_from_yfinance_batch`), a exceção derruba os ativos seguintes também. Nenhum código busca ação pelo nome, então a restrição só barra: uma migration (D9) remove o `UniqueConstraint("name", name="stock_name_key")` de `stock`, mantendo o `ticker` único. Teste: importar dois tickers com o mesmo nome cria os dois. Gatilho: livre.
+**F85 — Importar duas ações da mesma empresa.** Serve N13. A importação de PETR3 depois da PETR4 caía com `UniqueViolation` em `stock_name_key`: o yfinance dá o mesmo nome às duas ("Petróleo Brasileiro S.A. - Petrobras") e o `upsert_dataframe` cria o ativo com esse nome. Feito: uma migration (D9) removeu o `UniqueConstraint("name", name="stock_name_key")` de `stock`, mantendo o `ticker` único; nenhum código busca ação pelo nome. Teste em `tests/test_ticker_profile.py`: importar dois tickers com o mesmo nome cria os dois.
 
 <a id="f86"></a>
 **F86 — Sugestão de ticker que a importação aceita.** Serve N13. Na Central, a busca do yfinance (`search_tickers`) devolve o código sem o `.SA` (`PETR4`), o combobox preenche esse valor e a importação baixa `PETR4`, que o yfinance responde com 404; a doc de importação e a base usam `PETR4.SA`. Plano: `search_tickers` devolve o símbolo como o yfinance o conhece (`PETR4.SA`), o `tests/test_ticker_profile.py` passa a esperar o sufixo, e o placeholder do campo vira "PETR4.SA, VALE3.SA, BTC-USD". Gatilho: livre.
