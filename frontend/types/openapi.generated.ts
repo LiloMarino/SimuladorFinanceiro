@@ -347,7 +347,7 @@ export interface paths {
         put?: never;
         /**
          * Atualizar um indicador
-         * @description Busca um indicador a partir do último valor guardado.
+         * @description Busca um indicador a partir do último valor real guardado e devolve os dias gerados que o real que chegou ocupou.
          */
         post: operations["refresh_one_indicator_api_import_assets_indicators__series__post"];
         delete?: never;
@@ -431,7 +431,7 @@ export interface paths {
         put?: never;
         /**
          * Importar dados de yfinance
-         * @description Importa dados de ativos do yfinance para um ticker especificado e devolve a série como ficou na base.
+         * @description Importa dados de ativos do yfinance para um ticker especificado e devolve a série como ficou na base e os dias gerados que o real ocupou.
          */
         post: operations["import_assets_json_api_import_assets_yfinance_post"];
         delete?: never;
@@ -471,7 +471,7 @@ export interface paths {
         put?: never;
         /**
          * Importar dados de CSV
-         * @description Importa dados de ativos a partir de um arquivo CSV enviado via multipart/form-data e devolve a série como ficou na base.
+         * @description Importa dados de ativos a partir de um arquivo CSV enviado via multipart/form-data e devolve a série como ficou na base e os dias gerados que o real ocupou.
          */
         post: operations["import_assets_csv_api_import_assets_csv_post"];
         delete?: never;
@@ -534,6 +534,70 @@ export interface paths {
         get: operations["get_ticker_suggestions_api_import_assets_tickers_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-assets/future": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Futuro gerado
+         * @description Os controles do futuro gravado, quando há um: semente, temperatura, começo e choque, até quando vai, até onde o real já chegou depois dele e quantas partidas salvas jogaram dias dele.
+         */
+        get: operations["get_generated_future_api_import_assets_future_get"];
+        put?: never;
+        /**
+         * Gravar o futuro
+         * @description Gera todas as séries e troca o futuro gravado pelo novo. As partidas salvas que jogaram dias do futuro anterior guardam a própria cópia. O progresso sai no evento future_recording_progress; cancelar ou falhar não muda nada na base.
+         */
+        post: operations["record_future_api_import_assets_future_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-assets/future/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Prévia do futuro
+         * @description Gera sem gravar o Ibovespa, os indicadores e o ativo pedido com os controles informados, e devolve as curvas e os números da prévia. A primeira chamada lê o histórico; as seguintes só geram.
+         */
+        post: operations["preview_future_api_import_assets_future_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-assets/future/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancelar a gravação do futuro
+         * @description Interrompe a gravação em andamento antes da próxima série; a gravação responde 409 e a base fica como estava.
+         */
+        post: operations["cancel_future_recording_api_import_assets_future_cancel_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1602,6 +1666,21 @@ export interface components {
             /** @default COLOR */
             team_naming: components["schemas"]["TeamNaming"];
         };
+        /** DrawdownDTO */
+        DrawdownDTO: {
+            /** Value */
+            value: number;
+            /**
+             * Peak
+             * Format: date
+             */
+            peak: string;
+            /**
+             * Trough
+             * Format: date
+             */
+            trough: string;
+        };
         /** EconomicIndicatorsDTO */
         EconomicIndicatorsDTO: {
             /** Ipca */
@@ -1751,11 +1830,102 @@ export interface components {
          */
         FixedIncomeType: "CDB" | "LCI" | "LCA" | "Tesouro Direto";
         /**
+         * FutureParamsDTO
+         * @description Os controles de uma geração: os mesmos valores geram o mesmo futuro.
+         */
+        FutureParamsDTO: {
+            /**
+             * Until
+             * Format: date
+             */
+            until: string;
+            /** Seed */
+            seed: number;
+            /** Temperature */
+            temperature: number;
+            start_regime?: components["schemas"]["MarketRegime"] | null;
+            /** Inflation Shock */
+            inflation_shock: number;
+        };
+        /** FuturePreviewDTO */
+        FuturePreviewDTO: {
+            current_regime: components["schemas"]["MarketRegime"];
+            ibov_start: components["schemas"]["SeriesStartDTO"];
+            laggard_start: components["schemas"]["SeriesStartDTO"] | null;
+            /** Trading Days */
+            trading_days: number;
+            /** Assets */
+            assets: number;
+            /** Indicators */
+            indicators: number;
+            ibov: components["schemas"]["PreviewSeriesDTO"];
+            asset: components["schemas"]["PreviewSeriesDTO"] | null;
+            selic: components["schemas"]["PreviewSeriesDTO"];
+            ipca_12m: components["schemas"]["PreviewSeriesDTO"];
+            ibov_change: components["schemas"]["LevelChangeDTO"];
+            max_drawdown: components["schemas"]["DrawdownDTO"] | null;
+            selic_peak: components["schemas"]["PeakDTO"] | null;
+            ipca_peak: components["schemas"]["PeakDTO"] | null;
+        };
+        /** FuturePreviewRequest */
+        FuturePreviewRequest: {
+            /**
+             * Until
+             * Format: date
+             */
+            until: string;
+            /** Seed */
+            seed: number;
+            /** Temperature */
+            temperature: number;
+            start_regime?: components["schemas"]["MarketRegime"] | null;
+            /** Inflation Shock */
+            inflation_shock: number;
+            /** Ticker */
+            ticker?: string | null;
+        };
+        /**
+         * FutureRecordingProgressEventDTO
+         * @description A série que começou a ser gravada e quantas já foram, de quantas.
+         */
+        FutureRecordingProgressEventDTO: {
+            /** Series */
+            series: string;
+            /** Done */
+            done: number;
+            /** Total */
+            total: number;
+        };
+        /**
          * GameType
          * @description O que decide a partida: o critério de vitória (Clássica) ou chegar a uma meta de patrimônio.
          * @enum {string}
          */
         GameType: "CLASSIC" | "GOAL_RACE" | "FINANCIAL_INDEPENDENCE";
+        /** GeneratedFutureDTO */
+        GeneratedFutureDTO: {
+            /**
+             * Until
+             * Format: date
+             */
+            until: string;
+            /** Seed */
+            seed: number;
+            /** Temperature */
+            temperature: number;
+            start_regime?: components["schemas"]["MarketRegime"] | null;
+            /** Inflation Shock */
+            inflation_shock: number;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Real Advanced Until */
+            real_advanced_until: string | null;
+            /** Saved Simulations On Future */
+            saved_simulations_on_future: number;
+        };
         /**
          * GoalProgressDTO
          * @description Onde cada jogador está na corrida à meta, no último pregão simulado.
@@ -1784,6 +1954,11 @@ export interface components {
             most_trades: components["schemas"]["PlayerHighlightDTO"] | null;
             most_tax: components["schemas"]["PlayerHighlightDTO"] | null;
             your_best_month: components["schemas"]["BestMonthDTO"] | null;
+        };
+        /** ImportResultDTO */
+        ImportResultDTO: {
+            coverage: components["schemas"]["SeriesCoverageDTO"];
+            replaced: components["schemas"]["ReplacedGeneratedDTO"] | null;
         };
         /** ImportYFinanceBatchRequest */
         ImportYFinanceBatchRequest: {
@@ -1823,6 +1998,20 @@ export interface components {
             color: string;
             /** Team */
             team?: number | null;
+        };
+        /** LevelChangeDTO */
+        LevelChangeDTO: {
+            /** Change */
+            change: number;
+            /** Start */
+            start: number;
+            /** End */
+            end: number;
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
         };
         /**
          * LifeEventDTO
@@ -1958,6 +2147,12 @@ export interface components {
             /** Segment */
             segment: string | null;
         };
+        /**
+         * MarketRegime
+         * @description Bioma de um trecho do mercado, pelo tercil da volatilidade do Ibovespa.
+         * @enum {string}
+         */
+        MarketRegime: "CALM" | "NORMAL" | "AGITATED";
         /** MetricItem */
         MetricItem: {
             /**
@@ -2195,6 +2390,18 @@ export interface components {
             total_cash: string;
             /** Total Contribution */
             total_contribution: string;
+        };
+        /** PeakDTO */
+        PeakDTO: {
+            /** Value */
+            value: number;
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /** Today */
+            today: number;
         };
         /** PlayerColorRequest */
         PlayerColorRequest: {
@@ -2525,6 +2732,28 @@ export interface components {
         PositionUpdateEventDTO: {
             position: components["schemas"]["PositionDTO"];
         };
+        /** PreviewPointDTO */
+        PreviewPointDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Value */
+            value: number;
+        };
+        /**
+         * PreviewSeriesDTO
+         * @description Uma série da prévia: a cauda real e o gerado que continua dela.
+         */
+        PreviewSeriesDTO: {
+            /** Key */
+            key: string;
+            /** Real */
+            real: components["schemas"]["PreviewPointDTO"][];
+            /** Generated */
+            generated: components["schemas"]["PreviewPointDTO"][];
+        };
         /** PriceImpactPointDTO */
         PriceImpactPointDTO: {
             /** Day */
@@ -2578,6 +2807,25 @@ export interface components {
             order_added: components["schemas"]["OrderEventDTO"];
             order_updated: components["schemas"]["OrderEventDTO"];
             order_book_snapshot: components["schemas"]["OrderBookSnapshotEventDTO"];
+            future_recording_progress: components["schemas"]["FutureRecordingProgressEventDTO"];
+        };
+        /**
+         * ReplacedGeneratedDTO
+         * @description Os dias em que o real chegou e ocupou o lugar do gerado.
+         */
+        ReplacedGeneratedDTO: {
+            /** Days */
+            days: number;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
         };
         /** ReturnsReportDTO */
         ReturnsReportDTO: {
@@ -2763,6 +3011,19 @@ export interface components {
             date: string;
             /** Value */
             value: string;
+        };
+        /**
+         * SeriesStartDTO
+         * @description Primeiro dia gerado de uma série: o dia útil seguinte ao último real dela.
+         */
+        SeriesStartDTO: {
+            /** Key */
+            key: string;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
         };
         /** SessionDTO */
         SessionDTO: {
@@ -4185,11 +4446,13 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful Response */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ReplacedGeneratedDTO"] | null;
+                };
             };
             /** @description Unprocessable Content */
             422: {
@@ -4390,7 +4653,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SeriesCoverageDTO"];
+                    "application/json": components["schemas"]["ImportResultDTO"];
                 };
             };
             /** @description Unprocessable Content */
@@ -4472,7 +4735,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["SeriesCoverageDTO"];
+                    "application/json": components["schemas"]["ImportResultDTO"];
                 };
             };
             /** @description Unprocessable Content */
@@ -4592,6 +4855,164 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["TickerSuggestionDTO"][];
                 };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_generated_future_api_import_assets_future_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeneratedFutureDTO"] | null;
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    record_future_api_import_assets_future_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FutureParamsDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeneratedFutureDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_future_api_import_assets_future_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FuturePreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FuturePreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    cancel_future_recording_api_import_assets_future_cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unprocessable Content */
             422: {

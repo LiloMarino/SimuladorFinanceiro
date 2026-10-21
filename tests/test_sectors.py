@@ -85,7 +85,9 @@ def import_calls(monkeypatch: pytest.MonkeyPatch) -> list[tuple[str, object]]:
     monkeypatch.setattr(
         repository.stock, "get_last_stock_price_history", lambda _id: None
     )
-    monkeypatch.setattr(repository.stock, "add_stock_price_history", lambda _rows: None)
+    monkeypatch.setattr(
+        repository.stock, "save_real_prices", lambda *_args, **_kwargs: None
+    )
     return calls
 
 

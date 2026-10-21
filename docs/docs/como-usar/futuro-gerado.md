@@ -52,6 +52,8 @@ Na estatística, isso é o **bootstrap do vizinho mais próximo** (Lall e Sharma
 
 ## Os controles da geração
 
+Os controles ficam no diálogo "Gerar dados futuros" da [Central de dados](./importacao-ativos.md#gerar-dados-futuros), à esquerda; a prévia fica à direita.
+
 **Semente.** Um número que fixa o sorteio. A mesma semente com os mesmos controles gera sempre o mesmo futuro, e outra semente gera outro futuro igualmente plausível.
 
 **Temperatura**, de 0 a 3, padrão 1. Como a temperatura de uma IA que escreve texto: em 1, o sorteio respeita o histórico como foi; abaixo de 1, favorece trechos calmos; acima, favorece os agitados. A tabela mostra o que cada valor produz em 100 futuros de 5 anos. "Volatilidade anual" é o quanto o Ibovespa costuma oscilar num ano: 24% quer dizer que um ano típico sobe ou cai uns 24% em torno da média.

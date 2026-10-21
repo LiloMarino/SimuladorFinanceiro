@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.candle import CandleDTO
+from backend.core.dto.generated_future import ReplacedGeneratedDTO
 from backend.core.dto.sector import SectorDTO, StockSegmentDTO
 from backend.core.dto.series_coverage import OriginCoverageDTO
 from backend.core.dto.stock import StockDTO
@@ -20,6 +21,17 @@ from backend.core.models.models import (
     StockPriceHistory,
     TickerProfile,
 )
+from backend.core.repository.generated_swap import (
+    drop_generated,
+    freeze_generated,
+    mark_real_advanced,
+    swap_generated_for_real,
+)
+from backend.core.repository.series_version import (
+    COMMON_VERSION,
+    reading_version,
+    seen_by,
+)
 
 
 class StockRepository:
@@ -33,15 +45,43 @@ class StockRepository:
         return StockDTO.from_model(stock)
 
     @transactional
-    def add_stock_price_history(
-        self, session: Session, stock_price_history: list[StockPriceHistory]
-    ) -> None:
-        session.add_all(stock_price_history)
+    def save_real_prices(
+        self,
+        session: Session,
+        stock_id: int,
+        rows: list[StockPriceHistory],
+        overwrite: bool = False,
+    ) -> ReplacedGeneratedDTO | None:
+        """
+        Grava pregões reais. `overwrite` troca o histórico comum inteiro, gerado
+        junto; sem ele, o real ocupa o lugar do gerado nos dias que cobre.
+        """
+        if not rows:
+            return None
+        same_stock = [StockPriceHistory.stock_id == stock_id]
+        real_end = max(row.price_date for row in rows)
+        replaced = None
+        if overwrite:
+            freeze_generated(session, StockPriceHistory, same_stock)
+            if drop_generated(session, StockPriceHistory, same_stock) is not None:
+                mark_real_advanced(session, real_end)
+            session.execute(
+                delete(StockPriceHistory).where(
+                    *same_stock, StockPriceHistory.version == COMMON_VERSION
+                )
+            )
+        else:
+            replaced = swap_generated_for_real(
+                session, StockPriceHistory, same_stock, real_end
+            )
+        session.add_all(rows)
+        return replaced
 
     @transactional
     def get_stocks_by_date(
-        self, session: Session, current_date: date
+        self, session: Session, current_date: date, simulation_id: int | None = None
     ) -> list[CandleDTO]:
+        seen = seen_by(StockPriceHistory, reading_version(simulation_id))
         stocks = session.execute(select(Stock)).scalars().all()
         stocks_with_history: list[CandleDTO] = []
         for stock in stocks:
@@ -51,6 +91,7 @@ class StockRepository:
                     .where(
                         StockPriceHistory.stock_id == stock.id,
                         StockPriceHistory.price_date <= current_date,
+                        seen,
                     )
                     .order_by(StockPriceHistory.price_date.desc())
                 )
@@ -80,9 +121,14 @@ class StockRepository:
 
     @transactional
     def get_recent_closes(
-        self, session: Session, current_date: date, days: int
+        self,
+        session: Session,
+        current_date: date,
+        days: int,
+        simulation_id: int | None = None,
     ) -> dict[str, list[float]]:
         """Os últimos `days` fechamentos de cada ação até `current_date`, em ordem cronológica."""
+        seen = seen_by(StockPriceHistory, reading_version(simulation_id))
         closes: dict[str, list[float]] = {}
         for stock in session.execute(select(Stock)).scalars().all():
             rows = (
@@ -91,6 +137,7 @@ class StockRepository:
                     .where(
                         StockPriceHistory.stock_id == stock.id,
                         StockPriceHistory.price_date <= current_date,
+                        seen,
                     )
                     .order_by(StockPriceHistory.price_date.desc())
                     .limit(days)
@@ -103,7 +150,11 @@ class StockRepository:
 
     @transactional
     def get_stock_details(
-        self, session: Session, ticker: str, current_date: date
+        self,
+        session: Session,
+        ticker: str,
+        current_date: date,
+        simulation_id: int | None = None,
     ) -> StockDetailsDTO | None:
         stock = session.execute(
             select(Stock).where(Stock.ticker == ticker)
@@ -118,6 +169,7 @@ class StockRepository:
                 .where(
                     StockPriceHistory.stock_id == stock.id,
                     StockPriceHistory.price_date <= current_date,
+                    seen_by(StockPriceHistory, reading_version(simulation_id)),
                 )
                 .order_by(StockPriceHistory.price_date)
             )
@@ -150,13 +202,22 @@ class StockRepository:
 
     @transactional
     def get_average_volume(
-        self, session: Session, ticker: str, until: date, window: int
+        self,
+        session: Session,
+        ticker: str,
+        until: date,
+        window: int,
+        simulation_id: int | None = None,
     ) -> float:
         """Média do volume dos últimos `window` pregões até `until` (inclusive)."""
         recent = (
             select(StockPriceHistory.volume)
             .join(Stock, Stock.id == StockPriceHistory.stock_id)
-            .where(Stock.ticker == ticker, StockPriceHistory.price_date <= until)
+            .where(
+                Stock.ticker == ticker,
+                StockPriceHistory.price_date <= until,
+                seen_by(StockPriceHistory, reading_version(simulation_id)),
+            )
             .order_by(StockPriceHistory.price_date.desc())
             .limit(window)
             .subquery()
@@ -190,19 +251,17 @@ class StockRepository:
         price_history = (
             session.execute(
                 select(StockPriceHistory)
-                .where(StockPriceHistory.stock_id == stock_id)
+                .where(
+                    StockPriceHistory.stock_id == stock_id,
+                    StockPriceHistory.version == COMMON_VERSION,
+                    StockPriceHistory.origin == DataOrigin.REAL.value,
+                )
                 .order_by(StockPriceHistory.price_date.desc())
             )
             .scalars()
             .first()
         )
         return StockPriceHistoryDTO.from_model(price_history) if price_history else None
-
-    @transactional
-    def delete_stock_price_history(self, session: Session, stock_id: int) -> None:
-        session.execute(
-            delete(StockPriceHistory).where(StockPriceHistory.stock_id == stock_id)
-        )
 
     @transactional
     def get_coverage(self, session: Session) -> list[OriginCoverageDTO]:
@@ -214,6 +273,7 @@ class StockRepository:
                 func.max(StockPriceHistory.price_date),
             )
             .join(StockPriceHistory, StockPriceHistory.stock_id == Stock.id)
+            .where(StockPriceHistory.version == COMMON_VERSION)
             .group_by(Stock.ticker, StockPriceHistory.origin)
         ).all()
         return [
@@ -338,7 +398,12 @@ class StockRepository:
 
     @transactional
     def get_closes_between(
-        self, session: Session, tickers: list[str], start: date, end: date
+        self,
+        session: Session,
+        tickers: list[str],
+        start: date,
+        end: date,
+        simulation_id: int | None = None,
     ) -> dict[str, dict[date, float]]:
         """Fechamentos de cada ticker em [start, end], por dia de pregão."""
         rows = session.execute(
@@ -347,6 +412,7 @@ class StockRepository:
             .where(
                 Stock.ticker.in_(tickers),
                 StockPriceHistory.price_date.between(start, end),
+                seen_by(StockPriceHistory, reading_version(simulation_id)),
             )
         ).all()
         closes: dict[str, dict[date, float]] = {ticker: {} for ticker in tickers}
@@ -355,14 +421,17 @@ class StockRepository:
         return closes
 
     @transactional
-    def get_closes_on(self, session: Session, on: date) -> dict[str, float]:
+    def get_closes_on(
+        self, session: Session, on: date, simulation_id: int | None = None
+    ) -> dict[str, float]:
         """Último fechamento histórico de cada ação até `on` (inclusive)."""
+        seen = seen_by(StockPriceHistory, reading_version(simulation_id))
         last = (
             select(
                 StockPriceHistory.stock_id,
                 func.max(StockPriceHistory.price_date).label("price_date"),
             )
-            .where(StockPriceHistory.price_date <= on)
+            .where(StockPriceHistory.price_date <= on, seen)
             .group_by(StockPriceHistory.stock_id)
             .subquery()
         )
@@ -374,5 +443,6 @@ class StockRepository:
                 (last.c.stock_id == StockPriceHistory.stock_id)
                 & (last.c.price_date == StockPriceHistory.price_date),
             )
+            .where(seen)
         ).all()
         return {ticker: close for ticker, close in rows}

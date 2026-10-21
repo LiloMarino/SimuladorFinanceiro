@@ -45,7 +45,7 @@ import {
   type PriceImpactMode,
 } from "../lib/price-impact";
 import { CoverageAlerts } from "./coverage-alerts";
-import { DateField } from "./date-field";
+import { DateField } from "@/shared/components/date-field";
 import { LifeFields } from "./life-fields";
 import type { SimulationFormValues } from "./lobby-match";
 import { PriceImpactExample } from "./price-impact-example";

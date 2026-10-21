@@ -73,7 +73,7 @@ class EconomicIndicatorHistory(Base):
     __tablename__ = "economic_indicator_history"
     __table_args__ = (
         PrimaryKeyConstraint(
-            "series", "ref_date", name="economic_indicator_history_pkey"
+            "series", "ref_date", "version", name="economic_indicator_history_pkey"
         ),
     )
 
@@ -85,6 +85,10 @@ class EconomicIndicatorHistory(Base):
     value: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 8), nullable=False)
     origin: Mapped[str] = mapped_column(
         Enum("REAL", "GENERATED", name="data_origin"), nullable=False
+    )
+    # 0 é a série comum; N é a cópia congelada da partida simulations.id = N
+    version: Mapped[int] = mapped_column(
+        BigInteger, primary_key=True, server_default=text("0")
     )
 
 
@@ -100,6 +104,34 @@ class FetchLog(Base):
         DateTime(True), nullable=False
     )
     succeeded_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(True))
+
+
+class GeneratedFuture(Base):
+    """Os controles do futuro gravado: há no máximo um, e gerar de novo o troca."""
+
+    __tablename__ = "generated_future"
+    __table_args__ = (
+        CheckConstraint("id = 1", name="generated_future_single_row"),
+        PrimaryKeyConstraint("id", name="generated_future_pkey"),
+    )
+
+    id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    seed: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    temperature: Mapped[decimal.Decimal] = mapped_column(Numeric(4, 2), nullable=False)
+    # Nulo é "o mercado de hoje": o bioma do último trimestre real
+    start_regime: Mapped[str | None] = mapped_column(
+        Enum("CALM", "NORMAL", "AGITATED", name="market_regime")
+    )
+    inflation_shock: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(5, 2), nullable=False
+    )
+    until: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    generated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+    # Até onde o real ocupou o lugar do gerado depois da gravação; nulo enquanto
+    # o futuro parte do último dia real de cada série
+    real_advanced_until: Mapped[datetime.date | None] = mapped_column(Date)
 
 
 class Sectors(Base):
@@ -626,7 +658,9 @@ class StockPriceHistory(Base):
             onupdate="CASCADE",
             name="stock_price_history_stock_id_fkey",
         ),
-        PrimaryKeyConstraint("stock_id", "price_date", name="stock_price_history_pkey"),
+        PrimaryKeyConstraint(
+            "stock_id", "price_date", "version", name="stock_price_history_pkey"
+        ),
     )
 
     stock_id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -640,6 +674,10 @@ class StockPriceHistory(Base):
         Enum("REAL", "GENERATED", name="data_origin"),
         nullable=False,
         server_default=text("'REAL'"),
+    )
+    # 0 é a série comum; N é a cópia congelada da partida simulations.id = N
+    version: Mapped[int] = mapped_column(
+        BigInteger, primary_key=True, server_default=text("0")
     )
 
     stock: Mapped["Stock"] = relationship("Stock", back_populates="stock_price_history")

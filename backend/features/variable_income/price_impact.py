@@ -111,7 +111,7 @@ class PriceImpact:
         key = (ticker, day)
         if key not in self._average_volumes:
             self._average_volumes[key] = repository.stock.get_average_volume(
-                ticker, day, AVERAGE_VOLUME_WINDOW
+                ticker, day, AVERAGE_VOLUME_WINDOW, simulation_id=self.simulation_id
             )
         return self._average_volumes[key]
 

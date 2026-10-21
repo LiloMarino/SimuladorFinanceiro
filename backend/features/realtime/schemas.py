@@ -108,6 +108,14 @@ class StatisticsSnapshotUpdateEventDTO(BaseDTO):
     snapshots: list[StatisticsSnapshotEntryDTO]
 
 
+class FutureRecordingProgressEventDTO(BaseDTO):
+    """A série que começou a ser gravada e quantas já foram, de quantas."""
+
+    series: str
+    done: int
+    total: int
+
+
 class RealtimeEventCatalog(BaseDTO):
     """
     Um campo por nome de evento realtime, tipado para o DTO do payload
@@ -140,3 +148,4 @@ class RealtimeEventCatalog(BaseDTO):
     order_added: OrderEventDTO
     order_updated: OrderEventDTO
     order_book_snapshot: OrderBookSnapshotEventDTO
+    future_recording_progress: FutureRecordingProgressEventDTO

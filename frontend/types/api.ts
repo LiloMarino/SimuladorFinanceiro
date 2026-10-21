@@ -39,6 +39,15 @@ export type AssetClass = components["schemas"]["AssetClass"];
 export type Sector = components["schemas"]["SectorDTO"];
 export type StockSegment = components["schemas"]["StockSegmentDTO"];
 export type TickerSuggestion = components["schemas"]["TickerSuggestionDTO"];
+export type ImportResult = components["schemas"]["ImportResultDTO"];
+export type ReplacedGenerated = components["schemas"]["ReplacedGeneratedDTO"];
+
+// Futuro gerado
+export type MarketRegime = components["schemas"]["MarketRegime"];
+export type FutureParams = components["schemas"]["FutureParamsDTO"];
+export type GeneratedFuture = components["schemas"]["GeneratedFutureDTO"];
+export type FuturePreview = components["schemas"]["FuturePreviewDTO"];
+export type FuturePreviewRequest = components["schemas"]["FuturePreviewRequest"];
 
 // User
 export type User = components["schemas"]["UserDTO"];

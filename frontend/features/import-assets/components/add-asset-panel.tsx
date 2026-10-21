@@ -62,7 +62,7 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
     }
   };
 
-  const imported = importAsset.data;
+  const imported = importAsset.data?.coverage;
   const failedTicker = importAsset.variables?.ticker;
 
   return (

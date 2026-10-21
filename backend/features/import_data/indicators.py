@@ -13,6 +13,7 @@ from functools import partial
 import yfinance as yf
 
 from backend.core import repository
+from backend.core.dto.generated_future import ReplacedGeneratedDTO
 from backend.core.enum import IndicatorSeries
 from backend.features.import_data.bcb_sgs import fetch_sgs
 
@@ -75,7 +76,7 @@ def refresh_indicators(
         if not force and _attempted_recently(s, now):
             logger.debug("%s: busca recente, nada a fazer.", s.value)
             continue
-        if not refresh_series(s, now):
+        if not refresh_series(s, now).succeeded:
             failed.append(s)
     return failed
 
@@ -85,20 +86,28 @@ def _attempted_recently(series: IndicatorSeries, now: datetime) -> bool:
     return log is not None and now - log.attempted_at < FETCH_INTERVAL
 
 
-def refresh_series(series: IndicatorSeries, now: datetime) -> bool:
+@dataclass(frozen=True)
+class SeriesRefresh:
+    succeeded: bool
+    # Dias gerados que o real que chegou ocupou
+    replaced: ReplacedGeneratedDTO | None = None
+
+
+def refresh_series(series: IndicatorSeries, now: datetime) -> SeriesRefresh:
     """
     Busca a série do início (primeira carga) ou do dia 1 do mês do último valor
-    guardado, que cobre revisões recentes. Falha mantém o que já está no banco.
+    real guardado, que cobre revisões recentes. Falha mantém o que já está no banco.
     """
     source = INDICATOR_SOURCES[series]
     last = repository.economic.get_last_real_date(series)
     start = last.replace(day=1) if last else source.first_date
 
     succeeded = False
+    replaced = None
     try:
         rows = source.fetch(start, now.date())
         if rows:
-            repository.economic.save_history(series, rows)
+            replaced = repository.economic.save_history(series, rows)
         succeeded = True
         logger.info(
             "%s: %s valores desde %s.", series.value, len(rows), f"{start:%d/%m/%Y}"
@@ -107,4 +116,4 @@ def refresh_series(series: IndicatorSeries, now: datetime) -> bool:
         logger.exception("%s: falha na busca; o banco fica como está.", series.value)
 
     repository.economic.save_fetch_attempt(series, now, succeeded)
-    return succeeded
+    return SeriesRefresh(succeeded, replaced)

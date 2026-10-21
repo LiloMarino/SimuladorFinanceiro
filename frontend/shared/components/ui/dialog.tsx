@@ -3,6 +3,7 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { cn } from "@/shared/lib/utils";
 
 import { Button } from "@/shared/components/ui/button";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { XIcon } from "lucide-react";
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
@@ -21,7 +22,10 @@ function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
-function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) {
+function DialogOverlay({
+  className,
+  ...props
+}: DialogPrimitive.Backdrop.Props) {
   return (
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
@@ -57,7 +61,13 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            render={<Button variant="ghost" className="absolute top-2 right-2" size="icon-sm" />}
+            render={
+              <Button
+                variant="ghost"
+                className="absolute top-2 right-2"
+                size="icon-sm"
+              />
+            }
           >
             <XIcon />
             <span className="sr-only">Close</span>
@@ -87,22 +97,55 @@ function DialogHeader({
   );
 }
 
+/**
+ * Corpo que rola sozinho entre o cabeçalho e o rodapé, que ficam no lugar. O
+ * diálogo tem só altura máxima, então o espaço do corpo vem do encolhimento
+ * flex: o diálogo e cada pai até aqui são colunas flex com `min-h-0`.
+ */
+function DialogBody({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof ScrollArea>) {
+  return (
+    <ScrollArea
+      data-slot="dialog-body"
+      className={cn("-mx-6 flex min-h-0 flex-1 flex-col", className)}
+      viewportClassName="min-h-0 flex-1"
+      {...props}
+    >
+      <div className="grid gap-4 px-6 py-1">{children}</div>
+    </ScrollArea>
+  );
+}
+
+/** `divided`: rodapé de ponta a ponta do diálogo, sobre fundo suave e com divisória em cima. */
 function DialogFooter({
   className,
   showCloseButton = false,
+  variant = "default",
   children,
   ...props
 }: React.ComponentProps<"div"> & {
   showCloseButton?: boolean;
+  variant?: "default" | "divided";
 }) {
   return (
     <div
       data-slot="dialog-footer"
-      className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
+      data-variant={variant}
+      className={cn(
+        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end data-[variant=divided]:-mx-6 data-[variant=divided]:-mb-6 data-[variant=divided]:rounded-b-xl data-[variant=divided]:border-t data-[variant=divided]:bg-subtle data-[variant=divided]:px-6 data-[variant=divided]:py-3.5 sm:data-[variant=divided]:items-center sm:data-[variant=divided]:justify-between",
+        className,
+      )}
       {...props}
     >
       {children}
-      {showCloseButton && <DialogPrimitive.Close render={<Button variant="outline" />}>Close</DialogPrimitive.Close>}
+      {showCloseButton && (
+        <DialogPrimitive.Close render={<Button variant="outline" />}>
+          Close
+        </DialogPrimitive.Close>
+      )}
     </div>
   );
 }
@@ -117,7 +160,10 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
   );
 }
 
-function DialogDescription({ className, ...props }: DialogPrimitive.Description.Props) {
+function DialogDescription({
+  className,
+  ...props
+}: DialogPrimitive.Description.Props) {
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
@@ -132,6 +178,7 @@ function DialogDescription({ className, ...props }: DialogPrimitive.Description.
 
 export {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,

@@ -5,7 +5,7 @@ import { Calendar } from "@/shared/components/ui/calendar";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/shared/components/ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { parseLocalDate } from "@/shared/lib/utils/display";
-import { dateFieldDisplay, dateFieldValue, isIsoDate, maskDate } from "../lib/date-field";
+import { dateFieldDisplay, dateFieldValue, isIsoDate, maskDate } from "@/shared/lib/utils/date-field";
 
 type DateFieldProps = {
   id: string;
@@ -14,6 +14,7 @@ type DateFieldProps = {
   onChange: (value: string) => void;
   onBlur?: () => void;
   invalid?: boolean;
+  disabled?: boolean;
 };
 
 // O calendário cobre da série mais antiga (IBOV, 1993) até uma partida longa
@@ -21,7 +22,7 @@ const CALENDAR_START = new Date(1993, 0);
 const CALENDAR_END = new Date(2040, 11);
 
 /** Data em dd/mm/aaaa com máscara; o calendário é um atalho para escolher o dia. */
-export function DateField({ id, value, onChange, onBlur, invalid }: DateFieldProps) {
+export function DateField({ id, value, onChange, onBlur, invalid, disabled }: DateFieldProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const selected = isIsoDate(value) ? parseLocalDate(value) : undefined;
 
@@ -35,12 +36,15 @@ export function DateField({ id, value, onChange, onBlur, invalid }: DateFieldPro
         numeric
         value={dateFieldDisplay(value)}
         aria-invalid={invalid}
+        disabled={disabled}
         onChange={(e) => onChange(dateFieldValue(maskDate(e.target.value)))}
         onBlur={onBlur}
       />
       <InputGroupAddon align="inline-end">
         <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-          <PopoverTrigger render={<InputGroupButton size="icon-xs" aria-label="Abrir calendário" />}>
+          <PopoverTrigger
+            render={<InputGroupButton size="icon-xs" aria-label="Abrir calendário" disabled={disabled} />}
+          >
             <CalendarIcon />
           </PopoverTrigger>
           <PopoverContent align="end" className="w-auto">

@@ -21,10 +21,16 @@ export const badgeVariants = cva(
         default: "h-6",
         sm: "h-5 px-1.5",
       },
+      // Valores e códigos: fonte mono com algarismos alinhados
+      numeric: {
+        true: "font-mono font-semibold tabular-nums",
+        false: "",
+      },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
+      numeric: false,
     },
   },
 );

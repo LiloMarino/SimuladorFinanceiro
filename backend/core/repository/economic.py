@@ -10,9 +10,16 @@ from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.fetch_log import FetchLogDTO
+from backend.core.dto.generated_future import ReplacedGeneratedDTO
 from backend.core.dto.series_coverage import OriginCoverageDTO
 from backend.core.enum import DataOrigin, IndicatorSeries
 from backend.core.models.models import EconomicIndicatorHistory, FetchLog
+from backend.core.repository.generated_swap import swap_generated_for_real
+from backend.core.repository.series_version import (
+    COMMON_VERSION,
+    reading_version,
+    seen_by,
+)
 
 # Linhas por INSERT: 4 parâmetros por linha ficam abaixo do limite de 65535 do Postgres
 UPSERT_CHUNK = 5000
@@ -49,30 +56,41 @@ class IndicatorHistory:
 
 class EconomicRepository:
     def __init__(self) -> None:
-        # O motor lê as séries a cada tick e por posição; o cache só muda quando
-        # uma busca grava, e cada troca substitui o dict inteiro
-        self._histories: dict[IndicatorSeries, IndicatorHistory] = {}
+        # O motor lê as séries a cada tick e por posição; o cache, por série e
+        # versão, só muda quando algo grava, e cada troca substitui o dict inteiro
+        self._histories: dict[tuple[IndicatorSeries, int], IndicatorHistory] = {}
 
-    def get_history(self, series: IndicatorSeries) -> IndicatorHistory:
-        history = self._histories.get(series)
+    def get_history(
+        self, series: IndicatorSeries, simulation_id: int | None = None
+    ) -> IndicatorHistory:
+        key = (series, reading_version(simulation_id))
+        history = self._histories.get(key)
         if history is None:
-            history = self._load_history(series)
-            self._histories = {**self._histories, series: history}
+            history = self._load_history(*key)
+            self._histories = {**self._histories, key: history}
         return history
 
     def save_history(
         self, series: IndicatorSeries, rows: list[tuple[date, Decimal]]
-    ) -> None:
-        self._upsert_history(series, rows)
-        self._histories = {k: v for k, v in self._histories.items() if k != series}
+    ) -> ReplacedGeneratedDTO | None:
+        """Grava valores reais e devolve os dias gerados que eles ocuparam."""
+        replaced = self._upsert_history(series, rows)
+        self.clear_cache()
+        return replaced
+
+    def clear_cache(self) -> None:
+        self._histories = {}
 
     @transactional
     def _load_history(
-        self, session: Session, series: IndicatorSeries
+        self, session: Session, series: IndicatorSeries, version: int
     ) -> IndicatorHistory:
         rows = session.execute(
             select(EconomicIndicatorHistory.ref_date, EconomicIndicatorHistory.value)
-            .where(EconomicIndicatorHistory.series == series.value)
+            .where(
+                EconomicIndicatorHistory.series == series.value,
+                seen_by(EconomicIndicatorHistory, version),
+            )
             .order_by(EconomicIndicatorHistory.ref_date)
         ).all()
         return IndicatorHistory(
@@ -86,7 +104,17 @@ class EconomicRepository:
         session: Session,
         series: IndicatorSeries,
         rows: list[tuple[date, Decimal]],
-    ) -> None:
+    ) -> ReplacedGeneratedDTO | None:
+        if not rows:
+            return None
+        # O gerado que o real cobre sai antes do upsert, já copiado para as
+        # partidas salvas que o jogaram
+        replaced = swap_generated_for_real(
+            session,
+            EconomicIndicatorHistory,
+            [EconomicIndicatorHistory.series == series.value],
+            max(ref_date for ref_date, _ in rows),
+        )
         for chunk in batched(rows, UPSERT_CHUNK, strict=False):
             statement = insert(EconomicIndicatorHistory).values(
                 [
@@ -95,19 +123,21 @@ class EconomicRepository:
                         "ref_date": ref_date,
                         "value": value,
                         "origin": DataOrigin.REAL.value,
+                        "version": COMMON_VERSION,
                     }
                     for ref_date, value in chunk
                 ]
             )
             session.execute(
                 statement.on_conflict_do_update(
-                    index_elements=["series", "ref_date"],
+                    index_elements=["series", "ref_date", "version"],
                     set_={
                         "value": statement.excluded.value,
                         "origin": statement.excluded.origin,
                     },
                 )
             )
+        return replaced
 
     @transactional
     def get_last_real_date(
@@ -117,6 +147,7 @@ class EconomicRepository:
             select(func.max(EconomicIndicatorHistory.ref_date)).where(
                 EconomicIndicatorHistory.series == series.value,
                 EconomicIndicatorHistory.origin == DataOrigin.REAL.value,
+                EconomicIndicatorHistory.version == COMMON_VERSION,
             )
         ).scalar()
 
@@ -128,7 +159,9 @@ class EconomicRepository:
                 EconomicIndicatorHistory.origin,
                 func.min(EconomicIndicatorHistory.ref_date),
                 func.max(EconomicIndicatorHistory.ref_date),
-            ).group_by(EconomicIndicatorHistory.series, EconomicIndicatorHistory.origin)
+            )
+            .where(EconomicIndicatorHistory.version == COMMON_VERSION)
+            .group_by(EconomicIndicatorHistory.series, EconomicIndicatorHistory.origin)
         ).all()
         return [
             OriginCoverageDTO(

@@ -14,6 +14,7 @@ export type Snapshot = RealtimeEventCatalog["snapshot_update"]["snapshot"];
 export type OrderExecutedEvent = RealtimeEventCatalog["order_executed"];
 export type OrderPartialExecutedEvent = RealtimeEventCatalog["order_partial_executed"];
 export type LifeEvent = RealtimeEventCatalog["life_event"];
+export type FutureRecordingProgressEvent = RealtimeEventCatalog["future_recording_progress"];
 
 /** Eventos emitidos pelo servidor via WebSocket */
 export type SimulationEvents = {
@@ -37,6 +38,7 @@ export type SimulationEvents = {
   simulation_settings_update: RealtimeEventCatalog["simulation_settings_update"];
   goal_progress_update: RealtimeEventCatalog["goal_progress_update"];
   life_event: LifeEvent;
+  future_recording_progress: FutureRecordingProgressEvent;
 } & {
   [K in `stock_update:${string}`]: RealtimeEventCatalog["stock_update"];
 } & {

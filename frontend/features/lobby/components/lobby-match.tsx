@@ -57,7 +57,7 @@ import {
   withdrawalRateFraction,
   withdrawalRateToBody,
 } from "../lib/life-rules";
-import { dateFieldError, isIsoDate } from "../lib/date-field";
+import { dateFieldError, isIsoDate } from "@/shared/lib/utils/date-field";
 import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "../lib/price-impact";
 import { CoverageAlerts } from "./coverage-alerts";
 import { joinNames } from "../lib/join-names";

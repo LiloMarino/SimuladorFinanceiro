@@ -208,6 +208,30 @@ const sidebar: SidebarsConfig = {
           label: "Sugestão de código de ativo",
           className: "api-method get",
         },
+        {
+          type: "doc",
+          id: "api/get-generated-future-api-import-assets-future-get",
+          label: "Futuro gerado",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/record-future-api-import-assets-future-post",
+          label: "Gravar o futuro",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/preview-future-api-import-assets-future-preview-post",
+          label: "Prévia do futuro",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/cancel-future-recording-api-import-assets-future-cancel-post",
+          label: "Cancelar a gravação do futuro",
+          className: "api-method post",
+        },
       ],
     },
     {

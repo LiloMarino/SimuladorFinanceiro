@@ -9,6 +9,7 @@ import yfinance as yf
 from fastapi import UploadFile
 
 from backend.core import repository
+from backend.core.dto.generated_future import ReplacedGeneratedDTO
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.ticker_profile import TickerProfileDTO, TickerSuggestionDTO
 from backend.core.enum import AssetClass, DataOrigin
@@ -257,7 +258,10 @@ def search_tickers(query: str) -> list[TickerSuggestionDTO]:
     return list(found.values())
 
 
-def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
+def upsert_dataframe(
+    df: pd.DataFrame, ticker: str, overwrite: bool = False
+) -> ReplacedGeneratedDTO | None:
+    """Grava os pregões reais e devolve os dias gerados que eles ocuparam."""
     # 1. Garante que o ativo existe e, enquanto não tiver classificação, sugere a
     # do yfinance; a que o usuário escolheu na Central de dados fica como está
     stock = repository.stock.get_by_ticker(ticker)
@@ -275,25 +279,23 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
     if not classified and (segment := suggest_segment(info)):
         repository.stock.classify(ticker, segment)
 
-    # 2. Lógica de sobrescrever
+    # 2. Incremental a partir do último pregão real: o gerado depois dele é
+    # trocado pelo real que chegou
     if overwrite:
         logger.debug("Sobrescrevendo os dados de '%s'", ticker)
-        repository.stock.delete_stock_price_history(stock.id)
-
-    # 3. Inserção incremental
     else:
-        last_date = repository.stock.get_last_stock_price_history(stock.id)
-        if last_date:
-            df = pd.DataFrame(df[df.index > pd.Timestamp(last_date.price_date)])
+        last_real = repository.stock.get_last_stock_price_history(stock.id)
+        if last_real:
+            df = pd.DataFrame(df[df.index > pd.Timestamp(last_real.price_date)])
             if df.empty:
                 logger.debug("'%s' já está atualizado.", ticker)
-                return
+                return None
 
-    # 4. Inserir dados no banco
+    # 3. Inserir dados no banco
     registros = [
         StockPriceHistory(
             stock_id=stock.id,
-            price_date=index,
+            price_date=day,
             open=row["Open"],
             high=row["High"],
             low=row["Low"],
@@ -301,11 +303,16 @@ def upsert_dataframe(df: pd.DataFrame, ticker: str, overwrite: bool = False):
             volume=row["Volume"],
             origin=DataOrigin.REAL.value,
         )
-        for index, row in df.iterrows()
+        for day, (_, row) in zip(
+            df.index.to_numpy().astype("datetime64[D]").tolist(),
+            df.iterrows(),
+            strict=True,
+        )
     ]
 
-    repository.stock.add_stock_price_history(registros)
+    replaced = repository.stock.save_real_prices(stock.id, registros, overwrite)
     logger.info("%s registros inseridos para '%s'.", len(registros), ticker)
+    return replaced
 
 
 # -------------------
@@ -354,21 +361,27 @@ def update_from_yfinance_batch(tickers: list[str], overwrite: bool = False):
         raise
 
 
-def update_from_yfinance(ticker: str, overwrite: bool = False):
+def update_from_yfinance(
+    ticker: str, overwrite: bool = False
+) -> ReplacedGeneratedDTO | None:
     try:
         df = from_yfinance(ticker)
-        if not df.empty:
-            upsert_dataframe(df, ticker, overwrite=overwrite)
+        if df.empty:
+            return None
+        return upsert_dataframe(df, ticker, overwrite=overwrite)
     except Exception:
         logger.exception("Erro ao baixar dados do YFinance")
         raise
 
 
-def update_from_csv(file: UploadFile, ticker: str, overwrite: bool = False):
+def update_from_csv(
+    file: UploadFile, ticker: str, overwrite: bool = False
+) -> ReplacedGeneratedDTO | None:
     try:
         df = from_csv(file)
-        if not df.empty:
-            upsert_dataframe(df, ticker, overwrite=overwrite)
+        if df.empty:
+            return None
+        return upsert_dataframe(df, ticker, overwrite=overwrite)
     except Exception:
         logger.exception("Erro ao ler arquivo CSV")
         raise

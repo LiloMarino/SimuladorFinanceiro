@@ -39,8 +39,8 @@ A tabela lista todas as séries guardadas no banco: primeiro os indicadores econ
 - **Setor / Segmento**: a classificação da ação (ver abaixo). Indicadores mostram "—".
 - **Início**: primeira data com dado.
 - **Fim do dado real**: última data com dado publicado pela fonte.
-- **Fim do dado gerado**: sempre "—" por enquanto. Fica reservada para dados que o simulador venha a gerar no futuro.
-- **Linha do tempo**: barra com o período coberto pelo dado real. Todas as barras usam a mesma régua de tempo, então dá para comparar visualmente quais séries cobrem mais anos. Passe o mouse sobre a barra para ver as datas.
+- **Fim do dado gerado**: até que data vai o futuro gravado para a série (ver "Gerar dados futuros", abaixo). Séries sem futuro gravado mostram "—". Depois do fim do dado gerado, a partida repete o último valor da série.
+- **Linha do tempo**: barra com o período coberto. O trecho com dado real aparece em uma cor e, depois dele, o trecho gerado em outra cor. Todas as barras usam a mesma régua de tempo, então dá para comparar visualmente quais séries cobrem mais anos. Passe o mouse sobre a barra para ver as datas.
 - **Ação**: botão **Atualizar** da linha.
 
 ### Setor e segmento das ações
@@ -60,11 +60,40 @@ Cada ação pertence a um **setor** (ex.: Financeiro) e, dentro dele, a um **seg
 
 **Fontes:** CDI, SELIC e IPCA vêm do Banco Central, pelo sistema SGS (Sistema Gerenciador de Séries Temporais), nas séries 12 (CDI diário), 11 (SELIC diária) e 433 (IPCA mensal). O Ibovespa vem do Yahoo Finance (ticker `^BVSP`).
 
+### Gerar dados futuros
+
+Serve para continuar jogando depois do último dia com dado real. O futuro é montado com trechos reais da bolsa desde 2000 e fica gravado como dado gerado; as partidas o leem como leem o histórico. A explicação completa de como ele é montado está em [Como o futuro é gerado](./futuro-gerado.md).
+
+O botão "Gerar dados futuros" abre um diálogo com os controles à esquerda e a prévia à direita.
+
+**Controles:**
+
+- **"Até quando"**: cada série continua do dia útil seguinte ao seu último dado real.
+- **"Semente"**: um número que fixa o sorteio. A mesma semente com os mesmos controles gera sempre o mesmo futuro. "Sortear" escolhe outra semente, e outro futuro igualmente plausível.
+- **"Temperatura"**, de 0 a 3, padrão 1. Mede o quanto o futuro se parece com as piores crises do histórico. Em 1, o futuro respeita o histórico como foi. Em 2, a maior queda do Ibovespa dentro de um ano (do topo até o fundo) passa de 30% em 64 de cada 100 anos; uma queda assim leva, por exemplo, de 100.000 para 65.000 pontos. Em 3, é crise permanente.
+- **"Começar em"**: hoje, calmaria, normal ou crise. É o clima do primeiro trimestre do futuro. Com "Hoje", ele é o clima em que o mercado real está.
+- **"Choque de inflação"**, de −5 a +20 pontos, padrão 0. Soma pontos à inflação de 12 meses, isto é, quanto os preços subiram nos últimos 12 meses: 4% quer dizer que algo que custava R$ 100 passou a custar R$ 104. Com +10, a inflação de 12 meses chega a uns 14% e a SELIC a 28% ao ano.
+
+**Prévia.** Gera o futuro sem gravar nada. Mostra o Ibovespa e um ativo à escolha, SELIC e inflação, além de quatro números:
+
+- **Quanto o Ibovespa termina acima ou abaixo de hoje.** Ex.: de 100.000 para 120.000 pontos é uma alta de 20%.
+- **A maior queda do pico ao fundo.** A maior queda do Ibovespa entre o ponto mais alto e o ponto mais baixo que vem depois dele. Ex.: sobe de 100.000 para 120.000 e depois cai para 90.000; a queda é de 25% (de 120.000 para 90.000).
+- **A SELIC no pico.** A taxa mais alta que chega no futuro. Ex.: hoje ela está em 13,65% ao ano e no pico chega a 28%.
+- **A inflação de 12 meses no pico.** A mais alta do futuro. Ex.: 14% quer dizer que, em 12 meses, os preços subiram 14%.
+
+O botão "Gerar e gravar" grava o futuro de todas as séries. Gravar de novo substitui o futuro anterior: não há como apagar o futuro sem gerar outro. Cancelar no meio, ou um erro, não muda nada na base.
+
+Depois de gravar, a Central mostra o card "Futuro gerado", com a semente e os controles usados. O botão "Gerar de novo" abre o diálogo com esses valores.
+
+**Partidas salvas.** Quem já jogou dias do futuro gerado guarda a própria cópia deles antes de qualquer troca. Por isso, uma partida salva continua igual ao que foi jogado.
+
 ### Atualização
 
 - **Atualizar** (em um indicador) busca esse indicador na fonte na hora.
-- **Atualizar todos** atualiza todos os indicadores e as ações cujo último preço tem mais de 2 dias.
+- **Atualizar desatualizadas** atualiza todos os indicadores e as ações cujo último preço tem mais de 2 dias.
 - Ações com dados desatualizados aparecem destacadas em **vermelho**.
+
+Quando o dado real chega (pelo "Atualizar" de uma série ou pela atualização automática dos indicadores ao abrir o app), ele ocupa o lugar do gerado nos dias que cobre, e um aviso diz quantos pregões entraram. O gerado que sobra continua do ponto antigo, então pode haver um salto no dia da emenda. O card "Futuro gerado" passa a avisar até onde o real chegou e sugere "Gerar de novo" com os mesmos controles, o que emenda todas as séries a partir do real novo.
 
 Ao iniciar, o app também busca os indicadores sozinho, no máximo uma vez a cada 6 horas. Sem internet, os dados já guardados continuam valendo e o app segue funcionando normalmente.
 

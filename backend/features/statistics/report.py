@@ -316,7 +316,7 @@ def _last_day_prices(trades, day: date, impact: PriceImpact) -> dict[str, Decima
     held = sectors.final_quantities(trades)
     if not held:
         return {}
-    closes = repository.stock.get_closes_on(day)
+    closes = repository.stock.get_closes_on(day, simulation_id=impact.simulation_id)
     return {
         ticker: to_money(
             closes.get(ticker, 0.0) * impact.factors_on(ticker, [day])[day]

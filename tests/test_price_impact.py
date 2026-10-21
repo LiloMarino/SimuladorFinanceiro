@@ -47,7 +47,7 @@ def flows(monkeypatch: pytest.MonkeyPatch) -> list[DailyEquityFlowDTO]:
     monkeypatch.setattr(
         repository.stock,
         "get_average_volume",
-        lambda ticker, until, window: AVERAGE_VOLUME,
+        lambda ticker, until, window, simulation_id=None: AVERAGE_VOLUME,
     )
     return stored
 

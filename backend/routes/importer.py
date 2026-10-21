@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
@@ -5,12 +6,26 @@ from pydantic import BaseModel, Field
 
 from backend.core import repository
 from backend.core.dependencies.simulation import require_no_active_simulation
+from backend.core.dto.generated_future import (
+    FutureParamsDTO,
+    FuturePreviewDTO,
+    FuturePreviewRequest,
+    GeneratedFutureDTO,
+    ImportResultDTO,
+    ReplacedGeneratedDTO,
+)
 from backend.core.dto.sector import SectorDTO, StockSegmentDTO
 from backend.core.dto.series_coverage import SeriesCoverageDTO
 from backend.core.dto.ticker_profile import TickerSuggestionDTO
 from backend.core.enum import AssetClass, IndicatorSeries
 from backend.core.exceptions.http_exceptions import BadGatewayError, NotFoundError
 from backend.features.import_data.coverage import get_series_coverage
+from backend.features.import_data.future import (
+    cancel_recording,
+    get_future,
+    preview,
+    record,
+)
 from backend.features.import_data.importer_service import (
     fetch_info,
     refresh_profile,
@@ -20,7 +35,10 @@ from backend.features.import_data.importer_service import (
     update_from_yfinance,
     update_from_yfinance_batch,
 )
-from backend.features.import_data.indicators import refresh_indicators
+from backend.features.import_data.indicators import (
+    refresh_indicators,
+    refresh_series,
+)
 
 import_router = APIRouter(
     prefix="/api/import-assets",
@@ -39,13 +57,11 @@ def get_coverage():
     return get_series_coverage()
 
 
-def refresh_or_raise(series: list[IndicatorSeries] | None) -> None:
-    failed = refresh_indicators(series, force=True)
-    if failed:
-        raise BadGatewayError(
-            f"Não foi possível buscar {', '.join(s.value for s in failed)}. "
-            "O que já estava no banco foi mantido."
-        )
+def fetch_failed(series: list[IndicatorSeries]) -> BadGatewayError:
+    return BadGatewayError(
+        f"Não foi possível buscar {', '.join(s.value for s in series)}. "
+        "O que já estava no banco foi mantido."
+    )
 
 
 @import_router.post(
@@ -55,17 +71,21 @@ def refresh_or_raise(series: list[IndicatorSeries] | None) -> None:
     description="Busca CDI, SELIC e IPCA no Banco Central e o Ibovespa no yfinance, a partir do último valor guardado.",
 )
 def refresh_all_indicators():
-    refresh_or_raise(None)
+    if failed := refresh_indicators(force=True):
+        raise fetch_failed(failed)
 
 
 @import_router.post(
     "/indicators/{series}",
-    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=ReplacedGeneratedDTO | None,
     summary="Atualizar um indicador",
-    description="Busca um indicador a partir do último valor guardado.",
+    description="Busca um indicador a partir do último valor real guardado e devolve os dias gerados que o real que chegou ocupou.",
 )
 def refresh_one_indicator(series: IndicatorSeries):
-    refresh_or_raise([series])
+    result = refresh_series(series, datetime.now(UTC))
+    if not result.succeeded:
+        raise fetch_failed([series])
+    return result.replaced
 
 
 class AssetClassRequest(BaseModel):
@@ -148,16 +168,16 @@ def imported_series(ticker: str) -> SeriesCoverageDTO:
 
 @import_router.post(
     "/yfinance",
-    response_model=SeriesCoverageDTO,
+    response_model=ImportResultDTO,
     summary="Importar dados de yfinance",
-    description="Importa dados de ativos do yfinance para um ticker especificado e devolve a série como ficou na base.",
+    description="Importa dados de ativos do yfinance para um ticker especificado e devolve a série como ficou na base e os dias gerados que o real ocupou.",
 )
 def import_assets_json(request: ImportYFinanceRequest):
     """
     Importa dados de ativos do yfinance.
     """
-    update_from_yfinance(request.ticker, request.overwrite)
-    return imported_series(request.ticker)
+    replaced = update_from_yfinance(request.ticker, request.overwrite)
+    return ImportResultDTO(coverage=imported_series(request.ticker), replaced=replaced)
 
 
 class ImportYFinanceBatchRequest(BaseModel):
@@ -177,9 +197,9 @@ def import_assets_batch(request: ImportYFinanceBatchRequest):
 
 @import_router.post(
     "/csv",
-    response_model=SeriesCoverageDTO,
+    response_model=ImportResultDTO,
     summary="Importar dados de CSV",
-    description="Importa dados de ativos a partir de um arquivo CSV enviado via multipart/form-data e devolve a série como ficou na base.",
+    description="Importa dados de ativos a partir de um arquivo CSV enviado via multipart/form-data e devolve a série como ficou na base e os dias gerados que o real ocupou.",
 )
 def import_assets_csv(
     ticker: Annotated[str, Form(...)],
@@ -189,8 +209,8 @@ def import_assets_csv(
     """
     Importa dados de ativos de um arquivo CSV.
     """
-    update_from_csv(csv_file, ticker, str_to_bool(overwrite))
-    return imported_series(ticker)
+    replaced = update_from_csv(csv_file, ticker, str_to_bool(overwrite))
+    return ImportResultDTO(coverage=imported_series(ticker), replaced=replaced)
 
 
 @import_router.get(
@@ -221,3 +241,43 @@ def refresh_stock_profile(ticker: str):
 )
 def get_ticker_suggestions(q: Annotated[str, Query(max_length=30)] = ""):
     return search_tickers(q)
+
+
+@import_router.get(
+    "/future",
+    response_model=GeneratedFutureDTO | None,
+    summary="Futuro gerado",
+    description="Os controles do futuro gravado, quando há um: semente, temperatura, começo e choque, até quando vai, até onde o real já chegou depois dele e quantas partidas salvas jogaram dias dele.",
+)
+def get_generated_future():
+    return get_future()
+
+
+@import_router.post(
+    "/future/preview",
+    response_model=FuturePreviewDTO,
+    summary="Prévia do futuro",
+    description="Gera sem gravar o Ibovespa, os indicadores e o ativo pedido com os controles informados, e devolve as curvas e os números da prévia. A primeira chamada lê o histórico; as seguintes só geram.",
+)
+def preview_future(request: FuturePreviewRequest):
+    return preview(request)
+
+
+@import_router.post(
+    "/future",
+    response_model=GeneratedFutureDTO,
+    summary="Gravar o futuro",
+    description="Gera todas as séries e troca o futuro gravado pelo novo. As partidas salvas que jogaram dias do futuro anterior guardam a própria cópia. O progresso sai no evento future_recording_progress; cancelar ou falhar não muda nada na base.",
+)
+def record_future(request: FutureParamsDTO):
+    return record(request)
+
+
+@import_router.post(
+    "/future/cancel",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Cancelar a gravação do futuro",
+    description="Interrompe a gravação em andamento antes da próxima série; a gravação responde 409 e a base fica como estava.",
+)
+def cancel_future_recording():
+    cancel_recording()

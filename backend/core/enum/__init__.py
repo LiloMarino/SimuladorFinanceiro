@@ -184,3 +184,11 @@ class IndicatorSeries(Enum):
 class DataOrigin(Enum):
     REAL = "REAL"
     GENERATED = "GENERATED"
+
+
+class MarketRegime(Enum):
+    """Bioma de um trecho do mercado, pelo tercil da volatilidade do Ibovespa."""
+
+    CALM = "CALM"
+    NORMAL = "NORMAL"
+    AGITATED = "AGITATED"
