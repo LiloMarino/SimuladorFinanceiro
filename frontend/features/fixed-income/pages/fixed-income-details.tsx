@@ -56,14 +56,18 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
 
   const metrics = [
     { label: "Rentabilidade", value: displayRateLabel(offer.rate_index, offer.interest_rate) },
-    {
-      label: "Equivale hoje",
-      value: `${displayPercent(offer.effective_annual_rate)} a.a.`,
-      detail:
-        offer.rate_index !== "Prefixado"
-          ? `${offer.rate_index} ${displayPercent(offer.index_rate)} · Banco Central`
-          : null,
-    },
+    ...(offer.effective_annual_rate === null
+      ? []
+      : [
+          {
+            label: "Equivale hoje",
+            value: `${displayPercent(offer.effective_annual_rate)} a.a.`,
+            detail:
+              offer.rate_index !== "Prefixado"
+                ? `${offer.rate_index} ${displayPercent(offer.index_rate)} · Banco Central`
+                : null,
+          },
+        ]),
     {
       label: "Vencimento",
       value: displayDate(parseLocalDate(offer.maturity_date)),
@@ -99,10 +103,15 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
         </div>
       </header>
 
-      {/* Os quatro números */}
+      {/* Os números do título */}
       <Card>
         <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0">
+          <div
+            className={cn(
+              "grid gap-4 sm:grid-cols-2 lg:gap-0",
+              metrics.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3",
+            )}
+          >
             {metrics.map((m) => (
               <div key={m.label} className="grid gap-0.5 lg:border-l lg:pl-5 lg:first:border-l-0 lg:first:pl-0">
                 <span className="text-xs font-medium text-muted-foreground">{m.label}</span>
@@ -129,8 +138,21 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
 
 /** Aplicado → rendimento → IR → resgate, numa barra só. */
 function Projection({ quote }: { quote: FixedIncomeQuote }) {
+  const { gross_amount, gross_return, gross_return_pct, income_tax, net_amount, net_return_pct } = quote;
+  // A partida pode esconder a projeção: sem os números o bloco não existe
+  if (
+    gross_amount === null ||
+    gross_return === null ||
+    gross_return_pct === null ||
+    income_tax === null ||
+    net_amount === null ||
+    net_return_pct === null
+  ) {
+    return null;
+  }
+
   const hasAmount = Number(quote.amount) > 0;
-  const gross = Number(quote.gross_amount) || 1;
+  const gross = Number(gross_amount) || 1;
   const parts = [
     {
       key: "applied",
@@ -143,17 +165,17 @@ function Projection({ quote }: { quote: FixedIncomeQuote }) {
     {
       key: "yield",
       label: "Rendimento bruto",
-      value: `+${displayMoney(quote.gross_return)}`,
-      detail: `+${displayPercent(quote.gross_return_pct)}`,
-      share: (Number(quote.gross_return) - Number(quote.income_tax)) / gross,
+      value: `+${displayMoney(gross_return)}`,
+      detail: `+${displayPercent(gross_return_pct)}`,
+      share: (Number(gross_return) - Number(income_tax)) / gross,
       className: "bg-success",
     },
     {
       key: "tax",
       label: "IR",
-      value: `−${displayMoney(quote.income_tax)}`,
+      value: `−${displayMoney(income_tax)}`,
       detail: `alíquota ${displayPercent(quote.income_tax_rate, 1)}`,
-      share: Number(quote.income_tax) / gross,
+      share: Number(income_tax) / gross,
       className: "bg-[repeating-linear-gradient(135deg,var(--destructive)_0_3px,transparent_3px_6px)]",
     },
   ];
@@ -193,10 +215,10 @@ function Projection({ quote }: { quote: FixedIncomeQuote }) {
             <div className="grid gap-0.5">
               <dt className="text-xs text-muted-foreground">Resgate líquido</dt>
               <dd className="font-mono text-[13px] font-semibold">
-                {hasAmount ? displayMoney(quote.net_amount) : `+${displayPercent(quote.net_return_pct)}`}
+                {hasAmount ? displayMoney(net_amount) : `+${displayPercent(net_return_pct)}`}
               </dd>
               {hasAmount && (
-                <dd className="font-mono text-xs text-muted-foreground">+{displayPercent(quote.net_return_pct)}</dd>
+                <dd className="font-mono text-xs text-muted-foreground">+{displayPercent(net_return_pct)}</dd>
               )}
             </div>
           </dl>

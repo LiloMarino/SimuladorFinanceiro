@@ -9,7 +9,7 @@ from backend.core import repository
 from backend.core.dto.candle import CandleDTO, MarketQuoteDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, FixedIncomeOfferDTO
-from backend.core.dto.fixed_income_projection import FixedIncomeProjectionDTO
+from backend.core.dto.fixed_income_projection import FixedIncomeQuoteDTO
 from backend.core.dto.goal import GoalProgressDTO, GoalRunnerDTO
 from backend.core.dto.life import LifeEventDTO, LifeStatusDTO
 from backend.core.dto.order import OrderDTO
@@ -34,7 +34,11 @@ from backend.features.achievements.evaluator import (
     match_result,
     unlocked_event,
 )
-from backend.features.fixed_income.accrual import offer, project
+from backend.features.fixed_income.accrual import income_tax_brackets, offer, project
+from backend.features.fixed_income.assistance import (
+    apply_offer_assistance,
+    build_quote,
+)
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     PortfolioUpdateEventDTO,
@@ -147,16 +151,29 @@ class Simulation:
         self._engine.fixed_broker.buy(client_id, asset, value)
 
     def get_fixed_offers(self) -> list[FixedIncomeOfferDTO]:
-        return [offer(a, self._current_date) for a in self.get_fixed_assets()]
+        return [
+            apply_offer_assistance(offer(a, self._current_date), self.settings)
+            for a in self.get_fixed_assets()
+        ]
 
     def get_fixed_offer(self, asset_uuid: str) -> FixedIncomeOfferDTO | None:
         asset = self.get_fixed_asset(asset_uuid)
-        return offer(asset, self._current_date) if asset else None
+        if not asset:
+            return None
+        return apply_offer_assistance(offer(asset, self._current_date), self.settings)
 
-    def project_fixed_income(
-        self, asset: FixedIncomeAssetDTO, amount: Decimal
-    ) -> FixedIncomeProjectionDTO:
-        return project(asset, amount, self._current_date)
+    def quote_fixed_income(
+        self, client_id: UUID, asset: FixedIncomeAssetDTO, amount: Decimal
+    ) -> FixedIncomeQuoteDTO:
+        cash = self.get_cash(client_id)
+        return build_quote(
+            project(asset, amount, self._current_date),
+            self.settings,
+            cash_before=cash,
+            cash_after=cash - amount,
+            max_amount=cash,
+            income_tax_brackets=income_tax_brackets(),
+        )
 
     def get_patrimonial_history(
         self, client_id: UUID

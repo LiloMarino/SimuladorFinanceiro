@@ -17,7 +17,6 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
-from backend.features.fixed_income.accrual import income_tax_brackets
 from backend.features.variable_income.entities.order import (
     LimitOrder,
     MarketOrder,
@@ -259,14 +258,7 @@ def get_fixed_income_projection(
     fixed = simulation.get_fixed_asset(asset_uuid)
     if not fixed:
         raise NotFoundError("Ativo de renda fixa não encontrado")
-    cash = simulation.get_cash(client_id)
-    return FixedIncomeQuoteDTO(
-        **simulation.project_fixed_income(fixed, amount).model_dump(),
-        cash_before=cash,
-        cash_after=cash - amount,
-        max_amount=cash,
-        income_tax_brackets=income_tax_brackets(),
-    )
+    return simulation.quote_fixed_income(client_id, fixed, amount)
 
 
 @operation_router.post(

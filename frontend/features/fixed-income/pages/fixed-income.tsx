@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ArrowUp } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/shared/components/ui/card";
+import { Card, CardFooter, CardHeader } from "@/shared/components/ui/card";
 import { Empty, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
 import { Label } from "@/shared/components/ui/label";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -18,6 +19,7 @@ import {
 } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
+import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useEconomicIndicators } from "@/shared/hooks/queries/useEconomicIndicators";
@@ -26,7 +28,9 @@ import type { FixedIncomeOffer } from "@/types";
 import { useFixedIncomeAssets } from "../hooks/queries/useFixedIncomeAssets";
 import { INVESTMENT_TYPE_LABELS, timeToMaturity } from "../lib/labels";
 
+// Com a taxa equivalente escondida a tabela perde a coluna "Equivale hoje"
 const COLUMNS = 7;
+const COLUMNS_WITHOUT_RATE = 6;
 
 type IndexFilter = "ALL" | FixedIncomeOffer["rate_index"];
 type TypeFilter = "ALL" | "CDB" | "LCI_LCA" | "Tesouro Direto";
@@ -55,6 +59,7 @@ export default function FixedIncomePage() {
   const { data: portfolio } = usePortfolio();
   const { data: simulation } = useSimulationState();
   const { data: indicators } = useEconomicIndicators();
+  const showRate = useSimulation().simulation?.simulation?.show_equivalent_rate ?? true;
   const [indexFilter, setIndexFilter] = useState<IndexFilter>("ALL");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
   const [onlyExempt, setOnlyExempt] = useState(false);
@@ -63,7 +68,12 @@ export default function FixedIncomePage() {
   const visible = (offers ?? [])
     .filter((o) => (indexFilter === "ALL" || o.rate_index === indexFilter) && matchesType(o, typeFilter))
     .filter((o) => !onlyExempt || o.tax_exempt)
-    .sort((a, b) => Number(b.effective_annual_rate) - Number(a.effective_annual_rate));
+    // Sem a taxa equivalente a lista segue o vencimento, do mais próximo ao mais distante
+    .sort((a, b) =>
+      showRate
+        ? Number(b.effective_annual_rate) - Number(a.effective_annual_rate)
+        : a.maturity_date.localeCompare(b.maturity_date),
+    );
   const topRate = Math.max(...visible.map((o) => Number(o.effective_annual_rate)), 0.0001);
   const today = simulation?.current_date;
 
@@ -83,48 +93,77 @@ export default function FixedIncomePage() {
     </Empty>
   ) : null;
 
+  const header = (
+    <TableHeader>
+      <TableRow>
+        <TableHead>Título</TableHead>
+        <TableHead>Tipo</TableHead>
+        <TableHead>Rentabilidade</TableHead>
+        {showRate && <TableHead>Equivale hoje</TableHead>}
+        <TableHead>
+          {showRate ? (
+            "Vencimento"
+          ) : (
+            <span className="inline-flex items-center gap-1 text-foreground">
+              Vencimento
+              <ArrowUp className="size-3" />
+            </span>
+          )}
+        </TableHead>
+        <TableHead>IR</TableHead>
+        <TableHead>
+          <span className="sr-only">Investir</span>
+        </TableHead>
+      </TableRow>
+    </TableHeader>
+  );
+
   const renderBody = () => {
     if (isLoading) {
+      // O esqueleto mantém as colunas da tabela, com ou sem a taxa equivalente
+      const columns = showRate ? COLUMNS : COLUMNS_WITHOUT_RATE;
       return (
-        <CardContent>
-          <div className="grid gap-3">
-            {Array.from({ length: 6 }, (_, i) => (
-              <Skeleton key={i} className="h-10" />
+        <Table>
+          {header}
+          <TableBody>
+            {Array.from({ length: 5 }, (_, row) => (
+              <TableRow key={row}>
+                {Array.from({ length: columns }, (_, column) => (
+                  <TableCell key={column}>
+                    {column === 0 ? (
+                      <div className="grid gap-1.5">
+                        <Skeleton className="h-3.5 w-3/5" />
+                        <Skeleton className="h-2.5 w-1/3" />
+                      </div>
+                    ) : (
+                      <Skeleton className="h-5 w-14" />
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
             ))}
-          </div>
-        </CardContent>
+          </TableBody>
+        </Table>
       );
     }
     return (
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Título</TableHead>
-            <TableHead>Tipo</TableHead>
-            <TableHead>Rentabilidade</TableHead>
-            <TableHead>Equivale hoje</TableHead>
-            <TableHead>Vencimento</TableHead>
-            <TableHead>IR</TableHead>
-            <TableHead>
-              <span className="sr-only">Investir</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
+        {header}
         <TableBody>
-          {message && <TableEmptyRow colSpan={COLUMNS}>{message}</TableEmptyRow>}
+          {message && <TableEmptyRow colSpan={showRate ? COLUMNS : COLUMNS_WITHOUT_RATE}>{message}</TableEmptyRow>}
           {visible.map((o) => (
             <TableRow key={o.asset_uuid} onActivate={() => navigate(`/fixed-income/${o.asset_uuid}`)}>
               <TableCell>
                 <div className="grid">
                   <span className="flex items-center gap-2 font-semibold">
-                    {o.name}
+                    <span className="max-w-[300px] truncate">{o.name}</span>
                     {held.has(o.asset_uuid) && (
                       <Badge variant="info" size="sm">
                         na carteira
                       </Badge>
                     )}
                   </span>
-                  <span className="text-xs text-muted-foreground">{o.issuer}</span>
+                  <span className="max-w-[300px] truncate text-xs text-muted-foreground">{o.issuer}</span>
                 </div>
               </TableCell>
               <TableCell>
@@ -133,17 +172,19 @@ export default function FixedIncomePage() {
               <TableCell>
                 <span className="font-mono">{displayRateLabel(o.rate_index, o.interest_rate)}</span>
               </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-22 overflow-hidden rounded-full bg-muted">
-                    <span
-                      className="block h-full rounded-full bg-success"
-                      style={{ width: `${(Number(o.effective_annual_rate) / topRate) * 100}%` }}
-                    />
-                  </span>
-                  <span className="font-mono font-semibold">{displayPercent(o.effective_annual_rate)} a.a.</span>
-                </div>
-              </TableCell>
+              {showRate && o.effective_annual_rate !== null && (
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <span className="h-1.5 w-22 overflow-hidden rounded-full bg-muted">
+                      <span
+                        className="block h-full rounded-full bg-success"
+                        style={{ width: `${(Number(o.effective_annual_rate) / topRate) * 100}%` }}
+                      />
+                    </span>
+                    <span className="font-mono font-semibold">{displayPercent(o.effective_annual_rate)} a.a.</span>
+                  </div>
+                </TableCell>
+              )}
               <TableCell>
                 <div className="grid">
                   <span className="font-mono">{displayDate(parseLocalDate(o.maturity_date))}</span>
@@ -216,11 +257,20 @@ export default function FixedIncomePage() {
 
       {renderBody()}
 
-      {indicators && (
+      {showRate ? (
+        indicators && (
+          <CardFooter>
+            <span className="text-xs text-muted-foreground">
+              “Equivale hoje” usa CDI {displayPercent(indicators.cdi)} e IPCA 12m {displayPercent(indicators.ipca)} do
+              dia simulado (Banco Central). Ordenado do maior pro menor.
+            </span>
+          </CardFooter>
+        )
+      ) : (
         <CardFooter>
           <span className="text-xs text-muted-foreground">
-            “Equivale hoje” usa CDI {displayPercent(indicators.cdi)} e IPCA 12m {displayPercent(indicators.ipca)} do dia
-            simulado (Banco Central). Ordenado do maior pro menor.
+            Modo Especialista: a taxa equivalente fica por sua conta. Ordenado por vencimento, do mais próximo ao mais
+            distante.
           </span>
         </CardFooter>
       )}

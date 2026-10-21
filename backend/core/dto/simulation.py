@@ -34,6 +34,9 @@ class SimulationSettingsDTO(BaseDTO):
     inflation_adjusted: bool
     player_grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL
     team_naming: TeamNaming = TeamNaming.COLOR
+    # Ajudas da renda fixa: desligadas, o servidor omite os campos que dão a resposta
+    show_equivalent_rate: bool = True
+    show_maturity_projection: bool = True
 
 
 class SimulationDTO(SimulationSettingsDTO):

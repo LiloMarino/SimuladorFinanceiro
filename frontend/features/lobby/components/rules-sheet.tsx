@@ -44,6 +44,7 @@ import {
   priceImpactModeOf,
   type PriceImpactMode,
 } from "../lib/price-impact";
+import { AssistanceFields } from "./assistance-fields";
 import { CoverageAlerts } from "./coverage-alerts";
 import { DateField } from "@/shared/components/date-field";
 import { LifeFields } from "./life-fields";
@@ -438,6 +439,13 @@ export function RulesSheet({
               />
             </FieldSet>
           )}
+
+          {/* Assistências */}
+          <AssistanceFields
+            form={form}
+            readOnly={readOnly}
+            lockNote={locked ? "Regras da partida salva não mudam" : isHost ? null : "Só o host muda as regras"}
+          />
 
           {/* Impacto de preço */}
           <FieldSet disabled={readOnly}>

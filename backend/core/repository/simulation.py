@@ -47,6 +47,8 @@ class SimulationRepository:
             random_seed=random.SystemRandom().randrange(2**31),
             player_grouping=settings.player_grouping.value,
             team_naming=settings.team_naming.value,
+            show_equivalent_rate=settings.show_equivalent_rate,
+            show_maturity_projection=settings.show_maturity_projection,
             created_at=now,
             last_simulated_at=now,
         )
@@ -174,6 +176,8 @@ class SimulationRepository:
             inflation_adjusted=simulation.inflation_adjusted,
             player_grouping=PlayerGrouping(simulation.player_grouping),
             team_naming=TeamNaming(simulation.team_naming),
+            show_equivalent_rate=simulation.show_equivalent_rate,
+            show_maturity_projection=simulation.show_maturity_projection,
             created_at=simulation.created_at,
             last_simulated_at=simulation.last_simulated_at,
         )

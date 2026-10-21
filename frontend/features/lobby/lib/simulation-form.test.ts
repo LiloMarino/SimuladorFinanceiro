@@ -22,6 +22,8 @@ const settings: SimulationSettingsData = {
   inflation_adjusted: true,
   player_grouping: "TEAMS",
   team_naming: "NUMBER",
+  show_equivalent_rate: false,
+  show_maturity_projection: true,
 };
 
 describe("regras da partida ↔ formulário do lobby", () => {

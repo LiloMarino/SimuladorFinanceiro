@@ -1795,6 +1795,16 @@ export interface components {
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
             team_naming: components["schemas"]["TeamNaming"];
+            /**
+             * Show Equivalent Rate
+             * @default true
+             */
+            show_equivalent_rate: boolean;
+            /**
+             * Show Maturity Projection
+             * @default true
+             */
+            show_maturity_projection: boolean;
         };
         /** DrawdownDTO */
         DrawdownDTO: {
@@ -1884,7 +1894,7 @@ export interface components {
             /** Index Rate */
             index_rate: string;
             /** Effective Annual Rate */
-            effective_annual_rate: string;
+            effective_annual_rate: string | null;
             /** Tax Exempt */
             tax_exempt: boolean;
             /** Income Tax Rate At Maturity */
@@ -1912,14 +1922,15 @@ export interface components {
         /**
          * FixedIncomeQuoteDTO
          * @description A projeção com o caixa do jogador e a tabela regressiva, para a boleta.
+         *
+         *     A taxa equivalente e o que o dinheiro vira no vencimento (bruto, IR e líquido)
+         *     são None quando a partida esconde essas ajudas.
          */
         FixedIncomeQuoteDTO: {
             /** Amount */
             amount: string;
             /** Index Rate */
             index_rate: string;
-            /** Effective Annual Rate */
-            effective_annual_rate: string;
             /** Business Days */
             business_days: number;
             /**
@@ -1927,24 +1938,26 @@ export interface components {
              * Format: date
              */
             redemption_date: string;
-            /** Gross Amount */
-            gross_amount: string;
-            /** Gross Return */
-            gross_return: string;
-            /** Gross Return Pct */
-            gross_return_pct: string;
             /** Income Tax Rate */
             income_tax_rate: string;
+            /** Effective Annual Rate */
+            effective_annual_rate: string | null;
+            /** Gross Amount */
+            gross_amount: string | null;
+            /** Gross Return */
+            gross_return: string | null;
+            /** Gross Return Pct */
+            gross_return_pct: string | null;
             /** Income Tax */
-            income_tax: string;
+            income_tax: string | null;
             /** Income Tax Pct */
-            income_tax_pct: string;
+            income_tax_pct: string | null;
             /** Net Amount */
-            net_amount: string;
+            net_amount: string | null;
             /** Net Return */
-            net_return: string;
+            net_return: string | null;
             /** Net Return Pct */
-            net_return_pct: string;
+            net_return_pct: string | null;
             /** Cash Before */
             cash_before: string;
             /** Cash After */
@@ -3023,6 +3036,16 @@ export interface components {
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
             team_naming: components["schemas"]["TeamNaming"];
+            /**
+             * Show Equivalent Rate
+             * @default true
+             */
+            show_equivalent_rate: boolean;
+            /**
+             * Show Maturity Projection
+             * @default true
+             */
+            show_maturity_projection: boolean;
             /** Id */
             id: number;
             /**
@@ -3242,6 +3265,16 @@ export interface components {
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
             team_naming: components["schemas"]["TeamNaming"];
+            /**
+             * Show Equivalent Rate
+             * @default true
+             */
+            show_equivalent_rate: boolean;
+            /**
+             * Show Maturity Projection
+             * @default true
+             */
+            show_maturity_projection: boolean;
             /** Id */
             id: number;
         };
@@ -3307,6 +3340,16 @@ export interface components {
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
             team_naming: components["schemas"]["TeamNaming"];
+            /**
+             * Show Equivalent Rate
+             * @default true
+             */
+            show_equivalent_rate: boolean;
+            /**
+             * Show Maturity Projection
+             * @default true
+             */
+            show_maturity_projection: boolean;
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
@@ -3761,6 +3804,16 @@ export interface components {
             player_grouping: components["schemas"]["PlayerGrouping"];
             /** @default COLOR */
             team_naming: components["schemas"]["TeamNaming"];
+            /**
+             * Show Equivalent Rate
+             * @default true
+             */
+            show_equivalent_rate: boolean;
+            /**
+             * Show Maturity Projection
+             * @default true
+             */
+            show_maturity_projection: boolean;
         };
         /** UserClaimRequest */
         UserClaimRequest: {

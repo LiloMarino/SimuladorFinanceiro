@@ -140,3 +140,23 @@ def test_loading_a_saved_match_restores_players_portfolio_and_date(started):
     assert sim.get_portfolio(caio.client_id).cash == CASH
 
     assert started == ["start", "simulation_started"]
+
+
+def test_loading_a_saved_match_restores_the_assistance_rules(started):
+    simulation_id = repository.simulation.create_simulation(
+        simulation_settings().model_copy(
+            update={
+                "start_date": START,
+                "end_date": date(2004, 12, 31),
+                "show_equivalent_rate": False,
+            }
+        )
+    )
+    summary = repository.simulation.get_simulation(simulation_id)
+    assert summary is not None
+
+    settings = SimulationLoader.load(summary)
+
+    assert not settings.show_equivalent_rate
+    assert settings.show_maturity_projection
+    assert not SimulationManager.get_active_simulation().settings.show_equivalent_rate

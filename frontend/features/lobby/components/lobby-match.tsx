@@ -28,6 +28,7 @@ import {
   unexpectedLabel,
   UNEXPECTED_OPTIONS,
 } from "@/shared/lib/financial-independence";
+import { summarizeAssistances } from "@/shared/lib/assistance";
 import { GAME_TYPES } from "@/shared/lib/game-types";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type {
@@ -111,6 +112,8 @@ const simulationFormSchema = z
     inflationAdjusted: z.boolean(),
     playerGrouping: z.custom<PlayerGrouping>((value) => value === "INDIVIDUAL" || value === "TEAMS"),
     teamNaming: z.custom<TeamNaming>((value) => value === "COLOR" || value === "NUMBER"),
+    showEquivalentRate: z.boolean(),
+    showMaturityProjection: z.boolean(),
   })
   .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
     message: "Tem que ser depois do início",
@@ -231,6 +234,7 @@ export function LobbyMatch({
   });
   const loadingSelection = selectedSimulationId !== null && !selectedSimulation && listPending;
   const rulesImpactMode = priceImpactModeOf(rules.priceImpactEnabled, rules.priceImpactK, rules.priceImpactDecayDays);
+  const assistances = summarizeAssistances([rules.showEquivalentRate, rules.showMaturityProjection]);
 
   // A meta com o múltiplo do saldo inicial quando ele é redondo: "R$ 1.000.000,00 · 10× o saldo"
   const startingCashAmount = Number(normalizeNumberString(rules.startingCash));
@@ -316,6 +320,16 @@ export function LobbyMatch({
             </span>
           )}
         </span>
+      ),
+    },
+    {
+      label: "Assistências",
+      value: (
+        <Badge variant={assistances.mode === "NORMAL" ? "secondary" : assistances.mode === "EXPERT" ? "inverse" : "info"}>
+          {assistances.mode === "NORMAL" && "Normal"}
+          {assistances.mode === "EXPERT" && "Especialista"}
+          {assistances.mode === "CUSTOM" && `Personalizado · ${assistances.shown} de ${assistances.total} ligadas`}
+        </Badge>
       ),
     },
   ];

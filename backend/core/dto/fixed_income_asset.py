@@ -23,7 +23,8 @@ class FixedIncomeOfferDTO(FixedIncomeAssetDTO):
     """O título com o que ele rende hoje e o IR que paga se levado ao vencimento."""
 
     index_rate: Decimal
-    # Taxa do título combinada com o indexador do dia: o que ele rende ao ano hoje
-    effective_annual_rate: Decimal
+    # Taxa do título combinada com o indexador do dia: o que ele rende ao ano hoje.
+    # None quando a partida esconde a taxa equivalente
+    effective_annual_rate: Decimal | None
     tax_exempt: bool
     income_tax_rate_at_maturity: Decimal

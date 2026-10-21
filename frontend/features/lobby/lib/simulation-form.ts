@@ -30,6 +30,8 @@ export function toFormValues(settings: SimulationSettingsData): SimulationFormVa
     inflationAdjusted: settings.inflation_adjusted,
     playerGrouping: settings.player_grouping,
     teamNaming: settings.team_naming,
+    showEquivalentRate: settings.show_equivalent_rate,
+    showMaturityProjection: settings.show_maturity_projection,
   };
 }
 
@@ -57,5 +59,7 @@ export function toSettingsBody(values: SimulationFormValues): CreateSimulationRe
     inflation_adjusted: values.inflationAdjusted,
     player_grouping: values.playerGrouping,
     team_naming: values.teamNaming,
+    show_equivalent_rate: values.showEquivalentRate,
+    show_maturity_projection: values.showMaturityProjection,
   };
 }

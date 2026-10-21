@@ -34,9 +34,28 @@ class IncomeTaxBracketDTO(BaseDTO):
     rate: Decimal
 
 
-class FixedIncomeQuoteDTO(FixedIncomeProjectionDTO):
-    """A projeção com o caixa do jogador e a tabela regressiva, para a boleta."""
+class FixedIncomeQuoteDTO(BaseDTO):
+    """
+    A projeção com o caixa do jogador e a tabela regressiva, para a boleta.
 
+    A taxa equivalente e o que o dinheiro vira no vencimento (bruto, IR e líquido)
+    são None quando a partida esconde essas ajudas.
+    """
+
+    amount: Decimal
+    index_rate: Decimal
+    business_days: int
+    redemption_date: date
+    income_tax_rate: Decimal
+    effective_annual_rate: Decimal | None
+    gross_amount: Decimal | None
+    gross_return: Decimal | None
+    gross_return_pct: Decimal | None
+    income_tax: Decimal | None
+    income_tax_pct: Decimal | None
+    net_amount: Decimal | None
+    net_return: Decimal | None
+    net_return_pct: Decimal | None
     cash_before: Decimal
     cash_after: Decimal
     max_amount: Decimal

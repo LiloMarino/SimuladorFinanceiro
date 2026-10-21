@@ -64,6 +64,8 @@ class SimulationRulesRequest(BaseModel):
     inflation_adjusted: bool = False
     player_grouping: PlayerGrouping = PlayerGrouping.INDIVIDUAL
     team_naming: TeamNaming = TeamNaming.COLOR
+    show_equivalent_rate: bool = True
+    show_maturity_projection: bool = True
 
     @model_validator(mode="after")
     def validate_dates(self):

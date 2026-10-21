@@ -307,6 +307,12 @@ class Simulations(Base):
         nullable=False,
         server_default=text("'COLOR'"),
     )
+    show_equivalent_rate: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("true")
+    )
+    show_maturity_projection: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("true")
+    )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )

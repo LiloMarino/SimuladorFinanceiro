@@ -1,5 +1,8 @@
 import { NavLink } from "react-router-dom";
+import { Calculator } from "lucide-react";
 import type { NavItem } from "@/types";
+import { Badge } from "@/shared/components/ui/badge";
+import { summarizeAssistances } from "@/shared/lib/assistance";
 import {
   Sidebar as SidebarRoot,
   SidebarContent,
@@ -47,6 +50,8 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const playerCount = players?.length ?? 0;
   const match = simulation?.simulation;
   const hasGoal = !!match && match.game_type !== "CLASSIC";
+  const isExpert =
+    !!match && summarizeAssistances([match.show_equivalent_rate, match.show_maturity_projection]).mode === "EXPERT";
   const ownGoal = goal && match ? ownStanding(goal, match.player_grouping, nickname) : undefined;
 
   return (
@@ -57,6 +62,12 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
         <div className="grid min-w-0">
           <span className="text-[15px] font-bold text-sidebar-accent-foreground">FinSim</span>
           <span className="truncate text-xs text-sidebar-muted">{simulation?.simulation?.name}</span>
+          {isExpert && (
+            <Badge variant="sidebar" size="tag" className="mt-1">
+              <Calculator />
+              Especialista
+            </Badge>
+          )}
         </div>
       </SidebarHeader>
 

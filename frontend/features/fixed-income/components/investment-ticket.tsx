@@ -123,12 +123,14 @@ export function InvestmentTicket({ assetId, amountText, onAmountChange, quote }:
               <dt className="text-muted-foreground">Caixa depois</dt>
               <dd className="font-mono">{overCash ? "—" : displayMoney(quote.cash_after)}</dd>
             </div>
-            <div className="flex justify-between">
-              <dt className="text-muted-foreground">
-                Resgate líquido em {displayDate(parseLocalDate(quote.redemption_date))}
-              </dt>
-              <dd className="font-mono font-semibold">{zero ? "—" : displayMoney(quote.net_amount)}</dd>
-            </div>
+            {quote.net_amount !== null && (
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">
+                  Resgate líquido em {displayDate(parseLocalDate(quote.redemption_date))}
+                </dt>
+                <dd className="font-mono font-semibold">{zero ? "—" : displayMoney(quote.net_amount)}</dd>
+              </div>
+            )}
           </dl>
 
           <Button
