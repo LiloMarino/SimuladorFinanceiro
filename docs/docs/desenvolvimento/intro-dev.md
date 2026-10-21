@@ -48,6 +48,7 @@ SimuladorFinanceiro/
 
 - [Setup do Ambiente](./setup.md) — Configure sua máquina para desenvolvimento
 - [Estrutura de Pastas](./estrutura-pastas.md) — Entenda como o projeto é organizado
+- [Convenções do Frontend](./convencoes-frontend.md) — Como o frontend busca dados e monta formulários
 - [Contribuindo](./contribuindo.md) — Aprenda como enviar suas primeiras contribuições
 
 ## Recursos Úteis

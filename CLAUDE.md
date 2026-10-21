@@ -14,6 +14,10 @@
 coisa pelo nome, para quem lê sem abrir o roadmap: "modo debug", e não "(F54)"; "painel de
 desempenho", e não "F45". Isso inclui o assunto e o corpo de commits e de PRs.
 
+## Frontend
+
+- Queries, mutations e formulários seguem `docs/docs/desenvolvimento/convencoes-frontend.md`.
+
 ## Antes de commitar
 
 - Rode `pnpm run check` na raiz (ruff, pyright, pytest, eslint e tsc).
