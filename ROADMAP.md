@@ -52,6 +52,7 @@
 | **N32** | Saber como foi o mês sem montar a conta | [F91](#f91) | — |
 | **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F94](#f94) | — |
 | **N34** | Disputar o poder de mudar as regras da economia da partida | — | — |
+| **N35** | Tirar da lista as partidas que não interessam mais | [F98](#f98) | — |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
@@ -106,6 +107,7 @@
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F96**](#f96) | Dicas de análise técnica | — | 💤 |
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
+| [**F98**](#f98) | Excluir partida salva | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
@@ -169,6 +171,7 @@
 | [**F85**](#f85) | Importar duas ações da mesma empresa | — | 0 | ⏳ |
 | [**F86**](#f86) | Sugestão de ticker que a importação aceita | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
+| [**F98**](#f98) | Excluir partida salva | — | 0 | ⏳ |
 
 ---
 
@@ -311,7 +314,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/33 concluídas
+> **Progresso:** 0/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -348,6 +351,7 @@
 | [**F94**](#f94) | Crédito | — | 💤 |
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
+| [**F98**](#f98) | Excluir partida salva | — | ⏳ |
 
 ---
 
@@ -382,6 +386,7 @@
 | **F92** | Noticiário da partida | N31 | D7 | M15 | [F91](#f91) | Médio | Baixo | Alto | Bom | 💤 Registrado, sem prioridade |
 | **F94** | Crédito | N33 | D1 | — | — | Alto | Médio | Alto | Bom | 💤 Registrado, sem prioridade |
 | **F96** | Dicas de análise técnica | N19 | — | M11 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
+| **F98** | Excluir partida salva | N35 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
@@ -478,6 +483,9 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f96"></a>
 **F96 — Dicas de análise técnica.** Serve N19. Aprender análise técnica jogando: o gráfico aponta e explica o que um trader enxergaria, para quem quer jogar pelo gráfico sem já saber as regras. É ajuda, então o modo Especialista (F40) a desliga, como as outras. (1) **Padrões de vela:** regras fixas sobre abertura, máxima, mínima e fechamento de cada pregão detectam uns dez padrões clássicos (martelo, estrela cadente, engolfo de alta e de baixa, doji, três soldados brancos). O candle ganha um marcador; ao passar o mouse, um card com o nome, o desenho do padrão e o que ele costuma sugerir. **E se ele acertou:** o card conta quantas vezes o padrão apareceu neste ativo no período já jogado e em quantas o preço foi para o lado sugerido nos 5 pregões seguintes ("apareceu 12 vezes; em 7 o preço subiu"), o que ensina também que padrão não é garantia. (2) **Indicadores (F33):** as faixas ganham legenda (IFR acima de 70, "sobrecomprado": subiu rápido demais e costuma devolver; abaixo de 30, "sobrevendido") e os cruzamentos do MACD e das médias móveis ganham marcador com uma frase do que significam. (3) **Desafio da vela:** quando aparece um padrão, o jogo pergunta "e agora, sobe ou desce?" e confere dias depois, com um placar de acertos que pode virar conquista (F41). Gatilho: com o gráfico de indicadores; os padrões de vela não dependem dele.
+
+<a id="f98"></a>
+**F98 — Excluir partida salva.** Serve N35. No diálogo "Simulações salvas" do lobby, cada partida ganha um botão de excluir, só para o host, com confirmação num `AlertDialog` que diz o nome, o período e quantos jogadores ela tem, e avisa que não dá para desfazer. O backend ganha `DELETE /api/simulation/{id}` com `HostVerified`, que recusa (409) a partida ativa e a selecionada no lobby. A maior parte dos dados sai em cascata, pelas chaves estrangeiras com `ondelete="CASCADE"` que apontam para `simulations`; a cópia congelada das séries da partida (as linhas com a versão igual ao id dela) não tem chave estrangeira e é apagada explicitamente na mesma transação. Depois da exclusão, um evento do Socket.IO avisa a sala para atualizar a lista. Gatilho: a lista de partidas salvas ficar difícil de usar.
 
 ---
 ## 2. Nice-to-have

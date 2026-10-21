@@ -127,6 +127,9 @@ Pegar crédito para aproveitar uma oportunidade é uma decisão real de quem inv
 **N34. Disputar o poder de mudar as regras da economia da partida**
 Em vez de só reagir aos impostos e ao cenário, chegar ao governo e mexer neles, como nos jogos em que o empresário vira prefeito. É outro jeito de ganhar e de atrapalhar os amigos, e precisa custar caro o bastante para o governo não virar o jogador mais forte da sala.
 
+**N35. Tirar da lista as partidas que não interessam mais**
+Partidas de teste, abandonadas no começo ou repetidas se acumulam em "Simulações salvas" e na comparação de partidas, e hoje não há como apagar nenhuma: a lista só cresce, e achar a partida que importa fica cada vez mais difícil.
+
 ---
 
 ## Decisões
