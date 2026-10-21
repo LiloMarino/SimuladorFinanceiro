@@ -19,7 +19,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Gerados por `pnpm db:erd` (dos models) e `pnpm db:changelog` (do CHANGELOG.md), no prestart e prebuild
+# Gerados no prestart e prebuild: `pnpm db:erd` (dos models), `pnpm db:changelog` (do CHANGELOG.md)
+# e `generate:api` (do openapi.json)
 /src/generated
 /docs/desenvolvimento/_enums.md
 /docs/como-usar/novidades.md
+/docs/api

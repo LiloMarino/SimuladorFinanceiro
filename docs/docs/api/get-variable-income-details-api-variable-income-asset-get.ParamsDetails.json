@@ -1,1 +1,0 @@
-{"parameters":[{"name":"asset","in":"path","required":true,"schema":{"type":"string","title":"Asset"}}]}

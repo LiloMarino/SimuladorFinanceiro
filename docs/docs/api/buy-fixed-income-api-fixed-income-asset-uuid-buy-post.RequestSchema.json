@@ -1,1 +1,0 @@
-{"title":"Body","body":{"required":true,"content":{"application/json":{"schema":{"properties":{"quantity":{"anyOf":[{"type":"number","exclusiveMinimum":0},{"type":"string"}],"title":"Quantity"}},"type":"object","required":["quantity"],"title":"BuyFixedIncomeRequest"}}}}}

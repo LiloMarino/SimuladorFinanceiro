@@ -1,1 +1,0 @@
-{"title":"Body","body":{"content":{"application/json":{"schema":{"properties":{"team":{"type":"integer","title":"Team"}},"type":"object","required":["team"],"title":"PlayerTeamRequest"}}},"required":true}}

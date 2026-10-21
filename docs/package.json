@@ -5,7 +5,7 @@
     "docusaurus": "docusaurus",
     "generate:erd": "pnpm --dir .. run db:erd",
     "generate:changelog": "pnpm --dir .. run db:changelog",
-    "generate": "pnpm run generate:erd && pnpm run generate:changelog",
+    "generate": "pnpm run generate:erd && pnpm run generate:changelog && pnpm run generate:api",
     "prestart": "pnpm run generate",
     "start": "docusaurus start",
     "prebuild": "pnpm run generate",

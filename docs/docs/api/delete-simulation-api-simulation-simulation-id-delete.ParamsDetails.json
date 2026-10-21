@@ -1,1 +1,0 @@
-{"parameters":[{"name":"simulation_id","in":"path","required":true,"schema":{"type":"integer","title":"Simulation Id"}}]}

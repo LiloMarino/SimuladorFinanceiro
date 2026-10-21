@@ -1,7 +1,7 @@
 """Prepara a próxima versão a partir dos commits.
 
-`pnpm release` calcula o número com o `git-cliff`, grava no `pyproject.toml` e
-no `uv.lock` e acrescenta a seção da versão ao `CHANGELOG.md`. Nada é commitado:
+`pnpm release` calcula o número com o `git-cliff`, grava no `pyproject.toml`, no
+`uv.lock` e no `docs/openapi.json` e acrescenta a seção da versão ao `CHANGELOG.md`. Nada é commitado:
 o diff é revisado e vai num `chore: Versão X`.
 
 Com `--check` (usado pelo workflow de release) só confere que a versão do
@@ -122,6 +122,8 @@ def prepare() -> int:
     if version != current:
         write_version(version)
         run("uv", "lock")
+        # O OpenAPI lê a versão do pyproject.toml já gravado
+        run(sys.executable, "-m", "scripts.openapi")
 
     if not has_changelog_section(version):
         run(
