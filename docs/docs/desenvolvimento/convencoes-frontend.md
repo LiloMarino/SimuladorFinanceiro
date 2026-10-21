@@ -66,8 +66,33 @@ estatísticas, troca de rota e renova o status da partida.
 
 ### Mutations
 
-A mutation fica no componente que a dispara, com `useMutation` direto. Ela vira hook quando
-mais de um componente a usa (exemplo: `features/lobby/hooks/useChooseColor.ts`).
+Mutation segue a mesma regra: um hook `useVerboX(params)` por arquivo, em `hooks/mutations/`
+(da feature ou de `shared/`). O componente nunca chama `apiFetch` direto: toda chamada à API
+mora em `hooks/queries/` ou `hooks/mutations/`.
+
+O hook guarda o que vale para qualquer chamada: o `mutationFn`, o trabalho no cache
+(`invalidateQueries`, `setQueryData`, update otimista) e o aviso de erro. O que mexe no estado
+do componente entra na chamada, como callback do `mutate`:
+
+```typescript
+// features/variable-income/hooks/mutations/useSubmitOrder.ts
+export function useSubmitOrder(ticker: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (order: SubmitOrderRequest) =>
+      apiFetch<SubmitOrderResponse>(`/api/variable-income/${ticker}/orders`, { method: "POST", body: order }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.portfolioPosition(ticker) }),
+    onError: (err) => toastApiError(err),
+  });
+}
+
+// features/variable-income/components/order-ticket.tsx
+submit.mutate(
+  { action, type: kind, quantity, limit_price: limitPrice },
+  { onSuccess: () => setQuantityText("") },
+);
+```
 
 ---
 
