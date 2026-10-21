@@ -3,16 +3,22 @@ from datetime import date, timedelta
 from decimal import Decimal
 from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
 
 def format_percent(rate: float | Decimal) -> str:
     return f"{rate * 100:.2f}%"
 
 
 def resource_path(relative: str) -> Path:
-    """Resolve caminho de recurso em dev e no executável PyInstaller."""
+    """
+    Resolve caminho de recurso em dev e no executável PyInstaller. Em dev é relativo à
+    raiz do repositório, de onde quer que o comando rode: o diretório atual decide só
+    config.toml, .env e logs (`app_files_dir`).
+    """
     if getattr(sys, "frozen", False):
         return Path(sys._MEIPASS) / relative  # type: ignore
-    return Path(relative).resolve()
+    return PROJECT_ROOT / relative
 
 
 def ratio(numerator: Decimal, denominator: Decimal) -> Decimal:

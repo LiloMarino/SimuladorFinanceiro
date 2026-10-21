@@ -35,6 +35,9 @@ share/python-wheels/
 # Backend static (gerado pelo build)
 backend/static/
 
+# Imagens da demonstração (`pnpm demo`): moram no branch `demo`
+docs/static/demo/
+
 # Banco local / instância
 instance/
 db.sqlite3
@@ -77,7 +80,7 @@ lerna-debug.log*
 # =========================
 *.bak
 secret.key
-config.toml
+/config.toml
 *.db
 postgres_dist/
 .cache/

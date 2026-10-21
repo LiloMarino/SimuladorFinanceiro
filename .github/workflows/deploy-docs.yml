@@ -32,6 +32,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # As imagens da demonstração moram no branch `demo` (`pnpm demo publish`)
+      - name: Fetch demo images
+        run: |
+          mkdir -p docs/static/demo
+          if git fetch --depth=1 origin demo; then
+            git archive FETCH_HEAD | tar -x -C docs/static/demo
+          fi
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -60,3 +68,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/build
           publish_branch: gh-pages
+          # Só o site da última publicação: as imagens antigas não se acumulam
+          force_orphan: true

@@ -145,7 +145,7 @@ def ensure_database(url: URL) -> None:
         admin.dispose()
 
 
-def _copy_database(url: URL, target: str) -> None:
+def copy_database(url: URL, target: str) -> None:
     source = database_name(url)
     admin = _admin_engine(url)
     quote = admin.dialect.identifier_preparer.quote
@@ -195,7 +195,7 @@ def _list_backups(url: URL) -> list[str]:
 def _dry_run(url: URL) -> None:
     """Aplica as migrations numa cópia e só retorna se nenhum dado se perdeu."""
     copy_name = f"{url.database}_dryrun"
-    _copy_database(url, copy_name)
+    copy_database(url, copy_name)
     copy_url = url.set(database=copy_name)
     try:
         engine = create_engine(copy_url, poolclass=NullPool)
@@ -213,7 +213,7 @@ def _dry_run(url: URL) -> None:
 
 def _backup(url: URL) -> None:
     name = f"{url.database}_bkp_{datetime.now():%Y%m%d_%H%M%S}"
-    _copy_database(url, name)
+    copy_database(url, name)
     logger.info("Backup do banco antes da migration: %s", name)
     drop_databases(url, backups_to_drop(_list_backups(url)))
 

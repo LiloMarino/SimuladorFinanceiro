@@ -14,6 +14,9 @@ importers:
       cross-env:
         specifier: ^10.1.0
         version: 10.1.0
+      gifski:
+        specifier: ^1.7.1
+        version: 1.7.1
 
 packages:
 
@@ -64,6 +67,9 @@ packages:
   get-east-asian-width@1.7.0:
     resolution: {integrity: sha512-XjH1AECxf0giL2V1aU8vKyRR2ppRUb5c0EvT7zuJTokQ74bNo52zOtghqdWIqrhUD79fo3x0WfKZdOqxF6LG1Q==}
     engines: {node: '>=18'}
+
+  gifski@1.7.1:
+    resolution: {integrity: sha512-4t67HSdakVtAtcWdDE4LYlYEUjoWfHiVxurI20mCW0n/jfHls7Croy+VfNAVjCMtuCMEu+gBzl8sGxRnNtZKig==}
 
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
@@ -170,6 +176,8 @@ snapshots:
   get-caller-file@2.0.5: {}
 
   get-east-asian-width@1.7.0: {}
+
+  gifski@1.7.1: {}
 
   isexe@2.0.0: {}
 

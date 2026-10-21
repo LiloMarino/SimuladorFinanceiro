@@ -1,0 +1,22 @@
+# Config da demonstração: o servidor da demo sobe com este arquivo no lugar do config.toml
+[simulation]
+start_date = "2023-01-02"
+end_date = "2025-12-30"
+starting_cash = 10000.0
+monthly_contribution = 0.0
+price_impact_enabled = false
+victory_criterion = "SCORE"
+
+[host]
+nickname = "Ana"
+
+[server]
+port = 8631
+provider = "lan"
+
+[logging]
+logs_path = "logs"
+
+[debug]
+enabled = false
+sql = false
