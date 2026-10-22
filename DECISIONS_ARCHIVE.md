@@ -501,3 +501,9 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 *Kanban:* Partidos na expansão Governo · 3. Descartada · 🚫 Descartado
 
 **F99 — Descartado.** 🚫 Juntada ao núcleo da expansão Governo (F95): os partidos deixaram de ser camada opcional por cima da eleição e viraram a única forma de concorrer, com fundador, filiados, contribuições, expulsão e ranking de partidos decididos no card da F95.
+
+### F110 · arquivado em 2026-10-22
+
+*Kanban:* Ordenação em todas as tabelas de dados · 1. Atende necessidade · ✅ Concluído · atende N36
+
+**F110 — Ordenação em todas as tabelas de dados.** Cabeçalhos com alternância crescente/decrescente em mercado, renda fixa, carteira, book, rankings, relatórios, exposição setorial, métricas da nota, histórico, séries, correlação, desempenho, tráfego e tabelas de ajuda. Comparadores sobre valores originais, textos em português, ausentes no fim e empates estáveis, sem alterar o cache. Escolha mantida nas atualizações enquanto a tabela está montada; membros acompanham a equipe, e a colocação oficial é preservada. Histórico ordenado no servidor antes da paginação, com coluna/direção na chave do cache; matriz mantém os índices originais dos pares ao ordenar os dois eixos. Cobertura: 627 testes de backend aprovados, 3 pulados, 102 de frontend aprovados, TypeScript, ESLint, pyright, Ruff do jogo e build; validação no navegador com dados de teste nos componentes reais. Frontend validado em cópia isolada com dependências anteriormente aprovadas, pois a instalação das versões mais recentes está incompleta; o check geral permanece bloqueado pelas violações preexistentes de .plugin-build. Evidências e limites em docs/docs/desenvolvimento/ordenacao-tabelas.md.
