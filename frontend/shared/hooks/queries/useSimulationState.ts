@@ -19,10 +19,10 @@ export function useSimulationState() {
   });
 
   const patch = (update: Partial<SimulationState>) => {
-    queryClient.setQueryData(queryKeys.simulationState(), (prev: SimulationState | undefined) => ({
-      ...prev,
-      ...update,
-    }));
+    // Um evento parcial não pode substituir a resposta inicial completa.
+    queryClient.setQueryData(queryKeys.simulationState(), (prev: SimulationState | undefined) =>
+      prev ? { ...prev, ...update } : prev,
+    );
   };
 
   useRealtime("simulation_update", patch);

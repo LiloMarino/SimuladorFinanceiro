@@ -53,6 +53,7 @@ class SimulationLoopController:
                 raise
 
             self._stop_event.clear()
+            self._pause_event.clear()
             self._thread = threading.Thread(
                 target=self._run,
                 daemon=True,
@@ -113,9 +114,14 @@ class SimulationLoopController:
                     continue
 
                 try:
-                    metrics.set_engine_speed(speed)
-                    with metrics.measure("engine", ENGINE_DAY):
-                        simulation.next_tick()
+                    with simulation.lock:
+                        # A pausa pode ter sido pedida desde a leitura acima.
+                        # Confirmá-la e iniciar um dia usam o mesmo lock.
+                        if self._stop_event.is_set() or simulation.get_speed() <= 0:
+                            continue
+                        metrics.set_engine_speed(speed)
+                        with metrics.measure("engine", ENGINE_DAY):
+                            simulation.next_tick()
                 except StopIteration:
                     # A partida acaba como no stop(): eventos no banco e simulação
                     # liberada, então o fechamento lê a partida inteira

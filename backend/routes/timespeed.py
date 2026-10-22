@@ -36,16 +36,17 @@ def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
     """
     Define a velocidade de simulação.
     """
-    speed = payload.speed
-    simulation.set_speed(speed)
-    speed = simulation.get_speed()
-    if speed <= 0:
-        simulation_controller.pause()
-    else:
-        simulation_controller.unpause()
+    with simulation.lock:
+        speed = payload.speed
+        simulation.set_speed(speed)
+        speed = simulation.get_speed()
+        if speed <= 0:
+            simulation_controller.pause()
+        else:
+            simulation_controller.unpause()
 
-    # Envia a atualização de velocidade para todos os clientes
-    notify("speed_update", SpeedUpdateEventDTO(speed=speed).to_json())
+        # Só confirma a pausa depois de terminar o dia em andamento.
+        notify("speed_update", SpeedUpdateEventDTO(speed=speed).to_json())
     return SetSpeedResponse(speed=speed)
 
 
@@ -59,9 +60,10 @@ def get_simulation_state(client_id: ClientID, simulation: ActiveSimulation):
     """
     Retorna o estado atual da simulação.
     """
-    current_date = simulation.get_current_date()
-    speed = simulation.get_speed()
-    cash = simulation.get_cash(client_id)
+    with simulation.lock:
+        current_date = simulation.get_current_date()
+        speed = simulation.get_speed()
+        cash = simulation.get_cash(client_id)
     return SimulationStateResponse(
         current_date=current_date,
         speed=speed,

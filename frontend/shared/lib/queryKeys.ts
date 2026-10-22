@@ -8,7 +8,11 @@ export const queryKeys = {
   lifeStatus: (simulationId: number) => ["simulation", "life", simulationId] as const,
   lifeHistoryAll: (simulationId: number) => ["simulation", "life-history", simulationId] as const,
   lifeHistory: (simulationId: number, category: string) => ["simulation", "life-history", simulationId, category] as const,
-  orderPreview: (ticker: string, params: object) => ["variable-income", ticker, "order-preview", params] as const,
+  orderPreview: (ticker: string, params?: object) =>
+    params === undefined ? ["variable-income", ticker, "order-preview"] as const
+      : ["variable-income", ticker, "order-preview", params] as const,
+  variableIncome: () => ["variable-income"] as const,
+  fixedIncome: () => ["fixed-income"] as const,
   trades: (ticker: string) => ["variable-income", ticker, "trades"] as const,
   priceImpactPreview: (k: number, decayDays: number) => ["simulation", "price-impact-preview", k, decayDays] as const,
   simulationPlayers: () => ["simulation", "players"] as const,

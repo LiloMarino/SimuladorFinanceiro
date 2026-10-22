@@ -13,6 +13,7 @@ export function useBuyFixedIncome(assetId: string) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.simulationState() });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.fixedIncomeAsset(assetId) });
     },
     onError: (err) => toastApiError(err),
   });

@@ -7,6 +7,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ErrorPage } from "@/pages/error";
+import { ErrorState } from "@/shared/components/error-state";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { cn, normalizeNumberString } from "@/shared/lib/utils";
@@ -26,8 +27,8 @@ import { INVESTMENT_TYPE_LABELS, RATE_KIND_LABELS } from "../lib/labels";
 
 const NOT_FOUND = (
   <ErrorPage
-    title="Esse título não existe mais"
-    message="Ele pode ter vencido ou saído da base."
+    title="Essa oferta está indisponível"
+    message="O catálogo pode ter sido atualizado. Consulte as ofertas atuais."
     actionLabel="Ver renda fixa"
     actionHref="/fixed-income"
   />
@@ -36,20 +37,28 @@ const NOT_FOUND = (
 export default function FixedIncomeDetailPage() {
   usePageLabel("Renda fixa");
   const { id } = useParams<{ id: string }>();
-  const { data: offer, isLoading } = useFixedIncomeAsset(id);
-  const { data: simulation } = useSimulationState();
+  const { data: offer, isLoading, error, refetch } = useFixedIncomeAsset(id);
+  const { data: simulation, error: stateError, refetch: refetchState } = useSimulationState();
+
+  if (error?.status === 404) return NOT_FOUND;
+  if (error || stateError) return <ErrorState title="Não deu para carregar esse título"
+    description="Confira a conexão e tente novamente." error={error ?? stateError}
+    onRetry={() => { void refetch(); void refetchState(); }} />;
 
   if (isLoading || !simulation?.current_date) {
     return <Skeleton className="h-96" />;
   }
   if (!offer || !id) return NOT_FOUND;
+  if (offer.maturity_date <= simulation.current_date) return <ErrorPage code="410"
+    title="Esse título já venceu" message="Consulte as ofertas disponíveis na data atual da partida."
+    actionLabel="Ver renda fixa" actionHref="/fixed-income" />;
 
-  return <FixedIncomeDetail id={id} offer={offer} today={simulation.current_date} />;
+  return <FixedIncomeDetail key={id} id={id} offer={offer} today={simulation.current_date} />;
 }
 
 function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncomeOffer; today: string }) {
   const [amountText, setAmountText] = useState(formatMoney("0"));
-  const { data: quote } = useFixedIncomeProjection(id, normalizeNumberString(amountText), today);
+  const { data: quote, error, isLoading, refetch } = useFixedIncomeProjection(id, normalizeNumberString(amountText), today);
   const daysToRedeem = quote
     ? differenceInCalendarDays(parseLocalDate(quote.redemption_date), parseLocalDate(today))
     : null;
@@ -124,11 +133,14 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
       </Card>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+        {error && <ErrorState title="Não deu para conferir o investimento" description="Atualize a cotação antes de investir."
+          error={error} onRetry={() => void refetch()} />}
+        {isLoading && <Skeleton className="h-64" />}
         <div className="grid gap-5">
           {quote && <Projection quote={quote} />}
           {quote && daysToRedeem !== null && !offer.tax_exempt && <TaxSteps quote={quote} days={daysToRedeem} />}
         </div>
-        {quote && (
+        {quote && !error && (
           <InvestmentTicket assetId={id} amountText={amountText} onAmountChange={setAmountText} quote={quote} />
         )}
       </div>

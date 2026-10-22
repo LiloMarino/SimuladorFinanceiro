@@ -1,8 +1,9 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { FixedIncomeQuote } from "@/types";
+import { useRealtime } from "@/shared/hooks/useRealtime";
 
 /**
  * Cotação da boleta (projeção até o vencimento, caixa e tabela do IR) para o valor digitado. A chave
@@ -10,6 +11,10 @@ import type { FixedIncomeQuote } from "@/types";
  */
 export function useFixedIncomeProjection(id: string, amount: string, currentDate: string) {
   const [debouncedAmount] = useDebounce(amount || "0", 300);
+  const client = useQueryClient();
+  useRealtime("cash_update", () => {
+    void client.invalidateQueries({ queryKey: queryKeys.fixedIncomeAsset(id) });
+  });
 
   return useQuery({
     queryKey: queryKeys.fixedIncomeProjection(id, debouncedAmount, currentDate),

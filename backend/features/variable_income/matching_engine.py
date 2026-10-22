@@ -100,7 +100,7 @@ class MatchingEngine:
         if order.client_id != client_id:
             raise ForbiddenError("Ordem não pertence ao cliente")
 
-        if order.status != OrderStatus.PENDING:
+        if order.status not in (OrderStatus.PENDING, OrderStatus.PARTIAL):
             raise ForbiddenError("Ordem não pode ser cancelada")
 
         self.broker.release_limit_order(order)
