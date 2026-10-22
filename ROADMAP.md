@@ -78,7 +78,6 @@
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | ⏳ |
-| [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
@@ -97,7 +96,7 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -118,6 +117,7 @@
 | [**F40**](#f40) | Modo Especialista | — | ✅ |
 | [**F41**](#f41) | Conquistas | — | ✅ |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
+| [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ✅ |
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ✅ |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ✅ |
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | ✅ |
@@ -155,7 +155,6 @@
 | [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | 0 | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
-| [**F70**](#f70) | O que cada jogador está fazendo na sala | — | 0 | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | 0 | ⏳ |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | 0 | ⏳ |
 | [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | 0 | ⏳ |
@@ -311,7 +310,7 @@
 
 ### Sem marco
 
-> **Progresso:** 11/34 concluídas
+> **Progresso:** 12/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -325,7 +324,6 @@
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | ⏳ |
-| [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | [F74](#f74) | ⏳ |
@@ -339,10 +337,11 @@
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 
-<details><summary>Concluído (11 itens)</summary>
+<details><summary>Concluído (12 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ✅ |
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ✅ |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ✅ |
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | ✅ |
@@ -379,7 +378,7 @@
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F70** | O que cada jogador está fazendo na sala | N29 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F70** | O que cada jogador está fazendo na sala | N29 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F71** | Renda fixa com liquidez diária | N23 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F76** | Testes das contas feitas no frontend | N3 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
@@ -456,7 +455,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
 
 <a id="f70"></a>
-**F70 — O que cada jogador está fazendo na sala.** Serve N29. Inspiração: a presença rica da Steam e dos jogos online ("Navegando nos menus", "No lobby"). **Onde aparece:** no lugar do selo "Online" do cartão de cada jogador no lobby, mantendo a bolinha verde e trocando só o texto ("Na Central de dados", "Vendo o resultado de uma partida"); a lista da tela `/join` usa o mesmo selo para quem está online. O host continua com o selo "Host" e ganha a atividade ao lado. **Mecanismo:** o front sabe a tela pela rota; um mapa único em `shared/` liga cada rota ao texto da atividade (`/lobby` → "No lobby", `/import-assets` → "Na Central de dados", `/compare-simulations` → "Comparando simulações", `/match-result/:id` → "Vendo o resultado de uma partida", `/settings` → "Nas configurações"), e toda rota fora do mapa cai em "Navegando nos menus". Tela nova ganha atividade própria acrescentando uma entrada no mapa. A cada troca de rota o cliente manda o evento `presence` pelo Socket.IO com a chave da tela; com a aba escondida (`visibilitychange`) manda "ausente" e o selo vira "Ausente", em amarelo. O servidor guarda a chave em memória no `UserManager`, junto do jogador ativo, devolve no payload dos jogadores da sala e avisa a sala pelo evento `player_activity`, sem banco e sem migration. **Durante a partida** a atividade fica de fora: dizer quem está na renda variável ou num ticker entrega a jogada aos adversários. Gatilho: quando houver mais telas fora da partida para a atividade dizer algo além de "No lobby".
+**F70 — O que cada jogador está fazendo na sala.** Serve N29. Inspiração: a presença rica da Steam e dos jogos online ("Navegando nos menus", "No lobby"). **Onde aparece:** no lugar do selo "Online" do cartão de cada jogador no lobby, mantendo a bolinha verde e trocando só o texto; a lista da tela `/join` usa o mesmo selo para quem está na sala. O "Host" virou um selo ao lado do nome (como o "Novo"), e a linha de status do host mostra só a atividade. **Textos curtos** (cabem nos ~86 px do cartão no lobby em equipes), com a frase inteira numa dica ao passar o mouse: `/lobby` → "No lobby", `/import-assets` → "Na Central" ("Na Central de dados"), `/compare-simulations` → "Comparando" ("Comparando simulações"), `/match-result/:id` → "No resultado" ("Vendo o resultado de uma partida"), `/settings` → "Configurando" ("Nas configurações"); toda rota fora do mapa cai em "Nos menus" ("Navegando nos menus"). Tela nova ganha atividade própria acrescentando uma entrada no mapa único em `shared/lib/player-activity.ts`. **Mecanismo:** a cada troca de rota o cliente manda o evento `presence` pelo Socket.IO com a chave da tela; com a aba escondida (`visibilitychange`) manda `away` e o selo vira "Ausente", em amarelo e com a bolinha parada. O servidor guarda a chave em memória no `UserManager`, uma por aba aberta (com duas abas, a que está à vista ganha da ausente e, entre as à vista, vale a que avisou por último; fechar uma aba devolve o selo às que restam), devolve a atividade no payload dos jogadores da sala e avisa a sala pelo evento `player_activity`, sem banco e sem migration. **Durante a partida** a tela fica de fora: dizer quem está na renda variável ou num ticker entrega a jogada aos adversários. O cliente manda `null` ("Online") enquanto a partida roda, mas o "Ausente" vale: na `/join`, que só existe com partida rodando, o selo é Online, Ausente ou Offline. Quem jogou a partida salva e está fora da sala segue "Offline". Gatilho: quando houver mais telas fora da partida para a atividade dizer algo além de "No lobby".
 
 <a id="f71"></a>
 **F71 — Renda fixa com liquidez diária.** Serve N23. Hoje todo título de renda fixa só volta ao caixa no vencimento, então não existe onde guardar uma reserva de emergência que renda e se resgate no mesmo dia, como o CDB de liquidez diária ou o Tesouro Selic do mercado real. O plano: ofertas marcadas com liquidez diária, que o jogador resgata em qualquer pregão pelo valor corrigido até aquele dia, com o IR regressivo do prazo que passou (como já vale no vencimento); se o IOF dos primeiros 30 dias entra, fica em aberto. Fecha um desvio do modo viver de renda (F53): a reserva de emergência da página Meta conta só o caixa, porque não há o que resgatar rápido, e com esta feature passa a contar caixa + renda fixa de liquidez diária, como o design previa ("dá pra resgatar no mesmo dia, sem vender ação na baixa"). Isso dá peso de verdade ao imprevisto: quem tem a reserva aplicada cobre o conserto sem cair no cheque especial.
