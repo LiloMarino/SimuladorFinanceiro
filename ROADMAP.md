@@ -69,7 +69,6 @@
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
 | [**F37**](#f37) | Tema escuro | — | 💤 |
 | [**F44**](#f44) | Expansão Gestoras: abrir capital, cobrar taxa e disputar o controle | — | 🔍 |
-| [**F48**](#f48) | README e docs que mostram o produto | — | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
@@ -96,7 +95,7 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -117,6 +116,7 @@
 | [**F40**](#f40) | Modo Especialista | — | ✅ |
 | [**F41**](#f41) | Conquistas | — | ✅ |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
+| [**F48**](#f48) | README e docs que mostram o produto | — | ✅ |
 | [**F70**](#f70) | O que cada jogador está fazendo na sala | — | ✅ |
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ✅ |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ✅ |
@@ -147,7 +147,6 @@
 | [**F89**](#f89) | Presets de partida | — | 1 | ⏳ |
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 1 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 0 | 🔍 |
-| [**F48**](#f48) | README e docs que mostram o produto | M14 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
@@ -279,18 +278,18 @@
 >
 > **Serve:** N25
 >
-> **Progresso:** 1/3 concluídas
+> **Progresso:** 2/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F48**](#f48) | README e docs que mostram o produto | [F47](#f47) | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F47**](#f47) | Gravação automática de demonstrações | — | ✅ |
+| [**F48**](#f48) | README e docs que mostram o produto | [F47](#f47) | ✅ |
 
 </details>
 
@@ -374,7 +373,7 @@
 | **F40** | Modo Especialista | N21 | D2 | M13 | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F41** | Conquistas | N22 | D1 | M13 | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F47** | Gravação automática de demonstrações | N25 | — | M14 | — | Médio | Médio | Alto | Bom | ✅ Concluído |
-| **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
+| **F48** | README e docs que mostram o produto | N25 | — | M14 | [F47](#f47) | Médio | Baixo | Alto | Ótimo | ✅ Concluído |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
