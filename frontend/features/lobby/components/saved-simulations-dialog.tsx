@@ -170,7 +170,7 @@ function SavedSimulationsContent({
             </span>
           )}
         </div>
-        <Button variant="outline" size="sm" onClick={() => navigate(`/match-result/${s.id}`)}>
+        <Button variant="outline" size="sm" onClick={() => void navigate(`/match-result/${s.id}`)}>
           <Trophy />
           Resultado
         </Button>

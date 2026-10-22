@@ -68,7 +68,7 @@ export function LobbyHeader({ isHost, hostNickname }: LobbyHeaderProps) {
           <output className="flex h-10 flex-1 items-center rounded-lg border border-input bg-card px-3 font-mono text-[13px] select-all">
             {shareableLink}
           </output>
-          <Button variant="dark" onClick={copyLink}>
+          <Button variant="dark" onClick={() => void copyLink()}>
             <Copy />
             Copiar
           </Button>

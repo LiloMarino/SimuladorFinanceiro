@@ -15,10 +15,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   // Inicializa sessão apenas uma vez na montagem
   useEffect(() => {
-    const init = async () => {
-      await initSession();
-    };
-    init();
+    void initSession();
   }, [initSession]);
 
   const logout = useCallback(async () => {

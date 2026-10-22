@@ -90,7 +90,7 @@ export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
           const held = holdings.get(q.ticker);
           const classLabel = CLASS_LABELS[q.asset_class];
           return (
-            <TableRow key={q.ticker} onActivate={() => navigate(`/variable-income/${q.ticker}`)}>
+            <TableRow key={q.ticker} onActivate={() => void navigate(`/variable-income/${q.ticker}`)}>
               <TableCell>
                 <div className="grid">
                   <span className="flex items-center gap-2">

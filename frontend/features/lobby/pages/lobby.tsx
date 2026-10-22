@@ -25,7 +25,7 @@ export function LobbyPage() {
 
   useRealtime("simulation_started", (simulation) => {
     if (simulation.active) {
-      navigate("/", { replace: true });
+      void navigate("/", { replace: true });
     }
   });
 

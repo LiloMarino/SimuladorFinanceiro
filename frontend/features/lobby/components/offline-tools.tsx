@@ -36,19 +36,19 @@ export function OfflineTools({ onOpenSaved }: { onOpenSaved: () => void }) {
       icon: GitCompareArrows,
       title: "Comparar simulações",
       description: "Ponha partidas lado a lado",
-      onClick: () => navigate("/compare-simulations"),
+      onClick: () => void navigate("/compare-simulations"),
     },
     {
       icon: Grid3x3,
       title: "Correlação entre ativos",
       description: "Veja quais ações andam juntas",
-      onClick: () => navigate("/correlation"),
+      onClick: () => void navigate("/correlation"),
     },
     {
       icon: CalendarDays,
       title: "Central de dados",
       description: "Importe ações e atualize indicadores",
-      onClick: () => navigate("/import-assets"),
+      onClick: () => void navigate("/import-assets"),
       badge: outdatedCount
         ? { text: `${outdatedCount} ${outdatedCount === 1 ? "desatualizada" : "desatualizadas"}`, variant: "warning" }
         : undefined,

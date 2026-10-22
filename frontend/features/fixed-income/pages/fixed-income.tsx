@@ -152,7 +152,7 @@ export default function FixedIncomePage() {
         <TableBody>
           {message && <TableEmptyRow colSpan={showRate ? COLUMNS : COLUMNS_WITHOUT_RATE}>{message}</TableEmptyRow>}
           {visible.map((o) => (
-            <TableRow key={o.asset_uuid} onActivate={() => navigate(`/fixed-income/${o.asset_uuid}`)}>
+            <TableRow key={o.asset_uuid} onActivate={() => void navigate(`/fixed-income/${o.asset_uuid}`)}>
               <TableCell>
                 <div className="grid">
                   <span className="flex items-center gap-2 font-semibold">

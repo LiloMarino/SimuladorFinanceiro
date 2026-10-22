@@ -68,13 +68,15 @@ export function LoginPage() {
 
           <CardContent>
             <form
-              onSubmit={form.handleSubmit((values) =>
-                register.mutate(values, {
-                  onError: (err, body) => {
-                    if (err.status === 409) setTaken(body.nickname);
-                  },
-                }),
-              )}
+              onSubmit={(event) =>
+                void form.handleSubmit((values) =>
+                  register.mutate(values, {
+                    onError: (err, body) => {
+                      if (err.status === 409) setTaken(body.nickname);
+                    },
+                  }),
+                )(event)
+              }
               className="grid gap-5"
             >
               <Controller

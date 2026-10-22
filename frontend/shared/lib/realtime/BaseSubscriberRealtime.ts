@@ -132,7 +132,7 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
 
     this.syncScheduled = true;
 
-    queueMicrotask(async () => {
+    queueMicrotask(() => {
       this.syncScheduled = false;
 
       const currentEvents = this.getSubscribedEvents();
@@ -144,7 +144,7 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
 
       this.lastSyncedEvents = currentEvents;
 
-      await this.updateBackendSubscription();
+      void this.updateBackendSubscription();
     });
   }
 

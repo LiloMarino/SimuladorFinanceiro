@@ -34,7 +34,7 @@ export function useSetSimulationSpeed() {
     },
     onSettled: () => {
       if (queryClient.isMutating({ mutationKey: queryKeys.simulationState() }) === 1) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.simulationState() });
+        void queryClient.invalidateQueries({ queryKey: queryKeys.simulationState() });
       }
     },
   });

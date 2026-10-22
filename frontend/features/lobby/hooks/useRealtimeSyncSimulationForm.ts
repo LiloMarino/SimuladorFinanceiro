@@ -39,7 +39,7 @@ export function useRealtimeSyncSimulationForm({
   useRealtime(
     "simulation_settings_update",
     (data) => {
-      lock.runExclusive(async () => {
+      void lock.runExclusive(async () => {
         form.reset(toFormValues(data));
       });
     },

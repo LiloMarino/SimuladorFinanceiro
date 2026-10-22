@@ -106,7 +106,7 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
               </TableHeader>
               <TableBody>
                 {stocks.map((p) => (
-                  <TableRow key={p.ticker} onActivate={() => navigate(`/variable-income/${p.ticker}`)}>
+                  <TableRow key={p.ticker} onActivate={() => void navigate(`/variable-income/${p.ticker}`)}>
                     <TableCell>
                       <div className="grid">
                         <span className="font-mono font-semibold">{p.ticker}</span>
@@ -156,7 +156,7 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
               </TableHeader>
               <TableBody>
                 {bonds.map((p) => (
-                  <TableRow key={p.asset.asset_uuid} onActivate={() => navigate(`/fixed-income/${p.asset.asset_uuid}`)}>
+                  <TableRow key={p.asset.asset_uuid} onActivate={() => void navigate(`/fixed-income/${p.asset.asset_uuid}`)}>
                     <TableCell>
                       <span className="grid">
                         <span className="font-semibold">{p.asset.name}</span>

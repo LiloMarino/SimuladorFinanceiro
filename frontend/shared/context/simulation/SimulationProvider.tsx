@@ -33,7 +33,7 @@ export function SimulationProvider({ children }: PropsWithChildren) {
       // quem ainda estiver lá. O backend já liberou a simulação, então o refetch a vê inativa.
       // O relatório em cache parou num pregão do meio: o fechamento busca o da partida inteira.
       void queryClient.invalidateQueries({ queryKey: queryKeys.statistics() });
-      navigate(`/match-result/${payload.simulation_id}`);
+      void navigate(`/match-result/${payload.simulation_id}`);
       void queryClient.invalidateQueries({ queryKey: queryKeys.simulationStatus() });
     },
     true,

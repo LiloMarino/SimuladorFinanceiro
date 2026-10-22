@@ -22,7 +22,7 @@ export function GlobalNotifications() {
       // Cada execução é um aviso; o Toaster os empilha com o mais novo na frente
       toast.success(`${event.action === "buy" ? "Compra" : "Venda"} executada`, {
         description: `${event.quantity} ${event.ticker} a ${displayMoney(event.price)}`,
-        action: { label: "Ver", onClick: () => navigate(`/variable-income/${event.ticker}`) },
+        action: { label: "Ver", onClick: () => void navigate(`/variable-income/${event.ticker}`) },
       });
     },
     preferences.orders.executed,
@@ -34,7 +34,7 @@ export function GlobalNotifications() {
       const missing = event.action === "sell" ? "comprador" : "vendedor";
       toast.warning(`${event.action === "buy" ? "Compra" : "Venda"} executada em parte`, {
         description: `${event.quantity} ${event.ticker} executadas, ${event.remaining} seguem abertas · faltou ${missing}`,
-        action: { label: "Ver ordem", onClick: () => navigate(`/variable-income/${event.ticker}`) },
+        action: { label: "Ver ordem", onClick: () => void navigate(`/variable-income/${event.ticker}`) },
       });
     },
     preferences.orders.partial,
@@ -65,7 +65,7 @@ export function GlobalNotifications() {
           achievements={achievements}
           onSeeAll={() => {
             toast.dismiss(id);
-            navigate("/achievements");
+            void navigate("/achievements");
           }}
         />
       ),

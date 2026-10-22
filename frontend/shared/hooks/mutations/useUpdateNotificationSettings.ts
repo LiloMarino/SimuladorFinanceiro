@@ -31,7 +31,7 @@ export function useUpdateNotificationSettings() {
 
     onSettled: () => {
       if (queryClient.isMutating({ mutationKey: queryKeys.notificationSettings() }) === 1) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.notificationSettings() });
+        void queryClient.invalidateQueries({ queryKey: queryKeys.notificationSettings() });
       }
     },
   });
