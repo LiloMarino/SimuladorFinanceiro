@@ -19,6 +19,7 @@ from backend.core.dto.simulation import (
 from backend.core.enum import (
     GameType,
     LifeHistoryCategory,
+    PlayerActivity,
     PlayerGrouping,
     TeamNaming,
     VictoryCriterion,
@@ -129,6 +130,8 @@ class PlayerNickname(BaseModel):
     color: str
     # Índice da equipe (1 a 10); nulo fora do modo em equipes ou enquanto não escolheu
     team: int | None = None
+    # O que o jogador está fazendo na sala; só a lista da sala preenche, nulo é "Online"
+    activity: PlayerActivity | None = None
 
 
 class SimulationSettingsResponse(BaseModel):
@@ -347,8 +350,14 @@ def get_active_players():
     """
     colors = UserManager.room_colors()
     teams = UserManager.room_teams()
+    activities = UserManager.room_activities()
     return [
-        PlayerNickname(nickname=p.nickname, color=colors[p.id], team=teams.get(p.id))
+        PlayerNickname(
+            nickname=p.nickname,
+            color=colors[p.id],
+            team=teams.get(p.id),
+            activity=activities.get(p.id),
+        )
         for p in UserManager.list_active_players()
         if p.id in colors
     ]

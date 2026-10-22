@@ -10,6 +10,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Status } from "@/shared/components/ui/status";
+import { PlayerActivityStatus } from "@/shared/components/player-activity-status";
 import { ErrorState } from "@/shared/components/error-state";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
@@ -81,7 +82,7 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
   const preferred = loadColorPreference();
   const selected = isFree(choice) ? choice : isFree(preferred) ? preferred : firstFree;
 
-  const onlineNicknames = new Set((online ?? []).map((p) => p.nickname));
+  const onlinePlayers = new Map((online ?? []).map((p) => [p.nickname, p]));
 
   return (
     <section className="flex min-h-svh items-center justify-center p-6">
@@ -105,7 +106,7 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
               </span>
               <div className="grid grid-cols-2 gap-2">
                 {players.map((player) => {
-                  const isOnline = onlineNicknames.has(player.nickname);
+                  const onlinePlayer = onlinePlayers.get(player.nickname);
                   return (
                     <div
                       key={player.nickname}
@@ -114,7 +115,11 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
                       <PlayerAvatar nickname={player.nickname} color={player.color} />
                       <div className="grid min-w-0 flex-1">
                         <span className="truncate text-sm font-semibold">{player.nickname}</span>
-                        <Status status={isOnline ? "online" : "offline"}>{isOnline ? "Online" : "Offline"}</Status>
+                        {onlinePlayer ? (
+                          <PlayerActivityStatus activity={onlinePlayer.activity} />
+                        ) : (
+                          <Status status="offline">Offline</Status>
+                        )}
                       </div>
                       {inTeams && <TeamBadge team={player.team} naming={match.team_naming} form="icon" />}
                     </div>

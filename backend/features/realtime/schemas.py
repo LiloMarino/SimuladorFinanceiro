@@ -23,7 +23,7 @@ from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
-from backend.core.enum import OrderAction
+from backend.core.enum import OrderAction, PlayerActivity
 
 
 class CashUpdateEventDTO(BaseDTO):
@@ -39,12 +39,14 @@ class SimulationTickUpdateEventDTO(BaseDTO):
 
 
 class PlayerPresenceEventDTO(BaseDTO):
-    """Entrada, saída e troca de cor ou equipe de um jogador: a cor é a chave da paleta."""
+    """Entrada, saída e troca de cor, equipe ou atividade de um jogador: a cor é a chave da paleta."""
 
     nickname: str
     color: str
     # Índice da equipe (1 a 10); nulo fora do modo em equipes ou enquanto não escolheu
     team: int | None = None
+    # O que o jogador está fazendo; nulo é "Online" (partida em andamento ou sem aviso ainda)
+    activity: PlayerActivity | None = None
 
 
 class SimulationSelectedEventDTO(BaseDTO):
@@ -146,6 +148,7 @@ class RealtimeEventCatalog(BaseDTO):
     player_exit: PlayerPresenceEventDTO
     player_color: PlayerPresenceEventDTO
     player_team: PlayerPresenceEventDTO
+    player_activity: PlayerPresenceEventDTO
     simulation_selected: SimulationSelectedEventDTO
     simulation_deleted: SimulationDeletedEventDTO
     simulation_settings_update: SimulationSettingsDTO

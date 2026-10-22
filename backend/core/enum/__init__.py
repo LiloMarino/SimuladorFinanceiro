@@ -230,6 +230,19 @@ class TeamNaming(Enum):
     NUMBER = "NUMBER"
 
 
+class PlayerActivity(Enum):
+    """O que o jogador está fazendo na sala: a tela em que está, ou fora da aba do jogo."""
+
+    LOBBY = "lobby"
+    IMPORT_ASSETS = "import_assets"
+    COMPARE_SIMULATIONS = "compare_simulations"
+    MATCH_RESULT = "match_result"
+    SETTINGS = "settings"
+    # Qualquer outra tela
+    MENUS = "menus"
+    AWAY = "away"
+
+
 class FixedIncomeEventType(Enum):
     BUY = "BUY"
     REDEEM = "REDEEM"

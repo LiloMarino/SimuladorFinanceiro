@@ -7,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/aler
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Status } from "@/shared/components/ui/status";
+import { PlayerActivityStatus } from "@/shared/components/player-activity-status";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { MAX_PLAYERS } from "@/shared/lib/player-colors";
@@ -109,17 +110,18 @@ export function LobbyPlayersList({
                   <span className="truncate font-semibold">
                     {player.nickname}
                     {isYou && <span className="font-normal text-secondary-foreground"> (você)</span>}
+                    {isHost && (
+                      <Badge variant="info" size="sm" className="ml-1.5 align-[1px]">
+                        Host
+                      </Badge>
+                    )}
                     {isNew && (
                       <Badge variant="info" size="sm" className="ml-1.5 align-[1px]">
                         Novo
                       </Badge>
                     )}
                   </span>
-                  {isHost ? (
-                    <span className="text-xs font-medium text-info">Host</span>
-                  ) : (
-                    <Status status="online">Online</Status>
-                  )}
+                  <PlayerActivityStatus activity={player.activity} />
                 </div>
                 {isYou ? (
                   <div className="flex items-center gap-1.5">

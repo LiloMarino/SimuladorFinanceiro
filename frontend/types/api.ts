@@ -112,6 +112,8 @@ export type UpdateSettingsRequest = components["schemas"]["UpdateSettingsRequest
 export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];
 // Jogador da sala com a cor (chave da paleta) que o servidor deu a ele
 export type RoomPlayer = components["schemas"]["PlayerNickname"];
+// O que o jogador está fazendo na sala (a tela em que está, ou fora da aba do jogo)
+export type PlayerActivity = components["schemas"]["PlayerActivity"];
 export type SimulationInfo = components["schemas"]["SimulationStatusResponse"];
 export type SimulationListItem = components["schemas"]["SavedSimulationDTO"];
 export type PriceImpactPreview = components["schemas"]["PriceImpactPreviewDTO"];

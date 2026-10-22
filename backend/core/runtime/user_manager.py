@@ -1,12 +1,13 @@
 import logging
 from collections import Counter
+from itertools import count
 from threading import Lock
 from typing import ClassVar
 from uuid import UUID
 
 from backend.core import repository
 from backend.core.dto.user import UserDTO
-from backend.core.enum import PlayerGrouping
+from backend.core.enum import PlayerActivity, PlayerGrouping
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -44,6 +45,7 @@ class UserManager:
     - Sincronizar estado com a simulação ativa
     - Dar a cada player da sala uma cor exclusiva da paleta
     - Guardar a equipe de cada player quando a sala joga em equipes
+    - Guardar o que cada player está fazendo, aba por aba, e avisar a sala quando muda
     """
 
     # 🔹 Apenas players autenticados (presença)
@@ -63,6 +65,12 @@ class UserManager:
     # 🔹 Equipes guardadas da partida salva selecionada: quem já jogou fica travado nelas
     _saved_teams: ClassVar[dict[int, int]] = {}
 
+    # 🔹 O que cada aba aberta do player está fazendo (client_id -> sid -> (ordem do aviso, atividade));
+    # só memória. O selo da sala é o da aba mais relevante: aba à vista ganha de ausente, e entre
+    # as à vista vale o aviso mais recente
+    _activities: ClassVar[dict[UUID, dict[str, tuple[int, PlayerActivity | None]]]] = {}
+    _activity_order = count()
+
     # 🔹 Cache lazy client_id -> UserDTO (independente de presença)
     _client_user_cache: LazyDict[UUID, UserDTO | None] = LazyDict(
         loader=repository.user.get_by_client_id
@@ -79,6 +87,7 @@ class UserManager:
         with cls._lock:
             player = cls._active_players.pop(client_id, None)
             color = cls._colors.pop(player.id, None) if player else None
+            cls._activities.pop(client_id, None)
 
         if player and color:
             cls._emit_player_exit(player, color)
@@ -132,6 +141,7 @@ class UserManager:
             # Remove presença ativa (se existir)
             user = cls._active_players.pop(client_id, None)
             color = cls._colors.pop(user.id, None) if user else None
+            cls._activities.pop(client_id, None)
 
         # Limpa caches da simulação (se houver simulação ativa)
         try:
@@ -230,6 +240,60 @@ class UserManager:
     def list_active_players(cls) -> list[UserDTO]:
         with cls._lock:
             return list(cls._active_players.values())
+
+    # =========================
+    # Atividade
+    # =========================
+
+    @classmethod
+    def set_activity(
+        cls, client_id: UUID, sid: str, activity: PlayerActivity | None
+    ) -> None:
+        """A aba `sid` avisa o que está fazendo; a sala só ouve quando o selo do player muda."""
+        with cls._lock:
+            tabs = cls._activities.setdefault(client_id, {})
+            before = cls._resolve_activity(tabs)
+            tabs[sid] = (next(cls._activity_order), activity)
+            after = cls._resolve_activity(tabs)
+            player = cls._active_players.get(client_id)
+
+        if player and before != after:
+            cls._emit_player_activity(player, after)
+
+    @classmethod
+    def drop_activity(cls, client_id: UUID, sid: str) -> None:
+        """A aba `sid` fechou e o player segue em outra: o selo passa a ser o das que restam."""
+        with cls._lock:
+            tabs = cls._activities.get(client_id)
+            if tabs is None or sid not in tabs:
+                return
+            before = cls._resolve_activity(tabs)
+            del tabs[sid]
+            after = cls._resolve_activity(tabs)
+            if not tabs:
+                del cls._activities[client_id]
+            player = cls._active_players.get(client_id)
+
+        if player and before != after:
+            cls._emit_player_activity(player, after)
+
+    @classmethod
+    def room_activities(cls) -> dict[int, PlayerActivity | None]:
+        """Atividade de cada player da sala, por user_id; nulo é "Online"."""
+        with cls._lock:
+            return {
+                player.id: cls._resolve_activity(cls._activities.get(client_id))
+                for client_id, player in cls._active_players.items()
+            }
+
+    @staticmethod
+    def _resolve_activity(
+        tabs: dict[str, tuple[int, PlayerActivity | None]] | None,
+    ) -> PlayerActivity | None:
+        if not tabs:
+            return None
+        in_view = [t for t in tabs.values() if t[1] is not PlayerActivity.AWAY]
+        return max(in_view or tabs.values(), key=lambda tab: tab[0])[1]
 
     # =========================
     # Cores
@@ -557,7 +621,10 @@ class UserManager:
         notify(
             "player_join",
             PlayerPresenceEventDTO(
-                nickname=user.nickname, color=color, team=cls.get_team(user.id)
+                nickname=user.nickname,
+                color=color,
+                team=cls.get_team(user.id),
+                activity=cls.room_activities().get(user.id),
             ).to_json(),
         )
 
@@ -584,7 +651,10 @@ class UserManager:
         notify(
             "player_color",
             PlayerPresenceEventDTO(
-                nickname=user.nickname, color=color, team=team
+                nickname=user.nickname,
+                color=color,
+                team=team,
+                activity=cls.room_activities().get(user.id),
             ).to_json(),
         )
 
@@ -601,6 +671,29 @@ class UserManager:
         notify(
             "player_team",
             PlayerPresenceEventDTO(
-                nickname=user.nickname, color=color, team=team
+                nickname=user.nickname,
+                color=color,
+                team=team,
+                activity=cls.room_activities().get(user.id),
+            ).to_json(),
+        )
+
+    @classmethod
+    def _emit_player_activity(cls, user: UserDTO, activity: PlayerActivity | None):
+        from backend.features.realtime import notify  # noqa: PLC0415
+        from backend.features.realtime.schemas import (  # noqa: PLC0415
+            PlayerPresenceEventDTO,
+        )
+
+        color = cls.get_color(user.id)
+        if color is None:
+            return
+        notify(
+            "player_activity",
+            PlayerPresenceEventDTO(
+                nickname=user.nickname,
+                color=color,
+                team=cls.get_team(user.id),
+                activity=activity,
             ).to_json(),
         )

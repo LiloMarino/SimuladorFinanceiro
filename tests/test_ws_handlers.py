@@ -11,6 +11,7 @@ from uuid import UUID
 import pytest
 from socketio import AsyncServer
 
+from backend.core.enum import PlayerActivity
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime.ws_broker import SocketBroker
@@ -50,6 +51,32 @@ class _Socket:
 
     def subscribe(self, sid: str, events: list[str]) -> None:
         asyncio.run(self.server.handlers["subscribe"](sid, {"events": events}))
+
+    def presence(self, sid: str, data: object) -> None:
+        asyncio.run(self.server.handlers["presence"](sid, data))
+
+
+@pytest.fixture
+def activities(monkeypatch: pytest.MonkeyPatch) -> list[tuple[UUID, str, object]]:
+    """O que o handler `presence` entrega ao UserManager: (client_id, sid, atividade)."""
+    received: list[tuple[UUID, str, object]] = []
+    monkeypatch.setattr(
+        UserManager,
+        "set_activity",
+        lambda client_id, sid, activity: received.append((client_id, sid, activity)),
+    )
+    return received
+
+
+@pytest.fixture
+def dropped(monkeypatch: pytest.MonkeyPatch) -> list[tuple[UUID, str]]:
+    received: list[tuple[UUID, str]] = []
+    monkeypatch.setattr(
+        UserManager,
+        "drop_activity",
+        lambda client_id, sid: received.append((client_id, sid)),
+    )
+    return received
 
 
 @pytest.fixture
@@ -135,3 +162,54 @@ def test_subscription_routes_events_to_the_tab(socket, monkeypatch):
     )
     socket.broker.notify("simulation_update", {})
     assert socket.server.sent[-1] == ("simulation_update", {}, "tab-1")
+
+
+def test_presence_hands_the_activity_of_the_tab_to_the_room(socket, activities):
+    socket.connect("tab-1", f"client_id={ANA}")
+
+    socket.presence("tab-1", {"activity": "settings"})
+
+    assert activities == [(ANA, "tab-1", PlayerActivity.SETTINGS)]
+
+
+def test_presence_with_null_activity_means_online(socket, activities):
+    socket.connect("tab-1", f"client_id={ANA}")
+
+    socket.presence("tab-1", {"activity": None})
+
+    assert activities == [(ANA, "tab-1", None)]
+
+
+@pytest.mark.parametrize(
+    "data",
+    [{"activity": "dancing"}, {"activity": 3}, {"activity": ["lobby"]}, "lobby", None],
+)
+def test_presence_outside_the_catalog_is_ignored(socket, activities, data):
+    socket.connect("tab-1", f"client_id={ANA}")
+
+    socket.presence("tab-1", data)
+
+    assert activities == []
+
+
+def test_presence_of_an_unknown_tab_is_ignored(socket, activities):
+    socket.presence("tab-1", {"activity": "lobby"})
+
+    assert activities == []
+
+
+def test_closing_one_of_two_tabs_drops_only_its_activity(socket, dropped):
+    socket.connect("tab-1", f"client_id={ANA}")
+    socket.connect("tab-2", f"client_id={ANA}")
+
+    socket.disconnect("tab-2")
+
+    assert dropped == [(ANA, "tab-2")]
+
+
+def test_closing_the_last_tab_leaves_the_activity_to_the_unregister(socket, dropped):
+    socket.connect("tab-1", f"client_id={ANA}")
+
+    socket.disconnect("tab-1")
+
+    assert dropped == []

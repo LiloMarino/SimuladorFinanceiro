@@ -34,6 +34,10 @@ export class SocketClient<
     });
   }
 
+  send(event: string, payload: unknown) {
+    this.socket?.emit(event, payload);
+  }
+
   protected async updateBackendSubscription(): Promise<void> {
     if (!this.socket) return;
     const events = Array.from(this.listeners.keys());

@@ -53,6 +53,14 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
   public abstract connect(url?: string): void;
 
   /**
+   * Envia uma mensagem do cliente ao backend; sem conexão aberta ela se perde.
+   *
+   * @param event - Nome da mensagem
+   * @param payload - Dados enviados junto
+   */
+  public abstract send(event: string, payload: unknown): void;
+
+  /**
    * Registra um novo callback para um determinado tipo de evento.
    *
    * @param event - Nome do evento a ser escutado

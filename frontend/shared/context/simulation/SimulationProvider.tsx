@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useSimulationStatus } from "@/shared/hooks/queries/useSimulationStatus";
 import { LifeNotifications } from "@/shared/notifications/life-notifications";
+import { PlayerActivityReporter } from "./PlayerActivityReporter";
 
 export function SimulationProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
@@ -50,6 +51,8 @@ export function SimulationProvider({ children }: PropsWithChildren) {
     >
       {/* Avisos e renovação da vida financeira do viver de renda */}
       <LifeNotifications />
+      {/* Atividade desta aba na sala */}
+      <PlayerActivityReporter />
       {children}
     </SimulationContext.Provider>
   );

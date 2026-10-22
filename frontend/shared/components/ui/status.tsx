@@ -4,7 +4,7 @@ import { cn } from "@/shared/lib/utils";
 
 type StatusKind = NonNullable<VariantProps<typeof statusVariants>["status"]>;
 
-// Bolinha de presença (padrão Status do Kibo UI): online pulsa, offline fica parada
+// Bolinha de presença (padrão Status do Kibo UI): online pulsa, ausente e offline ficam paradas
 function StatusIndicator({ status = "offline" }: { status?: StatusKind }) {
   return (
     <span data-slot="status-indicator" className="relative flex size-2 shrink-0" aria-hidden="true">

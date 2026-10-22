@@ -7090,6 +7090,20 @@
         ],
         "title": "PeakDTO"
       },
+      "PlayerActivity": {
+        "type": "string",
+        "enum": [
+          "lobby",
+          "import_assets",
+          "compare_simulations",
+          "match_result",
+          "settings",
+          "menus",
+          "away"
+        ],
+        "title": "PlayerActivity",
+        "description": "O que o jogador está fazendo na sala: a tela em que está, ou fora da aba do jogo."
+      },
       "PlayerColorRequest": {
         "properties": {
           "color": {
@@ -7233,6 +7247,16 @@
               }
             ],
             "title": "Team"
+          },
+          "activity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PlayerActivity"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -7379,6 +7403,16 @@
               }
             ],
             "title": "Team"
+          },
+          "activity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PlayerActivity"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -7388,7 +7422,7 @@
           "color"
         ],
         "title": "PlayerPresenceEventDTO",
-        "description": "Entrada, saída e troca de cor ou equipe de um jogador: a cor é a chave da paleta."
+        "description": "Entrada, saída e troca de cor, equipe ou atividade de um jogador: a cor é a chave da paleta."
       },
       "PlayerRankingDTO": {
         "properties": {
@@ -8314,6 +8348,9 @@
           "player_team": {
             "$ref": "#/components/schemas/PlayerPresenceEventDTO"
           },
+          "player_activity": {
+            "$ref": "#/components/schemas/PlayerPresenceEventDTO"
+          },
           "simulation_selected": {
             "$ref": "#/components/schemas/SimulationSelectedEventDTO"
           },
@@ -8366,6 +8403,7 @@
           "player_exit",
           "player_color",
           "player_team",
+          "player_activity",
           "simulation_selected",
           "simulation_deleted",
           "simulation_settings_update",

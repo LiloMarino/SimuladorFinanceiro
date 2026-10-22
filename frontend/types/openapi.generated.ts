@@ -2546,6 +2546,12 @@ export interface components {
             /** Today */
             today: number;
         };
+        /**
+         * PlayerActivity
+         * @description O que o jogador está fazendo na sala: a tela em que está, ou fora da aba do jogo.
+         * @enum {string}
+         */
+        PlayerActivity: "lobby" | "import_assets" | "compare_simulations" | "match_result" | "settings" | "menus" | "away";
         /** PlayerColorRequest */
         PlayerColorRequest: {
             /** Color */
@@ -2595,6 +2601,7 @@ export interface components {
             color: string;
             /** Team */
             team?: number | null;
+            activity?: components["schemas"]["PlayerActivity"] | null;
         };
         /** PlayerNotificationSettings */
         PlayerNotificationSettings: {
@@ -2631,7 +2638,7 @@ export interface components {
         };
         /**
          * PlayerPresenceEventDTO
-         * @description Entrada, saída e troca de cor ou equipe de um jogador: a cor é a chave da paleta.
+         * @description Entrada, saída e troca de cor, equipe ou atividade de um jogador: a cor é a chave da paleta.
          */
         PlayerPresenceEventDTO: {
             /** Nickname */
@@ -2640,6 +2647,7 @@ export interface components {
             color: string;
             /** Team */
             team?: number | null;
+            activity?: components["schemas"]["PlayerActivity"] | null;
         };
         /** PlayerRankingDTO */
         PlayerRankingDTO: {
@@ -2943,6 +2951,7 @@ export interface components {
             player_exit: components["schemas"]["PlayerPresenceEventDTO"];
             player_color: components["schemas"]["PlayerPresenceEventDTO"];
             player_team: components["schemas"]["PlayerPresenceEventDTO"];
+            player_activity: components["schemas"]["PlayerPresenceEventDTO"];
             simulation_selected: components["schemas"]["SimulationSelectedEventDTO"];
             simulation_deleted: components["schemas"]["SimulationDeletedEventDTO"];
             simulation_settings_update: components["schemas"]["SimulationSettingsDTO"];
