@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+from typing import Literal
 
 from fastapi import APIRouter, Query, status
 from pydantic import BaseModel, Field, model_validator
@@ -19,6 +20,7 @@ from backend.core.dto.simulation import (
 from backend.core.enum import (
     GameType,
     LifeHistoryCategory,
+    LifeHistorySort,
     PlayerActivity,
     PlayerGrouping,
     TeamNaming,
@@ -463,13 +465,15 @@ def get_life_status(client_id: ClientID):
     "/life-history",
     response_model=LifeHistoryPageDTO,
     summary="Histórico do viver de renda",
-    description="Imprevistos, demissões, entrada e saída do cheque especial e o juro de cada mês, do mais recente ao mais antigo, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria.",
+    description="Imprevistos, demissões, entrada e saída do cheque especial e o juro de cada mês, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria e ordenável por `sort_by` e `sort_direction`. O padrão é data decrescente; a ordenação considera todo o histórico antes da paginação.",
 )
 def get_life_history(
     client_id: ClientID,
     category: LifeHistoryCategory | None = None,
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=6, ge=1, le=100),
+    sort_by: LifeHistorySort = LifeHistorySort.DATE,
+    sort_direction: Literal["asc", "desc"] = "desc",
 ):
     """
     Retorna uma página do histórico de quem pede.
@@ -480,7 +484,9 @@ def get_life_history(
         SimulationManager.get_active_simulation_id(),
         UserManager.get_user_id(client_id),
     )
-    return history_page(build_history(events), category, offset, limit)
+    return history_page(
+        build_history(events), category, offset, limit, sort_by, sort_direction
+    )
 
 
 @simulation_router.post(

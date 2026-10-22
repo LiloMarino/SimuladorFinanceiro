@@ -3626,7 +3626,7 @@
           "Simulation"
         ],
         "summary": "Histórico do viver de renda",
-        "description": "Imprevistos, demissões, entrada e saída do cheque especial e o juro de cada mês, do mais recente ao mais antigo, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria.",
+        "description": "Imprevistos, demissões, entrada e saída do cheque especial e o juro de cada mês, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria e ordenável por `sort_by` e `sort_direction`. O padrão é data decrescente; a ordenação considera todo o histórico antes da paginação.",
         "operationId": "get_life_history_api_simulation_life_history_get",
         "security": [
           {
@@ -3671,6 +3671,29 @@
               "minimum": 1,
               "default": 6,
               "title": "Limit"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/LifeHistorySort",
+              "default": "date"
+            }
+          },
+          {
+            "name": "sort_direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string",
+              "default": "desc",
+              "title": "Sort Direction"
             }
           }
         ],
@@ -6187,6 +6210,17 @@
           "cash_after"
         ],
         "title": "LifeHistoryRowDTO"
+      },
+      "LifeHistorySort": {
+        "type": "string",
+        "enum": [
+          "date",
+          "type",
+          "description",
+          "amount",
+          "cash"
+        ],
+        "title": "LifeHistorySort"
       },
       "LifeStatusDTO": {
         "properties": {

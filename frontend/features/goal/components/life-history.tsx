@@ -13,14 +13,15 @@ import {
   TableBody,
   TableCell,
   TableEmptyRow,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { unexpectedLabel } from "@/shared/lib/financial-independence";
 import { displayDate, displaySignedMoney, parseLocalDate } from "@/shared/lib/utils/display";
-import type { LifeHistoryCategory, LifeHistoryPage, LifeStatus } from "@/types";
+import type { LifeHistoryCategory, LifeHistoryPage, LifeStatus, LifeHistorySort } from "@/types";
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSortState } from "@/shared/hooks/useTableSort";
 import { useLifeHistory } from "../hooks/queries/useLifeHistory";
 import { LIFE_HISTORY_KINDS, lifeRowIcon, lifeRowText } from "../lib/life-history";
 
@@ -46,6 +47,7 @@ type LifeHistoryProps = {
 /** "Histórico" do viver de renda: imprevistos, demissões e cheque especial, do mais recente ao mais antigo. */
 export function LifeHistory({ life }: LifeHistoryProps) {
   const [filter, setFilter] = useState<Filter>("ALL");
+  const sorting = useTableSortState<LifeHistorySort>({ column: "date", direction: "desc" });
   const {
     data: pages,
     isPending,
@@ -54,7 +56,8 @@ export function LifeHistory({ life }: LifeHistoryProps) {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useLifeHistory(filter === "ALL" ? null : filter);
+    isFetching,
+  } = useLifeHistory(filter === "ALL" ? null : filter, sorting.sort!);
   // O aviso que levou até aqui marca a linha do evento
   const highlightDate = (useLocation().state as { highlightDate?: string } | null)?.highlightDate;
 
@@ -67,8 +70,7 @@ export function LifeHistory({ life }: LifeHistoryProps) {
       <CardHeader>
         <CardTitle>Histórico</CardTitle>
         <CardDescription>
-          O que aconteceu na partida, do mais recente ao mais antigo. Os imprevistos são iguais para todos; o caixa
-          depois é o seu.
+          O que aconteceu na partida. Clique nos cabeçalhos para ordenar todo o histórico. Os imprevistos são iguais para todos; o caixa depois é o seu.
         </CardDescription>
         <CardAction>
           <ToggleGroup
@@ -97,14 +99,14 @@ export function LifeHistory({ life }: LifeHistoryProps) {
           />
         </div>
       ) : (
-        <Table>
+        <Table aria-busy={isFetching}>
           <TableHeader>
             <TableRow>
-              <TableHead>Data na partida</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>O que foi</TableHead>
-              <TableHead numeric>Valor</TableHead>
-              <TableHead numeric>Seu caixa depois</TableHead>
+              <SortableTableHead {...sorting.header("date")} label="Data na partida" />
+              <SortableTableHead {...sorting.header("type")} label="Tipo" />
+              <SortableTableHead {...sorting.header("description")} label="O que foi" />
+              <SortableTableHead {...sorting.header("amount")} label="Valor" numeric />
+              <SortableTableHead {...sorting.header("cash")} label="Seu caixa depois" numeric />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -166,7 +168,7 @@ export function LifeHistory({ life }: LifeHistoryProps) {
       {/* Mais linhas */}
       {hasNextPage && (
         <div className="flex justify-center border-t border-muted px-5 pt-4">
-          <Button variant="outline" size="sm" disabled={isFetchingNextPage} onClick={() => void fetchNextPage()}>
+          <Button variant="outline" size="sm" disabled={isFetching} onClick={() => void fetchNextPage()}>
             {isFetchingNextPage && <Spinner />}
             Mostrar mais · {remaining} {remaining === 1 ? "anterior" : "anteriores"}
           </Button>

@@ -70,13 +70,20 @@ function TableRow({
 }
 
 /** `numeric`: coluna de valores, alinhada à direita. */
-function TableHead({ className, numeric = false, ...props }: React.ComponentProps<"th"> & { numeric?: boolean }) {
+function TableHead({ className, numeric = false, variant = "default", ...props }: React.ComponentProps<"th"> & {
+  numeric?: boolean;
+  variant?: "default" | "compact" | "matrix" | "hint";
+}) {
   return (
     <th
       data-slot="table-head"
       data-numeric={numeric ? "" : undefined}
       className={cn(
-        "h-10 bg-subtle px-4 text-left align-middle text-xs font-medium whitespace-nowrap text-muted-foreground data-numeric:text-right [&:has([role=checkbox])]:pr-0",
+        "text-left align-middle font-medium whitespace-nowrap data-numeric:text-right [&:has([role=checkbox])]:pr-0",
+        variant === "default" && "h-10 bg-subtle px-4 text-xs text-muted-foreground",
+        variant === "compact" && "h-auto bg-transparent px-0 pb-1 text-[11px] text-faint-foreground data-numeric:pl-2",
+        variant === "matrix" && "h-auto bg-transparent px-1 pb-1.5 font-mono text-xs text-muted-foreground",
+        variant === "hint" && "h-auto bg-transparent px-1.5 py-0.5 text-xs text-inherit",
         className,
       )}
       {...props}

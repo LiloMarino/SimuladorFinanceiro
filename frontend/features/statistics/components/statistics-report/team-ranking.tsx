@@ -1,3 +1,6 @@
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
+import { sortNumber, sortTableRows, type TableSort } from "@/shared/lib/table-sort";
 import { useState, type CSSProperties } from "react";
 import { ChevronDown } from "lucide-react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
@@ -9,12 +12,11 @@ import {
   TableBody,
   TableCell,
   TableEmptyRow,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { MetricLabel } from "@/shared/components/metric-hint";
+import { MetricHint } from "@/shared/components/metric-hint";
 import { teamColor, teamName } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
@@ -176,34 +178,41 @@ export function TeamRanking({
     </ToggleGroup>
   );
 
-  if (view === "PLAYERS") return playerRanking(toggle);
-
   const goalRace = rankingMeasure(report) === "GOAL";
   const topScore = Math.max(...report.teams.map((t) => Number(t.score?.total ?? 0)), 1);
+  const sorting = useTableSort(report.teams, {
+    position: (t) => t.position,
+    name: (t) => teamName(t.team, report.team_naming),
+    score: (t) => sortNumber(goalRace ? t.criterion_value : t.score?.total),
+    wealth: (t) => sortNumber(t.total_networth),
+    return: (t) => sortNumber(t.return_percent),
+    days: (t) => daysOf(membersOf(report, t.team)),
+    gap: (t) => goalRace && report.goal_net_worth
+      ? t.criterion_value == null ? null : Math.max(0, (1 - Number(t.criterion_value)) * Number(report.goal_net_worth))
+      : t.position === 1 ? null : sortNumber(t.leader_gap),
+  });
+  if (view === "PLAYERS") return playerRanking(toggle);
+
 
   return (
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle>Ranking por equipe</CardTitle>
         <CardDescription>
-          Ordenado pela média da equipe no critério da partida: {criterionLabel(report)}
+          Classificação pela média da equipe no critério da partida: {criterionLabel(report)}
         </CardDescription>
         <CardAction>{toggle}</CardAction>
       </CardHeader>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>#</TableHead>
-            <TableHead>Equipe e membros</TableHead>
-            <TableHead>
-              <MetricLabel metric={goalRace ? GOAL_PERCENT : SCORE} />
-            </TableHead>
-            <TableHead numeric>Patrimônio</TableHead>
-            <TableHead numeric>Retorno</TableHead>
-            <TableHead numeric>Pregões</TableHead>
-            <TableHead numeric>
-              {goalRace && report.goal_net_worth ? <MetricLabel metric={GOAL_REMAINING} /> : "Distância do líder"}
-            </TableHead>
+            <SortableTableHead label={"#"} {...sorting.header("position")} />
+            <SortableTableHead label={"Equipe e membros"} {...sorting.header("name")} />
+            <SortableTableHead label={(goalRace ? GOAL_PERCENT : SCORE).label} {...sorting.header("score")} numeric hint={<MetricHint metric={goalRace ? GOAL_PERCENT : SCORE} />} />
+            <SortableTableHead label={"Patrimônio"} {...sorting.header("wealth")} numeric />
+            <SortableTableHead label={"Retorno"} {...sorting.header("return")} numeric />
+            <SortableTableHead label={"Pregões"} {...sorting.header("days")} numeric />
+            <SortableTableHead label={goalRace && report.goal_net_worth ? GOAL_REMAINING.label : "Distância do líder"} {...sorting.header("gap")} numeric />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -216,12 +225,13 @@ export function TeamRanking({
               </p>
             </TableEmptyRow>
           )}
-          {report.teams.map((team) => (
+          {sorting.rows.map((team) => (
             <TeamRows
               key={team.team}
               report={report}
               team={team}
               topScore={topScore}
+              sort={sorting.sort}
               currentPlayerName={currentPlayerName}
               open={open[team.team] ?? false}
               onToggle={() => setOpen((prev) => ({ ...prev, [team.team]: !prev[team.team] }))}
@@ -243,6 +253,7 @@ function TeamRows({
   currentPlayerName,
   open,
   onToggle,
+  sort,
 }: {
   report: OverviewReport;
   team: Team;
@@ -250,8 +261,17 @@ function TeamRows({
   currentPlayerName: string;
   open: boolean;
   onToggle: () => void;
+  sort: TableSort | null;
 }) {
-  const members = membersOf(report, team.team);
+  const members = sortTableRows(membersOf(report, team.team), {
+    position: (m) => m.position,
+    name: (m) => m.player_nickname,
+    score: (m) => sortNumber(rankingMeasure(report) === "GOAL" ? m.criterion_value : m.score?.total),
+    wealth: (m) => sortNumber(m.total_networth),
+    return: (m) => sortNumber(m.return_percent),
+    days: (m) => m.days,
+    gap: (m) => sortNumber(m.team_contribution),
+  }, sort);
   const style = { "--team": teamColor(team.team) } as CSSProperties;
   const naming = report.team_naming;
   const maxScore = topScore;

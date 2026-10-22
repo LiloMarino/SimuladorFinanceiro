@@ -3,7 +3,8 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import type ApiError from "@/shared/lib/models/ApiError";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useSimulation } from "@/shared/hooks/useSimulation";
-import type { LifeHistoryCategory, LifeHistoryPage } from "@/types";
+import type { LifeHistoryCategory, LifeHistoryPage, LifeHistorySort } from "@/types";
+import type { TableSort } from "@/shared/lib/table-sort";
 
 /** Linhas por página; "Mostrar mais" abre a seguinte na mesma tela. */
 export const LIFE_HISTORY_PAGE_SIZE = 6;
@@ -12,7 +13,7 @@ export const LIFE_HISTORY_PAGE_SIZE = 6;
  * O histórico da vida financeira, do mais recente ao mais antigo, uma página de cada vez
  * por deslocamento. Sem categoria, traz tudo. A anterior fica na tela enquanto o filtro troca.
  */
-export function useLifeHistory(category: LifeHistoryCategory | null) {
+export function useLifeHistory(category: LifeHistoryCategory | null, sort: TableSort<LifeHistorySort>) {
   const { simulation } = useSimulation();
   const current = simulation?.active ? simulation.simulation : null;
 
@@ -23,11 +24,13 @@ export function useLifeHistory(category: LifeHistoryCategory | null) {
     ReturnType<typeof queryKeys.lifeHistory>,
     number
   >({
-    queryKey: queryKeys.lifeHistory(current?.id ?? 0, category ?? "ALL"),
+    queryKey: queryKeys.lifeHistory(current?.id ?? 0, category ?? "ALL", sort.column, sort.direction),
     queryFn: ({ pageParam, signal }) => {
       const params = new URLSearchParams({
         offset: String(pageParam),
         limit: String(LIFE_HISTORY_PAGE_SIZE),
+        sort_by: sort.column,
+        sort_direction: sort.direction,
       });
       if (category) params.set("category", category);
       return apiFetch<LifeHistoryPage>(`/api/simulation/life-history?${params}`, { signal });

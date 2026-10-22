@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-22):** Tutorial redefinido no molde das Dicas e truques do Factorio (abas por tópico, ilustradas e animadas), onde mora a explicação longa que as telas só resumem; antes disso, modo automático, bots e crédito detalhados numa rodada de alinhamento.
+> **Última mudança (2026-10-22):** Registrada a necessidade N36 e implementada e arquivada F112: ordenação em todas as tabelas de dados, incluindo histórico paginado, equipes, correlação e painéis técnicos.
 
 ## Glossário
 
@@ -53,6 +53,7 @@
 | **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F94](#f94), [F111](#f111) | — |
 | **N34** | Disputar o poder de mudar as regras da economia da partida | — | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
+| **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ⏳ |

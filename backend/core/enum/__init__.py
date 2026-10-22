@@ -199,6 +199,14 @@ class LifeEventEffect(Enum):
     SKIP_NEXT_SALARY = "SKIP_NEXT_SALARY"
 
 
+class LifeHistorySort(Enum):
+    DATE = "date"
+    TYPE = "type"
+    DESCRIPTION = "description"
+    AMOUNT = "amount"
+    CASH = "cash"
+
+
 class LifeHistoryCategory(Enum):
     """Os filtros do histórico do viver de renda."""
 

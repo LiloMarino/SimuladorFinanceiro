@@ -25,6 +25,8 @@ import { useRefreshSeries } from "../hooks/mutations/useRefreshSeries";
 import { timelineRange, timelineTicks } from "../lib/timeline";
 import { ClassifyRow } from "./classify-row";
 import { CoverageBar } from "./coverage-bar";
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
 
 const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   STOCK: "Ação",
@@ -57,7 +59,14 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
   const ticks = timelineTicks(range);
   const outdated = series.filter(isOutdatedStock);
   const attentionCount = series.filter(needsAttention).length;
-  const visible = filter === "ATTENTION" ? series.filter(needsAttention) : series;
+  const sorting = useTableSort(filter === "ATTENTION" ? series.filter(needsAttention) : series, {
+    series: (s) => s.key,
+    sector: (s) => s.segment ? `${s.segment.sector} · ${s.segment.segment}` : null,
+    end: (s) => s.real_end,
+    status: (s) => !s.real_end ? "Sem dado" : isOutdatedStock(s) ? `Parou em ${s.real_end}`
+      : s.kind === "STOCK" && !s.segment ? "Sem setor" : "Em dia",
+  });
+  const visible = sorting.rows;
   const groups = [
     { label: "Indicadores · Banco Central e B3", items: visible.filter((s) => s.kind === "INDICATOR") },
     { label: "Ativos", items: visible.filter((s) => s.kind === "STOCK") },
@@ -97,9 +106,9 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Série</TableHead>
-            <TableHead>Setor · segmento</TableHead>
-            <TableHead className="w-full min-w-56">
+            <SortableTableHead label="Série" {...sorting.header("series")} />
+            <SortableTableHead label="Setor · segmento" {...sorting.header("sector")} />
+            <SortableTableHead label="Dados reais até" {...sorting.header("end")} className="w-full min-w-56">
               {/* Eixo comum da linha do tempo */}
               <div className="relative h-4">
                 {ticks.map((tick) => (
@@ -113,8 +122,8 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                 ))}
                 <span className="absolute right-0">hoje</span>
               </div>
-            </TableHead>
-            <TableHead>Situação</TableHead>
+            </SortableTableHead>
+            <SortableTableHead label="Situação" {...sorting.header("status")} />
             <TableHead>
               <span className="sr-only">Ações</span>
             </TableHead>

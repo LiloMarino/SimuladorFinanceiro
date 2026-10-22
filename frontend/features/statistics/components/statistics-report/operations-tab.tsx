@@ -1,11 +1,14 @@
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
+import { sortNumber, sortTableRows } from "@/shared/lib/table-sort";
 import { Fragment, type CSSProperties } from "react";
 import { Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
-import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
+import { MetricHint } from "@/shared/components/metric-hint";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { teamColor, teamName } from "@/shared/lib/teams";
 import {
@@ -27,6 +30,14 @@ type TeamOperations = OperationsReport["teams"][number];
 
 export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("operations", simulationIds, onlyPlayer);
+  const sorting = useTableSort(data?.players ?? [], {
+    player: (p) => playerLabel(p, simulationIds, currentPlayerName),
+    trades: (p) => p.buy_trades + p.sell_trades,
+    volume: (p) => sortNumber(p.traded_volume),
+    turnover: (p) => sortNumber(p.turnover),
+    tax: (p) => sortNumber(p.income_tax_paid),
+    impact: (p) => sortNumber(p.impact_cost),
+  });
   if (!data) return <TabStatus simulationIds={simulationIds} loading={isLoading} title="as Operações" error={error} onRetry={() => void refetch()} />;
 
   const mostTrades = Math.max(...data.players.map((p) => p.buy_trades + p.sell_trades), 1);
@@ -34,8 +45,15 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
   const impactOn = data.players.some((p) => p.impact_cost !== null);
   const naming = data.team_naming;
   const groups = groupByTeam(
-    data.players,
-    data.teams.map((t) => t.team),
+    sorting.rows,
+    sortTableRows(data.teams, {
+      player: (t) => teamName(t.team, data.team_naming),
+      trades: (t) => t.buy_trades + t.sell_trades,
+      volume: (t) => sortNumber(t.traded_volume),
+      turnover: (t) => sortNumber(t.turnover),
+      tax: (t) => sortNumber(t.income_tax_paid),
+      impact: (t) => sortNumber(t.impact_cost),
+    }, sorting.sort).map((t) => t.team),
   );
   const teamOf = (team: number | null) => data.teams.find((t) => t.team === team);
 
@@ -61,20 +79,12 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{data.teams.length > 0 ? "Equipe e membros" : "Jogador"}</TableHead>
-              <TableHead>Negócios</TableHead>
-              <TableHead numeric>
-                <MetricLabel metric={TRADED_VOLUME} />
-              </TableHead>
-              <TableHead>
-                <MetricLabel metric={TURNOVER} />
-              </TableHead>
-              <TableHead numeric>
-                <MetricLabel metric={INCOME_TAX_PAID} />
-              </TableHead>
-              <TableHead numeric>
-                <MetricLabel metric={IMPACT_COST} />
-              </TableHead>
+              <SortableTableHead label={data.teams.length > 0 ? "Equipe e membros" : "Jogador"} {...sorting.header("player")} />
+              <SortableTableHead label={"Negócios"} {...sorting.header("trades")} numeric />
+              <SortableTableHead label={TRADED_VOLUME.label} {...sorting.header("volume")} numeric hint={<MetricHint metric={TRADED_VOLUME} />} />
+              <SortableTableHead label={TURNOVER.label} {...sorting.header("turnover")} numeric hint={<MetricHint metric={TURNOVER} />} />
+              <SortableTableHead label={INCOME_TAX_PAID.label} {...sorting.header("tax")} numeric hint={<MetricHint metric={INCOME_TAX_PAID} />} />
+              <SortableTableHead label={IMPACT_COST.label} {...sorting.header("impact")} numeric hint={<MetricHint metric={IMPACT_COST} />} />
             </TableRow>
           </TableHeader>
           <TableBody>

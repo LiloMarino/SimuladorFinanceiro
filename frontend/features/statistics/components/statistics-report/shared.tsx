@@ -15,8 +15,11 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { ErrorState } from "@/shared/components/error-state";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { TeamBadge } from "@/shared/components/team-badge";
-import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
-import { teamColor } from "@/shared/lib/teams";
+import { MetricHint } from "@/shared/components/metric-hint";
+import { teamColor, teamName } from "@/shared/lib/teams";
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
+import { sortNumber, sortTableRows, type SortColumns } from "@/shared/lib/table-sort";
 import type ApiError from "@/shared/lib/models/ApiError";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import type { MetricInfo } from "@/shared/lib/metric-info";
@@ -242,6 +245,16 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
   footer,
   groups,
 }: MetricsTableProps<T, G>) {
+  const playerColumns: SortColumns<T> = {
+    player: r => playerLabel(r, simulationIds, currentPlayerName),
+    ...Object.fromEntries(columns.map(c => [c.metric.label, (r: T) => sortNumber(c.value(r))])),
+  };
+  const sorting = useTableSort(rows, playerColumns);
+  const teamColumns: SortColumns<G> = {
+    player: t => groups ? teamName(t.team, groups.naming) : String(t.team),
+    ...Object.fromEntries(columns.map(c => [c.metric.label, (t: G) => sortNumber(c.teamValue?.(t))])),
+  };
+  const teams = sortTableRows(groups?.teams ?? [], teamColumns, sorting.sort);
   const bestOf = columns.map((column) => {
     if (!column.best || rows.length < 2) return null;
     const values = rows
@@ -296,7 +309,7 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
   };
 
   const renderTeam = (team: G, naming: TeamNaming, note: string | undefined) => {
-    const members = rows.filter((r) => r.team === team.team);
+    const members = sorting.rows.filter((r) => r.team === team.team);
     return (
       <Fragment key={`team-${team.team}`}>
         <TableRow variant="team" style={{ "--team": teamColor(team.team) } as CSSProperties}>
@@ -336,12 +349,11 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{groups ? "Equipe e membros" : "Jogador"}</TableHead>
+            <SortableTableHead {...sorting.header("player")} label={groups ? "Equipe e membros" : "Jogador"} />
             {extraColumn && <TableHead>{extraColumn.header}</TableHead>}
             {columns.map((column) => (
-              <TableHead key={column.metric.label} numeric>
-                <MetricLabel metric={column.metric} />
-              </TableHead>
+              <SortableTableHead key={column.metric.label} {...sorting.header(column.metric.label)} label={column.metric.label}
+                numeric hint={<MetricHint metric={column.metric} />} />
             ))}
           </TableRow>
         </TableHeader>
@@ -352,8 +364,8 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
             </TableEmptyRow>
           )}
           {groups
-            ? groups.teams.map((team) => renderTeam(team, groups.naming, groups.note?.(team)))
-            : rows.map((row) => renderRow(row, false))}
+            ? teams.map((team) => renderTeam(team, groups.naming, groups.note?.(team)))
+            : sorting.rows.map((row) => renderRow(row, false))}
           {footer}
         </TableBody>
       </Table>

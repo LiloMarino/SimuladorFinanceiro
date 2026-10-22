@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança:** Concluídas e arquivadas as cotações em lote (F80), respeitando as versões por partida e reutilizando o catálogo no motor. O contrato da API e o schema foram preservados.
+> **Última mudança (2026-10-22):** Registrada a necessidade de encontrar os menores e maiores valores nos dados do jogo (N36). Implementada e arquivada a ordenação em todas as tabelas de dados (F112), com paginação global no histórico e preservação das equipes e da colocação oficial.
 
 ---
 
@@ -129,6 +129,9 @@ Em vez de só reagir aos impostos e ao cenário, chegar ao governo e mexer neles
 
 **N35. Tirar da lista as partidas que não interessam mais**
 Partidas de teste, abandonadas no começo ou repetidas se acumulam em "Simulações salvas" e na comparação de partidas, e hoje não há como apagar nenhuma: a lista só cresce, e achar a partida que importa fica cada vez mais difícil.
+
+**N36. Encontrar rapidamente os menores e maiores valores nos dados do jogo**
+Comparar preços, taxas, quantidades e resultados sem procurar linha por linha. O usuário pediu essa capacidade em todas as tabelas de dados, incluindo estatísticas e telas de manutenção, e precisa que as atualizações da partida preservem a escolha de comparação.
 
 ---
 

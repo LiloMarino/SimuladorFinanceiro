@@ -1,23 +1,29 @@
 import type { ReactNode } from "react";
 import { InfoHint } from "@/shared/components/info-hint";
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
 import { withMinus, INFLATION_SHOCK_TABLE, signedShock, TEMPERATURE_TABLE } from "../lib/future-readings";
 
-function HintTable({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
+type HintRow = { values: number[]; cells: ReactNode[] };
+
+function HintTable({ head, rows }: { head: string[]; rows: HintRow[] }) {
+  const sorting = useTableSort(rows, Object.fromEntries(head.map((_, index) => [
+    String(index), (row: HintRow) => row.values[index],
+  ])));
   return (
     <table className="mt-1 w-full border-collapse text-xs tabular-nums">
       <thead>
         <tr className="opacity-70">
           {head.map((cell, index) => (
-            <th key={cell} className={index === 0 ? "py-0.5 pr-2 text-left font-medium" : "px-1.5 py-0.5 text-right font-medium"}>
-              {cell}
-            </th>
+            <SortableTableHead key={cell} label={cell} {...sorting.header(String(index))} numeric={index > 0}
+              variant="hint" />
           ))}
         </tr>
       </thead>
       <tbody>
-        {rows.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.map((cell, index) => (
+        {sorting.rows.map((row) => (
+          <tr key={row.values[0]}>
+            {row.cells.map((cell, index) => (
               <td key={index} className={index === 0 ? "py-0.5 pr-2 text-left" : "px-1.5 py-0.5 text-right"}>
                 {cell}
               </td>
@@ -31,7 +37,7 @@ function HintTable({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
 
 export function TemperatureHint() {
   return (
-    <InfoHint label="O que é temperatura">
+    <InfoHint label="O que é temperatura" interactive>
       <div className="space-y-1.5 text-left">
         <p className="font-semibold">Temperatura</p>
         <p>
@@ -44,7 +50,10 @@ export function TemperatureHint() {
         </p>
         <HintTable
           head={["Temp.", "Oscila no ano", "Anos com queda >30%"]}
-          rows={TEMPERATURE_TABLE.map((row) => [row.level, `${row.volatility}%`, `${row.crashYears} de 100`])}
+          rows={TEMPERATURE_TABLE.map((row) => ({
+            values: [row.level, row.volatility, row.crashYears],
+            cells: [row.level, `${row.volatility}%`, `${row.crashYears} de 100`],
+          }))}
         />
         <p className="opacity-70">100 futuros de 5 anos. O pior ano real desde 2000 foi 2008, com 52%.</p>
       </div>
@@ -72,7 +81,7 @@ export function StartRegimeHint() {
 
 export function InflationShockHint() {
   return (
-    <InfoHint label="O que é o choque de inflação">
+    <InfoHint label="O que é o choque de inflação" interactive>
       <div className="space-y-1.5 text-left">
         <p className="font-semibold">Choque de inflação</p>
         <p>
@@ -81,12 +90,14 @@ export function InflationShockHint() {
         </p>
         <HintTable
           head={["Choque", "Inflação no pico", "SELIC no pico", "Queda em 2 anos"]}
-          rows={INFLATION_SHOCK_TABLE.map((row) => [
+          rows={INFLATION_SHOCK_TABLE.map((row) => ({
+            values: [row.shock, row.inflationPeak, row.selicPeak, -row.twoYearDrop],
+            cells: [
             signedShock(row.shock),
             `${row.inflationPeak}%`,
             `${row.selicPeak}%`,
             withMinus(`${row.twoYearDrop}%`),
-          ])}
+          ]}))}
         />
         <p className="opacity-70">Medianas de 50 futuros partindo de hoje, com a SELIC em 13,65%.</p>
       </div>
