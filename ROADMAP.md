@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-22):** Juntados os partidos ao núcleo da expansão Governo, com as regras de partido, eleição em dois turnos, fila do Congresso e pesos da aprovação decididas, e registrados os perfis de público na eleição.
+> **Última mudança (2026-10-22):** D16 decidida: o host roda só as estratégias do app e a personalização é pelo bot via API; F7 concluída, D5 revista, F8 encolhida, F108 virou o guia do bot, o .py no host foi descartado e a F6 passa a impedir a tomada do host.
 
 ## Glossário
 
@@ -21,7 +21,7 @@
 | **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — |
 | **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — |
 | **N3** | Confiar que os números do simulador são exatos e reprodutíveis | — | — |
-| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F8](#f8), [F9](#f9), [F10](#f10), [F19](#f19), [F33](#f33) | — |
+| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F7](#f7), [F8](#f8), [F9](#f9), [F10](#f10), [F19](#f19), [F33](#f33), [F108](#f108) | — |
 | **N5** | Saber quanto risco foi corrido para chegar num resultado | — | — |
 | **N6** | Comparar resultados de simulações diferentes | — | — |
 | **N7** | Que o simulador cobre os custos de operar do mercado real | — | — |
@@ -53,10 +53,8 @@
 | **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F94](#f94) | — |
 | **N34** | Disputar o poder de mudar as regras da economia da partida | — | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
-| **D5** | Onde roda o código de estratégia escrito pelo usuário | [F8](#f8) | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
-| [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | 🔍 |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ⏳ |
 | [**F9**](#f9) | Estratégias prontas de exemplo | — | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
@@ -99,9 +97,10 @@
 | [**F105**](#f105) | Gestoras: rendimentos mensais | — | 🔍 |
 | [**F106**](#f106) | Governo: gasto público e inflação | — | 🔍 |
 | [**F107**](#f107) | Perfis de público na eleição | — | 🔍 |
+| [**F108**](#f108) | Bot pela API: guia e exemplo | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (14 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -109,6 +108,7 @@
 | **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F33](#f33) | ✅ |
 | **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | — | ✅ |
 | **D4** | Banco de dados embarcado no executável | — | ✅ |
+| **D5** | Onde roda o código de estratégia escrito pelo usuário | [F7](#f7) | 🔁 |
 | **D6** | A retomada continua no dia seguinte ao último evento | — | ✅ |
 | **D7** | O simulador lê as séries sem saber a origem | [F92](#f92) | ✅ |
 | **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F8](#f8), [F16](#f16), [F19](#f19) | ✅ |
@@ -119,6 +119,9 @@
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | — | ✅ |
 | **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
+| **D16** | Estratégias do app no host, personalização pela API | [F7](#f7), [F8](#f8), [F108](#f108) | ✅ |
+| [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
+| [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
 
 </details>
 
@@ -130,7 +133,7 @@
 
 | ID | Resumo | Marco | Destrava | Status |
 | --- | --- | --- | --- | --- |
-| [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | M4 | 6 | 🔍 |
+| [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | M4 | 5 | ⏳ |
 | [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 3 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | 🔍 |
@@ -146,6 +149,7 @@
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | 0 | ⏳ |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
+| [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
 
 ---
 
@@ -170,14 +174,22 @@
 >
 > **Serve:** N4
 >
-> **Progresso:** 0/4 concluídas
+> **Progresso:** 1/5 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | 🔍 |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | [F7](#f7) | ⏳ |
 | [**F9**](#f9) | Estratégias prontas de exemplo | [F8](#f8) | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | [F8](#f8) | ⏳ |
+| [**F108**](#f108) | Bot pela API: guia e exemplo | — | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
+
+</details>
 
 ### M6 — Estratégia contra estratégia
 
@@ -298,7 +310,7 @@
 | ID | Resumo | Atende (N#) | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Link de convite pela internet no lobby | N2 | — | M3 | [F5](#f5) | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F8** | Modo automático: estratégia do jogador roda a cada tick | N4 | D5, D8 | M4 | [F7](#f7) | Alto | Alto | Alto | Bom | ⏳ Pendente |
+| **F8** | Modo automático: estratégia do jogador roda a cada tick | N4 | D16, D8 | M4 | [F7](#f7) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F9** | Estratégias prontas de exemplo | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F16** | Bots na sala | N8 | D8 | M6 | [F8](#f8) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
@@ -316,22 +328,31 @@
 | **F94** | Crédito | N33 | D1 | — | — | Alto | Médio | Alto | Bom | 💤 Registrado, sem prioridade |
 | **F96** | Dicas de análise técnica | N19 | — | M11 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F101** | Carteira separada do jogador | N23 | D9 | — | — | Alto | Alto | Médio | Médio | 💤 Registrado, sem prioridade |
+| **F7** | Spike: estratégia Python escrita pelo usuário | N4 | D5, D16 | M4 | — | Médio | Médio | Alto | Excelente | ✅ Concluído |
+| **F108** | Bot pela API: guia e exemplo | N4 | D16 | M4 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
-**F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Gatilho: F5 concluída.
-**Aceite:** um amigo fora da rede local entra na partida só abrindo o link, sem instalar nada.
+**F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
+**Aceite:** um amigo fora da rede local entra na partida só abrindo o link, sem instalar nada; com o host desconectado, nenhum outro jogador consegue virar host.
 
 <a id="f8"></a>
-**F8 — Modo automático: estratégia do jogador roda a cada tick.** Origem: #2, #12, #14. Hoje `SimulationEngine.set_strategy` guarda uma estratégia só para o engine inteiro; ela passa a ser por jogador (`client_id` → estratégia), com `ManualStrategy` (já é no-op) como padrão. Cada tick chama `next()` da estratégia de cada jogador antes do flush de eventos. A página de Estratégias (hoje um mock que retorna 501) vira real: escolher a estratégia, ativar e desativar (a alternância manual ↔ automático da #14) e ver o log das ordens que ela emitiu. Onde a estratégia roda e quem pode carregá-la segue a D5. Gatilho: F7 concluída.
+**F8 — Modo automático: estratégia do jogador roda a cada tick.** Origem: #2, #12, #14. Segue a D16 (as estratégias são classes do app) e a D8. Plano:
+1. **Estratégia por jogador.** `SimulationEngine.set_strategy` deixa de guardar uma estratégia só para o motor e passa a `client_id` → estratégia, com a `ManualStrategy` (já é no-op) como padrão. Cada tick chama a estratégia de cada jogador antes do flush de eventos. Uma exceção na estratégia não derruba o tick: o motor a captura, devolve o jogador ao manual e registra o motivo, com o traceback, no log da estratégia.
+2. **Classe base com contexto.** `next(ctx)` recebe a data, o caixa, as posições de renda variável e fixa, as ofertas de renda fixa do dia, as cotações com setor e segmento (`repository.stock.get_classification`), os indicadores do dia (CDI, Selic, IPCA) e o histórico OHLCV de um ativo como `DataFrame` do pandas, lido do banco na versão de séries da partida (o `MarketData` só guarda 30 candles). As ações são comprar e vender a mercado ou a limite, cancelar uma ordem aberta e aplicar em renda fixa; viram as mesmas chamadas que a interface faz (`matching_engine.submit`, `fixed_broker.buy`) em nome do jogador. O contexto é um retrato do dia em dados simples, montado pelo motor antes de chamar a estratégia.
+3. **Registro das estratégias.** Cada estratégia do app declara nome, descrição e parâmetros (tipo, padrão e faixa); a página e a escolha de bot da F16 leem esse registro.
+4. **Página de Estratégias real.** Hoje é um mock que retorna 501. Passa a listar as estratégias registradas, editar os parâmetros, ativar e desativar a do jogador (a alternância manual ↔ automático da #14) e mostrar o log das ordens que ela emitiu e do desligamento.
+5. **Retomada.** A estratégia ativa de cada jogador e os parâmetros dela ficam gravados na partida (migração) e voltam na retomada; o estado interno da estratégia não volta, ela deriva o que precisa do contexto, que tem o histórico.
+
+Gatilho: a F7 está concluída; pode começar.
 
 <a id="f9"></a>
-**F9 — Estratégias prontas de exemplo.** Estratégias simples e conhecidas, implementadas como subclasses da classe base com parâmetros editáveis na UI. Duas famílias: **referências**, para responder se uma estratégia bate o "não fazer nada" — comprar e segurar um ETF de índice (BOVA11), 100% no CDI e rebalanceamento por meta (ex.: 60% ações / 40% renda fixa, voltando à meta todo mês, como o rebalanceamento do [Finance Manager](https://github.com/LiloMarino/Finance-Manager)); e **táticas**, as três do mock atual de `strategies.tsx` — cruzamento de médias móveis de 50 e 200 dias, RSI (compra abaixo de 30, vende acima de 70) e rompimento de máxima com volume — mais momentum (compra os ativos que mais subiram nos últimos 12 meses). Servem para jogar no automático e como bots (F16) sem escrever código, como exemplo comentado para o guia da F10 e como teste da própria classe base: o rebalanceamento e o 100% CDI só cabem se a estratégia enxergar caixa, posições e renda fixa, e cada estratégia que não couber limpa aponta o que falta na API da F7/F8.
+**F9 — Estratégias prontas de exemplo.** Estratégias simples e conhecidas, implementadas como subclasses da classe base com parâmetros editáveis na UI. Duas famílias: **referências**, para responder se uma estratégia bate o "não fazer nada" — comprar e segurar um ETF de índice (BOVA11), 100% no CDI e rebalanceamento por meta (ex.: 60% ações / 40% renda fixa, voltando à meta todo mês, como o rebalanceamento do [Finance Manager](https://github.com/LiloMarino/Finance-Manager)); e **táticas**, as três do mock atual de `strategies.tsx` — cruzamento de médias móveis de 50 e 200 dias, RSI (compra abaixo de 30, vende acima de 70) e rompimento de máxima com volume — mais momentum (compra os ativos que mais subiram nos últimos 12 meses). Servem para jogar no automático e como bots (F16) sem escrever código, como exemplo comentado para o guia da F10 e como teste da própria classe base: o rebalanceamento e o 100% CDI só cabem se a estratégia enxergar caixa, posições e renda fixa, e cada estratégia que não couber limpa aponta o que falta na API da F8. O rebalanceamento só tira dinheiro da renda fixa depois da F71: até lá, a renda fixa só volta ao caixa no vencimento, e a estratégia rebalanceia pelo que vence e pelo caixa.
 
 <a id="f10"></a>
-**F10 — Guia de como escrever uma estratégia.** Origem: #49. Página no Docusaurus (grupo "Como Usar"): a classe base, quais métodos o usuário implementa e quais já vêm prontos, o que acontece em cada tick, uma das estratégias da F9 comentada linha a linha, e as limitações (bibliotecas disponíveis no executável, tempo máximo por tick, regra de multiplayer da D5). Gatilho: F8 concluída — a API da classe base só fica estável depois dela.
+**F10 — Guia de como escrever uma estratégia.** Origem: #49. Página no Docusaurus (grupo "Desenvolvimento"): como acrescentar uma estratégia ao app, com a classe base, o contexto que ela recebe a cada tick, como declarar nome e parâmetros e onde registrá-la para aparecer na página de Estratégias, nos bots e no backtest; uma das estratégias da F9 comentada linha a linha; e os limites (uma exceção devolve o jogador ao manual, o estado interno não volta na retomada). Quem não quer mexer no código do app tem o bot pela API (F108). Gatilho: F8 concluída — a API da classe base só fica estável depois dela.
 
 <a id="f16"></a>
-**F16 — Bots na sala.** Serve N8; segue a D8. No lobby, o host clica "Adicionar bot" e escolhe a estratégia — as prontas da F9 ou as escritas pelo usuário na F8; cada estratégia é um "tipo de IA", como as IAs do OpenTTD — e um nome. O bot é um jogador sem socket: registro em `users` marcado como bot, carteira própria, e o motor chama o `next()` da estratégia dele a cada tick, como faz com a de um humano no automático. Aparece no ranking e nas estatísticas como qualquer jogador, com um ícone que o distingue. Quem escolhe o código do bot é o host, então ele roda no processo do host qualquer que seja a D5 — a restrição da D5 é sobre código vindo de jogador remoto. Com a F13 ligada, as ordens do bot movem preço como as de qualquer jogador. Gatilho: F8 concluída.
+**F16 — Bots na sala.** Serve N8; segue a D8. No lobby, o host clica "Adicionar bot" e escolhe a estratégia — as estratégias do app (F9); cada estratégia é um "tipo de IA", como as IAs do OpenTTD — e um nome. O bot é um jogador sem socket: registro em `users` marcado como bot, carteira própria, e o motor chama o `next()` da estratégia dele a cada tick, como faz com a de um humano no automático. Aparece no ranking e nas estatísticas como qualquer jogador, com um ícone que o distingue. Com a F13 ligada, as ordens do bot movem preço como as de qualquer jogador. Gatilho: F8 concluída.
 
 <a id="f19"></a>
 **F19 — Modo backtest: partida só de estratégias, sem interação.** Serve N4 e N10; segue a D8. No lobby, "Rodar backtest" escolhe período, capital inicial, aporte e as estratégias participantes; cada estratégia vira um bot (F16) e a partida roda sem `sleep` entre ticks e sem eventos de socket por tick, mandando o progresso a cada N dias para a tela animar o gráfico. Ao fim, a partida fica salva como qualquer outra e abre no relatório da F17, já comparando as estratégias.
@@ -389,6 +410,12 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 <a id="f101"></a>
 **F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
 
+<a id="f7"></a>
+**F7 — Spike: estratégia Python escrita pelo usuário.** Mediu os dois lugares em que o código do usuário rodaria (D5), e com os números a escolha ficou na D16: o host roda só as estratégias do app, e quem quer uma estratégia própria usa um bot pela API. A medição usou quatro harnesses descartáveis: um executável de teste com o mesmo conjunto de módulos do app, que carrega um `.py` solto e tenta importar 45 módulos; um benchmark dos três jeitos de cortar uma estratégia travada (thread com exceção injetada, `sys.monitoring` e processo filho), com laço Python, laço em C e `sleep`; uma segunda instância do app, num banco descartável com o mercado sintético dos testes, operada por um bot em Python que só usa as rotas HTTP e o Socket.IO; e o mesmo bot com 80 ms de atraso simulado. Os números e os argumentos estão na D5. Limitações: o mercado sintético tem 4 ativos e 2 jogadores, então o tick a ×100 (36 a 44 ms) é bem mais rápido que o do mercado real; a rede remota foi simulada com atraso fixo, sem túnel de verdade; o processo filho foi medido fora do motor da simulação, com mensagens de exemplo.
+
+<a id="f108"></a>
+**F108 — Bot pela API: guia e exemplo.** Serve N4; segue a D16. Página no Docusaurus (grupo "Como Usar") para quem quer uma estratégia própria sem mexer no código do app: o bot é um programa na máquina do jogador que entra na partida como um jogador qualquer. O guia percorre o caminho medido no spike: cookie em `/api/session/init`, nickname do bot em `/api/user/register`, entrada na partida em `/api/simulation/join` (com uma cor da paleta), assinatura de `simulation_update` no Socket.IO e, a cada tick, leitura de `/api/variable-income` (cotações com setor e segmento), `/api/variable-income/{ativo}` (histórico), `/api/portfolio`, `/api/portfolio/cash`, `/api/fixed-income` e `/api/economic-indicators`, com as ordens em `/api/variable-income/{ativo}/orders` e `/api/fixed-income/{id}/buy`. Traz um bot de exemplo completo em Python (`requests` + `python-socketio`) que segue uma das estratégias da F9, e as limitações: o bot fica fora do backtest, e com o tick mais rápido que a reação dele as ordens caem dias depois (números na D5). Rota que faltar ao escrever o exemplo entra nesta feature. Fora da rede local depende da F6. Gatilho: livre; o exemplo fica melhor depois da F9.
+
 ---
 ## 2. Nice-to-have
 
@@ -424,7 +451,12 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 ---
 ## 3. Descartada
 
-> Nenhum item nesta categoria atualmente.
+| ID | Resumo | N# | Status |
+| --- | --- | --- | --- |
+| **F109** | Estratégia em .py do usuário carregada pelo host | N4 | 🚫 Descartado |
+
+<a id="f109"></a>
+**F109 — Descartado.** 🚫 Estratégia em `.py` do usuário carregada pelo host: pasta ao lado do `config.toml`, processo filho com timeout por tick, cópia do código no banco ao iniciar a partida e contrato de bibliotecas no build. Descartada pela D16: quem desenvolve acrescenta a estratégia como classe do app, e ela vale no automático, nos bots e no backtest; quem tem só o executável usa o bot pela API (F108). O único caso que sobraria, estratégia própria no backtest sem mexer no código, não paga o custo de manter processo filho, timeout, pasta, cópia no banco e lista de bibliotecas, nem o risco de executar código de fora no PC do host. As medições desse caminho estão na D5.
 
 ---
 ## 4. Incerta / exploratória
@@ -450,7 +482,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F105** | Gestoras: rendimentos mensais | Serve N23; falta a parte do lucro distribuída | — | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
 | **F106** | Governo: gasto público e inflação | Serve N34; falta quanto cada medida soma ao IPCA | — | [F95](#f95) | 🔍 Em avaliação |
 | **F107** | Perfis de público na eleição | Serve N34; eleitores com perfil sobre a eleição da F95 | — | [F95](#f95) | 🔍 Em avaliação |
-| **F7** | Spike: estratégia Python escrita pelo usuário | Serve N4; decide D5 | M4 | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -508,6 +539,3 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f107"></a>
 **F107 — Perfis de público na eleição.** Ligado à N34; amplia a eleição da expansão Governo (F95). Em vez de um eleitorado único, a eleição ganha eleitores artificiais agrupados em perfis (por exemplo, quem vive de renda, quem empreende, quem depende de serviço público), cada um com a própria posição na régua de promessa e a própria sensibilidade à verba. A transferência de votos do segundo turno deixa de ser "vai inteiro para o finalista com a promessa mais parecida" e passa a ser perfil a perfil, pela distância entre a promessa de cada finalista e a posição daquele perfil, e a pesquisa de intenção de voto pode mostrar o voto por perfil. Falta definir: quais perfis existem e quanto cada um pesa no eleitorado, se o peso muda com a economia da partida (desemprego, inflação), e se a aprovação do governo também passa a ser medida por perfil.
-
-<a id="f7"></a>
-**F7 — Spike: estratégia Python escrita pelo usuário.** Origem: #2, #12. Decide a D5 e define a API da classe base. Falta responder: (1) carregar um `.py` externo via `importlib` funciona dentro do executável do PyInstaller, e quais bibliotecas a estratégia enxerga (só as empacotadas — pandas sim, outras não); (2) como proteger o tick de uma estratégia em loop infinito ou lenta (timeout por tick); (3) o que a estratégia vê e pode fazer — hoje `BaseStrategy` só recebe `matching_engine`/`market_data`, ou seja, renda variável, e faltam caixa, posição, renda fixa e o setor e segmento de cada ativo (já no banco pela F30, em `repository.stock.get_classification`); (4) onde o código fica guardado — numa pasta (fácil de editar no editor) ou no banco junto da simulação (retomar reusa exatamente a mesma versão do código); (5) a viabilidade da opção "bot cliente da API" no multiplayer.
