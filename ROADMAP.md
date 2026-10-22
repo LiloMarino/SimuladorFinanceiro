@@ -80,7 +80,6 @@
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
-| [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
@@ -95,7 +94,7 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -112,6 +111,7 @@
 | **D12** | Como numerar as versões | — | ✅ |
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | [F24](#f24) | ✅ |
+| **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | [F77](#f77) | ✅ |
 | [**F24**](#f24) | Gerar dados futuros na Central de dados | — | ✅ |
 | [**F40**](#f40) | Modo Especialista | — | ✅ |
 | [**F41**](#f41) | Conquistas | — | ✅ |
@@ -121,6 +121,7 @@
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ✅ |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ✅ |
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | ✅ |
+| [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ✅ |
 | [**F78**](#f78) | Release só sai com o check passando | — | ✅ |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
@@ -156,7 +157,6 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | 0 | ⏳ |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | 0 | ⏳ |
-| [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | 0 | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 
@@ -309,7 +309,7 @@
 
 ### Sem marco
 
-> **Progresso:** 12/34 concluídas
+> **Progresso:** 13/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -326,7 +326,6 @@
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | [F74](#f74) | ⏳ |
-| [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ⏳ |
 | [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
@@ -336,7 +335,7 @@
 | [**F95**](#f95) | Expansão Governo: ganhar a eleição e mexer nas regras | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F95](#f95) | 🔍 |
 
-<details><summary>Concluído (12 itens)</summary>
+<details><summary>Concluído (13 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -344,6 +343,7 @@
 | [**F73**](#f73) | Mapeamento único entre as regras da partida e o formulário do lobby | — | ✅ |
 | [**F74**](#f74) | Testes da conexão em tempo real e do loop da partida | — | ✅ |
 | [**F76**](#f76) | Testes das contas feitas no frontend | — | ✅ |
+| [**F77**](#f77) | Dependências em dia, com o TypeScript 7 | — | ✅ |
 | [**F78**](#f78) | Release só sai com o check passando | — | ✅ |
 | [**F79**](#f79) | Tipos do frontend que vêm da API | — | ✅ |
 | [**F82**](#f82) | Repetições pequenas do frontend | — | ✅ |
@@ -501,7 +501,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F73** | Mapeamento único entre as regras da partida e o formulário do lobby | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F74** | Testes da conexão em tempo real e do loop da partida | — | — | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F75** | Encerramento do loop sem thread viva nem simulação presa | — | — | [F74](#f74) | Baixo | Médio | Médio | Bom | ⏳ Pendente |
-| **F77** | Dependências em dia, com o TypeScript 7 | — | — | — | Baixo | Médio | Baixo | Médio | ⏳ Pendente |
+| **F77** | Dependências em dia, com o TypeScript 7 | D15 | — | — | Baixo | Médio | Baixo | Médio | ✅ Concluído |
 | **F78** | Release só sai com o check passando | — | — | — | Baixo | Baixo | Alto | Excelente | ✅ Concluído |
 | **F79** | Tipos do frontend que vêm da API | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F80** | Cotações do dia numa consulta só | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
@@ -534,7 +534,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F75 — Encerramento do loop sem thread viva nem simulação presa.** Dois caminhos deixam o estado da partida inconsistente. (1) O `stop()` de `simulation_loop.py` espera a thread por 5 s e, se ela não terminar, só loga e segue: marca STOPPED, roda `EventManager.flush()` e `SimulationManager.clear_simulation()` enquanto a thread ainda pode processar um tick, gravando eventos de uma simulação que já foi liberada. (2) Uma exceção no loop cai no `finally`, que só muda o estado para STOPPED: a simulação continua registrada no `SimulationManager` sem loop rodando, e o `stop()` seguinte recusa com "Nenhuma simulação está em execução". Plano: o encerramento passa a ter um dono só, a própria thread: o `stop()` sinaliza e espera, e o flush e a liberação rodam no `finally` do loop, o mesmo caminho do fim natural da partida, que já faz isso. Se o join estourar o tempo, o `stop()` devolve erro em vez de liberar por cima. A exceção no tick também notifica os clientes (`simulation_ended` com motivo de erro), para a tela não ficar congelada. `pause()` e `unpause()` passam a usar o mesmo `_lock` de start e stop. Teste: o tick dublê que bloqueia além do tempo e o que lança exceção, nos testes do loop. Depende dos testes do loop para reproduzir os dois casos. Gatilho: junto com os testes do loop.
 
 <a id="f77"></a>
-**F77 — Dependências em dia, com o TypeScript 7.** Mesmo processo da rodada anterior de dependências: dois passos, cada um fechado com `pnpm run check`. (1) **Versões menores:** `pnpm update` no frontend e `uv lock --upgrade` no backend; o maior salto é o FastAPI, de 0.143 para 0.156, com a regeneração do `docs/openapi.json` e dos tipos do front (`pnpm openapi`) para pegar mudança de schema. (2) **Versões maiores, uma por commit:** `@hookform/resolvers` 6 (o `zodResolver` é o único uso; conferir a assinatura nos formulários do lobby, da importação e das configurações) e TypeScript 7. O TypeScript 7 é o compilador reescrito em Go, que checa o projeto bem mais rápido; ele já foi testado aqui e esbarra no lint, porque o `typescript-eslint` (8.72, a versão atual) só aceita o TypeScript abaixo de 6.1. O passo do TypeScript espera essa faixa abrir; até lá o 6 continua. Gatilho: as versões menores a qualquer momento; o TypeScript 7 quando o `typescript-eslint` publicar suporte.
+**F77 — Dependências em dia, com o TypeScript 7.** Segue a D15. Quatro passos, um commit cada, todos fechados com `pnpm run check`. (1) **Versões menores:** `pnpm update` no frontend e `uv lock --upgrade` no backend; o FastAPI foi de 0.143 a 0.159 sem mudar o `docs/openapi.json`. (2) **`@hookform/resolvers` 6:** só o resolver do Effect quebrou; o `zodResolver` do login, da importação e do lobby seguiu igual. (3) **oxlint no lugar do ESLint:** `frontend/.oxlintrc.json` com as regras do React Compiler nativas, o `@shadcn/lint` como `jsPlugin` e as regras que olham os tipos; as promises disparadas sem esperar ganharam `void`. (4) **TypeScript 7:** o `tsc` caiu de 30,7 s para 6,5 s; o `openapi-typescript` usa a API do 6 pelo `frontend/.pnpmfile.cjs`. Fica: o hook sai quando o `openapi-typescript` aceitar o 7, e as regras que olham os tipos deixaram 7 avisos para revisar (spread de `style` em `avatar` e `progress`, template literal em `chart`, union duplicada em `team-score` e `String(d)` em `composition-tab`).
 
 <a id="f78"></a>
 **F78 — Release só sai com o check passando.** O `release.yml` valida a versão e monta o executável nos três sistemas sem rodar teste nem lint; o único workflow que roda `pnpm run check` é o `dependabot-check.yml`, e sem banco, então os testes que precisam do PostgreSQL são pulados lá. A validação fica no release, não em cada push. (1) O job de check do `dependabot-check.yml` vira um workflow reutilizável, `check.yml` com `on: workflow_call`, chamado pelo `dependabot-check.yml` e pelo `release.yml`, para os dois rodarem a mesma coisa. (2) O job ganha um serviço `postgres` (a imagem oficial já sobe em UTF-8) e `POSTGRES_DATABASE_URL` apontando para ele, para os testes de banco rodarem. (3) No `release.yml`, o job `build` passa a ter `needs: [validate, check]`: check vermelho, nenhum executável é montado nem publicado. Gatilho: antes do próximo release.
