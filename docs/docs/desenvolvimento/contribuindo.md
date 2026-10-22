@@ -68,7 +68,20 @@ Sugestões de prefixo:
 
 ---
 
-### 4. Commit e push
+### 4. Confira, commite e envie
+
+Na raiz, rode a checagem completa (ruff, pyright, pytest, eslint, tsc e vitest):
+
+```bash
+pnpm run check
+```
+
+Dois casos pedem um passo a mais:
+
+* Mudou uma rota ou DTO do backend: rode `pnpm openapi`, que regenera o `docs/openapi.json` e os tipos do frontend (o teste de OpenAPI falha se estiverem defasados)
+* Mudou os models: rode `pnpm db:revision "descrição"` para gerar a migration, como explica o [Ciclo de Desenvolvimento com BD](./ciclo-banco-dados.md)
+
+Os testes que usam banco precisam do `POSTGRES_DATABASE_URL` configurado; sem ele, são pulados.
 
 ```bash
 git add .
@@ -76,7 +89,7 @@ git commit -m "feat: Adicionada a descrição curta da mudança"
 git push origin feature/minha-alteracao
 ```
 
-A mensagem do commit é só a linha de assunto, no formato `tipo: Descrição`: o tipo em minúsculas (`feat`, `fix`, `docs`, `refactor`, `build`, `test` ou `chore`), sem escopo, e a descrição em português, no particípio e com a primeira letra maiúscula (`fix: Corrigido o saldo negativo na compra`).
+A mensagem do commit é só a linha de assunto, no formato `tipo: Descrição`: o tipo em minúsculas (`feat`, `fix`, `docs`, `refactor`, `build`, `test`, `chore`, `ci`, `perf` ou `style`), sem escopo, e a descrição em português, no particípio e com a primeira letra maiúscula (`fix: Corrigido o saldo negativo na compra`).
 
 O commit que quebra compatibilidade (partida salva que deixa de abrir, chave do `config.toml` removida ou renomeada) leva um `!` depois do tipo: `feat!: Removido o campo X do config.toml`. É dos commits que sai o número da próxima versão, como explica a página [Versionamento](./versionamento.md).
 

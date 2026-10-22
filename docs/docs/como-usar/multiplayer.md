@@ -56,7 +56,7 @@ Quem chega depois do início não precisa esperar a próxima partida. Ao entrar 
 
 Ao selecionar uma partida salva, as cores de quem já jogou ficam reservadas, mesmo para quem não está na sala. Quem estava na sala e nunca jogou essa partida entra ao continuar, com o saldo inicial.
 
-Se a partida salva não comporta a sala (jogadores da partida mais os novos passam de 10), o **Selecionar** fica desabilitado e o motivo aparece com os nomes. Com 10 jogadores salvos e um novato na sala, por exemplo, o novato precisa sair da sala ou o host escolhe outra partida; com 8 salvos e dois novatos, a partida carrega normalmente.
+Se a partida salva não comporta a sala (jogadores da partida mais os novos passam de 10), o botão vira **Indisponível** e o motivo aparece com os nomes. Com 10 jogadores salvos e um novato na sala, por exemplo, o novato precisa sair da sala ou o host escolhe outra partida; com 8 salvos e dois novatos, a partida carrega normalmente.
 
 ## Configuração de Rede
 
@@ -156,7 +156,7 @@ Ao criar uma sala multiplayer, a interface exibe automaticamente um **link copi�
 **Como usar:**
 
 1. Crie a sala multiplayer
-2. Clique no botão **Copiar Link**
+2. Clique no botão **Copiar**, ao lado do link em **Convide pelo link**
 3. O link completo será copiado
    Exemplo: `http://26.123.45.67:8000`
 4. Compartilhe o link via Discord, WhatsApp ou qualquer outro meio

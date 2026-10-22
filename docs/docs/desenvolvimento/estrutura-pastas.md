@@ -20,7 +20,7 @@ Componentes, hooks e outros recursos dentro de `features/` são **EXCLUSIVOS** d
 
 **Exemplo:**
 ```
-features/lobby/components/SessionCard.tsx
+features/lobby/components/lobby-header.tsx
 ```
 Este componente é usado **apenas** dentro da feature `lobby`.
 
@@ -30,7 +30,7 @@ Componentes, hooks, contexts e outros recursos dentro de `shared/` são **REAPRO
 
 **Exemplo:**
 ```
-shared/components/Button.tsx
+shared/components/base-card.tsx
 ```
 Este componente pode ser usado em qualquer feature do projeto.
 
@@ -53,7 +53,7 @@ SimuladorFinanceiro/
 ├── backend/                            # Código-fonte do servidor Python (FastAPI)
 │   ├── config/                         # Configurações da aplicação (variáveis de ambiente, TOML)
 │   ├── core/                           # Infraestrutura central (database, logger, models, utils)
-│   │   ├── decorators/                 # Decoradores reutilizáveis (auth, cache, etc)
+│   │   ├── decorators/                 # Decoradores reutilizáveis (transações)
 │   │   ├── dependencies/               # Dependências do FastAPI (injeção de dependência)
 │   │   ├── dto/                        # Data Transfer Objects para comunicação backend->frontend e tipagem forte
 │   │   │   └── events/                 # DTOs específicos para eventos da simulação
@@ -61,19 +61,22 @@ SimuladorFinanceiro/
 │   │   ├── exceptions/                 # Exceções customizadas da aplicação
 │   │   ├── models/                     # Modelos SQLAlchemy (entidades do banco de dados)
 │   │   ├── repository/                 # Camada de acesso a dados (Data Access Layer)
-│   │   ├── runtime/                    # Gerenciadores runtime singleton thread-safe (brokers, túneis, etc)
+│   │   ├── runtime/                    # Gerenciadores runtime singleton thread-safe (brokers, usuários, etc)
 │   │   └── utils/                      # Funções utilitárias genéricas de infraestrutura
 │   ├── features/                       # Funcionalidades organizadas por domínio (DDD)
+│   │   ├── achievements/               # Catálogo e avaliação das conquistas
+│   │   ├── correlation/                # Cálculo da correlação entre ativos
 │   │   ├── fixed_income/               # Lógica de negócio de Renda Fixa
 │   │   │   ├── entities/               # Entidades de domínio (CDB, Tesouro, etc)
 │   │   │   └── factory/                # Factories para criação de ativos de RF
-│   │   ├── import_data/                # Serviço de importação de dados externos
+│   │   ├── import_data/                # Importação de dados externos e geração do futuro
 │   │   ├── realtime/                   # Sistema de comunicação em tempo real (WebSocket)
 │   │   ├── simulation/                 # Engine de simulação do mercado financeiro
+│   │   ├── statistics/                 # Nota, ranking, retorno, risco e meta da partida
 │   │   ├── strategy/                   # Algoritmos de estratégias de investimento
-│   │   ├── tunnel/                     # Sistema de túnel para multiplayer (ngrok, etc)
-│   │   │   ├── network_utils/          # Utilitários de rede para túneis
-│   │   │   └── providers/              # Provedores de túnel (ngrok, localtunnel)
+│   │   ├── tunnel/                     # Link de convite para o multiplayer
+│   │   │   ├── network_utils/          # Utilitários de rede
+│   │   │   └── providers/              # Provedores do link (rede local e um de exemplo)
 │   │   └── variable_income/            # Lógica de negócio de Renda Variável
 │   │       ├── entities/               # Entidades de domínio (Ações, FIIs, etc)
 │   │       └── liquidity/              # Sistema de liquidez e book de ofertas
@@ -85,33 +88,19 @@ SimuladorFinanceiro/
 ├── frontend/                           # Aplicação React + TypeScript (Vite)
 │   ├── assets/                         # Assets estáticos do frontend (imagens, fontes)
 │   ├── features/                       # Funcionalidades organizadas por domínio (Feature-Based)
+│   │   ├── achievements/               # Tela de conquistas
 │   │   ├── auth/                       # Feature de autenticação e login
-│   │   │   └── pages/                  # Páginas de autenticação
+│   │   ├── correlation/                # Tela de correlação entre ativos
 │   │   ├── fixed-income/               # Feature de Renda Fixa
-│   │   │   ├── components/             # Componentes específicos de RF
-│   │   │   ├── models/                 # Models de ativos de RF
-│   │   │   ├── pages/                  # Páginas da feature de RF
-│   │   │   └── schemas/                # Schemas de validação (Zod) para RF
-│   │   ├── import-assets/              # Feature de importação de ativos
-│   │   │   ├── components/             # Componentes de importação (CSV, YFinance)
-│   │   │   └── pages/                  # Páginas de importação
+│   │   ├── goal/                       # Tela Meta (corrida à meta e vida financeira)
+│   │   ├── import-assets/              # Central de dados (importação e séries da base)
+│   │   ├── join/                       # Entrada numa partida em andamento
 │   │   ├── lobby/                      # Feature de lobby/sessões multiplayer
-│   │   │   ├── components/             # Componentes do lobby
-│   │   │   ├── hooks/                  # Hooks customizados do lobby
-│   │   │   └── pages/                  # Páginas do lobby
+│   │   ├── performance/                # Painel de desempenho (modo debug)
 │   │   ├── portfolio/                  # Feature de carteira/portfólio
-│   │   │   ├── components/             # Componentes da carteira (gráficos, tabelas)
-│   │   │   ├── lib/                    # Lógica de negócio da carteira
-│   │   │   └── pages/                  # Páginas da carteira
 │   │   ├── settings/                   # Feature de configurações
-│   │   │   ├── components/             # Componentes de configurações
-│   │   │   └── pages/                  # Páginas de configurações
-│   │   ├── statistics/                 # Feature de estatísticas e ranking
-│   │   │   ├── components/             # Componentes de estatísticas
-│   │   │   ├── lib/                    # Lógica de cálculo de estatísticas
-│   │   │   └── pages/                  # Páginas de estatísticas
+│   │   ├── statistics/                 # Estatísticas, ranking e fechamento da partida
 │   │   ├── strategies/                 # Feature de estratégias automatizadas
-│   │   │   └── pages/                  # Páginas de estratégias
 │   │   └── variable-income/            # Feature de Renda Variável
 │   │       ├── components/             # Componentes de RV (gráficos, ordens)
 │   │       └── pages/                  # Páginas de RV (mercado, detalhes)
@@ -121,6 +110,7 @@ SimuladorFinanceiro/
 │   ├── public/                         # Assets públicos servidos pelo Vite
 │   ├── shared/                         # Código compartilhado entre features
 │   │   ├── components/                 # Componentes React reutilizáveis entre as features
+│   │   │   └── ui/                     # Design system (componentes shadcn)
 │   │   ├── context/                    # Contexts globais (React Context API)
 │   │   │   ├── auth/                   # Context de autenticação
 │   │   │   ├── notifications-settings/ # Context de configurações de notificações
@@ -129,20 +119,24 @@ SimuladorFinanceiro/
 │   │   │   └── simulation/             # Context de estado da simulação
 │   │   ├── hooks/                      # Hooks customizados reutilizáveis
 │   │   ├── lib/                        # Bibliotecas internas e utilitários
+│   │   │   ├── api/                    # Chamada à API (apiFetch)
 │   │   │   ├── models/                 # Classes e models (ApiError, etc)
 │   │   │   ├── realtime/               # Cliente de WebSocket
 │   │   │   ├── schemas/                # Schemas de validação (Zod)
-│   │   │   └── utils/                  # Funções utilitárias (formatação, API, etc)
+│   │   │   └── utils/                  # Funções utilitárias (formatação, exibição, etc)
 │   │   └── notifications/              # Sistema global de notificações
 │   └── types/                          # Definições de tipos TypeScript compartilhados
-└── scripts/                            # Scripts utilitários de desenvolvimento
+├── scripts/                            # Scripts utilitários (release, demo, openapi, diagrama do banco)
+└── tests/                              # Testes do backend (pytest)
 ```
+
+Na raiz ficam também `main.py` (a entrada da aplicação), `pyproject.toml` e `uv.lock` (as dependências do Python), `config.toml` e `example.env` (as configurações), `cliff.toml` (o changelog) e o `CHANGELOG.md`.
 
 ---
 
 ## Atualização da Árvore de Estrutura
 
-A árvore da estrutura do projeto é mantida automaticamente com o script:
+O script abaixo gera a árvore completa do projeto, com todas as subpastas:
 
 ```bash
 python -X utf8 ./scripts/tree.py > arvore.md
@@ -202,7 +196,7 @@ class SimulationEngine:
 
 - **Arquivos de Componentes:** `kebab-case.tsx`
 - **Arquivos classe:** `PascalCase.ts`
-- **Arquivos utilitários:** `camelCase.ts`
+- **Arquivos utilitários:** `kebab-case.ts` (`goal-metrics.ts`, `income-tax.ts`)
 - **Componentes:** `PascalCase`
 - **Funções:** `camelCase()`
 - **Hooks:** `useNomeDoHook()`
@@ -211,14 +205,14 @@ class SimulationEngine:
 
 **Exemplo:**
 ```typescript
-// frontend/shared/components/Button.tsx
-export const Button = () => { ... }
+// frontend/shared/components/base-card.tsx
+export const BaseCard = () => { ... }
 
 // frontend/shared/hooks/useAuth.ts
 export const useAuth = () => { ... }
 
-// frontend/shared/lib/utils/formatCurrency.ts
-export const formatCurrency = (value: number) => { ... }
+// frontend/shared/lib/utils/display.ts
+export function displayMoney(value: number) { ... }
 ```
 
 ---

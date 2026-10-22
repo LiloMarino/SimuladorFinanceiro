@@ -1,187 +1,101 @@
 <div align="center">
 
-# 📊 Simulador Financeiro
+<img src="docs/static/img/logo.svg" alt="Logo do Simulador Financeiro" width="96" height="96">
 
-**Simulador de investimentos do mercado financeiro brasileiro com modo multiplayer**
+# Simulador Financeiro
 
-**Acesso antecipado** · [Novidades de cada versão](CHANGELOG.md)
+**Invista no mercado brasileiro com preços reais, numa sala com seus amigos.**
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Licença: GPL v3](https://img.shields.io/badge/licença-GPLv3-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.13+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![uv](https://img.shields.io/badge/uv-package%20manager-DE5FE9?logo=astral&logoColor=white)](https://docs.astral.sh/uv/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.128+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-19+-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Download](https://img.shields.io/github/v/release/LiloMarino/SimuladorFinanceiro?include_prereleases&label=download)](https://github.com/LiloMarino/SimuladorFinanceiro/releases)
 
-[Instalação](#-instalação) • [Como Usar](#-executando-o-projeto) • [Stack](#️-stack-tecnológica) • [Documentação](https://lilomarino.github.io/SimuladorFinanceiro/)
+[Download](#download) · [Documentação](https://lilomarino.github.io/SimuladorFinanceiro/) · [Novidades de cada versão](CHANGELOG.md)
 
----
+![O jogo rodando: o tempo da simulação avança e a carteira acompanha](https://github.com/LiloMarino/SimuladorFinanceiro/raw/demo/gifs/time.gif)
 
 </div>
 
-> 🇧🇷 **Projeto em Português** - Este simulador é focado no mercado financeiro brasileiro e toda a documentação está em português.
+O Simulador Financeiro é um jogo de investimentos inspirado em jogos de estratégia como Capitalism Lab e Victoria 3. Você recebe um capital, escolhe onde aplicar e acompanha o resultado enquanto o tempo da simulação passa, dia a dia, sobre os preços históricos da bolsa brasileira. Pode jogar sozinho ou numa sala com amigos. A partida pode ser clássica (jogar até a data final), uma corrida até uma meta de patrimônio ou uma partida de viver de renda, com salário e despesas.
 
-## 📌 O que é o Simulador Financeiro?
+Acesso antecipado: o jogo já roda, mas ainda muda a cada versão. Em português, voltado ao mercado brasileiro.
 
-O **Simulador Financeiro** é uma aplicação web interativa inspirada em jogos de estratégia como **Capitalism Lab** e **Victoria 3**, que permite testar e competir com estratégias de investimento no **mercado financeiro brasileiro**.
+## O que ele faz
 
-Simule negociações em **renda variável** (Ações, FIIs, ETFs) e **renda fixa** (CDB, LCI, LCA, Tesouro Direto), acompanhe métricas de desempenho em tempo real e compita com outros jogadores no modo multiplayer.
+### Renda variável
 
-<!-- Espaço reservado para screenshots e GIFs -->
+Compre e venda ações, FIIs e ETFs com cotações históricas reais. O gráfico de cada ativo avança com o tempo da simulação, e o imposto de renda sobre as vendas é calculado como no Brasil.
 
-### ✨ O que ele faz?
+![Tela de renda variável com a lista de ativos e o gráfico de preços](https://github.com/LiloMarino/SimuladorFinanceiro/raw/demo/gifs/stocks.gif)
 
-- 🎮 **Modo Single Player e Multiplayer** - Jogue sozinho ou compita com amigos
-- 📈 **Renda Variável** - Negocie ações, FIIs e ETFs com dados reais do mercado
-- 💰 **Renda Fixa** - Invista em CDB, LCI, LCA e Tesouro Direto
-- 🤖 **Estratégias Automatizadas** - Configure algoritmos de trading personalizados
-- 📊 **Dashboard Completo** - Acompanhe seu portfólio e estatísticas em tempo real
-- ⏱️ **Controle de Tempo** - Pause, acelere ou desacelere a simulação
-- 🎯 **Ranking Competitivo** - Compare seu desempenho com outros jogadores
+### Renda fixa
 
-## 📥 Instalação
+Aplique em CDB, LCI, LCA e Tesouro Direto. Os títulos rendem sobre CDI, SELIC e IPCA, que também acompanham o tempo da simulação.
 
-### Instalação via Executável
+![Tela de renda fixa com a lista de títulos e a aplicação em um deles](https://github.com/LiloMarino/SimuladorFinanceiro/raw/demo/gifs/fixed-income.gif)
 
-Baixe o executável disponível em [Releases](../../releases), escolha o arquivo conforme seu sistema operacional e execute-o diretamente. O navegador abrirá automaticamente em `http://localhost:8000`.
+### Estatísticas
 
-> [!IMPORTANT]
-> O executável não requer instalação de Python nem de Node.js. No **Windows** o banco de dados (PostgreSQL) já vem dentro dele: basta abrir. No Linux e no macOS ainda é preciso ter o **PostgreSQL** instalado e configurar o `.env`, como descrito na [página de instalação](docs/docs/como-usar/instalacao.md).
+Acompanhe a evolução do patrimônio e como cada decisão pesou no resultado: retorno, volatilidade e comparação com os índices do mercado.
 
-### Instalação a partir do Código-Fonte
-Clone o repositório e instale as dependências:
+![Tela de estatísticas com a evolução do patrimônio](https://github.com/LiloMarino/SimuladorFinanceiro/raw/demo/gifs/statistics.gif)
+
+### Multiplayer
+
+Um jogador abre a sala e os amigos entram pelo endereço dele. Todos começam com o mesmo capital e jogam sobre o mesmo tempo simulado. Quem vence depende da regra escolhida no lobby, como o maior patrimônio ou a melhor nota de retorno e risco.
+
+![Lobby da sala, com os jogadores e o convite](https://github.com/LiloMarino/SimuladorFinanceiro/raw/demo/gifs/lobby.gif)
+
+### E também
+
+- **Carteira**: patrimônio, alocação por classe e imposto de renda num só lugar.
+- **Meta**: nas partidas de corrida à meta e de viver de renda, o seu progresso até a meta e a distância para os outros jogadores.
+- **Conquistas**: objetivos que a partida vai liberando enquanto você joga.
+- **Correlação**: o quanto os ativos andam juntos, para diversificar de verdade.
+- **Futuro gerado**: depois do último pregão real, o simulador gera um futuro plausível para a partida seguir.
+- **Importação de ativos**: traga o histórico de outros ativos para jogar com eles.
+- **Estratégias automáticas**: em breve.
+
+## Download
+
+Baixe o arquivo do seu sistema na página de [Releases](https://github.com/LiloMarino/SimuladorFinanceiro/releases) e abra. O navegador abre sozinho em `http://localhost:8000`. Não precisa instalar Python nem Node.js.
+
+| Sistema | Arquivo | O que mais precisa |
+|---|---|---|
+| Windows | `SimuladorFinanceiro-windows.exe` | Nada, o banco de dados já vem dentro. Se o Windows avisar que falta uma DLL do Visual C++, instale o `vc_redist.x64.exe` da mesma página. |
+| Linux | `SimuladorFinanceiro-linux` | PostgreSQL instalado e um arquivo `.env` configurado. |
+| macOS | `SimuladorFinanceiro-macos` | PostgreSQL instalado e um arquivo `.env` configurado. |
+
+O passo a passo de cada sistema está na [página de instalação](https://lilomarino.github.io/SimuladorFinanceiro/como-usar/instalacao).
+
+## Documentação
+
+O [site da documentação](https://lilomarino.github.io/SimuladorFinanceiro/) tem um tour pelo jogo, um guia de cada tela e a documentação para quem desenvolve.
+
+## Desenvolvimento
+
+Precisa de [uv](https://docs.astral.sh/uv/), Node.js, pnpm e um PostgreSQL.
 
 ```bash
 git clone https://github.com/LiloMarino/SimuladorFinanceiro.git
 cd SimuladorFinanceiro
+pnpm install     # ferramentas da raiz
+pnpm run setup   # dependências do backend e do frontend
+pnpm dev         # backend e frontend juntos
 ```
 
-**Dependências (Python 3.13+ via [uv](https://docs.astral.sh/uv/), Node.js + pnpm)**
-```bash
-pnpm install     # ferramentas da raiz (concurrently, cross-env)
-pnpm run setup   # uv sync --dev + pnpm install no frontend
-```
+O frontend abre em `http://localhost:5173`. Configure o banco no `.env` (modelo em `example.env`) antes do primeiro `pnpm dev`. `pnpm setup`, sem o `run`, é um comando do próprio pnpm e não roda o script do projeto.
 
-> [!NOTE]
-> `pnpm setup` (sem `run`) é um comando nativo do pnpm e não executa o script do projeto.
+O guia completo está em [Desenvolvimento](https://lilomarino.github.io/SimuladorFinanceiro/desenvolvimento/setup), e as regras para contribuir em [Contribuindo](https://lilomarino.github.io/SimuladorFinanceiro/desenvolvimento/contribuindo). Bugs vão em [Issues](../../issues) e ideias em [Discussions](../../discussions).
 
-**Configuração (Opcional)**
-```bash
-# Copie o arquivo de exemplo de variáveis de ambiente
-cp example.env .env
+## Licença
 
-# Edite .env com suas configurações (banco de dados, etc.)
-```
-
-> [!IMPORTANT]
-> O projeto requer PostgreSQL. Configure as variáveis de ambiente no arquivo `.env` antes de executar.
-
-## Executando o Projeto Localmente
-
-### Modo Desenvolvimento
-
-**Opção 1 — Iniciar tudo com um único comando (recomendado):**
-```bash
-pnpm dev
-```
-
-Isso inicia o backend e o frontend simultaneamente via `concurrently`.
-
-**Opção 2 — Iniciar separadamente:**
-
-**Backend (Terminal 1):**
-```bash
-pnpm backend
-```
-
-**Frontend (Terminal 2):**
-```bash
-pnpm frontend
-```
-
-Acesse: `http://localhost:5173` (frontend dev) ou `http://localhost:8000` (backend direto)
-
-### Modo Produção (Compilado)
-
-```bash
-pnpm build
-./dist/SimuladorFinanceiro
-```
-
-Acesse: `http://localhost:8000`
-
-### Comandos de Desenvolvimento
-
-Todos os comandos rodam a partir da raiz com `pnpm <script>`:
-
-| Script | O que faz |
-|---|---|
-| `check` | lint + typecheck + testes do backend + check e testes do frontend |
-| `test` / `test:cov` | testes do backend (pytest) / com relatório de cobertura |
-| `front:test` | testes das contas do frontend (Vitest) |
-| `lint` / `lint:fix` / `format` | ruff check / com correção automática / ruff format |
-| `typecheck` | pyright |
-| `build` / `build:frontend` / `build:exe` | build completo / só o frontend / só o executável (PyInstaller) |
-| `build:postgres` | no Windows, baixa o PostgreSQL oficial e prepara o servidor embarcado em `postgres_dist/`; rode antes de `build:exe` para o executável levar o banco |
-| `radon` / `radon:mi` / `radon:cc` | métricas de código (JSON) / índice de manutenibilidade / complexidade ciclomática |
-| `profile` / `profile:view` | cProfile do backend + snakeviz / reabre o último perfil |
-| `profile:line` / `profile:line:view` | line_profiler do backend / visualiza o resultado |
-| `clean` / `clean:build` | remove artefatos de profiling e métricas / remove `build`, `dist` e `backend/static` |
-
-Os testes do backend cobrem o domínio em memória e não precisam do PostgreSQL.
-
-Como ler as métricas:
-
-- **Cobertura** (`test:cov`): fração das linhas do backend que algum teste executa. 60% de 3.000 linhas são 1.200 linhas que nenhum teste passa; a coluna `Missing` aponta quais.
-- **Complexidade ciclomática** (`radon:cc`): quantos caminhos de execução uma função tem (cada `if`, `for` ou `case` soma um). Nota A (1–5) é simples de ler e testar; a partir de C (11+) vale quebrar a função.
-- **Índice de manutenibilidade** (`radon:mi`): nota de 0 a 100 que combina tamanho, complexidade e volume de código. A (20–100) é saudável; B (10–19) e C (0–9) indicam arquivo difícil de manter.
-
-## 🛠️ Stack Tecnológica
-
-### Backend
-- **[FastAPI](https://fastapi.tiangolo.com/)** - Framework web moderno e rápido
-- **[Uvicorn](https://www.uvicorn.org/)** - Servidor ASGI de alta performance
-- **[SQLAlchemy](https://www.sqlalchemy.org/)** - ORM para gerenciamento de dados
-- **[Socket.IO](https://socket.io/)** - Comunicação em tempo real via WebSockets
-- **[yfinance](https://pypi.org/project/yfinance/)** - Dados do mercado financeiro
-- **PostgreSQL** - Banco de dados
-
-### Frontend
-- **[React 19](https://react.dev/)** - Biblioteca para interfaces modernas
-- **[TypeScript](https://www.typescriptlang.org/)** - Type safety para JavaScript
-- **[Vite](https://vitejs.dev/)** - Build tool ultra-rápido
-- **[TailwindCSS](https://tailwindcss.com/)** - Framework CSS utilitário
-- **[Recharts](https://recharts.org/)** - Biblioteca de gráficos composáveis
-- **[Lightweight Charts](https://tradingview.github.io/lightweight-charts/)** - Gráficos financeiros profissionais
-- **[Radix UI](https://www.radix-ui.com/)** - Componentes acessíveis e não-estilizados
-- **[React Query](https://tanstack.com/query/latest)** - Gerenciamento de estado assíncrono
-- **[React Router](https://reactrouter.com/)** - Roteamento declarativo
-
-### Ferramentas de Build
-- **[PyInstaller](https://pyinstaller.org/)** - Empacotamento do Python em executável
-- **[Make](https://www.gnu.org/software/make/)** - Automação de build
-  
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Veja a [documentação completa](https://lilomarino.github.io/SimuladorFinanceiro/) para guias de desenvolvimento.
-
-**Formas de contribuir:**
-- 🐛 Reportar bugs via [Issues](../../issues)
-- 💡 Sugerir novas funcionalidades via [Discussions](../../discussions)
-- 🔧 Enviar pull requests
-- 📖 Melhorar a documentação
-
-
-## 📜 Licença
-
-Este projeto está licenciado sob a [GNU General Public License v3.0](LICENSE).
-
-Você é livre para usar, modificar e distribuir este software, desde que mantenha a mesma licença e atribua os devidos créditos.
+[GNU General Public License v3.0](LICENSE). Você pode usar, modificar e distribuir, mantendo a mesma licença e os créditos.
 
 ---
 
 <div align="center">
 
-**Desenvolvido por [Murilo Marino](https://github.com/LiloMarino) • [⭐ Dê uma estrela no projeto!](../../stargazers)**
+Desenvolvido por [Murilo Marino](https://github.com/LiloMarino)
 
 </div>

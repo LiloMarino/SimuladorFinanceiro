@@ -4,7 +4,7 @@
 backend/: Código-fonte do servidor Python (FastAPI)
 backend/config/: Configurações da aplicação (variáveis de ambiente, TOML)
 backend/core/: Infraestrutura central (database, logger, models, utils)
-backend/core/decorators/: Decoradores reutilizáveis (auth, cache, etc)
+backend/core/decorators/: Decoradores reutilizáveis (transações)
 backend/core/dependencies/: Dependências do FastAPI (injeção de dependência)
 backend/core/dto/: Data Transfer Objects para comunicação backend->frontend e tipagem forte
 backend/core/dto/events/: DTOs específicos para eventos da simulação
@@ -12,19 +12,22 @@ backend/core/enum/: Enumerações globais (tipos, status, etc)
 backend/core/exceptions/: Exceções customizadas da aplicação
 backend/core/models/: Modelos SQLAlchemy (entidades do banco de dados)
 backend/core/repository/: Camada de acesso a dados (Data Access Layer)
-backend/core/runtime/: Gerenciadores runtime singleton thread-safe (brokers, túneis, etc)
+backend/core/runtime/: Gerenciadores runtime singleton thread-safe (brokers, usuários, etc)
 backend/core/utils/: Funções utilitárias genéricas de infraestrutura
 backend/features/: Funcionalidades organizadas por domínio (DDD)
+backend/features/achievements/: Catálogo e avaliação das conquistas
+backend/features/correlation/: Cálculo da correlação entre ativos
 backend/features/fixed_income/: Lógica de negócio de Renda Fixa
 backend/features/fixed_income/entities/: Entidades de domínio (CDB, Tesouro, etc)
 backend/features/fixed_income/factory/: Factories para criação de ativos de RF
-backend/features/import_data/: Serviço de importação de dados externos
+backend/features/import_data/: Importação de dados externos e geração do futuro
 backend/features/realtime/: Sistema de comunicação em tempo real (WebSocket)
 backend/features/simulation/: Engine de simulação do mercado financeiro
+backend/features/statistics/: Nota, ranking, retorno, risco e meta da partida
 backend/features/strategy/: Algoritmos de estratégias de investimento
-backend/features/tunnel/: Sistema de túnel para multiplayer (ngrok, etc)
-backend/features/tunnel/network_utils/: Utilitários de rede para túneis
-backend/features/tunnel/providers/: Provedores de túnel (ngrok, localtunnel)
+backend/features/tunnel/: Link de convite para o multiplayer
+backend/features/tunnel/network_utils/: Utilitários de rede
+backend/features/tunnel/providers/: Provedores do link (rede local e um de exemplo)
 backend/features/variable_income/: Lógica de negócio de Renda Variável
 backend/features/variable_income/entities/: Entidades de domínio (Ações, FIIs, etc)
 backend/features/variable_income/liquidity/: Sistema de liquidez e book de ofertas
@@ -36,28 +39,30 @@ docs/: Documentação do projeto (Docusaurus)
 frontend/: Aplicação React + TypeScript (Vite)
 frontend/assets/: Assets estáticos do frontend (imagens, fontes)
 frontend/features/: Funcionalidades organizadas por domínio (Feature-Based)
+frontend/features/achievements/: Tela de conquistas
 frontend/features/auth/: Feature de autenticação e login
 frontend/features/auth/pages/: Páginas de autenticação
+frontend/features/correlation/: Tela de correlação entre ativos
 frontend/features/fixed-income/: Feature de Renda Fixa
 frontend/features/fixed-income/components/: Componentes específicos de RF
-frontend/features/fixed-income/models/: Models de ativos de RF
 frontend/features/fixed-income/pages/: Páginas da feature de RF
-frontend/features/fixed-income/schemas/: Schemas de validação (Zod) para RF
-frontend/features/import-assets/: Feature de importação de ativos
+frontend/features/goal/: Tela Meta (corrida à meta e vida financeira)
+frontend/features/import-assets/: Central de dados (importação e séries da base)
 frontend/features/import-assets/components/: Componentes de importação (CSV, YFinance)
 frontend/features/import-assets/pages/: Páginas de importação
+frontend/features/join/: Entrada numa partida em andamento
 frontend/features/lobby/: Feature de lobby/sessões multiplayer
 frontend/features/lobby/components/: Componentes do lobby
 frontend/features/lobby/hooks/: Hooks customizados do lobby
 frontend/features/lobby/pages/: Páginas do lobby
+frontend/features/performance/: Painel de desempenho (modo debug)
 frontend/features/portfolio/: Feature de carteira/portfólio
 frontend/features/portfolio/components/: Componentes da carteira (gráficos, tabelas)
-frontend/features/portfolio/lib/: Lógica de negócio da carteira
 frontend/features/portfolio/pages/: Páginas da carteira
 frontend/features/settings/: Feature de configurações
 frontend/features/settings/components/: Componentes de configurações
 frontend/features/settings/pages/: Páginas de configurações
-frontend/features/statistics/: Feature de estatísticas e ranking
+frontend/features/statistics/: Estatísticas, ranking e fechamento da partida
 frontend/features/statistics/components/: Componentes de estatísticas
 frontend/features/statistics/lib/: Lógica de cálculo de estatísticas
 frontend/features/statistics/pages/: Páginas de estatísticas
@@ -72,6 +77,7 @@ frontend/pages/: Páginas genéricas (erro, loading, etc)
 frontend/public/: Assets públicos servidos pelo Vite
 frontend/shared/: Código compartilhado entre features
 frontend/shared/components/: Componentes React reutilizáveis entre as features
+frontend/shared/components/ui/: Design system (componentes shadcn)
 frontend/shared/context/: Contexts globais (React Context API)
 frontend/shared/context/auth/: Context de autenticação
 frontend/shared/context/notifications-settings/: Context de configurações de notificações
@@ -80,10 +86,12 @@ frontend/shared/context/realtime/: Context de comunicação em tempo real
 frontend/shared/context/simulation/: Context de estado da simulação
 frontend/shared/hooks/: Hooks customizados reutilizáveis
 frontend/shared/lib/: Bibliotecas internas e utilitários
+frontend/shared/lib/api/: Chamada à API (apiFetch)
 frontend/shared/lib/models/: Classes e models (ApiError, etc)
 frontend/shared/lib/realtime/: Cliente de WebSocket
 frontend/shared/lib/schemas/: Schemas de validação (Zod)
-frontend/shared/lib/utils/: Funções utilitárias (formatação, API, etc)
+frontend/shared/lib/utils/: Funções utilitárias (formatação, exibição, etc)
 frontend/shared/notifications/: Sistema global de notificações
 frontend/types/: Definições de tipos TypeScript compartilhados
-scripts/: Scripts utilitários de desenvolvimento
+scripts/: Scripts utilitários (release, demo, openapi, diagrama do banco)
+tests/: Testes do backend (pytest)

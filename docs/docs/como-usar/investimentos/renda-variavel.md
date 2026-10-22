@@ -6,7 +6,7 @@ sidebar_position: 1
 
 Aprenda a investir em ações, FIIs e ETFs no simulador.
 
-![Exemplo de tela de renda variável](/img/renda-variavel.png)
+![A lista de ativos da renda variável](/demo/screens/stocks.png)
 
 ## O que é Renda Variável?
 
@@ -22,15 +22,13 @@ Aprenda a investir em ações, FIIs e ETFs no simulador.
 - ⚠️ Maior risco (volatilidade)
 - 💰 Possibilidade de dividendos/proventos
 
-{/* Espaço reservado para screenshot da tela de renda variável */}
-
 ---
 
 ## Sistema de Ordens
 
 O simulador utiliza um sistema realista de ordens para compra e venda de ativos de renda variável.
 
-![Exemplo de tela de ordens](/img/ordens.png)
+![O card Nova ordem com 300 ações de PETR4](/demo/screens/stock-order.png)
 
 ### Tipos de Ordem
 
@@ -132,7 +130,7 @@ impacto = k × √(quantidade líquida do dia ÷ volume médio diário)
 
 - **Quantidade líquida do dia:** compras menos vendas de todos os jogadores naquele ativo, naquele dia. Comprar sobe o preço; vender desce.
 - **Volume médio diário:** a média de ações negociadas por dia nos últimos 20 pregões. Serve de régua: 1.000 ações é muito para um ativo que negocia 5.000 por dia e quase nada para um que negocia 50 milhões.
-- **k (intensidade):** configurado no lobby; o padrão é 0,02, próximo do que se mede no mercado real.
+- **k (intensidade):** configurado no lobby. O modo **Realista** usa 0,02, próximo do que se mede no mercado real, e o **Forte** usa 0,05.
 
 Exemplos com k = 0,02 num ativo com volume médio de 1.000.000 de ações por dia:
 
@@ -146,7 +144,7 @@ A raiz quadrada faz o impacto crescer menos que a ordem: quadruplicar a compra s
 
 **Como o preço volta ao histórico:**
 
-A ordem não mexe no preço do próprio dia, onde o custo dela já aparece ao consumir as ofertas do livro. O impacto vale cheio no pregão seguinte e diminui pela curva (1 − t/T)², em que t conta os pregões a partir desse primeiro (que tem t = 0) e T é o valor configurado no lobby (padrão 20):
+A ordem não mexe no preço do próprio dia, onde o custo dela já aparece ao consumir as ofertas do livro. O impacto vale cheio no pregão seguinte e diminui pela curva (1 − t/T)², em que t conta os pregões a partir desse primeiro (que tem t = 0) e T é o valor configurado no lobby (20 no modo Realista, 40 no Forte):
 
 | Pregão depois da ordem | 1º   | 5º  | 10º | 15º | 20º  | 21º |
 | ---------------------- | ---- | --- | --- | --- | ---- | --- |
@@ -163,27 +161,29 @@ O preço com impacto é o mesmo em toda a simulação: na lista de ativos, no gr
 ### Abrir um ativo e enviar ordens
 
 1. Acesse **Renda Variável** para ver a lista de ativos.
-2. Encontre o ticker desejado e clique em **Ver**.
-3. Na tela de detalhes do ativo, use o card **Nova Ordem** para:
-   - Escolher **Tipo de Operação**: Compra ou Venda.
-   - Escolher **Tipo de Ordem**: À Mercado ou Limitada.
+2. Encontre o ticker desejado e clique na linha dele.
+3. Na tela de detalhes do ativo, use o card **Nova ordem** para:
+   - Escolher entre **Comprar** e **Vender**.
+   - Escolher o tipo de ordem: **A mercado** ou **Limitada**.
    - Informar a **Quantidade** (use **Máx** para preencher o limite disponível).
-   - Informar **Preço desejado** quando a ordem for **Limitada**.
-4. Clique em **Executar Compra** ou **Executar Venda**.
+   - Informar o **Preço limite** quando a ordem for **Limitada**.
+4. Clique no botão de confirmação, que traz a conta: **Comprar 300 PETR4** ou **Vender 300 PETR4**.
 
 ### Vender ações
 
-A venda é feita no mesmo card **Nova Ordem**. Ao selecionar **Venda**, o botão **Máx** considera apenas a quantidade que você já possui na posição.
+A venda é feita no mesmo card **Nova ordem**. Ao selecionar **Vender**, o botão **Máx** considera apenas a quantidade que você já possui na posição. O card mostra também o **IR estimado nessa venda**.
 
 ### Acompanhar posição e ordens
 
 Na tela de detalhes do ativo, você encontra:
-- **Resumo**: quantidade em carteira, preço médio, preço atual, saldo em conta e P&L.
-- **Ordens Pendentes**: lista de ordens abertas, com status e opção de cancelar quando estiverem pendentes.
+- **Posição**: a quantidade em carteira, o preço médio e o resultado.
+- **Ordens**: as abas **Abertas** e **Histórico**, com o status de cada ordem e a opção de cancelar as suas ordens que ainda estão pendentes.
 
 ---
 
-## Estratégias Comuns Suportadas
+## Estratégias Comuns
+
+As estratégias abaixo se fazem à mão, com ordens manuais. As estratégias automáticas ainda não existem: o menu **Estratégias** está marcado como "Em breve".
 
 ### Buy and Hold
 Compre e mantenha o investimento por longo prazo. Ideal para quem acredita no crescimento da empresa.

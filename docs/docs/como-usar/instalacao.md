@@ -53,7 +53,7 @@ Os dados e as configurações ficam em `%LOCALAPPDATA%\SimuladorFinanceiro`, e n
 | `postgres.log` | O registro do servidor, útil quando algo falha |
 | `config.toml` | As configurações do jogo (criado com os valores padrão na primeira abertura) |
 | `logs\` | Os registros do jogo |
-| `.env` | Só existe se você usar um PostgreSQL seu |
+| `.env` | Criado vazio na primeira abertura; só tem efeito se você preencher `POSTGRES_DATABASE_URL` com um PostgreSQL seu |
 
 - **Backup:** com o jogo fechado, copie a pasta `%LOCALAPPDATA%\SimuladorFinanceiro`.
 - **Começar do zero:** com o jogo fechado, apague essa pasta. A próxima abertura cria tudo de novo, **sem as partidas salvas**.

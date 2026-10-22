@@ -5,70 +5,44 @@ sidebar_position: 1
 
 # Introdução
 
-**Simulador de investimentos do mercado financeiro brasileiro com modo multiplayer**
+**Invista no mercado brasileiro com preços reais, numa sala com seus amigos.**
 
-## 📌 O que é o Simulador Financeiro?
+O Simulador Financeiro é um jogo de investimentos inspirado em jogos de estratégia como Capitalism Lab e Victoria 3. Você recebe um capital, escolhe onde aplicar e acompanha o resultado enquanto o tempo da simulação passa, dia a dia, sobre os preços históricos da bolsa brasileira. Pode jogar sozinho ou numa sala com amigos.
 
-O **Simulador Financeiro** é uma aplicação web interativa inspirada em jogos de estratégia como **Capitalism Lab** e **Victoria 3**, que permite testar e competir com estratégias de investimento no **mercado financeiro brasileiro**.
+![O jogo rodando: o tempo da simulação avança e a carteira acompanha](/demo/gifs/time.gif)
 
-Simule negociações em **renda variável** (Ações, FIIs, ETFs) e **renda fixa** (CDB, LCI, LCA, Tesouro Direto), acompanhe métricas de desempenho em tempo real e compita com outros jogadores no modo multiplayer.
-
-{/* Espaço reservado para screenshots e GIFs */}
-
-## Principais Características
-
-- **Modo Single Player e Multiplayer** — Jogue sozinho ou compita com amigos
-- **Renda Variável** — Negocie ações, FIIs e ETFs com dados reais do mercado
-- **Renda Fixa** — Invista em CDB, LCI, LCA e Tesouro Direto
-- **Estratégias Automatizadas** — Configure algoritmos de trading personalizados
-- **Dashboard Completo** — Acompanhe seu portfólio e estatísticas em tempo real
-- **Controle de Tempo** — Pause, acelere ou desacelere a simulação
-- **Ranking Competitivo** — Compare seu desempenho com outros jogadores
-- **Executável Disponível** — Baixe e execute sem precisar instalar Python ou Node.js
-
-## Como Funciona
-
-### Modo Single Player
-
-Crie uma sessão local e teste suas estratégias de investimento sem pressão. Configure seu capital inicial, escolha seus ativos e acompanhe o desempenho do seu portfólio ao longo do tempo.
-
-### Modo Multiplayer
-
-1. **Host** — Crie uma sala e compartilhe o IP com seus amigos
-2. **Jogadores** — Entrem na sala usando o IP fornecido
-3. **Competição** — Todos começam com o mesmo capital e competem para ter o melhor retorno
-4. **Vencedor** — O jogador com maior patrimônio ao final vence
-
-### Estratégias de Investimento
-
-- **Manual** — Tome decisões de compra e venda manualmente
-- **Automática (Em desenvolvimento)** — Configure algoritmos que operam automaticamente baseados em indicadores técnicos
-
-## 🚀 Começando
-
-:::info
-Selecione a seção **[Como Usar](./como-usar/instalacao.md)** na documentação para um guia passo a passo sobre como instalar e usar o simulador.
+:::info Acesso antecipado
+O jogo já roda, mas ainda muda a cada versão. As [novidades de cada versão](./como-usar/novidades.md) ficam numa página só.
 :::
 
-Para desenvolvedores interessados em contribuir, consulte a seção **[Desenvolvimento](./desenvolvimento/setup.md)** para entender a arquitetura e como configurar o ambiente de desenvolvimento.
+## O que ele faz
 
-## Stack Tecnológica
+- **Renda variável**: compre e venda ações, FIIs e ETFs com cotações históricas reais.
+- **Renda fixa**: aplique em CDB, LCI, LCA e Tesouro Direto, que rendem sobre CDI, SELIC e IPCA.
+- **Estatísticas**: acompanhe a evolução do patrimônio, o retorno e o risco da carteira.
+- **Multiplayer**: um jogador abre a sala e os amigos entram pelo endereço dele, todos com o mesmo capital.
+- **Carteira**: patrimônio, alocação por classe e imposto de renda num só lugar.
+- **Meta**: nas partidas de corrida à meta e de viver de renda, o seu progresso até a meta e a distância para os outros jogadores.
+- **Conquistas**: objetivos que a partida vai liberando enquanto você joga.
+- **Correlação**: o quanto os ativos andam juntos, para diversificar de verdade.
+- **Futuro gerado**: depois do último pregão real, o simulador gera um futuro plausível para a partida seguir.
+- **Importação de ativos**: traga o histórico de outros ativos para jogar com eles.
+- **Estratégias automáticas**: em breve.
 
-### Backend
-- **FastAPI** — Framework web moderno e rápido
-- **Uvicorn** — Servidor ASGI de alta performance
-- **SQLAlchemy** — ORM para gerenciamento de dados
-- **Socket.IO** — Comunicação em tempo real via WebSockets
-- **yfinance** — Dados do mercado financeiro
-- **PostgreSQL** — Banco de dados
+O [Tour pelo jogo](./tour.md) mostra uma partida inteira em seis cenas.
 
-### Frontend
-- **React 19** — Biblioteca para interfaces modernas
-- **TypeScript** — Type safety para JavaScript
-- **Vite** — Build tool ultra-rápido
-- **TailwindCSS** — Framework CSS utilitário
-- **Recharts** — Biblioteca de gráficos composáveis
-- **Radix UI** — Componentes acessíveis
+## Tipos de partida
+
+O host escolhe o tipo no lobby:
+
+- **Clássica**: joga até a data final, e o critério escolhido diz quem vence.
+- **Corrida à meta**: vence quem chegar primeiro a um patrimônio-alvo.
+- **Viver de renda**: com salário, despesa e imprevistos, vence quem chegar à independência financeira.
+
+## Por onde começar
+
+- Para jogar, comece pela [instalação](./como-usar/instalacao.md) e siga para o [lobby](./como-usar/lobby.md).
+- Para desenvolver, veja o [setup do ambiente](./desenvolvimento/setup.md) e como [contribuir](./desenvolvimento/contribuindo.md).
 
 ## Licença
 

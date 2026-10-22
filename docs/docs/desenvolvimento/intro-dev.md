@@ -10,8 +10,8 @@ Bem-vindo ao guia de desenvolvimento do Simulador Financeiro!
 
 O Simulador Financeiro é uma aplicação full-stack que simula investimentos no mercado financeiro brasileiro. É um projeto open-source que combina:
 
-- **Backend robusto** com FastAPI
-- **Frontend moderno** com React
+- **Backend** em FastAPI, com PostgreSQL
+- **Frontend** em React
 - **Comunicação em tempo real** com Socket.IO
 - **Dados reais** de mercado via yfinance
 
@@ -22,9 +22,10 @@ SimuladorFinanceiro/
 ├── backend/              # Python FastAPI + lógica de negócio
 ├── frontend/             # React + TypeScript
 ├── docs/                 # Documentação (este site)
-├── scripts/              # Utilitários e scripts
+├── scripts/              # Release, demonstração, OpenAPI e diagrama do banco
+├── tests/                # Testes do backend (pytest)
 ├── main.py               # Entrypoint da aplicação
-└── requirements.txt      # Dependências Python
+└── pyproject.toml        # Dependências Python (travadas no uv.lock)
 ```
 
 ## Stack Tecnológica
@@ -32,7 +33,7 @@ SimuladorFinanceiro/
 ### Backend
 - **FastAPI** — Framework web moderno
 - **Uvicorn** — Servidor ASGI
-- **SQLAlchemy** — ORM SQL
+- **SQLAlchemy** e **Alembic** — ORM e migrations do PostgreSQL
 - **Socket.IO** — WebSockets para tempo real
 - **yfinance** — Dados de mercado
 

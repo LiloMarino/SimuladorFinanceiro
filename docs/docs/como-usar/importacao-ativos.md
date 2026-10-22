@@ -19,7 +19,7 @@ O sistema de importação carrega **dados históricos OHLCV** (Open, High, Low, 
 
 Estes dados são usados para simular o movimento realista do mercado durante a simulação.
 
-![Exemplo de tela de importação de ativos](/img/importar.png)
+![A Central de dados, com o painel de importação e a tabela das séries da base](/demo/screens/import-assets.png)
 
 ---
 
@@ -29,26 +29,24 @@ A **Central de dados** é a tela onde você importa ações e acompanha quais s�
 
 Ela só pode ser aberta **fora de uma partida**: durante uma partida, o sistema leva você de volta para a tela principal.
 
-A tela tem duas partes: os formulários de importação de ações (explicados nas seções abaixo) e a tabela **Séries da base**.
+A tela tem duas partes: o painel **Adicionar ativo** (explicado em [Métodos de importação](#métodos-de-importação)) e a tabela **Séries da base**.
 
 ### Séries da base
 
-A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA e Ibovespa) e depois cada ação importada. Em cada linha:
+A tabela lista todas as séries guardadas no banco: primeiro os indicadores econômicos (CDI, SELIC, IPCA e Ibovespa) e depois cada ativo importado. O filtro **Todas** / **Precisam de atenção** deixa só as séries que pedem uma olhada (sem dado real, desatualizadas ou sem classificação). Em cada linha:
 
 - **Série**: nome do indicador ou do ticker.
-- **Setor / Segmento**: a classificação da ação (ver abaixo). Indicadores mostram "—".
-- **Início**: primeira data com dado.
-- **Fim do dado real**: última data com dado publicado pela fonte.
-- **Fim do dado gerado**: até que data vai o futuro gravado para a série (ver "Gerar dados futuros", abaixo). Séries sem futuro gravado mostram "—". Depois do fim do dado gerado, a partida repete o último valor da série.
-- **Linha do tempo**: barra com o período coberto. O trecho com dado real aparece em uma cor e, depois dele, o trecho gerado em outra cor. Todas as barras usam a mesma régua de tempo, então dá para comparar visualmente quais séries cobrem mais anos. Passe o mouse sobre a barra para ver as datas.
-- **Ação**: botão **Atualizar** da linha.
+- **Setor · segmento**: a classificação da ação (ver abaixo). Indicadores mostram "—".
+- **Linha do tempo**: barra com o período coberto. O trecho com dado real aparece em uma cor e, depois dele, o trecho gerado em outra cor. Todas as barras usam a mesma régua de tempo, então dá para comparar visualmente quais séries cobrem mais anos. Passe o mouse sobre a barra para ver as datas: "Real: início → fim · gerado até …". Séries sem futuro gravado não têm trecho gerado, e depois do fim do dado gerado a partida repete o último valor da série (ver "Gerar dados futuros", abaixo).
+- **Situação**: se a série está em dia ou parou de atualizar. Uma ação que parou mostra o selo **Parou em** com a data do último preço.
+- **Ações**: o botão **Atualizar** da linha e, nas ações, a **classe do ativo** (ex.: Ação).
 
 ### Setor e segmento das ações
 
 Cada ação pertence a um **setor** (ex.: Financeiro) e, dentro dele, a um **segmento** (ex.: Bancos). A carteira mostra quanto da renda variável está em cada setor, e as estatísticas comparam os setores entre os jogadores.
 
 - **Sugestão automática:** ao importar uma ação pelo Yahoo Finance (ou ao atualizar uma que ainda não tem classificação), o setor e a indústria que o Yahoo informa viram a sugestão. O setor chega traduzido para os nomes da B3 (ex.: *Financial Services* → Financeiro); o segmento chega como o Yahoo escreve (ex.: *Banks - Regional*).
-- **Editar:** o lápis ao lado da classificação abre a janela **Classificar**. Escolha um setor e um segmento da lista ou digite nomes novos; **Remover classificação** deixa a ação como "Sem setor".
+- **Editar:** o botão **Classificar** (para uma ação ainda sem setor) ou o próprio setor e segmento da linha abre a edição ali mesmo. Escolha um setor e, se quiser, um segmento da lista, ou digite nomes novos, e use **Salvar**. **Tirar classificação** deixa a ação como "Sem setor", e **Cancelar** fecha sem mudar nada.
 - Uma classificação feita à mão não é trocada pela sugestão nas próximas atualizações.
 
 ### Indicadores econômicos
@@ -64,7 +62,7 @@ Cada ação pertence a um **setor** (ex.: Financeiro) e, dentro dele, a um **seg
 
 Serve para continuar jogando depois do último dia com dado real. O futuro é montado com trechos reais da bolsa desde 2000 e fica gravado como dado gerado; as partidas o leem como leem o histórico. A explicação completa de como ele é montado está em [Como o futuro é gerado](./futuro-gerado.md).
 
-O botão "Gerar dados futuros" abre um diálogo com os controles à esquerda e a prévia à direita.
+O botão **Gerar dados futuros** (depois da primeira geração, **Gerar outro futuro**) abre um diálogo com os controles à esquerda e a prévia à direita.
 
 **Controles:**
 
@@ -81,7 +79,7 @@ O botão "Gerar dados futuros" abre um diálogo com os controles à esquerda e a
 - **A SELIC no pico.** A taxa mais alta que chega no futuro. Ex.: hoje ela está em 13,65% ao ano e no pico chega a 28%.
 - **A inflação de 12 meses no pico.** A mais alta do futuro. Ex.: 14% quer dizer que, em 12 meses, os preços subiram 14%.
 
-O botão "Gerar e gravar" grava o futuro de todas as séries. Gravar de novo substitui o futuro anterior: não há como apagar o futuro sem gerar outro. Cancelar no meio, ou um erro, não muda nada na base.
+O botão "Gerar e gravar" grava o futuro de todas as séries. Gravar de novo pede a confirmação "Trocar e gravar" e substitui o futuro anterior: não há como apagar o futuro sem gerar outro. Cancelar no meio, ou um erro, não muda nada na base.
 
 Depois de gravar, a Central mostra o card "Futuro gerado", com a semente e os controles usados. O botão "Gerar de novo" abre o diálogo com esses valores.
 
@@ -90,8 +88,8 @@ Depois de gravar, a Central mostra o card "Futuro gerado", com a semente e os co
 ### Atualização
 
 - **Atualizar** (em um indicador) busca esse indicador na fonte na hora.
-- **Atualizar desatualizadas** atualiza todos os indicadores e as ações cujo último preço tem mais de 2 dias.
-- Ações com dados desatualizados aparecem destacadas em **vermelho**.
+- **Atualizar desatualizadas** atualiza as ações cujo último preço tem mais de 2 dias. O número entre parênteses diz quantas são.
+- Uma ação com dados desatualizados aparece com o nome em **vermelho** e o selo **Parou em**.
 
 Quando o dado real chega (pelo "Atualizar" de uma série ou pela atualização automática dos indicadores ao abrir o app), ele ocupa o lugar do gerado nos dias que cobre, e um aviso diz quantos pregões entraram. O gerado que sobra continua do ponto antigo, então pode haver um salto no dia da emenda. O card "Futuro gerado" passa a avisar até onde o real chegou e sugere "Gerar de novo" com os mesmos controles, o que emenda todas as séries a partir do real novo.
 
@@ -108,10 +106,10 @@ O simulador pode buscar dados diretamente do **Yahoo Finance** usando a bibliote
 **Como importar:**
 
 1. Acesse a **Central de dados** (botão no lobby)
-2. No card **Buscar via yFinance**, informe o **Código do Ativo** (ex: `PETR4`, `VALE3`, `BTC-USD`)
-3. (Opcional) Marque **Sobrescrever dados existentes**
-4. Clique em **Buscar e Importar**
-5. Confirme a ação na janela de confirmação
+2. No painel **Adicionar ativo**, deixe a fonte em **yFinance**
+3. Informe o **Código do ativo** (ex: `PETR4`, `VALE3`, `BTC-USD`)
+4. (Opcional) Marque **Substituir o que já existe**
+5. Clique em **Importar**
 
 **Exemplos de tickers brasileiros:**
 - Ações: `VALE3`, `PETR4`, `BBAS3`, `ITUB4`
@@ -140,37 +138,36 @@ Você pode importar dados de qualquer fonte usando um **arquivo CSV** no formato
 
 1. Prepare seu arquivo CSV no formato correto (veja abaixo)
 2. Acesse a **Central de dados** (botão no lobby)
-3. No card **Importar via CSV**, informe o **Nome do Ativo**
-4. Selecione o **arquivo CSV**
-5. (Opcional) Marque **Sobrescrever dados existentes**
-6. Clique em **Importar CSV**
-7. Confirme a ação na janela de confirmação
+3. No painel **Adicionar ativo**, troque a fonte para **Arquivo CSV**
+4. Arraste o arquivo para a área de upload ou escolha-o no computador. O limite é de 5 MB
+5. Confira o **Código do ativo**: o painel o preenche com o nome do arquivo
+6. (Opcional) Marque **Substituir o que já existe**
+7. Clique em **Importar**
 
 #### Formato do CSV
 
-O arquivo CSV deve ter as seguintes colunas **obrigatórias**:
+O arquivo segue o formato de exportação do **Investing.com** (histórico de preços, em CSV). As colunas **obrigatórias**, com estes nomes:
 
 ```csv
-Date,Open,High,Low,Close,Volume
-2020-01-02,50.00,52.00,49.50,51.50,1000000
-2020-01-03,51.50,53.00,51.00,52.80,1200000
-2020-01-06,52.80,54.00,52.50,53.50,1100000
+"Data","Último","Abertura","Máxima","Mínima","Vol."
+"20.02.2026","25,00","24,88","25,48","24,86","30,94K"
+"19.02.2026","25,00","24,78","25,30","24,62","23,22K"
+"18.02.2026","24,74","24,79","25,00","24,30","26,93K"
 ```
 
 **Especificações:**
-- **Date** - Data no formato `YYYY-MM-DD` (ex: `2020-01-02`)
-- **Open** - Preço de abertura (número decimal, use `.` para separador decimal)
-- **High** - Preço máximo
-- **Low** - Preço mínimo
-- **Close** - Preço de fechamento
-- **Volume** - Volume negociado (número inteiro)
+- **Data** - Data no formato `dd.mm.aaaa` (ex: `20.02.2026`)
+- **Último** - Preço de fechamento
+- **Abertura** - Preço de abertura
+- **Máxima** - Preço máximo
+- **Mínima** - Preço mínimo
+- **Vol.** - Volume negociado; aceita os sufixos `K` (mil) e `M` (milhão), como `30,94K`
 
 **Regras:**
 - ✅ Primeira linha deve ser o cabeçalho (nome das colunas)
-- ✅ Datas devem estar em ordem cronológica crescente
-- ✅ Não pode haver datas duplicadas
-- ✅ Não pode haver linhas vazias
-- ✅ Valores numéricos devem usar `.` (ponto) como separador decimal
+- ✅ Valores numéricos usam `,` (vírgula) como separador decimal
+- ✅ O arquivo precisa ser um CSV de até 5 MB. Outro tipo de arquivo é recusado com um aviso
+- ⚠️ Valores ausentes viram zero e o servidor registra um aviso no log
 
 **Exemplo de arquivo CSV válido:**
 
@@ -179,6 +176,6 @@ Date,Open,High,Low,Close,Volume
 
 ## Dicas Rápidas
 
-- Use **Sobrescrever dados existentes** quando quiser atualizar um ticker que ja existe.
-- A importação pede confirmação antes de enviar os dados.
+- Use **Substituir o que já existe** quando quiser trocar os preços de um ticker que já está na base. Desmarcado, só entram os pregões que ainda não estão lá.
+- A importação só pede confirmação quando vai substituir dados que já existem.
 - Antes de escolher o período no lobby, confira na **Central de dados** até quando cada série tem dado real.

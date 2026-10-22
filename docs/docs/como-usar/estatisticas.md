@@ -8,10 +8,12 @@ A tela de **Estatísticas** mostra o desempenho de cada jogador por dimensão, c
 
 Enquanto a **Carteira** mostra os seus ativos, as **Estatísticas** respondem quem está indo melhor, quanto risco cada um correu para chegar lá e de onde veio o resultado.
 
+![A aba Geral das estatísticas, com o resumo da partida e o ranking](/demo/screens/statistics.png)
+
 O mesmo relatório aparece em três lugares:
 
 - **Durante a partida**, pelo menu **Estatísticas**. Ele se atualiza a cada virada de mês.
-- **Na comparação entre simulações**, pelo botão **Comparar Simulações** do lobby. Cada série aparece como `Jogador#Simulação`.
+- **Na comparação entre simulações**, pelo botão **Comparar simulações** do lobby. Cada série leva a letra da sua simulação: `Nick · A`, e `Você · A` para o seu próprio jogador.
 - **No fechamento da partida**, junto do pódio (ver abaixo).
 
 Todas as métricas são calculadas no simulador a partir do patrimônio de cada dia útil. Cada uma tem um ícone **i** com a definição, um exemplo e como ler o número.
@@ -29,6 +31,10 @@ Quando a partida chega à data final ou o host a encerra, todos os jogadores vã
 - **Pódio** com os três primeiros pelo [critério de vitória](./lobby#critério-de-vitória) escolhido no lobby, e o valor que decidiu cada posição (ex.: "212 pts" pela nota geral). Na Corrida à meta e no Viver de renda, o pódio vai pelo % da meta (ex.: "91% · R$ 1,37 mi").
 - **O relatório inteiro** em abas, sobre a partida toda.
 - **Voltar ao lobby** leva de volta ao lobby, para a próxima partida.
+- **Comparar com outras partidas** abre a comparação entre simulações.
+- As **conquistas** e os destaques da partida aparecem na mesma tela. A lista de conquistas está em [Conquistas](./conquistas.md).
+
+![A tela de fim de partida, com o pódio](/demo/screens/match-result.png)
 
 O conteúdo do fechamento depende do [tipo de partida](./lobby#tipo-de-partida):
 
@@ -36,7 +42,7 @@ O conteúdo do fechamento depende do [tipo de partida](./lobby#tipo-de-partida):
 - **Ninguém chegou à meta** (Corrida à meta): a partida acaba na data final sem chegada, e vence quem ficou mais perto, ou seja, quem tem o maior **% da meta**. Como ler o % está na seção [Ranking](#ranking-na-corrida-à-meta-e-no-viver-de-renda).
 - **Independência financeira** (Viver de renda): a versão do fechamento que mostra quem alcançou a meta de independência. Veja [Viver de renda](./lobby#viver-de-renda).
 
-A mesma tela abre depois, para qualquer partida salva, pelo botão **Ver resultado** na lista de simulações salvas do lobby.
+A mesma tela abre depois, para qualquer partida salva, pelo botão **Resultado** na lista de simulações salvas do lobby.
 
 ---
 
@@ -54,8 +60,9 @@ Quando a partida é **em equipes**, as telas agrupam os jogadores por equipe e m
 ## Geral
 
 - **Resumo da partida:** a sua posição, o seu retorno, a média da sala e o melhor e o pior retorno.
-- **Ranking de jogadores:** ordenado pela **nota geral**. Mostra também patrimônio, retorno em R$ e em % sobre o capital aportado (saldo inicial + aportes) e quantos dias foram simulados. Quem ainda não tem nota vem depois, e o retorno desempata.
+- **Ranking de jogadores:** ordenado pela **nota geral**. As colunas são a posição, o jogador, a nota, o patrimônio, o retorno sobre o capital aportado (saldo inicial + aportes), quantos pregões foram simulados e a distância do líder. Quem ainda não tem nota vem depois, e o retorno desempata. Na comparação entre simulações, os botões **Nota**, **Retorno** e **Patrimônio** mudam a ordem do ranking.
 - **Nota:** a decomposição da nota de cada jogador, eixo por eixo e métrica por métrica (ex.: "Queda máxima 13,65% → 72,7 pts"). Mostra o que puxou a nota para baixo.
+- **Você contra você:** na comparação entre simulações, os seus eixos da nota em cada partida, com a diferença contra a partida usada como base.
 
 ### Ranking na Corrida à meta e no Viver de renda
 
@@ -117,7 +124,7 @@ Com pouco tempo de partida, anualizar engana: 10 dias com +2% viram ~64% ao ano.
 
 ## Rentabilidade
 
-- **Retorno acumulado:** a variação da cota desde o primeiro dia, uma linha por jogador. As linhas tracejadas são as referências do mesmo período:
+- **Retorno acumulado:** a variação da cota desde o primeiro dia, uma linha por jogador, em **Retorno %** ou em **Patrimônio R$** (os botões acima do gráfico). O eixo do tempo vai **Desde o início** da partida ou por **Data real**. As linhas tracejadas são as referências do mesmo período:
   - **CDI:** o que um título de 100% do CDI teria rendido.
   - **Ibovespa:** a variação do índice da bolsa.
 
@@ -138,8 +145,8 @@ Com pouco tempo de partida, anualizar engana: 10 dias com +2% viram ~64% ao ano.
 ## Risco
 
 - **Distância do pico:** quanto a cota de cada jogador está abaixo do maior valor que já alcançou, dia a dia. Zero é estar no topo.
-- **Volatilidade em janela móvel:** a volatilidade anual calculada só com os últimos 63 pregões (~3 meses). Mostra os períodos agitados e os calmos.
-- **Risco × retorno:** um ponto por jogador. Para a direita é mais oscilação; para cima, mais retorno. Quanto mais para cima e para a esquerda, melhor.
+- **Volatilidade · 63 pregões:** a volatilidade anual calculada só com os últimos 63 pregões (~3 meses). Mostra os períodos agitados e os calmos.
+- **Risco × retorno:** um ponto por jogador. Para a direita é mais oscilação; para cima, mais retorno. Quanto mais para cima e para a esquerda, melhor. O ponto **CDI** marca o retorno de quem ficou sem oscilar.
 - **Tabela:**
 
 | Métrica | O que mede | Como ler |
@@ -156,9 +163,9 @@ Com pouco tempo de partida, anualizar engana: 10 dias com +2% viram ~64% ao ano.
 
 ## Composição
 
-- **Composição do patrimônio:** caixa, renda variável e renda fixa empilhados, dia a dia, de um jogador por vez (escolhido nos botões acima do gráfico).
-- **Exposição por setor:** uma barra por jogador, dividida pela fração da renda variável em cada setor no último dia. Mostra quem apostou em quê. Ao lado, o **número efetivo de setores**: 1 ÷ a soma dos quadrados das frações. Tudo num setor dá 1; dividido igual em 4 setores dá 4; 70/10/10/10 dá ~1,9, quase um setor só. Abaixo de 2 é uma carteira concentrada.
-- **Lucro por setor:** de onde veio o resultado da renda variável de cada jogador, setor a setor. É o que entrou nas vendas, menos o que saiu nas compras, mais o valor do que ainda está na carteira, antes do IR. Verde é lucro, vermelho é prejuízo.
+- **Composição do patrimônio:** caixa, renda variável e renda fixa empilhados, dia a dia, com todos os jogadores lado a lado. Os botões **Em %** e **Em R$** trocam a unidade.
+- **Em que setores cada um apostou:** uma barra por jogador, dividida pela fração da renda variável em cada setor no último dia. Mostra quem apostou em quê. Ao lado, o **número efetivo de setores**: 1 ÷ a soma dos quadrados das frações. Tudo num setor dá 1; dividido igual em 4 setores dá 4; 70/10/10/10 dá ~1,9, quase um setor só. Abaixo de 2 é uma carteira concentrada.
+- **De onde veio o resultado em ações:** de onde veio o resultado da renda variável de cada jogador, setor a setor. É o que entrou nas vendas, menos o que saiu nas compras, mais o valor do que ainda está na carteira, antes do IR. Verde é lucro, vermelho é prejuízo.
 
 O setor e o segmento de cada ação vêm da [Central de dados](./importacao-ativos#setor-e-segmento-das-ações).
 
@@ -166,7 +173,7 @@ O setor e o segmento de cada ação vêm da [Central de dados](./importacao-ativ
 
 ## Operações
 
-- **Volume negociado por mês:** quanto cada jogador comprou e vendeu em ações a cada mês.
+- **Quando cada um negociou:** uma grade de jogador por mês. Quanto mais escura a célula, mais dinheiro girou naquele mês; cinza é um mês só segurando.
 - **Tabela:**
   - **Compras** e **vendas:** cada execução conta uma vez; uma ordem preenchida em partes conta várias.
   - **Volume negociado.**

@@ -11,8 +11,8 @@ Configure seu ambiente de desenvolvimento para contribuir com o projeto.
 Antes de começar, instale as seguintes ferramentas:
 
 - **Git** — [Baixar](https://git-scm.com/)
-- **uv** — [Instalar](https://docs.astral.sh/uv/getting-started/installation/) (gerencia Python e dependências automaticamente)
-- **Node.js** — [Baixar](https://nodejs.org/)
+- **uv** — [Instalar](https://docs.astral.sh/uv/getting-started/installation/) (instala o Python 3.13 e as dependências automaticamente)
+- **Node.js** — [Baixar](https://nodejs.org/) (versão 20 ou mais nova)
 - **pnpm** — Instale com `npm install -g pnpm`
 - **PostgreSQL** — [Baixar](https://www.postgresql.org/)
 
@@ -26,6 +26,10 @@ cd SimuladorFinanceiro
 ```
 
 ---
+
+:::tip Atalho
+Na raiz, `pnpm run setup` faz os passos 2 e 3 de uma vez: `uv sync --dev` no backend e `pnpm install` no frontend. Falta só configurar o `.env`.
+:::
 
 ## 2. Setup do Backend (Python)
 
@@ -123,6 +127,8 @@ Abra este endereço no navegador para acessar a aplicação.
 ---
 
 ## 5. Verificar que Tudo Está Funcionando
+
+Para checar o código por inteiro (lint, tipos e testes do backend e do frontend), rode `pnpm run check` na raiz.
 
 Se ambos os servidores estiverem rodando sem erros:
 

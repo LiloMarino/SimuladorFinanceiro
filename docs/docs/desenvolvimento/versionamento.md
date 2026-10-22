@@ -24,7 +24,7 @@ Os commits seguem o [Conventional Commits](https://www.conventionalcommits.org/p
 
 | Commit | Pede |
 | --- | --- |
-| `fix:`, `docs:`, `refactor:`, `build:`, `test:`, `chore:` | correção |
+| `fix:`, `docs:`, `refactor:`, `build:`, `test:`, `chore:`, `ci:`, `perf:`, `style:` | correção |
 | `feat:` | menor |
 | `feat!:`, `fix!:` (um `!` depois do tipo) | maior |
 | sem tipo | nada: não move o número |
@@ -37,6 +37,6 @@ O `CHANGELOG.md` da raiz é gerado pelo mesmo `git-cliff`, sem edição manual: 
 
 ## Publicando uma versão
 
-1. `pnpm release` calcula a versão pelos commits, grava no `pyproject.toml` (a fonte única do número) e no `uv.lock`, e acrescenta a seção ao `CHANGELOG.md`. Se o `pyproject.toml` já estiver acima do calculado, o número fica como está.
+1. `pnpm release` calcula a versão pelos commits, grava no `pyproject.toml` (a fonte única do número) e no `uv.lock`, regenera o `docs/openapi.json` e acrescenta a seção ao `CHANGELOG.md`. Se o `pyproject.toml` já estiver acima do calculado, o número fica como está.
 2. Revise o diff e commite como `chore: Versão X.Y.Z`.
 3. Dispare o workflow **Release Multi-Plataforma** no GitHub. Ele lê a versão do `pyproject.toml`, confere que não está abaixo da pedida pelos commits, gera os executáveis e cria a tag e a release.

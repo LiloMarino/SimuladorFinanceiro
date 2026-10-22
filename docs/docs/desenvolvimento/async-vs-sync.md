@@ -33,7 +33,7 @@ Async é um detalhe de infraestrutura, não de regra de negócio.
 
 ### Domínio e Engine (Síncrono)
 
-A lógica central da simulação — `backend/features/simulation/*`, `Simulation`, `SimulationEngine`, `UserManager` e repositórios/DAO — **permanece intencionalmente síncrona** (`def`).
+A lógica central da simulação — `backend/features/simulation/*`, `SimulationEngine`, os brokers de renda variável e renda fixa, `UserManager` e os repositórios — **permanece intencionalmente síncrona** (`def`).
 
 **Motivos:**
 - Executa regras de negócio e cálculos determinísticos
@@ -45,9 +45,15 @@ A lógica central da simulação — `backend/features/simulation/*`, `Simulatio
 **Exemplo:**
 ```python
 class SimulationEngine:
-    def calculate_portfolio_value(self, user_id: int) -> float:
-        positions = self.repository.get_positions(user_id)
-        return sum(p.quantity * p.current_price for p in positions)
+    def get_portfolio(self, client_id: UUID) -> PortfolioDTO:
+        with self._lock:
+            equity = [
+                pos.to_dto(self.get_current_price(pos))
+                for pos in self.broker.get_positions(client_id).values()
+                if pos.size > 0
+            ]
+            cash = self._cash[client_id]
+        ...
 ````
 
 ---
@@ -85,29 +91,30 @@ Tudo isso **aumentaria a complexidade**, sem trazer ganhos reais para esse tipo 
 #### Estrutura do Loop
 
 ```python
-import threading
-import time
-
 class SimulationLoopController:
-    def __init__(self, engine):
-        self.engine = engine
-        self.running = False
-        self.lock = threading.Lock()
-        self.tick_interval = 1.0
+    def __init__(self):
+        self._thread: threading.Thread | None = None
+        self._stop_event = threading.Event()
+        self._pause_event = threading.Event()
+        self._lock = threading.Lock()
 
-    def run(self):
+    def _run(self):
         """Executa em thread dedicada"""
-        while self.running:
-            with self.lock:
-                self.engine.next_tick()  # Código síncrono
-            time.sleep(self.tick_interval)
+        simulation = SimulationManager.get_active_simulation()
+        while not self._stop_event.is_set():
+            speed = simulation.get_speed()
+            if speed <= 0:
+                self._pause_event.wait()  # pausado: espera retomar ou parar
+                continue
+            simulation.next_tick()  # Código síncrono
+            time.sleep(1 / speed)
 ```
 
 Esse modelo oferece:
 
 * execução previsível e determinística do `tick`
 * isolamento total do core em relação ao event loop async
-* uso direto de primitivas de sincronização (`threading.Lock`)
+* uso direto de primitivas de sincronização (`threading.Lock`, `threading.Event`)
 * controle explícito de tempo sem dependência de `asyncio`
 * menor custo cognitivo e arquitetural
 
@@ -116,11 +123,12 @@ Esse modelo oferece:
 #### Inicialização da Thread
 
 ```python
-thread = threading.Thread(
-    target=controller.run,
+self._thread = threading.Thread(
+    target=self._run,
     daemon=True,
+    name="simulation-loop",
 )
-thread.start()
+self._thread.start()
 ```
 
 ---
@@ -129,21 +137,19 @@ thread.start()
 
 FastAPI, ASGI, WebSocket e Socket.IO **são assíncronos por definição**.
 
-Nessa camada, o uso de `async` **é obrigatório**, mas **não deve vazar para o core**.
+Nessa camada, o uso de `async` **é obrigatório onde há I/O assíncrono**, mas **não deve vazar para o core**.
 
-Quando necessário, o transporte faz a ponte chamando código síncrono de forma segura.
+As rotas REST que chamam o domínio são `def` comuns: o FastAPI roda cada uma numa thread do próprio pool, então o event loop não trava e o domínio segue síncrono, sem `await` nenhum.
 
 **Exemplo:**
 
 ```python
-@router.get("/portfolio/{user_id}")
-async def get_portfolio(user_id: int):
-    portfolio = await asyncio.to_thread(
-        simulation_engine.get_portfolio,  # método síncrono
-        user_id
-    )
-    return portfolio
+@portfolio_router.get("", response_model=PortfolioDTO)
+def get_portfolio(client_id: ClientID, simulation: ActiveSimulation):
+    return simulation.get_portfolio(client_id)  # método síncrono
 ```
+
+`async def` fica para o que é assíncrono de verdade: os handlers do Socket.IO (`connect`, `subscribe`, `presence`), o início e a parada do link de convite e o serviço dos arquivos do frontend.
 
 ---
 
@@ -151,16 +157,23 @@ async def get_portfolio(user_id: int):
 
 ### Async → Sync (event loop chamando código bloqueante)
 
-✔ **Use `asyncio.to_thread()`**
+✔ **Endpoint REST: escreva `def`, e o FastAPI roda na threadpool**
+
+```python
+@router.get("/portfolio")
+def get_portfolio(client_id: ClientID, simulation: ActiveSimulation):
+    return simulation.get_portfolio(client_id)
+```
+
+✔ **Dentro de um `async def`: use `asyncio.to_thread()`**
 
 ```python
 result = await asyncio.to_thread(sync_function, arg1, arg2)
 ```
 
-**Quando usar:**
+**Quando usar o `to_thread`:**
 
-* Endpoint FastAPI chamando domínio
-* Handler WebSocket chamando engine
+* Handler WebSocket (`async def`) que precisa chamar algo bloqueante do domínio
 * Qualquer código async chamando algo bloqueante
 
 ---
@@ -178,6 +191,8 @@ asyncio.run_coroutine_threadsafe(coro(), loop)
 * Loop de simulação notificando WebSocket
 * Core disparando eventos realtime
 * Código síncrono que precisa interagir com async
+
+O broker é o único que faz essa ponte: o resto do core só chama `notify()`.
 
 ---
 
@@ -205,47 +220,39 @@ A responsabilidade de fazer a ponte **sync → async** é **exclusivamente do br
 class SocketBroker:
     def notify(
         self,
-        event: str,
-        payload: dict,
-        to: str | None = None,
+        event: Event,
+        payload: JSONValue,
+        to: ClientID | None = None,
     ) -> None:
+        with self._lock:
+            targets = set(self._subscriptions.get(event, set()))
+            if to is not None:
+                targets &= self._client_to_sids.get(to, set())
+
         if self._loop is None:
             raise RuntimeError("Event loop não está vinculado ao SocketBroker")
 
-        asyncio.run_coroutine_threadsafe(
-            self._async_notify(event, payload, to),
-            self._loop,
-        )
-
-    async def _async_notify(
-        self,
-        event: str,
-        payload: dict,
-        to: str | None,
-    ):
-        if to is not None:
-            await self.sio.emit(event, payload, to=to)
-        else:
-            await self.sio.emit(event, payload)
+        for sid in targets:
+            asyncio.run_coroutine_threadsafe(
+                self.sio.emit(event, payload, to=sid),
+                self._loop,
+            )
 ```
+
+O event loop é ligado ao broker na subida do servidor (`bind_event_loop`). A assinatura de cada aba (`subscribe`) decide quem recebe cada evento.
 
 ---
 
 ### Exemplo Real (Core Síncrono)
 
 ```python
-class SimulationEngine:
-    def execute_trade(self, order):
-        trade = self.match_order(order)
-
-        # Fire-and-forget
-        self.broker.notify(
-            event="trade_executed",
-            payload={
-                "trade_id": trade.id,
-                "order_id": order.id,
-            },
-        )
+# No fim da partida, o loop (thread síncrona) avisa os jogadores
+notify(
+    "simulation_ended",
+    SimulationEndedEventDTO(
+        reason="completed", simulation_id=simulation.settings.id
+    ).to_json(),
+)
 ```
 
 ---
@@ -257,7 +264,7 @@ flowchart LR
     Transport["Camada de Transporte (Async)<br>
     FastAPI / WebSocket / Socket.IO<br>
     async → sync<br>
-    asyncio.to_thread()"]
+    rotas def (threadpool) / asyncio.to_thread()"]
 
     Domain["Domínio e Engine (Sync)<br>
     SimulationEngine / Loop / Core<br>

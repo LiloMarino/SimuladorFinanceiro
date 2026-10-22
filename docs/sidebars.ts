@@ -4,6 +4,7 @@ import generatedApiSidebar from './docs/api/sidebar';
 const sidebars: SidebarsConfig = {
   tutorialSidebar: [
     { type: 'doc', id: 'intro', label: 'Introdução' },
+    { type: 'doc', id: 'tour', label: 'Tour pelo jogo' },
     {
       type: 'category',
       label: 'Como Usar',

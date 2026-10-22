@@ -6,17 +6,19 @@ sidebar_position: 9
 
 A tela de **Correlação** mostra o quanto os ativos andam juntos, antes de você montar uma carteira ou uma estratégia. Diversificar só funciona entre ativos que não caem ao mesmo tempo. Sem essa medida, duas posições "diferentes" podem ser a mesma aposta.
 
+![A matriz de correlação entre um ativo de cada setor](/demo/screens/correlation.png)
+
 Ela abre em dois lugares:
 
 - **Durante a partida**, pelo menu **Correlação**. A janela termina sempre na data da simulação, para a ferramenta não revelar o futuro.
-- **No lobby**, pelo card **Correlação entre ativos**. Aqui a janela pode terminar em qualquer dia: a data final começa no último pregão importado.
+- **No lobby**, pelo card **Correlação entre ativos**. Aqui a janela pode terminar em qualquer dia: o campo **Data final da janela** começa no último pregão importado e não passa dele.
 
 ---
 
 ## Como usar
 
 1. Marque os ativos na lista à esquerda, agrupada por setor (até 20). Os atalhos **Minha carteira** (na partida) e **Um de cada setor** marcam vários de uma vez.
-2. Escolha a **janela**: 6 meses, 1 ano, 3 anos ou 5 anos até a data final.
+2. Escolha a **janela**: 6 meses, 1 ano, 3 anos ou 5 anos até a data final. Com menos de dois ativos marcados, a tela pede que você escolha pelo menos dois.
 3. Leia a matriz. Cada célula é um par de ativos; como o par A × B é o mesmo que B × A, a matriz mostra só a metade de baixo. O **Ibovespa** fica numa linha à parte, como referência do mercado.
 
 Clique numa célula para fixar o par no painel ao lado: o valor, a faixa de leitura e quantos pregões em comum entraram no cálculo. O painel também traz os **destaques**: o par que mais anda junto, o melhor par para diversificar (a menor correlação) e, na partida, a correlação média entre as ações da sua carteira.
@@ -38,7 +40,7 @@ A correlação compara os **retornos diários** de dois ativos: a variação de 
 
 **Para diversificar, quanto mais baixa, melhor.** Duas ações com 0,9 de correlação somam praticamente o mesmo risco. Duas com 0,2 se compensam em parte: quando uma cai, a outra muitas vezes não cai.
 
-A cor ajuda a ler a grade: **vermelho** para correlação positiva (andam juntos), **azul** para negativa (vão em direções opostas). Quanto mais forte a cor, mais longe de zero.
+A cor ajuda a ler a grade: **vermelho** para correlação positiva (andam juntos), **azul** para negativa (vão em direções opostas). Quanto mais forte a cor, mais longe de zero. A legenda da grade resume a escala: −1 são opostos, 0 são independentes e 1 andam juntos.
 
 :::info Correlação não é causa
 Uma correlação alta diz que os dois ativos se movem juntos, não que um move o outro. Normalmente os dois respondem à mesma coisa: juros, câmbio, o humor da bolsa.

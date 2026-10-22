@@ -10,7 +10,7 @@ O lobby é onde você configura os parâmetros da simulação antes de iniciá-l
 Esta página explica o que cada campo faz e como eles influenciam a simulação.
 
 
-![Exemplo de lobby](/img/lobby.png)
+![O lobby, com as regras da partida e o convite para a sala](/demo/screens/lobby.png)
 
 ## Configuração do Host (Obrigatória)
 
@@ -76,9 +76,9 @@ Essas ações incluem:
 
 ## Campos de Configuração
 
-O formulário do lobby possui os seguintes campos:
+As regras ficam na janela **Regras da partida**, aberta pelo botão **Editar regras** (para quem não é host, **Ver regras**). Os campos são:
 
-### Data Inicial
+### Início
 
 **O que é:**  
 A data de início da simulação no histórico de mercado.
@@ -91,7 +91,7 @@ A data de início da simulação no histórico de mercado.
 
 ---
 
-### Data Final
+### Fim
 
 **O que é:**  
 A data de término da simulação.
@@ -103,23 +103,23 @@ A data de término da simulação.
 
 ### Alertas de cobertura dos dados
 
-O lobby confere se os dados guardados cobrem o período escolhido. Os alertas aparecem embaixo das ações e também dentro da janela **Configurações**, ao lado das datas.
+O lobby confere se os dados guardados cobrem o período escolhido. Os alertas aparecem embaixo das ações e também dentro da janela **Regras da partida**, ao lado das datas.
 
-**Alerta vermelho: "Sem indicador na data inicial"**
+**Alerta vermelho: "Não dá pra começar em" uma data**
 
-Aparece quando CDI, SELIC ou IPCA não tem dado na data inicial. Ex.: uma data inicial em 1970, ou uma base sem indicadores porque o app nunca conseguiu acessar a internet. Nesse caso, o botão **Iniciar Nova Simulação** fica desabilitado, e o servidor também recusa a partida.
+Aparece quando CDI, SELIC ou IPCA não tem dado na data inicial. Ex.: uma data inicial em 1970, ou uma base sem indicadores porque o app nunca conseguiu acessar a internet. O alerta diz quais séries não têm dado e, quando existe, a primeira data coberta. Nesse caso, o botão **Iniciar nova simulação** fica desabilitado, e o servidor também recusa a partida.
 
-Para resolver, atualize os indicadores na **Central de dados** (botão no lobby) ou escolha uma data inicial mais recente.
+Para resolver, use **Mudar a data**, ou **Abrir Central de dados** para atualizar os indicadores.
 
-**Alerta amarelo: "Período passa do dado real"**
+**Alerta amarelo: "Depois de" uma data "não há preço real"**
 
-Aparece quando a data final passa do último dado real de alguma série. O alerta lista cada série com a sua última data real. Depois dessa data, a partida repete o último valor conhecido, a mesma regra usada para os preços das ações. Ex.: se o último CDI real é de 30/09/2026 e a partida vai até 31/12/2026, o CDI de outubro a dezembro repete o último valor conhecido.
+Aparece quando a data final passa do último dado real de alguma série. O alerta cita a data e as séries que passam a repetir o último valor conhecido, a mesma regra usada para os preços das ações. Ex.: se o último CDI real é de 30/09/2026 e a partida vai até 31/12/2026, o CDI de outubro a dezembro repete o último valor conhecido. O link **Ver séries** abre a Central de dados.
 
 Este alerta é apenas um aviso: a partida continua podendo ser iniciada.
 
 ---
 
-### Saldo Inicial (R$)
+### Saldo inicial
 
 **O que é:**  
 O capital inicial disponível para cada jogador na simulação.
@@ -132,7 +132,7 @@ O capital inicial disponível para cada jogador na simulação.
 
 ---
 
-### Aporte Mensal (R$)
+### Aporte mensal
 
 **O que é:**  
 Valor adicionado automaticamente ao saldo todo mês simulado.
@@ -157,10 +157,17 @@ Liga o deslocamento de preço causado pelas ordens dos jogadores. Desligado, os 
 * Vale para todos os jogadores: a ordem de um move o preço que os outros veem
 * Fica gravado na simulação, então ela é retomada com a mesma configuração
 
-Ao ligar, aparecem dois campos:
+O impacto tem quatro modos:
 
-* **Intensidade (k):** quanto uma ordem move o preço. Com o padrão 0,02, comprar 10% do volume médio diário do ativo sobe o preço cerca de 0,63%
-* **Volta ao histórico (T):** em quantos pregões o desvio some. O padrão é 20 (cerca de um mês)
+* **Desligado** (padrão): os preços seguem o histórico
+* **Realista:** k = 0,02 e T = 20
+* **Forte:** k = 0,05 e T = 40
+* **Personalizado:** libera os dois campos abaixo
+
+Os campos aparecem no modo **Personalizado**:
+
+* **Intensidade (k):** quanto uma ordem move o preço. Com 0,02, comprar 10% do volume médio diário do ativo sobe o preço cerca de 0,63%
+* **Volta ao histórico (T, em pregões):** em quantos pregões o desvio some. Com 20, o desvio some em cerca de um mês
 
 O cálculo está detalhado em [Impacto de preço](/como-usar/investimentos/renda-variavel#impacto-de-preço).
 
@@ -207,7 +214,7 @@ Vence quem chega primeiro a um **patrimônio-alvo**, a meta. O host escolhe a me
 
 Em equipes, conta a média do patrimônio dos membros: a equipe chega à meta quando a média chega. O aporte mensal continua valendo.
 
-Na **topbar** aparece a trilha da corrida, com um marcador por jogador (ou um escudo por equipe) e o seu percentual. Clicar nela abre a lista. No menu, a página **Meta** mostra o seu progresso e a corrida de todos.
+Na **topbar** aparece a trilha da corrida, com um marcador por jogador (ou um escudo por equipe) e o seu percentual. Clicar nela abre a lista. No menu, a página [Meta](./meta.md) mostra o seu progresso e a corrida de todos.
 
 #### Viver de renda
 
@@ -246,7 +253,7 @@ Cada imprevisto aparece num aviso na tela.
 
 **Retorno.** Salário, despesa e imprevistos contam como dinheiro que você colocou ou tirou (o **capital aportado**), e não como ganho ou perda dos investimentos. Já os juros do cheque especial contam como perda.
 
-**A página Meta** mostra:
+**A página [Meta](./meta.md)** mostra:
 
 - **Vida financeira:** salário, despesa e sobra do mês, e a **reserva de emergência**, que é quantos meses de despesa o seu caixa cobre. Ex.: despesa de R$ 5.000 e caixa de R$ 15.000 dão uma reserva de 3 meses. Zero é ruim, 3 é razoável e 6 ou mais é confortável.
 - **Histórico:** imprevistos, demissões, entrada e saída do cheque especial e os juros de cada mês, com a data na partida e o seu caixa depois de cada evento. Dá para filtrar por tipo.
@@ -286,26 +293,44 @@ Durante a partida, o menu lateral mostra o selo **Especialista** sob o nome da p
 
 ### Simulações salvas
 
-O botão **Carregar Simulação** (para quem não é host, **Simulações Salvas**) lista as partidas salvas. Selecione uma e:
+O card **Simulações salvas** lista as partidas salvas. Na sala, o host também tem **Escolher partida salva** (e **Trocar partida**, depois de escolher uma). Em cada partida da lista:
 
-* **Ver resultado** abre a tela de fechamento daquela partida, com o pódio e as estatísticas. Qualquer jogador pode abrir
-* **Carregar e Iniciar Simulação** retoma a partida de onde parou. Só o host pode fazer isso
+* **Resultado** abre a tela de fechamento daquela partida, com o pódio e as estatísticas. Qualquer jogador pode abrir
+* **Selecionar** escolhe a partida para continuar, e depois **Continuar** retoma de onde parou. Só o host pode fazer isso. Se a sala não tem vaga para todos os jogadores da partida, o botão vira **Indisponível**
 
 ---
 
 ### Correlação entre ativos
 
-O botão **Correlação entre ativos** mede o quanto os ativos importados andam juntos, em qualquer período com dado. Ver [Correlação entre Ativos](./correlacao).
+O card **Correlação entre ativos** mede o quanto os ativos importados andam juntos, em qualquer período com dado. Ver [Correlação entre Ativos](./correlacao).
+
+---
+
+### Comparar simulações
+
+O card **Comparar simulações** põe partidas lado a lado, com o mesmo relatório das [Estatísticas](./estatisticas).
+
+---
+
+### Central de dados
+
+O card **Central de dados** importa ações e atualiza os indicadores. Ver [Importação de Ativos](./importacao-ativos).
+
+---
+
+### Conquistas
+
+O botão **Conquistas** do cabeçalho abre a lista de [Conquistas](./conquistas), com o total já desbloqueado.
 
 ---
 
 ### Link Compartilhável
 
 **O que é:**  
-Link gerado automaticamente para compartilhar a sessão com outros jogadores.
+O cabeçalho do lobby, em **Convide pelo link**, mostra o endereço da sala para compartilhar com outros jogadores.
 
 **Características:**
 
-* Exibe o endereço local (`http://seu-ip:8000`) ou túnel público se configurado
-* Pode ser copiado com um clique
+* Exibe o endereço da rede local (`http://seu-ip:8000`)
+* Pode ser copiado com o botão **Copiar**
 * Veja mais em [Link Copiável na Interface](/como-usar/multiplayer#link-copiável-na-interface)

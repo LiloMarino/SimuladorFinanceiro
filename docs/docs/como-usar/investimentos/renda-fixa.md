@@ -6,7 +6,7 @@ sidebar_position: 2
 
 Aprenda a investir em títulos de renda fixa no simulador.
 
-![Exemplo de tela de renda fixa](/img/renda-fixa.png)
+![A lista de títulos de renda fixa](/demo/screens/fixed-income.png)
 
 ## O que é Renda Fixa?
 
@@ -18,8 +18,6 @@ As **regras de remuneração são definidas no momento do investimento**, o que 
 - 📉 Menor volatilidade que renda variável
 - 🛡️ Menor risco de mercado
 - 📅 Prazos definidos ou estimáveis
-
-{/* Espaço reservado para screenshot da tela de renda fixa */}
 
 ## Tipos de Renda Fixa
 
@@ -153,7 +151,7 @@ No Brasil, a maioria dos investimentos de renda fixa é tributada pelo **Imposto
 
 ### Pós-fixado
 
-**O que é:** A taxa de retorno acompanha um índice (geralmente CDI ou Selic).
+**O que é:** A taxa de retorno acompanha um índice (CDI nos CDBs, LCIs e LCAs; Selic no Tesouro Selic).
 
 **Exemplo:** CDB pós-fixado de 100% do CDI
 - Se o CDI estiver em 10% ao ano, você ganha 10% ao ano
@@ -204,7 +202,7 @@ Essas taxas são publicadas **por dia**, em % ao dia. Ex.: uma taxa de 0,0551% e
 
 O IPCA é publicado **por mês**, em % ao mês. O simulador espalha a inflação de cada mês pelos dias úteis daquele mês, de forma que o mês inteiro soma exatamente a inflação publicada. Ex.: se o IPCA do mês é 0,5%, um título atrelado ao IPCA rende 0,5% no mês inteiro.
 
-Títulos **IPCA+** e **SELIC+** somam uma parte fixa (o *spread*, combinado na compra) por cima do índice. Ex.: IPCA + 5% a.a. (a.a. quer dizer "ao ano") rende a inflação do período mais 5% ao ano, proporcionalmente ao tempo.
+Títulos **IPCA+** somam uma parte fixa (o *spread*, combinado na compra) por cima do índice. Ex.: IPCA + 5% a.a. (a.a. quer dizer "ao ano") rende a inflação do período mais 5% ao ano, proporcionalmente ao tempo.
 
 ### Depois do último dado real
 
@@ -224,22 +222,25 @@ Um CDB de 100% do CDI comprado em 02/01/2020 e resgatado em 31/12/2020 rende **2
 
 ### Investir em Renda Fixa
 
-1. Acesse **Renda Fixa** para ver a lista de ativos disponíveis.
-2. No card do ativo, clique em **Adicionar** para abrir os detalhes.
-3. Em **Investir neste ativo**, informe o **Valor do investimento** (use **MÁX** para preencher o limite do saldo).
-4. Clique em **Investir agora**.
+1. Acesse **Renda fixa** para ver a lista de títulos disponíveis.
+2. Na linha do título, clique em **Investir** para abrir os detalhes.
+3. Em **Quanto investir**, informe o valor. Os atalhos **R$ 1 mil**, **R$ 5 mil** e **R$ 10 mil** preenchem o campo, e um botão de máximo usa todo o seu caixa.
+4. Confira o **Resgate líquido** na data de vencimento e clique em **Investir R$ valor**.
+
+![Aplicando R$ 3.000 num título de renda fixa](/demo/screens/fixed-income-bond.png)
 
 ### Simulação e detalhes do investimento
 
 Na tela de detalhes do ativo, você acompanha:
-- **Resumo da Operação** com valor investido, rendimento bruto, imposto (IR) e valor de resgate projetado.
-- **Detalhamento do cálculo** e **Tabela de IR** para entender a projeção até o vencimento.
+- O caminho do dinheiro: o valor aplicado, o rendimento, o imposto (IR) e o valor de resgate projetado.
+- **Rentabilidade**, **Vencimento**, **IR nesse prazo** e **Equivale hoje** (a taxa por ano, já combinada com CDI e IPCA do dia).
+- O card **IR cai com o tempo**, com a tabela regressiva para entender a projeção até o vencimento.
 
 ### Acompanhar investimentos
 
 1. Acesse **Carteira**.
 2. Veja seus investimentos em **Renda Fixa** na tabela da carteira.
-3. Clique em **Detalhes** para retornar à tela do ativo.
+3. Clique na linha do título para voltar à tela dele.
 
 :::warning Atenção ao IR
 O simulador calcula automaticamente e desconta o Imposto de Renda sobre o resgate, seguindo a tabela regressiva.
