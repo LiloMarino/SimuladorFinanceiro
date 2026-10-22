@@ -9,7 +9,6 @@ import {
   TableBody,
   TableCell,
   TableEmptyRow,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
@@ -21,6 +20,8 @@ import {
 } from "@/shared/lib/utils/display";
 import type { TrafficItem } from "@/types";
 import { isHeavy } from "../lib/stats";
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
 
 interface TrafficTableProps {
   traffic: TrafficItem[];
@@ -28,7 +29,14 @@ interface TrafficTableProps {
 
 /** O que o servidor envia a cada jogador: não gasta tempo do servidor, gasta volume. */
 export function TrafficTable({ traffic }: TrafficTableProps) {
-  const sorted = [...traffic].sort((a, b) => b.bytes_per_s - a.bytes_per_s);
+  const sorting = useTableSort(traffic, {
+    event: (item) => item.event,
+    rate: (item) => item.msgs_per_s,
+    volume: (item) => item.bytes_per_s,
+    size: (item) => item.bytes_per_msg,
+    share: (item) => item.bytes_per_s,
+  }, { column: "volume", direction: "desc" });
+  const sorted = sorting.rows;
   const total = sorted.reduce((sum, item) => sum + item.bytes_per_s, 0);
 
   return (
@@ -43,15 +51,11 @@ export function TrafficTable({ traffic }: TrafficTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Evento</TableHead>
-            <TableHead numeric>Msg/s</TableHead>
-            <TableHead numeric>
-              <span className="font-semibold text-foreground">
-                Volume <span className="text-[10px]">▼</span>
-              </span>
-            </TableHead>
-            <TableHead numeric>Por mensagem</TableHead>
-            <TableHead numeric>Fatia</TableHead>
+            <SortableTableHead label="Evento" {...sorting.header("event")} />
+            <SortableTableHead label="Msg/s" numeric {...sorting.header("rate")} />
+            <SortableTableHead label="Volume" numeric {...sorting.header("volume")} />
+            <SortableTableHead label="Por mensagem" numeric {...sorting.header("size")} />
+            <SortableTableHead label="Fatia" numeric {...sorting.header("share")} />
           </TableRow>
         </TableHeader>
         <TableBody>

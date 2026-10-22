@@ -1,3 +1,6 @@
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
+import { sortNumber } from "@/shared/lib/table-sort";
 import { useState } from "react";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
@@ -5,12 +8,11 @@ import {
   TableBody,
   TableCell,
   TableEmptyRow,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
+import { MetricHint } from "@/shared/components/metric-hint";
 import { Progress } from "@/shared/components/ui/progress";
 import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
 import { cn } from "@/shared/lib/utils";
@@ -34,7 +36,6 @@ import { PlayerCell, PlayerToggle, TabStatus, type ReportProps } from "./shared"
 import { TeamHeadline, TeamRanking } from "./team-ranking";
 import { TeamScore } from "./team-score";
 
-type RankingSort = "SCORE" | "RETURN" | "NETWORTH";
 
 export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds, onlyPlayer);
@@ -56,7 +57,7 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
               currentPlayerName={currentPlayerName}
               simulationIds={simulationIds}
               title="Ranking por jogador"
-              description={`Ordenado pelo critério da partida: ${criterionLabel(data)}`}
+              description={`Classificação pelo critério da partida: ${criterionLabel(data)}`}
               action={viewToggle}
             />
           )}
@@ -286,7 +287,6 @@ function Ranking({
   description?: string;
   action?: React.ReactNode;
 }) {
-  const [sortBy, setSortBy] = useState<RankingSort>("SCORE");
   const measure = rankingMeasure(report);
   const goalRace = measure === "GOAL";
   const topScore = Math.max(...report.players.map((p) => Number(p.score?.total ?? 0)), 1);
@@ -295,15 +295,20 @@ function Ranking({
   const inTeams = report.teams.length > 0;
   // A meta só é uma entre as partidas comparadas quando todas têm a mesma
   const showRemaining = goalRace && !comparing && !!report.goal_net_worth;
-  // A ordem do servidor é a do critério; entre partidas dá para reordenar por retorno ou patrimônio
-  const players =
-    comparing && sortBy !== "SCORE"
-      ? [...report.players].sort((a, b) =>
-          sortBy === "RETURN"
-            ? Number(b.return_percent) - Number(a.return_percent)
-            : Number(b.total_networth) - Number(a.total_networth),
-        )
-      : report.players;
+  const sorting = useTableSort(report.players, {
+    position: (p) => p.position,
+    player: (p) => playerLabel(p, simulationIds, currentPlayerName),
+    score: (p) => sortNumber(goalRace ? p.criterion_value : p.score?.total),
+    wealth: (p) => sortNumber(p.total_networth),
+    remaining: (p) => p.criterion_value == null ? null : Math.max(0, (1 - Number(p.criterion_value)) * Number(report.goal_net_worth)),
+    return: (p) => sortNumber(p.return_percent),
+    days: (p) => p.days,
+    gap: (p) => sortNumber(p.leader_gap),
+    contribution: (p) => sortNumber(p.team_contribution),
+  });
+  const players = sorting.rows;
+  const shortcuts = { SCORE: "score", RETURN: "return", NETWORTH: "wealth" } as const;
+  const sortBy = Object.entries(shortcuts).find(([, column]) => column === sorting.sort?.column)?.[0];
 
   return (
     <Card className="overflow-hidden">
@@ -313,7 +318,7 @@ function Ranking({
           {description ??
             (comparing
               ? "A Nota compara partidas de períodos diferentes de forma justa; o retorno depende de quanto o mercado andou em cada período. Sem nota (menos de 63 pregões) fica no fim."
-              : `Ordenado pelo critério da partida: ${criterionLabel(report)}`)}
+              : `Classificação pelo critério da partida: ${criterionLabel(report)}`)}
         </CardDescription>
         {action && <CardAction>{action}</CardAction>}
         {comparing && (
@@ -321,8 +326,11 @@ function Ranking({
             <ToggleGroup
               variant="segmented"
               aria-label="Ordenar por"
-              value={[sortBy]}
-              onValueChange={(values) => values[0] && setSortBy(values[0] as RankingSort)}
+              value={sortBy ? [sortBy] : []}
+              onValueChange={(values) => {
+                const column = shortcuts[values[0] as keyof typeof shortcuts];
+                if (column) sorting.setSort({ column, direction: "desc" });
+              }}
             >
               <ToggleGroupItem value="SCORE">{goalRace ? "% da meta" : "Nota"}</ToggleGroupItem>
               <ToggleGroupItem value="RETURN">Retorno</ToggleGroupItem>
@@ -334,21 +342,17 @@ function Ranking({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>#</TableHead>
-            <TableHead>Jogador</TableHead>
-            <TableHead numeric={comparing}>
-              <MetricLabel metric={goalRace ? GOAL_PERCENT : SCORE} />
-            </TableHead>
-            <TableHead numeric>Patrimônio</TableHead>
+            <SortableTableHead label={"#"} {...sorting.header("position")} />
+            <SortableTableHead label={"Jogador"} {...sorting.header("player")} />
+            <SortableTableHead label={(goalRace ? GOAL_PERCENT : SCORE).label} {...sorting.header("score")} numeric hint={<MetricHint metric={goalRace ? GOAL_PERCENT : SCORE} />} />
+            <SortableTableHead label={"Patrimônio"} {...sorting.header("wealth")} numeric />
             {showRemaining && (
-              <TableHead numeric>
-                <MetricLabel metric={GOAL_REMAINING} />
-              </TableHead>
+              <SortableTableHead label={GOAL_REMAINING.label} {...sorting.header("remaining")} numeric hint={<MetricHint metric={GOAL_REMAINING} />} />
             )}
-            <TableHead numeric={!comparing}>{goalRace ? "Rentabilidade" : "Retorno"}</TableHead>
-            {!goalRace && <TableHead numeric>Pregões</TableHead>}
-            {!comparing && !goalRace && <TableHead numeric>Distância do líder</TableHead>}
-            {inTeams && <TableHead numeric>Na média da equipe</TableHead>}
+            <SortableTableHead label={goalRace ? "Rentabilidade" : "Retorno"} {...sorting.header("return")} numeric />
+            {!goalRace && <SortableTableHead label={"Pregões"} {...sorting.header("days")} numeric />}
+            {!comparing && !goalRace && <SortableTableHead label={"Distância do líder"} {...sorting.header("gap")} numeric />}
+            {inTeams && <SortableTableHead label={"Na média da equipe"} {...sorting.header("contribution")} numeric />}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -361,8 +365,8 @@ function Ranking({
               </p>
             </TableEmptyRow>
           )}
-          {players.map((p: Player, i) => {
-            const position = sortBy === "SCORE" ? p.position : i + 1;
+          {players.map((p: Player) => {
+            const position = p.position;
             const label = playerLabel(p, simulationIds, currentPlayerName);
             const isYou = p.player_nickname === currentPlayerName;
             const change = Number(p.return_percent);

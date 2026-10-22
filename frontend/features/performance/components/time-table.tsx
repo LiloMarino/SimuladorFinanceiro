@@ -15,7 +15,6 @@ import {
   TableBody,
   TableCell,
   TableEmptyRow,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
@@ -36,22 +35,13 @@ import {
   KIND_FILTERS,
   KIND_LABEL,
   PAGE_SIZE,
-  sortRows,
   type Kind,
   type KindFilter,
   type Row,
-  type SortKey,
 } from "../lib/stats";
 import { P95_INFO } from "../lib/p95-info";
-
-const SORT_LABEL: Record<SortKey, string> = {
-  calls: "chamadas",
-  total_ms: "tempo total",
-  mean_ms: "tempo médio",
-  p95_ms: "p95",
-  max_ms: "tempo máximo",
-  share: "fatia do tempo",
-};
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
 
 const KIND_STYLE: Record<Kind, string> = {
   http: "bg-info-soft text-info",
@@ -89,37 +79,6 @@ function ShareBar({ share }: { share: number }) {
   );
 }
 
-interface SortHeadProps {
-  column: SortKey;
-  active: SortKey;
-  onSort: (column: SortKey) => void;
-  children: React.ReactNode;
-  /** Dica ao lado do rótulo; fica fora do botão para não aninhar controles. */
-  hint?: React.ReactNode;
-}
-
-function SortHead({ column, active, onSort, children, hint }: SortHeadProps) {
-  const isActive = column === active;
-  return (
-    <TableHead numeric aria-sort={isActive ? "descending" : "none"}>
-      <span className="inline-flex items-center gap-1">
-        <button
-          type="button"
-          onClick={() => onSort(column)}
-          className={cn(
-            "inline-flex items-center gap-1",
-            isActive && "font-semibold text-foreground",
-          )}
-        >
-          {children}
-          {isActive && <span className="text-[10px]">▼</span>}
-        </button>
-        {hint}
-      </span>
-    </TableHead>
-  );
-}
-
 interface TimeTableProps {
   rows: Row[];
   id: string;
@@ -128,21 +87,26 @@ interface TimeTableProps {
 export function TimeTable({ rows, id }: TimeTableProps) {
   const [kind, setKind] = useState<KindFilter>("all");
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("total_ms");
   const [expanded, setExpanded] = useState(false);
 
   const counts = countByKind(rows);
-  const filtered = sortRows(filterRows(rows, kind, search), sortKey);
+  const sorting = useTableSort(filterRows(rows, kind, search), {
+    kind: (row) => KIND_LABEL[row.kind],
+    name: (row) => row.label,
+    calls: (row) => row.calls,
+    total_ms: (row) => row.total_ms,
+    mean_ms: (row) => row.mean_ms,
+    p95_ms: (row) => row.p95_ms,
+    max_ms: (row) => row.max_ms,
+    share: (row) => row.share,
+  }, { column: "total_ms", direction: "desc" });
+  const filtered = sorting.rows;
   const visible = expanded ? filtered : filtered.slice(0, PAGE_SIZE);
 
   return (
     <Card id={id}>
       <CardHeader>
-        <CardTitle>
-          {sortKey === "total_ms"
-            ? "Tempo gasto, do maior para o menor"
-            : `Tempo gasto, ordenado por ${SORT_LABEL[sortKey]}`}
-        </CardTitle>
+        <CardTitle>Tempo gasto por rota ou evento</CardTitle>
         <CardDescription>
           Requisições HTTP, eventos recebidos pelo Socket.IO e o processamento
           de cada dia.
@@ -178,31 +142,19 @@ export function TimeTable({ rows, id }: TimeTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-24">Tipo</TableHead>
-            <TableHead>Rota ou evento</TableHead>
-            <SortHead column="calls" active={sortKey} onSort={setSortKey}>
-              Chamadas
-            </SortHead>
-            <SortHead column="total_ms" active={sortKey} onSort={setSortKey}>
-              Tempo total
-            </SortHead>
-            <SortHead column="mean_ms" active={sortKey} onSort={setSortKey}>
-              Médio
-            </SortHead>
-            <SortHead
-              column="p95_ms"
-              active={sortKey}
-              onSort={setSortKey}
+            <SortableTableHead label="Tipo" {...sorting.header("kind")} className="w-24" />
+            <SortableTableHead label="Rota ou evento" {...sorting.header("name")} />
+            <SortableTableHead label="Chamadas" numeric {...sorting.header("calls")} />
+            <SortableTableHead label="Tempo total" numeric {...sorting.header("total_ms")} />
+            <SortableTableHead label="Médio" numeric {...sorting.header("mean_ms")} />
+            <SortableTableHead
+              label="p95"
+              numeric
+              {...sorting.header("p95_ms")}
               hint={<MetricHint metric={P95_INFO} />}
-            >
-              p95
-            </SortHead>
-            <SortHead column="max_ms" active={sortKey} onSort={setSortKey}>
-              Máx
-            </SortHead>
-            <SortHead column="share" active={sortKey} onSort={setSortKey}>
-              Fatia do tempo
-            </SortHead>
+            />
+            <SortableTableHead label="Máx" numeric {...sorting.header("max_ms")} />
+            <SortableTableHead label="Fatia do tempo" numeric {...sorting.header("share")} />
           </TableRow>
         </TableHeader>
         <TableBody>

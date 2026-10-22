@@ -6,8 +6,11 @@ from types import SimpleNamespace
 from typing import cast
 
 import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
+from backend.core import repository
 from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
@@ -17,8 +20,11 @@ from backend.core.enum import (
     GameType,
     LifeHistoryCategory,
     LifeHistoryKind,
+    LifeHistorySort,
 )
 from backend.core.life_budget import LifeBudget
+from backend.core.runtime.simulation_manager import SimulationManager
+from backend.core.runtime.user_manager import UserManager
 from backend.features.simulation.life_events import (
     layoff_in,
     salary_skipped,
@@ -26,7 +32,7 @@ from backend.features.simulation.life_events import (
 )
 from backend.features.simulation.life_history import build_history, history_page
 from backend.features.simulation.simulation import Simulation
-from backend.routes.simulation import CreateSimulationRequest
+from backend.routes.simulation import CreateSimulationRequest, simulation_router
 from tests.fakes import client, simulation_settings
 
 T = CashflowEventType
@@ -95,6 +101,83 @@ def test_page_is_newest_first_with_counts_per_category():
         LifeHistoryKind.OVERDRAFT_INTEREST,
     ]
     assert (page.counts.all, page.counts.unexpected, page.counts.layoff) == (6, 1, 1)
+
+
+def test_amount_sort_is_numeric_global_and_keeps_missing_last():
+    rows = build_history(EVENTS)
+    ascending = history_page(rows, None, 0, 6, LifeHistorySort.AMOUNT, "asc")
+    descending = history_page(rows, None, 0, 6, LifeHistorySort.AMOUNT, "desc")
+    assert [r.amount for r in ascending.items] == [
+        Decimal(-5000),
+        Decimal("-17.23"),
+        Decimal("-8.66"),
+        None,
+        None,
+        None,
+    ]
+    assert [r.amount for r in descending.items] == [
+        Decimal("-8.66"),
+        Decimal("-17.23"),
+        Decimal(-5000),
+        None,
+        None,
+        None,
+    ]
+    # A segunda página é o recorte da ordem global, não a ordenação de uma página isolada.
+    assert (
+        history_page(rows, None, 2, 2, LifeHistorySort.AMOUNT, "asc").items
+        == ascending.items[2:4]
+    )
+    assert rows == build_history(EVENTS)
+
+
+def test_sorting_filter_and_counts_work_together():
+    rows = build_history(EVENTS)
+    page = history_page(
+        rows, LifeHistoryCategory.OVERDRAFT, 0, 10, LifeHistorySort.CASH, "asc"
+    )
+    assert [r.cash_after for r in page.items] == sorted(
+        r.cash_after for r in rows if r.category is LifeHistoryCategory.OVERDRAFT
+    )
+    assert page.total == 4
+    assert page.counts.all == 6
+    assert history_page([], None, 0, 6, LifeHistorySort.CASH, "asc").items == []
+
+
+def test_text_sort_uses_the_labels_displayed_in_the_table():
+    rows = build_history(EVENTS)
+    by_type = history_page(rows, None, 0, 6, LifeHistorySort.TYPE, "asc")
+    assert [r.category for r in by_type.items] == [
+        LifeHistoryCategory.OVERDRAFT
+    ] * 4 + [LifeHistoryCategory.LAYOFF, LifeHistoryCategory.UNEXPECTED]
+    by_description = history_page(rows, None, 0, 6, LifeHistorySort.DESCRIPTION, "asc")
+    assert [r.kind for r in by_description.items] == [
+        LifeHistoryKind.OVERDRAFT_STARTED,
+        LifeHistoryKind.OVERDRAFT_ENDED,
+        LifeHistoryKind.UNEXPECTED_EXPENSE,
+        LifeHistoryKind.OVERDRAFT_INTEREST,
+        LifeHistoryKind.OVERDRAFT_INTEREST,
+        LifeHistoryKind.LAYOFF,
+    ]
+
+
+def test_history_route_validates_and_applies_sorting(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(SimulationManager, "has_active_simulation", lambda: True)
+    monkeypatch.setattr(SimulationManager, "get_active_simulation_id", lambda: 1)
+    monkeypatch.setattr(UserManager, "get_user_id", lambda _id: 1)
+    monkeypatch.setattr(repository.event, "get_cashflow_events", lambda *_args: EVENTS)
+    app = FastAPI()
+    app.include_router(simulation_router)
+    api = TestClient(app)
+    api.cookies.set("client_id", str(client("Ana")))
+    path = "/api/simulation/life-history"
+    response = api.get(
+        path, params={"sort_by": "amount", "sort_direction": "asc", "limit": 1}
+    )
+    assert response.status_code == 200
+    assert Decimal(response.json()["items"][0]["amount"]) == Decimal(-5000)
+    assert api.get(path, params={"sort_by": "invalid"}).status_code == 422
+    assert api.get(path, params={"sort_direction": "invalid"}).status_code == 422
 
 
 def test_layoff_is_known_only_after_the_day_it_happens():

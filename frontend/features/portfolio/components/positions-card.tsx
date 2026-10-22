@@ -8,6 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { displayMoney, displayPercent, displayRateLabel } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
 
 /** Resultado com sinal e cor: verde ganhando, vermelho perdendo. */
 function Result({ value, pct }: { value: string; pct: string }) {
@@ -54,8 +56,16 @@ function EmptyPositions({
 /** As posições, renda variável e renda fixa em abas; a linha leva à negociação. */
 export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
   const navigate = useNavigate();
-  const stocks = portfolio.variable_income;
-  const bonds = portfolio.fixed_income;
+  const stockSort = useTableSort(portfolio.variable_income, {
+    name: p => p.ticker, quantity: p => p.size, average: p => Number(p.avg_price), price: p => Number(p.current_price),
+    value: p => Number(p.current_value), share: p => Number(p.portfolio_pct), result: p => Number(p.return_value),
+  });
+  const bondSort = useTableSort(portfolio.fixed_income, {
+    name: p => p.asset.name, applied: p => Number(p.total_applied), value: p => Number(p.current_value),
+    rate: p => Number(p.asset.interest_rate), share: p => Number(p.portfolio_pct), result: p => Number(p.return_value),
+  });
+  const stocks = stockSort.rows;
+  const bonds = bondSort.rows;
 
   return (
     <Card>
@@ -92,13 +102,13 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Ativo</TableHead>
-                  <TableHead numeric>Qtd.</TableHead>
-                  <TableHead numeric>Preço médio</TableHead>
-                  <TableHead numeric>Preço atual</TableHead>
-                  <TableHead numeric>Valor</TableHead>
-                  <TableHead numeric>% carteira</TableHead>
-                  <TableHead numeric>Resultado</TableHead>
+                  <SortableTableHead {...stockSort.header("name")} label="Ativo" />
+                  <SortableTableHead {...stockSort.header("quantity")} label="Qtd." numeric />
+                  <SortableTableHead {...stockSort.header("average")} label="Preço médio" numeric />
+                  <SortableTableHead {...stockSort.header("price")} label="Preço atual" numeric />
+                  <SortableTableHead {...stockSort.header("value")} label="Valor" numeric />
+                  <SortableTableHead {...stockSort.header("share")} label="% carteira" numeric />
+                  <SortableTableHead {...stockSort.header("result")} label="Resultado" numeric />
                   <TableHead>
                     <span className="sr-only">Abrir</span>
                   </TableHead>
@@ -143,12 +153,12 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Título</TableHead>
-                  <TableHead numeric>Aplicado</TableHead>
-                  <TableHead numeric>Valor atual</TableHead>
-                  <TableHead>Taxa</TableHead>
-                  <TableHead numeric>% carteira</TableHead>
-                  <TableHead numeric>Resultado</TableHead>
+                  <SortableTableHead {...bondSort.header("name")} label="Título" />
+                  <SortableTableHead {...bondSort.header("applied")} label="Aplicado" numeric />
+                  <SortableTableHead {...bondSort.header("value")} label="Valor atual" numeric />
+                  <SortableTableHead {...bondSort.header("rate")} label="Taxa" />
+                  <SortableTableHead {...bondSort.header("share")} label="% carteira" numeric />
+                  <SortableTableHead {...bondSort.header("result")} label="Resultado" numeric />
                   <TableHead>
                     <span className="sr-only">Abrir</span>
                   </TableHead>

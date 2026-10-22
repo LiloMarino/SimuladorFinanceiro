@@ -1317,7 +1317,7 @@ export interface paths {
         };
         /**
          * Histórico do viver de renda
-         * @description Imprevistos, demissões, entrada e saída do cheque especial e o juro de cada mês, do mais recente ao mais antigo, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria.
+         * @description Imprevistos, demissões, entrada e saída do cheque especial e o juro de cada mês, com o caixa do jogador depois de cada um. Paginado: `offset` e `limit` (6 por padrão), filtrável por categoria e ordenável por `sort_by` e `sort_direction`. O padrão é data decrescente; a ordenação considera todo o histórico antes da paginação.
          */
         get: operations["get_life_history_api_simulation_life_history_get"];
         put?: never;
@@ -2227,6 +2227,11 @@ export interface components {
             /** Cash After */
             cash_after: string;
         };
+        /**
+         * LifeHistorySort
+         * @enum {string}
+         */
+        LifeHistorySort: "date" | "type" | "description" | "amount" | "cash";
         /**
          * LifeStatusDTO
          * @description A vida financeira de quem pede, no pregão corrente do viver de renda.
@@ -6648,6 +6653,8 @@ export interface operations {
                 category?: components["schemas"]["LifeHistoryCategory"] | null;
                 offset?: number;
                 limit?: number;
+                sort_by?: components["schemas"]["LifeHistorySort"];
+                sort_direction?: "asc" | "desc";
             };
             header?: never;
             path?: never;

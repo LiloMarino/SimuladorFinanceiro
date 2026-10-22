@@ -14,6 +14,9 @@ import { displayDate, displayMoney, parseLocalDate } from "@/shared/lib/utils/di
 import type { Order } from "@/types";
 import { useTrades } from "../hooks/queries/useTrades";
 import { useCancelOrder } from "../hooks/mutations/useCancelOrder";
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
+import { sortNumber } from "@/shared/lib/table-sort";
 
 type Tab = "OPEN" | "HISTORY";
 
@@ -63,6 +66,14 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
   const myPartial = open.filter((o) => o.status === "partial" && o.player_nickname === user?.nickname);
 
   const { data: trades } = useTrades(ticker, { enabled: tab === "HISTORY" });
+  const openSort = useTableSort(open, {
+    date: o => o.created_at, player: o => o.player_nickname, side: o => o.action === "buy" ? "Compra" : "Venda",
+    quantity: o => o.size, price: o => sortNumber(o.limit_price), status: o => o.status === "partial" ? "Parcial" : "Pendente",
+  });
+  const tradeSort = useTableSort(trades ?? [], {
+    date: t => t.event_date, player: t => t.player_nickname, side: t => t.action === "buy" ? "Compra" : "Venda",
+    quantity: t => t.quantity, price: t => Number(t.price),
+  });
 
   const cancel = useCancelOrder(ticker);
 
@@ -111,19 +122,19 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Quando</TableHead>
-                <TableHead>Quem</TableHead>
-                <TableHead>Lado</TableHead>
-                <TableHead numeric>Qtd.</TableHead>
-                <TableHead numeric>Preço</TableHead>
-                <TableHead>Situação</TableHead>
+                <SortableTableHead {...openSort.header("date")} label="Quando" />
+                <SortableTableHead {...openSort.header("player")} label="Quem" />
+                <SortableTableHead {...openSort.header("side")} label="Lado" />
+                <SortableTableHead {...openSort.header("quantity")} label="Qtd." numeric />
+                <SortableTableHead {...openSort.header("price")} label="Preço" numeric />
+                <SortableTableHead {...openSort.header("status")} label="Situação" />
                 <TableHead>
                   <span className="sr-only">Ações</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {open.map((o) => {
+              {openSort.rows.map((o) => {
                 const mine = o.player_nickname === user?.nickname;
                 return (
                   <TableRow key={o.id} variant={o.synthetic ? "subtle" : "default"}>
@@ -176,15 +187,15 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Quando</TableHead>
-              <TableHead>Quem</TableHead>
-              <TableHead>Lado</TableHead>
-              <TableHead numeric>Qtd.</TableHead>
-              <TableHead numeric>Preço</TableHead>
+              <SortableTableHead {...tradeSort.header("date")} label="Quando" />
+              <SortableTableHead {...tradeSort.header("player")} label="Quem" />
+              <SortableTableHead {...tradeSort.header("side")} label="Lado" />
+              <SortableTableHead {...tradeSort.header("quantity")} label="Qtd." numeric />
+              <SortableTableHead {...tradeSort.header("price")} label="Preço" numeric />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {trades.map((t, i) => (
+            {tradeSort.rows.map((t, i) => (
               <TableRow key={`${t.event_date}-${i}`}>
                 <TableCell>
                   <span className="font-mono">{displayDate(parseLocalDate(t.event_date))}</span>

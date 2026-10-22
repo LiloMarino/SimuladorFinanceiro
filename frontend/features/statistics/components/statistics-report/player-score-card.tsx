@@ -1,3 +1,6 @@
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
+import { sortNumber } from "@/shared/lib/table-sort";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
@@ -79,34 +82,7 @@ export function PlayerScoreCard({
                   <span className="font-mono text-[11px] text-faint-foreground">0 · 100 = bom · {AXIS_SCALE}</span>
                 </div>
                 {/* Métrica, valor e pontos: tabela compacta dentro do cartão do eixo */}
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="text-[11px] text-faint-foreground">
-                      <th scope="col" className="pb-1 text-left font-medium">
-                        Métrica
-                      </th>
-                      <th scope="col" className="pb-1 text-right font-medium">
-                        Valor
-                      </th>
-                      <th scope="col" className="pb-1 pl-2 text-right font-medium">
-                        Pts
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {axis.metrics.map((m) => (
-                      <tr key={m.metric} className="border-t border-muted">
-                        <td className="py-1.5 pr-2 text-muted-foreground">{SCORE_METRICS[m.metric].label}</td>
-                        <td className="py-1.5 text-right font-mono whitespace-nowrap">
-                          {displayScoreMetric(m.metric, m.value, player.months)}
-                        </td>
-                        <td className="py-1.5 pl-2 text-right font-mono text-muted-foreground">
-                          {m.points === null ? "—" : displayNumber(m.points, 0)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <ScoreMetricsTable metrics={axis.metrics} months={player.months} />
               </div>
             );
           })}
@@ -131,5 +107,36 @@ export function PlayerScoreCard({
         </ul>
       </CardContent>
     </Card>
+  );
+}
+
+function ScoreMetricsTable({ metrics, months }: {
+  metrics: NonNullable<Player["score"]>["axes"][number]["metrics"];
+  months: number;
+}) {
+  const sorting = useTableSort(metrics, {
+    metric: (m) => SCORE_METRICS[m.metric].label,
+    value: (m) => sortNumber(m.value),
+    points: (m) => sortNumber(m.points),
+  });
+  return (
+    <table className="w-full text-xs">
+      <thead>
+        <tr>
+          <SortableTableHead label="Métrica" {...sorting.header("metric")} variant="compact" />
+          <SortableTableHead label="Valor" {...sorting.header("value")} numeric variant="compact" />
+          <SortableTableHead label="Pts" {...sorting.header("points")} numeric variant="compact" />
+        </tr>
+      </thead>
+      <tbody>
+        {sorting.rows.map((m) => (
+          <tr key={m.metric} className="border-t border-muted">
+            <td className="py-1.5 pr-2 text-muted-foreground">{SCORE_METRICS[m.metric].label}</td>
+            <td className="py-1.5 text-right font-mono whitespace-nowrap">{displayScoreMetric(m.metric, m.value, months)}</td>
+            <td className="py-1.5 pl-2 text-right font-mono text-muted-foreground">{m.points === null ? "—" : displayNumber(m.points, 0)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }

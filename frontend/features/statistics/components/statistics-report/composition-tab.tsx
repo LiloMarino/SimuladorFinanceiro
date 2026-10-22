@@ -1,7 +1,10 @@
 import { Fragment, useState, type CSSProperties } from "react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
+import { sortNumber, type SortColumns } from "@/shared/lib/table-sort";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { TeamBadge } from "@/shared/components/team-badge";
@@ -252,6 +255,14 @@ function SectorExposure({
   const sectors = [...new Set(players.flatMap((p) => p.sectors.map((s) => s.sector ?? NO_SECTOR)))].sort((a, b) =>
     a === NO_SECTOR ? 1 : b === NO_SECTOR ? -1 : a.localeCompare(b),
   );
+  const columns: SortColumns<CompositionPlayer> = {
+    player: (p) => playerLabel(p, simulationIds, currentPlayerName),
+    diversification: (p) => sortNumber(p.effective_sectors),
+  };
+  for (const sector of sectors) {
+    columns[`sector:${sector}`] = (p) => Number(p.sectors.find((s) => (s.sector ?? NO_SECTOR) === sector)?.fraction ?? 0);
+  }
+  const sorting = useTableSort(players, columns);
 
   return (
     <Card className="overflow-hidden">
@@ -269,18 +280,11 @@ function SectorExposure({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Jogador</TableHead>
+              <SortableTableHead label="Jogador" {...sorting.header("player")} />
               {sectors.map((s) => (
-                <TableHead key={s} numeric>
-                  {s}
-                </TableHead>
+                <SortableTableHead key={s} label={s} numeric {...sorting.header(`sector:${s}`)} />
               ))}
-              <TableHead>
-                <span className="flex items-center gap-1">
-                  Diversificação
-                  <MetricHint metric={EFFECTIVE_SECTORS} />
-                </span>
-              </TableHead>
+              <SortableTableHead label="Diversificação" {...sorting.header("diversification")} hint={<MetricHint metric={EFFECTIVE_SECTORS} />} />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -293,7 +297,7 @@ function SectorExposure({
                     </TableCell>
                   </TableRow>
                 )}
-                {group.players.map((p) => {
+                {sorting.rows.filter((p) => group.players.includes(p)).map((p) => {
                   const label = playerLabel(p, simulationIds, currentPlayerName);
                   const isYou = p.player_nickname === currentPlayerName;
                   const bySector = new Map(p.sectors.map((s) => [s.sector ?? NO_SECTOR, Number(s.fraction)]));

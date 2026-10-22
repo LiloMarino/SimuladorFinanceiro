@@ -56,7 +56,7 @@ class LifeHistoryCountsDTO(BaseDTO):
 
 
 class LifeHistoryPageDTO(BaseDTO):
-    # Do mais recente ao mais antigo
+    # Na ordenação pedida; o padrão é do mais recente ao mais antigo.
     items: list[LifeHistoryRowDTO]
     # Linhas da categoria pedida, para o "Mostrar mais"
     total: int

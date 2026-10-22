@@ -5,6 +5,7 @@ evento gravado: sai do saldo reconstruído evento a evento.
 """
 
 from decimal import Decimal
+from typing import Literal
 
 from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.life import (
@@ -17,6 +18,7 @@ from backend.core.enum import (
     LifeEventEffect,
     LifeHistoryCategory,
     LifeHistoryKind,
+    LifeHistorySort,
 )
 from backend.features.simulation.life_events import LIFE_EVENTS_BY_KEY
 
@@ -96,9 +98,29 @@ def history_page(
     category: LifeHistoryCategory | None,
     offset: int,
     limit: int,
+    sort_by: LifeHistorySort = LifeHistorySort.DATE,
+    sort_direction: Literal["asc", "desc"] = "desc",
 ) -> LifeHistoryPageDTO:
-    """Uma página do mais recente ao mais antigo, com a contagem de cada categoria."""
+    """Filtra e ordena o histórico inteiro antes de recortar a página."""
     chosen = [r for r in reversed(rows) if category is None or r.category is category]
+    kinds = {
+        LifeHistoryKind.UNEXPECTED_EXPENSE: "Imprevisto",
+        LifeHistoryKind.LAYOFF: "Demissão",
+        LifeHistoryKind.OVERDRAFT_STARTED: "Cheque especial",
+        LifeHistoryKind.OVERDRAFT_ENDED: "Cheque especial",
+        LifeHistoryKind.OVERDRAFT_INTEREST: "Cheque especial",
+    }
+    getters = {
+        LifeHistorySort.DATE: lambda r: r.event_date,
+        LifeHistorySort.TYPE: lambda r: kinds[r.kind].casefold(),
+        LifeHistorySort.DESCRIPTION: _description_key,
+        LifeHistorySort.AMOUNT: lambda r: r.amount,
+        LifeHistorySort.CASH: lambda r: r.cash_after,
+    }
+    key = getters[sort_by]
+    present = [r for r in chosen if key(r) is not None]
+    absent = [r for r in chosen if key(r) is None]
+    chosen = sorted(present, key=key, reverse=sort_direction == "desc") + absent
 
     def count(c: LifeHistoryCategory) -> int:
         return sum(1 for r in rows if r.category is c)
@@ -113,6 +135,35 @@ def history_page(
             overdraft=count(LifeHistoryCategory.OVERDRAFT),
         ),
     )
+
+
+def _description_key(row: LifeHistoryRowDTO) -> str:
+    """Mesmos textos da coluna de descrição; a taxa de juros é igual em todas as linhas."""
+    months = (
+        "janeiro",
+        "fevereiro",
+        "março",
+        "abril",
+        "maio",
+        "junho",
+        "julho",
+        "agosto",
+        "setembro",
+        "outubro",
+        "novembro",
+        "dezembro",
+    )
+    match row.kind:
+        case LifeHistoryKind.UNEXPECTED_EXPENSE:
+            return (row.label or "Imprevisto").casefold()
+        case LifeHistoryKind.LAYOFF:
+            return f"salário de {months[row.event_date.month % 12]} não entrou"
+        case LifeHistoryKind.OVERDRAFT_STARTED:
+            return "caixa ficou negativo"
+        case LifeHistoryKind.OVERDRAFT_ENDED:
+            return "caixa voltou ao positivo"
+        case LifeHistoryKind.OVERDRAFT_INTEREST:
+            return "juros"
 
 
 def _unexpected_row(event: CashflowEventDTO, cash: Decimal) -> LifeHistoryRowDTO:

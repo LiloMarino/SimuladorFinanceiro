@@ -6,12 +6,13 @@ import {
   TableBody,
   TableCell,
   TableEmptyRow,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
 import { displayCompactNumber, displayMoney, displaySignedPercent } from "@/shared/lib/utils/display";
 import type { MarketQuote } from "@/types";
+import { SortableTableHead } from "@/shared/components/sortable-table-head";
+import { useTableSort } from "@/shared/hooks/useTableSort";
 
 const COLUMNS = 7;
 
@@ -70,23 +71,29 @@ type MarketTableProps = {
 
 export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
   const navigate = useNavigate();
+  const sorting = useTableSort(quotes, {
+    ticker: q => q.ticker, price: q => q.close, day: q => q.change_pct,
+    range: q => q.high - q.low,
+    month: q => q.sparkline.length > 1 && q.sparkline[0] !== 0 ? q.sparkline.at(-1)! / q.sparkline[0] - 1 : null,
+    volume: q => q.volume, held: q => holdings.get(q.ticker) ?? 0,
+  });
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Ativo</TableHead>
-          <TableHead numeric>Preço</TableHead>
-          <TableHead numeric>Dia</TableHead>
-          <TableHead>Faixa do dia</TableHead>
-          <TableHead>30 dias</TableHead>
-          <TableHead numeric>Volume</TableHead>
-          <TableHead numeric>Você tem</TableHead>
+          <SortableTableHead {...sorting.header("ticker")} label="Ativo" />
+          <SortableTableHead {...sorting.header("price")} label="Preço" numeric />
+          <SortableTableHead {...sorting.header("day")} label="Dia" numeric />
+          <SortableTableHead {...sorting.header("range")} label="Faixa do dia" hint={<span className="sr-only">Amplitude entre mínima e máxima</span>} />
+          <SortableTableHead {...sorting.header("month")} label="30 dias" />
+          <SortableTableHead {...sorting.header("volume")} label="Volume" numeric />
+          <SortableTableHead {...sorting.header("held")} label="Você tem" numeric />
         </TableRow>
       </TableHeader>
       <TableBody>
         {message && <TableEmptyRow colSpan={COLUMNS}>{message}</TableEmptyRow>}
-        {quotes.map((q) => {
+        {sorting.rows.map((q) => {
           const held = holdings.get(q.ticker);
           const classLabel = CLASS_LABELS[q.asset_class];
           return (
