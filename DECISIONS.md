@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança:** registradas as necessidades de noticiário, resumo do mês, crédito e governo (N31–N34).
+> **Última mudança:** Concluídas e arquivadas as cotações em lote (F80), respeitando as versões por partida e reutilizando o catálogo no motor. O contrato da API e o schema foram preservados.
 
 ---
 

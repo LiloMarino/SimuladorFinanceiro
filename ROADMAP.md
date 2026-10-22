@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-21):** Registrados a caixa de entrada com resumo do mês, o noticiário sintético, os rumores, o crédito, as dicas de análise técnica e a expansão Governo com a SELIC controlável (F91–F97).
+> **Última mudança (2026-10-22):** Concluídas e arquivadas as cotações em lote, integradas à base atual com versões por partida e catálogo reutilizado. Uma consulta por leitura; contrato da API e schema preservados.
 
 ## Glossário
 
@@ -80,7 +80,6 @@
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
-| [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
@@ -139,7 +138,6 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | 0 | ⏳ |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | 0 | ⏳ |
-| [**F80**](#f80) | Cotações do dia numa consulta só | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 
 ---
@@ -253,7 +251,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/21 concluídas
+> **Progresso:** 0/20 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -270,7 +268,6 @@
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
-| [**F80**](#f80) | Cotações do dia numa consulta só | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
@@ -383,7 +380,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F68** | Dica de firewall no lobby | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
 | **F75** | Encerramento do loop sem thread viva nem simulação presa | — | — | — | Baixo | Médio | Médio | Bom | ⏳ Pendente |
-| **F80** | Cotações do dia numa consulta só | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
 
 <a id="f14"></a>
@@ -402,11 +398,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f75"></a>
 **F75 — Encerramento do loop sem thread viva nem simulação presa.** Dois caminhos deixam o estado da partida inconsistente. (1) O `stop()` de `simulation_loop.py` espera a thread por 5 s e, se ela não terminar, só loga e segue: marca STOPPED, roda `EventManager.flush()` e `SimulationManager.clear_simulation()` enquanto a thread ainda pode processar um tick, gravando eventos de uma simulação que já foi liberada. (2) Uma exceção no loop cai no `finally`, que só muda o estado para STOPPED: a simulação continua registrada no `SimulationManager` sem loop rodando, e o `stop()` seguinte recusa com "Nenhuma simulação está em execução". Plano: o encerramento passa a ter um dono só, a própria thread: o `stop()` sinaliza e espera, e o flush e a liberação rodam no `finally` do loop, o mesmo caminho do fim natural da partida, que já faz isso. Se o join estourar o tempo, o `stop()` devolve erro em vez de liberar por cima. A exceção no tick também notifica os clientes (`simulation_ended` com motivo de erro), para a tela não ficar congelada. `pause()` e `unpause()` passam a usar o mesmo `_lock` de start e stop. Teste: o tick dublê que bloqueia além do tempo e o que lança exceção, nos testes do loop. Depende dos testes do loop para reproduzir os dois casos. Gatilho: junto com os testes do loop.
-
-<a id="f80"></a>
-**F80 — Cotações do dia numa consulta só.** `StockRepository.get_stocks_by_date` faz uma consulta para listar as ações e mais uma por ação para achar o último preço até a data, e é chamado a cada dia simulado (`Simulation.next_tick` via `get_stocks`) e de novo em `get_market`; `get_recent_closes`, do mini gráfico do mercado, repete o padrão. Com 50 ações são 51 consultas por tick, multiplicadas pela velocidade da partida. (1) `get_stocks_by_date`: uma consulta com `DISTINCT ON (stock_id)` do PostgreSQL, ordenada por `stock_id, price_date DESC`, filtrando `price_date <= current_date` e trazendo a ação junto (`joinedload`). (2) `get_recent_closes`: uma consulta com `row_number() OVER (PARTITION BY stock_id ORDER BY price_date DESC)`, filtrando as `days` primeiras de cada ação e reordenando por data. (3) O cálculo de `change` e `change_pct` sai do repositório para o `CandleDTO` (um campo calculado), e o repositório só devolve dado. Conferir se o índice de `stock_price_history` cobre `(stock_id, price_date)`; se não, ele entra por migration. Teste: as duas funções devolvem o mesmo resultado que hoje numa base de teste com várias ações. Gatilho: a próxima vez que o painel de desempenho apontar o tick como lento, ou junto com mudanças no mercado.
-
-**Aceite:** cada função faz uma consulta só, qualquer que seja o número de ações (contado por um listener `before_cursor_execute` no teste).
 
 <a id="f81"></a>
 **F81 — CORS restrito à mesma origem.** O backend libera CORS para qualquer origem com credenciais (`allow_origins=["*"]` e `allow_credentials=True` no FastAPI, `cors_allowed_origins="*"` no Socket.IO). Não é necessário: o front é servido pelo próprio backend e, no `pnpm dev`, chega pelo proxy do Vite. Hoje o que protege o jogador de um site malicioso aberto durante a partida é o cookie `client_id` com `SameSite=Lax`, que o navegador não manda em requisição de outro site; o CORS liberado só deixa outro site ler as rotas que não pedem identidade. (1) Sai o `CORSMiddleware` de `main.py`. (2) O Socket.IO fica com `cors_allowed_origins` na mesma origem, mais `http://localhost:5173` quando o modo debug estiver ligado: o proxy do Vite troca o `Host` (`changeOrigin: true`) mas mantém o `Origin` do Vite, e o Socket.IO recusaria a conexão em dev sem essa exceção. (3) Teste manual antes de fechar: jogo pelo `localhost`, por outro computador da LAN pelo IP e pelo `pnpm dev`. Gatilho: junto com o link de convite pela internet, quando o servidor passa a ficar exposto fora da LAN.
