@@ -13,6 +13,7 @@ from backend.core.dto.order_preview import OrderPreviewDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PortfolioPositionDTO
 from backend.core.dto.sector import StockSegmentDTO
+from backend.core.dto.stock import StockDTO
 from backend.core.enum import CashflowEventType, EquityEventType, OrderAction
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -128,7 +129,7 @@ class SimulationEngine:
         self._move_cash(client_id, -amount, CashflowEventType.OVERDRAFT_INTEREST)
 
     def assess_income_tax(self, user_id: int) -> list[MonthlyTax]:
-        asset_classes = {s.ticker: s.asset_class for s in repository.stock.get_stocks()}
+        asset_classes = {ticker: s.asset_class for ticker, s in self.stocks.items()}
         return assess(
             repository.portfolio.get_equity_events(user_id),
             asset_classes,
@@ -196,7 +197,7 @@ class SimulationEngine:
             quantity=quantity,
             price=price,
         )
-        asset_classes = {s.ticker: s.asset_class for s in repository.stock.get_stocks()}
+        asset_classes = {ticker: s.asset_class for ticker, s in self.stocks.items()}
         today = self.current_date
         without = _month(assess(events, asset_classes, today), today)
         with_sale = _month(assess([*events, sale], asset_classes, today), today)
@@ -230,6 +231,11 @@ class SimulationEngine:
         """Último fechamento do ativo; sem candle no buffer, o preço médio da posição."""
         candle = self.matching_engine.market_data.get_last(position.ticker)
         return to_money(candle.close) if candle else position.avg_price
+
+    @cached_property
+    def stocks(self) -> dict[str, StockDTO]:
+        """Catálogo estável na partida: nomes e classes só mudam na Central, fora dela."""
+        return {stock.ticker: stock for stock in repository.stock.get_stocks()}
 
     @cached_property
     def classification(self) -> dict[str, StockSegmentDTO]:
@@ -279,7 +285,7 @@ class SimulationEngine:
         sectors = allocate_by_sector(
             {pos.ticker: pos.current_value for pos in equity}, self.classification
         )
-        names = {s.ticker: s.name for s in repository.stock.get_stocks()}
+        names = {ticker: s.name for ticker, s in self.stocks.items()}
 
         return PortfolioDTO(
             starting_cash=self.starting_cash,

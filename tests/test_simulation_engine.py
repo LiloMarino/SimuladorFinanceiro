@@ -152,6 +152,29 @@ def test_current_price_without_candle_is_average_price(player_book):
     assert _engine().get_current_price(position) == Decimal("7.5")
 
 
+def test_stock_catalog_is_reused_and_reloaded_for_a_new_simulation(
+    player_book, monkeypatch: pytest.MonkeyPatch
+):
+    get_stocks = repository.stock.get_stocks
+    calls = []
+
+    def load():
+        calls.append(True)
+        return get_stocks()
+
+    monkeypatch.setattr(repository.stock, "get_stocks", load)
+    engine = _engine()
+    first = engine.get_portfolio(PLAYER)
+    assert engine.get_portfolio(PLAYER) == first
+    engine.assess_income_tax(USER_ID)
+    engine.preview_order(PLAYER, "ABCD", OrderAction.SELL, 1, 12)
+    assert calls == [True]
+
+    # O catálogo não é global: uma nova partida vê o que a Central alterou.
+    _engine().assess_income_tax(USER_ID)
+    assert calls == [True, True]
+
+
 def test_add_cash_records_deposit_or_withdraw(player_book, captured_events):
     """Entrada de caixa vira DEPOSIT, saída vira WITHDRAW pelo valor absoluto."""
     engine = _engine()

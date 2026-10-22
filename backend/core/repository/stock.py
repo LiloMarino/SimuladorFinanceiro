@@ -1,8 +1,8 @@
 from datetime import date
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, true
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, aliased, selectinload
 
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.candle import CandleDTO
@@ -81,43 +81,27 @@ class StockRepository:
     def get_stocks_by_date(
         self, session: Session, current_date: date, simulation_id: int | None = None
     ) -> list[CandleDTO]:
+        """Última cotação de cada ativo, em uma consulta com busca limitada pelo índice."""
         seen = seen_by(StockPriceHistory, reading_version(simulation_id))
-        stocks = session.execute(select(Stock)).scalars().all()
-        stocks_with_history: list[CandleDTO] = []
-        for stock in stocks:
-            ph = (
-                session.execute(
-                    select(StockPriceHistory)
-                    .where(
-                        StockPriceHistory.stock_id == stock.id,
-                        StockPriceHistory.price_date <= current_date,
-                        seen,
-                    )
-                    .order_by(StockPriceHistory.price_date.desc())
-                )
-                .scalars()
-                .first()
+        latest = (
+            select(StockPriceHistory)
+            .where(
+                StockPriceHistory.stock_id == Stock.id,
+                StockPriceHistory.price_date <= current_date,
+                seen,
             )
-            if ph:
-                change = ph.close - ph.open
-                change_pct = change / ph.open if ph.open != 0 else 0
-                stocks_with_history.append(
-                    CandleDTO(
-                        id=ph.stock.id,
-                        ticker=ph.stock.ticker,
-                        name=ph.stock.name,
-                        asset_class=AssetClass(ph.stock.asset_class),
-                        close=ph.close,
-                        low=ph.low,
-                        high=ph.high,
-                        volume=ph.volume,
-                        open=ph.open,
-                        price_date=ph.price_date,
-                        change=round(change, 2),
-                        change_pct=change_pct,
-                    )
-                )
-        return stocks_with_history
+            .order_by(StockPriceHistory.price_date.desc())
+            .limit(1)
+            .lateral()
+        )
+        price = aliased(StockPriceHistory, latest)
+        rows = session.execute(
+            select(Stock, price)
+            .select_from(Stock)
+            .join(latest, true())
+            .order_by(Stock.id)
+        ).all()
+        return [CandleDTO.from_prices(stock, history) for stock, history in rows]
 
     @transactional
     def get_recent_closes(
@@ -129,23 +113,30 @@ class StockRepository:
     ) -> dict[str, list[float]]:
         """Os últimos `days` fechamentos de cada ação até `current_date`, em ordem cronológica."""
         seen = seen_by(StockPriceHistory, reading_version(simulation_id))
-        closes: dict[str, list[float]] = {}
-        for stock in session.execute(select(Stock)).scalars().all():
-            rows = (
-                session.execute(
-                    select(StockPriceHistory.close)
-                    .where(
-                        StockPriceHistory.stock_id == stock.id,
-                        StockPriceHistory.price_date <= current_date,
-                        seen,
-                    )
-                    .order_by(StockPriceHistory.price_date.desc())
-                    .limit(days)
-                )
-                .scalars()
-                .all()
+        # O prefixo (stock_id, price_date) do índice busca a janela por ativo,
+        # sem percorrer todo o histórico para numerar as linhas de cada série.
+        recent = (
+            select(StockPriceHistory.price_date, StockPriceHistory.close)
+            .where(
+                StockPriceHistory.stock_id == Stock.id,
+                StockPriceHistory.price_date <= current_date,
+                seen,
             )
-            closes[stock.ticker] = list(reversed(rows))
+            .order_by(StockPriceHistory.price_date.desc())
+            .limit(days)
+            .lateral()
+        )
+        rows = session.execute(
+            select(Stock.ticker, recent.c.close)
+            .select_from(Stock)
+            .outerjoin(recent, true())
+            .order_by(Stock.id, recent.c.price_date)
+        ).all()
+        closes: dict[str, list[float]] = {}
+        for ticker, close in rows:
+            values = closes.setdefault(ticker, [])
+            if close is not None:
+                values.append(close)
         return closes
 
     @transactional
@@ -178,25 +169,17 @@ class StockRepository:
         )
 
         # Último preço do dia atual
-        ph_today = history[-1] if history else None
+        ph_today = (
+            history[-1]
+            if history
+            else StockPriceHistoryDTO(
+                open=0, close=0, high=0, low=0, volume=0, price_date=current_date
+            )
+        )
+        candle = CandleDTO.from_prices(stock, ph_today)
 
         return StockDetailsDTO(
-            id=stock.id,
-            ticker=stock.ticker,
-            name=stock.name,
-            asset_class=AssetClass(stock.asset_class),
-            open=ph_today.open if ph_today else 0,
-            close=ph_today.close if ph_today else 0,
-            low=ph_today.low if ph_today else 0,
-            high=ph_today.high if ph_today else 0,
-            volume=ph_today.volume if ph_today else 0,
-            price_date=ph_today.price_date if ph_today else current_date,
-            change=round(ph_today.close - ph_today.open, 2) if ph_today else 0,
-            change_pct=(
-                (ph_today.close - ph_today.open) / ph_today.open
-                if ph_today and ph_today.open
-                else 0
-            ),
+            **candle.model_dump(),
             history=[StockPriceHistoryDTO.from_model(h) for h in history],
         )
 
@@ -257,6 +240,7 @@ class StockRepository:
                     StockPriceHistory.origin == DataOrigin.REAL.value,
                 )
                 .order_by(StockPriceHistory.price_date.desc())
+                .limit(1)
             )
             .scalars()
             .first()

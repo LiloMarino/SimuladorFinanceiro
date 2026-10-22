@@ -420,7 +420,7 @@ class Simulation:
     def get_market(self) -> list[MarketQuoteDTO]:
         """As cotações do dia com os 30 pregões do mini gráfico; o último ponto é o de hoje, com impacto."""
         closes = repository.stock.get_recent_closes(self._current_date, SPARKLINE_DAYS)
-        classification = repository.stock.get_classification()
+        classification = self._engine.classification
         quotes = []
         for candle in self.get_stocks():
             history = closes.get(candle.ticker, [])
