@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 import logging
+import threading
 from collections.abc import Callable
 from datetime import date, timedelta
 from decimal import Decimal
+from functools import wraps
+from typing import Concatenate, ParamSpec, TypeVar
 from uuid import UUID
 
 from backend import config
@@ -24,6 +29,7 @@ from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import GameType, IndicatorSeries, OrderAction, PlayerGrouping
+from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
 from backend.core.runtime.event_manager import EventManager
@@ -59,12 +65,28 @@ from backend.features.simulation.life_events import (
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.statistics.goal import goal_on, goal_reached
 from backend.features.strategy.manual import ManualStrategy
+from backend.features.variable_income.entities.order import Order
 from backend.features.variable_income.price_impact import PriceImpact
 
 # Pregões no mini gráfico da lista de mercado
 SPARKLINE_DAYS = 30
 
 logger = logging.getLogger(__name__)
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+def synchronized(
+    method: Callable[Concatenate[Simulation, P], R],
+) -> Callable[Concatenate[Simulation, P], R]:
+    """Uma consulta ou operação vê um pregão completo, usando o mesmo lock do motor."""
+
+    @wraps(method)
+    def call(self: Simulation, *args: P.args, **kwargs: P.kwargs) -> R:
+        with self.lock:
+            return method(self, *args, **kwargs)
+
+    return call
 
 
 def _overdraft_rate() -> Decimal:
@@ -134,36 +156,73 @@ class Simulation:
 
         # Configura os alias
         self.get_cash = self._engine.get_cash
-        self.get_fixed_assets = self._engine.fixed_income_market.get_available_assets
-        self.get_fixed_asset = self._engine.fixed_income_market.get_asset
-        self.get_fixed_positions = self._engine.fixed_broker.get_fixed_positions
-        self.get_portfolio = self._engine.get_portfolio
-        self.create_order = self._engine.matching_engine.submit
-        self.cancel_order = self._engine.matching_engine.cancel
 
         # Roda o primeiro tick para a inicialização
         self.next_tick()
 
+    @property
+    def lock(self) -> threading.RLock:
+        return self._engine._lock
+
+    @synchronized
+    def get_fixed_assets(self) -> list[FixedIncomeAssetDTO]:
+        return self._engine.fixed_income_market.get_available_assets()
+
+    @synchronized
+    def get_fixed_asset(self, asset_uuid: str) -> FixedIncomeAssetDTO | None:
+        return self._engine.fixed_income_market.get_asset(asset_uuid)
+
+    @synchronized
+    def get_portfolio(self, client_id: UUID):
+        return self._engine.get_portfolio(client_id)
+
+    @synchronized
+    def get_fixed_positions(self, client_id: UUID):
+        return self._engine.fixed_broker.get_fixed_positions(client_id)
+
+    @synchronized
+    def create_order(self, order: Order) -> None:
+        try:
+            self._engine.matching_engine.submit(order)
+        finally:
+            # Mesmo uma execução parcial precisa aparecer sem esperar outro tick.
+            EventManager.flush()
+
+    @synchronized
+    def cancel_order(self, *, order_id: str, client_id: UUID) -> bool:
+        canceled = self._engine.matching_engine.cancel(
+            order_id=order_id, client_id=client_id
+        )
+        EventManager.flush()
+        return canceled
+
+    @synchronized
     def buy_fixed_income(
         self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal
     ) -> None:
         self._engine.fixed_broker.buy(client_id, asset, value)
+        EventManager.flush()
 
+    @synchronized
     def get_fixed_offers(self) -> list[FixedIncomeOfferDTO]:
         return [
             apply_offer_assistance(offer(a, self._current_date), self.settings)
             for a in self.get_fixed_assets()
         ]
 
+    @synchronized
     def get_fixed_offer(self, asset_uuid: str) -> FixedIncomeOfferDTO | None:
         asset = self.get_fixed_asset(asset_uuid)
         if not asset:
             return None
         return apply_offer_assistance(offer(asset, self._current_date), self.settings)
 
+    @synchronized
     def quote_fixed_income(
         self, client_id: UUID, asset: FixedIncomeAssetDTO, amount: Decimal
     ) -> FixedIncomeQuoteDTO:
+        if self._current_date >= asset.maturity_date:
+            raise ConflictError("Esse título já venceu. Escolha uma oferta atual.")
         cash = self.get_cash(client_id)
         return build_quote(
             project(asset, amount, self._current_date),
@@ -174,6 +233,7 @@ class Simulation:
             income_tax_brackets=income_tax_brackets(),
         )
 
+    @synchronized
     def get_patrimonial_history(
         self, client_id: UUID
     ) -> list[PortfolioHistoryPointDTO]:
@@ -190,6 +250,7 @@ class Simulation:
             total_provided=self.settings.starting_cash + point.total_contribution,
         )
 
+    @synchronized
     def next_tick(self):
         # O dia em que alguém chegou à meta foi processado inteiro; a partida acaba no seguinte
         if self._goal_reached:
@@ -208,6 +269,9 @@ class Simulation:
         EventManager.flush()
         self._price_impact.refresh(self._current_date)
 
+        # O matching pode executar ordens antigas durante a atualização do book.
+        # Elas já pertencem ao dia novo, assim como os juros e as consultas.
+        self._engine.current_date = self._current_date
         # Obtém os dados do dia atual e atualiza o buffer
         stocks = self.get_stocks()
         self._engine.update_market_data(stocks)
@@ -398,12 +462,14 @@ class Simulation:
             reserve_months=max(cash, Decimal(0)) / expense,
         )
 
+    @synchronized
     def get_current_date(self) -> date:
         return self._current_date
 
     def get_current_date_formatted(self) -> str:
         return self._current_date.strftime("%d/%m/%Y")
 
+    @synchronized
     def set_speed(self, speed: int):
         logger.info("Velocidade da simulação alterada para %sx", speed)
         self._speed = speed
@@ -411,12 +477,14 @@ class Simulation:
     def get_speed(self) -> int:
         return self._speed
 
+    @synchronized
     def get_stocks(self) -> list[CandleDTO]:
         return [
             self._price_impact.apply(stock)
             for stock in repository.stock.get_stocks_by_date(self._current_date)
         ]
 
+    @synchronized
     def get_market(self) -> list[MarketQuoteDTO]:
         """As cotações do dia com os 30 pregões do mini gráfico; o último ponto é o de hoje, com impacto."""
         closes = repository.stock.get_recent_closes(self._current_date, SPARKLINE_DAYS)
@@ -437,6 +505,7 @@ class Simulation:
             )
         return quotes
 
+    @synchronized
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
         details = repository.stock.get_stock_details(ticker, self._current_date)
         if details is None:
@@ -447,6 +516,7 @@ class Simulation:
             }
         )
 
+    @synchronized
     def get_portfolio_ticker(self, client_id: UUID, ticker: str) -> PositionDTO:
         positions = self._engine.get_positions(client_id)
         position = positions.get(ticker)
@@ -466,6 +536,7 @@ class Simulation:
             )
         )
 
+    @synchronized
     def get_economic_indicators(self) -> EconomicIndicatorsDTO:
         return EconomicIndicatorsDTO(
             ipca=annual_index_rate(IndicatorSeries.IPCA, self._current_date),
@@ -473,6 +544,7 @@ class Simulation:
             cdi=annual_index_rate(IndicatorSeries.CDI, self._current_date),
         )
 
+    @synchronized
     def preview_order(
         self,
         client_id: UUID,
@@ -485,11 +557,14 @@ class Simulation:
             client_id, ticker, action, quantity, limit_price
         )
 
+    @synchronized
     def get_orders(self, ticker: str) -> list[OrderDTO]:
         orders = self._engine.matching_engine.order_book.get_orders(ticker)
         return [o.to_dto() for o in orders]
 
+    @synchronized
     def clear_user_cache(self, client_id: UUID) -> None:
+        EventManager.flush()
         # Remove saldo em cache
         self._engine._cash.pop(client_id, None)
         # Remove posições de renda variável em cache
@@ -580,6 +655,7 @@ class Simulation:
             player_nickname=user.nickname, snapshot=snapshot
         )
 
+    @synchronized
     def add_player(self, user: UserDTO) -> None:
         """
         Quem entra com a partida em andamento recebe o depósito inicial no dia corrente

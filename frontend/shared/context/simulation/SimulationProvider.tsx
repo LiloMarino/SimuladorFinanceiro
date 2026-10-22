@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "react";
+import { useEffect, type PropsWithChildren } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { SimulationContext } from "./SimulationContext";
 import { useRealtime } from "@/shared/hooks/useRealtime";
@@ -7,10 +7,21 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { useSimulationStatus } from "@/shared/hooks/queries/useSimulationStatus";
 import { LifeNotifications } from "@/shared/notifications/life-notifications";
 import { PlayerActivityReporter } from "./PlayerActivityReporter";
+import { useRealtimeContext } from "@/shared/hooks/useRealtimeContext";
+import { revalidateSimulation } from "@/shared/lib/simulation-cache";
 
 export function SimulationProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { connected } = useRealtimeContext();
+
+  useEffect(() => {
+    if (connected) void revalidateSimulation(queryClient);
+  }, [connected, queryClient]);
+
+  useRealtime("speed_update", ({ speed }) => {
+    if (speed <= 0) void revalidateSimulation(queryClient);
+  });
 
   const { data: simulation, isLoading: loading, isError: failed, refetch } = useSimulationStatus();
 
@@ -19,6 +30,7 @@ export function SimulationProvider({ children }: PropsWithChildren) {
     (payload) => {
       if (payload?.active) {
         queryClient.setQueryData(queryKeys.simulationStatus(), payload);
+        void revalidateSimulation(queryClient);
         // A partida começou com as regras do lobby, e o servidor já as zerou para a próxima
         void queryClient.invalidateQueries({ queryKey: queryKeys.simulationSettings() });
       }

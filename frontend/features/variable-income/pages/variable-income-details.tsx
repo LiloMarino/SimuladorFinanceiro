@@ -3,6 +3,7 @@ import usePageLabel from "@/shared/hooks/usePageLabel";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ErrorPage } from "@/pages/error";
+import { ErrorState } from "@/shared/components/error-state";
 import { StockChart } from "../components/stock-chart";
 import { StockHeader } from "../components/stock-header";
 import { OrderBookCard } from "../components/order-book-card";
@@ -15,9 +16,14 @@ import { usePortfolioPosition } from "../hooks/queries/usePortfolioPosition";
 export default function VariableIncomeDetailPage() {
   usePageLabel("Renda variável");
   const { ticker } = useParams<{ ticker: string }>();
-  const { data: stock, isLoading } = useVariableIncomeStock(ticker);
+  const { data: stock, isLoading, error, refetch } = useVariableIncomeStock(ticker);
   const orders = usePendingOrders(ticker);
   const { data: position } = usePortfolioPosition(ticker);
+
+  if (error && error.status !== 404) {
+    return <ErrorState title="Não deu para carregar esse ativo" description="Confira a conexão e tente novamente."
+      error={error} onRetry={() => void refetch()} />;
+  }
 
   if (isLoading) {
     return (
@@ -51,7 +57,7 @@ export default function VariableIncomeDetailPage() {
           <OrderBookCard ticker={stock.ticker} orders={orders} />
         </div>
         <div className="grid gap-5">
-          <OrderTicket ticker={stock.ticker} assetClass={stock.asset_class} todayPrice={stock.close} />
+          <OrderTicket key={stock.ticker} ticker={stock.ticker} assetClass={stock.asset_class} todayPrice={stock.close} />
           <PositionCard ticker={stock.ticker} position={position ?? null} />
           <Button variant="link" size="sm" nativeButton={false} render={<Link to="/portfolio" />}>
             Ver carteira

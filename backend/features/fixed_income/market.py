@@ -24,8 +24,14 @@ class FixedIncomeMarket:
     def __init__(self):
         self._current_month: tuple[int, int] | None = None
         self._assets: dict[str, FixedIncomeAssetDTO] = {}
+        self._issued_assets: dict[str, FixedIncomeAssetDTO] = {}
 
     def refresh_assets(self, current_date: date):
+        self._issued_assets = {
+            uuid: asset
+            for uuid, asset in self._issued_assets.items()
+            if asset.maturity_date > current_date
+        }
         current_month = (current_date.year, current_date.month)
         if self._current_month == current_month:
             return
@@ -37,7 +43,7 @@ class FixedIncomeMarket:
         return list(self._assets.values())
 
     def get_asset(self, uuid: str) -> FixedIncomeAssetDTO | None:
-        asset = self._assets.get(uuid)
+        asset = self._issued_assets.get(uuid)
         if asset:
             return asset
 
@@ -54,6 +60,8 @@ class FixedIncomeMarket:
         self._assets = FixedIncomeFactory.generate_assets(
             current_date=current_date, n=10
         )
+        # A renovação da vitrine não invalida uma oferta ainda aberta no navegador.
+        self._issued_assets.update(self._assets)
         notify(
             "fixed_assets_update",
             FixedAssetsUpdateEventDTO(assets=self.get_available_assets()).to_json(),

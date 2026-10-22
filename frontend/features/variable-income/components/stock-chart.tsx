@@ -22,7 +22,6 @@ import {
   type WhitespaceData,
 } from "lightweight-charts";
 import { displayMoney } from "@/shared/lib/utils/display";
-import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { StockCandle } from "@/types";
 
 const TIME_SCALES = ["1s", "1m", "3m", "1a", "3a", "5a", "MAX"] as const;
@@ -74,43 +73,22 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
   const chartRef = useRef<HTMLDivElement>(null);
   const seriesRef = useRef<AreaSeriesRef | CandlestickSeriesRef | null>(null);
   const historyRef = useRef<StockCandle[]>([...initialData]);
+  const hasHistory = initialData.length > 0;
 
-  useRealtime(`stock_update:${ticker}`, ({ stock }) => {
-    const newCandle: StockCandle = {
-      price_date: stock.price_date,
-      open: stock.open,
-      close: stock.close,
-      low: stock.low,
-      high: stock.high,
-      volume: stock.volume,
-    };
-
-    const lastCandle = historyRef.current[historyRef.current.length - 1];
-
-    if (lastCandle?.price_date === newCandle.price_date) {
-      // Atualiza o último candle
-      historyRef.current[historyRef.current.length - 1] = newCandle;
-    } else {
-      // Adiciona novo candle
-      historyRef.current.push(newCandle);
-    }
-
-    // Atualiza a série com tipagem correta
+  // O histórico é o mesmo cache do detalhe, atualizado por WS e pela conferência da pausa.
+  useEffect(() => {
+    historyRef.current = [...initialData];
+    const data = getFilteredData(selectedScale);
     if (chartType === "line") {
-      (seriesRef.current as AreaSeriesRef)?.update({
-        time: newCandle.price_date.split("T")[0],
-        value: newCandle.close,
-      });
+      (seriesRef.current as AreaSeriesRef | null)?.setData(
+        data.map((d) => ({ time: d.price_date.split("T")[0], value: d.close })),
+      );
     } else {
-      (seriesRef.current as CandlestickSeriesRef)?.update({
-        time: newCandle.price_date.split("T")[0],
-        open: newCandle.open,
-        high: newCandle.high,
-        low: newCandle.low,
-        close: newCandle.close,
-      });
+      (seriesRef.current as CandlestickSeriesRef | null)?.setData(
+        data.map((d) => ({ ...d, time: d.price_date.split("T")[0] })),
+      );
     }
-  });
+  }, [initialData, ticker, selectedScale, chartType]);
 
   // Filtra os dados conforme selectedScale usando datas reais
   function getFilteredData(scale: TimeScale) {
@@ -183,8 +161,12 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
     // Ajusta a visualização para caber todos os dados filtrados
     chartInstance.current.timeScale().fitContent();
 
-    return () => chartInstance.current?.remove();
-  }, [chartType, selectedScale]);
+    return () => {
+      chartInstance.current?.remove();
+      chartInstance.current = null;
+      seriesRef.current = null;
+    };
+  }, [chartType, selectedScale, ticker, hasHistory]);
 
   return (
     <Card>

@@ -172,6 +172,11 @@ export abstract class BaseSubscriberRealtime<TEvents extends Record<string, unkn
    *  @param value Novo status
    */
   protected setConnected(value: boolean) {
+    if (value) {
+      // Um SID novo não herda as assinaturas guardadas pelo SID anterior.
+      this.lastSyncedEvents.clear();
+      this.scheduleBackendSubscriptionUpdate();
+    }
     this.connection.setConnected(value);
   }
 }

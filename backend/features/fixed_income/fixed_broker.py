@@ -115,12 +115,11 @@ class FixedBroker:
                 "Valor do investimento deve ser maior que zero"
             )
 
-        if self._simulation_engine.current_date >= asset.maturity_date:
-            raise ConflictError(
-                f"Ativo {asset.name} já venceu em {asset.maturity_date}"
-            )
-
         with self._lock:
+            if self._simulation_engine.current_date >= asset.maturity_date:
+                raise ConflictError(
+                    f"Ativo {asset.name} já venceu em {asset.maturity_date}"
+                )
             if self._simulation_engine.get_cash(client_id) < value:
                 raise InsufficentCashError(
                     f"Saldo insuficiente para investir em {asset.name}"

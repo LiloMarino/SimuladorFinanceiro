@@ -309,3 +309,29 @@ def test_cancel_pending_limit_returns_reservation(history):
 
     assert engine.cash[BUYER] == Decimal("1000")
     assert matching.order_book.find(order.id) is None
+
+
+def test_cancel_partial_sell_releases_remaining_shares(history):
+    history({"seller": [(EquityEventType.BUY, "8", 10)]})
+    broker, _ = _broker(buyer="1000")
+    matching = MatchingEngine(broker)
+    sell = _limit(SELLER, OrderAction.SELL, 10, 10)
+    matching.submit(sell)
+    matching.submit(_limit(BUYER, OrderAction.BUY, 12, 6))
+    assert broker.get_available_position(SELLER, "ABCD") == 0
+    assert matching.cancel(order_id=sell.id, client_id=SELLER)
+    assert broker.get_available_position(SELLER, "ABCD") == 4
+    assert matching.order_book.find(sell.id) is None
+    assert not matching.cancel(order_id=sell.id, client_id=SELLER)
+
+
+def test_cancel_partial_buy_refunds_only_unexecuted_reservation(history):
+    broker, engine = _broker(buyer="1000")
+    matching = MatchingEngine(broker)
+    matching.submit(_limit(MARKET, OrderAction.SELL, 10, 6))
+    buy = _limit(BUYER, OrderAction.BUY, 12, 10)
+    matching.submit(buy)
+    assert buy.remaining == 4
+    assert matching.cancel(order_id=buy.id, client_id=BUYER)
+    assert engine.cash[BUYER] == Decimal("940")  # 1000 - 6 ações a 10
+    assert broker.get_positions(BUYER)["ABCD"].size == 6

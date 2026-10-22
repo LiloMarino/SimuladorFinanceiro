@@ -42,6 +42,7 @@ class _FakeSimulation:
         self.ticked = threading.Event()
         self.paused = threading.Event()
         self._speed = speed
+        self.lock = threading.RLock()
 
     def get_speed(self) -> int:
         if self._speed <= 0:
@@ -173,6 +174,32 @@ def test_interval_between_days_follows_the_speed(loop, monkeypatch):
     loop.join()
 
     assert loop.sleeps == [0.5, 0.5, 0.25, 0.25]
+
+
+def test_pause_between_speed_read_and_tick_does_not_start_another_day(
+    loop, monkeypatch
+):
+    simulation = _FakeSimulation(loop.log, days=1)
+    original = simulation.get_speed
+    first = True
+
+    def read_speed():
+        nonlocal first
+        speed = original()
+        if first:
+            first = False
+            simulation.set_speed(0)
+            loop.controller.pause()
+        return speed
+
+    monkeypatch.setattr(simulation, "get_speed", read_speed)
+    loop.play(simulation, monkeypatch)
+    assert simulation.paused.wait(TIMEOUT)
+    assert simulation.ticks == 0
+    simulation.set_speed(1000)
+    loop.controller.unpause()
+    loop.join()
+    assert simulation.ticks == 1
 
 
 def test_stop_ends_the_running_match(loop, monkeypatch):

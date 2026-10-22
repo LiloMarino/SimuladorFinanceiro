@@ -6,6 +6,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/shared/compo
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { ErrorState } from "@/shared/components/error-state";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
@@ -43,15 +44,16 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
   const limitPrice = kind === "limit" ? Number(normalizeNumberString(limitText)) || null : null;
   const [request] = useDebounce({ action, quantity, limit_price: limitPrice }, 250);
 
-  const { data: preview } = useOrderPreview(ticker, request);
+  const { data: preview, error, isLoading, refetch } = useOrderPreview(ticker, request);
+  const requestMatches = request.action === action && request.quantity === quantity && request.limit_price === limitPrice;
 
   const submit = useSubmitOrder(ticker);
 
   const selling = action === "sell";
   const maxQuantity = preview?.max_quantity ?? 0;
   const overMax = quantity > maxQuantity;
-  const noPosition = selling && preview !== undefined && preview.held === 0;
-  const canSubmit = quantity > 0 && !overMax && !!preview?.price && (kind === "market" || !!limitPrice);
+  const noPosition = selling && requestMatches && preview !== undefined && preview.held === 0;
+  const canSubmit = requestMatches && !error && quantity > 0 && !overMax && !!preview?.price && (kind === "market" || !!limitPrice);
 
   const quantityHint = selling
     ? preview && preview.reserved > 0
@@ -69,6 +71,9 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
+          {error && <ErrorState title="Não deu para conferir a ordem" description="Atualize a prévia antes de enviar."
+            error={error} onRetry={() => void refetch()} />}
+          {(isLoading || !requestMatches) && <p role="status" className="text-sm text-muted-foreground">Conferindo a ordem…</p>}
           <ToggleGroup
             variant="segmented"
             size="lg"
