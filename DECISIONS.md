@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança (2026-10-22):** Registrada a necessidade de encontrar os menores e maiores valores nos dados do jogo (N36). Implementada e arquivada a ordenação em todas as tabelas de dados (F110), com paginação global no histórico e preservação das equipes e da colocação oficial.
+> **Última mudança (2026-10-22):** Registrada a necessidade de encontrar os menores e maiores valores nos dados do jogo (N36). Implementada e arquivada a ordenação em todas as tabelas de dados (F112), com paginação global no histórico e preservação das equipes e da colocação oficial.
 
 ---
 
