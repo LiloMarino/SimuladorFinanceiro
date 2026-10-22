@@ -4,6 +4,40 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 2.2.0 (22/10/2026)
+
+Suas partidas salvas e o `config.toml` continuam valendo.
+
+
+### Novidades
+
+- Adicionada a gravação automática de demonstrações com zoom automático
+- Adicionado o proxy do Vite na porta do config.toml
+- Adicionado o botão de excluir partida salva no lobby
+- Permitido importar ações diferentes com o mesmo nome
+- Guardado o ticker da B3 sem o .SA e acrescentado só ao consultar o yfinance
+- Adicionadas as conquistas com catálogo declarativo, tela, aviso e entradas
+- Unificada a conversão entre as regras da partida e o formulário do lobby
+- Adicionados os testes das contas feitas no frontend, com o Vitest
+- Adicionados os testes da conexão em tempo real, do loop e da carga da partida
+- Adicionado o Modo Especialista, que esconde as ajudas da renda fixa
+- Adicionadas as screenshots que faltavam na demonstração e o download das imagens no build dos docs
+- Adicionado o logo do simulador
+- Adicionada a atividade de cada jogador na sala
+- Trocada a marca do app pelo logo do simulador
+- Otimizadas as consultas de cotações e a reutilização do catálogo na partida
+
+### Correções
+
+- Regenerado o openapi na versão 2.1.0
+- Corrigido o teste de configurações para usar o banco descartável
+- Corrigida a barra do topo das conquistas fora da partida para seguir o design
+# Changelog
+
+Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais antiga.
+O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
+deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
+
 ## 2.1.0 (21/10/2026)
 
 Suas partidas salvas e o `config.toml` continuam valendo.
