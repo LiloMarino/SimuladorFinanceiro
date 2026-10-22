@@ -153,6 +153,8 @@ Define qual VPN o simulador deve priorizar ao exibir o IP de conexão.
 
 Ao criar uma sala multiplayer, a interface exibe automaticamente um **link copiável** para facilitar o compartilhamento.
 
+![O convite da sala, com o link e o botão Copiar](/demo/screens/invite.png)
+
 **Como usar:**
 
 1. Crie a sala multiplayer
