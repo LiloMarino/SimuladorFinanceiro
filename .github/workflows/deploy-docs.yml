@@ -32,8 +32,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # As imagens da demonstração moram no branch `demo`: o `generate` dos docs as baixa
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
