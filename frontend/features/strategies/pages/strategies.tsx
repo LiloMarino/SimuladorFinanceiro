@@ -165,6 +165,7 @@ function StrategiesWorkspace({ strategies, mine }: WorkspaceProps) {
             active={activeHere}
             draft={draft}
             cash={state?.cash ?? "0"}
+            currentDate={state?.current_date}
             tickerOptions={tickerOptions}
             saving={setStrategy.isPending}
             onDraftChange={(next) => setDrafts((current) => ({ ...current, [selected.key]: next }))}

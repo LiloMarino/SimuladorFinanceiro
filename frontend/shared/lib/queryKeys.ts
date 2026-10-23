@@ -55,5 +55,6 @@ export const queryKeys = {
   myStrategy: () => ["strategies", "me"] as const,
   strategyLogs: () => ["strategies", "log"] as const,
   strategyLog: (kind: string) => ["strategies", "log", kind] as const,
-  strategySignal: (key: string, ticker: string, params: object) => ["strategies", "signal", key, ticker, params] as const,
+  strategySignal: (key: string, ticker: string, params: object, date: string | undefined) =>
+    ["strategies", "signal", key, ticker, params, date] as const,
 } as const;

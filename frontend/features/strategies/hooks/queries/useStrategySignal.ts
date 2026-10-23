@@ -5,11 +5,17 @@ import type { StrategyParamValue, StrategySignal } from "@/types";
 
 /**
  * O que a estratégia olha numa ação, com os parâmetros ainda em rascunho: o servidor valida
- * campo a campo e devolve as linhas. O gráfico anterior fica na tela enquanto o novo chega.
+ * campo a campo e devolve as linhas até o dia da partida, que faz parte da chave.
+ * O gráfico anterior fica na tela enquanto o novo chega.
  */
-export function useStrategySignal(key: string, ticker: string | null, params: Record<string, StrategyParamValue>) {
+export function useStrategySignal(
+  key: string,
+  ticker: string | null,
+  params: Record<string, StrategyParamValue>,
+  currentDate: string | undefined,
+) {
   return useQuery({
-    queryKey: queryKeys.strategySignal(key, ticker ?? "", params),
+    queryKey: queryKeys.strategySignal(key, ticker ?? "", params, currentDate),
     queryFn: ({ signal }) =>
       apiFetch<StrategySignal>(`/api/strategies/${key}/signal`, { method: "POST", body: { params, ticker }, signal }),
     enabled: ticker !== null,

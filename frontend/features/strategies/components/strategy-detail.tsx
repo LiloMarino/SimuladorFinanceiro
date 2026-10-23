@@ -29,6 +29,8 @@ type StrategyDetailProps = {
   draft: ParamDraft;
   /** Caixa de hoje, em reais */
   cash: string;
+  /** Dia da partida; o gráfico acompanha */
+  currentDate: string | undefined;
   tickerOptions: string[];
   saving: boolean;
   onDraftChange: (draft: ParamDraft) => void;
@@ -44,6 +46,7 @@ export function StrategyDetail({
   active,
   draft,
   cash,
+  currentDate,
   tickerOptions,
   saving,
   onDraftChange,
@@ -64,8 +67,8 @@ export function StrategyDetail({
   const tickers = Array.isArray(tickersEntry) ? tickersEntry : [];
   const watched = pickedTicker && tickers.includes(pickedTicker) ? pickedTicker : (tickers[0] ?? null);
 
-  const signal = useStrategySignal(strategy.key, hasChart && values ? watched : null, values ?? saved);
-  const savedSignal = useStrategySignal(strategy.key, previewing ? watched : null, saved);
+  const signal = useStrategySignal(strategy.key, hasChart && values ? watched : null, values ?? saved, currentDate);
+  const savedSignal = useStrategySignal(strategy.key, previewing ? watched : null, saved, currentDate);
   const signalReady = !!signal.data && !signal.isPlaceholderData;
 
   // Erro do servidor (por campo) e o que a digitação ainda não permite
@@ -88,7 +91,8 @@ export function StrategyDetail({
     }
   }
 
-  const lines = signalReady ? signal.data!.lines : [];
+  // O gráfico anterior fica na tela enquanto o novo chega; a validade só vale com o dado novo
+  const lines = signal.data?.lines ?? [];
   const shortHistory =
     signalReady && signal.data!.available_days < signal.data!.needed_days
       ? `${watched} tem ${signal.data!.available_days} dias de histórico nesta partida, e a estratégia pede ${signal.data!.needed_days}.`
@@ -103,7 +107,11 @@ export function StrategyDetail({
             <Badge variant={strategy.group === "tactic" ? "info" : "secondary"} size="tag">
               {GROUP_LABEL[strategy.group]}
             </Badge>
-            {active && <ActiveMark since={displayDayMonth(active.since)} />}
+            {active ? (
+              <ActiveMark since={displayDayMonth(active.since)} />
+            ) : (
+              <span className="text-[11px] text-muted-foreground">Desligada</span>
+            )}
           </span>
           <h2 className="text-lg font-semibold">{strategy.name}</h2>
           <p className="flex items-start gap-1.5 text-[13px] text-muted-foreground">
@@ -152,13 +160,13 @@ export function StrategyDetail({
             <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
               {lines.map((line) => (
                 <span key={line.key} className="inline-flex items-center gap-1.5">
-                  <i className={`inline-block h-[3px] w-3.5 rounded-sm ${LEGEND_SWATCH[line.key]}`} />
+                  <i className={`inline-block h-0.75 w-3.5 rounded-sm ${LEGEND_SWATCH[line.key]}`} />
                   {line.label}
                 </span>
               ))}
               {savedLines.map((line) => (
                 <span key={line.key} className="inline-flex items-center gap-1.5">
-                  <i className={`inline-block h-[3px] w-3.5 rounded-sm opacity-50 ${LEGEND_SWATCH[line.key]}`} />
+                  <i className={`inline-block h-0.75 w-3.5 rounded-sm opacity-50 ${LEGEND_SWATCH[line.key]}`} />
                   {line.legend}
                 </span>
               ))}
@@ -193,7 +201,7 @@ export function StrategyDetail({
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="text-xs text-muted-foreground">
-              {active && strategy.params.length > 0 ? "Vale a partir do próximo dia da partida." : ""}
+              {active && !previewing && strategy.params.length > 0 ? "Vale a partir do próximo dia da partida." : ""}
             </span>
             <div className="flex gap-2">
               {strategy.params.length > 0 &&
@@ -218,7 +226,7 @@ export function StrategyDetail({
                   </Button>
                 )
               ) : (
-                <Button size="sm" disabled={!valid || saving} onClick={() => values && onTurnOn(values)}>
+                <Button disabled={!valid || saving} onClick={() => values && onTurnOn(values)}>
                   <Power />
                   Ligar esta estratégia
                 </Button>
