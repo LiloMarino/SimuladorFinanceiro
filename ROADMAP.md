@@ -98,7 +98,6 @@
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
-| [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
@@ -109,7 +108,7 @@
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -137,6 +136,7 @@
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ✅ |
 | [**F94**](#f94) | Crédito | — | ✅ |
 | [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
+| [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ✅ |
 | [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ✅ |
 | [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ✅ |
 | [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ✅ |
@@ -167,7 +167,6 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
-| [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | 0 | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | 0 | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 0 | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
@@ -304,7 +303,7 @@
 
 ### Sem marco
 
-> **Progresso:** 6/42 concluídas
+> **Progresso:** 7/42 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -335,7 +334,6 @@
 | [**F110**](#f110) | Combinar estratégias | [F8](#f8) | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | [F8](#f8), [F94](#f94) | 💤 |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
-| [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
@@ -345,13 +343,14 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 
-<details><summary>Concluído (6 itens)</summary>
+<details><summary>Concluído (7 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ✅ |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ✅ |
 | [**F94**](#f94) | Crédito | — | ✅ |
+| [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ✅ |
 | [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ✅ |
 | [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ✅ |
 | [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ✅ |
@@ -388,7 +387,7 @@
 | **F110** | Combinar estratégias | N4 | D8 | — | [F8](#f8) | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | [F8](#f8), [F94](#f94) | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F113** | Classe de ativo cripto com quantidade fracionária | N37 | D3 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F114** | Gráfico de ações que acompanha o preço | N19 | — | — | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F114** | Gráfico de ações que acompanha o preço | N19 | — | — | — | Baixo | Baixo | Alto | Excelente | ✅ Concluído |
 | **F115** | Estatísticas dizem que atualizam por mês e quando é a próxima | N38 | D2 | — | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F116** | Gráfico da nota ao longo da partida | N9 | D2, D10 | — | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F117** | Atalhos de valor da renda fixa somam ao campo | N15 | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
