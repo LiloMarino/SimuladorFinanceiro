@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-23):** Registrada a F125: revisão das regras de lint (Ruff, oxlint) e do modo do pyright, para ligar as que pegam erro e afrouxar as que só geram ruído.
+> **Última mudança (2026-10-23):** Tutorial separado em dois cards: a janela "Como jogar" (F126), que nunca abre sozinha e avisa pelo contexto da tela, e o spike F49, que fica só com o jeito de animar os tópicos.
 
 ## Glossário
 
@@ -42,7 +42,7 @@
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F122](#f122) | — |
 | **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F71](#f71), [F101](#f101) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | — | — |
-| **N25** | Entender o que é o simulador e como se joga, sem ler um manual | — | — |
+| **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F126](#f126) | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | — | — |
 | **N27** | Entrar numa partida que já começou | — | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
@@ -67,7 +67,7 @@
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
 | [**F37**](#f37) | Tema escuro | — | 💤 |
 | [**F44**](#f44) | Expansão Gestoras: fundar a gestora e abrir capital | — | 🔍 |
-| [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
+| [**F49**](#f49) | Spike: animação dos tópicos do tutorial | — | 🔍 |
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
@@ -107,6 +107,7 @@
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
+| [**F126**](#f126) | Janela "Como jogar" | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
@@ -158,7 +159,7 @@
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F89**](#f89) | Presets de partida | — | 1 | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | M4 | 0 | ⏳ |
-| [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
+| [**F49**](#f49) | Spike: animação dos tópicos do tutorial | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
@@ -176,6 +177,7 @@
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | 0 | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 0 | 🔍 |
+| [**F126**](#f126) | Janela "Como jogar" | M14 | 0 | ⏳ |
 
 ---
 
@@ -282,11 +284,12 @@
 >
 > **Serve:** N25
 >
-> **Progresso:** 0/1 concluídas
+> **Progresso:** 0/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F49**](#f49) | Spike: tutorial animado | — | 🔍 |
+| [**F49**](#f49) | Spike: animação dos tópicos do tutorial | — | 🔍 |
+| [**F126**](#f126) | Janela "Como jogar" | — | ⏳ |
 
 ### M15 — Notícias e resumo do mês
 
@@ -395,6 +398,7 @@
 | **F118** | Lembrar a última configuração da partida | N30 | D9 | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F122** | Novas conquistas para as features recentes e antigas | N22 | D1 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F124** | Voltar o quadrado da marca no cabeçalho da sala | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
+| **F126** | Janela "Como jogar" | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -526,6 +530,9 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 <a id="f124"></a>
 **F124 — Voltar o quadrado da marca no cabeçalho da sala.** Serve N15. No lobby, o `BrandMark` ao lado de "Sala de ..." (`lobby-header.tsx`) virou a rosca de três fatias na troca da marca do app; antes era um quadrado arredondado azul com o ícone de barras crescentes (`ChartNoAxesColumnIncreasing`, traço 2,4). Plano: o `BrandMark` ganha a variante `square`, que traz de volta o quadrado azul (`bg-primary text-primary-foreground`, cantos arredondados e ícone proporcionais a cada tamanho, como era no commit anterior à troca) ao lado da variante `logo`, que continua sendo a rosca e o padrão; só o cabeçalho do lobby usa `square`, e a barra lateral, a tela de carregamento e o login mantêm a rosca. Gatilho: qualquer momento, é um ajuste pequeno.
 
+<a id="f126"></a>
+**F126 — Janela "Como jogar".** Serve N25. É o tutorial em si, no molde das Dicas e truques do Factorio; como animar cada tópico é o spike F49, e esta feature não espera por ele. **A janela:** um diálogo quase em tela cheia, com a lista de tópicos à esquerda em dois grupos, "Como se joga" (entrar na sala, comprar uma ação, aplicar em renda fixa, avançar o tempo, ler as estatísticas) e "Conceitos" (alavancagem, médias móveis, nota de risco), e o tópico aberto à direita: título, a ilustração e um texto curto em passos, com "Próximo tópico" no rodapé. A ilustração é o componente real do app com dados de exemplo e sem interação, para seguir o tema e ficar nítida em qualquer tamanho; quando a F49 escolher o jeito de animar, a animação entra no mesmo lugar. Os tópicos moram no front, num registro com id, grupo, título, texto e ilustração, e cada tela declara os tópicos dela. Feature que traz uma explicação longa acrescenta o tópico dela ao registro. **Nunca abre sozinha.** Abre pelo botão "Como jogar" no topo do lobby, ao lado de Conquistas, e por um acesso dentro da partida. **Aviso pelo contexto:** a primeira vez que o jogador abre uma tela com um tópico que ele não viu, aparece um aviso pequeno, que não bloqueia a tela ("Tem um tópico sobre isto: Renda variável", com "Ver" e "Agora não"); cada tópico avisa uma vez só. Na lista, tópico não visto leva um ponto, e o botão mostra quantos faltam. O navegador guarda o que foi visto e o que já avisou. Para não disputar com as Novidades (F56), que também se destacam no lobby, o lobby nunca destaca as duas ao mesmo tempo: depois de uma atualização, quem se destaca são as Novidades. **Tempo:** com um só jogador humano na sala (bots não contam), abrir a janela pausa a partida e fechar retoma; com mais gente, o tempo segue e a janela avisa isso no cabeçalho. **Sai do canvas antes de implementar:** o lugar do acesso dentro da partida (aba flutuante na borda direita, item no menu lateral ou botão na topbar) e se a dica de um termo leva ao tópico dele.
+
 ---
 ## 2. Nice-to-have
 
@@ -578,7 +585,7 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 | **F28** | Muitos futuros (Monte Carlo) | Serve N10; revisa ou confirma a D7 | M9 | [F19](#f19) | 🔍 Em avaliação |
 | **F34** | Gráfico de ações em tela cheia, com ferramentas de trader | Serve N19; escolhe a biblioteca de gráfico | M11 | [F33](#f33) | 🔍 Em avaliação |
 | **F44** | Expansão Gestoras: fundar a gestora e abrir capital | Serve N23; falta o protótipo do preço da cota com o formador sintético | — | [F101](#f101) | 🔍 Em avaliação |
-| **F49** | Spike: tutorial animado | Serve N25; compara vídeo, framer-motion e Remotion | M14 | — | 🔍 Em avaliação |
+| **F49** | Spike: animação dos tópicos do tutorial | Serve N25; decide como os tópicos da F126 se animam: vídeo, framer-motion ou Remotion | M14 | — | 🔍 Em avaliação |
 | **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | — | [F103](#f103) | 🔍 Em avaliação |
 | **F87** | Erros de dado do yfinance na base | Serve N3; encosta na F22 | — | — | 🔍 Em avaliação |
 | **F90** | Cenários | Serve N22; um preset com objetivo | — | [F89](#f89) | 🔍 Em avaliação |
@@ -614,7 +621,7 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 **F44 — Expansão "Gestoras": fundar a gestora e abrir capital.** Serve N23. Inspiração: o Capitalism Lab (oferta pública, emissão de novas ações, recompra, compra de ações dos concorrentes), o OpenTTD e o Software Inc. Lá cada jogador é uma empresa que fabrica ou transporta; aqui tudo é finanças, então a empresa de cada jogador é uma gestora, e o que ela vende é o próprio desempenho. **Como expansão:** ligável por partida numa **aba própria "Expansões"** no lobby, com banner, emblema e "o que muda", como a loja de DLC dos jogos da Paradox; é enfeite visual, o sistema é o mesmo ligado ou não. **A gestora** tem nome e ticker de 4 letras mais 11, como cota de FII na B3 (o servidor recusa letras que já existam entre os ativos importados), e no livro de ofertas a linha leva a cor e a sigla do jogador, para não se confundir com ativo real. O jogador a funda levando **caixa, ações e títulos** da carteira em troca de cotas, e a opera por um **modo na topbar** ("Operando: Aurora Gestão"), que troca a conta de todas as telas de mercado, com uma faixa verde-petróleo e o caixa da gestora dizendo qual conta está ativa. **É um fundo fechado listado, como um FII:** (1) **oferta pública** quando o gestor quiser — cotas novas ao preço do patrimônio por cota (patrimônio de R$ 100 mil em 1.000 cotas dá R$ 100), e o dinheiro de quem compra entra na gestora: é investir no amigo; (2) **mercado** — depois da oferta, as cotas são negociadas no livro de ofertas que a renda variável já tem, e o preço sai da oferta e da procura, acima do patrimônio por cota (ágio) quando a sala acredita no gestor e abaixo (deságio) quando não; (3) **liquidez** — a liquidez de fundo do livro nasce dos candles de cada ativo, e a cota não tem candle, então um formador de mercado sintético põe ordens de compra e venda em volta do patrimônio por cota, numa faixa de 20% para cima e para baixo recalculada todo dia; dentro da faixa, o preço sai dos jogadores, e o livro tem contraparte até numa sala de 2; (4) **taxas** — a gestora paga aos gestores taxa de administração todo mês sobre o patrimônio e taxa de performance a cada 6 meses sobre o que passar do CDI, com teto na partida de **2% ao ano de administração e 20% de performance**, e cada gestor escolhe até o teto. A performance respeita a **marca d'água**, o maior patrimônio por cota sobre o qual a taxa já foi cobrada: se a cota cai de R$ 100 para 80 e volta a 100, a recuperação não paga performance. **O lucro fica dentro da gestora** e valoriza a cota. **Por que abrir capital, e quando:** as taxas são sobre o dinheiro dos outros, e com ágio as cotas do próprio gestor valem mais no ranking; o custo é ficar exposto, porque vender mais da metade abre a porta para perder o controle (F103). Abrir cedo, sem histórico, tende a sair com pouca procura; abrir depois de um bom ano tende a sair com ágio. **O gestor e a própria gestora:** o gestor negocia com a gestora pelo livro como qualquer jogador; a linha leva a sigla dele, então a negociação fica à vista, e quem cobra é a sala, vendendo a cota (deságio) ou trocando o gestor (F103). **Regras para o cálculo fechar:** só pessoas compram cotas, nunca gestoras, o que impede a participação cruzada (A com cotas da B, que tem cotas da A). No ranking, cada jogador soma a carteira pessoal, as taxas recebidas e as cotas que tem pelo **preço de ranking**: a média dos negócios dos últimos 20 pregões, ponderada pelo volume e limitada a 30% acima ou abaixo do patrimônio por cota; sem negócio no período, vale o patrimônio por cota. Um ágio de até 30% conta, e um negócio forçado a R$ 1.000 numa cota de R$ 100 conta no máximo como R$ 130. A carteira da gestora só conta através das cotas, sem contar o mesmo dinheiro duas vezes. **Estrutura:** a carteira própria da gestora é a F101; a cota é um ativo no livro de ofertas, com o patrimônio por cota publicado a cada dia. **Nas features seguintes:** emissão de novas cotas e recompra (F102), troca de gestor pela assembleia (F103), co-gestores (F104) e rendimentos mensais (F105). Falta: um protótipo do preço da cota no livro, com o formador sintético e jogadores comprando e vendendo, para calibrar a faixa de 20%.
 
 <a id="f49"></a>
-**F49 — Spike: tutorial animado.** Serve N25. O tutorial segue o molde das Dicas e truques do Factorio: uma janela quase em tela cheia com os tópicos em abas numa lista lateral, e cada tópico ensina desenhando, com uma animação curta do próprio app quando o movimento é o que explica e, no mínimo, uma ilustração, sempre com um texto curto. Os tópicos cobrem como se joga (entrar na sala, comprar uma ação, aplicar em renda fixa, avançar o tempo, ler as estatísticas) e os conceitos que as telas só resumem, como alavancagem, médias móveis e nota de risco: a tela fica com a descrição curta e a dica, e a explicação longa mora aqui. Abre na primeira vez no lobby e fica num botão "Como jogar". O spike faz o mesmo tópico — comprar uma ação — dos três jeitos e compara: (1) **vídeo gravado pelo Playwright**, o mesmo da F47; mais barato e sempre fiel ao app, mas não acompanha o tema escuro nem fica nítido em qualquer tamanho; (2) **animação em código com o `framer-motion`**, que o projeto já tem — os componentes reais com dados de exemplo e um cursor roteirizado; nítido e segue o tema, mas cada tópico é código; (3) **Remotion**, que escreve vídeo em React e tem skills oficiais para agentes de código (`npx remotion skills add`); junta a precisão do código com a saída em vídeo, ao custo de uma ferramenta a mais (a licença é gratuita para uso individual). Critérios: fidelidade ao que o usuário imaginou, nitidez, custo de manter quando a tela muda, e tamanho no executável. Entrada necessária: o roteiro desse tópico (o que aparece, o que se mexe, quanto dura, o texto). Sai daqui com o jeito escolhido e o plano dos tópicos restantes.
+**F49 — Spike: animação dos tópicos do tutorial.** Serve N25. Decide como os tópicos da janela "Como jogar" (F126) se animam quando o movimento é o que explica; a janela, a lista de tópicos e a ilustração estática são da F126. O spike faz o mesmo tópico — comprar uma ação — dos três jeitos e compara: (1) **vídeo gravado pelo Playwright**, o mesmo da F47; mais barato e sempre fiel ao app, mas não acompanha o tema escuro nem fica nítido em qualquer tamanho; (2) **animação em código com o `framer-motion`**, que o projeto já tem — os componentes reais com dados de exemplo e um cursor roteirizado; nítido e segue o tema, mas cada tópico é código; (3) **Remotion**, que escreve vídeo em React e tem skills oficiais para agentes de código (`npx remotion skills add`); junta a precisão do código com a saída em vídeo, ao custo de uma ferramenta a mais (a licença é gratuita para uso individual). Critérios: fidelidade ao que o usuário imaginou, nitidez, custo de manter quando a tela muda, e tamanho no executável. O tema escuro (F37) está sem prioridade, então não seguir o tema pesa pouco hoje. Entrada: o roteiro desse tópico (o que aparece, o que se mexe, quanto dura, o texto), desenhado no canvas junto da F126. Sai daqui com o jeito escolhido e o plano de animação dos tópicos restantes.
 
 <a id="f55"></a>
 **F55 — Modo aquisição hostil.** Serve N23. Um modo de jogo da expansão "Gestoras" (F44) em que perder o controle tira o jogador da partida. Todo o patrimônio de cada jogador está na própria gestora, e quem juntar mais da metade das cotas de outra a incorpora: o dono anterior sai da partida e a gestora dele passa a ser controlada pelo comprador. Vence quem sobrar, ou quem tiver o maior patrimônio na data final. **Carência:** nos primeiros meses (padrão 12) ninguém pode passar de metade de outra gestora, para que abrir capital cedo não seja suicídio. **Ninguém fica invulnerável:** sem oferta pública, a gestora seria impossível de comprar, então no fim da carência todas precisam ter uma parte mínima das cotas no mercado (padrão 50%); quem não abriu capital entra numa oferta automática pelo patrimônio por cota. **Defesa:** recompra de cotas com o caixa da gestora e compra com as taxas recebidas, como uma empresa que recompra ações para não ser comprada. Falta decidir: a parte mínima no mercado; se o incorporado sai da partida ou vira co-gestor do comprador (como numa fusão); e se há um preço mínimo por cota durante a tentativa de aquisição, como nas ofertas públicas de aquisição reais.
