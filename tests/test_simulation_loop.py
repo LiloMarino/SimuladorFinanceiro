@@ -62,6 +62,10 @@ class _FakeSimulation:
         if self.ticks in self.on_tick:
             self.on_tick[self.ticks]()
 
+    def cancel_open_orders(self) -> int:
+        self.log.append("cancel_open_orders")
+        return 0
+
     def end_match(self) -> None:
         self.log.append("end_match")
 
@@ -121,7 +125,12 @@ def test_match_runs_to_the_end_and_releases_the_simulation(loop, monkeypatch):
     loop.join()
 
     assert simulation.ticks == 3
-    assert loop.log == ["flush", "end_match", "simulation_ended"]
+    assert loop.log == [
+        "cancel_open_orders",
+        "flush",
+        "end_match",
+        "simulation_ended",
+    ]
     assert loop.ended == [{"reason": "completed", "simulation_id": SIMULATION_ID}]
     assert loop.still_active_at_end == [False]
     assert not SimulationManager.has_active_simulation()
@@ -209,7 +218,7 @@ def test_stop_ends_the_running_match(loop, monkeypatch):
 
     loop.controller.stop()
 
-    assert "flush" in loop.log
+    assert loop.log[-2:] == ["cancel_open_orders", "flush"]
     assert not SimulationManager.has_active_simulation()
     # O aviso de fim pelo host sai da rota, não do loop
     assert loop.ended == []

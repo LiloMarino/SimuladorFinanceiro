@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import threading
 import time
@@ -90,6 +91,11 @@ class SimulationLoopController:
             self._state = SimulationState.STOPPED
             self._thread = None
 
+        # Ordem aberta não é persistida: a reserva de caixa dela volta antes do flush,
+        # e a retomada parte de um caixa sem reservas.
+        with contextlib.suppress(NoActiveSimulationError):
+            SimulationManager.get_active_simulation().cancel_open_orders()
+
         # Operações feitas depois do último tick (ex.: com o jogo pausado) só viram
         # evento persistido no flush; a retomada parte do que estiver no banco.
         EventManager.flush()
@@ -125,6 +131,7 @@ class SimulationLoopController:
                 except StopIteration:
                     # A partida acaba como no stop(): eventos no banco e simulação
                     # liberada, então o fechamento lê a partida inteira
+                    simulation.cancel_open_orders()
                     EventManager.flush()
                     simulation.end_match()
                     SimulationManager.clear_simulation()

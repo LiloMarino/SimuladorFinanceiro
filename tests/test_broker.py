@@ -335,3 +335,23 @@ def test_cancel_partial_buy_refunds_only_unexecuted_reservation(history):
     assert matching.cancel(order_id=buy.id, client_id=BUYER)
     assert engine.cash[BUYER] == Decimal("940")  # 1000 - 6 ações a 10
     assert broker.get_positions(BUYER)["ABCD"].size == 6
+
+
+def test_cancel_all_returns_every_reservation_and_skips_market_liquidity(history):
+    """Parar a partida cancela as ordens dos jogadores; a liquidez sintética fica."""
+    history({"seller": [(EquityEventType.BUY, "8", 10)]})
+    broker, engine = _broker(buyer="1000")
+    matching = MatchingEngine(broker)
+    buy = _limit(BUYER, OrderAction.BUY, 12, 10)
+    sell = _limit(SELLER, OrderAction.SELL, 20, 10)
+    liquidity = _limit(MARKET, OrderAction.SELL, 30, 5)
+    for order in (buy, sell, liquidity):
+        matching.submit(order)
+    assert engine.cash[BUYER] == Decimal("880")
+
+    assert matching.cancel_all() == 2
+
+    assert engine.cash[BUYER] == Decimal("1000")
+    assert broker.get_available_position(SELLER, "ABCD") == 10
+    assert matching.order_book.find(liquidity.id) is liquidity
+    assert matching.order_book.orders_of(BUYER) == []

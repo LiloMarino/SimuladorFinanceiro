@@ -1,6 +1,7 @@
 import heapq
 from collections import defaultdict
 from datetime import datetime
+from uuid import UUID
 
 from backend.core.enum import OrderAction
 from backend.features.variable_income.entities.order import LimitOrder, Order
@@ -80,6 +81,14 @@ class OrderBook:
                 return order
             heapq.heappop(self._sell_heap[ticker])
         return None
+
+    def all_open(self) -> list[LimitOrder]:
+        """Todas as ordens válidas do book, de qualquer ticker."""
+        return list(self._orders_by_id.values())
+
+    def orders_of(self, client_id: UUID) -> list[LimitOrder]:
+        """Ordens válidas de um cliente, de qualquer ticker."""
+        return [o for o in self._orders_by_id.values() if o.client_id == client_id]
 
     def get_orders(self, ticker: str) -> list[Order]:
         """Retorna todas as ordens válidas (BUY + SELL) para um ticker."""

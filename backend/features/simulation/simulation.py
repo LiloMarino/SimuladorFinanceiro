@@ -213,6 +213,11 @@ class Simulation:
         return canceled
 
     @synchronized
+    def cancel_open_orders(self) -> int:
+        """Cancela as ordens abertas de todos os jogadores, devolvendo as reservas."""
+        return self._engine.matching_engine.cancel_all()
+
+    @synchronized
     def buy_fixed_income(
         self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal
     ) -> None:

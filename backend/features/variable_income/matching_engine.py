@@ -114,6 +114,24 @@ class MatchingEngine:
         self.order_book.remove(order)
         return True
 
+    def cancel_all(self, client_id: UUID | None = None) -> int:
+        """Cancela as ordens abertas de um jogador, ou de todos quando `client_id` é None.
+
+        A liquidez sintética do mercado fica de fora: ela não reserva caixa nem posição.
+        """
+        orders = (
+            self.order_book.all_open()
+            if client_id is None
+            else self.order_book.orders_of(client_id)
+        )
+        canceled = 0
+        for order in orders:
+            if order.client_id == MARKET_CLIENT_ID:
+                continue
+            if self.cancel(order_id=order.id, client_id=order.client_id):
+                canceled += 1
+        return canceled
+
     def _process_market_order(self, mo: LimitOrder) -> bool:
         """Callback usado por MarketLiquidity.refresh.
 
