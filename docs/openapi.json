@@ -2615,6 +2615,48 @@
         }
       }
     },
+    "/api/statistics/next-update": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "Estatísticas: próxima atualização",
+        "description": "Dia da partida em que as estatísticas fecham o mês de novo; nulo quando a partida termina antes.",
+        "operationId": "get_next_update_api_statistics_next_update_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatisticsNextUpdateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/economic-indicators": {
       "get": {
         "tags": [
@@ -11876,6 +11918,29 @@
           "speed"
         ],
         "title": "SpeedUpdateEventDTO"
+      },
+      "StatisticsNextUpdateDTO": {
+        "properties": {
+          "next_update_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Update Date"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "next_update_date"
+        ],
+        "title": "StatisticsNextUpdateDTO",
+        "description": "Quando as estatísticas fecham o mês de novo; nulo se a partida termina antes."
       },
       "StatisticsSnapshotEntryDTO": {
         "properties": {

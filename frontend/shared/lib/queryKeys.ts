@@ -31,6 +31,7 @@ export const queryKeys = {
   portfolioPosition: (ticker: string) => ["portfolio", ticker] as const,
   portfolioCash: () => ["portfolio", "cash"] as const,
   statistics: () => ["statistics"] as const,
+  statisticsNextUpdate: () => ["statistics", "next-update"] as const,
   statisticsReport: (tab: string, simulationIds: number[]) => ["statistics", tab, ...simulationIds] as const,
   correlationAssets: () => ["correlation", "assets"] as const,
   correlation: (tickers: string[], window: string, end: string | null) =>

@@ -58,6 +58,7 @@ export type UserClaimRequest = components["schemas"]["UserClaimRequest"];
 // Statistics
 export type SeriesPoint = components["schemas"]["SeriesPointDTO"];
 export type OverviewReport = components["schemas"]["OverviewReportDTO"];
+export type StatisticsNextUpdate = components["schemas"]["StatisticsNextUpdateDTO"];
 export type Highlights = components["schemas"]["HighlightsDTO"];
 // Toda linha de jogador de qualquer aba traz quem é e em que simulação
 export type Score = NonNullable<OverviewReport["players"][number]["score"]>;

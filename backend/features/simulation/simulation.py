@@ -53,7 +53,7 @@ from backend.core.life_budget import LifeBudget
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
-from backend.core.utils import next_business_day
+from backend.core.utils import next_business_day, next_month_turn
 from backend.features.achievements.catalog import Achievement
 from backend.features.achievements.evaluator import (
     AchievementEvaluator,
@@ -593,6 +593,12 @@ class Simulation:
     @synchronized
     def get_current_date(self) -> date:
         return self._current_date
+
+    @synchronized
+    def next_statistics_update(self) -> date | None:
+        """Dia em que as estatísticas fecham o mês de novo; nulo quando a partida acaba antes."""
+        turn = next_month_turn(self._current_date)
+        return turn if turn <= self.settings.end_date else None
 
     def get_current_date_formatted(self) -> str:
         return self._current_date.strftime("%d/%m/%Y")

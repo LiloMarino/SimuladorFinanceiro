@@ -8,6 +8,7 @@ from backend.core.utils import (
     format_percent,
     is_business_day,
     next_business_day,
+    next_month_turn,
     ratio,
     subtract_business_days,
 )
@@ -33,6 +34,14 @@ def test_next_business_day_skips_weekend():
     assert next_business_day(SATURDAY) == MONDAY
     assert next_business_day(SUNDAY) == MONDAY
     assert next_business_day(MONDAY) == date(2020, 1, 14)
+
+
+def test_next_month_turn_is_first_business_day_of_next_month():
+    """A virada cai no primeiro dia útil do mês seguinte, seja qual for o dia do mês."""
+    assert next_month_turn(date(2020, 1, 15)) == date(2020, 2, 3)
+    assert next_month_turn(date(2020, 1, 31)) == date(2020, 2, 3)
+    assert next_month_turn(date(2020, 2, 3)) == date(2020, 3, 2)
+    assert next_month_turn(date(2020, 12, 10)) == date(2021, 1, 1)
 
 
 def test_business_days_between_skips_weekends():

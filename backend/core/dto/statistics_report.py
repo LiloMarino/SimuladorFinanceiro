@@ -364,6 +364,12 @@ class BestMonthDTO(BaseDTO):
     value: Decimal
 
 
+class StatisticsNextUpdateDTO(BaseDTO):
+    """Quando as estatísticas fecham o mês de novo; nulo se a partida termina antes."""
+
+    next_update_date: date | None
+
+
 class HighlightsDTO(BaseDTO):
     biggest_return: PlayerHighlightDTO | None
     # A queda máxima mais rasa da sala

@@ -924,6 +924,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/statistics/next-update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estatísticas: próxima atualização
+         * @description Dia da partida em que as estatísticas fecham o mês de novo; nulo quando a partida termina antes.
+         */
+        get: operations["get_next_update_api_statistics_next_update_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/economic-indicators": {
         parameters: {
             query?: never;
@@ -4191,6 +4211,14 @@ export interface components {
             /** Speed */
             speed: number;
         };
+        /**
+         * StatisticsNextUpdateDTO
+         * @description Quando as estatísticas fecham o mês de novo; nulo se a partida termina antes.
+         */
+        StatisticsNextUpdateDTO: {
+            /** Next Update Date */
+            next_update_date: string | null;
+        };
         /** StatisticsSnapshotEntryDTO */
         StatisticsSnapshotEntryDTO: {
             /** Player Nickname */
@@ -6838,6 +6866,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OperationsReportDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_next_update_api_statistics_next_update_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatisticsNextUpdateDTO"];
                 };
             };
             /** @description Unprocessable Content */

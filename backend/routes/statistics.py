@@ -11,6 +11,7 @@ from backend.core.dto.statistics_report import (
     OverviewReportDTO,
     ReturnsReportDTO,
     RiskReportDTO,
+    StatisticsNextUpdateDTO,
 )
 from backend.core.runtime.user_manager import UserManager
 from backend.features.statistics.report import (
@@ -87,6 +88,16 @@ def get_composition(simulation_ids: SimulationIds):
 )
 def get_operations(simulation_ids: SimulationIds):
     return build_operations_report(simulation_ids)
+
+
+@statistics_router.get(
+    "/statistics/next-update",
+    response_model=StatisticsNextUpdateDTO,
+    summary="Estatísticas: próxima atualização",
+    description="Dia da partida em que as estatísticas fecham o mês de novo; nulo quando a partida termina antes.",
+)
+def get_next_update(simulation: ActiveSimulation):
+    return StatisticsNextUpdateDTO(next_update_date=simulation.next_statistics_update())
 
 
 @statistics_router.get(

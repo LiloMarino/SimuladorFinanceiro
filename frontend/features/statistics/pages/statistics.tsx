@@ -4,6 +4,7 @@ import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { StatisticsReport } from "../components/statistics-report";
+import { UpdateNotice } from "../components/update-notice";
 
 export default function StatisticsPage() {
   const queryClient = useQueryClient();
@@ -19,7 +20,8 @@ export default function StatisticsPage() {
   if (simulationId === undefined) return null;
 
   return (
-    <section>
+    <section className="space-y-3">
+      <UpdateNotice />
       <StatisticsReport simulationIds={[simulationId]} currentPlayerName={user?.nickname} />
     </section>
   );

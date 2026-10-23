@@ -38,6 +38,13 @@ def next_business_day(d: date) -> date:
     return d
 
 
+def next_month_turn(d: date) -> date:
+    """Primeiro dia útil do mês seguinte ao de `d`: o dia em que a partida vira de mês."""
+    last_day_of_month = d.replace(day=1) + timedelta(days=32)
+    last_day_of_month = last_day_of_month.replace(day=1) - timedelta(days=1)
+    return next_business_day(last_day_of_month)
+
+
 def business_days_between(start: date, end: date) -> int:
     """Quantos dias úteis existem em (start, end]; zero quando end <= start."""
     if end <= start:
