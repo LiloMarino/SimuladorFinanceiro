@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança (2026-10-22):** Registrada a necessidade de encontrar os menores e maiores valores nos dados do jogo (N36). Implementada e arquivada a ordenação em todas as tabelas de dados (F112), com paginação global no histórico e preservação das equipes e da colocação oficial.
+> **Última mudança (2026-10-22):** Implementada e arquivada a expansão Governo, com partidos, eleições, produtos, gasto público, perfis de eleitores e SELIC presidencial (F95, F97, F106, F107 e F125). Registradas as regras versionadas aprovadas para a primeira versão jogável (D17).
 
 ---
 
@@ -125,7 +125,7 @@ Com o tempo correndo, um mês passa em segundos. Quanto o patrimônio andou, se 
 Pegar crédito para aproveitar uma oportunidade é uma decisão real de quem investe, e a mais perigosa: com a SELIC alta, o juro come o ganho; com a carteira caindo, a dívida continua lá. Sem crédito, o jogo não deixa errar (nem acertar) nessa decisão.
 
 **N34. Disputar o poder de mudar as regras da economia da partida**
-Em vez de só reagir aos impostos e ao cenário, chegar ao governo e mexer neles, como nos jogos em que o empresário vira prefeito. É outro jeito de ganhar e de atrapalhar os amigos, e precisa custar caro o bastante para o governo não virar o jogador mais forte da sala.
+Em vez de só reagir aos impostos e ao cenário, chegar ao governo e mexer neles, como nos jogos em que o empresário vira prefeito. É outro jeito de ganhar e de atrapalhar os amigos, e precisa custar caro o bastante para o governo não virar o jogador mais forte da sala. A participação é voluntária: só quem aceita candidatura disputa a presidência. O jogador quer fundar partido, fazer campanha, concorrer contra políticos do computador com programa próprio e entender como uma tarifa sobre um produto afeta empresas e ações, com estatísticas públicas para comparar medidas.
 
 **N35. Tirar da lista as partidas que não interessam mais**
 Partidas de teste, abandonadas no começo ou repetidas se acumulam em "Simulações salvas" e na comparação de partidas, e hoje não há como apagar nenhuma: a lista só cresce, e achar a partida que importa fica cada vez mais difícil.
@@ -313,3 +313,15 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 - Bots (F16) e backtest (F19) rodam as estratégias do app: as prontas e as que quem desenvolve acrescenta. O `.py` no host só cobriria um caso a mais, estratégia própria no backtest para quem tem só o executável. É um público pequeno para o custo de processo filho, timeout, pasta, cópia no banco e contrato de bibliotecas, e para o risco de executar código de fora no PC do host.
 
 **Consequências:** bot pela API não entra no backtest, que não espera entre ticks, e com o tick mais rápido que a reação dele as ordens caem dias depois (números na D5). As estratégias do app rodam no processo do servidor, sem timeout: são código do projeto, testado como o resto. Reabre se aparecer quem queira backtest de estratégia própria sem mexer no código do app; o que o spike mediu para esse caminho está na D5.
+
+
+### D17 — Governo: regras de jogo versionadas e efeitos por partida
+**Status:** ✅ Decidida
+
+**Decisão:** para F95, F97, F106, F107 e F125, usar o modelo `government-v1`, com regras, perfis empresariais e de eleitores congelados por partida e transições determinísticas por semente/data, persistidas em diário próprio. A camada de governo preserva as séries comuns e alimenta preços, impostos, indexadores, projeções, retomada e estatísticas. Hipóteses de empresas são identificadas; ativos sem exposição cadastrada ficam com cobertura insuficiente para produtos. Prévia pública não grava nem movimenta dinheiro. Decisão de SELIC atualiza também o livro e os snapshots no dia, inclusive na pausa.
+
+**Por quê:** o usuário aprovou incluir todo o núcleo e as expansões de produtos, gasto, perfis e juros no mesmo PR, com parâmetros iniciais explícitos para calibrar após jogar. Misturar os efeitos nas séries comuns alteraria outras partidas e impediria comparar a mesma referência. Gravar sorteios e custos juntos evita refazer eleição ou cobrar campanha novamente na retomada.
+
+**Parâmetros aprovados:** impeachment abaixo de 25% por 3 fechamentos consecutivos; alcance mensal `1,4 × raiz(verba / R$ 8 mil)`; cada R$ 100 milhões de investimento soma 1 ponto percentual ao IPCA anual após 30 dias, com meia-vida de 365 dias; cada ponto de SELIC abaixo da referência soma 0,25 ponto ao IPCA após 90 dias. Perfis: investidores 25%, empreendedores 30%, serviços públicos 30% e equilíbrio fiscal 15%, com pesos fixos e aprovação global. A SELIC presidencial tem intervalo mínimo de 45 dias e variação máxima de 0,75 ponto por decisão, 1,5 quando o IPCA supera a meta de 3% em 2 pontos, e 3 quando supera em 10 pontos. O computador respeita os mesmos limites. Na ausência de decisão manual, a reação autônoma de juros usa 1,5 vez o adicional de inflação; o canal monetário da bolsa usa o coeficiente 2,9 e o beta, conforme a D14.
+
+**Consequências:** margens, beta, participações em produtos, orçamento inicial e elasticidades são hipóteses de cenário, não estimativas contábeis ou previsões reais. O orçamento começa em R$ 1 bilhão, recebe IR recolhido e reserva programas de R$ 1 a 100 milhões na aprovação. Medidas permanentes do mesmo tipo/alvo se substituem; programas públicos se somam e decaem. O livro considera a referência atual, enquanto execução continua respeitando as ofertas disponíveis. Coeficientes novos precisam de versão nova, preservando as partidas salvas. A aprovação é mensal e os pesos de eleitores não variam com a economia nesta versão. O vínculo com gestoras só se aplica quando a própria expansão Gestoras existir.

@@ -507,3 +507,39 @@ O `ApiError` do frontend já cai numa mensagem em português por status quando o
 *Kanban:* Ordenação em todas as tabelas de dados · 1. Atende necessidade · ✅ Concluído · atende N36
 
 **F112 — Ordenação em todas as tabelas de dados.** Cabeçalhos com alternância crescente/decrescente em mercado, renda fixa, carteira, book, rankings, relatórios, exposição setorial, métricas da nota, histórico, séries, correlação, desempenho, tráfego e tabelas de ajuda. Comparadores sobre valores originais, textos em português, ausentes no fim e empates estáveis, sem alterar o cache. Escolha mantida nas atualizações enquanto a tabela está montada; membros acompanham a equipe, e a colocação oficial é preservada. Histórico ordenado no servidor antes da paginação, com coluna/direção na chave do cache; matriz mantém os índices originais dos pares ao ordenar os dois eixos. Cobertura: 627 testes de backend aprovados, 3 pulados, 102 de frontend aprovados, TypeScript, ESLint, pyright, Ruff do jogo e build; validação no navegador com dados de teste nos componentes reais. Frontend validado em cópia isolada com dependências anteriormente aprovadas, pois a instalação das versões mais recentes está incompleta; o check geral permanece bloqueado pelas violações preexistentes de .plugin-build. Evidências e limites em docs/docs/desenvolvimento/ordenacao-tabelas.md.
+
+### F95 · arquivado em 2026-10-22
+
+*Kanban:* Expansão Governo: partidos, eleição e impostos · 1. Atende necessidade · ✅ Concluído · atende N34, N23 · decisões D17 · marco M16
+
+**F95 — Expansão Governo: partidos, eleição e impostos.** Partidos por filiação voluntária, contribuição individual, fundador, expulsão, chapa com aceites e recusas, pesquisas, primeiro e segundo turnos, doações entre turnos, adversários autônomos e mandato de quatro anos com uma reeleição. Congresso mensal, fila pública, retirada/reapresentação, noventena, aprovação, impeachment com vice ou governo neutro e carteira presidencial pública/congelada. Regras no lobby em Expansões, desativadas por padrão e com duração mínima de cinco anos. Os rankings individual e por soma de patrimônio dos filiados aparecem no governo e nos relatórios; o critério escolhido orienta resultado salvo e conquistas. Diário por partida e cobrança de campanha atômica/idempotente. Rotas, migração, testes e guias de uso/desenvolvimento implementados. Limites: vitória por partidos exige modo clássico e agrupamento individual; sem partidos humanos, vale o individual. Integração com Gestoras continua condicionada à futura implementação dessa expansão.
+
+### F97 · arquivado em 2026-10-22
+
+*Kanban:* SELIC nas mãos do governo · 1. Atende necessidade · ✅ Concluído · atende N34 · decisões D17, D14 · marco M16 · depende de F106
+
+**F97 — SELIC nas mãos do governo.** Opção por partida no lobby; somente o presidente decide a taxa, inclusive quando o jogo está pausado. Intervalo mínimo de 45 dias e limites de 0,75, 1,5 ou 3 pontos conforme a inflação. O presidente autônomo do computador respeita o mesmo mecanismo. Cada decisão registra taxa e referência; diferencial afeta bolsa, CDI/SELIC e, após 90 dias, inflação pelo coeficiente aprovado de 0,25. Book, cotações, snapshots e caches financeiros dos clientes são atualizados no mesmo dia, preservando a execução pelos preços disponíveis no livro. Limite: CDI e SELIC usam a mesma meta no modelo simplificado; não é uma reprodução institucional do Banco Central.
+
+### F106 · arquivado em 2026-10-22
+
+*Kanban:* Governo: gasto público e inflação · 1. Atende necessidade · ✅ Concluído · atende N34 · decisões D17, D14 · marco M16 · depende de F95
+
+**F106 — Governo: gasto público e inflação.** Programas de investimento público passam pelo Congresso e pela noventena; aprovação reserva o orçamento e vigência o consome uma vez. Tesouro inicial de R$ 1 bilhão, conciliado com DARFs e retenções da renda fixa. O gasto soma IPCA com atraso de 30 dias e meia-vida de 365 dias; juros autônomos reagem por 1,5 vez e ações pelo canal monetário de 2,9 vezes o diferencial de SELIC e beta. Renda fixa, projeções, gráficos e relatórios usam os efeitos da própria partida. Histórico comum preservado; reconstrução lê as transições salvas. Limite: modelo causal simplificado com parâmetros iniciais, sem PIB ou desemprego, a calibrar após jogar.
+
+### F107 · arquivado em 2026-10-22
+
+*Kanban:* Perfis de público na eleição · 1. Atende necessidade · ✅ Concluído · atende N34 · decisões D17 · marco M16 · depende de F95
+
+**F107 — Perfis de público na eleição.** Eleitorado configurável/versionado, com investidores 25%, empreendedores 30%, serviços públicos 30% e equilíbrio fiscal 15% inicialmente. Cada perfil compara distância de programa, alcance de campanha e aprovação do candidato que governa; o segundo turno recalcula a escolha entre finalistas. Resultados incluem votos por perfil e pesquisas agregadas ao longo da campanha. Pesos precisam somar 100%. Limite: pesos permanecem fixos durante a partida e aprovação segue global, conforme a versão inicial aprovada.
+
+### F125 · arquivado em 2026-10-22
+
+*Kanban:* Governo: produtos, empresas e prévia de impacto · 1. Atende necessidade · ✅ Concluído · atende N34 · decisões D17 · marco M16 · depende de F95
+
+**F125 — Governo: produtos, empresas e prévia de impacto.** Catálogo de aço, petróleo/combustíveis, alimentos e tecnologia, com perfis empresariais congelados na partida e exposições de receita/custo importado, repasse, concorrência, margem e beta. Tarifas passam por Congresso/noventena e podem beneficiar produtores ou prejudicar importadores. A mesma camada de preço atende negociação, histórico e composição. Prévia pública estática compara a referência com o efeito total e informa data/horizonte, sem registrar decisão nem gastar; matriz mostra canais empresarial e monetário e cobertura insuficiente quando faltar exposição. Limite: perfis derivados do setor são hipóteses demonstrativas; cadastro explícito de perfis é pela API, e dados contábeis reais/calibragem ficam para evolução após uso.
+
+### M16 · arquivado em 2026-10-22
+
+*Marco:* Governo e economia política · serve N34, N23
+
+> **Objetivo:** Disputar eleições opcionais, governar e comparar os efeitos na economia da partida

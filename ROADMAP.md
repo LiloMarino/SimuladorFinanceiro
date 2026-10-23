@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-23):** Registradas as features F122 a F124: novas conquistas, redesenho do aviso de conquista e o quadrado da marca de volta no cabeçalho da sala.
+> **Última mudança (2026-10-22):** Implementada e arquivada a expansão Governo, com partidos, eleições, produtos, gasto público, perfis de eleitores e SELIC presidencial (F95, F97, F106, F107 e F125). Registradas as regras versionadas aprovadas para a primeira versão jogável (D17).
 
 ## Glossário
 
@@ -89,17 +89,13 @@
 | [**F92**](#f92) | Noticiário da partida | — | 💤 |
 | [**F93**](#f93) | Rumores antecipados | — | 🔍 |
 | [**F94**](#f94) | Crédito | — | ⏳ |
-| [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 🔍 |
 | [**F96**](#f96) | Dicas de análise técnica | — | 💤 |
-| [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 | [**F100**](#f100) | Proventos na carteira e nas telas | — | 🔍 |
 | [**F101**](#f101) | Carteira separada do jogador | — | 💤 |
 | [**F102**](#f102) | Gestoras: emissão de novas cotas e recompra | — | 🔍 |
 | [**F103**](#f103) | Gestoras: troca de gestor pela assembleia | — | 🔍 |
 | [**F104**](#f104) | Gestoras: co-gestores | — | 🔍 |
 | [**F105**](#f105) | Gestoras: rendimentos mensais | — | 🔍 |
-| [**F106**](#f106) | Governo: gasto público e inflação | — | 🔍 |
-| [**F107**](#f107) | Perfis de público na eleição | — | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | — | ⏳ |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
@@ -117,7 +113,7 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -137,6 +133,7 @@
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | — | ✅ |
 | **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | [F7](#f7), [F8](#f8), [F108](#f108) | ✅ |
+| **D17** | Governo: regras de jogo versionadas e efeitos por partida | — | ✅ |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
 | [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
 
@@ -151,7 +148,6 @@
 | ID | Resumo | Marco | Destrava | Status |
 | --- | --- | --- | --- | --- |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | M4 | 7 | ⏳ |
-| [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 3 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
@@ -300,7 +296,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/41 concluídas
+> **Progresso:** 0/37 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -322,15 +318,11 @@
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
 | [**F90**](#f90) | Cenários | [F89](#f89) | 🔍 |
 | [**F94**](#f94) | Crédito | — | ⏳ |
-| [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 🔍 |
-| [**F97**](#f97) | SELIC nas mãos do governo | [F106](#f106) | 🔍 |
 | [**F101**](#f101) | Carteira separada do jogador | — | 💤 |
 | [**F102**](#f102) | Gestoras: emissão de novas cotas e recompra | [F44](#f44) | 🔍 |
 | [**F103**](#f103) | Gestoras: troca de gestor pela assembleia | [F44](#f44) | 🔍 |
 | [**F104**](#f104) | Gestoras: co-gestores | [F44](#f44) | 🔍 |
 | [**F105**](#f105) | Gestoras: rendimentos mensais | [F44](#f44), [F100](#f100) | 🔍 |
-| [**F106**](#f106) | Governo: gasto público e inflação | [F95](#f95) | 🔍 |
-| [**F107**](#f107) | Perfis de público na eleição | [F95](#f95) | 🔍 |
 | [**F110**](#f110) | Combinar estratégias | [F8](#f8) | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | [F8](#f8), [F94](#f94) | 💤 |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
@@ -579,15 +571,11 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 | **F87** | Erros de dado do yfinance na base | Serve N3; encosta na F22 | — | — | 🔍 Em avaliação |
 | **F90** | Cenários | Serve N22; um preset com objetivo | — | [F89](#f89) | 🔍 Em avaliação |
 | **F93** | Rumores antecipados | N31; opção da partida | M15 | [F92](#f92) | 🔍 Em avaliação |
-| **F95** | Expansão Governo: partidos, eleição e impostos | Serve N34, N23; o gasto público é a F106 e os perfis de público são a F107 | — | — | 🔍 Em avaliação |
-| **F97** | SELIC nas mãos do governo | N34; opção da expansão Governo | — | [F106](#f106) | 🔍 Em avaliação |
 | **F100** | Proventos na carteira e nas telas | Fecha o que a F22 deixa em aberto (dividendo nunca entra no caixa); destrava os rendimentos da gestora (F105) | M8 | [F22](#f22) | 🔍 Em avaliação |
 | **F102** | Gestoras: emissão de novas cotas e recompra | Serve N23; falta o prazo da preferência e o preço da emissão | — | [F44](#f44) | 🔍 Em avaliação |
 | **F103** | Gestoras: troca de gestor pela assembleia | Serve N23; falta como a assembleia escolhe o novo gestor | — | [F44](#f44) | 🔍 Em avaliação |
 | **F104** | Gestoras: co-gestores | Serve N23; falta a divisão das taxas | — | [F44](#f44) | 🔍 Em avaliação |
 | **F105** | Gestoras: rendimentos mensais | Serve N23; falta a parte do lucro distribuída | — | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
-| **F106** | Governo: gasto público e inflação | Serve N34; falta quanto cada medida soma ao IPCA | — | [F95](#f95) | 🔍 Em avaliação |
-| **F107** | Perfis de público na eleição | Serve N34; eleitores com perfil sobre a eleição da F95 | — | [F95](#f95) | 🔍 Em avaliação |
 | **F119** | Escolher o intervalo da partida com "hoje" e atalhos | Serve N15 e N30; falta escolher a forma do seletor no canvas | — | — | 🔍 Em avaliação |
 | **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | Serve N15; falta escolher o desenho dos dois cards no canvas; liga à F72 | — | — | 🔍 Em avaliação |
 | **F121** | Comprar tudo a mercado sem estourar o caixa | Serve N15; falta escolher entre ordem por valor, ordem que se ajusta ou Máx com folga | — | — | 🔍 Em avaliação |
@@ -623,12 +611,6 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 <a id="f93"></a>
 **F93 — Rumores antecipados.** Ligado à N31; uma opção da partida, desligada por padrão. O simulador já sabe o futuro: as séries até a data final estão no banco antes de a partida começar, sejam reais ou geradas. O rumor usa isso e chega antes do fato, ao contrário do noticiário (F92): dias antes de um movimento grande (queda forte de um setor, mudança da SELIC), aparece na caixa de entrada algo como "analistas veem risco no varejo". O valor do rumor é obrigar o jogador a pensar: pode acontecer ou não, e a frase pede interpretação. Por isso só uma parte dos rumores se confirma, outra parte é alarme falso sorteado onde nada vai acontecer, e alguns não dizem a direção ("mudanças na diretoria da X"). Falta definir: a taxa de acerto e a antecedência; quão vago o rumor é (setor ou ativo, com ou sem direção); se é da sala inteira ou informação de um jogador só (comprada, como um informante); e se vale no modo Especialista.
 
-<a id="f95"></a>
-**F95 — Expansão "Governo": partidos, eleição e impostos.** Ligado à N34 e à N23. Mesmo molde da expansão "Gestoras" (F44): ligável por partida na aba "Expansões" do lobby, com nome, emblema e card próprios. Inspiração: a expansão de cidades do Capitalism Lab, em que o empresário funda um partido e disputa a prefeitura. Só liga em partida de pelo menos 5 anos, o tempo de uma campanha e um mandato. O card da aba Expansões traz duas opções: **qual ranking decide** a partida (o individual ou o de partidos) e a **dificuldade do computador** (fácil, médio ou difícil). (1) **Partidos:** só se concorre por partido; quem quer concorrer sozinho funda um partido de um filiado. O partido tem nome, sigla e cor (como o emblema da gestora, para não se confundir com jogador) e um **fundador**, que escolhe o candidato e o vice entre os filiados; o vice convidado aceita ou recusa. Cada filiado escolhe a **contribuição mensal** (pode ser zero), que sai do caixa dele e não volta, e a **verba de campanha** do partido é a soma das contribuições; a promessa da régua é a do partido. O jogador fica em um partido por vez; sair é livre e a contribuição para na hora; se quem sai é o candidato ou o vice, a vaga abre e o fundador indica outro filiado. O fundador pode **expulsar** um filiado, e a expulsão sai no feed da partida. Os candidatos do computador vêm de partidos do computador, com sigla e cor (cinza e tracejado nas telas). (2) **Rankings:** o ranking individual e o **ranking de partidos** aparecem lado a lado; o patrimônio do partido é a soma dos patrimônios dos filiados, e a opção do card diz qual dos dois decide a partida. O ganho de governar chega a cada um só pela própria carteira (imposto menor no que ele tem, setor isento que ele carrega), sem caixa do partido para repartir. (3) **Eleição:** a candidatura abre um ano antes. Concorrem os partidos de jogadores que inscrevem chapa e partidos do computador, que **só completam as vagas** quando há menos de 3 chapas. A verba vira apoio aos poucos e com retorno decrescente (dobrar a verba não dobra o voto), e por isso começar cedo pesa. Verba, contribuições e promessa são **públicas**, e o que cada filiado contribui **sai do patrimônio** dele no ranking. Uma pesquisa de intenção de voto mostra a corrida num gráfico ao longo dos meses, com a cor e a sigla de cada partido. Se ninguém passar de 50%, há **segundo turno 3 semanas depois** (1º turno em 7 de outubro, 2º em 28): os eleitores de quem ficou de fora vão para o finalista com a promessa mais parecida na régua. Entre os turnos, um jogador de partido eliminado pode **doar verba a um finalista**, a favor ou contra quem lidera; a doação é pública e sai do patrimônio dele. **Computador:** a verba mensal dele é 0,5, 1 ou 1,5 vez a média dos jogadores (fácil, médio ou difícil), e a promessa dele vai para a faixa mais vazia da régua. Mandato de 4 anos, com uma reeleição. (4) **Impostos por setor:** o governo mexe nos impostos que o jogo já cobra (os 15% e 20% da renda variável, a isenção de vendas de ações até R$ 20 mil, a tabela regressiva da renda fixa, a isenção de LCI e LCA) e pode taxar ou isentar um setor ou segmento, que todo ativo já tem: "isentar o IR de energia", "taxar bancos em mais 5 pontos". Imposto vale em qualquer período, porque não mexe em preço. (5) **Ritmo das medidas:** o presidente propõe a qualquer momento e a medida entra numa **fila do Congresso, pública desde a proposta**, sem pausar a partida. O Congresso vota a fila no fechamento do mês, com chance de passar igual à aprovação do governo (40% de aprovação, 40% de chance); o presidente pode retirar uma medida antes do voto, e a rejeitada pode voltar à fila. A aprovada só vale **90 dias depois**, como a noventena, para os outros terem tempo de reagir. (6) **Aprovação:** uma métrica sempre à vista, com o histórico num gráfico, que começa em 50% na posse e se move pelos fatores: inflação na meta soma 4 pontos e cada ponto de inflação acima da meta tira 3; a bolsa nos últimos 12 meses soma ou tira 1 ponto a cada 5% de alta ou queda (até 6 pontos); imposto novo tira de 1 a 5 pontos quando passa a valer, efeito que some em 6 meses; corte de imposto soma de 1 a 3; e a promessa descumprida tira 3 pontos por faixa de distância na régua. **Régua de 1 a 5:** corte geral de imposto é 1, isenção setorial 2, taxar um setor 4 e imposto geral novo 5 (o gasto público da F106 fica entre 4 e 5); a marca do governo é a média das medidas aprovadas, e a distância dela até a promessa da campanha é a que pesa. Aprovação baixa perde a reeleição e, abaixo de um piso por meses seguidos, leva a **impeachment**: assume o **vice**; sem vice, um governo neutro do computador, sem medidas novas, até a próxima eleição. No impeachment, a medida já aprovada segue os 90 dias, a fila não votada some e a carteira de quem saiu volta a operar. (7) **O presidente e a própria carteira:** ele **vence pelo patrimônio**, como todos, e tem a **carteira congelada**: não compra nem vende enquanto governa, porque sabe da medida antes de todos. Governar a favor da carteira congelada é o jeito de ele ganhar governando, e faz parte do jogo: quem vai assumir monta a carteira antes da posse, por isso a carteira congelada do presidente é pública, para a sala ler o interesse dele e se posicionar contra ou junto. Com a expansão Gestoras ligada, na posse ele deixa de operar a gestora e de receber taxas; um co-gestor (F104) assume, e sem co-gestor a gestora congela até o fim do mandato; as cotas que ele tem continuam dele. (8) **SELIC:** o Banco Central segue autônomo, como no Brasil desde 2021, e a SELIC reage à inflação como no gerador; a opção de pô-la nas mãos do governo é a F97. **Nas features seguintes:** o gasto público e a inflação, o efeito das medidas por cima das séries (F106), e os perfis de público na eleição (F107). Falta definir: o piso de aprovação e quantos meses abaixo dele levam ao impeachment, e a curva que transforma verba em apoio.
-
-<a id="f97"></a>
-**F97 — SELIC nas mãos do governo.** Ligado à N34; uma opção da expansão "Governo" (F95), no lugar do Banco Central autônomo. (1) **Ritmo do Copom:** o governo decide a SELIC em reuniões a cada 45 dias, como o Copom, que se reúne 8 vezes por ano desde 2006; entre reuniões ela não muda. (2) **Teto por reunião, pelo que aconteceu de verdade.** Das 150 mudanças da meta da SELIC entre 2000 e outubro de 2026 (série do Banco Central): 34 foram de 0,25 ponto, 67 de 0,5, 19 de 0,75, 19 de 1, 7 de 1,5, uma de 2, uma de 2,5 (cortes de 2003) e duas de 3 (as altas da crise de 2002); desde 2006, nunca passou de 1,5. O teto acompanha isso: até 0,75 ponto por reunião em tempo normal (80% das mudanças reais), 1,5 com a inflação bem acima da meta, como em 2021 e 2022, e 3 só com a inflação explodindo, como em 2002. (3) **O preço de cada lado:** a SELIC abaixo do que o Banco Central autônomo faria (a da série, ou a do gerador) faz a inflação subir com alguns meses de atraso, pelo mesmo mecanismo de efeito por cima das séries da F106, e inflação alta derruba a aprovação; a SELIC alta demais derruba a bolsa pelo coeficiente da D14, o que também pesa na aprovação. Falta definir: quanto a inflação reage à SELIC e com quanto atraso (medir no histórico, como a D14 mediu a reação da SELIC à inflação), e os limites de inflação que liberam cada degrau do teto.
-
 <a id="f100"></a>
 **F100 — Proventos na carteira e nas telas.** Ligado à F22 e à F44. Hoje o conceito de provento não existe no jogo: o preço vem ajustado por dividendos, o dinheiro nunca entra no caixa e nem os FIIs importados pagam rendimento mensal. Esta feature cria o provento como evento da partida: (1) **a fonte** é a que a F22 escolher; o `yfinance` traz a lista de dividendos de cada ativo, e é daí que saem os proventos reais; onde a API não trouxer (ativo gerado, ou sem histórico), eles são **gerados sinteticamente** com um rendimento coerente com o ativo (por exemplo, o dividend yield médio do setor), sorteado pela semente da partida, para todos receberem os mesmos nos mesmos dias; (2) **o crédito** entra no caixa na data ex (ou na de pagamento, a decidir) e vira evento reconstruível, como as ordens; (3) **as telas**: a carteira ganha o total de proventos recebidos e o rendimento (yield) de cada posição, o detalhe do ativo ganha o histórico de proventos, e as estatísticas e o fechamento da partida contam o que entrou; (4) **IR**: a tributação de provento (isenção de dividendo e de FII para pessoa física) segue a regra do mercado brasileiro. Destrava os rendimentos mensais da gestora (F105), que só distribui como um FII depois desta. Falta decidir: data ex ou de pagamento; se o provento reinveste sozinho; e como o yield sintético é calibrado.
 
@@ -643,12 +625,6 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 
 <a id="f105"></a>
 **F105 — Gestoras: rendimentos mensais.** Serve N23; amplia a expansão Gestoras (F44) e espera os proventos (F100), porque hoje nem os FIIs importados pagam rendimento. Como um FII, a gestora distribui todo mês parte do lucro aos cotistas, em dinheiro no caixa de cada um, e a cota deixa de render só por valorização. Falta decidir: a parte do lucro distribuída (os FIIs reais distribuem pelo menos 95% do lucro do semestre), se ela é fixa ou escolha do gestor, e o que conta como lucro (só o realizado ou também a valorização da carteira).
-
-<a id="f106"></a>
-**F106 — Governo: gasto público e inflação.** Ligado à N34; amplia a expansão Governo (F95) com a segunda alavanca, o gasto público, que mexe na economia em vez de só nos impostos. A medida vira um efeito por cima das séries, do mesmo jeito que o impacto de preço de ordens grandes: o preço do dia é o da série vezes (1 + a soma dos efeitos ativos), cada efeito nasce de um evento, vale cheio no começo e decai com o tempo, e tudo se reconstrói a partir dos eventos numa retomada. Aqui o efeito soma pontos ao IPCA, e o resto segue os coeficientes que a D14 já mediu: a SELIC reage com 1,5 vez a inflação (com o Banco Central autônomo) e a bolsa cai 2,9% no trimestre por ponto de alta da SELIC, ativo a ativo pelo beta. A série guardada não muda, e por isso vale também na história real. Gastar puxa a régua da campanha para "gasto alto", e a inflação que vem dele derruba a aprovação. Falta definir: quantos pontos de IPCA cada medida de gasto soma, com quanto atraso e em quanto tempo o efeito decai; e se, na história real, a SELIC da série também ganha o efeito, para reagir à inflação somada.
-
-<a id="f107"></a>
-**F107 — Perfis de público na eleição.** Ligado à N34; amplia a eleição da expansão Governo (F95). Em vez de um eleitorado único, a eleição ganha eleitores artificiais agrupados em perfis (por exemplo, quem vive de renda, quem empreende, quem depende de serviço público), cada um com a própria posição na régua de promessa e a própria sensibilidade à verba. A transferência de votos do segundo turno deixa de ser "vai inteiro para o finalista com a promessa mais parecida" e passa a ser perfil a perfil, pela distância entre a promessa de cada finalista e a posição daquele perfil, e a pesquisa de intenção de voto pode mostrar o voto por perfil. Falta definir: quais perfis existem e quanto cada um pesa no eleitorado, se o peso muda com a economia da partida (desemprego, inflação), e se a aprovação do governo também passa a ser medida por perfil.
 
 <a id="f119"></a>
 **F119 — Escolher o intervalo da partida com "hoje" e atalhos.** Hoje o início e o fim são dois `DateField` (máscara dd/mm/aaaa e um calendário em popover, de 1993 a 2040) no `rules-sheet.tsx`, e o calendário não tem "hoje" nem atalho nenhum: montar um período como "os últimos 10 anos" é digitar duas datas. O que falta definir é a forma de escolher: (a) manter os dois campos e acrescentar ao calendário um botão "Hoje" e à linha de baixo atalhos de período ("últimos 5, 10 e 20 anos", "desde o início da série"); (b) trocar por um seletor de intervalo único, com o período todo num calendário só e o mesmo conjunto de atalhos; (c) um controle de período por anos, com o calendário só para o ajuste fino. Depende de ver as variantes no canvas, mantendo o aviso de cobertura de dados (`CoverageAlerts`). Sai daqui para Pendente com a variante escolhida.
