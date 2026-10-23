@@ -58,7 +58,6 @@
 | **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | [F115](#f115) | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
-| [**F9**](#f9) | Estratégias prontas de exemplo | — | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F16**](#f16) | Bots na sala | — | ⏳ |
@@ -112,7 +111,7 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | **D16** | Estratégias do app no host, personalização pela API | [F7](#f7), [F8](#f8), [F108](#f108) | ✅ |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ✅ |
+| [**F9**](#f9) | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | — | ✅ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ✅ |
 | [**F94**](#f94) | Crédito | — | ✅ |
 | [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
@@ -156,7 +156,6 @@
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F89**](#f89) | Presets de partida | — | 1 | ⏳ |
-| [**F9**](#f9) | Estratégias prontas de exemplo | M4 | 0 | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | M4 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
@@ -201,20 +200,20 @@
 >
 > **Serve:** N4
 >
-> **Progresso:** 2/5 concluídas
+> **Progresso:** 3/5 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F9**](#f9) | Estratégias prontas de exemplo | [F8](#f8) | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | [F8](#f8) | ⏳ |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | — | ⏳ |
 
-<details><summary>Concluído (2 itens)</summary>
+<details><summary>Concluído (3 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | [F7](#f7) | ✅ |
+| [**F9**](#f9) | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | [F8](#f8) | ✅ |
 
 </details>
 
@@ -359,7 +358,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Link de convite pela internet no lobby | N2 | — | M3 | [F5](#f5) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F8** | Modo automático: estratégia do jogador roda a cada tick | N4 | D16, D8 | M4 | [F7](#f7) | Médio | Médio | Alto | Bom | ✅ Concluído |
-| **F9** | Estratégias prontas de exemplo | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F9** | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F16** | Bots na sala | N8 | D8 | M6 | [F8](#f8) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
