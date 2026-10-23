@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 
 import pytest
 
@@ -63,7 +64,7 @@ def _limit(
         client_id=uuid_client_id,
         ticker="ABCD",
         price=price,
-        size=size,
+        size=Decimal(size),
         action=action,
         created_at=created_at or datetime.now(UTC),
     )
@@ -79,7 +80,7 @@ def _market(
     return MarketOrder(
         client_id=uuid_client_id,
         ticker="ABCD",
-        size=size,
+        size=Decimal(size),
         action=action,
     )
 

@@ -27,9 +27,9 @@ class Quote:
 @dataclass(frozen=True)
 class Holding:
     ticker: str
-    size: int
+    size: Decimal
     # Parte da posição presa em ordens abertas
-    reserved: int
+    reserved: Decimal
     avg_price: Decimal
 
 
@@ -50,7 +50,7 @@ class OpenOrder:
     action: OrderAction
     # Nulo é ordem a mercado
     price: float | None
-    remaining: int
+    remaining: Decimal
 
 
 @dataclass(frozen=True)
@@ -89,12 +89,20 @@ class StrategyContext:
         return self.history_source(ticker, days)
 
     def buy(
-        self, ticker: str, quantity: int, reason: str, limit: float | None = None
+        self,
+        ticker: str,
+        quantity: Decimal | int,
+        reason: str,
+        limit: float | None = None,
     ) -> None:
         self.intents.append(intents.buy(ticker, quantity, reason, limit))
 
     def sell(
-        self, ticker: str, quantity: int, reason: str, limit: float | None = None
+        self,
+        ticker: str,
+        quantity: Decimal | int,
+        reason: str,
+        limit: float | None = None,
     ) -> None:
         self.intents.append(intents.sell(ticker, quantity, reason, limit))
 

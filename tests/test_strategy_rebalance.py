@@ -18,7 +18,7 @@ LIQUID = offer(daily_liquidity=True, name="CDB Liquidez Diária")
 
 
 def shares(quantity: int) -> dict[str, Holding]:
-    return {"AAA": Holding("AAA", quantity, 0, Decimal(100))}
+    return {"AAA": Holding("AAA", Decimal(quantity), Decimal(0), Decimal(100))}
 
 
 def fixed(
@@ -118,7 +118,7 @@ def test_what_the_strategy_does_not_manage_stays_put():
     ctx = context(
         cash="0",
         history={"AAA": closes([100.0]), "OTHER": closes([100.0])},
-        holdings={"OTHER": Holding("OTHER", 80, 0, Decimal(100))},
+        holdings={"OTHER": Holding("OTHER", Decimal(80), Decimal(0), Decimal(100))},
         fixed_holdings=[fixed("2000", daily=False)],
         offers=[LIQUID],
     )
@@ -130,7 +130,7 @@ def test_what_the_strategy_does_not_manage_stays_put():
 
 def test_the_part_of_the_asset_held_by_open_orders_is_not_sold():
     ctx = run(
-        holdings={"AAA": Holding("AAA", 70, 65, Decimal(100))},
+        holdings={"AAA": Holding("AAA", Decimal(70), Decimal(65), Decimal(100))},
         fixed_holdings=[fixed("3000")],
     )
 

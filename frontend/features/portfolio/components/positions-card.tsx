@@ -8,7 +8,7 @@ import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
-import { displayMoney, displayPercent, displayRateLabel } from "@/shared/lib/utils/display";
+import { displayMoney, displayPercent, displayQuantity, displayRateLabel } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
@@ -59,7 +59,7 @@ function EmptyPositions({
 export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
   const navigate = useNavigate();
   const stockSort = useTableSort(portfolio.variable_income, {
-    name: p => p.ticker, quantity: p => p.size, average: p => Number(p.avg_price), price: p => Number(p.current_price),
+    name: p => p.ticker, quantity: p => Number(p.size), average: p => Number(p.avg_price), price: p => Number(p.current_price),
     value: p => Number(p.current_value), share: p => Number(p.portfolio_pct), result: p => Number(p.return_value),
   });
   const bondSort = useTableSort(portfolio.fixed_income, {
@@ -135,7 +135,7 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                         <span className="text-xs text-muted-foreground">{p.name}</span>
                       </div>
                     </TableCell>
-                    <TableCell numeric>{p.size}</TableCell>
+                    <TableCell numeric>{displayQuantity(p.size)}</TableCell>
                     <TableCell numeric>{displayMoney(p.avg_price)}</TableCell>
                     <TableCell numeric>{displayMoney(p.current_price)}</TableCell>
                     <TableCell numeric>{displayMoney(p.current_value)}</TableCell>

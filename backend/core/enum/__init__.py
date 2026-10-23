@@ -130,6 +130,12 @@ class AssetClass(Enum):
     FII = "FII"
     ETF = "ETF"
     BDR = "BDR"
+    CRYPTO = "CRYPTO"
+
+    @property
+    def fractional(self) -> bool:
+        """Só a cripto negocia fração de unidade."""
+        return self is AssetClass.CRYPTO
 
 
 class SimulationStatus(Enum):

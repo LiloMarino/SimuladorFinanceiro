@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Callable
+from decimal import Decimal
 
 from backend.core.enum import OrderAction
 from backend.features.variable_income.entities.candle import Candle
@@ -98,7 +99,7 @@ class MarketLiquidity:
                     client_id=MARKET_CLIENT_ID,
                     ticker=candle.ticker,
                     price=level.price,
-                    size=level.volume,
+                    size=Decimal(level.volume),
                     action=action,
                 )
             )
@@ -123,14 +124,14 @@ class MarketLiquidity:
                 client_id=MARKET_CLIENT_ID,
                 ticker=candle.ticker,
                 price=price - tick,
-                size=half_volume,
+                size=Decimal(half_volume),
                 action=OrderAction.BUY,
             ),
             LimitOrder(
                 client_id=MARKET_CLIENT_ID,
                 ticker=candle.ticker,
                 price=price + tick,
-                size=candle.volume - half_volume,
+                size=Decimal(candle.volume - half_volume),
                 action=OrderAction.SELL,
             ),
         ]

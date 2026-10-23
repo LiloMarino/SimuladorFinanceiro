@@ -1,5 +1,5 @@
 import { actionLabel, plural } from "@/shared/lib/strategy-orders";
-import { displayDayMonth } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayQuantity } from "@/shared/lib/utils/display";
 import type { StrategyGroup, StrategyOrderStatus, StrategyPanel } from "@/types";
 
 /** Situação da ordem na tabela do registro: o rótulo e o tom do selo. */
@@ -29,7 +29,7 @@ export function ordersBreakdown(panel: StrategyPanel) {
 /** "Vendeu 200 VALE3", ou o título aplicado na renda fixa. */
 export function lastOrderTitle(last: NonNullable<StrategyPanel["last_order"]>) {
   const what = last.ticker ?? last.asset_name ?? "";
-  const quantity = last.quantity === null ? "" : `${last.quantity} `;
+  const quantity = last.quantity === null ? "" : `${displayQuantity(last.quantity)} `;
   return `${actionLabel(last.action)} ${quantity}${what}`.trim();
 }
 

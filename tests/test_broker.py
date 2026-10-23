@@ -43,7 +43,7 @@ def history(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEventDTO]
                     ticker="ABCD",
                     event_type=event_type,
                     price=Decimal(price),
-                    quantity=quantity,
+                    quantity=Decimal(quantity),
                 )
                 for event_type, price, quantity in trades
             ]
@@ -69,14 +69,22 @@ def _broker(**cash: str) -> tuple[Broker, FakeSimulationEngine]:
     return Broker(engine, threading.RLock()), engine
 
 
-def _limit(client_id, action: OrderAction, price: float, size: int) -> LimitOrder:
+def _limit(
+    client_id, action: OrderAction, price: float, size: Decimal | int
+) -> LimitOrder:
     return LimitOrder(
-        client_id=client_id, ticker="ABCD", price=price, size=size, action=action
+        client_id=client_id,
+        ticker="ABCD",
+        price=price,
+        size=Decimal(size),
+        action=action,
     )
 
 
-def _market(client_id, action: OrderAction, size: int) -> MarketOrder:
-    return MarketOrder(client_id=client_id, ticker="ABCD", size=size, action=action)
+def _market(client_id, action: OrderAction, size: Decimal | int) -> MarketOrder:
+    return MarketOrder(
+        client_id=client_id, ticker="ABCD", size=Decimal(size), action=action
+    )
 
 
 def test_to_money_keeps_decimal_text():
@@ -149,7 +157,7 @@ def test_release_buy_refunds_only_remaining(history):
     broker, engine = _broker(buyer="1000")
     order = _limit(BUYER, OrderAction.BUY, 12, 10)
     broker.reserve_limit_order(order)
-    order.remaining = 4
+    order.remaining = Decimal(4)
 
     broker.release_limit_order(order)
 
@@ -165,7 +173,7 @@ def test_limit_buy_filled_below_limit_refunds_difference(history, captured_event
     broker.execute_trade(
         taker_order=order,
         maker_order=_limit(MARKET, OrderAction.SELL, 10, 10),
-        size=10,
+        size=Decimal(10),
         price=10,
     )
 
@@ -185,7 +193,7 @@ def test_market_buy_debits_trade_cost(history):
     broker.execute_trade(
         taker_order=_market(BUYER, OrderAction.BUY, 5),
         maker_order=_limit(MARKET, OrderAction.SELL, 10.5, 5),
-        size=5,
+        size=Decimal(5),
         price=10.5,
     )
 
@@ -200,7 +208,7 @@ def test_market_buy_without_cash_is_rejected(history, captured_events):
         broker.execute_trade(
             taker_order=_market(BUYER, OrderAction.BUY, 5),
             maker_order=_limit(MARKET, OrderAction.SELL, 10, 5),
-            size=5,
+            size=Decimal(5),
             price=10,
         )
 
@@ -219,7 +227,7 @@ def test_market_sell_beyond_free_quantity_is_rejected(history):
         broker.execute_trade(
             taker_order=_market(SELLER, OrderAction.SELL, 5),
             maker_order=_limit(MARKET, OrderAction.BUY, 10, 5),
-            size=5,
+            size=Decimal(5),
             price=10,
         )
 
@@ -234,7 +242,7 @@ def test_limit_sell_credits_cash_and_closes_position(history, captured_events):
     broker.execute_trade(
         taker_order=order,
         maker_order=_limit(MARKET, OrderAction.BUY, 11, 10),
-        size=10,
+        size=Decimal(10),
         price=11,
     )
 
@@ -252,7 +260,7 @@ def test_market_liquidity_side_has_no_cash_or_events(history, captured_events):
     broker.execute_trade(
         taker_order=_market(BUYER, OrderAction.BUY, 2),
         maker_order=_limit(MARKET, OrderAction.SELL, 10, 2),
-        size=2,
+        size=Decimal(2),
         price=10,
     )
 
@@ -268,7 +276,7 @@ def test_non_positive_size_is_rejected(history):
         broker.execute_trade(
             taker_order=_market(BUYER, OrderAction.BUY, 1),
             maker_order=_limit(MARKET, OrderAction.SELL, 10, 1),
-            size=0,
+            size=Decimal(0),
             price=10,
         )
 
@@ -355,3 +363,22 @@ def test_cancel_all_returns_every_reservation_and_skips_market_liquidity(history
     assert broker.get_available_position(SELLER, "ABCD") == 10
     assert matching.order_book.find(liquidity.id) is liquidity
     assert matching.order_book.orders_of(BUYER) == []
+
+
+def test_fractional_quantity_moves_cash_and_position_exactly(history):
+    """Cripto negocia fração: caixa e posição acompanham a quantidade em oito casas."""
+    broker, engine = _broker(buyer="100000")
+    order = _market(BUYER, OrderAction.BUY, Decimal("0.12345678"))
+
+    broker.execute_trade(
+        taker_order=order,
+        maker_order=_limit(MARKET, OrderAction.SELL, 50000, Decimal("1")),
+        size=Decimal("0.12345678"),
+        price=50000,
+    )
+
+    position = broker.get_positions(BUYER)["ABCD"]
+    assert position.size == Decimal("0.12345678")
+    assert position.avg_price == Decimal("50000")
+    assert engine.cash[BUYER] == Decimal("100000") - Decimal("6172.839")
+    assert broker.get_available_position(BUYER, "ABCD") == Decimal("0.12345678")

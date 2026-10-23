@@ -31,7 +31,7 @@ def order(
         event_date=day,
         ticker=ticker,
         event_type=kind,
-        quantity=10,
+        quantity=Decimal(10),
         price=Decimal(20),
     )
 

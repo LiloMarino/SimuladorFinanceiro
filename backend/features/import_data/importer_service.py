@@ -152,13 +152,15 @@ FII_NAME = re.compile(r"\bFII\b|fundo\s+(de\s+investimento\s+)?imobili", re.IGNO
 
 
 def infer_asset_class(ticker: str, info: dict | None = None) -> AssetClass:
-    """A classe vem do tipo que o yfinance devolve (`quoteType`): ETF é ETF e ação
-    é ação, exceto fundo imobiliário (indústria REIT ou nome de fundo) e BDR (sufixo).
+    """A classe vem do tipo que o yfinance devolve (`quoteType`): ETF é ETF, criptomoeda
+    é cripto e ação é ação, exceto fundo imobiliário (indústria REIT ou nome de fundo) e BDR (sufixo).
     Sem o dado do yfinance, vale o final do código. O usuário confere na Central de dados."""
     info = info or {}
     quote_type = str(info.get("quoteType") or "").upper()
     if quote_type == "ETF":
         return AssetClass.ETF
+    if quote_type == "CRYPTOCURRENCY":
+        return AssetClass.CRYPTO
     if quote_type == "EQUITY":
         name = f"{info.get('longName') or ''} {info.get('shortName') or ''}"
         if str(info.get("industry") or "").upper().startswith(

@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { displayCompactNumber, displayMoney, displaySignedPercent } from "@/shared/lib/utils/display";
+import { displayCompactNumber, displayMoney, displayQuantity, displaySignedPercent } from "@/shared/lib/utils/display";
 import type { MarketQuote } from "@/types";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
@@ -21,6 +21,7 @@ const CLASS_LABELS: Record<MarketQuote["asset_class"], string | null> = {
   FII: "FII",
   ETF: "ETF",
   BDR: "BDR",
+  CRYPTO: "Cripto",
 };
 
 /** Onde o fechamento ficou entre a mínima e a máxima do dia. */
@@ -64,7 +65,7 @@ function Sparkline({ values }: { values: number[] }) {
 
 type MarketTableProps = {
   quotes: MarketQuote[];
-  holdings: Map<string, number>;
+  holdings: Map<string, string>;
   /** Erro, base vazia ou filtro sem resultado: ocupa uma linha, com o cabeçalho mantido */
   message: ReactNode;
 };
@@ -75,7 +76,7 @@ export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
     ticker: q => q.ticker, price: q => q.close, day: q => q.change_pct,
     range: q => q.high - q.low,
     month: q => q.sparkline.length > 1 && q.sparkline[0] !== 0 ? q.sparkline.at(-1)! / q.sparkline[0] - 1 : null,
-    volume: q => q.volume, held: q => holdings.get(q.ticker) ?? 0,
+    volume: q => q.volume, held: q => Number(holdings.get(q.ticker) ?? 0),
   });
 
   return (
@@ -129,7 +130,8 @@ export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
               <TableCell numeric>
                 {held ? (
                   <Badge variant="info">
-                    {held} {held === 1 ? "ação" : "ações"}
+                    {displayQuantity(held)}
+                    {q.asset_class !== "CRYPTO" && (Number(held) === 1 ? " ação" : " ações")}
                   </Badge>
                 ) : (
                   <span className="text-faint-foreground">—</span>

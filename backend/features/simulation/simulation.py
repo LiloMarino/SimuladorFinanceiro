@@ -229,6 +229,7 @@ class Simulation:
     @synchronized
     def create_order(self, order: Order) -> None:
         self._strategies.ensure_manual(order.client_id)
+        self._engine.check_quantity(order.ticker, order.size)
         try:
             self._engine.matching_engine.submit(order)
         finally:
@@ -760,8 +761,8 @@ class Simulation:
             if position
             else PositionDTO(
                 ticker=ticker,
-                size=0,
-                reserved=0,
+                size=Decimal(0),
+                reserved=Decimal(0),
                 total_cost=Decimal(0),
                 avg_price=Decimal(0),
                 current_price=Decimal(0),
@@ -785,7 +786,7 @@ class Simulation:
         client_id: UUID,
         ticker: str,
         action: OrderAction,
-        quantity: int,
+        quantity: Decimal,
         limit_price: float | None,
     ) -> OrderPreviewDTO:
         return self._engine.preview_order(

@@ -39,7 +39,7 @@ A tabela lista todas as séries guardadas no banco: primeiro os indicadores econ
 - **Setor · segmento**: a classificação da ação (ver abaixo). Indicadores mostram "—".
 - **Linha do tempo**: barra com o período coberto. O trecho com dado real aparece em uma cor e, depois dele, o trecho gerado em outra cor. Todas as barras usam a mesma régua de tempo, então dá para comparar visualmente quais séries cobrem mais anos. Passe o mouse sobre a barra para ver as datas: "Real: início → fim · gerado até …". Séries sem futuro gravado não têm trecho gerado, e depois do fim do dado gerado a partida repete o último valor da série (ver "Gerar dados futuros", abaixo).
 - **Situação**: se a série está em dia ou parou de atualizar. Uma ação que parou mostra o selo **Parou em** com a data do último preço.
-- **Ações**: o botão **Atualizar** da linha e, nas ações, a **classe do ativo** (ex.: Ação).
+- **Ações**: o botão **Atualizar** da linha e, nas ações, a **classe do ativo** (Ação, FII, ETF, BDR ou Cripto).
 - **Apagar** (lixeira, só nos ativos): remove o ativo da base com os preços, o perfil e a classificação, depois de uma confirmação. É a saída para um ativo importado com dado errado. Um ativo negociado em alguma partida salva não pode ser apagado: a Central avisa em quantas partidas ele aparece, e é preciso excluir essas partidas no lobby antes. Depois de apagar, o futuro gerado passa a pedir recálculo.
 
 ### Setor e segmento das ações
@@ -117,7 +117,7 @@ O simulador pode buscar dados diretamente do **Yahoo Finance** usando a bibliote
 - FIIs: `XPML11`, `HGLG11`, `MXRF11`
 - ETFs: `BOVA11` (Ibovespa), `SMAL11` (Small Caps)
 
-O campo sugere os códigos da B3 enquanto você digita. O simulador guarda o código da B3 sem o sufixo `.SA` do Yahoo Finance e o acrescenta sozinho ao buscar; se você digitar `PETR4.SA`, ele vira `PETR4`. Cripto e ativos de outras bolsas (`BTC-USD`, `AAPL`) seguem como o Yahoo Finance os conhece.
+O campo sugere os códigos da B3 enquanto você digita. O simulador guarda o código da B3 sem o sufixo `.SA` do Yahoo Finance e o acrescenta sozinho ao buscar; se você digitar `PETR4.SA`, ele vira `PETR4`. Cripto e ativos de outras bolsas (`BTC-USD`, `AAPL`) seguem como o Yahoo Finance os conhece; uma criptomoeda entra com a classe **Cripto**, a única negociada em fração de unidade.
 
 :::warning Limitações do Yahoo Finance
 A importação via Yahoo Finance depende da **API externa** deles, que pode ter:

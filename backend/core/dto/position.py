@@ -7,8 +7,8 @@ from backend.core.dto.base import BaseDTO
 
 class PositionDTO(BaseDTO):
     ticker: str
-    size: int
-    reserved: int
+    size: Decimal
+    reserved: Decimal
     total_cost: Decimal
     avg_price: Decimal
     current_price: Decimal

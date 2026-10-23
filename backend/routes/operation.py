@@ -29,7 +29,7 @@ operation_router = APIRouter(prefix="/api", tags=["Operations"])
 
 
 class SubmitOrderRequest(BaseModel):
-    quantity: int = Field(..., gt=0)
+    quantity: Decimal = Field(..., gt=0, decimal_places=8)
     type: str
     action: str
     limit_price: float | None = None
@@ -166,7 +166,7 @@ def cancel_order(
 
 class OrderPreviewRequest(BaseModel):
     action: OrderAction
-    quantity: int = Field(..., ge=0)
+    quantity: Decimal = Field(..., ge=0, decimal_places=8)
     limit_price: float | None = Field(default=None, gt=0)
 
 

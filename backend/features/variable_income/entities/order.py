@@ -2,6 +2,7 @@ import uuid
 from abc import ABC
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from decimal import Decimal
 
 from backend.core.dto.order import OrderDTO
 from backend.core.enum import OrderAction, OrderStatus, OrderType
@@ -17,10 +18,10 @@ class Order(ABC):
 
     client_id: uuid.UUID
     ticker: str
-    size: int
+    size: Decimal
     action: OrderAction
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    remaining: int = field(init=False)
+    remaining: Decimal = field(init=False)
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: OrderStatus = OrderStatus.PENDING
     # Ordem enviada por uma estratégia: o aviso dela é o do registro da estratégia

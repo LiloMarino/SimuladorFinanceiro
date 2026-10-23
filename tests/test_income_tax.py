@@ -24,11 +24,16 @@ CLASSES = {
     "EFGH11": AssetClass.FII,
     "IJKL11": AssetClass.ETF,
     "MNOP34": AssetClass.BDR,
+    "BTC": AssetClass.CRYPTO,
 }
 
 
 def _event(
-    event_type: EquityEventType, ticker: str, day: date, quantity: int, price: str
+    event_type: EquityEventType,
+    ticker: str,
+    day: date,
+    quantity: Decimal | int,
+    price: str,
 ) -> EquityEventDTO:
     return EquityEventDTO(
         simulation_id=1,
@@ -36,16 +41,18 @@ def _event(
         event_date=day,
         ticker=ticker,
         event_type=event_type,
-        quantity=quantity,
+        quantity=Decimal(quantity),
         price=Decimal(price),
     )
 
 
-def _buy(ticker: str, day: date, quantity: int, price: str) -> EquityEventDTO:
+def _buy(ticker: str, day: date, quantity: Decimal | int, price: str) -> EquityEventDTO:
     return _event(EquityEventType.BUY, ticker, day, quantity, price)
 
 
-def _sell(ticker: str, day: date, quantity: int, price: str) -> EquityEventDTO:
+def _sell(
+    ticker: str, day: date, quantity: Decimal | int, price: str
+) -> EquityEventDTO:
     return _event(EquityEventType.SELL, ticker, day, quantity, price)
 
 
@@ -309,3 +316,72 @@ def test_tick_pays_darf_only_on_due_date(today, paid):
     )
 
     assert engine.paid == paid
+
+
+def test_crypto_sales_up_to_35k_are_exempt():
+    """Vendas de cripto no mês até R$ 35.000 não pagam imposto, mesmo com lucro."""
+    months = _assess(
+        _buy("BTC", date(2024, 1, 10), Decimal("0.5"), "100000"),
+        _sell("BTC", date(2024, 2, 5), Decimal("0.25"), "120000"),
+    )
+
+    february = months[(2024, 2)]
+    assert february.crypto_sales == Decimal("30000")
+    assert february.exempt_profit == Decimal("5000")
+    assert february.tax == 0
+
+
+def test_crypto_sales_above_35k_pay_fifteen_percent():
+    """Passou de R$ 35.000 vendidos no mês: 15% sobre o lucro todo."""
+    months = _assess(
+        _buy("BTC", date(2024, 1, 10), 2, "20000"),
+        _sell("BTC", date(2024, 2, 5), 2, "25000"),
+    )
+
+    february = months[(2024, 2)]
+    assert february.crypto_sales == Decimal("50000")
+    assert february.exempt_profit == 0
+    assert february.pools[LossPool.CRYPTO].tax == Decimal("1500")
+    assert february.darf_amount == Decimal("1500.00")
+
+
+def test_crypto_has_no_day_trade_rate():
+    """Compra e venda de cripto no mesmo dia são operação comum, a 15%."""
+    months = _assess(
+        _buy("BTC", date(2024, 2, 5), 2, "20000"),
+        _sell("BTC", date(2024, 2, 5), 2, "30000"),
+    )
+
+    february = months[(2024, 2)]
+    assert february.pools[LossPool.DAY_TRADE].tax == 0
+    assert february.pools[LossPool.CRYPTO].taxable == Decimal("20000")
+    assert february.tax == Decimal("3000.00")
+
+
+def test_crypto_loss_only_offsets_crypto_gains():
+    """O prejuízo de ação não abate ganho de cripto, e o de cripto não abate o de ação."""
+    months = _assess(
+        _buy("ABCD3", date(2024, 1, 10), 1000, "30"),
+        _sell("ABCD3", date(2024, 2, 5), 1000, "20"),
+        _buy("BTC", date(2024, 3, 1), 2, "20000"),
+        _sell("BTC", date(2024, 3, 5), 2, "25000"),
+    )
+
+    assert months[(2024, 2)].pools[LossPool.COMMON].loss_after == Decimal("10000")
+    assert months[(2024, 3)].pools[LossPool.CRYPTO].tax == Decimal("1500")
+    assert months[(2024, 3)].pools[LossPool.COMMON].loss_after == Decimal("10000")
+
+
+def test_crypto_sales_do_not_count_toward_the_stock_exemption():
+    """Cada classe tem o teto próprio: cripto vendida não tira a isenção das ações."""
+    months = _assess(
+        _buy("ABCD3", date(2024, 1, 10), 500, "25"),
+        _buy("BTC", date(2024, 1, 10), 2, "20000"),
+        _sell("ABCD3", date(2024, 2, 5), 500, "30"),
+        _sell("BTC", date(2024, 2, 5), 2, "25000"),
+    )
+
+    february = months[(2024, 2)]
+    assert february.stock_sales == Decimal("15000")
+    assert february.exempt_profit == Decimal("2500")
+    assert february.tax == Decimal("1500.00")

@@ -57,7 +57,7 @@ def test_sells_the_free_part_of_the_position_when_it_crosses_down():
     for end in range(55, len(prices) + 1):
         ctx = context(
             history={"AAA": closes(prices[:end])},
-            holdings={"AAA": Holding("AAA", 100, 30, Decimal(50))},
+            holdings={"AAA": Holding("AAA", Decimal(100), Decimal(30), Decimal(50))},
         )
         MovingAverageCross().next(ctx, PARAMS)
         if ctx.intents:

@@ -77,12 +77,12 @@ class Broker:
         with self._lock:
             return self._positions[client_id]
 
-    def get_available_position(self, client_id: UUID, ticker: str) -> int:
+    def get_available_position(self, client_id: UUID, ticker: str) -> Decimal:
         with self._lock:
             position = self._positions[client_id].get(ticker)
             if not position:
-                return 0
-            return max(0, position.size - position.reserved)
+                return Decimal(0)
+            return max(Decimal(0), position.size - position.reserved)
 
     def reserve_limit_order(self, order: LimitOrder) -> None:
         if order.client_id == MARKET_CLIENT_ID:
@@ -130,7 +130,7 @@ class Broker:
         *,
         taker_order: Order,
         maker_order: LimitOrder,
-        size: int,
+        size: Decimal,
         price: float,
     ) -> None:
         """Executa uma trade entre taker e maker.
@@ -162,7 +162,7 @@ class Broker:
     def _execute_order(
         self,
         order: Order,
-        size: int,
+        size: Decimal,
         price: float,
     ):
         # Executa a ordem para o cliente (se não for MARKET)
@@ -173,7 +173,7 @@ class Broker:
                 case OrderAction.SELL:
                     self._execute_sell(order, size, price)
 
-    def _validate_market_order(self, order: MarketOrder, size: int, price: float):
+    def _validate_market_order(self, order: MarketOrder, size: Decimal, price: float):
         if order.client_id != MARKET_CLIENT_ID:
             if (
                 order.action == OrderAction.SELL
@@ -220,7 +220,7 @@ class Broker:
             to=client_id,
         )
 
-    def _execute_buy(self, order: Order, size: int, price: float):
+    def _execute_buy(self, order: Order, size: Decimal, price: float):
         client_id = order.client_id
         ticker = order.ticker
         money_price = to_money(price)
@@ -253,7 +253,7 @@ class Broker:
 
         logger.debug("Compra executada: %sx %s a R$ %s", size, ticker, price)
 
-    def _execute_sell(self, order: Order, size: int, price: float):
+    def _execute_sell(self, order: Order, size: Decimal, price: float):
         client_id = order.client_id
         ticker = order.ticker
 

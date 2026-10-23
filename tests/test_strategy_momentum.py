@@ -44,7 +44,7 @@ def run(params=PARAMS, **kwargs):
 def test_sells_what_left_the_ranking_and_buys_the_ones_that_entered_in_equal_parts():
     ctx = run(
         cash="10000",
-        holdings={"CCC": Holding("CCC", 100, 0, Decimal(100))},
+        holdings={"CCC": Holding("CCC", Decimal(100), Decimal(0), Decimal(100))},
     )
 
     sell, buy_a, buy_b = ctx.intents
@@ -62,7 +62,7 @@ def test_sells_what_left_the_ranking_and_buys_the_ones_that_entered_in_equal_par
 def test_does_not_sell_the_part_held_by_open_orders():
     ctx = run(
         cash="0",
-        holdings={"CCC": Holding("CCC", 100, 40, Decimal(100))},
+        holdings={"CCC": Holding("CCC", Decimal(100), Decimal(40), Decimal(100))},
     )
 
     [sell, *_] = ctx.intents
@@ -72,7 +72,7 @@ def test_does_not_sell_the_part_held_by_open_orders():
 def test_keeps_what_is_still_in_the_ranking_and_only_buys_the_shortfall():
     ctx = run(
         cash="1000",
-        holdings={"AAA": Holding("AAA", 50, 0, Decimal(100))},
+        holdings={"AAA": Holding("AAA", Decimal(50), Decimal(0), Decimal(100))},
     )
 
     # AAA vale R$ 10.000 e a parte de cada uma é R$ 5.500: não compra mais AAA

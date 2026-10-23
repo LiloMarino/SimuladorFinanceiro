@@ -1,4 +1,4 @@
-import { displayMoney } from "@/shared/lib/utils/display";
+import { displayMoney, displayQuantity } from "@/shared/lib/utils/display";
 import type { StrategyAction, StrategyLogRow, StrategyOrderLine } from "@/types";
 
 export function plural(count: number, one: string, many: string) {
@@ -21,7 +21,7 @@ export function dayOrdersSummary(orders: StrategyOrderLine[]) {
 /** O verbo da ordem no aviso: "A estratégia comprou 300 PETR4". */
 export function orderToastTitle(order: StrategyOrderLine) {
   const what = order.ticker ?? order.asset_name ?? "";
-  const quantity = order.quantity === null ? "" : `${order.quantity} `;
+  const quantity = order.quantity === null ? "" : `${displayQuantity(order.quantity)} `;
   const verb = { buy: "comprou", sell: "vendeu", cancel: "cancelou a ordem de", invest: "aplicou em", redeem: "resgatou de" }[order.action];
   return order.status === "refused"
     ? `A estratégia tentou ${order.action === "buy" ? "comprar" : order.action === "sell" ? "vender" : "operar"} ${quantity}${what}`
@@ -56,7 +56,7 @@ export function cashShare(cash: string | number, percent: number) {
 
 /** Quantidade da linha do registro: renda fixa não tem, e a recusada mostra o que pediu. */
 export function rowQuantity(row: StrategyLogRow) {
-  return row.quantity === null ? "—" : row.quantity.toLocaleString("pt-BR");
+  return row.quantity === null ? "—" : displayQuantity(row.quantity);
 }
 
 /** Preço da linha: "lim. R$ 18,40" enquanto a ordem limitada não executou por inteiro. */

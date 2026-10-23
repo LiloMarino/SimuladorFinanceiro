@@ -1,6 +1,6 @@
 import threading
 from datetime import date
-from decimal import Decimal
+from decimal import ROUND_DOWN, Decimal
 from functools import cached_property
 from uuid import UUID
 
@@ -14,7 +14,13 @@ from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PortfolioPositionDTO, PositionDTO
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.stock import StockDTO
-from backend.core.enum import CashflowEventType, EquityEventType, OrderAction
+from backend.core.enum import (
+    AssetClass,
+    CashflowEventType,
+    EquityEventType,
+    OrderAction,
+)
+from backend.core.exceptions.http_exceptions import UnprocessableEntityError
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.sectors import allocate_by_sector
@@ -34,12 +40,17 @@ from backend.features.variable_income.broker import Broker, to_money
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.position import Position
 from backend.features.variable_income.income_tax import (
+    CRYPTO_EXEMPTION_LIMIT,
+    EXEMPTION_LIMITS,
     STOCK_EXEMPTION_LIMIT,
     MonthlyTax,
     assess,
     darf_due_date,
 )
 from backend.features.variable_income.matching_engine import MatchingEngine
+
+# Menor fração negociável da cripto: oito casas, a precisão do satoshi
+QUANTITY_STEP = Decimal("1E-8")
 
 
 class SimulationEngine:
@@ -149,18 +160,43 @@ class SimulationEngine:
             self.current_date,
         )
 
+    def asset_class(self, ticker: str) -> AssetClass | None:
+        stock = self.stocks.get(ticker)
+        return stock.asset_class if stock else None
+
+    def check_quantity(self, ticker: str, quantity: Decimal) -> None:
+        """Fração de unidade só vale para a classe fracionável; as demais negociam inteiros."""
+        asset_class = self.asset_class(ticker)
+        if (
+            asset_class is not None
+            and not asset_class.fractional
+            and quantity != quantity.to_integral_value()
+        ):
+            raise UnprocessableEntityError("Este ativo só negocia quantidade inteira")
+
+    def _max_buy(self, ticker: str, cash: Decimal, price: Decimal | None) -> Decimal:
+        """O que o caixa paga ao preço estimado: inteiro, ou até oito casas na cripto."""
+        if not price:
+            return Decimal(0)
+        asset_class = self.asset_class(ticker)
+        if asset_class is not None and asset_class.fractional:
+            return (cash / price).quantize(QUANTITY_STEP, rounding=ROUND_DOWN)
+        return cash // price
+
     def preview_order(
         self,
         client_id: UUID,
         ticker: str,
         action: OrderAction,
-        quantity: int,
+        quantity: Decimal,
         limit_price: float | None,
     ) -> OrderPreviewDTO:
+        self.check_quantity(ticker, quantity)
         position = self.broker.get_positions(client_id).get(ticker)
-        held = position.size if position else 0
-        reserved = position.reserved if position else 0
+        held = position.size if position else Decimal(0)
+        reserved = position.reserved if position else Decimal(0)
         cash = self.get_cash(client_id)
+        asset_class = self.asset_class(ticker)
 
         # Preço: o limite; a mercado, o melhor do outro lado do book; sem book, o último fechamento
         book = self.matching_engine.order_book
@@ -184,15 +220,17 @@ class SimulationEngine:
             total=total,
             cash_before=cash,
             cash_after=cash - total if buying else cash + total,
-            max_quantity=(int(cash // price) if price else 0)
+            max_quantity=self._max_buy(ticker, cash, price)
             if buying
             else held - reserved,
             held=held,
             reserved=reserved,
             profit=None,
             tax=None,
-            month_stock_sales_after=None,
-            stock_sales_exemption=STOCK_EXEMPTION_LIMIT,
+            month_sales_after=None,
+            exemption_limit=EXEMPTION_LIMITS.get(
+                asset_class or AssetClass.STOCK, STOCK_EXEMPTION_LIMIT
+            ),
             tax_due_date=None,
         )
         if buying or not position or price is None or quantity <= 0:
@@ -219,7 +257,11 @@ class SimulationEngine:
                 "profit": (price - position.avg_price) * quantity,
                 "tax": (with_sale.tax if with_sale else Decimal(0))
                 - (without.tax if without else Decimal(0)),
-                "month_stock_sales_after": with_sale.stock_sales
+                "month_sales_after": (
+                    with_sale.crypto_sales
+                    if asset_class is AssetClass.CRYPTO
+                    else with_sale.stock_sales
+                )
                 if with_sale
                 else Decimal(0),
                 "tax_due_date": darf_due_date(today.year, today.month),
@@ -343,6 +385,8 @@ class SimulationEngine:
             income_tax_due_date=min(upcoming_due) if upcoming_due else None,
             month_stock_sales=this_month.stock_sales if this_month else Decimal(0),
             stock_sales_exemption=STOCK_EXEMPTION_LIMIT,
+            month_crypto_sales=this_month.crypto_sales if this_month else Decimal(0),
+            crypto_sales_exemption=CRYPTO_EXEMPTION_LIMIT,
             variable_income=[
                 PortfolioPositionDTO(
                     **pos.model_dump(),

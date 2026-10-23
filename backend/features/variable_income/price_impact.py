@@ -1,6 +1,7 @@
 import math
 from collections import defaultdict
 from datetime import date
+from decimal import Decimal
 from typing import TypeVar
 
 from backend.core import repository
@@ -19,14 +20,16 @@ CandleRow = TypeVar("CandleRow", bound=CandleDTO)
 PriceRow = TypeVar("PriceRow", bound=CandleDTO | StockPriceHistoryDTO)
 
 
-def impact(quantity: int, average_volume: float, k: float) -> float:
+def impact(quantity: Decimal, average_volume: float, k: float) -> float:
     """
     Deslocamento relativo do preço, com o sinal da quantidade: k * √(|quantidade| ÷ volume médio).
     Ex.: k = 0,02 e quantidade = 10% do volume médio → +0,63%.
     """
     if quantity == 0 or average_volume <= 0:
         return 0.0
-    return math.copysign(k * math.sqrt(abs(quantity) / average_volume), quantity)
+    return math.copysign(
+        k * math.sqrt(float(abs(quantity)) / average_volume), float(quantity)
+    )
 
 
 def decay(age: int, decay_days: int) -> float:

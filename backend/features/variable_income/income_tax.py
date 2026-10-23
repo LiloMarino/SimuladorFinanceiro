@@ -7,8 +7,11 @@ IRPF da Receita:
   a operação comum paga 15%;
 - o ganho comum com ações é isento quando as vendas de ações do mês somam até
   R$ 20.000,00; a isenção cobre só ação em operação comum;
+- o ganho com cripto é isento quando as vendas de cripto do mês somam até
+  R$ 35.000,00; cripto paga 15% e não tem day trade distinto: toda venda é comum;
 - o prejuízo comum (ação, ETF e BDR) compensa ganho comum, o de day trade compensa
-  day trade e o de FII compensa FII, no mês ou em qualquer mês seguinte;
+  day trade, o de FII compensa FII e o de cripto compensa cripto, no mês ou em
+  qualquer mês seguinte;
 - o FII paga 20%;
 - o DARF vence no último dia útil do mês seguinte; imposto abaixo de R$ 10,00 soma
   ao do período seguinte.
@@ -19,6 +22,7 @@ from __future__ import annotations
 import calendar
 from collections import defaultdict
 from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Set as AbstractSet
 from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal
@@ -32,6 +36,12 @@ from backend.features.variable_income.entities.position import Position
 ZERO = Decimal(0)
 CENT = Decimal("0.01")
 STOCK_EXEMPTION_LIMIT = Decimal(20000)
+CRYPTO_EXEMPTION_LIMIT = Decimal(35000)
+# Teto mensal de vendas abaixo do qual o ganho comum da classe é isento
+EXEMPTION_LIMITS: Mapping[AssetClass, Decimal] = {
+    AssetClass.STOCK: STOCK_EXEMPTION_LIMIT,
+    AssetClass.CRYPTO: CRYPTO_EXEMPTION_LIMIT,
+}
 DARF_MINIMUM = Decimal(10)
 
 
@@ -41,12 +51,14 @@ class LossPool(Enum):
     COMMON = "COMMON"
     DAY_TRADE = "DAY_TRADE"
     FII = "FII"
+    CRYPTO = "CRYPTO"
 
 
 RATES: Mapping[LossPool, Decimal] = {
     LossPool.COMMON: Decimal("0.15"),
     LossPool.DAY_TRADE: Decimal("0.20"),
     LossPool.FII: Decimal("0.20"),
+    LossPool.CRYPTO: Decimal("0.15"),
 }
 
 
@@ -78,6 +90,7 @@ class MonthlyTax:
     year: int
     month: int
     stock_sales: Decimal
+    crypto_sales: Decimal
     exempt_profit: Decimal
     pools: Mapping[LossPool, PoolResult]
     tax: Decimal
@@ -93,8 +106,8 @@ class _Category:
 
 def _consume(
     legs: Sequence[tuple[int, EquityEventDTO]],
-    quantity: int,
-    matched: dict[int, int],
+    quantity: Decimal,
+    matched: dict[int, Decimal],
 ) -> Decimal:
     """Consome `quantity` das pernas pela ordem e devolve o valor financeiro delas."""
     value = ZERO
@@ -110,22 +123,26 @@ def _consume(
 
 def settle_day_trades(
     events: Sequence[EquityEventDTO],
+    without_day_trade: AbstractSet[str] = frozenset(),
 ) -> tuple[list[EquityEventDTO], list[DayTrade]]:
     """Separa o day trade do resto: devolve os eventos com a parte pareada
-    descontada, na ordem recebida (cronológica), e os day trades de cada (ativo, dia)."""
+    descontada, na ordem recebida (cronológica), e os day trades de cada (ativo, dia).
+    Os ativos de `without_day_trade` não pareiam: toda venda deles é operação comum."""
     by_day: defaultdict[tuple[str, date], list[tuple[int, EquityEventDTO]]]
     by_day = defaultdict(list)
     for index, event in enumerate(events):
         by_day[(event.ticker, event.event_date)].append((index, event))
 
-    matched: dict[int, int] = {}
+    matched: dict[int, Decimal] = {}
     day_trades: list[DayTrade] = []
     for (ticker, trade_date), legs in by_day.items():
+        if ticker in without_day_trade:
+            continue
         buys = [leg for leg in legs if leg[1].event_type is EquityEventType.BUY]
         sells = [leg for leg in legs if leg[1].event_type is EquityEventType.SELL]
         quantity = min(
-            sum(event.quantity for _, event in buys),
-            sum(event.quantity for _, event in sells),
+            sum((event.quantity for _, event in buys), ZERO),
+            sum((event.quantity for _, event in sells), ZERO),
         )
         if quantity == 0:
             continue
@@ -139,9 +156,9 @@ def settle_day_trades(
         )
 
     settled = [
-        event.model_copy(update={"quantity": event.quantity - matched.get(index, 0)})
+        event.model_copy(update={"quantity": event.quantity - matched.get(index, ZERO)})
         for index, event in enumerate(events)
-        if matched.get(index, 0) != event.quantity
+        if matched.get(index, ZERO) != event.quantity
     ]
     return settled, day_trades
 
@@ -164,6 +181,8 @@ def _sales_results(
 def _pool(asset_class: AssetClass, day_trade: bool) -> LossPool:
     if asset_class is AssetClass.FII:
         return LossPool.FII
+    if asset_class is AssetClass.CRYPTO:
+        return LossPool.CRYPTO
     if day_trade:
         return LossPool.DAY_TRADE
     return LossPool.COMMON
@@ -204,7 +223,8 @@ def assess(
         key = (asset_classes[ticker], day_trade)
         return by_month[(day.year, day.month)].setdefault(key, _Category())
 
-    settled, day_trades = settle_day_trades(events)
+    without_day_trade = {t for t, cls in asset_classes.items() if cls.fractional}
+    settled, day_trades = settle_day_trades(events, without_day_trade)
     for sale, result in _sales_results(settled):
         item = category(sale.event_date, sale.ticker, day_trade=False)
         item.result += result
@@ -220,19 +240,24 @@ def assess(
 
     for year, month in _months(events[0].event_date, today):
         raw = by_month.get((year, month), {})
-        stock_sales = sum(
-            (item.sales for (cls, _), item in raw.items() if cls is AssetClass.STOCK),
-            ZERO,
-        )
+        class_sales = {
+            cls: sum(
+                (item.sales for (c, _), item in raw.items() if c is cls),
+                ZERO,
+            )
+            for cls in EXEMPTION_LIMITS
+        }
 
-        # O ganho comum com ações sai da base quando o mês fica dentro da isenção
-        exempt_key = (AssetClass.STOCK, False)
-        exempt_item = raw.get(exempt_key)
-        exempt = (
-            exempt_item is not None
-            and exempt_item.result > ZERO
-            and stock_sales <= STOCK_EXEMPTION_LIMIT
-        )
+        # O ganho comum de cada classe com isenção sai da base quando as vendas
+        # do mês dela ficam dentro do teto
+        exempt_keys = {
+            (cls, False)
+            for cls, limit in EXEMPTION_LIMITS.items()
+            if (item := raw.get((cls, False))) is not None
+            and item.result > ZERO
+            and class_sales[cls] <= limit
+        }
+        exempt_profit = sum((raw[key].result for key in exempt_keys), ZERO)
 
         # Líquido de cada conjunto de compensação, abatido do prejuízo acumulado
         pools: dict[LossPool, PoolResult] = {}
@@ -242,7 +267,7 @@ def assess(
                     item.result
                     for (cls, day_trade), item in raw.items()
                     if _pool(cls, day_trade) is pool
-                    and not (exempt and (cls, day_trade) == exempt_key)
+                    and (cls, day_trade) not in exempt_keys
                 ),
                 ZERO,
             )
@@ -266,8 +291,9 @@ def assess(
             MonthlyTax(
                 year=year,
                 month=month,
-                stock_sales=stock_sales,
-                exempt_profit=exempt_item.result if exempt and exempt_item else ZERO,
+                stock_sales=class_sales[AssetClass.STOCK],
+                crypto_sales=class_sales[AssetClass.CRYPTO],
+                exempt_profit=exempt_profit,
                 pools=pools,
                 tax=tax,
                 darf_amount=due if emits else None,

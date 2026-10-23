@@ -244,7 +244,7 @@ class Stock(Base):
     ticker: Mapped[str] = mapped_column(Text, nullable=False)
     name: Mapped[str] = mapped_column(Text, nullable=False)
     asset_class: Mapped[str] = mapped_column(
-        Enum("STOCK", "FII", "ETF", "BDR", name="asset_class"), nullable=False
+        Enum("STOCK", "FII", "ETF", "BDR", "CRYPTO", name="asset_class"), nullable=False
     )
     segment_id: Mapped[int | None] = mapped_column(Integer)
 
@@ -563,7 +563,7 @@ class EventEquity(Base):
     event_type: Mapped[str] = mapped_column(
         Enum("BUY", "SELL", name="equity_event_type"), nullable=False
     )
-    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    quantity: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 8), nullable=False)
     price: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
@@ -754,7 +754,7 @@ class StrategyLog(Base):
     ticker: Mapped[str | None] = mapped_column(Text)
     asset_uuid: Mapped[uuid.UUID | None] = mapped_column(Uuid)
     asset_name: Mapped[str | None] = mapped_column(Text)
-    quantity: Mapped[int | None] = mapped_column(Integer)
+    quantity: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 8))
     price: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
     order_type: Mapped[str | None] = mapped_column(Text)
     order_id: Mapped[str | None] = mapped_column(Text)

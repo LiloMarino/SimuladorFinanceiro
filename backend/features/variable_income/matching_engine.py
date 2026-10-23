@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Callable
+from decimal import Decimal
 from uuid import UUID
 
 from backend.core.enum import OrderAction, OrderStatus
@@ -109,7 +110,7 @@ class MatchingEngine:
         self.broker.release_limit_order(order)
 
         order.status = OrderStatus.CANCELED
-        order.remaining = 0
+        order.remaining = Decimal(0)
         notify(
             event=f"order_updated:{order.ticker}",
             payload=OrderEventDTO(order=order.to_dto()).to_json(),
@@ -157,7 +158,7 @@ class MatchingEngine:
     # Core matching
     # =========================
 
-    def _consume_book(self, order: Order) -> int:
+    def _consume_book(self, order: Order) -> Decimal:
         """
         Consome o book respeitando:
         - preço (se LIMIT)
@@ -210,8 +211,8 @@ class MatchingEngine:
         # Trade bem-sucedido atualiza estados e notifica
         taker.remaining -= qty
         maker.remaining -= qty
-        taker.notional += qty * price
-        maker.notional += qty * price
+        taker.notional += float(qty) * price
+        maker.notional += float(qty) * price
 
         taker.status = (
             OrderStatus.EXECUTED if taker.remaining == 0 else OrderStatus.PARTIAL
@@ -235,7 +236,7 @@ class MatchingEngine:
     # Notificações
     # =========================
 
-    def _notify_execution(self, order: Order, price: float, quantity: int):
+    def _notify_execution(self, order: Order, price: float, quantity: Decimal):
         # O aviso da ordem de estratégia é o `strategy_orders`, que sai ao fim do dia
         if order.automatic:
             self._notify_book_update(order)

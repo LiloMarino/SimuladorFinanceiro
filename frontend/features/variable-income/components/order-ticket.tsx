@@ -12,9 +12,9 @@ import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { cn } from "@/shared/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { formatPositiveInteger } from "@/shared/lib/utils/format";
-import { displayDate, displayMoney, parseLocalDate } from "@/shared/lib/utils/display";
-import { INCOME_TAX_RATE, salesMonthName } from "@/shared/lib/income-tax";
+import { formatQuantityInput, quantityToInput } from "@/shared/lib/utils/format";
+import { displayDate, displayMoney, displayQuantity, parseLocalDate } from "@/shared/lib/utils/display";
+import { EXEMPT_SALES_LABEL, INCOME_TAX_RATE, salesMonthName } from "@/shared/lib/income-tax";
 import { displayPercent } from "@/shared/lib/utils/display";
 import type { AssetClass, OrderPreview } from "@/types";
 import { useOrderPreview } from "../hooks/queries/useOrderPreview";
@@ -43,7 +43,10 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
   const [quantityText, setQuantityText] = useState("");
   const [limitText, setLimitText] = useState("");
 
-  const quantity = Number(quantityText) || 0;
+  // Só a cripto aceita fração; a API recebe a quantidade como string decimal
+  const fractional = assetClass === "CRYPTO";
+  const quantity = quantityText.replace(",", ".").replace(/\.$/, "") || "0";
+  const amount = Number(quantity);
   const limitPrice = kind === "limit" ? Number(normalizeNumberString(limitText)) || null : null;
   const [request] = useDebounce({ action, quantity, limit_price: limitPrice }, 250);
 
@@ -55,19 +58,19 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
   const locked = !!useMyStrategy().data?.active;
 
   const selling = action === "sell";
-  const maxQuantity = preview?.max_quantity ?? 0;
-  const overMax = quantity > maxQuantity;
-  const noPosition = selling && requestMatches && preview !== undefined && preview.held === 0;
-  const canSubmit = !locked && requestMatches && !error && quantity > 0 && !overMax && !!preview?.price && (kind === "market" || !!limitPrice);
+  const maxQuantity = preview?.max_quantity ?? "0";
+  const overMax = amount > Number(maxQuantity);
+  const noPosition = selling && requestMatches && preview !== undefined && Number(preview.held) === 0;
+  const canSubmit = !locked && requestMatches && !error && amount > 0 && !overMax && !!preview?.price && (kind === "market" || !!limitPrice);
 
   const quantityHint = selling
-    ? preview && preview.reserved > 0
-      ? `Máx = ${maxQuantity}: ${preview.reserved} das suas ${preview.held} já estão em ordens abertas.`
-      : `Máx = ${maxQuantity}, tudo o que você tem.`
-    : `Máx = ${maxQuantity} com o caixa de hoje.`;
+    ? preview && Number(preview.reserved) > 0
+      ? `Máx = ${displayQuantity(maxQuantity)}: ${displayQuantity(preview.reserved)} das suas ${displayQuantity(preview.held)} já estão em ordens abertas.`
+      : `Máx = ${displayQuantity(maxQuantity)}, tudo o que você tem.`
+    : `Máx = ${displayQuantity(maxQuantity)} com o caixa de hoje.`;
   const quantityError = selling
-    ? `Você tem ${maxQuantity} disponíveis${preview && preview.reserved > 0 ? ` (${preview.reserved} já estão em ordens abertas)` : ""}.`
-    : `O caixa paga até ${maxQuantity}.`;
+    ? `Você tem ${displayQuantity(maxQuantity)} disponíveis${preview && Number(preview.reserved) > 0 ? ` (${displayQuantity(preview.reserved)} já estão em ordens abertas)` : ""}.`
+    : `O caixa paga até ${displayQuantity(maxQuantity)}.`;
 
   return (
     <Card>
@@ -125,16 +128,18 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                   <Input
                     id="order-quantity"
                     numeric
-                    inputMode="numeric"
+                    inputMode={fractional ? "decimal" : "numeric"}
                     value={quantityText}
                     aria-invalid={overMax}
-                    onChange={(e) => setQuantityText(formatPositiveInteger(e.target.value))}
+                    onChange={(e) => setQuantityText(formatQuantityInput(e.target.value, fractional))}
                   />
                   {SHORTCUTS.map((s) => (
                     <Button
                       key={s.label}
                       variant="outline"
-                      onClick={() => setQuantityText(String(Math.floor(maxQuantity * s.share)))}
+                      onClick={() =>
+                        setQuantityText(quantityToInput(s.share === 1 ? maxQuantity : Number(maxQuantity) * s.share, fractional))
+                      }
                     >
                       {s.label}
                     </Button>
@@ -175,7 +180,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                       <Row label="Total se executar" value={displayMoney(preview.total)} strong />
                       {preview.profit !== null && (
                         <Row
-                          label={`Lucro estimado · sobre preço médio ${displayMoney(averagePrice(preview, quantity))}`}
+                          label={`Lucro estimado · sobre preço médio ${displayMoney(averagePrice(preview, amount))}`}
                           value={`${Number(preview.profit) >= 0 ? "+" : "-"}${displayMoney(Math.abs(Number(preview.profit)))}`}
                           tone={Number(preview.profit) >= 0 ? "positive" : "negative"}
                         />
@@ -195,7 +200,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                 </dl>
               )}
 
-              {selling && preview?.tax !== null && preview?.tax !== undefined && quantity > 0 && (
+              {selling && preview?.tax !== null && preview?.tax !== undefined && amount > 0 && (
                 <TaxEstimate preview={preview} assetClass={assetClass} />
               )}
 
@@ -211,8 +216,8 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                 }
               >
                 {submit.isPending && <Spinner />}
-                {selling ? "Vender" : "Comprar"} {quantity || ""} {ticker}
-                {preview?.price && quantity > 0
+                {selling ? "Vender" : "Comprar"} {quantityText} {ticker}
+                {preview?.price && amount > 0
                   ? kind === "limit"
                     ? ` a ${displayMoney(preview.price)}`
                     : ` · ${displayMoney(preview.total)}`
@@ -251,12 +256,13 @@ function Row({
   );
 }
 
-/** IR que a venda acrescenta ao mês, com a régua da isenção de ações. */
+/** IR que a venda acrescenta ao mês, com a régua da isenção da classe (ação ou cripto). */
 function TaxEstimate({ preview, assetClass }: { preview: OrderPreview; assetClass: AssetClass }) {
-  const after = Number(preview.month_stock_sales_after ?? 0);
-  const limit = Number(preview.stock_sales_exemption);
-  // As vendas de ações do mês só crescem quando a venda é de ação
-  const before = assetClass === "STOCK" ? after - Number(preview.total) : after;
+  const sales = EXEMPT_SALES_LABEL[assetClass];
+  const after = Number(preview.month_sales_after ?? 0);
+  const limit = Number(preview.exemption_limit);
+  // As vendas do mês só crescem com a venda de uma classe que tem isenção
+  const before = sales ? after - Number(preview.total) : after;
   // A barra enche com vendas / limite; passando do limite, a marca recua para a posição real dele
   const scale = Math.max(after, limit) || 1;
   const taxed = Number(preview.tax) > 0;
@@ -285,9 +291,9 @@ function TaxEstimate({ preview, assetClass }: { preview: OrderPreview; assetClas
         <span className="absolute -top-1 h-3.5 w-0.5 bg-foreground" style={{ left: `${(limit / scale) * 100}%` }} />
       </div>
       <p className="text-muted-foreground">
-        {assetClass === "STOCK" && after > limit ? (
+        {sales && after > limit ? (
           <>
-            Em {month} você já vendeu {displayMoney(before)} em ações; com esta venda vai a {displayMoney(after)},
+            Em {month} você já vendeu {displayMoney(before)} em {sales}; com esta venda vai a {displayMoney(after)},
             acima dos {displayMoney(limit)} isentos.{" "}
             {taxed ? (
               <>
@@ -301,10 +307,10 @@ function TaxEstimate({ preview, assetClass }: { preview: OrderPreview; assetClas
         ) : taxed ? (
           <>
             O lucro de <b className="font-mono text-foreground">{profit}</b> paga {rate}
-            {due ? `, cobrado em ${due}` : ""}. FII, ETF, BDR e day trade não têm isenção.
+            {due ? `, cobrado em ${due}` : ""}.{sales ? "" : " FII, ETF, BDR e day trade não têm isenção."}
           </>
         ) : (
-          `As vendas de ações do mês ficam em ${displayMoney(after)}, dentro dos ${displayMoney(limit)} isentos: o lucro não paga IR.`
+          `As vendas de ${sales ?? "ações"} do mês ficam em ${displayMoney(after)}, dentro dos ${displayMoney(limit)} isentos: o lucro não paga IR.`
         )}
       </p>
     </div>

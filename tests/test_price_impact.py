@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+from decimal import Decimal
 
 import pytest
 
@@ -53,7 +54,9 @@ def flows(monkeypatch: pytest.MonkeyPatch) -> list[DailyEquityFlowDTO]:
 
 
 def _flow(quantity: int, flow_date: date = MONDAY) -> DailyEquityFlowDTO:
-    return DailyEquityFlowDTO(ticker="ABCD", flow_date=flow_date, quantity=quantity)
+    return DailyEquityFlowDTO(
+        ticker="ABCD", flow_date=flow_date, quantity=Decimal(quantity)
+    )
 
 
 def _candle(price_date: date = TUESDAY) -> CandleDTO:
@@ -79,16 +82,20 @@ def _impact(enabled: bool = True) -> PriceImpact:
 
 def test_impact_follows_square_root_of_volume_share():
     """10% do volume médio com k = 0,02 desloca 0,632%; venda desloca para baixo."""
-    assert impact(100_000, AVERAGE_VOLUME, K) == pytest.approx(0.0063246, rel=1e-4)
-    assert impact(-100_000, AVERAGE_VOLUME, K) == pytest.approx(-0.0063246, rel=1e-4)
-    assert impact(400_000, AVERAGE_VOLUME, K) == pytest.approx(
-        2 * impact(100_000, AVERAGE_VOLUME, K)
+    assert impact(Decimal(100_000), AVERAGE_VOLUME, K) == pytest.approx(
+        0.0063246, rel=1e-4
+    )
+    assert impact(Decimal(-100_000), AVERAGE_VOLUME, K) == pytest.approx(
+        -0.0063246, rel=1e-4
+    )
+    assert impact(Decimal(400_000), AVERAGE_VOLUME, K) == pytest.approx(
+        2 * impact(Decimal(100_000), AVERAGE_VOLUME, K)
     )
 
 
 def test_impact_without_average_volume_is_zero():
     """Ativo sem volume histórico não tem régua para medir a ordem."""
-    assert impact(100, 0, K) == 0.0
+    assert impact(Decimal(100), 0, K) == 0.0
 
 
 @pytest.mark.parametrize(
@@ -150,7 +157,7 @@ def test_impacts_of_different_days_add_up(flows: list[DailyEquityFlowDTO]):
     price_impact = _impact()
     price_impact.refresh(date(2020, 1, 8))
 
-    single = impact(100_000, AVERAGE_VOLUME, K)
+    single = impact(Decimal(100_000), AVERAGE_VOLUME, K)
     expected = 1 + single * decay(1, DECAY_DAYS) + single * decay(0, DECAY_DAYS)
     assert price_impact.apply(_candle()).close == round(10.5 * expected, 2)
 

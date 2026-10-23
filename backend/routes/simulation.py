@@ -346,7 +346,7 @@ PREVIEW_VOLUME_SHARE = 0.10
 def price_impact_preview(
     k: float = Query(ge=0), decay_days: int = Query(ge=1, le=250)
 ) -> PriceImpactPreviewDTO:
-    first_day = impact(round(PREVIEW_VOLUME_SHARE * 1_000_000), 1_000_000, k)
+    first_day = impact(Decimal(round(PREVIEW_VOLUME_SHARE * 1_000_000)), 1_000_000, k)
     return PriceImpactPreviewDTO(
         volume_share=PREVIEW_VOLUME_SHARE,
         first_day_impact=first_day,

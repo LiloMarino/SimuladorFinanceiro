@@ -10,9 +10,9 @@ from backend.core.dto.statistics_report import SectorProfitDTO
 from backend.core.enum import EquityEventType
 
 
-def final_quantities(trades: list[EquityEventDTO]) -> dict[str, int]:
+def final_quantities(trades: list[EquityEventDTO]) -> dict[str, Decimal]:
     """Quantidade em carteira de cada ativo depois de todas as execuções."""
-    quantities: dict[str, int] = defaultdict(int)
+    quantities: dict[str, Decimal] = defaultdict(Decimal)
     for trade in trades:
         sign = 1 if trade.event_type is EquityEventType.BUY else -1
         quantities[trade.ticker] += sign * trade.quantity

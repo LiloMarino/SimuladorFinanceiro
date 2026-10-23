@@ -11,18 +11,18 @@ class Position:
     """Representa uma posição aberta em um ativo."""
 
     ticker: str
-    size: int = 0
-    reserved: int = 0
+    size: Decimal = field(default_factory=Decimal)
+    reserved: Decimal = field(default_factory=Decimal)
     total_cost: Decimal = field(default_factory=Decimal)
     avg_price: Decimal = field(default_factory=Decimal)
 
-    def update_buy(self, price: Decimal, size: int):
+    def update_buy(self, price: Decimal, size: Decimal):
         """Atualiza posição após uma compra."""
         self.total_cost += price * size
         self.size += size
         self.avg_price = self.total_cost / self.size
 
-    def update_sell(self, size: int):
+    def update_sell(self, size: Decimal):
         """Atualiza posição após uma venda."""
         if self.size - size < 0:
             raise InsufficentPositionError()
@@ -30,15 +30,15 @@ class Position:
         self.size -= size
         self.avg_price = (self.total_cost / self.size) if self.size > 0 else Decimal(0)
 
-    def reserve(self, size: int):
+    def reserve(self, size: Decimal):
         """Reserva parte da posição para ordens em aberto."""
         if self.size - self.reserved < size:
             raise InsufficentPositionError()
         self.reserved += size
 
-    def release(self, size: int):
+    def release(self, size: Decimal):
         """Libera parte da posição reservada."""
-        self.reserved = max(0, self.reserved - size)
+        self.reserved = max(Decimal(0), self.reserved - size)
 
     def to_dto(self, current_price: Decimal) -> PositionDTO:
         current_value = current_price * self.size

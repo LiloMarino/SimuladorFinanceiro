@@ -7,6 +7,7 @@ import uuid
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
+from decimal import Decimal
 from types import SimpleNamespace
 
 import pytest
@@ -84,7 +85,7 @@ def test_two_players_can_buy_sell_and_read_history_while_paused(paused_match):
                 json={"action": action, "quantity": 1},
             )
             assert preview.status_code == 200, preview.text
-            assert preview.json()["held"] == held
+            assert Decimal(preview.json()["held"]) == held
             result = client.post(
                 "/api/variable-income/BANK_A/orders",
                 json={"action": action, "type": "market", "quantity": 1},
@@ -92,7 +93,7 @@ def test_two_players_can_buy_sell_and_read_history_while_paused(paused_match):
             assert result.status_code == 200, result.text
             assert result.json()["status"] == "EXECUTED"
             position = client.get("/api/portfolio/BANK_A").json()
-            assert position["size"] == (1 if action == "buy" else 0)
+            assert Decimal(position["size"]) == (1 if action == "buy" else 0)
         assert sim.get_speed() == 0
         assert sim.get_current_date() == today
     trades = client.get("/api/variable-income/BANK_A/trades").json()

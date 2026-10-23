@@ -7,5 +7,5 @@ from backend.core.enum import EquityEventType
 class EquityEventDTO(BaseEventDTO):
     ticker: str
     event_type: EquityEventType
-    quantity: int
+    quantity: Decimal
     price: Decimal

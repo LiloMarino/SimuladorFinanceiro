@@ -16,6 +16,7 @@ import {
   displayNumber,
   displayPercent,
   displayPercentagePoints,
+  displayQuantity,
   displayRateLabel,
   displayShortDate,
   displayShortMonthYear,
@@ -125,5 +126,17 @@ describe("datas", () => {
   it("lista com vírgula e o último com “e”", () => {
     expect(displayList(["Ana", "Bia", "Lilo"])).toBe("Ana, Bia e Lilo");
     expect(displayList([])).toBe("");
+  });
+});
+
+describe("displayQuantity", () => {
+  it("tira os zeros à direita da string decimal", () => {
+    expect(displayQuantity("10.00000000")).toBe("10");
+    expect(displayQuantity("0.50000000")).toBe("0,5");
+  });
+
+  it("mantém as oito casas da cripto e agrupa o milhar", () => {
+    expect(displayQuantity("0.00000001")).toBe("0,00000001");
+    expect(displayQuantity("1500")).toBe("1.500");
   });
 });

@@ -24,7 +24,7 @@ def trade(day: date, kind: EquityEventType, quantity: int, price: str):
         event_date=day,
         ticker="ITUB4",
         event_type=kind,
-        quantity=quantity,
+        quantity=Decimal(quantity),
         price=Decimal(price),
     )
 

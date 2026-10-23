@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Renda Variável
 
-Aprenda a investir em ações, FIIs e ETFs no simulador.
+Aprenda a investir em ações, FIIs, ETFs e cripto no simulador.
 
 ![A lista de ativos da renda variável](/demo/screens/stocks.png)
 
@@ -15,6 +15,7 @@ Aprenda a investir em ações, FIIs e ETFs no simulador.
 - **Ações:** Partes de uma empresa negociadas na bolsa (ex: VALE3, PETR4, BBAS3)
 - **FIIs (Fundos Imobiliários):** Fundos que investem em imóveis ou títulos imobiliários (ex: XPML11, HGLG11)
 - **ETFs (Exchange Traded Funds):** Fundos que replicam índices de mercado (ex: BOVA11 replica o Ibovespa)
+- **Cripto:** Criptomoedas importadas pelo Yahoo Finance (ex: BTC-USD). É a única classe que se compra em fração, como 0,5 ou 0,001 de uma unidade, com até oito casas decimais
 
 **Características:**
 - 💹 Retorno varia conforme mercado

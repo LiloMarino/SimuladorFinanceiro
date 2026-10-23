@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { queryKeys } from "../lib/queryKeys";
-import { displayMoney } from "../lib/utils/display";
+import { displayMoney, displayQuantity } from "../lib/utils/display";
 import { AchievementToast } from "./achievement-toast";
 
 const ACHIEVEMENT_TOAST_MS = 6000;
@@ -21,7 +21,7 @@ export function GlobalNotifications() {
     (event) => {
       // Cada execução é um aviso; o Toaster os empilha com o mais novo na frente
       toast.success(`${event.action === "buy" ? "Compra" : "Venda"} executada`, {
-        description: `${event.quantity} ${event.ticker} a ${displayMoney(event.price)}`,
+        description: `${displayQuantity(event.quantity)} ${event.ticker} a ${displayMoney(event.price)}`,
         action: { label: "Ver", onClick: () => void navigate(`/variable-income/${event.ticker}`) },
       });
     },
@@ -33,7 +33,7 @@ export function GlobalNotifications() {
     (event) => {
       const missing = event.action === "sell" ? "comprador" : "vendedor";
       toast.warning(`${event.action === "buy" ? "Compra" : "Venda"} executada em parte`, {
-        description: `${event.quantity} ${event.ticker} executadas, ${event.remaining} seguem abertas · faltou ${missing}`,
+        description: `${displayQuantity(event.quantity)} ${event.ticker} executadas, ${displayQuantity(event.remaining)} seguem abertas · faltou ${missing}`,
         action: { label: "Ver ordem", onClick: () => void navigate(`/variable-income/${event.ticker}`) },
       });
     },

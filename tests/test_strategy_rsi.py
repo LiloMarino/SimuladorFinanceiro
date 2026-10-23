@@ -65,7 +65,7 @@ def test_sells_the_free_part_when_the_rsi_rises_above_the_sell_level():
         prices,
         PARAMS,
         start=10,
-        holdings={"AAA": Holding("AAA", 100, 30, Decimal(50))},
+        holdings={"AAA": Holding("AAA", Decimal(100), Decimal(30), Decimal(50))},
     )
 
     [intent] = ctx.intents

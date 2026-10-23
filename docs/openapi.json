@@ -5970,7 +5970,8 @@
           "STOCK",
           "FII",
           "ETF",
-          "BDR"
+          "BDR",
+          "CRYPTO"
         ],
         "title": "AssetClass"
       },
@@ -9475,11 +9476,11 @@
             "$ref": "#/components/schemas/OrderStatus"
           },
           "size": {
-            "type": "integer",
+            "type": "string",
             "title": "Size"
           },
           "remaining": {
-            "type": "integer",
+            "type": "string",
             "title": "Remaining"
           },
           "limit_price": {
@@ -9551,7 +9552,7 @@
             "title": "Price"
           },
           "quantity": {
-            "type": "integer",
+            "type": "string",
             "title": "Quantity"
           }
         },
@@ -9602,11 +9603,11 @@
             "title": "Price"
           },
           "quantity": {
-            "type": "integer",
+            "type": "string",
             "title": "Quantity"
           },
           "remaining": {
-            "type": "integer",
+            "type": "string",
             "title": "Remaining"
           }
         },
@@ -9648,15 +9649,15 @@
             "title": "Cash After"
           },
           "max_quantity": {
-            "type": "integer",
+            "type": "string",
             "title": "Max Quantity"
           },
           "held": {
-            "type": "integer",
+            "type": "string",
             "title": "Held"
           },
           "reserved": {
-            "type": "integer",
+            "type": "string",
             "title": "Reserved"
           },
           "profit": {
@@ -9681,7 +9682,7 @@
             ],
             "title": "Tax"
           },
-          "month_stock_sales_after": {
+          "month_sales_after": {
             "anyOf": [
               {
                 "type": "string"
@@ -9690,11 +9691,11 @@
                 "type": "null"
               }
             ],
-            "title": "Month Stock Sales After"
+            "title": "Month Sales After"
           },
-          "stock_sales_exemption": {
+          "exemption_limit": {
             "type": "string",
-            "title": "Stock Sales Exemption"
+            "title": "Exemption Limit"
           },
           "tax_due_date": {
             "anyOf": [
@@ -9721,8 +9722,8 @@
           "reserved",
           "profit",
           "tax",
-          "month_stock_sales_after",
-          "stock_sales_exemption",
+          "month_sales_after",
+          "exemption_limit",
           "tax_due_date"
         ],
         "title": "OrderPreviewDTO",
@@ -9734,8 +9735,15 @@
             "$ref": "#/components/schemas/OrderAction"
           },
           "quantity": {
-            "type": "integer",
-            "minimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
             "title": "Quantity"
           },
           "limit_price": {
@@ -11034,6 +11042,14 @@
             "type": "string",
             "title": "Stock Sales Exemption"
           },
+          "month_crypto_sales": {
+            "type": "string",
+            "title": "Month Crypto Sales"
+          },
+          "crypto_sales_exemption": {
+            "type": "string",
+            "title": "Crypto Sales Exemption"
+          },
           "variable_income": {
             "items": {
               "$ref": "#/components/schemas/PortfolioPositionDTO"
@@ -11094,6 +11110,8 @@
           "income_tax_due_date",
           "month_stock_sales",
           "stock_sales_exemption",
+          "month_crypto_sales",
+          "crypto_sales_exemption",
           "variable_income",
           "sectors",
           "effective_sectors",
@@ -11158,11 +11176,11 @@
             "title": "Ticker"
           },
           "size": {
-            "type": "integer",
+            "type": "string",
             "title": "Size"
           },
           "reserved": {
-            "type": "integer",
+            "type": "string",
             "title": "Reserved"
           },
           "total_cost": {
@@ -11235,11 +11253,11 @@
             "title": "Ticker"
           },
           "size": {
-            "type": "integer",
+            "type": "string",
             "title": "Size"
           },
           "reserved": {
-            "type": "integer",
+            "type": "string",
             "title": "Reserved"
           },
           "total_cost": {
@@ -13931,7 +13949,7 @@
           "quantity": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -14076,7 +14094,7 @@
           "quantity": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -14189,7 +14207,7 @@
           "quantity": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -14540,8 +14558,15 @@
       "SubmitOrderRequest": {
         "properties": {
           "quantity": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
             "title": "Quantity"
           },
           "type": {
@@ -15231,7 +15256,7 @@
             "title": "Action"
           },
           "quantity": {
-            "type": "integer",
+            "type": "string",
             "title": "Quantity"
           },
           "price": {

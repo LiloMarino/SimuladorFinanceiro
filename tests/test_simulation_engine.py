@@ -26,6 +26,7 @@ from backend.core.enum import (
     OrderAction,
     RateIndexType,
 )
+from backend.core.exceptions.http_exceptions import UnprocessableEntityError
 from backend.core.runtime.event_manager import EventManager
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_engine import SimulationEngine
@@ -91,7 +92,7 @@ def player_book(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEvent
                 event_date=TODAY,
                 ticker="ABCD",
                 event_type=EquityEventType.BUY,
-                quantity=10,
+                quantity=Decimal(10),
                 price=Decimal("10"),
             )
         ],
@@ -155,7 +156,7 @@ def test_portfolio_values_and_shares(player_book):
 def test_current_price_without_candle_is_average_price(player_book):
     """Sem candle no buffer, o preço atual da posição é o preço médio."""
     position = Position("WXYZ")
-    position.update_buy(Decimal("7.5"), 2)
+    position.update_buy(Decimal("7.5"), Decimal(2))
 
     assert _engine().get_current_price(position) == Decimal("7.5")
 
@@ -175,7 +176,7 @@ def test_stock_catalog_is_reused_and_reloaded_for_a_new_simulation(
     first = engine.get_portfolio(PLAYER)
     assert engine.get_portfolio(PLAYER) == first
     engine.assess_income_tax(USER_ID)
-    engine.preview_order(PLAYER, "ABCD", OrderAction.SELL, 1, 12)
+    engine.preview_order(PLAYER, "ABCD", OrderAction.SELL, Decimal(1), 12)
     assert calls == [True]
 
     # O catálogo não é global: uma nova partida vê o que a Central alterou.
@@ -221,7 +222,9 @@ def test_income_tax_payment_is_recorded_as_tax(player_book, captured_events):
 
 def test_preview_buy_uses_limit_price_and_cash(player_book):
     """Compra limitada: total pelo limite, caixa depois e o máximo que o caixa paga."""
-    preview = _engine().preview_order(PLAYER, "ABCD", OrderAction.BUY, 10, 12.0)
+    preview = _engine().preview_order(
+        PLAYER, "ABCD", OrderAction.BUY, Decimal(10), 12.0
+    )
 
     assert preview.price == Decimal("12.0")
     assert preview.total == Decimal("120.0")
@@ -240,19 +243,19 @@ def _next_day_engine() -> SimulationEngine:
 def test_preview_sell_within_exemption_has_no_tax(player_book):
     """Venda que deixa o mês abaixo de R$ 20 mil em ações: lucro sem IR."""
     preview = _next_day_engine().preview_order(
-        PLAYER, "ABCD", OrderAction.SELL, 10, 15.0
+        PLAYER, "ABCD", OrderAction.SELL, Decimal(10), 15.0
     )
 
     assert preview.max_quantity == 10
     assert preview.profit == Decimal("50.0")
-    assert preview.month_stock_sales_after == Decimal("150.0")
+    assert preview.month_sales_after == Decimal("150.0")
     assert preview.tax == 0
 
 
 def test_preview_sell_above_exemption_pays_fifteen_percent(player_book):
     """Venda que passa dos R$ 20 mil no mês: 15% sobre o lucro."""
     preview = _next_day_engine().preview_order(
-        PLAYER, "ABCD", OrderAction.SELL, 10, 2500.0
+        PLAYER, "ABCD", OrderAction.SELL, Decimal(10), 2500.0
     )
 
     # Lucro (2500 - 10) x 10 = 24.900; 15% = 3.735
@@ -280,3 +283,45 @@ def test_player_joining_mid_match_gets_the_starting_deposit_and_the_day_snapshot
     assert _cashflows(captured_events) == [(CashflowEventType.DEPOSIT, Decimal("500"))]
     assert [e.event_date for e in captured_events] == [TODAY]
     assert snapshots == [user]
+
+
+@pytest.fixture
+def crypto_book(player_book, monkeypatch: pytest.MonkeyPatch):
+    """A carteira do jogador num catálogo com um ativo de cripto."""
+    monkeypatch.setattr(
+        repository.stock,
+        "get_stocks",
+        lambda: [
+            StockDTO(id=1, ticker="ABCD", name="Abcd", asset_class=AssetClass.STOCK),
+            StockDTO(id=2, ticker="BTC", name="Bitcoin", asset_class=AssetClass.CRYPTO),
+        ],
+    )
+
+
+def test_preview_crypto_accepts_a_fraction_and_rounds_the_maximum_down(crypto_book):
+    """Cripto compra fração: o máximo do caixa (R$ 880) vem em oito casas, para baixo."""
+    preview = _engine().preview_order(
+        PLAYER, "BTC", OrderAction.BUY, Decimal("0.5"), 3.0
+    )
+
+    assert preview.total == Decimal("1.5")
+    assert preview.max_quantity == Decimal("293.33333333")
+
+
+def test_preview_stock_maximum_stays_whole(crypto_book):
+    """Fora da cripto, o máximo continua em unidades inteiras."""
+    preview = _engine().preview_order(PLAYER, "ABCD", OrderAction.BUY, Decimal(1), 12.0)
+
+    assert preview.max_quantity == Decimal("73")
+
+
+def test_fraction_is_refused_outside_crypto(crypto_book):
+    """Ação, FII, ETF e BDR só negociam unidades inteiras."""
+    engine = _engine()
+
+    with pytest.raises(UnprocessableEntityError, match="inteira"):
+        engine.preview_order(PLAYER, "ABCD", OrderAction.BUY, Decimal("0.5"), 12.0)
+    with pytest.raises(UnprocessableEntityError, match="inteira"):
+        engine.check_quantity("ABCD", Decimal("1.5"))
+    engine.check_quantity("ABCD", Decimal("2.00000000"))
+    engine.check_quantity("BTC", Decimal("0.00000001"))

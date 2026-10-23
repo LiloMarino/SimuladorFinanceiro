@@ -18,7 +18,7 @@ class StrategyEventDTO(BaseEventDTO):
     asset_uuid: UUID | None = None
     asset_name: str | None = None
     # Quantidade da ordem; nas linhas de modo, quantas ordens abertas foram canceladas
-    quantity: int | None = None
+    quantity: Decimal | None = None
     price: Decimal | None = None
     order_type: str | None = None
     order_id: str | None = None

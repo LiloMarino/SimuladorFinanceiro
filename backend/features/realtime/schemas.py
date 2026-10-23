@@ -74,11 +74,11 @@ class OrderExecutedEventDTO(BaseDTO):
     ticker: str
     action: OrderAction
     price: Decimal
-    quantity: int
+    quantity: Decimal
 
 
 class OrderPartialExecutedEventDTO(OrderExecutedEventDTO):
-    remaining: int
+    remaining: Decimal
 
 
 class StocksUpdateEventDTO(BaseDTO):

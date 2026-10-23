@@ -53,12 +53,20 @@ def test_does_not_buy_when_the_close_stays_below_the_high():
 
 
 def test_does_not_buy_again_an_asset_it_already_holds():
-    ctx = run(105.0, 2000, holdings={"AAA": Holding("AAA", 10, 0, Decimal(90))})
+    ctx = run(
+        105.0,
+        2000,
+        holdings={"AAA": Holding("AAA", Decimal(10), Decimal(0), Decimal(90))},
+    )
     assert ctx.intents == []
 
 
 def test_sells_the_free_part_when_the_close_falls_below_the_low():
-    ctx = run(95.0, 1000, holdings={"AAA": Holding("AAA", 100, 40, Decimal(90))})
+    ctx = run(
+        95.0,
+        1000,
+        holdings={"AAA": Holding("AAA", Decimal(100), Decimal(40), Decimal(90))},
+    )
 
     [intent] = ctx.intents
     assert intent.action is StrategyAction.SELL

@@ -83,8 +83,9 @@ O card **Imposto de renda** acompanha o imposto sobre o lucro das suas vendas em
 - **Já pago**: o imposto que já saiu do seu caixa.
 - **A pagar**: o imposto que ainda vai sair. Quando há valor, o card diz em que dia ele sai do caixa e de qual mês são as vendas.
 - **Vendas de ações no mês**: uma régua com o quanto você já vendeu em ações. O lucro com ações é isento enquanto as vendas do mês somarem até R$ 20.000.
+- **Vendas de cripto no mês**: uma régua igual, que aparece no mês em que você vendeu cripto. O lucro com cripto é isento enquanto as vendas do mês somarem até R$ 35.000.
 
-As regras são as do Brasil: 15% do lucro em ações (isento até a régua acima), 20% em FIIs e em day trade, e 15% em ETFs e BDRs, sem isenção. O botão **Como funciona** abre esse resumo.
+As regras são as do Brasil: 15% do lucro em ações (isento até a régua acima), 20% em FIIs e em day trade, 15% em ETFs e BDRs, sem isenção, e 15% em cripto (isento até a régua de cripto; cripto não tem day trade distinto e o prejuízo dela só abate lucro de cripto). O botão **Como funciona** abre esse resumo.
 
 ## Próximos passos
 

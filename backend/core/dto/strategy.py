@@ -71,7 +71,7 @@ class StrategyLastOrderDTO(BaseDTO):
     action: StrategyAction
     ticker: str | None
     asset_name: str | None
-    quantity: int | None
+    quantity: Decimal | None
     order_date: date
     order_type: str | None
 
@@ -215,7 +215,7 @@ class StrategyLogRowDTO(BaseDTO):
     action: StrategyAction | None
     ticker: str | None
     asset_name: str | None
-    quantity: int | None
+    quantity: Decimal | None
     price: Decimal | None
     order_type: str | None
     reason: str | None
@@ -233,7 +233,7 @@ class StrategyOrderLineDTO(BaseDTO):
     action: StrategyAction
     ticker: str | None
     asset_name: str | None
-    quantity: int | None
+    quantity: Decimal | None
     price: Decimal | None
     status: StrategyOrderStatus
     reason: str | None

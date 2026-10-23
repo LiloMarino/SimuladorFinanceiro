@@ -62,7 +62,7 @@ def saved_match(players: list[UserDTO], buyer: UserDTO) -> int:
                 event_date=BOUGHT_ON,
                 ticker="BANK_A",
                 event_type=EquityEventType.BUY,
-                quantity=QUANTITY,
+                quantity=Decimal(QUANTITY),
                 price=PRICE,
             ),
             CashflowEventDTO(

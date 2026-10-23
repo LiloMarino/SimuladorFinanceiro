@@ -94,6 +94,13 @@ export function displayNumber(value: Numeric, digits = 2) {
   }).format(value as Intl.StringNumericLiteral | number);
 }
 
+const QUANTITY_FORMAT = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 8 });
+
+/** Quantidade de ativo lida da string decimal, sem zeros à direita ("0.50000000" → "0,5", "10.00000000" → "10"). */
+export function displayQuantity(value: string) {
+  return QUANTITY_FORMAT.format(value as Intl.StringNumericLiteral);
+}
+
 /** Número em pt-BR, sem separador de milhar (0.02 → "0,02"). */
 export function displayDecimal(value: number) {
   return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 6, useGrouping: false }).format(value);

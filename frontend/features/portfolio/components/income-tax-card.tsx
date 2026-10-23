@@ -16,15 +16,16 @@ const RULES = [
   ["Ações", "15% do lucro · isento se as vendas de ações do mês somarem até R$ 20 mil"],
   ["FII e day trade", "20% do lucro"],
   ["ETF e BDR", "15%, sem isenção"],
+  ["Cripto", "15% do lucro · isento se as vendas de cripto do mês somarem até R$ 35 mil"],
 ] as const;
 
 /** IR da renda variável: o que já saiu, o que vai sair e a régua da isenção do mês. */
 export function IncomeTaxCard({ portfolio }: { portfolio: PortfolioState }) {
-  const sales = Number(portfolio.month_stock_sales);
-  const limit = Number(portfolio.stock_sales_exemption);
-  // A barra enche com vendas / limite; passando do limite, a marca recua para a posição real dele
-  const scale = Math.max(sales, limit) || 1;
-  const overLimit = sales > limit;
+  // A régua de cripto só aparece no mês em que houve venda dela
+  const rulers = [
+    { noun: "ações", sales: Number(portfolio.month_stock_sales), limit: Number(portfolio.stock_sales_exemption) },
+    { noun: "cripto", sales: Number(portfolio.month_crypto_sales), limit: Number(portfolio.crypto_sales_exemption) },
+  ].filter((ruler) => ruler.noun === "ações" || ruler.sales > 0);
   const due = Number(portfolio.income_tax_due) > 0;
   const dueDate = portfolio.income_tax_due_date;
 
@@ -80,32 +81,39 @@ export function IncomeTaxCard({ portfolio }: { portfolio: PortfolioState }) {
             <p className="text-[13px] text-muted-foreground">Nenhuma venda com lucro ainda</p>
           )}
 
-          {/* Régua da isenção */}
-          <div className="grid gap-1.5 border-t border-border pt-3">
-            <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Vendas de ações no mês</span>
-              <span className="font-mono">{displayMoney(sales)}</span>
-            </div>
-            <div className="relative h-1.5 rounded-full bg-muted">
-              <span
-                className={
-                  overLimit
-                    ? "absolute inset-y-0 left-0 rounded-full bg-warning"
-                    : "absolute inset-y-0 left-0 rounded-full bg-primary"
-                }
-                style={{ width: `${(sales / scale) * 100}%` }}
-              />
-              <span
-                className="absolute -top-1 h-3.5 w-0.5 bg-foreground"
-                style={{ left: `${(limit / scale) * 100}%` }}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {overLimit
-                ? `Passou da isenção de ${displayMoney(limit)} no mês, então o lucro em ações é tributado.`
-                : `Até ${displayMoney(limit)} em vendas de ações no mês, o lucro com ações é isento.`}
-            </p>
-          </div>
+          {/* Réguas da isenção */}
+          {rulers.map(({ noun, sales, limit }) => {
+            // A barra enche com vendas / limite; passando do limite, a marca recua para a posição real dele
+            const scale = Math.max(sales, limit) || 1;
+            const overLimit = sales > limit;
+            return (
+              <div key={noun} className="grid gap-1.5 border-t border-border pt-3">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Vendas de {noun} no mês</span>
+                  <span className="font-mono">{displayMoney(sales)}</span>
+                </div>
+                <div className="relative h-1.5 rounded-full bg-muted">
+                  <span
+                    className={
+                      overLimit
+                        ? "absolute inset-y-0 left-0 rounded-full bg-warning"
+                        : "absolute inset-y-0 left-0 rounded-full bg-primary"
+                    }
+                    style={{ width: `${(sales / scale) * 100}%` }}
+                  />
+                  <span
+                    className="absolute -top-1 h-3.5 w-0.5 bg-foreground"
+                    style={{ left: `${(limit / scale) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {overLimit
+                    ? `Passou da isenção de ${displayMoney(limit)} no mês, então o lucro em ${noun} é tributado.`
+                    : `Até ${displayMoney(limit)} em vendas de ${noun} no mês, o lucro com ${noun} é isento.`}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </CardContent>
     </Card>

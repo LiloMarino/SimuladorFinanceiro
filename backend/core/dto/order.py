@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from decimal import Decimal
 
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import OrderAction, OrderStatus, OrderType
@@ -14,8 +15,8 @@ class OrderDTO(BaseDTO):
     action: OrderAction
     order_type: OrderType
     status: OrderStatus
-    size: int
-    remaining: int
+    size: Decimal
+    remaining: Decimal
     limit_price: float | None
     created_at: datetime
     # Liquidez do mercado simulado, não de um jogador

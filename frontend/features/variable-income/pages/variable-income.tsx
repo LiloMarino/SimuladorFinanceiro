@@ -15,7 +15,13 @@ import type { AssetClass } from "@/types";
 
 type Filter = "ALL" | "HELD" | AssetClass;
 // Um botão por classe da API: classe nova sem rótulo não compila
-const CLASS_FILTER_LABELS: Record<AssetClass, string> = { STOCK: "Ações", FII: "FII", ETF: "ETF", BDR: "BDR" };
+const CLASS_FILTER_LABELS: Record<AssetClass, string> = {
+  STOCK: "Ações",
+  FII: "FII",
+  ETF: "ETF",
+  BDR: "BDR",
+  CRYPTO: "Cripto",
+};
 const ALL_SECTORS = "__all__";
 const NO_SECTOR = "__none__";
 

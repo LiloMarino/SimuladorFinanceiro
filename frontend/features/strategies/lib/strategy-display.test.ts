@@ -18,7 +18,7 @@ const PANEL: StrategyPanel = {
 };
 
 function line(action: StrategyOrderLine["action"]): StrategyOrderLine {
-  return { action, ticker: "PETR4", asset_name: null, quantity: 300, price: "18.40", status: "executed", reason: null };
+  return { action, ticker: "PETR4", asset_name: null, quantity: "300", price: "18.40", status: "executed", reason: null };
 }
 
 describe("ordersBreakdown", () => {

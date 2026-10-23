@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 
 from backend.core.enum import OrderAction
 from backend.features.variable_income.entities.order import LimitOrder
@@ -21,7 +22,7 @@ def _limit(
         client_id=uuid.uuid4(),
         ticker=ticker,
         price=price,
-        size=1,
+        size=Decimal(1),
         action=action,
         created_at=T0 + timedelta(seconds=seconds),
     )

@@ -41,6 +41,9 @@ class PortfolioDTO(BaseDTO):
     # Vendas de ações no mês da simulação e o teto da isenção mensal
     month_stock_sales: Decimal
     stock_sales_exemption: Decimal
+    # Vendas de cripto no mês da simulação e o teto da isenção mensal
+    month_crypto_sales: Decimal
+    crypto_sales_exemption: Decimal
     variable_income: list[PortfolioPositionDTO]
     # Renda variável por setor e segmento; as frações são sobre a renda variável
     sectors: list[SectorAllocationDTO]

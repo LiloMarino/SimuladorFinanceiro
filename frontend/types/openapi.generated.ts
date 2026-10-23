@@ -2073,7 +2073,7 @@ export interface components {
          * AssetClass
          * @enum {string}
          */
-        AssetClass: "STOCK" | "FII" | "ETF" | "BDR";
+        AssetClass: "STOCK" | "FII" | "ETF" | "BDR" | "CRYPTO";
         /** AssetClassRequest */
         AssetClassRequest: {
             asset_class: components["schemas"]["AssetClass"];
@@ -3302,9 +3302,9 @@ export interface components {
             order_type: components["schemas"]["OrderType"];
             status: components["schemas"]["OrderStatus"];
             /** Size */
-            size: number;
+            size: string;
             /** Remaining */
-            remaining: number;
+            remaining: string;
             /** Limit Price */
             limit_price: number | null;
             /**
@@ -3329,7 +3329,7 @@ export interface components {
             /** Price */
             price: string;
             /** Quantity */
-            quantity: number;
+            quantity: string;
         };
         /** OrderNotificationSettings */
         OrderNotificationSettings: {
@@ -3348,9 +3348,9 @@ export interface components {
             /** Price */
             price: string;
             /** Quantity */
-            quantity: number;
+            quantity: string;
             /** Remaining */
-            remaining: number;
+            remaining: string;
         };
         /**
          * OrderPreviewDTO
@@ -3366,19 +3366,19 @@ export interface components {
             /** Cash After */
             cash_after: string;
             /** Max Quantity */
-            max_quantity: number;
+            max_quantity: string;
             /** Held */
-            held: number;
+            held: string;
             /** Reserved */
-            reserved: number;
+            reserved: string;
             /** Profit */
             profit: string | null;
             /** Tax */
             tax: string | null;
-            /** Month Stock Sales After */
-            month_stock_sales_after: string | null;
-            /** Stock Sales Exemption */
-            stock_sales_exemption: string;
+            /** Month Sales After */
+            month_sales_after: string | null;
+            /** Exemption Limit */
+            exemption_limit: string;
             /** Tax Due Date */
             tax_due_date: string | null;
         };
@@ -3386,7 +3386,7 @@ export interface components {
         OrderPreviewRequest: {
             action: components["schemas"]["OrderAction"];
             /** Quantity */
-            quantity: number;
+            quantity: number | string;
             /** Limit Price */
             limit_price?: number | null;
         };
@@ -3804,6 +3804,10 @@ export interface components {
             month_stock_sales: string;
             /** Stock Sales Exemption */
             stock_sales_exemption: string;
+            /** Month Crypto Sales */
+            month_crypto_sales: string;
+            /** Crypto Sales Exemption */
+            crypto_sales_exemption: string;
             /** Variable Income */
             variable_income: components["schemas"]["PortfolioPositionDTO"][];
             /** Sectors */
@@ -3843,9 +3847,9 @@ export interface components {
             /** Ticker */
             ticker: string;
             /** Size */
-            size: number;
+            size: string;
             /** Reserved */
-            reserved: number;
+            reserved: string;
             /** Total Cost */
             total_cost: string;
             /** Avg Price */
@@ -3872,9 +3876,9 @@ export interface components {
             /** Ticker */
             ticker: string;
             /** Size */
-            size: number;
+            size: string;
             /** Reserved */
-            reserved: number;
+            reserved: string;
             /** Total Cost */
             total_cost: string;
             /** Avg Price */
@@ -4863,7 +4867,7 @@ export interface components {
             /** Asset Name */
             asset_name: string | null;
             /** Quantity */
-            quantity: number | null;
+            quantity: string | null;
             /**
              * Order Date
              * Format: date
@@ -4905,7 +4909,7 @@ export interface components {
             /** Asset Name */
             asset_name: string | null;
             /** Quantity */
-            quantity: number | null;
+            quantity: string | null;
             /** Price */
             price: string | null;
             /** Order Type */
@@ -4924,7 +4928,7 @@ export interface components {
             /** Asset Name */
             asset_name: string | null;
             /** Quantity */
-            quantity: number | null;
+            quantity: string | null;
             /** Price */
             price: string | null;
             status: components["schemas"]["StrategyOrderStatus"];
@@ -5030,7 +5034,7 @@ export interface components {
         /** SubmitOrderRequest */
         SubmitOrderRequest: {
             /** Quantity */
-            quantity: number;
+            quantity: number | string;
             /** Type */
             type: string;
             /** Action */
@@ -5247,7 +5251,7 @@ export interface components {
             /** Action */
             action: string;
             /** Quantity */
-            quantity: number;
+            quantity: string;
             /** Price */
             price: string;
         };

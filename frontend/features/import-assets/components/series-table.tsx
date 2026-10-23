@@ -34,6 +34,7 @@ const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   FII: "FII",
   ETF: "ETF",
   BDR: "BDR",
+  CRYPTO: "Cripto",
 };
 
 const COLUMNS = 5;

@@ -13,7 +13,7 @@ class Intent:
     # Frase em português para a coluna "Por quê" do registro
     reason: str
     ticker: str | None = None
-    quantity: int | None = None
+    quantity: Decimal | None = None
     # Sem limite, a ordem é a mercado
     limit: float | None = None
     order_id: str | None = None
@@ -21,12 +21,16 @@ class Intent:
     value: Decimal | None = None
 
 
-def buy(ticker: str, quantity: int, reason: str, limit: float | None = None) -> Intent:
-    return Intent(StrategyAction.BUY, reason, ticker, quantity, limit)
+def buy(
+    ticker: str, quantity: Decimal | int, reason: str, limit: float | None = None
+) -> Intent:
+    return Intent(StrategyAction.BUY, reason, ticker, Decimal(quantity), limit)
 
 
-def sell(ticker: str, quantity: int, reason: str, limit: float | None = None) -> Intent:
-    return Intent(StrategyAction.SELL, reason, ticker, quantity, limit)
+def sell(
+    ticker: str, quantity: Decimal | int, reason: str, limit: float | None = None
+) -> Intent:
+    return Intent(StrategyAction.SELL, reason, ticker, Decimal(quantity), limit)
 
 
 def cancel(order_id: str, reason: str) -> Intent:

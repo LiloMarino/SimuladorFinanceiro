@@ -13,14 +13,15 @@ class OrderPreviewDTO(BaseDTO):
     cash_before: Decimal
     cash_after: Decimal
     # Compra: o que o caixa paga ao preço estimado; venda: o que está livre de ordens abertas
-    max_quantity: int
-    held: int
-    reserved: int
+    max_quantity: Decimal
+    held: Decimal
+    reserved: Decimal
     # Só na venda: lucro sobre o preço médio e o IR que a venda acrescenta ao mês
     profit: Decimal | None
     tax: Decimal | None
-    month_stock_sales_after: Decimal | None
-    stock_sales_exemption: Decimal
+    # Vendas do mês na classe do ativo (ação ou cripto) com esta venda, e o teto da isenção dela
+    month_sales_after: Decimal | None
+    exemption_limit: Decimal
     tax_due_date: date | None
 
 
@@ -32,5 +33,5 @@ class TradeDTO(BaseDTO):
     # Chave da paleta do jogador nesta partida
     player_color: str
     action: str
-    quantity: int
+    quantity: Decimal
     price: Decimal

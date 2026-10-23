@@ -286,7 +286,7 @@ class StrategyRunner:
                 None,
                 today,
                 reason=f"Você voltou ao manual{_canceled_phrase(canceled, previous.cls.name)}",
-                quantity=canceled,
+                quantity=Decimal(canceled),
             )
             self._finish_mode_change(user, active=False)
             return
@@ -321,7 +321,13 @@ class StrategyRunner:
                 reason = f"Você ligou {cls.name}"
                 reason += _canceled_phrase(canceled, None)
             self._push_mode(
-                user, kind, key, resolved, today, reason=reason, quantity=canceled
+                user,
+                kind,
+                key,
+                resolved,
+                today,
+                reason=reason,
+                quantity=Decimal(canceled),
             )
         self._finish_mode_change(user, active=True)
 
@@ -628,7 +634,7 @@ class StrategyRunner:
         *,
         reason: str | None = None,
         detail: str | None = None,
-        quantity: int | None = None,
+        quantity: Decimal | None = None,
     ) -> None:
         EventManager.push_event(
             StrategyEventDTO(
@@ -669,7 +675,7 @@ def _order_action(action: StrategyAction) -> OrderAction:
 def _order_result(order: Order) -> dict:
     """Situação, quantidade e preço da ordem logo depois de enviada."""
     executed = order.size - order.remaining
-    average = to_money(order.notional / executed) if executed else None
+    average = to_money(order.notional / float(executed)) if executed else None
     if isinstance(order, LimitOrder):
         done = order.remaining == 0
         return {

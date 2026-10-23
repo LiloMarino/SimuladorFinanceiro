@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
-import { displayDate, displayMoney, parseLocalDate } from "@/shared/lib/utils/display";
+import { displayDate, displayMoney, displayQuantity, parseLocalDate } from "@/shared/lib/utils/display";
 import type { Order } from "@/types";
 import { useTrades } from "../hooks/queries/useTrades";
 import { useCancelOrder } from "../hooks/mutations/useCancelOrder";
@@ -58,6 +58,9 @@ function Side({ action }: { action: string }) {
   return action === "buy" ? <Badge variant="success">Compra</Badge> : <Badge variant="destructive">Venda</Badge>;
 }
 
+/** O que a ordem já executou: tamanho menos o que falta. */
+const executedQuantity = (o: Order) => displayQuantity(String(Number(o.size) - Number(o.remaining)));
+
 /** Ordens de todos os jogadores no ativo: as abertas e as execuções da sala. */
 export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Order[] }) {
   const { user } = useAuth();
@@ -69,11 +72,11 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
   const { data: trades } = useTrades(ticker, { enabled: tab === "HISTORY" });
   const openSort = useTableSort(open, {
     date: o => o.created_at, player: o => o.player_nickname, side: o => o.action === "buy" ? "Compra" : "Venda",
-    quantity: o => o.size, price: o => sortNumber(o.limit_price), status: o => o.status === "partial" ? "Parcial" : "Pendente",
+    quantity: o => Number(o.size), price: o => sortNumber(o.limit_price), status: o => o.status === "partial" ? "Parcial" : "Pendente",
   });
   const tradeSort = useTableSort(trades ?? [], {
     date: t => t.event_date, player: t => t.player_nickname, side: t => t.action === "buy" ? "Compra" : "Venda",
-    quantity: t => t.quantity, price: t => Number(t.price),
+    quantity: t => Number(t.quantity), price: t => Number(t.price),
   });
 
   const cancel = useCancelOrder(ticker);
@@ -105,8 +108,8 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
             <Alert variant="warning">
               <TriangleAlert />
               <AlertDescription>
-                Sua {o.action === "buy" ? "compra" : "venda"} de {o.size} {ticker} executou {o.size - o.remaining}. As
-                outras {o.remaining} seguem abertas até alguém {o.action === "buy" ? "vender" : "comprar"}
+                Sua {o.action === "buy" ? "compra" : "venda"} de {displayQuantity(o.size)} {ticker} executou {executedQuantity(o)}. As
+                outras {displayQuantity(o.remaining)} seguem abertas até alguém {o.action === "buy" ? "vender" : "comprar"}
                 {o.limit_price !== null ? ` a ${displayMoney(o.limit_price)}` : ""}.
               </AlertDescription>
             </Alert>
@@ -150,12 +153,12 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
                     <TableCell>
                       <Side action={o.action} />
                     </TableCell>
-                    <TableCell numeric>{o.size}</TableCell>
+                    <TableCell numeric>{displayQuantity(o.size)}</TableCell>
                     <TableCell numeric>{o.limit_price === null ? "a mercado" : displayMoney(o.limit_price)}</TableCell>
                     <TableCell>
                       {o.status === "partial" ? (
                         <Badge variant="warning">
-                          Parcial · {o.size - o.remaining} de {o.size}
+                          Parcial · {executedQuantity(o)} de {displayQuantity(o.size)}
                         </Badge>
                       ) : (
                         <Badge variant="info">Aberta</Badge>
@@ -209,7 +212,7 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
                 <TableCell>
                   <Side action={t.action} />
                 </TableCell>
-                <TableCell numeric>{t.quantity}</TableCell>
+                <TableCell numeric>{displayQuantity(t.quantity)}</TableCell>
                 <TableCell numeric>{displayMoney(t.price)}</TableCell>
               </TableRow>
             ))}
