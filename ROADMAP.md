@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-23):** Registrada a necessidade N37 e a F113: classe de ativo cripto com quantidade fracionária, para comprar bitcoin em frações como na vida real.
+> **Última mudança (2026-10-23):** Registradas a necessidade N38 e as features F114 a F121: escala do gráfico de ações, estatísticas mensais, gráfico da nota, atalhos da renda fixa, última configuração da partida, seletor de intervalo, gráficos da carteira e compra total a mercado.
 
 ## Glossário
 
@@ -26,17 +26,17 @@
 | **N6** | Comparar resultados de simulações diferentes | — | — |
 | **N7** | Que o simulador cobre os custos de operar do mercado real | — | — |
 | **N8** | Jogar contra oponentes controlados pelo computador | [F16](#f16) | — |
-| **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — |
+| **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | [F116](#f116) | — |
 | **N10** | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | [F19](#f19) | — |
 | **N11** | Que o cenário econômico simulado seja o histórico real | — | — |
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F117](#f117) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
-| **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33), [F96](#f96) | — |
+| **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33), [F96](#f96), [F114](#f114) | — |
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | — | — |
 | **N22** | Ter objetivos para buscar além de vencer a partida | — | — |
@@ -47,7 +47,7 @@
 | **N27** | Entrar numa partida que já começou | — | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
 | **N29** | Saber o que cada jogador está fazendo enquanto a partida não começa | — | — |
-| **N30** | Repetir uma configuração de partida sem montá-la de novo | [F89](#f89) | — |
+| **N30** | Repetir uma configuração de partida sem montá-la de novo | [F89](#f89), [F118](#f118) | — |
 | **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92) | — |
 | **N32** | Saber como foi o mês sem montar a conta | [F91](#f91) | — |
 | **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F94](#f94), [F111](#f111) | — |
@@ -55,6 +55,7 @@
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — |
 | **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F113](#f113) | — |
+| **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | [F115](#f115) | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ⏳ |
@@ -103,6 +104,14 @@
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
+| [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ⏳ |
+| [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ⏳ |
+| [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ⏳ |
+| [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ⏳ |
+| [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
+| [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
+| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
+| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
@@ -110,15 +119,15 @@
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
 | **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F94](#f94) | ✅ |
-| **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F33](#f33) | ✅ |
+| **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F33](#f33), [F115](#f115), [F116](#f116) | ✅ |
 | **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F113](#f113) | ✅ |
 | **D4** | Banco de dados embarcado no executável | — | ✅ |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F7](#f7) | 🔁 |
 | **D6** | A retomada continua no dia seguinte ao último evento | — | ✅ |
 | **D7** | O simulador lê as séries sem saber a origem | [F92](#f92) | ✅ |
 | **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F8](#f8), [F16](#f16), [F19](#f19), [F110](#f110), [F111](#f111) | ✅ |
-| **D9** | De onde nasce uma mudança de schema | [F101](#f101) | ✅ |
-| **D10** | Como a nota geral é calculada | — | ✅ |
+| **D9** | De onde nasce uma mudança de schema | [F101](#f101), [F118](#f118) | ✅ |
+| **D10** | Como a nota geral é calculada | [F116](#f116) | ✅ |
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | ✅ |
 | **D12** | Como numerar as versões | — | ✅ |
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
@@ -156,6 +165,14 @@
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
+| [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | 0 | ⏳ |
+| [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | 0 | ⏳ |
+| [**F116**](#f116) | Gráfico da nota ao longo da partida | — | 0 | ⏳ |
+| [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | 0 | ⏳ |
+| [**F118**](#f118) | Lembrar a última configuração da partida | — | 0 | ⏳ |
+| [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 0 | 🔍 |
+| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
+| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 0 | 🔍 |
 
 ---
 
@@ -277,7 +294,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/30 concluídas
+> **Progresso:** 0/38 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -311,6 +328,14 @@
 | [**F110**](#f110) | Combinar estratégias | [F8](#f8) | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | [F8](#f8), [F94](#f94) | 💤 |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
+| [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ⏳ |
+| [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ⏳ |
+| [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ⏳ |
+| [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ⏳ |
+| [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
+| [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
+| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
+| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
 
 ---
 
@@ -342,6 +367,11 @@
 | **F110** | Combinar estratégias | N4 | D8 | — | [F8](#f8) | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | [F8](#f8), [F94](#f94) | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F113** | Classe de ativo cripto com quantidade fracionária | N37 | D3 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
+| **F114** | Gráfico de ações que acompanha o preço | N19 | — | — | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F115** | Estatísticas dizem que atualizam por mês e quando é a próxima | N38 | D2 | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F116** | Gráfico da nota ao longo da partida | N9 | D2, D10 | — | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F117** | Atalhos de valor da renda fixa somam ao campo | N15 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F118** | Lembrar a última configuração da partida | N30 | D9 | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -457,6 +487,24 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 <a id="f113"></a>
 **F113 — Classe de ativo cripto com quantidade fracionária.** Serve N37; segue a D3. Hoje a quantidade é inteira da ordem ao banco (`equity_event.quantity` é `Integer`, e `quantity` é `int` nos DTOs de ordem, de prévia e de evento, no motor e no `max_quantity` da prévia), então um ativo de preço alto como o bitcoin só se compra em unidades inteiras. Plano: (1) **Classe nova:** `CRYPTO` no `AssetClass`, escolhível na tela de importação (que já troca a classe de um ativo) e valendo para `BTC-USD` e afins, que o importador já aceita. (2) **Quantidade decimal:** a coluna vira `NUMERIC(20,8)` por migration (oito casas, a precisão do satoshi) e os DTOs passam a `Decimal`, serializado em string (D3); ação, FII, ETF e BDR continuam aceitando só inteiro, e a validação da ordem recusa fração fora de `CRYPTO`. (3) **Motor:** compra, venda, preço médio, `max_quantity` da prévia (arredondado para baixo nas oito casas) e o impacto de preço passam a operar em `Decimal`. (4) **Imposto:** `income_tax` ganha a categoria cripto, com regra própria a conferir na implementação. (5) **Telas:** o campo de quantidade da ordem aceita vírgula quando o ativo é cripto, e a quantidade da carteira e do histórico exibe as casas necessárias. Gatilho: o uso pedir bitcoin na carteira, ou a F22 e a F100 mexerem em quantidade e proventos, já que convém migrar a coluna uma vez só.
 
+<a id="f114"></a>
+**F114 — Gráfico de ações que acompanha o preço.** Serve N19. No `stock-chart.tsx` as duas séries (linha e velas) nascem com `priceScale().applyOptions({ autoScale: false })`, então a faixa de preços visível fica presa à do primeiro desenho; quando a partida avança e o preço sobe, ele passa da borda de cima e sai da área plotada. Plano: (1) tirar o `autoScale: false` das duas séries, deixando a escala vertical seguir o que está visível no período escolhido, com `scaleMargins` para o preço não encostar na borda; (2) quando a pessoa arrasta o eixo de preço à mão, a biblioteca desliga a escala automática, e o botão "Ir pro dia de hoje" a religa (`autoScale: true`) junto com o `scrollToRealTime()`; (3) conferir que os dias novos da partida entram na série sem refazer o gráfico, já que o efeito só recria nas trocas de tipo, período e ativo. Gatilho: o preço sair da área em qualquer ativo que sobe durante a partida.
+**Aceite:** numa partida com o preço de um ativo subindo dia após dia, o preço fica dentro da área do gráfico em todos os períodos, sem mexer em nada.
+
+<a id="f115"></a>
+**F115 — Estatísticas dizem que atualizam por mês e quando é a próxima.** Serve N38; segue a D2. A tela de Estatísticas só busca o histórico de novo na virada do mês da partida (o evento `statistics_snapshot_update`, que `_create_daily_snapshots` emite só quando o mês muda), e nada na tela conta isso: os números ficam parados por semanas de jogo e parece que travaram. Plano: (1) o backend devolve, junto das estatísticas, a data da próxima virada do mês da partida, pela mesma regra que dispara o evento (cálculo de data no backend, como manda a D2); (2) o cabeçalho do relatório mostra "Atualizadas uma vez por mês de jogo · próxima atualização em X dias" (dias da partida, não do relógio), com uma dica explicando que as métricas fecham no mês porque risco e nota precisam de uma série de retornos mensais; (3) sem partida em andamento (pausada ou encerrada), o texto some. Gatilho: a dúvida de "por que não muda?" voltar.
+
+<a id="f116"></a>
+**F116 — Gráfico da nota ao longo da partida.** Serve N9; segue a D10 e a D2. Hoje a nota geral é um número só, calculado sobre o último snapshot, na aba Geral das Estatísticas e no ranking; não dá para ver se o jogador está melhorando ou piorando. Plano: (1) o backend calcula a nota (a mesma função da D10, sem versão paralela) sobre o histórico até cada virada de mês e devolve a série `data → nota total + pontos por eixo` (retorno, risco, consistência, eficiência); (2) a série começa no primeiro mês em que a nota existe, porque as métricas de risco ficam sem valor enquanto a série de retornos é curta; (3) na aba Geral, um gráfico de linha com a nota total e as quatro linhas dos eixos que se ligam e desligam, e o tooltip mostra a data, a nota e o peso de cada eixo; na partida com vários jogadores, uma linha por jogador no total; Gatilho: qualquer momento; a nota já existe, falta só a história dela.
+**Aceite:** o último ponto da série é igual à nota geral mostrada hoje, para cada jogador.
+
+<a id="f117"></a>
+**F117 — Atalhos de valor da renda fixa somam ao campo.** Serve N15. Na boleta (`investment-ticket.tsx`), os atalhos "R$ 1 mil", "R$ 5 mil" e "R$ 10 mil" chamam `fill`, que troca o valor do campo; clicar duas vezes em "R$ 10 mil" deixa R$ 10 mil, e o esperado é R$ 20 mil. Plano: `fill` soma o atalho ao valor já digitado (`amount`, que já sai do texto normalizado) e reformata com `formatMoney(toCentsString(...))`; como o atalho deixa de recomeçar o valor, entra um botão "Limpar" ao lado, que zera o campo. O aviso de saldo insuficiente (`overCash`) continua valendo sobre a soma. Gatilho: qualquer momento, é um ajuste pequeno.
+
+<a id="f118"></a>
+**F118 — Lembrar a última configuração da partida.** Serve N30; segue a D9. As regras pendentes moram em memória no `SettingsManager`, que nasce dos padrões do `config.toml` (início em 2000-01-01, por exemplo) a cada abertura do app, então o período, o capital, o aporte e o resto voltam ao padrão toda vez e o host refaz tudo. Plano: o lugar é o banco, porque as regras são do servidor do host (o formulário do lobby é semeado por elas) e o banco embarcado sobrevive entre aberturas. (1) Migration (D9) com uma tabela de uma linha só, `last_simulation_settings`, com a configuração em JSON validada pelo mesmo DTO das regras; (2) o `SettingsManager.update` grava essa linha quando as regras mudam, e o `get` a lê no lugar do `config.toml` quando existe, caindo nos padrões do arquivo se estiver vazia ou se um campo novo faltar; (3) o `config.toml` continua sendo o padrão de fábrica, e uma opção "Restaurar padrões" no formulário apaga a linha. O nome da partida não entra (é gerado a cada uma). A F89 (presets) pode ler a mesma linha como o preset "Última partida". Gatilho: o uso do lobby pedindo para não remontar as regras.
+**Aceite:** mudar o início para 2012, fechar e abrir o app, e o formulário abre com 2012.
+
 ---
 ## 2. Nice-to-have
 
@@ -523,6 +571,9 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 | **F105** | Gestoras: rendimentos mensais | Serve N23; falta a parte do lucro distribuída | — | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
 | **F106** | Governo: gasto público e inflação | Serve N34; falta quanto cada medida soma ao IPCA | — | [F95](#f95) | 🔍 Em avaliação |
 | **F107** | Perfis de público na eleição | Serve N34; eleitores com perfil sobre a eleição da F95 | — | [F95](#f95) | 🔍 Em avaliação |
+| **F119** | Escolher o intervalo da partida com "hoje" e atalhos | Serve N15 e N30; falta escolher a forma do seletor no canvas | — | — | 🔍 Em avaliação |
+| **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | Serve N15; falta escolher o desenho dos dois cards no canvas; liga à F72 | — | — | 🔍 Em avaliação |
+| **F121** | Comprar tudo a mercado sem estourar o caixa | Serve N15; falta escolher entre ordem por valor, ordem que se ajusta ou Máx com folga | — | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -580,3 +631,12 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 
 <a id="f107"></a>
 **F107 — Perfis de público na eleição.** Ligado à N34; amplia a eleição da expansão Governo (F95). Em vez de um eleitorado único, a eleição ganha eleitores artificiais agrupados em perfis (por exemplo, quem vive de renda, quem empreende, quem depende de serviço público), cada um com a própria posição na régua de promessa e a própria sensibilidade à verba. A transferência de votos do segundo turno deixa de ser "vai inteiro para o finalista com a promessa mais parecida" e passa a ser perfil a perfil, pela distância entre a promessa de cada finalista e a posição daquele perfil, e a pesquisa de intenção de voto pode mostrar o voto por perfil. Falta definir: quais perfis existem e quanto cada um pesa no eleitorado, se o peso muda com a economia da partida (desemprego, inflação), e se a aprovação do governo também passa a ser medida por perfil.
+
+<a id="f119"></a>
+**F119 — Escolher o intervalo da partida com "hoje" e atalhos.** Hoje o início e o fim são dois `DateField` (máscara dd/mm/aaaa e um calendário em popover, de 1993 a 2040) no `rules-sheet.tsx`, e o calendário não tem "hoje" nem atalho nenhum: montar um período como "os últimos 10 anos" é digitar duas datas. O que falta definir é a forma de escolher: (a) manter os dois campos e acrescentar ao calendário um botão "Hoje" e à linha de baixo atalhos de período ("últimos 5, 10 e 20 anos", "desde o início da série"); (b) trocar por um seletor de intervalo único, com o período todo num calendário só e o mesmo conjunto de atalhos; (c) um controle de período por anos, com o calendário só para o ajuste fino. Depende de ver as variantes no canvas, mantendo o aviso de cobertura de dados (`CoverageAlerts`). Sai daqui para Pendente com a variante escolhida.
+
+<a id="f120"></a>
+**F120 — Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira.** O que incomoda: o tooltip do donut (`allocation-donut.tsx`, um `Tooltip` do Recharts com estilo avulso) não agrada; o estilo do gráfico de evolução (`networth-chart.tsx`: áreas empilhadas por classe, linha tracejada do aportado, rótulos de fim à direita) parece estranho; e outros lugares usam um gráfico parecido (a área de composição das Estatísticas e a linha de desempenho). Falta escolher o desenho dos dois cards: que tipo de gráfico mostra a evolução (áreas empilhadas, uma linha de patrimônio contra o aportado, ou o patrimônio com o ganho destacado), o que o donut conta e como o tooltip responde, e se os dois cards continuam lado a lado. Parte de uma rodada no canvas, com variantes dos dois cards e do estado vazio e com poucos pontos. Ao aprovar, o visual vale para os gráficos parecidos, e a F72 (convenção de pasta e `ChartContainer`) é o lugar de migrá-los. Sai daqui para Pendente com a variante escolhida.
+
+<a id="f121"></a>
+**F121 — Comprar tudo a mercado sem estourar o caixa.** A boleta de renda variável calcula o "Máx" com o caixa e o preço da prévia (`preview_order`: o melhor preço de venda do book, ou o último fechamento), mas a ordem a mercado só é conferida na execução, contra o preço do momento (`_validate_market_order` compara `preço × quantidade` com o caixa). Com o jogo rodando, o preço anda entre o clique no "Máx" e a execução, então a quantidade que cabia na prévia deixa de caber e volta "Saldo insuficiente". O que falta escolher é como o "comprar tudo" fica garantido: (a) **ordem a mercado por valor:** o jogador informa quanto gastar (ou aperta "Tudo", o caixa inteiro) e o motor calcula a quantidade no momento da execução, com o preço que valeu, arredondando para baixo; nunca estoura, e é o caminho mais fiel a como corretoras fazem "comprar R$ X"; (b) **ordem que se ajusta:** a quantidade enviada vale como teto, e se o preço subiu o motor compra a maior quantidade que ainda cabe em vez de recusar; (c) **Máx com folga:** o botão deixa uma margem (por exemplo 2%) do caixa, o ajuste mais simples, mas sobra dinheiro parado e a margem ainda pode ser pequena num dia de salto. Recomendação: (a) com o botão "Tudo" na boleta, e (b) como regra do motor quando o preço mexe entre o envio e a execução. Falta decidir também como a boleta mostra a quantidade comprada, já que ela só se sabe depois. Sai daqui para Pendente com a opção escolhida.

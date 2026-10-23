@@ -136,6 +136,9 @@ Comparar preços, taxas, quantidades e resultados sem procurar linha por linha. 
 **N37. Comprar bitcoin do jeito que dá na vida real, em frações**
 Um bitcoin custa dezenas de milhares de reais, e hoje o jogo só vende ativo em quantidade inteira: ou se compra 1 bitcoin inteiro, ou nenhum. Na vida real se compra 0,5 ou 0,001, pelo valor que o investidor quer aplicar. Sem isso, o bitcoin fica fora do alcance de quem joga com uma carteira normal, e a partida perde um dos ativos mais conhecidos do mundo real.
 
+**N38. Saber quando as estatísticas vão mudar, sem achar que travaram**
+As estatísticas fecham uma vez por mês de jogo, e entre uma virada e outra os números ficam parados. Sem a tela dizer isso, parece defeito; o jogador precisa saber que a atualização é mensal e quanto falta para a próxima.
+
 ---
 
 ## Decisões
