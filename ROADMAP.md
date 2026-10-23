@@ -99,7 +99,6 @@
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
 | [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ⏳ |
-| [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
@@ -110,7 +109,7 @@
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -139,6 +138,7 @@
 | [**F94**](#f94) | Crédito | — | ✅ |
 | [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
 | [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ✅ |
+| [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ✅ |
 | [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ✅ |
 
 </details>
@@ -168,7 +168,6 @@
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
 | [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | 0 | ⏳ |
-| [**F116**](#f116) | Gráfico da nota ao longo da partida | — | 0 | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | 0 | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 0 | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
@@ -305,7 +304,7 @@
 
 ### Sem marco
 
-> **Progresso:** 5/42 concluídas
+> **Progresso:** 6/42 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -337,7 +336,6 @@
 | [**F111**](#f111) | Crédito para estratégias e bots | [F8](#f8), [F94](#f94) | 💤 |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
 | [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ⏳ |
-| [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
@@ -347,7 +345,7 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 
-<details><summary>Concluído (5 itens)</summary>
+<details><summary>Concluído (6 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -355,6 +353,7 @@
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ✅ |
 | [**F94**](#f94) | Crédito | — | ✅ |
 | [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ✅ |
+| [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ✅ |
 | [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ✅ |
 
 </details>
@@ -391,7 +390,7 @@
 | **F113** | Classe de ativo cripto com quantidade fracionária | N37 | D3 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F114** | Gráfico de ações que acompanha o preço | N19 | — | — | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F115** | Estatísticas dizem que atualizam por mês e quando é a próxima | N38 | D2 | — | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
-| **F116** | Gráfico da nota ao longo da partida | N9 | D2, D10 | — | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F116** | Gráfico da nota ao longo da partida | N9 | D2, D10 | — | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F117** | Atalhos de valor da renda fixa somam ao campo | N15 | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F118** | Lembrar a última configuração da partida | N30 | D9 | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F122** | Novas conquistas para as features recentes e antigas | N22 | D1 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
@@ -511,7 +510,7 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 **F115 — Estatísticas dizem que atualizam por mês e quando é a próxima.** Serve N38; segue a D2. A tela de Estatísticas só busca o histórico de novo na virada do mês da partida (o evento `statistics_snapshot_update`, que `_create_daily_snapshots` emite só quando o mês muda), e nada na tela conta isso: os números ficam parados por semanas de jogo e parece que travaram. Plano: (1) o backend devolve, junto das estatísticas, a data da próxima virada do mês da partida, pela mesma regra que dispara o evento (cálculo de data no backend, como manda a D2); (2) o cabeçalho do relatório mostra "Atualizadas uma vez por mês de jogo · próxima atualização em X dias" (dias da partida, não do relógio), com uma dica explicando que as métricas fecham no mês porque risco e nota precisam de uma série de retornos mensais; (3) sem partida em andamento (pausada ou encerrada), o texto some. Gatilho: a dúvida de "por que não muda?" voltar.
 
 <a id="f116"></a>
-**F116 — Gráfico da nota ao longo da partida.** Serve N9; segue a D10 e a D2. Hoje a nota geral é um número só, calculado sobre o último snapshot, na aba Geral das Estatísticas e no ranking; não dá para ver se o jogador está melhorando ou piorando. Plano: (1) o backend calcula a nota (a mesma função da D10, sem versão paralela) sobre o histórico até cada virada de mês e devolve a série `data → nota total + pontos por eixo` (retorno, risco, consistência, eficiência); (2) a série começa no primeiro mês em que a nota existe, porque as métricas de risco ficam sem valor enquanto a série de retornos é curta; (3) na aba Geral, um gráfico de linha com a nota total e as quatro linhas dos eixos que se ligam e desligam, e o tooltip mostra a data, a nota e o peso de cada eixo; na partida com vários jogadores, uma linha por jogador no total; Gatilho: qualquer momento; a nota já existe, falta só a história dela.
+**F116 — Gráfico da nota ao longo da partida.** Serve N9; segue a D10 e a D2. A nota geral era um número só, calculado sobre o último snapshot, e não dava para ver se o jogador vinha melhorando nem quando alguém passou alguém. Plano: (1) o backend calcula a nota (a mesma função da D10, sem versão paralela) sobre o histórico cortado no último snapshot de cada mês e no último dia, e devolve a série `data → nota total` de cada jogador, e de cada equipe como a média dos membros com nota, numa rota própria (`/api/statistics/score-history`); (2) a série começa no primeiro mês em que a nota existe, porque as métricas de risco ficam sem valor enquanto a série de retornos é curta; (3) na aba Geral, logo abaixo do ranking, um gráfico de linha no estilo dos outros, com uma linha por jogador (ou por equipe, na partida em equipes); você em destaque; com várias partidas comparadas, o gráfico não aparece. Decidido em 23/out: só a nota total, sem as linhas dos eixos. Gatilho: qualquer momento; a nota já existe, falta só a história dela.
 **Aceite:** o último ponto da série é igual à nota geral mostrada hoje, para cada jogador.
 
 <a id="f117"></a>
