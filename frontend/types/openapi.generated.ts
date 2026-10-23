@@ -4514,7 +4514,7 @@ export interface components {
              * Reason
              * @enum {string}
              */
-            reason: "completed" | "stopped_by_host";
+            reason: "completed" | "stopped_by_host" | "error";
             /** Simulation Id */
             simulation_id: number;
         };

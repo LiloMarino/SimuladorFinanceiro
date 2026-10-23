@@ -12953,7 +12953,8 @@
             "type": "string",
             "enum": [
               "completed",
-              "stopped_by_host"
+              "stopped_by_host",
+              "error"
             ],
             "title": "Reason"
           },

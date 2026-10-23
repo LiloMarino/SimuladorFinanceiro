@@ -11,6 +11,7 @@ from types import SimpleNamespace
 import pytest
 
 from backend.core.exceptions import NoActiveSimulationError
+from backend.core.exceptions.http_exceptions import ServiceUnavailableError
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.simulation import simulation_loop
@@ -38,7 +39,7 @@ class _FakeSimulation:
         self.days = days
         self.ticks = 0
         self.fail_on = fail_on
-        self.on_tick: dict[int, Callable[[], None]] = {}
+        self.on_tick: dict[int, Callable[[], object]] = {}
         self.ticked = threading.Event()
         self.paused = threading.Event()
         self._speed = speed
@@ -227,7 +228,9 @@ def test_stop_ends_the_running_match(loop, monkeypatch):
         loop.controller.stop()
 
 
-def test_error_in_a_day_stops_the_loop_and_is_logged(loop, monkeypatch, caplog):
+def test_error_in_a_day_releases_the_simulation_and_warns_the_players(
+    loop, monkeypatch, caplog
+):
     simulation = _FakeSimulation(loop.log, days=5, fail_on=2)
 
     with caplog.at_level(logging.CRITICAL):
@@ -238,4 +241,87 @@ def test_error_in_a_day_stops_the_loop_and_is_logged(loop, monkeypatch, caplog):
     critical = [r for r in caplog.records if r.levelno == logging.CRITICAL]
     assert len(critical) == 1
     assert critical[0].exc_info is not None
+    assert loop.log == ["cancel_open_orders", "flush", "simulation_ended"]
+    assert loop.ended == [{"reason": "error", "simulation_id": SIMULATION_ID}]
+    assert loop.still_active_at_end == [False]
+    assert not SimulationManager.has_active_simulation()
+    with pytest.raises(ValueError, match="Nenhuma simulação"):
+        loop.controller.stop()
+
+
+def test_failure_while_closing_the_match_still_releases_it(
+    loop, monkeypatch, caplog
+):
+    simulation = _FakeSimulation(loop.log, days=5, fail_on=1)
+
+    def broken_flush() -> None:
+        raise RuntimeError("banco fora")
+
+    monkeypatch.setattr(EventManager, "flush", broken_flush)
+
+    with caplog.at_level(logging.CRITICAL):
+        loop.play(simulation, monkeypatch)
+        loop.join()
+
+    assert loop.ended == [{"reason": "error", "simulation_id": SIMULATION_ID}]
+    assert not SimulationManager.has_active_simulation()
+    # O loop parado aceita a próxima partida
+    loop.play(_FakeSimulation(loop.log, days=1), monkeypatch)
+    loop.join()
+    assert len(loop.ended) == 2
+
+
+def test_stop_past_the_timeout_leaves_the_match_to_the_thread(loop, monkeypatch):
+    simulation = _FakeSimulation(loop.log, days=10**9)
+    release = threading.Event()
+    simulation.on_tick[1] = lambda: release.wait(TIMEOUT)
+    monkeypatch.setattr(simulation_loop, "STOP_TIMEOUT", 0.05)
+    loop.play(simulation, monkeypatch)
+    assert simulation.ticked.wait(TIMEOUT)
+
+    with pytest.raises(ServiceUnavailableError):
+        loop.controller.stop()
+
+    # O pregão em andamento segue com a partida registrada
+    assert "flush" not in loop.log
+    assert SimulationManager.has_active_simulation()
+
+    release.set()
+    loop.join()
+
+    assert loop.log == ["cancel_open_orders", "flush"]
+    assert not SimulationManager.has_active_simulation()
     assert loop.ended == []
+
+
+def test_pause_arriving_after_stop_does_not_hold_the_thread(loop, monkeypatch):
+    simulation = _FakeSimulation(loop.log, days=3, speed=0)
+    original = simulation.get_speed
+    errors: list[BaseException] = []
+
+    def stop() -> None:
+        try:
+            loop.controller.stop()
+        except BaseException as exc:
+            errors.append(exc)
+
+    stopping = threading.Thread(target=stop)
+
+    def read_speed():
+        # Entre a leitura da velocidade e a espera da pausa, o host encerra e um
+        # pedido de pausa chega logo atrás
+        if stopping.ident is None:
+            stopping.start()
+            assert loop.controller._stop_event.wait(TIMEOUT)
+            loop.controller.pause()
+        return original()
+
+    monkeypatch.setattr(simulation, "get_speed", read_speed)
+    monkeypatch.setattr(simulation_loop, "STOP_TIMEOUT", 1.0)
+    loop.play(simulation, monkeypatch)
+    assert simulation.paused.wait(TIMEOUT)
+    stopping.join(TIMEOUT)
+    loop.join()
+
+    assert errors == []
+    assert not SimulationManager.has_active_simulation()

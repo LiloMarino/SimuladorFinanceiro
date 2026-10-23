@@ -65,7 +65,7 @@ class SimulationDeletedEventDTO(BaseDTO):
 
 
 class SimulationEndedEventDTO(BaseDTO):
-    reason: Literal["completed", "stopped_by_host"]
+    reason: Literal["completed", "stopped_by_host", "error"]
     simulation_id: int
 
 

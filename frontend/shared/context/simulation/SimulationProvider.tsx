@@ -1,5 +1,6 @@
 import { useEffect, type PropsWithChildren } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { SimulationContext } from "./SimulationContext";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useNavigate } from "react-router-dom";
@@ -43,6 +44,11 @@ export function SimulationProvider({ children }: PropsWithChildren) {
   useRealtime(
     "simulation_ended",
     (payload) => {
+      if (payload.reason === "error") {
+        toast.error("A partida parou por um erro no servidor", {
+          description: "O que foi jogado até o último pregão está salvo.",
+        });
+      }
       // A rota muda antes do status: com a partida inativa, o guard tira de /statistics
       // quem ainda estiver lá. O backend já liberou a simulação, então o refetch a vê inativa.
       // O relatório em cache parou num pregão do meio: o fechamento busca o da partida inteira.

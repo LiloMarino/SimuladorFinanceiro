@@ -1,18 +1,26 @@
+from __future__ import annotations
+
 import contextlib
 import logging
 import threading
 import time
-from datetime import date
 from enum import Enum
+from typing import TYPE_CHECKING, Literal
 
 from backend.core.exceptions import NoActiveSimulationError
+from backend.core.exceptions.http_exceptions import ServiceUnavailableError
 from backend.core.metrics import ENGINE_DAY, metrics
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import SimulationEndedEventDTO
 
+if TYPE_CHECKING:
+    from backend.features.simulation.simulation import Simulation
+
 logger = logging.getLogger(__name__)
+
+STOP_TIMEOUT = 5.0
 
 
 class SimulationState(Enum):
@@ -30,12 +38,17 @@ class SimulationLoopController:
     - Implementar pausa/retomada da simulação
     - Encerrar gracefully ao receber stop ou atingir data final
     - Notificar eventos de início, fim e erros via realtime
+
+    O encerramento tem um dono só, a thread do loop: todo fim da partida (natural,
+    pelo host, por erro ou no shutdown) passa pelo `_release`, no `finally` de `_run`.
     """
 
     def __init__(self):
         self._thread: threading.Thread | None = None
         self._stop_event = threading.Event()
         self._pause_event = threading.Event()
+        # Guarda só o estado do controlador e é sempre o último lock tomado: a rota
+        # de velocidade chega aqui segurando o lock da partida.
         self._lock = threading.Lock()
         self._state = SimulationState.STOPPED
 
@@ -65,41 +78,40 @@ class SimulationLoopController:
             logger.info("Simulação iniciada.")
 
     def pause(self):
-        logger.info("Simulação pausada.")
-        self._pause_event.clear()
+        with self._lock:
+            # Depois do stop o evento fica aberto, para a thread sair do wait e encerrar
+            if self._stop_event.is_set():
+                return
+            logger.info("Simulação pausada.")
+            self._pause_event.clear()
 
     def unpause(self):
-        logger.info("Simulação retomada.")
-        self._pause_event.set()
-
-    def stop(self) -> date | None:
-        """Encerra a simulação em execução e retorna a data final."""
         with self._lock:
-            if self._state == SimulationState.STOPPED:
+            logger.info("Simulação retomada.")
+            self._pause_event.set()
+
+    def stop(self) -> None:
+        """
+        Encerra a simulação em execução: sinaliza a thread e espera ela liberar a
+        partida. Volta só com a simulação liberada.
+        """
+        with self._lock:
+            if self._state == SimulationState.STOPPED or self._thread is None:
                 raise ValueError("Nenhuma simulação está em execução.")
 
             self._stop_event.set()
             self._pause_event.set()
+            thread = self._thread
 
-        if self._thread and self._thread.is_alive():
-            logger.debug("Aguardando a thread da simulação encerrar.")
-            self._thread.join(timeout=5.0)
-            if self._thread.is_alive():
-                logger.warning("Thread não encerrou no timeout.")
-
-        with self._lock:
-            self._state = SimulationState.STOPPED
-            self._thread = None
-
-        # Ordem aberta não é persistida: a reserva de caixa dela volta antes do flush,
-        # e a retomada parte de um caixa sem reservas.
-        with contextlib.suppress(NoActiveSimulationError):
-            SimulationManager.get_active_simulation().cancel_open_orders()
-
-        # Operações feitas depois do último tick (ex.: com o jogo pausado) só viram
-        # evento persistido no flush; a retomada parte do que estiver no banco.
-        EventManager.flush()
-        SimulationManager.clear_simulation()
+        logger.debug("Aguardando a thread da simulação encerrar.")
+        thread.join(timeout=STOP_TIMEOUT)
+        if thread.is_alive():
+            # O estado segue RUNNING até a thread liberar: um stop seguinte espera de novo
+            logger.warning("Thread não encerrou no timeout.")
+            raise ServiceUnavailableError(
+                "A partida ainda está fechando o pregão em andamento."
+                " Tente encerrar de novo em instantes."
+            )
 
     def _run(self):
         try:
@@ -110,6 +122,8 @@ class SimulationLoopController:
                 self._state = SimulationState.STOPPED
             return
 
+        # Sem motivo, o fim veio do stop(), e o aviso aos jogadores sai da rota
+        reason: Literal["completed", "error"] | None = None
         try:
             while not self._stop_event.is_set():
                 speed = simulation.get_speed()
@@ -129,36 +143,55 @@ class SimulationLoopController:
                         with metrics.measure("engine", ENGINE_DAY):
                             simulation.next_tick()
                 except StopIteration:
-                    # A partida acaba como no stop(): eventos no banco e simulação
-                    # liberada, então o fechamento lê a partida inteira
-                    simulation.cancel_open_orders()
-                    EventManager.flush()
-                    simulation.end_match()
-                    SimulationManager.clear_simulation()
-                    notify(
-                        "simulation_ended",
-                        SimulationEndedEventDTO(
-                            reason="completed", simulation_id=simulation.settings.id
-                        ).to_json(),
-                    )
+                    reason = "completed"
                     break
 
                 time.sleep(1 / speed)
 
         except Exception:
             logger.critical("Erro fatal no loop da simulação", exc_info=True)
+            reason = "error"
         finally:
+            self._release(simulation, reason)
+
+    def _release(
+        self, simulation: Simulation, reason: Literal["completed", "error"] | None
+    ) -> None:
+        """Fecha a partida e libera a simulação. Roda só na thread do loop."""
+        try:
+            # Ordem aberta não é persistida: a reserva de caixa dela volta antes do
+            # flush, e a retomada parte de um caixa sem reservas.
+            simulation.cancel_open_orders()
+            # Operações feitas depois do último tick (ex.: com o jogo pausado) só viram
+            # evento persistido no flush; a retomada parte do que estiver no banco.
+            EventManager.flush()
+            # O fechamento lê a partida inteira: roda depois do último flush
+            if reason == "completed":
+                simulation.end_match()
+        except Exception:
+            logger.critical("Erro ao fechar a partida", exc_info=True)
+            reason = "error"
+        finally:
+            SimulationManager.clear_simulation()
             with self._lock:
                 self._state = SimulationState.STOPPED
+                self._thread = None
+
+        # O loop já está parado quando o aviso sai: quem o recebe pode carregar outra
+        # partida, e o start() a aceita.
+        if reason is not None:
+            notify(
+                "simulation_ended",
+                SimulationEndedEventDTO(
+                    reason=reason, simulation_id=simulation.settings.id
+                ).to_json(),
+            )
 
     def shutdown(self):
         try:
-            if self._state == SimulationState.RUNNING:
-                logger.info("Encerrando simulação durante shutdown...")
-                self._stop_event.set()
-                if self._thread and self._thread.is_alive():
-                    self._thread.join(timeout=3.0)
-                SimulationManager.clear_simulation()
+            with contextlib.suppress(ValueError):
+                self.stop()
+                logger.info("Simulação encerrada durante o shutdown.")
         except Exception:
             logger.exception("Erro durante shutdown")
 

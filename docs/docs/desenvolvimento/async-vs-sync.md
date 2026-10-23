@@ -131,6 +131,16 @@ self._thread = threading.Thread(
 self._thread.start()
 ```
 
+#### Encerramento
+
+O encerramento tem um dono só, a própria thread. Todo fim da partida (natural, pelo host,
+por erro no pregão ou no shutdown) passa pelo `finally` de `_run`, que cancela as ordens
+abertas, faz o último `EventManager.flush()`, libera a simulação e marca o loop como parado.
+O `stop()` só sinaliza e espera: se o pregão em andamento não fecha dentro do tempo, ele
+devolve 503 e nada é liberado por cima da thread viva. No fim natural e no erro, a thread
+avisa os jogadores com `simulation_ended` (motivo `completed` ou `error`); no fim pelo host,
+o aviso sai da rota.
+
 ---
 
 ### Camada de Transporte (Async)
