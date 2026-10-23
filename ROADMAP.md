@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-23):** Registradas as features F122 a F124: novas conquistas, redesenho do aviso de conquista e o quadrado da marca de volta no cabeçalho da sala.
+> **Última mudança (2026-10-23):** Registrada a F125: revisão das regras de lint (Ruff, oxlint) e do modo do pyright, para ligar as que pegam erro e afrouxar as que só geram ruído.
 
 ## Glossário
 
@@ -108,6 +108,7 @@
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
+| [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
@@ -176,6 +177,7 @@
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | 0 | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | 0 | ⏳ |
+| [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 0 | 🔍 |
 
 ---
 
@@ -304,7 +306,7 @@
 
 ### Sem marco
 
-> **Progresso:** 4/41 concluídas
+> **Progresso:** 4/42 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -345,6 +347,7 @@
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
+| [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 
 <details><summary>Concluído (4 itens)</summary>
 
@@ -595,6 +598,7 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 | **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | Serve N15; falta escolher o desenho dos dois cards no canvas; liga à F72 | — | — | 🔍 Em avaliação |
 | **F121** | Comprar tudo a mercado sem estourar o caixa | Serve N15; falta escolher entre ordem por valor, ordem que se ajusta ou Máx com folga | — | — | 🔍 Em avaliação |
 | **F123** | Redesenhar o aviso de conquista desbloqueada | Serve N22 e N15; falta escolher o desenho do aviso no canvas; liga à F122 | — | — | 🔍 Em avaliação |
+| **F125** | Revisão das regras de lint e da checagem de tipos | Nenhuma N#; qualidade do código. A configuração do oxlint é da D15 | — | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -664,3 +668,8 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 
 <a id="f123"></a>
 **F123 — Redesenhar o aviso de conquista desbloqueada.** Hoje o aviso (`achievement-toast.tsx`, aberto com `toast.custom` do sonner) é um cartão escuro de 380 px com uma faixa amarela de 3 px à esquerda, o ícone, o rótulo amarelo em maiúsculas ("Conquista desbloqueada"), o nome e a descrição; quando várias saem no mesmo dia, vira uma lista com "Ver todas". O incômodo existe, mas não está claro de onde vem: pode ser a faixa amarela do canto, o rótulo, o peso do cartão escuro, o tamanho ou a falta de movimento. Falta escolher o desenho depois de ver variantes lado a lado no canvas: (a) o cartão atual sem a faixa, com o ícone em destaque; (b) um cartão claro, no tema do app; (c) um formato compacto, com o ícone e o nome numa linha só e a descrição ao passar o mouse; (d) um formato de "selo" com a categoria e a cor dela. A rodada cobre os estados uma conquista, várias no mesmo dia, secreta revelada e conquista com barra de progresso completa, e decide a posição na tela e a entrada e saída. Sai daqui para Pendente com a variante escolhida.
+
+<a id="f125"></a>
+**F125 — Revisão das regras de lint e da checagem de tipos.** Os pares do projeto são o Ruff e o oxlint no lint, o pyright e o `tsc` nos tipos, e cada um liga e desliga regras uma a uma. A configuração atual nasceu aos poucos: o Ruff seleciona `E`, `F`, `W`, `I`, `N`, `B`, `UP`, `SIM`, `PERF`, `RUF`, `TRY`, `PTH` e `PLC0415`, e ignora `E501`, `UP047` e `TRY003` (`pyproject.toml`); o oxlint liga só os plugins `react`, `typescript` e `oxc`, com as regras do React Compiler, três regras de promise que olham os tipos e o `@shadcn/lint` (`frontend/.oxlintrc.json`); o pyright roda em `typeCheckingMode: "basic"` (`pyrightconfig.json`). A revisão responde duas perguntas: que regra desligada pegaria erro de verdade aqui, e que regra ligada só gera ruído e pode afrouxar.
+
+O que falta definir para sair deste estado é a lista final, e ela sai de medição. (1) **Candidatas a ligar:** no Ruff, rodar `ruff check --select <grupo> --statistics` para `C4`, `RET`, `ARG`, `DTZ` (datas sem fuso), `PT` (estilo do pytest), `PL` (pylint), `ERA` (código comentado), `FBT` e `S` (bandit, segurança); no oxlint, as categorias `suspicious` e `pedantic` e os plugins `import`, `unicorn`, `promise`, `jsx-a11y` e `vitest`; no pyright, o modo `standard` e o `strict` por pasta. Cada grupo é julgado pelos achados reais: os que apontam bug ou código morto ficam, os que só pedem reescrita de estilo saem. (2) **Candidatas a afrouxar:** as regras com mais `noqa` hoje (`PLC0415` tem 12 dos 19 no backend) e as que forçam reescrita sem ganho; cada uma é confrontada com o motivo de ter entrado. (3) **Ferramentas além dessas quatro:** se cabe uma checagem que nenhuma delas faz, como export, arquivo e dependência sem uso no front (Knip), dependência sem uso no backend (deptry) e sintaxe dos workflows do GitHub Actions (actionlint). O resultado vira uma `F#` de aplicação, com as regras escolhidas e as violações corrigidas; o que mudar no oxlint atualiza a D15.
