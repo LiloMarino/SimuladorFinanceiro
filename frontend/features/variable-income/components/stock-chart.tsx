@@ -128,7 +128,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
         bottomColor: `${lineColor}00`,
       });
       areaSeries.priceScale().applyOptions({
-        autoScale: false, // Desativa a escala automática no preço para manter a visualização fixa
+        scaleMargins: { top: 0.05, bottom: 0.05 },
       });
       seriesRef.current = areaSeries;
       areaSeries.setData(filteredData.map((d) => ({ time: d.price_date.split("T")[0], value: d.close })));
@@ -144,7 +144,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
         borderVisible: false,
       });
       candleSeries.priceScale().applyOptions({
-        autoScale: false, // Desativa a escala automática no preço para manter a visualização fixa
+        scaleMargins: { top: 0.05, bottom: 0.05 },
       });
       seriesRef.current = candleSeries;
       candleSeries.setData(
@@ -167,6 +167,11 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
       seriesRef.current = null;
     };
   }, [chartType, selectedScale, ticker, hasHistory]);
+
+  function goToToday() {
+    seriesRef.current?.priceScale().applyOptions({ autoScale: true });
+    chartInstance.current?.timeScale().scrollToRealTime();
+  }
 
   return (
     <Card>
@@ -196,7 +201,7 @@ export function StockChart({ ticker, initialData }: StockChartProps) {
               <ToggleGroupItem value="candle">Velas</ToggleGroupItem>
             </ToggleGroup>
           </div>
-          <Button variant="outline" size="sm" onClick={() => chartInstance.current?.timeScale().scrollToRealTime()}>
+          <Button variant="outline" size="sm" onClick={goToToday}>
             Ir pro dia de hoje
           </Button>
         </div>

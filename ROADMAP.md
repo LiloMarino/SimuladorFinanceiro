@@ -21,26 +21,26 @@
 | **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — |
 | **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — |
 | **N3** | Confiar que os números do simulador são exatos e reprodutíveis | — | — |
-| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F7](#f7), [F8](#f8), [F9](#f9), [F10](#f10), [F19](#f19), [F33](#f33), [F108](#f108), [F110](#f110), [F111](#f111) | — |
+| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F10](#f10), [F19](#f19), [F33](#f33), [F108](#f108), [F110](#f110), [F111](#f111) | — |
 | **N5** | Saber quanto risco foi corrido para chegar num resultado | — | — |
 | **N6** | Comparar resultados de simulações diferentes | — | — |
 | **N7** | Que o simulador cobre os custos de operar do mercado real | — | — |
-| **N8** | Jogar contra oponentes controlados pelo computador | [F16](#f16) | — |
-| **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | [F116](#f116) | — |
+| **N8** | Jogar contra oponentes controlados pelo computador | — | — |
+| **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — |
 | **N10** | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | [F19](#f19) | — |
 | **N11** | Que o cenário econômico simulado seja o histórico real | — | — |
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F117](#f117), [F124](#f124) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F124](#f124) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
-| **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33), [F96](#f96), [F114](#f114) | — |
+| **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33), [F96](#f96) | — |
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | — | — |
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F122](#f122) | — |
-| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F71](#f71), [F101](#f101) | — |
+| **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F101](#f101) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | — | — |
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F126](#f126) | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | — | — |
@@ -50,12 +50,12 @@
 | **N30** | Repetir uma configuração de partida sem montá-la de novo | [F89](#f89), [F118](#f118) | — |
 | **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92) | — |
 | **N32** | Saber como foi o mês sem montar a conta | [F91](#f91) | — |
-| **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F94](#f94), [F111](#f111) | — |
+| **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — |
 | **N34** | Disputar o poder de mudar as regras da economia da partida | — | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — |
 | **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F113](#f113) | — |
-| **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | [F115](#f115) | — |
+| **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
@@ -98,7 +98,6 @@
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
-| [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
@@ -110,37 +109,25 @@
 | [**F126**](#f126) | Janela "Como jogar" | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
-| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F94](#f94), [F122](#f122) | ✅ |
-| **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F33](#f33), [F115](#f115), [F116](#f116) | ✅ |
+| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F122](#f122) | ✅ |
+| **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F33](#f33) | ✅ |
 | **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F113](#f113) | ✅ |
 | **D4** | Banco de dados embarcado no executável | — | ✅ |
-| **D5** | Onde roda o código de estratégia escrito pelo usuário | [F7](#f7) | 🔁 |
 | **D6** | A retomada continua no dia seguinte ao último evento | — | ✅ |
 | **D7** | O simulador lê as séries sem saber a origem | [F92](#f92) | ✅ |
-| **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F8](#f8), [F16](#f16), [F19](#f19), [F110](#f110), [F111](#f111) | ✅ |
+| **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F19](#f19), [F110](#f110), [F111](#f111) | ✅ |
 | **D9** | De onde nasce uma mudança de schema | [F101](#f101), [F118](#f118) | ✅ |
-| **D10** | Como a nota geral é calculada | [F116](#f116) | ✅ |
+| **D10** | Como a nota geral é calculada | — | ✅ |
 | **D11** | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | ✅ |
 | **D12** | Como numerar as versões | — | ✅ |
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | — | ✅ |
 | **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
-| **D16** | Estratégias do app no host, personalização pela API | [F7](#f7), [F8](#f8), [F108](#f108) | ✅ |
-| [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
-| [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ✅ |
-| [**F9**](#f9) | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | — | ✅ |
-| [**F16**](#f16) | Bots na sala | — | ✅ |
-| [**F71**](#f71) | Renda fixa com liquidez diária | — | ✅ |
-| [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ✅ |
-| [**F94**](#f94) | Crédito | — | ✅ |
-| [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
-| [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ✅ |
-| [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ✅ |
-| [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ✅ |
+| **D16** | Estratégias do app no host, personalização pela API | [F108](#f108) | ✅ |
 
 </details>
 
@@ -168,7 +155,6 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
-| [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | 0 | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | 0 | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 0 | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
@@ -202,22 +188,12 @@
 >
 > **Serve:** N4
 >
-> **Progresso:** 3/5 concluídas
+> **Progresso:** 0/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F10**](#f10) | Guia de como escrever uma estratégia | [F8](#f8) | ⏳ |
+| [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | — | ⏳ |
-
-<details><summary>Concluído (3 itens)</summary>
-
-| ID | Resumo | Depende de | Status |
-| --- | --- | --- | --- |
-| [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
-| [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | [F7](#f7) | ✅ |
-| [**F9**](#f9) | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | [F8](#f8) | ✅ |
-
-</details>
 
 ### M6 — Estratégia contra estratégia
 
@@ -225,19 +201,11 @@
 >
 > **Serve:** N4, N8, N10
 >
-> **Progresso:** 1/2 concluídas
+> **Progresso:** 0/1 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | [F16](#f16) | ⏳ |
-
-<details><summary>Concluído (1 item)</summary>
-
-| ID | Resumo | Depende de | Status |
-| --- | --- | --- | --- |
-| [**F16**](#f16) | Bots na sala | [F8](#f8) | ✅ |
-
-</details>
+| [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ⏳ |
 
 ### M8 — Dados reais, cuidados fora da partida
 
@@ -307,7 +275,7 @@
 
 ### Sem marco
 
-> **Progresso:** 6/42 concluídas
+> **Progresso:** 0/35 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -335,10 +303,9 @@
 | [**F105**](#f105) | Gestoras: rendimentos mensais | [F44](#f44), [F100](#f100) | 🔍 |
 | [**F106**](#f106) | Governo: gasto público e inflação | [F95](#f95) | 🔍 |
 | [**F107**](#f107) | Perfis de público na eleição | [F95](#f95) | 🔍 |
-| [**F110**](#f110) | Combinar estratégias | [F8](#f8) | 💤 |
-| [**F111**](#f111) | Crédito para estratégias e bots | [F8](#f8), [F94](#f94) | 💤 |
+| [**F110**](#f110) | Combinar estratégias | — | 💤 |
+| [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
-| [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
@@ -348,19 +315,6 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 
-<details><summary>Concluído (6 itens)</summary>
-
-| ID | Resumo | Depende de | Status |
-| --- | --- | --- | --- |
-| [**F71**](#f71) | Renda fixa com liquidez diária | — | ✅ |
-| [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ✅ |
-| [**F94**](#f94) | Crédito | — | ✅ |
-| [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ✅ |
-| [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ✅ |
-| [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ✅ |
-
-</details>
-
 ---
 
 ## 1. Atende necessidade
@@ -368,33 +322,23 @@
 | ID | Resumo | Atende (N#) | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Link de convite pela internet no lobby | N2 | — | M3 | [F5](#f5) | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F8** | Modo automático: estratégia do jogador roda a cada tick | N4 | D16, D8 | M4 | [F7](#f7) | Médio | Médio | Alto | Bom | ✅ Concluído |
-| **F9** | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ✅ Concluído |
-| **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
-| **F16** | Bots na sala | N8 | D8 | M6 | [F8](#f8) | Médio | Baixo | Alto | Bom | ✅ Concluído |
-| **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
+| **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F33** | Indicadores técnicos | N19, N4 | D2 | M11 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F71** | Renda fixa com liquidez diária | N23 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F89** | Presets de partida | N30 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F91** | Caixa de entrada e resumo do mês | N32 | — | M15 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F92** | Noticiário da partida | N31 | D7 | M15 | [F91](#f91) | Médio | Baixo | Alto | Bom | 💤 Registrado, sem prioridade |
-| **F94** | Crédito | N33 | D1 | — | — | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F96** | Dicas de análise técnica | N19 | — | M11 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F101** | Carteira separada do jogador | N23 | D9 | — | — | Alto | Alto | Médio | Médio | 💤 Registrado, sem prioridade |
-| **F7** | Spike: estratégia Python escrita pelo usuário | N4 | D5, D16 | M4 | — | Médio | Médio | Alto | Excelente | ✅ Concluído |
 | **F108** | Bot pela API: guia e exemplo | N4 | D16 | M4 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
-| **F110** | Combinar estratégias | N4 | D8 | — | [F8](#f8) | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | [F8](#f8), [F94](#f94) | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
+| **F110** | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
+| **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F113** | Classe de ativo cripto com quantidade fracionária | N37 | D3 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F114** | Gráfico de ações que acompanha o preço | N19 | — | — | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
-| **F115** | Estatísticas dizem que atualizam por mês e quando é a próxima | N38 | D2 | — | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
-| **F116** | Gráfico da nota ao longo da partida | N9 | D2, D10 | — | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
-| **F117** | Atalhos de valor da renda fixa somam ao campo | N15 | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F118** | Lembrar a última configuração da partida | N30 | D9 | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F122** | Novas conquistas para as features recentes e antigas | N22 | D1 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F124** | Voltar o quadrado da marca no cabeçalho da sala | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
@@ -404,27 +348,8 @@
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
 **Aceite:** um amigo fora da rede local entra na partida só abrindo o link, sem instalar nada; com o host desconectado, nenhum outro jogador consegue virar host.
 
-<a id="f8"></a>
-**F8 — Modo automático: estratégia do jogador roda a cada tick.** Origem: #2, #12, #14. Segue a D16 (as estratégias são classes do app) e a D8. Plano:
-1. **Estratégia por jogador.** `SimulationEngine.set_strategy` deixa de guardar uma estratégia só para o motor e passa a `client_id` → estratégia, com a `ManualStrategy` (já é no-op) como padrão. Cada tick chama a estratégia de cada jogador antes do flush de eventos. Uma exceção na estratégia não derruba o tick: o motor a captura, devolve o jogador ao manual e registra o motivo, com o traceback, no log da estratégia.
-2. **Classe base com contexto.** `next(ctx)` recebe a data, o caixa, as posições de renda variável e fixa, as ofertas de renda fixa do dia, as cotações com setor e segmento (`repository.stock.get_classification`), os indicadores do dia (CDI, Selic, IPCA) e o histórico OHLCV de um ativo como `DataFrame` do pandas, lido do banco na versão de séries da partida (o `MarketData` só guarda 30 candles). As ações são comprar e vender a mercado ou a limite, cancelar uma ordem aberta e aplicar em renda fixa; viram as mesmas chamadas que a interface faz (`matching_engine.submit`, `fixed_broker.buy`) em nome do jogador. O contexto é um retrato do dia em dados simples, montado pelo motor antes de chamar a estratégia.
-3. **Registro das estratégias.** Cada estratégia do app declara nome, descrição, grupo (referência ou tática) e parâmetros (tipo, padrão e faixa); a página e a escolha de bot da F16 leem esse registro. As táticas que operam ações têm o parâmetro "ações que ela opera", uma lista editável que já vem com as 10 maiores do Ibovespa.
-4. **Manual ou automático, um de cada vez.** Uma estratégia por jogador (combinar duas é a F110). Com o automático ligado, a boleta fica travada: para operar à mão, o jogador volta ao manual. A troca pede confirmação, que diz quantas ordens abertas do lado que sai serão canceladas, e as cancela. Estratégia ligada e parâmetro alterado valem a partir do próximo dia da partida.
-5. **Página de Estratégias real.** Hoje é um mock que retorna 501. Passa a listar as estratégias registradas, separadas em referências e táticas, editar os parâmetros e alternar Manual | Automático, com três blocos para entender a estratégia: o painel "desde que ligou" (ordens emitidas, quanto o patrimônio andou e o Ibovespa no mesmo período); o gráfico do sinal, que mostra o que a estratégia olha (ex.: o preço com as médias de 50 e 200 dias) e se redesenha quando um parâmetro muda, antes de salvar; e o log das ordens, cada uma com o motivo em português, na mesma linha do tempo de ligar, desligar e erro.
-6. **Log gravado.** Hoje só as execuções viram histórico. As ordens da estratégia, com o motivo, e as trocas de modo ganham tabela própria (migração), guardada pela partida toda e paginada na tela.
-7. **Privado e no menu lateral.** Os outros jogadores não ficam sabendo do automático. Fora da página, ele aparece só em Estratégias no menu lateral (Ligada ou Desligada) e nos toasts: um por ordem em 1× e 2×, um resumo do dia em 4× ou mais. Erro na estratégia: toast com a causa e ponto vermelho em Estratégias até o jogador abrir a página, onde o traceback fica em "Detalhes técnicos".
-8. **Retomada.** A estratégia ativa de cada jogador e os parâmetros dela ficam gravados na partida (migração) e voltam na retomada; o estado interno da estratégia não volta, ela deriva o que precisa do contexto, que tem o histórico.
-
-Gatilho: a F7 está concluída; pode começar.
-
-<a id="f9"></a>
-**F9 — Estratégias prontas de exemplo.** Estratégias simples e conhecidas, implementadas como subclasses da classe base com parâmetros editáveis na UI. Duas famílias: **referências**, para responder se uma estratégia bate o "não fazer nada" — comprar e segurar um ETF de índice (BOVA11), 100% no CDI e rebalanceamento por meta (ex.: 60% ações / 40% renda fixa, voltando à meta todo mês, como o rebalanceamento do [Finance Manager](https://github.com/LiloMarino/Finance-Manager)); e **táticas**, as três do mock atual de `strategies.tsx` — cruzamento de médias móveis de 50 e 200 dias, RSI (compra abaixo de 30, vende acima de 70) e rompimento de máxima com volume — mais momentum (compra os ativos que mais subiram nos últimos 12 meses). Servem para jogar no automático e como bots (F16) sem escrever código, como exemplo comentado para o guia da F10 e como teste da própria classe base: o rebalanceamento e o 100% CDI só cabem se a estratégia enxergar caixa, posições e renda fixa, e cada estratégia que não couber limpa aponta o que falta na API da F8. O rebalanceamento só tira dinheiro da renda fixa depois da F71: até lá, a renda fixa só volta ao caixa no vencimento, e a estratégia rebalanceia pelo que vence e pelo caixa.
-
 <a id="f10"></a>
 **F10 — Guia de como escrever uma estratégia.** Origem: #49. Página no Docusaurus (grupo "Desenvolvimento"): como acrescentar uma estratégia ao app, com a classe base, o contexto que ela recebe a cada tick, como declarar nome e parâmetros e onde registrá-la para aparecer na página de Estratégias, nos bots e no backtest; uma das estratégias da F9 comentada linha a linha; e os limites (uma exceção devolve o jogador ao manual, o estado interno não volta na retomada). Quem não quer mexer no código do app tem o bot pela API (F108). Gatilho: F8 concluída — a API da classe base só fica estável depois dela.
-
-<a id="f16"></a>
-**F16 — Bots na sala.** Serve N8; segue a D8. O bot é um jogador sem socket: um registro em `users` marcado como bot, com carteira própria, e o motor chama o `next()` da estratégia dele a cada tick, como faz com a de um humano no automático. O host adiciona, configura e remove bots só no lobby, pela primeira vaga livre ("+ Adicionar bot"): um diálogo largo com as estratégias do app (referências e táticas) à esquerda e, à direita, o nome (da lista temática da estratégia, com sorteio e "<estratégia> #2" quando a lista acaba), a cor (a próxima livre, trocável), a equipe no modo em equipes e os parâmetros, com o exemplo em reais. Remover mostra um aviso com "Desfazer". O bot ocupa uma das 10 vagas e uma cor da paleta, e sai da sala na largada para morar só na partida; com uma partida salva escolhida, os bots dela entram travados, nas cores e equipes salvas. Recebe o aporte, o salário, as despesas e os imprevistos como qualquer jogador. Nas estatísticas entra no ranking e na nota como qualquer jogador, com o filtro "Todos | Só pessoas" (cada pessoa mantém a posição geral) e o cartão do bot ao passar o mouse no nome: quem o adicionou, a estratégia e os parâmetros. O log das ordens, com o porquê de cada uma, fica fechado durante a partida e abre para todos no fim. Bot em 1º não dá a ninguém as conquistas de vencer. Os apelidos de pessoas continuam únicos; o nome de um bot só precisa ser único na sala.
 
 <a id="f19"></a>
 **F19 — Modo backtest: partida só de estratégias, sem interação.** Serve N4 e N10; segue a D8. No lobby, "Rodar backtest" escolhe período, capital inicial, aporte e as estratégias participantes; cada estratégia vira um bot (F16) e a partida roda sem `sleep` entre ticks e sem eventos de socket por tick, mandando o progresso a cada N dias para a tela animar o gráfico. Ao fim, a partida fica salva como qualquer outra e abre no relatório da F17, já comparando as estratégias.
@@ -458,9 +383,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 <a id="f69"></a>
 **F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
 
-<a id="f71"></a>
-**F71 — Renda fixa com liquidez diária.** Serve N23. Títulos marcados com liquidez diária são resgatados em qualquer pregão, pelo valor corrigido até o dia: o dinheiro volta ao caixa no mesmo pregão. O IOF dos primeiros 30 dias entrou (96% do rendimento no 1º dia, caindo até 3% no 29º, zero a partir do 30º) e o IR regressivo incide sobre o que sobra depois dele. A reserva de emergência da página Meta passou a contar caixa + liquidez diária, e o aviso de cheque especial ganhou um botão que resgata o título que cobre a dívida. As estratégias ganharam a ação de resgate. O catálogo ganhou bancos reais, um CDB fixo de 100% do CDI sempre aberto e uma oferta rara acima de 100% do CDI com teto por jogador, que sai do catálogo quando o mês vira (quem já aplicou segue resgatando). A boleta ganhou a aba Resgatar com cotação ao vivo, e a Carteira mostra a tag de liquidez diária, o quanto é resgatável hoje e o botão Resgatar.
-
 <a id="f72"></a>
 **F72 — Gráficos padronizados sobre o `ChartContainer` do shadcn.** Serve N15; continua a padronização da interface no shadcn, que deixou o `shared/components/ui/chart.tsx` sem nenhum consumidor. Hoje cada gráfico Recharts repete o `ResponsiveContainer`, a cor da grade e um array `{ key, label, color }` de séries (que é o `ChartConfig`), e uns cinco cards de tooltip feitos à mão reimplementam o `ChartTooltipContent`. Plano: (1) antes|depois no canvas de `player-line-chart` e `networth-chart` com `ChartContainer` + `ChartTooltipContent`, para aprovar o visual do tooltip (texto menor, indicador) e decidir se o `ui/chart.tsx` ganha variante; (2) convenção de pasta por gráfico: `<nome>-chart/` com `<nome>-chart.tsx` (componente puro, recebe o dado da API por prop), `chart-data.ts` (`ChartConfig`, tipos de linha e `build*`), `chart-legend.tsx` opcional (a legenda clicável que liga e desliga série continua própria) e `index.ts` exportando só o componente; gráfico sem legenda nem transformação fica arquivo solto `<nome>-chart.tsx`; (3) migrar `player-line-chart/` (`utils.ts` + `series.ts` → `chart-data.ts`, sai o tooltip próprio), `networth-chart`, `allocation-donut` e os gráficos embutidos em `composition-tab.tsx` (`AreaChart`) e `risk-tab.tsx` (`ScatterChart`), extraídos para pastas próprias; o `stock-chart` (lightweight-charts, imperativo) fica fora do `ChartContainer`; (4) a seção Gráficos entra em `docs/docs/desenvolvimento/convencoes-frontend.md`. Gatilho: a próxima rodada de design no canvas, ou o próximo gráfico novo.
 
@@ -473,26 +395,11 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 <a id="f92"></a>
 **F92 — Noticiário da partida.** Serve N31; segue a D7. Um noticiário sintético: as manchetes nascem das séries que a partida já lê, e por isso funcionam igual no futuro gerado, que é onde o jogo passa a maior parte do tempo, e na história real. Sem LLM e sem internet. (1) **Motor genérico:** uma lista de regras, cada uma olhando as séries no tick e, quando dispara, criando uma entrada da sala na caixa de entrada (F91) a partir de um modelo de texto com algumas variações, para a mesma frase não se repetir. Regra nova é só mais um item da lista. (2) **Macro, as manchetes padrão:** Copom subiu, baixou ou manteve a SELIC, com o tamanho ("Copom sobe a SELIC em 0,5 ponto, para 14,25%"); IPCA do mês acima ou abaixo do anterior; Ibovespa no recorde ou na maior queda do ano. (3) **Empresas:** a mesma lógica para um ativo que sobe ou cai mais de um limite no dia, chega à máxima de 52 semanas ou anuncia provento. O movimento ganha uma causa sintética plausível, sorteada de um banco de causas por setor e direção ("resultado do trimestre acima do esperado", "troca no comando", "vendas de fim de ano fracas" para o varejo). A notícia sai depois do movimento: dá contexto e não dá vantagem. (4) As notícias de um ativo aparecem também na tela dele, como marcadores no gráfico de preço. (5) **Extra, para período real:** marcos históricos curados à mão (crise de 2008, Joesley Day em 2017, Covid em março de 2020), num arquivo de dados com data, manchete e ativos ligados. O futuro gerado sempre começa depois do último dia real, então um marco datado só aparece em período real, e um cenário (F90) pode trazer os seus. Gatilho: depois da caixa de entrada.
 
-<a id="f94"></a>
-**F94 — Crédito.** Serve N33; segue a D1. Uma tela "Crédito" na partida, no grupo Você do menu lateral, no molde dos empréstimos do Capitalism Lab. O crédito existe em toda partida, sem chave nas regras.
-1. **Patrimônio é sempre o líquido.** Em todo lugar (ranking, estatísticas, nota geral, fechamento), patrimônio passa a ser carteira menos dívida; sem dívida, o número não muda. A quebra ativos − dívida aparece na Carteira e só para quem deve.
-2. **Nota de risco** em 8 níveis (AAA, AA, A, BBB, BB, B, CCC e D), recalculada todo mês a partir de 100 pontos: alavancagem (dívida ÷ patrimônio) vale 40, menos 4 a cada 10%; volatilidade da carteira vale 30, zero a partir de 45% ao ano; histórico de pagamento vale 30, menos 10 por parcela atrasada nos últimos 12 meses. A tela mostra a nota e o peso de cada parte, e um card de sugestões, separado e mais abaixo, diz o que a subiria (ex.: quanto quitar para chegar ao nível seguinte e quanto isso economiza).
-3. **Oferta:** valor e prazo (6 a 60 meses), com o juro travado na contratação em SELIC do dia mais um spread por nota (+3, +4, +5, +6,5, +8, +10 e +13 pontos ao ano; D não recebe crédito novo) e um limite da dívida total em % do patrimônio (100, 80, 60, 45, 30, 20 e 10%). Esses números são o ponto de partida, ficam num lugar só do código e se calibram jogando. O jogador pode ter vários empréstimos até o limite, cada um com o seu juro travado: se a nota cair, só os próximos ficam mais caros. Antes de assinar, a tela mostra quanto se paga de juro no prazo todo e quanto a carteira precisa render ao ano para o empréstimo valer a pena. **Regra que impede dinheiro infinito:** o juro mais barato fica sempre acima da renda fixa mais cara oferecida no dia; ela vive só no código, porque com esses spreads quase nunca age.
-4. **Parcelas** mensais fixas (Tabela Price), debitadas do caixa todo mês no dia da contratação. Quitação antecipada, total ou parcial (diminuindo o prazo ou a parcela), com abatimento proporcional dos juros, como garante o Código de Defesa do Consumidor (art. 52, § 2º).
-5. **Sem caixa na data:** a parcela fica em atraso (fora do cheque especial), com multa de 2% (o teto do mesmo art. 52) e juro de mora de 1% ao mês, cobrado por dia; a nota cai e novos empréstimos ficam mais caros ou bloqueados. A partida não pausa: alguns dias antes do vencimento, se o caixa não cobre a parcela, um toast avisa e Crédito ganha um ponto no menu lateral. Nada é vendido à força: pagar o atraso é decisão do jogador.
-6. **O que a sala vê.** O ranking mostra o patrimônio (em vermelho se negativo) e o selo "Negativado" em quem tem parcela atrasada; a dívida e a alavancagem de cada jogador ficam em Estatísticas › Risco.
-7. **Eventos novos** (contratação, parcela paga, parcela em atraso, amortização, quitação), para a dívida se reconstruir numa retomada.
-
-Estratégias e bots não pegam crédito (F111); quem está no automático paga normalmente as parcelas do que contratou à mão. Gatilho: livre; vem antes das expansões.
-
 <a id="f96"></a>
 **F96 — Dicas de análise técnica.** Serve N19. Aprender análise técnica jogando: o gráfico aponta e explica o que um trader enxergaria, para quem quer jogar pelo gráfico sem já saber as regras. É ajuda, então o modo Especialista (F40) a desliga, como as outras. (1) **Padrões de vela:** regras fixas sobre abertura, máxima, mínima e fechamento de cada pregão detectam uns dez padrões clássicos (martelo, estrela cadente, engolfo de alta e de baixa, doji, três soldados brancos). O candle ganha um marcador; ao passar o mouse, um card com o nome, o desenho do padrão e o que ele costuma sugerir. **E se ele acertou:** o card conta quantas vezes o padrão apareceu neste ativo no período já jogado e em quantas o preço foi para o lado sugerido nos 5 pregões seguintes ("apareceu 12 vezes; em 7 o preço subiu"), o que ensina também que padrão não é garantia. (2) **Indicadores (F33):** as faixas ganham legenda (IFR acima de 70, "sobrecomprado": subiu rápido demais e costuma devolver; abaixo de 30, "sobrevendido") e os cruzamentos do MACD e das médias móveis ganham marcador com uma frase do que significam. (3) **Desafio da vela:** quando aparece um padrão, o jogo pergunta "e agora, sobe ou desce?" e confere dias depois, com um placar de acertos que pode virar conquista (F41). Gatilho: com o gráfico de indicadores; os padrões de vela não dependem dele.
 
 <a id="f101"></a>
 **F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
-
-<a id="f7"></a>
-**F7 — Spike: estratégia Python escrita pelo usuário.** Mediu os dois lugares em que o código do usuário rodaria (D5), e com os números a escolha ficou na D16: o host roda só as estratégias do app, e quem quer uma estratégia própria usa um bot pela API. A medição usou quatro harnesses descartáveis: um executável de teste com o mesmo conjunto de módulos do app, que carrega um `.py` solto e tenta importar 45 módulos; um benchmark dos três jeitos de cortar uma estratégia travada (thread com exceção injetada, `sys.monitoring` e processo filho), com laço Python, laço em C e `sleep`; uma segunda instância do app, num banco descartável com o mercado sintético dos testes, operada por um bot em Python que só usa as rotas HTTP e o Socket.IO; e o mesmo bot com 80 ms de atraso simulado. Os números e os argumentos estão na D5. Limitações: o mercado sintético tem 4 ativos e 2 jogadores, então o tick a ×100 (36 a 44 ms) é bem mais rápido que o do mercado real; a rede remota foi simulada com atraso fixo, sem túnel de verdade; o processo filho foi medido fora do motor da simulação, com mensagens de exemplo.
 
 <a id="f108"></a>
 **F108 — Bot pela API: guia e exemplo.** Serve N4; segue a D16. Página no Docusaurus (grupo "Como Usar") para quem quer uma estratégia própria sem mexer no código do app: o bot é um programa na máquina do jogador que entra na partida como um jogador qualquer. O guia percorre o caminho medido no spike: cookie em `/api/session/init`, nickname do bot em `/api/user/register`, entrada na partida em `/api/simulation/join` (com uma cor da paleta), assinatura de `simulation_update` no Socket.IO e, a cada tick, leitura de `/api/variable-income` (cotações com setor e segmento), `/api/variable-income/{ativo}` (histórico), `/api/portfolio`, `/api/portfolio/cash`, `/api/fixed-income` e `/api/economic-indicators`, com as ordens em `/api/variable-income/{ativo}/orders` e `/api/fixed-income/{id}/buy`. Traz um bot de exemplo completo em Python (`requests` + `python-socketio`) que segue uma das estratégias da F9, e as limitações: o bot fica fora do backtest, e com o tick mais rápido que a reação dele as ordens caem dias depois (números na D5). Rota que faltar ao escrever o exemplo entra nesta feature. Fora da rede local depende da F6. Gatilho: livre; o exemplo fica melhor depois da F9.
@@ -505,20 +412,6 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 
 <a id="f113"></a>
 **F113 — Classe de ativo cripto com quantidade fracionária.** Serve N37; segue a D3. Hoje a quantidade é inteira da ordem ao banco (`equity_event.quantity` é `Integer`, e `quantity` é `int` nos DTOs de ordem, de prévia e de evento, no motor e no `max_quantity` da prévia), então um ativo de preço alto como o bitcoin só se compra em unidades inteiras. Plano: (1) **Classe nova:** `CRYPTO` no `AssetClass`, escolhível na tela de importação (que já troca a classe de um ativo) e valendo para `BTC-USD` e afins, que o importador já aceita. (2) **Quantidade decimal:** a coluna vira `NUMERIC(20,8)` por migration (oito casas, a precisão do satoshi) e os DTOs passam a `Decimal`, serializado em string (D3); ação, FII, ETF e BDR continuam aceitando só inteiro, e a validação da ordem recusa fração fora de `CRYPTO`. (3) **Motor:** compra, venda, preço médio, `max_quantity` da prévia (arredondado para baixo nas oito casas) e o impacto de preço passam a operar em `Decimal`. (4) **Imposto:** `income_tax` ganha a categoria cripto, com regra própria a conferir na implementação. (5) **Telas:** o campo de quantidade da ordem aceita vírgula quando o ativo é cripto, e a quantidade da carteira e do histórico exibe as casas necessárias. Gatilho: o uso pedir bitcoin na carteira, ou a F22 e a F100 mexerem em quantidade e proventos, já que convém migrar a coluna uma vez só.
-
-<a id="f114"></a>
-**F114 — Gráfico de ações que acompanha o preço.** Serve N19. No `stock-chart.tsx` as duas séries (linha e velas) nascem com `priceScale().applyOptions({ autoScale: false })`, então a faixa de preços visível fica presa à do primeiro desenho; quando a partida avança e o preço sobe, ele passa da borda de cima e sai da área plotada. Plano: (1) tirar o `autoScale: false` das duas séries, deixando a escala vertical seguir o que está visível no período escolhido, com `scaleMargins` para o preço não encostar na borda; (2) quando a pessoa arrasta o eixo de preço à mão, a biblioteca desliga a escala automática, e o botão "Ir pro dia de hoje" a religa (`autoScale: true`) junto com o `scrollToRealTime()`; (3) conferir que os dias novos da partida entram na série sem refazer o gráfico, já que o efeito só recria nas trocas de tipo, período e ativo. Gatilho: o preço sair da área em qualquer ativo que sobe durante a partida.
-**Aceite:** numa partida com o preço de um ativo subindo dia após dia, o preço fica dentro da área do gráfico em todos os períodos, sem mexer em nada.
-
-<a id="f115"></a>
-**F115 — Estatísticas dizem que atualizam por mês e quando é a próxima.** Serve N38; segue a D2. A tela de Estatísticas só busca o histórico de novo na virada do mês da partida (o evento `statistics_snapshot_update`, que `_create_daily_snapshots` emite só quando o mês muda), e nada na tela conta isso: os números ficam parados por semanas de jogo e parece que travaram. Plano: (1) o backend devolve, junto das estatísticas, a data da próxima virada do mês da partida, pela mesma regra que dispara o evento (cálculo de data no backend, como manda a D2); (2) o cabeçalho do relatório mostra "Atualizadas uma vez por mês de jogo · próxima atualização em X dias" (dias da partida, não do relógio), com uma dica explicando que as métricas fecham no mês porque risco e nota precisam de uma série de retornos mensais; (3) sem partida em andamento (pausada ou encerrada), o texto some. Gatilho: a dúvida de "por que não muda?" voltar.
-
-<a id="f116"></a>
-**F116 — Gráfico da nota ao longo da partida.** Serve N9; segue a D10 e a D2. A nota geral era um número só, calculado sobre o último snapshot, e não dava para ver se o jogador vinha melhorando nem quando alguém passou alguém. Plano: (1) o backend calcula a nota (a mesma função da D10, sem versão paralela) sobre o histórico cortado no último snapshot de cada mês e no último dia, e devolve a série `data → nota total` de cada jogador, e de cada equipe como a média dos membros com nota, numa rota própria (`/api/statistics/score-history`); (2) a série começa no primeiro mês em que a nota existe, porque as métricas de risco ficam sem valor enquanto a série de retornos é curta; (3) na aba Geral, logo abaixo do ranking, um gráfico de linha no estilo dos outros, com uma linha por jogador (ou por equipe, na partida em equipes); você em destaque; com várias partidas comparadas, o gráfico não aparece. Decidido em 23/out: só a nota total, sem as linhas dos eixos. Gatilho: qualquer momento; a nota já existe, falta só a história dela.
-**Aceite:** o último ponto da série é igual à nota geral mostrada hoje, para cada jogador.
-
-<a id="f117"></a>
-**F117 — Atalhos de valor da renda fixa somam ao campo.** Serve N15. Na boleta (`investment-ticket.tsx`), os atalhos "R$ 1 mil", "R$ 5 mil" e "R$ 10 mil" chamam `fill`, que troca o valor do campo; clicar duas vezes em "R$ 10 mil" deixa R$ 10 mil, e o esperado é R$ 20 mil. Plano: `fill` soma o atalho ao valor já digitado (`amount`, que já sai do texto normalizado) e reformata com `formatMoney(toCentsString(...))`; como o atalho deixa de recomeçar o valor, entra um botão "Limpar" ao lado, que zera o campo. O aviso de saldo insuficiente (`overCash`) continua valendo sobre a soma. Gatilho: qualquer momento, é um ajuste pequeno.
 
 <a id="f118"></a>
 **F118 — Lembrar a última configuração da partida.** Serve N30; segue a D9. As regras pendentes moram em memória no `SettingsManager`, que nasce dos padrões do `config.toml` (início em 2000-01-01, por exemplo) a cada abertura do app, então o período, o capital, o aporte e o resto voltam ao padrão toda vez e o host refaz tudo. Plano: o lugar é o banco, porque as regras são do servidor do host (o formulário do lobby é semeado por elas) e o banco embarcado sobrevive entre aberturas. (1) Migration (D9) com uma tabela de uma linha só, `last_simulation_settings`, com a configuração em JSON validada pelo mesmo DTO das regras; (2) o `SettingsManager.update` grava essa linha quando as regras mudam, e o `get` a lê no lugar do `config.toml` quando existe, caindo nos padrões do arquivo se estiver vazia ou se um campo novo faltar; (3) o `config.toml` continua sendo o padrão de fábrica, e uma opção "Restaurar padrões" no formulário apaga a linha. O nome da partida não entra (é gerado a cada uma). A F89 (presets) pode ler a mesma linha como o preset "Última partida". Gatilho: o uso do lobby pedindo para não remontar as regras.
@@ -542,7 +435,6 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F68** | Dica de firewall no lobby | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
-| **F75** | Encerramento do loop sem thread viva nem simulação presa | — | — | — | Baixo | Médio | Médio | Bom | ✅ Concluído |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
 
 <a id="f14"></a>
@@ -559,21 +451,13 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 <a id="f68"></a>
 **F68 — Dica de firewall no lobby.** Quando o link do lobby abre no computador do host mas não abre no dos amigos, o motivo costuma ser o firewall do Windows, e a orientação hoje só existe na página de multiplayer dos docs. Plano: no `frontend/features/lobby/components/lobby-header.tsx`, abaixo do link copiável, uma linha curta "Amigos não conseguem entrar?" que leva à seção "Amigos não conseguem entrar?" da página de multiplayer (o link do site de docs, em nova aba). Sem rota nova e sem estado: é texto estático com link. A tela do lobby é desenhada no canvas, então a linha entra primeiro lá (estado do lobby com a dica) e só depois no código.
 
-<a id="f75"></a>
-**F75 — Encerramento do loop sem thread viva nem simulação presa.** Dois caminhos deixam o estado da partida inconsistente. (1) O `stop()` de `simulation_loop.py` espera a thread por 5 s e, se ela não terminar, só loga e segue: marca STOPPED, roda `EventManager.flush()` e `SimulationManager.clear_simulation()` enquanto a thread ainda pode processar um tick, gravando eventos de uma simulação que já foi liberada. (2) Uma exceção no loop cai no `finally`, que só muda o estado para STOPPED: a simulação continua registrada no `SimulationManager` sem loop rodando, e o `stop()` seguinte recusa com "Nenhuma simulação está em execução". Plano: o encerramento passa a ter um dono só, a própria thread: o `stop()` sinaliza e espera, e o flush e a liberação rodam no `finally` do loop, o mesmo caminho do fim natural da partida, que já faz isso. Se o join estourar o tempo, o `stop()` devolve erro em vez de liberar por cima. A exceção no tick também notifica os clientes (`simulation_ended` com motivo de erro), para a tela não ficar congelada. `pause()` e `unpause()` passam a usar o mesmo `_lock` de start e stop. Teste: o tick dublê que bloqueia além do tempo e o que lança exceção, nos testes do loop. Depende dos testes do loop para reproduzir os dois casos. Gatilho: junto com os testes do loop.
-
 <a id="f81"></a>
 **F81 — CORS restrito à mesma origem.** O backend libera CORS para qualquer origem com credenciais (`allow_origins=["*"]` e `allow_credentials=True` no FastAPI, `cors_allowed_origins="*"` no Socket.IO). Não é necessário: o front é servido pelo próprio backend e, no `pnpm dev`, chega pelo proxy do Vite. Hoje o que protege o jogador de um site malicioso aberto durante a partida é o cookie `client_id` com `SameSite=Lax`, que o navegador não manda em requisição de outro site; o CORS liberado só deixa outro site ler as rotas que não pedem identidade. (1) Sai o `CORSMiddleware` de `main.py`. (2) O Socket.IO fica com `cors_allowed_origins` na mesma origem, mais `http://localhost:5173` quando o modo debug estiver ligado: o proxy do Vite troca o `Host` (`changeOrigin: true`) mas mantém o `Origin` do Vite, e o Socket.IO recusaria a conexão em dev sem essa exceção. (3) Teste manual antes de fechar: jogo pelo `localhost`, por outro computador da LAN pelo IP e pelo `pnpm dev`. Gatilho: junto com o link de convite pela internet, quando o servidor passa a ficar exposto fora da LAN.
 
 ---
 ## 3. Descartada
 
-| ID | Resumo | N# | Status |
-| --- | --- | --- | --- |
-| **F109** | Estratégia em .py do usuário carregada pelo host | N4 | 🚫 Descartado |
-
-<a id="f109"></a>
-**F109 — Descartado.** 🚫 Estratégia em `.py` do usuário carregada pelo host: pasta ao lado do `config.toml`, processo filho com timeout por tick, cópia do código no banco ao iniciar a partida e contrato de bibliotecas no build. Descartada pela D16: quem desenvolve acrescenta a estratégia como classe do app, e ela vale no automático, nos bots e no backtest; quem tem só o executável usa o bot pela API (F108). O único caso que sobraria, estratégia própria no backtest sem mexer no código, não paga o custo de manter processo filho, timeout, pasta, cópia no banco e lista de bibliotecas, nem o risco de executar código de fora no PC do host. As medições desse caminho estão na D5.
+> Nenhum item nesta categoria atualmente.
 
 ---
 ## 4. Incerta / exploratória
