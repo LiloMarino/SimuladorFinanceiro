@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-23):** Tutorial separado em dois cards: a janela "Como jogar" (F126), que nunca abre sozinha e avisa pelo contexto da tela, e o spike F49, que fica só com o jeito de animar os tópicos.
+> **Última mudança (2026-10-23):** Prioridades revistas: servidor dedicado (F60) e imprevistos configuráveis (F69) sem prioridade; caixa de entrada (F91) e noticiário (F92) pendentes; comprar tudo sem estourar o caixa (F121), erros do yfinance (F87) e preço ajustado e proventos (F22) decididos e pendentes.
 
 ## Glossário
 
@@ -20,11 +20,11 @@
 | --- | --- | --- | --- |
 | **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — |
 | **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — |
-| **N3** | Confiar que os números do simulador são exatos e reprodutíveis | — | — |
+| **N3** | Confiar que os números do simulador são exatos e reprodutíveis | [F22](#f22), [F87](#f87) | — |
 | **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F10](#f10), [F19](#f19), [F33](#f33), [F108](#f108), [F110](#f110), [F111](#f111), [F127](#f127) | — |
 | **N5** | Saber quanto risco foi corrido para chegar num resultado | — | — |
 | **N6** | Comparar resultados de simulações diferentes | — | — |
-| **N7** | Que o simulador cobre os custos de operar do mercado real | — | — |
+| **N7** | Que o simulador cobre os custos de operar do mercado real | [F22](#f22) | — |
 | **N8** | Jogar contra oponentes controlados pelo computador | — | — |
 | **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — |
 | **N10** | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | [F19](#f19) | — |
@@ -32,7 +32,7 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F119](#f119), [F124](#f124) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F119](#f119), [F121](#f121), [F124](#f124) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
@@ -61,7 +61,7 @@
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ⏳ |
-| [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
+| [**F22**](#f22) | Preço ajustado e proventos | — | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | — | ⏳ |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
@@ -70,18 +70,18 @@
 | [**F49**](#f49) | Spike: animação dos tópicos do tutorial | — | 🔍 |
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
-| [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
+| [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 💤 |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
-| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | ⏳ |
+| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 💤 |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
-| [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
+| [**F87**](#f87) | Erros de dado do yfinance na base | — | ⏳ |
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
 | [**F90**](#f90) | Cenários | — | 🔍 |
-| [**F91**](#f91) | Caixa de entrada e resumo do mês | — | 💤 |
-| [**F92**](#f92) | Noticiário da partida | — | 💤 |
+| [**F91**](#f91) | Caixa de entrada e resumo do mês | — | ⏳ |
+| [**F92**](#f92) | Noticiário da partida | — | ⏳ |
 | [**F93**](#f93) | Rumores antecipados | — | 🔍 |
 | [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 🔍 |
 | [**F96**](#f96) | Dicas de análise técnica | — | 💤 |
@@ -98,7 +98,7 @@
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
-| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
+| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | ⏳ |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
@@ -111,12 +111,12 @@
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
-| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F122](#f122) | ✅ |
+| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F22](#f22), [F122](#f122) | ✅ |
 | **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F33](#f33) | ✅ |
-| **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F113](#f113), [F127](#f127) | ✅ |
+| **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F22](#f22), [F113](#f113), [F121](#f121), [F127](#f127) | ✅ |
 | **D4** | Banco de dados embarcado no executável | — | ✅ |
 | **D6** | A retomada continua no dia seguinte ao último evento | — | ✅ |
-| **D7** | O simulador lê as séries sem saber a origem | [F92](#f92) | ✅ |
+| **D7** | O simulador lê as séries sem saber a origem | [F22](#f22), [F92](#f92) | ✅ |
 | **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F19](#f19), [F110](#f110), [F111](#f111) | ✅ |
 | **D9** | De onde nasce uma mudança de schema | [F101](#f101), [F118](#f118) | ✅ |
 | **D10** | Como a nota geral é calculada | — | ✅ |
@@ -142,22 +142,21 @@
 | --- | --- | --- | --- | --- |
 | [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 3 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
-| [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | 🔍 |
+| [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
+| [**F91**](#f91) | Caixa de entrada e resumo do mês | M15 | 2 | ⏳ |
 | [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | M6 | 1 | ⏳ |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F89**](#f89) | Presets de partida | — | 1 | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | M4 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: animação dos tópicos do tutorial | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
-| [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | 0 | ⏳ |
-| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
-| [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
+| [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | ⏳ |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
-| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 0 | 🔍 |
+| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 0 | ⏳ |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | 0 | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | 0 | ⏳ |
@@ -216,7 +215,7 @@
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
+| [**F22**](#f22) | Preço ajustado e proventos | — | ⏳ |
 | [**F100**](#f100) | Proventos na carteira e nas telas | [F22](#f22) | 🔍 |
 
 ### M9 — Mercado sem fim
@@ -268,8 +267,8 @@
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F91**](#f91) | Caixa de entrada e resumo do mês | — | 💤 |
-| [**F92**](#f92) | Noticiário da partida | [F91](#f91) | 💤 |
+| [**F91**](#f91) | Caixa de entrada e resumo do mês | — | ⏳ |
+| [**F92**](#f92) | Noticiário da partida | [F91](#f91) | ⏳ |
 | [**F93**](#f93) | Rumores antecipados | [F92](#f92) | 🔍 |
 
 ### Sem marco
@@ -283,14 +282,14 @@
 | [**F44**](#f44) | Expansão Gestoras: fundar a gestora e abrir capital | [F101](#f101) | 🔍 |
 | [**F55**](#f55) | Modo aquisição hostil | [F103](#f103) | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
-| [**F60**](#f60) | Modo servidor dedicado (--headless) | — | ⏳ |
+| [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 💤 |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
-| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | ⏳ |
+| [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 💤 |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
-| [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
+| [**F87**](#f87) | Erros de dado do yfinance na base | — | ⏳ |
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
 | [**F90**](#f90) | Cenários | [F89](#f89) | 🔍 |
 | [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 🔍 |
@@ -305,7 +304,7 @@
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
-| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
+| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | ⏳ |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
@@ -335,11 +334,11 @@
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F89** | Presets de partida | N30 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F91** | Caixa de entrada e resumo do mês | N32 | — | M15 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F92** | Noticiário da partida | N31 | D7 | M15 | [F91](#f91) | Médio | Baixo | Alto | Bom | 💤 Registrado, sem prioridade |
+| **F91** | Caixa de entrada e resumo do mês | N32 | — | M15 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F92** | Noticiário da partida | N31 | D7 | M15 | [F91](#f91) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F96** | Dicas de análise técnica | N19 | — | M11 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F101** | Carteira separada do jogador | N23 | D9 | — | — | Alto | Alto | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F108** | Bot pela API: guia e exemplo | N4 | D16 | M4 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
@@ -352,6 +351,9 @@
 | **F126** | Janela "Como jogar" | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F127** | Estratégias e bots operam cripto em fração | N4, N37 | D3 | — | [F113](#f113) | Médio | Baixo | Baixo | Regular | 💤 Registrado, sem prioridade |
 | **F119** | Seletor de período da partida com linha do tempo | N15, N30 | — | — | — | — | — | — | — | ✅ Concluído |
+| **F121** | Comprar tudo a mercado sem estourar o caixa | N15 | D3 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F87** | Erros de dado do yfinance na base | N3 | — | — | — | Baixo | Médio | Médio | Bom | ⏳ Pendente |
+| **F22** | Preço ajustado e proventos | N3, N7 | D1, D3, D7 | M8 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -441,13 +443,24 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 <a id="f119"></a>
 **F119 — Seletor de período da partida com linha do tempo.** Serve N15 e N30. O início e o fim da partida saíram dos dois `DateField` soltos para um bloco "Período" no `rules-sheet.tsx`: a duração no cabeçalho ("6 anos e 7 meses"), atalhos em dois grupos ("Até hoje": 5 anos, 10 anos, 20 anos e Tudo; "Pra frente": 5 anos e 10 anos), uma linha do tempo de 1993 a 2040 pintada pelo dado que a base tem (sem dado, dado real, futuro gerado e repete o último valor) com o marcador de hoje, duas alças e uma barra que move o período inteiro mantendo a duração, e os campos Início e Fim com o botão "Hoje" e o calendário com "Hoje", o dia de hoje em destaque e o futuro em violeta. A escolha vale na hora, sem botão de aplicar; alças e barra andam em meses inteiros (início no dia 1, fim no último dia do mês) e param no primeiro dia com dado e em 31/12/2040, com um aviso na linha. Atalho que começaria antes do primeiro dia com dado de um indicador fica desligado com o motivo. O aviso de cobertura (`CoverageAlerts`) continua abaixo, e a data digitada mantém o aviso. A matemática mora em `lobby/lib/period.ts`, com testes.
 
+<a id="f121"></a>
+**F121 — Comprar tudo a mercado sem estourar o caixa.** Serve N15; segue a D3. A boleta de renda variável calcula o "Máx" com o caixa e o preço da prévia (`preview_order`: o melhor preço de venda do book, ou o último fechamento), mas a ordem a mercado só é conferida na execução, contra o preço do momento (`_validate_market_order` em `broker.py`). Com o jogo rodando, o preço anda entre o clique e a execução, e a quantidade que cabia na prévia volta como "Saldo insuficiente". Plano: (1) **Ordem a mercado por valor:** a boleta ganha o modo "por valor" e o botão "Tudo" (o caixa inteiro); o DTO da ordem aceita `amount` (Decimal em string) no lugar da quantidade, e o motor calcula a quantidade na execução com o preço que valeu, arredondando para baixo (inteiro, e oito casas para cripto); nunca estoura. (2) **Quantidade que se ajusta:** na compra a mercado por quantidade, o valor enviado vale como teto: se o preço subiu até a execução, o motor compra a maior quantidade que ainda cabe no caixa em vez de recusar, e só recusa se nem uma unidade couber. (3) A boleta mostra a quantidade como estimada antes do envio, e a executada no retorno e no histórico. O desenho do modo "por valor" e de como a boleta mostra a quantidade comprada sai do canvas antes do código. Gatilho: livre.
+**Aceite:** com o preço subindo 5% entre o clique em "Tudo" e a execução, a compra executa sem "Saldo insuficiente" e deixa no caixa menos que o preço de uma unidade.
+
+<a id="f87"></a>
+**F87 — Erros de dado do yfinance na base.** Serve N3. A base tem dias em que o preço vai a quase zero e volta: CMIG4 sobe 878% e cai 90% em agosto de 2003, XPML11 cai 99% em 14/01/2026 e volta 758 vezes cinco dias depois, e UGPA3, GOAU4, LREN3 e SUZB3 têm dias de −100%. A partida mostra esses dias como reais. O gerador (D14) já os trata como dia sem pregão. Escolhido: interpolar. Plano: (1) **Detector** no importador (`import_data/importer_service.py`): um dia é erro quando o fechamento se afasta do pregão anterior além de um limiar e, em poucos pregões, o preço volta ao nível anterior; salto que não volta (B3SA3 −66% em 2011) não é tocado, porque pode ser desdobramento, assunto da F22. (2) **Correção:** o fechamento do dia erro vira a interpolação linear entre o último pregão bom e o primeiro bom depois; abertura, máxima e mínima recebem o mesmo valor e o volume fica zerado, para o dia não desenhar uma vela falsa. (3) **Limiar por medição:** antes de fixar, uma varredura da base lista os dias candidatos em limiares de 30%, 50% e 70%; o limiar escolhido pega os casos acima e não pega B3SA3. (4) **Base já importada:** uma ação na Central de dados reaplica a correção às linhas guardadas, e o importador a aplica daí em diante; a Central mostra quantos dias foram corrigidos por ativo. Teste: série curta com um dia a quase zero que volta é corrigida, e série com degrau que não volta fica igual. O preço do dia corrigido é inventado, e a troca é essa: o erro deixa de aparecer na partida como se fosse mercado.
+
+<a id="f22"></a>
+**F22 — Preço ajustado e proventos.** Serve N3 e N7; segue a D1, a D3 e a D7. O importador usa `yf.download(auto_adjust=True)`: o preço vem ajustado por dividendos e desdobramentos até o dia da importação, e a atualização incremental (`upsert_dataframe` só grava linhas depois da última data guardada) emenda duas séries ajustadas em dias diferentes. Um desdobramento 2:1 entre a importação e a atualização vira um degrau falso, uma queda de 50% que não existiu; além disso, o preço exibido não é o que se negociava na época. Escolhido: preço bruto mais proventos como evento. Plano: (1) **Importação:** `auto_adjust=False` guarda o fechamento bruto, e as listas de dividendos e de desdobramentos que o `yfinance` traz entram numa tabela de eventos corporativos por ativo (data ex, tipo, valor ou razão), por migration. A série bruta não muda quando sai um provento novo, então a atualização incremental passa a emendar séries do mesmo tipo e o degrau some. (2) **Desdobramento e grupamento:** na data ex, a quantidade de cada posição é multiplicada pela razão e o preço médio dividido por ela, como evento da partida reconstruível (D1), com a quantidade em Decimal (D3). (3) **Dividendo:** na data ex, o valor por cota vezes a quantidade entra no caixa, como evento; sem esse crédito o retorno de quem paga dividendo cairia, porque o preço bruto cai na data ex e o ajuste que antes embutia o provento deixa de existir. Telas, rendimento por posição, IR e provento sintético ficam na F100. (4) **Números que mudam:** o retorno e a nota geral (D10) mudam de valor, então os testes de números fixos são regerados e conferidos contra uma conta à mão antes de aceitar. (5) **Partidas salvas:** jogaram sobre o preço ajustado; o primeiro passo é verificar se o congelamento por versão da D7 (hoje usado só para trecho gerado) cobre também o trecho real, ou se as partidas salvas são recalculadas. Gatilho: livre; a F100 espera esta.
+**Aceite:** num desdobramento 2:1 ocorrido depois da importação, a atualização incremental não produz queda de 50% no preço, e a posição de quem tinha o ativo dobra de quantidade sem mudar de valor.
+
 ---
 ## 2. Nice-to-have
 
 | ID | Resumo | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F14** | Janela desktop nativa | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
-| **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
+| **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F68** | Dica de firewall no lobby | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
@@ -480,13 +493,11 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | ID | Resumo | Conexão | Marco | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | **F5** | Spike: provider de túnel pela internet | Serve N2; escolhe o provider da F6 | M3 | — | 🔍 Em avaliação |
-| **F22** | Preço ajustado e proventos | Serve N3, N7; degrau falso na atualização incremental | M8 | — | 🔍 Em avaliação |
 | **F28** | Muitos futuros (Monte Carlo) | Serve N10; revisa ou confirma a D7 | M9 | [F19](#f19) | 🔍 Em avaliação |
 | **F34** | Gráfico de ações em tela cheia, com ferramentas de trader | Serve N19; escolhe a biblioteca de gráfico | M11 | [F33](#f33) | 🔍 Em avaliação |
 | **F44** | Expansão Gestoras: fundar a gestora e abrir capital | Serve N23; falta o protótipo do preço da cota com o formador sintético | — | [F101](#f101) | 🔍 Em avaliação |
 | **F49** | Spike: animação dos tópicos do tutorial | Serve N25; decide como os tópicos da F126 se animam: vídeo, framer-motion ou Remotion | M14 | — | 🔍 Em avaliação |
 | **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | — | [F103](#f103) | 🔍 Em avaliação |
-| **F87** | Erros de dado do yfinance na base | Serve N3; encosta na F22 | — | — | 🔍 Em avaliação |
 | **F90** | Cenários | Serve N22; um preset com objetivo | — | [F89](#f89) | 🔍 Em avaliação |
 | **F93** | Rumores antecipados | N31; opção da partida | M15 | [F92](#f92) | 🔍 Em avaliação |
 | **F95** | Expansão Governo: partidos, eleição e impostos | Serve N34, N23; o gasto público é a F106 e os perfis de público são a F107 | — | — | 🔍 Em avaliação |
@@ -499,15 +510,11 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F106** | Governo: gasto público e inflação | Serve N34; falta quanto cada medida soma ao IPCA | — | [F95](#f95) | 🔍 Em avaliação |
 | **F107** | Perfis de público na eleição | Serve N34; eleitores com perfil sobre a eleição da F95 | — | [F95](#f95) | 🔍 Em avaliação |
 | **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | Serve N15; falta escolher o desenho dos dois cards no canvas; liga à F72 | — | — | 🔍 Em avaliação |
-| **F121** | Comprar tudo a mercado sem estourar o caixa | Serve N15; falta escolher entre ordem por valor, ordem que se ajusta ou Máx com folga | — | — | 🔍 Em avaliação |
 | **F123** | Redesenhar o aviso de conquista desbloqueada | Serve N22 e N15; falta escolher o desenho do aviso no canvas; liga à F122 | — | — | 🔍 Em avaliação |
 | **F125** | Revisão das regras de lint e da checagem de tipos | Nenhuma N#; qualidade do código. A configuração do oxlint é da D15 | — | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
-
-<a id="f22"></a>
-**F22 — Preço ajustado e proventos.** Serve N3 e N7. O importador usa `yf.download(auto_adjust=True)`: o preço vem ajustado por dividendos e desdobramentos *até o dia da importação*. A atualização incremental (`upsert_dataframe` só grava linhas depois da última data guardada) emenda duas séries ajustadas em dias diferentes, então um provento ou desdobramento ocorrido entre a importação e a atualização vira um degrau falso na emenda — num desdobramento 2:1, uma queda de 50% que não existiu. Além disso, o preço exibido não é o que se negociava na época, e dividendo nunca entra no caixa. Falta escolher: (1) **atualizar sempre baixando a série inteira** e sobrescrevendo — corrige o degrau com pouca mudança, mas reescreve o passado de partidas salvas a cada provento novo; (2) **preço bruto + proventos como evento** — `auto_adjust=False`; desdobramento ajusta a quantidade da posição e dividendo credita o caixa na data ex (o `yfinance` traz as duas listas); fiel e reprodutível, mas mexe no motor, na carteira e na F13. Sai daqui com a escolha e o plano de implementação.
 
 <a id="f28"></a>
 **F28 — Muitos futuros (Monte Carlo).** Serve N10. Em vez de testar a estratégia num futuro gerado só, testá-la em muitos (ex.: 100, cada um com uma semente) e mostrar o resultado como distribuição: "perdeu para o CDI em 23 de 100 futuros; no pior, −35%; no do meio, +40% em 5 anos". Lê-se pela fração de futuros ruins e pelo pior caso: poucos futuros perdendo para o CDI é bom; uma estratégia que só ganha no histórico real e perde na maioria dos futuros plausíveis teve sorte, não mérito. É o backtest da F19 repetido sobre gerações do gerador da D14. Falta definir: **onde vivem os 100 futuros.** A D7 dá às tabelas de série uma dimensão de versão, que a F24 implementa para congelar partidas salvas. Opções: (1) cada futuro de Monte Carlo é uma versão descartável nessa dimensão, gravando 100 vezes as linhas geradas (cerca de 5 milhões para 37 ativos × 5 anos); (2) o motor lê as séries por um provedor que pode ser o banco ou uma geração em memória (o `SeriesGenerator` gera 37 ativos × 5 anos em cerca de 1 s), o que estende a D7 de "mesmas tabelas" para "mesma interface". Sai daqui com essa escolha, que revisa ou confirma a D7.
@@ -523,9 +530,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f55"></a>
 **F55 — Modo aquisição hostil.** Serve N23. Um modo de jogo da expansão "Gestoras" (F44) em que perder o controle tira o jogador da partida. Todo o patrimônio de cada jogador está na própria gestora, e quem juntar mais da metade das cotas de outra a incorpora: o dono anterior sai da partida e a gestora dele passa a ser controlada pelo comprador. Vence quem sobrar, ou quem tiver o maior patrimônio na data final. **Carência:** nos primeiros meses (padrão 12) ninguém pode passar de metade de outra gestora, para que abrir capital cedo não seja suicídio. **Ninguém fica invulnerável:** sem oferta pública, a gestora seria impossível de comprar, então no fim da carência todas precisam ter uma parte mínima das cotas no mercado (padrão 50%); quem não abriu capital entra numa oferta automática pelo patrimônio por cota. **Defesa:** recompra de cotas com o caixa da gestora e compra com as taxas recebidas, como uma empresa que recompra ações para não ser comprada. Falta decidir: a parte mínima no mercado; se o incorporado sai da partida ou vira co-gestor do comprador (como numa fusão); e se há um preço mínimo por cota durante a tentativa de aquisição, como nas ofertas públicas de aquisição reais.
-
-<a id="f87"></a>
-**F87 — Erros de dado do yfinance na base.** Serve N3. A base tem dias em que o preço vai a quase zero e volta: CMIG4 sobe 878% e cai 90% em agosto de 2003, XPML11 cai 99% em 14/01/2026 e volta 758 vezes cinco dias depois, e UGPA3, GOAU4, LREN3 e SUZB3 têm dias de −100%. A partida mostra esses dias como reais. O gerador (D14) já os trata como dia sem pregão. Falta escolher o que a importação faz com eles: (1) descartar a linha, deixando o dia sem pregão; (2) interpolar o fechamento entre os vizinhos; (3) só sinalizar na Central para o usuário decidir. Parte dos saltos que não voltam (B3SA3 −66% em 2011) pode ser ajuste de desdobramento, que é assunto da F22. Sai daqui com a regra e o limiar.
 
 <a id="f90"></a>
 **F90 — Cenários.** Serve N22. Como nos jogos de estratégia: uma partida montada com intenção, um preset (F89) com objetivo e texto de abertura. Exemplos: "Crise de 2008" (começa em setembro de 2008 com R$ 100 mil, meta de não perder mais de 20%), "Década perdida" (futuro gerado com choque de inflação de +15 pontos) e "Plano Real". O objetivo usa os modos de jogo que já existem (corrida à meta, viver de renda) e o ranking. Falta definir: quais cenários entram primeiro e o objetivo de cada um; se o objetivo pode ser algo que os modos não cobrem (perda máxima, bater o CDI); se há campanha, com um cenário liberando o seguinte; e se o usuário cria os próprios cenários ou só joga os que vêm com o app.
@@ -562,9 +566,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f120"></a>
 **F120 — Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira.** O que incomoda: o tooltip do donut (`allocation-donut.tsx`, um `Tooltip` do Recharts com estilo avulso) não agrada; o estilo do gráfico de evolução (`networth-chart.tsx`: áreas empilhadas por classe, linha tracejada do aportado, rótulos de fim à direita) parece estranho; e outros lugares usam um gráfico parecido (a área de composição das Estatísticas e a linha de desempenho). Falta escolher o desenho dos dois cards: que tipo de gráfico mostra a evolução (áreas empilhadas, uma linha de patrimônio contra o aportado, ou o patrimônio com o ganho destacado), o que o donut conta e como o tooltip responde, e se os dois cards continuam lado a lado. Parte de uma rodada no canvas, com variantes dos dois cards e do estado vazio e com poucos pontos. Ao aprovar, o visual vale para os gráficos parecidos, e a F72 (convenção de pasta e `ChartContainer`) é o lugar de migrá-los. Sai daqui para Pendente com a variante escolhida.
-
-<a id="f121"></a>
-**F121 — Comprar tudo a mercado sem estourar o caixa.** A boleta de renda variável calcula o "Máx" com o caixa e o preço da prévia (`preview_order`: o melhor preço de venda do book, ou o último fechamento), mas a ordem a mercado só é conferida na execução, contra o preço do momento (`_validate_market_order` compara `preço × quantidade` com o caixa). Com o jogo rodando, o preço anda entre o clique no "Máx" e a execução, então a quantidade que cabia na prévia deixa de caber e volta "Saldo insuficiente". O que falta escolher é como o "comprar tudo" fica garantido: (a) **ordem a mercado por valor:** o jogador informa quanto gastar (ou aperta "Tudo", o caixa inteiro) e o motor calcula a quantidade no momento da execução, com o preço que valeu, arredondando para baixo; nunca estoura, e é o caminho mais fiel a como corretoras fazem "comprar R$ X"; (b) **ordem que se ajusta:** a quantidade enviada vale como teto, e se o preço subiu o motor compra a maior quantidade que ainda cabe em vez de recusar; (c) **Máx com folga:** o botão deixa uma margem (por exemplo 2%) do caixa, o ajuste mais simples, mas sobra dinheiro parado e a margem ainda pode ser pequena num dia de salto. Recomendação: (a) com o botão "Tudo" na boleta, e (b) como regra do motor quando o preço mexe entre o envio e a execução. Falta decidir também como a boleta mostra a quantidade comprada, já que ela só se sabe depois. Sai daqui para Pendente com a opção escolhida.
 
 <a id="f123"></a>
 **F123 — Redesenhar o aviso de conquista desbloqueada.** Hoje o aviso (`achievement-toast.tsx`, aberto com `toast.custom` do sonner) é um cartão escuro de 380 px com uma faixa amarela de 3 px à esquerda, o ícone, o rótulo amarelo em maiúsculas ("Conquista desbloqueada"), o nome e a descrição; quando várias saem no mesmo dia, vira uma lista com "Ver todas". O incômodo existe, mas não está claro de onde vem: pode ser a faixa amarela do canto, o rótulo, o peso do cartão escuro, o tamanho ou a falta de movimento. Falta escolher o desenho depois de ver variantes lado a lado no canvas: (a) o cartão atual sem a faixa, com o ícone em destaque; (b) um cartão claro, no tema do app; (c) um formato compacto, com o ícone e o nome numa linha só e a descrição ao passar o mouse; (d) um formato de "selo" com a categoria e a cor dela. A rodada cobre os estados uma conquista, várias no mesmo dia, secreta revelada e conquista com barra de progresso completa, e decide a posição na tela e a entrada e saída. Sai daqui para Pendente com a variante escolhida.
