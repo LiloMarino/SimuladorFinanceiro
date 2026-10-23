@@ -19,6 +19,8 @@ export interface NavItem {
   achievementTally?: boolean;
   /** Ponto vermelho no item enquanto há parcela em atraso ou sem caixa para cobrir */
   creditAlert?: boolean;
+  /** O selo mostra o modo do jogador (Ligada/Desligada), com um ponto vermelho quando a estratégia deu erro e o erro não foi visto */
+  strategyStatus?: boolean;
 }
 
 export type RedirectState = {

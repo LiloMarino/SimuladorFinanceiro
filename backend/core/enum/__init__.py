@@ -307,3 +307,42 @@ class MarketRegime(Enum):
     CALM = "CALM"
     NORMAL = "NORMAL"
     AGITATED = "AGITATED"
+
+
+class StrategyLogKind(Enum):
+    """Linha do registro da estratégia: uma ordem ou uma mudança de modo."""
+
+    ORDER = "order"
+    ENABLED = "enabled"
+    SWITCHED = "switched"
+    PARAMS = "params"
+    DISABLED = "disabled"
+    ERROR = "error"
+    ERROR_SEEN = "error_seen"
+    RESUMED = "resumed"
+
+
+class StrategyAction(Enum):
+    BUY = "buy"
+    SELL = "sell"
+    CANCEL = "cancel"
+    INVEST = "invest"
+
+
+class StrategyOrderStatus(Enum):
+    EXECUTED = "executed"
+    PARTIAL = "partial"
+    OPEN = "open"
+    CANCELED = "canceled"
+    REFUSED = "refused"
+
+
+class StrategyGroup(Enum):
+    REFERENCE = "reference"
+    TACTIC = "tactic"
+
+
+class StrategyParamKind(Enum):
+    INT = "int"
+    PERCENT = "percent"
+    TICKERS = "tickers"

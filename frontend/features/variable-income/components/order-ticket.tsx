@@ -6,7 +6,10 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/shared/compo
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { AutomaticLock } from "@/shared/components/automatic-lock";
 import { ErrorState } from "@/shared/components/error-state";
+import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
+import { cn } from "@/shared/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
@@ -48,12 +51,14 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
   const requestMatches = request.action === action && request.quantity === quantity && request.limit_price === limitPrice;
 
   const submit = useSubmitOrder(ticker);
+  // Com o automático ligado a boleta fica só para leitura
+  const locked = !!useMyStrategy().data?.active;
 
   const selling = action === "sell";
   const maxQuantity = preview?.max_quantity ?? 0;
   const overMax = quantity > maxQuantity;
   const noPosition = selling && requestMatches && preview !== undefined && preview.held === 0;
-  const canSubmit = requestMatches && !error && quantity > 0 && !overMax && !!preview?.price && (kind === "market" || !!limitPrice);
+  const canSubmit = !locked && requestMatches && !error && quantity > 0 && !overMax && !!preview?.price && (kind === "market" || !!limitPrice);
 
   const quantityHint = selling
     ? preview && preview.reserved > 0
@@ -70,7 +75,8 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
         <CardTitle>Nova ordem</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
+        {locked && <AutomaticLock />}
+        <div inert={locked} className={cn("grid gap-4", locked && "mt-4 opacity-55")}>
           {error && <ErrorState title="Não deu para conferir a ordem" description="Atualize a prévia antes de enviar."
             error={error} onRetry={() => void refetch()} />}
           {(isLoading || !requestMatches) && <p role="status" className="text-sm text-muted-foreground">Conferindo a ordem…</p>}

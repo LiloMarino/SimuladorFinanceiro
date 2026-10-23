@@ -69,6 +69,7 @@ class SimulationPlayerRepository:
                 select(Users)
                 .join(SimulationPlayers, SimulationPlayers.user_id == Users.id)
                 .where(SimulationPlayers.simulation_id == simulation_id)
+                .order_by(Users.id)
             )
             .scalars()
             .all()

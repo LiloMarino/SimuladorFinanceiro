@@ -16,6 +16,7 @@ export type OrderPartialExecutedEvent = RealtimeEventCatalog["order_partial_exec
 export type LifeEvent = RealtimeEventCatalog["life_event"];
 export type FutureRecordingProgressEvent = RealtimeEventCatalog["future_recording_progress"];
 export type AchievementUnlockedEvent = RealtimeEventCatalog["achievement_unlocked"];
+export type StrategyOrderLine = RealtimeEventCatalog["strategy_orders"]["orders"][number];
 
 /** Eventos emitidos pelo servidor via WebSocket */
 export type SimulationEvents = {
@@ -49,6 +50,8 @@ export type SimulationEvents = {
   credit_installment_warning: RealtimeEventCatalog["credit_installment_warning"];
   credit_rating_changed: RealtimeEventCatalog["credit_rating_changed"];
   credit_loan_paid_off: RealtimeEventCatalog["credit_loan_paid_off"];
+  strategy_update: RealtimeEventCatalog["strategy_update"];
+  strategy_orders: RealtimeEventCatalog["strategy_orders"];
 } & {
   [K in `stock_update:${string}`]: RealtimeEventCatalog["stock_update"];
 } & {

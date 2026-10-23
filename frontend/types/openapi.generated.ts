@@ -1148,6 +1148,110 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/strategies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar as estratégias
+         * @description Retorna as estratégias do app, com a regra, os parâmetros, a faixa de cada um e o padrão calculado para a partida.
+         */
+        get: operations["list_strategies_api_strategies_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter a minha estratégia
+         * @description Retorna a estratégia que o jogador deixou ligada (ou nenhuma, no modo manual), o erro que o devolveu ao manual e o painel desde que ligou.
+         */
+        get: operations["get_my_strategy_api_strategies_me_get"];
+        /**
+         * Ligar, ajustar ou desligar a estratégia
+         * @description Liga a estratégia com os parâmetros, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. Ligar, trocar e desligar cancelam as ordens abertas do jogador.
+         */
+        put: operations["set_my_strategy_api_strategies_me_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/me/error-seen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Marcar o erro como visto
+         * @description Registra que o jogador viu o erro que desligou a estratégia, para o aviso do menu sair.
+         */
+        post: operations["mark_error_seen_api_strategies_me_error_seen_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/{key}/signal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Calcular o sinal de uma estratégia
+         * @description Valida os parâmetros e devolve as linhas e os marcadores que a estratégia desenha no ativo, sem salvar nada.
+         */
+        post: operations["get_signal_api_strategies__key__signal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/strategies/me/log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar o registro da estratégia
+         * @description Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia e as mudanças de modo do jogador.
+         */
+        get: operations["get_strategy_log_api_strategies_me_log_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/status": {
         parameters: {
             query?: never;
@@ -2669,6 +2773,8 @@ export interface components {
             /** Cash After */
             cash_after: string;
         };
+        /** @enum {string} */
+        LogFilter: "all" | "orders" | "modes";
         /** MarketQuoteDTO */
         MarketQuoteDTO: {
             /** Id */
@@ -2785,6 +2891,16 @@ export interface components {
             buy_count: number;
             /** Sell Count */
             sell_count: number;
+        };
+        /** MyStrategyDTO */
+        MyStrategyDTO: {
+            active: components["schemas"]["StrategyActiveDTO"] | null;
+            error: components["schemas"]["StrategyErrorDTO"] | null;
+            /** Resumed */
+            resumed: boolean;
+            /** Open Orders */
+            open_orders: number;
+            panel: components["schemas"]["StrategyPanelDTO"] | null;
         };
         /** OperationsReportDTO */
         OperationsReportDTO: {
@@ -3525,6 +3641,8 @@ export interface components {
             credit_installment_warning: components["schemas"]["CreditInstallmentWarningEventDTO"];
             credit_rating_changed: components["schemas"]["CreditRatingChangedEventDTO"];
             credit_loan_paid_off: components["schemas"]["CreditLoanPaidOffEventDTO"];
+            strategy_update: components["schemas"]["StrategyUpdateEventDTO"];
+            strategy_orders: components["schemas"]["StrategyOrdersEventDTO"];
         };
         /**
          * ReplacedGeneratedDTO
@@ -3776,6 +3894,15 @@ export interface components {
             /** Speed */
             speed: number;
         };
+        /** SetStrategyRequestDTO */
+        SetStrategyRequestDTO: {
+            /** Key */
+            key: string | null;
+            /** Params */
+            params?: {
+                [key: string]: components["schemas"]["StrategyParamValue"];
+            };
+        };
         /** SettingsRequest */
         SettingsRequest: {
             orders: components["schemas"]["OrderNotificationSettings"];
@@ -3794,6 +3921,68 @@ export interface components {
             debug: boolean;
         } & {
             [key: string]: unknown;
+        };
+        /**
+         * SignalDTO
+         * @description O que a estratégia olha num ativo: as linhas do gráfico e onde ela compraria e venderia.
+         */
+        SignalDTO: {
+            /** Errors */
+            errors: {
+                [key: string]: string;
+            };
+            /** Lines */
+            lines: components["schemas"]["SignalLineDTO"][];
+            /** Markers */
+            markers: components["schemas"]["SignalMarkerDTO"][];
+            /** Available Days */
+            available_days: number;
+            /** Needed Days */
+            needed_days: number;
+        };
+        /** SignalLineDTO */
+        SignalLineDTO: {
+            /**
+             * Key
+             * @enum {string}
+             */
+            key: "price" | "short" | "long";
+            /** Label */
+            label: string;
+            /** Points */
+            points: components["schemas"]["SignalPointDTO"][];
+        };
+        /** SignalMarkerDTO */
+        SignalMarkerDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Side
+             * @enum {string}
+             */
+            side: "buy" | "sell";
+        };
+        /** SignalPointDTO */
+        SignalPointDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Value */
+            value: number;
+        };
+        /** SignalRequestDTO */
+        SignalRequestDTO: {
+            /** Params */
+            params: {
+                [key: string]: components["schemas"]["StrategyParamValue"];
+            };
+            /** Ticker */
+            ticker: string;
         };
         /** SimulationDTO */
         SimulationDTO: {
@@ -4084,6 +4273,207 @@ export interface components {
         StocksUpdateEventDTO: {
             /** Stocks */
             stocks: components["schemas"]["CandleDTO"][];
+        };
+        /**
+         * StrategyAction
+         * @enum {string}
+         */
+        StrategyAction: "buy" | "sell" | "cancel" | "invest";
+        /** StrategyActiveDTO */
+        StrategyActiveDTO: {
+            /** Key */
+            key: string;
+            /** Params */
+            params: {
+                [key: string]: components["schemas"]["StrategyParamValue"];
+            };
+            /**
+             * Since
+             * Format: date
+             */
+            since: string;
+        };
+        /** StrategyErrorDTO */
+        StrategyErrorDTO: {
+            /** Strategy Key */
+            strategy_key: string | null;
+            /**
+             * Error Date
+             * Format: date
+             */
+            error_date: string;
+            /** Message */
+            message: string;
+            /** Traceback */
+            traceback: string | null;
+            /** Seen */
+            seen: boolean;
+        };
+        /**
+         * StrategyGroup
+         * @enum {string}
+         */
+        StrategyGroup: "reference" | "tactic";
+        /** StrategyInfoDTO */
+        StrategyInfoDTO: {
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+            /** Summary */
+            summary: string;
+            /** Description */
+            description: string;
+            group: components["schemas"]["StrategyGroup"];
+            /** Params */
+            params: components["schemas"]["StrategyParamDTO"][];
+        };
+        /** StrategyLastOrderDTO */
+        StrategyLastOrderDTO: {
+            action: components["schemas"]["StrategyAction"];
+            /** Ticker */
+            ticker: string | null;
+            /** Asset Name */
+            asset_name: string | null;
+            /** Quantity */
+            quantity: number | null;
+            /**
+             * Order Date
+             * Format: date
+             */
+            order_date: string;
+            /** Order Type */
+            order_type: string | null;
+        };
+        /**
+         * StrategyLogKind
+         * @description Linha do registro da estratégia: uma ordem ou uma mudança de modo.
+         * @enum {string}
+         */
+        StrategyLogKind: "order" | "enabled" | "switched" | "params" | "disabled" | "error" | "error_seen" | "resumed";
+        /** StrategyLogPageDTO */
+        StrategyLogPageDTO: {
+            /** Items */
+            items: components["schemas"]["StrategyLogRowDTO"][];
+            /** Total */
+            total: number;
+        };
+        /** StrategyLogRowDTO */
+        StrategyLogRowDTO: {
+            /** Id */
+            id: number;
+            /**
+             * Event Date
+             * Format: date
+             */
+            event_date: string;
+            kind: components["schemas"]["StrategyLogKind"];
+            /** Strategy Key */
+            strategy_key: string | null;
+            /** Strategy Name */
+            strategy_name: string | null;
+            action: components["schemas"]["StrategyAction"] | null;
+            /** Ticker */
+            ticker: string | null;
+            /** Asset Name */
+            asset_name: string | null;
+            /** Quantity */
+            quantity: number | null;
+            /** Price */
+            price: string | null;
+            /** Order Type */
+            order_type: string | null;
+            /** Reason */
+            reason: string | null;
+            status: components["schemas"]["StrategyOrderStatus"] | null;
+            /** Detail */
+            detail: string | null;
+        };
+        /** StrategyOrderLineDTO */
+        StrategyOrderLineDTO: {
+            action: components["schemas"]["StrategyAction"];
+            /** Ticker */
+            ticker: string | null;
+            /** Asset Name */
+            asset_name: string | null;
+            /** Quantity */
+            quantity: number | null;
+            /** Price */
+            price: string | null;
+            status: components["schemas"]["StrategyOrderStatus"];
+            /** Reason */
+            reason: string | null;
+            /** Asset Uuid */
+            asset_uuid?: string | null;
+        };
+        /**
+         * StrategyOrderStatus
+         * @enum {string}
+         */
+        StrategyOrderStatus: "executed" | "partial" | "open" | "canceled" | "refused";
+        /**
+         * StrategyOrdersEventDTO
+         * @description O que a estratégia do jogador fez no dia.
+         */
+        StrategyOrdersEventDTO: {
+            /** Orders */
+            orders: components["schemas"]["StrategyOrderLineDTO"][];
+        };
+        /**
+         * StrategyPanelDTO
+         * @description O que a estratégia fez desde que o jogador a ligou.
+         */
+        StrategyPanelDTO: {
+            /** Orders Total */
+            orders_total: number;
+            /** Executed */
+            executed: number;
+            /** Partial */
+            partial: number;
+            /** Open */
+            open: number;
+            /** Canceled */
+            canceled: number;
+            /** Refused */
+            refused: number;
+            /** Return Pct */
+            return_pct: string | null;
+            /** Ibov Pct */
+            ibov_pct: string | null;
+            last_order: components["schemas"]["StrategyLastOrderDTO"] | null;
+        };
+        /** StrategyParamDTO */
+        StrategyParamDTO: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            kind: components["schemas"]["StrategyParamKind"];
+            default: components["schemas"]["StrategyParamValue"];
+            /** Min */
+            min?: number | null;
+            /** Max */
+            max?: number | null;
+            /** Unit */
+            unit?: string | null;
+            /** Hint */
+            hint: string;
+        };
+        /**
+         * StrategyParamKind
+         * @enum {string}
+         */
+        StrategyParamKind: "int" | "percent" | "tickers";
+        StrategyParamValue: number | string[];
+        /**
+         * StrategyUpdateEventDTO
+         * @description O modo do jogador mudou: ligou, trocou, desligou ou a estratégia deu erro.
+         */
+        StrategyUpdateEventDTO: {
+            /** Active */
+            active: boolean;
+            /** Error */
+            error?: string | null;
         };
         /** SubmitOrderRequest */
         SubmitOrderRequest: {
@@ -6920,6 +7310,244 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_strategies_api_strategies_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyInfoDTO"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_my_strategy_api_strategies_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyStrategyDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_my_strategy_api_strategies_me_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetStrategyRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    mark_error_seen_api_strategies_me_error_seen_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_signal_api_strategies__key__signal_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignalRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SignalDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_strategy_log_api_strategies_me_log_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["LogFilter"];
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyLogPageDTO"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

@@ -14,7 +14,7 @@ import { displayPercent, displayMoney, displayMonthName } from "@/shared/lib/uti
 import type { CreditOverview, LoanQuote } from "@/types";
 import { useContractLoan } from "../hooks/mutations/useContractLoan";
 import { InstallmentsTable } from "./installments-table";
-import { KeyValueRow } from "./key-value-row";
+import { KeyValueRow } from "@/shared/components/key-value-row";
 
 type ReviewLoanDialogProps = {
   open: boolean;

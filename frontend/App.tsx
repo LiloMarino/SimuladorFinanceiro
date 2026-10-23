@@ -45,7 +45,7 @@ const navItems: NavItem[] = [
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: Trophy, group: "Você" },
   { key: "achievements", label: "Conquistas", endpoint: "/achievements", icon: Medal, group: "Você", achievementTally: true },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
-  { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: Bot, group: "Ferramentas", badge: "Em breve" },
+  { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: Bot, group: "Ferramentas", strategyStatus: true },
   { key: "performance", label: "Desempenho", endpoint: "/performance", icon: Gauge, group: "Ferramentas", badge: "Debug", badgeTone: "warning", debugOnly: true },
   { key: "settings", label: "Configurações", endpoint: "/settings", icon: Settings, group: "Ferramentas" },
 ];

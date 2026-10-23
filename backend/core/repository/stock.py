@@ -1,5 +1,6 @@
 from datetime import date
 
+import pandas as pd
 from sqlalchemy import delete, func, select, true
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, aliased, selectinload
@@ -139,6 +140,84 @@ class StockRepository:
             if close is not None:
                 values.append(close)
         return closes
+
+    @transactional
+    def get_price_frame(
+        self,
+        session: Session,
+        tickers: list[str],
+        until: date,
+        simulation_id: int | None = None,
+    ) -> dict[str, pd.DataFrame]:
+        """
+        O histórico OHLCV de cada ticker até `until`, como tabela indexada pela data.
+
+        O banco guarda o futuro gerado da partida: quem lê corta no dia corrente.
+        """
+        rows = session.execute(
+            select(
+                Stock.ticker,
+                StockPriceHistory.price_date,
+                StockPriceHistory.open,
+                StockPriceHistory.high,
+                StockPriceHistory.low,
+                StockPriceHistory.close,
+                StockPriceHistory.volume,
+            )
+            .join(StockPriceHistory, StockPriceHistory.stock_id == Stock.id)
+            .where(
+                Stock.ticker.in_(tickers),
+                StockPriceHistory.price_date <= until,
+                seen_by(StockPriceHistory, reading_version(simulation_id)),
+            )
+            .order_by(Stock.ticker, StockPriceHistory.price_date)
+        ).all()
+        columns = ["open", "high", "low", "close", "volume"]
+        frames: dict[str, pd.DataFrame] = {}
+        for ticker in tickers:
+            own = [r for r in rows if r[0] == ticker]
+            frames[ticker] = pd.DataFrame(
+                [r[2:] for r in own],
+                columns=columns,
+                index=pd.DatetimeIndex([r[1] for r in own]),
+            )
+        return frames
+
+    @transactional
+    def get_most_traded(
+        self,
+        session: Session,
+        until: date,
+        sessions: int,
+        limit: int,
+        simulation_id: int | None = None,
+    ) -> list[str]:
+        """
+        Os `limit` tickers de maior volume financeiro médio (fechamento x volume)
+        nos últimos `sessions` pregões até `until`.
+        """
+        recent = (
+            select(StockPriceHistory.close, StockPriceHistory.volume)
+            .where(
+                StockPriceHistory.stock_id == Stock.id,
+                StockPriceHistory.price_date <= until,
+                seen_by(StockPriceHistory, reading_version(simulation_id)),
+            )
+            .order_by(StockPriceHistory.price_date.desc())
+            .limit(sessions)
+            .lateral()
+        )
+        traded = func.avg(recent.c.close * recent.c.volume).label("traded")
+        return list(
+            session.scalars(
+                select(Stock.ticker)
+                .select_from(Stock)
+                .join(recent, true())
+                .group_by(Stock.id, Stock.ticker)
+                .order_by(traded.desc(), Stock.ticker)
+                .limit(limit)
+            )
+        )
 
     @transactional
     def get_stock_details(

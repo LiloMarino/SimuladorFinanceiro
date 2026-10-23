@@ -153,3 +153,20 @@ export type PrepaymentPreview = components["schemas"]["PrepaymentPreviewDTO"];
 export type PrepaymentMode = components["schemas"]["PrepaymentMode"];
 export type ContractLoanRequest = components["schemas"]["ContractLoanRequestDTO"];
 export type PrepayLoanRequest = components["schemas"]["PrepayLoanRequestDTO"];
+
+// Estratégias
+export type StrategyInfo = components["schemas"]["StrategyInfoDTO"];
+export type StrategyParam = StrategyInfo["params"][number];
+export type StrategyParamValue = components["schemas"]["StrategyParamValue"];
+export type StrategyGroup = components["schemas"]["StrategyGroup"];
+export type StrategyAction = components["schemas"]["StrategyAction"];
+export type StrategyOrderStatus = components["schemas"]["StrategyOrderStatus"];
+export type MyStrategy = components["schemas"]["MyStrategyDTO"];
+export type StrategyPanel = NonNullable<MyStrategy["panel"]>;
+export type StrategyError = NonNullable<MyStrategy["error"]>;
+export type SetStrategyRequest = components["schemas"]["SetStrategyRequestDTO"];
+export type StrategySignal = components["schemas"]["SignalDTO"];
+export type StrategyLogPage = components["schemas"]["StrategyLogPageDTO"];
+export type StrategyLogRow = StrategyLogPage["items"][number];
+export type StrategyLogKind = components["schemas"]["StrategyLogKind"];
+export type StrategyLogFilter = "all" | "orders" | "modes";

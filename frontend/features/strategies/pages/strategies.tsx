@@ -1,149 +1,192 @@
-import type { ReactNode } from "react";
-import { Bot } from "lucide-react";
-import { Link } from "react-router-dom";
-import { InfoHint } from "@/shared/components/info-hint";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-
-/** Gráfico ilustrativo de cada regra: desenho fixo, não usa dado da partida. */
-function PreviewChart({ children }: { children: ReactNode }) {
-  return (
-    <svg viewBox="0 0 260 90" width="100%" height="90" aria-hidden="true">
-      {children}
-    </svg>
-  );
-}
-
-const PREVIEWS = [
-  {
-    title: "Média móvel 50/200",
-    rule: "Compra quando a média dos últimos 50 dias passa a média de 200 (tendência de alta começando).",
-    reading:
-      "Média móvel é o preço médio dos últimos N pregões. Ex.: se a média de 50 dias sobe de R$ 30 para R$ 32 e cruza a de 200 dias em R$ 31, a alta recente ficou mais forte que a tendência longa.",
-    chart: (
-      <PreviewChart>
-        <path d="M0 70 C40 60 60 30 100 40 S160 70 200 30 S240 20 260 15" fill="none" stroke="var(--input)" strokeWidth="1.5" />
-        <path d="M0 60 C60 55 100 50 140 45 S220 32 260 28" fill="none" stroke="var(--chart-1)" strokeWidth="2" />
-        <path d="M0 50 C80 50 140 52 260 44" fill="none" stroke="var(--chart-5)" strokeWidth="2" strokeDasharray="4 3" />
-        <circle cx="168" cy="47" r="5" fill="var(--success)" />
-      </PreviewChart>
-    ),
-  },
-  {
-    title: "RSI sobrevendido / sobrecomprado",
-    rule: "Compra quando o RSI cai abaixo de 30 e vende quando passa de 70.",
-    reading:
-      "O RSI (Índice de Força Relativa) vai de 0 a 100 e compara as altas com as quedas dos últimos 14 pregões. Abaixo de 30, a ação caiu muito e rápido; acima de 70, subiu muito e rápido.",
-    chart: (
-      <PreviewChart>
-        <rect x="0" y="0" width="260" height="20" fill="var(--destructive-soft)" />
-        <rect x="0" y="70" width="260" height="20" fill="var(--success-soft)" />
-        <path
-          d="M0 45 L30 60 L60 78 L90 62 L120 40 L150 22 L180 8 L210 30 L240 48 L260 40"
-          fill="none"
-          stroke="var(--chart-1)"
-          strokeWidth="2"
-        />
-        <circle cx="60" cy="78" r="5" fill="var(--success)" />
-        <circle cx="180" cy="8" r="5" fill="var(--destructive)" />
-      </PreviewChart>
-    ),
-  },
-  {
-    title: "Rompimento",
-    rule: "Compra quando o preço passa uma resistência com volume acima do normal.",
-    reading:
-      "Resistência é um preço que a ação tocou várias vezes sem passar. Ex.: depois de bater R$ 50 três vezes, fechar a R$ 51 com o dobro do volume médio sinaliza que pode seguir subindo.",
-    chart: (
-      <PreviewChart>
-        <line x1="0" y1="35" x2="260" y2="35" stroke="var(--faint-foreground)" strokeDasharray="4 3" />
-        <path
-          d="M0 60 L30 40 L60 58 L90 38 L120 56 L150 40 L180 52 L200 30 L230 18 L260 10"
-          fill="none"
-          stroke="var(--chart-1)"
-          strokeWidth="2"
-        />
-        <circle cx="196" cy="35" r="5" fill="var(--success)" />
-        <g fill="var(--input)">
-          {[
-            [10, 82],
-            [40, 80],
-            [70, 83],
-            [100, 81],
-            [130, 82],
-            [160, 80],
-            [190, 64],
-            [220, 70],
-          ].map(([x, y]) => (
-            <rect key={x} x={x} y={y} width="10" height={90 - y} />
-          ))}
-        </g>
-      </PreviewChart>
-    ),
-  },
-];
+import { useEffect, useRef, useState } from "react";
+import { CircleCheck } from "lucide-react";
+import { toast } from "sonner";
+import { ErrorState } from "@/shared/components/error-state";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Card, CardContent } from "@/shared/components/ui/card";
+import usePageLabel from "@/shared/hooks/usePageLabel";
+import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
+import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
+import { useVariableIncomeStocks } from "@/shared/hooks/queries/useVariableIncomeStocks";
+import type { MyStrategy, StrategyInfo } from "@/types";
+import { ConfirmDialog, type ModeChange } from "../components/confirm-dialog";
+import { ErrorBanner } from "../components/error-banner";
+import { ModeCard, type Mode } from "../components/mode-card";
+import { StrategiesSkeleton } from "../components/strategies-skeleton";
+import { StrategyDetail } from "../components/strategy-detail";
+import { StrategyList } from "../components/strategy-list";
+import { StrategyLog } from "../components/strategy-log";
+import { useMarkStrategyErrorSeen } from "../hooks/mutations/useMarkStrategyErrorSeen";
+import { useSetMyStrategy } from "../hooks/mutations/useSetMyStrategy";
+import { useStrategies } from "../hooks/queries/useStrategies";
+import { defaultValues, fromDraft, toDraft, type ParamDraft, type ParamValues } from "../lib/strategy-params";
 
 export default function StrategiesPage() {
+  usePageLabel("Estratégias");
+  const strategies = useStrategies();
+  const mine = useMyStrategy();
+
+  if (!strategies.data || !mine.data) {
+    const error = strategies.error ?? mine.error;
+    return error ? (
+      <Card>
+        <CardContent>
+          <ErrorState
+            title="Não deu para carregar as estratégias"
+            description="O servidor não respondeu. Se a sua estiver ligada, ela continua operando."
+            error={error}
+            onRetry={() => {
+              void strategies.refetch();
+              void mine.refetch();
+            }}
+          />
+        </CardContent>
+      </Card>
+    ) : (
+      <StrategiesSkeleton />
+    );
+  }
+
+  return <StrategiesWorkspace strategies={strategies.data} mine={mine.data} />;
+}
+
+type WorkspaceProps = {
+  strategies: StrategyInfo[];
+  mine: MyStrategy;
+};
+
+function StrategiesWorkspace({ strategies, mine }: WorkspaceProps) {
+  const { data: state } = useSimulationState();
+  const { data: quotes } = useVariableIncomeStocks();
+  const setStrategy = useSetMyStrategy();
+  const { mutate: markErrorSeen } = useMarkStrategyErrorSeen();
+
+  const [pickedKey, setPickedKey] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, ParamDraft>>({});
+  const [change, setChange] = useState<ModeChange | null>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
+
+  // A escolhida abre primeiro na ligada, depois na que deu erro, depois na primeira da lista
+  const errorKey = mine.error?.strategy_key ?? undefined;
+  const selected =
+    strategies.find((strategy) => strategy.key === (pickedKey ?? mine.active?.key ?? errorKey)) ?? strategies[0];
+  const activeStrategy = strategies.find((strategy) => strategy.key === mine.active?.key);
+  const activeHere = mine.active?.key === selected.key ? mine.active : null;
+
+  const draft = drafts[selected.key] ?? toDraft(activeHere ? activeHere.params : defaultValues(selected));
+  const tickerOptions = quotes?.map((quote) => quote.ticker) ?? [];
+
+  const errorUnseen = !!mine.error && !mine.error.seen;
+  // Abrir a página é ver o erro: o ponto vermelho do menu sai
+  useEffect(() => {
+    if (errorUnseen) markErrorSeen();
+  }, [errorUnseen, markErrorSeen]);
+
+  const clearDraft = (key: string) =>
+    setDrafts((current) => Object.fromEntries(Object.entries(current).filter(([draftKey]) => draftKey !== key)));
+
+  // Valores do rascunho da estratégia; nulo enquanto algum campo não é um número inteiro
+  const valuesOf = (strategy: StrategyInfo): ParamValues | null =>
+    fromDraft(strategy.params, drafts[strategy.key] ?? toDraft(defaultValues(strategy)));
+
+  const requestTurnOn = (strategy: StrategyInfo, params: ParamValues) =>
+    setChange({ kind: mine.active ? "switch" : "turn-on", key: strategy.key, params });
+
+  const changeMode = (mode: Mode) => {
+    if (mode === "manual") return setChange({ kind: "manual" });
+    const values = valuesOf(selected);
+    if (!values) return toast.error("Corrija os parâmetros antes de ligar.");
+    requestTurnOn(selected, values);
+  };
+
+  const confirm = (pending: ModeChange) => {
+    const body = pending.kind === "manual" ? { key: null, params: {} } : { key: pending.key, params: pending.params };
+    setStrategy.mutate(body, {
+      onSuccess: () => {
+        setChange(null);
+        if (pending.kind !== "manual") clearDraft(pending.key);
+      },
+    });
+  };
+
+  const errorStrategy = strategies.find((strategy) => strategy.key === errorKey);
+  const editErrorParams = () => {
+    setPickedKey(errorKey ?? null);
+    detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  const turnOnAgain = () => {
+    if (!errorStrategy) return;
+    const values = valuesOf(errorStrategy);
+    if (!values) return toast.error("Corrija os parâmetros antes de ligar.");
+    setPickedKey(errorStrategy.key);
+    requestTurnOn(errorStrategy, values);
+  };
+
   return (
     <div className="grid gap-5">
-      {/* Cabeçalho */}
-      <Card>
-        <CardContent>
-          <div className="flex items-center justify-between gap-6">
-            <div className="grid max-w-160 gap-2">
-              <Badge variant="warning">Em desenvolvimento</Badge>
-              <h2 className="text-2xl font-bold">Estratégias automáticas</h2>
-              <p className="text-[15px] text-muted-foreground">
-                Robôs que compram e vendem por você seguindo uma regra fixa, enquanto a partida corre. Ainda não estão
-                prontos: abaixo, as regras que estão sendo preparadas.
-              </p>
-            </div>
-            <span className="flex size-18 shrink-0 items-center justify-center rounded-[18px] bg-info-soft text-primary">
-              <Bot className="size-8.5" />
-            </span>
-          </div>
-        </CardContent>
-      </Card>
+      {mine.error && (
+        <ErrorBanner
+          error={mine.error}
+          canRetry={!!errorStrategy}
+          onEditParams={editErrorParams}
+          onTurnOnAgain={turnOnAgain}
+        />
+      )}
 
-      {/* Prévias */}
-      <div className="grid grid-cols-3 gap-4">
-        {PREVIEWS.map((p) => (
-          <Card key={p.title}>
-            <CardHeader>
-              <CardTitle>
-                <span className="inline-flex items-center gap-1">
-                  {p.title}
-                  <InfoHint label={`Como funciona ${p.title}`}>{p.reading}</InfoHint>
-                </span>
-              </CardTitle>
-              <CardAction>
-                <Badge variant="secondary">Prévia</Badge>
-              </CardAction>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3 opacity-90">
-                {p.chart}
-                <p className="text-[13px] text-muted-foreground">{p.rule}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {mine.resumed && activeStrategy && (
+        <Alert variant="info">
+          <CircleCheck />
+          <AlertTitle>Partida retomada com o automático ligado</AlertTitle>
+          <AlertDescription>
+            {activeStrategy.name} voltou com os mesmos parâmetros e relê o histórico do mercado.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <ModeCard
+        mine={mine}
+        activeStrategy={activeStrategy}
+        currentDate={state?.current_date}
+        onModeChange={changeMode}
+      />
+
+      {/* Estratégias e o detalhe da escolhida */}
+      <div className="grid items-start gap-5 xl:grid-cols-[340px_minmax(0,1fr)]">
+        <StrategyList
+          strategies={strategies}
+          selectedKey={selected.key}
+          activeKey={mine.active?.key}
+          onSelect={setPickedKey}
+        />
+        <div ref={detailRef} className="min-w-0 scroll-mt-4">
+          <StrategyDetail
+            key={selected.key}
+            strategy={selected}
+            active={activeHere}
+            draft={draft}
+            cash={state?.cash ?? "0"}
+            tickerOptions={tickerOptions}
+            saving={setStrategy.isPending}
+            onDraftChange={(next) => setDrafts((current) => ({ ...current, [selected.key]: next }))}
+            onSave={(values) =>
+              setStrategy.mutate({ key: selected.key, params: values }, { onSuccess: () => clearDraft(selected.key) })
+            }
+            onTurnOn={(values) => requestTurnOn(selected, values)}
+          />
+        </div>
       </div>
 
-      {/* Rodapé */}
-      <Card>
-        <CardContent>
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-muted-foreground">
-              Enquanto isso, monte a carteira à mão: a Correlação ajuda a escolher ações que não andam juntas.
-            </p>
-            <Button variant="outline" size="sm" nativeButton={false} render={<Link to="/correlation" />}>
-              Abrir Correlação
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <StrategyLog />
+
+      <ConfirmDialog
+        change={change}
+        strategies={strategies}
+        activeKey={mine.active?.key}
+        openOrders={mine.open_orders}
+        pending={setStrategy.isPending}
+        onCancel={() => setChange(null)}
+        onConfirm={confirm}
+      />
     </div>
   );
 }

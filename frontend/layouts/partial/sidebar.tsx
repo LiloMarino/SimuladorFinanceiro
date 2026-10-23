@@ -21,6 +21,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useDebugMode } from "@/shared/hooks/queries/useDebugMode";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
+import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { useAchievementTally } from "@/shared/hooks/queries/useAchievementTally";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
@@ -42,6 +43,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const { data: goal } = useGoalProgress();
   const tally = useAchievementTally();
   const { data: portfolio } = usePortfolio();
+  const { data: myStrategy } = useMyStrategy();
 
   const debug = useDebugMode();
 
@@ -94,6 +96,26 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                     {item.creditAlert && portfolio?.credit_alert && (
                       <SidebarMenuBadge>
                         <span aria-label="Parcela de crédito pedindo atenção" className="size-2 rounded-full bg-destructive" />
+                      </SidebarMenuBadge>
+                    )}
+                    {item.strategyStatus && myStrategy && (
+                      <SidebarMenuBadge tone="plain">
+                        {myStrategy.active ? (
+                          <span className="inline-flex items-center gap-1.5 text-toast-success">
+                            <span className="size-2 rounded-full bg-toast-success" />
+                            Ligada
+                          </span>
+                        ) : myStrategy.error && !myStrategy.error.seen && activePage !== item.key ? (
+                          <span className="inline-flex items-center gap-1.5 text-toast-error">
+                            Desligada
+                            <span
+                              aria-label="A estratégia deu erro"
+                              className="size-2 rounded-full bg-destructive ring-2 ring-sidebar"
+                            />
+                          </span>
+                        ) : (
+                          <span className="text-sidebar-muted">Desligada</span>
+                        )}
                       </SidebarMenuBadge>
                     )}
                     {item.achievementTally && tally && (

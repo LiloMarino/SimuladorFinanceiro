@@ -7,10 +7,12 @@ type KeyValueRowProps = {
   /** Linha do total: divisória grossa e peso maior */
   total?: boolean;
   className?: string;
+  /** Ajusta o valor; o padrão é mono, para números */
+  valueClassName?: string;
 };
 
 /** Linha "rótulo ........ valor" dos resumos dos diálogos. */
-export function KeyValueRow({ label, value, total = false, className }: KeyValueRowProps) {
+export function KeyValueRow({ label, value, total = false, className, valueClassName }: KeyValueRowProps) {
   return (
     <div
       className={cn(
@@ -20,7 +22,7 @@ export function KeyValueRow({ label, value, total = false, className }: KeyValue
       )}
     >
       <span className={total ? undefined : "text-muted-foreground"}>{label}</span>
-      <span className="text-right font-mono">{value}</span>
+      <span className={cn("text-right font-mono", valueClassName)}>{value}</span>
     </div>
   );
 }

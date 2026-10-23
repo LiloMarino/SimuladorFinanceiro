@@ -22,7 +22,7 @@ function ToggleGroup({
   className,
   variant,
   size,
-  spacing = variant === "segmented" ? 0.5 : 2,
+  spacing = variant === "segmented" ? 0.5 : variant === "mode" ? 1 : 2,
   orientation = "horizontal",
   children,
   ...props
@@ -40,7 +40,7 @@ function ToggleGroup({
       data-orientation={orientation}
       style={{ "--gap": spacing } as React.CSSProperties}
       className={cn(
-        "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-vertical:flex-col data-vertical:items-stretch data-[variant=segmented]:bg-muted data-[variant=segmented]:p-[3px]",
+        "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-vertical:flex-col data-vertical:items-stretch data-[variant=segmented]:bg-muted data-[variant=segmented]:p-[3px] data-[variant=mode]:rounded-xl data-[variant=mode]:bg-muted data-[variant=mode]:p-1",
         className,
       )}
       {...props}

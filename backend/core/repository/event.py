@@ -11,6 +11,7 @@ from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.events.credit import CreditEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.events.fixed_income import FixedIncomeEventDTO
+from backend.core.dto.events.strategy import StrategyEventDTO
 from backend.core.enum import CashflowEventType
 from backend.core.models.models import (
     EventCashflow,
@@ -19,6 +20,7 @@ from backend.core.models.models import (
     EventFixedIncome,
     Stock,
 )
+from backend.core.repository.strategy import log_models
 
 
 class EventRepository:
@@ -43,6 +45,9 @@ class EventRepository:
 
         if CreditEventDTO in buckets:
             self._insert_credit(session, buckets[CreditEventDTO])
+
+        if StrategyEventDTO in buckets:
+            self._insert_strategy(session, buckets[StrategyEventDTO])
 
     @transactional
     def get_cashflow_events(
@@ -173,6 +178,11 @@ class EventRepository:
             for e in fixed_income_events
         ]
         session.add_all(fixed_income_models)
+
+    def _insert_strategy(
+        self, session: Session, strategy_events: list[StrategyEventDTO]
+    ) -> None:
+        session.add_all(log_models(strategy_events))
 
     def _insert_credit(
         self, session: Session, credit_events: list[CreditEventDTO]

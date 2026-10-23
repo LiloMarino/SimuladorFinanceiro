@@ -9,7 +9,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
-import { useVariableIncomeStocks } from "@/features/variable-income/hooks/queries/useVariableIncomeStocks";
+import { useVariableIncomeStocks } from "@/shared/hooks/queries/useVariableIncomeStocks";
 import { MarketTable } from "../components/market-table";
 import type { AssetClass } from "@/types";
 

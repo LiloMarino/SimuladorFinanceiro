@@ -12,6 +12,7 @@ from sqlalchemy import (
     Enum,
     ForeignKeyConstraint,
     Identity,
+    Index,
     Integer,
     Numeric,
     PrimaryKeyConstraint,
@@ -674,6 +675,65 @@ class EventCredit(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )
+
+
+class StrategyLog(Base):
+    __tablename__ = "strategy_log"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="strategy_log_simulation_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="strategy_log_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="strategy_log_pkey"),
+        Index("strategy_log_user_idx", "simulation_id", "user_id", "event_date"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+    # order, enabled, switched, params, disabled, error, error_seen ou resumed
+    kind: Mapped[str] = mapped_column(Text, nullable=False)
+    strategy_key: Mapped[str | None] = mapped_column(Text)
+    params: Mapped[dict | None] = mapped_column(JSONB)
+    # buy, sell, cancel ou invest
+    action: Mapped[str | None] = mapped_column(Text)
+    ticker: Mapped[str | None] = mapped_column(Text)
+    asset_uuid: Mapped[uuid.UUID | None] = mapped_column(Uuid)
+    asset_name: Mapped[str | None] = mapped_column(Text)
+    quantity: Mapped[int | None] = mapped_column(Integer)
+    price: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    order_type: Mapped[str | None] = mapped_column(Text)
+    order_id: Mapped[str | None] = mapped_column(Text)
+    reason: Mapped[str | None] = mapped_column(Text)
+    # executed, partial, open, canceled ou refused; só a linha de ordem muda depois de gravada
+    status: Mapped[str | None] = mapped_column(Text)
+    detail: Mapped[str | None] = mapped_column(Text)
 
 
 class Snapshots(Base):

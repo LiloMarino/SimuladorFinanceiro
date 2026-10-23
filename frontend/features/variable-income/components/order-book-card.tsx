@@ -10,6 +10,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/shared/compo
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { displayDate, displayMoney, parseLocalDate } from "@/shared/lib/utils/display";
 import type { Order } from "@/types";
 import { useTrades } from "../hooks/queries/useTrades";
@@ -76,6 +77,8 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
   });
 
   const cancel = useCancelOrder(ticker);
+  // Com o automático ligado as ordens abertas são da estratégia: só ela cancela
+  const automatic = !!useMyStrategy().data?.active;
 
   return (
     <Card className="overflow-hidden">
@@ -159,7 +162,7 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
                       )}
                     </TableCell>
                     <TableCell>
-                      {mine && o.status === "pending" && (
+                      {mine && !automatic && o.status === "pending" && (
                         <Button
                           variant="outline"
                           size="sm"

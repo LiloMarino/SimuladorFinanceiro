@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Callable
 from uuid import UUID
 
 from backend.core.enum import OrderAction, OrderStatus
@@ -46,6 +47,8 @@ class MatchingEngine:
         self.market_data = MarketData()
         self.order_book = OrderBook()
         self.market_liquidity = MarketLiquidity(order_book=self.order_book)
+        # Chamado quando uma ordem que descansava no book sai dele (executada por inteiro ou cancelada)
+        self.on_order_closed: Callable[[Order], None] | None = None
 
     # =========================
     # API pública
@@ -112,6 +115,7 @@ class MatchingEngine:
             payload=OrderEventDTO(order=order.to_dto()).to_json(),
         )
         self.order_book.remove(order)
+        self._closed(order)
         return True
 
     def cancel_all(self, client_id: UUID | None = None) -> int:
@@ -206,6 +210,8 @@ class MatchingEngine:
         # Trade bem-sucedido atualiza estados e notifica
         taker.remaining -= qty
         maker.remaining -= qty
+        taker.notional += qty * price
+        maker.notional += qty * price
 
         taker.status = (
             OrderStatus.EXECUTED if taker.remaining == 0 else OrderStatus.PARTIAL
@@ -219,12 +225,22 @@ class MatchingEngine:
 
         if maker.remaining == 0:
             self.order_book.remove(maker)
+            self._closed(maker)
+
+    def _closed(self, order: Order) -> None:
+        if self.on_order_closed is not None and order.automatic:
+            self.on_order_closed(order)
 
     # =========================
     # Notificações
     # =========================
 
     def _notify_execution(self, order: Order, price: float, quantity: int):
+        # O aviso da ordem de estratégia é o `strategy_orders`, que sai ao fim do dia
+        if order.automatic:
+            self._notify_book_update(order)
+            return
+
         event = "order_executed" if order.remaining == 0 else "order_partial_executed"
 
         if order.remaining > 0:
@@ -248,6 +264,9 @@ class MatchingEngine:
         if order.client_id != MARKET_CLIENT_ID:
             notify(event=event, payload=payload, to=order.client_id)
 
+        self._notify_book_update(order)
+
+    def _notify_book_update(self, order: Order):
         if isinstance(order, LimitOrder):
             notify(
                 event=f"order_updated:{order.ticker}",

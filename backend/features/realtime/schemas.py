@@ -24,6 +24,7 @@ from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
+from backend.core.dto.strategy import StrategyOrderLineDTO
 from backend.core.enum import CreditGrade, OrderAction, PlayerActivity
 
 
@@ -172,6 +173,20 @@ class CreditLoanPaidOffEventDTO(BaseDTO):
     interest_saved: Decimal
 
 
+class StrategyUpdateEventDTO(BaseDTO):
+    """O modo do jogador mudou: ligou, trocou, desligou ou a estratégia deu erro."""
+
+    active: bool
+    # A causa, quando a estratégia deu erro e devolveu o jogador ao manual
+    error: str | None = None
+
+
+class StrategyOrdersEventDTO(BaseDTO):
+    """O que a estratégia do jogador fez no dia."""
+
+    orders: list[StrategyOrderLineDTO]
+
+
 class RealtimeEventCatalog(BaseDTO):
     """
     Um campo por nome de evento realtime, tipado para o DTO do payload
@@ -214,3 +229,5 @@ class RealtimeEventCatalog(BaseDTO):
     credit_installment_warning: CreditInstallmentWarningEventDTO
     credit_rating_changed: CreditRatingChangedEventDTO
     credit_loan_paid_off: CreditLoanPaidOffEventDTO
+    strategy_update: StrategyUpdateEventDTO
+    strategy_orders: StrategyOrdersEventDTO

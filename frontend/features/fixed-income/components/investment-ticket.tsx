@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { CircleCheck } from "lucide-react";
+import { AutomaticLock } from "@/shared/components/automatic-lock";
+import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
+import { cn } from "@/shared/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -34,6 +37,8 @@ export function InvestmentTicket({ assetId, amountText, onAmountChange, quote }:
   const zero = amount <= 0;
 
   const invest = useBuyFixedIncome(assetId);
+  // Com o automático ligado a boleta fica só para leitura
+  const locked = !!useMyStrategy().data?.active;
 
   const setAmount = (value: string) => {
     setTouched(true);
@@ -87,7 +92,8 @@ export function InvestmentTicket({ assetId, amountText, onAmountChange, quote }:
         <CardTitle>Investir</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
+        {locked && <AutomaticLock />}
+        <div inert={locked} className={cn("grid gap-4", locked && "mt-4 opacity-55")}>
           <Field data-invalid={invalid}>
             <FieldLabel htmlFor="invest-amount">Quanto investir</FieldLabel>
             <Input
@@ -145,7 +151,7 @@ export function InvestmentTicket({ assetId, amountText, onAmountChange, quote }:
           <Button
             size="lg"
             variant="success"
-            disabled={zero || overCash || invest.isPending}
+            disabled={locked || zero || overCash || invest.isPending}
             onClick={() => invest.mutate({ quantity: normalizeNumberString(amountText) })}
           >
             {invest.isPending && <Spinner />}

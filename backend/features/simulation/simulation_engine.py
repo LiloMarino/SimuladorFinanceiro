@@ -29,7 +29,6 @@ from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import CashUpdateEventDTO
 from backend.features.statistics.sectors import effective_sectors
-from backend.features.strategy.base_strategy import BaseStrategy
 from backend.features.variable_income.broker import Broker, to_money
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.position import Position
@@ -51,7 +50,6 @@ class SimulationEngine:
     - Gerenciar saldo em caixa dos players com cache lazy
     - Atualizar dados de mercado e executar matching de ordens
     - Aplicar juros diários de renda fixa
-    - Executar estratégias de trading a cada tick
     - Registrar eventos de cashflow (depósitos, retiradas, aportes, IR)
     """
 
@@ -67,16 +65,12 @@ class SimulationEngine:
         self._cash: LazyDict[UUID, Decimal] = LazyDict(
             loader=repository.user.get_user_balance
         )
-        self._strategy = None
         self.current_date: date = current_date
         self.starting_cash = starting_cash
         self.simulation_id = simulation_id
 
         # Configura os alias
         self.get_positions = self.broker.get_positions
-
-    def set_strategy(self, strategy_cls: type[BaseStrategy], *args, **kwargs) -> None:
-        self._strategy = strategy_cls(self.matching_engine, *args, **kwargs)
 
     def get_cash(self, client_id: UUID) -> Decimal:
         with self._lock:
@@ -374,11 +368,6 @@ class SimulationEngine:
 
         # Aplica juros dos ativos de renda fixa
         self.fixed_broker.apply_daily_interest(current_date)
-
-        # Executa a estratégia
-        if not self._strategy:
-            raise RuntimeError("Nenhuma estratégia configurada")
-        self._strategy.next()
 
 
 def _month(months: list[MonthlyTax], today: date) -> MonthlyTax | None:

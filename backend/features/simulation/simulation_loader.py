@@ -113,6 +113,10 @@ class SimulationLoader:
         UserManager.release_saved_colors()
         UserManager.release_room_teams()
 
+        # O registro das estratégias volta ao último dia processado, como os eventos
+        if resume_from is not None:
+            repository.strategy.rewind(summary.id, resume_from)
+
         SimulationManager.clear_simulation()
         SimulationManager.set_simulation_id(summary.id)
         sim = Simulation(

@@ -32,6 +32,13 @@ from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.stock_details import StockDetailsDTO
+from backend.core.dto.strategy import (
+    MyStrategyDTO,
+    SignalDTO,
+    StrategyInfoDTO,
+    StrategyLogPageDTO,
+    StrategyParamValue,
+)
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     GameType,
@@ -43,6 +50,7 @@ from backend.core.enum import (
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
+from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import next_business_day
@@ -80,7 +88,7 @@ from backend.features.simulation.life_events import (
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.statistics.goal import goal_on, goal_reached
-from backend.features.strategy.manual import ManualStrategy
+from backend.features.strategy.runner import StrategyRunner
 from backend.features.variable_income.entities.order import Order
 from backend.features.variable_income.price_impact import PriceImpact
 
@@ -149,12 +157,19 @@ class Simulation:
             settings.starting_cash,
             settings.id,
         )
-        self._engine.set_strategy(ManualStrategy)
         self._price_impact = PriceImpact(
             settings.id,
             settings.price_impact_enabled,
             settings.price_impact_k,
             settings.price_impact_decay_days,
+        )
+
+        # As estratégias ligadas voltam antes do primeiro tick, que já as roda
+        self._strategies = StrategyRunner(
+            self._engine, self._price_impact, settings.end_date
+        )
+        self._strategies.load(
+            repository.simulation_player.participants(settings.id), resume_from
         )
 
         # Fora da Clássica: onde cada um está na meta e se alguém já chegou
@@ -198,6 +213,7 @@ class Simulation:
 
     @synchronized
     def create_order(self, order: Order) -> None:
+        self._strategies.ensure_manual(order.client_id)
         try:
             self._engine.matching_engine.submit(order)
         finally:
@@ -206,6 +222,7 @@ class Simulation:
 
     @synchronized
     def cancel_order(self, *, order_id: str, client_id: UUID) -> bool:
+        self._strategies.ensure_manual(client_id)
         canceled = self._engine.matching_engine.cancel(
             order_id=order_id, client_id=client_id
         )
@@ -221,8 +238,42 @@ class Simulation:
     def buy_fixed_income(
         self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal
     ) -> None:
+        self._strategies.ensure_manual(client_id)
         self._engine.fixed_broker.buy(client_id, asset, value)
         EventManager.flush()
+
+    @synchronized
+    def get_strategies(self) -> list[StrategyInfoDTO]:
+        return self._strategies.infos(self._current_date)
+
+    @synchronized
+    def get_my_strategy(self, user: UserDTO) -> MyStrategyDTO:
+        return self._strategies.mine(user, self._current_date)
+
+    @synchronized
+    def set_my_strategy(
+        self,
+        user: UserDTO,
+        key: str | None,
+        params: dict[str, StrategyParamValue],
+    ) -> None:
+        self._strategies.set_mode(user, key, params, self._current_date)
+
+    @synchronized
+    def mark_strategy_error_seen(self, user: UserDTO) -> None:
+        self._strategies.mark_error_seen(user, self._current_date)
+
+    @synchronized
+    def get_strategy_signal(
+        self, key: str, params: dict[str, StrategyParamValue], ticker: str
+    ) -> SignalDTO:
+        return self._strategies.signal(key, params, ticker, self._current_date)
+
+    @synchronized
+    def get_strategy_log(
+        self, user: UserDTO, kind: LogFilter, offset: int, limit: int
+    ) -> StrategyLogPageDTO:
+        return self._strategies.log(user, kind, offset, limit)
 
     @synchronized
     def get_credit(self, client_id: UUID) -> CreditOverviewDTO:
@@ -351,11 +402,12 @@ class Simulation:
         stocks = self.get_stocks()
         self._engine.update_market_data(stocks)
 
-        # Executa a estratégia
-        self._engine.next(self._current_date)
-
         # Só quem estava na sala ao iniciar participa: é quem tem depósito e cor
         users = repository.simulation_player.participants(self.settings.id)
+
+        # Juros da renda fixa e, em seguida, as estratégias ligadas operam o dia
+        self._engine.next(self._current_date)
+        self._strategies.run(users, self._current_date)
         month_changed = self._has_month_changed()
 
         # O aporte (ou o salário, a despesa e o imprevisto) e o DARF que vence hoje

@@ -3299,6 +3299,331 @@
         }
       }
     },
+    "/api/strategies": {
+      "get": {
+        "tags": [
+          "Strategy"
+        ],
+        "summary": "Listar as estratégias",
+        "description": "Retorna as estratégias do app, com a regra, os parâmetros, a faixa de cada um e o padrão calculado para a partida.",
+        "operationId": "list_strategies_api_strategies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StrategyInfoDTO"
+                  },
+                  "type": "array",
+                  "title": "Response List Strategies Api Strategies Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/strategies/me": {
+      "get": {
+        "tags": [
+          "Strategy"
+        ],
+        "summary": "Obter a minha estratégia",
+        "description": "Retorna a estratégia que o jogador deixou ligada (ou nenhuma, no modo manual), o erro que o devolveu ao manual e o painel desde que ligou.",
+        "operationId": "get_my_strategy_api_strategies_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyStrategyDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Strategy"
+        ],
+        "summary": "Ligar, ajustar ou desligar a estratégia",
+        "description": "Liga a estratégia com os parâmetros, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. Ligar, trocar e desligar cancelam as ordens abertas do jogador.",
+        "operationId": "set_my_strategy_api_strategies_me_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetStrategyRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/strategies/me/error-seen": {
+      "post": {
+        "tags": [
+          "Strategy"
+        ],
+        "summary": "Marcar o erro como visto",
+        "description": "Registra que o jogador viu o erro que desligou a estratégia, para o aviso do menu sair.",
+        "operationId": "mark_error_seen_api_strategies_me_error_seen_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/strategies/{key}/signal": {
+      "post": {
+        "tags": [
+          "Strategy"
+        ],
+        "summary": "Calcular o sinal de uma estratégia",
+        "description": "Valida os parâmetros e devolve as linhas e os marcadores que a estratégia desenha no ativo, sem salvar nada.",
+        "operationId": "get_signal_api_strategies__key__signal_post",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignalRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/strategies/me/log": {
+      "get": {
+        "tags": [
+          "Strategy"
+        ],
+        "summary": "Listar o registro da estratégia",
+        "description": "Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia e as mudanças de modo do jogador.",
+        "operationId": "get_strategy_log_api_strategies_me_log_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/LogFilter",
+              "default": "all"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyLogPageDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/simulation/status": {
       "get": {
         "tags": [
@@ -7504,6 +7829,14 @@
         ],
         "title": "LoanQuoteDTO"
       },
+      "LogFilter": {
+        "type": "string",
+        "enum": [
+          "all",
+          "orders",
+          "modes"
+        ]
+      },
       "MarketQuoteDTO": {
         "properties": {
           "id": {
@@ -7798,6 +8131,58 @@
           "sell_count"
         ],
         "title": "MonthlyVolumeDTO"
+      },
+      "MyStrategyDTO": {
+        "properties": {
+          "active": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StrategyActiveDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StrategyErrorDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resumed": {
+            "type": "boolean",
+            "title": "Resumed"
+          },
+          "open_orders": {
+            "type": "integer",
+            "title": "Open Orders"
+          },
+          "panel": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StrategyPanelDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "active",
+          "error",
+          "resumed",
+          "open_orders",
+          "panel"
+        ],
+        "title": "MyStrategyDTO"
       },
       "OperationsReportDTO": {
         "properties": {
@@ -10039,6 +10424,12 @@
           },
           "credit_loan_paid_off": {
             "$ref": "#/components/schemas/CreditLoanPaidOffEventDTO"
+          },
+          "strategy_update": {
+            "$ref": "#/components/schemas/StrategyUpdateEventDTO"
+          },
+          "strategy_orders": {
+            "$ref": "#/components/schemas/StrategyOrdersEventDTO"
           }
         },
         "additionalProperties": false,
@@ -10078,7 +10469,9 @@
           "credit_installment_late",
           "credit_installment_warning",
           "credit_rating_changed",
-          "credit_loan_paid_off"
+          "credit_loan_paid_off",
+          "strategy_update",
+          "strategy_orders"
         ],
         "title": "RealtimeEventCatalog",
         "description": "Um campo por nome de evento realtime, tipado para o DTO do payload\ncorrespondente. Nunca é instanciado de verdade — só existe para que seu\nschema apareça em `/openapi.json` via a rota dev-only em `routes/realtime.py`."
@@ -10801,6 +11194,34 @@
         ],
         "title": "SetSpeedResponse"
       },
+      "SetStrategyRequestDTO": {
+        "properties": {
+          "key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key"
+          },
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/StrategyParamValue"
+            },
+            "type": "object",
+            "title": "Params"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "title": "SetStrategyRequestDTO"
+      },
       "SettingsRequest": {
         "properties": {
           "orders": {
@@ -10840,6 +11261,148 @@
         ],
         "title": "SettingsResponse",
         "description": "As preferências do usuário mais o modo debug do servidor, só leitura."
+      },
+      "SignalDTO": {
+        "properties": {
+          "errors": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Errors"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/SignalLineDTO"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "markers": {
+            "items": {
+              "$ref": "#/components/schemas/SignalMarkerDTO"
+            },
+            "type": "array",
+            "title": "Markers"
+          },
+          "available_days": {
+            "type": "integer",
+            "title": "Available Days"
+          },
+          "needed_days": {
+            "type": "integer",
+            "title": "Needed Days"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "errors",
+          "lines",
+          "markers",
+          "available_days",
+          "needed_days"
+        ],
+        "title": "SignalDTO",
+        "description": "O que a estratégia olha num ativo: as linhas do gráfico e onde ela compraria e venderia."
+      },
+      "SignalLineDTO": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "enum": [
+              "price",
+              "short",
+              "long"
+            ],
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/SignalPointDTO"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "points"
+        ],
+        "title": "SignalLineDTO"
+      },
+      "SignalMarkerDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "buy",
+              "sell"
+            ],
+            "title": "Side"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "side"
+        ],
+        "title": "SignalMarkerDTO"
+      },
+      "SignalPointDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "value"
+        ],
+        "title": "SignalPointDTO"
+      },
+      "SignalRequestDTO": {
+        "properties": {
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/StrategyParamValue"
+            },
+            "type": "object",
+            "title": "Params"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "params",
+          "ticker"
+        ],
+        "title": "SignalRequestDTO"
       },
       "SimulationDTO": {
         "properties": {
@@ -11534,6 +12097,706 @@
           "stocks"
         ],
         "title": "StocksUpdateEventDTO"
+      },
+      "StrategyAction": {
+        "type": "string",
+        "enum": [
+          "buy",
+          "sell",
+          "cancel",
+          "invest"
+        ],
+        "title": "StrategyAction"
+      },
+      "StrategyActiveDTO": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/StrategyParamValue"
+            },
+            "type": "object",
+            "title": "Params"
+          },
+          "since": {
+            "type": "string",
+            "format": "date",
+            "title": "Since"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "params",
+          "since"
+        ],
+        "title": "StrategyActiveDTO"
+      },
+      "StrategyErrorDTO": {
+        "properties": {
+          "strategy_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strategy Key"
+          },
+          "error_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Error Date"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "traceback": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Traceback"
+          },
+          "seen": {
+            "type": "boolean",
+            "title": "Seen"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "strategy_key",
+          "error_date",
+          "message",
+          "traceback",
+          "seen"
+        ],
+        "title": "StrategyErrorDTO"
+      },
+      "StrategyGroup": {
+        "type": "string",
+        "enum": [
+          "reference",
+          "tactic"
+        ],
+        "title": "StrategyGroup"
+      },
+      "StrategyInfoDTO": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "group": {
+            "$ref": "#/components/schemas/StrategyGroup"
+          },
+          "params": {
+            "items": {
+              "$ref": "#/components/schemas/StrategyParamDTO"
+            },
+            "type": "array",
+            "title": "Params"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "summary",
+          "description",
+          "group",
+          "params"
+        ],
+        "title": "StrategyInfoDTO"
+      },
+      "StrategyLastOrderDTO": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/StrategyAction"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "asset_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asset Name"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "order_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Order Date"
+          },
+          "order_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Type"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "ticker",
+          "asset_name",
+          "quantity",
+          "order_date",
+          "order_type"
+        ],
+        "title": "StrategyLastOrderDTO"
+      },
+      "StrategyLogKind": {
+        "type": "string",
+        "enum": [
+          "order",
+          "enabled",
+          "switched",
+          "params",
+          "disabled",
+          "error",
+          "error_seen",
+          "resumed"
+        ],
+        "title": "StrategyLogKind",
+        "description": "Linha do registro da estratégia: uma ordem ou uma mudança de modo."
+      },
+      "StrategyLogPageDTO": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/StrategyLogRowDTO"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "StrategyLogPageDTO"
+      },
+      "StrategyLogRowDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "event_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Event Date"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/StrategyLogKind"
+          },
+          "strategy_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strategy Key"
+          },
+          "strategy_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strategy Name"
+          },
+          "action": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StrategyAction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "asset_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asset Name"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "order_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Type"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StrategyOrderStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "event_date",
+          "kind",
+          "strategy_key",
+          "strategy_name",
+          "action",
+          "ticker",
+          "asset_name",
+          "quantity",
+          "price",
+          "order_type",
+          "reason",
+          "status",
+          "detail"
+        ],
+        "title": "StrategyLogRowDTO"
+      },
+      "StrategyOrderLineDTO": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/StrategyAction"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "asset_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asset Name"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StrategyOrderStatus"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "asset_uuid": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asset Uuid"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "ticker",
+          "asset_name",
+          "quantity",
+          "price",
+          "status",
+          "reason"
+        ],
+        "title": "StrategyOrderLineDTO"
+      },
+      "StrategyOrderStatus": {
+        "type": "string",
+        "enum": [
+          "executed",
+          "partial",
+          "open",
+          "canceled",
+          "refused"
+        ],
+        "title": "StrategyOrderStatus"
+      },
+      "StrategyOrdersEventDTO": {
+        "properties": {
+          "orders": {
+            "items": {
+              "$ref": "#/components/schemas/StrategyOrderLineDTO"
+            },
+            "type": "array",
+            "title": "Orders"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "orders"
+        ],
+        "title": "StrategyOrdersEventDTO",
+        "description": "O que a estratégia do jogador fez no dia."
+      },
+      "StrategyPanelDTO": {
+        "properties": {
+          "orders_total": {
+            "type": "integer",
+            "title": "Orders Total"
+          },
+          "executed": {
+            "type": "integer",
+            "title": "Executed"
+          },
+          "partial": {
+            "type": "integer",
+            "title": "Partial"
+          },
+          "open": {
+            "type": "integer",
+            "title": "Open"
+          },
+          "canceled": {
+            "type": "integer",
+            "title": "Canceled"
+          },
+          "refused": {
+            "type": "integer",
+            "title": "Refused"
+          },
+          "return_pct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Pct"
+          },
+          "ibov_pct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ibov Pct"
+          },
+          "last_order": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StrategyLastOrderDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "orders_total",
+          "executed",
+          "partial",
+          "open",
+          "canceled",
+          "refused",
+          "return_pct",
+          "ibov_pct",
+          "last_order"
+        ],
+        "title": "StrategyPanelDTO",
+        "description": "O que a estratégia fez desde que o jogador a ligou."
+      },
+      "StrategyParamDTO": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/StrategyParamKind"
+          },
+          "default": {
+            "$ref": "#/components/schemas/StrategyParamValue"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "hint": {
+            "type": "string",
+            "title": "Hint"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "kind",
+          "default",
+          "hint"
+        ],
+        "title": "StrategyParamDTO"
+      },
+      "StrategyParamKind": {
+        "type": "string",
+        "enum": [
+          "int",
+          "percent",
+          "tickers"
+        ],
+        "title": "StrategyParamKind"
+      },
+      "StrategyParamValue": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        ]
+      },
+      "StrategyUpdateEventDTO": {
+        "properties": {
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "active"
+        ],
+        "title": "StrategyUpdateEventDTO",
+        "description": "O modo do jogador mudou: ligou, trocou, desligou ou a estratégia deu erro."
       },
       "SubmitOrderRequest": {
         "properties": {

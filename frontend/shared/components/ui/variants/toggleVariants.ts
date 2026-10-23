@@ -9,6 +9,8 @@ export const toggleVariants = cva(
         outline: "border border-input bg-transparent hover:bg-muted",
         segmented:
           "rounded-md px-3 text-[13px] text-secondary-foreground hover:bg-transparent hover:text-foreground aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-xs",
+        // Troca de modo da página (manual | automático): itens altos, em destaque
+        mode: "rounded-[9px] text-[15px] font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-sm",
       },
       // Cor do item ativo: lado de compra (success) ou de venda (destructive)
       tone: {
@@ -22,6 +24,8 @@ export const toggleVariants = cva(
         sm: "h-7 min-w-7 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem] has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
         lg: "h-9 min-w-9 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         // Grupo segmentado de 40 px de altura total, com os 3 px de trilho de cada lado
+        // Item do seletor de modo: 44 px, com o ícone ao lado do rótulo
+        mode: "h-11 min-w-8 gap-2 px-[18px] [&_svg:not([class*='size-'])]:size-[18px]",
         field: "h-8.5 min-w-8 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
       },
     },

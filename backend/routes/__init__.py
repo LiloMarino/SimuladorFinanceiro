@@ -26,6 +26,7 @@ from backend.routes.realtime import realtime_router
 from backend.routes.settings import settings_router
 from backend.routes.simulation import simulation_router
 from backend.routes.statistics import statistics_router
+from backend.routes.strategy import strategy_router
 from backend.routes.timespeed import timespeed_router
 from backend.routes.tunnel import tunnel_router
 from backend.routes.validation_messages import format_validation_errors, to_items
@@ -47,6 +48,7 @@ def register_routes(app: FastAPI):
     app.include_router(achievements_router, responses=ERROR_RESPONSES)
     app.include_router(correlation_router, responses=ERROR_RESPONSES)
     app.include_router(credit_router, responses=ERROR_RESPONSES)
+    app.include_router(strategy_router, responses=ERROR_RESPONSES)
     app.include_router(simulation_router, responses=ERROR_RESPONSES)
     app.include_router(tunnel_router, responses=ERROR_RESPONSES)
     app.include_router(version_router, responses=ERROR_RESPONSES)

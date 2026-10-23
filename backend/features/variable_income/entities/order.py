@@ -23,6 +23,10 @@ class Order(ABC):
     remaining: int = field(init=False)
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: OrderStatus = OrderStatus.PENDING
+    # Ordem enviada por uma estratégia: o aviso dela é o do registro da estratégia
+    automatic: bool = False
+    # Soma de quantidade x preço das execuções, para o preço médio
+    notional: float = 0.0
 
     def __post_init__(self):
         self.remaining = self.size

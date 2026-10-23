@@ -13,7 +13,7 @@ import {
 import { displayDayMonth, displayMoney } from "@/shared/lib/utils/display";
 import type { CreditLoan, CreditRating } from "@/types";
 import { usePayOverdue } from "../hooks/mutations/usePayOverdue";
-import { KeyValueRow } from "./key-value-row";
+import { KeyValueRow } from "@/shared/components/key-value-row";
 
 type PayOverdueDialogProps = {
   loan: CreditLoan;

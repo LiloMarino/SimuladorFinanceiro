@@ -50,4 +50,10 @@ export const queryKeys = {
   creditOverview: () => ["credit", "overview"] as const,
   loanQuote: (amount: string, termMonths: number) => ["credit", "quote", amount, termMonths] as const,
   prepaymentPreview: (loanId: string, amount: string) => ["credit", "prepayment", loanId, amount] as const,
+  strategies: () => ["strategies"] as const,
+  strategyList: () => ["strategies", "list"] as const,
+  myStrategy: () => ["strategies", "me"] as const,
+  strategyLogs: () => ["strategies", "log"] as const,
+  strategyLog: (kind: string) => ["strategies", "log", kind] as const,
+  strategySignal: (key: string, ticker: string, params: object) => ["strategies", "signal", key, ticker, params] as const,
 } as const;

@@ -22,7 +22,7 @@ import type { CreditLoan, PrepaymentMode } from "@/types";
 import { usePayoffLoan } from "../hooks/mutations/usePayoffLoan";
 import { usePrepayLoan } from "../hooks/mutations/usePrepayLoan";
 import { usePrepaymentPreview } from "../hooks/queries/usePrepaymentPreview";
-import { KeyValueRow } from "./key-value-row";
+import { KeyValueRow } from "@/shared/components/key-value-row";
 
 export type PrepayChoice = "part" | "all";
 
