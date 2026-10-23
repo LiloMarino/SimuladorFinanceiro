@@ -56,5 +56,7 @@ class FixedIncomePosition:
     def net_redemption_value(self) -> Decimal:
         """Valor creditado no resgate, já descontado o IR."""
         days_held = (self.redemption_date - self.first_applied_date).days
-        tax_rate = income_tax_rate(self.asset.investment_type, days_held)
+        tax_rate = income_tax_rate(
+            self.asset.investment_type, days_held, self.redemption_date
+        )
         return net_redemption(self.current_value, self.total_applied, tax_rate)

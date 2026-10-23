@@ -53,7 +53,13 @@ def describe(
     players = overview.players
 
     mine = next((p for p in players if p.player_nickname == nickname), None)
-    if overview.teams:
+    if overview.party_ranking_decides and overview.parties:
+        winner = overview.parties[0].name
+        my_position = next(
+            (i for i, p in enumerate(overview.parties, 1) if nickname in p.members),
+            None,
+        )
+    elif overview.teams:
         winner = team_name(overview.teams[0].team, overview.team_naming)
         my_position = next(
             (t.position for t in overview.teams if mine and t.team == mine.team), None

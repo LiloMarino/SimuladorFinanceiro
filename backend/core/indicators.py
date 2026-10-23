@@ -11,7 +11,9 @@ from decimal import Decimal
 from backend.core import repository
 from backend.core.enum import IndicatorSeries
 from backend.core.exceptions.http_exceptions import ConflictError
+from backend.core.repository.series_version import reading_version
 from backend.core.utils import business_days_in_month
+from backend.features.government.economy import macro_effect, state_on
 
 BUSINESS_DAYS_PER_YEAR = 252
 IPCA_WINDOW_MONTHS = 12
@@ -41,7 +43,11 @@ def last_known_value(series: IndicatorSeries, on: date) -> Decimal | None:
     history = repository.economic.get_history(series)
     if series is IndicatorSeries.IPCA:
         return history.last_known(on.replace(day=1))
-    return history.last_known(on)
+    value = history.last_known(on)
+    if series is IndicatorSeries.IBOV and value is not None:
+        effect = macro_effect(state_on(reading_version(), on), on)
+        return value * Decimal(str(max(0.1, 1 - 2.9 * effect.selic)))
+    return value
 
 
 def daily_rate(series: IndicatorSeries, value: Decimal, day: date) -> Decimal:
@@ -58,10 +64,29 @@ def daily_rate(series: IndicatorSeries, value: Decimal, day: date) -> Decimal:
 def index_daily_rate(series: IndicatorSeries, day: date) -> Decimal | None:
     """Fração que o indexador rende no dia útil `day`; None em dia sem pregão."""
     value = index_value_on(series, day)
-    return None if value is None else daily_rate(series, value, day)
+    if value is None:
+        return None
+    base = daily_rate(series, value, day)
+    state = state_on(reading_version(), day)
+    if state is None:
+        return base
+    effect = macro_effect(state, day)
+    if series is IndicatorSeries.IPCA:
+        if effect.inflation == 0:
+            return base
+        annual = raw_annual_index_rate(series, day)
+        ratio = (1 + annual + Decimal(str(effect.inflation))) / (1 + annual)
+        return (1 + base) * max(Decimal("0.01"), ratio) ** (Decimal(1) / 252) - 1
+    if state and state.rules.manual_selic:
+        decisions = [d for d in state.selic_decisions if d.on <= day]
+        if decisions:
+            # A mesma meta remunera SELIC e CDI no modelo simplificado.
+            return (1 + Decimal(str(decisions[-1].rate))) ** (Decimal(1) / 252) - 1
+    annual = (1 + base) ** 252 - 1 + Decimal(str(effect.selic))
+    return (1 + max(Decimal(0), annual)) ** (Decimal(1) / 252) - 1
 
 
-def annual_index_rate(series: IndicatorSeries, on: date) -> Decimal:
+def raw_annual_index_rate(series: IndicatorSeries, on: date) -> Decimal:
     """
     Taxa anual do indexador conhecida em `on` (0.149 = 14,9% a.a.).
 
@@ -79,6 +104,20 @@ def annual_index_rate(series: IndicatorSeries, on: date) -> Decimal:
     if value is None:
         return Decimal(0)
     return (1 + value / 100) ** BUSINESS_DAYS_PER_YEAR - 1
+
+
+def annual_index_rate(series: IndicatorSeries, on: date) -> Decimal:
+    base = raw_annual_index_rate(series, on)
+    state = state_on(reading_version(), on)
+    if not state:
+        return base
+    effect = macro_effect(state, on)
+    if series is IndicatorSeries.IPCA:
+        return base + Decimal(str(effect.inflation))
+    decisions = [d for d in state.selic_decisions if d.on <= on]
+    if state.rules.manual_selic and decisions:
+        return Decimal(str(decisions[-1].rate))
+    return max(Decimal(0), base + Decimal(str(effect.selic)))
 
 
 def ensure_indicator_coverage(start_date: date) -> None:

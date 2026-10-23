@@ -22,6 +22,7 @@ from backend.core.utils import ratio
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.fixed_income.fixed_broker import FixedBroker
 from backend.features.fixed_income.market import FixedIncomeMarket
+from backend.features.government.economy import state_on, tax_value
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import CashUpdateEventDTO
 from backend.features.statistics.sectors import effective_sectors
@@ -134,6 +135,7 @@ class SimulationEngine:
             repository.portfolio.get_equity_events(user_id),
             asset_classes,
             self.current_date,
+            self.simulation_id,
         )
 
     def preview_order(
@@ -179,7 +181,12 @@ class SimulationEngine:
             profit=None,
             tax=None,
             month_stock_sales_after=None,
-            stock_sales_exemption=STOCK_EXEMPTION_LIMIT,
+            stock_sales_exemption=tax_value(
+                state_on(self.simulation_id, self.current_date),
+                self.current_date,
+                "STOCK_EXEMPTION",
+                STOCK_EXEMPTION_LIMIT,
+            ),
             tax_due_date=None,
         )
         if buying or not position or price is None or quantity <= 0:
@@ -199,8 +206,12 @@ class SimulationEngine:
         )
         asset_classes = {ticker: s.asset_class for ticker, s in self.stocks.items()}
         today = self.current_date
-        without = _month(assess(events, asset_classes, today), today)
-        with_sale = _month(assess([*events, sale], asset_classes, today), today)
+        without = _month(
+            assess(events, asset_classes, today, self.simulation_id), today
+        )
+        with_sale = _month(
+            assess([*events, sale], asset_classes, today, self.simulation_id), today
+        )
         return preview.model_copy(
             update={
                 "profit": (price - position.avg_price) * quantity,
@@ -213,7 +224,9 @@ class SimulationEngine:
             }
         )
 
-    def update_market_data(self, stocks: list[CandleDTO]) -> None:
+    def update_market_data(
+        self, stocks: list[CandleDTO], *, replace_current: bool = False
+    ) -> None:
         for s in stocks:
             candle = Candle(
                 ticker=s.ticker,
@@ -224,7 +237,9 @@ class SimulationEngine:
                 close=s.close,
                 volume=s.volume,
             )
-            self.matching_engine.market_data.add_candle(candle)
+            self.matching_engine.market_data.add_candle(
+                candle, replace_current=replace_current
+            )
             self.matching_engine.on_tick(s.ticker)
 
     def get_current_price(self, position: Position) -> Decimal:
@@ -307,7 +322,12 @@ class SimulationEngine:
             income_tax_due=income_tax_assessed - income_tax_paid,
             income_tax_due_date=min(upcoming_due) if upcoming_due else None,
             month_stock_sales=this_month.stock_sales if this_month else Decimal(0),
-            stock_sales_exemption=STOCK_EXEMPTION_LIMIT,
+            stock_sales_exemption=tax_value(
+                state_on(self.simulation_id, self.current_date),
+                self.current_date,
+                "STOCK_EXEMPTION",
+                STOCK_EXEMPTION_LIMIT,
+            ),
             variable_income=[
                 PortfolioPositionDTO(
                     **pos.model_dump(),

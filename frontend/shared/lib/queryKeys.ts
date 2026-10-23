@@ -1,4 +1,5 @@
 export const queryKeys = {
+  government: (simulationId?: number) => simulationId === undefined ? ["government"] as const : ["government", simulationId] as const,
   authSession: () => ["auth", "session"] as const,
   simulationStatus: () => ["simulation", "status"] as const,
   simulationState: () => ["simulation", "state"] as const,

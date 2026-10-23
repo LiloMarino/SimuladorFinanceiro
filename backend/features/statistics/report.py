@@ -9,6 +9,7 @@ from decimal import Decimal
 from functools import cache
 
 from backend.core import repository
+from backend.core.dto.government import PartyRankingDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.statistics_report import (
     BenchmarkDTO,
@@ -35,7 +36,9 @@ from backend.core.enum import (
     TeamNaming,
     VictoryCriterion,
 )
+from backend.core.repository.series_version import using_simulation
 from backend.core.sectors import allocate_by_sector
+from backend.features.government.runtime import GovernmentPriceImpact
 from backend.features.statistics import operations, returns, risk, sectors
 from backend.features.statistics.goal import goal_on, goal_steps
 from backend.features.statistics.ranking import build_overview, capital_provided
@@ -56,7 +59,7 @@ def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
         repository.statistics.get_players_history(simulation_ids)
     )
     goals = {p.goal_net_worth for p in players}
-    return build_overview(
+    report = build_overview(
         players,
         criterion,
         game_type=game_type,
@@ -65,6 +68,42 @@ def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
         in_teams=in_teams,
         team_naming=team_naming,
     )
+    if len(simulation_ids) == 1:
+        simulation_id = simulation_ids[0]
+        summary = repository.simulation.get_simulation(simulation_id)
+        if summary is not None and summary.government.enabled:
+            states = repository.government.states(simulation_id)
+            if states:
+                people = {
+                    u.id: u.nickname
+                    for u in repository.simulation_player.participants(simulation_id)
+                }
+                wealth = {p.player_nickname: p.total_networth for p in report.players}
+                parties = [
+                    PartyRankingDTO(
+                        party_id=p.id,
+                        name=p.name,
+                        members=[people[i] for i in p.members if i in people],
+                        networth=sum(
+                            (
+                                wealth.get(people.get(i, ""), Decimal(0))
+                                for i in p.members
+                            ),
+                            Decimal(0),
+                        ),
+                    )
+                    for p in states[-1].parties
+                    if not p.is_ai and p.members
+                ]
+                parties.sort(key=lambda p: (-p.networth, p.party_id))
+                report = report.model_copy(
+                    update={
+                        "parties": parties,
+                        "party_ranking_decides": summary.government.ranking == "parties"
+                        and bool(parties),
+                    }
+                )
+    return report
 
 
 def _with_goal_of_the_day(players: list[PlayerHistoryDTO]) -> list[PlayerHistoryDTO]:
@@ -75,11 +114,12 @@ def _with_goal_of_the_day(players: list[PlayerHistoryDTO]) -> list[PlayerHistory
     }
     result = []
     for player in players:
-        summary = summaries[player.simulation_id]
-        if summary is not None:
-            goal = goal_on(summary, player.history[-1].snapshot_date)
-            player = player.model_copy(update={"goal_net_worth": goal})
-        result.append(player)
+        with using_simulation(player.simulation_id):
+            summary = summaries[player.simulation_id]
+            if summary is not None:
+                goal = goal_on(summary, player.history[-1].snapshot_date)
+                player = player.model_copy(update={"goal_net_worth": goal})
+            result.append(player)
     return result
 
 
@@ -93,14 +133,19 @@ def _goal_steps(
     if summary is None or summary.game_type is GameType.CLASSIC:
         return []
     until = max(p.history[-1].snapshot_date for p in players)
-    return [
-        SeriesPointDTO(date=day, value=value)
-        for day, value in goal_steps(summary, until)
-    ]
+    with using_simulation(summary.id):
+        return [
+            SeriesPointDTO(date=day, value=value)
+            for day, value in goal_steps(summary, until)
+        ]
 
 
 def _team_context(simulation_ids: list[int]) -> tuple[TeamNaming, bool]:
     """Como chamar as equipes e se a partida é em equipes; só uma simulação tem equipes."""
+    for simulation_id in simulation_ids:
+        config = repository.simulation.get_simulation(simulation_id)
+        if config is not None and config.government.enabled:
+            repository.government.states(simulation_id)
     if len(simulation_ids) != 1:
         return TeamNaming.COLOR, False
     simulation = repository.simulation.get_simulation(simulation_ids[0])
@@ -140,47 +185,49 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
 
     entries = []
     for player in players:
-        days = risk.daily_returns(player.history)
-        months = risk.monthly_returns(days)
-        entries.append(
-            PlayerReturnsDTO(
-                **_ref(player),
-                networth=[
-                    SeriesPointDTO(date=h.snapshot_date, value=h.total_networth)
-                    for h in player.history
-                ],
-                cumulative_return=_points(
-                    returns.cumulative_returns(player.history, days)
-                ),
-                capital_provided=capital_provided(player),
-                annual_return=risk.annual_return(days),
-                months_above_cdi=sum(1 for m in months if m.value > m.cdi),
-                positive_months=sum(1 for m in months if m.value > 0),
-                months=len(months),
-                monthly_returns=[
-                    MonthlyReturnDTO(month=m.month, value=m.value, cdi=m.cdi)
-                    for m in months
-                ],
+        with using_simulation(player.simulation_id):
+            days = risk.daily_returns(player.history)
+            months = risk.monthly_returns(days)
+            entries.append(
+                PlayerReturnsDTO(
+                    **_ref(player),
+                    networth=[
+                        SeriesPointDTO(date=h.snapshot_date, value=h.total_networth)
+                        for h in player.history
+                    ],
+                    cumulative_return=_points(
+                        returns.cumulative_returns(player.history, days)
+                    ),
+                    capital_provided=capital_provided(player),
+                    annual_return=risk.annual_return(days),
+                    months_above_cdi=sum(1 for m in months if m.value > m.cdi),
+                    positive_months=sum(1 for m in months if m.value > 0),
+                    months=len(months),
+                    monthly_returns=[
+                        MonthlyReturnDTO(month=m.month, value=m.value, cdi=m.cdi)
+                        for m in months
+                    ],
+                )
             )
-        )
 
     benchmarks = []
     for simulation_id, simulation_name, dates in _simulation_dates(players):
-        references: list[tuple[BenchmarkSeries, risk.DailyReturns]] = [
-            ("CDI", returns.cdi_cumulative(dates)),
-            ("IBOV", returns.ibov_cumulative(dates)),
-        ]
-        for series, cumulative in references:
-            if cumulative:
-                benchmarks.append(
-                    BenchmarkDTO(
-                        series=series,
-                        simulation_id=simulation_id,
-                        simulation_name=simulation_name,
-                        cumulative_return=_points(cumulative),
-                        annual_return=returns.annualize(cumulative),
+        with using_simulation(simulation_id):
+            references: list[tuple[BenchmarkSeries, risk.DailyReturns]] = [
+                ("CDI", returns.cdi_cumulative(dates)),
+                ("IBOV", returns.ibov_cumulative(dates)),
+            ]
+            for series, cumulative in references:
+                if cumulative:
+                    benchmarks.append(
+                        BenchmarkDTO(
+                            series=series,
+                            simulation_id=simulation_id,
+                            simulation_name=simulation_name,
+                            cumulative_return=_points(cumulative),
+                            annual_return=returns.annualize(cumulative),
+                        )
                     )
-                )
 
     return ReturnsReportDTO(
         player_grouping=_grouping(in_teams),
@@ -195,24 +242,25 @@ def build_risk_report(simulation_ids: list[int]) -> RiskReportDTO:
     team_naming, in_teams = _team_context(simulation_ids)
     entries = []
     for player in repository.statistics.get_players_history(simulation_ids):
-        days = risk.daily_returns(player.history)
-        volatility = risk.annual_volatility([r for _, r in days])
-        months = risk.monthly_returns(days)
-        entries.append(
-            PlayerRiskDTO(
-                **_ref(player),
-                drawdown=_points(risk.drawdown_series(days)),
-                rolling_volatility=_points(risk.rolling_volatility(days)),
-                max_drawdown=risk.max_drawdown(days),
-                annual_volatility=volatility,
-                sharpe_ratio=risk.sharpe_ratio(days, volatility),
-                sortino_ratio=risk.sortino_ratio(days),
-                time_underwater=risk.time_underwater(days),
-                worst_month=min((m.value for m in months), default=None),
-                annual_return=risk.annual_return(days),
-                days=len(days),
+        with using_simulation(player.simulation_id):
+            days = risk.daily_returns(player.history)
+            volatility = risk.annual_volatility([r for _, r in days])
+            months = risk.monthly_returns(days)
+            entries.append(
+                PlayerRiskDTO(
+                    **_ref(player),
+                    drawdown=_points(risk.drawdown_series(days)),
+                    rolling_volatility=_points(risk.rolling_volatility(days)),
+                    max_drawdown=risk.max_drawdown(days),
+                    annual_volatility=volatility,
+                    sharpe_ratio=risk.sharpe_ratio(days, volatility),
+                    sortino_ratio=risk.sortino_ratio(days),
+                    time_underwater=risk.time_underwater(days),
+                    worst_month=min((m.value for m in months), default=None),
+                    annual_return=risk.annual_return(days),
+                    days=len(days),
+                )
             )
-        )
     return RiskReportDTO(
         player_grouping=_grouping(in_teams),
         team_naming=team_naming,
@@ -349,7 +397,10 @@ def _price_impacts() -> Callable[[int], PriceImpact]:
         simulation = repository.simulation.get_simulation(simulation_id)
         if simulation is None:
             return PriceImpact(simulation_id, enabled=False, k=0, decay_days=1)
-        return PriceImpact(
+        impact_class = (
+            GovernmentPriceImpact if simulation.government.enabled else PriceImpact
+        )
+        return impact_class(
             simulation_id,
             enabled=simulation.price_impact_enabled,
             k=simulation.price_impact_k,
@@ -371,24 +422,25 @@ def build_highlights(simulation_ids: list[int], nickname: str | None) -> Highlig
     tax_paid: list[PlayerHighlightDTO] = []
     your_best: BestMonthDTO | None = None
     for player in players:
-        key = (player.simulation_id, player.player_nickname)
-        days = risk.daily_returns(player.history)
-        capital = capital_provided(player)
-        if capital > 0:
-            returns.append(
-                _highlight(
-                    player, (player.history[-1].total_networth - capital) / capital
+        with using_simulation(player.simulation_id):
+            key = (player.simulation_id, player.player_nickname)
+            days = risk.daily_returns(player.history)
+            capital = capital_provided(player)
+            if capital > 0:
+                returns.append(
+                    _highlight(
+                        player, (player.history[-1].total_networth - capital) / capital
+                    )
                 )
-            )
-        if (drawdown := risk.max_drawdown(days)) is not None:
-            drawdowns.append(_highlight(player, drawdown))
-        trade_counts.append(_highlight(player, Decimal(len(trades.get(key, [])))))
-        tax_paid.append(_highlight(player, taxes.get(key, Decimal(0))))
-        if player.player_nickname == nickname and (
-            months := risk.monthly_returns(days)
-        ):
-            best = max(months, key=lambda m: m.value)
-            your_best = BestMonthDTO(month=best.month, value=best.value)
+            if (drawdown := risk.max_drawdown(days)) is not None:
+                drawdowns.append(_highlight(player, drawdown))
+            trade_counts.append(_highlight(player, Decimal(len(trades.get(key, [])))))
+            tax_paid.append(_highlight(player, taxes.get(key, Decimal(0))))
+            if player.player_nickname == nickname and (
+                months := risk.monthly_returns(days)
+            ):
+                best = max(months, key=lambda m: m.value)
+                your_best = BestMonthDTO(month=best.month, value=best.value)
 
     def top(items: list[PlayerHighlightDTO]) -> PlayerHighlightDTO | None:
         return max(items, key=lambda h: h.value, default=None)

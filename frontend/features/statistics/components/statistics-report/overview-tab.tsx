@@ -35,6 +35,7 @@ import { PlayerScoreCard } from "./player-score-card";
 import { PlayerCell, PlayerToggle, TabStatus, type ReportProps } from "./shared";
 import { TeamHeadline, TeamRanking } from "./team-ranking";
 import { TeamScore } from "./team-score";
+import { PartyRankingCard } from "@/features/government/components/party-ranking-card";
 
 
 export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer }: ReportProps) {
@@ -73,6 +74,7 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
         <Headline report={data} currentPlayerName={currentPlayerName} />
       )}
       <Ranking report={data} currentPlayerName={currentPlayerName} simulationIds={simulationIds} />
+      {!!data.parties?.length && <PartyRankingCard report={data} currentPlayerName={currentPlayerName} />}
       {data.players.length > 0 && (
         <ScoreAxes
           report={data}

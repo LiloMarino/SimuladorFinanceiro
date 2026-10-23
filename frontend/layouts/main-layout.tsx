@@ -5,6 +5,7 @@ import Topbar from "@/layouts/partial/topbar";
 import type { NavItem } from "@/types";
 import { Outlet } from "react-router-dom";
 import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
+import { GovernmentTradingNotice } from "@/features/government/components/government-trading-notice";
 
 interface LayoutProps {
   navItems: NavItem[];
@@ -20,6 +21,7 @@ export default function MainLayout({ navItems }: LayoutProps) {
       <SidebarInset className="overflow-auto">
         <Topbar pageLabel={pageLabel} />
         <main className="mx-auto flex w-full max-w-[1320px] flex-col gap-5 px-7 pt-6 pb-10">
+          <GovernmentTradingNotice />
           <Outlet />
         </main>
       </SidebarInset>

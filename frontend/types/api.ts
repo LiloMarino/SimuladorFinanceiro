@@ -131,6 +131,10 @@ export type LifeHistoryPage = components["schemas"]["LifeHistoryPageDTO"];
 export type LifeHistoryRow = LifeHistoryPage["items"][number];
 export type LifeHistoryCategory = components["schemas"]["LifeHistoryCategory"];
 export type LifeHistorySort = components["schemas"]["LifeHistorySort"];
+export type GovernmentView = components["schemas"]["GovernmentViewDTO"];
+export type GovernmentPreview = components["schemas"]["GovernmentPreviewDTO"];
+export type GovernmentAction = Partial<components["schemas"]["GovernmentActionDTO"]> & Pick<components["schemas"]["GovernmentActionDTO"], "action">;
+export type GovernmentRules = components["schemas"]["GovernmentRulesDTO-Output"];
 export type LifeHistoryKind = LifeHistoryRow["kind"];
 
 // Conquistas

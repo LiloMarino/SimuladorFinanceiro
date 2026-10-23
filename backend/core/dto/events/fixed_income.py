@@ -8,3 +8,4 @@ class FixedIncomeEventDTO(BaseEventDTO):
     asset_id: int
     event_type: FixedIncomeEventType
     amount: Decimal
+    withheld_tax: Decimal = Decimal(0)

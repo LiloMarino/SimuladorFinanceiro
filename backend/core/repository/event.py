@@ -15,6 +15,7 @@ from backend.core.models.models import (
     EventCashflow,
     EventEquity,
     EventFixedIncome,
+    GovernmentEvent,
     Stock,
 )
 
@@ -74,7 +75,7 @@ class EventRepository:
                     model.simulation_id == simulation_id
                 )
             ).scalar_one_or_none()
-            for model in (EventCashflow, EventEquity, EventFixedIncome)
+            for model in (EventCashflow, EventEquity, EventFixedIncome, GovernmentEvent)
         ]
         return max((d for d in dates if d is not None), default=None)
 
@@ -162,6 +163,7 @@ class EventRepository:
                 asset_id=e.asset_id,
                 event_type=e.event_type.value,
                 amount=e.amount,
+                withheld_tax=e.withheld_tax,
                 event_date=e.event_date,
                 created_at=e.created_at,
             )

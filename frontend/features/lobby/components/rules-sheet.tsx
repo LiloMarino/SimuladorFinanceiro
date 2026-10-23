@@ -26,6 +26,7 @@ import {
   SheetTitle,
 } from "@/shared/components/ui/sheet";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import type ApiError from "@/shared/lib/models/ApiError";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
@@ -50,6 +51,7 @@ import { DateField } from "@/shared/components/date-field";
 import { LifeFields } from "./life-fields";
 import type { SimulationFormValues } from "./lobby-match";
 import { PriceImpactExample } from "./price-impact-example";
+import { GovernmentRulesFields } from "@/features/government/components/government-rules-fields";
 
 // Os campos da vida real somem fora do viver de renda; um valor inutilizável neles volta ao padrão do servidor
 const LIFE_FIELD_FALLBACKS = {
@@ -173,6 +175,9 @@ export function RulesSheet({
         </SheetHeader>
 
         <form className="flex flex-1 flex-col gap-7 overflow-y-auto px-6 py-5" onSubmit={(e) => e.preventDefault()}>
+          <Tabs defaultValue="rules">
+            <TabsList><TabsTrigger value="rules">Regras</TabsTrigger><TabsTrigger value="expansions">Expansões</TabsTrigger></TabsList>
+            <TabsContent value="rules"><div className="grid gap-7">
           {/* Básico */}
           <FieldSet disabled={readOnly}>
             <FieldLegend variant="caption">Básico</FieldLegend>
@@ -501,6 +506,13 @@ export function RulesSheet({
 
             {impactEnabled && <PriceImpactExample k={impactK} decayDays={impactT} ticker={exampleTicker} />}
           </FieldSet>
+            </div></TabsContent>
+            <TabsContent value="expansions">
+              <Controller control={form.control} name="government" render={({ field }) => (
+                <GovernmentRulesFields value={field.value} onChange={field.onChange} disabled={readOnly} />
+              )} />
+            </TabsContent>
+          </Tabs>
         </form>
 
         <SheetFooter>

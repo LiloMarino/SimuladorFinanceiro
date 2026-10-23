@@ -12,6 +12,7 @@ import { formatMoney } from "@/shared/lib/utils/format";
 import { displayDate, displayMoney, parseLocalDate, toCentsString } from "@/shared/lib/utils/display";
 import type { FixedIncomeQuote } from "@/types";
 import { useBuyFixedIncome } from "../hooks/mutations/useBuyFixedIncome";
+import { useGovernment } from "@/features/government/hooks/queries/useGovernment";
 
 const SHORTCUTS = [
   { label: "R$ 1 mil", value: "1000" },
@@ -34,6 +35,7 @@ export function InvestmentTicket({ assetId, amountText, onAmountChange, quote }:
   const zero = amount <= 0;
 
   const invest = useBuyFixedIncome(assetId);
+  const { data: government } = useGovernment();
 
   const fill = (value: string) => {
     setTouched(true);
@@ -136,7 +138,7 @@ export function InvestmentTicket({ assetId, amountText, onAmountChange, quote }:
           <Button
             size="lg"
             variant="success"
-            disabled={zero || overCash || invest.isPending}
+            disabled={government?.trading_frozen || zero || overCash || invest.isPending}
             onClick={() => invest.mutate({ quantity: normalizeNumberString(amountText) })}
           >
             {invest.isPending && <Spinner />}

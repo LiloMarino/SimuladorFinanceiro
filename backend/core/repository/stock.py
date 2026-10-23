@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from datetime import date
 
 from sqlalchemy import delete, func, select, true
@@ -111,6 +112,7 @@ class StockRepository:
         current_date: date,
         days: int,
         simulation_id: int | None = None,
+        price_factor: Callable[[str, date], float] | None = None,
     ) -> dict[str, list[float]]:
         """Os últimos `days` fechamentos de cada ação até `current_date`, em ordem cronológica."""
         seen = seen_by(StockPriceHistory, reading_version(simulation_id))
@@ -128,16 +130,20 @@ class StockRepository:
             .lateral()
         )
         rows = session.execute(
-            select(Stock.ticker, recent.c.close)
+            select(Stock.ticker, recent.c.close, recent.c.price_date)
             .select_from(Stock)
             .outerjoin(recent, true())
             .order_by(Stock.id, recent.c.price_date)
         ).all()
         closes: dict[str, list[float]] = {}
-        for ticker, close in rows:
+        for ticker, close, price_date in rows:
             values = closes.setdefault(ticker, [])
             if close is not None:
-                values.append(close)
+                values.append(
+                    round(close * price_factor(ticker, price_date), 2)
+                    if price_factor
+                    else close
+                )
         return closes
 
     @transactional

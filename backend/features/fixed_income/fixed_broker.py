@@ -184,6 +184,10 @@ class FixedBroker:
                 event_type=FixedIncomeEventType.REDEEM,
                 asset_id=asset_id,
                 amount=redeem_value,
+                withheld_tax=max(
+                    Decimal(0),
+                    position.current_value.quantize(Decimal("0.01")) - redeem_value,
+                ),
                 event_date=current_date,
             )
         )

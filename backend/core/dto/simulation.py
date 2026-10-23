@@ -1,7 +1,10 @@
 from datetime import date, datetime
 from decimal import Decimal
 
+from pydantic import Field
+
 from backend.core.dto.base import BaseDTO
+from backend.core.dto.government import GovernmentRulesDTO
 from backend.core.enum import (
     GameType,
     PlayerGrouping,
@@ -37,6 +40,7 @@ class SimulationSettingsDTO(BaseDTO):
     # Ajudas da renda fixa: desligadas, o servidor omite os campos que dão a resposta
     show_equivalent_rate: bool = True
     show_maturity_projection: bool = True
+    government: GovernmentRulesDTO = Field(default_factory=GovernmentRulesDTO)
 
 
 class SimulationDTO(SimulationSettingsDTO):

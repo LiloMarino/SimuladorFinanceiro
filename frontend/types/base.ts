@@ -7,7 +7,8 @@ export interface NavItem {
   label: string;
   endpoint: string;
   icon: LucideIcon;
-  group: "Mercado" | "Você" | "Ferramentas";
+  group: "Mercado" | "Você" | "Expansões" | "Ferramentas";
+  governmentOnly?: boolean;
   badge?: string;
   /** `warning`: selo âmbar (ferramentas de debug) */
   badgeTone?: "warning";

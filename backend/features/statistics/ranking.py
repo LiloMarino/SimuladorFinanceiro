@@ -16,6 +16,7 @@ from backend.core.dto.statistics_report import (
     TeamRankingDTO,
 )
 from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
+from backend.core.repository.series_version import using_simulation
 from backend.features.statistics import risk
 from backend.features.statistics.score import MIN_SCORE_DAYS, player_score
 from backend.features.statistics.teams import mean
@@ -295,11 +296,12 @@ def _ranking_key(measure: Measure, performance: Performance):
 
 
 def _performance(player: PlayerHistoryDTO) -> Performance:
-    last = player.history[-1]
-    capital = capital_provided(player)
-    return_value = last.total_networth - capital
-    return_percent = return_value / capital if capital > 0 else Decimal(0)
-    days = risk.daily_returns(player.history)
-    sharpe = risk.sharpe_ratio(days, risk.annual_volatility([r for _, r in days]))
-    score = player_score(player.history)
-    return player, return_percent, last.total_networth, return_value, score, sharpe
+    with using_simulation(player.simulation_id):
+        last = player.history[-1]
+        capital = capital_provided(player)
+        return_value = last.total_networth - capital
+        return_percent = return_value / capital if capital > 0 else Decimal(0)
+        days = risk.daily_returns(player.history)
+        sharpe = risk.sharpe_ratio(days, risk.annual_volatility([r for _, r in days]))
+        score = player_score(player.history)
+        return player, return_percent, last.total_networth, return_value, score, sharpe

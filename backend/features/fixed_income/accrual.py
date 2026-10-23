@@ -28,8 +28,11 @@ from backend.core.indicators import (
     daily_rate,
     index_daily_rate,
     last_known_value,
+    raw_annual_index_rate,
 )
+from backend.core.repository.series_version import reading_version
 from backend.core.utils import is_business_day, next_business_day
+from backend.features.government.economy import state_on, tax_value
 
 CENT = Decimal("0.01")
 
@@ -113,15 +116,19 @@ def redemption_date(maturity: date) -> date:
     return maturity if is_business_day(maturity) else next_business_day(maturity)
 
 
-def income_tax_rate(investment_type: FixedIncomeType, days_held: int) -> Decimal:
+def income_tax_rate(
+    investment_type: FixedIncomeType, days_held: int, on: date | None = None
+) -> Decimal:
     """Alíquota de IR pelos dias corridos de aplicação. LCI e LCA são isentas."""
+    rate = next(
+        (rate for max_days, rate in INCOME_TAX_BRACKETS if days_held <= max_days),
+        INCOME_TAX_FLOOR,
+    )
+    state = state_on(reading_version(), on) if on else None
     if investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA):
-        return Decimal(0)
-
-    for max_days, rate in INCOME_TAX_BRACKETS:
-        if days_held <= max_days:
-            return rate
-    return INCOME_TAX_FLOOR
+        return tax_value(state, on, "LCI_TAX", Decimal(0)) if on else Decimal(0)
+    shift = tax_value(state, on, "FIXED_TAX_SHIFT", Decimal(0)) if on else Decimal(0)
+    return min(Decimal("0.50"), max(Decimal(0), rate + shift))
 
 
 def net_redemption(
@@ -146,10 +153,23 @@ def project(
 
     series = INDEX_SERIES.get(asset.rate_index)
     frozen = None if series is None else last_known_value(series, on)
+    government = state_on(reading_version(), on)
+    annual_baseline = (
+        raw_annual_index_rate(series, on)
+        if series is not None and government
+        else Decimal(0)
+    )
 
     def frozen_rate(day: date) -> Decimal | None:
         if series is None:
             return Decimal(0)
+        if government and series is not IndicatorSeries.IPCA:
+            return annual_to_daily_factor(index_rate) - 1
+        if government and frozen is not None:
+            ratio = (1 + index_rate) / (1 + annual_baseline)
+            return (1 + daily_rate(series, frozen, day)) * annual_to_daily_factor(
+                max(Decimal("0.01"), ratio) - 1
+            ) - 1
         return None if frozen is None else daily_rate(series, frozen, day)
 
     # `gross_amount` cresce a partir de `amount`; `growth`, a partir de 1 (percentuais)
@@ -164,7 +184,7 @@ def project(
         business_days += 1
         previous, day = day, next_business_day(day)
 
-    tax_rate = income_tax_rate(asset.investment_type, (redeem_on - on).days)
+    tax_rate = income_tax_rate(asset.investment_type, (redeem_on - on).days, redeem_on)
     gross_return = gross_amount - amount
     net_amount = net_redemption(gross_amount, amount, tax_rate)
     gross_return_pct = growth - 1
@@ -194,19 +214,30 @@ def offer(asset: FixedIncomeAssetDTO, on: date) -> FixedIncomeOfferDTO:
         **asset.model_dump(),
         index_rate=index_rate,
         effective_annual_rate=effective_annual_rate(asset, index_rate),
-        tax_exempt=asset.investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA),
+        tax_exempt=income_tax_rate(
+            asset.investment_type,
+            (redemption_date(asset.maturity_date) - on).days,
+            asset.maturity_date,
+        )
+        == 0,
         income_tax_rate_at_maturity=income_tax_rate(
-            asset.investment_type, (redemption_date(asset.maturity_date) - on).days
+            asset.investment_type,
+            (redemption_date(asset.maturity_date) - on).days,
+            asset.maturity_date,
         ),
     )
 
 
-def income_tax_brackets() -> list[IncomeTaxBracketDTO]:
+def income_tax_brackets(on: date | None = None) -> list[IncomeTaxBracketDTO]:
     """A tabela regressiva inteira, da primeira faixa à alíquota final."""
     return [
         *(
-            IncomeTaxBracketDTO(max_days=days, rate=rate)
-            for days, rate in INCOME_TAX_BRACKETS
+            IncomeTaxBracketDTO(
+                max_days=days, rate=income_tax_rate(FixedIncomeType.CDB, days, on)
+            )
+            for days, _rate in INCOME_TAX_BRACKETS
         ),
-        IncomeTaxBracketDTO(max_days=None, rate=INCOME_TAX_FLOOR),
+        IncomeTaxBracketDTO(
+            max_days=None, rate=income_tax_rate(FixedIncomeType.CDB, 721, on)
+        ),
     ]

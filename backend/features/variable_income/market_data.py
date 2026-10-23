@@ -17,9 +17,12 @@ class MarketData:
         self._buffers: dict[str, deque[Candle]] = {}
         self._maxlen = maxlen
 
-    def add_candle(self, candle: Candle):
+    def add_candle(self, candle: Candle, *, replace_current: bool = False):
         if candle.ticker not in self._buffers:
             self._buffers[candle.ticker] = deque(maxlen=self._maxlen)
+        buffer = self._buffers[candle.ticker]
+        if replace_current and buffer and buffer[-1].price_date == candle.price_date:
+            buffer.pop()
         self._buffers[candle.ticker].append(candle)
 
     def get_recent(self, ticker: str) -> list[Candle]:

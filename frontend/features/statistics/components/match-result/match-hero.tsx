@@ -22,6 +22,7 @@ import {
 } from "../../lib/criterion";
 import { Podium } from "./podium";
 import { TeamPodium } from "./team-podium";
+import { PartyRankingCard } from "@/features/government/components/party-ranking-card";
 
 /** A meta foi atingida quando a fração da meta do líder chega a 1. */
 const reachedGoal = (fraction: string | null) => fraction !== null && Number(fraction) >= 1;
@@ -258,6 +259,11 @@ interface MatchHeroProps {
 
 /** Topo do fim de partida: quem venceu, por qual critério, onde você ficou e o pódio. */
 export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroProps) {
+  if (report.party_ranking_decides && report.parties?.length) return <section className="grid gap-4">
+    <h1 className="text-2xl font-semibold">Fim de partida · {report.players[0]?.simulation_name}</h1>
+    <PartyRankingCard report={report} currentPlayerName={currentPlayerName} final />
+    <div className="flex flex-wrap gap-2"><Button nativeButton={false} render={<Link to="/lobby" />}>Voltar ao lobby</Button><Button variant="outline" nativeButton={false} render={<Link to={`/compare-simulations?ids=${report.players[0]?.simulation_id}`} />}>Comparar com outras partidas</Button></div>
+  </section>;
   const winner = report.players[0];
   const inTeams = report.teams.length > 0;
   const you = report.players.find((p) => p.player_nickname === currentPlayerName);

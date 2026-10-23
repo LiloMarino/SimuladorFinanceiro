@@ -1512,6 +1512,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Prévia pública de uma medida, sem gravar nem movimentar dinheiro */
+        post: operations["government_preview_api_government_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Governo, eleição e efeitos econômicos públicos */
+        get: operations["government_view_api_government_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Atuar na política ou propor uma medida como presidente */
+        post: operations["government_action_api_government_actions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1680,6 +1731,32 @@ export interface components {
             /** Cash */
             cash: string;
         };
+        /** CompanyProfileDTO */
+        CompanyProfileDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Sector */
+            sector?: string | null;
+            /** Segment */
+            segment?: string | null;
+            /**
+             * Margin
+             * @default 0.15
+             */
+            margin: number;
+            /**
+             * Beta
+             * @default 1
+             */
+            beta: number;
+            /** Exposures */
+            exposures?: components["schemas"]["ProductExposureDTO"][];
+            /**
+             * Source
+             * @default Hipótese do cenário; não representa dados financeiros da empresa
+             */
+            source: string;
+        };
         /** CompositionReportDTO */
         CompositionReportDTO: {
             player_grouping: components["schemas"]["PlayerGrouping"];
@@ -1825,6 +1902,20 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            government?: components["schemas"]["GovernmentRulesDTO-Input"];
+        };
+        /** CurrentTaxDTO */
+        CurrentTaxDTO: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+            /**
+             * Unit
+             * @default percent
+             * @enum {string}
+             */
+            unit: "money" | "percent";
         };
         /** DrawdownDTO */
         DrawdownDTO: {
@@ -1849,6 +1940,46 @@ export interface components {
             selic: string;
             /** Cdi */
             cdi: string;
+        };
+        /** ElectionResultDTO */
+        ElectionResultDTO: {
+            /** Year */
+            year: number;
+            /** Round */
+            round: number;
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /** Votes */
+            votes: {
+                [key: string]: number;
+            };
+            /** Finalists */
+            finalists: number[];
+            /** Winner */
+            winner?: number | null;
+            /** By Profile */
+            by_profile?: {
+                [key: string]: {
+                    [key: string]: number;
+                };
+            };
+        };
+        /** ElectorateDTO */
+        ElectorateDTO: {
+            /** Name */
+            name: string;
+            /** Weight */
+            weight: number;
+            /** Position */
+            position: number;
+            /**
+             * Campaign Sensitivity
+             * @default 1
+             */
+            campaign_sensitivity: number;
         };
         /** EngineInfo */
         EngineInfo: {
@@ -2109,6 +2240,368 @@ export interface components {
             team: number | null;
             /** Networth */
             networth: string;
+        };
+        /** GovernmentActionDTO */
+        GovernmentActionDTO: {
+            /** Request Id */
+            request_id?: string | null;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "found" | "join" | "leave" | "contribute" | "nominate" | "accept_candidate" | "accept_vice" | "decline_candidate" | "decline_vice" | "expel" | "donate" | "propose" | "withdraw" | "selic";
+            /** Party Id */
+            party_id?: number | null;
+            /** Member Id */
+            member_id?: number | null;
+            /** Vice Id */
+            vice_id?: number | null;
+            /**
+             * Name
+             * @default
+             */
+            name: string;
+            /**
+             * Acronym
+             * @default
+             */
+            acronym: string;
+            /**
+             * Color
+             * @default chart-1
+             */
+            color: string;
+            /**
+             * Promise
+             * @default 3
+             */
+            promise: number;
+            /**
+             * Amount
+             * @default 0
+             */
+            amount: number | string;
+            /**
+             * Kind
+             * @default COMMON_TAX
+             * @enum {string}
+             */
+            kind: "COMMON_TAX" | "DAY_TRADE_TAX" | "FII_TAX" | "STOCK_EXEMPTION" | "FIXED_TAX_SHIFT" | "LCI_TAX" | "SECTOR_TAX" | "PRODUCT_TARIFF" | "PUBLIC_SPENDING";
+            /**
+             * Target
+             * @default
+             */
+            target: string;
+            /**
+             * Value
+             * @default 0
+             */
+            value: number | string;
+            /** Policy Id */
+            policy_id?: number | null;
+        };
+        /** GovernmentImpactDTO */
+        GovernmentImpactDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Sector */
+            sector: string | null;
+            /** Source */
+            source: string;
+            /** Covered */
+            covered: boolean;
+            /** Baseline Price */
+            baseline_price: number;
+            /** Effective Price */
+            effective_price: number;
+            /** Impact */
+            impact: number;
+            /** Product Effect */
+            product_effect: number;
+            /** Monetary Effect */
+            monetary_effect: number;
+            /** Exposures */
+            exposures: components["schemas"]["ProductExposureDTO"][];
+        };
+        /** GovernmentPreviewDTO */
+        GovernmentPreviewDTO: {
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /** Horizon Days */
+            horizon_days: number;
+            /**
+             * Earliest Effective On
+             * Format: date
+             */
+            earliest_effective_on: string;
+            /** Inflation Delta */
+            inflation_delta: number;
+            /** Impacts */
+            impacts: components["schemas"]["GovernmentImpactDTO"][];
+            /** Assumptions */
+            assumptions: string;
+        };
+        /** GovernmentRulesDTO */
+        "GovernmentRulesDTO-Input": {
+            /**
+             * Enabled
+             * @default false
+             */
+            enabled: boolean;
+            /**
+             * Difficulty
+             * @default medium
+             * @enum {string}
+             */
+            difficulty: "easy" | "medium" | "hard";
+            /**
+             * Ranking
+             * @default individual
+             * @enum {string}
+             */
+            ranking: "individual" | "parties";
+            /**
+             * Manual Selic
+             * @default false
+             */
+            manual_selic: boolean;
+            /**
+             * Model Version
+             * @default government-v1
+             * @constant
+             */
+            model_version: "government-v1";
+            /**
+             * Impeachment Floor
+             * @default 25
+             */
+            impeachment_floor: number;
+            /**
+             * Impeachment Months
+             * @default 3
+             */
+            impeachment_months: number;
+            /**
+             * Campaign Scale
+             * @default 8000
+             */
+            campaign_scale: number | string;
+            /**
+             * Inflation Target
+             * @default 0.03
+             */
+            inflation_target: number;
+            /**
+             * Initial Treasury
+             * @default 1000000000
+             */
+            initial_treasury: number | string;
+            /**
+             * Spending Inflation
+             * @default 0.01
+             */
+            spending_inflation: number;
+            /**
+             * Monetary Inflation
+             * @default 0.25
+             */
+            monetary_inflation: number;
+            /** Electorate */
+            electorate?: components["schemas"]["ElectorateDTO"][];
+            /** Companies */
+            companies?: components["schemas"]["CompanyProfileDTO"][];
+        };
+        /** GovernmentRulesDTO */
+        "GovernmentRulesDTO-Output": {
+            /**
+             * Enabled
+             * @default false
+             */
+            enabled: boolean;
+            /**
+             * Difficulty
+             * @default medium
+             * @enum {string}
+             */
+            difficulty: "easy" | "medium" | "hard";
+            /**
+             * Ranking
+             * @default individual
+             * @enum {string}
+             */
+            ranking: "individual" | "parties";
+            /**
+             * Manual Selic
+             * @default false
+             */
+            manual_selic: boolean;
+            /**
+             * Model Version
+             * @default government-v1
+             * @constant
+             */
+            model_version: "government-v1";
+            /**
+             * Impeachment Floor
+             * @default 25
+             */
+            impeachment_floor: number;
+            /**
+             * Impeachment Months
+             * @default 3
+             */
+            impeachment_months: number;
+            /**
+             * Campaign Scale
+             * @default 8000
+             */
+            campaign_scale: string;
+            /**
+             * Inflation Target
+             * @default 0.03
+             */
+            inflation_target: number;
+            /**
+             * Initial Treasury
+             * @default 1000000000
+             */
+            initial_treasury: string;
+            /**
+             * Spending Inflation
+             * @default 0.01
+             */
+            spending_inflation: number;
+            /**
+             * Monetary Inflation
+             * @default 0.25
+             */
+            monetary_inflation: number;
+            /** Electorate */
+            electorate?: components["schemas"]["ElectorateDTO"][];
+            /** Companies */
+            companies?: components["schemas"]["CompanyProfileDTO"][];
+        };
+        /** GovernmentStateDTO */
+        GovernmentStateDTO: {
+            rules: components["schemas"]["GovernmentRulesDTO-Output"];
+            /**
+             * Initialized On
+             * Format: date
+             */
+            initialized_on: string;
+            /**
+             * Processed On
+             * Format: date
+             */
+            processed_on: string;
+            /** Parties */
+            parties?: components["schemas"]["PartyDTO"][];
+            /** Policies */
+            policies?: components["schemas"]["PolicyDTO"][];
+            /** Results */
+            results?: components["schemas"]["ElectionResultDTO"][];
+            term?: components["schemas"]["TermDTO"] | null;
+            /** Pending Winner */
+            pending_winner?: number | null;
+            /** Pending Year */
+            pending_year?: number | null;
+            /** Pending President */
+            pending_president?: number | null;
+            /** Pending Vice */
+            pending_vice?: number | null;
+            /**
+             * Cycle Year
+             * @default 0
+             */
+            cycle_year: number;
+            /** Finalists */
+            finalists?: number[];
+            /** Terms Won */
+            terms_won?: {
+                [key: string]: number;
+            };
+            /** Approval History */
+            approval_history?: {
+                [key: string]: string | number;
+            }[];
+            /** Poll History */
+            poll_history?: {
+                [key: string]: string | number;
+            }[];
+            /** Selic Decisions */
+            selic_decisions?: components["schemas"]["SelicDecisionDTO"][];
+            /** Treasury */
+            treasury: string;
+            /**
+             * Reserved Spending
+             * @default 0
+             */
+            reserved_spending: string;
+            /**
+             * Collected Tax
+             * @default 0
+             */
+            collected_tax: string;
+            /** Log */
+            log?: {
+                [key: string]: string;
+            }[];
+            /**
+             * Revision
+             * @default 0
+             */
+            revision: number;
+        };
+        /** GovernmentViewDTO */
+        GovernmentViewDTO: {
+            state: components["schemas"]["GovernmentStateDTO"];
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            /** Election Year */
+            election_year: number;
+            /** Phase */
+            phase: string;
+            /** Can Govern */
+            can_govern: boolean;
+            /** Trading Frozen */
+            trading_frozen: boolean;
+            /** Users */
+            users: {
+                [key: string]: string;
+            };
+            /** My Id */
+            my_id: number;
+            /** Impacts */
+            impacts: components["schemas"]["GovernmentImpactDTO"][];
+            /** Party Ranking */
+            party_ranking: components["schemas"]["PartyRankingDTO"][];
+            /** President Portfolio */
+            president_portfolio: {
+                [key: string]: number;
+            };
+            president_finances?: components["schemas"]["PortfolioDTO"] | null;
+            /** Current Selic */
+            current_selic: number;
+            /** Current Inflation */
+            current_inflation: number;
+            /** Inflation Delta */
+            inflation_delta: number;
+            /** Selic Delta */
+            selic_delta: number;
+            /** Next Selic Meeting */
+            next_selic_meeting: string | null;
+            /** Approval Factors */
+            approval_factors: {
+                [key: string]: number;
+            };
+            /** Current Taxes */
+            current_taxes: components["schemas"]["CurrentTaxDTO"][];
         };
         /** HighlightsDTO */
         HighlightsDTO: {
@@ -2526,6 +3019,13 @@ export interface components {
         OverviewReportDTO: {
             player_grouping: components["schemas"]["PlayerGrouping"];
             team_naming: components["schemas"]["TeamNaming"];
+            /** Parties */
+            parties?: components["schemas"]["PartyRankingDTO"][];
+            /**
+             * Party Ranking Decides
+             * @default false
+             */
+            party_ranking_decides: boolean;
             /** Players */
             players: components["schemas"]["PlayerRankingDTO"][];
             /** Teams */
@@ -2540,6 +3040,77 @@ export interface components {
             goal_net_worth: string | null;
             /** Goal Steps */
             goal_steps: components["schemas"]["SeriesPointDTO"][];
+        };
+        /** PartyDTO */
+        PartyDTO: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Acronym */
+            acronym: string;
+            /** Color */
+            color: string;
+            /** Founder */
+            founder: number | null;
+            /** Members */
+            members?: number[];
+            /** Contributions */
+            contributions?: {
+                [key: string]: string;
+            };
+            /** Candidate */
+            candidate?: number | null;
+            /** Candidate Name */
+            candidate_name?: string | null;
+            /**
+             * Candidate Accepted
+             * @default false
+             */
+            candidate_accepted: boolean;
+            /** Vice */
+            vice?: number | null;
+            /**
+             * Vice Accepted
+             * @default false
+             */
+            vice_accepted: boolean;
+            /**
+             * Promise
+             * @default 3
+             */
+            promise: number;
+            /**
+             * Spent
+             * @default 0
+             */
+            spent: string;
+            /**
+             * Support
+             * @default 0
+             */
+            support: number;
+            /**
+             * Is Ai
+             * @default false
+             */
+            is_ai: boolean;
+            /**
+             * Campaign Active
+             * @default true
+             */
+            campaign_active: boolean;
+        };
+        /** PartyRankingDTO */
+        PartyRankingDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Name */
+            name: string;
+            /** Members */
+            members: string[];
+            /** Networth */
+            networth: string;
         };
         /** PatrimonialHistoryDTO */
         PatrimonialHistoryDTO: {
@@ -2776,6 +3347,44 @@ export interface components {
             /** Team */
             team: number;
         };
+        /** PolicyDTO */
+        PolicyDTO: {
+            /** Id */
+            id: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "COMMON_TAX" | "DAY_TRADE_TAX" | "FII_TAX" | "STOCK_EXEMPTION" | "FIXED_TAX_SHIFT" | "LCI_TAX" | "SECTOR_TAX" | "PRODUCT_TARIFF" | "PUBLIC_SPENDING";
+            /**
+             * Target
+             * @default
+             */
+            target: string;
+            /** Value */
+            value: string;
+            /**
+             * Proposed On
+             * Format: date
+             */
+            proposed_on: string;
+            /** Author */
+            author: number;
+            /** Party Id */
+            party_id: number;
+            /**
+             * Status
+             * @default queued
+             * @enum {string}
+             */
+            status: "queued" | "approved" | "rejected" | "withdrawn";
+            /** Voted On */
+            voted_on?: string | null;
+            /** Effective On */
+            effective_on?: string | null;
+            /** Position */
+            position: number;
+        };
         /** PortfolioCorrelationDTO */
         PortfolioCorrelationDTO: {
             /** Tickers */
@@ -2946,6 +3555,28 @@ export interface components {
             /** Curve */
             curve: components["schemas"]["PriceImpactPointDTO"][];
         };
+        /** ProductExposureDTO */
+        ProductExposureDTO: {
+            /**
+             * Product
+             * @enum {string}
+             */
+            product: "STEEL" | "OIL" | "FOOD" | "TECH";
+            /** Revenue Share */
+            revenue_share: number;
+            /** Imported Cost Share */
+            imported_cost_share: number;
+            /**
+             * Domestic Competition
+             * @default 0.3
+             */
+            domestic_competition: number;
+            /**
+             * Pass Through
+             * @default 0.4
+             */
+            pass_through: number;
+        };
         /**
          * RateIndexType
          * @enum {string}
@@ -3080,6 +3711,7 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            government?: components["schemas"]["GovernmentRulesDTO-Output"];
             /** Id */
             id: number;
             /**
@@ -3169,6 +3801,18 @@ export interface components {
         SelectSimulationRequest: {
             /** Id */
             id: number;
+        };
+        /** SelicDecisionDTO */
+        SelicDecisionDTO: {
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /** Rate */
+            rate: number;
+            /** Baseline */
+            baseline: number;
         };
         /** SeriesCoverageDTO */
         SeriesCoverageDTO: {
@@ -3309,6 +3953,7 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            government?: components["schemas"]["GovernmentRulesDTO-Output"];
             /** Id */
             id: number;
         };
@@ -3384,6 +4029,7 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            government?: components["schemas"]["GovernmentRulesDTO-Output"];
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
@@ -3711,6 +4357,40 @@ export interface components {
             /** Annual Return */
             annual_return: string | null;
         };
+        /** TermDTO */
+        TermDTO: {
+            /** Party Id */
+            party_id: number;
+            /** President */
+            president: number;
+            /** Vice */
+            vice?: number | null;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Approval
+             * @default 50
+             */
+            approval: number;
+            /**
+             * Low Months
+             * @default 0
+             */
+            low_months: number;
+            /**
+             * Neutral
+             * @default false
+             */
+            neutral: boolean;
+        };
         /** TickerSuggestionDTO */
         TickerSuggestionDTO: {
             /** Ticker */
@@ -3848,6 +4528,7 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            government?: components["schemas"]["GovernmentRulesDTO-Input"];
         };
         /** UserClaimRequest */
         UserClaimRequest: {
@@ -7072,6 +7753,128 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    government_preview_api_government_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GovernmentActionDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GovernmentPreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    government_view_api_government_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GovernmentViewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    government_action_api_government_actions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GovernmentActionDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GovernmentViewDTO"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

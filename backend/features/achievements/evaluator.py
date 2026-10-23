@@ -102,7 +102,9 @@ def match_result(
 ) -> MatchResult:
     """Quem venceu a partida, pelo mesmo ranking do fechamento; em equipes, a equipe toda."""
     overview = build_overview_report([simulation_id])
-    if overview.teams:
+    if overview.party_ranking_decides and overview.parties:
+        names = set(overview.parties[0].members)
+    elif overview.teams:
         winning_team = overview.teams[0].team
         names = {p.player_nickname for p in overview.players if p.team == winning_team}
     else:

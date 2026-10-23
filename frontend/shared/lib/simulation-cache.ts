@@ -4,8 +4,15 @@ import { queryKeys } from "./queryKeys";
 /** Descarta leituras anteriores à pausa e confere o último dia concluído no servidor. */
 export async function revalidateSimulation(client: QueryClient) {
   const keys = [queryKeys.simulationState(), queryKeys.variableIncome(), queryKeys.fixedIncome(),
-    queryKeys.portfolio(), queryKeys.economicIndicators()];
+    queryKeys.portfolio(), queryKeys.economicIndicators(), queryKeys.government()];
   await Promise.all(keys.map((queryKey) => client.cancelQueries({ queryKey })));
+  await Promise.all(keys.map((queryKey) => client.invalidateQueries({ queryKey })));
+}
+
+/** Uma decisão pode mudar o mercado no mesmo dia para todos os jogadores. */
+export async function revalidateGovernmentImpact(client: QueryClient) {
+  const keys = [queryKeys.simulationState(), queryKeys.variableIncome(), queryKeys.fixedIncome(),
+    queryKeys.portfolio(), queryKeys.economicIndicators(), queryKeys.statistics()];
   await Promise.all(keys.map((queryKey) => client.invalidateQueries({ queryKey })));
 }
 

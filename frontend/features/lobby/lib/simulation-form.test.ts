@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { SimulationSettingsData } from "@/types";
 import { toFormValues, toSettingsBody } from "./simulation-form";
+import { DISABLED_GOVERNMENT } from "@/features/government/lib/defaults";
 
 // Regras como a API devolve: dinheiro com duas casas e a taxa com quatro
 const settings: SimulationSettingsData = {
@@ -24,6 +25,7 @@ const settings: SimulationSettingsData = {
   team_naming: "NUMBER",
   show_equivalent_rate: false,
   show_maturity_projection: true,
+  government: DISABLED_GOVERNMENT,
 };
 
 describe("regras da partida ↔ formulário do lobby", () => {
@@ -45,5 +47,12 @@ describe("regras da partida ↔ formulário do lobby", () => {
     const body = toSettingsBody(values);
     expect(body.starting_cash).toBe("1234.56");
     expect(body.monthly_contribution).toBe("0.00");
+  });
+
+  it("preserva as regras econômicas e políticas escolhidas para a partida", () => {
+    const government = { ...DISABLED_GOVERNMENT, enabled: true, manual_selic: true, ranking: "parties" as const, impeachment_floor: 25, impeachment_months: 3 };
+    const body = toSettingsBody(toFormValues({ ...settings, government }));
+    expect(body.government).toEqual(government);
+    expect(body.government?.electorate?.map(g => g.weight)).toEqual([0.25, 0.30, 0.30, 0.15]);
   });
 });

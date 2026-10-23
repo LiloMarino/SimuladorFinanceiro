@@ -31,7 +31,7 @@ interface SidebarProps {
   activePage: string;
 }
 
-const NAV_GROUPS: NavItem["group"][] = ["Mercado", "Você", "Ferramentas"];
+const NAV_GROUPS: NavItem["group"][] = ["Mercado", "Você", "Expansões", "Ferramentas"];
 
 export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const { user } = useAuth();
@@ -73,13 +73,13 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
 
       {/* Navegação por grupo */}
       <SidebarContent>
-        {NAV_GROUPS.map((group) => (
+        {NAV_GROUPS.filter(group => group !== "Expansões" || match?.government?.enabled).map((group) => (
           <SidebarGroup key={group}>
             <SidebarGroupLabel>{group}</SidebarGroupLabel>
             <SidebarMenu>
               {navItems
                 .filter(
-                  (item) => item.group === group && (!item.debugOnly || showDebugTools) && (!item.goalOnly || hasGoal),
+                  (item) => item.group === group && (!item.debugOnly || showDebugTools) && (!item.goalOnly || hasGoal) && (!item.governmentOnly || match?.government?.enabled),
                 )
                 .map((item) => (
                   <SidebarMenuItem key={item.key}>

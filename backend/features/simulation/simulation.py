@@ -46,6 +46,8 @@ from backend.features.fixed_income.assistance import (
     apply_offer_assistance,
     build_quote,
 )
+from backend.features.government.economy import company_effect, state_on
+from backend.features.government.runtime import GovernmentPriceImpact, GovernmentRuntime
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     PortfolioUpdateEventDTO,
@@ -134,7 +136,10 @@ class Simulation:
             settings.id,
         )
         self._engine.set_strategy(ManualStrategy)
-        self._price_impact = PriceImpact(
+        impact_class = (
+            GovernmentPriceImpact if settings.government.enabled else PriceImpact
+        )
+        self._price_impact = impact_class(
             settings.id,
             settings.price_impact_enabled,
             settings.price_impact_k,
@@ -156,6 +161,11 @@ class Simulation:
 
         # Configura os alias
         self.get_cash = self._engine.get_cash
+        self._government = (
+            GovernmentRuntime(self, random_seed)
+            if settings.government.enabled
+            else None
+        )
 
         # Roda o primeiro tick para a inicialização
         self.next_tick()
@@ -182,6 +192,8 @@ class Simulation:
 
     @synchronized
     def create_order(self, order: Order) -> None:
+        if self._government:
+            self._government.assert_trading(order.client_id)
         try:
             self._engine.matching_engine.submit(order)
         finally:
@@ -200,6 +212,8 @@ class Simulation:
     def buy_fixed_income(
         self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal
     ) -> None:
+        if self._government:
+            self._government.assert_trading(client_id)
         self._engine.fixed_broker.buy(client_id, asset, value)
         EventManager.flush()
 
@@ -230,7 +244,7 @@ class Simulation:
             cash_before=cash,
             cash_after=cash - amount,
             max_amount=cash,
-            income_tax_brackets=income_tax_brackets(),
+            income_tax_brackets=income_tax_brackets(asset.maturity_date),
         )
 
     @synchronized
@@ -267,6 +281,8 @@ class Simulation:
         # O impacto é lido dos eventos no banco: o flush leva antes as ordens que
         # chegaram por HTTP depois do último tick, ainda datadas do dia anterior
         EventManager.flush()
+        if self._government:
+            self._government.advance(self._current_date)
         self._price_impact.refresh(self._current_date)
 
         # O matching pode executar ordens antigas durante a atualização do book.
@@ -294,6 +310,8 @@ class Simulation:
         if self._life is not None:
             self._charge_overdraft(users)
         EventManager.flush()
+        if self._government:
+            self._government.close_day(self._current_date)
 
         snapshots = self._create_daily_snapshots(users, month_changed)
 
@@ -487,7 +505,17 @@ class Simulation:
     @synchronized
     def get_market(self) -> list[MarketQuoteDTO]:
         """As cotações do dia com os 30 pregões do mini gráfico; o último ponto é o de hoje, com impacto."""
-        closes = repository.stock.get_recent_closes(self._current_date, SPARKLINE_DAYS)
+        closes = repository.stock.get_recent_closes(
+            self._current_date,
+            SPARKLINE_DAYS,
+            price_factor=(
+                lambda ticker, day: company_effect(
+                    state_on(self.settings.id, day), ticker, day
+                )[0]
+            )
+            if self._government
+            else None,
+        )
         classification = self._engine.classification
         quotes = []
         for candle in self.get_stocks():

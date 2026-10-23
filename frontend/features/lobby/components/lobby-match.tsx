@@ -114,6 +114,7 @@ const simulationFormSchema = z
     teamNaming: z.custom<TeamNaming>((value) => value === "COLOR" || value === "NUMBER"),
     showEquivalentRate: z.boolean(),
     showMaturityProjection: z.boolean(),
+    government: z.custom<import("@/types").GovernmentRules>(),
   })
   .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
     message: "Tem que ser depois do início",

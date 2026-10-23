@@ -34,8 +34,11 @@ import { GuardLayout } from "./layouts/guard-layout";
 import { SimulationModeLayout } from "./layouts/simulation-mode-layout";
 import { queryClient } from "@/shared/lib/queryClient";
 import { DebugTools } from "@/shared/components/debug-tools";
+import GovernmentPage from "@/features/government/pages/government";
 
 const navItems: NavItem[] = [
+  { key: "election", label: "Eleição", endpoint: "/election", icon: Flag, group: "Expansões", governmentOnly: true },
+  { key: "government", label: "Governo", endpoint: "/government", icon: Trophy, group: "Expansões", governmentOnly: true },
   { key: "variable-income", label: "Renda variável", endpoint: "/variable-income", icon: TrendingUp, group: "Mercado" },
   { key: "fixed-income", label: "Renda fixa", endpoint: "/fixed-income", icon: Coins, group: "Mercado" },
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet, group: "Você" },
@@ -77,6 +80,8 @@ export default function App() {
                         <Route path="/match-result/:simulationId" element={<MatchResultPage />} />
                       </Route>
                       <Route element={<MainLayout navItems={navItems} />}>
+                        <Route path="/election" element={<GovernmentPage initialTab="election" />} />
+                        <Route path="/government" element={<GovernmentPage initialTab="government" />} />
                         <Route path="/" element={<PortfolioPage />} />
                         <Route path="/variable-income" element={<VariableIncomePage />} />
                         <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />

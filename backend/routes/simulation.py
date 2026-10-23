@@ -9,6 +9,7 @@ from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.goal import GoalProgressDTO
+from backend.core.dto.government import GovernmentRulesDTO
 from backend.core.dto.life import LifeHistoryPageDTO, LifeStatusDTO
 from backend.core.dto.simulation import (
     PriceImpactPointDTO,
@@ -69,6 +70,29 @@ class SimulationRulesRequest(BaseModel):
     team_naming: TeamNaming = TeamNaming.COLOR
     show_equivalent_rate: bool = True
     show_maturity_projection: bool = True
+    government: GovernmentRulesDTO = Field(default_factory=GovernmentRulesDTO)
+
+    @model_validator(mode="after")
+    def validate_government(self):
+        if self.government.enabled:
+            try:
+                minimum_end = self.start_date.replace(year=self.start_date.year + 5)
+            except ValueError:
+                minimum_end = self.start_date.replace(
+                    year=self.start_date.year + 5, day=28
+                )
+            if self.end_date < minimum_end:
+                raise ValueError(
+                    "A expansão Governo exige uma partida de pelo menos 5 anos."
+                )
+            if self.government.ranking == "parties" and (
+                self.game_type is not GameType.CLASSIC
+                or self.player_grouping is not PlayerGrouping.INDIVIDUAL
+            ):
+                raise ValueError(
+                    "O ranking de partidos exige partida clássica e jogadores individuais."
+                )
+        return self
 
     @model_validator(mode="after")
     def validate_dates(self):

@@ -5,6 +5,7 @@ import { formatMoney } from "@/shared/lib/utils/format";
 import type { CreateSimulationRequest, SimulationSettingsData } from "@/types";
 import type { SimulationFormValues } from "../components/lobby-match";
 import { withdrawalRateToBody } from "./life-rules";
+import { DISABLED_GOVERNMENT } from "@/features/government/lib/defaults";
 
 const moneyToField = (value: string) => formatMoney(toCentsString(value));
 const moneyToBody = (field: string) => toCentsString(normalizeNumberString(field));
@@ -32,6 +33,7 @@ export function toFormValues(settings: SimulationSettingsData): SimulationFormVa
     teamNaming: settings.team_naming,
     showEquivalentRate: settings.show_equivalent_rate,
     showMaturityProjection: settings.show_maturity_projection,
+    government: settings.government ?? DISABLED_GOVERNMENT,
   };
 }
 
@@ -61,5 +63,6 @@ export function toSettingsBody(values: SimulationFormValues): CreateSimulationRe
     team_naming: values.teamNaming,
     show_equivalent_rate: values.showEquivalentRate,
     show_maturity_projection: values.showMaturityProjection,
+    government: values.government,
   };
 }

@@ -3,6 +3,7 @@ from backend.core.repository.economic import EconomicRepository
 from backend.core.repository.event import EventRepository
 from backend.core.repository.fixed_income import FixedIncomeRepository
 from backend.core.repository.generated_future import GeneratedFutureRepository
+from backend.core.repository.government import GovernmentRepository
 from backend.core.repository.portfolio import PortfolioRepository
 from backend.core.repository.settings import SettingsRepository
 from backend.core.repository.simulation import SimulationRepository
@@ -25,3 +26,4 @@ simulation = SimulationRepository()
 simulation_player = SimulationPlayerRepository()
 generated_future = GeneratedFutureRepository()
 achievements = AchievementsRepository()
+government = GovernmentRepository()

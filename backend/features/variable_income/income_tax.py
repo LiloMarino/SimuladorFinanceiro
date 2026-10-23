@@ -27,6 +27,7 @@ from enum import Enum
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.enum import AssetClass, EquityEventType
 from backend.core.utils import is_business_day
+from backend.features.government.economy import state_on, tax_value
 from backend.features.variable_income.entities.position import Position
 
 ZERO = Decimal(0)
@@ -189,6 +190,7 @@ def assess(
     events: Sequence[EquityEventDTO],
     asset_classes: Mapping[str, AssetClass],
     today: date,
+    simulation_id: int | None = None,
 ) -> list[MonthlyTax]:
     """Todos os meses da primeira operação até o mês de `today`, com o prejuízo e o
     saldo abaixo do mínimo atravessando de um mês para o outro. `events` vem em
@@ -197,11 +199,32 @@ def assess(
         return []
 
     # Resultado de cada (mês, classe, day trade ou não)
-    by_month: defaultdict[tuple[int, int], dict[tuple[AssetClass, bool], _Category]]
+    by_month: defaultdict[
+        tuple[int, int], dict[tuple[AssetClass, bool, Decimal], _Category]
+    ]
     by_month = defaultdict(dict)
 
     def category(day: date, ticker: str, day_trade: bool) -> _Category:
-        key = (asset_classes[ticker], day_trade)
+        cls = asset_classes[ticker]
+        pool = _pool(cls, day_trade)
+        state = state_on(simulation_id, day) if simulation_id is not None else None
+        kind = (
+            "DAY_TRADE_TAX"
+            if day_trade
+            else "FII_TAX"
+            if cls is AssetClass.FII
+            else "COMMON_TAX"
+        )
+        rate = tax_value(state, day, kind, RATES[pool])
+        if state:
+            profile = next(
+                (c for c in state.rules.companies if c.ticker == ticker), None
+            )
+            if profile:
+                for target in (profile.sector, profile.segment):
+                    if target:
+                        rate += tax_value(state, day, "SECTOR_TAX", ZERO, target)
+        key = (cls, day_trade, min(Decimal("0.50"), max(ZERO, rate)))
         return by_month[(day.year, day.month)].setdefault(key, _Category())
 
     settled, day_trades = settle_day_trades(events)
@@ -221,18 +244,27 @@ def assess(
     for year, month in _months(events[0].event_date, today):
         raw = by_month.get((year, month), {})
         stock_sales = sum(
-            (item.sales for (cls, _), item in raw.items() if cls is AssetClass.STOCK),
+            (
+                item.sales
+                for (cls, _, _rate), item in raw.items()
+                if cls is AssetClass.STOCK
+            ),
             ZERO,
         )
 
         # O ganho comum com ações sai da base quando o mês fica dentro da isenção
-        exempt_key = (AssetClass.STOCK, False)
-        exempt_item = raw.get(exempt_key)
-        exempt = (
-            exempt_item is not None
-            and exempt_item.result > ZERO
-            and stock_sales <= STOCK_EXEMPTION_LIMIT
+        end = min(today, date(year, month, calendar.monthrange(year, month)[1]))
+        state = state_on(simulation_id, end) if simulation_id is not None else None
+        exemption = tax_value(state, end, "STOCK_EXEMPTION", STOCK_EXEMPTION_LIMIT)
+        stock_profit = sum(
+            (
+                item.result
+                for (cls, day_trade, _rate), item in raw.items()
+                if cls is AssetClass.STOCK and not day_trade
+            ),
+            ZERO,
         )
+        exempt = stock_profit > ZERO and stock_sales <= exemption
 
         # Líquido de cada conjunto de compensação, abatido do prejuízo acumulado
         pools: dict[LossPool, PoolResult] = {}
@@ -240,9 +272,9 @@ def assess(
             net = sum(
                 (
                     item.result
-                    for (cls, day_trade), item in raw.items()
+                    for (cls, day_trade, _rate), item in raw.items()
                     if _pool(cls, day_trade) is pool
-                    and not (exempt and (cls, day_trade) == exempt_key)
+                    and not (exempt and cls is AssetClass.STOCK and not day_trade)
                 ),
                 ZERO,
             )
@@ -253,9 +285,22 @@ def assess(
             else:
                 taxable = ZERO
                 losses[pool] -= net
+            positive = [
+                (item.result, rate)
+                for (cls, day_trade, rate), item in raw.items()
+                if _pool(cls, day_trade) is pool
+                and item.result > ZERO
+                and not (exempt and cls is AssetClass.STOCK and not day_trade)
+            ]
+            weight = sum((value for value, _rate in positive), ZERO)
+            rate = (
+                sum((value * rate for value, rate in positive), ZERO) / weight
+                if weight
+                else RATES[pool]
+            )
             pools[pool] = PoolResult(
                 taxable=taxable,
-                tax=taxable * RATES[pool],
+                tax=taxable * rate,
                 loss_after=losses[pool],
             )
 
@@ -267,7 +312,7 @@ def assess(
                 year=year,
                 month=month,
                 stock_sales=stock_sales,
-                exempt_profit=exempt_item.result if exempt and exempt_item else ZERO,
+                exempt_profit=stock_profit if exempt else ZERO,
                 pools=pools,
                 tax=tax,
                 darf_amount=due if emits else None,

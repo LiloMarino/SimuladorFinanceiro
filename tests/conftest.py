@@ -105,6 +105,8 @@ def database(pg_url: str, engine: Engine, monkeypatch: pytest.MonkeyPatch) -> En
     migrate(pg_url)
     factory = sessionmaker(bind=engine, autocommit=False, autoflush=False)
     monkeypatch.setattr(transactional_method, "get_session_factory", lambda: factory)
+    monkeypatch.setattr(repository.government, "_states", {})
+    monkeypatch.setattr(repository.government, "_enabled", set())
     return engine
 
 

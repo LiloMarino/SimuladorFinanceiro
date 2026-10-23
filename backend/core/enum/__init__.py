@@ -63,6 +63,7 @@ class CashflowEventType(Enum):
     EXPENSE = "EXPENSE"
     UNEXPECTED_EXPENSE = "UNEXPECTED_EXPENSE"
     OVERDRAFT_INTEREST = "OVERDRAFT_INTEREST"
+    CAMPAIGN = "CAMPAIGN"
 
     @property
     def sign(self) -> int:
@@ -85,6 +86,7 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.EXPENSE: -1,
     CashflowEventType.UNEXPECTED_EXPENSE: -1,
     CashflowEventType.OVERDRAFT_INTEREST: -1,
+    CashflowEventType.CAMPAIGN: -1,
 }
 
 # Aporte, salário, despesa e imprevisto são o dinheiro da vida do jogador; o juro

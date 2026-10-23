@@ -4186,6 +4186,164 @@
           }
         ]
       }
+    },
+    "/api/government/preview": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Prévia pública de uma medida, sem gravar nem movimentar dinheiro",
+        "operationId": "government_preview_api_government_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GovernmentActionDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernmentPreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Governo, eleição e efeitos econômicos públicos",
+        "operationId": "government_view_api_government_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernmentViewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/actions": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Atuar na política ou propor uma medida como presidente",
+        "operationId": "government_action_api_government_actions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GovernmentActionDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernmentViewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -4638,6 +4796,68 @@
         ],
         "title": "CashUpdateEventDTO"
       },
+      "CompanyProfileDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
+          },
+          "margin": {
+            "type": "number",
+            "maximum": 0.8,
+            "minimum": 0.02,
+            "title": "Margin",
+            "default": 0.15
+          },
+          "beta": {
+            "type": "number",
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Beta",
+            "default": 1
+          },
+          "exposures": {
+            "items": {
+              "$ref": "#/components/schemas/ProductExposureDTO"
+            },
+            "type": "array",
+            "title": "Exposures"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "default": "Hipótese do cenário; não representa dados financeiros da empresa"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker"
+        ],
+        "title": "CompanyProfileDTO"
+      },
       "CompositionReportDTO": {
         "properties": {
           "player_grouping": {
@@ -5035,6 +5255,9 @@
             "type": "boolean",
             "title": "Show Maturity Projection",
             "default": true
+          },
+          "government": {
+            "$ref": "#/components/schemas/GovernmentRulesDTO-Input"
           }
         },
         "type": "object",
@@ -5048,6 +5271,34 @@
           "goal_net_worth"
         ],
         "title": "CreateSimulationRequest"
+      },
+      "CurrentTaxDTO": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "money",
+              "percent"
+            ],
+            "title": "Unit",
+            "default": "percent"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "CurrentTaxDTO"
       },
       "DrawdownDTO": {
         "properties": {
@@ -5098,6 +5349,105 @@
           "cdi"
         ],
         "title": "EconomicIndicatorsDTO"
+      },
+      "ElectionResultDTO": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "round": {
+            "type": "integer",
+            "title": "Round"
+          },
+          "on": {
+            "type": "string",
+            "format": "date",
+            "title": "On"
+          },
+          "votes": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Votes"
+          },
+          "finalists": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Finalists"
+          },
+          "winner": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winner"
+          },
+          "by_profile": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "By Profile"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "year",
+          "round",
+          "on",
+          "votes",
+          "finalists"
+        ],
+        "title": "ElectionResultDTO"
+      },
+      "ElectorateDTO": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Weight"
+          },
+          "position": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Position"
+          },
+          "campaign_sensitivity": {
+            "type": "number",
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "Campaign Sensitivity",
+            "default": 1
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "weight",
+          "position"
+        ],
+        "title": "ElectorateDTO"
       },
       "EngineInfo": {
         "properties": {
@@ -5859,6 +6209,831 @@
           "networth"
         ],
         "title": "GoalRunnerDTO"
+      },
+      "GovernmentActionDTO": {
+        "properties": {
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "found",
+              "join",
+              "leave",
+              "contribute",
+              "nominate",
+              "accept_candidate",
+              "accept_vice",
+              "decline_candidate",
+              "decline_vice",
+              "expel",
+              "donate",
+              "propose",
+              "withdraw",
+              "selic"
+            ],
+            "title": "Action"
+          },
+          "party_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Id"
+          },
+          "member_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Member Id"
+          },
+          "vice_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vice Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 70,
+            "title": "Name",
+            "default": ""
+          },
+          "acronym": {
+            "type": "string",
+            "maxLength": 5,
+            "title": "Acronym",
+            "default": ""
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^chart-(?:[1-9]|10)$",
+            "title": "Color",
+            "default": "chart-1"
+          },
+          "promise": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Promise",
+            "default": 3
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Amount",
+            "default": "0"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "COMMON_TAX",
+              "DAY_TRADE_TAX",
+              "FII_TAX",
+              "STOCK_EXEMPTION",
+              "FIXED_TAX_SHIFT",
+              "LCI_TAX",
+              "SECTOR_TAX",
+              "PRODUCT_TARIFF",
+              "PUBLIC_SPENDING"
+            ],
+            "title": "Kind",
+            "default": "COMMON_TAX"
+          },
+          "target": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Target",
+            "default": ""
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000000000.0,
+                "minimum": -1.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Value",
+            "default": "0"
+          },
+          "policy_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "GovernmentActionDTO"
+      },
+      "GovernmentImpactDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "covered": {
+            "type": "boolean",
+            "title": "Covered"
+          },
+          "baseline_price": {
+            "type": "number",
+            "title": "Baseline Price"
+          },
+          "effective_price": {
+            "type": "number",
+            "title": "Effective Price"
+          },
+          "impact": {
+            "type": "number",
+            "title": "Impact"
+          },
+          "product_effect": {
+            "type": "number",
+            "title": "Product Effect"
+          },
+          "monetary_effect": {
+            "type": "number",
+            "title": "Monetary Effect"
+          },
+          "exposures": {
+            "items": {
+              "$ref": "#/components/schemas/ProductExposureDTO"
+            },
+            "type": "array",
+            "title": "Exposures"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "sector",
+          "source",
+          "covered",
+          "baseline_price",
+          "effective_price",
+          "impact",
+          "product_effect",
+          "monetary_effect",
+          "exposures"
+        ],
+        "title": "GovernmentImpactDTO"
+      },
+      "GovernmentPreviewDTO": {
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "format": "date",
+            "title": "As Of"
+          },
+          "horizon_days": {
+            "type": "integer",
+            "title": "Horizon Days"
+          },
+          "earliest_effective_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Earliest Effective On"
+          },
+          "inflation_delta": {
+            "type": "number",
+            "title": "Inflation Delta"
+          },
+          "impacts": {
+            "items": {
+              "$ref": "#/components/schemas/GovernmentImpactDTO"
+            },
+            "type": "array",
+            "title": "Impacts"
+          },
+          "assumptions": {
+            "type": "string",
+            "title": "Assumptions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "as_of",
+          "horizon_days",
+          "earliest_effective_on",
+          "inflation_delta",
+          "impacts",
+          "assumptions"
+        ],
+        "title": "GovernmentPreviewDTO"
+      },
+      "GovernmentRulesDTO-Input": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": false
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "easy",
+              "medium",
+              "hard"
+            ],
+            "title": "Difficulty",
+            "default": "medium"
+          },
+          "ranking": {
+            "type": "string",
+            "enum": [
+              "individual",
+              "parties"
+            ],
+            "title": "Ranking",
+            "default": "individual"
+          },
+          "manual_selic": {
+            "type": "boolean",
+            "title": "Manual Selic",
+            "default": false
+          },
+          "model_version": {
+            "type": "string",
+            "const": "government-v1",
+            "title": "Model Version",
+            "default": "government-v1"
+          },
+          "impeachment_floor": {
+            "type": "number",
+            "maximum": 40.0,
+            "minimum": 5.0,
+            "title": "Impeachment Floor",
+            "default": 25
+          },
+          "impeachment_months": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 2.0,
+            "title": "Impeachment Months",
+            "default": 3
+          },
+          "campaign_scale": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000000.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Campaign Scale",
+            "default": "8000"
+          },
+          "inflation_target": {
+            "type": "number",
+            "maximum": 0.1,
+            "minimum": 0.0,
+            "title": "Inflation Target",
+            "default": 0.03
+          },
+          "initial_treasury": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000000000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Initial Treasury",
+            "default": "1000000000"
+          },
+          "spending_inflation": {
+            "type": "number",
+            "maximum": 0.05,
+            "minimum": 0.0,
+            "title": "Spending Inflation",
+            "default": 0.01
+          },
+          "monetary_inflation": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Monetary Inflation",
+            "default": 0.25
+          },
+          "electorate": {
+            "items": {
+              "$ref": "#/components/schemas/ElectorateDTO"
+            },
+            "type": "array",
+            "maxItems": 12,
+            "minItems": 1,
+            "title": "Electorate"
+          },
+          "companies": {
+            "items": {
+              "$ref": "#/components/schemas/CompanyProfileDTO"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "title": "Companies"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "GovernmentRulesDTO"
+      },
+      "GovernmentRulesDTO-Output": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": false
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "easy",
+              "medium",
+              "hard"
+            ],
+            "title": "Difficulty",
+            "default": "medium"
+          },
+          "ranking": {
+            "type": "string",
+            "enum": [
+              "individual",
+              "parties"
+            ],
+            "title": "Ranking",
+            "default": "individual"
+          },
+          "manual_selic": {
+            "type": "boolean",
+            "title": "Manual Selic",
+            "default": false
+          },
+          "model_version": {
+            "type": "string",
+            "const": "government-v1",
+            "title": "Model Version",
+            "default": "government-v1"
+          },
+          "impeachment_floor": {
+            "type": "number",
+            "maximum": 40.0,
+            "minimum": 5.0,
+            "title": "Impeachment Floor",
+            "default": 25
+          },
+          "impeachment_months": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 2.0,
+            "title": "Impeachment Months",
+            "default": 3
+          },
+          "campaign_scale": {
+            "type": "string",
+            "title": "Campaign Scale",
+            "default": "8000"
+          },
+          "inflation_target": {
+            "type": "number",
+            "maximum": 0.1,
+            "minimum": 0.0,
+            "title": "Inflation Target",
+            "default": 0.03
+          },
+          "initial_treasury": {
+            "type": "string",
+            "title": "Initial Treasury",
+            "default": "1000000000"
+          },
+          "spending_inflation": {
+            "type": "number",
+            "maximum": 0.05,
+            "minimum": 0.0,
+            "title": "Spending Inflation",
+            "default": 0.01
+          },
+          "monetary_inflation": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Monetary Inflation",
+            "default": 0.25
+          },
+          "electorate": {
+            "items": {
+              "$ref": "#/components/schemas/ElectorateDTO"
+            },
+            "type": "array",
+            "maxItems": 12,
+            "minItems": 1,
+            "title": "Electorate"
+          },
+          "companies": {
+            "items": {
+              "$ref": "#/components/schemas/CompanyProfileDTO"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "title": "Companies"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "GovernmentRulesDTO"
+      },
+      "GovernmentStateDTO": {
+        "properties": {
+          "rules": {
+            "$ref": "#/components/schemas/GovernmentRulesDTO-Output"
+          },
+          "initialized_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Initialized On"
+          },
+          "processed_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Processed On"
+          },
+          "parties": {
+            "items": {
+              "$ref": "#/components/schemas/PartyDTO"
+            },
+            "type": "array",
+            "title": "Parties"
+          },
+          "policies": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyDTO"
+            },
+            "type": "array",
+            "title": "Policies"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/ElectionResultDTO"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "term": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pending_winner": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Winner"
+          },
+          "pending_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Year"
+          },
+          "pending_president": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending President"
+          },
+          "pending_vice": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Vice"
+          },
+          "cycle_year": {
+            "type": "integer",
+            "title": "Cycle Year",
+            "default": 0
+          },
+          "finalists": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Finalists"
+          },
+          "terms_won": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Terms Won"
+          },
+          "approval_history": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Approval History"
+          },
+          "poll_history": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Poll History"
+          },
+          "selic_decisions": {
+            "items": {
+              "$ref": "#/components/schemas/SelicDecisionDTO"
+            },
+            "type": "array",
+            "title": "Selic Decisions"
+          },
+          "treasury": {
+            "type": "string",
+            "title": "Treasury"
+          },
+          "reserved_spending": {
+            "type": "string",
+            "title": "Reserved Spending",
+            "default": "0"
+          },
+          "collected_tax": {
+            "type": "string",
+            "title": "Collected Tax",
+            "default": "0"
+          },
+          "log": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Log"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rules",
+          "initialized_on",
+          "processed_on",
+          "treasury"
+        ],
+        "title": "GovernmentStateDTO"
+      },
+      "GovernmentViewDTO": {
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/GovernmentStateDTO"
+          },
+          "today": {
+            "type": "string",
+            "format": "date",
+            "title": "Today"
+          },
+          "election_year": {
+            "type": "integer",
+            "title": "Election Year"
+          },
+          "phase": {
+            "type": "string",
+            "title": "Phase"
+          },
+          "can_govern": {
+            "type": "boolean",
+            "title": "Can Govern"
+          },
+          "trading_frozen": {
+            "type": "boolean",
+            "title": "Trading Frozen"
+          },
+          "users": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Users"
+          },
+          "my_id": {
+            "type": "integer",
+            "title": "My Id"
+          },
+          "impacts": {
+            "items": {
+              "$ref": "#/components/schemas/GovernmentImpactDTO"
+            },
+            "type": "array",
+            "title": "Impacts"
+          },
+          "party_ranking": {
+            "items": {
+              "$ref": "#/components/schemas/PartyRankingDTO"
+            },
+            "type": "array",
+            "title": "Party Ranking"
+          },
+          "president_portfolio": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "President Portfolio"
+          },
+          "president_finances": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PortfolioDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_selic": {
+            "type": "number",
+            "title": "Current Selic"
+          },
+          "current_inflation": {
+            "type": "number",
+            "title": "Current Inflation"
+          },
+          "inflation_delta": {
+            "type": "number",
+            "title": "Inflation Delta"
+          },
+          "selic_delta": {
+            "type": "number",
+            "title": "Selic Delta"
+          },
+          "next_selic_meeting": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Selic Meeting"
+          },
+          "approval_factors": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Approval Factors"
+          },
+          "current_taxes": {
+            "items": {
+              "$ref": "#/components/schemas/CurrentTaxDTO"
+            },
+            "type": "array",
+            "title": "Current Taxes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "state",
+          "today",
+          "election_year",
+          "phase",
+          "can_govern",
+          "trading_frozen",
+          "users",
+          "my_id",
+          "impacts",
+          "party_ranking",
+          "president_portfolio",
+          "current_selic",
+          "current_inflation",
+          "inflation_delta",
+          "selic_delta",
+          "next_selic_meeting",
+          "approval_factors",
+          "current_taxes"
+        ],
+        "title": "GovernmentViewDTO"
       },
       "HighlightsDTO": {
         "properties": {
@@ -7035,6 +8210,18 @@
           "team_naming": {
             "$ref": "#/components/schemas/TeamNaming"
           },
+          "parties": {
+            "items": {
+              "$ref": "#/components/schemas/PartyRankingDTO"
+            },
+            "type": "array",
+            "title": "Parties"
+          },
+          "party_ranking_decides": {
+            "type": "boolean",
+            "title": "Party Ranking Decides",
+            "default": false
+          },
           "players": {
             "items": {
               "$ref": "#/components/schemas/PlayerRankingDTO"
@@ -7104,6 +8291,161 @@
           "goal_steps"
         ],
         "title": "OverviewReportDTO"
+      },
+      "PartyDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "acronym": {
+            "type": "string",
+            "title": "Acronym"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "founder": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Founder"
+          },
+          "members": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Members"
+          },
+          "contributions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Contributions"
+          },
+          "candidate": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate"
+          },
+          "candidate_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Name"
+          },
+          "candidate_accepted": {
+            "type": "boolean",
+            "title": "Candidate Accepted",
+            "default": false
+          },
+          "vice": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vice"
+          },
+          "vice_accepted": {
+            "type": "boolean",
+            "title": "Vice Accepted",
+            "default": false
+          },
+          "promise": {
+            "type": "number",
+            "title": "Promise",
+            "default": 3
+          },
+          "spent": {
+            "type": "string",
+            "title": "Spent",
+            "default": "0"
+          },
+          "support": {
+            "type": "number",
+            "title": "Support",
+            "default": 0
+          },
+          "is_ai": {
+            "type": "boolean",
+            "title": "Is Ai",
+            "default": false
+          },
+          "campaign_active": {
+            "type": "boolean",
+            "title": "Campaign Active",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "acronym",
+          "color",
+          "founder"
+        ],
+        "title": "PartyDTO"
+      },
+      "PartyRankingDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "members": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Members"
+          },
+          "networth": {
+            "type": "string",
+            "title": "Networth"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "name",
+          "members",
+          "networth"
+        ],
+        "title": "PartyRankingDTO"
       },
       "PatrimonialHistoryDTO": {
         "properties": {
@@ -7901,6 +9243,102 @@
         ],
         "title": "PlayerTeamRequest"
       },
+      "PolicyDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "COMMON_TAX",
+              "DAY_TRADE_TAX",
+              "FII_TAX",
+              "STOCK_EXEMPTION",
+              "FIXED_TAX_SHIFT",
+              "LCI_TAX",
+              "SECTOR_TAX",
+              "PRODUCT_TARIFF",
+              "PUBLIC_SPENDING"
+            ],
+            "title": "Kind"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target",
+            "default": ""
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "proposed_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Proposed On"
+          },
+          "author": {
+            "type": "integer",
+            "title": "Author"
+          },
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "approved",
+              "rejected",
+              "withdrawn"
+            ],
+            "title": "Status",
+            "default": "queued"
+          },
+          "voted_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voted On"
+          },
+          "effective_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective On"
+          },
+          "position": {
+            "type": "number",
+            "title": "Position"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "value",
+          "proposed_on",
+          "author",
+          "party_id",
+          "position"
+        ],
+        "title": "PolicyDTO"
+      },
       "PortfolioCorrelationDTO": {
         "properties": {
           "tickers": {
@@ -8362,6 +9800,54 @@
         ],
         "title": "PriceImpactPreviewDTO"
       },
+      "ProductExposureDTO": {
+        "properties": {
+          "product": {
+            "type": "string",
+            "enum": [
+              "STEEL",
+              "OIL",
+              "FOOD",
+              "TECH"
+            ],
+            "title": "Product"
+          },
+          "revenue_share": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Revenue Share"
+          },
+          "imported_cost_share": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Imported Cost Share"
+          },
+          "domestic_competition": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Domestic Competition",
+            "default": 0.3
+          },
+          "pass_through": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Pass Through",
+            "default": 0.4
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "product",
+          "revenue_share",
+          "imported_cost_share"
+        ],
+        "title": "ProductExposureDTO"
+      },
       "RateIndexType": {
         "type": "string",
         "enum": [
@@ -8687,6 +10173,9 @@
             "type": "boolean",
             "title": "Show Maturity Projection",
             "default": true
+          },
+          "government": {
+            "$ref": "#/components/schemas/GovernmentRulesDTO-Output"
           },
           "id": {
             "type": "integer",
@@ -9029,6 +10518,31 @@
         ],
         "title": "SelectSimulationRequest"
       },
+      "SelicDecisionDTO": {
+        "properties": {
+          "on": {
+            "type": "string",
+            "format": "date",
+            "title": "On"
+          },
+          "rate": {
+            "type": "number",
+            "title": "Rate"
+          },
+          "baseline": {
+            "type": "number",
+            "title": "Baseline"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "on",
+          "rate",
+          "baseline"
+        ],
+        "title": "SelicDecisionDTO"
+      },
       "SeriesCoverageDTO": {
         "properties": {
           "kind": {
@@ -9340,6 +10854,9 @@
             "title": "Show Maturity Projection",
             "default": true
           },
+          "government": {
+            "$ref": "#/components/schemas/GovernmentRulesDTO-Output"
+          },
           "id": {
             "type": "integer",
             "title": "Id"
@@ -9509,6 +11026,9 @@
             "type": "boolean",
             "title": "Show Maturity Projection",
             "default": true
+          },
+          "government": {
+            "$ref": "#/components/schemas/GovernmentRulesDTO-Output"
           }
         },
         "additionalProperties": false,
@@ -10494,6 +12014,63 @@
         "title": "TeamRiskDTO",
         "description": "Métricas de risco da equipe: média simples dos membros em cada uma."
       },
+      "TermDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "president": {
+            "type": "integer",
+            "title": "President"
+          },
+          "vice": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vice"
+          },
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          },
+          "approval": {
+            "type": "number",
+            "title": "Approval",
+            "default": 50
+          },
+          "low_months": {
+            "type": "integer",
+            "title": "Low Months",
+            "default": 0
+          },
+          "neutral": {
+            "type": "boolean",
+            "title": "Neutral",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "president",
+          "start",
+          "end"
+        ],
+        "title": "TermDTO"
+      },
       "TickerSuggestionDTO": {
         "properties": {
           "ticker": {
@@ -10807,6 +12384,9 @@
             "type": "boolean",
             "title": "Show Maturity Projection",
             "default": true
+          },
+          "government": {
+            "$ref": "#/components/schemas/GovernmentRulesDTO-Input"
           }
         },
         "type": "object",

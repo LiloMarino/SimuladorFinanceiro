@@ -9,6 +9,9 @@ O lobby é onde você configura os parâmetros da simulação antes de iniciá-l
 
 Esta página explica o que cada campo faz e como eles influenciam a simulação.
 
+Na aba **Expansões** das regras, o host pode ativar [Governo e eleições](governo.md)
+para uma partida de ao menos cinco anos. A participação política de cada jogador é opcional.
+
 
 ![O lobby, com as regras da partida e o convite para a sala](/demo/screens/lobby.png)
 

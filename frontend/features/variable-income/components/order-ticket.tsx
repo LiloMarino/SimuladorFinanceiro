@@ -11,11 +11,11 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
 import { displayDate, displayMoney, parseLocalDate } from "@/shared/lib/utils/display";
-import { INCOME_TAX_RATE, salesMonthName } from "@/shared/lib/income-tax";
-import { displayPercent } from "@/shared/lib/utils/display";
+import { salesMonthName } from "@/shared/lib/income-tax";
 import type { AssetClass, OrderPreview } from "@/types";
 import { useOrderPreview } from "../hooks/queries/useOrderPreview";
 import { useSubmitOrder } from "../hooks/mutations/useSubmitOrder";
+import { useGovernment } from "@/features/government/hooks/queries/useGovernment";
 
 type Action = "buy" | "sell";
 type OrderKind = "market" | "limit";
@@ -48,12 +48,13 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
   const requestMatches = request.action === action && request.quantity === quantity && request.limit_price === limitPrice;
 
   const submit = useSubmitOrder(ticker);
+  const { data: government } = useGovernment();
 
   const selling = action === "sell";
   const maxQuantity = preview?.max_quantity ?? 0;
   const overMax = quantity > maxQuantity;
   const noPosition = selling && requestMatches && preview !== undefined && preview.held === 0;
-  const canSubmit = requestMatches && !error && quantity > 0 && !overMax && !!preview?.price && (kind === "market" || !!limitPrice);
+  const canSubmit = !government?.trading_frozen && requestMatches && !error && quantity > 0 && !overMax && !!preview?.price && (kind === "market" || !!limitPrice);
 
   const quantityHint = selling
     ? preview && preview.reserved > 0
@@ -256,7 +257,6 @@ function TaxEstimate({ preview, assetClass }: { preview: OrderPreview; assetClas
   const taxed = Number(preview.tax) > 0;
   const due = preview.tax_due_date ? displayDate(parseLocalDate(preview.tax_due_date)) : null;
   const month = preview.tax_due_date ? salesMonthName(preview.tax_due_date) : null;
-  const rate = displayPercent(INCOME_TAX_RATE[assetClass], 0);
   const profit = displayMoney(preview.profit ?? 0);
 
   return (
@@ -285,7 +285,7 @@ function TaxEstimate({ preview, assetClass }: { preview: OrderPreview; assetClas
             acima dos {displayMoney(limit)} isentos.{" "}
             {taxed ? (
               <>
-                O lucro de <b className="font-mono text-foreground">{profit}</b> paga {rate}
+                Lucro nesta venda: <b className="font-mono text-foreground">{profit}</b>. O imposto acima considera as regras vigentes e a apuração do mês
                 {due ? `, cobrado em ${due}` : ""}.
               </>
             ) : (
@@ -294,11 +294,11 @@ function TaxEstimate({ preview, assetClass }: { preview: OrderPreview; assetClas
           </>
         ) : taxed ? (
           <>
-            O lucro de <b className="font-mono text-foreground">{profit}</b> paga {rate}
+            Lucro nesta venda: <b className="font-mono text-foreground">{profit}</b>. O imposto acima considera as regras vigentes e a apuração do mês
             {due ? `, cobrado em ${due}` : ""}. FII, ETF, BDR e day trade não têm isenção.
           </>
         ) : (
-          `As vendas de ações do mês ficam em ${displayMoney(after)}, dentro dos ${displayMoney(limit)} isentos: o lucro não paga IR.`
+          "Esta venda não acrescenta IR à apuração do mês pelas regras e compensações atuais."
         )}
       </p>
     </div>

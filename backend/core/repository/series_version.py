@@ -6,6 +6,9 @@ gerados guarda a cópia deles na versão de número igual ao id dela antes de o
 gerado ser trocado, e lê a própria cópia onde ela existe e a comum no resto.
 """
 
+from contextlib import contextmanager
+from contextvars import ContextVar
+
 from sqlalchemy import ColumnElement, and_, exists, or_
 from sqlalchemy.orm import aliased
 
@@ -14,6 +17,19 @@ from backend.core.models.models import EconomicIndicatorHistory, StockPriceHisto
 from backend.core.runtime.simulation_manager import SimulationManager
 
 COMMON_VERSION = 0
+_reading_simulation: ContextVar[int | None] = ContextVar(
+    "reading_simulation", default=None
+)
+
+
+@contextmanager
+def using_simulation(simulation_id: int):
+    token = _reading_simulation.set(simulation_id)
+    try:
+        yield
+    finally:
+        _reading_simulation.reset(token)
+
 
 type SeriesModel = type[StockPriceHistory] | type[EconomicIndicatorHistory]
 
@@ -22,6 +38,9 @@ def reading_version(simulation_id: int | None = None) -> int:
     """A versão da partida pedida, senão a da partida ativa, senão a comum."""
     if simulation_id is not None:
         return simulation_id
+    override = _reading_simulation.get()
+    if override is not None:
+        return override
     try:
         return SimulationManager.get_active_simulation_id()
     except NoActiveSimulationError:

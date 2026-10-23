@@ -7,7 +7,10 @@ from datetime import date
 from decimal import Decimal
 from typing import Literal
 
+from pydantic import Field
+
 from backend.core.dto.base import BaseDTO
+from backend.core.dto.government import PartyRankingDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.sector import SectorAllocationDTO
 from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
@@ -128,6 +131,8 @@ class TeamRankingDTO(BaseDTO):
 
 
 class OverviewReportDTO(TeamReportDTO):
+    parties: list[PartyRankingDTO] = Field(default_factory=list)
+    party_ranking_decides: bool = False
     # Ordenado pelo ranking: o primeiro é o melhor
     players: list[PlayerRankingDTO]
     # Uma entrada por equipe, ordenada pelo ranking; vazio fora do modo em equipes

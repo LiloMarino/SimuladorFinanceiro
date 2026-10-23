@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
+from backend.core.dto.government import GovernmentRulesDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationSummaryDTO
 from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.core.exceptions.http_exceptions import ConflictError
@@ -28,6 +29,7 @@ class SimulationRepository:
         now = datetime.now(UTC)
         simulation = Simulations(
             name=settings.name,
+            government_rules=settings.government.model_dump(mode="json"),
             start_date=settings.start_date,
             end_date=settings.end_date,
             starting_cash=settings.starting_cash,
@@ -159,6 +161,7 @@ class SimulationRepository:
         return SimulationSummaryDTO(
             id=simulation.id,
             name=simulation.name,
+            government=GovernmentRulesDTO.model_validate(simulation.government_rules),
             start_date=simulation.start_date,
             end_date=simulation.end_date,
             starting_cash=simulation.starting_cash,

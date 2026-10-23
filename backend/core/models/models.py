@@ -261,6 +261,9 @@ class Simulations(Base):
         primary_key=True,
     )
     name: Mapped[str] = mapped_column(Text, nullable=False)
+    government_rules: Mapped[dict] = mapped_column(
+        JSONB, nullable=False, server_default=text("'{}'::jsonb")
+    )
     start_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     end_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     starting_cash: Mapped[decimal.Decimal] = mapped_column(
@@ -335,6 +338,34 @@ class Simulations(Base):
     simulation_players: Mapped[list["SimulationPlayers"]] = relationship(
         "SimulationPlayers", back_populates="simulation"
     )
+
+
+class GovernmentEvent(Base):
+    __tablename__ = "government_event"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            name="government_event_simulation_id_fkey",
+        ),
+        UniqueConstraint(
+            "simulation_id", "revision", name="government_event_revision_key"
+        ),
+        UniqueConstraint(
+            "simulation_id", "request_key", name="government_event_request_key"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    kind: Mapped[str] = mapped_column(Text, nullable=False)
+    actor: Mapped[int | None] = mapped_column(Integer)
+    # Resultado completo e imutável da transição: inclui votos, decisões e versão das regras.
+    outcome: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    request_key: Mapped[str | None] = mapped_column(Text)
 
 
 class Users(Base):
@@ -468,6 +499,7 @@ class EventCashflow(Base):
             "EXPENSE",
             "UNEXPECTED_EXPENSE",
             "OVERDRAFT_INTEREST",
+            "CAMPAIGN",
             name="cashflow_event_type",
         ),
         nullable=False,
@@ -593,6 +625,9 @@ class EventFixedIncome(Base):
         Enum("BUY", "REDEEM", name="fixed_income_event_type"), nullable=False
     )
     amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    withheld_tax: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
     event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False

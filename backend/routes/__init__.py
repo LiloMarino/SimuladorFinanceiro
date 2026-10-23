@@ -18,6 +18,7 @@ from backend.routes.error import (
     ValidationErrorResponse,
 )
 from backend.routes.frontend import register_frontend_routes
+from backend.routes.government import government_router
 from backend.routes.importer import import_router
 from backend.routes.operation import operation_router
 from backend.routes.portfolio import portfolio_router
@@ -49,6 +50,7 @@ def register_routes(app: FastAPI):
     app.include_router(tunnel_router, responses=ERROR_RESPONSES)
     app.include_router(version_router, responses=ERROR_RESPONSES)
     app.include_router(debug_router, responses=ERROR_RESPONSES)
+    app.include_router(government_router, responses=ERROR_RESPONSES)
 
     # SPA FRONTEND (sempre por último para pegar todas as rotas não mapeadas)
     register_frontend_routes(app)
