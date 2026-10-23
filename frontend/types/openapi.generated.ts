@@ -1476,6 +1476,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter configurações da simulação
+         * @description Retorna as configurações da simulação atual e indica se o usuário é o host.
+         */
+        get: operations["get_simulation_settings_api_simulation_settings_get"];
+        /**
+         * Atualizar configurações da simulação
+         * @description Atualiza os parâmetros da simulação (datas, capital, contribuição mensal). Recusa com 409 enquanto uma partida salva está selecionada: continuar usa as regras gravadas nela. Apenas o host pode executar.
+         */
+        put: operations["update_simulation_settings_api_simulation_settings_put"];
+        post?: never;
+        /**
+         * Restaurar configurações da simulação
+         * @description Apaga as regras lembradas da próxima partida e volta aos padrões do config.toml. Recusa com 409 enquanto uma partida salva está selecionada. Apenas o host pode executar.
+         */
+        delete: operations["restore_simulation_settings_api_simulation_settings_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/{simulation_id}": {
         parameters: {
             query?: never;
@@ -1814,30 +1842,6 @@ export interface paths {
          * @description Quem chegou depois do início escolhe uma cor livre (e a equipe, em partida em equipes) e passa a jogar: recebe o depósito inicial no dia corrente e entra nas estatísticas e no ranking. Se a cor já tem dono, a resposta é 409.
          */
         post: operations["join_match_api_simulation_join_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/simulation/settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Obter configurações da simulação
-         * @description Retorna as configurações da simulação atual e indica se o usuário é o host.
-         */
-        get: operations["get_simulation_settings_api_simulation_settings_get"];
-        /**
-         * Atualizar configurações da simulação
-         * @description Atualiza os parâmetros da simulação (datas, capital, contribuição mensal). Recusa com 409 enquanto uma partida salva está selecionada: continuar usa as regras gravadas nela. Apenas o host pode executar.
-         */
-        put: operations["update_simulation_settings_api_simulation_settings_put"];
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -8617,6 +8621,124 @@ export interface operations {
             };
         };
     };
+    get_simulation_settings_api_simulation_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationSettingsResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    update_simulation_settings_api_simulation_settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationSettingsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    restore_simulation_settings_api_simulation_settings_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationSettingsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     delete_simulation_api_simulation__simulation_id__delete: {
         parameters: {
             query?: never;
@@ -9301,86 +9423,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ValidationErrorResponse"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    get_simulation_settings_api_simulation_settings_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SimulationSettingsResponse"];
-                };
-            };
-            /** @description Unprocessable Content */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ValidationErrorResponse"];
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    update_simulation_settings_api_simulation_settings_put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateSettingsRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SimulationSettingsDTO"];
-                };
             };
             /** @description Unprocessable Content */
             422: {

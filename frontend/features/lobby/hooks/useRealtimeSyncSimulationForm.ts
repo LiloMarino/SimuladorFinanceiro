@@ -6,6 +6,7 @@ import type { CreateSimulationRequest, SimulationSettingsData } from "@/types";
 import type { SimulationFormValues } from "../components/lobby-match";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
 import { toFormValues, toSettingsBody } from "../lib/simulation-form";
+import { useRestoreSimulationSettings } from "./mutations/useRestoreSimulationSettings";
 import { useUpdateSimulationSettings } from "./mutations/useUpdateSimulationSettings";
 
 export function useRealtimeSyncSimulationForm({
@@ -33,14 +34,27 @@ export function useRealtimeSyncSimulationForm({
     mutateAsync: updateSettings,
     isPending: saving,
     error: saveError,
+    reset: resetUpdate,
   } = useUpdateSimulationSettings();
+  const {
+    mutateAsync: requestRestoreDefaults,
+    isPending: restoring,
+    error: restoreError,
+  } = useRestoreSimulationSettings();
+
+  /** Aplica a confirmação do servidor sem deixá-la voltar pelo autosave. */
+  const applySettings = (settings: SimulationSettingsData) => {
+    const formValues = toFormValues(settings);
+    lastSentRef.current = toSettingsBody(formValues);
+    form.reset(formValues);
+  };
 
   /** 🔹 Realtime → Form */
   useRealtime(
     "simulation_settings_update",
     (data) => {
       void lock.runExclusive(async () => {
-        form.reset(toFormValues(data));
+        applySettings(data);
       });
     },
     !isHost,
@@ -70,5 +84,22 @@ export function useRealtimeSyncSimulationForm({
     });
   }, [debouncedValues, isHost, locked, updateSettings, form.formState.isValid, lock]);
 
-  return { savedAt, saving, saveError };
+  const restoreDefaults = () =>
+    lock.runExclusive(async () => {
+      try {
+        const settings = await requestRestoreDefaults();
+        resetUpdate();
+        applySettings(settings);
+        setSavedAt(Date.now());
+      } catch {
+        // A mutação guarda o erro para o rodapé do painel.
+      }
+    });
+
+  return {
+    savedAt,
+    saving: saving || restoring,
+    saveError: saveError ?? restoreError,
+    restoreDefaults,
+  };
 }

@@ -4308,6 +4308,153 @@
         ]
       }
     },
+    "/api/simulation/settings": {
+      "get": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Obter configurações da simulação",
+        "description": "Retorna as configurações da simulação atual e indica se o usuário é o host.",
+        "operationId": "get_simulation_settings_api_simulation_settings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationSettingsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Atualizar configurações da simulação",
+        "description": "Atualiza os parâmetros da simulação (datas, capital, contribuição mensal). Recusa com 409 enquanto uma partida salva está selecionada: continuar usa as regras gravadas nela. Apenas o host pode executar.",
+        "operationId": "update_simulation_settings_api_simulation_settings_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationSettingsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Restaurar configurações da simulação",
+        "description": "Apaga as regras lembradas da próxima partida e volta aos padrões do config.toml. Recusa com 409 enquanto uma partida salva está selecionada. Apenas o host pode executar.",
+        "operationId": "restore_simulation_settings_api_simulation_settings_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationSettingsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/{simulation_id}": {
       "delete": {
         "tags": [
@@ -5255,108 +5402,6 @@
         "responses": {
           "204": {
             "description": "Successful Response"
-          },
-          "422": {
-            "description": "Unprocessable Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
-      }
-    },
-    "/api/simulation/settings": {
-      "get": {
-        "tags": [
-          "Simulation"
-        ],
-        "summary": "Obter configurações da simulação",
-        "description": "Retorna as configurações da simulação atual e indica se o usuário é o host.",
-        "operationId": "get_simulation_settings_api_simulation_settings_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SimulationSettingsResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "Simulation"
-        ],
-        "summary": "Atualizar configurações da simulação",
-        "description": "Atualiza os parâmetros da simulação (datas, capital, contribuição mensal). Recusa com 409 enquanto uma partida salva está selecionada: continuar usa as regras gravadas nela. Apenas o host pode executar.",
-        "operationId": "update_simulation_settings_api_simulation_settings_put",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateSettingsRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SimulationSettingsDTO"
-                }
-              }
-            }
           },
           "422": {
             "description": "Unprocessable Content",
@@ -12090,10 +12135,12 @@
           },
           "price_impact_k": {
             "type": "number",
+            "minimum": 0.0,
             "title": "Price Impact K"
           },
           "price_impact_decay_days": {
             "type": "integer",
+            "minimum": 1.0,
             "title": "Price Impact Decay Days"
           },
           "victory_criterion": {
@@ -12116,6 +12163,8 @@
           },
           "unexpected_per_year": {
             "type": "integer",
+            "maximum": 52.0,
+            "minimum": 0.0,
             "title": "Unexpected Per Year"
           },
           "withdrawal_rate": {
@@ -12995,10 +13044,12 @@
           },
           "price_impact_k": {
             "type": "number",
+            "minimum": 0.0,
             "title": "Price Impact K"
           },
           "price_impact_decay_days": {
             "type": "integer",
+            "minimum": 1.0,
             "title": "Price Impact Decay Days"
           },
           "victory_criterion": {
@@ -13021,6 +13072,8 @@
           },
           "unexpected_per_year": {
             "type": "integer",
+            "maximum": 52.0,
+            "minimum": 0.0,
             "title": "Unexpected Per Year"
           },
           "withdrawal_rate": {
@@ -13166,10 +13219,12 @@
           },
           "price_impact_k": {
             "type": "number",
+            "minimum": 0.0,
             "title": "Price Impact K"
           },
           "price_impact_decay_days": {
             "type": "integer",
+            "minimum": 1.0,
             "title": "Price Impact Decay Days"
           },
           "victory_criterion": {
@@ -13192,6 +13247,8 @@
           },
           "unexpected_per_year": {
             "type": "integer",
+            "maximum": 52.0,
+            "minimum": 0.0,
             "title": "Unexpected Per Year"
           },
           "withdrawal_rate": {

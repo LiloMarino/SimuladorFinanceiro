@@ -4,6 +4,9 @@ from backend.core.repository.economic import EconomicRepository
 from backend.core.repository.event import EventRepository
 from backend.core.repository.fixed_income import FixedIncomeRepository
 from backend.core.repository.generated_future import GeneratedFutureRepository
+from backend.core.repository.last_simulation_settings import (
+    LastSimulationSettingsRepository,
+)
 from backend.core.repository.portfolio import PortfolioRepository
 from backend.core.repository.settings import SettingsRepository
 from backend.core.repository.simulation import SimulationRepository
@@ -27,5 +30,6 @@ settings = SettingsRepository()
 simulation = SimulationRepository()
 simulation_player = SimulationPlayerRepository()
 generated_future = GeneratedFutureRepository()
+last_simulation_settings = LastSimulationSettingsRepository()
 achievements = AchievementsRepository()
 strategy = StrategyRepository()

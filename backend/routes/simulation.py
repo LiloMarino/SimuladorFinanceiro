@@ -268,6 +268,24 @@ def clear_selection(_: HostVerified):
 
 
 @simulation_router.delete(
+    "/settings",
+    response_model=SimulationSettingsDTO,
+    summary="Restaurar configurações da simulação",
+    description="Apaga as regras lembradas da próxima partida e volta aos padrões do config.toml. Recusa com 409 enquanto uma partida salva está selecionada. Apenas o host pode executar.",
+)
+def restore_simulation_settings(_: HostVerified):
+    """Volta a sala para as regras de fábrica da próxima partida."""
+    if SettingsManager.get_selected_simulation_id() is not None:
+        raise ConflictError(
+            "As regras de uma partida salva não mudam. Remova a seleção para restaurar as de uma nova partida."
+        )
+
+    settings = SettingsManager.restore_defaults()
+    notify("simulation_settings_update", settings.to_json())
+    return settings
+
+
+@simulation_router.delete(
     "/{simulation_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Excluir simulação salva",

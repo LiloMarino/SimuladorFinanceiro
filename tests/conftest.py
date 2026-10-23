@@ -172,6 +172,8 @@ def team_room(monkeypatch: pytest.MonkeyPatch) -> Join:
         SettingsManager, "_settings", simulation_settings(PlayerGrouping.TEAMS)
     )
     monkeypatch.setattr(SettingsManager, "_selected_simulation_id", None)
+    # Equipes exercitam as regras em memória; a persistência tem cobertura própria.
+    monkeypatch.setattr(repository.last_simulation_settings, "save", lambda _: None)
     monkeypatch.setattr(
         RealtimeBrokerManager, "get_broker", lambda: _SilentRealtimeBroker()
     )

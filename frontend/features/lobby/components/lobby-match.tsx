@@ -483,6 +483,7 @@ export function LobbyMatch({
         coverageCheck={coverageCheck}
         exampleTicker={exampleTicker}
         saveStatus={saveStatus}
+        onRestoreDefaults={() => void saveStatus.restoreDefaults()}
       />
       {/* Regras da partida salva: as gravadas nela, só leitura */}
       <RulesSheet

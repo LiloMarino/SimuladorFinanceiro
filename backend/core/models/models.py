@@ -140,6 +140,19 @@ class GeneratedFuture(Base):
     real_advanced_until: Mapped[datetime.date | None] = mapped_column(Date)
 
 
+class LastSimulationSettings(Base):
+    """As regras da próxima partida, compartilhadas pelo servidor do host."""
+
+    __tablename__ = "last_simulation_settings"
+    __table_args__ = (
+        CheckConstraint("id = 1", name="last_simulation_settings_single_row"),
+        PrimaryKeyConstraint("id", name="last_simulation_settings_pkey"),
+    )
+
+    id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    settings: Mapped[dict] = mapped_column(JSONB, nullable=False)
+
+
 class Sectors(Base):
     __tablename__ = "sectors"
     __table_args__ = (

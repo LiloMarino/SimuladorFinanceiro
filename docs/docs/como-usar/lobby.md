@@ -76,7 +76,7 @@ Essas ações incluem:
 
 ## Campos de Configuração
 
-As regras ficam na janela **Regras da partida**, aberta pelo botão **Editar regras** (para quem não é host, **Ver regras**). Os campos são:
+As regras ficam na janela **Regras da partida**, aberta pelo botão **Editar regras** (para quem não é host, **Ver regras**). O lobby lembra as últimas regras usadas: ao fechar e abrir o app, a próxima partida nasce com elas (o nome é gerado de novo). O botão **Restaurar padrões**, no rodapé da janela, esquece as lembradas e volta aos valores de fábrica. Os campos são:
 
 ### Início
 

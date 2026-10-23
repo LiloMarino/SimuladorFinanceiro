@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
-import { CircleCheck, Flag, Info, Shield, Swords, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import { CircleCheck, Flag, Info, RefreshCw, Shield, Swords, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -26,7 +26,6 @@ import {
   SheetTitle,
 } from "@/shared/components/ui/sheet";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import type ApiError from "@/shared/lib/models/ApiError";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney, formatPositiveInteger } from "@/shared/lib/utils/format";
 import { displayDecimal, toCentsString } from "@/shared/lib/utils/display";
@@ -91,7 +90,8 @@ type RulesSheetProps = {
   coverageCheck: CoverageCheck;
   /** Ativo citado no exemplo do impacto; vazio quando a base não tem ação */
   exampleTicker: string | undefined;
-  saveStatus: { savedAt: number | null; saving: boolean; saveError: ApiError | null };
+  saveStatus: { savedAt: number | null; saving: boolean; saveError: Error | null };
+  onRestoreDefaults?: () => void;
   /** Regras gravadas numa partida salva: valem como estão, ninguém edita */
   locked?: boolean;
 };
@@ -106,6 +106,7 @@ export function RulesSheet({
   coverageCheck,
   exampleTicker,
   saveStatus,
+  onRestoreDefaults,
   locked = false,
 }: RulesSheetProps) {
   const [startDate, impactEnabled, impactK, impactT, grouping, gameType, startingCash, goalNetWorth] = useWatch({
@@ -511,6 +512,12 @@ export function RulesSheet({
             invalidFields={Object.keys(form.formState.errors).length}
             {...saveStatus}
           />
+          {isHost && !locked && onRestoreDefaults && (
+            <Button variant="outline" disabled={saveStatus.saving} onClick={onRestoreDefaults}>
+              <RefreshCw />
+              Restaurar padrões
+            </Button>
+          )}
           <SheetClose render={<Button variant="outline" />}>Fechar</SheetClose>
         </SheetFooter>
       </SheetContent>
