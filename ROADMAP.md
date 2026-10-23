@@ -98,7 +98,6 @@
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
-| [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
@@ -109,7 +108,7 @@
 | [**F126**](#f126) | Janela "Como jogar" | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (15 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (16 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -128,6 +127,7 @@
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | — | ✅ |
 | **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | [F108](#f108) | ✅ |
+| [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
 
 </details>
 
@@ -155,7 +155,6 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
-| [**F118**](#f118) | Lembrar a última configuração da partida | — | 0 | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 0 | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 0 | 🔍 |
@@ -275,7 +274,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/35 concluídas
+> **Progresso:** 1/35 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -306,7 +305,6 @@
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
-| [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
@@ -314,6 +312,14 @@
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
+
+</details>
 
 ---
 
@@ -339,7 +345,7 @@
 | **F110** | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F113** | Classe de ativo cripto com quantidade fracionária | N37 | D3 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F118** | Lembrar a última configuração da partida | N30 | D9 | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F118** | Lembrar a última configuração da partida | N30 | D9 | — | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F122** | Novas conquistas para as features recentes e antigas | N22 | D1 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F124** | Voltar o quadrado da marca no cabeçalho da sala | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F126** | Janela "Como jogar" | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
