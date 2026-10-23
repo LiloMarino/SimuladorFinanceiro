@@ -88,7 +88,6 @@
 | [**F91**](#f91) | Caixa de entrada e resumo do mês | — | 💤 |
 | [**F92**](#f92) | Noticiário da partida | — | 💤 |
 | [**F93**](#f93) | Rumores antecipados | — | 🔍 |
-| [**F94**](#f94) | Crédito | — | ⏳ |
 | [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 🔍 |
 | [**F96**](#f96) | Dicas de análise técnica | — | 💤 |
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
@@ -117,7 +116,7 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -138,6 +137,7 @@
 | **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | [F7](#f7), [F8](#f8), [F108](#f108) | ✅ |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
+| [**F94**](#f94) | Crédito | — | ✅ |
 | [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
 
 </details>
@@ -156,7 +156,6 @@
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F89**](#f89) | Presets de partida | — | 1 | ⏳ |
-| [**F94**](#f94) | Crédito | — | 1 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
@@ -300,7 +299,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/41 concluídas
+> **Progresso:** 1/41 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -321,7 +320,6 @@
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
 | [**F90**](#f90) | Cenários | [F89](#f89) | 🔍 |
-| [**F94**](#f94) | Crédito | — | ⏳ |
 | [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F106](#f106) | 🔍 |
 | [**F101**](#f101) | Carteira separada do jogador | — | 💤 |
@@ -346,6 +344,14 @@
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F94**](#f94) | Crédito | — | ✅ |
+
+</details>
+
 ---
 
 ## 1. Atende necessidade
@@ -368,7 +374,7 @@
 | **F89** | Presets de partida | N30 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F91** | Caixa de entrada e resumo do mês | N32 | — | M15 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F92** | Noticiário da partida | N31 | D7 | M15 | [F91](#f91) | Médio | Baixo | Alto | Bom | 💤 Registrado, sem prioridade |
-| **F94** | Crédito | N33 | D1 | — | — | Alto | Médio | Alto | Bom | ⏳ Pendente |
+| **F94** | Crédito | N33 | D1 | — | — | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F96** | Dicas de análise técnica | N19 | — | M11 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F101** | Carteira separada do jogador | N23 | D9 | — | — | Alto | Alto | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F7** | Spike: estratégia Python escrita pelo usuário | N4 | D5, D16 | M4 | — | Médio | Médio | Alto | Excelente | ✅ Concluído |
