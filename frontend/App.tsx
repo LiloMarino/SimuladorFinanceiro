@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import MainLayout from "@/layouts/main-layout";
 import { PlainLayout } from "@/layouts/plain-layout";
-import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge, Flag, Medal, Landmark } from "lucide-react";
+import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge, Flag, Medal, Banknote } from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
 import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
@@ -41,7 +41,7 @@ const navItems: NavItem[] = [
   { key: "fixed-income", label: "Renda fixa", endpoint: "/fixed-income", icon: Coins, group: "Mercado" },
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet, group: "Você" },
   { key: "goal", label: "Meta", endpoint: "/goal", icon: Flag, group: "Você", goalOnly: true },
-  { key: "credit", label: "Crédito", endpoint: "/credit", icon: Landmark, group: "Você", creditAlert: true },
+  { key: "credit", label: "Crédito", endpoint: "/credit", icon: Banknote, group: "Você", creditAlert: true },
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: Trophy, group: "Você" },
   { key: "achievements", label: "Conquistas", endpoint: "/achievements", icon: Medal, group: "Você", achievementTally: true },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },

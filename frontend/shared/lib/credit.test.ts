@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { displaySpread, displayWholePercent, gradeTone, isDowngrade, monthlyEquivalent } from "./credit";
+import { displaySelicSpread, displaySpread, displayWholePercent, gradeTone, isDowngrade, monthlyEquivalent } from "./credit";
 
 describe("monthlyEquivalent", () => {
   it("converte 9,25% ao ano em cerca de 0,74% ao mês", () => {
@@ -15,6 +15,13 @@ describe("displaySpread", () => {
   it("escreve o spread em pontos", () => {
     expect(displaySpread("0.05")).toBe("+5");
     expect(displaySpread("0.065")).toBe("+6,5");
+  });
+});
+
+describe("displaySelicSpread", () => {
+  it("escreve o spread somado à SELIC, com espaço em volta do +", () => {
+    expect(displaySelicSpread("0.05")).toBe("SELIC + 5");
+    expect(displaySelicSpread("0.065")).toBe("SELIC + 6,5");
   });
 });
 

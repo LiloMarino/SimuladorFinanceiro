@@ -32,7 +32,7 @@ export function CreditSummary({ overview }: CreditSummaryProps) {
             label="Dívida"
             value={hasDebt ? displaySignedMoney(-Number(overview.debt)) : displayMoney(0)}
             tone={hasDebt ? "destructive" : "default"}
-            note={hasDebt ? pluralLoans(overview.open_loans) : "Nenhum empréstimo aberto"}
+            note={hasDebt ? pluralLoans(overview.open_loans) : "Nenhum empréstimo"}
           />
 
           {/* Patrimônio líquido */}

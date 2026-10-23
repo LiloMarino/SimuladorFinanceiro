@@ -1,5 +1,5 @@
 import { useDeferredValue, useState } from "react";
-import { CircleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -161,7 +161,7 @@ export function PrepayDialog({ loan, open, onOpenChange, initialChoice, initialA
                 </div>
                 {missingCash > 0 && (
                   <Alert variant="destructive">
-                    <CircleAlert />
+                    <TriangleAlert />
                     <AlertTitle>Falta {displayMoney(missingCash)} no caixa</AlertTitle>
                     <AlertDescription>
                       Você tem {displayMoney(cash)}. Venda algo antes ou amortize uma parte agora.

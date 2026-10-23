@@ -95,7 +95,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                     {item.goalOnly && ownGoal && <SidebarMenuBadge>{displayGoalPercent(ownGoal.fraction)}</SidebarMenuBadge>}
                     {item.creditAlert && portfolio?.credit_alert && (
                       <SidebarMenuBadge>
-                        <span aria-label="Parcela de crédito pedindo atenção" className="size-2 rounded-full bg-destructive" />
+                        <span aria-label="Parcela de crédito pedindo atenção" className="size-2 rounded-full bg-destructive ring-2 ring-sidebar" />
                       </SidebarMenuBadge>
                     )}
                     {item.strategyStatus && myStrategy && (

@@ -1,8 +1,8 @@
 import { MetricLabel } from "@/shared/components/metric-hint";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Progress } from "@/shared/components/ui/progress";
-import { displaySpread, displayWholePercent } from "@/shared/lib/credit";
-import { LEVERAGE, RISK_RATING, VOLATILITY } from "@/shared/lib/credit-metrics";
+import { displaySelicSpread, displaySpread, displayWholePercent } from "@/shared/lib/credit";
+import { LATE_PAYMENTS, LEVERAGE, RISK_RATING, VOLATILITY } from "@/shared/lib/credit-metrics";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth, displayPercent } from "@/shared/lib/utils/display";
 import type { CreditLadderTier, CreditRating } from "@/types";
@@ -17,7 +17,7 @@ export function RiskRatingCard({ rating }: RiskRatingCardProps) {
   const current = rating.ladder.find((tier) => tier.grade === rating.grade);
   const subtitle =
     current && current.spread !== null
-      ? `SELIC ${displaySpread(current.spread)} ao ano e dívida até ${displayWholePercent(current.debt_limit)} do patrimônio`
+      ? `${displaySelicSpread(current.spread)} ao ano e dívida até ${displayWholePercent(current.debt_limit)} do patrimônio`
       : "Sem crédito novo nesta faixa";
 
   const factors = [
@@ -37,7 +37,7 @@ export function RiskRatingCard({ rating }: RiskRatingCardProps) {
     },
     {
       key: "payments",
-      name: "Pagamentos em dia",
+      name: <MetricLabel metric={LATE_PAYMENTS} />,
       value: pluralDelays(rating.payments.late_installments),
       part: rating.payments,
       description: "Cada parcela atrasada em 12 meses tira 10.",

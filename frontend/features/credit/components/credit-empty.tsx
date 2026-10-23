@@ -1,4 +1,4 @@
-import { Landmark } from "lucide-react";
+import { Lightbulb } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
@@ -20,7 +20,7 @@ export function CreditEmpty({ overview, onSimulate }: CreditEmptyProps) {
         <Empty variant="dashed">
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <Landmark />
+              <Lightbulb />
             </EmptyMedia>
             <EmptyTitle>Você ainda não pegou crédito</EmptyTitle>
             <EmptyDescription>

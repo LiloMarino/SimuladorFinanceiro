@@ -8,7 +8,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { displaySpread, displayWholePercent, gradeTone, monthlyEquivalent } from "@/shared/lib/credit";
+import { displaySelicSpread, displayWholePercent, gradeTone, monthlyEquivalent } from "@/shared/lib/credit";
 import { PRICE_TABLE, SELIC_RATE, SPREAD } from "@/shared/lib/credit-metrics";
 import { cn, normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
@@ -77,7 +77,7 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
           <CardDescription>O juro fica travado na assinatura.</CardDescription>
         </div>
         <Badge variant={gradeTone(overview.rating.grade)}>
-          Nota {overview.rating.grade} · SELIC {displaySpread(spread)}
+          Nota {overview.rating.grade} · {displaySelicSpread(spread)}
         </Badge>
       </CardHeader>
 
@@ -184,10 +184,11 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
                   "Menos de 12 meses de histórico"
                 ) : (
                   <>
-                    Sua carteira rendeu em 12 meses{" "}
+                    Sua carteira rendeu{" "}
                     <b className={cn("font-mono", Number(portfolioReturn) >= annualRate ? "text-success" : "text-destructive")}>
                       {displayPercent(portfolioReturn, 1)}
-                    </b>
+                    </b>{" "}
+                    em 12 meses
                   </>
                 )
               }

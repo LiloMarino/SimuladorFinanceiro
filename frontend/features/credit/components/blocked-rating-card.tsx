@@ -1,4 +1,4 @@
-import { Info } from "lucide-react";
+import { Lightbulb } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -44,7 +44,7 @@ export function BlockedRatingCard({ overview, onPayOverdue }: BlockedRatingCardP
 
           {recover && (
             <Alert variant="info" className="has-[>svg]:grid-cols-[auto_1fr_auto]">
-              <Info />
+              <Lightbulb />
               <AlertTitle>
                 Para voltar a ter crédito ({recover.target_grade}
                 {recoverTier ? `, ${recoverTier.min_points} pontos` : ""})

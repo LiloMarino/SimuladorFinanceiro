@@ -23,6 +23,16 @@ export const VOLATILITY: MetricInfo = {
   format: (value) => displayPercent(value, 1),
 };
 
+export const LATE_PAYMENTS: MetricInfo = {
+  label: "Pagamentos em dia",
+  description: "Parcelas pagas no prazo",
+  definition: "Conta as parcelas que foram pagas depois do vencimento nos últimos 12 meses.",
+  example: "Ex.: 1 parcela atrasada tira 10 dos 30 pontos desta parte; 3 atrasos zeram os 30.",
+  reading:
+    "Quanto menos atrasos, melhor: sem nenhum, você mantém os 30 pontos. Parcela atrasada derruba a nota na hora e pesa por 12 meses.",
+  format: (value) => String(value),
+};
+
 export const SPREAD: MetricInfo = {
   label: "Spread da nota",
   description: "O que o banco soma à SELIC para você",

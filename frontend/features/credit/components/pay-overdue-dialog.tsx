@@ -1,4 +1,4 @@
-import { CircleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -71,14 +71,14 @@ export function PayOverdueDialog({ loan, rating, cash, open, onOpenChange }: Pay
 
             {!covered && (
               <Alert variant="warning">
-                <CircleAlert />
+                <TriangleAlert />
                 <AlertTitle>Falta {displayMoney(total - Number(cash))} no caixa</AlertTitle>
                 <AlertDescription>Venda algo antes de pagar.</AlertDescription>
               </Alert>
             )}
 
             <Alert variant="destructive">
-              <CircleAlert />
+              <TriangleAlert />
               <AlertTitle>
                 {gradeFell ? `A nota já caiu de ${rating.previous_grade} para ${rating.grade}` : "O atraso pesa na nota"}
               </AlertTitle>

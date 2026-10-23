@@ -36,6 +36,12 @@ export function displaySpread(spread: string | number): string {
   return `+${points.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`;
 }
 
+/** Spread somado à SELIC, com espaço em volta do "+" ("0.05" → "SELIC + 5"). */
+export function displaySelicSpread(spread: string | number): string {
+  const points = Number(spread) * 100;
+  return `SELIC + ${points.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`;
+}
+
 /** Fração inteira em percentual sem casas ("0.6" → "60%"). */
 export function displayWholePercent(fraction: string | number): string {
   return `${Math.round(Number(fraction) * 100)}%`;

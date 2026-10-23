@@ -1,8 +1,8 @@
-import { Activity, CalendarCheck, HandCoins } from "lucide-react";
+import { Lightbulb } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { displaySpread, displayWholePercent } from "@/shared/lib/credit";
+import { displaySelicSpread, displayWholePercent } from "@/shared/lib/credit";
 import { displayMoneyCompact, displayPercent } from "@/shared/lib/utils/display";
 import type { CreditOverview, CreditSuggestion } from "@/types";
 
@@ -34,7 +34,7 @@ export function RatingSuggestionsCard({ overview, onAmortize }: RatingSuggestion
             const tier = tierOf(suggestion);
             const reach =
               tier && tier.spread !== null
-                ? `os próximos saem a SELIC ${displaySpread(tier.spread)} e o limite vai a ${displayWholePercent(tier.debt_limit)}`
+                ? `os próximos saem a ${displaySelicSpread(tier.spread)} e o limite vai a ${displayWholePercent(tier.debt_limit)}`
                 : null;
 
             if (suggestion.kind === "PAYOFF" || suggestion.kind === "RECOVER") {
@@ -42,7 +42,7 @@ export function RatingSuggestionsCard({ overview, onAmortize }: RatingSuggestion
               return (
                 <SuggestionRow
                   key={suggestion.kind}
-                  icon={<HandCoins />}
+                  icon={<Lightbulb />}
                   title={`Quitar ${displayMoneyCompact(amount)}`}
                   action={
                     <Button variant="outline" size="xs" onClick={() => onAmortize(amount)}>
@@ -58,14 +58,14 @@ export function RatingSuggestionsCard({ overview, onAmortize }: RatingSuggestion
             }
             if (suggestion.kind === "VOLATILITY") {
               return (
-                <SuggestionRow key={suggestion.kind} icon={<Activity />} title="Carteira mais calma">
+                <SuggestionRow key={suggestion.kind} icon={<Lightbulb />} title="Carteira mais calma">
                   Com a volatilidade em {displayPercent(suggestion.volatility ?? 0, 0)} ao ano, a nota também chega a{" "}
                   {suggestion.target_grade}.
                 </SuggestionRow>
               );
             }
             return (
-              <SuggestionRow key={suggestion.kind} icon={<CalendarCheck />} title="Seguir pagando em dia">
+              <SuggestionRow key={suggestion.kind} icon={<Lightbulb />} title="Seguir pagando em dia">
                 Os 30 pontos de pagamento só caem com parcela atrasada.
               </SuggestionRow>
             );

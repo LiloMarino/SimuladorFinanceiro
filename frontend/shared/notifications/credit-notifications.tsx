@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { Clock, TrendingUp, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useRealtime } from "@/shared/hooks/useRealtime";
-import { displaySpread, displayWholePercent, isDowngrade, payOverdueLink } from "@/shared/lib/credit";
+import { displaySelicSpread, displayWholePercent, isDowngrade, payOverdueLink } from "@/shared/lib/credit";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayDayMonth, displayMoney, displayMonthName } from "@/shared/lib/utils/display";
 
@@ -36,6 +37,7 @@ export function CreditNotifications() {
   useRealtime("credit_installment_late", (event) => {
     renew();
     toast.error("Parcela em atraso", {
+      icon: <TriangleAlert className="size-4 text-toast-error" />,
       description: `Faltou caixa para os ${displayMoney(event.amount)} do Empréstimo ${event.loan_number}. Multa de 2% e mora correndo.`,
       action: { label: "Pagar", onClick: () => void navigate(payOverdueLink(event.loan_id)) },
     });
@@ -44,6 +46,7 @@ export function CreditNotifications() {
   useRealtime("credit_installment_warning", (event) => {
     renew();
     toast.warning(`O caixa não cobre a parcela de ${displayDayMonth(event.due_date)}`, {
+      icon: <Clock className="size-4 text-toast-warning" />,
       description: `Faltam ${displayMoney(event.shortfall)} para os ${displayMoney(event.amount)}. Venda algo ou ela atrasa.`,
       action: { label: "Ver", onClick: () => void navigate("/credit") },
     });
@@ -54,11 +57,13 @@ export function CreditNotifications() {
     const description =
       event.spread === null
         ? "Sem crédito novo nesta nota."
-        : `Próximos empréstimos a SELIC ${displaySpread(event.spread)}, limite de ${displayWholePercent(event.debt_limit)}.`;
-    const show = event.after === "D" ? toast.error : isDowngrade(event.before, event.after) ? toast.warning : toast.success;
+        : `Próximos empréstimos a ${displaySelicSpread(event.spread)}, limite de ${displayWholePercent(event.debt_limit)}.`;
+    const upgraded = event.after !== "D" && !isDowngrade(event.before, event.after);
+    const show = event.after === "D" ? toast.error : upgraded ? toast.success : toast.warning;
+    // A subida de nota leva a seta de alta; rebaixamento e nota D ficam com o ícone do tipo
     show(`Nota de risco: ${event.before} → ${event.after}`, {
       description,
-      action: { label: "Ver", onClick: () => void navigate("/credit") },
+      icon: upgraded ? <TrendingUp className="size-4 text-toast-success" /> : undefined,
     });
   });
 
