@@ -77,7 +77,6 @@
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | ⏳ |
-| [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
@@ -113,7 +112,7 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -135,6 +134,7 @@
 | **D16** | Estratégias do app no host, personalização pela API | [F7](#f7), [F8](#f8), [F108](#f108) | ✅ |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ✅ |
+| [**F71**](#f71) | Renda fixa com liquidez diária | — | ✅ |
 | [**F94**](#f94) | Crédito | — | ✅ |
 | [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
 | [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ✅ |
@@ -165,7 +165,6 @@
 | [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | 0 | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
-| [**F71**](#f71) | Renda fixa com liquidez diária | — | 0 | ⏳ |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
@@ -299,7 +298,7 @@
 
 ### Sem marco
 
-> **Progresso:** 3/41 concluídas
+> **Progresso:** 4/41 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -313,7 +312,6 @@
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | ⏳ |
-| [**F71**](#f71) | Renda fixa com liquidez diária | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
@@ -342,10 +340,11 @@
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
-<details><summary>Concluído (3 itens)</summary>
+<details><summary>Concluído (4 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F71**](#f71) | Renda fixa com liquidez diária | — | ✅ |
 | [**F94**](#f94) | Crédito | — | ✅ |
 | [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ✅ |
 | [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ✅ |
@@ -369,7 +368,7 @@
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F71** | Renda fixa com liquidez diária | N23 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F71** | Renda fixa com liquidez diária | N23 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F89** | Presets de partida | N30 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F91** | Caixa de entrada e resumo do mês | N32 | — | M15 | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
@@ -457,7 +456,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F69 — Imprevistos configuráveis e tipos novos.** Serve N23. O modo viver de renda (F53) já nasce com os tipos de imprevisto num registro, em que cada tipo é uma entrada com nome, múltiplo da despesa mensal, efeito (sai do caixa ou corta o salário do mês seguinte) e peso no sorteio; adicionar um tipo é acrescentar uma entrada, sem mexer no motor, no log nem nas telas. Esta feature expõe esse registro ao host: no lobby, o host edita o valor de cada tipo (por exemplo, o conserto passa de 1 para 2 despesas mensais), liga e desliga tipos e cria tipos próprios com nome, valor e efeito. O sorteio continua saindo da semente da partida, então todos os jogadores seguem recebendo os mesmos imprevistos nos mesmos dias, e a configuração vale para a partida salva.
 
 <a id="f71"></a>
-**F71 — Renda fixa com liquidez diária.** Serve N23. Hoje todo título de renda fixa só volta ao caixa no vencimento, então não existe onde guardar uma reserva de emergência que renda e se resgate no mesmo dia, como o CDB de liquidez diária ou o Tesouro Selic do mercado real. O plano: ofertas marcadas com liquidez diária, que o jogador resgata em qualquer pregão pelo valor corrigido até aquele dia, com o IR regressivo do prazo que passou (como já vale no vencimento); se o IOF dos primeiros 30 dias entra, fica em aberto. Fecha um desvio do modo viver de renda (F53): a reserva de emergência da página Meta conta só o caixa, porque não há o que resgatar rápido, e com esta feature passa a contar caixa + renda fixa de liquidez diária, como o design previa ("dá pra resgatar no mesmo dia, sem vender ação na baixa"). Isso dá peso de verdade ao imprevisto: quem tem a reserva aplicada cobre o conserto sem cair no cheque especial.
+**F71 — Renda fixa com liquidez diária.** Serve N23. Títulos marcados com liquidez diária são resgatados em qualquer pregão, pelo valor corrigido até o dia: o dinheiro volta ao caixa no mesmo pregão. O IOF dos primeiros 30 dias entrou (96% do rendimento no 1º dia, caindo até 3% no 29º, zero a partir do 30º) e o IR regressivo incide sobre o que sobra depois dele. A reserva de emergência da página Meta passou a contar caixa + liquidez diária, e o aviso de cheque especial ganhou um botão que resgata o título que cobre a dívida. As estratégias ganharam a ação de resgate. O catálogo ganhou bancos reais, um CDB fixo de 100% do CDI sempre aberto e uma oferta rara acima de 100% do CDI com teto por jogador, que sai do catálogo quando o mês vira (quem já aplicou segue resgatando). A boleta ganhou a aba Resgatar com cotação ao vivo, e a Carteira mostra a tag de liquidez diária, o quanto é resgatável hoje e o botão Resgatar.
 
 <a id="f72"></a>
 **F72 — Gráficos padronizados sobre o `ChartContainer` do shadcn.** Serve N15; continua a padronização da interface no shadcn, que deixou o `shared/components/ui/chart.tsx` sem nenhum consumidor. Hoje cada gráfico Recharts repete o `ResponsiveContainer`, a cor da grade e um array `{ key, label, color }` de séries (que é o `ChartConfig`), e uns cinco cards de tooltip feitos à mão reimplementam o `ChartTooltipContent`. Plano: (1) antes|depois no canvas de `player-line-chart` e `networth-chart` com `ChartContainer` + `ChartTooltipContent`, para aprovar o visual do tooltip (texto menor, indicador) e decidir se o `ui/chart.tsx` ganha variante; (2) convenção de pasta por gráfico: `<nome>-chart/` com `<nome>-chart.tsx` (componente puro, recebe o dado da API por prop), `chart-data.ts` (`ChartConfig`, tipos de linha e `build*`), `chart-legend.tsx` opcional (a legenda clicável que liga e desliga série continua própria) e `index.ts` exportando só o componente; gráfico sem legenda nem transformação fica arquivo solto `<nome>-chart.tsx`; (3) migrar `player-line-chart/` (`utils.ts` + `series.ts` → `chart-data.ts`, sai o tooltip próprio), `networth-chart`, `allocation-donut` e os gráficos embutidos em `composition-tab.tsx` (`AreaChart`) e `risk-tab.tsx` (`ScatterChart`), extraídos para pastas próprias; o `stock-chart` (lightweight-charts, imperativo) fica fora do `ChartContainer`; (4) a seção Gráficos entra em `docs/docs/desenvolvimento/convencoes-frontend.md`. Gatilho: a próxima rodada de design no canvas, ou o próximo gráfico novo.
