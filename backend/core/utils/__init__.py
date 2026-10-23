@@ -10,6 +10,11 @@ def format_percent(rate: float | Decimal) -> str:
     return f"{rate * 100:.2f}%"
 
 
+def format_money(value: Decimal) -> str:
+    """Real brasileiro com separadores: R$ 1.234,50."""
+    return "R$ " + f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
 def resource_path(relative: str) -> Path:
     """
     Resolve caminho de recurso em dev e no executável PyInstaller. Em dev é relativo à

@@ -20,6 +20,9 @@ def _to_asset_dto(asset: FixedIncomeAsset) -> FixedIncomeAssetDTO:
         rate_index=RateIndexType.from_db(asset.rate_type),
         maturity_date=asset.maturity_date,
         interest_rate=asset.interest_rate,
+        daily_liquidity=asset.daily_liquidity,
+        player_cap=asset.player_cap,
+        offered_until=asset.offered_until,
     )
 
 
@@ -42,6 +45,9 @@ class FixedIncomeRepository:
             rate_type=asset.rate_index.db_value,
             maturity_date=asset.maturity_date,
             interest_rate=asset.interest_rate,
+            daily_liquidity=asset.daily_liquidity,
+            player_cap=asset.player_cap,
+            offered_until=asset.offered_until,
         )
         session.add(db_asset)
         session.flush()

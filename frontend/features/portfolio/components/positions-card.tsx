@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
@@ -6,6 +7,7 @@ import { Card, CardAction, CardHeader } from "@/shared/components/ui/card";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
 import { displayMoney, displayPercent, displayRateLabel } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
@@ -66,10 +68,12 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
   });
   const stocks = stockSort.rows;
   const bonds = bondSort.rows;
+  const [tab, setTab] = useState("stocks");
+  const redeemable = Number(portfolio.fixed_income_redeemable);
 
   return (
     <Card>
-      <Tabs defaultValue="stocks">
+      <Tabs value={tab} onValueChange={setTab}>
         <CardHeader>
           <TabsList variant="line">
             <TabsTrigger value="stocks">
@@ -86,7 +90,15 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
             </TabsTrigger>
           </TabsList>
           <CardAction>
-            <span className="text-xs text-muted-foreground">Clique numa linha pra negociar</span>
+            <span className="text-xs text-muted-foreground">
+              {tab === "bonds" && redeemable > 0 && (
+                <>
+                  <b className="font-mono font-semibold text-success">{displayMoney(redeemable)}</b> resgatáveis hoje
+                  ·{" "}
+                </>
+              )}
+              Clique numa linha pra negociar
+            </span>
           </CardAction>
         </CardHeader>
 
@@ -169,7 +181,10 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                   <TableRow key={p.asset.asset_uuid} onActivate={() => void navigate(`/fixed-income/${p.asset.asset_uuid}`)}>
                     <TableCell>
                       <span className="grid">
-                        <span className="font-semibold">{p.asset.name}</span>
+                        <span className="flex items-center gap-1.5 font-semibold">
+                          {p.asset.name}
+                          {p.asset.daily_liquidity && <DailyLiquidityBadge size="sm">liquidez diária</DailyLiquidityBadge>}
+                        </span>
                         <span className="text-xs text-muted-foreground">{p.asset.issuer}</span>
                       </span>
                     </TableCell>
@@ -181,7 +196,23 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
                       <Result value={p.return_value} pct={p.return_pct} />
                     </TableCell>
                     <TableCell>
-                      <ChevronRight className="size-4 text-faint-foreground" />
+                      {p.asset.daily_liquidity ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          nativeButton={false}
+                          render={
+                            <Link
+                              to={`/fixed-income/${p.asset.asset_uuid}?tab=redeem`}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          }
+                        >
+                          Resgatar
+                        </Button>
+                      ) : (
+                        <ChevronRight className="size-4 text-faint-foreground" />
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

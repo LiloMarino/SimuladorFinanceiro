@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
+from decimal import Decimal
 
 import pytest
 
@@ -63,10 +64,31 @@ class BuyOne(BaseStrategy):
         ctx.buy("BANK_A", 1, "Comprou uma ação")
 
 
+class InvestThenRedeem(BaseStrategy):
+    """Aplica no CDB de liquidez diária e, no dia seguinte, resgata metade do que dá."""
+
+    key = "invest_then_redeem"
+    name = "Aplica e resgata"
+    summary = "Teste"
+    description = "Teste"
+    group = StrategyGroup.TACTIC
+
+    def next(self, ctx: StrategyContext, params: dict[str, StrategyParamValue]) -> None:
+        held = [h for h in ctx.fixed_holdings if h.redeemable is not None]
+        if held:
+            assert held[0].redeemable is not None
+            ctx.redeem(held[0].asset_uuid, held[0].redeemable / 2, "Resgatou metade")
+            return
+        [cdb] = [
+            o for o in ctx.fixed_offers if o.daily_liquidity and o.player_cap is None
+        ]
+        ctx.invest(cdb.asset_uuid, Decimal(1000), "Aplicou 1.000")
+
+
 @pytest.fixture
 def match(started, monkeypatch: pytest.MonkeyPatch):  # noqa: F811
     """Partida retomada com Ana e Bia, Ana com ações; devolve a simulação e as duas."""
-    for strategy in (Boom, BuyEverything, BuyOne):
+    for strategy in (Boom, BuyEverything, BuyOne, InvestThenRedeem):
         monkeypatch.setitem(STRATEGIES, strategy.key, strategy)
     ana, bia = new_user("Ana"), new_user("Bia")
     UserManager.player_auth(ana.client_id)
@@ -284,3 +306,21 @@ def test_the_strategy_comes_back_when_the_match_is_resumed(match):
     assert mine.active is not None
     assert mine.active.key == "buy_one"
     assert mine.resumed
+
+
+def test_a_strategy_redeems_daily_liquidity_and_the_log_records_the_net(match):
+    sim, ana, _ = match
+    sim.set_my_strategy(ana, "invest_then_redeem", {})
+
+    sim.next_tick()
+    cash_after_invest = sim.get_cash(ana.client_id)
+    sim.next_tick()
+
+    orders = [r for r in log_of(sim, ana) if r.kind is StrategyLogKind.ORDER]
+    assert {o.action for o in orders} == {StrategyAction.INVEST, StrategyAction.REDEEM}
+    [redeem] = [o for o in orders if o.action is StrategyAction.REDEEM]
+    assert redeem.status is StrategyOrderStatus.EXECUTED
+    assert redeem.price is not None
+    assert sim.get_cash(ana.client_id) - cash_after_invest == redeem.price
+    [position] = sim.get_portfolio(ana.client_id).fixed_income
+    assert position.redeemable_today is not None

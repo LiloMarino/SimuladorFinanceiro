@@ -64,6 +64,11 @@ class FixedIncomeAsset(Base):
     interest_rate: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
     )
+    daily_liquidity: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    player_cap: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 2))
+    offered_until: Mapped[datetime.date | None] = mapped_column(Date)
 
     event_fixed_income: Mapped[list["EventFixedIncome"]] = relationship(
         "EventFixedIncome", back_populates="asset"

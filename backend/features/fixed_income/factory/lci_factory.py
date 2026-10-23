@@ -1,3 +1,4 @@
+import random
 from datetime import date
 from functools import partial
 
@@ -6,9 +7,18 @@ from backend.core.dto.fixed_income_asset import (
 )
 from backend.core.enum import FixedIncomeType, IndicatorSeries, RateIndexType
 from backend.core.indicators import annual_index_rate
-from backend.core.utils import format_percent
 from backend.features.fixed_income.factory.abstract_factory import (
     AbstractFixedIncomeFactory,
+)
+
+# Bancos que emitem LCI; o emissor entra no nome do título
+ISSUERS = (
+    "Itaú",
+    "Caixa",
+    "Bradesco",
+    "Banco do Brasil",
+    "Santander",
+    "Banco Inter",
 )
 
 
@@ -31,10 +41,10 @@ class LCIFactory(AbstractFixedIncomeFactory):
     def create_cdi(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 0, 6)
         rate = self._generate_cdi_rate(multiplier=0.85)
-        issuer = "Banco Imobiliário"
+        issuer = random.choice(ISSUERS)
 
         return FixedIncomeAssetDTO(
-            name=f"LCI {issuer} {format_percent(rate)} CDI",
+            name=f"LCI {issuer}",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.CDI,
@@ -49,10 +59,10 @@ class LCIFactory(AbstractFixedIncomeFactory):
             spread_index=partial(annual_index_rate, IndicatorSeries.CDI),
             multiplier=0.85,
         )
-        issuer = "Banco Imobiliário"
+        issuer = random.choice(ISSUERS)
 
         return FixedIncomeAssetDTO(
-            name=f"LCI {issuer} IPCA+ {format_percent(spread)}",
+            name=f"LCI IPCA+ {issuer}",
             issuer=issuer,
             interest_rate=spread,
             rate_index=RateIndexType.IPCA,
@@ -67,10 +77,10 @@ class LCIFactory(AbstractFixedIncomeFactory):
             base_index=partial(annual_index_rate, IndicatorSeries.CDI),
             multiplier=0.85,
         )
-        issuer = "Banco Imobiliário"
+        issuer = random.choice(ISSUERS)
 
         return FixedIncomeAssetDTO(
-            name=f"LCI {issuer} Prefixado {format_percent(rate)}",
+            name=f"LCI Prefixado {issuer}",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.PREFIXADO,

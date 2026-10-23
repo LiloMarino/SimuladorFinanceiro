@@ -25,6 +25,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
 from backend.features.fixed_income.fixed_broker import FixedBroker
+from backend.features.fixed_income.liquidity import redeemable_today, total_redeemable
 from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import CashUpdateEventDTO
@@ -53,14 +54,20 @@ class SimulationEngine:
     - Registrar eventos de cashflow (depósitos, retiradas, aportes, IR)
     """
 
-    def __init__(self, current_date, starting_cash: Decimal, simulation_id: int):
+    def __init__(
+        self,
+        current_date,
+        starting_cash: Decimal,
+        simulation_id: int,
+        end_date: date,
+    ):
         # Protege _cash (aqui) e _positions/_assets (Broker/FixedBroker) contra
         # mutação concorrente pela thread do loop e pelas threads de request HTTP.
         self._lock = threading.RLock()
         self.broker = Broker(self, self._lock)
         self.fixed_broker = FixedBroker(self, self._lock)
         self.credit_book = CreditBook(self, self._lock)
-        self.fixed_income_market = FixedIncomeMarket()
+        self.fixed_income_market = FixedIncomeMarket(simulation_id, end_date)
         self.matching_engine = MatchingEngine(self.broker)
         self._cash: LazyDict[UUID, Decimal] = LazyDict(
             loader=repository.user.get_user_balance
@@ -318,6 +325,7 @@ class SimulationEngine:
             invested_value=invested_value,
             variable_income_value=variable_income_value,
             fixed_income_value=fixed_income_value,
+            fixed_income_redeemable=total_redeemable(fixed, self.current_date),
             invested_pct=ratio(invested_value, assets_value),
             variable_income_pct=ratio(variable_income_value, invested_value),
             fixed_income_pct=ratio(fixed_income_value, invested_value),
@@ -356,6 +364,7 @@ class SimulationEngine:
                         pos.current_value - pos.total_applied, pos.total_applied
                     ),
                     portfolio_pct=ratio(pos.current_value, invested_value),
+                    redeemable_today=redeemable_today(pos, self.current_date),
                 )
                 for pos in fixed
             ],

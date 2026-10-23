@@ -34,7 +34,12 @@ class CdiReference(BaseStrategy):
         if value < MIN_INVESTMENT:
             return
 
-        offers = [o for o in ctx.fixed_offers if o.rate_index is RateIndexType.CDI]
+        # Oferta com teto por jogador não comporta o caixa inteiro
+        offers = [
+            o
+            for o in ctx.fixed_offers
+            if o.rate_index is RateIndexType.CDI and o.player_cap is None
+        ]
         if not offers:
             return
 

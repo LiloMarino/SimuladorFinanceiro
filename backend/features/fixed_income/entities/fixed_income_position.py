@@ -4,10 +4,10 @@ from decimal import Decimal
 
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.features.fixed_income.accrual import (
+    RedemptionBreakdown,
     daily_factor,
-    income_tax_rate,
     index_daily_rate_on,
-    net_redemption,
+    redemption_breakdown,
     redemption_date,
 )
 
@@ -53,8 +53,24 @@ class FixedIncomePosition:
         self.current_value *= daily_factor(self.asset, index_rate)
         self.last_accrual_date = day
 
+    def withdraw(self, gross: Decimal):
+        """
+        Tira `gross` do título (G): o capital aplicado cai na mesma proporção do
+        montante, então o rendimento por real aplicado não muda.
+        """
+        self.total_applied -= gross * self.total_applied / self.current_value
+        self.current_value -= gross
+
+    def breakdown(self, on: date, net_wanted: Decimal | None) -> RedemptionBreakdown:
+        """O resgate em `on`; sem `net_wanted`, o título inteiro."""
+        return redemption_breakdown(
+            self.current_value,
+            self.total_applied,
+            self.asset.investment_type,
+            (on - self.first_applied_date).days,
+            net_wanted,
+        )
+
     def net_redemption_value(self) -> Decimal:
-        """Valor creditado no resgate, já descontado o IR."""
-        days_held = (self.redemption_date - self.first_applied_date).days
-        tax_rate = income_tax_rate(self.asset.investment_type, days_held)
-        return net_redemption(self.current_value, self.total_applied, tax_rate)
+        """Valor creditado no vencimento, já descontados IOF e IR."""
+        return self.breakdown(self.redemption_date, None).net

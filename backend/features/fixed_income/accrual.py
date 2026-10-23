@@ -12,7 +12,8 @@ A taxa do dia útil `d` remunera a noite de `d` até o próximo dia útil: o tic
 rende com a taxa do dia útil anterior a ele.
 """
 
-from datetime import date
+from dataclasses import dataclass
+from datetime import date, timedelta
 from decimal import ROUND_HALF_EVEN, Decimal
 from functools import lru_cache
 
@@ -40,6 +41,16 @@ INCOME_TAX_BRACKETS: list[tuple[int, Decimal]] = [
     (720, Decimal("0.175")),
 ]
 INCOME_TAX_FLOOR = Decimal("0.15")
+
+# IOF regressivo sobre o rendimento: alíquota do 1º ao 29º dia corrido; do 30º em diante é zero
+IOF_TABLE: tuple[Decimal, ...] = tuple(
+    Decimal(pct) / 100
+    for pct in (
+        96, 93, 90, 86, 83, 80, 76, 73, 70, 66, 63, 60, 56, 53, 50,
+        46, 43, 40, 36, 33, 30, 26, 23, 20, 16, 13, 10, 6, 3,
+    )
+)  # fmt: skip
+IOF_FREE_DAYS = len(IOF_TABLE) + 1
 
 
 INDEX_SERIES: dict[RateIndexType, IndicatorSeries] = {
@@ -124,12 +135,115 @@ def income_tax_rate(investment_type: FixedIncomeType, days_held: int) -> Decimal
     return INCOME_TAX_FLOOR
 
 
-def net_redemption(
-    current_value: Decimal, total_applied: Decimal, tax_rate: Decimal
-) -> Decimal:
-    """Valor creditado no resgate: montante menos o IR sobre o lucro, ao centavo."""
-    profit = max(current_value - total_applied, Decimal(0))
-    return (current_value - profit * tax_rate).quantize(CENT, ROUND_HALF_EVEN)
+def iof_rate(days_held: int) -> Decimal:
+    """Alíquota do IOF pelos dias corridos de aplicação; o dia da compra paga como o 1º."""
+    if days_held >= IOF_FREE_DAYS:
+        return Decimal(0)
+    return IOF_TABLE[max(days_held, 1) - 1]
+
+
+@dataclass(frozen=True)
+class RedemptionBreakdown:
+    """Um resgate decomposto: o que sai do título, os impostos e o que chega ao caixa."""
+
+    gross: Decimal  # G: o que sai do título
+    yield_amount: Decimal  # Rendimento contido em G
+    iof: Decimal
+    income_tax: Decimal
+    net: Decimal  # O que o caixa recebe
+    remaining: Decimal  # O que fica no título
+
+    @property
+    def full(self) -> bool:
+        return self.remaining <= 0
+
+
+def redemption_breakdown(
+    current_value: Decimal,
+    total_applied: Decimal,
+    investment_type: FixedIncomeType,
+    days_held: int,
+    net_wanted: Decimal | None,
+) -> RedemptionBreakdown:
+    """
+    Resgate de um título de montante M e capital C.
+
+    O rendimento da parte resgatada G é G·(M-C)/M. O IOF incide sobre ele e o IR,
+    sobre o que sobra do rendimento depois do IOF; os dois saem do bruto, e o caixa
+    recebe o líquido. `net_wanted` é o líquido que o jogador quer receber (G sai do
+    inverso da fórmula); sem ele, ou com um valor que pede o título inteiro, resgata tudo.
+    """
+    iof = iof_rate(days_held)
+    ir = income_tax_rate(investment_type, days_held)
+    profit_share = (
+        max(current_value - total_applied, Decimal(0)) / current_value
+        if current_value > 0
+        else Decimal(0)
+    )
+
+    def taxed(gross: Decimal) -> tuple[Decimal, Decimal, Decimal]:
+        yield_amount = gross * profit_share
+        iof_amount = (yield_amount * iof).quantize(CENT, ROUND_HALF_EVEN)
+        ir_amount = ((yield_amount - iof_amount) * ir).quantize(CENT, ROUND_HALF_EVEN)
+        return yield_amount, iof_amount, ir_amount
+
+    yield_amount, iof_amount, ir_amount = taxed(current_value)
+    full_net = (current_value - iof_amount - ir_amount).quantize(CENT, ROUND_HALF_EVEN)
+    full = RedemptionBreakdown(
+        gross=current_value,
+        yield_amount=yield_amount,
+        iof=iof_amount,
+        income_tax=ir_amount,
+        net=full_net,
+        remaining=Decimal(0),
+    )
+    if net_wanted is None or net_wanted >= full_net:
+        return full
+
+    tax_share = profit_share * (iof + ir - ir * iof)
+    gross = net_wanted / (1 - tax_share)
+    yield_amount, iof_amount, ir_amount = taxed(gross)
+    # O caixa recebe o líquido pedido ao centavo; o título entrega ele mais os impostos
+    gross = net_wanted + iof_amount + ir_amount
+    return RedemptionBreakdown(
+        gross=gross,
+        yield_amount=gross * profit_share,
+        iof=iof_amount,
+        income_tax=ir_amount,
+        net=net_wanted,
+        remaining=current_value - gross,
+    )
+
+
+@dataclass(frozen=True)
+class TaxDrop:
+    """Dia em que o IR passa para a próxima faixa, e a alíquota dessa faixa."""
+
+    on: date
+    rate: Decimal
+
+
+def next_tax_drop(
+    investment_type: FixedIncomeType, first_applied: date, today: date
+) -> TaxDrop | None:
+    """A próxima queda do IR; None quando já está na alíquota final ou o título é isento."""
+    if investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA):
+        return None
+
+    days_held = (today - first_applied).days
+    rates = [rate for _, rate in INCOME_TAX_BRACKETS] + [INCOME_TAX_FLOOR]
+    for (max_days, _), next_rate in zip(INCOME_TAX_BRACKETS, rates[1:], strict=True):
+        if days_held <= max_days:
+            return TaxDrop(
+                on=first_applied + timedelta(days=max_days + 1), rate=next_rate
+            )
+    return None
+
+
+def iof_free_date(first_applied: date, today: date) -> date | None:
+    """Primeiro dia sem IOF; None quando o prazo de 30 dias já passou."""
+    free_on = first_applied + timedelta(days=IOF_FREE_DAYS)
+    return free_on if today < free_on else None
 
 
 def project(
@@ -164,10 +278,16 @@ def project(
         business_days += 1
         previous, day = day, next_business_day(day)
 
-    tax_rate = income_tax_rate(asset.investment_type, (redeem_on - on).days)
+    days_held = (redeem_on - on).days
+    tax_rate = income_tax_rate(asset.investment_type, days_held)
     gross_return = gross_amount - amount
-    net_amount = net_redemption(gross_amount, amount, tax_rate)
+    # Os impostos do resgate são IR e, em título que vence antes de 30 dias, o IOF
+    net_amount = redemption_breakdown(
+        gross_amount, amount, asset.investment_type, days_held, None
+    ).net
     gross_return_pct = growth - 1
+    taxes = gross_amount - net_amount
+    taxes_pct = taxes / amount if amount > 0 else gross_return_pct * tax_rate
 
     return FixedIncomeProjectionDTO(
         amount=amount,
@@ -179,11 +299,11 @@ def project(
         gross_return=gross_return,
         gross_return_pct=gross_return_pct,
         income_tax_rate=tax_rate,
-        income_tax=gross_amount - net_amount,
-        income_tax_pct=gross_return_pct * tax_rate,
+        income_tax=taxes,
+        income_tax_pct=taxes_pct,
         net_amount=net_amount,
         net_return=net_amount - amount,
-        net_return_pct=gross_return_pct * (1 - tax_rate),
+        net_return_pct=gross_return_pct - taxes_pct,
     )
 
 

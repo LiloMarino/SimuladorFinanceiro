@@ -23,6 +23,8 @@ export const queryKeys = {
   fixedIncomeAsset: (id: string) => ["fixed-income", id] as const,
   fixedIncomeProjection: (id: string, amount: string, currentDate: string) =>
     ["fixed-income", id, "projection", amount, currentDate] as const,
+  fixedIncomeRedemption: (id: string, amount: string, currentDate: string) =>
+    ["fixed-income", id, "redemption", amount, currentDate] as const,
   variableIncomeList: () => ["variable-income", "list"] as const,
   variableIncomeStock: (ticker: string) => ["variable-income", ticker] as const,
   variableIncomeOrders: (ticker: string) => ["variable-income", ticker, "orders"] as const,

@@ -7,6 +7,7 @@ const ACTION_LABEL: Record<StrategyAction, string> = {
   sell: "Vendeu",
   cancel: "Cancelou",
   invest: "Aplicou",
+  redeem: "Resgatou",
 };
 
 export function actionLabel(action: StrategyAction) {

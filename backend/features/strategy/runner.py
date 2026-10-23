@@ -42,6 +42,7 @@ from backend.core.indicators import annual_index_rate
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
 from backend.features.fixed_income.accrual import offer
+from backend.features.fixed_income.liquidity import redeemable_today
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     StrategyOrdersEventDTO,
@@ -498,6 +499,23 @@ class StrategyRunner:
                         "status": StrategyOrderStatus.EXECUTED,
                     }
                 )
+            case StrategyAction.REDEEM:
+                assert intent.asset_uuid and intent.value
+                asset = engine.fixed_income_market.get_asset(str(intent.asset_uuid))
+                if asset is None:
+                    raise ConflictError("O título não está mais disponível")
+                net = intent.value.quantize(Decimal("0.01"))
+                engine.fixed_broker.redeem(user.client_id, asset, net)
+                return row.model_copy(
+                    update={
+                        "asset_uuid": asset.asset_uuid,
+                        "asset_name": asset.name,
+                        # Nos resgates, o preço é o líquido que chegou ao caixa
+                        "price": net,
+                        "order_type": "market",
+                        "status": StrategyOrderStatus.EXECUTED,
+                    }
+                )
 
     def _on_order_closed(self, order: Order) -> None:
         """A ordem limitada de estratégia que saiu do book fecha a linha dela no registro."""
@@ -557,7 +575,13 @@ class StrategyRunner:
                 if p.size > 0
             },
             fixed_holdings=[
-                FixedHolding(p.asset.asset_uuid, p.asset.name, p.current_value)
+                FixedHolding(
+                    p.asset.asset_uuid,
+                    p.asset.name,
+                    p.current_value,
+                    p.asset.daily_liquidity,
+                    redeemable_today(p, today),
+                )
                 for p in engine.fixed_broker.get_fixed_positions(client_id).values()
             ],
             fixed_offers=market.offers,

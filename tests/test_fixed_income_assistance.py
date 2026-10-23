@@ -49,6 +49,7 @@ def _quote(settings: SimulationSettingsDTO):
         cash_before=Decimal(5000),
         cash_after=Decimal(4000),
         max_amount=Decimal(5000),
+        cap_used=None,
         income_tax_brackets=income_tax_brackets(),
     )
 

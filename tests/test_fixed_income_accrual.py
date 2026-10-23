@@ -23,9 +23,12 @@ from backend.features.fixed_income.accrual import (
     effective_annual_rate,
     income_tax_rate,
     index_rate_on,
-    net_redemption,
+    iof_free_date,
+    iof_rate,
+    next_tax_drop,
     offer,
     project,
+    redemption_breakdown,
     redemption_date,
 )
 from backend.features.fixed_income.entities.fixed_income_position import (
@@ -238,25 +241,99 @@ def test_redemption_date_moves_weekend_to_monday():
     assert redemption_date(date(2021, 3, 16)) == date(2021, 3, 16)
 
 
+CDB = FixedIncomeType.CDB
+
+
 def test_net_redemption_without_profit_charges_no_tax():
-    """Sem lucro não há IR: o resgate devolve o montante inteiro."""
-    assert net_redemption(Decimal("950"), Decimal("1000"), Decimal("0.225")) == Decimal(
-        "950.00"
-    )
+    """Sem lucro não há imposto: o resgate devolve o montante inteiro."""
+    full = redemption_breakdown(Decimal("950"), Decimal("1000"), CDB, 400, None)
+
+    assert (full.net, full.income_tax, full.iof) == (Decimal("950.00"), 0, 0)
 
 
 def test_net_redemption_taxes_only_profit_and_rounds_half_even():
     """IR incide só sobre o lucro e o resgate arredonda ao centavo pelo método bancário."""
     # 1100 - 100 * 0,15 = 1085
-    assert net_redemption(Decimal("1100"), Decimal("1000"), Decimal("0.15")) == Decimal(
-        "1085.00"
+    full = redemption_breakdown(Decimal("1100"), Decimal("1000"), CDB, 800, None)
+    assert full.net == Decimal("1085.00")
+
+    lci = FixedIncomeType.LCI
+    assert redemption_breakdown(
+        Decimal("100.125"), Decimal("100.125"), lci, 800, None
+    ).net == Decimal("100.12")
+    assert redemption_breakdown(
+        Decimal("100.135"), Decimal("100.135"), lci, 800, None
+    ).net == Decimal("100.14")
+
+
+def test_iof_table_is_regressive_for_thirty_days():
+    """O IOF começa em 96% no 1º dia, cai até 3% no 29º e some a partir do 30º."""
+    assert [iof_rate(d) for d in (1, 2, 3, 4, 12, 29, 30, 31)] == [
+        Decimal("0.96"),
+        Decimal("0.93"),
+        Decimal("0.90"),
+        Decimal("0.86"),
+        Decimal("0.60"),
+        Decimal("0.03"),
+        Decimal(0),
+        Decimal(0),
+    ]
+    assert iof_rate(0) == iof_rate(1)
+
+
+def test_partial_redemption_gives_the_exact_net_wanted():
+    """Pedir 5.000 líquidos tira do título o bruto que paga os impostos e deixa 5.000 no caixa."""
+    redemption = redemption_breakdown(
+        Decimal("15709.35"), Decimal("15000"), CDB, 133, Decimal("5000")
     )
-    assert net_redemption(
-        Decimal("100.125"), Decimal("100.125"), Decimal(0)
-    ) == Decimal("100.12")
-    assert net_redemption(
-        Decimal("100.135"), Decimal("100.135"), Decimal(0)
-    ) == Decimal("100.14")
+
+    assert redemption.gross == Decimal("5051.32")
+    assert abs(redemption.yield_amount - Decimal("228.10")) <= Decimal("0.01")
+    assert redemption.income_tax == Decimal("51.32")
+    assert (redemption.iof, redemption.net) == (0, Decimal("5000"))
+    assert redemption.remaining == Decimal("15709.35") - Decimal("5051.32")
+    assert not redemption.full
+
+
+def test_full_redemption_nets_the_whole_position():
+    """Resgatar tudo (ou pedir mais que o máximo) devolve o título inteiro menos os impostos."""
+    full = redemption_breakdown(Decimal("15709.35"), Decimal("15000"), CDB, 133, None)
+
+    assert full.net == Decimal("15549.75")
+    assert full.income_tax == Decimal("159.60")
+    assert full.full
+    asked = redemption_breakdown(
+        Decimal("15709.35"), Decimal("15000"), CDB, 133, Decimal("15549.75")
+    )
+    assert asked == full
+
+
+def test_iof_comes_out_before_income_tax():
+    """Aos 12 dias o IOF leva 60% do rendimento e o IR incide só sobre o que sobra."""
+    redemption = redemption_breakdown(
+        Decimal("10060.61"), Decimal("10000"), CDB, 12, Decimal("5000")
+    )
+
+    # Rendimento da parte: 30,25 -> IOF 18,15 -> IR 22,5% de 12,10 = 2,72
+    assert redemption.iof == Decimal("18.15")
+    assert redemption.income_tax == Decimal("2.72")
+    assert redemption.net == Decimal("5000")
+    assert redemption.gross == Decimal("5020.87")
+
+
+def test_next_tax_drop_and_iof_free_date():
+    """A próxima queda do IR sai da faixa atual; LCI/LCA não têm; o IOF some no 30º dia."""
+    first = date(2020, 1, 6)
+
+    drop = next_tax_drop(CDB, first, date(2020, 3, 1))
+    assert drop is not None
+    assert (drop.on, drop.rate) == (date(2020, 7, 5), Decimal("0.20"))
+    last = next_tax_drop(CDB, first, date(2022, 3, 1))
+    assert last is None
+    assert next_tax_drop(FixedIncomeType.LCI, first, date(2020, 3, 1)) is None
+
+    assert iof_free_date(first, date(2020, 1, 10)) == date(2020, 2, 5)
+    assert iof_free_date(first, date(2020, 2, 5)) is None
 
 
 def test_index_rate_on_annualizes_the_asset_index(indicators: SetIndicator):

@@ -236,6 +236,21 @@ Na tela de detalhes do ativo, você acompanha:
 - **Rentabilidade**, **Vencimento**, **IR nesse prazo** e **Equivale hoje** (a taxa por ano, já combinada com CDI e IPCA do dia).
 - O card **IR cai com o tempo**, com a tabela regressiva para entender a projeção até o vencimento.
 
+### Liquidez diária: resgatar a qualquer dia
+
+Os títulos com a etiqueta **liquidez diária** podem ser resgatados em qualquer pregão, pelo valor corrigido até o dia, sem esperar o vencimento. O dinheiro volta ao caixa no mesmo pregão.
+
+1. Abra o título e vá na aba **Resgatar** (ou clique em **Resgatar** na linha da Carteira).
+2. Informe quanto quer **receber no caixa**. Os atalhos **R$ 1 mil**, **R$ 5 mil**, **Metade** e **Tudo** preenchem o campo.
+3. Confira a conta: quanto sai do título, o rendimento dessa parte, o IR e, nos primeiros 30 dias, o IOF. Depois clique em **Receber R$ valor no caixa**.
+
+- **IOF:** imposto que cobra de quem resgata antes de 30 dias. Incide sobre o rendimento e começa em 96% no 1º dia, caindo até 3% no 29º; a partir do 30º dia é zero. Ex.: um título que rendeu R$ 10 e é resgatado no 1º dia perde R$ 9,60 de IOF.
+- **IR:** a mesma tabela regressiva, contada desde a primeira aplicação, sobre o rendimento que sobrou depois do IOF.
+- **Oferta rara:** de vez em quando o catálogo do mês traz um título de liquidez diária acima de 100% do CDI, com **teto por jogador** (o quanto cada um pode aplicar ao todo). Quando o mês vira ela sai do catálogo: não dá mais para aplicar, mas quem já tem segue resgatando.
+- **CDB sempre disponível:** um CDB de 100% do CDI com liquidez diária fica aberto a partida inteira, como a reserva que rende.
+
+A **reserva de emergência** da Meta soma o caixa e a liquidez diária: os dois saem no mesmo dia. Quando o caixa entra no cheque especial, o aviso oferece um botão para resgatar o título que cobre a dívida.
+
 ### Acompanhar investimentos
 
 1. Acesse **Carteira**.

@@ -13,3 +13,5 @@ class FixedIncomePositionDTO(BaseDTO):
     return_value: Decimal
     return_pct: Decimal
     portfolio_pct: Decimal
+    # Líquido que o resgate de hoje manda ao caixa; None em título sem liquidez diária
+    redeemable_today: Decimal | None

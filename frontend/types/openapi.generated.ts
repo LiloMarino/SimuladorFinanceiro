@@ -192,6 +192,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/fixed-income/{asset_uuid}/redemption": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cotar resgate de renda fixa
+         * @description Cota o resgate hoje de um título de liquidez diária: o bruto que sai do título, o IOF, o IR e o líquido que chega ao caixa.
+         */
+        get: operations["get_fixed_income_redemption_api_fixed_income__asset_uuid__redemption_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fixed-income/{asset_uuid}/redeem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resgatar ativo de renda fixa
+         * @description Resgata de um título de liquidez diária o valor líquido que o jogador quer receber no caixa.
+         */
+        post: operations["redeem_fixed_income_api_fixed_income__asset_uuid__redeem_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portfolio": {
         parameters: {
             query?: never;
@@ -2302,6 +2342,15 @@ export interface components {
             maturity_date: string;
             /** Interest Rate */
             interest_rate: string;
+            /**
+             * Daily Liquidity
+             * @default false
+             */
+            daily_liquidity: boolean;
+            /** Player Cap */
+            player_cap?: string | null;
+            /** Offered Until */
+            offered_until?: string | null;
         };
         /**
          * FixedIncomeOfferDTO
@@ -2326,6 +2375,15 @@ export interface components {
             maturity_date: string;
             /** Interest Rate */
             interest_rate: string;
+            /**
+             * Daily Liquidity
+             * @default false
+             */
+            daily_liquidity: boolean;
+            /** Player Cap */
+            player_cap?: string | null;
+            /** Offered Until */
+            offered_until?: string | null;
             /** Index Rate */
             index_rate: string;
             /** Effective Annual Rate */
@@ -2353,6 +2411,8 @@ export interface components {
             return_pct: string;
             /** Portfolio Pct */
             portfolio_pct: string;
+            /** Redeemable Today */
+            redeemable_today: string | null;
         };
         /**
          * FixedIncomeQuoteDTO
@@ -2399,8 +2459,59 @@ export interface components {
             cash_after: string;
             /** Max Amount */
             max_amount: string;
+            /** Cap Used */
+            cap_used: string | null;
             /** Income Tax Brackets */
             income_tax_brackets: components["schemas"]["IncomeTaxBracketDTO"][];
+        };
+        /**
+         * FixedIncomeRedemptionQuoteDTO
+         * @description O resgate de uma posição de liquidez diária hoje, por `amount` líquido no caixa.
+         *
+         *     Os campos de valor são None quando `amount` é zero ou passa de `max_amount`,
+         *     o líquido de resgatar a posição inteira.
+         */
+        FixedIncomeRedemptionQuoteDTO: {
+            /** Amount */
+            amount: string;
+            /** Max Amount */
+            max_amount: string;
+            /** Position Value */
+            position_value: string;
+            /** Total Applied */
+            total_applied: string;
+            /**
+             * First Applied Date
+             * Format: date
+             */
+            first_applied_date: string;
+            /** Days Held */
+            days_held: number;
+            /** Gross Amount */
+            gross_amount: string | null;
+            /** Yield Amount */
+            yield_amount: string | null;
+            /** Iof Rate */
+            iof_rate: string;
+            /** Iof */
+            iof: string | null;
+            /** Income Tax Rate */
+            income_tax_rate: string;
+            /** Income Tax */
+            income_tax: string | null;
+            /** Net Amount */
+            net_amount: string | null;
+            /** Cash Before */
+            cash_before: string;
+            /** Cash After */
+            cash_after: string | null;
+            /** Remaining */
+            remaining: string | null;
+            /** Full */
+            full: boolean;
+            next_tax_drop: components["schemas"]["NextTaxDropDTO"] | null;
+            /** Iof Free Date */
+            iof_free_date: string | null;
         };
         /**
          * FixedIncomeType
@@ -2722,6 +2833,11 @@ export interface components {
             overdraft_daily_interest: string;
             /** Reserve Months */
             reserve_months: string;
+            /** Reserve Cash */
+            reserve_cash: string;
+            /** Reserve Daily Liquidity */
+            reserve_daily_liquidity: string;
+            overdraft_cover: components["schemas"]["OverdraftCoverDTO"] | null;
         };
         /** LoanDTO */
         LoanDTO: {
@@ -2922,6 +3038,16 @@ export interface components {
             open_orders: number;
             panel: components["schemas"]["StrategyPanelDTO"] | null;
         };
+        /** NextTaxDropDTO */
+        NextTaxDropDTO: {
+            /**
+             * On
+             * Format: date
+             */
+            on: string;
+            /** Rate */
+            rate: string;
+        };
         /** OperationsReportDTO */
         OperationsReportDTO: {
             player_grouping: components["schemas"]["PlayerGrouping"];
@@ -3060,6 +3186,23 @@ export interface components {
             kind: "http" | "socket" | "engine";
             /** P95 Ms */
             p95_ms: number;
+        };
+        /**
+         * OverdraftCoverDTO
+         * @description O título de liquidez diária que sozinho paga o cheque especial hoje.
+         */
+        OverdraftCoverDTO: {
+            /**
+             * Asset Uuid
+             * Format: uuid
+             */
+            asset_uuid: string;
+            /** Asset Name */
+            asset_name: string;
+            /** Net Amount */
+            net_amount: string;
+            /** Gross Amount */
+            gross_amount: string;
         };
         /** OverdueDTO */
         OverdueDTO: {
@@ -3369,6 +3512,8 @@ export interface components {
             variable_income_value: string;
             /** Fixed Income Value */
             fixed_income_value: string;
+            /** Fixed Income Redeemable */
+            fixed_income_redeemable: string;
             /** Invested Pct */
             invested_pct: string;
             /** Variable Income Pct */
@@ -3663,6 +3808,11 @@ export interface components {
             credit_loan_paid_off: components["schemas"]["CreditLoanPaidOffEventDTO"];
             strategy_update: components["schemas"]["StrategyUpdateEventDTO"];
             strategy_orders: components["schemas"]["StrategyOrdersEventDTO"];
+        };
+        /** RedeemFixedIncomeRequest */
+        RedeemFixedIncomeRequest: {
+            /** Amount */
+            amount: number | string;
         };
         /**
          * ReplacedGeneratedDTO
@@ -4306,7 +4456,7 @@ export interface components {
          * StrategyAction
          * @enum {string}
          */
-        StrategyAction: "buy" | "sell" | "cancel" | "invest";
+        StrategyAction: "buy" | "sell" | "cancel" | "invest" | "redeem";
         /** StrategyActiveDTO */
         StrategyActiveDTO: {
             /** Key */
@@ -5324,6 +5474,90 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["BuyFixedIncomeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_fixed_income_redemption_api_fixed_income__asset_uuid__redemption_get: {
+        parameters: {
+            query?: {
+                amount?: number | string;
+            };
+            header?: never;
+            path: {
+                asset_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FixedIncomeRedemptionQuoteDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    redeem_fixed_income_api_fixed_income__asset_uuid__redeem_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RedeemFixedIncomeRequest"];
             };
         };
         responses: {

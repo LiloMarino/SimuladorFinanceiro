@@ -38,6 +38,7 @@ def offer(
     interest_rate: str = "1.00",
     tax: str = "0.15",
     name: str = "CDB Teste",
+    player_cap: str | None = None,
 ) -> FixedIncomeOfferDTO:
     return FixedIncomeOfferDTO(
         asset_uuid=uuid.uuid4(),
@@ -47,6 +48,7 @@ def offer(
         rate_index=rate_index,
         maturity_date=date(2006, 1, 2),
         interest_rate=Decimal(interest_rate),
+        player_cap=None if player_cap is None else Decimal(player_cap),
         index_rate=Decimal("0.14"),
         effective_annual_rate=Decimal("0.14"),
         tax_exempt=False,

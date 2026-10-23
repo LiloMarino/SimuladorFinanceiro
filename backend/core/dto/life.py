@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+from uuid import UUID
 
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import LifeEventEffect, LifeHistoryCategory, LifeHistoryKind
@@ -14,6 +15,17 @@ class LifeEventDTO(BaseDTO):
     # Quanto saiu do caixa de cada jogador; zero na demissão, que tira o salário do mês seguinte
     amount: Decimal
     event_date: date
+
+
+class OverdraftCoverDTO(BaseDTO):
+    """O título de liquidez diária que sozinho paga o cheque especial hoje."""
+
+    asset_uuid: UUID
+    asset_name: str
+    # O que cai no caixa: a dívida inteira
+    net_amount: Decimal
+    # O que sai do título para render esse líquido, com os impostos
+    gross_amount: Decimal
 
 
 class LifeStatusDTO(BaseDTO):
@@ -32,8 +44,13 @@ class LifeStatusDTO(BaseDTO):
     overdraft_monthly_rate: Decimal
     # Juro que o caixa de hoje paga por pregão; zero com caixa positivo
     overdraft_daily_interest: Decimal
-    # Quantos meses de despesa o caixa cobre; zero com caixa negativo
+    # Quantos meses de despesa a reserva (caixa mais liquidez diária) cobre; zero se a soma é negativa
     reserve_months: Decimal
+    # As duas partes da reserva, em reais: o caixa positivo e a liquidez diária líquida
+    reserve_cash: Decimal
+    reserve_daily_liquidity: Decimal
+    # Com o caixa negativo, o título de menor taxa que cobre a dívida; None se nenhum cobre
+    overdraft_cover: OverdraftCoverDTO | None
 
 
 class LifeHistoryRowDTO(BaseDTO):

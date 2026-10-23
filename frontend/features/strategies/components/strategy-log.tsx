@@ -24,6 +24,7 @@ const ACTION_TONE: Record<StrategyAction, string> = {
   sell: "text-destructive",
   cancel: "text-muted-foreground",
   invest: "text-primary",
+  redeem: "text-foreground",
 };
 
 const MODE_ICON: Record<Exclude<StrategyLogKind, "order">, { icon: typeof Power; tone: string }> = {

@@ -33,5 +33,10 @@ def cancel(order_id: str, reason: str) -> Intent:
     return Intent(StrategyAction.CANCEL, reason, order_id=order_id)
 
 
+def redeem(asset_uuid: UUID, value: Decimal, reason: str) -> Intent:
+    """Resgate de liquidez diária; `value` é o líquido que a estratégia quer no caixa."""
+    return Intent(StrategyAction.REDEEM, reason, asset_uuid=asset_uuid, value=value)
+
+
 def invest(asset_uuid: UUID, value: Decimal, reason: str) -> Intent:
     return Intent(StrategyAction.INVEST, reason, asset_uuid=asset_uuid, value=value)

@@ -25,11 +25,12 @@ export const INDEPENDENCE_GOAL: MetricInfo = {
 
 export const RESERVE_MONTHS: MetricInfo = {
   label: "Reserva de emergência",
-  description: "Quantos meses de despesa o caixa paga sem você vender nada",
-  definition: "O caixa dividido pela despesa mensal. Só conta o dinheiro em caixa.",
-  example: "Ex.: R$ 38.610 em caixa e despesa de R$ 5.000 por mês → 7,7 meses.",
+  description: "Quantos meses de despesa o caixa e a liquidez diária pagam sem você vender nada",
+  definition:
+    "Quantos meses de despesa você cobre com o que sai no mesmo dia: o caixa e os títulos de renda fixa com liquidez diária. Ações e títulos que só pagam no vencimento ficam de fora.",
+  example: "Ex.: despesa de R$ 7.000 e R$ 39.317 entre caixa e liquidez diária dão 5,6 meses.",
   reading:
-    "Abaixo de 3 meses é frágil: um imprevisto joga o caixa no cheque especial. De 3 a 6 meses é razoável; 6 ou mais é confortável.",
+    "Abaixo de 3 meses é frágil: um imprevisto joga o caixa no cheque especial. De 3 a 6 meses pede atenção; 6 ou mais é boa.",
   format: (value) => `${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(Number(value))} meses`,
 };
 

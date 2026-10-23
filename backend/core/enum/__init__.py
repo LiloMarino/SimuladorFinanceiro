@@ -327,6 +327,7 @@ class StrategyAction(Enum):
     SELL = "sell"
     CANCEL = "cancel"
     INVEST = "invest"
+    REDEEM = "redeem"
 
 
 class StrategyOrderStatus(Enum):

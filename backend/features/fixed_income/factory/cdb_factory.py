@@ -1,3 +1,4 @@
+import random
 from datetime import date
 from functools import partial
 
@@ -6,9 +7,22 @@ from backend.core.dto.fixed_income_asset import (
 )
 from backend.core.enum import FixedIncomeType, IndicatorSeries, RateIndexType
 from backend.core.indicators import annual_index_rate
-from backend.core.utils import format_percent
 from backend.features.fixed_income.factory.abstract_factory import (
     AbstractFixedIncomeFactory,
+)
+
+# Bancos que emitem CDB; o emissor entra no nome do título
+ISSUERS = (
+    "Banco Inter",
+    "XP",
+    "Nubank",
+    "PicPay",
+    "Itaú",
+    "Bradesco",
+    "Santander",
+    "BTG Pactual",
+    "C6 Bank",
+    "Banco Pan",
 )
 
 
@@ -31,10 +45,10 @@ class CDBFactory(AbstractFixedIncomeFactory):
     def create_cdi(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 0, 5)
         rate = self._generate_cdi_rate()
-        issuer = "Banco XPTO"
+        issuer = random.choice(ISSUERS)
 
         return FixedIncomeAssetDTO(
-            name=f"CDB {issuer} {format_percent(rate)} CDI",
+            name=f"CDB {issuer}",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.CDI,
@@ -48,10 +62,10 @@ class CDBFactory(AbstractFixedIncomeFactory):
             current_date,
             spread_index=partial(annual_index_rate, IndicatorSeries.CDI),
         )
-        issuer = "Banco XPTO"
+        issuer = random.choice(ISSUERS)
 
         return FixedIncomeAssetDTO(
-            name=f"CDB {issuer} IPCA+ {format_percent(spread)}",
+            name=f"CDB IPCA+ {issuer}",
             issuer=issuer,
             interest_rate=spread,
             rate_index=RateIndexType.IPCA,
@@ -64,10 +78,10 @@ class CDBFactory(AbstractFixedIncomeFactory):
         rate = self._generate_prefixado_rate(
             current_date, base_index=partial(annual_index_rate, IndicatorSeries.CDI)
         )
-        issuer = "Banco XPTO"
+        issuer = random.choice(ISSUERS)
 
         return FixedIncomeAssetDTO(
-            name=f"CDB {issuer} Prefixado {format_percent(rate)}",
+            name=f"CDB Prefixado {issuer}",
             issuer=issuer,
             interest_rate=rate,
             rate_index=RateIndexType.PREFIXADO,

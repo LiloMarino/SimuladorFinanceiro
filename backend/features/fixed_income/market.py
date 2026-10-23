@@ -15,13 +15,16 @@ class FixedIncomeMarket:
     Gerenciador de hall de ativos de renda fixa disponíveis.
 
     Responsável por:
-    - Gerar novos ativos mensalmente usando FixedIncomeFactory
+    - Gerar novos ativos mensalmente usando FixedIncomeFactory, com o CDB de liquidez
+      diária fixo e, de vez em quando, a oferta rara
     - Manter catálogo de ativos disponíveis por UUID
     - Notificar players sobre atualizações do hall via realtime
     - Fornecer consultas de ativos disponíveis e busca por UUID
     """
 
-    def __init__(self):
+    def __init__(self, simulation_id: int, end_date: date):
+        self._simulation_id = simulation_id
+        self._end_date = end_date
         self._current_month: tuple[int, int] | None = None
         self._assets: dict[str, FixedIncomeAssetDTO] = {}
         self._issued_assets: dict[str, FixedIncomeAssetDTO] = {}
@@ -57,8 +60,16 @@ class FixedIncomeMarket:
         year, month = self._current_month
         current_date = date(year, month, 1)
 
-        self._assets = FixedIncomeFactory.generate_assets(
-            current_date=current_date, n=10
+        # O CDB de 100% do CDI abre a vitrine; a oferta rara aparece em parte dos meses
+        fixed = FixedIncomeFactory.daily_liquidity_cdb(
+            self._simulation_id, self._end_date
+        )
+        rare = FixedIncomeFactory.rare_daily_liquidity_offer(current_date)
+        self._assets = {
+            str(asset.asset_uuid): asset for asset in (fixed, rare) if asset is not None
+        }
+        self._assets.update(
+            FixedIncomeFactory.generate_assets(current_date=current_date, n=10)
         )
         # A renovação da vitrine não invalida uma oferta ainda aberta no navegador.
         self._issued_assets.update(self._assets)

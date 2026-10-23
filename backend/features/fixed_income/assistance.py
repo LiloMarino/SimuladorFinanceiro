@@ -25,6 +25,7 @@ def build_quote(
     cash_before: Decimal,
     cash_after: Decimal,
     max_amount: Decimal,
+    cap_used: Decimal | None,
     income_tax_brackets: list[IncomeTaxBracketDTO],
 ) -> FixedIncomeQuoteDTO:
     """
@@ -51,6 +52,7 @@ def build_quote(
         cash_before=cash_before,
         cash_after=cash_after,
         max_amount=max_amount,
+        cap_used=cap_used,
         income_tax_brackets=income_tax_brackets,
     )
     hidden: dict[str, None] = {}

@@ -6,14 +6,14 @@ function Card({
   size = "default",
   variant = "default",
   ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" | "lg" | "flush"; variant?: "default" | "destructive" | "warning" }) {
+}: React.ComponentProps<"div"> & { size?: "default" | "sm" | "lg" | "flush"; variant?: "default" | "destructive" | "warning" | "success" }) {
   return (
     <div
       data-slot="card"
       data-size={size}
       data-variant={variant}
       className={cn(
-        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground border border-border [--card-spacing:--spacing(5)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=flush]:[--card-spacing:0] data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=lg]:[--card-spacing:--spacing(7)] data-[variant=destructive]:border-destructive/30 data-[variant=warning]:border-warning/30 data-[variant=warning]:bg-warning-soft/40 data-[size=lg]:shadow-[0_12px_32px_rgba(15,23,41,.08)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground border border-border [--card-spacing:--spacing(5)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=flush]:[--card-spacing:0] data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=lg]:[--card-spacing:--spacing(7)] data-[variant=destructive]:border-destructive/30 data-[variant=warning]:border-warning/30 data-[variant=warning]:bg-warning-soft/40 data-[variant=success]:border-success/30 data-[variant=success]:bg-linear-to-r data-[variant=success]:from-success-soft data-[variant=success]:to-card data-[variant=success]:to-45% data-[size=lg]:shadow-[0_12px_32px_rgba(15,23,41,.08)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         className,
       )}
       {...props}

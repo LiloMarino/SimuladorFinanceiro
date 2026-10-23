@@ -37,7 +37,7 @@ class CreditEngine(FakeSimulationEngine):
 
     def __init__(self, history: list[PatrimonialHistoryDTO] | None = None, **kwargs):
         super().__init__(**kwargs)
-        self.fixed_income_market = FixedIncomeMarket()
+        self.fixed_income_market = FixedIncomeMarket(1, date(2030, 1, 1))
         self.snapshots = history if history is not None else []
         self.credit_book = CreditBook(
             self, threading.RLock(), history=lambda _client_id: self.snapshots

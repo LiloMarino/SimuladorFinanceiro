@@ -14,11 +14,12 @@ from backend.core.enum import FixedIncomeEventType, FixedIncomeType, RateIndexTy
 from backend.core.exceptions import InsufficentCashError
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
+    NotFoundError,
     UnprocessableEntityError,
 )
 from backend.core.utils import next_business_day
 from backend.features.fixed_income.accrual import project
-from backend.features.fixed_income.fixed_broker import FixedBroker
+from backend.features.fixed_income.fixed_broker import FixedBroker, load_fixed_assets
 from tests.fakes import FakeSimulationEngine, client
 
 INVESTOR = client("investor")
@@ -133,4 +134,147 @@ def test_redemption_credits_projected_net_value(fixed_income_db, captured_events
     redeem = _fixed_events(captured_events)[-1]
     assert engine.cash[INVESTOR] == expected
     assert broker.get_fixed_positions(INVESTOR) == {}
-    assert (redeem.event_type, redeem.amount) == (FixedIncomeEventType.REDEEM, expected)
+    # O evento guarda o que saiu do título (bruto); o caixa recebeu o líquido
+    assert redeem.event_type is FixedIncomeEventType.REDEEM
+    assert redeem.amount > expected
+
+
+# =========================================================
+# ======== Liquidez diária: resgate, teto e oferta rara
+# =========================================================
+def _liquid(**changes) -> FixedIncomeAssetDTO:
+    return _asset(maturity=date(2022, 1, 6)).model_copy(
+        update={"daily_liquidity": True, **changes}
+    )
+
+
+def _tick(broker: FixedBroker, engine: FakeSimulationEngine, days: int) -> None:
+    for _ in range(days):
+        engine.current_date = next_business_day(engine.current_date)
+        broker.apply_daily_interest(engine.current_date)
+
+
+def test_partial_redemption_credits_exact_net_and_keeps_proportions(
+    fixed_income_db, captured_events
+):
+    """O resgate parcial deixa no caixa o líquido pedido ao centavo e reduz C e M na mesma proporção."""
+    broker, engine = _broker(cash="10000")
+    asset = _liquid()
+    broker.buy(INVESTOR, asset, Decimal("10000"))
+    _tick(broker, engine, 100)
+    position = broker.get_fixed_positions(INVESTOR)[asset.asset_uuid]
+    before_value, before_applied = position.current_value, position.total_applied
+    cash_before = engine.cash[INVESTOR]
+
+    broker.redeem(INVESTOR, asset, Decimal("2000"))
+
+    assert engine.cash[INVESTOR] - cash_before == Decimal("2000.00")
+    redeem = _fixed_events(captured_events)[-1]
+    assert redeem.event_type is FixedIncomeEventType.REDEEM
+    assert redeem.amount > Decimal("2000")
+    assert position.current_value == before_value - redeem.amount
+    assert position.total_applied / position.current_value == pytest.approx(
+        before_applied / before_value
+    )
+
+
+def test_full_redemption_removes_the_position(fixed_income_db):
+    """Pedir o líquido máximo resgata tudo e fecha a posição."""
+    broker, engine = _broker(cash="1000")
+    asset = _liquid()
+    broker.buy(INVESTOR, asset, Decimal("1000"))
+    _tick(broker, engine, 60)
+    position = broker.get_fixed_positions(INVESTOR)[asset.asset_uuid]
+    maximum = position.breakdown(engine.current_date, None).net
+
+    broker.redeem(INVESTOR, asset, maximum)
+
+    assert broker.get_fixed_positions(INVESTOR) == {}
+    assert engine.cash[INVESTOR] == maximum
+
+
+def test_redeem_errors(fixed_income_db):
+    """Sem liquidez é 409, sem posição é 404 e acima do máximo é 422; nada é creditado."""
+    broker, engine = _broker(cash="1000")
+    illiquid, asset = _asset(), _liquid()
+    broker.buy(INVESTOR, illiquid, Decimal("100"))
+
+    with pytest.raises(ConflictError):
+        broker.redeem(INVESTOR, illiquid, Decimal("10"))
+    with pytest.raises(NotFoundError):
+        broker.redeem(INVESTOR, asset, Decimal("10"))
+
+    broker.buy(INVESTOR, asset, Decimal("500"))
+    cash = engine.cash[INVESTOR]
+    with pytest.raises(UnprocessableEntityError, match=r"até R\$"):
+        broker.redeem(INVESTOR, asset, Decimal("501"))
+    with pytest.raises(UnprocessableEntityError):
+        broker.redeem(INVESTOR, asset, Decimal(0))
+    assert engine.cash[INVESTOR] == cash
+
+
+def test_player_cap_counts_applied_capital_and_a_redemption_frees_room(
+    fixed_income_db,
+):
+    """O teto vale sobre o capital aplicado da posição: passar dele é 422 e resgatar libera espaço."""
+    broker, _ = _broker(cash="30000")
+    asset = _liquid(player_cap=Decimal("20000"))
+    broker.buy(INVESTOR, asset, Decimal("15000"))
+
+    with pytest.raises(UnprocessableEntityError, match=r"cabem mais R\$ 5.000,00"):
+        broker.buy(INVESTOR, asset, Decimal("5001"))
+
+    broker.redeem(INVESTOR, asset, Decimal("7500"))
+    broker.buy(INVESTOR, asset, Decimal("12000"))
+    assert broker.get_fixed_positions(INVESTOR)[asset.asset_uuid].total_applied > 0
+
+
+def test_offer_out_of_catalog_refuses_buy_but_allows_redeem(fixed_income_db):
+    """Depois de `offered_until` não entra aporte novo, mas o resgate continua valendo."""
+    broker, engine = _broker(cash="1000")
+    asset = _liquid(offered_until=date(2020, 1, 31))
+    broker.buy(INVESTOR, asset, Decimal("500"))
+    engine.current_date = date(2020, 2, 3)
+
+    with pytest.raises(ConflictError, match="01/02/2020"):
+        broker.buy(INVESTOR, asset, Decimal("100"))
+    broker.redeem(INVESTOR, asset, Decimal("100"))
+
+
+def test_rebuild_from_events_matches_the_live_game(
+    fixed_income_db, captured_events, monkeypatch: pytest.MonkeyPatch
+):
+    """Compra, resgate parcial, resgate total e recompra reconstruídos dos eventos igualam o jogo ao vivo."""
+    broker, engine = _broker(cash="30000")
+    asset = _liquid()
+
+    broker.buy(INVESTOR, asset, Decimal("10000"))
+    _tick(broker, engine, 40)
+    broker.redeem(INVESTOR, asset, Decimal("3000"))
+    _tick(broker, engine, 25)
+    position = broker.get_fixed_positions(INVESTOR)[asset.asset_uuid]
+    broker.redeem(INVESTOR, asset, position.breakdown(engine.current_date, None).net)
+    assert broker.get_fixed_positions(INVESTOR) == {}
+    _tick(broker, engine, 3)
+    broker.buy(INVESTOR, asset, Decimal("4000"))
+    _tick(broker, engine, 10)
+    broker.redeem(INVESTOR, asset, Decimal("500"))
+    _tick(broker, engine, 5)
+
+    live = broker.get_fixed_positions(INVESTOR)[asset.asset_uuid]
+    monkeypatch.setattr(
+        repository.fixed_income,
+        "get_events",
+        lambda simulation_id, user_id: [
+            (asset, e) for e in _fixed_events(captured_events)
+        ],
+    )
+    rebuilt = load_fixed_assets(1, INVESTOR, engine.current_date)[asset.asset_uuid]
+
+    assert rebuilt.current_value.quantize(
+        Decimal("0.01")
+    ) == live.current_value.quantize(Decimal("0.01"))
+    assert rebuilt.total_applied.quantize(
+        Decimal("0.01")
+    ) == live.total_applied.quantize(Decimal("0.01"))
+    assert rebuilt.first_applied_date == live.first_applied_date

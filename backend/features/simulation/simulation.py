@@ -19,7 +19,11 @@ from backend.core.dto.credit import (
 )
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, FixedIncomeOfferDTO
-from backend.core.dto.fixed_income_projection import FixedIncomeQuoteDTO
+from backend.core.dto.fixed_income_projection import (
+    FixedIncomeQuoteDTO,
+    FixedIncomeRedemptionQuoteDTO,
+    NextTaxDropDTO,
+)
 from backend.core.dto.goal import GoalProgressDTO, GoalRunnerDTO
 from backend.core.dto.life import LifeEventDTO, LifeStatusDTO
 from backend.core.dto.order import OrderDTO
@@ -47,7 +51,7 @@ from backend.core.enum import (
     PlayerGrouping,
     PrepaymentMode,
 )
-from backend.core.exceptions.http_exceptions import ConflictError
+from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
 from backend.core.repository.strategy import LogFilter
@@ -65,11 +69,20 @@ from backend.features.credit.overview import (
     build_prepayment_preview,
 )
 from backend.features.credit.overview import build_quote as build_loan_quote
-from backend.features.fixed_income.accrual import income_tax_brackets, offer, project
+from backend.features.fixed_income.accrual import (
+    income_tax_brackets,
+    income_tax_rate,
+    iof_free_date,
+    iof_rate,
+    next_tax_drop,
+    offer,
+    project,
+)
 from backend.features.fixed_income.assistance import (
     apply_offer_assistance,
     build_quote,
 )
+from backend.features.fixed_income.liquidity import overdraft_cover, total_redeemable
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     PortfolioUpdateEventDTO,
@@ -156,6 +169,7 @@ class Simulation:
             self._current_date,
             settings.starting_cash,
             settings.id,
+            settings.end_date,
         )
         self._price_impact = PriceImpact(
             settings.id,
@@ -240,6 +254,14 @@ class Simulation:
     ) -> None:
         self._strategies.ensure_manual(client_id)
         self._engine.fixed_broker.buy(client_id, asset, value)
+        EventManager.flush()
+
+    @synchronized
+    def redeem_fixed_income(
+        self, client_id: UUID, asset: FixedIncomeAssetDTO, net_amount: Decimal
+    ) -> None:
+        self._strategies.ensure_manual(client_id)
+        self._engine.fixed_broker.redeem(client_id, asset, net_amount)
         EventManager.flush()
 
     @synchronized
@@ -350,13 +372,66 @@ class Simulation:
         if self._current_date >= asset.maturity_date:
             raise ConflictError("Esse título já venceu. Escolha uma oferta atual.")
         cash = self.get_cash(client_id)
+        applied = self._applied(client_id, asset)
+        max_amount = cash
+        if asset.player_cap is not None:
+            max_amount = min(cash, max(asset.player_cap - applied, Decimal(0)))
+        if asset.offered_until is not None and self._current_date > asset.offered_until:
+            max_amount = Decimal(0)
         return build_quote(
             project(asset, amount, self._current_date),
             self.settings,
             cash_before=cash,
             cash_after=cash - amount,
-            max_amount=cash,
+            max_amount=max_amount,
+            cap_used=None if asset.player_cap is None else applied,
             income_tax_brackets=income_tax_brackets(),
+        )
+
+    def _applied(self, client_id: UUID, asset: FixedIncomeAssetDTO) -> Decimal:
+        """Capital que `client_id` mantém aplicado no título; zero sem posição."""
+        position = self.get_fixed_positions(client_id).get(asset.asset_uuid)
+        return position.total_applied if position else Decimal(0)
+
+    @synchronized
+    def quote_fixed_redemption(
+        self, client_id: UUID, asset: FixedIncomeAssetDTO, amount: Decimal
+    ) -> FixedIncomeRedemptionQuoteDTO:
+        if not asset.daily_liquidity:
+            raise ConflictError(f"{asset.name} só é resgatado no vencimento")
+        position = self.get_fixed_positions(client_id).get(asset.asset_uuid)
+        if position is None:
+            raise NotFoundError(f"Você não tem posição em {asset.name}")
+
+        today = self._current_date
+        maximum = position.breakdown(today, None).net
+        redemption = (
+            position.breakdown(today, amount) if 0 < amount <= maximum else None
+        )
+        cash = self.get_cash(client_id)
+        first = position.first_applied_date
+        days_held = (today - first).days
+        drop = next_tax_drop(asset.investment_type, first, today)
+        return FixedIncomeRedemptionQuoteDTO(
+            amount=amount,
+            max_amount=maximum,
+            position_value=position.current_value,
+            total_applied=position.total_applied,
+            first_applied_date=first,
+            days_held=days_held,
+            gross_amount=redemption and redemption.gross,
+            yield_amount=redemption and redemption.yield_amount,
+            iof_rate=iof_rate(days_held),
+            iof=redemption and redemption.iof,
+            income_tax_rate=income_tax_rate(asset.investment_type, days_held),
+            income_tax=redemption and redemption.income_tax,
+            net_amount=redemption and redemption.net,
+            cash_before=cash,
+            cash_after=redemption and cash + redemption.net,
+            remaining=redemption and redemption.remaining,
+            full=redemption is not None and redemption.full,
+            next_tax_drop=drop and NextTaxDropDTO(on=drop.on, rate=drop.rate),
+            iof_free_date=iof_free_date(first, today),
         )
 
     @synchronized
@@ -574,6 +649,11 @@ class Simulation:
         expense = self._life.expense_on(day)
         cash = self.get_cash(client_id)
         rate = _overdraft_rate()
+        # A reserva soma o caixa e a liquidez diária líquida, e nunca fica negativa
+        positions = list(self.get_fixed_positions(client_id).values())
+        daily_liquidity = total_redeemable(positions, day)
+        reserve = max(cash + daily_liquidity, Decimal(0))
+        reserve_cash = max(cash, Decimal(0))
         return LifeStatusDTO(
             monthly_salary=self._life.salary_on(day),
             monthly_expense=expense,
@@ -587,7 +667,10 @@ class Simulation:
             unexpected_per_year=per_year,
             overdraft_monthly_rate=rate,
             overdraft_daily_interest=overdraft_interest(cash, rate),
-            reserve_months=max(cash, Decimal(0)) / expense,
+            reserve_months=reserve / expense,
+            reserve_cash=reserve_cash,
+            reserve_daily_liquidity=reserve - reserve_cash,
+            overdraft_cover=overdraft_cover(cash, positions, day),
         )
 
     @synchronized

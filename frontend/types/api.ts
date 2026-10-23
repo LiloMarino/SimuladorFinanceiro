@@ -28,6 +28,8 @@ export type FixedIncomeAssetApi = components["schemas"]["FixedIncomeAssetDTO"];
 export type FixedIncomeOffer = components["schemas"]["FixedIncomeOfferDTO"];
 export type FixedIncomeQuote = components["schemas"]["FixedIncomeQuoteDTO"];
 export type BuyFixedIncomeRequest = components["schemas"]["BuyFixedIncomeRequest"];
+export type FixedIncomeRedemptionQuote = components["schemas"]["FixedIncomeRedemptionQuoteDTO"];
+export type RedeemFixedIncomeRequest = components["schemas"]["RedeemFixedIncomeRequest"];
 
 // Economic
 export type EconomicIndicators = components["schemas"]["EconomicIndicatorsDTO"];

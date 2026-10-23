@@ -104,7 +104,12 @@ def test_two_players_can_buy_sell_and_read_history_while_paused(paused_match):
 def test_monthly_catalog_refresh_keeps_unmatured_open_offer_usable(paused_match):
     sim, users, client = paused_match
     client.cookies.set("client_id", str(users[0].client_id))
-    original = client.get("/api/fixed-income").json()[0]
+    # O CDB de liquidez diária fica a partida inteira; o resto da vitrine renova
+    [original, *_] = [
+        a
+        for a in client.get("/api/fixed-income").json()
+        if not (a["daily_liquidity"] and a["player_cap"] is None)
+    ]
     asset_id = original["asset_uuid"]
     sim.next_tick()  # 31/mar -> 1/abr: a vitrine inteira muda.
     assert asset_id not in {

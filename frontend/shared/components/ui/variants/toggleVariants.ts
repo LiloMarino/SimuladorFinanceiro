@@ -12,12 +12,13 @@ export const toggleVariants = cva(
         // Troca de modo da página (manual | automático): itens altos, em destaque
         mode: "rounded-[9px] text-[15px] font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-sm",
       },
-      // Cor do item ativo: lado de compra (success) ou de venda (destructive)
+      // Cor do item ativo: lado de compra (success), de venda (destructive) ou de resgate (dark)
       tone: {
         neutral: "",
         success: "aria-pressed:bg-success aria-pressed:text-success-foreground aria-pressed:hover:text-success-foreground",
         destructive:
           "aria-pressed:bg-destructive aria-pressed:text-destructive-foreground aria-pressed:hover:text-destructive-foreground",
+        dark: "aria-pressed:bg-foreground aria-pressed:text-primary-foreground aria-pressed:hover:text-primary-foreground",
       },
       size: {
         default: "h-8 min-w-8 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",

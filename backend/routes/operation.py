@@ -9,7 +9,10 @@ from backend.core import repository
 from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.candle import MarketQuoteDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeOfferDTO
-from backend.core.dto.fixed_income_projection import FixedIncomeQuoteDTO
+from backend.core.dto.fixed_income_projection import (
+    FixedIncomeQuoteDTO,
+    FixedIncomeRedemptionQuoteDTO,
+)
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO, TradeDTO
 from backend.core.dto.stock_details import StockDetailsDTO
@@ -34,6 +37,11 @@ class SubmitOrderRequest(BaseModel):
 
 class CancelOrderRequest(BaseModel):
     order_id: str
+
+
+class RedeemFixedIncomeRequest(BaseModel):
+    # Quanto o jogador quer receber no caixa, líquido de IOF e IR
+    amount: Decimal = Field(..., gt=0)
 
 
 class BuyFixedIncomeRequest(BaseModel):
@@ -279,3 +287,46 @@ def buy_fixed_income(
     quantity = payload.quantity
 
     simulation.buy_fixed_income(client_id, fixed, quantity)
+
+
+@operation_router.get(
+    "/fixed-income/{asset_uuid}/redemption",
+    response_model=FixedIncomeRedemptionQuoteDTO,
+    summary="Cotar resgate de renda fixa",
+    description="Cota o resgate hoje de um título de liquidez diária: o bruto que sai do título, o IOF, o IR e o líquido que chega ao caixa.",
+)
+def get_fixed_income_redemption(
+    simulation: ActiveSimulation,
+    client_id: ClientID,
+    asset_uuid: str,
+    amount: Annotated[Decimal, Query(ge=0)] = Decimal(0),
+):
+    """
+    Cota o resgate de uma posição de liquidez diária.
+    """
+    fixed = simulation.get_fixed_asset(asset_uuid)
+    if not fixed:
+        raise NotFoundError("Ativo de renda fixa não encontrado")
+    return simulation.quote_fixed_redemption(client_id, fixed, amount)
+
+
+@operation_router.post(
+    "/fixed-income/{asset_uuid}/redeem",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Resgatar ativo de renda fixa",
+    description="Resgata de um título de liquidez diária o valor líquido que o jogador quer receber no caixa.",
+)
+def redeem_fixed_income(
+    simulation: ActiveSimulation,
+    client_id: ClientID,
+    asset_uuid: str,
+    payload: RedeemFixedIncomeRequest,
+):
+    """
+    Resgata um ativo de renda fixa de liquidez diária.
+    """
+    fixed = simulation.get_fixed_asset(asset_uuid)
+    if not fixed:
+        raise NotFoundError("Ativo de renda fixa não encontrado")
+
+    simulation.redeem_fixed_income(client_id, fixed, payload.amount)

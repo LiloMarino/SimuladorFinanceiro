@@ -11,6 +11,7 @@ export function dayOrdersSummary(orders: StrategyOrderLine[]) {
     count("buy") > 0 && plural(count("buy"), "compra", "compras"),
     count("sell") > 0 && plural(count("sell"), "venda", "vendas"),
     count("invest") > 0 && plural(count("invest"), "aplicação", "aplicações"),
+    count("redeem") > 0 && plural(count("redeem"), "resgate", "resgates"),
     count("cancel") > 0 && plural(count("cancel"), "cancelamento", "cancelamentos"),
   ].filter((part): part is string => !!part);
   return parts.length > 1 ? `${parts.slice(0, -1).join(", ")} e ${parts[parts.length - 1]}` : (parts[0] ?? "");
@@ -20,7 +21,7 @@ export function dayOrdersSummary(orders: StrategyOrderLine[]) {
 export function orderToastTitle(order: StrategyOrderLine) {
   const what = order.ticker ?? order.asset_name ?? "";
   const quantity = order.quantity === null ? "" : `${order.quantity} `;
-  const verb = { buy: "comprou", sell: "vendeu", cancel: "cancelou a ordem de", invest: "aplicou em" }[order.action];
+  const verb = { buy: "comprou", sell: "vendeu", cancel: "cancelou a ordem de", invest: "aplicou em", redeem: "resgatou de" }[order.action];
   return order.status === "refused"
     ? `A estratégia tentou ${order.action === "buy" ? "comprar" : order.action === "sell" ? "vender" : "operar"} ${quantity}${what}`
     : `A estratégia ${verb} ${quantity}${what}`.trim();

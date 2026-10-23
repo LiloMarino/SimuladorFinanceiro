@@ -58,5 +58,42 @@ class FixedIncomeQuoteDTO(BaseDTO):
     net_return_pct: Decimal | None
     cash_before: Decimal
     cash_after: Decimal
+    # O que cabe na compra: o caixa, limitado pelo que resta do teto por jogador
     max_amount: Decimal
+    # Capital já aplicado no título com teto; None quando o título não tem teto
+    cap_used: Decimal | None
     income_tax_brackets: list[IncomeTaxBracketDTO]
+
+
+class NextTaxDropDTO(BaseDTO):
+    on: date
+    rate: Decimal
+
+
+class FixedIncomeRedemptionQuoteDTO(BaseDTO):
+    """
+    O resgate de uma posição de liquidez diária hoje, por `amount` líquido no caixa.
+
+    Os campos de valor são None quando `amount` é zero ou passa de `max_amount`,
+    o líquido de resgatar a posição inteira.
+    """
+
+    amount: Decimal
+    max_amount: Decimal
+    position_value: Decimal
+    total_applied: Decimal
+    first_applied_date: date
+    days_held: int
+    gross_amount: Decimal | None
+    yield_amount: Decimal | None
+    iof_rate: Decimal
+    iof: Decimal | None
+    income_tax_rate: Decimal
+    income_tax: Decimal | None
+    net_amount: Decimal | None
+    cash_before: Decimal
+    cash_after: Decimal | None
+    remaining: Decimal | None
+    full: bool
+    next_tax_drop: NextTaxDropDTO | None
+    iof_free_date: date | None

@@ -116,7 +116,9 @@ def player_book(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEvent
 
 
 def _engine() -> SimulationEngine:
-    return SimulationEngine(TODAY, STARTING_CASH, simulation_id=1)
+    return SimulationEngine(
+        TODAY, STARTING_CASH, simulation_id=1, end_date=date(2030, 1, 1)
+    )
 
 
 def _cashflows(events: list[BaseEventDTO]) -> list[tuple[CashflowEventType, Decimal]]:
@@ -230,7 +232,9 @@ def test_preview_buy_uses_limit_price_and_cash(player_book):
 
 def _next_day_engine() -> SimulationEngine:
     """Um pregão depois da compra: a venda não é day trade."""
-    return SimulationEngine(date(2020, 1, 7), STARTING_CASH, simulation_id=1)
+    return SimulationEngine(
+        date(2020, 1, 7), STARTING_CASH, simulation_id=1, end_date=date(2030, 1, 1)
+    )
 
 
 def test_preview_sell_within_exemption_has_no_tax(player_book):

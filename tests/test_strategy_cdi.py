@@ -44,3 +44,17 @@ def test_a_zero_balance_buys_nothing():
 
 def test_has_no_parameters():
     assert CdiReference.validate({}, set()) == {}
+
+
+def test_ignores_offers_with_a_per_player_cap():
+    """Oferta com teto não comporta o caixa inteiro: fica com a melhor sem teto."""
+    capped = offer(
+        interest_rate="1.10", tax="0", name="Oferta rara", player_cap="20000"
+    )
+    plain = offer(interest_rate="1.00", tax="0.15", name="CDB 100%")
+    ctx = context(cash="5000", offers=[capped, plain])
+
+    CdiReference().next(ctx, {})
+
+    [intent] = ctx.intents
+    assert intent.asset_uuid == plain.asset_uuid

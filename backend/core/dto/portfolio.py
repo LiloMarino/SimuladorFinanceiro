@@ -14,6 +14,8 @@ class PortfolioDTO(BaseDTO):
     invested_value: Decimal
     variable_income_value: Decimal
     fixed_income_value: Decimal
+    # Quanto a renda fixa de liquidez diária manda ao caixa se resgatada hoje, líquido
+    fixed_income_redeemable: Decimal
     # Frações (0.25 = 25%): investido sobre os ativos; RV e RF sobre o investido
     invested_pct: Decimal
     variable_income_pct: Decimal

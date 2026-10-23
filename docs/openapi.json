@@ -655,6 +655,143 @@
         }
       }
     },
+    "/api/fixed-income/{asset_uuid}/redemption": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Cotar resgate de renda fixa",
+        "description": "Cota o resgate hoje de um título de liquidez diária: o bruto que sai do título, o IOF, o IR e o líquido que chega ao caixa.",
+        "operationId": "get_fixed_income_redemption_api_fixed_income__asset_uuid__redemption_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset Uuid"
+            }
+          },
+          {
+            "name": "amount",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0.0
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": "0",
+              "title": "Amount"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FixedIncomeRedemptionQuoteDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/fixed-income/{asset_uuid}/redeem": {
+      "post": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Resgatar ativo de renda fixa",
+        "description": "Resgata de um título de liquidez diária o valor líquido que o jogador quer receber no caixa.",
+        "operationId": "redeem_fixed_income_api_fixed_income__asset_uuid__redeem_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset_uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset Uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedeemFixedIncomeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/portfolio": {
       "get": {
         "tags": [
@@ -6448,6 +6585,34 @@
           "interest_rate": {
             "type": "string",
             "title": "Interest Rate"
+          },
+          "daily_liquidity": {
+            "type": "boolean",
+            "title": "Daily Liquidity",
+            "default": false
+          },
+          "player_cap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Cap"
+          },
+          "offered_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offered Until"
           }
         },
         "additionalProperties": false,
@@ -6491,6 +6656,34 @@
           "interest_rate": {
             "type": "string",
             "title": "Interest Rate"
+          },
+          "daily_liquidity": {
+            "type": "boolean",
+            "title": "Daily Liquidity",
+            "default": false
+          },
+          "player_cap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Player Cap"
+          },
+          "offered_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offered Until"
           },
           "index_rate": {
             "type": "string",
@@ -6562,6 +6755,17 @@
           "portfolio_pct": {
             "type": "string",
             "title": "Portfolio Pct"
+          },
+          "redeemable_today": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Redeemable Today"
           }
         },
         "additionalProperties": false,
@@ -6573,7 +6777,8 @@
           "first_applied_date",
           "return_value",
           "return_pct",
-          "portfolio_pct"
+          "portfolio_pct",
+          "redeemable_today"
         ],
         "title": "FixedIncomePositionDTO"
       },
@@ -6711,6 +6916,17 @@
             "type": "string",
             "title": "Max Amount"
           },
+          "cap_used": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cap Used"
+          },
           "income_tax_brackets": {
             "items": {
               "$ref": "#/components/schemas/IncomeTaxBracketDTO"
@@ -6739,10 +6955,180 @@
           "cash_before",
           "cash_after",
           "max_amount",
+          "cap_used",
           "income_tax_brackets"
         ],
         "title": "FixedIncomeQuoteDTO",
         "description": "A projeção com o caixa do jogador e a tabela regressiva, para a boleta.\n\nA taxa equivalente e o que o dinheiro vira no vencimento (bruto, IR e líquido)\nsão None quando a partida esconde essas ajudas."
+      },
+      "FixedIncomeRedemptionQuoteDTO": {
+        "properties": {
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "max_amount": {
+            "type": "string",
+            "title": "Max Amount"
+          },
+          "position_value": {
+            "type": "string",
+            "title": "Position Value"
+          },
+          "total_applied": {
+            "type": "string",
+            "title": "Total Applied"
+          },
+          "first_applied_date": {
+            "type": "string",
+            "format": "date",
+            "title": "First Applied Date"
+          },
+          "days_held": {
+            "type": "integer",
+            "title": "Days Held"
+          },
+          "gross_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Amount"
+          },
+          "yield_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yield Amount"
+          },
+          "iof_rate": {
+            "type": "string",
+            "title": "Iof Rate"
+          },
+          "iof": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iof"
+          },
+          "income_tax_rate": {
+            "type": "string",
+            "title": "Income Tax Rate"
+          },
+          "income_tax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Income Tax"
+          },
+          "net_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net Amount"
+          },
+          "cash_before": {
+            "type": "string",
+            "title": "Cash Before"
+          },
+          "cash_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cash After"
+          },
+          "remaining": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remaining"
+          },
+          "full": {
+            "type": "boolean",
+            "title": "Full"
+          },
+          "next_tax_drop": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NextTaxDropDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "iof_free_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iof Free Date"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount",
+          "max_amount",
+          "position_value",
+          "total_applied",
+          "first_applied_date",
+          "days_held",
+          "gross_amount",
+          "yield_amount",
+          "iof_rate",
+          "iof",
+          "income_tax_rate",
+          "income_tax",
+          "net_amount",
+          "cash_before",
+          "cash_after",
+          "remaining",
+          "full",
+          "next_tax_drop",
+          "iof_free_date"
+        ],
+        "title": "FixedIncomeRedemptionQuoteDTO",
+        "description": "O resgate de uma posição de liquidez diária hoje, por `amount` líquido no caixa.\n\nOs campos de valor são None quando `amount` é zero ou passa de `max_amount`,\no líquido de resgatar a posição inteira."
       },
       "FixedIncomeType": {
         "type": "string",
@@ -7669,6 +8055,24 @@
           "reserve_months": {
             "type": "string",
             "title": "Reserve Months"
+          },
+          "reserve_cash": {
+            "type": "string",
+            "title": "Reserve Cash"
+          },
+          "reserve_daily_liquidity": {
+            "type": "string",
+            "title": "Reserve Daily Liquidity"
+          },
+          "overdraft_cover": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OverdraftCoverDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -7684,7 +8088,10 @@
           "unexpected_per_year",
           "overdraft_monthly_rate",
           "overdraft_daily_interest",
-          "reserve_months"
+          "reserve_months",
+          "reserve_cash",
+          "reserve_daily_liquidity",
+          "overdraft_cover"
         ],
         "title": "LifeStatusDTO",
         "description": "A vida financeira de quem pede, no pregão corrente do viver de renda."
@@ -8226,6 +8633,26 @@
         ],
         "title": "MyStrategyDTO"
       },
+      "NextTaxDropDTO": {
+        "properties": {
+          "on": {
+            "type": "string",
+            "format": "date",
+            "title": "On"
+          },
+          "rate": {
+            "type": "string",
+            "title": "Rate"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "on",
+          "rate"
+        ],
+        "title": "NextTaxDropDTO"
+      },
       "OperationsReportDTO": {
         "properties": {
           "player_grouping": {
@@ -8638,6 +9065,37 @@
           "p95_ms"
         ],
         "title": "OverallItem"
+      },
+      "OverdraftCoverDTO": {
+        "properties": {
+          "asset_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Asset Uuid"
+          },
+          "asset_name": {
+            "type": "string",
+            "title": "Asset Name"
+          },
+          "net_amount": {
+            "type": "string",
+            "title": "Net Amount"
+          },
+          "gross_amount": {
+            "type": "string",
+            "title": "Gross Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "asset_uuid",
+          "asset_name",
+          "net_amount",
+          "gross_amount"
+        ],
+        "title": "OverdraftCoverDTO",
+        "description": "O título de liquidez diária que sozinho paga o cheque especial hoje."
       },
       "OverdueDTO": {
         "properties": {
@@ -9648,6 +10106,10 @@
             "type": "string",
             "title": "Fixed Income Value"
           },
+          "fixed_income_redeemable": {
+            "type": "string",
+            "title": "Fixed Income Redeemable"
+          },
           "invested_pct": {
             "type": "string",
             "title": "Invested Pct"
@@ -9766,6 +10228,7 @@
           "invested_value",
           "variable_income_value",
           "fixed_income_value",
+          "fixed_income_redeemable",
           "invested_pct",
           "variable_income_pct",
           "fixed_income_pct",
@@ -10517,6 +10980,27 @@
         ],
         "title": "RealtimeEventCatalog",
         "description": "Um campo por nome de evento realtime, tipado para o DTO do payload\ncorrespondente. Nunca é instanciado de verdade — só existe para que seu\nschema apareça em `/openapi.json` via a rota dev-only em `routes/realtime.py`."
+      },
+      "RedeemFixedIncomeRequest": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Amount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "title": "RedeemFixedIncomeRequest"
       },
       "ReplacedGeneratedDTO": {
         "properties": {
@@ -12169,7 +12653,8 @@
           "buy",
           "sell",
           "cancel",
-          "invest"
+          "invest",
+          "redeem"
         ],
         "title": "StrategyAction"
       },

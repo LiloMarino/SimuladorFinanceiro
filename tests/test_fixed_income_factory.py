@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from collections import Counter
 from datetime import date, timedelta
 from decimal import Decimal
@@ -71,3 +72,47 @@ def test_rates_stay_in_range_and_fit_database_precision():
                     assert Decimal("0.0005") <= rate <= Decimal("0.002")
                 case RateIndexType.PREFIXADO | RateIndexType.IPCA:
                     assert Decimal(0) < rate < Decimal("0.2")
+
+
+def test_daily_liquidity_cdb_has_a_stable_uuid_per_match():
+    """O CDB de 100% do CDI mantém o UUID da partida e vence um ano depois do fim dela."""
+    end = date(2024, 12, 31)
+    first = FixedIncomeFactory.daily_liquidity_cdb(7, end)
+    again = FixedIncomeFactory.daily_liquidity_cdb(7, end)
+    other = FixedIncomeFactory.daily_liquidity_cdb(8, end)
+
+    assert first == again
+    assert first.asset_uuid != other.asset_uuid
+    assert first.daily_liquidity and first.player_cap is None
+    assert (first.rate_index, first.interest_rate) == (RateIndexType.CDI, Decimal(1))
+    assert first.maturity_date == end + timedelta(days=365)
+
+
+def test_rare_offer_is_capped_and_leaves_at_the_end_of_the_month():
+    """A oferta rara paga de 102% a 110% do CDI, tem teto de R$ 20 mil e vence em 2 a 3 anos."""
+    month = date(2023, 3, 1)
+    offers = []
+    for seed in range(60):
+        random.seed(seed)
+        if offer := FixedIncomeFactory.rare_daily_liquidity_offer(month):
+            offers.append(offer)
+
+    # Em média 1 mês em 3 tem oferta rara
+    assert 10 < len(offers) < 35
+    for o in offers:
+        assert o.daily_liquidity
+        assert Decimal("1.02") <= o.interest_rate <= Decimal("1.10")
+        assert o.player_cap == Decimal(20000)
+        assert o.offered_until == date(2023, 3, 31)
+        assert month + timedelta(days=2 * 365) <= o.maturity_date
+        assert o.maturity_date <= month + timedelta(days=3 * 365)
+
+
+def test_issuers_come_from_a_real_bank_pool_and_name_the_asset():
+    """Cada título do catálogo leva o banco no nome, sem o emissor fictício antigo."""
+    for asset in _generate(COMBINATIONS * 3):
+        if asset.investment_type is FixedIncomeType.TESOURO_DIRETO:
+            continue
+        assert asset.name.startswith(asset.investment_type.name)
+        assert asset.name.endswith(asset.issuer)
+        assert "XPTO" not in asset.issuer

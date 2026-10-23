@@ -17,6 +17,12 @@ class FixedIncomeAssetDTO(BaseDTO):
     rate_index: RateIndexType
     maturity_date: date
     interest_rate: Decimal
+    # Resgatável em qualquer pregão pelo valor do dia, e não só no vencimento
+    daily_liquidity: bool = False
+    # Máximo que cada jogador aplica no título; None é sem teto
+    player_cap: Decimal | None = None
+    # Último dia em que a oferta aceita aporte; None é sem prazo
+    offered_until: date | None = None
 
 
 class FixedIncomeOfferDTO(FixedIncomeAssetDTO):

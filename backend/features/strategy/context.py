@@ -37,6 +37,9 @@ class FixedHolding:
     asset_uuid: UUID
     name: str
     current_value: Decimal
+    daily_liquidity: bool
+    # Líquido que o resgate de hoje manda ao caixa; nulo sem liquidez diária
+    redeemable: Decimal | None
 
 
 @dataclass(frozen=True)
@@ -99,3 +102,6 @@ class StrategyContext:
 
     def invest(self, asset_uuid: UUID, value: Decimal, reason: str) -> None:
         self.intents.append(intents.invest(asset_uuid, value, reason))
+
+    def redeem(self, asset_uuid: UUID, value: Decimal, reason: str) -> None:
+        self.intents.append(intents.redeem(asset_uuid, value, reason))
