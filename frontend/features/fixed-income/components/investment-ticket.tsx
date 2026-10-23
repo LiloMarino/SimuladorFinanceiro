@@ -35,9 +35,15 @@ export function InvestmentTicket({ assetId, amountText, onAmountChange, quote }:
 
   const invest = useBuyFixedIncome(assetId);
 
-  const fill = (value: string) => {
+  const setAmount = (value: string) => {
     setTouched(true);
     onAmountChange(formatMoney(toCentsString(value)));
+  };
+
+  // O atalho soma ao valor digitado; a conta fecha em centavos inteiros.
+  const addToAmount = (value: string) => {
+    setTouched(true);
+    onAmountChange(formatMoney(String(Math.round(amount * 100) + Number(value) * 100)));
   };
 
   if (invest.isSuccess) {
@@ -103,14 +109,17 @@ export function InvestmentTicket({ assetId, amountText, onAmountChange, quote }:
             )}
           </Field>
 
-          <div className="grid grid-cols-4 gap-1.5">
+          <div className="grid grid-cols-3 gap-1.5">
             {SHORTCUTS.map((s) => (
-              <Button key={s.label} variant="outline" size="sm" onClick={() => fill(s.value)}>
+              <Button key={s.label} variant="outline" size="sm" onClick={() => addToAmount(s.value)}>
                 {s.label}
               </Button>
             ))}
-            <Button variant="outline" size="sm" onClick={() => fill(quote.max_amount)}>
+            <Button variant="outline" size="sm" onClick={() => setAmount(quote.max_amount)}>
               Tudo
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setAmount("0")}>
+              Limpar
             </Button>
           </div>
 
