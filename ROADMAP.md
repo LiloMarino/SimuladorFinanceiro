@@ -32,7 +32,7 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F124](#f124) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F119](#f119), [F124](#f124) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
@@ -47,7 +47,7 @@
 | **N27** | Entrar numa partida que já começou | — | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
 | **N29** | Saber o que cada jogador está fazendo enquanto a partida não começa | — | — |
-| **N30** | Repetir uma configuração de partida sem montá-la de novo | [F89](#f89), [F118](#f118) | — |
+| **N30** | Repetir uma configuração de partida sem montá-la de novo | [F89](#f89), [F118](#f118), [F119](#f119) | — |
 | **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92) | — |
 | **N32** | Saber como foi o mês sem montar a conta | [F91](#f91) | — |
 | **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — |
@@ -97,7 +97,6 @@
 | [**F108**](#f108) | Bot pela API: guia e exemplo | — | ⏳ |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
-| [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
@@ -108,7 +107,7 @@
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -129,6 +128,7 @@
 | **D16** | Estratégias do app no host, personalização pela API | [F108](#f108) | ✅ |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
+| [**F119**](#f119) | Seletor de período da partida com linha do tempo | — | ✅ |
 
 </details>
 
@@ -156,7 +156,6 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
-| [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 0 | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 0 | 🔍 |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | 0 | ⏳ |
@@ -275,7 +274,7 @@
 
 ### Sem marco
 
-> **Progresso:** 2/36 concluídas
+> **Progresso:** 3/36 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -305,7 +304,6 @@
 | [**F107**](#f107) | Perfis de público na eleição | [F95](#f95) | 🔍 |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
-| [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
@@ -314,12 +312,13 @@
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | [F113](#f113) | 💤 |
 
-<details><summary>Concluído (2 itens)</summary>
+<details><summary>Concluído (3 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
+| [**F119**](#f119) | Seletor de período da partida com linha do tempo | — | ✅ |
 
 </details>
 
@@ -352,6 +351,7 @@
 | **F124** | Voltar o quadrado da marca no cabeçalho da sala | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F126** | Janela "Como jogar" | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F127** | Estratégias e bots operam cripto em fração | N4, N37 | D3 | — | [F113](#f113) | Médio | Baixo | Baixo | Regular | 💤 Registrado, sem prioridade |
+| **F119** | Seletor de período da partida com linha do tempo | N15, N30 | — | — | — | — | — | — | — | ✅ Concluído |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -438,6 +438,9 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 <a id="f127"></a>
 **F127 — Estratégias e bots operam cripto em fração.** Serve N4 e N37. Com a classe de cripto e a quantidade fracionária no ar, as estratégias seguem comprando só unidades inteiras (`int(caixa // preço)`), então um bot só compra bitcoin se o caixa pagar 1 unidade inteira. Plano: o contexto da estratégia passa a conhecer a classe do ativo, e as estratégias (comprar e segurar, rebalanceamento, momentum, RSI, médias móveis, rompimento) arredondam a quantidade em oito casas para cripto e em inteiro para as demais; `whole_shares` ganha a variante fracionária. Gatilho: a F113 concluída e o uso pedir bot com bitcoin.
 
+<a id="f119"></a>
+**F119 — Seletor de período da partida com linha do tempo.** Serve N15 e N30. O início e o fim da partida saíram dos dois `DateField` soltos para um bloco "Período" no `rules-sheet.tsx`: a duração no cabeçalho ("6 anos e 7 meses"), atalhos em dois grupos ("Até hoje": 5 anos, 10 anos, 20 anos e Tudo; "Pra frente": 5 anos e 10 anos), uma linha do tempo de 1993 a 2040 pintada pelo dado que a base tem (sem dado, dado real, futuro gerado e repete o último valor) com o marcador de hoje, duas alças e uma barra que move o período inteiro mantendo a duração, e os campos Início e Fim com o botão "Hoje" e o calendário com "Hoje", o dia de hoje em destaque e o futuro em violeta. A escolha vale na hora, sem botão de aplicar; alças e barra andam em meses inteiros (início no dia 1, fim no último dia do mês) e param no primeiro dia com dado e em 31/12/2040, com um aviso na linha. Atalho que começaria antes do primeiro dia com dado de um indicador fica desligado com o motivo. O aviso de cobertura (`CoverageAlerts`) continua abaixo, e a data digitada mantém o aviso. A matemática mora em `lobby/lib/period.ts`, com testes.
+
 ---
 ## 2. Nice-to-have
 
@@ -495,7 +498,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F105** | Gestoras: rendimentos mensais | Serve N23; falta a parte do lucro distribuída | — | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
 | **F106** | Governo: gasto público e inflação | Serve N34; falta quanto cada medida soma ao IPCA | — | [F95](#f95) | 🔍 Em avaliação |
 | **F107** | Perfis de público na eleição | Serve N34; eleitores com perfil sobre a eleição da F95 | — | [F95](#f95) | 🔍 Em avaliação |
-| **F119** | Escolher o intervalo da partida com "hoje" e atalhos | Serve N15 e N30; falta escolher a forma do seletor no canvas | — | — | 🔍 Em avaliação |
 | **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | Serve N15; falta escolher o desenho dos dois cards no canvas; liga à F72 | — | — | 🔍 Em avaliação |
 | **F121** | Comprar tudo a mercado sem estourar o caixa | Serve N15; falta escolher entre ordem por valor, ordem que se ajusta ou Máx com folga | — | — | 🔍 Em avaliação |
 | **F123** | Redesenhar o aviso de conquista desbloqueada | Serve N22 e N15; falta escolher o desenho do aviso no canvas; liga à F122 | — | — | 🔍 Em avaliação |
@@ -557,9 +559,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f107"></a>
 **F107 — Perfis de público na eleição.** Ligado à N34; amplia a eleição da expansão Governo (F95). Em vez de um eleitorado único, a eleição ganha eleitores artificiais agrupados em perfis (por exemplo, quem vive de renda, quem empreende, quem depende de serviço público), cada um com a própria posição na régua de promessa e a própria sensibilidade à verba. A transferência de votos do segundo turno deixa de ser "vai inteiro para o finalista com a promessa mais parecida" e passa a ser perfil a perfil, pela distância entre a promessa de cada finalista e a posição daquele perfil, e a pesquisa de intenção de voto pode mostrar o voto por perfil. Falta definir: quais perfis existem e quanto cada um pesa no eleitorado, se o peso muda com a economia da partida (desemprego, inflação), e se a aprovação do governo também passa a ser medida por perfil.
-
-<a id="f119"></a>
-**F119 — Escolher o intervalo da partida com "hoje" e atalhos.** Hoje o início e o fim são dois `DateField` (máscara dd/mm/aaaa e um calendário em popover, de 1993 a 2040) no `rules-sheet.tsx`, e o calendário não tem "hoje" nem atalho nenhum: montar um período como "os últimos 10 anos" é digitar duas datas. O que falta definir é a forma de escolher: (a) manter os dois campos e acrescentar ao calendário um botão "Hoje" e à linha de baixo atalhos de período ("últimos 5, 10 e 20 anos", "desde o início da série"); (b) trocar por um seletor de intervalo único, com o período todo num calendário só e o mesmo conjunto de atalhos; (c) um controle de período por anos, com o calendário só para o ajuste fino. Depende de ver as variantes no canvas, mantendo o aviso de cobertura de dados (`CoverageAlerts`). Sai daqui para Pendente com a variante escolhida.
 
 <a id="f120"></a>
 **F120 — Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira.** O que incomoda: o tooltip do donut (`allocation-donut.tsx`, um `Tooltip` do Recharts com estilo avulso) não agrada; o estilo do gráfico de evolução (`networth-chart.tsx`: áreas empilhadas por classe, linha tracejada do aportado, rótulos de fim à direita) parece estranho; e outros lugares usam um gráfico parecido (a área de composição das Estatísticas e a linha de desempenho). Falta escolher o desenho dos dois cards: que tipo de gráfico mostra a evolução (áreas empilhadas, uma linha de patrimônio contra o aportado, ou o patrimônio com o ganho destacado), o que o donut conta e como o tooltip responde, e se os dois cards continuam lado a lado. Parte de uma rodada no canvas, com variantes dos dois cards e do estado vazio e com poucos pontos. Ao aprovar, o visual vale para os gráficos parecidos, e a F72 (convenção de pasta e `ChartContainer`) é o lugar de migrá-los. Sai daqui para Pendente com a variante escolhida.
