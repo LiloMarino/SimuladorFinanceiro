@@ -14,7 +14,9 @@ from backend.core import repository
 from backend.core.dto.events.strategy import StrategyEventDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeOfferDTO
 from backend.core.dto.strategy import (
+    AllocationViewDTO,
     MyStrategyDTO,
+    RankingViewDTO,
     SignalDTO,
     StrategyActiveDTO,
     StrategyErrorDTO,
@@ -23,6 +25,7 @@ from backend.core.dto.strategy import (
     StrategyOrderLineDTO,
     StrategyParamDTO,
     StrategyParamValue,
+    StrategyViewDTO,
 )
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
@@ -33,6 +36,7 @@ from backend.core.enum import (
     StrategyLogKind,
     StrategyOrderStatus,
     StrategyParamKind,
+    StrategyView,
 )
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -48,7 +52,11 @@ from backend.features.realtime.schemas import (
     StrategyOrdersEventDTO,
     StrategyUpdateEventDTO,
 )
-from backend.features.strategy.base_strategy import BaseStrategy
+from backend.features.strategy.base_strategy import (
+    CHART_DAYS,
+    BaseStrategy,
+    ParamSpec,
+)
 from backend.features.strategy.context import (
     FixedHolding,
     Holding,
@@ -58,7 +66,6 @@ from backend.features.strategy.context import (
     StrategyContext,
 )
 from backend.features.strategy.intents import Intent
-from backend.features.strategy.moving_average import CHART_DAYS
 from backend.features.strategy.panel import build_panel
 from backend.features.strategy.price_history import PriceHistory
 from backend.features.strategy.registry import STRATEGIES, get_strategy
@@ -152,21 +159,9 @@ class StrategyRunner:
                 summary=cls.summary,
                 description=cls.description,
                 group=cls.group,
-                params=[
-                    StrategyParamDTO(
-                        key=spec.key,
-                        label=spec.label,
-                        kind=spec.kind,
-                        default=tickers
-                        if spec.kind is StrategyParamKind.TICKERS
-                        else spec.default or 0,
-                        min=spec.min,
-                        max=spec.max,
-                        unit=spec.unit,
-                        hint=spec.hint,
-                    )
-                    for spec in cls.params
-                ],
+                view=cls.view_kind,
+                term_hint=cls.term_hint,
+                params=[self._param_dto(spec, tickers, today) for spec in cls.params],
             )
             for cls in STRATEGIES.values()
         ]
@@ -245,6 +240,7 @@ class StrategyRunner:
             return SignalDTO(
                 errors=errors,
                 lines=[],
+                levels=[],
                 markers=[],
                 available_days=0,
                 needed_days=needed,
@@ -255,9 +251,35 @@ class StrategyRunner:
         return SignalDTO(
             errors={},
             lines=signal.lines if signal else [],
+            levels=signal.levels if signal else [],
             markers=signal.markers if signal else [],
             available_days=len(frame),
             needed_days=needed,
+        )
+
+    def view(
+        self,
+        user: UserDTO,
+        key: str,
+        params: dict[str, StrategyParamValue],
+        today: date,
+    ) -> StrategyViewDTO:
+        """O ranking ou a alocação da estratégia sobre a carteira do jogador hoje, sem executar nada."""
+        cls = get_strategy(key)
+        merged = self._with_defaults(cls, params, today)
+        errors = cls.validate(merged, set(self._engine.stocks))
+        if errors or cls.view_kind not in (
+            StrategyView.RANKING,
+            StrategyView.ALLOCATION,
+        ):
+            return StrategyViewDTO(errors=errors, ranking=None, allocation=None)
+
+        ctx = self._context(user, self._market(today), today)
+        result = cls().view(ctx, merged)
+        return StrategyViewDTO(
+            errors={},
+            ranking=result if isinstance(result, RankingViewDTO) else None,
+            allocation=result if isinstance(result, AllocationViewDTO) else None,
         )
 
     # =========================
@@ -544,6 +566,7 @@ class StrategyRunner:
             segment = engine.classification.get(ticker)
             quotes[ticker] = Quote(
                 ticker,
+                engine.stocks[ticker].name,
                 candle.close,
                 candle.volume,
                 segment.sector if segment else None,
@@ -627,9 +650,42 @@ class StrategyRunner:
                 resolved[spec.key] = params[spec.key]
             elif spec.kind is StrategyParamKind.TICKERS:
                 resolved[spec.key] = self._default_tickers(today)
+            elif spec.kind is StrategyParamKind.TICKER:
+                resolved[spec.key] = self._default_asset(spec, today)
             elif spec.default is not None:
                 resolved[spec.key] = spec.default
         return resolved
+
+    def _default_asset(self, spec: ParamSpec, today: date) -> str:
+        """O ativo preferido do parâmetro; sem ele na partida, a ação mais negociada."""
+        if isinstance(spec.default, str) and spec.default in self._engine.stocks:
+            return spec.default
+        most_traded = self._default_tickers(today)
+        return most_traded[0] if most_traded else str(spec.default)
+
+    def _param_dto(
+        self, spec: ParamSpec, tickers: list[str], today: date
+    ) -> StrategyParamDTO:
+        hint = spec.hint
+        default: StrategyParamValue
+        if spec.kind is StrategyParamKind.TICKERS:
+            default = tickers
+        elif spec.kind is StrategyParamKind.TICKER:
+            default = self._default_asset(spec, today)
+            if default != spec.default:
+                hint += f" Esta partida não tem o {spec.default}: o padrão é {default}."
+        else:
+            default = spec.default or 0
+        return StrategyParamDTO(
+            key=spec.key,
+            label=spec.label,
+            kind=spec.kind,
+            default=default,
+            min=spec.min,
+            max=spec.max,
+            unit=spec.unit,
+            hint=hint,
+        )
 
     def _push_mode(
         self,

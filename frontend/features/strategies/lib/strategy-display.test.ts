@@ -76,6 +76,19 @@ describe("fromDraft", () => {
     expect(fromDraft(params, { short_window: "", tickers: [] })).toBeNull();
     expect(fromDraft(params, { short_window: "3,5", tickers: [] })).toBeNull();
   });
+
+  it("o ativo é o ticker escolhido, e sem ticker ainda não tem valor", () => {
+    const withAsset: StrategyParam[] = [
+      { key: "asset", label: "Ativo", kind: "ticker", default: "BOVA11", min: null, max: null, unit: null, hint: "" },
+      ...params,
+    ];
+    expect(fromDraft(withAsset, { asset: "VALE3", short_window: "30", tickers: [] })).toEqual({
+      asset: "VALE3",
+      short_window: 30,
+      tickers: [],
+    });
+    expect(fromDraft(withAsset, { asset: "", short_window: "30", tickers: [] })).toBeNull();
+  });
 });
 
 describe("sameValues", () => {
@@ -86,6 +99,20 @@ describe("sameValues", () => {
 });
 
 describe("rangeHint", () => {
+  it("o ativo mostra só o padrão", () => {
+    const hint = rangeHint({
+      key: "asset",
+      label: "Ativo",
+      kind: "ticker",
+      default: "BOVA11",
+      min: null,
+      max: null,
+      unit: null,
+      hint: "",
+    });
+    expect(hint).toBe("Padrão BOVA11");
+  });
+
   it("mostra o padrão e a faixa, com % quando a unidade é percentual", () => {
     const hint = rangeHint({
       key: "cash_pct",

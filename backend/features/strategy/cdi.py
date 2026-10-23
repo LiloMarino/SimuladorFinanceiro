@@ -27,6 +27,10 @@ class CdiReference(BaseStrategy):
         "que paga mais depois do imposto. É a régua para comparar as outras estratégias."
     )
     group = StrategyGroup.REFERENCE
+    term_hint = (
+        "CDI é a taxa de juros que os bancos cobram entre si, a régua da renda fixa. "
+        "Um título que paga 100% do CDI rende o mesmo que ela; 110% rende 10% a mais."
+    )
     params = ()
 
     def next(self, ctx: StrategyContext, params: dict[str, StrategyParamValue]) -> None:

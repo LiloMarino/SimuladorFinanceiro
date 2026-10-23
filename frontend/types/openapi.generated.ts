@@ -1292,6 +1292,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/strategies/{key}/view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Calcular o ranking ou a alocação de uma estratégia
+         * @description Valida os parâmetros e devolve o ranking ou a alocação da estratégia sobre a carteira do jogador de hoje, sem salvar nem executar nada.
+         */
+        post: operations["get_view_api_strategies__key__view_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/strategies/me/log": {
         parameters: {
             query?: never;
@@ -1873,6 +1893,33 @@ export interface components {
         AchievementUnlockedEventDTO: {
             /** Achievements */
             achievements: components["schemas"]["UnlockedAchievementDTO"][];
+        };
+        /** AllocationItemDTO */
+        AllocationItemDTO: {
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+            /** Current Pct */
+            current_pct: string;
+            /** Target Pct */
+            target_pct: string;
+            /** Deviation Pp */
+            deviation_pp: string;
+        };
+        /**
+         * AllocationViewDTO
+         * @description A carteira da estratégia contra a meta e o que ela faria hoje.
+         */
+        AllocationViewDTO: {
+            /** Items */
+            items: components["schemas"]["AllocationItemDTO"][];
+            /** Limit Pp */
+            limit_pp: number;
+            /** Has Liquid Offer */
+            has_liquid_offer: boolean;
+            /** Today */
+            today: string[];
         };
         /**
          * AssetClass
@@ -3713,6 +3760,32 @@ export interface components {
             /** Curve */
             curve: components["schemas"]["PriceImpactPointDTO"][];
         };
+        /** RankingRowDTO */
+        RankingRowDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            /** Return 12M */
+            return_12m: string | null;
+            /** Selected */
+            selected: boolean;
+        };
+        /**
+         * RankingViewDTO
+         * @description As ações da lista da mais para a menos valorizada em 12 meses.
+         */
+        RankingViewDTO: {
+            /** Rows */
+            rows: components["schemas"]["RankingRowDTO"][];
+            /**
+             * Next Switch
+             * Format: date
+             */
+            next_switch: string;
+            /** Needed Days */
+            needed_days: number;
+        };
         /**
          * RateIndexType
          * @enum {string}
@@ -4103,6 +4176,8 @@ export interface components {
             };
             /** Lines */
             lines: components["schemas"]["SignalLineDTO"][];
+            /** Levels */
+            levels: components["schemas"]["SignalLevelDTO"][];
             /** Markers */
             markers: components["schemas"]["SignalMarkerDTO"][];
             /** Available Days */
@@ -4110,18 +4185,32 @@ export interface components {
             /** Needed Days */
             needed_days: number;
         };
-        /** SignalLineDTO */
-        SignalLineDTO: {
-            /**
-             * Key
-             * @enum {string}
-             */
-            key: "price" | "short" | "long";
+        /**
+         * SignalLevelDTO
+         * @description Linha horizontal do oscilador, como o 30 e o 70 do IFR.
+         */
+        SignalLevelDTO: {
+            /** Value */
+            value: number;
             /** Label */
             label: string;
+        };
+        /** SignalLineDTO */
+        SignalLineDTO: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            style: components["schemas"]["SignalLineStyle"];
+            pane: components["schemas"]["SignalPane"];
             /** Points */
             points: components["schemas"]["SignalPointDTO"][];
         };
+        /**
+         * SignalLineStyle
+         * @enum {string}
+         */
+        SignalLineStyle: "price" | "fast" | "slow" | "channel" | "oscillator";
         /** SignalMarkerDTO */
         SignalMarkerDTO: {
             /**
@@ -4135,6 +4224,11 @@ export interface components {
              */
             side: "buy" | "sell";
         };
+        /**
+         * SignalPane
+         * @enum {string}
+         */
+        SignalPane: "price" | "oscillator";
         /** SignalPointDTO */
         SignalPointDTO: {
             /**
@@ -4503,6 +4597,9 @@ export interface components {
             /** Description */
             description: string;
             group: components["schemas"]["StrategyGroup"];
+            view: components["schemas"]["StrategyView"];
+            /** Term Hint */
+            term_hint: string | null;
             /** Params */
             params: components["schemas"]["StrategyParamDTO"][];
         };
@@ -4641,8 +4738,8 @@ export interface components {
          * StrategyParamKind
          * @enum {string}
          */
-        StrategyParamKind: "int" | "percent" | "tickers";
-        StrategyParamValue: number | string[];
+        StrategyParamKind: "int" | "percent" | "ticker" | "tickers";
+        StrategyParamValue: number | string | string[];
         /**
          * StrategyUpdateEventDTO
          * @description O modo do jogador mudou: ligou, trocou, desligou ou a estratégia deu erro.
@@ -4652,6 +4749,31 @@ export interface components {
             active: boolean;
             /** Error */
             error?: string | null;
+        };
+        /**
+         * StrategyView
+         * @description O bloco que a página mostra no detalhe da estratégia.
+         * @enum {string}
+         */
+        StrategyView: "signal" | "ranking" | "allocation" | "none";
+        /**
+         * StrategyViewDTO
+         * @description O bloco do detalhe que depende da carteira do jogador.
+         */
+        StrategyViewDTO: {
+            /** Errors */
+            errors: {
+                [key: string]: string;
+            };
+            ranking: components["schemas"]["RankingViewDTO"] | null;
+            allocation: components["schemas"]["AllocationViewDTO"] | null;
+        };
+        /** StrategyViewRequestDTO */
+        StrategyViewRequestDTO: {
+            /** Params */
+            params: {
+                [key: string]: components["schemas"]["StrategyParamValue"];
+            };
         };
         /** SubmitOrderRequest */
         SubmitOrderRequest: {
@@ -7805,6 +7927,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SignalDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_view_api_strategies__key__view_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StrategyViewRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyViewDTO"];
                 };
             };
             /** @description Unprocessable Content */

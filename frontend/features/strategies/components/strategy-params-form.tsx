@@ -24,7 +24,7 @@ type StrategyParamsFormProps = {
   onChange: (draft: ParamDraft) => void;
 };
 
-/** Os parâmetros da estratégia: números com unidade, a lista de ações e o exemplo em reais. */
+/** Os parâmetros da estratégia: números com unidade, o ativo, a lista de ações e o exemplo em reais. */
 export function StrategyParamsForm({
   strategy,
   draft,
@@ -42,17 +42,30 @@ export function StrategyParamsForm({
     <div className="grid gap-3.5">
       <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">Parâmetros</span>
       <div className="grid gap-4 sm:grid-cols-2">
-        {strategy.params.map((param) =>
-          param.kind === "tickers" ? (
-            <TickersField
-              key={param.key}
-              param={param}
-              tickers={Array.isArray(draft[param.key]) ? (draft[param.key] as string[]) : []}
-              error={errors[param.key]}
-              options={tickerOptions}
-              onChange={(tickers) => onChange({ ...draft, [param.key]: tickers })}
-            />
-          ) : (
+        {strategy.params.map((param) => {
+          if (param.kind === "tickers")
+            return (
+              <TickersField
+                key={param.key}
+                param={param}
+                tickers={Array.isArray(draft[param.key]) ? (draft[param.key] as string[]) : []}
+                error={errors[param.key]}
+                options={tickerOptions}
+                onChange={(tickers) => onChange({ ...draft, [param.key]: tickers })}
+              />
+            );
+          if (param.kind === "ticker")
+            return (
+              <AssetField
+                key={param.key}
+                param={param}
+                ticker={String(draft[param.key] ?? "")}
+                error={errors[param.key]}
+                options={tickerOptions}
+                onChange={(ticker) => onChange({ ...draft, [param.key]: ticker })}
+              />
+            );
+          return (
             <NumberField
               key={param.key}
               param={param}
@@ -61,8 +74,8 @@ export function StrategyParamsForm({
               error={errors[param.key]}
               onChange={(text) => onChange({ ...draft, [param.key]: text })}
             />
-          ),
-        )}
+          );
+        })}
       </div>
 
       {Number.isFinite(percent) && (
@@ -112,6 +125,35 @@ function NumberField({ param, text, saved, error, onChange }: NumberFieldProps) 
       </InputGroup>
       {error && <FieldError>{error}</FieldError>}
       <FieldDescription>{description}</FieldDescription>
+    </Field>
+  );
+}
+
+type AssetFieldProps = {
+  param: StrategyParam;
+  ticker: string;
+  error: string | undefined;
+  options: string[];
+  onChange: (ticker: string) => void;
+};
+
+function AssetField({ param, ticker, error, options, onChange }: AssetFieldProps) {
+  return (
+    <Field data-invalid={!!error}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <FieldLabel>{param.label}</FieldLabel>
+          <InfoHint label={`Como ${param.label} muda a estratégia`}>{param.hint}</InfoHint>
+        </div>
+        <TickerPicker single options={options} selected={[ticker]} onChange={([next]) => onChange(next)} />
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        <Badge variant="secondary" size="tag" numeric>
+          {ticker}
+        </Badge>
+      </div>
+      {error && <FieldError>{error}</FieldError>}
+      <FieldDescription>{rangeHint(param)}</FieldDescription>
     </Field>
   );
 }

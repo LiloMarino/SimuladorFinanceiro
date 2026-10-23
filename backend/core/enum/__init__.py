@@ -346,4 +346,27 @@ class StrategyGroup(Enum):
 class StrategyParamKind(Enum):
     INT = "int"
     PERCENT = "percent"
+    TICKER = "ticker"
     TICKERS = "tickers"
+
+
+class StrategyView(Enum):
+    """O bloco que a página mostra no detalhe da estratégia."""
+
+    SIGNAL = "signal"
+    RANKING = "ranking"
+    ALLOCATION = "allocation"
+    NONE = "none"
+
+
+class SignalLineStyle(Enum):
+    PRICE = "price"
+    FAST = "fast"
+    SLOW = "slow"
+    CHANNEL = "channel"
+    OSCILLATOR = "oscillator"
+
+
+class SignalPane(Enum):
+    PRICE = "price"
+    OSCILLATOR = "oscillator"

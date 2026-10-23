@@ -1,7 +1,7 @@
 import type { StrategyInfo, StrategyParam, StrategyParamValue } from "@/types";
 
 export type ParamValues = Record<string, StrategyParamValue>;
-/** O que o jogador digitou: texto nos campos numéricos, lista nas ações. */
+/** O que o jogador digitou: texto nos campos numéricos e no ativo, lista nas ações. */
 export type ParamDraft = Record<string, string | string[]>;
 
 export function defaultValues(strategy: StrategyInfo): ParamValues {
@@ -14,13 +14,18 @@ export function toDraft(values: ParamValues): ParamDraft {
   );
 }
 
-/** Valores prontos para o servidor; nulo enquanto algum campo numérico não é um inteiro. */
+/** Valores prontos para o servidor; nulo enquanto algum campo numérico não é um inteiro ou falta o ativo. */
 export function fromDraft(params: StrategyParam[], draft: ParamDraft): ParamValues | null {
   const values: ParamValues = {};
   for (const param of params) {
     const entry = draft[param.key];
     if (param.kind === "tickers") {
       values[param.key] = Array.isArray(entry) ? entry : [];
+      continue;
+    }
+    if (param.kind === "ticker") {
+      if (typeof entry !== "string" || entry === "") return null;
+      values[param.key] = entry;
       continue;
     }
     if (typeof entry !== "string" || !/^\d+$/.test(entry.trim())) return null;
@@ -46,6 +51,7 @@ export function sameValues(a: ParamValues, b: ParamValues) {
 /** Texto de apoio sob o campo: o padrão e a faixa que vale ("Padrão 50 · de 5 a 100"). */
 export function rangeHint(param: StrategyParam) {
   if (param.kind === "tickers") return null;
+  if (param.kind === "ticker") return `Padrão ${String(param.default)}`;
   const unit = param.unit === "%" ? "%" : "";
   return `Padrão ${String(param.default)}${unit} · de ${String(param.min)}${unit} a ${String(param.max)}${unit}`;
 }

@@ -60,4 +60,6 @@ export const queryKeys = {
   strategyLog: (kind: string) => ["strategies", "log", kind] as const,
   strategySignal: (key: string, ticker: string, params: object, date: string | undefined) =>
     ["strategies", "signal", key, ticker, params, date] as const,
+  strategyView: (key: string, params: object, date: string | undefined) =>
+    ["strategies", "view", key, params, date] as const,
 } as const;

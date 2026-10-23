@@ -17,6 +17,7 @@ from backend.features.strategy.intents import Intent
 @dataclass(frozen=True)
 class Quote:
     ticker: str
+    name: str
     close: float
     volume: int
     sector: str | None

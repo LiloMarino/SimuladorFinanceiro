@@ -3722,6 +3722,74 @@
         }
       }
     },
+    "/api/strategies/{key}/view": {
+      "post": {
+        "tags": [
+          "Strategy"
+        ],
+        "summary": "Calcular o ranking ou a alocação de uma estratégia",
+        "description": "Valida os parâmetros e devolve o ranking ou a alocação da estratégia sobre a carteira do jogador de hoje, sem salvar nem executar nada.",
+        "operationId": "get_view_api_strategies__key__view_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StrategyViewRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyViewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/strategies/me/log": {
       "get": {
         "tags": [
@@ -5308,6 +5376,76 @@
         ],
         "title": "AchievementUnlockedEventDTO",
         "description": "As conquistas que saíram no último tick, de uma vez, para um toast só."
+      },
+      "AllocationItemDTO": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "current_pct": {
+            "type": "string",
+            "title": "Current Pct"
+          },
+          "target_pct": {
+            "type": "string",
+            "title": "Target Pct"
+          },
+          "deviation_pp": {
+            "type": "string",
+            "title": "Deviation Pp"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "value",
+          "current_pct",
+          "target_pct",
+          "deviation_pp"
+        ],
+        "title": "AllocationItemDTO"
+      },
+      "AllocationViewDTO": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AllocationItemDTO"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "limit_pp": {
+            "type": "integer",
+            "title": "Limit Pp"
+          },
+          "has_liquid_offer": {
+            "type": "boolean",
+            "title": "Has Liquid Offer"
+          },
+          "today": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Today"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "limit_pp",
+          "has_liquid_offer",
+          "today"
+        ],
+        "title": "AllocationViewDTO",
+        "description": "A carteira da estratégia contra a meta e o que ela faria hoje."
       },
       "AssetClass": {
         "type": "string",
@@ -10667,6 +10805,71 @@
         ],
         "title": "PriceImpactPreviewDTO"
       },
+      "RankingRowDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "return_12m": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return 12M"
+          },
+          "selected": {
+            "type": "boolean",
+            "title": "Selected"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "name",
+          "return_12m",
+          "selected"
+        ],
+        "title": "RankingRowDTO"
+      },
+      "RankingViewDTO": {
+        "properties": {
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/RankingRowDTO"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "next_switch": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Switch"
+          },
+          "needed_days": {
+            "type": "integer",
+            "title": "Needed Days"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rows",
+          "next_switch",
+          "needed_days"
+        ],
+        "title": "RankingViewDTO",
+        "description": "As ações da lista da mais para a menos valorizada em 12 meses."
+      },
       "RateIndexType": {
         "type": "string",
         "enum": [
@@ -11804,6 +12007,13 @@
             "type": "array",
             "title": "Lines"
           },
+          "levels": {
+            "items": {
+              "$ref": "#/components/schemas/SignalLevelDTO"
+            },
+            "type": "array",
+            "title": "Levels"
+          },
           "markers": {
             "items": {
               "$ref": "#/components/schemas/SignalMarkerDTO"
@@ -11825,6 +12035,7 @@
         "required": [
           "errors",
           "lines",
+          "levels",
           "markers",
           "available_days",
           "needed_days"
@@ -11832,20 +12043,41 @@
         "title": "SignalDTO",
         "description": "O que a estratégia olha num ativo: as linhas do gráfico e onde ela compraria e venderia."
       },
+      "SignalLevelDTO": {
+        "properties": {
+          "value": {
+            "type": "number",
+            "title": "Value"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "label"
+        ],
+        "title": "SignalLevelDTO",
+        "description": "Linha horizontal do oscilador, como o 30 e o 70 do IFR."
+      },
       "SignalLineDTO": {
         "properties": {
           "key": {
             "type": "string",
-            "enum": [
-              "price",
-              "short",
-              "long"
-            ],
             "title": "Key"
           },
           "label": {
             "type": "string",
             "title": "Label"
+          },
+          "style": {
+            "$ref": "#/components/schemas/SignalLineStyle"
+          },
+          "pane": {
+            "$ref": "#/components/schemas/SignalPane"
           },
           "points": {
             "items": {
@@ -11860,9 +12092,22 @@
         "required": [
           "key",
           "label",
+          "style",
+          "pane",
           "points"
         ],
         "title": "SignalLineDTO"
+      },
+      "SignalLineStyle": {
+        "type": "string",
+        "enum": [
+          "price",
+          "fast",
+          "slow",
+          "channel",
+          "oscillator"
+        ],
+        "title": "SignalLineStyle"
       },
       "SignalMarkerDTO": {
         "properties": {
@@ -11887,6 +12132,14 @@
           "side"
         ],
         "title": "SignalMarkerDTO"
+      },
+      "SignalPane": {
+        "type": "string",
+        "enum": [
+          "price",
+          "oscillator"
+        ],
+        "title": "SignalPane"
       },
       "SignalPointDTO": {
         "properties": {
@@ -12764,6 +13017,20 @@
           "group": {
             "$ref": "#/components/schemas/StrategyGroup"
           },
+          "view": {
+            "$ref": "#/components/schemas/StrategyView"
+          },
+          "term_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Hint"
+          },
           "params": {
             "items": {
               "$ref": "#/components/schemas/StrategyParamDTO"
@@ -12780,6 +13047,8 @@
           "summary",
           "description",
           "group",
+          "view",
+          "term_hint",
           "params"
         ],
         "title": "StrategyInfoDTO"
@@ -13305,6 +13574,7 @@
         "enum": [
           "int",
           "percent",
+          "ticker",
           "tickers"
         ],
         "title": "StrategyParamKind"
@@ -13313,6 +13583,9 @@
         "anyOf": [
           {
             "type": "integer"
+          },
+          {
+            "type": "string"
           },
           {
             "items": {
@@ -13347,6 +13620,74 @@
         ],
         "title": "StrategyUpdateEventDTO",
         "description": "O modo do jogador mudou: ligou, trocou, desligou ou a estratégia deu erro."
+      },
+      "StrategyView": {
+        "type": "string",
+        "enum": [
+          "signal",
+          "ranking",
+          "allocation",
+          "none"
+        ],
+        "title": "StrategyView",
+        "description": "O bloco que a página mostra no detalhe da estratégia."
+      },
+      "StrategyViewDTO": {
+        "properties": {
+          "errors": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Errors"
+          },
+          "ranking": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankingViewDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "allocation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AllocationViewDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "errors",
+          "ranking",
+          "allocation"
+        ],
+        "title": "StrategyViewDTO",
+        "description": "O bloco do detalhe que depende da carteira do jogador."
+      },
+      "StrategyViewRequestDTO": {
+        "properties": {
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/StrategyParamValue"
+            },
+            "type": "object",
+            "title": "Params"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "params"
+        ],
+        "title": "StrategyViewRequestDTO"
       },
       "SubmitOrderRequest": {
         "properties": {

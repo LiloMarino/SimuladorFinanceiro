@@ -7,15 +7,18 @@ from pydantic import Field
 
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import (
+    SignalLineStyle,
+    SignalPane,
     StrategyAction,
     StrategyGroup,
     StrategyLogKind,
     StrategyOrderStatus,
     StrategyParamKind,
+    StrategyView,
 )
 
-# Valor de um parâmetro: número (dias, percentual) ou lista de tickers
-type StrategyParamValue = int | list[str]
+# Valor de um parâmetro: número (dias, percentual), um ticker ou uma lista de tickers
+type StrategyParamValue = int | str | list[str]
 
 
 class StrategyParamDTO(BaseDTO):
@@ -38,6 +41,10 @@ class StrategyInfoDTO(BaseDTO):
     # A regra completa, para o detalhe
     description: str
     group: StrategyGroup
+    # O bloco do detalhe: gráfico do sinal, ranking, alocação ou nenhum
+    view: StrategyView
+    # Explicação do termo técnico que a regra usa; nulo quando não há
+    term_hint: str | None
     params: list[StrategyParamDTO]
 
 
@@ -111,9 +118,19 @@ class SignalPointDTO(BaseDTO):
 
 
 class SignalLineDTO(BaseDTO):
-    key: Literal["price", "short", "long"]
+    key: str
     label: str
+    # Como a linha é desenhada e em qual painel
+    style: SignalLineStyle
+    pane: SignalPane
     points: list[SignalPointDTO]
+
+
+class SignalLevelDTO(BaseDTO):
+    """Linha horizontal do oscilador, como o 30 e o 70 do IFR."""
+
+    value: float
+    label: str
 
 
 class SignalMarkerDTO(BaseDTO):
@@ -127,10 +144,64 @@ class SignalDTO(BaseDTO):
     # Erros por campo, em português; com erro não há linhas
     errors: dict[str, str]
     lines: list[SignalLineDTO]
+    levels: list[SignalLevelDTO]
     markers: list[SignalMarkerDTO]
     # Dias de histórico que o ativo tem e quantos a estratégia pede
     available_days: int
     needed_days: int
+
+
+class StrategyViewRequestDTO(BaseDTO):
+    params: dict[str, StrategyParamValue]
+
+
+class RankingRowDTO(BaseDTO):
+    ticker: str
+    name: str
+    # Retorno dos últimos 252 pregões (0.18 = +18%); nulo sem histórico para o cálculo
+    return_12m: Decimal | None
+    # Está entre as que a estratégia fica
+    selected: bool
+
+
+class RankingViewDTO(BaseDTO):
+    """As ações da lista da mais para a menos valorizada em 12 meses."""
+
+    rows: list[RankingRowDTO]
+    # Primeiro dia do mês da próxima troca
+    next_switch: date
+    # Pregões de histórico que o cálculo pede
+    needed_days: int
+
+
+class AllocationItemDTO(BaseDTO):
+    label: str
+    value: Decimal
+    # Percentuais da carteira da estratégia (60.0 = 60%)
+    current_pct: Decimal
+    target_pct: Decimal
+    # Atual menos meta, em pontos percentuais
+    deviation_pp: Decimal
+
+
+class AllocationViewDTO(BaseDTO):
+    """A carteira da estratégia contra a meta e o que ela faria hoje."""
+
+    items: list[AllocationItemDTO]
+    limit_pp: int
+    # Existe oferta de renda fixa de liquidez diária para receber o dinheiro
+    has_liquid_offer: bool
+    # As ordens que ela mandaria hoje, com o motivo de cada uma
+    today: list[str]
+
+
+class StrategyViewDTO(BaseDTO):
+    """O bloco do detalhe que depende da carteira do jogador."""
+
+    # Erros por campo, em português; com erro não há bloco
+    errors: dict[str, str]
+    ranking: RankingViewDTO | None
+    allocation: AllocationViewDTO | None
 
 
 class StrategyLogRowDTO(BaseDTO):

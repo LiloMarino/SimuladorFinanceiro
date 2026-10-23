@@ -10,6 +10,8 @@ from backend.core.dto.strategy import (
     SignalRequestDTO,
     StrategyInfoDTO,
     StrategyLogPageDTO,
+    StrategyViewDTO,
+    StrategyViewRequestDTO,
 )
 from backend.core.repository.strategy import LogFilter
 
@@ -66,6 +68,21 @@ def mark_error_seen(simulation: ActiveSimulation, user: CurrentUser):
 )
 def get_signal(simulation: ActiveSimulation, key: str, payload: SignalRequestDTO):
     return simulation.get_strategy_signal(key, payload.params, payload.ticker)
+
+
+@strategy_router.post(
+    "/{key}/view",
+    response_model=StrategyViewDTO,
+    summary="Calcular o ranking ou a alocação de uma estratégia",
+    description="Valida os parâmetros e devolve o ranking ou a alocação da estratégia sobre a carteira do jogador de hoje, sem salvar nem executar nada.",
+)
+def get_view(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    key: str,
+    payload: StrategyViewRequestDTO,
+):
+    return simulation.get_strategy_view(user, key, payload.params)
 
 
 @strategy_router.get(

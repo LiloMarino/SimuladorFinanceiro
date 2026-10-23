@@ -83,11 +83,3 @@ export const GROUP_SECTION: Record<StrategyGroup, { title: string; hint: string 
     hint: "Regras que reagem ao preço e escolhem quando comprar e vender. Têm parâmetros que você ajusta e vê no gráfico antes de salvar.",
   },
 };
-
-/** Explicação do termo técnico que a regra de cada estratégia usa. */
-export const TERM_HINT: Record<string, string> = {
-  cdi_100:
-    "CDI é a taxa de juros que os bancos cobram entre si, a régua da renda fixa. Um título que paga 100% do CDI rende o mesmo que ela; 110% rende 10% a mais.",
-  moving_average_cross:
-    "Média móvel é o preço médio dos últimos N pregões. Ex.: a média de 50 dias a R$ 32 cruzando para cima a de 200 dias a R$ 31 mostra que a alta recente ficou mais forte que a tendência longa: sinal de compra.",
-};

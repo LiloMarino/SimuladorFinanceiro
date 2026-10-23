@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import {
   Command,
@@ -13,18 +14,27 @@ type TickerPickerProps = {
   options: string[];
   selected: string[];
   onChange: (tickers: string[]) => void;
+  /** Escolhe uma ação só: marcar uma troca a escolha e fecha a lista */
+  single?: boolean;
 };
 
 /** "Escolher": marca e desmarca as ações da lista; a escolha sai na ordem das opções. */
-export function TickerPicker({ options, selected, onChange }: TickerPickerProps) {
+export function TickerPicker({ options, selected, onChange, single = false }: TickerPickerProps) {
+  const [open, setOpen] = useState(false);
+
   const toggle = (ticker: string) => {
+    if (single) {
+      onChange([ticker]);
+      setOpen(false);
+      return;
+    }
     const next = new Set(selected);
     if (!next.delete(ticker)) next.add(ticker);
     onChange(options.filter((option) => next.has(option)));
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger render={<Button variant="link" size="sm" />}>Escolher</PopoverTrigger>
       <PopoverContent align="end" className="w-64">
         <Command>

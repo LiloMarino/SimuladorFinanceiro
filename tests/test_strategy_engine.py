@@ -15,6 +15,8 @@ from backend.core.enum import (
     StrategyGroup,
     StrategyLogKind,
     StrategyOrderStatus,
+    StrategyParamKind,
+    StrategyView,
 )
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.runtime.event_manager import EventManager
@@ -324,3 +326,111 @@ def test_a_strategy_redeems_daily_liquidity_and_the_log_records_the_net(match):
     assert sim.get_cash(ana.client_id) - cash_after_invest == redeem.price
     [position] = sim.get_portfolio(ana.client_id).fixed_income
     assert position.redeemable_today is not None
+
+
+def test_the_registry_lists_the_references_first_and_then_the_tactics():
+    assert [
+        key
+        for key in STRATEGIES
+        if key
+        in {
+            "buy_and_hold",
+            "cdi_100",
+            "target_rebalance",
+            "moving_average_cross",
+            "rsi",
+            "volume_breakout",
+            "momentum_12m",
+        }
+    ] == [
+        "buy_and_hold",
+        "cdi_100",
+        "target_rebalance",
+        "moving_average_cross",
+        "rsi",
+        "volume_breakout",
+        "momentum_12m",
+    ]
+
+
+def test_each_strategy_info_carries_its_view_and_its_term_hint(match):
+    sim, _, _ = match
+    infos = {info.key: info for info in sim.get_strategies()}
+
+    assert infos["cdi_100"].view is StrategyView.NONE
+    assert infos["cdi_100"].term_hint
+    assert infos["moving_average_cross"].view is StrategyView.SIGNAL
+    assert infos["momentum_12m"].view is StrategyView.RANKING
+    assert infos["target_rebalance"].view is StrategyView.ALLOCATION
+
+
+def test_the_default_asset_falls_back_to_the_most_traded_stock_without_bova11(match):
+    sim, _, _ = match
+    info = next(i for i in sim.get_strategies() if i.key == "buy_and_hold")
+    [asset] = info.params
+
+    # A partida de teste não tem o BOVA11: o padrão é uma ação que ela tem, e a dica avisa
+    assert asset.kind is StrategyParamKind.TICKER
+    assert isinstance(asset.default, str)
+    assert asset.default != "BOVA11"
+    assert "BOVA11" in asset.hint
+    assert f"o padrão é {asset.default}" in asset.hint
+
+
+def test_turning_on_a_strategy_without_an_asset_uses_the_default_asset(match):
+    sim, ana, _ = match
+    info = next(i for i in sim.get_strategies() if i.key == "buy_and_hold")
+
+    sim.set_my_strategy(ana, "buy_and_hold", {})
+
+    active = sim.get_my_strategy(ana).active
+    assert active is not None
+    assert active.params == {"asset": info.params[0].default}
+
+
+def test_the_allocation_view_reads_the_players_portfolio_without_running_anything(
+    match,
+):
+    sim, ana, _ = match
+    before = sim.get_cash(ana.client_id)
+
+    view = sim.get_strategy_view(ana, "target_rebalance", {})
+
+    assert view.errors == {}
+    assert view.ranking is None
+    assert view.allocation is not None
+    stocks, fixed_income = view.allocation.items
+    # Ana tem ações da compra da partida salva
+    assert stocks.value > 0
+    assert fixed_income.value == 0
+    assert view.allocation.today
+    assert sim.get_cash(ana.client_id) == before
+    assert sim.get_my_strategy(ana).active is None
+
+
+def test_the_ranking_view_lists_the_default_stocks_for_the_player(match):
+    sim, ana, _ = match
+
+    view = sim.get_strategy_view(ana, "momentum_12m", {})
+
+    assert view.ranking is not None
+    assert view.allocation is None
+    assert view.ranking.rows
+    assert view.ranking.needed_days == 253
+
+
+def test_the_view_reports_the_parameter_errors_per_field(match):
+    sim, ana, _ = match
+
+    view = sim.get_strategy_view(ana, "momentum_12m", {"top": 0})
+
+    assert "top" in view.errors
+    assert view.ranking is None
+
+
+def test_a_strategy_without_a_view_block_returns_an_empty_view(match):
+    sim, ana, _ = match
+
+    view = sim.get_strategy_view(ana, "cdi_100", {})
+
+    assert (view.errors, view.ranking, view.allocation) == ({}, None, None)

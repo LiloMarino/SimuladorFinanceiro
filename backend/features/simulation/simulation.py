@@ -42,6 +42,7 @@ from backend.core.dto.strategy import (
     StrategyInfoDTO,
     StrategyLogPageDTO,
     StrategyParamValue,
+    StrategyViewDTO,
 )
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
@@ -290,6 +291,12 @@ class Simulation:
         self, key: str, params: dict[str, StrategyParamValue], ticker: str
     ) -> SignalDTO:
         return self._strategies.signal(key, params, ticker, self._current_date)
+
+    @synchronized
+    def get_strategy_view(
+        self, user: UserDTO, key: str, params: dict[str, StrategyParamValue]
+    ) -> StrategyViewDTO:
+        return self._strategies.view(user, key, params, self._current_date)
 
     @synchronized
     def get_strategy_log(

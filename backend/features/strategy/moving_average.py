@@ -11,12 +11,22 @@ from backend.core.dto.strategy import (
     SignalPointDTO,
     StrategyParamValue,
 )
-from backend.core.enum import StrategyGroup, StrategyParamKind
-from backend.features.strategy.base_strategy import BaseStrategy, ParamSpec, Signal
+from backend.core.enum import (
+    SignalLineStyle,
+    SignalPane,
+    StrategyGroup,
+    StrategyParamKind,
+    StrategyView,
+)
+from backend.features.strategy.base_strategy import (
+    CHART_DAYS,
+    BaseStrategy,
+    ParamSpec,
+    Signal,
+    param_int,
+    param_tickers,
+)
 from backend.features.strategy.context import StrategyContext
-
-# Pregões desenhados no gráfico do sinal (cerca de um ano)
-CHART_DAYS = 252
 
 
 class MovingAverageCross(BaseStrategy):
@@ -34,6 +44,12 @@ class MovingAverageCross(BaseStrategy):
         "ativo quando cruza para baixo."
     )
     group = StrategyGroup.TACTIC
+    view_kind = StrategyView.SIGNAL
+    term_hint = (
+        "Média móvel é o preço médio dos últimos N pregões. Ex.: a média de 50 dias a "
+        "R$ 32 cruzando para cima a de 200 dias a R$ 31 mostra que a alta recente "
+        "ficou mais forte que a tendência longa: sinal de compra."
+    )
     params = (
         ParamSpec(
             key="short_window",
@@ -111,9 +127,8 @@ class MovingAverageCross(BaseStrategy):
 
     def next(self, ctx: StrategyContext, params: dict[str, StrategyParamValue]) -> None:
         short, long_ = _windows(params)
-        percent = Decimal(_int(params, "cash_pct"))
-        tickers = params["tickers"]
-        assert isinstance(tickers, list)
+        percent = Decimal(param_int(params, "cash_pct"))
+        tickers = param_tickers(params, "tickers")
 
         # Cada compra parte do caixa que sobrou das anteriores do dia
         cash = ctx.cash
@@ -155,11 +170,15 @@ class MovingAverageCross(BaseStrategy):
         short_avg, long_avg, up, down = _crossings(close, short, long_)
         shown = slice(-CHART_DAYS, None)
 
-        def line(key: str, label: str, series: pd.Series) -> SignalLineDTO:
+        def line(
+            key: str, label: str, style: SignalLineStyle, series: pd.Series
+        ) -> SignalLineDTO:
             window = series.iloc[shown].dropna()
             return SignalLineDTO(
-                key=key,  # type: ignore[arg-type]
+                key=key,
                 label=label,
+                style=style,
+                pane=SignalPane.PRICE,
                 points=[
                     SignalPointDTO(date=day.date(), value=round(float(value), 2))
                     for day, value in window.items()
@@ -175,9 +194,11 @@ class MovingAverageCross(BaseStrategy):
         ]
         return Signal(
             lines=[
-                line("price", "Preço", close),
-                line("short", f"Média de {short} dias", short_avg),
-                line("long", f"Média de {long_} dias", long_avg),
+                line("price", "Preço", SignalLineStyle.PRICE, close),
+                line(
+                    "short", f"Média de {short} dias", SignalLineStyle.FAST, short_avg
+                ),
+                line("long", f"Média de {long_} dias", SignalLineStyle.SLOW, long_avg),
             ],
             markers=sorted(markers, key=lambda m: m.date),
         )
@@ -187,14 +208,8 @@ def _close(frame: pd.DataFrame) -> pd.Series:
     return cast(pd.Series, frame["close"])
 
 
-def _int(params: dict[str, StrategyParamValue], key: str) -> int:
-    value = params[key]
-    assert isinstance(value, int)
-    return value
-
-
 def _windows(params: dict[str, StrategyParamValue]) -> tuple[int, int]:
-    return _int(params, "short_window"), _int(params, "long_window")
+    return param_int(params, "short_window"), param_int(params, "long_window")
 
 
 def _crossings(
