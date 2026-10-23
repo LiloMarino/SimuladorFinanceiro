@@ -58,7 +58,6 @@
 | **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | [F115](#f115) | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
-| [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ⏳ |
 | [**F9**](#f9) | Estratégias prontas de exemplo | — | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
@@ -115,7 +114,7 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -136,6 +135,7 @@
 | **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | [F7](#f7), [F8](#f8), [F108](#f108) | ✅ |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
+| [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ✅ |
 | [**F94**](#f94) | Crédito | — | ✅ |
 | [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
 | [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ✅ |
@@ -150,12 +150,14 @@
 
 | ID | Resumo | Marco | Destrava | Status |
 | --- | --- | --- | --- | --- |
-| [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | M4 | 7 | ⏳ |
 | [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 3 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
+| [**F16**](#f16) | Bots na sala | M6 | 2 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | 🔍 |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F89**](#f89) | Presets de partida | — | 1 | ⏳ |
+| [**F9**](#f9) | Estratégias prontas de exemplo | M4 | 0 | ⏳ |
+| [**F10**](#f10) | Guia de como escrever uma estratégia | M4 | 0 | ⏳ |
 | [**F49**](#f49) | Spike: tutorial animado | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 0 | ⏳ |
@@ -201,20 +203,20 @@
 >
 > **Serve:** N4
 >
-> **Progresso:** 1/5 concluídas
+> **Progresso:** 2/5 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | [F7](#f7) | ⏳ |
 | [**F9**](#f9) | Estratégias prontas de exemplo | [F8](#f8) | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | [F8](#f8) | ⏳ |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | — | ⏳ |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
+| [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | [F7](#f7) | ✅ |
 
 </details>
 
@@ -358,7 +360,7 @@
 | ID | Resumo | Atende (N#) | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Link de convite pela internet no lobby | N2 | — | M3 | [F5](#f5) | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F8** | Modo automático: estratégia do jogador roda a cada tick | N4 | D16, D8 | M4 | [F7](#f7) | Médio | Médio | Alto | Bom | ⏳ Pendente |
+| **F8** | Modo automático: estratégia do jogador roda a cada tick | N4 | D16, D8 | M4 | [F7](#f7) | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F9** | Estratégias prontas de exemplo | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F16** | Bots na sala | N8 | D8 | M6 | [F8](#f8) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
