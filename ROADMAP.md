@@ -60,7 +60,6 @@
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
-| [**F16**](#f16) | Bots na sala | — | ⏳ |
 | [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | — | 🔍 |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
@@ -111,7 +110,7 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ✅ |
 | [**F9**](#f9) | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | — | ✅ |
+| [**F16**](#f16) | Bots na sala | — | ✅ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ✅ |
 | [**F94**](#f94) | Crédito | — | ✅ |
 | [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
@@ -152,8 +152,8 @@
 | --- | --- | --- | --- | --- |
 | [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 3 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
-| [**F16**](#f16) | Bots na sala | M6 | 2 | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | 🔍 |
+| [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | M6 | 1 | ⏳ |
 | [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F89**](#f89) | Presets de partida | — | 1 | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | M4 | 0 | ⏳ |
@@ -223,12 +223,19 @@
 >
 > **Serve:** N4, N8, N10
 >
-> **Progresso:** 0/2 concluídas
+> **Progresso:** 1/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F16**](#f16) | Bots na sala | [F8](#f8) | ⏳ |
 | [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | [F16](#f16) | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F16**](#f16) | Bots na sala | [F8](#f8) | ✅ |
+
+</details>
 
 ### M8 — Dados reais, cuidados fora da partida
 
@@ -360,7 +367,7 @@
 | **F8** | Modo automático: estratégia do jogador roda a cada tick | N4 | D16, D8 | M4 | [F7](#f7) | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F9** | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
-| **F16** | Bots na sala | N8 | D8 | M6 | [F8](#f8) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F16** | Bots na sala | N8 | D8 | M6 | [F8](#f8) | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F33** | Indicadores técnicos | N19, N4 | D2 | M11 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
@@ -412,15 +419,7 @@ Gatilho: a F7 está concluída; pode começar.
 **F10 — Guia de como escrever uma estratégia.** Origem: #49. Página no Docusaurus (grupo "Desenvolvimento"): como acrescentar uma estratégia ao app, com a classe base, o contexto que ela recebe a cada tick, como declarar nome e parâmetros e onde registrá-la para aparecer na página de Estratégias, nos bots e no backtest; uma das estratégias da F9 comentada linha a linha; e os limites (uma exceção devolve o jogador ao manual, o estado interno não volta na retomada). Quem não quer mexer no código do app tem o bot pela API (F108). Gatilho: F8 concluída — a API da classe base só fica estável depois dela.
 
 <a id="f16"></a>
-**F16 — Bots na sala.** Serve N8; segue a D8. O bot é um jogador sem socket: registro em `users` marcado como bot, carteira própria, e o motor chama o `next()` da estratégia dele a cada tick, como faz com a de um humano no automático. Cada estratégia do app (F9) é um "tipo de IA", como as IAs do OpenTTD.
-1. **Adicionar no lobby.** Só o host adiciona, configura e remove bots, e só no lobby: o bot joga da largada ao fim. A primeira vaga livre da lista de jogadores mostra "+ Adicionar bot", e clicar abre sempre a configuração: estratégia, nome, cor e parâmetros. O nome vem de uma lista temática por estratégia (ex.: "Tio Patinhas" para comprar e segurar, "Rentista" para 100% no CDI), com um botão para sortear outro e "<estratégia> #2" quando a lista acaba; a cor é a próxima livre e pode ser trocada; os parâmetros vêm no padrão e o host os ajusta. O bot ocupa uma das 10 vagas e uma cor da paleta.
-2. **Avatar.** O mesmo círculo dos jogadores, no fundo da cor do bot, com um ícone de robô branco no lugar das iniciais.
-3. **Mesmas regras de dinheiro.** O bot recebe o aporte mensal e, na corrida à meta e no viver de renda, o salário, as despesas e os imprevistos, como qualquer jogador. Com a F13 ligada, as ordens dele movem preço como as de qualquer jogador.
-4. **Na partida.** Entra no ranking e nas estatísticas como qualquer jogador; o ranking ganha o filtro "Todos | Só pessoas", e o cartão do bot (mouse no nome) mostra a estratégia e os parâmetros. O log das ordens do bot, com o porquê de cada uma, fica fechado durante a partida e abre para todos no fim.
-5. **Adversário de verdade.** Se um bot termina em 1º, ninguém leva as conquistas de vencer a partida.
-6. **Partida salva e equipes.** Na retomada, os bots voltam sozinhos e ficam fora da escolha de quem continua; no modo em equipes, o host escolhe a equipe do bot.
-
-Gatilho: F8 concluída.
+**F16 — Bots na sala.** Serve N8; segue a D8. O bot é um jogador sem socket: um registro em `users` marcado como bot, com carteira própria, e o motor chama o `next()` da estratégia dele a cada tick, como faz com a de um humano no automático. O host adiciona, configura e remove bots só no lobby, pela primeira vaga livre ("+ Adicionar bot"): um diálogo largo com as estratégias do app (referências e táticas) à esquerda e, à direita, o nome (da lista temática da estratégia, com sorteio e "<estratégia> #2" quando a lista acaba), a cor (a próxima livre, trocável), a equipe no modo em equipes e os parâmetros, com o exemplo em reais. Remover mostra um aviso com "Desfazer". O bot ocupa uma das 10 vagas e uma cor da paleta, e sai da sala na largada para morar só na partida; com uma partida salva escolhida, os bots dela entram travados, nas cores e equipes salvas. Recebe o aporte, o salário, as despesas e os imprevistos como qualquer jogador. Nas estatísticas entra no ranking e na nota como qualquer jogador, com o filtro "Todos | Só pessoas" (cada pessoa mantém a posição geral) e o cartão do bot ao passar o mouse no nome: quem o adicionou, a estratégia e os parâmetros. O log das ordens, com o porquê de cada uma, fica fechado durante a partida e abre para todos no fim. Bot em 1º não dá a ninguém as conquistas de vencer. Os apelidos de pessoas continuam únicos; o nome de um bot só precisa ser único na sala.
 
 <a id="f19"></a>
 **F19 — Modo backtest: partida só de estratégias, sem interação.** Serve N4 e N10; segue a D8. No lobby, "Rodar backtest" escolhe período, capital inicial, aporte e as estratégias participantes; cada estratégia vira um bot (F16) e a partida roda sem `sleep` entre ticks e sem eventos de socket por tick, mandando o progresso a cada N dias para a tela animar o gráfico. Ao fim, a partida fica salva como qualquer outra e abre no relatório da F17, já comparando as estratégias.
