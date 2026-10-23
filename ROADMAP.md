@@ -76,7 +76,6 @@
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
-| [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
@@ -111,7 +110,7 @@
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -136,6 +135,7 @@
 | [**F9**](#f9) | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | — | ✅ |
 | [**F16**](#f16) | Bots na sala | — | ✅ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ✅ |
+| [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ✅ |
 | [**F94**](#f94) | Crédito | — | ✅ |
 | [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
 | [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ✅ |
@@ -165,7 +165,6 @@
 | [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | 0 | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 0 | ⏳ |
-| [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
 | [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | 0 | ⏳ |
@@ -306,7 +305,7 @@
 
 ### Sem marco
 
-> **Progresso:** 4/42 concluídas
+> **Progresso:** 5/42 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -321,7 +320,6 @@
 | [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | ⏳ |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
-| [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ⏳ |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 🔍 |
 | [**F89**](#f89) | Presets de partida | — | ⏳ |
@@ -349,11 +347,12 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 
-<details><summary>Concluído (4 itens)</summary>
+<details><summary>Concluído (5 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ✅ |
+| [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ✅ |
 | [**F94**](#f94) | Crédito | — | ✅ |
 | [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ✅ |
 | [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ✅ |
@@ -537,7 +536,7 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F68** | Dica de firewall no lobby | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
-| **F75** | Encerramento do loop sem thread viva nem simulação presa | — | — | — | Baixo | Médio | Médio | Bom | ⏳ Pendente |
+| **F75** | Encerramento do loop sem thread viva nem simulação presa | — | — | — | Baixo | Médio | Médio | Bom | ✅ Concluído |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
 
 <a id="f14"></a>
