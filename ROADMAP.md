@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-23):** Registradas a necessidade N38 e as features F114 a F121: escala do gráfico de ações, estatísticas mensais, gráfico da nota, atalhos da renda fixa, última configuração da partida, seletor de intervalo, gráficos da carteira e compra total a mercado.
+> **Última mudança (2026-10-23):** Registradas as features F122 a F124: novas conquistas, redesenho do aviso de conquista e o quadrado da marca de volta no cabeçalho da sala.
 
 ## Glossário
 
@@ -32,14 +32,14 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F117](#f117) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F117](#f117), [F124](#f124) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
 | **N19** | Analisar um ativo com as ferramentas de um trader | [F33](#f33), [F96](#f96), [F114](#f114) | — |
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | — | — |
-| **N22** | Ter objetivos para buscar além de vencer a partida | — | — |
+| **N22** | Ter objetivos para buscar além de vencer a partida | [F122](#f122) | — |
 | **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F71](#f71), [F101](#f101) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | — | — |
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | — | — |
@@ -112,13 +112,16 @@
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
+| [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
+| [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
+| [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
-| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F94](#f94) | ✅ |
+| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F94](#f94), [F122](#f122) | ✅ |
 | **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F33](#f33), [F115](#f115), [F116](#f116) | ✅ |
 | **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F113](#f113) | ✅ |
 | **D4** | Banco de dados embarcado no executável | — | ✅ |
@@ -173,6 +176,9 @@
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 0 | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 0 | 🔍 |
+| [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | 0 | ⏳ |
+| [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
+| [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | 0 | ⏳ |
 
 ---
 
@@ -294,7 +300,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/38 concluídas
+> **Progresso:** 0/41 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -336,6 +342,9 @@
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
+| [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
+| [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
+| [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
 ---
 
@@ -372,6 +381,8 @@
 | **F116** | Gráfico da nota ao longo da partida | N9 | D2, D10 | — | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F117** | Atalhos de valor da renda fixa somam ao campo | N15 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F118** | Lembrar a última configuração da partida | N30 | D9 | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F122** | Novas conquistas para as features recentes e antigas | N22 | D1 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F124** | Voltar o quadrado da marca no cabeçalho da sala | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -505,6 +516,12 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 **F118 — Lembrar a última configuração da partida.** Serve N30; segue a D9. As regras pendentes moram em memória no `SettingsManager`, que nasce dos padrões do `config.toml` (início em 2000-01-01, por exemplo) a cada abertura do app, então o período, o capital, o aporte e o resto voltam ao padrão toda vez e o host refaz tudo. Plano: o lugar é o banco, porque as regras são do servidor do host (o formulário do lobby é semeado por elas) e o banco embarcado sobrevive entre aberturas. (1) Migration (D9) com uma tabela de uma linha só, `last_simulation_settings`, com a configuração em JSON validada pelo mesmo DTO das regras; (2) o `SettingsManager.update` grava essa linha quando as regras mudam, e o `get` a lê no lugar do `config.toml` quando existe, caindo nos padrões do arquivo se estiver vazia ou se um campo novo faltar; (3) o `config.toml` continua sendo o padrão de fábrica, e uma opção "Restaurar padrões" no formulário apaga a linha. O nome da partida não entra (é gerado a cada uma). A F89 (presets) pode ler a mesma linha como o preset "Última partida". Gatilho: o uso do lobby pedindo para não remontar as regras.
 **Aceite:** mudar o início para 2012, fechar e abrir o app, e o formulário abre com 2012.
 
+<a id="f122"></a>
+**F122 — Novas conquistas para as features recentes e antigas.** Serve N22; segue a D1. O catálogo tem 22 conquistas, quase todas de antes das últimas features, e várias coisas que o jogo já faz não rendem nada. Acrescentar uma é uma linha em `catalog.py` mais, quando a medida não existe, uma função `@metric` em `metrics.py` (o `code` nunca muda; nome, descrição e ícone podem mudar). Primeira leva, sobre o que já existe: (1) **Dentro da isenção** (IR da venda): fechar um mês vendendo ações sem pagar imposto por ficar abaixo do limite de isenção; (2) **Day trader** (IR): comprar e vender o mesmo ativo no mesmo dia; (3) **Em todo setor** (setores): ter ativos de cinco setores diferentes ao mesmo tempo, com barra de progresso; (4) **Mexeu o mercado** (impacto de preço): uma ordem sua mover o preço do ativo, valendo só em partida com o impacto ligado; (5) **Sem muletas** (modo Especialista): vencer a partida no modo Especialista; (6) **Time vencedor** (equipes): vencer uma partida em equipes; (7) **Além do horizonte** (dados gerados): jogar um dia além do último dia com dado real; (8) **Nota de craque** (nota geral): chegar a uma nota geral alta, com a meta calibrada nas notas das partidas já jogadas; (9) **Ordem com paciência**: ter a primeira ordem limite executada. Vale também uma regra daqui para a frente: cada feature nova que mexe no jogo traz as próprias conquistas no mesmo trabalho (crédito, proventos, bots e estratégias automáticas, por exemplo), em vez de esperar uma leva à parte. Gatilho: qualquer momento; nomes, descrições e ícones se fecham na hora de escrever cada linha.
+
+<a id="f124"></a>
+**F124 — Voltar o quadrado da marca no cabeçalho da sala.** Serve N15. No lobby, o `BrandMark` ao lado de "Sala de ..." (`lobby-header.tsx`) virou a rosca de três fatias na troca da marca do app; antes era um quadrado arredondado azul com o ícone de barras crescentes (`ChartNoAxesColumnIncreasing`, traço 2,4). Plano: o `BrandMark` ganha a variante `square`, que traz de volta o quadrado azul (`bg-primary text-primary-foreground`, cantos arredondados e ícone proporcionais a cada tamanho, como era no commit anterior à troca) ao lado da variante `logo`, que continua sendo a rosca e o padrão; só o cabeçalho do lobby usa `square`, e a barra lateral, a tela de carregamento e o login mantêm a rosca. Gatilho: qualquer momento, é um ajuste pequeno.
+
 ---
 ## 2. Nice-to-have
 
@@ -574,6 +591,7 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 | **F119** | Escolher o intervalo da partida com "hoje" e atalhos | Serve N15 e N30; falta escolher a forma do seletor no canvas | — | — | 🔍 Em avaliação |
 | **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | Serve N15; falta escolher o desenho dos dois cards no canvas; liga à F72 | — | — | 🔍 Em avaliação |
 | **F121** | Comprar tudo a mercado sem estourar o caixa | Serve N15; falta escolher entre ordem por valor, ordem que se ajusta ou Máx com folga | — | — | 🔍 Em avaliação |
+| **F123** | Redesenhar o aviso de conquista desbloqueada | Serve N22 e N15; falta escolher o desenho do aviso no canvas; liga à F122 | — | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -640,3 +658,6 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 
 <a id="f121"></a>
 **F121 — Comprar tudo a mercado sem estourar o caixa.** A boleta de renda variável calcula o "Máx" com o caixa e o preço da prévia (`preview_order`: o melhor preço de venda do book, ou o último fechamento), mas a ordem a mercado só é conferida na execução, contra o preço do momento (`_validate_market_order` compara `preço × quantidade` com o caixa). Com o jogo rodando, o preço anda entre o clique no "Máx" e a execução, então a quantidade que cabia na prévia deixa de caber e volta "Saldo insuficiente". O que falta escolher é como o "comprar tudo" fica garantido: (a) **ordem a mercado por valor:** o jogador informa quanto gastar (ou aperta "Tudo", o caixa inteiro) e o motor calcula a quantidade no momento da execução, com o preço que valeu, arredondando para baixo; nunca estoura, e é o caminho mais fiel a como corretoras fazem "comprar R$ X"; (b) **ordem que se ajusta:** a quantidade enviada vale como teto, e se o preço subiu o motor compra a maior quantidade que ainda cabe em vez de recusar; (c) **Máx com folga:** o botão deixa uma margem (por exemplo 2%) do caixa, o ajuste mais simples, mas sobra dinheiro parado e a margem ainda pode ser pequena num dia de salto. Recomendação: (a) com o botão "Tudo" na boleta, e (b) como regra do motor quando o preço mexe entre o envio e a execução. Falta decidir também como a boleta mostra a quantidade comprada, já que ela só se sabe depois. Sai daqui para Pendente com a opção escolhida.
+
+<a id="f123"></a>
+**F123 — Redesenhar o aviso de conquista desbloqueada.** Hoje o aviso (`achievement-toast.tsx`, aberto com `toast.custom` do sonner) é um cartão escuro de 380 px com uma faixa amarela de 3 px à esquerda, o ícone, o rótulo amarelo em maiúsculas ("Conquista desbloqueada"), o nome e a descrição; quando várias saem no mesmo dia, vira uma lista com "Ver todas". O incômodo existe, mas não está claro de onde vem: pode ser a faixa amarela do canto, o rótulo, o peso do cartão escuro, o tamanho ou a falta de movimento. Falta escolher o desenho depois de ver variantes lado a lado no canvas: (a) o cartão atual sem a faixa, com o ícone em destaque; (b) um cartão claro, no tema do app; (c) um formato compacto, com o ícone e o nome numa linha só e a descrição ao passar o mouse; (d) um formato de "selo" com a categoria e a cor dela. A rodada cobre os estados uma conquista, várias no mesmo dia, secreta revelada e conquista com barra de progresso completa, e decide a posição na tela e a entrada e saída. Sai daqui para Pendente com a variante escolhida.
