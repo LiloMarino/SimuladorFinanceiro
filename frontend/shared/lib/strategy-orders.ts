@@ -1,4 +1,5 @@
-import type { StrategyAction, StrategyOrderLine } from "@/types";
+import { displayMoney } from "@/shared/lib/utils/display";
+import type { StrategyAction, StrategyLogRow, StrategyOrderLine } from "@/types";
 
 export function plural(count: number, one: string, many: string) {
   return `${count} ${count === 1 ? one : many}`;
@@ -25,4 +26,42 @@ export function orderToastTitle(order: StrategyOrderLine) {
   return order.status === "refused"
     ? `A estratégia tentou ${order.action === "buy" ? "comprar" : order.action === "sell" ? "vender" : "operar"} ${quantity}${what}`
     : `A estratégia ${verb} ${quantity}${what}`.trim();
+}
+
+/** Cor do verbo da ordem no registro. */
+export const ACTION_TONE: Record<StrategyAction, string> = {
+  buy: "text-success",
+  sell: "text-destructive",
+  cancel: "text-muted-foreground",
+  invest: "text-primary",
+  redeem: "text-foreground",
+};
+
+const ACTION_LABEL: Record<StrategyAction, string> = {
+  buy: "Comprou",
+  sell: "Vendeu",
+  cancel: "Cancelou",
+  invest: "Aplicou",
+  redeem: "Resgatou",
+};
+
+export function actionLabel(action: StrategyAction) {
+  return ACTION_LABEL[action];
+}
+
+/** Quanto do caixa cada compra usa: `percent`% do caixa de hoje. */
+export function cashShare(cash: string | number, percent: number) {
+  return (Number(cash) * percent) / 100;
+}
+
+/** Quantidade da linha do registro: renda fixa não tem, e a recusada mostra o que pediu. */
+export function rowQuantity(row: StrategyLogRow) {
+  return row.quantity === null ? "—" : row.quantity.toLocaleString("pt-BR");
+}
+
+/** Preço da linha: "lim. R$ 18,40" enquanto a ordem limitada não executou por inteiro. */
+export function rowPrice(row: StrategyLogRow) {
+  if (row.price === null) return "—";
+  const limited = row.order_type === "limit" && row.status !== "executed";
+  return `${limited ? "lim. " : ""}${displayMoney(row.price)}`;
 }

@@ -539,7 +539,9 @@ class Simulation:
         self._last_snapshots = {e.snapshot.user_id: e.snapshot for e in snapshots}
         self._unlock_achievements(
             users,
-            lambda: self._achievements.on_tick(self._last_snapshots, month_changed),
+            lambda: self._achievements.on_tick(
+                self._human_snapshots(users), month_changed
+            ),
         )
 
     def end_match(self) -> None:
@@ -551,10 +553,19 @@ class Simulation:
         self._unlock_achievements(
             users,
             lambda: self._achievements.on_match_end(
-                self._last_snapshots,
+                self._human_snapshots(users),
                 match_result(self.settings.id, users, self._goal_reached),
             ),
         )
+
+    def _human_snapshots(self, users: list[UserDTO]) -> dict[int, SnapshotDTO]:
+        """Conquista é de pessoa: os snapshots dos bots não chegam ao avaliador."""
+        bots = {u.id for u in users if u.is_bot}
+        return {
+            user_id: snapshot
+            for user_id, snapshot in self._last_snapshots.items()
+            if user_id not in bots
+        }
 
     def _unlock_achievements(
         self,

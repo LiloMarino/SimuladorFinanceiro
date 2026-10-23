@@ -964,6 +964,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/statistics/bots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estatísticas: bots
+         * @description Os bots das simulações informadas: a estratégia em que terminaram, os parâmetros com rótulo e unidade, quem os adicionou e se o log de ordens já abriu.
+         */
+        get: operations["get_bots_api_statistics_bots_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/statistics/bots/log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estatísticas: log de ordens do bot
+         * @description As ordens que o bot enviou, da mais recente para a mais antiga. Recusa com 403 enquanto a partida corre e com 404 quem não é bot dela.
+         */
+        get: operations["get_bot_log_api_statistics_bots_log_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/statistics/next-update": {
         parameters: {
             query?: never;
@@ -1596,6 +1636,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/bots/strategies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar as estratégias para os bots
+         * @description As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início das regras do lobby, e os nomes sugeridos para o bot. Apenas o host pode executar.
+         */
+        get: operations["list_bot_strategies_api_simulation_bots_strategies_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/bots/tickers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar as ações que um bot pode operar
+         * @description Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar. Apenas o host pode executar.
+         */
+        get: operations["list_bot_tickers_api_simulation_bots_tickers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/bots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Adicionar um bot à sala
+         * @description Cria um jogador sem pessoa por trás, com a estratégia, a cor e a equipe escolhidas, e o põe na primeira vaga livre. Recusa com 409 o nome repetido na sala, a cor com dono e a partida salva selecionada; com 423, a sala cheia. Apenas o host pode executar.
+         */
+        post: operations["add_bot_api_simulation_bots_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/bots/{nickname}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Configurar um bot da sala
+         * @description Troca a estratégia, os parâmetros, o nome, a cor e a equipe do bot. Recusa com 409 o bot da partida salva selecionada e a partida em andamento. Apenas o host pode executar.
+         */
+        put: operations["update_bot_api_simulation_bots__nickname__put"];
+        post?: never;
+        /**
+         * Remover um bot da sala
+         * @description Tira o bot da sala: a vaga e a cor ficam livres. Recusa com 409 o bot da partida salva selecionada e a partida em andamento. Apenas o host pode executar.
+         */
+        delete: operations["remove_bot_api_simulation_bots__nickname__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/goal-progress": {
         parameters: {
             query?: never;
@@ -1965,6 +2089,34 @@ export interface components {
              * @default false
              */
             overwrite: string;
+        };
+        /** BotParamDTO */
+        BotParamDTO: {
+            /** Label */
+            label: string;
+            value: components["schemas"]["StrategyParamValue"];
+            /** Unit */
+            unit: string | null;
+        };
+        /**
+         * BotReportDTO
+         * @description O bot de uma partida como o ranking o mostra: o que ele joga e quem o pôs na sala.
+         */
+        BotReportDTO: {
+            /** Simulation Id */
+            simulation_id: number;
+            /** Player Nickname */
+            player_nickname: string;
+            /** Strategy Key */
+            strategy_key: string;
+            /** Strategy Name */
+            strategy_name: string;
+            /** Params */
+            params: components["schemas"]["BotParamDTO"][];
+            /** Added By */
+            added_by: string;
+            /** Log Open */
+            log_open: boolean;
         };
         /** BuyFixedIncomeRequest */
         BuyFixedIncomeRequest: {
@@ -3348,6 +3500,8 @@ export interface components {
             simulation_name: string;
             /** Team */
             team: number | null;
+            /** Is Bot */
+            is_bot: boolean;
             /** History */
             history: components["schemas"]["PatrimonialHistoryDTO"][];
             /** Sectors */
@@ -3369,6 +3523,8 @@ export interface components {
             player_nickname: string;
             /** Color */
             color: string;
+            /** Is Bot */
+            is_bot: boolean;
             /** Value */
             value: string;
         };
@@ -3381,6 +3537,7 @@ export interface components {
             /** Team */
             team?: number | null;
             activity?: components["schemas"]["PlayerActivity"] | null;
+            bot?: components["schemas"]["RoomBotDTO"] | null;
         };
         /** PlayerNotificationSettings */
         PlayerNotificationSettings: {
@@ -3399,6 +3556,8 @@ export interface components {
             simulation_name: string;
             /** Team */
             team: number | null;
+            /** Is Bot */
+            is_bot: boolean;
             /** Buy Trades */
             buy_trades: number;
             /** Sell Trades */
@@ -3427,6 +3586,9 @@ export interface components {
             /** Team */
             team?: number | null;
             activity?: components["schemas"]["PlayerActivity"] | null;
+            bot?: components["schemas"]["RoomBotDTO"] | null;
+            /** Previous Nickname */
+            previous_nickname?: string | null;
         };
         /** PlayerRankingDTO */
         PlayerRankingDTO: {
@@ -3440,6 +3602,8 @@ export interface components {
             simulation_name: string;
             /** Team */
             team: number | null;
+            /** Is Bot */
+            is_bot: boolean;
             /** Position */
             position: number;
             /** Total Networth */
@@ -3477,6 +3641,8 @@ export interface components {
             simulation_name: string;
             /** Team */
             team: number | null;
+            /** Is Bot */
+            is_bot: boolean;
             /** Networth */
             networth: components["schemas"]["SeriesPointDTO"][];
             /** Cumulative Return */
@@ -3507,6 +3673,8 @@ export interface components {
             simulation_name: string;
             /** Team */
             team: number | null;
+            /** Is Bot */
+            is_bot: boolean;
             /** Drawdown */
             drawdown: components["schemas"]["SeriesPointDTO"][];
             /** Rolling Volatility */
@@ -3863,6 +4031,7 @@ export interface components {
             player_color: components["schemas"]["PlayerPresenceEventDTO"];
             player_team: components["schemas"]["PlayerPresenceEventDTO"];
             player_activity: components["schemas"]["PlayerPresenceEventDTO"];
+            player_bot: components["schemas"]["PlayerPresenceEventDTO"];
             simulation_selected: components["schemas"]["SimulationSelectedEventDTO"];
             simulation_deleted: components["schemas"]["SimulationDeletedEventDTO"];
             simulation_settings_update: components["schemas"]["SimulationSettingsDTO"];
@@ -3926,6 +4095,37 @@ export interface components {
             teams: components["schemas"]["TeamRiskDTO"][];
             /** Rolling Window */
             rolling_window: number;
+        };
+        /**
+         * RoomBotDTO
+         * @description O bot na lista da sala: a estratégia que ele joga e se a partida salva o trava.
+         */
+        RoomBotDTO: {
+            /** Strategy Key */
+            strategy_key: string;
+            /** Strategy Name */
+            strategy_name: string;
+            /** Params */
+            params: {
+                [key: string]: components["schemas"]["StrategyParamValue"];
+            };
+            /** Locked */
+            locked: boolean;
+        };
+        /** RoomBotRequest */
+        RoomBotRequest: {
+            /** Nickname */
+            nickname: string;
+            /** Strategy Key */
+            strategy_key: string;
+            /** Params */
+            params?: {
+                [key: string]: components["schemas"]["StrategyParamValue"];
+            };
+            /** Color */
+            color?: string | null;
+            /** Team */
+            team?: number | null;
         };
         /** SavedSimulationDTO */
         SavedSimulationDTO: {
@@ -4592,6 +4792,8 @@ export interface components {
             key: string;
             /** Name */
             name: string;
+            /** Bot Names */
+            bot_names: string[];
             /** Summary */
             summary: string;
             /** Description */
@@ -5129,6 +5331,11 @@ export interface components {
             client_id: string;
             /** Nickname */
             nickname: string;
+            /**
+             * Is Bot
+             * @default false
+             */
+            is_bot: boolean;
         };
         /** UserRegisterRequest */
         UserRegisterRequest: {
@@ -7244,6 +7451,89 @@ export interface operations {
             };
         };
     };
+    get_bots_api_statistics_bots_get: {
+        parameters: {
+            query: {
+                simulation_ids: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BotReportDTO"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_bot_log_api_statistics_bots_log_get: {
+        parameters: {
+            query: {
+                simulation_id: number;
+                nickname: string;
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyLogPageDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     get_next_update_api_statistics_next_update_get: {
         parameters: {
             query?: never;
@@ -8555,6 +8845,204 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PlayerNickname"][];
                 };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_bot_strategies_api_simulation_bots_strategies_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyInfoDTO"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_bot_tickers_api_simulation_bots_tickers_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    add_bot_api_simulation_bots_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoomBotRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlayerNickname"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    update_bot_api_simulation_bots__nickname__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nickname: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoomBotRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    remove_bot_api_simulation_bots__nickname__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nickname: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unprocessable Content */
             422: {

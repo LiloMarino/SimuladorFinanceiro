@@ -2,6 +2,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type {
+  BotReport,
   CompositionReport,
   Highlights,
   OperationsReport,
@@ -17,6 +18,7 @@ interface StatisticsReports {
   composition: CompositionReport;
   operations: OperationsReport;
   highlights: Highlights;
+  bots: BotReport[];
 }
 
 export type StatisticsTab = keyof StatisticsReports;

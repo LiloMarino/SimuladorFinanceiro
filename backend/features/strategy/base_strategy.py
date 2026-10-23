@@ -71,6 +71,8 @@ class BaseStrategy:
     view_kind: ClassVar[StrategyView] = StrategyView.NONE
     # Explicação do termo técnico que a regra usa
     term_hint: ClassVar[str | None] = None
+    # Nomes sugeridos para o bot que joga esta estratégia
+    bot_names: ClassVar[tuple[str, ...]] = ()
 
     @classmethod
     def validate(

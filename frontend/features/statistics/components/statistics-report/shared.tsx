@@ -26,6 +26,7 @@ import type { MetricInfo } from "@/shared/lib/metric-info";
 import type { PlayerRef, TeamNaming } from "@/types";
 import { displayMetric } from "../../lib/metrics";
 import { playerKey, playerLabel } from "../../lib/player-label";
+import { BotIdentity } from "./bot-identity";
 
 export interface ReportProps {
   simulationIds: number[];
@@ -136,6 +137,7 @@ export function PlayerCell({
   isYou,
   teamNaming,
   delinquent = false,
+  onOpenBotLog,
 }: {
   player: PlayerRef;
   label: string;
@@ -145,7 +147,12 @@ export function PlayerCell({
   teamNaming?: TeamNaming;
   /** Parcela de crédito em atraso: o selo "Negativado" aparece ao lado do nome */
   delinquent?: boolean;
+  /** Abre o log das ordens do bot; sem ele, o cartão do bot só informa */
+  onOpenBotLog?: (bot: PlayerRef) => void;
 }) {
+  if (player.is_bot) {
+    return <BotIdentity player={player} label={label} simulationIds={simulationIds} onOpenLog={onOpenBotLog} />;
+  }
   return (
     <span className="flex items-center gap-2">
       <PlayerAvatar
@@ -326,7 +333,7 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
               <TeamBadge team={team.team} naming={naming} form="full" />
               <span className="flex -space-x-1.5">
                 {members.map((m) => (
-                  <PlayerAvatar key={m.player_nickname} nickname={m.player_nickname} color={m.color} size="sm" />
+                  <PlayerAvatar key={m.player_nickname} nickname={m.player_nickname} color={m.color} bot={m.is_bot} size="sm" />
                 ))}
               </span>
               {note && <span className="text-xs font-normal text-muted-foreground">{note}</span>}

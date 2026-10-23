@@ -291,7 +291,7 @@ function TeamRows({
             <TeamBadge team={team.team} naming={naming} form="full" />
             <span className="flex -space-x-1.5">
               {members.map((m) => (
-                <PlayerAvatar key={m.player_nickname} nickname={m.player_nickname} color={m.color} size="sm" />
+                <PlayerAvatar key={m.player_nickname} nickname={m.player_nickname} color={m.color} bot={m.is_bot} size="sm" />
               ))}
             </span>
             <span className="text-xs font-normal text-muted-foreground">
@@ -331,7 +331,7 @@ function TeamRows({
               <TableCell />
               <TableCell>
                 <span className="flex max-w-72 items-center gap-2 pl-7">
-                  <PlayerAvatar nickname={m.player_nickname} color={m.color} size="sm" />
+                  <PlayerAvatar nickname={m.player_nickname} color={m.color} bot={m.is_bot} size="sm" />
                   <span className="truncate" title={m.player_nickname}>
                     {m.player_nickname}
                   </span>

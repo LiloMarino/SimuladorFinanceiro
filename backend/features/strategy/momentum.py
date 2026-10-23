@@ -33,6 +33,7 @@ class TwelveMonthMomentum(BaseStrategy):
 
     key = "momentum_12m"
     name = "Momentum de 12 meses"
+    bot_names = ("Surfista", "Maré Alta", "Seguidor de Tendência")
     summary = "Fica com as que mais subiram no ano."
     description = (
         "Todo mês, no primeiro pregão, ordena as ações da lista pelo retorno dos "

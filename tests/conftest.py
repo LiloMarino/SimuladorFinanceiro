@@ -164,6 +164,8 @@ def team_room(monkeypatch: pytest.MonkeyPatch) -> Join:
     monkeypatch.setattr(UserManager, "_saved_colors", {})
     monkeypatch.setattr(UserManager, "_teams", {})
     monkeypatch.setattr(UserManager, "_saved_teams", {})
+    monkeypatch.setattr(UserManager, "_bots", {})
+    monkeypatch.setattr(UserManager, "_parked_bots", {})
     monkeypatch.setattr(SimulationManager, "_active_simulation", None)
     monkeypatch.setattr(SimulationManager, "_simulation_id", None)
     monkeypatch.setattr(

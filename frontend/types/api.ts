@@ -68,7 +68,7 @@ export type ScoreAxis = Score["axes"][number]["axis"];
 export type ScoreMetric = Score["axes"][number]["metrics"][number]["metric"];
 export type PlayerRef = Pick<
   OverviewReport["players"][number],
-  "player_nickname" | "color" | "simulation_id" | "simulation_name" | "team"
+  "player_nickname" | "color" | "simulation_id" | "simulation_name" | "team" | "is_bot"
 >;
 export type ReturnsReport = components["schemas"]["ReturnsReportDTO"];
 export type RiskReport = components["schemas"]["RiskReportDTO"];
@@ -115,6 +115,11 @@ export type UpdateSettingsRequest = components["schemas"]["UpdateSettingsRequest
 export type SimulationSettings = components["schemas"]["SimulationSettingsResponse"];
 // Jogador da sala com a cor (chave da paleta) que o servidor deu a ele
 export type RoomPlayer = components["schemas"]["PlayerNickname"];
+// Bots: a estratégia que o jogador-robô joga, como a sala e o ranking o mostram
+export type RoomBot = NonNullable<RoomPlayer["bot"]>;
+export type RoomBotRequest = components["schemas"]["RoomBotRequest"];
+export type BotReport = components["schemas"]["BotReportDTO"];
+export type BotParam = BotReport["params"][number];
 // O que o jogador está fazendo na sala (a tela em que está, ou fora da aba do jogo)
 export type PlayerActivity = components["schemas"]["PlayerActivity"];
 export type SimulationInfo = components["schemas"]["SimulationStatusResponse"];

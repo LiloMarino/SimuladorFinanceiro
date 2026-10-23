@@ -37,6 +37,7 @@ class StatisticsRepository:
             select(
                 Snapshots,
                 Users.nickname,
+                Users.is_bot,
                 Simulations.name,
                 Simulations.starting_cash,
                 Simulations.goal_net_worth,
@@ -66,6 +67,7 @@ class StatisticsRepository:
                 player_nickname=group[0].nickname,
                 color=group[0].color,
                 team=group[0].team,
+                is_bot=group[0].is_bot,
                 simulation_id=simulation_id,
                 simulation_name=group[0].name,
                 starting_cash=group[0].starting_cash,

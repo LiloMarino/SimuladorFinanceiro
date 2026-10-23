@@ -24,11 +24,12 @@ interface HighlightProps {
   tone?: "positive" | "negative";
   player: string | undefined;
   color: string | undefined;
+  bot?: boolean;
   /** Equipe de quem lidera, quando a partida é em equipes: o escudo vai ao lado do nome */
   team?: { index: number | null | undefined; naming: TeamNaming };
 }
 
-function Highlight({ label, metric, value, tone, player, color, team }: HighlightProps) {
+function Highlight({ label, metric, value, tone, player, color, bot, team }: HighlightProps) {
   return (
     <Card size="sm">
       <div className="grid gap-1.5 px-4">
@@ -48,7 +49,7 @@ function Highlight({ label, metric, value, tone, player, color, team }: Highligh
         <span className="flex items-center gap-1.5 text-xs">
           {player ? (
             <>
-              <PlayerAvatar nickname={player} color={color} size="sm" />
+              <PlayerAvatar nickname={player} color={color} bot={bot} size="sm" />
               {player}
               {team?.index ? <TeamBadge team={team.index} naming={team.naming} form="icon" size="sm" /> : null}
             </>
@@ -91,6 +92,7 @@ export function HighlightsRow({
   const item = (h: Highlights["biggest_return"]) => ({
     player: h?.player_nickname,
     color: h?.color,
+    bot: h?.is_bot,
     team: teamOf ? { index: teamOf(h?.player_nickname), naming: teamNaming } : undefined,
   });
   const best = data.your_best_month;

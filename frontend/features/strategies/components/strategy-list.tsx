@@ -3,7 +3,7 @@ import { InfoHint } from "@/shared/components/info-hint";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
 import type { StrategyGroup, StrategyInfo } from "@/types";
-import { GROUP_SECTION } from "../lib/strategy-display";
+import { GROUP_SECTION } from "@/shared/lib/strategy-groups";
 import { ActiveMark } from "./active-mark";
 
 const GROUPS: StrategyGroup[] = ["reference", "tactic"];

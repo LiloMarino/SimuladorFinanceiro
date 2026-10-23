@@ -30,6 +30,9 @@ class SimulationLoader:
         in_teams = settings.player_grouping is PlayerGrouping.TEAMS
         if in_teams:
             UserManager.ensure_teams_ready({})
+        # As regras de agora valem para cada bot antes de a partida ser gravada
+        UserManager.validate_bots(settings.start_date)
+        bots = UserManager.room_bots()
         simulation_id = repository.simulation.create_simulation(settings)
 
         # O primeiro tick da Simulation já lê os participantes, que gravam antes dela
@@ -43,6 +46,7 @@ class SimulationLoader:
             settings.start_date,
             settings.starting_cash,
         )
+        UserManager.release_bots()
         UserManager.release_saved_colors()
         UserManager.release_room_teams()
 
@@ -53,6 +57,9 @@ class SimulationLoader:
             random_seed=repository.simulation.get_random_seed(simulation_id),
         )
         SimulationManager.register_simulation(sim)
+        # Cada bot joga a estratégia dele desde o primeiro pregão que o relógio roda
+        for bot, config in bots:
+            sim.set_my_strategy(bot, config.strategy_key, config.params)
         SettingsManager.clear()
         simulation_controller.start()
         notify(
@@ -110,6 +117,7 @@ class SimulationLoader:
             resume_from or summary.start_date,
             summary.starting_cash,
         )
+        UserManager.release_bots()
         UserManager.release_saved_colors()
         UserManager.release_room_teams()
 

@@ -11,7 +11,7 @@ import {
 import { Spinner } from "@/shared/components/ui/spinner";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import type { StrategyInfo } from "@/types";
-import type { ParamValues } from "../lib/strategy-params";
+import type { ParamValues } from "@/shared/lib/strategy-params";
 
 /** A mudança de modo que espera a confirmação do jogador. */
 export type ModeChange =

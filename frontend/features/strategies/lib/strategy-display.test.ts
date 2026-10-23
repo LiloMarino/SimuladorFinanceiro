@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { StrategyOrderLine, StrategyPanel, StrategyParam } from "@/types";
 import { dayOrdersSummary, orderToastTitle } from "@/shared/lib/strategy-orders";
-import { cashShare, ordersBreakdown } from "./strategy-display";
-import { fromDraft, rangeHint, sameValues } from "./strategy-params";
+import { cashShare } from "@/shared/lib/strategy-orders";
+import { ordersBreakdown } from "./strategy-display";
+import { fromDraft, rangeHint, sameValues } from "@/shared/lib/strategy-params";
 
 const PANEL: StrategyPanel = {
   orders_total: 14,

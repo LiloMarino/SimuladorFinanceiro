@@ -42,9 +42,12 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  flush = false,
   ...props
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean;
+  /** Sem espaçamento próprio: o conteúdo desenha as próprias faixas até a borda. */
+  flush?: boolean;
 }) {
   return (
     <DialogPortal>
@@ -53,6 +56,7 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-6 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-115 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          flush && "gap-0 p-0",
           className,
         )}
         {...props}
@@ -150,11 +154,11 @@ function DialogFooter({
   );
 }
 
-function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+function DialogTitle({ className, large = false, ...props }: DialogPrimitive.Title.Props & { large?: boolean }) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-lg leading-tight font-bold", className)}
+      className={cn("leading-tight font-bold", large ? "text-xl" : "text-lg", className)}
       {...props}
     />
   );

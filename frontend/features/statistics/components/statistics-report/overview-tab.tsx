@@ -18,7 +18,7 @@ import { Progress } from "@/shared/components/ui/progress";
 import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber, displaySignedMoney, displaySignedPercent } from "@/shared/lib/utils/display";
-import type { OverviewReport, Player } from "@/types";
+import type { OverviewReport, Player, PlayerRef } from "@/types";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import {
   criterionLabel,
@@ -32,6 +32,8 @@ import { AXIS_SCALE, SCORE, SCORE_AXES, displayMetric } from "../../lib/metrics"
 import { SimulationLetter } from "../compare/simulation-letter";
 import { simulationColor, simulationLetter, labelColors } from "../../lib/player-label";
 import { playerKey, playerLabel } from "../../lib/player-label";
+import { visibleRankingRows } from "../../lib/ranking-scope";
+import { BotLogCard } from "./bot-log-card";
 import { PlayerScoreCard } from "./player-score-card";
 import { PlayerCell, PlayerToggle, TabStatus, type ReportProps } from "./shared";
 import { TeamHeadline, TeamRanking } from "./team-ranking";
@@ -40,9 +42,11 @@ import { TeamScore } from "./team-score";
 
 export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds, onlyPlayer);
+  const [botLog, setBotLog] = useState<PlayerRef | null>(null);
   if (!data) return <TabStatus simulationIds={simulationIds} loading={isLoading} title="o Geral" error={error} onRetry={() => void refetch()} />;
 
   const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
+  const botLogCard = botLog && <BotLogCard bot={botLog} onClose={() => setBotLog(null)} />;
 
   // Partida em equipes: o ranking, a nota e os membros são da equipe, com os jogadores abaixo
   if (data.player_grouping === "TEAMS") {
@@ -60,9 +64,11 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
               title="Ranking por jogador"
               description={`Classificação pelo critério da partida: ${criterionLabel(data)}`}
               action={viewToggle}
+              onOpenBotLog={setBotLog}
             />
           )}
         />
+        {botLogCard}
         <TeamScore report={data} currentPlayerName={currentPlayerName} />
       </div>
     );
@@ -73,7 +79,13 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
       {simulationIds.length === 1 && data.players.length > 0 && (
         <Headline report={data} currentPlayerName={currentPlayerName} />
       )}
-      <Ranking report={data} currentPlayerName={currentPlayerName} simulationIds={simulationIds} />
+      <Ranking
+        report={data}
+        currentPlayerName={currentPlayerName}
+        simulationIds={simulationIds}
+        onOpenBotLog={setBotLog}
+      />
+      {botLogCard}
       {data.players.length > 0 && (
         <ScoreAxes
           report={data}
@@ -279,6 +291,7 @@ function Ranking({
   title,
   description,
   action,
+  onOpenBotLog,
 }: {
   report: OverviewReport;
   currentPlayerName: string;
@@ -287,8 +300,16 @@ function Ranking({
   title?: string;
   description?: string;
   action?: React.ReactNode;
+  onOpenBotLog?: (bot: PlayerRef) => void;
 }) {
+  const [onlyPeople, setOnlyPeople] = useState(false);
+  const hasBots = report.players.some((p) => p.is_bot);
   const measure = rankingMeasure(report);
+  const rankingDescription =
+    description ??
+    (simulationIds.length > 1
+      ? "A Nota compara partidas de períodos diferentes de forma justa; o retorno depende de quanto o mercado andou em cada período. Sem nota (menos de 63 pregões) fica no fim."
+      : `Classificação pelo critério da partida: ${criterionLabel(report)}`);
   const goalRace = measure === "GOAL";
   const topScore = Math.max(...report.players.map((p) => Number(p.score?.total ?? 0)), 1);
   const largestReturn = Math.max(...report.players.map((p) => Math.abs(Number(p.return_percent))), 0.0001);
@@ -307,7 +328,7 @@ function Ranking({
     gap: (p) => sortNumber(p.leader_gap),
     contribution: (p) => sortNumber(p.team_contribution),
   });
-  const players = sorting.rows;
+  const players = visibleRankingRows(sorting.rows, onlyPeople);
   const shortcuts = { SCORE: "score", RETURN: "return", NETWORTH: "wealth" } as const;
   const sortBy = Object.entries(shortcuts).find(([, column]) => column === sorting.sort?.column)?.[0];
 
@@ -316,27 +337,41 @@ function Ranking({
       <CardHeader>
         <CardTitle>{title ?? (comparing ? `Ranking das ${simulationIds.length} partidas` : "Ranking")}</CardTitle>
         <CardDescription>
-          {description ??
-            (comparing
-              ? "A Nota compara partidas de períodos diferentes de forma justa; o retorno depende de quanto o mercado andou em cada período. Sem nota (menos de 63 pregões) fica no fim."
-              : `Classificação pelo critério da partida: ${criterionLabel(report)}`)}
+          {hasBots ? `${rankingDescription.replace(/\.$/, "")}. Bots entram no ranking e na nota como qualquer jogador.` : rankingDescription}
         </CardDescription>
-        {action && <CardAction>{action}</CardAction>}
-        {comparing && (
+        {(action || hasBots || comparing) && (
           <CardAction>
-            <ToggleGroup
-              variant="segmented"
-              aria-label="Ordenar por"
-              value={sortBy ? [sortBy] : []}
-              onValueChange={(values) => {
-                const column = shortcuts[values[0] as keyof typeof shortcuts];
-                if (column) sorting.setSort({ column, direction: "desc" });
-              }}
-            >
-              <ToggleGroupItem value="SCORE">{goalRace ? "% da meta" : "Nota"}</ToggleGroupItem>
-              <ToggleGroupItem value="RETURN">Retorno</ToggleGroupItem>
-              <ToggleGroupItem value="NETWORTH">Patrimônio</ToggleGroupItem>
-            </ToggleGroup>
+          <div className="flex items-center gap-2">
+            {hasBots && (
+              <ToggleGroup
+                variant="segmented"
+                aria-label="Quem aparece no ranking"
+                value={[onlyPeople ? "people" : "all"]}
+                onValueChange={(values) => {
+                  if (values[0]) setOnlyPeople(values[0] === "people");
+                }}
+              >
+                <ToggleGroupItem value="all">Todos</ToggleGroupItem>
+                <ToggleGroupItem value="people">Só pessoas</ToggleGroupItem>
+              </ToggleGroup>
+            )}
+            {action}
+            {comparing && (
+              <ToggleGroup
+                variant="segmented"
+                aria-label="Ordenar por"
+                value={sortBy ? [sortBy] : []}
+                onValueChange={(values) => {
+                  const column = shortcuts[values[0] as keyof typeof shortcuts];
+                  if (column) sorting.setSort({ column, direction: "desc" });
+                }}
+              >
+                <ToggleGroupItem value="SCORE">{goalRace ? "% da meta" : "Nota"}</ToggleGroupItem>
+                <ToggleGroupItem value="RETURN">Retorno</ToggleGroupItem>
+                <ToggleGroupItem value="NETWORTH">Patrimônio</ToggleGroupItem>
+              </ToggleGroup>
+            )}
+          </div>
           </CardAction>
         )}
       </CardHeader>
@@ -392,6 +427,7 @@ function Ranking({
                     isYou={isYou}
                     teamNaming={report.team_naming}
                     delinquent={p.delinquent}
+                    onOpenBotLog={onOpenBotLog}
                   />
                 </TableCell>
                 {comparing ? (

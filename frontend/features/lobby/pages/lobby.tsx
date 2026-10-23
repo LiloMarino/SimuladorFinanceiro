@@ -73,6 +73,7 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
 
       <div className="grid items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
         <LobbyPlayersList
+          isHost={settings.is_host}
           hostNickname={settings.host_nickname}
           savedPlayers={settings.selected_players}
           selectedSimulationId={settings.selected_simulation_id}

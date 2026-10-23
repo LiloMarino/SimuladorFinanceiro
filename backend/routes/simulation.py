@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, model_validator
 from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID, HostVerified
+from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.goal import GoalProgressDTO
 from backend.core.dto.life import LifeHistoryPageDTO, LifeStatusDTO
 from backend.core.dto.simulation import (
@@ -17,6 +18,8 @@ from backend.core.dto.simulation import (
     SimulationSettingsDTO,
     SimulationStatusResponse,
 )
+from backend.core.dto.strategy import StrategyInfoDTO, StrategyParamValue
+from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     GameType,
     LifeHistoryCategory,
@@ -38,9 +41,11 @@ from backend.features.realtime.schemas import (
     SimulationSelectedEventDTO,
 )
 from backend.features.simulation.life_history import build_history, history_page
+from backend.features.simulation.saved_bots import saved_bot_infos, saved_bots
 from backend.features.simulation.saved_simulation import describe
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.simulation.simulation_loop import simulation_controller
+from backend.features.strategy import catalog
 from backend.features.variable_income.price_impact import decay, impact
 
 simulation_router = APIRouter(prefix="/api/simulation", tags=["Simulation"])
@@ -134,6 +139,20 @@ class PlayerNickname(BaseModel):
     team: int | None = None
     # O que o jogador está fazendo na sala; só a lista da sala preenche, nulo é "Online"
     activity: PlayerActivity | None = None
+    # Presente quando o jogador é um bot: a estratégia que ele joga
+    bot: RoomBotDTO | None = None
+
+
+class RoomBotRequest(BaseModel):
+    # Nome do bot na sala; ao configurar, o novo nome (o atual vai na rota)
+    nickname: str
+    strategy_key: str
+    # Os parâmetros que faltarem ficam no padrão do catálogo
+    params: dict[str, StrategyParamValue] = Field(default_factory=dict)
+    # Sem cor, o bot fica com a próxima livre (ao configurar, com a que já tem)
+    color: str | None = None
+    # Índice da equipe (1 a 10); só vale no modo em equipes
+    team: int | None = None
 
 
 class SimulationSettingsResponse(BaseModel):
@@ -221,6 +240,7 @@ def select_simulation(payload: SelectSimulationRequest, _: HostVerified):
     UserManager.apply_saved_colors(
         repository.simulation_player.colors(payload.id),
         repository.simulation_player.teams(payload.id),
+        saved_bots(payload.id),
     )
     SettingsManager.select_simulation(payload.id)
     notify(
@@ -359,6 +379,7 @@ def get_active_players():
             color=colors[p.id],
             team=teams.get(p.id),
             activity=activities.get(p.id),
+            bot=UserManager.room_bot(p),
         )
         for p in UserManager.list_active_players()
         if p.id in colors
@@ -419,10 +440,109 @@ def get_match_players():
     simulation_id = SimulationManager.get_active_simulation_id()
     colors = repository.simulation_player.colors(simulation_id)
     teams = repository.simulation_player.teams(simulation_id)
+    bots = saved_bot_infos(simulation_id)
     return [
-        PlayerNickname(nickname=p.nickname, color=colors[p.id], team=teams.get(p.id))
+        PlayerNickname(
+            nickname=p.nickname,
+            color=colors[p.id],
+            team=teams.get(p.id),
+            bot=bots.get(p.id),
+        )
         for p in repository.simulation_player.participants(simulation_id)
     ]
+
+
+@simulation_router.get(
+    "/bots/strategies",
+    response_model=list[StrategyInfoDTO],
+    summary="Listar as estratégias para os bots",
+    description="As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início das regras do lobby, e os nomes sugeridos para o bot. Apenas o host pode executar.",
+)
+def list_bot_strategies(_: HostVerified):
+    """
+    Lista as estratégias que um bot da sala pode jogar.
+    """
+    return catalog.infos(
+        SettingsManager.get().start_date, None, catalog.known_tickers()
+    )
+
+
+@simulation_router.get(
+    "/bots/tickers",
+    response_model=list[str],
+    summary="Listar as ações que um bot pode operar",
+    description="Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar. Apenas o host pode executar.",
+)
+def list_bot_tickers(_: HostVerified):
+    """
+    Lista as ações que um bot da sala pode operar.
+    """
+    return sorted(catalog.known_tickers())
+
+
+@simulation_router.post(
+    "/bots",
+    status_code=status.HTTP_201_CREATED,
+    response_model=PlayerNickname,
+    summary="Adicionar um bot à sala",
+    description="Cria um jogador sem pessoa por trás, com a estratégia, a cor e a equipe escolhidas, e o põe na primeira vaga livre. Recusa com 409 o nome repetido na sala, a cor com dono e a partida salva selecionada; com 423, a sala cheia. Apenas o host pode executar.",
+)
+def add_bot(payload: RoomBotRequest, _: HostVerified):
+    """
+    Adiciona um bot à sala.
+    """
+    bot = UserManager.add_bot(
+        payload.nickname,
+        payload.strategy_key,
+        payload.params,
+        payload.color,
+        payload.team,
+    )
+    return _room_player(bot)
+
+
+@simulation_router.put(
+    "/bots/{nickname}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Configurar um bot da sala",
+    description="Troca a estratégia, os parâmetros, o nome, a cor e a equipe do bot. Recusa com 409 o bot da partida salva selecionada e a partida em andamento. Apenas o host pode executar.",
+)
+def update_bot(nickname: str, payload: RoomBotRequest, _: HostVerified):
+    """
+    Configura um bot da sala.
+    """
+    UserManager.update_bot(
+        nickname,
+        payload.nickname,
+        payload.strategy_key,
+        payload.params,
+        payload.color,
+        payload.team,
+    )
+
+
+@simulation_router.delete(
+    "/bots/{nickname}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Remover um bot da sala",
+    description="Tira o bot da sala: a vaga e a cor ficam livres. Recusa com 409 o bot da partida salva selecionada e a partida em andamento. Apenas o host pode executar.",
+)
+def remove_bot(nickname: str, _: HostVerified):
+    """
+    Remove um bot da sala.
+    """
+    UserManager.remove_bot(nickname)
+
+
+def _room_player(player: UserDTO) -> PlayerNickname:
+    """O jogador na sala, como a lista o mostra."""
+    return PlayerNickname(
+        nickname=player.nickname,
+        color=UserManager.room_colors()[player.id],
+        team=UserManager.room_teams().get(player.id),
+        activity=UserManager.room_activities().get(player.id),
+        bot=UserManager.room_bot(player),
+    )
 
 
 @simulation_router.get(
@@ -523,9 +643,13 @@ def get_simulation_settings(client_id: ClientID):
     if selected_id is not None:
         colors = repository.simulation_player.colors(selected_id)
         teams = repository.simulation_player.teams(selected_id)
+        bots = saved_bot_infos(selected_id)
         selected_players = [
             PlayerNickname(
-                nickname=p.nickname, color=colors[p.id], team=teams.get(p.id)
+                nickname=p.nickname,
+                color=colors[p.id],
+                team=teams.get(p.id),
+                bot=bots.get(p.id),
             )
             for p in repository.simulation_player.participants(selected_id)
         ]

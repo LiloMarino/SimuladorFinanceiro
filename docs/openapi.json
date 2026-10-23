@@ -2752,6 +2752,152 @@
         }
       }
     },
+    "/api/statistics/bots": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "Estatísticas: bots",
+        "description": "Os bots das simulações informadas: a estratégia em que terminaram, os parâmetros com rótulo e unidade, quem os adicionou e se o log de ordens já abriu.",
+        "operationId": "get_bots_api_statistics_bots_get",
+        "parameters": [
+          {
+            "name": "simulation_ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "minItems": 1,
+              "title": "Simulation Ids"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BotReportDTO"
+                  },
+                  "title": "Response Get Bots Api Statistics Bots Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/statistics/bots/log": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "Estatísticas: log de ordens do bot",
+        "description": "As ordens que o bot enviou, da mais recente para a mais antiga. Recusa com 403 enquanto a partida corre e com 404 quem não é bot dela.",
+        "operationId": "get_bot_log_api_statistics_bots_log_get",
+        "parameters": [
+          {
+            "name": "simulation_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Simulation Id"
+            }
+          },
+          {
+            "name": "nickname",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Nickname"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyLogPageDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/statistics/next-update": {
       "get": {
         "tags": [
@@ -4562,6 +4708,275 @@
         }
       }
     },
+    "/api/simulation/bots/strategies": {
+      "get": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Listar as estratégias para os bots",
+        "description": "As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início das regras do lobby, e os nomes sugeridos para o bot. Apenas o host pode executar.",
+        "operationId": "list_bot_strategies_api_simulation_bots_strategies_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StrategyInfoDTO"
+                  },
+                  "type": "array",
+                  "title": "Response List Bot Strategies Api Simulation Bots Strategies Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/bots/tickers": {
+      "get": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Listar as ações que um bot pode operar",
+        "description": "Os tickers cadastrados, em ordem alfabética, para escolher as ações de uma estratégia antes de a partida começar. Apenas o host pode executar.",
+        "operationId": "list_bot_tickers_api_simulation_bots_tickers_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "title": "Response List Bot Tickers Api Simulation Bots Tickers Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/bots": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Adicionar um bot à sala",
+        "description": "Cria um jogador sem pessoa por trás, com a estratégia, a cor e a equipe escolhidas, e o põe na primeira vaga livre. Recusa com 409 o nome repetido na sala, a cor com dono e a partida salva selecionada; com 423, a sala cheia. Apenas o host pode executar.",
+        "operationId": "add_bot_api_simulation_bots_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomBotRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayerNickname"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/bots/{nickname}": {
+      "put": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Configurar um bot da sala",
+        "description": "Troca a estratégia, os parâmetros, o nome, a cor e a equipe do bot. Recusa com 409 o bot da partida salva selecionada e a partida em andamento. Apenas o host pode executar.",
+        "operationId": "update_bot_api_simulation_bots__nickname__put",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "nickname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Nickname"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoomBotRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Remover um bot da sala",
+        "description": "Tira o bot da sala: a vaga e a cor ficam livres. Recusa com 409 o bot da partida salva selecionada e a partida em andamento. Apenas o host pode executar.",
+        "operationId": "remove_bot_api_simulation_bots__nickname__delete",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "nickname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Nickname"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/simulation/goal-progress": {
       "get": {
         "tags": [
@@ -5562,6 +5977,84 @@
           "csv_file"
         ],
         "title": "Body_import_assets_csv_api_import_assets_csv_post"
+      },
+      "BotParamDTO": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "value": {
+            "$ref": "#/components/schemas/StrategyParamValue"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "value",
+          "unit"
+        ],
+        "title": "BotParamDTO"
+      },
+      "BotReportDTO": {
+        "properties": {
+          "simulation_id": {
+            "type": "integer",
+            "title": "Simulation Id"
+          },
+          "player_nickname": {
+            "type": "string",
+            "title": "Player Nickname"
+          },
+          "strategy_key": {
+            "type": "string",
+            "title": "Strategy Key"
+          },
+          "strategy_name": {
+            "type": "string",
+            "title": "Strategy Name"
+          },
+          "params": {
+            "items": {
+              "$ref": "#/components/schemas/BotParamDTO"
+            },
+            "type": "array",
+            "title": "Params"
+          },
+          "added_by": {
+            "type": "string",
+            "title": "Added By"
+          },
+          "log_open": {
+            "type": "boolean",
+            "title": "Log Open"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "simulation_id",
+          "player_nickname",
+          "strategy_key",
+          "strategy_name",
+          "params",
+          "added_by",
+          "log_open"
+        ],
+        "title": "BotReportDTO",
+        "description": "O bot de uma partida como o ranking o mostra: o que ele joga e quem o pôs na sala."
       },
       "BuyFixedIncomeRequest": {
         "properties": {
@@ -9484,6 +9977,10 @@
             ],
             "title": "Team"
           },
+          "is_bot": {
+            "type": "boolean",
+            "title": "Is Bot"
+          },
           "history": {
             "items": {
               "$ref": "#/components/schemas/PatrimonialHistoryDTO"
@@ -9525,6 +10022,7 @@
           "simulation_id",
           "simulation_name",
           "team",
+          "is_bot",
           "history",
           "sectors",
           "effective_sectors",
@@ -9551,6 +10049,10 @@
             "type": "string",
             "title": "Color"
           },
+          "is_bot": {
+            "type": "boolean",
+            "title": "Is Bot"
+          },
           "value": {
             "type": "string",
             "title": "Value"
@@ -9561,6 +10063,7 @@
         "required": [
           "player_nickname",
           "color",
+          "is_bot",
           "value"
         ],
         "title": "PlayerHighlightDTO"
@@ -9590,6 +10093,16 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/PlayerActivity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomBotDTO"
               },
               {
                 "type": "null"
@@ -9645,6 +10158,10 @@
               }
             ],
             "title": "Team"
+          },
+          "is_bot": {
+            "type": "boolean",
+            "title": "Is Bot"
           },
           "buy_trades": {
             "type": "integer",
@@ -9710,6 +10227,7 @@
           "simulation_id",
           "simulation_name",
           "team",
+          "is_bot",
           "buy_trades",
           "sell_trades",
           "traded_volume",
@@ -9751,6 +10269,27 @@
                 "type": "null"
               }
             ]
+          },
+          "bot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoomBotDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previous_nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Nickname"
           }
         },
         "additionalProperties": false,
@@ -9790,6 +10329,10 @@
               }
             ],
             "title": "Team"
+          },
+          "is_bot": {
+            "type": "boolean",
+            "title": "Is Bot"
           },
           "position": {
             "type": "integer",
@@ -9892,6 +10435,7 @@
           "simulation_id",
           "simulation_name",
           "team",
+          "is_bot",
           "position",
           "total_networth",
           "return_value",
@@ -9936,6 +10480,10 @@
               }
             ],
             "title": "Team"
+          },
+          "is_bot": {
+            "type": "boolean",
+            "title": "Is Bot"
           },
           "networth": {
             "items": {
@@ -10004,6 +10552,7 @@
           "simulation_id",
           "simulation_name",
           "team",
+          "is_bot",
           "networth",
           "cumulative_return",
           "capital_provided",
@@ -10044,6 +10593,10 @@
               }
             ],
             "title": "Team"
+          },
+          "is_bot": {
+            "type": "boolean",
+            "title": "Is Bot"
           },
           "drawdown": {
             "items": {
@@ -10167,6 +10720,7 @@
           "simulation_id",
           "simulation_name",
           "team",
+          "is_bot",
           "drawdown",
           "rolling_volatility",
           "max_drawdown",
@@ -11085,6 +11639,9 @@
           "player_activity": {
             "$ref": "#/components/schemas/PlayerPresenceEventDTO"
           },
+          "player_bot": {
+            "$ref": "#/components/schemas/PlayerPresenceEventDTO"
+          },
           "simulation_selected": {
             "$ref": "#/components/schemas/SimulationSelectedEventDTO"
           },
@@ -11162,6 +11719,7 @@
           "player_color",
           "player_team",
           "player_activity",
+          "player_bot",
           "simulation_selected",
           "simulation_deleted",
           "simulation_settings_update",
@@ -11310,6 +11868,86 @@
           "rolling_window"
         ],
         "title": "RiskReportDTO"
+      },
+      "RoomBotDTO": {
+        "properties": {
+          "strategy_key": {
+            "type": "string",
+            "title": "Strategy Key"
+          },
+          "strategy_name": {
+            "type": "string",
+            "title": "Strategy Name"
+          },
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/StrategyParamValue"
+            },
+            "type": "object",
+            "title": "Params"
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "strategy_key",
+          "strategy_name",
+          "params",
+          "locked"
+        ],
+        "title": "RoomBotDTO",
+        "description": "O bot na lista da sala: a estratégia que ele joga e se a partida salva o trava."
+      },
+      "RoomBotRequest": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "strategy_key": {
+            "type": "string",
+            "title": "Strategy Key"
+          },
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/StrategyParamValue"
+            },
+            "type": "object",
+            "title": "Params"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nickname",
+          "strategy_key"
+        ],
+        "title": "RoomBotRequest"
       },
       "SavedSimulationDTO": {
         "properties": {
@@ -13006,6 +13644,13 @@
             "type": "string",
             "title": "Name"
           },
+          "bot_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Bot Names"
+          },
           "summary": {
             "type": "string",
             "title": "Summary"
@@ -13044,6 +13689,7 @@
         "required": [
           "key",
           "name",
+          "bot_names",
           "summary",
           "description",
           "group",
@@ -14705,6 +15351,11 @@
           "nickname": {
             "type": "string",
             "title": "Nickname"
+          },
+          "is_bot": {
+            "type": "boolean",
+            "title": "Is Bot",
+            "default": false
           }
         },
         "additionalProperties": false,

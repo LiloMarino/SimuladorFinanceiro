@@ -55,3 +55,22 @@ export function rangeHint(param: StrategyParam) {
   const unit = param.unit === "%" ? "%" : "";
   return `Padrão ${String(param.default)}${unit} · de ${String(param.min)}${unit} a ${String(param.max)}${unit}`;
 }
+
+/** O que a digitação ainda não permite, por campo: lista vazia, ativo faltando, não inteiro ou fora da faixa. */
+export function draftErrors(params: StrategyParam[], draft: ParamDraft) {
+  const errors: Record<string, string> = {};
+  for (const param of params) {
+    const entry = draft[param.key];
+    if (param.kind === "tickers" && Array.isArray(entry) && entry.length === 0)
+      errors[param.key] = "Escolha ao menos uma ação.";
+    if (param.kind === "ticker" && entry === "") errors[param.key] = "Escolha uma ação.";
+    if ((param.kind === "int" || param.kind === "percent") && typeof entry === "string") {
+      if (!/^\d+$/.test(entry.trim())) errors[param.key] = "Digite um número inteiro.";
+      else if (param.min != null && param.max != null && (Number(entry) < param.min || Number(entry) > param.max)) {
+        const unit = param.unit === "%" ? "%" : "";
+        errors[param.key] = `Use de ${param.min}${unit} a ${param.max}${unit}.`;
+      }
+    }
+  }
+  return errors;
+}

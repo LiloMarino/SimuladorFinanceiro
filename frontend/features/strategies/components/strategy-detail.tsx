@@ -14,16 +14,17 @@ import { LEGEND_SWATCH } from "../lib/signal-style";
 import { GROUP_LABEL } from "../lib/strategy-display";
 import {
   defaultValues,
+  draftErrors,
   fromDraft,
   sameValues,
   toDraft,
   type ParamDraft,
   type ParamValues,
-} from "../lib/strategy-params";
+} from "@/shared/lib/strategy-params";
 import { ActiveMark } from "./active-mark";
 import { SignalChart, type SavedSignalLine } from "./signal-chart";
 import { StrategyDataBlock } from "./strategy-data-block";
-import { StrategyParamsForm } from "./strategy-params-form";
+import { StrategyParamsForm } from "@/shared/components/strategy-params-form";
 
 type StrategyDetailProps = {
   strategy: StrategyInfo;
@@ -90,14 +91,7 @@ export function StrategyDetail({
     : dataReady
       ? { ...dataView.data?.errors }
       : {};
-  for (const param of strategy.params) {
-    const entry = draft[param.key];
-    if (param.kind === "tickers" && Array.isArray(entry) && entry.length === 0)
-      errors[param.key] = "Escolha ao menos uma ação.";
-    if (param.kind === "ticker" && entry === "") errors[param.key] = "Escolha uma ação.";
-    if ((param.kind === "int" || param.kind === "percent") && typeof entry === "string" && !/^\d+$/.test(entry.trim()))
-      errors[param.key] = "Digite um número inteiro.";
-  }
+  Object.assign(errors, draftErrors(strategy.params, draft));
   const valid =
     values !== null && Object.keys(errors).length === 0 && (!hasChart || signalReady) && (!dataKind || dataReady);
 

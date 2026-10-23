@@ -4,7 +4,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { RoomPlayer } from "@/types";
 
-/** Jogadores conectados à sala com a cor e a equipe de cada um, mantido vivo via player_join/player_exit/player_color/player_team/player_activity. */
+/** Jogadores conectados à sala com a cor e a equipe de cada um, mantido vivo via player_join/player_exit/player_color/player_team/player_activity/player_bot. */
 export function useRoomPlayers() {
   const queryClient = useQueryClient();
 
@@ -47,6 +47,13 @@ export function useRoomPlayers() {
   useRealtime("player_activity", (player) => {
     queryClient.setQueryData(queryKeys.simulationPlayers(), (prev: RoomPlayer[] | undefined) =>
       prev?.map((p) => (p.nickname === player.nickname ? player : p)),
+    );
+  });
+
+  // Configurar um bot pode trocar o nome: previous_nickname diz qual cartão substituir
+  useRealtime("player_bot", ({ previous_nickname, ...player }) => {
+    queryClient.setQueryData(queryKeys.simulationPlayers(), (prev: RoomPlayer[] | undefined) =>
+      prev?.map((p) => (p.nickname === (previous_nickname ?? player.nickname) ? player : p)),
     );
   });
 

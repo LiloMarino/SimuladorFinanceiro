@@ -32,6 +32,8 @@ class PlayerRefDTO(BaseDTO):
     simulation_name: str
     # Índice da equipe (1 a 10); nulo fora do modo em equipes
     team: int | None
+    # Jogador sem pessoa por trás
+    is_bot: bool
 
 
 class TeamReportDTO(BaseDTO):
@@ -356,6 +358,7 @@ class OperationsReportDTO(TeamReportDTO):
 class PlayerHighlightDTO(BaseDTO):
     player_nickname: str
     color: str
+    is_bot: bool
     value: Decimal
 
 

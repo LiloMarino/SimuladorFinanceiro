@@ -39,7 +39,7 @@ def test_player_picks_a_team_and_the_room_list_shows_it(
 
     listed = http.get("/api/simulation/players").json()
     assert listed == [
-        {"nickname": "Ana", "color": "chart-1", "team": 4, "activity": None}
+        {"nickname": "Ana", "color": "chart-1", "team": 4, "activity": None, "bot": None}
     ]
     assert UserManager.get_team(ana.id) == 4
 

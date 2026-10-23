@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 
 from backend.core.dependencies import ActiveSimulation, ClientID
+from backend.core.dto.bot import BotReportDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.statistics_report import (
     CompositionReportDTO,
@@ -13,7 +14,9 @@ from backend.core.dto.statistics_report import (
     RiskReportDTO,
     StatisticsNextUpdateDTO,
 )
+from backend.core.dto.strategy import StrategyLogPageDTO
 from backend.core.runtime.user_manager import UserManager
+from backend.features.statistics.bots import bot_orders, build_bots_report
 from backend.features.statistics.report import (
     build_composition_report,
     build_highlights,
@@ -88,6 +91,31 @@ def get_composition(simulation_ids: SimulationIds):
 )
 def get_operations(simulation_ids: SimulationIds):
     return build_operations_report(simulation_ids)
+
+
+@statistics_router.get(
+    "/statistics/bots",
+    response_model=list[BotReportDTO],
+    summary="Estatísticas: bots",
+    description="Os bots das simulações informadas: a estratégia em que terminaram, os parâmetros com rótulo e unidade, quem os adicionou e se o log de ordens já abriu.",
+)
+def get_bots(simulation_ids: SimulationIds):
+    return build_bots_report(simulation_ids)
+
+
+@statistics_router.get(
+    "/statistics/bots/log",
+    response_model=StrategyLogPageDTO,
+    summary="Estatísticas: log de ordens do bot",
+    description="As ordens que o bot enviou, da mais recente para a mais antiga. Recusa com 403 enquanto a partida corre e com 404 quem não é bot dela.",
+)
+def get_bot_log(
+    simulation_id: int,
+    nickname: str,
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+):
+    return bot_orders(simulation_id, nickname, offset, limit)
 
 
 @statistics_router.get(

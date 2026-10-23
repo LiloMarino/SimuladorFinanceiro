@@ -1,16 +1,17 @@
-import type { CSSProperties } from "react";
-import { TriangleAlert } from "lucide-react";
+import { useState, type CSSProperties } from "react";
+import { Info, Plus, TriangleAlert } from "lucide-react";
 import { GroupingBadge } from "@/shared/components/grouping-badge";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Status } from "@/shared/components/ui/status";
 import { PlayerActivityStatus } from "@/shared/components/player-activity-status";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { MAX_PLAYERS } from "@/shared/lib/player-colors";
+import { plural } from "@/shared/lib/strategy-orders";
 import { teamColor } from "@/shared/lib/teams";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { cn } from "@/shared/lib/utils";
@@ -18,10 +19,13 @@ import type { PlayerGrouping, RoomPlayer, TeamNaming } from "@/types";
 import { useApplyColorPreference } from "../hooks/useApplyColorPreference";
 import { checkTeams } from "../lib/teams-check";
 import { joinNames } from "../lib/join-names";
+import { BotDialog } from "./bot-dialog";
+import { LobbyBotMenu } from "./lobby-bot-menu";
 import { LobbyColorPicker } from "./lobby-color-picker";
 import { LobbyTeamPicker } from "./lobby-team-picker";
 
 type LobbyPlayersListProps = {
+  isHost: boolean;
   hostNickname: string;
   /** Quem jogou a partida salva selecionada, com a cor guardada */
   savedPlayers: RoomPlayer[];
@@ -34,6 +38,7 @@ type LobbyPlayersListProps = {
 
 /** Jogadores da sala em cartões, com as vagas livres à vista. */
 export function LobbyPlayersList({
+  isHost,
   hostNickname,
   savedPlayers,
   selectedSimulationId,
@@ -49,15 +54,22 @@ export function LobbyPlayersList({
   const inTeams = grouping === "TEAMS";
   const rank = (nickname: string) =>
     Number(inTeams && nickname === user?.nickname) * 2 + Number(nickname === hostNickname);
-  const sorted = [...(players ?? [])].sort((a, b) => rank(b.nickname) - rank(a.nickname) || a.nickname.localeCompare(b.nickname));
+  // Pessoas primeiro; os bots vêm depois, na ordem em que entraram
+  const humans = [...(players ?? [])]
+    .filter((p) => !p.bot)
+    .sort((a, b) => rank(b.nickname) - rank(a.nickname) || a.nickname.localeCompare(b.nickname));
+  const bots = (players ?? []).filter((p) => p.bot);
+  const sorted = [...humans, ...bots];
+  const [botDialog, setBotDialog] = useState<{ bot?: RoomPlayer } | null>(null);
 
   // Quem jogou a partida selecionada e não está na sala segue dono da vaga e da cor
   const absent = savedPlayers.filter((saved) => !sorted.some((p) => p.nickname === saved.nickname));
   const occupied = sorted.length + absent.length;
   const alone = sorted.length <= 1 && absent.length === 0;
-  // O convite de "sozinho" ocupa uma vaga livre, para a grade fechar em MAX_PLAYERS células
-  const freeSlots = Math.max(MAX_PLAYERS - occupied - Number(alone), 0);
+  const freeSlots = Math.max(MAX_PLAYERS - occupied, 0);
   const full = occupied >= MAX_PLAYERS;
+  // A partida salva traz os bots dela; a sala só ganha bots novos numa partida nova
+  const canAddBot = isHost && selectedSimulationId === null && !full;
   const teams = checkTeams(sorted, savedPlayers, naming);
 
   const me = sorted.find((p) => p.nickname === user?.nickname);
@@ -71,11 +83,11 @@ export function LobbyPlayersList({
       <CardHeader>
         <div className="grid gap-1">
           <CardTitle>Jogadores</CardTitle>
-          {absent.length > 0 && (
-            <span className="text-xs text-muted-foreground">
-              {sorted.length} na sala · {absent.length} offline da partida selecionada
-            </span>
-          )}
+          <CardDescription>
+            {plural(humans.length, "pessoa", "pessoas")}
+            {bots.length > 0 && ` e ${plural(bots.length, "bot", "bots")}`}
+            {absent.length > 0 && ` · ${absent.length} offline da partida selecionada`}
+          </CardDescription>
         </div>
         <CardAction>
           <span className="flex items-center gap-2">
@@ -92,36 +104,48 @@ export function LobbyPlayersList({
         <div className="grid grid-cols-2 gap-2.5">
           {sorted.map((player) => {
             const isYou = player.nickname === user?.nickname;
-            const isHost = player.nickname === hostNickname;
+            const isRoomHost = player.nickname === hostNickname;
             const isNew = savedPlayers.length > 0 && !savedPlayers.some((p) => p.nickname === player.nickname);
+            const bot = player.bot;
             return (
               <div
                 key={player.nickname}
                 style={inTeams && player.team ? ({ "--team": teamColor(player.team) } as CSSProperties) : undefined}
                 className={cn(
                   "flex items-center gap-3 rounded-[10px] border p-3",
-                  isYou ? "border-info-border bg-info-soft" : "border-border bg-card",
+                  isYou ? "border-info-border bg-info-soft" : bot ? "border-border bg-subtle" : "border-border bg-card",
                   inTeams && player.team && "border-l-[3px] border-l-(--team)",
                   inTeams && isYou && "col-span-2",
                 )}
               >
-                <PlayerAvatar nickname={player.nickname} color={player.color} size="lg" />
-                <div className="grid min-w-0 flex-1">
-                  <span className="truncate font-semibold">
-                    {player.nickname}
-                    {isYou && <span className="font-normal text-secondary-foreground"> (você)</span>}
-                    {isHost && (
-                      <Badge variant="info" size="sm" className="ml-1.5 align-[1px]">
+                <PlayerAvatar nickname={player.nickname} color={player.color} bot={!!bot} size="lg" />
+                <div className="grid min-w-0 flex-1 gap-0.5">
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <span className="min-w-0 truncate font-semibold">
+                      {player.nickname}
+                      {isYou && <span className="font-normal text-secondary-foreground"> (você)</span>}
+                    </span>
+                    {bot && (
+                      <Badge variant="secondary" size="tag" className="shrink-0">
+                        Bot
+                      </Badge>
+                    )}
+                    {isRoomHost && (
+                      <Badge variant="info" size="sm" className="shrink-0">
                         Host
                       </Badge>
                     )}
                     {isNew && (
-                      <Badge variant="info" size="sm" className="ml-1.5 align-[1px]">
+                      <Badge variant="info" size="sm" className="shrink-0">
                         Novo
                       </Badge>
                     )}
                   </span>
-                  <PlayerActivityStatus activity={player.activity} />
+                  {bot ? (
+                    <span className="truncate text-xs text-muted-foreground">{bot.strategy_name}</span>
+                  ) : (
+                    <PlayerActivityStatus activity={player.activity} />
+                  )}
                 </div>
                 {isYou ? (
                   <div className="flex items-center gap-1.5">
@@ -142,7 +166,12 @@ export function LobbyPlayersList({
                     )}
                   </div>
                 ) : (
-                  inTeams && <TeamBadge team={player.team} naming={naming} />
+                  <div className="flex items-center gap-1.5">
+                    {inTeams && <TeamBadge team={player.team} naming={naming} />}
+                    {bot && isHost && !bot.locked && (
+                      <LobbyBotMenu player={player} onConfigure={() => setBotDialog({ bot: player })} />
+                    )}
+                  </div>
                 )}
               </div>
             );
@@ -169,30 +198,48 @@ export function LobbyPlayersList({
             </div>
           ))}
 
-          {/* Convite de quem está sozinho na sala: conta como uma vaga */}
-          {alone && (
-            <div
-              className={cn(
-                "grid content-center gap-1 rounded-[10px] border border-dashed border-info-border bg-info-soft/40 p-3",
-                inTeams && "col-span-2",
-              )}
-            >
-              <span className="font-semibold">Só você por aqui</span>
-              <span className="text-[13px] text-muted-foreground">
-                Mande o link acima pra quem vai jogar. Também dá pra jogar sozinho.
-              </span>
-            </div>
+          {Array.from({ length: freeSlots }, (_, i) =>
+            i === 0 && canAddBot ? (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setBotDialog({})}
+                className="flex h-16.5 cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-dashed border-info-border bg-info-soft/50 text-[13px] font-semibold text-primary outline-none hover:border-solid hover:border-primary hover:bg-info-soft focus-visible:ring-3 focus-visible:ring-ring/50"
+              >
+                <Plus className="size-4" />
+                Adicionar bot
+              </button>
+            ) : (
+              <div
+                key={i}
+                className="flex h-16.5 items-center justify-center rounded-[10px] border border-dashed border-input text-[13px] text-faint-foreground"
+              >
+                Vaga livre
+              </div>
+            ),
           )}
-
-          {Array.from({ length: freeSlots }, (_, i) => (
-            <div
-              key={i}
-              className="flex h-14.5 items-center justify-center rounded-[10px] border border-dashed border-input text-[13px] text-faint-foreground"
-            >
-              Vaga livre
-            </div>
-          ))}
         </div>
+
+        {/* Convite de quem está sozinho na sala */}
+        {alone && (
+          <Alert variant="muted" className="mt-3.5">
+            <Info />
+            <AlertTitle>Só você por aqui</AlertTitle>
+            <AlertDescription>
+              {isHost
+                ? "Convide pelo link ou jogue contra bots: cada bot é uma estratégia do app."
+                : "Mande o link acima pra quem vai jogar. Também dá pra jogar sozinho."}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Sala cheia: o host só põe outro bot se abrir uma vaga */}
+        {full && isHost && selectedSimulationId === null && (
+          <p className="mt-3.5 flex items-center gap-2 rounded-lg bg-subtle px-2.5 py-2 text-xs text-muted-foreground">
+            <Info className="size-3.5 shrink-0" />
+            Sala cheia: para pôr outro bot, remova um jogador ou um bot.
+          </p>
+        )}
 
         {/* Avisos das equipes: quem falta, equipe única e equipes desiguais */}
         {inTeams && teams.missing.length > 0 && (
@@ -231,6 +278,14 @@ export function LobbyPlayersList({
           </Alert>
         )}
       </CardContent>
+
+      <BotDialog
+        open={botDialog !== null}
+        onOpenChange={(open) => !open && setBotDialog(null)}
+        bot={botDialog?.bot}
+        grouping={grouping}
+        naming={naming}
+      />
     </Card>
   );
 }

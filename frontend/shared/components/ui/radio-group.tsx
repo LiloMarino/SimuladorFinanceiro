@@ -2,8 +2,15 @@ import { Radio as RadioPrimitive } from "@base-ui/react/radio";
 import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
 import { cn } from "@/shared/lib/utils";
 
-function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
-  return <RadioGroupPrimitive data-slot="radio-group" className={cn("grid w-full gap-2", className)} {...props} />;
+/** `dense`: opções em cartão, quase coladas. */
+function RadioGroup({ className, dense = false, ...props }: RadioGroupPrimitive.Props & { dense?: boolean }) {
+  return (
+    <RadioGroupPrimitive
+      data-slot="radio-group"
+      className={cn("grid w-full", dense ? "gap-0.5" : "gap-2", className)}
+      {...props}
+    />
+  );
 }
 
 function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {

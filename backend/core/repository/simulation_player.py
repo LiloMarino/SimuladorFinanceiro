@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.user import UserDTO
 from backend.core.models.models import SimulationPlayers, Users
+from backend.core.repository.user import user_dto
 
 
 class SimulationPlayerRepository:
@@ -74,7 +75,20 @@ class SimulationPlayerRepository:
             .scalars()
             .all()
         )
-        return [
-            UserDTO(id=user.id, client_id=user.client_id, nickname=user.nickname)
-            for user in users
-        ]
+        return [user_dto(user) for user in users]
+
+    @transactional
+    def bots(
+        self, session: Session, simulation_ids: list[int]
+    ) -> list[tuple[int, UserDTO]]:
+        """Os bots das partidas, como (simulation_id, usuário)."""
+        rows = session.execute(
+            select(SimulationPlayers.simulation_id, Users)
+            .join(Users, Users.id == SimulationPlayers.user_id)
+            .where(
+                SimulationPlayers.simulation_id.in_(simulation_ids),
+                Users.is_bot.is_(True),
+            )
+            .order_by(SimulationPlayers.simulation_id, Users.id)
+        ).all()
+        return [(simulation_id, user_dto(user)) for simulation_id, user in rows]

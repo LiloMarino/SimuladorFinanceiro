@@ -62,6 +62,7 @@ class TargetRebalance(BaseStrategy):
 
     key = "target_rebalance"
     name = "Rebalanceamento por meta"
+    bot_names = ("Equilibrista", "Mestre da Meta", "Balanceado")
     summary = "Volta à divisão escolhida quando ela sai da meta."
     description = (
         "Mantém uma divisão entre ações e renda fixa de liquidez diária. Quando as "

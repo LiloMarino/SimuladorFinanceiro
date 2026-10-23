@@ -348,7 +348,13 @@ class Users(Base):
     __table_args__ = (
         PrimaryKeyConstraint("id", name="users_pkey"),
         UniqueConstraint("client_id", name="users_client_id_key"),
-        UniqueConstraint("nickname", name="users_nickname_key"),
+        # O apelido é único entre as pessoas; bot repete nome de uma partida para outra
+        Index(
+            "users_nickname_key",
+            "nickname",
+            unique=True,
+            postgresql_where=text("NOT is_bot"),
+        ),
     )
 
     id: Mapped[int] = mapped_column(
@@ -366,6 +372,10 @@ class Users(Base):
     )
     client_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
     nickname: Mapped[str] = mapped_column(Text, nullable=False)
+    # Jogador sem pessoa por trás: o motor roda a estratégia dele a cada tick
+    is_bot: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )

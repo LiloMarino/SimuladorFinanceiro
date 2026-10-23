@@ -33,6 +33,7 @@ class BuyAndHold(BaseStrategy):
 
     key = "buy_and_hold"
     name = "Comprar e segurar"
+    bot_names = ("Tio Patinhas", "Vovô Investidor", "Paciência")
     summary = "Compra um ETF do Ibovespa e não vende mais."
     description = (
         "Põe o caixa em cotas de um ETF do Ibovespa, todo dia, e nunca vende. "

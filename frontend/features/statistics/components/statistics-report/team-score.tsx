@@ -125,7 +125,7 @@ function SubjectPicker({
                       selected={subject === `p:${player.player_nickname}`}
                       onSelect={() => choose(`p:${player.player_nickname}`)}
                     >
-                      <PlayerAvatar nickname={player.player_nickname} color={player.color} size="sm" />
+                      <PlayerAvatar nickname={player.player_nickname} color={player.color} bot={player.is_bot} size="sm" />
                       {player.player_nickname}
                     </CommandItem>
                   ))}
@@ -283,7 +283,7 @@ function TeamMembersAxes({
                   return (
                     <span key={member.player_nickname} className="grid grid-cols-[110px_1fr_34px_34px] items-center gap-2.5">
                       <span className="flex min-w-0 items-center gap-1.5 text-[13px]">
-                        <PlayerAvatar nickname={member.player_nickname} color={member.color} size="sm" />
+                        <PlayerAvatar nickname={member.player_nickname} color={member.color} bot={member.is_bot} size="sm" />
                         <span className="truncate">{member.player_nickname}</span>
                         {member.player_nickname === currentPlayerName && (
                           <Badge variant="info" size="sm">

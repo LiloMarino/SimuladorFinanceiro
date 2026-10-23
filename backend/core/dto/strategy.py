@@ -36,6 +36,8 @@ class StrategyParamDTO(BaseDTO):
 class StrategyInfoDTO(BaseDTO):
     key: str
     name: str
+    # Nomes sugeridos para o bot que joga esta estratégia
+    bot_names: list[str]
     # Uma linha, para a lista
     summary: str
     # A regra completa, para o detalhe

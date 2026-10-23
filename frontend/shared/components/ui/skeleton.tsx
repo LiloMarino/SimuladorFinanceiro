@@ -1,7 +1,14 @@
 import { cn } from "@/shared/lib/utils";
 
-function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="skeleton" className={cn("animate-pulse rounded-md bg-muted", className)} {...props} />;
+/** `circle`: o lugar de um ícone ou avatar. */
+function Skeleton({ className, circle = false, ...props }: React.ComponentProps<"div"> & { circle?: boolean }) {
+  return (
+    <div
+      data-slot="skeleton"
+      className={cn("animate-pulse bg-muted", circle ? "rounded-full" : "rounded-md", className)}
+      {...props}
+    />
+  );
 }
 
 export { Skeleton };

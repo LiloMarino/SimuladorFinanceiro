@@ -23,7 +23,6 @@ from backend.core.dto.strategy import (
     StrategyInfoDTO,
     StrategyLogPageDTO,
     StrategyOrderLineDTO,
-    StrategyParamDTO,
     StrategyParamValue,
     StrategyViewDTO,
 )
@@ -35,7 +34,6 @@ from backend.core.enum import (
     StrategyAction,
     StrategyLogKind,
     StrategyOrderStatus,
-    StrategyParamKind,
     StrategyView,
 )
 from backend.core.exceptions.http_exceptions import (
@@ -52,11 +50,8 @@ from backend.features.realtime.schemas import (
     StrategyOrdersEventDTO,
     StrategyUpdateEventDTO,
 )
-from backend.features.strategy.base_strategy import (
-    CHART_DAYS,
-    BaseStrategy,
-    ParamSpec,
-)
+from backend.features.strategy import catalog
+from backend.features.strategy.base_strategy import CHART_DAYS, BaseStrategy
 from backend.features.strategy.context import (
     FixedHolding,
     Holding,
@@ -83,9 +78,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# Ações padrão: as de maior volume financeiro médio nos últimos pregões, ao ligar
-DEFAULT_TICKER_COUNT = 10
-DEFAULT_TICKER_SESSIONS = 60
 LOG_PAGE_LIMIT = 100
 
 
@@ -151,20 +143,7 @@ class StrategyRunner:
     # =========================
 
     def infos(self, today: date) -> list[StrategyInfoDTO]:
-        tickers = self._default_tickers(today)
-        return [
-            StrategyInfoDTO(
-                key=cls.key,
-                name=cls.name,
-                summary=cls.summary,
-                description=cls.description,
-                group=cls.group,
-                view=cls.view_kind,
-                term_hint=cls.term_hint,
-                params=[self._param_dto(spec, tickers, today) for spec in cls.params],
-            )
-            for cls in STRATEGIES.values()
-        ]
+        return catalog.infos(today, self._engine.simulation_id, self._engine.stocks)
 
     def mine(self, user: UserDTO, today: date) -> MyStrategyDTO:
         state = derive_state(
@@ -629,62 +608,14 @@ class StrategyRunner:
     # Apoio
     # =========================
 
-    def _default_tickers(self, today: date) -> list[str]:
-        return repository.stock.get_most_traded(
-            today,
-            DEFAULT_TICKER_SESSIONS,
-            DEFAULT_TICKER_COUNT,
-            self._engine.simulation_id,
-        )
-
     def _with_defaults(
         self,
         cls: type[BaseStrategy],
         params: dict[str, StrategyParamValue],
         today: date,
     ) -> dict[str, StrategyParamValue]:
-        """Os parâmetros da estratégia, com o padrão no lugar do que faltou."""
-        resolved: dict[str, StrategyParamValue] = {}
-        for spec in cls.params:
-            if spec.key in params:
-                resolved[spec.key] = params[spec.key]
-            elif spec.kind is StrategyParamKind.TICKERS:
-                resolved[spec.key] = self._default_tickers(today)
-            elif spec.kind is StrategyParamKind.TICKER:
-                resolved[spec.key] = self._default_asset(spec, today)
-            elif spec.default is not None:
-                resolved[spec.key] = spec.default
-        return resolved
-
-    def _default_asset(self, spec: ParamSpec, today: date) -> str:
-        """O ativo preferido do parâmetro; sem ele na partida, a ação mais negociada."""
-        if isinstance(spec.default, str) and spec.default in self._engine.stocks:
-            return spec.default
-        most_traded = self._default_tickers(today)
-        return most_traded[0] if most_traded else str(spec.default)
-
-    def _param_dto(
-        self, spec: ParamSpec, tickers: list[str], today: date
-    ) -> StrategyParamDTO:
-        hint = spec.hint
-        default: StrategyParamValue
-        if spec.kind is StrategyParamKind.TICKERS:
-            default = tickers
-        elif spec.kind is StrategyParamKind.TICKER:
-            default = self._default_asset(spec, today)
-            if default != spec.default:
-                hint += f" Esta partida não tem o {spec.default}: o padrão é {default}."
-        else:
-            default = spec.default or 0
-        return StrategyParamDTO(
-            key=spec.key,
-            label=spec.label,
-            kind=spec.kind,
-            default=default,
-            min=spec.min,
-            max=spec.max,
-            unit=spec.unit,
-            hint=hint,
+        return catalog.with_defaults(
+            cls, params, today, self._engine.simulation_id, self._engine.stocks
         )
 
     def _push_mode(

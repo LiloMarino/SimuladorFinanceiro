@@ -342,6 +342,7 @@ def _ref(player: PlayerHistoryDTO) -> dict:
         "simulation_id": player.simulation_id,
         "simulation_name": player.simulation_name,
         "team": player.team,
+        "is_bot": player.is_bot,
     }
 
 
@@ -446,5 +447,8 @@ def build_highlights(simulation_ids: list[int], nickname: str | None) -> Highlig
 
 def _highlight(player: PlayerHistoryDTO, value: Decimal) -> PlayerHighlightDTO:
     return PlayerHighlightDTO(
-        player_nickname=player.player_nickname, color=player.color, value=value
+        player_nickname=player.player_nickname,
+        color=player.color,
+        is_bot=player.is_bot,
+        value=value,
     )

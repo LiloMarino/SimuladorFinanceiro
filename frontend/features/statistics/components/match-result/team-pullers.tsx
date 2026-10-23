@@ -72,7 +72,7 @@ function TeamPullerCard({
         <>
           {puller && pullerPlayer && (
             <div className="flex items-center gap-3 rounded-lg bg-[color-mix(in_srgb,var(--team)_8%,transparent)] p-3.5">
-              <PlayerAvatar nickname={pullerPlayer.player_nickname} color={pullerPlayer.color} size="xl" />
+              <PlayerAvatar nickname={pullerPlayer.player_nickname} color={pullerPlayer.color} bot={pullerPlayer.is_bot} size="xl" />
               <div className="grid gap-0.5">
                 <span className="text-xs font-medium text-(--team)">
                   Quem mais puxou a {teamShortName(team.team, naming)}
@@ -108,7 +108,7 @@ function TeamPullerCard({
                   className="grid grid-cols-[120px_1fr_90px_60px] items-center gap-2.5 text-[13px]"
                 >
                   <span className="flex min-w-0 items-center gap-1.5">
-                    <PlayerAvatar nickname={m.player_nickname} color={m.color} size="sm" />
+                    <PlayerAvatar nickname={m.player_nickname} color={m.color} bot={m.is_bot} size="sm" />
                     <span className="truncate">{m.player_nickname}</span>
                     {m.player_nickname === currentPlayerName && (
                       <Badge variant="info" size="sm">

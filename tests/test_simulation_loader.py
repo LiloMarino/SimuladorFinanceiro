@@ -88,6 +88,8 @@ def started(market: Engine, monkeypatch: pytest.MonkeyPatch) -> list[str]:
     monkeypatch.setattr(UserManager, "_saved_colors", {})
     monkeypatch.setattr(UserManager, "_teams", {})
     monkeypatch.setattr(UserManager, "_saved_teams", {})
+    monkeypatch.setattr(UserManager, "_bots", {})
+    monkeypatch.setattr(UserManager, "_parked_bots", {})
     monkeypatch.setattr(SimulationManager, "_active_simulation", None)
     monkeypatch.setattr(SimulationManager, "_simulation_id", None)
     monkeypatch.setattr(SettingsManager, "_settings", None)

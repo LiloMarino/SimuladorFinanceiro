@@ -21,6 +21,7 @@ class CdiReference(BaseStrategy):
 
     key = "cdi_100"
     name = "100% no CDI"
+    bot_names = ("Rentista", "Dona Selic", "Conservador")
     summary = "Todo o dinheiro na renda fixa que paga o CDI."
     description = (
         "Aplica o caixa parado, a cada dia, na oferta de renda fixa atrelada ao CDI "

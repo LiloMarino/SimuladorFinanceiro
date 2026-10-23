@@ -19,7 +19,7 @@ import { StrategyLog } from "../components/strategy-log";
 import { useMarkStrategyErrorSeen } from "../hooks/mutations/useMarkStrategyErrorSeen";
 import { useSetMyStrategy } from "../hooks/mutations/useSetMyStrategy";
 import { useStrategies } from "../hooks/queries/useStrategies";
-import { defaultValues, fromDraft, toDraft, type ParamDraft, type ParamValues } from "../lib/strategy-params";
+import { defaultValues, fromDraft, toDraft, type ParamDraft, type ParamValues } from "@/shared/lib/strategy-params";
 
 export default function StrategiesPage() {
   usePageLabel("Estratégias");

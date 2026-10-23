@@ -38,6 +38,7 @@ class MovingAverageCross(BaseStrategy):
 
     key = "moving_average_cross"
     name = "Cruzamento de médias 50/200"
+    bot_names = ("O Grafista", "Cruza-Média", "Linha do Tempo")
     summary = "Compra quando a média curta passa a longa."
     description = (
         "Compra quando a média curta passa a longa para cima; vende tudo daquele "

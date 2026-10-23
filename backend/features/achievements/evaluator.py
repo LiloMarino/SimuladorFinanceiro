@@ -100,7 +100,10 @@ class AchievementEvaluator:
 def match_result(
     simulation_id: int, participants: list[UserDTO], ended_by_goal: bool
 ) -> MatchResult:
-    """Quem venceu a partida, pelo mesmo ranking do fechamento; em equipes, a equipe toda."""
+    """
+    Quem venceu a partida, pelo mesmo ranking do fechamento; em equipes, a equipe toda.
+    Bot disputa, mas não vence: com um bot em 1º ninguém leva a vitória.
+    """
     overview = build_overview_report([simulation_id])
     if overview.teams:
         winning_team = overview.teams[0].team
@@ -108,7 +111,9 @@ def match_result(
     else:
         names = {p.player_nickname for p in overview.players[:1]}
     return MatchResult(
-        winners=frozenset(u.id for u in participants if u.nickname in names),
+        winners=frozenset(
+            u.id for u in participants if not u.is_bot and u.nickname in names
+        ),
         players_count=len(participants),
         ended_by_goal=ended_by_goal,
     )

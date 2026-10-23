@@ -14,6 +14,7 @@ from uuid import UUID
 
 from backend.core.dto.achievements import AchievementUnlockedEventDTO
 from backend.core.dto.base import BaseDTO
+from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.goal import GoalProgressDTO
@@ -49,6 +50,10 @@ class PlayerPresenceEventDTO(BaseDTO):
     team: int | None = None
     # O que o jogador está fazendo; nulo é "Online" (partida em andamento ou sem aviso ainda)
     activity: PlayerActivity | None = None
+    # Presente quando o jogador é um bot da sala: a estratégia que ele joga
+    bot: RoomBotDTO | None = None
+    # Só no evento de configurar o bot, que pode renomeá-lo: o nome de antes
+    previous_nickname: str | None = None
 
 
 class SimulationSelectedEventDTO(BaseDTO):
@@ -213,6 +218,7 @@ class RealtimeEventCatalog(BaseDTO):
     player_color: PlayerPresenceEventDTO
     player_team: PlayerPresenceEventDTO
     player_activity: PlayerPresenceEventDTO
+    player_bot: PlayerPresenceEventDTO
     simulation_selected: SimulationSelectedEventDTO
     simulation_deleted: SimulationDeletedEventDTO
     simulation_settings_update: SimulationSettingsDTO

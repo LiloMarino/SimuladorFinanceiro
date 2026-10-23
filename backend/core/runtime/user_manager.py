@@ -1,11 +1,15 @@
 import logging
 from collections import Counter
+from dataclasses import dataclass, replace
+from datetime import date
 from itertools import count
 from threading import Lock
 from typing import ClassVar
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from backend.core import repository
+from backend.core.dto.bot import RoomBotDTO
+from backend.core.dto.strategy import StrategyParamValue
 from backend.core.dto.user import UserDTO
 from backend.core.enum import PlayerActivity, PlayerGrouping
 from backend.core.exceptions import NoActiveSimulationError
@@ -20,6 +24,8 @@ from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.teams import MIN_TEAMS, TEAM_COUNT, is_valid_team
 from backend.core.utils.lazy_dict import LazyDict
+from backend.features.strategy import catalog
+from backend.features.strategy.registry import get_strategy
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +37,28 @@ ROOM_RESERVED = (
     "As {n} vagas que restam são de quem jogou a partida selecionada e está offline. "
     "Peça pro host escolher outra partida ou espere essas pessoas voltarem."
 )
+BOT_NAME_TAKEN = "Já tem um jogador com esse nome na sala. Sorteie outro ou mude."
+BOT_NAME_MAX = 30
+
+
+@dataclass(frozen=True)
+class BotConfig:
+    """A estratégia do bot, com os parâmetros já completos pelo catálogo."""
+
+    strategy_key: str
+    params: dict[str, StrategyParamValue]
+    # Bot da partida salva selecionada
+    locked: bool = False
+
+
+@dataclass(frozen=True)
+class ParkedBot:
+    """Bot de partida nova guardado enquanto uma partida salva está selecionada."""
+
+    user: UserDTO
+    config: BotConfig
+    color: str
+    team: int | None
 
 
 class UserManager:
@@ -46,6 +74,8 @@ class UserManager:
     - Dar a cada player da sala uma cor exclusiva da paleta
     - Guardar a equipe de cada player quando a sala joga em equipes
     - Guardar o que cada player está fazendo, aba por aba, e avisar a sala quando muda
+    - Manter os bots da sala: jogadores sem pessoa por trás, que moram em `_active_players`
+      como os demais e saem dela na largada
     """
 
     # 🔹 Apenas players autenticados (presença)
@@ -70,6 +100,13 @@ class UserManager:
     # as à vista vale o aviso mais recente
     _activities: ClassVar[dict[UUID, dict[str, tuple[int, PlayerActivity | None]]]] = {}
     _activity_order = count()
+
+    # 🔹 Os bots da sala (client_id -> estratégia); o usuário do bot está em `_active_players`
+    _bots: ClassVar[dict[UUID, BotConfig]] = {}
+
+    # 🔹 Bots de partida nova guardados enquanto há partida salva selecionada; voltam
+    # à sala quando a seleção sai
+    _parked_bots: ClassVar[dict[UUID, ParkedBot]] = {}
 
     # 🔹 Cache lazy client_id -> UserDTO (independente de presença)
     _client_user_cache: LazyDict[UUID, UserDTO | None] = LazyDict(
@@ -119,7 +156,10 @@ class UserManager:
             if client_id in cls._active_players:
                 return user
 
-            if len(cls._active_players) >= MAX_PLAYERS:
+            if (
+                len(cls._active_players) >= MAX_PLAYERS
+                or cls._people_count() + len(cls._parked_bots) >= MAX_PLAYERS
+            ):
                 raise LockedError(ROOM_FULL)
 
             if match_colors is not None:
@@ -354,13 +394,18 @@ class UserManager:
 
     @classmethod
     def apply_saved_colors(
-        cls, colors: dict[int, str], teams: dict[int, int] | None = None
+        cls,
+        colors: dict[int, str],
+        teams: dict[int, int] | None = None,
+        bots: list[tuple[UserDTO, BotConfig]] | None = None,
     ) -> None:
         """
         Ao selecionar uma partida salva: quem já jogou volta com a cor (e a equipe)
         guardada e fica travado; quem nunca jogou mantém a sua, se sobrou, ou ganha
-        uma livre.
+        uma livre. Os bots da partida salva (`bots`) entram na sala travados; os de
+        partida nova ficam guardados até a seleção sair.
         """
+        saved_bots = bots or []
         with cls._lock:
             overflow = cls._overflow(colors)
             if overflow:
@@ -369,6 +414,21 @@ class UserManager:
                     f"A partida tem {len(colors)} jogadores e só cabem mais {free}. "
                     f"Quem nunca jogou nela e está na sala: {', '.join(overflow)}."
                 )
+            clash = [
+                bot.nickname
+                for bot, _ in saved_bots
+                if any(
+                    p.nickname.casefold() == bot.nickname.casefold()
+                    for p in cls._active_players.values()
+                    if p.client_id not in cls._bots
+                )
+            ]
+            if clash:
+                raise ConflictError(
+                    f"Já tem um jogador na sala com o nome de um bot da partida: {', '.join(clash)}."
+                )
+
+            left = cls._take_out_bots(park=True)
             newcomers = [p for p in cls._active_players.values() if p.id not in colors]
 
             before = dict(cls._colors)
@@ -402,10 +462,21 @@ class UserManager:
             }
             players = list(cls._active_players.values())
 
+            for bot, config in saved_bots:
+                cls._active_players[bot.client_id] = bot
+                cls._colors[bot.id] = colors[bot.id]
+                cls._bots[bot.client_id] = replace(config, locked=True)
+                if bot.id in cls._saved_teams:
+                    cls._teams[bot.id] = cls._saved_teams[bot.id]
+
+        for user, color, info in left:
+            cls._emit_player_exit(user, color, info)
         for player, color in changed:
             cls._emit_player_color(player, color, effective[player.id])
         for player in players:
             cls._emit_player_team(player, effective[player.id])
+        for bot, _ in saved_bots:
+            cls._emit_player_join(bot, colors[bot.id])
 
     @classmethod
     def room_overflow(cls, colors: dict[int, str]) -> list[str]:
@@ -415,10 +486,22 @@ class UserManager:
 
     @classmethod
     def release_saved_colors(cls) -> None:
-        """Sem partida selecionada as cores e as equipes da sala voltam a ser livres para trocar."""
+        """
+        Sem partida selecionada as cores e as equipes da sala voltam a ser livres para
+        trocar: os bots da partida salva saem e os de partida nova guardados voltam.
+        """
         with cls._lock:
             cls._saved_colors = {}
             cls._saved_teams = {}
+            left = cls._take_out_bots(park=False)
+            restored, dropped = cls._restore_parked_bots()
+
+        for user, color, info in left:
+            cls._emit_player_exit(user, color, info)
+        for user in restored:
+            cls._emit_player_join(user, cls._colors[user.id])
+        for user in dropped:
+            repository.user.delete_user(user.id)
 
     # =========================
     # Equipes
@@ -582,9 +665,14 @@ class UserManager:
 
     @classmethod
     def _overflow(cls, colors: dict[int, str]) -> list[str]:
-        """O chamador segura o `_lock`: ausentes da partida ocupam vaga, então novatos passam do teto."""
+        """
+        O chamador segura o `_lock`: ausentes da partida ocupam vaga, então novatos passam
+        do teto. Bots não contam: os de partida nova ficam guardados na seleção.
+        """
         newcomers = [
-            p.nickname for p in cls._active_players.values() if p.id not in colors
+            p.nickname
+            for p in cls._active_players.values()
+            if p.id not in colors and p.client_id not in cls._bots
         ]
         return newcomers if len(colors) + len(newcomers) > MAX_PLAYERS else []
 
@@ -607,6 +695,299 @@ class UserManager:
             raise LockedError(ROOM_FULL) from None
 
     # =========================
+    # Bots
+    # =========================
+
+    @classmethod
+    def add_bot(
+        cls,
+        nickname: str,
+        strategy_key: str,
+        params: dict[str, StrategyParamValue],
+        color: str | None = None,
+        team: int | None = None,
+    ) -> UserDTO:
+        """
+        Põe na sala um bot novo: um usuário próprio, com a estratégia e a cor (a próxima
+        livre, sem `color`). Nome, vaga e cor são conferidos e gravados sob o mesmo lock.
+        """
+        nickname = cls._bot_nickname(nickname)
+        config = cls._bot_config(strategy_key, params)
+        team = cls._bot_team(team)
+        if cls._saved_colors:
+            raise ConflictError(
+                "Com uma partida salva selecionada os bots são os dela: não dá para adicionar outro."
+            )
+        cls._ensure_no_match()
+
+        with cls._lock:
+            if len(cls._active_players) >= MAX_PLAYERS:
+                raise LockedError(ROOM_FULL)
+            cls._ensure_name_free(nickname)
+            chosen = cls._claim_color(color)
+            bot = repository.user.create_user(uuid4(), nickname, is_bot=True)
+            cls._active_players[bot.client_id] = bot
+            cls._colors[bot.id] = chosen
+            cls._bots[bot.client_id] = config
+            if team is not None:
+                cls._teams[bot.id] = team
+
+        cls._client_user_cache[bot.client_id] = bot
+        cls._emit_player_join(bot, chosen)
+        return bot
+
+    @classmethod
+    def update_bot(
+        cls,
+        nickname: str,
+        new_nickname: str,
+        strategy_key: str,
+        params: dict[str, StrategyParamValue],
+        color: str | None = None,
+        team: int | None = None,
+    ) -> None:
+        """Configura o bot da sala: estratégia, parâmetros, nome, cor e equipe. Sem `color`, fica a que tem."""
+        new_nickname = cls._bot_nickname(new_nickname)
+        config = cls._bot_config(strategy_key, params)
+        team = cls._bot_team(team)
+
+        with cls._lock:
+            client_id, bot = cls._editable_bot(nickname)
+            if new_nickname.casefold() != bot.nickname.casefold():
+                cls._ensure_name_free(new_nickname)
+            chosen = (
+                cls._claim_color(color, owner_id=bot.id)
+                if color
+                else cls._colors[bot.id]
+            )
+            if new_nickname != bot.nickname:
+                bot = repository.user.rename(bot.id, new_nickname)
+            cls._active_players[client_id] = bot
+            cls._colors[bot.id] = chosen
+            cls._bots[client_id] = config
+            if team is not None:
+                cls._teams[bot.id] = team
+
+        cls._client_user_cache[client_id] = bot
+        cls._emit_player_bot(bot, chosen, previous_nickname=nickname)
+
+    @classmethod
+    def remove_bot(cls, nickname: str) -> None:
+        """Tira o bot da sala e apaga o usuário dele: a vaga e a cor ficam livres."""
+        with cls._lock:
+            client_id, bot = cls._editable_bot(nickname)
+            color = cls._colors.pop(bot.id)
+            # O evento de saída leva a estratégia que o bot tinha
+            info = cls.room_bot(bot)
+            del cls._active_players[client_id]
+            del cls._bots[client_id]
+            cls._teams.pop(bot.id, None)
+            cls._activities.pop(client_id, None)
+
+        repository.user.delete_user(bot.id)
+        cls._client_user_cache.pop(client_id, None)
+        cls._emit_player_exit(bot, color, info)
+
+    @classmethod
+    def room_bots(cls) -> list[tuple[UserDTO, BotConfig]]:
+        """Os bots da sala com a estratégia de cada um."""
+        with cls._lock:
+            return [
+                (p, cls._bots[client_id])
+                for client_id, p in cls._active_players.items()
+                if client_id in cls._bots
+            ]
+
+    @classmethod
+    def room_bot(cls, user: UserDTO) -> RoomBotDTO | None:
+        """O bot como a lista da sala o mostra; nulo para quem é pessoa."""
+        config = cls._bots.get(user.client_id)
+        if config is None:
+            return None
+        return RoomBotDTO(
+            strategy_key=config.strategy_key,
+            strategy_name=get_strategy(config.strategy_key).name,
+            params=config.params,
+            locked=config.locked,
+        )
+
+    @classmethod
+    def validate_bots(cls, start_date: date) -> None:
+        """Conferido ao iniciar: as regras podem ter mudado desde que o bot entrou na sala."""
+        for bot, config in cls.room_bots():
+            try:
+                cls._bot_config(config.strategy_key, config.params, start_date)
+            except UnprocessableEntityError as error:
+                raise UnprocessableEntityError(
+                    f"{bot.nickname} não joga com as regras de agora: {error.detail}"
+                ) from error
+
+    @classmethod
+    def release_bots(cls) -> None:
+        """
+        A partida começou: os bots passam a morar nela e a próxima sala começa só com
+        as pessoas. Os guardados de partida nova nunca jogaram e somem.
+        """
+        with cls._lock:
+            left = cls._take_out_bots(park=False)
+            abandoned = list(cls._parked_bots.values())
+            cls._parked_bots.clear()
+
+        for user, color, info in left:
+            cls._emit_player_exit(user, color, info)
+        for parked in abandoned:
+            repository.user.delete_user(parked.user.id)
+
+    @classmethod
+    def has_room_name(cls, nickname: str) -> bool:
+        """Há alguém na sala com esse nome, bot ou pessoa."""
+        with cls._lock:
+            return cls._name_in_room(nickname)
+
+    @classmethod
+    def _take_out_bots(
+        cls, *, park: bool
+    ) -> list[tuple[UserDTO, str, RoomBotDTO | None]]:
+        """
+        O chamador segura o `_lock`: tira os bots da sala. Os de partida nova ficam
+        guardados com `park`; os da partida salva nunca ficam.
+        """
+        left: list[tuple[UserDTO, str, RoomBotDTO | None]] = []
+        for client_id in list(cls._bots):
+            bot = cls._active_players[client_id]
+            info = cls.room_bot(bot)
+            config = cls._bots.pop(client_id)
+            del cls._active_players[client_id]
+            color = cls._colors.pop(bot.id)
+            team = cls._teams.pop(bot.id, None)
+            cls._activities.pop(client_id, None)
+            left.append((bot, color, info))
+            if park and not config.locked:
+                cls._parked_bots[client_id] = ParkedBot(bot, config, color, team)
+        return left
+
+    @classmethod
+    def _restore_parked_bots(cls) -> tuple[list[UserDTO], list[UserDTO]]:
+        """
+        O chamador segura o `_lock`: devolve à sala os bots guardados, na cor deles ou,
+        se alguém a pegou, na primeira livre. O que não cabe mais sai (segundo valor).
+        """
+        restored: list[UserDTO] = []
+        dropped: list[UserDTO] = []
+        for client_id, parked in list(cls._parked_bots.items()):
+            del cls._parked_bots[client_id]
+            if len(cls._active_players) >= MAX_PLAYERS:
+                dropped.append(parked.user)
+                continue
+            taken = set(cls._colors.values())
+            color = (
+                parked.color if parked.color not in taken else first_free_color(taken)
+            )
+            cls._active_players[client_id] = parked.user
+            cls._colors[parked.user.id] = color
+            cls._bots[client_id] = parked.config
+            if parked.team is not None:
+                cls._teams[parked.user.id] = parked.team
+            restored.append(parked.user)
+        return restored, dropped
+
+    @classmethod
+    def _editable_bot(cls, nickname: str) -> tuple[UUID, UserDTO]:
+        """O chamador segura o `_lock`: o bot da sala com esse nome, se a sala ainda o deixa mexer."""
+        found = next(
+            (
+                (client_id, p)
+                for client_id, p in cls._active_players.items()
+                if client_id in cls._bots and p.nickname == nickname
+            ),
+            None,
+        )
+        if found is None:
+            raise NotFoundError("Esse bot não está na sala.")
+        if cls._bots[found[0]].locked:
+            raise ConflictError(
+                "Esse bot é da partida selecionada: não dá para configurar nem remover."
+            )
+        cls._ensure_no_match()
+        return found
+
+    @classmethod
+    def _ensure_no_match(cls) -> None:
+        if SimulationManager.has_active_simulation():
+            raise ConflictError("A partida já começou: os bots ficam travados.")
+
+    @classmethod
+    def _bot_nickname(cls, nickname: str) -> str:
+        nickname = nickname.strip()
+        if not nickname or len(nickname) > BOT_NAME_MAX or {"#", "/"} & set(nickname):
+            raise UnprocessableEntityError(
+                f"O nome do bot precisa ter de 1 a {BOT_NAME_MAX} caracteres, sem # nem /."
+            )
+        return nickname
+
+    @classmethod
+    def _bot_config(
+        cls,
+        strategy_key: str,
+        params: dict[str, StrategyParamValue],
+        today: date | None = None,
+    ) -> BotConfig:
+        """Os parâmetros completos pelo catálogo, na data das regras do lobby, e já validados."""
+        strategy = get_strategy(strategy_key)
+        known = catalog.known_tickers()
+        resolved = catalog.with_defaults(
+            strategy, params, today or SettingsManager.get().start_date, None, known
+        )
+        errors = strategy.validate(resolved, known)
+        if errors:
+            raise UnprocessableEntityError(" ".join(errors.values()))
+        return BotConfig(strategy_key, resolved)
+
+    @classmethod
+    def _bot_team(cls, team: int | None) -> int | None:
+        if cls.grouping() is not PlayerGrouping.TEAMS:
+            return None
+        if team is not None and not is_valid_team(team):
+            raise UnprocessableEntityError("Essa equipe não existe.")
+        return team
+
+    @classmethod
+    def _name_in_room(cls, nickname: str) -> bool:
+        return any(
+            p.nickname.casefold() == nickname.casefold()
+            for p in cls._active_players.values()
+        )
+
+    @classmethod
+    def _ensure_name_free(cls, nickname: str) -> None:
+        if cls._name_in_room(nickname):
+            raise ConflictError(BOT_NAME_TAKEN)
+
+    @classmethod
+    def _claim_color(cls, color: str | None, owner_id: int | None = None) -> str:
+        """O chamador segura o `_lock`: a cor pedida se está livre (a do próprio dono vale), ou a próxima livre."""
+        if color is None:
+            return cls._free_color()
+        if color not in PLAYER_COLORS:
+            raise UnprocessableEntityError("Essa cor não existe na paleta.")
+        owner = next(
+            (
+                p.nickname
+                for p in cls._active_players.values()
+                if p.id != owner_id and cls._colors.get(p.id) == color
+            ),
+            None,
+        )
+        if owner is not None:
+            raise ConflictError(f"{owner} pegou essa cor antes.")
+        return color
+
+    @classmethod
+    def _people_count(cls) -> int:
+        """O chamador segura o `_lock`: quem está na sala sem ser bot."""
+        return sum(1 for client_id in cls._active_players if client_id not in cls._bots)
+
+    # =========================
     # Eventos
     # =========================
 
@@ -625,11 +1006,14 @@ class UserManager:
                 color=color,
                 team=cls.get_team(user.id),
                 activity=cls.room_activities().get(user.id),
+                bot=cls.room_bot(user),
             ).to_json(),
         )
 
     @classmethod
-    def _emit_player_exit(cls, user: UserDTO, color: str):
+    def _emit_player_exit(
+        cls, user: UserDTO, color: str, bot: RoomBotDTO | None = None
+    ):
         from backend.features.realtime import notify  # noqa: PLC0415
         from backend.features.realtime.schemas import (  # noqa: PLC0415
             PlayerPresenceEventDTO,
@@ -638,7 +1022,9 @@ class UserManager:
         logger.info("Jogador saiu da partida: %s", user.nickname)
         notify(
             "player_exit",
-            PlayerPresenceEventDTO(nickname=user.nickname, color=color).to_json(),
+            PlayerPresenceEventDTO(
+                nickname=user.nickname, color=color, bot=bot
+            ).to_json(),
         )
 
     @classmethod
@@ -655,6 +1041,7 @@ class UserManager:
                 color=color,
                 team=team,
                 activity=cls.room_activities().get(user.id),
+                bot=cls.room_bot(user),
             ).to_json(),
         )
 
@@ -675,6 +1062,7 @@ class UserManager:
                 color=color,
                 team=team,
                 activity=cls.room_activities().get(user.id),
+                bot=cls.room_bot(user),
             ).to_json(),
         )
 
@@ -695,5 +1083,25 @@ class UserManager:
                 color=color,
                 team=cls.get_team(user.id),
                 activity=activity,
+                bot=cls.room_bot(user),
+            ).to_json(),
+        )
+
+    @classmethod
+    def _emit_player_bot(cls, user: UserDTO, color: str, *, previous_nickname: str):
+        from backend.features.realtime import notify  # noqa: PLC0415
+        from backend.features.realtime.schemas import (  # noqa: PLC0415
+            PlayerPresenceEventDTO,
+        )
+
+        notify(
+            "player_bot",
+            PlayerPresenceEventDTO(
+                nickname=user.nickname,
+                previous_nickname=previous_nickname,
+                color=color,
+                team=cls.get_team(user.id),
+                activity=cls.room_activities().get(user.id),
+                bot=cls.room_bot(user),
             ).to_json(),
         )

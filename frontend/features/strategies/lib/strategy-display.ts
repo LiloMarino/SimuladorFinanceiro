@@ -1,18 +1,6 @@
-import { plural } from "@/shared/lib/strategy-orders";
-import { displayDayMonth, displayMoney } from "@/shared/lib/utils/display";
-import type { StrategyAction, StrategyGroup, StrategyLogRow, StrategyOrderStatus, StrategyPanel } from "@/types";
-
-const ACTION_LABEL: Record<StrategyAction, string> = {
-  buy: "Comprou",
-  sell: "Vendeu",
-  cancel: "Cancelou",
-  invest: "Aplicou",
-  redeem: "Resgatou",
-};
-
-export function actionLabel(action: StrategyAction) {
-  return ACTION_LABEL[action];
-}
+import { actionLabel, plural } from "@/shared/lib/strategy-orders";
+import { displayDayMonth } from "@/shared/lib/utils/display";
+import type { StrategyGroup, StrategyOrderStatus, StrategyPanel } from "@/types";
 
 /** Situação da ordem na tabela do registro: o rótulo e o tom do selo. */
 export const STATUS_BADGE: Record<
@@ -53,33 +41,4 @@ export function lastOrderWhen(last: NonNullable<StrategyPanel["last_order"]>, cu
   return kind ? `${when}, ${kind}` : when;
 }
 
-/** Quanto do caixa cada compra usa: `percent`% do caixa de hoje. */
-export function cashShare(cash: string | number, percent: number) {
-  return (Number(cash) * percent) / 100;
-}
-
-/** Quantidade da linha do registro: renda fixa não tem, e a recusada mostra o que pediu. */
-export function rowQuantity(row: StrategyLogRow) {
-  return row.quantity === null ? "—" : row.quantity.toLocaleString("pt-BR");
-}
-
-/** Preço da linha: "lim. R$ 18,40" enquanto a ordem limitada não executou por inteiro. */
-export function rowPrice(row: StrategyLogRow) {
-  if (row.price === null) return "—";
-  const limited = row.order_type === "limit" && row.status !== "executed";
-  return `${limited ? "lim. " : ""}${displayMoney(row.price)}`;
-}
-
 export const GROUP_LABEL: Record<StrategyGroup, string> = { reference: "Referência", tactic: "Tática" };
-
-/** Título e dica de cada grupo na lista de estratégias. */
-export const GROUP_SECTION: Record<StrategyGroup, { title: string; hint: string }> = {
-  reference: {
-    title: "Referências",
-    hint: "Estratégias simples, sem parâmetros de risco, que servem de régua: se a sua não rende mais do que elas, o trabalho extra não compensou.",
-  },
-  tactic: {
-    title: "Táticas",
-    hint: "Regras que reagem ao preço e escolhem quando comprar e vender. Têm parâmetros que você ajusta e vê no gráfico antes de salvar.",
-  },
-};

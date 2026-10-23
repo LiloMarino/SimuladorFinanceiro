@@ -18,6 +18,8 @@ export const queryKeys = {
   priceImpactPreview: (k: number, decayDays: number) => ["simulation", "price-impact-preview", k, decayDays] as const,
   simulationPlayers: () => ["simulation", "players"] as const,
   matchPlayers: () => ["simulation", "match-players"] as const,
+  botStrategies: () => ["simulation", "bot-strategies"] as const,
+  botTickers: () => ["simulation", "bot-tickers"] as const,
   economicIndicators: () => ["economic-indicators"] as const,
   fixedIncomeList: () => ["fixed-income", "list"] as const,
   fixedIncomeAsset: (id: string) => ["fixed-income", id] as const,
@@ -35,6 +37,7 @@ export const queryKeys = {
   statistics: () => ["statistics"] as const,
   statisticsNextUpdate: () => ["statistics", "next-update"] as const,
   statisticsReport: (tab: string, simulationIds: number[]) => ["statistics", tab, ...simulationIds] as const,
+  botLog: (simulationId: number, nickname: string) => ["statistics", "bot-log", simulationId, nickname] as const,
   correlationAssets: () => ["correlation", "assets"] as const,
   correlation: (tickers: string[], window: string, end: string | null) =>
     ["correlation", window, end, ...tickers] as const,

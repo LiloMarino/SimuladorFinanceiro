@@ -38,6 +38,7 @@ class VolumeBreakout(BaseStrategy):
 
     key = "volume_breakout"
     name = "Rompimento com volume"
+    bot_names = ("Rompedor", "Estouro", "Volume Alto")
     summary = "Compra quando o preço passa a máxima recente com volume."
     description = (
         "Compra quando o fechamento passa a máxima dos últimos pregões e o volume do "

@@ -20,6 +20,8 @@ export const buttonVariants = cva(
         warning: "bg-warning text-warning-foreground hover:bg-warning/90 focus-visible:ring-warning/20",
         link: "h-auto px-0 text-primary hover:text-primary-hover",
         "link-destructive": "h-auto px-0 text-destructive hover:text-destructive/80",
+        // Ação secundária em texto, ao lado de um título ("Restaurar padrão")
+        "link-muted": "h-auto px-0 font-normal text-muted-foreground hover:text-foreground",
       },
       size: {
         default: "h-10 gap-2 px-4",
@@ -37,7 +39,7 @@ export const buttonVariants = cva(
     },
     compoundVariants: [
       // O link não tem caixa: o espaçamento do tamanho não se aplica
-      { variant: ["link", "link-destructive"], className: "px-0" },
+      { variant: ["link", "link-destructive", "link-muted"], className: "px-0" },
     ],
     defaultVariants: {
       variant: "default",

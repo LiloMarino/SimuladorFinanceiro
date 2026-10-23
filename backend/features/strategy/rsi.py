@@ -39,6 +39,7 @@ class RelativeStrength(BaseStrategy):
 
     key = "rsi"
     name = "IFR (RSI)"
+    bot_names = ("Pé no Freio", "Sobrevendido", "Sr. IFR")
     summary = "Compra quando o preço caiu rápido demais."
     description = (
         "Compra no dia em que o IFR cai abaixo do nível de compra, e vende o que tem "

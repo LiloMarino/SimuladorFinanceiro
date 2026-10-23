@@ -70,6 +70,7 @@ def build_overview(
             simulation_id=player.simulation_id,
             simulation_name=player.simulation_name,
             team=player.team,
+            is_bot=player.is_bot,
             position=position,
             total_networth=networth,
             return_value=return_value,

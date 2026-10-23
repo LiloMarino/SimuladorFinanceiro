@@ -1,12 +1,13 @@
+import type { ReactNode } from "react";
 import { InfoHint } from "@/shared/components/info-hint";
 import { Badge } from "@/shared/components/ui/badge";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
+import { cashShare } from "@/shared/lib/strategy-orders";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { StrategyInfo, StrategyParam } from "@/types";
-import { cashShare } from "../lib/strategy-display";
-import { rangeHint, type ParamDraft, type ParamValues } from "../lib/strategy-params";
-import { TickerPicker } from "./ticker-picker";
+import { rangeHint, type ParamDraft, type ParamValues } from "@/shared/lib/strategy-params";
+import { TickerPicker } from "@/shared/components/ticker-picker";
 
 /** Quantas ações aparecem como chip antes do "+N". */
 const VISIBLE_TICKERS = 5;
@@ -21,6 +22,10 @@ type StrategyParamsFormProps = {
   tickerOptions: string[];
   /** Caixa de hoje, em reais */
   cash: string;
+  /** De onde vem o caixa do exemplo: "o caixa de hoje" ou "o saldo inicial" */
+  cashLabel?: string;
+  /** Ação ao lado do título, como "Restaurar padrão" */
+  headerAction?: ReactNode;
   onChange: (draft: ParamDraft) => void;
 };
 
@@ -32,6 +37,8 @@ export function StrategyParamsForm({
   errors,
   tickerOptions,
   cash,
+  cashLabel = "o caixa de hoje",
+  headerAction,
   onChange,
 }: StrategyParamsFormProps) {
   const percentParam = strategy.params.find((param) => param.kind === "percent");
@@ -40,7 +47,10 @@ export function StrategyParamsForm({
 
   return (
     <div className="grid gap-3.5">
-      <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">Parâmetros</span>
+      <div className="flex items-baseline justify-between">
+        <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">Parâmetros</span>
+        {headerAction}
+      </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {strategy.params.map((param) => {
           if (param.kind === "tickers")
@@ -80,7 +90,7 @@ export function StrategyParamsForm({
 
       {Number.isFinite(percent) && (
         <p className="rounded-lg bg-subtle px-2.5 py-2 text-xs leading-relaxed text-muted-foreground">
-          Com o caixa de hoje, cada compra usa até{" "}
+          Com {cashLabel}, cada compra usa até{" "}
           <b className="font-mono text-foreground">{displayMoney(cashShare(cash, percent))}</b> ({percent}% de{" "}
           <span className="font-mono">{displayMoney(cash)}</span>).
         </p>

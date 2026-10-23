@@ -25,7 +25,7 @@ export function TeamPodium({ report }: { report: OverviewReport }) {
           {first && <Trophy className="size-[26px] text-trophy" />}
           <span className="flex -space-x-2">
             {membersOf(report, team.team).map((m) => (
-              <PlayerAvatar key={m.player_nickname} nickname={m.player_nickname} color={m.color} size={first ? "xl" : "lg"} />
+              <PlayerAvatar key={m.player_nickname} nickname={m.player_nickname} color={m.color} bot={m.is_bot} size={first ? "xl" : "lg"} />
             ))}
           </span>
           <TeamBadge team={team.team} naming={report.team_naming} form="full" solid />

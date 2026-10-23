@@ -16,49 +16,44 @@ from backend.core.repository.cashflow import cash_delta
 from backend.core.runtime.simulation_manager import SimulationManager
 
 
+def user_dto(user: Users) -> UserDTO:
+    return UserDTO(
+        id=user.id,
+        client_id=user.client_id,
+        nickname=user.nickname,
+        is_bot=user.is_bot,
+    )
+
+
 class UserRepository:
     @transactional
-    def create_user(self, session: Session, client_id: UUID, nickname: str) -> UserDTO:
+    def create_user(
+        self, session: Session, client_id: UUID, nickname: str, *, is_bot: bool = False
+    ) -> UserDTO:
         user = Users(
             client_id=client_id,
             nickname=nickname,
+            is_bot=is_bot,
             created_at=datetime.now(UTC),
         )
         session.add(user)
         session.flush()
-        return UserDTO(
-            id=user.id,
-            client_id=user.client_id,
-            nickname=user.nickname,
-        )
+        return user_dto(user)
 
     @transactional
     def get_by_client_id(self, session: Session, client_id: UUID) -> UserDTO | None:
         user = session.execute(
             select(Users).where(Users.client_id == client_id)
         ).scalar_one_or_none()
-        if not user:
-            return None
-
-        return UserDTO(
-            id=user.id,
-            client_id=user.client_id,
-            nickname=user.nickname,
-        )
+        return user_dto(user) if user else None
 
     @transactional
     def get_by_nickname(self, session: Session, nickname: str) -> UserDTO | None:
+        """A pessoa com esse apelido: bot não é dono de apelido, então nunca entra aqui."""
         user = session.execute(
-            select(Users).where(Users.nickname == nickname)
+            select(Users).where(Users.nickname == nickname, Users.is_bot.is_(False))
         ).scalar_one_or_none()
-        if not user:
-            return None
-
-        return UserDTO(
-            id=user.id,
-            client_id=user.client_id,
-            nickname=user.nickname,
-        )
+        return user_dto(user) if user else None
 
     @transactional
     def get_user_balance(self, session: Session, client_id: UUID) -> Decimal:
@@ -120,11 +115,13 @@ class UserRepository:
         user = session.execute(select(Users).where(Users.id == user_id)).scalar_one()
         user.client_id = new_client_id
 
-        return UserDTO(
-            id=user.id,
-            client_id=user.client_id,
-            nickname=user.nickname,
-        )
+        return user_dto(user)
+
+    @transactional
+    def rename(self, session: Session, user_id: int, nickname: str) -> UserDTO:
+        user = session.execute(select(Users).where(Users.id == user_id)).scalar_one()
+        user.nickname = nickname
+        return user_dto(user)
 
     @transactional
     def delete_user(self, session: Session, user_id: int) -> None:

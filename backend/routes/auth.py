@@ -104,7 +104,7 @@ def user_register(payload: UserRegisterRequest, client_id: ClientID):
 
     # Verificar se já existe usuário com esse nickname
     existing_user = repository.user.get_by_nickname(nickname)
-    if existing_user:
+    if existing_user or UserManager.has_room_name(nickname):
         raise ConflictError("Esse nickname já está em uso.")
 
     return repository.user.create_user(client_id, nickname)

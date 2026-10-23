@@ -8,24 +8,17 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
+import { ACTION_TONE, actionLabel, rowPrice, rowQuantity } from "@/shared/lib/strategy-orders";
 import { displayDayMonth } from "@/shared/lib/utils/display";
-import type { StrategyAction, StrategyLogFilter, StrategyLogKind, StrategyLogRow } from "@/types";
+import type { StrategyLogFilter, StrategyLogKind, StrategyLogRow } from "@/types";
 import { useStrategyLog } from "../hooks/queries/useStrategyLog";
-import { actionLabel, rowPrice, rowQuantity, STATUS_BADGE } from "../lib/strategy-display";
+import { STATUS_BADGE } from "../lib/strategy-display";
 
 const FILTERS: { value: StrategyLogFilter; label: string }[] = [
   { value: "all", label: "Tudo" },
   { value: "orders", label: "Ordens" },
   { value: "modes", label: "Ligou e desligou" },
 ];
-
-const ACTION_TONE: Record<StrategyAction, string> = {
-  buy: "text-success",
-  sell: "text-destructive",
-  cancel: "text-muted-foreground",
-  invest: "text-primary",
-  redeem: "text-foreground",
-};
 
 const MODE_ICON: Record<Exclude<StrategyLogKind, "order">, { icon: typeof Power; tone: string }> = {
   enabled: { icon: CircleCheck, tone: "text-success" },
