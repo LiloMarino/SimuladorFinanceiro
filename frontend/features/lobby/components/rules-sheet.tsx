@@ -45,8 +45,8 @@ import {
 } from "../lib/price-impact";
 import { AssistanceFields } from "./assistance-fields";
 import { CoverageAlerts } from "./coverage-alerts";
-import { DateField } from "@/shared/components/date-field";
 import { LifeFields } from "./life-fields";
+import { PeriodPicker } from "./period-picker";
 import type { SimulationFormValues } from "./lobby-match";
 import { PriceImpactExample } from "./price-impact-example";
 
@@ -188,28 +188,7 @@ export function RulesSheet({
                 </Field>
               )}
             />
-            <div className="grid grid-cols-2 gap-3">
-              {(["startDate", "endDate"] as const).map((name) => (
-                <Controller
-                  key={name}
-                  control={form.control}
-                  name={name}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor={`rules-${name}`}>{name === "startDate" ? "Início" : "Fim"}</FieldLabel>
-                      <DateField
-                        id={`rules-${name}`}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                        invalid={fieldState.invalid}
-                      />
-                      <FieldError errors={[fieldState.error]} />
-                    </Field>
-                  )}
-                />
-              ))}
-            </div>
+            <PeriodPicker form={form} readOnly={readOnly} coverageCheck={coverageCheck} />
             <CoverageAlerts check={coverageCheck} startDate={startDate} />
             <div className="grid grid-cols-2 gap-3">
               {(

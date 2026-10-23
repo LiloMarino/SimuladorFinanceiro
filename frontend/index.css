@@ -51,6 +51,15 @@
   --color-info-foreground: var(--info-foreground);
   --color-info-soft: var(--info-soft);
   --color-info-border: var(--info-border);
+  --color-future: var(--future);
+  --color-future-foreground: var(--future-foreground);
+  --color-future-soft: var(--future-soft);
+  --color-future-border: var(--future-border);
+  --color-future-zone: var(--future-zone);
+  --color-future-range: var(--future-range);
+  --color-future-hatch: var(--future-hatch);
+  --color-real-zone: var(--real-zone);
+  --color-real-range: var(--real-range);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -132,6 +141,16 @@
   --info-foreground: #ffffff;
   --info-soft: #eaf0ff;
   --info-border: #c7d5fb;
+  /* Futuro gerado (violeta) e dado real (azul claro) na linha do tempo do período e no calendário */
+  --future: #7a5af8;
+  --future-foreground: #5b3fb0;
+  --future-soft: #f6f2ff;
+  --future-border: #dcd0f8;
+  --future-zone: #d9cef7;
+  --future-range: #e4e0fc;
+  --future-hatch: #e9e4f8;
+  --real-zone: #bfd0fa;
+  --real-range: #dce6ff;
   --border: #e4e7ec;
   --input: #d5dae3;
   --ring: #2350d8;

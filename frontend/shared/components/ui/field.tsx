@@ -34,6 +34,25 @@ function FieldLegend({
   );
 }
 
+/** Título curto em caixa-alta de um grupo de controles; `future` marca o que olha para o futuro gerado. */
+function FieldCaption({
+  className,
+  tone = "default",
+  ...props
+}: React.ComponentProps<"span"> & { tone?: "default" | "future" }) {
+  return (
+    <span
+      data-slot="field-caption"
+      data-tone={tone}
+      className={cn(
+        "text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase data-[tone=future]:text-future",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -208,6 +227,7 @@ export {
   Field,
   FieldLabel,
   FieldDescription,
+  FieldCaption,
   FieldError,
   FieldGroup,
   FieldLegend,

@@ -1,11 +1,20 @@
 import { useState } from "react";
-import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import { Button } from "@/shared/components/ui/button";
 import { Calendar } from "@/shared/components/ui/calendar";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/shared/components/ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
-import { parseLocalDate } from "@/shared/lib/utils/display";
-import { dateFieldDisplay, dateFieldValue, isIsoDate, maskDate } from "@/shared/lib/utils/date-field";
+import { displayIsoDate, parseLocalDate } from "@/shared/lib/utils/display";
+import {
+  CALENDAR_END_YEAR,
+  CALENDAR_START_YEAR,
+  dateFieldDisplay,
+  dateFieldValue,
+  isIsoDate,
+  maskDate,
+  toIso,
+  todayIso,
+} from "@/shared/lib/utils/date-field";
 
 type DateFieldProps = {
   id: string;
@@ -15,16 +24,37 @@ type DateFieldProps = {
   onBlur?: () => void;
   invalid?: boolean;
   disabled?: boolean;
+  /** Mostra o atalho "Hoje" dentro do campo */
+  todayChip?: boolean;
+  /** Até onde há dado real e futuro gerado: o calendário pinta o futuro e explica a cor */
+  dataEnds?: { realEnd?: string; generatedEnd?: string };
+  /** Período da partida, destacado no calendário */
+  period?: { start: string; end: string } | null;
 };
 
-// O calendário cobre da série mais antiga (IBOV, 1993) até uma partida longa
-const CALENDAR_START = new Date(1993, 0);
-const CALENDAR_END = new Date(2040, 11);
+const CALENDAR_START = new Date(CALENDAR_START_YEAR, 0);
+const CALENDAR_END = new Date(CALENDAR_END_YEAR, 11);
 
 /** Data em dd/mm/aaaa com máscara; o calendário é um atalho para escolher o dia. */
-export function DateField({ id, value, onChange, onBlur, invalid, disabled }: DateFieldProps) {
+export function DateField({ id, value, onChange, onBlur, invalid, disabled, todayChip, dataEnds, period }: DateFieldProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const selected = isIsoDate(value) ? parseLocalDate(value) : undefined;
+  const today = todayIso();
+  const { realEnd, generatedEnd } = dataEnds ?? {};
+
+  const isFuture = (day: Date) => {
+    const iso = toIso(day);
+    return !!realEnd && !!generatedEnd && iso > realEnd && iso <= generatedEnd;
+  };
+  const inPeriod = (day: Date) => {
+    const iso = toIso(day);
+    return !!period && iso >= period.start && iso <= period.end;
+  };
+
+  const pick = (iso: string) => {
+    onChange(iso);
+    setCalendarOpen(false);
+  };
 
   return (
     <InputGroup>
@@ -41,6 +71,11 @@ export function DateField({ id, value, onChange, onBlur, invalid, disabled }: Da
         onBlur={onBlur}
       />
       <InputGroupAddon align="inline-end">
+        {todayChip && !disabled && (
+          <InputGroupButton variant="info" onClick={() => onChange(today)}>
+            Hoje
+          </InputGroupButton>
+        )}
         <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
           <PopoverTrigger
             render={<InputGroupButton size="icon-xs" aria-label="Abrir calendário" disabled={disabled} />}
@@ -56,11 +91,36 @@ export function DateField({ id, value, onChange, onBlur, invalid, disabled }: Da
               defaultMonth={selected}
               selected={selected}
               onSelect={(day) => {
-                if (!day) return;
-                onChange(format(day, "yyyy-MM-dd"));
-                setCalendarOpen(false);
+                if (day) pick(toIso(day));
+              }}
+              modifiers={{
+                future: (day) => isFuture(day) && !inPeriod(day),
+                period: (day) => inPeriod(day) && !isFuture(day),
+                period_future: (day) => inPeriod(day) && isFuture(day),
+                period_start: (day) => !!period && toIso(day) === period.start,
+                period_end: (day) => !!period && toIso(day) === period.end,
               }}
             />
+            <div className="mt-2 flex items-center justify-between border-t pt-2.5">
+              <Button type="button" variant="outline" size="sm" onClick={() => pick(today)}>
+                Hoje
+              </Button>
+              <span className="text-[11px] text-faint-foreground">{displayIsoDate(today)} · hoje</span>
+            </div>
+            {realEnd && (
+              <div className="mt-2.5 flex flex-wrap gap-x-3.5 gap-y-1 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="size-3 rounded-[3px] bg-real-range ring-1 ring-info-border ring-inset" />
+                  Dado real até {displayIsoDate(realEnd)}
+                </span>
+                {generatedEnd && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="size-3 rounded-[3px] bg-future-soft ring-1 ring-future-border ring-inset" />
+                    Futuro gerado até {displayIsoDate(generatedEnd)}
+                  </span>
+                )}
+              </div>
+            )}
           </PopoverContent>
         </Popover>
       </InputGroupAddon>

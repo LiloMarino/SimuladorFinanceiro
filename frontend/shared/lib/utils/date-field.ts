@@ -1,3 +1,13 @@
+import { format } from "date-fns";
+
+/** O calendário e a linha do tempo do período cobrem da série mais antiga (IBOV, 1993) até uma partida longa. */
+export const CALENDAR_START_YEAR = 1993;
+export const CALENDAR_END_YEAR = 2040;
+
+export const toIso = (date: Date) => format(date, "yyyy-MM-dd");
+
+export const todayIso = () => toIso(new Date());
+
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const BR_DATE = /^(\d{2})\/(\d{2})\/(\d{4})$/;
 

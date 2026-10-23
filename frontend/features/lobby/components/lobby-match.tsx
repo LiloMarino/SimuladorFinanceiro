@@ -116,7 +116,7 @@ const simulationFormSchema = z
     showMaturityProjection: z.boolean(),
   })
   .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
-    message: "Tem que ser depois do início",
+    message: "O fim precisa ser depois do início.",
     path: ["endDate"],
   })
   // Na corrida a meta fica acima do que o jogador já tem no primeiro dia

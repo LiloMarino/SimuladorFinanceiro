@@ -10,6 +10,7 @@ function Calendar({
   classNames,
   showOutsideDays = true,
   captionLayout = "label",
+  modifiersClassNames,
   ...props
 }: React.ComponentProps<typeof DayPicker>) {
   const defaultClassNames = getDefaultClassNames();
@@ -60,11 +61,21 @@ function Calendar({
           "size-9 font-normal group-data-[selected=true]/day:bg-primary group-data-[selected=true]/day:text-primary-foreground group-data-[selected=true]/day:hover:bg-primary-hover",
           defaultClassNames.day_button,
         ),
-        today: cn("[&_button]:bg-muted [&_button]:font-semibold", defaultClassNames.today),
+        today: cn("[&_button]:font-semibold [&_button]:ring-[1.5px] [&_button]:ring-foreground [&_button]:ring-inset", defaultClassNames.today),
         outside: cn("text-muted-foreground aria-selected:text-muted-foreground", defaultClassNames.outside),
         disabled: cn("text-muted-foreground opacity-50", defaultClassNames.disabled),
         hidden: cn("invisible", defaultClassNames.hidden),
         ...classNames,
+      }}
+      modifiersClassNames={{
+        // Futuro gerado: dias sem dado real, com um ponto embaixo
+        future: "rounded-lg bg-future-soft text-future-foreground after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-future data-[selected=true]:after:bg-primary-foreground",
+        // Período da partida: faixa contínua entre o início e o fim, azul no dado real e violeta no futuro
+        period: "rounded-none bg-real-range text-info",
+        period_future: "rounded-none bg-future-range text-future-foreground after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-future data-[selected=true]:after:bg-primary-foreground",
+        period_start: "rounded-l-lg",
+        period_end: "rounded-r-lg",
+        ...modifiersClassNames,
       }}
       components={{
         Chevron: ({ className: chevronClassName, orientation, ...chevronProps }) => {
