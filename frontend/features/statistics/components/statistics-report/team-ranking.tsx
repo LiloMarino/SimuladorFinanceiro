@@ -19,7 +19,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { MetricHint } from "@/shared/components/metric-hint";
 import { teamColor, teamName } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
-import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
+import { displayNumber, displaySignedMoney, displaySignedPercent } from "@/shared/lib/utils/display";
 import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { OverviewReport, Player, Team } from "@/types";
@@ -304,7 +304,9 @@ function TeamRows({
           <ScoreBar {...barOf(measure, team.score?.total, team.criterion_value, maxScore)} tint="solid" />
         </TableCell>
         <TableCell numeric>
-          <span className="font-semibold">{displayMoney(team.total_networth)}</span>
+          <span className={cn("font-semibold", Number(team.total_networth) < 0 && "text-destructive")}>
+            {displaySignedMoney(team.total_networth)}
+          </span>
         </TableCell>
         <TableCell numeric>
           <span className={returnTone(team.return_percent)}>{displaySignedPercent(team.return_percent)}</span>
@@ -338,13 +340,20 @@ function TeamRows({
                       você
                     </Badge>
                   )}
+                  {m.delinquent && (
+                    <Badge variant="destructive" size="tag">
+                      Negativado
+                    </Badge>
+                  )}
                 </span>
               </TableCell>
               <TableCell>
                 <ScoreBar {...barOf(measure, m.score?.total, m.criterion_value, maxScore)} tint="light" />
               </TableCell>
               <TableCell numeric>
-                <span className="text-muted-foreground">{displayMoney(m.total_networth)}</span>
+                <span className={Number(m.total_networth) < 0 ? "text-destructive" : "text-muted-foreground"}>
+                  {displaySignedMoney(m.total_networth)}
+                </span>
               </TableCell>
               <TableCell numeric>
                 <span className={returnTone(m.return_percent)}>{displaySignedPercent(m.return_percent)}</span>

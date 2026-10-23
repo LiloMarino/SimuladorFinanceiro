@@ -468,6 +468,8 @@ class EventCashflow(Base):
             "EXPENSE",
             "UNEXPECTED_EXPENSE",
             "OVERDRAFT_INTEREST",
+            "LOAN_PROCEEDS",
+            "LOAN_PAYMENT",
             name="cashflow_event_type",
         ),
         nullable=False,
@@ -607,6 +609,73 @@ class EventFixedIncome(Base):
     )
 
 
+class EventCredit(Base):
+    __tablename__ = "event_credit"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="event_credit_simulation_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="event_credit_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="event_credit_pkey"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    loan_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    event_type: Mapped[str] = mapped_column(
+        Enum(
+            "CONTRACT",
+            "INSTALLMENT_PAID",
+            "INSTALLMENT_LATE",
+            "OVERDUE_PAID",
+            "PREPAYMENT",
+            "PAYOFF",
+            name="credit_event_type",
+        ),
+        nullable=False,
+    )
+    amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    # Número da parcela, nos eventos de parcela
+    installment_number: Mapped[int | None] = mapped_column(Integer)
+    # Só no contrato: juro anual travado, prazo e a nota da assinatura
+    annual_rate: Mapped[decimal.Decimal | None] = mapped_column(Numeric(10, 6))
+    term_months: Mapped[int | None] = mapped_column(Integer)
+    grade: Mapped[str | None] = mapped_column(
+        Enum("AAA", "AA", "A", "BBB", "BB", "B", "CCC", "D", name="credit_grade")
+    )
+    # Só na amortização
+    prepayment_mode: Mapped[str | None] = mapped_column(
+        Enum("SHORTEN_TERM", "REDUCE_INSTALLMENT", name="credit_prepayment_mode")
+    )
+    event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+
+
 class Snapshots(Base):
     __tablename__ = "snapshots"
     __table_args__ = (
@@ -639,6 +708,10 @@ class Snapshots(Base):
     total_cash: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     total_contribution: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
+    )
+    # O patrimônio já desconta a dívida; ela fica à parte para o histórico e a nota de risco
+    total_debt: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
     )
     total_networth: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False

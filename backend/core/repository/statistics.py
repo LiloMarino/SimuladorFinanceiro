@@ -5,12 +5,14 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
+from backend.core.dto.events.credit import CreditEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.enum import CashflowEventType, EquityEventType
 from backend.core.models.models import (
     EventCashflow,
+    EventCredit,
     EventEquity,
     SimulationPlayers,
     Simulations,
@@ -18,6 +20,7 @@ from backend.core.models.models import (
     Stock,
     Users,
 )
+from backend.core.repository.credit import credit_event_dto
 
 # Jogador numa simulação: o nickname é único entre os usuários
 type PlayerKey = tuple[int, str]
@@ -75,6 +78,7 @@ class StatisticsRepository:
                         total_cash=r.Snapshots.total_cash,
                         total_networth=r.Snapshots.total_networth,
                         total_contribution=r.Snapshots.total_contribution,
+                        total_debt=r.Snapshots.total_debt,
                     )
                     for r in group
                 ],
@@ -132,3 +136,19 @@ class StatisticsRepository:
         return {
             (simulation_id, nickname): total for simulation_id, nickname, total in rows
         }
+
+    @transactional
+    def get_players_credit(
+        self, session: Session, simulation_ids: list[int]
+    ) -> dict[PlayerKey, list[CreditEventDTO]]:
+        """Os eventos de crédito de cada jogador, na ordem em que aconteceram."""
+        rows = session.execute(
+            select(EventCredit, Users.nickname)
+            .join(Users, Users.id == EventCredit.user_id)
+            .where(EventCredit.simulation_id.in_(simulation_ids))
+            .order_by(EventCredit.id)
+        ).all()
+        events: dict[PlayerKey, list[CreditEventDTO]] = defaultdict(list)
+        for row, nickname in rows:
+            events[(row.simulation_id, nickname)].append(credit_event_dto(row))
+        return events

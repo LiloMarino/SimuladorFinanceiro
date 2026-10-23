@@ -15,6 +15,7 @@ from backend.core.dto.statistics_report import (
     BenchmarkSeries,
     BestMonthDTO,
     CompositionReportDTO,
+    CreditCostDTO,
     HighlightsDTO,
     MonthlyReturnDTO,
     OperationsReportDTO,
@@ -37,6 +38,7 @@ from backend.core.enum import (
 )
 from backend.core.sectors import allocate_by_sector
 from backend.features.statistics import operations, returns, risk, sectors
+from backend.features.statistics.credit import CreditStanding, credit_standing
 from backend.features.statistics.goal import goal_on, goal_steps
 from backend.features.statistics.ranking import build_overview, capital_provided
 from backend.features.statistics.teams import (
@@ -56,6 +58,7 @@ def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
         repository.statistics.get_players_history(simulation_ids)
     )
     goals = {p.goal_net_worth for p in players}
+    standings = _credit_standings(simulation_ids, players)
     return build_overview(
         players,
         criterion,
@@ -64,7 +67,21 @@ def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
         goal_steps=_goal_steps(simulation_ids, players),
         in_teams=in_teams,
         team_naming=team_naming,
+        delinquent=frozenset(key for key, s in standings.items() if s.delinquent),
     )
+
+
+def _credit_standings(
+    simulation_ids: list[int], players: list[PlayerHistoryDTO]
+) -> dict[tuple[int, str], CreditStanding]:
+    """O crédito de cada jogador no último dia dele; sem evento de crédito, sem dívida e nota máxima."""
+    events = repository.statistics.get_players_credit(simulation_ids)
+    return {
+        (p.simulation_id, p.player_nickname): credit_standing(
+            events.get((p.simulation_id, p.player_nickname), []), p.history
+        )
+        for p in players
+    }
 
 
 def _with_goal_of_the_day(players: list[PlayerHistoryDTO]) -> list[PlayerHistoryDTO]:
@@ -137,6 +154,7 @@ def _shared_rules(
 def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
     team_naming, in_teams = _team_context(simulation_ids)
     players = repository.statistics.get_players_history(simulation_ids)
+    standings = _credit_standings(simulation_ids, players)
 
     entries = []
     for player in players:
@@ -161,6 +179,9 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
                     MonthlyReturnDTO(month=m.month, value=m.value, cdi=m.cdi)
                     for m in months
                 ],
+                credit_cost=_credit_cost(
+                    standings[(player.simulation_id, player.player_nickname)]
+                ),
             )
         )
 
@@ -193,8 +214,11 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
 
 def build_risk_report(simulation_ids: list[int]) -> RiskReportDTO:
     team_naming, in_teams = _team_context(simulation_ids)
+    players = repository.statistics.get_players_history(simulation_ids)
+    standings = _credit_standings(simulation_ids, players)
     entries = []
-    for player in repository.statistics.get_players_history(simulation_ids):
+    for player in players:
+        standing = standings[(player.simulation_id, player.player_nickname)]
         days = risk.daily_returns(player.history)
         volatility = risk.annual_volatility([r for _, r in days])
         months = risk.monthly_returns(days)
@@ -211,6 +235,9 @@ def build_risk_report(simulation_ids: list[int]) -> RiskReportDTO:
                 worst_month=min((m.value for m in months), default=None),
                 annual_return=risk.annual_return(days),
                 days=len(days),
+                debt=standing.debt,
+                leverage=standing.leverage,
+                credit_grade=standing.grade,
             )
         )
     return RiskReportDTO(
@@ -294,6 +321,17 @@ def build_operations_report(simulation_ids: list[int]) -> OperationsReportDTO:
         team_naming=team_naming,
         players=entries,
         teams=team_operations(entries) if in_teams else [],
+    )
+
+
+def _credit_cost(standing: CreditStanding) -> CreditCostDTO | None:
+    if not standing.has_borrowed:
+        return None
+    return CreditCostDTO(
+        interest_paid=standing.interest_paid,
+        paid_installments=standing.paid_installments,
+        late_installments=standing.late_installments,
+        cost_of_debt=standing.cost_of_debt,
     )
 
 

@@ -22,6 +22,7 @@ import { useDebugMode } from "@/shared/hooks/queries/useDebugMode";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useAchievementTally } from "@/shared/hooks/queries/useAchievementTally";
+import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
@@ -40,6 +41,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const { data: settings } = useSimulationSettings();
   const { data: goal } = useGoalProgress();
   const tally = useAchievementTally();
+  const { data: portfolio } = usePortfolio();
 
   const debug = useDebugMode();
 
@@ -89,6 +91,11 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                     </SidebarMenuButton>
                     {item.badge && <SidebarMenuBadge tone={item.badgeTone}>{item.badge}</SidebarMenuBadge>}
                     {item.goalOnly && ownGoal && <SidebarMenuBadge>{displayGoalPercent(ownGoal.fraction)}</SidebarMenuBadge>}
+                    {item.creditAlert && portfolio?.credit_alert && (
+                      <SidebarMenuBadge>
+                        <span aria-label="Parcela de crédito pedindo atenção" className="size-2 rounded-full bg-destructive" />
+                      </SidebarMenuBadge>
+                    )}
                     {item.achievementTally && tally && (
                       <SidebarMenuBadge>
                         <span className="inline-flex items-center gap-1.5">

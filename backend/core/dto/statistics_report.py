@@ -10,7 +10,13 @@ from typing import Literal
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.sector import SectorAllocationDTO
-from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
+from backend.core.enum import (
+    CreditGrade,
+    GameType,
+    PlayerGrouping,
+    TeamNaming,
+    VictoryCriterion,
+)
 
 
 class SeriesPointDTO(BaseDTO):
@@ -93,6 +99,8 @@ class PlayerRankingDTO(PlayerRefDTO):
     weakest_axis: ScoreAxis | None
     # Quanto o valor dele no critério passa (ou fica abaixo) da média da equipe; None fora de equipes
     team_contribution: Decimal | None
+    # Tem parcela em atraso: o selo "Negativado"
+    delinquent: bool
 
 
 class TeamPullerDTO(BaseDTO):
@@ -155,6 +163,18 @@ class MonthlyReturnDTO(BaseDTO):
     cdi: Decimal
 
 
+class CreditCostDTO(BaseDTO):
+    """O que o crédito custou ao jogador: só existe para quem já contratou um empréstimo."""
+
+    # Juro e multa já pagos
+    interest_paid: Decimal
+    paid_installments: int
+    # Parcelas que passaram do vencimento sem caixa
+    late_installments: int
+    # Juro anual médio dos empréstimos, pesado pelo saldo devedor; nulo sem saldo nem valor contratado
+    cost_of_debt: Decimal | None
+
+
 class PlayerReturnsDTO(PlayerRefDTO):
     networth: list[SeriesPointDTO]
     # Retorno acumulado da cota, que só os rendimentos movem: o aporte não conta
@@ -165,6 +185,8 @@ class PlayerReturnsDTO(PlayerRefDTO):
     positive_months: int
     months: int
     monthly_returns: list[MonthlyReturnDTO]
+    # Nulo para quem nunca contratou crédito
+    credit_cost: CreditCostDTO | None
 
 
 type BenchmarkSeries = Literal["CDI", "IBOV"]
@@ -217,6 +239,10 @@ class PlayerRiskDTO(PlayerRefDTO):
     annual_return: Decimal | None
     # Retornos diários na amostra
     days: int
+    # Dívida do último dia (com multa e mora), a fração do patrimônio que ela é e a nota de risco
+    debt: Decimal
+    leverage: Decimal | None
+    credit_grade: CreditGrade
 
 
 class TeamRiskDTO(BaseDTO):

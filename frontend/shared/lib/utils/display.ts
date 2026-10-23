@@ -156,6 +156,15 @@ export function displayShortDate(date: Date | string) {
   return `${part("day")} ${part("month")} ${part("year")}`;
 }
 
+/** "2023-03-14" → "14 mar", a data curta sem o ano, para vencimentos próximos. */
+export function displayDayMonth(isoDate: string) {
+  const parts = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).formatToParts(
+    parseLocalDate(isoDate),
+  );
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value.replace(".", "") ?? "";
+  return `${part("day")} ${part("month")}`;
+}
+
 /** "2023-03-14" → "mar/2023", o período compacto de listas. */
 export function displayMonthSlashYear(isoDate: string) {
   const d = parseLocalDate(isoDate);

@@ -241,6 +241,7 @@ def returns_row(
         positive_months=above,
         months=12,
         monthly_returns=[],
+        credit_cost=None,
     )
 
 

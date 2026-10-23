@@ -64,6 +64,12 @@ def player_book(monkeypatch: pytest.MonkeyPatch, captured_events: list[BaseEvent
         lambda _user_id, event_type: {CashflowEventType.TAX: Decimal("0")}[event_type],
     )
     monkeypatch.setattr(
+        repository.credit, "get_events", lambda _simulation_id, _user_id: []
+    )
+    monkeypatch.setattr(
+        repository.portfolio, "get_patrimonial_history", lambda _user_id: []
+    )
+    monkeypatch.setattr(
         repository.stock,
         "get_stocks",
         lambda: [

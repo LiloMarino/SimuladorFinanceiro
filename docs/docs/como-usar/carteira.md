@@ -10,7 +10,7 @@ A **Carteira** é a tela inicial da partida: ela reúne tudo o que você tem, qu
 
 ## Patrimônio e alocação
 
-No topo, o **Patrimônio total** soma o caixa e tudo o que está investido.
+No topo, o **Patrimônio líquido** soma o caixa e tudo o que está investido e desconta o que você deve em [Crédito](./credito.md). Sem dívida, é o total do que você tem.
 
 A faixa **Alocação** mostra quanto está investido e em que parte do patrimônio isso pesa. Ela divide o patrimônio em três: **Renda variável**, **Renda fixa** e **Caixa**, cada uma com o valor e o percentual.
 

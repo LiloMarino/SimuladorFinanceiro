@@ -43,6 +43,12 @@ export type SimulationEvents = {
   life_event: LifeEvent;
   future_recording_progress: FutureRecordingProgressEvent;
   achievement_unlocked: AchievementUnlockedEvent;
+  credit_installment_paid: RealtimeEventCatalog["credit_installment_paid"];
+  credit_monthly_summary: RealtimeEventCatalog["credit_monthly_summary"];
+  credit_installment_late: RealtimeEventCatalog["credit_installment_late"];
+  credit_installment_warning: RealtimeEventCatalog["credit_installment_warning"];
+  credit_rating_changed: RealtimeEventCatalog["credit_rating_changed"];
+  credit_loan_paid_off: RealtimeEventCatalog["credit_loan_paid_off"];
 } & {
   [K in `stock_update:${string}`]: RealtimeEventCatalog["stock_update"];
 } & {

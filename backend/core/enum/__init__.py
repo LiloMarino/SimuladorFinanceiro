@@ -63,6 +63,8 @@ class CashflowEventType(Enum):
     EXPENSE = "EXPENSE"
     UNEXPECTED_EXPENSE = "UNEXPECTED_EXPENSE"
     OVERDRAFT_INTEREST = "OVERDRAFT_INTEREST"
+    LOAN_PROCEEDS = "LOAN_PROCEEDS"
+    LOAN_PAYMENT = "LOAN_PAYMENT"
 
     @property
     def sign(self) -> int:
@@ -85,6 +87,8 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.EXPENSE: -1,
     CashflowEventType.UNEXPECTED_EXPENSE: -1,
     CashflowEventType.OVERDRAFT_INTEREST: -1,
+    CashflowEventType.LOAN_PROCEEDS: 1,
+    CashflowEventType.LOAN_PAYMENT: -1,
 }
 
 # Aporte, salário, despesa e imprevisto são o dinheiro da vida do jogador; o juro
@@ -254,6 +258,35 @@ class PlayerActivity(Enum):
 class FixedIncomeEventType(Enum):
     BUY = "BUY"
     REDEEM = "REDEEM"
+
+
+class CreditEventType(Enum):
+    CONTRACT = "CONTRACT"
+    INSTALLMENT_PAID = "INSTALLMENT_PAID"
+    INSTALLMENT_LATE = "INSTALLMENT_LATE"
+    OVERDUE_PAID = "OVERDUE_PAID"
+    PREPAYMENT = "PREPAYMENT"
+    PAYOFF = "PAYOFF"
+
+
+class PrepaymentMode(Enum):
+    """O que a amortização faz com a sobra: encurta o prazo ou reduz a parcela."""
+
+    SHORTEN_TERM = "SHORTEN_TERM"
+    REDUCE_INSTALLMENT = "REDUCE_INSTALLMENT"
+
+
+class CreditGrade(Enum):
+    """Nota de risco do jogador, da melhor (AAA) à que fecha o crédito (D)."""
+
+    AAA = "AAA"
+    AA = "AA"
+    A = "A"
+    BBB = "BBB"
+    BB = "BB"
+    B = "B"
+    CCC = "CCC"
+    D = "D"
 
 
 class IndicatorSeries(Enum):

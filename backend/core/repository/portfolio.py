@@ -39,6 +39,7 @@ class PortfolioRepository:
                 total_fixed=row.total_fixed,
                 total_cash=row.total_cash,
                 total_contribution=row.total_contribution,
+                total_debt=row.total_debt,
             )
             for row in rows
         ]

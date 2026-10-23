@@ -1,4 +1,5 @@
 from backend.core.repository.achievements import AchievementsRepository
+from backend.core.repository.credit import CreditRepository
 from backend.core.repository.economic import EconomicRepository
 from backend.core.repository.event import EventRepository
 from backend.core.repository.fixed_income import FixedIncomeRepository
@@ -19,6 +20,7 @@ event = EventRepository()
 snapshot = SnapshotRepository()
 portfolio = PortfolioRepository()
 fixed_income = FixedIncomeRepository()
+credit = CreditRepository()
 statistics = StatisticsRepository()
 settings = SettingsRepository()
 simulation = SimulationRepository()

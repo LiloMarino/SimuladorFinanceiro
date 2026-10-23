@@ -11,7 +11,7 @@ from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.order_preview import OrderPreviewDTO
 from backend.core.dto.portfolio import PortfolioDTO
-from backend.core.dto.position import PortfolioPositionDTO
+from backend.core.dto.position import PortfolioPositionDTO, PositionDTO
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.enum import CashflowEventType, EquityEventType, OrderAction
@@ -20,6 +20,10 @@ from backend.core.runtime.user_manager import UserManager
 from backend.core.sectors import allocate_by_sector
 from backend.core.utils import ratio
 from backend.core.utils.lazy_dict import LazyDict
+from backend.features.credit.credit_book import CreditBook
+from backend.features.fixed_income.entities.fixed_income_position import (
+    FixedIncomePosition,
+)
 from backend.features.fixed_income.fixed_broker import FixedBroker
 from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
@@ -57,6 +61,7 @@ class SimulationEngine:
         self._lock = threading.RLock()
         self.broker = Broker(self, self._lock)
         self.fixed_broker = FixedBroker(self, self._lock)
+        self.credit_book = CreditBook(self, self._lock)
         self.fixed_income_market = FixedIncomeMarket()
         self.matching_engine = MatchingEngine(self.broker)
         self._cash: LazyDict[UUID, Decimal] = LazyDict(
@@ -127,6 +132,13 @@ class SimulationEngine:
 
     def charge_overdraft_interest(self, client_id: UUID, amount: Decimal) -> None:
         self._move_cash(client_id, -amount, CashflowEventType.OVERDRAFT_INTEREST)
+
+    def receive_loan(self, client_id: UUID, amount: Decimal) -> None:
+        self._move_cash(client_id, amount, CashflowEventType.LOAN_PROCEEDS)
+
+    def pay_loan(self, client_id: UUID, amount: Decimal) -> None:
+        """Debita parcela, amortização, quitação ou atraso; o caixa pode passar do saldo só quando quem chama já o conferiu."""
+        self._move_cash(client_id, -amount, CashflowEventType.LOAN_PAYMENT)
 
     def assess_income_tax(self, user_id: int) -> list[MonthlyTax]:
         asset_classes = {ticker: s.asset_class for ticker, s in self.stocks.items()}
@@ -245,7 +257,10 @@ class SimulationEngine:
         """
         return repository.stock.get_classification()
 
-    def get_portfolio(self, client_id: UUID) -> PortfolioDTO:
+    def _holdings(
+        self, client_id: UUID
+    ) -> tuple[list[PositionDTO], list[FixedIncomePosition], Decimal]:
+        """Renda variável, renda fixa e caixa do jogador num instante só."""
         with self._lock:
             equity = [
                 pos.to_dto(self.get_current_price(pos))
@@ -253,12 +268,27 @@ class SimulationEngine:
                 if pos.size > 0
             ]
             fixed = list(self.fixed_broker.get_fixed_positions(client_id).values())
-            cash = self._cash[client_id]
+            return equity, fixed, self._cash[client_id]
+
+    def assets_value(self, client_id: UUID) -> Decimal:
+        """Caixa, ações e renda fixa, sem descontar a dívida."""
+        equity, fixed, cash = self._holdings(client_id)
+        return (
+            sum((p.current_value for p in equity), Decimal(0))
+            + sum((p.current_value for p in fixed), Decimal(0))
+            + cash
+        )
+
+    def get_portfolio(self, client_id: UUID) -> PortfolioDTO:
+        equity, fixed, cash = self._holdings(client_id)
 
         variable_income_value = sum((p.current_value for p in equity), Decimal(0))
         fixed_income_value = sum((p.current_value for p in fixed), Decimal(0))
         invested_value = variable_income_value + fixed_income_value
-        total_networth = invested_value + cash
+        # Os percentuais de alocação são sobre os ativos; o patrimônio é o líquido da dívida
+        assets_value = invested_value + cash
+        debt = self.credit_book.debt(client_id, self.current_date)
+        total_networth = assets_value - debt
 
         # Aporte mensal é capital do jogador, não rendimento
         user_id = UserManager.get_user_id(client_id)
@@ -294,15 +324,18 @@ class SimulationEngine:
             invested_value=invested_value,
             variable_income_value=variable_income_value,
             fixed_income_value=fixed_income_value,
-            invested_pct=ratio(invested_value, total_networth),
+            invested_pct=ratio(invested_value, assets_value),
             variable_income_pct=ratio(variable_income_value, invested_value),
             fixed_income_pct=ratio(fixed_income_value, invested_value),
             capital_provided=capital_provided,
             total_return_value=total_networth - capital_provided,
             total_return_pct=ratio(total_networth - capital_provided, capital_provided),
-            variable_income_networth_pct=ratio(variable_income_value, total_networth),
-            fixed_income_networth_pct=ratio(fixed_income_value, total_networth),
-            cash_pct=ratio(cash, total_networth),
+            variable_income_networth_pct=ratio(variable_income_value, assets_value),
+            fixed_income_networth_pct=ratio(fixed_income_value, assets_value),
+            cash_pct=ratio(cash, assets_value),
+            assets_value=assets_value,
+            debt=debt,
+            credit_alert=self.credit_book.alert(client_id, self.current_date),
             income_tax_paid=income_tax_paid,
             income_tax_due=income_tax_assessed - income_tax_paid,
             income_tax_due_date=min(upcoming_due) if upcoming_due else None,

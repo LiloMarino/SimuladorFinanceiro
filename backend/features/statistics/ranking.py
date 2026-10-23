@@ -30,6 +30,7 @@ def build_overview(
     goal_steps: list[SeriesPointDTO] | None = None,
     in_teams: bool = False,
     team_naming: TeamNaming = TeamNaming.COLOR,
+    delinquent: frozenset[tuple[int, str]] = frozenset(),
 ) -> OverviewReportDTO:
     """
     Ranqueia os jogadores pelo critério de vitória; quem ainda não tem o valor
@@ -39,6 +40,8 @@ def build_overview(
     Fora da Clássica, o valor é a fração da meta (patrimônio ÷ meta; 1 = chegou).
     Ordenar por ela já põe na frente quem chegou e, entre quem chegou no mesmo
     dia, o maior patrimônio; sem ninguém na meta, vence quem ficou mais perto.
+
+    `delinquent` traz quem tem parcela em atraso (simulação e apelido).
 
     Em equipes, o valor da equipe em cada critério é a média dos membros e a
     equipe com a melhor média vence; o patrimônio médio desempata. Na meta, a
@@ -81,6 +84,7 @@ def build_overview(
             team_contribution=contributions.get(
                 (player.simulation_id, player.player_nickname)
             ),
+            delinquent=(player.simulation_id, player.player_nickname) in delinquent,
         )
         for position, performance in enumerate(performances, start=1)
         for (

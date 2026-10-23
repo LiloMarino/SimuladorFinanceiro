@@ -11,6 +11,7 @@ class PatrimonialHistoryDTO(BaseDTO):
     total_fixed: Decimal
     total_cash: Decimal
     total_contribution: Decimal
+    total_debt: Decimal = Decimal(0)
 
 
 class PortfolioHistoryPointDTO(PatrimonialHistoryDTO):

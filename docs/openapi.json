@@ -2886,6 +2886,419 @@
         }
       }
     },
+    "/api/credit": {
+      "get": {
+        "tags": [
+          "Credit"
+        ],
+        "summary": "Obter o crédito",
+        "description": "Retorna a dívida, a nota de risco, a oferta de empréstimo, os empréstimos, as próximas parcelas, o histórico de 12 meses e as sugestões para subir a nota.",
+        "operationId": "get_credit_api_credit_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditOverviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/credit/quote": {
+      "get": {
+        "tags": [
+          "Credit"
+        ],
+        "summary": "Simular um empréstimo",
+        "description": "Calcula parcela, juro no prazo, cronograma completo, alavancagem antes e depois, a nota projetada e quanto passa do limite.",
+        "operationId": "quote_loan_api_credit_quote_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "amount",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0.0
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          {
+            "name": "term_months",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Term Months"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanQuoteDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/credit/loans": {
+      "post": {
+        "tags": [
+          "Credit"
+        ],
+        "summary": "Contratar um empréstimo",
+        "description": "Assina o empréstimo com o juro da nota de hoje, travado até o fim, e credita o valor no caixa.",
+        "operationId": "contract_loan_api_credit_loans_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContractLoanRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/credit/loans/{loan_id}/prepayment": {
+      "get": {
+        "tags": [
+          "Credit"
+        ],
+        "summary": "Prévia de pagar antes",
+        "description": "Mostra as duas formas de amortizar (diminuir o prazo ou a parcela) com o juro economizado de cada uma, e o que custa quitar tudo hoje.",
+        "operationId": "preview_prepayment_api_credit_loans__loan_id__prepayment_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          },
+          {
+            "name": "amount",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0.0
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": "0",
+              "title": "Amount"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrepaymentPreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Credit"
+        ],
+        "summary": "Amortizar um empréstimo",
+        "description": "Paga uma parte do saldo devedor agora e diminui o prazo ou a parcela.",
+        "operationId": "prepay_loan_api_credit_loans__loan_id__prepayment_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrepayLoanRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/credit/loans/{loan_id}/payoff": {
+      "post": {
+        "tags": [
+          "Credit"
+        ],
+        "summary": "Quitar um empréstimo",
+        "description": "Paga o saldo devedor do dia, sem os juros que ainda não correram.",
+        "operationId": "payoff_loan_api_credit_loans__loan_id__payoff_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/credit/loans/{loan_id}/overdue": {
+      "post": {
+        "tags": [
+          "Credit"
+        ],
+        "summary": "Pagar a parcela em atraso",
+        "description": "Paga as parcelas em atraso do empréstimo com a multa de 2% e a mora até hoje.",
+        "operationId": "pay_overdue_api_credit_loans__loan_id__overdue_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Loan Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/simulation/status": {
       "get": {
         "tags": [
@@ -4671,6 +5084,32 @@
         ],
         "title": "CompositionReportDTO"
       },
+      "ContractLoanRequestDTO": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Amount"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount",
+          "term_months"
+        ],
+        "title": "ContractLoanRequestDTO"
+      },
       "CorrelationAssetDTO": {
         "properties": {
           "ticker": {
@@ -5048,6 +5487,465 @@
           "goal_net_worth"
         ],
         "title": "CreateSimulationRequest"
+      },
+      "CreditCostDTO": {
+        "properties": {
+          "interest_paid": {
+            "type": "string",
+            "title": "Interest Paid"
+          },
+          "paid_installments": {
+            "type": "integer",
+            "title": "Paid Installments"
+          },
+          "late_installments": {
+            "type": "integer",
+            "title": "Late Installments"
+          },
+          "cost_of_debt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Of Debt"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "interest_paid",
+          "paid_installments",
+          "late_installments",
+          "cost_of_debt"
+        ],
+        "title": "CreditCostDTO",
+        "description": "O que o crédito custou ao jogador: só existe para quem já contratou um empréstimo."
+      },
+      "CreditGrade": {
+        "type": "string",
+        "enum": [
+          "AAA",
+          "AA",
+          "A",
+          "BBB",
+          "BB",
+          "B",
+          "CCC",
+          "D"
+        ],
+        "title": "CreditGrade",
+        "description": "Nota de risco do jogador, da melhor (AAA) à que fecha o crédito (D)."
+      },
+      "CreditInstallmentLateEventDTO": {
+        "properties": {
+          "loan_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Loan Id"
+          },
+          "loan_number": {
+            "type": "integer",
+            "title": "Loan Number"
+          },
+          "installment_number": {
+            "type": "integer",
+            "title": "Installment Number"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Due Date"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "loan_id",
+          "loan_number",
+          "installment_number",
+          "due_date",
+          "amount"
+        ],
+        "title": "CreditInstallmentLateEventDTO"
+      },
+      "CreditInstallmentPaidEventDTO": {
+        "properties": {
+          "loan_number": {
+            "type": "integer",
+            "title": "Loan Number"
+          },
+          "installment_number": {
+            "type": "integer",
+            "title": "Installment Number"
+          },
+          "total_installments": {
+            "type": "integer",
+            "title": "Total Installments"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "loan_number",
+          "installment_number",
+          "total_installments",
+          "amount"
+        ],
+        "title": "CreditInstallmentPaidEventDTO"
+      },
+      "CreditInstallmentWarningEventDTO": {
+        "properties": {
+          "loan_number": {
+            "type": "integer",
+            "title": "Loan Number"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Due Date"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "shortfall": {
+            "type": "string",
+            "title": "Shortfall"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "loan_number",
+          "due_date",
+          "amount",
+          "shortfall"
+        ],
+        "title": "CreditInstallmentWarningEventDTO",
+        "description": "Parcela que vence em até 7 dias sem caixa para cobri-la."
+      },
+      "CreditLoanPaidOffEventDTO": {
+        "properties": {
+          "loan_number": {
+            "type": "integer",
+            "title": "Loan Number"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "interest_saved": {
+            "type": "string",
+            "title": "Interest Saved"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "loan_number",
+          "amount",
+          "interest_saved"
+        ],
+        "title": "CreditLoanPaidOffEventDTO"
+      },
+      "CreditMonthlySummaryEventDTO": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "installments": {
+            "type": "integer",
+            "title": "Installments"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "installments",
+          "amount"
+        ],
+        "title": "CreditMonthlySummaryEventDTO",
+        "description": "O resumo do mês que substitui o aviso de cada parcela nas velocidades altas."
+      },
+      "CreditOfferDTO": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "selic": {
+            "type": "string",
+            "title": "Selic"
+          },
+          "spread": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spread"
+          },
+          "annual_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Rate"
+          },
+          "best_fixed_income_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Fixed Income Rate"
+          },
+          "max_amount": {
+            "type": "string",
+            "title": "Max Amount"
+          },
+          "debt_limit": {
+            "type": "string",
+            "title": "Debt Limit"
+          },
+          "debt_limit_amount": {
+            "type": "string",
+            "title": "Debt Limit Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "available",
+          "selic",
+          "spread",
+          "annual_rate",
+          "best_fixed_income_rate",
+          "max_amount",
+          "debt_limit",
+          "debt_limit_amount"
+        ],
+        "title": "CreditOfferDTO"
+      },
+      "CreditOverviewDTO": {
+        "properties": {
+          "debt": {
+            "type": "string",
+            "title": "Debt"
+          },
+          "open_loans": {
+            "type": "integer",
+            "title": "Open Loans"
+          },
+          "closed_loans": {
+            "type": "integer",
+            "title": "Closed Loans"
+          },
+          "networth": {
+            "type": "string",
+            "title": "Networth"
+          },
+          "assets": {
+            "type": "string",
+            "title": "Assets"
+          },
+          "cash": {
+            "type": "string",
+            "title": "Cash"
+          },
+          "leverage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leverage"
+          },
+          "next_installments_month": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Installments Month"
+          },
+          "next_installments_total": {
+            "type": "string",
+            "title": "Next Installments Total"
+          },
+          "next_installments_first": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Installments First"
+          },
+          "next_installments_last": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Installments Last"
+          },
+          "cash_covers_next": {
+            "type": "boolean",
+            "title": "Cash Covers Next"
+          },
+          "rating": {
+            "$ref": "#/components/schemas/RatingDTO"
+          },
+          "offer": {
+            "$ref": "#/components/schemas/CreditOfferDTO"
+          },
+          "loans": {
+            "items": {
+              "$ref": "#/components/schemas/LoanDTO"
+            },
+            "type": "array",
+            "title": "Loans"
+          },
+          "upcoming": {
+            "items": {
+              "$ref": "#/components/schemas/UpcomingInstallmentDTO"
+            },
+            "type": "array",
+            "title": "Upcoming"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/MonthPaymentsDTO"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "suggestions": {
+            "items": {
+              "$ref": "#/components/schemas/SuggestionDTO"
+            },
+            "type": "array",
+            "title": "Suggestions"
+          },
+          "portfolio_return_12m": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portfolio Return 12M"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "debt",
+          "open_loans",
+          "closed_loans",
+          "networth",
+          "assets",
+          "cash",
+          "leverage",
+          "next_installments_month",
+          "next_installments_total",
+          "next_installments_first",
+          "next_installments_last",
+          "cash_covers_next",
+          "rating",
+          "offer",
+          "loans",
+          "upcoming",
+          "history",
+          "suggestions",
+          "portfolio_return_12m"
+        ],
+        "title": "CreditOverviewDTO"
+      },
+      "CreditRatingChangedEventDTO": {
+        "properties": {
+          "before": {
+            "$ref": "#/components/schemas/CreditGrade"
+          },
+          "after": {
+            "$ref": "#/components/schemas/CreditGrade"
+          },
+          "points": {
+            "type": "integer",
+            "title": "Points"
+          },
+          "spread": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spread"
+          },
+          "debt_limit": {
+            "type": "string",
+            "title": "Debt Limit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "before",
+          "after",
+          "points",
+          "spread",
+          "debt_limit"
+        ],
+        "title": "CreditRatingChangedEventDTO"
       },
       "DrawdownDTO": {
         "properties": {
@@ -6023,6 +6921,46 @@
         ],
         "title": "IndicatorSeries"
       },
+      "InstallmentRowDTO": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Due Date"
+          },
+          "interest": {
+            "type": "string",
+            "title": "Interest"
+          },
+          "principal": {
+            "type": "string",
+            "title": "Principal"
+          },
+          "payment": {
+            "type": "string",
+            "title": "Payment"
+          },
+          "balance": {
+            "type": "string",
+            "title": "Balance"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "number",
+          "due_date",
+          "interest",
+          "principal",
+          "payment",
+          "balance"
+        ],
+        "title": "InstallmentRowDTO"
+      },
       "JoinMatchRequest": {
         "properties": {
           "color": {
@@ -6046,6 +6984,41 @@
           "color"
         ],
         "title": "JoinMatchRequest"
+      },
+      "LadderTierDTO": {
+        "properties": {
+          "grade": {
+            "$ref": "#/components/schemas/CreditGrade"
+          },
+          "min_points": {
+            "type": "integer",
+            "title": "Min Points"
+          },
+          "spread": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spread"
+          },
+          "debt_limit": {
+            "type": "string",
+            "title": "Debt Limit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "grade",
+          "min_points",
+          "spread",
+          "debt_limit"
+        ],
+        "title": "LadderTierDTO"
       },
       "LevelChangeDTO": {
         "properties": {
@@ -6349,6 +7322,188 @@
         "title": "LifeStatusDTO",
         "description": "A vida financeira de quem pede, no pregão corrente do viver de renda."
       },
+      "LoanDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "principal": {
+            "type": "string",
+            "title": "Principal"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "annual_rate": {
+            "type": "string",
+            "title": "Annual Rate"
+          },
+          "grade": {
+            "$ref": "#/components/schemas/CreditGrade"
+          },
+          "contract_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Contract Date"
+          },
+          "installment": {
+            "type": "string",
+            "title": "Installment"
+          },
+          "paid_installments": {
+            "type": "integer",
+            "title": "Paid Installments"
+          },
+          "total_installments": {
+            "type": "integer",
+            "title": "Total Installments"
+          },
+          "balance": {
+            "type": "string",
+            "title": "Balance"
+          },
+          "overdue_charges": {
+            "type": "string",
+            "title": "Overdue Charges"
+          },
+          "next_due": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Due"
+          },
+          "overdue": {
+            "items": {
+              "$ref": "#/components/schemas/OverdueDTO"
+            },
+            "type": "array",
+            "title": "Overdue"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "number",
+          "principal",
+          "term_months",
+          "annual_rate",
+          "grade",
+          "contract_date",
+          "installment",
+          "paid_installments",
+          "total_installments",
+          "balance",
+          "overdue_charges",
+          "next_due",
+          "overdue"
+        ],
+        "title": "LoanDTO"
+      },
+      "LoanQuoteDTO": {
+        "properties": {
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "annual_rate": {
+            "type": "string",
+            "title": "Annual Rate"
+          },
+          "monthly_rate": {
+            "type": "string",
+            "title": "Monthly Rate"
+          },
+          "installment": {
+            "type": "string",
+            "title": "Installment"
+          },
+          "total_interest": {
+            "type": "string",
+            "title": "Total Interest"
+          },
+          "total_paid": {
+            "type": "string",
+            "title": "Total Paid"
+          },
+          "due_day": {
+            "type": "integer",
+            "title": "Due Day"
+          },
+          "schedule": {
+            "items": {
+              "$ref": "#/components/schemas/InstallmentRowDTO"
+            },
+            "type": "array",
+            "title": "Schedule"
+          },
+          "leverage_before": {
+            "type": "string",
+            "title": "Leverage Before"
+          },
+          "leverage_after": {
+            "type": "string",
+            "title": "Leverage After"
+          },
+          "projected_grade": {
+            "$ref": "#/components/schemas/CreditGrade"
+          },
+          "projected_points": {
+            "type": "integer",
+            "title": "Projected Points"
+          },
+          "current_debt": {
+            "type": "string",
+            "title": "Current Debt"
+          },
+          "excess": {
+            "type": "string",
+            "title": "Excess"
+          },
+          "cash_after": {
+            "type": "string",
+            "title": "Cash After"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount",
+          "term_months",
+          "annual_rate",
+          "monthly_rate",
+          "installment",
+          "total_interest",
+          "total_paid",
+          "due_day",
+          "schedule",
+          "leverage_before",
+          "leverage_after",
+          "projected_grade",
+          "projected_points",
+          "current_debt",
+          "excess",
+          "cash_after"
+        ],
+        "title": "LoanQuoteDTO"
+      },
       "MarketQuoteDTO": {
         "properties": {
           "id": {
@@ -6553,6 +7708,36 @@
           "traffic"
         ],
         "title": "MetricsResponse"
+      },
+      "MonthPaymentsDTO": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "on_time": {
+            "type": "integer",
+            "title": "On Time"
+          },
+          "paid_late": {
+            "type": "integer",
+            "title": "Paid Late"
+          },
+          "late": {
+            "type": "integer",
+            "title": "Late"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "on_time",
+          "paid_late",
+          "late"
+        ],
+        "title": "MonthPaymentsDTO"
       },
       "MonthlyReturnDTO": {
         "properties": {
@@ -7027,6 +8212,51 @@
         ],
         "title": "OverallItem"
       },
+      "OverdueDTO": {
+        "properties": {
+          "installment_number": {
+            "type": "integer",
+            "title": "Installment Number"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Due Date"
+          },
+          "days_late": {
+            "type": "integer",
+            "title": "Days Late"
+          },
+          "installment": {
+            "type": "string",
+            "title": "Installment"
+          },
+          "fee": {
+            "type": "string",
+            "title": "Fee"
+          },
+          "interest": {
+            "type": "string",
+            "title": "Interest"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "installment_number",
+          "due_date",
+          "days_late",
+          "installment",
+          "fee",
+          "interest",
+          "total"
+        ],
+        "title": "OverdueDTO"
+      },
       "OverviewReportDTO": {
         "properties": {
           "player_grouping": {
@@ -7131,6 +8361,11 @@
           "total_contribution": {
             "type": "string",
             "title": "Total Contribution"
+          },
+          "total_debt": {
+            "type": "string",
+            "title": "Total Debt",
+            "default": "0"
           }
         },
         "additionalProperties": false,
@@ -7620,6 +8855,10 @@
               }
             ],
             "title": "Team Contribution"
+          },
+          "delinquent": {
+            "type": "boolean",
+            "title": "Delinquent"
           }
         },
         "additionalProperties": false,
@@ -7641,7 +8880,8 @@
           "criterion_value",
           "leader_gap",
           "weakest_axis",
-          "team_contribution"
+          "team_contribution",
+          "delinquent"
         ],
         "title": "PlayerRankingDTO"
       },
@@ -7721,6 +8961,16 @@
             },
             "type": "array",
             "title": "Monthly Returns"
+          },
+          "credit_cost": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CreditCostDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -7738,7 +8988,8 @@
           "months_above_cdi",
           "positive_months",
           "months",
-          "monthly_returns"
+          "monthly_returns",
+          "credit_cost"
         ],
         "title": "PlayerReturnsDTO"
       },
@@ -7865,6 +9116,24 @@
           "days": {
             "type": "integer",
             "title": "Days"
+          },
+          "debt": {
+            "type": "string",
+            "title": "Debt"
+          },
+          "leverage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leverage"
+          },
+          "credit_grade": {
+            "$ref": "#/components/schemas/CreditGrade"
           }
         },
         "additionalProperties": false,
@@ -7884,7 +9153,10 @@
           "time_underwater",
           "worst_month",
           "annual_return",
-          "days"
+          "days",
+          "debt",
+          "leverage",
+          "credit_grade"
         ],
         "title": "PlayerRiskDTO"
       },
@@ -7985,6 +9257,18 @@
             "type": "string",
             "title": "Cash Pct"
           },
+          "assets_value": {
+            "type": "string",
+            "title": "Assets Value"
+          },
+          "debt": {
+            "type": "string",
+            "title": "Debt"
+          },
+          "credit_alert": {
+            "type": "boolean",
+            "title": "Credit Alert"
+          },
           "income_tax_paid": {
             "type": "string",
             "title": "Income Tax Paid"
@@ -8064,6 +9348,9 @@
           "variable_income_networth_pct",
           "fixed_income_networth_pct",
           "cash_pct",
+          "assets_value",
+          "debt",
+          "credit_alert",
           "income_tax_paid",
           "income_tax_due",
           "income_tax_due_date",
@@ -8102,6 +9389,11 @@
           "total_contribution": {
             "type": "string",
             "title": "Total Contribution"
+          },
+          "total_debt": {
+            "type": "string",
+            "title": "Total Debt",
+            "default": "0"
           },
           "total_provided": {
             "type": "string",
@@ -8265,6 +9557,129 @@
         ],
         "title": "PositionUpdateEventDTO"
       },
+      "PrepayLoanRequestDTO": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Amount"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/PrepaymentMode"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount",
+          "mode"
+        ],
+        "title": "PrepayLoanRequestDTO"
+      },
+      "PrepaymentMode": {
+        "type": "string",
+        "enum": [
+          "SHORTEN_TERM",
+          "REDUCE_INSTALLMENT"
+        ],
+        "title": "PrepaymentMode",
+        "description": "O que a amortização faz com a sobra: encurta o prazo ou reduz a parcela."
+      },
+      "PrepaymentOptionDTO": {
+        "properties": {
+          "mode": {
+            "$ref": "#/components/schemas/PrepaymentMode"
+          },
+          "installments_remaining": {
+            "type": "integer",
+            "title": "Installments Remaining"
+          },
+          "installment": {
+            "type": "string",
+            "title": "Installment"
+          },
+          "interest_saved": {
+            "type": "string",
+            "title": "Interest Saved"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mode",
+          "installments_remaining",
+          "installment",
+          "interest_saved"
+        ],
+        "title": "PrepaymentOptionDTO"
+      },
+      "PrepaymentPreviewDTO": {
+        "properties": {
+          "balance": {
+            "type": "string",
+            "title": "Balance"
+          },
+          "cash": {
+            "type": "string",
+            "title": "Cash"
+          },
+          "shorten_term": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PrepaymentOptionDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reduce_installment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PrepaymentOptionDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payoff_installments": {
+            "type": "integer",
+            "title": "Payoff Installments"
+          },
+          "payoff_remaining_payments": {
+            "type": "string",
+            "title": "Payoff Remaining Payments"
+          },
+          "payoff_interest_saved": {
+            "type": "string",
+            "title": "Payoff Interest Saved"
+          },
+          "payoff_amount": {
+            "type": "string",
+            "title": "Payoff Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "balance",
+          "cash",
+          "shorten_term",
+          "reduce_installment",
+          "payoff_installments",
+          "payoff_remaining_payments",
+          "payoff_interest_saved",
+          "payoff_amount"
+        ],
+        "title": "PrepaymentPreviewDTO"
+      },
       "PreviewPointDTO": {
         "properties": {
           "date": {
@@ -8372,6 +9787,152 @@
         ],
         "title": "RateIndexType"
       },
+      "RatingDTO": {
+        "properties": {
+          "grade": {
+            "$ref": "#/components/schemas/CreditGrade"
+          },
+          "points": {
+            "type": "integer",
+            "title": "Points"
+          },
+          "previous_grade": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CreditGrade"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previous_points": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Points"
+          },
+          "next_review": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Review"
+          },
+          "leverage": {
+            "$ref": "#/components/schemas/RatingLeverageDTO"
+          },
+          "volatility": {
+            "$ref": "#/components/schemas/RatingVolatilityDTO"
+          },
+          "payments": {
+            "$ref": "#/components/schemas/RatingPaymentsDTO"
+          },
+          "ladder": {
+            "items": {
+              "$ref": "#/components/schemas/LadderTierDTO"
+            },
+            "type": "array",
+            "title": "Ladder"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "grade",
+          "points",
+          "previous_grade",
+          "previous_points",
+          "next_review",
+          "leverage",
+          "volatility",
+          "payments",
+          "ladder"
+        ],
+        "title": "RatingDTO"
+      },
+      "RatingLeverageDTO": {
+        "properties": {
+          "points": {
+            "type": "string",
+            "title": "Points"
+          },
+          "max_points": {
+            "type": "string",
+            "title": "Max Points"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "points",
+          "max_points",
+          "value"
+        ],
+        "title": "RatingLeverageDTO"
+      },
+      "RatingPaymentsDTO": {
+        "properties": {
+          "points": {
+            "type": "string",
+            "title": "Points"
+          },
+          "max_points": {
+            "type": "string",
+            "title": "Max Points"
+          },
+          "late_installments": {
+            "type": "integer",
+            "title": "Late Installments"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "points",
+          "max_points",
+          "late_installments"
+        ],
+        "title": "RatingPaymentsDTO"
+      },
+      "RatingVolatilityDTO": {
+        "properties": {
+          "points": {
+            "type": "string",
+            "title": "Points"
+          },
+          "max_points": {
+            "type": "string",
+            "title": "Max Points"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "points",
+          "max_points",
+          "value"
+        ],
+        "title": "RatingVolatilityDTO"
+      },
       "RealtimeEventCatalog": {
         "properties": {
           "simulation_started": {
@@ -8460,6 +10021,24 @@
           },
           "achievement_unlocked": {
             "$ref": "#/components/schemas/AchievementUnlockedEventDTO"
+          },
+          "credit_installment_paid": {
+            "$ref": "#/components/schemas/CreditInstallmentPaidEventDTO"
+          },
+          "credit_monthly_summary": {
+            "$ref": "#/components/schemas/CreditMonthlySummaryEventDTO"
+          },
+          "credit_installment_late": {
+            "$ref": "#/components/schemas/CreditInstallmentLateEventDTO"
+          },
+          "credit_installment_warning": {
+            "$ref": "#/components/schemas/CreditInstallmentWarningEventDTO"
+          },
+          "credit_rating_changed": {
+            "$ref": "#/components/schemas/CreditRatingChangedEventDTO"
+          },
+          "credit_loan_paid_off": {
+            "$ref": "#/components/schemas/CreditLoanPaidOffEventDTO"
           }
         },
         "additionalProperties": false,
@@ -8493,7 +10072,13 @@
           "order_updated",
           "order_book_snapshot",
           "future_recording_progress",
-          "achievement_unlocked"
+          "achievement_unlocked",
+          "credit_installment_paid",
+          "credit_monthly_summary",
+          "credit_installment_late",
+          "credit_installment_warning",
+          "credit_rating_changed",
+          "credit_loan_paid_off"
         ],
         "title": "RealtimeEventCatalog",
         "description": "Um campo por nome de evento realtime, tipado para o DTO do payload\ncorrespondente. Nunca é instanciado de verdade — só existe para que seu\nschema apareça em `/openapi.json` via a rota dev-only em `routes/realtime.py`."
@@ -9673,6 +11258,10 @@
             "type": "string",
             "title": "Total Contribution"
           },
+          "total_debt": {
+            "type": "string",
+            "title": "Total Debt"
+          },
           "total_networth": {
             "type": "string",
             "title": "Total Networth"
@@ -9692,6 +11281,7 @@
           "total_fixed",
           "total_cash",
           "total_contribution",
+          "total_debt",
           "total_networth",
           "created_at"
         ],
@@ -9997,6 +11587,84 @@
           "status"
         ],
         "title": "SubmitOrderResponse"
+      },
+      "SuggestionDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/SuggestionKind"
+          },
+          "target_grade": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CreditGrade"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "interest_saved": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interest Saved"
+          },
+          "leverage_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leverage After"
+          },
+          "volatility": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volatility"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "target_grade"
+        ],
+        "title": "SuggestionDTO"
+      },
+      "SuggestionKind": {
+        "type": "string",
+        "enum": [
+          "PAYOFF",
+          "VOLATILITY",
+          "ON_TIME",
+          "RECOVER"
+        ],
+        "title": "SuggestionKind"
       },
       "TeamCompositionDTO": {
         "properties": {
@@ -10661,6 +12329,41 @@
           "secret"
         ],
         "title": "UnlockedAchievementDTO"
+      },
+      "UpcomingInstallmentDTO": {
+        "properties": {
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Due Date"
+          },
+          "loan_number": {
+            "type": "integer",
+            "title": "Loan Number"
+          },
+          "installment_number": {
+            "type": "integer",
+            "title": "Installment Number"
+          },
+          "total_installments": {
+            "type": "integer",
+            "title": "Total Installments"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "due_date",
+          "loan_number",
+          "installment_number",
+          "total_installments",
+          "amount"
+        ],
+        "title": "UpcomingInstallmentDTO"
       },
       "UpdateSettingsRequest": {
         "properties": {

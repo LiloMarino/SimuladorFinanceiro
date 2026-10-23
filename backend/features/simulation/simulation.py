@@ -12,6 +12,11 @@ from uuid import UUID
 from backend import config
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO, MarketQuoteDTO
+from backend.core.dto.credit import (
+    CreditOverviewDTO,
+    LoanQuoteDTO,
+    PrepaymentPreviewDTO,
+)
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, FixedIncomeOfferDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeQuoteDTO
@@ -28,7 +33,13 @@ from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import GameType, IndicatorSeries, OrderAction, PlayerGrouping
+from backend.core.enum import (
+    GameType,
+    IndicatorSeries,
+    OrderAction,
+    PlayerGrouping,
+    PrepaymentMode,
+)
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
@@ -41,6 +52,11 @@ from backend.features.achievements.evaluator import (
     match_result,
     unlocked_event,
 )
+from backend.features.credit.overview import (
+    build_overview,
+    build_prepayment_preview,
+)
+from backend.features.credit.overview import build_quote as build_loan_quote
 from backend.features.fixed_income.accrual import income_tax_brackets, offer, project
 from backend.features.fixed_income.assistance import (
     apply_offer_assistance,
@@ -204,6 +220,60 @@ class Simulation:
         EventManager.flush()
 
     @synchronized
+    def get_credit(self, client_id: UUID) -> CreditOverviewDTO:
+        return build_overview(self._engine.credit_book, client_id, self._current_date)
+
+    @synchronized
+    def quote_loan(
+        self, client_id: UUID, amount: Decimal, term_months: int
+    ) -> LoanQuoteDTO:
+        return build_loan_quote(
+            self._engine.credit_book,
+            client_id,
+            self._current_date,
+            amount,
+            term_months,
+        )
+
+    @synchronized
+    def preview_prepayment(
+        self, client_id: UUID, loan_id: UUID, amount: Decimal
+    ) -> PrepaymentPreviewDTO:
+        return build_prepayment_preview(
+            self._engine.credit_book, client_id, loan_id, self._current_date, amount
+        )
+
+    @synchronized
+    def contract_loan(self, client_id: UUID, amount: Decimal, term_months: int) -> None:
+        try:
+            self._engine.credit_book.contract(client_id, amount, term_months)
+        finally:
+            EventManager.flush()
+
+    @synchronized
+    def prepay_loan(
+        self, client_id: UUID, loan_id: UUID, amount: Decimal, mode: PrepaymentMode
+    ) -> None:
+        try:
+            self._engine.credit_book.prepay(client_id, loan_id, amount, mode)
+        finally:
+            EventManager.flush()
+
+    @synchronized
+    def payoff_loan(self, client_id: UUID, loan_id: UUID) -> None:
+        try:
+            self._engine.credit_book.payoff(client_id, loan_id)
+        finally:
+            EventManager.flush()
+
+    @synchronized
+    def pay_overdue(self, client_id: UUID, loan_id: UUID) -> None:
+        try:
+            self._engine.credit_book.pay_overdue(client_id, loan_id)
+        finally:
+            EventManager.flush()
+
+    @synchronized
     def get_fixed_offers(self) -> list[FixedIncomeOfferDTO]:
         return [
             apply_offer_assistance(offer(a, self._current_date), self.settings)
@@ -290,6 +360,7 @@ class Simulation:
             self._live(self._life, users, month_changed)
         elif month_changed:
             self._apply_monthly_contributions(users)
+        self._settle_credit(users, month_changed)
         self._collect_income_tax(users)
         if self._life is not None:
             self._charge_overdraft(users)
@@ -571,6 +642,8 @@ class Simulation:
         self._engine.broker._positions.pop(client_id, None)
         # Remove ativos de renda fixa em cache
         self._engine.fixed_broker._assets.pop(client_id, None)
+        # Remove os empréstimos em cache
+        self._engine.credit_book.forget(client_id)
 
     def _has_month_changed(self) -> bool:
         current_month = (self._current_date.year, self._current_date.month)
@@ -589,6 +662,18 @@ class Simulation:
             self._engine.add_contribution(
                 user.client_id, self.settings.monthly_contribution
             )
+
+    def _settle_credit(self, users: list[UserDTO], month_changed: bool):
+        """
+        A nota do mês que fechou vale antes das parcelas do dia, e as parcelas saem
+        do caixa antes do IR e do juro do cheque especial.
+        """
+        credit = self._engine.credit_book
+        client_ids = [user.client_id for user in users]
+        if month_changed:
+            credit.close_month(client_ids, self._current_date)
+        credit.process_due(client_ids, self._current_date, self._speed)
+        credit.monthly_summary(client_ids, self._current_date, self._speed)
 
     def _collect_income_tax(self, users: list[UserDTO]):
         """
@@ -635,6 +720,7 @@ class Simulation:
             snapshot_date=self._current_date,
             total_equity=portfolio.variable_income_value,
             total_fixed=portfolio.fixed_income_value,
+            total_debt=portfolio.debt,
         )
 
         notify(

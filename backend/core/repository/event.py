@@ -8,11 +8,13 @@ from backend.core.decorators.transactional_method import transactional
 from backend.core.dto.daily_equity_flow import DailyEquityFlowDTO
 from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.events.cashflow import CashflowEventDTO
+from backend.core.dto.events.credit import CreditEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.events.fixed_income import FixedIncomeEventDTO
 from backend.core.enum import CashflowEventType
 from backend.core.models.models import (
     EventCashflow,
+    EventCredit,
     EventEquity,
     EventFixedIncome,
     Stock,
@@ -38,6 +40,9 @@ class EventRepository:
 
         if FixedIncomeEventDTO in buckets:
             self._insert_fixed_income(session, buckets[FixedIncomeEventDTO])
+
+        if CreditEventDTO in buckets:
+            self._insert_credit(session, buckets[CreditEventDTO])
 
     @transactional
     def get_cashflow_events(
@@ -74,7 +79,7 @@ class EventRepository:
                     model.simulation_id == simulation_id
                 )
             ).scalar_one_or_none()
-            for model in (EventCashflow, EventEquity, EventFixedIncome)
+            for model in (EventCashflow, EventEquity, EventFixedIncome, EventCredit)
         ]
         return max((d for d in dates if d is not None), default=None)
 
@@ -168,3 +173,24 @@ class EventRepository:
             for e in fixed_income_events
         ]
         session.add_all(fixed_income_models)
+
+    def _insert_credit(
+        self, session: Session, credit_events: list[CreditEventDTO]
+    ) -> None:
+        session.add_all(
+            EventCredit(
+                simulation_id=e.simulation_id,
+                user_id=e.user_id,
+                loan_id=e.loan_id,
+                event_type=e.event_type.value,
+                amount=e.amount,
+                installment_number=e.installment_number,
+                annual_rate=e.annual_rate,
+                term_months=e.term_months,
+                grade=e.grade.value if e.grade else None,
+                prepayment_mode=e.prepayment_mode.value if e.prepayment_mode else None,
+                event_date=e.event_date,
+                created_at=e.created_at,
+            )
+            for e in credit_events
+        )

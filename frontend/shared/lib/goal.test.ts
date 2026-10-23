@@ -30,6 +30,7 @@ const point = (snapshot_date: string, total_networth: string): PortfolioHistoryP
   total_fixed: "0",
   total_cash: total_networth,
   total_contribution: "0",
+  total_debt: "0",
   total_provided: "0",
 });
 

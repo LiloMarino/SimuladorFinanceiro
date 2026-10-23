@@ -135,6 +135,7 @@ export function PlayerCell({
   simulationIds,
   isYou,
   teamNaming,
+  delinquent = false,
 }: {
   player: PlayerRef;
   label: string;
@@ -142,6 +143,8 @@ export function PlayerCell({
   isYou: boolean;
   /** Informado, o selo curto da equipe aparece ao lado do nome (partida em equipes) */
   teamNaming?: TeamNaming;
+  /** Parcela de crédito em atraso: o selo "Negativado" aparece ao lado do nome */
+  delinquent?: boolean;
 }) {
   return (
     <span className="flex items-center gap-2">
@@ -160,6 +163,11 @@ export function PlayerCell({
         </Badge>
       )}
       {teamNaming && player.team && <TeamBadge team={player.team} naming={teamNaming} size="sm" />}
+      {delinquent && (
+        <Badge variant="destructive" size="tag">
+          Negativado
+        </Badge>
+      )}
     </span>
   );
 }

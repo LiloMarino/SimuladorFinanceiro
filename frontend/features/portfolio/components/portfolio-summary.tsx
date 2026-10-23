@@ -1,3 +1,6 @@
+import { Link } from "react-router-dom";
+import { Kpi } from "@/shared/components/kpi";
+import { StackedBar } from "@/shared/components/stacked-bar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -10,7 +13,7 @@ import { useSimulation } from "@/shared/hooks/useSimulation";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
 import { GOAL_PERCENT } from "@/shared/lib/goal-metrics";
 import { useEconomicIndicators } from "@/shared/hooks/queries/useEconomicIndicators";
-import { displayMoney, displayMoneyCompact, displayPercent } from "@/shared/lib/utils/display";
+import { displayMoney, displayMoneyCompact, displayPercent, displaySignedMoney } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
 
 const INDICATOR_HINTS = {
@@ -44,6 +47,7 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
     { label: "Caixa", value: portfolio.cash, pct: portfolio.cash_pct, color: "bg-input" },
   ];
   const allInCash = Number(portfolio.invested_value) === 0;
+  const indebted = Number(portfolio.debt) > 0;
 
   return (
     <Card>
@@ -51,7 +55,9 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
         <div className="grid gap-6 lg:grid-cols-[1.1fr_1.5fr_1fr] lg:gap-0">
           {/* Patrimônio */}
           <div className="grid content-start gap-1.5 lg:pr-6">
-            <span className="text-xs font-medium text-muted-foreground">Patrimônio total</span>
+            <span className="text-xs font-medium text-muted-foreground">
+              {indebted ? "Patrimônio líquido" : "Patrimônio total"}
+            </span>
             <div className="flex items-center gap-3">
               <span className="font-mono text-[30px] leading-none font-semibold">
                 {displayMoney(portfolio.total_networth)}
@@ -89,11 +95,7 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
             <span className="text-xs font-medium text-muted-foreground">
               Alocação · investido {displayMoney(portfolio.invested_value)} · {displayPercent(portfolio.invested_pct)}
             </span>
-            <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-muted">
-              {allocation.map((a) => (
-                <span key={a.label} className={a.color} style={{ width: `${Number(a.pct) * 100}%` }} />
-              ))}
-            </div>
+            <StackedBar segments={allocation.map((a) => ({ key: a.label, fraction: Number(a.pct), color: a.color }))} />
             <ul className="grid grid-cols-3 gap-3">
               {allocation.map((a) => (
                 <li key={a.label} className="grid gap-0.5">
@@ -111,6 +113,9 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
           {/* Indicadores */}
           <EconomicIndicators />
         </div>
+
+        {/* Quem deve: o patrimônio líquido é o que sobra dos ativos depois da dívida */}
+        {indebted && <DebtBreakdown portfolio={portfolio} />}
       </CardContent>
     </Card>
   );
@@ -148,6 +153,44 @@ function EconomicIndicators() {
           <span className="font-mono font-semibold">{i.value}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+/** Ativos, dívida e quanto do que a carteira tem é dívida. */
+function DebtBreakdown({ portfolio }: { portfolio: PortfolioState }) {
+  const assets = Number(portfolio.assets_value);
+  const own = Math.max(Number(portfolio.total_networth), 0);
+  const ownShare = assets > 0 ? Math.min(own / assets, 1) : 0;
+  const financedShare = 1 - ownShare;
+
+  return (
+    <div className="mt-6 grid gap-3 border-t pt-5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="grid gap-5 sm:grid-cols-2 sm:gap-12">
+          <Kpi label="Ativos" value={displayMoney(portfolio.assets_value)} note="Ações, renda fixa e caixa" />
+          <Kpi label="Dívida" value={displaySignedMoney(-Number(portfolio.debt))} tone="destructive" note="Empréstimos em aberto" />
+        </div>
+        <Link to="/credit" className="text-[13px] font-semibold text-primary hover:text-primary-hover">
+          Ver crédito →
+        </Link>
+      </div>
+      <StackedBar
+        segments={[
+          { key: "own", fraction: ownShare, color: "bg-primary" },
+          { key: "debt", fraction: financedShare, color: "bg-info-border" },
+        ]}
+      />
+      <ul className="flex flex-wrap gap-x-3.5 gap-y-1 text-xs text-muted-foreground">
+        <li className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-[3px] bg-primary" aria-hidden="true" />
+          Seu, {displayPercent(ownShare, 0)}
+        </li>
+        <li className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-[3px] bg-info-border" aria-hidden="true" />
+          Financiado por dívida, {displayPercent(financedShare, 0)}
+        </li>
+      </ul>
     </div>
   );
 }

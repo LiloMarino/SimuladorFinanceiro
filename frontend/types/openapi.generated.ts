@@ -1024,6 +1024,130 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/credit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter o crédito
+         * @description Retorna a dívida, a nota de risco, a oferta de empréstimo, os empréstimos, as próximas parcelas, o histórico de 12 meses e as sugestões para subir a nota.
+         */
+        get: operations["get_credit_api_credit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credit/quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Simular um empréstimo
+         * @description Calcula parcela, juro no prazo, cronograma completo, alavancagem antes e depois, a nota projetada e quanto passa do limite.
+         */
+        get: operations["quote_loan_api_credit_quote_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credit/loans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Contratar um empréstimo
+         * @description Assina o empréstimo com o juro da nota de hoje, travado até o fim, e credita o valor no caixa.
+         */
+        post: operations["contract_loan_api_credit_loans_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credit/loans/{loan_id}/prepayment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Prévia de pagar antes
+         * @description Mostra as duas formas de amortizar (diminuir o prazo ou a parcela) com o juro economizado de cada uma, e o que custa quitar tudo hoje.
+         */
+        get: operations["preview_prepayment_api_credit_loans__loan_id__prepayment_get"];
+        put?: never;
+        /**
+         * Amortizar um empréstimo
+         * @description Paga uma parte do saldo devedor agora e diminui o prazo ou a parcela.
+         */
+        post: operations["prepay_loan_api_credit_loans__loan_id__prepayment_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credit/loans/{loan_id}/payoff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Quitar um empréstimo
+         * @description Paga o saldo devedor do dia, sem os juros que ainda não correram.
+         */
+        post: operations["payoff_loan_api_credit_loans__loan_id__payoff_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credit/loans/{loan_id}/overdue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pagar a parcela em atraso
+         * @description Paga as parcelas em atraso do empréstimo com a multa de 2% e a mora até hoje.
+         */
+        post: operations["pay_overdue_api_credit_loans__loan_id__overdue_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/status": {
         parameters: {
             query?: never;
@@ -1689,6 +1813,13 @@ export interface components {
             /** Teams */
             teams: components["schemas"]["TeamCompositionDTO"][];
         };
+        /** ContractLoanRequestDTO */
+        ContractLoanRequestDTO: {
+            /** Amount */
+            amount: number | string;
+            /** Term Months */
+            term_months: number;
+        };
         /** CorrelationAssetDTO */
         CorrelationAssetDTO: {
             /** Ticker */
@@ -1825,6 +1956,166 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+        };
+        /**
+         * CreditCostDTO
+         * @description O que o crédito custou ao jogador: só existe para quem já contratou um empréstimo.
+         */
+        CreditCostDTO: {
+            /** Interest Paid */
+            interest_paid: string;
+            /** Paid Installments */
+            paid_installments: number;
+            /** Late Installments */
+            late_installments: number;
+            /** Cost Of Debt */
+            cost_of_debt: string | null;
+        };
+        /**
+         * CreditGrade
+         * @description Nota de risco do jogador, da melhor (AAA) à que fecha o crédito (D).
+         * @enum {string}
+         */
+        CreditGrade: "AAA" | "AA" | "A" | "BBB" | "BB" | "B" | "CCC" | "D";
+        /** CreditInstallmentLateEventDTO */
+        CreditInstallmentLateEventDTO: {
+            /**
+             * Loan Id
+             * Format: uuid
+             */
+            loan_id: string;
+            /** Loan Number */
+            loan_number: number;
+            /** Installment Number */
+            installment_number: number;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Amount */
+            amount: string;
+        };
+        /** CreditInstallmentPaidEventDTO */
+        CreditInstallmentPaidEventDTO: {
+            /** Loan Number */
+            loan_number: number;
+            /** Installment Number */
+            installment_number: number;
+            /** Total Installments */
+            total_installments: number;
+            /** Amount */
+            amount: string;
+        };
+        /**
+         * CreditInstallmentWarningEventDTO
+         * @description Parcela que vence em até 7 dias sem caixa para cobri-la.
+         */
+        CreditInstallmentWarningEventDTO: {
+            /** Loan Number */
+            loan_number: number;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Amount */
+            amount: string;
+            /** Shortfall */
+            shortfall: string;
+        };
+        /** CreditLoanPaidOffEventDTO */
+        CreditLoanPaidOffEventDTO: {
+            /** Loan Number */
+            loan_number: number;
+            /** Amount */
+            amount: string;
+            /** Interest Saved */
+            interest_saved: string;
+        };
+        /**
+         * CreditMonthlySummaryEventDTO
+         * @description O resumo do mês que substitui o aviso de cada parcela nas velocidades altas.
+         */
+        CreditMonthlySummaryEventDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Installments */
+            installments: number;
+            /** Amount */
+            amount: string;
+        };
+        /** CreditOfferDTO */
+        CreditOfferDTO: {
+            /** Available */
+            available: boolean;
+            /** Selic */
+            selic: string;
+            /** Spread */
+            spread: string | null;
+            /** Annual Rate */
+            annual_rate: string | null;
+            /** Best Fixed Income Rate */
+            best_fixed_income_rate: string | null;
+            /** Max Amount */
+            max_amount: string;
+            /** Debt Limit */
+            debt_limit: string;
+            /** Debt Limit Amount */
+            debt_limit_amount: string;
+        };
+        /** CreditOverviewDTO */
+        CreditOverviewDTO: {
+            /** Debt */
+            debt: string;
+            /** Open Loans */
+            open_loans: number;
+            /** Closed Loans */
+            closed_loans: number;
+            /** Networth */
+            networth: string;
+            /** Assets */
+            assets: string;
+            /** Cash */
+            cash: string;
+            /** Leverage */
+            leverage: string | null;
+            /** Next Installments Month */
+            next_installments_month: string | null;
+            /** Next Installments Total */
+            next_installments_total: string;
+            /** Next Installments First */
+            next_installments_first: string | null;
+            /** Next Installments Last */
+            next_installments_last: string | null;
+            /** Cash Covers Next */
+            cash_covers_next: boolean;
+            rating: components["schemas"]["RatingDTO"];
+            offer: components["schemas"]["CreditOfferDTO"];
+            /** Loans */
+            loans: components["schemas"]["LoanDTO"][];
+            /** Upcoming */
+            upcoming: components["schemas"]["UpcomingInstallmentDTO"][];
+            /** History */
+            history: components["schemas"]["MonthPaymentsDTO"][];
+            /** Suggestions */
+            suggestions: components["schemas"]["SuggestionDTO"][];
+            /** Portfolio Return 12M */
+            portfolio_return_12m: string | null;
+        };
+        /** CreditRatingChangedEventDTO */
+        CreditRatingChangedEventDTO: {
+            before: components["schemas"]["CreditGrade"];
+            after: components["schemas"]["CreditGrade"];
+            /** Points */
+            points: number;
+            /** Spread */
+            spread: string | null;
+            /** Debt Limit */
+            debt_limit: string;
         };
         /** DrawdownDTO */
         DrawdownDTO: {
@@ -2155,12 +2446,40 @@ export interface components {
          * @enum {string}
          */
         IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV";
+        /** InstallmentRowDTO */
+        InstallmentRowDTO: {
+            /** Number */
+            number: number;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Interest */
+            interest: string;
+            /** Principal */
+            principal: string;
+            /** Payment */
+            payment: string;
+            /** Balance */
+            balance: string;
+        };
         /** JoinMatchRequest */
         JoinMatchRequest: {
             /** Color */
             color: string;
             /** Team */
             team?: number | null;
+        };
+        /** LadderTierDTO */
+        LadderTierDTO: {
+            grade: components["schemas"]["CreditGrade"];
+            /** Min Points */
+            min_points: number;
+            /** Spread */
+            spread: string | null;
+            /** Debt Limit */
+            debt_limit: string;
         };
         /** LevelChangeDTO */
         LevelChangeDTO: {
@@ -2280,6 +2599,76 @@ export interface components {
             /** Reserve Months */
             reserve_months: string;
         };
+        /** LoanDTO */
+        LoanDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Number */
+            number: number;
+            /** Principal */
+            principal: string;
+            /** Term Months */
+            term_months: number;
+            /** Annual Rate */
+            annual_rate: string;
+            grade: components["schemas"]["CreditGrade"];
+            /**
+             * Contract Date
+             * Format: date
+             */
+            contract_date: string;
+            /** Installment */
+            installment: string;
+            /** Paid Installments */
+            paid_installments: number;
+            /** Total Installments */
+            total_installments: number;
+            /** Balance */
+            balance: string;
+            /** Overdue Charges */
+            overdue_charges: string;
+            /** Next Due */
+            next_due: string | null;
+            /** Overdue */
+            overdue: components["schemas"]["OverdueDTO"][];
+        };
+        /** LoanQuoteDTO */
+        LoanQuoteDTO: {
+            /** Amount */
+            amount: string;
+            /** Term Months */
+            term_months: number;
+            /** Annual Rate */
+            annual_rate: string;
+            /** Monthly Rate */
+            monthly_rate: string;
+            /** Installment */
+            installment: string;
+            /** Total Interest */
+            total_interest: string;
+            /** Total Paid */
+            total_paid: string;
+            /** Due Day */
+            due_day: number;
+            /** Schedule */
+            schedule: components["schemas"]["InstallmentRowDTO"][];
+            /** Leverage Before */
+            leverage_before: string;
+            /** Leverage After */
+            leverage_after: string;
+            projected_grade: components["schemas"]["CreditGrade"];
+            /** Projected Points */
+            projected_points: number;
+            /** Current Debt */
+            current_debt: string;
+            /** Excess */
+            excess: string;
+            /** Cash After */
+            cash_after: string;
+        };
         /** MarketQuoteDTO */
         MarketQuoteDTO: {
             /** Id */
@@ -2354,6 +2743,20 @@ export interface components {
             overall: components["schemas"]["OverallItem"][];
             /** Traffic */
             traffic: components["schemas"]["TrafficItem"][];
+        };
+        /** MonthPaymentsDTO */
+        MonthPaymentsDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** On Time */
+            on_time: number;
+            /** Paid Late */
+            paid_late: number;
+            /** Late */
+            late: number;
         };
         /** MonthlyReturnDTO */
         MonthlyReturnDTO: {
@@ -2522,6 +2925,26 @@ export interface components {
             /** P95 Ms */
             p95_ms: number;
         };
+        /** OverdueDTO */
+        OverdueDTO: {
+            /** Installment Number */
+            installment_number: number;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Days Late */
+            days_late: number;
+            /** Installment */
+            installment: string;
+            /** Fee */
+            fee: string;
+            /** Interest */
+            interest: string;
+            /** Total */
+            total: string;
+        };
         /** OverviewReportDTO */
         OverviewReportDTO: {
             player_grouping: components["schemas"]["PlayerGrouping"];
@@ -2558,6 +2981,11 @@ export interface components {
             total_cash: string;
             /** Total Contribution */
             total_contribution: string;
+            /**
+             * Total Debt
+             * @default 0
+             */
+            total_debt: string;
         };
         /** PeakDTO */
         PeakDTO: {
@@ -2708,6 +3136,8 @@ export interface components {
             weakest_axis: components["schemas"]["ScoreAxis"] | null;
             /** Team Contribution */
             team_contribution: string | null;
+            /** Delinquent */
+            delinquent: boolean;
         };
         /** PlayerReturnsDTO */
         PlayerReturnsDTO: {
@@ -2737,6 +3167,7 @@ export interface components {
             months: number;
             /** Monthly Returns */
             monthly_returns: components["schemas"]["MonthlyReturnDTO"][];
+            credit_cost: components["schemas"]["CreditCostDTO"] | null;
         };
         /** PlayerRiskDTO */
         PlayerRiskDTO: {
@@ -2770,6 +3201,11 @@ export interface components {
             annual_return: string | null;
             /** Days */
             days: number;
+            /** Debt */
+            debt: string;
+            /** Leverage */
+            leverage: string | null;
+            credit_grade: components["schemas"]["CreditGrade"];
         };
         /** PlayerTeamRequest */
         PlayerTeamRequest: {
@@ -2815,6 +3251,12 @@ export interface components {
             fixed_income_networth_pct: string;
             /** Cash Pct */
             cash_pct: string;
+            /** Assets Value */
+            assets_value: string;
+            /** Debt */
+            debt: string;
+            /** Credit Alert */
+            credit_alert: boolean;
             /** Income Tax Paid */
             income_tax_paid: string;
             /** Income Tax Due */
@@ -2851,6 +3293,11 @@ export interface components {
             total_cash: string;
             /** Total Contribution */
             total_contribution: string;
+            /**
+             * Total Debt
+             * @default 0
+             */
+            total_debt: string;
             /** Total Provided */
             total_provided: string;
         };
@@ -2908,6 +3355,45 @@ export interface components {
         PositionUpdateEventDTO: {
             position: components["schemas"]["PositionDTO"];
         };
+        /** PrepayLoanRequestDTO */
+        PrepayLoanRequestDTO: {
+            /** Amount */
+            amount: number | string;
+            mode: components["schemas"]["PrepaymentMode"];
+        };
+        /**
+         * PrepaymentMode
+         * @description O que a amortização faz com a sobra: encurta o prazo ou reduz a parcela.
+         * @enum {string}
+         */
+        PrepaymentMode: "SHORTEN_TERM" | "REDUCE_INSTALLMENT";
+        /** PrepaymentOptionDTO */
+        PrepaymentOptionDTO: {
+            mode: components["schemas"]["PrepaymentMode"];
+            /** Installments Remaining */
+            installments_remaining: number;
+            /** Installment */
+            installment: string;
+            /** Interest Saved */
+            interest_saved: string;
+        };
+        /** PrepaymentPreviewDTO */
+        PrepaymentPreviewDTO: {
+            /** Balance */
+            balance: string;
+            /** Cash */
+            cash: string;
+            shorten_term: components["schemas"]["PrepaymentOptionDTO"] | null;
+            reduce_installment: components["schemas"]["PrepaymentOptionDTO"] | null;
+            /** Payoff Installments */
+            payoff_installments: number;
+            /** Payoff Remaining Payments */
+            payoff_remaining_payments: string;
+            /** Payoff Interest Saved */
+            payoff_interest_saved: string;
+            /** Payoff Amount */
+            payoff_amount: string;
+        };
         /** PreviewPointDTO */
         PreviewPointDTO: {
             /**
@@ -2951,6 +3437,52 @@ export interface components {
          * @enum {string}
          */
         RateIndexType: "CDI" | "IPCA" | "SELIC" | "Prefixado";
+        /** RatingDTO */
+        RatingDTO: {
+            grade: components["schemas"]["CreditGrade"];
+            /** Points */
+            points: number;
+            previous_grade: components["schemas"]["CreditGrade"] | null;
+            /** Previous Points */
+            previous_points: number | null;
+            /**
+             * Next Review
+             * Format: date
+             */
+            next_review: string;
+            leverage: components["schemas"]["RatingLeverageDTO"];
+            volatility: components["schemas"]["RatingVolatilityDTO"];
+            payments: components["schemas"]["RatingPaymentsDTO"];
+            /** Ladder */
+            ladder: components["schemas"]["LadderTierDTO"][];
+        };
+        /** RatingLeverageDTO */
+        RatingLeverageDTO: {
+            /** Points */
+            points: string;
+            /** Max Points */
+            max_points: string;
+            /** Value */
+            value: string;
+        };
+        /** RatingPaymentsDTO */
+        RatingPaymentsDTO: {
+            /** Points */
+            points: string;
+            /** Max Points */
+            max_points: string;
+            /** Late Installments */
+            late_installments: number;
+        };
+        /** RatingVolatilityDTO */
+        RatingVolatilityDTO: {
+            /** Points */
+            points: string;
+            /** Max Points */
+            max_points: string;
+            /** Value */
+            value: string | null;
+        };
         /**
          * RealtimeEventCatalog
          * @description Um campo por nome de evento realtime, tipado para o DTO do payload
@@ -2987,6 +3519,12 @@ export interface components {
             order_book_snapshot: components["schemas"]["OrderBookSnapshotEventDTO"];
             future_recording_progress: components["schemas"]["FutureRecordingProgressEventDTO"];
             achievement_unlocked: components["schemas"]["AchievementUnlockedEventDTO"];
+            credit_installment_paid: components["schemas"]["CreditInstallmentPaidEventDTO"];
+            credit_monthly_summary: components["schemas"]["CreditMonthlySummaryEventDTO"];
+            credit_installment_late: components["schemas"]["CreditInstallmentLateEventDTO"];
+            credit_installment_warning: components["schemas"]["CreditInstallmentWarningEventDTO"];
+            credit_rating_changed: components["schemas"]["CreditRatingChangedEventDTO"];
+            credit_loan_paid_off: components["schemas"]["CreditLoanPaidOffEventDTO"];
         };
         /**
          * ReplacedGeneratedDTO
@@ -3445,6 +3983,8 @@ export interface components {
             total_cash: string;
             /** Total Contribution */
             total_contribution: string;
+            /** Total Debt */
+            total_debt: string;
             /** Total Networth */
             total_networth: string;
             /**
@@ -3563,6 +4103,24 @@ export interface components {
             /** Status */
             status: string;
         };
+        /** SuggestionDTO */
+        SuggestionDTO: {
+            kind: components["schemas"]["SuggestionKind"];
+            target_grade: components["schemas"]["CreditGrade"] | null;
+            /** Amount */
+            amount?: string | null;
+            /** Interest Saved */
+            interest_saved?: string | null;
+            /** Leverage After */
+            leverage_after?: string | null;
+            /** Volatility */
+            volatility?: string | null;
+        };
+        /**
+         * SuggestionKind
+         * @enum {string}
+         */
+        SuggestionKind: "PAYOFF" | "VOLATILITY" | "ON_TIME" | "RECOVER";
         /**
          * TeamCompositionDTO
          * @description Como a equipe dividiu o dinheiro no último dia: média das frações dos membros.
@@ -3772,6 +4330,22 @@ export interface components {
             icon: components["schemas"]["AchievementIcon"];
             /** Secret */
             secret: boolean;
+        };
+        /** UpcomingInstallmentDTO */
+        UpcomingInstallmentDTO: {
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Loan Number */
+            loan_number: number;
+            /** Installment Number */
+            installment_number: number;
+            /** Total Installments */
+            total_installments: number;
+            /** Amount */
+            amount: string;
         };
         /** UpdateSettingsRequest */
         UpdateSettingsRequest: {
@@ -6067,6 +6641,285 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["CorrelationMatrixDTO"];
                 };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_credit_api_credit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreditOverviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    quote_loan_api_credit_quote_get: {
+        parameters: {
+            query: {
+                amount: number | string;
+                term_months: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoanQuoteDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    contract_loan_api_credit_loans_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractLoanRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_prepayment_api_credit_loans__loan_id__prepayment_get: {
+        parameters: {
+            query?: {
+                amount?: number | string;
+            };
+            header?: never;
+            path: {
+                loan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrepaymentPreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    prepay_loan_api_credit_loans__loan_id__prepayment_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrepayLoanRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    payoff_loan_api_credit_loans__loan_id__payoff_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    pay_overdue_api_credit_loans__loan_id__overdue_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                loan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unprocessable Content */
             422: {

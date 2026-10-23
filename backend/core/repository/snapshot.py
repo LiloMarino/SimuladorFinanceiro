@@ -24,11 +24,13 @@ class SnapshotRepository:
         snapshot_date: date,
         total_equity: Decimal,
         total_fixed: Decimal,
+        total_debt: Decimal,
     ) -> SnapshotDTO:
         """
         `total_equity` e `total_fixed` vêm do motor: as ações ao preço negociado na
         simulação, que difere do histórico quando o impacto de preço está ligado, e
-        a renda fixa com o rendimento do dia já acumulado.
+        a renda fixa com o rendimento do dia já acumulado. `total_debt` é o saldo
+        devedor do dia: o patrimônio é o que o jogador tem menos o que deve.
         """
         simulation_id = SimulationManager.get_active_simulation_id()
 
@@ -61,7 +63,7 @@ class SnapshotRepository:
         # --------------------------------------------------
         # 4. NET WORTH
         # --------------------------------------------------
-        total_networth = total_cash + total_equity + total_fixed
+        total_networth = total_cash + total_equity + total_fixed - total_debt
 
         # --------------------------------------------------
         # 5. Persistir snapshot
@@ -73,6 +75,7 @@ class SnapshotRepository:
             total_equity=total_equity,
             total_fixed=total_fixed,
             total_cash=total_cash,
+            total_debt=total_debt,
             total_contribution=total_contribution,
             total_networth=total_networth,
             created_at=datetime.now(UTC),

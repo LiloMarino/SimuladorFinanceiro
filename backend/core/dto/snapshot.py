@@ -17,6 +17,7 @@ class SnapshotDTO(BaseDTO):
     total_fixed: Decimal
     total_cash: Decimal
     total_contribution: Decimal
+    total_debt: Decimal
     total_networth: Decimal
     created_at: datetime
 
@@ -29,6 +30,7 @@ class SnapshotDTO(BaseDTO):
             total_fixed=m.total_fixed,
             total_cash=m.total_cash,
             total_contribution=m.total_contribution,
+            total_debt=m.total_debt,
             total_networth=m.total_networth,
             created_at=m.created_at,
         )

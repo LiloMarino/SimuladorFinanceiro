@@ -27,6 +27,7 @@ import {
   POSITIVE_MONTHS,
   VS_CDI,
 } from "../../lib/metrics";
+import { CreditCostCard } from "./credit-cost-card";
 import { PlayerLineChart, type LineSeries } from "./player-line-chart";
 import type { ChartAxis } from "./player-line-chart/utils";
 import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
@@ -235,8 +236,13 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
       : undefined;
   const seriesSetKey = `${scope}|${focus}|${view}|${chartAxis}|${series.map((s) => s.key).join("|")}`;
 
+  const borrower = data.players.find((p) => isYou(p) && p.credit_cost !== null);
+
   return (
     <div className="grid gap-5">
+      {/* Custo da dívida de quem contratou crédito */}
+      {borrower?.credit_cost && <CreditCostCard player={{ ...borrower, credit_cost: borrower.credit_cost }} />}
+
       <ChartCard
         metric={view === "RETURN" ? CUMULATIVE_RETURN : NETWORTH}
         description={

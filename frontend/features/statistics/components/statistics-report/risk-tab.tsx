@@ -29,6 +29,7 @@ import {
   TIME_UNDERWATER,
   WORST_MONTH,
 } from "../../lib/metrics";
+import { DebtTable } from "./debt-table";
 import { PlayerLineChart, type LineSeries } from "./player-line-chart";
 import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
 
@@ -119,6 +120,11 @@ export function RiskTab({ simulationIds, currentPlayerName, onlyPlayer }: Report
           { metric: SAMPLE_DAYS, value: (r) => r.days },
         ]}
       />
+
+      {/* Dívida e nota de crédito de cada um */}
+      {data.players.some((p) => Number(p.debt) > 0 || p.credit_grade !== "AAA") && (
+        <DebtTable players={data.players} simulationIds={simulationIds} currentPlayerName={currentPlayerName} />
+      )}
     </div>
   );
 }

@@ -14,7 +14,7 @@ class PortfolioDTO(BaseDTO):
     invested_value: Decimal
     variable_income_value: Decimal
     fixed_income_value: Decimal
-    # Frações (0.25 = 25%): investido sobre o patrimônio; RV e RF sobre o investido
+    # Frações (0.25 = 25%): investido sobre os ativos; RV e RF sobre o investido
     invested_pct: Decimal
     variable_income_pct: Decimal
     fixed_income_pct: Decimal
@@ -22,10 +22,15 @@ class PortfolioDTO(BaseDTO):
     capital_provided: Decimal
     total_return_value: Decimal
     total_return_pct: Decimal
-    # Frações do patrimônio em renda variável, renda fixa e caixa (somam 1)
+    # Frações dos ativos em renda variável, renda fixa e caixa (somam 1)
     variable_income_networth_pct: Decimal
     fixed_income_networth_pct: Decimal
     cash_pct: Decimal
+    # Patrimônio é sempre o líquido: caixa, ações e renda fixa menos a dívida
+    assets_value: Decimal
+    debt: Decimal
+    # Parcela em atraso ou prestes a vencer sem caixa para cobri-la
+    credit_alert: bool
     # IR da renda variável: o que já saiu do caixa e o apurado que ainda vai sair
     income_tax_paid: Decimal
     income_tax_due: Decimal

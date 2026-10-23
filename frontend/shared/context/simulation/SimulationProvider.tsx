@@ -5,6 +5,7 @@ import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useNavigate } from "react-router-dom";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useSimulationStatus } from "@/shared/hooks/queries/useSimulationStatus";
+import { CreditNotifications } from "@/shared/notifications/credit-notifications";
 import { LifeNotifications } from "@/shared/notifications/life-notifications";
 import { PlayerActivityReporter } from "./PlayerActivityReporter";
 import { useRealtimeContext } from "@/shared/hooks/useRealtimeContext";
@@ -63,6 +64,8 @@ export function SimulationProvider({ children }: PropsWithChildren) {
     >
       {/* Avisos e renovação da vida financeira do viver de renda */}
       <LifeNotifications />
+      {/* Avisos de parcela, nota e quitação do crédito */}
+      <CreditNotifications />
       {/* Atividade desta aba na sala */}
       <PlayerActivityReporter />
       {children}

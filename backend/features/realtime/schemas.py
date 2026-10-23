@@ -10,6 +10,7 @@ Servem para dois propósitos:
 from datetime import date
 from decimal import Decimal
 from typing import Literal
+from uuid import UUID
 
 from backend.core.dto.achievements import AchievementUnlockedEventDTO
 from backend.core.dto.base import BaseDTO
@@ -23,7 +24,7 @@ from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
-from backend.core.enum import OrderAction, PlayerActivity
+from backend.core.enum import CreditGrade, OrderAction, PlayerActivity
 
 
 class CashUpdateEventDTO(BaseDTO):
@@ -123,6 +124,54 @@ class FutureRecordingProgressEventDTO(BaseDTO):
     total: int
 
 
+class CreditInstallmentPaidEventDTO(BaseDTO):
+    loan_number: int
+    installment_number: int
+    total_installments: int
+    amount: Decimal
+
+
+class CreditMonthlySummaryEventDTO(BaseDTO):
+    """O resumo do mês que substitui o aviso de cada parcela nas velocidades altas."""
+
+    month: date
+    installments: int
+    amount: Decimal
+
+
+class CreditInstallmentLateEventDTO(BaseDTO):
+    loan_id: UUID
+    loan_number: int
+    installment_number: int
+    due_date: date
+    amount: Decimal
+
+
+class CreditInstallmentWarningEventDTO(BaseDTO):
+    """Parcela que vence em até 7 dias sem caixa para cobri-la."""
+
+    loan_number: int
+    due_date: date
+    amount: Decimal
+    shortfall: Decimal
+
+
+class CreditRatingChangedEventDTO(BaseDTO):
+    before: CreditGrade
+    after: CreditGrade
+    points: int
+    # Spread e limite da nota nova; o spread é nulo na nota D
+    spread: Decimal | None
+    debt_limit: Decimal
+
+
+class CreditLoanPaidOffEventDTO(BaseDTO):
+    loan_number: int
+    amount: Decimal
+    # Juro que a quitação antecipada deixou de custar; zero na última parcela
+    interest_saved: Decimal
+
+
 class RealtimeEventCatalog(BaseDTO):
     """
     Um campo por nome de evento realtime, tipado para o DTO do payload
@@ -159,3 +208,9 @@ class RealtimeEventCatalog(BaseDTO):
     order_book_snapshot: OrderBookSnapshotEventDTO
     future_recording_progress: FutureRecordingProgressEventDTO
     achievement_unlocked: AchievementUnlockedEventDTO
+    credit_installment_paid: CreditInstallmentPaidEventDTO
+    credit_monthly_summary: CreditMonthlySummaryEventDTO
+    credit_installment_late: CreditInstallmentLateEventDTO
+    credit_installment_warning: CreditInstallmentWarningEventDTO
+    credit_rating_changed: CreditRatingChangedEventDTO
+    credit_loan_paid_off: CreditLoanPaidOffEventDTO

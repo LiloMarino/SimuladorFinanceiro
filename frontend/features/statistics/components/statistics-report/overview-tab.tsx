@@ -2,6 +2,7 @@ import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
 import { sortNumber } from "@/shared/lib/table-sort";
 import { useState } from "react";
+import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
   Table,
@@ -16,7 +17,7 @@ import { MetricHint } from "@/shared/components/metric-hint";
 import { Progress } from "@/shared/components/ui/progress";
 import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
 import { cn } from "@/shared/lib/utils";
-import { displayMoney, displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
+import { displayNumber, displaySignedMoney, displaySignedPercent } from "@/shared/lib/utils/display";
 import type { OverviewReport, Player } from "@/types";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import {
@@ -390,6 +391,7 @@ function Ranking({
                     simulationIds={simulationIds}
                     isYou={isYou}
                     teamNaming={report.team_naming}
+                    delinquent={p.delinquent}
                   />
                 </TableCell>
                 {comparing ? (
@@ -415,7 +417,11 @@ function Ranking({
                     </span>
                   </TableCell>
                 )}
-                <TableCell numeric>{displayMoney(p.total_networth)}</TableCell>
+                <TableCell numeric>
+                  <span className={cn(Number(p.total_networth) < 0 && "text-destructive")}>
+                    {displaySignedMoney(p.total_networth)}
+                  </span>
+                </TableCell>
                 {showRemaining && (
                   <TableCell numeric>{displayRemainingToGoal(p.criterion_value, report.goal_net_worth)}</TableCell>
                 )}
@@ -468,6 +474,14 @@ function Ranking({
           })}
         </TableBody>
       </Table>
+      {report.players.some((p) => p.delinquent || Number(p.total_networth) < 0) && (
+        <p className="px-(--card-spacing) text-xs text-muted-foreground">
+          <Badge variant="destructive" size="tag">
+            Negativado
+          </Badge>{" "}
+          tem parcela em atraso. Patrimônio em vermelho: deve mais do que tem.
+        </p>
+      )}
     </Card>
   );
 }

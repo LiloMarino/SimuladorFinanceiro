@@ -20,6 +20,7 @@ import {
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { DateField } from "@/shared/components/date-field";
+import { MarkedSlider } from "@/shared/components/marked-slider";
 import {
   DialogBody,
   DialogDescription,
@@ -91,7 +92,6 @@ import {
   TemperatureHint,
 } from "./future-hints";
 import { FuturePreviewPanel } from "./future-preview-panel";
-import { MarkedSlider } from "./marked-slider";
 
 const SHORTCUT_YEARS = [1, 2, 5, 10];
 const PREVIEW_TICKERS = 3;

@@ -46,4 +46,8 @@ export const queryKeys = {
   tickerSearch: (query: string) => ["import-assets", "tickers", query] as const,
   tunnelStatus: () => ["tunnel", "status"] as const,
   achievements: () => ["achievements"] as const,
+  credit: () => ["credit"] as const,
+  creditOverview: () => ["credit", "overview"] as const,
+  loanQuote: (amount: string, termMonths: number) => ["credit", "quote", amount, termMonths] as const,
+  prepaymentPreview: (loanId: string, amount: string) => ["credit", "prepayment", loanId, amount] as const,
 } as const;

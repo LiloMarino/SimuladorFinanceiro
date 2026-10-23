@@ -138,3 +138,18 @@ export type Achievement = components["schemas"]["AchievementDTO"];
 export type AchievementCategory = components["schemas"]["AchievementCategory"];
 export type AchievementIconName = components["schemas"]["AchievementIcon"];
 export type AchievementUnit = components["schemas"]["AchievementUnit"];
+
+// Crédito
+export type CreditOverview = components["schemas"]["CreditOverviewDTO"];
+export type CreditGrade = components["schemas"]["CreditGrade"];
+export type CreditLoan = CreditOverview["loans"][number];
+export type CreditOverdue = CreditLoan["overdue"][number];
+export type CreditRating = CreditOverview["rating"];
+export type CreditLadderTier = CreditRating["ladder"][number];
+export type CreditOffer = CreditOverview["offer"];
+export type CreditSuggestion = CreditOverview["suggestions"][number];
+export type LoanQuote = components["schemas"]["LoanQuoteDTO"];
+export type PrepaymentPreview = components["schemas"]["PrepaymentPreviewDTO"];
+export type PrepaymentMode = components["schemas"]["PrepaymentMode"];
+export type ContractLoanRequest = components["schemas"]["ContractLoanRequestDTO"];
+export type PrepayLoanRequest = components["schemas"]["PrepayLoanRequestDTO"];

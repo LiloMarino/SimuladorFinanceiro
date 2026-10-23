@@ -17,6 +17,8 @@ export interface NavItem {
   goalOnly?: boolean;
   /** O selo mostra o placar de conquistas ("9/24"), com um ponto dourado quando há alguma nova */
   achievementTally?: boolean;
+  /** Ponto vermelho no item enquanto há parcela em atraso ou sem caixa para cobrir */
+  creditAlert?: boolean;
 }
 
 export type RedirectState = {
