@@ -131,7 +131,7 @@
 | **D16** | Estratégias do app no host, personalização pela API | [F7](#f7), [F8](#f8), [F108](#f108) | ✅ |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ✅ |
-| [**F9**](#f9) | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | — | ✅ |
+| [**F9**](#f9) | Estratégias prontas de exemplo | — | ✅ |
 | [**F16**](#f16) | Bots na sala | — | ✅ |
 | [**F71**](#f71) | Renda fixa com liquidez diária | — | ✅ |
 | [**F75**](#f75) | Encerramento do loop sem thread viva nem simulação presa | — | ✅ |
@@ -213,7 +213,7 @@
 | --- | --- | --- | --- |
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | [F7](#f7) | ✅ |
-| [**F9**](#f9) | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | [F8](#f8) | ✅ |
+| [**F9**](#f9) | Estratégias prontas de exemplo | [F8](#f8) | ✅ |
 
 </details>
 
@@ -366,7 +366,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Link de convite pela internet no lobby | N2 | — | M3 | [F5](#f5) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F8** | Modo automático: estratégia do jogador roda a cada tick | N4 | D16, D8 | M4 | [F7](#f7) | Médio | Médio | Alto | Bom | ✅ Concluído |
-| **F9** | Serve N4. Cinco estratégias prontas, subclasses da classe base com parâmetros editáveis na tela: as referências comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta (60% ações e 40% renda fixa de liquidez diária, limite de 5 p.p. por item, o aporte vai para o lado abaixo da meta); e as táticas IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês). O bloco "O que ela olha" se generalizou: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor. | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ✅ Concluído |
+| **F9** | Estratégias prontas de exemplo | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | [F8](#f8) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F16** | Bots na sala | N8 | D8 | M6 | [F8](#f8) | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | [F16](#f16) | Alto | Alto | Alto | Bom | ⏳ Pendente |
@@ -414,7 +414,13 @@
 Gatilho: a F7 está concluída; pode começar.
 
 <a id="f9"></a>
-**F9 — Estratégias prontas de exemplo.** Estratégias simples e conhecidas, implementadas como subclasses da classe base com parâmetros editáveis na UI. Duas famílias: **referências**, para responder se uma estratégia bate o "não fazer nada" — comprar e segurar um ETF de índice (BOVA11), 100% no CDI e rebalanceamento por meta (ex.: 60% ações / 40% renda fixa, voltando à meta todo mês, como o rebalanceamento do [Finance Manager](https://github.com/LiloMarino/Finance-Manager)); e **táticas**, as três do mock atual de `strategies.tsx` — cruzamento de médias móveis de 50 e 200 dias, RSI (compra abaixo de 30, vende acima de 70) e rompimento de máxima com volume — mais momentum (compra os ativos que mais subiram nos últimos 12 meses). Servem para jogar no automático e como bots (F16) sem escrever código, como exemplo comentado para o guia da F10 e como teste da própria classe base: o rebalanceamento e o 100% CDI só cabem se a estratégia enxergar caixa, posições e renda fixa, e cada estratégia que não couber limpa aponta o que falta na API da F8. O rebalanceamento só tira dinheiro da renda fixa depois da F71: até lá, a renda fixa só volta ao caixa no vencimento, e a estratégia rebalanceia pelo que vence e pelo caixa.
+**F9 — Estratégias prontas de exemplo.** Serve N4. Cinco estratégias simples e conhecidas, subclasses da classe base, com parâmetros editáveis na tela. Duas famílias: **referências**, para responder se uma estratégia bate o "não fazer nada", e **táticas**, para jogar no automático e como bots (F16) sem escrever código, como exemplo comentado para o guia da F10 e como teste da própria classe base.
+
+- **Referências.** Comprar e segurar (BOVA11, ou a ação mais negociada se a partida não o tem) e rebalanceamento por meta, como o rebalanceamento do [Finance Manager](https://github.com/LiloMarino/Finance-Manager): 60% em ações e 40% em renda fixa de liquidez diária, com limite de 5 p.p. por item; o aporte vai para o lado abaixo da meta.
+- **Táticas.** IFR (compra ao cruzar abaixo do nível de compra, vende ao cruzar acima do de venda), rompimento com volume (compra ao passar a máxima dos últimos dias com volume acima da média, vende abaixo da mínima de saída) e momentum de 12 meses (as 3 de maior retorno, trocadas no 1º pregão do mês).
+- **Bloco "O que ela olha".** Generalizado para cada estratégia: gráfico com 2º painel e faixas para o IFR, canal de máxima e mínima no rompimento, ranking em tabela no momentum e barras de atual × meta no rebalanceamento. A dica do termo técnico de cada estratégia vem do servidor.
+
+Gatilho: F8 concluída.
 
 <a id="f10"></a>
 **F10 — Guia de como escrever uma estratégia.** Origem: #49. Página no Docusaurus (grupo "Desenvolvimento"): como acrescentar uma estratégia ao app, com a classe base, o contexto que ela recebe a cada tick, como declarar nome e parâmetros e onde registrá-la para aparecer na página de Estratégias, nos bots e no backtest; uma das estratégias da F9 comentada linha a linha; e os limites (uma exceção devolve o jogador ao manual, o estado interno não volta na retomada). Quem não quer mexer no código do app tem o bot pela API (F108). Gatilho: F8 concluída — a API da classe base só fica estável depois dela.
