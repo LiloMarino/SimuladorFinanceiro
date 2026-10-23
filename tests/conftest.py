@@ -8,7 +8,7 @@ from decimal import Decimal
 import pandas as pd
 import pytest
 from sqlalchemy import Engine, create_engine
-from sqlalchemy.engine import make_url
+from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
@@ -20,7 +20,12 @@ from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import AssetClass, DataOrigin, IndicatorSeries, PlayerGrouping
-from backend.core.migration import drop_databases, ensure_database, migrate
+from backend.core.migration import (
+    copy_database,
+    drop_databases,
+    ensure_database,
+    migrate,
+)
 from backend.core.models.models import StockPriceHistory
 from backend.core.repository.economic import IndicatorHistory
 from backend.core.runtime.event_manager import EventManager
@@ -76,41 +81,55 @@ def indicators(monkeypatch: pytest.MonkeyPatch) -> SetIndicator:
     return _set
 
 
-@pytest.fixture
-def pg_url() -> Iterator[str]:
-    """Banco descartável no mesmo servidor do .env, apagado no fim."""
+def _scratch_url(server: URL) -> URL:
+    return server.set(database=f"simfin_test_{uuid.uuid4().hex[:8]}")
+
+
+@pytest.fixture(scope="session")
+def pg_server() -> URL:
+    """O servidor do .env; cada teste e cada modelo ganha um banco próprio nele."""
     if not config.env.postgres_url:
         pytest.skip("POSTGRES_DATABASE_URL não configurada")
-    url = make_url(config.env.postgres_url).set(
-        database=f"simfin_test_{uuid.uuid4().hex[:8]}"
-    )
+    return make_url(config.env.postgres_url)
+
+
+@pytest.fixture(scope="session")
+def migrated_template(pg_server: URL) -> Iterator[URL]:
+    """Banco no head, migrado uma vez por sessão; os testes recebem cópias dele."""
+    url = pg_server.set(database=f"simfin_tpl_{uuid.uuid4().hex[:8]}")
     try:
         ensure_database(url)
     except OperationalError:
         pytest.skip("PostgreSQL indisponível")
-    yield url.render_as_string(hide_password=False)
-    drop_databases(url, [str(url.database)])
+    try:
+        migrate(url.render_as_string(hide_password=False))
+        yield url
+    finally:
+        drop_databases(url, [str(url.database)])
 
 
-@pytest.fixture
-def engine(pg_url: str) -> Iterator[Engine]:
-    engine = create_engine(pg_url, poolclass=NullPool)
-    yield engine
-    engine.dispose()
-
-
-@pytest.fixture
-def database(pg_url: str, engine: Engine, monkeypatch: pytest.MonkeyPatch) -> Engine:
-    """Banco descartável no head, servindo aos repositórios no lugar do .env."""
-    migrate(pg_url)
+@pytest.fixture(scope="session")
+def market_template(pg_server: URL, migrated_template: URL) -> Iterator[URL]:
+    """
+    O histórico sintético de 2000 a 2004 gravado como real, com os ativos
+    classificados, montado uma vez por sessão sobre uma cópia do banco migrado.
+    """
+    url = pg_server.set(database=f"simfin_mkt_{uuid.uuid4().hex[:8]}")
+    copy_database(migrated_template, str(url.database))
+    engine = create_engine(url, poolclass=NullPool)
     factory = sessionmaker(bind=engine, autocommit=False, autoflush=False)
-    monkeypatch.setattr(transactional_method, "get_session_factory", lambda: factory)
-    return engine
+    try:
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setattr(transactional_method, "get_session_factory", lambda: factory)
+            _store_market()
+        engine.dispose()
+        yield url
+    finally:
+        engine.dispose()
+        drop_databases(url, [str(url.database)])
 
 
-@pytest.fixture
-def market(database: Engine) -> Engine:
-    """O histórico sintético de 2000 a 2004 gravado como real, com os ativos classificados."""
+def _store_market() -> None:
     history = build_history()
     for ticker, asset in history.assets.items():
         stock = repository.stock.add_stock(ticker, ticker, AssetClass.STOCK)
@@ -146,7 +165,62 @@ def market(database: Engine) -> Engine:
                 )
             ],
         )
-    return database
+
+
+def _serve_copy_of(
+    template: URL, server: URL, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[Engine]:
+    """
+    Cópia descartável do modelo, servindo aos repositórios no lugar do .env. O pool
+    reaproveita as conexões durante o teste e é fechado antes de apagar o banco.
+    """
+    url = _scratch_url(server)
+    copy_database(template, str(url.database))
+    engine = create_engine(url)
+    factory = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+    monkeypatch.setattr(transactional_method, "get_session_factory", lambda: factory)
+    try:
+        yield engine
+    finally:
+        engine.dispose()
+        drop_databases(url, [str(url.database)])
+
+
+@pytest.fixture
+def pg_url(pg_server: URL) -> Iterator[str]:
+    """Banco vazio e descartável no mesmo servidor do .env, apagado no fim."""
+    url = _scratch_url(pg_server)
+    try:
+        ensure_database(url)
+    except OperationalError:
+        pytest.skip("PostgreSQL indisponível")
+    yield url.render_as_string(hide_password=False)
+    drop_databases(url, [str(url.database)])
+
+
+@pytest.fixture
+def engine(pg_url: str) -> Iterator[Engine]:
+    # Sem pool: os testes de migration copiam o banco, e a cópia exige que
+    # nenhuma conexão fique aberta nele.
+    engine = create_engine(pg_url, poolclass=NullPool)
+    yield engine
+    engine.dispose()
+
+
+@pytest.fixture
+def database(
+    pg_server: URL, migrated_template: URL, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[Engine]:
+    """Banco descartável no head, servindo aos repositórios no lugar do .env."""
+    yield from _serve_copy_of(migrated_template, pg_server, monkeypatch)
+
+
+@pytest.fixture
+def market(
+    pg_server: URL, market_template: URL, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[Engine]:
+    """Banco descartável com o histórico sintético já gravado."""
+    yield from _serve_copy_of(market_template, pg_server, monkeypatch)
 
 
 def _days_of(data: pd.Series | pd.DataFrame) -> list[date]:
