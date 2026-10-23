@@ -9,12 +9,14 @@ import type {
   OverviewReport,
   ReturnsReport,
   RiskReport,
+  ScoreHistoryReport,
 } from "@/types";
 
 interface StatisticsReports {
   overview: OverviewReport;
   returns: ReturnsReport;
   risk: RiskReport;
+  "score-history": ScoreHistoryReport;
   composition: CompositionReport;
   operations: OperationsReport;
   highlights: Highlights;

@@ -16,11 +16,13 @@ from backend.core.dto.statistics_report import (
     PlayerOperationsDTO,
     PlayerReturnsDTO,
     PlayerRiskDTO,
+    PlayerScoreHistoryDTO,
     SeriesPointDTO,
     TeamCompositionDTO,
     TeamOperationsDTO,
     TeamReturnsDTO,
     TeamRiskDTO,
+    TeamScoreHistoryDTO,
 )
 
 
@@ -35,7 +37,13 @@ def total(values: Iterable[Decimal | int]) -> Decimal:
 
 
 def group_by_team[
-    T: (PlayerReturnsDTO, PlayerRiskDTO, PlayerCompositionDTO, PlayerOperationsDTO)
+    T: (
+        PlayerReturnsDTO,
+        PlayerRiskDTO,
+        PlayerCompositionDTO,
+        PlayerOperationsDTO,
+        PlayerScoreHistoryDTO,
+    )
 ](
     players: list[T],
 ) -> dict[int, list[T]]:
@@ -72,6 +80,19 @@ def team_returns(players: list[PlayerReturnsDTO]) -> list[TeamReturnsDTO]:
             months_above_cdi=mean(m.months_above_cdi for m in members) or Decimal(0),
             positive_months=mean(m.positive_months for m in members) or Decimal(0),
             months=max(m.months for m in members),
+        )
+        for team, members in group_by_team(players).items()
+    ]
+
+
+def team_score_history(
+    players: list[PlayerScoreHistoryDTO],
+) -> list[TeamScoreHistoryDTO]:
+    return [
+        TeamScoreHistoryDTO(
+            team=team,
+            simulation_id=members[0].simulation_id,
+            points=mean_series([m.points for m in members]),
         )
         for team, members in group_by_team(players).items()
     ]

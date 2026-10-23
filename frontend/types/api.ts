@@ -72,6 +72,7 @@ export type PlayerRef = Pick<
 >;
 export type ReturnsReport = components["schemas"]["ReturnsReportDTO"];
 export type RiskReport = components["schemas"]["RiskReportDTO"];
+export type ScoreHistoryReport = components["schemas"]["ScoreHistoryReportDTO"];
 export type CompositionReport = components["schemas"]["CompositionReportDTO"];
 export type OperationsReport = components["schemas"]["OperationsReportDTO"];
 export type Player = OverviewReport["players"][number];

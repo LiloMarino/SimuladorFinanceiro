@@ -12,6 +12,7 @@ from backend.core.dto.statistics_report import (
     OverviewReportDTO,
     ReturnsReportDTO,
     RiskReportDTO,
+    ScoreHistoryReportDTO,
     StatisticsNextUpdateDTO,
 )
 from backend.core.dto.strategy import StrategyLogPageDTO
@@ -24,6 +25,7 @@ from backend.features.statistics.report import (
     build_overview_report,
     build_returns_report,
     build_risk_report,
+    build_score_history_report,
 )
 
 statistics_router = APIRouter(prefix="/api", tags=["Statistics"])
@@ -71,6 +73,16 @@ def get_returns(simulation_ids: SimulationIds):
 )
 def get_risk(simulation_ids: SimulationIds):
     return build_risk_report(simulation_ids)
+
+
+@statistics_router.get(
+    "/statistics/score-history",
+    response_model=ScoreHistoryReportDTO,
+    summary="Estatísticas: nota ao longo da partida",
+    description="A nota geral de cada jogador (e de cada equipe) no fim de cada mês, a partir do primeiro mês com nota; o último ponto é a nota de hoje.",
+)
+def get_score_history(simulation_ids: SimulationIds):
+    return build_score_history_report(simulation_ids)
 
 
 @statistics_router.get(

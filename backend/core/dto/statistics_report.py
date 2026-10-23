@@ -225,6 +225,27 @@ class ReturnsReportDTO(TeamReportDTO):
     benchmarks: list[BenchmarkDTO]
 
 
+# Nota ao longo da partida
+
+
+class PlayerScoreHistoryDTO(PlayerRefDTO):
+    # A nota total no fim de cada mês, a partir do primeiro mês com nota
+    points: list[SeriesPointDTO]
+
+
+class TeamScoreHistoryDTO(BaseDTO):
+    """A nota da equipe em cada mês: a média dos membros que já têm nota nele."""
+
+    team: int
+    simulation_id: int
+    points: list[SeriesPointDTO]
+
+
+class ScoreHistoryReportDTO(TeamReportDTO):
+    players: list[PlayerScoreHistoryDTO]
+    teams: list[TeamScoreHistoryDTO]
+
+
 # Risco
 
 

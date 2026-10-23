@@ -2638,6 +2638,63 @@
         }
       }
     },
+    "/api/statistics/score-history": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "Estatísticas: nota ao longo da partida",
+        "description": "A nota geral de cada jogador (e de cada equipe) no fim de cada mês, a partir do primeiro mês com nota; o último ponto é a nota de hoje.",
+        "operationId": "get_score_history_api_statistics_score_history_get",
+        "parameters": [
+          {
+            "name": "simulation_ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "minItems": 1,
+              "title": "Simulation Ids"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScoreHistoryReportDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/statistics/composition": {
       "get": {
         "tags": [
@@ -10737,6 +10794,60 @@
         ],
         "title": "PlayerRiskDTO"
       },
+      "PlayerScoreHistoryDTO": {
+        "properties": {
+          "player_nickname": {
+            "type": "string",
+            "title": "Player Nickname"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "simulation_id": {
+            "type": "integer",
+            "title": "Simulation Id"
+          },
+          "simulation_name": {
+            "type": "string",
+            "title": "Simulation Name"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team"
+          },
+          "is_bot": {
+            "type": "boolean",
+            "title": "Is Bot"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesPointDTO"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "player_nickname",
+          "color",
+          "simulation_id",
+          "simulation_name",
+          "team",
+          "is_bot",
+          "points"
+        ],
+        "title": "PlayerScoreHistoryDTO"
+      },
       "PlayerTeamRequest": {
         "properties": {
           "team": {
@@ -12190,6 +12301,39 @@
           "axes"
         ],
         "title": "ScoreDTO"
+      },
+      "ScoreHistoryReportDTO": {
+        "properties": {
+          "player_grouping": {
+            "$ref": "#/components/schemas/PlayerGrouping"
+          },
+          "team_naming": {
+            "$ref": "#/components/schemas/TeamNaming"
+          },
+          "players": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerScoreHistoryDTO"
+            },
+            "type": "array",
+            "title": "Players"
+          },
+          "teams": {
+            "items": {
+              "$ref": "#/components/schemas/TeamScoreHistoryDTO"
+            },
+            "type": "array",
+            "title": "Teams"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "player_grouping",
+          "team_naming",
+          "players",
+          "teams"
+        ],
+        "title": "ScoreHistoryReportDTO"
       },
       "ScoreMetric": {
         "type": "string",
@@ -14962,6 +15106,34 @@
         ],
         "title": "TeamRiskDTO",
         "description": "Métricas de risco da equipe: média simples dos membros em cada uma."
+      },
+      "TeamScoreHistoryDTO": {
+        "properties": {
+          "team": {
+            "type": "integer",
+            "title": "Team"
+          },
+          "simulation_id": {
+            "type": "integer",
+            "title": "Simulation Id"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesPointDTO"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "team",
+          "simulation_id",
+          "points"
+        ],
+        "title": "TeamScoreHistoryDTO",
+        "description": "A nota da equipe em cada mês: a média dos membros que já têm nota nele."
       },
       "TickerSuggestionDTO": {
         "properties": {

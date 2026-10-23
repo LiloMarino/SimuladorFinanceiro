@@ -15,6 +15,7 @@ from backend.features.statistics.score import (
     MIN_SCORE_DAYS,
     build_score,
     player_score,
+    score_history,
 )
 from tests.conftest import SetIndicator
 
@@ -111,6 +112,45 @@ def test_score_waits_for_the_minimum_sample(indicators: SetIndicator):
 
     assert player_score(short) is None
     assert player_score(enough) is not None
+
+
+def oscillating(days: int) -> list[str]:
+    """Patrimônio que sobe e desce, para a nota mudar de um mês para outro."""
+    return [str(10000 + (i % 7) * 37 + i * 3) for i in range(days)]
+
+
+def test_score_history_ends_at_todays_score(indicators: SetIndicator):
+    """O último ponto é a nota sobre todos os snapshots, no último dia."""
+    days = history(oscillating(150))
+    score = player_score(days)
+
+    points = score_history(days)
+
+    assert score is not None
+    assert points[-1].date == days[-1].snapshot_date
+    assert points[-1].value == score.total
+
+
+def test_score_history_has_one_point_per_month_from_the_first_score(
+    indicators: SetIndicator,
+):
+    """
+    150 dias desde 01/01/2020 vão até 29/05. A nota pede 63 retornos (o índice 63,
+    04/03), então janeiro e fevereiro ficam de fora: fim de março, de abril e o
+    último dia.
+    """
+    points = score_history(history(oscillating(150)))
+
+    assert [p.date for p in points] == [
+        date(2020, 3, 31),
+        date(2020, 4, 30),
+        date(2020, 5, 29),
+    ]
+
+
+def test_score_history_is_empty_before_the_minimum_sample(indicators: SetIndicator):
+    assert score_history(history(["10000"] * MIN_SCORE_DAYS)) == []
+    assert len(score_history(history(["10000"] * (MIN_SCORE_DAYS + 1)))) == 1
 
 
 def test_ranking_puts_players_without_score_last(indicators: SetIndicator):

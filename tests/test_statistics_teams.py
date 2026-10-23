@@ -13,16 +13,18 @@ from backend.core.dto.statistics_report import (
     MonthlyVolumeDTO,
     PlayerOperationsDTO,
     PlayerReturnsDTO,
+    PlayerScoreHistoryDTO,
     SeriesPointDTO,
 )
 from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.features.statistics.ranking import build_overview
-from backend.features.statistics.score import MIN_SCORE_DAYS
+from backend.features.statistics.score import MIN_SCORE_DAYS, score_history
 from backend.features.statistics.teams import (
     mean,
     mean_series,
     team_operations,
     team_returns,
+    team_score_history,
 )
 from tests.conftest import SetIndicator
 
@@ -64,6 +66,33 @@ def member(
 
 def teams_of(report):
     return {t.team: t for t in report.teams}
+
+
+def test_team_score_history_ends_at_the_team_score(indicators: SetIndicator):
+    """O último ponto da equipe é a nota dela no ranking, com quem ainda não tem nota fora."""
+    players = [
+        member("Ana", 1, days=[str(10000 + i * 5) for i in range(100)]),
+        member("Bia", 1, days=[str(10000 + (i % 5) * 40) for i in range(100)]),
+        member("Caio", 1, days=["10000", "12000"]),
+    ]
+    team = teams_of(build_overview(players, in_teams=True))[1]
+
+    entries = [
+        PlayerScoreHistoryDTO(
+            player_nickname=p.player_nickname,
+            color=p.color,
+            simulation_id=p.simulation_id,
+            simulation_name=p.simulation_name,
+            team=p.team,
+            is_bot=p.is_bot,
+            points=score_history(p.history),
+        )
+        for p in players
+    ]
+    [series] = team_score_history(entries)
+
+    assert team.score is not None
+    assert series.points[-1].value == team.score.total
 
 
 def test_team_value_is_the_mean_of_its_members():

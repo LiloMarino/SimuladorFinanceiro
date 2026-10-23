@@ -924,6 +924,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/statistics/score-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estatísticas: nota ao longo da partida
+         * @description A nota geral de cada jogador (e de cada equipe) no fim de cada mês, a partir do primeiro mês com nota; o último ponto é a nota de hoje.
+         */
+        get: operations["get_score_history_api_statistics_score_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/statistics/composition": {
         parameters: {
             query?: never;
@@ -3701,6 +3721,23 @@ export interface components {
             leverage: string | null;
             credit_grade: components["schemas"]["CreditGrade"];
         };
+        /** PlayerScoreHistoryDTO */
+        PlayerScoreHistoryDTO: {
+            /** Player Nickname */
+            player_nickname: string;
+            /** Color */
+            color: string;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Simulation Name */
+            simulation_name: string;
+            /** Team */
+            team: number | null;
+            /** Is Bot */
+            is_bot: boolean;
+            /** Points */
+            points: components["schemas"]["SeriesPointDTO"][];
+        };
         /** PlayerTeamRequest */
         PlayerTeamRequest: {
             /** Team */
@@ -4219,6 +4256,15 @@ export interface components {
             total: string;
             /** Axes */
             axes: components["schemas"]["ScoreAxisDTO"][];
+        };
+        /** ScoreHistoryReportDTO */
+        ScoreHistoryReportDTO: {
+            player_grouping: components["schemas"]["PlayerGrouping"];
+            team_naming: components["schemas"]["TeamNaming"];
+            /** Players */
+            players: components["schemas"]["PlayerScoreHistoryDTO"][];
+            /** Teams */
+            teams: components["schemas"]["TeamScoreHistoryDTO"][];
         };
         /** @enum {string} */
         ScoreMetric: "return_over_cdi" | "return_over_ibov" | "max_drawdown" | "annual_volatility" | "time_underwater" | "worst_month" | "months_above_cdi" | "positive_months" | "sharpe_ratio" | "sortino_ratio";
@@ -5160,6 +5206,18 @@ export interface components {
             worst_month: string | null;
             /** Annual Return */
             annual_return: string | null;
+        };
+        /**
+         * TeamScoreHistoryDTO
+         * @description A nota da equipe em cada mês: a média dos membros que já têm nota nele.
+         */
+        TeamScoreHistoryDTO: {
+            /** Team */
+            team: number;
+            /** Simulation Id */
+            simulation_id: number;
+            /** Points */
+            points: components["schemas"]["SeriesPointDTO"][];
         };
         /** TickerSuggestionDTO */
         TickerSuggestionDTO: {
@@ -7349,6 +7407,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RiskReportDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_score_history_api_statistics_score_history_get: {
+        parameters: {
+            query: {
+                simulation_ids: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScoreHistoryReportDTO"];
                 };
             };
             /** @description Unprocessable Content */

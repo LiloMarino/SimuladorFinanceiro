@@ -267,6 +267,17 @@ export const SCORE: MetricInfo = {
   format: (value) => displayNumber(String(value), 0),
 };
 
+export const SCORE_HISTORY: MetricInfo = {
+  label: "Nota ao longo da partida",
+  description: "A nota de cada um no fim de cada mês: onde duas linhas se cruzam, alguém passou alguém",
+  definition:
+    "Em cada fim de mês, a nota é recalculada só com o que tinha acontecido até ali, pela mesma conta da nota de hoje. A linha começa no primeiro mês com 63 pregões, e o último ponto é a nota que aparece no ranking.",
+  example: "Ex.: 280 em março, 310 em abril e 295 em maio → a nota subiu 30 pontos em abril e devolveu 15 em maio.",
+  reading:
+    "Linha subindo é desempenho melhorando. ~100 por eixo é bom, então ~400 é bom em tudo; o total não tem teto.",
+  format: (value) => displayNumber(String(value), 0),
+};
+
 export const RETURN_OVER_CDI: MetricInfo = {
   label: "Retorno acima do CDI",
   description: "Retorno anual menos o CDI anual do mesmo período",

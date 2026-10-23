@@ -16,6 +16,7 @@ from backend.core.dto.statistics_report import (
     ScoreDTO,
     ScoreMetric,
     ScoreMetricDTO,
+    SeriesPointDTO,
 )
 from backend.features.statistics import returns, risk
 
@@ -109,6 +110,27 @@ def player_score(history: list[PatrimonialHistoryDTO]) -> ScoreDTO | None:
             "sortino_ratio": risk.sortino_ratio(days),
         }
     )
+
+
+def score_history(history: list[PatrimonialHistoryDTO]) -> list[SeriesPointDTO]:
+    """
+    A nota total no último snapshot de cada mês, calculada só com os snapshots até
+    ele; o último ponto é o último snapshot, então é a nota de `player_score` hoje.
+    Os meses antes de 63 retornos ficam de fora.
+    """
+    cuts = [
+        i
+        for i, h in enumerate(history)
+        if i == len(history) - 1
+        or (h.snapshot_date.year, h.snapshot_date.month)
+        != (history[i + 1].snapshot_date.year, history[i + 1].snapshot_date.month)
+    ]
+    scores = [(history[i].snapshot_date, player_score(history[: i + 1])) for i in cuts]
+    return [
+        SeriesPointDTO(date=day, value=score.total)
+        for day, score in scores
+        if score is not None
+    ]
 
 
 def _points(band: Band, value: Decimal | None) -> Decimal | None:

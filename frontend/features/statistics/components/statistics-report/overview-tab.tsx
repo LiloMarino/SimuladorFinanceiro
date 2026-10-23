@@ -35,6 +35,7 @@ import { playerKey, playerLabel } from "../../lib/player-label";
 import { visibleRankingRows } from "../../lib/ranking-scope";
 import { BotLogCard } from "./bot-log-card";
 import { PlayerScoreCard } from "./player-score-card";
+import { ScoreHistoryCard } from "./score-history-card";
 import { PlayerCell, PlayerToggle, TabStatus, type ReportProps } from "./shared";
 import { TeamHeadline, TeamRanking } from "./team-ranking";
 import { TeamScore } from "./team-score";
@@ -69,6 +70,9 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
           )}
         />
         {botLogCard}
+        {simulationIds.length === 1 && (
+          <ScoreHistoryCard simulationIds={simulationIds} currentPlayerName={currentPlayerName} onlyPlayer={onlyPlayer} />
+        )}
         <TeamScore report={data} currentPlayerName={currentPlayerName} />
       </div>
     );
@@ -86,6 +90,9 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
         onOpenBotLog={setBotLog}
       />
       {botLogCard}
+      {simulationIds.length === 1 && (
+        <ScoreHistoryCard simulationIds={simulationIds} currentPlayerName={currentPlayerName} onlyPlayer={onlyPlayer} />
+      )}
       {data.players.length > 0 && (
         <ScoreAxes
           report={data}

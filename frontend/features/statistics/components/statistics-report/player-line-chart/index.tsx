@@ -18,6 +18,8 @@ interface PlayerLineChartProps {
   xTickFormat?: (x: number) => string;
   /** Posições fixas das marcas do eixo X, no lugar das automáticas */
   xTicks?: number[];
+  /** O que aparece quando nenhuma série tem ponto */
+  emptyMessage?: string;
 }
 
 // A altura do gráfico e a do eixo X são fixas: com elas, o rótulo do fim de cada linha cai na posição exata
@@ -28,14 +30,22 @@ const PLOT_HEIGHT = CHART_HEIGHT - MARGIN.top - X_AXIS_HEIGHT;
 const LABEL_SPACING = 15;
 
 /** Uma linha por série ao longo das datas, com o nome no fim de cada uma e a legenda clicável embaixo. */
-export function PlayerLineChart({ series, format, axisFormat, axis = "date", xTickFormat, xTicks }: PlayerLineChartProps) {
+export function PlayerLineChart({
+  series,
+  format,
+  axisFormat,
+  axis = "date",
+  xTickFormat,
+  xTicks,
+  emptyMessage = "Nenhum dado disponível",
+}: PlayerLineChartProps) {
   const { visible, toggle } = useStaticChartVisibility(series);
   const data = buildChartData(series, axis);
 
   if (!data.length) {
     return (
       <div className="flex h-72 items-center justify-center rounded-[10px] border border-dashed border-input text-sm text-muted-foreground">
-        Nenhum dado disponível
+        {emptyMessage}
       </div>
     );
   }
