@@ -158,6 +158,21 @@ class GameType(Enum):
     FINANCIAL_INDEPENDENCE = "FINANCIAL_INDEPENDENCE"
 
 
+class PresetRuleGroup(Enum):
+    """As regras de um preset agrupadas como o painel as mostra."""
+
+    PERIOD = "PERIOD"
+    STARTING_CASH = "STARTING_CASH"
+    MONTHLY_CONTRIBUTION = "MONTHLY_CONTRIBUTION"
+    GROUPING = "GROUPING"
+    GAME_TYPE = "GAME_TYPE"
+    VICTORY = "VICTORY"
+    GOAL = "GOAL"
+    LIFE = "LIFE"
+    ASSISTANCES = "ASSISTANCES"
+    PRICE_IMPACT = "PRICE_IMPACT"
+
+
 class AchievementCategory(Enum):
     FIRST_STEPS = "FIRST_STEPS"
     WEALTH = "WEALTH"

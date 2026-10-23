@@ -41,17 +41,20 @@ function DropdownMenuContent({
   );
 }
 
+/** `selected`: o item que está valendo; `action`: chamada para outra tela, em destaque; `rich`: item de mais de uma linha (nome e resumo). */
 function DropdownMenuItem({
   className,
   variant = "default",
+  size = "default",
   ...props
-}: MenuPrimitive.Item.Props & { variant?: "default" | "destructive" }) {
+}: MenuPrimitive.Item.Props & { variant?: "default" | "destructive" | "selected" | "action"; size?: "default" | "rich" }) {
   return (
     <MenuPrimitive.Item
       data-slot="dropdown-menu-item"
       data-variant={variant}
+      data-size={size}
       className={cn(
-        "flex h-8.5 cursor-pointer items-center gap-2 rounded-md px-2.5 text-[13px] outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-muted data-[variant=destructive]:text-destructive [&>svg]:size-3.5 [&>svg]:shrink-0",
+        "flex h-8.5 cursor-pointer items-center gap-2 rounded-md px-2.5 text-[13px] outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-muted data-[size=rich]:h-auto data-[size=rich]:items-start data-[size=rich]:py-2 data-[variant=destructive]:text-destructive data-[variant=action]:font-medium data-[variant=action]:text-primary data-[variant=selected]:bg-info-soft [&>svg]:size-3.5 [&>svg]:shrink-0",
         className,
       )}
       {...props}

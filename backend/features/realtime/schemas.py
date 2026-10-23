@@ -23,6 +23,7 @@ from backend.core.dto.order import OrderDTO
 from backend.core.dto.patrimonial_history import PortfolioHistoryPointDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
+from backend.core.dto.preset import PresetAppliedEventDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.strategy import StrategyOrderLineDTO
@@ -222,6 +223,7 @@ class RealtimeEventCatalog(BaseDTO):
     simulation_selected: SimulationSelectedEventDTO
     simulation_deleted: SimulationDeletedEventDTO
     simulation_settings_update: SimulationSettingsDTO
+    preset_applied_update: PresetAppliedEventDTO
     stock_update: StockUpdateEventDTO
     position_update: PositionUpdateEventDTO
     order_added: OrderEventDTO

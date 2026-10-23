@@ -35,6 +35,7 @@ import type {
   GameType,
   PlayerGrouping,
   RoomPlayer,
+  SimulationSettings,
   SimulationSettingsData,
   TeamNaming,
   VictoryCriterion,
@@ -148,6 +149,8 @@ const IDLE_SAVE_STATUS = { savedAt: null, saving: false, saveError: null };
 
 type LobbyMatchProps = {
   simulationData: SimulationSettingsData;
+  /** O preset de onde vieram as regras da nova partida; nulo quando foram montadas à mão */
+  appliedPreset: SimulationSettings["applied_preset"];
   isHost: boolean;
   hostNickname: string;
   /** Partida salva que o host selecionou para continuar; nula quando a partida é nova */
@@ -160,6 +163,7 @@ type LobbyMatchProps = {
 /** "Nova partida": as regras resumidas, os avisos de dado e o início da partida. */
 export function LobbyMatch({
   simulationData,
+  appliedPreset,
   isHost,
   hostNickname,
   selectedSimulationId,
@@ -292,6 +296,22 @@ export function LobbyMatch({
         ];
 
   const rows: { label: string; value: React.ReactNode }[] = [
+    // O preset vale para a nova partida; as regras de uma salva não vêm dele
+    ...(appliedPreset && !selectedSimulation
+      ? [
+          {
+            label: "Preset",
+            value: (
+              <span className="flex items-center justify-end gap-1.5">
+                <Badge variant="info" className="min-w-0">
+                  <span className="truncate">{appliedPreset.name}</span>
+                </Badge>
+                {appliedPreset.changed.length > 0 && <Badge variant="warning">modificado</Badge>}
+              </span>
+            ),
+          },
+        ]
+      : []),
     { label: "Nome", value: rules.name },
     {
       label: "Período",
@@ -484,6 +504,8 @@ export function LobbyMatch({
         exampleTicker={exampleTicker}
         saveStatus={saveStatus}
         onRestoreDefaults={() => void saveStatus.restoreDefaults()}
+        appliedPreset={appliedPreset}
+        onPresetLoaded={(settings) => void saveStatus.applyServerSettings(settings)}
       />
       {/* Regras da partida salva: as gravadas nela, só leitura */}
       <RulesSheet
@@ -496,6 +518,8 @@ export function LobbyMatch({
         coverageCheck={NO_COVERAGE_ISSUES}
         exampleTicker={exampleTicker}
         saveStatus={IDLE_SAVE_STATUS}
+        appliedPreset={null}
+        onPresetLoaded={() => undefined}
       />
     </Card>
   );

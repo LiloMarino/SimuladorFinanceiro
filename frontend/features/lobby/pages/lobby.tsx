@@ -82,6 +82,7 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
         />
         <LobbyMatch
           simulationData={settings.simulation}
+          appliedPreset={settings.applied_preset}
           isHost={settings.is_host}
           hostNickname={settings.host_nickname}
           selectedSimulationId={settings.selected_simulation_id}

@@ -153,6 +153,27 @@ class LastSimulationSettings(Base):
     settings: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
 
+class Preset(Base):
+    """Regras de partida com nome: os prontos do app e os que o host salvou."""
+
+    __tablename__ = "preset"
+    __table_args__ = (
+        PrimaryKeyConstraint("id", name="preset_pkey"),
+        Index("preset_name_lower_key", text("lower(name)"), unique=True),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, Identity(always=True), primary_key=True)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    built_in: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    # Regras sem o nome da partida; o que faltar vem do padrão ao carregar
+    config: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False, server_default=text("now()")
+    )
+
+
 class Sectors(Base):
     __tablename__ = "sectors"
     __table_args__ = (

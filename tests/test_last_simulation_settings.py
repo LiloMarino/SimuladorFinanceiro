@@ -109,7 +109,10 @@ def test_restore_settings_deletes_the_saved_rules_and_notifies_the_room(
     assert restored.name == "Nova"
     assert restored.start_date == date.fromisoformat(config.toml.simulation.start_date)
     assert repository.last_simulation_settings.get() is None
-    assert events == [("simulation_settings_update", restored.to_json())]
+    assert events == [
+        ("simulation_settings_update", restored.to_json()),
+        ("preset_applied_update", {"applied": None}),
+    ]
 
 
 def test_restore_settings_is_refused_while_a_saved_match_is_selected(

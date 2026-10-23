@@ -291,6 +291,30 @@ Durante a partida, o menu lateral mostra o selo **Especialista** sob o nome da p
 
 ---
 
+### Presets de partida
+
+**O que é:**
+Um preset guarda as regras da partida com um nome, para carregar de novo com um clique em vez de remontar tudo. Fica no topo de **Editar regras**, no seletor **Preset**. Só o host escolhe e salva presets; os outros jogadores veem o nome do preset da sala (com o selo **modificado** quando o host mexeu depois).
+
+**Prontos** (vêm com o app, não se renomeiam nem se apagam):
+
+* **Iniciante:** 5 anos, R$ 10 mil de saldo e R$ 500 por mês, vence o maior patrimônio
+* **Clássico:** 15 anos, R$ 100 mil de saldo e R$ 1.000 por mês, vence a maior nota geral
+* **Realista:** 25 anos, **Viver de renda**, impacto de preço ligado e Modo Especialista
+
+**Como usar:**
+
+* **Carregar:** escolher um preset aplica as regras na hora, para todos da sala, sem confirmação
+* **Salvar como preset:** dá um nome (até 60 letras, sem repetir) às regras de agora. O diálogo mostra o que entra antes de salvar
+* **Modificado:** mexeu em alguma regra depois de carregar? O seletor mostra **modificado** e a lista do que mudou. Num preset seu, **Salvar alterações** grava por cima; **Salvar como novo** cria outro. Nos prontos, só **Salvar como novo**
+* **Renomear ou apagar meus presets…** fica no fim da lista do seletor. Apagar um preset não muda nenhuma partida já criada
+
+**O que entra no preset:** período (as datas, não a duração), saldo e aporte, modo de jogo (inclusive o modo em equipes), tipo de partida e suas regras, quem vence, assistências e impacto de preço. **Não entram** o nome da partida (gerado a cada uma), quem está em cada equipe e o futuro gerado, que continua na Central de dados.
+
+Com uma partida salva selecionada, o seletor fica desabilitado (as regras dela não mudam), mas **Salvar como preset** continua disponível.
+
+---
+
 ### Simulações salvas
 
 O card **Simulações salvas** lista as partidas salvas. Na sala, o host também tem **Escolher partida salva** (e **Trocar partida**, depois de escolher uma). Em cada partida da lista:

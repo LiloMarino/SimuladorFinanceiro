@@ -22,6 +22,7 @@ from backend.routes.frontend import register_frontend_routes
 from backend.routes.importer import import_router
 from backend.routes.operation import operation_router
 from backend.routes.portfolio import portfolio_router
+from backend.routes.presets import presets_router
 from backend.routes.realtime import realtime_router
 from backend.routes.settings import settings_router
 from backend.routes.simulation import simulation_router
@@ -50,6 +51,7 @@ def register_routes(app: FastAPI):
     app.include_router(credit_router, responses=ERROR_RESPONSES)
     app.include_router(strategy_router, responses=ERROR_RESPONSES)
     app.include_router(simulation_router, responses=ERROR_RESPONSES)
+    app.include_router(presets_router, responses=ERROR_RESPONSES)
     app.include_router(tunnel_router, responses=ERROR_RESPONSES)
     app.include_router(version_router, responses=ERROR_RESPONSES)
     app.include_router(debug_router, responses=ERROR_RESPONSES)

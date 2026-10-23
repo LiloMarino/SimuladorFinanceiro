@@ -96,10 +96,19 @@ export function useRealtimeSyncSimulationForm({
       }
     });
 
+  /** Regras que o servidor já gravou (um preset carregado): entram no formulário sem voltar pelo autosave. */
+  const applyServerSettings = (settings: SimulationSettingsData) =>
+    lock.runExclusive(async () => {
+      resetUpdate();
+      applySettings(settings);
+      setSavedAt(Date.now());
+    });
+
   return {
     savedAt,
     saving: saving || restoring,
     saveError: saveError ?? restoreError,
     restoreDefaults,
+    applyServerSettings,
   };
 }

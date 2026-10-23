@@ -11,6 +11,7 @@ from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.goal import GoalProgressDTO
 from backend.core.dto.life import LifeHistoryPageDTO, LifeStatusDTO
+from backend.core.dto.preset import AppliedPresetDTO, PresetAppliedEventDTO
 from backend.core.dto.simulation import (
     PriceImpactPointDTO,
     PriceImpactPreviewDTO,
@@ -105,6 +106,17 @@ class SimulationRulesRequest(BaseModel):
         return self
 
 
+def notify_settings_changed(settings: SimulationSettingsDTO) -> None:
+    """Avisa a sala das regras novas e de qual preset elas vêm (ou o que mudou nele)."""
+    notify("simulation_settings_update", settings.to_json())
+    notify_preset_changed()
+
+
+def notify_preset_changed() -> None:
+    applied = SettingsManager.applied_preset()
+    notify("preset_applied_update", PresetAppliedEventDTO(applied=applied).to_json())
+
+
 class CreateSimulationRequest(SimulationRulesRequest):
     pass
 
@@ -163,6 +175,8 @@ class SimulationSettingsResponse(BaseModel):
     selected_simulation_id: int | None
     # Quem jogou a partida selecionada, com a cor guardada: presentes ou ausentes
     selected_players: list[PlayerNickname]
+    # O preset de onde vieram as regras da nova partida; None quando foram montadas à mão
+    applied_preset: AppliedPresetDTO | None
 
 
 @simulation_router.get(
@@ -281,7 +295,7 @@ def restore_simulation_settings(_: HostVerified):
         )
 
     settings = SettingsManager.restore_defaults()
-    notify("simulation_settings_update", settings.to_json())
+    notify_settings_changed(settings)
     return settings
 
 
@@ -677,6 +691,7 @@ def get_simulation_settings(client_id: ClientID):
         simulation=settings,
         selected_simulation_id=selected_id,
         selected_players=selected_players,
+        applied_preset=SettingsManager.applied_preset(),
     )
 
 
@@ -700,5 +715,5 @@ def update_simulation_settings(payload: UpdateSettingsRequest, _: HostVerified):
     if regrouped:
         UserManager.reset_teams()
 
-    notify("simulation_settings_update", settings.to_json())
+    notify_settings_changed(settings)
     return settings

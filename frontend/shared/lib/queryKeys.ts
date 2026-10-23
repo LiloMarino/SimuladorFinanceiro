@@ -4,6 +4,7 @@ export const queryKeys = {
   simulationState: () => ["simulation", "state"] as const,
   simulationSettings: () => ["simulation", "settings"] as const,
   simulationList: () => ["simulation", "list"] as const,
+  presets: () => ["presets"] as const,
   goalProgress: (simulationId: number) => ["simulation", "goal-progress", simulationId] as const,
   lifeStatus: (simulationId: number) => ["simulation", "life", simulationId] as const,
   lifeHistoryAll: (simulationId: number) => ["simulation", "life-history", simulationId] as const,

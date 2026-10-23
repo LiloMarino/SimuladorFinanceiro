@@ -34,7 +34,7 @@ import { GAME_TYPE_OPTIONS } from "@/shared/lib/game-types";
 import { DEFAULT_GOAL_MULTIPLE, GOAL_SHORTCUTS } from "@/shared/lib/goal";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { teamColor, teamShortName } from "@/shared/lib/teams";
-import type { GameType, PlayerGrouping, TeamNaming, VictoryCriterion } from "@/types";
+import type { AppliedPreset, GameType, PlayerGrouping, SimulationSettingsData, TeamNaming, VictoryCriterion } from "@/types";
 import type { CoverageCheck } from "../lib/coverage";
 import { isPositiveMoney, isWithdrawalRate, withdrawalRateFraction } from "../lib/life-rules";
 import {
@@ -48,6 +48,7 @@ import { CoverageAlerts } from "./coverage-alerts";
 import { LifeFields } from "./life-fields";
 import { PeriodPicker } from "./period-picker";
 import type { SimulationFormValues } from "./lobby-match";
+import { PresetBar } from "./preset-bar";
 import { PriceImpactExample } from "./price-impact-example";
 
 // Os campos da vida real somem fora do viver de renda; um valor inutilizável neles volta ao padrão do servidor
@@ -92,6 +93,10 @@ type RulesSheetProps = {
   exampleTicker: string | undefined;
   saveStatus: { savedAt: number | null; saving: boolean; saveError: Error | null };
   onRestoreDefaults?: () => void;
+  /** O preset de onde vieram as regras da nova partida, com o que mudou desde que foi carregado */
+  appliedPreset: AppliedPreset | null;
+  /** As regras que o servidor gravou ao carregar um preset entram no formulário */
+  onPresetLoaded: (settings: SimulationSettingsData) => void;
   /** Regras gravadas numa partida salva: valem como estão, ninguém edita */
   locked?: boolean;
 };
@@ -107,6 +112,8 @@ export function RulesSheet({
   exampleTicker,
   saveStatus,
   onRestoreDefaults,
+  appliedPreset,
+  onPresetLoaded,
   locked = false,
 }: RulesSheetProps) {
   const [startDate, impactEnabled, impactK, impactT, grouping, gameType, startingCash, goalNetWorth] = useWatch({
@@ -172,6 +179,9 @@ export function RulesSheet({
                 : "Modo visualização."}
           </SheetDescription>
         </SheetHeader>
+
+        {/* Preset */}
+        <PresetBar form={form} isHost={isHost} locked={locked} applied={appliedPreset} onApplyLoaded={onPresetLoaded} />
 
         <form className="flex flex-1 flex-col gap-7 overflow-y-auto px-6 py-5" onSubmit={(e) => e.preventDefault()}>
           {/* Básico */}

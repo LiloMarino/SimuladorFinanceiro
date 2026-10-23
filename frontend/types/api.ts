@@ -125,6 +125,12 @@ export type BotParam = BotReport["params"][number];
 export type PlayerActivity = components["schemas"]["PlayerActivity"];
 export type SimulationInfo = components["schemas"]["SimulationStatusResponse"];
 export type SimulationListItem = components["schemas"]["SavedSimulationDTO"];
+// Presets de partida
+export type Preset = components["schemas"]["PresetDTO"];
+export type AppliedPreset = components["schemas"]["AppliedPresetDTO"];
+export type PresetLoadResponse = components["schemas"]["PresetLoadResponse"];
+export type PresetRuleGroup = components["schemas"]["PresetRuleGroup"];
+export type SavePresetRequest = components["schemas"]["SavePresetRequest"];
 export type PriceImpactPreview = components["schemas"]["PriceImpactPreviewDTO"];
 export type VictoryCriterion = components["schemas"]["VictoryCriterion"];
 export type GameType = components["schemas"]["GameType"];

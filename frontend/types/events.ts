@@ -41,6 +41,7 @@ export type SimulationEvents = {
   simulation_selected: RealtimeEventCatalog["simulation_selected"];
   simulation_deleted: RealtimeEventCatalog["simulation_deleted"];
   simulation_settings_update: RealtimeEventCatalog["simulation_settings_update"];
+  preset_applied_update: RealtimeEventCatalog["preset_applied_update"];
   goal_progress_update: RealtimeEventCatalog["goal_progress_update"];
   life_event: LifeEvent;
   future_recording_progress: FutureRecordingProgressEvent;

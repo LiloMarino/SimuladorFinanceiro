@@ -8,6 +8,7 @@ from backend.core.repository.last_simulation_settings import (
     LastSimulationSettingsRepository,
 )
 from backend.core.repository.portfolio import PortfolioRepository
+from backend.core.repository.preset import PresetRepository
 from backend.core.repository.settings import SettingsRepository
 from backend.core.repository.simulation import SimulationRepository
 from backend.core.repository.simulation_player import SimulationPlayerRepository
@@ -31,5 +32,6 @@ simulation = SimulationRepository()
 simulation_player = SimulationPlayerRepository()
 generated_future = GeneratedFutureRepository()
 last_simulation_settings = LastSimulationSettingsRepository()
+preset = PresetRepository()
 achievements = AchievementsRepository()
 strategy = StrategyRepository()

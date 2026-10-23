@@ -16,6 +16,13 @@ export function useSimulationSettings() {
   useRealtime("simulation_settings_update", (simulation) => {
     queryClient.setQueryData<SimulationSettings>(queryKeys.simulationSettings(), (prev) => prev && { ...prev, simulation });
   });
+  // Qual preset vale e o que mudou nele chegam juntos de cada mudança de regras
+  useRealtime("preset_applied_update", ({ applied }) => {
+    queryClient.setQueryData<SimulationSettings>(
+      queryKeys.simulationSettings(),
+      (prev) => prev && { ...prev, applied_preset: applied },
+    );
+  });
 
   return query;
 }

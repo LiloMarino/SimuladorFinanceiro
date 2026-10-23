@@ -1848,6 +1848,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/presets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar os presets
+         * @description Os prontos do app primeiro, depois os que o host salvou, do mais antigo ao mais novo. Apenas o host pode executar.
+         */
+        get: operations["list_presets_api_presets_get"];
+        put?: never;
+        /**
+         * Salvar as regras como preset
+         * @description Guarda as regras enviadas com um nome de até 60 letras. Recusa com 409 o nome repetido, sem diferenciar maiúsculas. Sem partida salva selecionada, o novo preset passa a ser o aplicado. Apenas o host pode executar.
+         */
+        post: operations["save_preset_api_presets_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/presets/{preset_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Apagar um preset
+         * @description Apaga um preset do host; as partidas já criadas não mudam. Se era o aplicado, as regras de agora seguem como estão, sem preset. Recusa com 409 o preset pronto. Apenas o host pode executar.
+         */
+        delete: operations["delete_preset_api_presets__preset_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Renomear um preset
+         * @description Troca o nome de um preset do host. Recusa com 409 o preset pronto e o nome repetido. Apenas o host pode executar.
+         */
+        patch: operations["rename_preset_api_presets__preset_id__patch"];
+        trace?: never;
+    };
+    "/api/presets/{preset_id}/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Gravar as regras por cima de um preset
+         * @description Troca as regras guardadas num preset do host pelas enviadas. Recusa com 409 o preset pronto. Sem partida salva selecionada, o preset passa a ser o aplicado. Apenas o host pode executar.
+         */
+        put: operations["update_preset_rules_api_presets__preset_id__rules_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/presets/{preset_id}/load": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Carregar um preset
+         * @description Troca as regras da nova partida pelas do preset, mantendo o nome da partida; o que o preset não traz vem do padrão. Quem muda de modo perde as equipes. Recusa com 409 enquanto uma partida salva está selecionada. Apenas o host pode executar.
+         */
+        post: operations["load_preset_api_presets__preset_id__load_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tunnel/start": {
         parameters: {
             query?: never;
@@ -2068,6 +2156,20 @@ export interface components {
             has_liquid_offer: boolean;
             /** Today */
             today: string[];
+        };
+        /**
+         * AppliedPresetDTO
+         * @description O preset de onde vieram as regras de agora e o que mudou desde que foi carregado.
+         */
+        AppliedPresetDTO: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Built In */
+            built_in: boolean;
+            /** Changed */
+            changed: components["schemas"]["PresetRuleGroup"][];
         };
         /**
          * AssetClass
@@ -3935,6 +4037,44 @@ export interface components {
             /** Payoff Amount */
             payoff_amount: string;
         };
+        /**
+         * PresetAppliedEventDTO
+         * @description Nulo quando as regras não vêm de preset (ou o preset carregado foi apagado).
+         */
+        PresetAppliedEventDTO: {
+            applied: components["schemas"]["AppliedPresetDTO"] | null;
+        };
+        /** PresetDTO */
+        PresetDTO: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Built In */
+            built_in: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Config */
+            config: {
+                [key: string]: unknown;
+            };
+        };
+        /** PresetLoadResponse */
+        PresetLoadResponse: {
+            settings: components["schemas"]["SimulationSettingsDTO"];
+            applied: components["schemas"]["AppliedPresetDTO"];
+            /** Defaulted */
+            defaulted: components["schemas"]["PresetRuleGroup"][];
+        };
+        /**
+         * PresetRuleGroup
+         * @description As regras de um preset agrupadas como o painel as mostra.
+         * @enum {string}
+         */
+        PresetRuleGroup: "PERIOD" | "STARTING_CASH" | "MONTHLY_CONTRIBUTION" | "GROUPING" | "GAME_TYPE" | "VICTORY" | "GOAL" | "LIFE" | "ASSISTANCES" | "PRICE_IMPACT";
         /** PreviewPointDTO */
         PreviewPointDTO: {
             /**
@@ -4080,6 +4220,7 @@ export interface components {
             simulation_selected: components["schemas"]["SimulationSelectedEventDTO"];
             simulation_deleted: components["schemas"]["SimulationDeletedEventDTO"];
             simulation_settings_update: components["schemas"]["SimulationSettingsDTO"];
+            preset_applied_update: components["schemas"]["PresetAppliedEventDTO"];
             stock_update: components["schemas"]["StockUpdateEventDTO"];
             position_update: components["schemas"]["PositionUpdateEventDTO"];
             order_added: components["schemas"]["OrderEventDTO"];
@@ -4100,6 +4241,11 @@ export interface components {
         RedeemFixedIncomeRequest: {
             /** Amount */
             amount: number | string;
+        };
+        /** RenamePresetRequest */
+        RenamePresetRequest: {
+            /** Name */
+            name: string;
         };
         /**
          * ReplacedGeneratedDTO
@@ -4171,6 +4317,12 @@ export interface components {
             color?: string | null;
             /** Team */
             team?: number | null;
+        };
+        /** SavePresetRequest */
+        SavePresetRequest: {
+            /** Name */
+            name: string;
+            rules: components["schemas"]["SimulationRulesRequest"];
         };
         /** SavedSimulationDTO */
         SavedSimulationDTO: {
@@ -4572,6 +4724,82 @@ export interface components {
             /** Simulation Id */
             simulation_id: number;
         };
+        /** SimulationRulesRequest */
+        SimulationRulesRequest: {
+            /** Name */
+            name: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Starting Cash */
+            starting_cash: number | string;
+            /**
+             * Monthly Contribution
+             * @default 0
+             */
+            monthly_contribution: number | string;
+            /**
+             * Price Impact Enabled
+             * @default false
+             */
+            price_impact_enabled: boolean;
+            /** Price Impact K */
+            price_impact_k: number;
+            /** Price Impact Decay Days */
+            price_impact_decay_days: number;
+            /** @default SCORE */
+            victory_criterion: components["schemas"]["VictoryCriterion"];
+            /** @default CLASSIC */
+            game_type: components["schemas"]["GameType"];
+            /** Goal Net Worth */
+            goal_net_worth: number | string;
+            /**
+             * Monthly Salary
+             * @default 0
+             */
+            monthly_salary: number | string;
+            /**
+             * Monthly Expense
+             * @default 0
+             */
+            monthly_expense: number | string;
+            /**
+             * Unexpected Per Year
+             * @default 0
+             */
+            unexpected_per_year: number;
+            /**
+             * Withdrawal Rate
+             * @default 0.04
+             */
+            withdrawal_rate: number | string;
+            /**
+             * Inflation Adjusted
+             * @default false
+             */
+            inflation_adjusted: boolean;
+            /** @default INDIVIDUAL */
+            player_grouping: components["schemas"]["PlayerGrouping"];
+            /** @default COLOR */
+            team_naming: components["schemas"]["TeamNaming"];
+            /**
+             * Show Equivalent Rate
+             * @default true
+             */
+            show_equivalent_rate: boolean;
+            /**
+             * Show Maturity Projection
+             * @default true
+             */
+            show_maturity_projection: boolean;
+        };
         /** SimulationSelectedEventDTO */
         SimulationSelectedEventDTO: {
             /** Simulation Id */
@@ -4641,6 +4869,7 @@ export interface components {
             selected_simulation_id: number | null;
             /** Selected Players */
             selected_players: components["schemas"]["PlayerNickname"][];
+            applied_preset: components["schemas"]["AppliedPresetDTO"] | null;
         };
         /** SimulationStateResponse */
         SimulationStateResponse: {
@@ -5304,6 +5533,10 @@ export interface components {
             total_installments: number;
             /** Amount */
             amount: string;
+        };
+        /** UpdatePresetRulesRequest */
+        UpdatePresetRulesRequest: {
+            rules: components["schemas"]["SimulationRulesRequest"];
         };
         /** UpdateSettingsRequest */
         UpdateSettingsRequest: {
@@ -9427,6 +9660,252 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_presets_api_presets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresetDTO"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    save_preset_api_presets_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavePresetRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresetDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_preset_api_presets__preset_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                preset_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    rename_preset_api_presets__preset_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                preset_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenamePresetRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresetDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    update_preset_rules_api_presets__preset_id__rules_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                preset_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePresetRulesRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresetDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    load_preset_api_presets__preset_id__load_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                preset_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresetLoadResponse"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

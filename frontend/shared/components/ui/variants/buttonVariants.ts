@@ -11,6 +11,9 @@ export const buttonVariants = cva(
         inverse: "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/80",
         outline:
           "border-input bg-card text-foreground hover:bg-subtle aria-expanded:bg-subtle aria-expanded:text-foreground",
+        // Gatilho de um seletor: caixa com borda e o valor escolhido à esquerda
+        field:
+          "justify-start border-input bg-card px-2.5 font-normal text-foreground hover:bg-subtle aria-expanded:bg-subtle",
         secondary: "bg-secondary text-foreground hover:bg-secondary/80 aria-expanded:bg-secondary",
         ghost: "text-foreground hover:bg-muted aria-expanded:bg-muted",
         destructive:
