@@ -1257,6 +1257,52 @@
         }
       }
     },
+    "/api/import-assets/stocks/{ticker}": {
+      "delete": {
+        "tags": [
+          "Import Assets"
+        ],
+        "summary": "Apagar um ativo",
+        "description": "Apaga o ativo com o histórico de preços, o perfil e a classificação. Ativo negociado em partida salva não pode ser apagado.",
+        "operationId": "delete_stock_api_import_assets_stocks__ticker__delete",
+        "parameters": [
+          {
+            "name": "ticker",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ticker"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/import-assets/sectors": {
       "get": {
         "tags": [

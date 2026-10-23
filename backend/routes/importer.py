@@ -18,7 +18,11 @@ from backend.core.dto.sector import SectorDTO, StockSegmentDTO
 from backend.core.dto.series_coverage import SeriesCoverageDTO
 from backend.core.dto.ticker_profile import TickerSuggestionDTO
 from backend.core.enum import AssetClass, IndicatorSeries
-from backend.core.exceptions.http_exceptions import BadGatewayError, NotFoundError
+from backend.core.exceptions.http_exceptions import (
+    BadGatewayError,
+    ConflictError,
+    NotFoundError,
+)
 from backend.features.import_data.coverage import get_series_coverage
 from backend.features.import_data.future import (
     cancel_recording,
@@ -132,6 +136,24 @@ def update_segment(ticker: str, request: StockSegmentRequest):
 def delete_segment(ticker: str):
     if repository.stock.classify(ticker, None) is None:
         raise NotFoundError(f"Ativo '{ticker}' não encontrado.")
+
+
+@import_router.delete(
+    "/stocks/{ticker}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Apagar um ativo",
+    description="Apaga o ativo com o histórico de preços, o perfil e a classificação. Ativo negociado em partida salva não pode ser apagado.",
+)
+def delete_stock(ticker: str):
+    if repository.stock.get_by_ticker(ticker) is None:
+        raise NotFoundError(f"Ativo '{ticker}' não encontrado.")
+    matches = repository.stock.count_simulations_trading(ticker)
+    if matches:
+        plural = "partida salva" if matches == 1 else "partidas salvas"
+        raise ConflictError(
+            f"O ativo {ticker} aparece em {matches} {plural}. Apague essas partidas no lobby antes."
+        )
+    repository.stock.delete(ticker)
 
 
 @import_router.get(

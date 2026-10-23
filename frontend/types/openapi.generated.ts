@@ -400,6 +400,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/import-assets/stocks/{ticker}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Apagar um ativo
+         * @description Apaga o ativo com o histórico de preços, o perfil e a classificação. Ativo negociado em partida salva não pode ser apagado.
+         */
+        delete: operations["delete_stock_api_import_assets_stocks__ticker__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/import-assets/sectors": {
         parameters: {
             query?: never;
@@ -4775,6 +4795,44 @@ export interface operations {
         };
     };
     delete_segment_api_import_assets_stocks__ticker__segment_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    delete_stock_api_import_assets_stocks__ticker__delete: {
         parameters: {
             query?: never;
             header?: never;

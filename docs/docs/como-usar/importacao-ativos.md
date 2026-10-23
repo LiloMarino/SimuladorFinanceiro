@@ -40,6 +40,7 @@ A tabela lista todas as séries guardadas no banco: primeiro os indicadores econ
 - **Linha do tempo**: barra com o período coberto. O trecho com dado real aparece em uma cor e, depois dele, o trecho gerado em outra cor. Todas as barras usam a mesma régua de tempo, então dá para comparar visualmente quais séries cobrem mais anos. Passe o mouse sobre a barra para ver as datas: "Real: início → fim · gerado até …". Séries sem futuro gravado não têm trecho gerado, e depois do fim do dado gerado a partida repete o último valor da série (ver "Gerar dados futuros", abaixo).
 - **Situação**: se a série está em dia ou parou de atualizar. Uma ação que parou mostra o selo **Parou em** com a data do último preço.
 - **Ações**: o botão **Atualizar** da linha e, nas ações, a **classe do ativo** (ex.: Ação).
+- **Apagar** (lixeira, só nos ativos): remove o ativo da base com os preços, o perfil e a classificação, depois de uma confirmação. É a saída para um ativo importado com dado errado. Um ativo negociado em alguma partida salva não pode ser apagado: a Central avisa em quantas partidas ele aparece, e é preciso excluir essas partidas no lobby antes. Depois de apagar, o futuro gerado passa a pedir recálculo.
 
 ### Setor e segmento das ações
 

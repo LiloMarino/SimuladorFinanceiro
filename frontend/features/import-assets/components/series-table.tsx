@@ -25,6 +25,7 @@ import { useRefreshSeries } from "../hooks/mutations/useRefreshSeries";
 import { timelineRange, timelineTicks } from "../lib/timeline";
 import { ClassifyRow } from "./classify-row";
 import { CoverageBar } from "./coverage-bar";
+import { DeleteStockButton } from "./delete-stock-button";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
 
@@ -233,6 +234,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                       </TableCell>
 
                       <TableCell>
+                        <div className="flex items-center gap-1">
                         {/* Só a linha desatualizada pede a ação por extenso */}
                         {stale ? (
                           <Button size="sm" disabled={busy} onClick={() => refreshOne.mutate(item)}>
@@ -250,6 +252,8 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                             {updatingThis(item) ? <Spinner /> : <RefreshCw />}
                           </Button>
                         )}
+                        {item.kind === "STOCK" && <DeleteStockButton stock={item} disabled={busy} />}
+                        </div>
                       </TableCell>
                     </TableRow>
 

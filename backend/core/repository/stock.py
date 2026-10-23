@@ -15,6 +15,7 @@ from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 from backend.core.dto.ticker_profile import TickerProfileDTO
 from backend.core.enum import AssetClass, DataOrigin
 from backend.core.models.models import (
+    EventEquity,
     Sectors,
     Segments,
     Stock,
@@ -314,6 +315,42 @@ class StockRepository:
             self._get_or_create_segment(session, segment).id if segment else None
         )
         session.flush()
+        self._drop_orphan_segments(session)
+        return StockDTO.from_model(stock)
+
+    @transactional
+    def count_simulations_trading(self, session: Session, ticker: str) -> int:
+        """Quantas partidas negociaram o código; cada uma guarda eventos que apontam para a ação."""
+        return session.execute(
+            select(func.count(func.distinct(EventEquity.simulation_id)))
+            .join(Stock, Stock.id == EventEquity.stock_id)
+            .where(Stock.ticker == ticker)
+        ).scalar_one()
+
+    @transactional
+    def delete(self, session: Session, ticker: str) -> bool:
+        """
+        Apaga a ação com o histórico de todas as versões (a comum e as cópias congeladas
+        das partidas) e o perfil; setor e segmento sem nenhuma ação saem junto.
+        False quando o código não existe.
+        """
+        stock = session.execute(
+            select(Stock).where(Stock.ticker == ticker)
+        ).scalar_one_or_none()
+        if not stock:
+            return False
+
+        # O histórico sai antes da ação: a FK de preço para ação é RESTRICT.
+        session.execute(
+            delete(StockPriceHistory).where(StockPriceHistory.stock_id == stock.id)
+        )
+        session.execute(delete(TickerProfile).where(TickerProfile.ticker == ticker))
+        session.delete(stock)
+        session.flush()
+        self._drop_orphan_segments(session)
+        return True
+
+    def _drop_orphan_segments(self, session: Session) -> None:
         session.execute(
             delete(Segments).where(
                 ~select(Stock.id).where(Stock.segment_id == Segments.id).exists()
@@ -324,7 +361,6 @@ class StockRepository:
                 ~select(Segments.id).where(Segments.sector_id == Sectors.id).exists()
             )
         )
-        return StockDTO.from_model(stock)
 
     def _get_or_create_segment(
         self, session: Session, segment: StockSegmentDTO
