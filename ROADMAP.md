@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-22):** Registrada a necessidade N36 e implementada e arquivada F112: ordenação em todas as tabelas de dados, incluindo histórico paginado, equipes, correlação e painéis técnicos.
+> **Última mudança (2026-10-23):** Registrada a necessidade N37 e a F113: classe de ativo cripto com quantidade fracionária, para comprar bitcoin em frações como na vida real.
 
 ## Glossário
 
@@ -54,6 +54,7 @@
 | **N34** | Disputar o poder de mudar as regras da economia da partida | — | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — |
+| **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F113](#f113) | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
 | [**F8**](#f8) | Modo automático: estratégia do jogador roda a cada tick | — | ⏳ |
@@ -101,6 +102,7 @@
 | [**F108**](#f108) | Bot pela API: guia e exemplo | — | ⏳ |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
+| [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
@@ -109,7 +111,7 @@
 | --- | --- | --- | --- |
 | **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F94](#f94) | ✅ |
 | **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F33](#f33) | ✅ |
-| **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | — | ✅ |
+| **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F113](#f113) | ✅ |
 | **D4** | Banco de dados embarcado no executável | — | ✅ |
 | **D5** | Onde roda o código de estratégia escrito pelo usuário | [F7](#f7) | 🔁 |
 | **D6** | A retomada continua no dia seguinte ao último evento | — | ✅ |
@@ -275,7 +277,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/29 concluídas
+> **Progresso:** 0/30 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -308,6 +310,7 @@
 | [**F107**](#f107) | Perfis de público na eleição | [F95](#f95) | 🔍 |
 | [**F110**](#f110) | Combinar estratégias | [F8](#f8) | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | [F8](#f8), [F94](#f94) | 💤 |
+| [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
 
 ---
 
@@ -338,6 +341,7 @@
 | **F108** | Bot pela API: guia e exemplo | N4 | D16 | M4 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F110** | Combinar estratégias | N4 | D8 | — | [F8](#f8) | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | [F8](#f8), [F94](#f94) | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
+| **F113** | Classe de ativo cripto com quantidade fracionária | N37 | D3 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -449,6 +453,9 @@ Estratégias e bots não pegam crédito (F111); quem está no automático paga n
 
 <a id="f111"></a>
 **F111 — Crédito para estratégias e bots.** Serve N4 e N33; segue a D8. O contexto da estratégia ganha a dívida, a nota de risco e a oferta do dia, e as ações ganham pegar empréstimo, amortizar e quitar, que chamam o mesmo serviço da tela de Crédito em nome do jogador. Uma estratégia de exemplo alavancada (ex.: rebalanceamento por meta com 20% emprestado) mostra o uso e entra na lista dos bots. O log da estratégia registra cada contratação e pagamento com o motivo. Gatilho: F8 e F94 concluídas.
+
+<a id="f113"></a>
+**F113 — Classe de ativo cripto com quantidade fracionária.** Serve N37; segue a D3. Hoje a quantidade é inteira da ordem ao banco (`equity_event.quantity` é `Integer`, e `quantity` é `int` nos DTOs de ordem, de prévia e de evento, no motor e no `max_quantity` da prévia), então um ativo de preço alto como o bitcoin só se compra em unidades inteiras. Plano: (1) **Classe nova:** `CRYPTO` no `AssetClass`, escolhível na tela de importação (que já troca a classe de um ativo) e valendo para `BTC-USD` e afins, que o importador já aceita. (2) **Quantidade decimal:** a coluna vira `NUMERIC(20,8)` por migration (oito casas, a precisão do satoshi) e os DTOs passam a `Decimal`, serializado em string (D3); ação, FII, ETF e BDR continuam aceitando só inteiro, e a validação da ordem recusa fração fora de `CRYPTO`. (3) **Motor:** compra, venda, preço médio, `max_quantity` da prévia (arredondado para baixo nas oito casas) e o impacto de preço passam a operar em `Decimal`. (4) **Imposto:** `income_tax` ganha a categoria cripto, com regra própria a conferir na implementação. (5) **Telas:** o campo de quantidade da ordem aceita vírgula quando o ativo é cripto, e a quantidade da carteira e do histórico exibe as casas necessárias. Gatilho: o uso pedir bitcoin na carteira, ou a F22 e a F100 mexerem em quantidade e proventos, já que convém migrar a coluna uma vez só.
 
 ---
 ## 2. Nice-to-have

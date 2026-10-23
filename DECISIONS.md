@@ -133,6 +133,9 @@ Partidas de teste, abandonadas no começo ou repetidas se acumulam em "Simulaç�
 **N36. Encontrar rapidamente os menores e maiores valores nos dados do jogo**
 Comparar preços, taxas, quantidades e resultados sem procurar linha por linha. O usuário pediu essa capacidade em todas as tabelas de dados, incluindo estatísticas e telas de manutenção, e precisa que as atualizações da partida preservem a escolha de comparação.
 
+**N37. Comprar bitcoin do jeito que dá na vida real, em frações**
+Um bitcoin custa dezenas de milhares de reais, e hoje o jogo só vende ativo em quantidade inteira: ou se compra 1 bitcoin inteiro, ou nenhum. Na vida real se compra 0,5 ou 0,001, pelo valor que o investidor quer aplicar. Sem isso, o bitcoin fica fora do alcance de quem joga com uma carteira normal, e a partida perde um dos ativos mais conhecidos do mundo real.
+
 ---
 
 ## Decisões
