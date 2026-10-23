@@ -106,7 +106,6 @@
 | [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ⏳ |
 | [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ⏳ |
 | [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ⏳ |
-| [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
@@ -116,7 +115,7 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -139,6 +138,7 @@
 | [**F7**](#f7) | Spike: estratégia Python escrita pelo usuário | — | ✅ |
 | [**F94**](#f94) | Crédito | — | ✅ |
 | [**F109**](#f109) | Estratégia em .py do usuário carregada pelo host | — | 🚫 |
+| [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ✅ |
 
 </details>
 
@@ -170,7 +170,6 @@
 | [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | 0 | ⏳ |
 | [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | 0 | ⏳ |
 | [**F116**](#f116) | Gráfico da nota ao longo da partida | — | 0 | ⏳ |
-| [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | 0 | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | 0 | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 0 | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
@@ -299,7 +298,7 @@
 
 ### Sem marco
 
-> **Progresso:** 1/41 concluídas
+> **Progresso:** 2/41 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -335,7 +334,6 @@
 | [**F114**](#f114) | Gráfico de ações que acompanha o preço | — | ⏳ |
 | [**F115**](#f115) | Estatísticas dizem que atualizam por mês e quando é a próxima | — | ⏳ |
 | [**F116**](#f116) | Gráfico da nota ao longo da partida | — | ⏳ |
-| [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ⏳ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ⏳ |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
@@ -344,11 +342,12 @@
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F94**](#f94) | Crédito | — | ✅ |
+| [**F117**](#f117) | Atalhos de valor da renda fixa somam ao campo | — | ✅ |
 
 </details>
 
@@ -385,7 +384,7 @@
 | **F114** | Gráfico de ações que acompanha o preço | N19 | — | — | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F115** | Estatísticas dizem que atualizam por mês e quando é a próxima | N38 | D2 | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F116** | Gráfico da nota ao longo da partida | N9 | D2, D10 | — | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
-| **F117** | Atalhos de valor da renda fixa somam ao campo | N15 | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F117** | Atalhos de valor da renda fixa somam ao campo | N15 | — | — | — | Baixo | Baixo | Médio | Excelente | ✅ Concluído |
 | **F118** | Lembrar a última configuração da partida | N30 | D9 | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F122** | Novas conquistas para as features recentes e antigas | N22 | D1 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F124** | Voltar o quadrado da marca no cabeçalho da sala | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
