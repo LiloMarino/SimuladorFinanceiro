@@ -21,7 +21,7 @@
 | **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — |
 | **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — |
 | **N3** | Confiar que os números do simulador são exatos e reprodutíveis | — | — |
-| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F10](#f10), [F19](#f19), [F33](#f33), [F108](#f108), [F110](#f110), [F111](#f111) | — |
+| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F10](#f10), [F19](#f19), [F33](#f33), [F108](#f108), [F110](#f110), [F111](#f111), [F127](#f127) | — |
 | **N5** | Saber quanto risco foi corrido para chegar num resultado | — | — |
 | **N6** | Comparar resultados de simulações diferentes | — | — |
 | **N7** | Que o simulador cobre os custos de operar do mercado real | — | — |
@@ -54,7 +54,7 @@
 | **N34** | Disputar o poder de mudar as regras da economia da partida | — | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — |
-| **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F113](#f113) | — |
+| **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F113](#f113), [F127](#f127) | — |
 | **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
@@ -97,7 +97,6 @@
 | [**F108**](#f108) | Bot pela API: guia e exemplo | — | ⏳ |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
-| [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
@@ -106,15 +105,16 @@
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 | [**F126**](#f126) | Janela "Como jogar" | — | ⏳ |
+| [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (16 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
 | **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F122](#f122) | ✅ |
 | **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F33](#f33) | ✅ |
-| **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F113](#f113) | ✅ |
+| **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F113](#f113), [F127](#f127) | ✅ |
 | **D4** | Banco de dados embarcado no executável | — | ✅ |
 | **D6** | A retomada continua no dia seguinte ao último evento | — | ✅ |
 | **D7** | O simulador lê as séries sem saber a origem | [F92](#f92) | ✅ |
@@ -127,6 +127,7 @@
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | — | ✅ |
 | **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | [F108](#f108) | ✅ |
+| [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
 
 </details>
@@ -274,7 +275,7 @@
 
 ### Sem marco
 
-> **Progresso:** 1/35 concluídas
+> **Progresso:** 2/36 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -304,7 +305,6 @@
 | [**F107**](#f107) | Perfis de público na eleição | [F95](#f95) | 🔍 |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
-| [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | 💤 |
 | [**F119**](#f119) | Escolher o intervalo da partida com "hoje" e atalhos | — | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 🔍 |
@@ -312,11 +312,13 @@
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
+| [**F127**](#f127) | Estratégias e bots operam cripto em fração | [F113](#f113) | 💤 |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
 
 </details>
@@ -344,11 +346,12 @@
 | **F108** | Bot pela API: guia e exemplo | N4 | D16 | M4 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F110** | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F113** | Classe de ativo cripto com quantidade fracionária | N37 | D3 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
+| **F113** | Classe de ativo cripto com quantidade fracionária | N37 | D3 | — | — | Médio | Médio | Médio | Bom | ✅ Concluído |
 | **F118** | Lembrar a última configuração da partida | N30 | D9 | — | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F122** | Novas conquistas para as features recentes e antigas | N22 | D1 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F124** | Voltar o quadrado da marca no cabeçalho da sala | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F126** | Janela "Como jogar" | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F127** | Estratégias e bots operam cripto em fração | N4, N37 | D3 | — | [F113](#f113) | Médio | Baixo | Baixo | Regular | 💤 Registrado, sem prioridade |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -431,6 +434,9 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f126"></a>
 **F126 — Janela "Como jogar".** Serve N25. É o tutorial em si, no molde das Dicas e truques do Factorio; como animar cada tópico é o spike F49, e esta feature não espera por ele. **A janela:** um diálogo quase em tela cheia, com a lista de tópicos à esquerda em dois grupos, "Como se joga" (entrar na sala, comprar uma ação, aplicar em renda fixa, avançar o tempo, ler as estatísticas) e "Conceitos" (alavancagem, médias móveis, nota de risco), e o tópico aberto à direita: título, a ilustração e um texto curto em passos, com "Próximo tópico" no rodapé. A ilustração é o componente real do app com dados de exemplo e sem interação, para seguir o tema e ficar nítida em qualquer tamanho; quando a F49 escolher o jeito de animar, a animação entra no mesmo lugar. Os tópicos moram no front, num registro com id, grupo, título, texto e ilustração, e cada tela declara os tópicos dela. Feature que traz uma explicação longa acrescenta o tópico dela ao registro. **Nunca abre sozinha.** Abre pelo botão "Como jogar" no topo do lobby, ao lado de Conquistas, e por um acesso dentro da partida. **Aviso pelo contexto:** a primeira vez que o jogador abre uma tela com um tópico que ele não viu, aparece um aviso pequeno, que não bloqueia a tela ("Tem um tópico sobre isto: Renda variável", com "Ver" e "Agora não"); cada tópico avisa uma vez só. Na lista, tópico não visto leva um ponto, e o botão mostra quantos faltam. O navegador guarda o que foi visto e o que já avisou. Para não disputar com as Novidades (F56), que também se destacam no lobby, o lobby nunca destaca as duas ao mesmo tempo: depois de uma atualização, quem se destaca são as Novidades. **Tempo:** com um só jogador humano na sala (bots não contam), abrir a janela pausa a partida e fechar retoma; com mais gente, o tempo segue e a janela avisa isso no cabeçalho. **Sai do canvas antes de implementar:** o lugar do acesso dentro da partida (aba flutuante na borda direita, item no menu lateral ou botão na topbar) e se a dica de um termo leva ao tópico dele.
+
+<a id="f127"></a>
+**F127 — Estratégias e bots operam cripto em fração.** Serve N4 e N37. Com a classe de cripto e a quantidade fracionária no ar, as estratégias seguem comprando só unidades inteiras (`int(caixa // preço)`), então um bot só compra bitcoin se o caixa pagar 1 unidade inteira. Plano: o contexto da estratégia passa a conhecer a classe do ativo, e as estratégias (comprar e segurar, rebalanceamento, momentum, RSI, médias móveis, rompimento) arredondam a quantidade em oito casas para cripto e em inteiro para as demais; `whole_shares` ganha a variante fracionária. Gatilho: a F113 concluída e o uso pedir bot com bitcoin.
 
 ---
 ## 2. Nice-to-have
