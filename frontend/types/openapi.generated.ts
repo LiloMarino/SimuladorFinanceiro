@@ -44,6 +44,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/variable-income/{asset}/indicators": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Indicadores técnicos de um ativo
+         * @description Calcula os indicadores técnicos sobre o mesmo histórico do gráfico do ativo, que termina na data da simulação, com os parâmetros enviados. Devolve as séries pedidas em `series` e o Resumo técnico do dia, que conta todos os indicadores.
+         */
+        post: operations["get_variable_income_indicators_api_variable_income__asset__indicators_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/variable-income/{asset}/orders": {
         parameters: {
             query?: never;
@@ -2180,6 +2200,23 @@ export interface components {
         AssetClassRequest: {
             asset_class: components["schemas"]["AssetClass"];
         };
+        /** AverageSeriesDTO */
+        AverageSeriesDTO: {
+            kind: components["schemas"]["MovingAverageKind"];
+            /** Period */
+            period: number;
+            /** Points */
+            points: components["schemas"]["IndicatorPointDTO"][];
+        };
+        /** BandsSeriesDTO */
+        BandsSeriesDTO: {
+            /** Upper */
+            upper: components["schemas"]["IndicatorPointDTO"][];
+            /** Middle */
+            middle: components["schemas"]["IndicatorPointDTO"][];
+            /** Lower */
+            lower: components["schemas"]["IndicatorPointDTO"][];
+        };
         /** BenchmarkDTO */
         BenchmarkDTO: {
             series: components["schemas"]["BenchmarkSeries"];
@@ -3001,11 +3038,186 @@ export interface components {
             /** Rate */
             rate: string;
         };
+        /** @enum {string} */
+        IndicatorKey: "averages" | "bollinger" | "volume" | "rsi" | "macd" | "stochastic" | "atr" | "obv";
+        /**
+         * IndicatorParamsDTO
+         * @description Os parâmetros de todos os indicadores; os padrões são os de mercado.
+         */
+        IndicatorParamsDTO: {
+            /**
+             * Averages
+             * @default [
+             *       {
+             *         "kind": "sma",
+             *         "period": 20
+             *       },
+             *       {
+             *         "kind": "ema",
+             *         "period": 50
+             *       }
+             *     ]
+             */
+            averages: components["schemas"]["MovingAverageDTO"][];
+            /**
+             * Bollinger Period
+             * @default 20
+             */
+            bollinger_period: number;
+            /**
+             * Bollinger Deviations
+             * @default 2
+             */
+            bollinger_deviations: number;
+            /**
+             * Rsi Period
+             * @default 14
+             */
+            rsi_period: number;
+            /**
+             * Rsi Overbought
+             * @default 70
+             */
+            rsi_overbought: number;
+            /**
+             * Rsi Oversold
+             * @default 30
+             */
+            rsi_oversold: number;
+            /**
+             * Macd Fast
+             * @default 12
+             */
+            macd_fast: number;
+            /**
+             * Macd Slow
+             * @default 26
+             */
+            macd_slow: number;
+            /**
+             * Macd Signal
+             * @default 9
+             */
+            macd_signal: number;
+            /**
+             * Stochastic K
+             * @default 14
+             */
+            stochastic_k: number;
+            /**
+             * Stochastic D
+             * @default 3
+             */
+            stochastic_d: number;
+            /**
+             * Atr Period
+             * @default 14
+             */
+            atr_period: number;
+        };
+        /** IndicatorPointDTO */
+        IndicatorPointDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Value */
+            value: number;
+        };
         /**
          * IndicatorSeries
          * @enum {string}
          */
         IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV";
+        /**
+         * IndicatorSeriesDTO
+         * @description Só os pedidos vêm preenchidos; cada série começa no primeiro pregão com valor.
+         */
+        IndicatorSeriesDTO: {
+            /** Averages */
+            averages?: components["schemas"]["AverageSeriesDTO"][] | null;
+            bollinger?: components["schemas"]["BandsSeriesDTO"] | null;
+            /** Rsi */
+            rsi?: components["schemas"]["IndicatorPointDTO"][] | null;
+            macd?: components["schemas"]["MacdSeriesDTO"] | null;
+            stochastic?: components["schemas"]["StochasticSeriesDTO"] | null;
+            /** Atr */
+            atr?: components["schemas"]["IndicatorPointDTO"][] | null;
+            /** Obv */
+            obv?: components["schemas"]["IndicatorPointDTO"][] | null;
+        };
+        /**
+         * IndicatorSettingsDTO
+         * @description O que o jogador deixou ligado no gráfico e com quais parâmetros; vale para todas as ações.
+         */
+        IndicatorSettingsDTO: {
+            /**
+             * Visible
+             * @default []
+             */
+            visible: components["schemas"]["IndicatorKey"][];
+            /**
+             * @default {
+             *       "averages": [
+             *         {
+             *           "kind": "sma",
+             *           "period": 20
+             *         },
+             *         {
+             *           "kind": "ema",
+             *           "period": 50
+             *         }
+             *       ],
+             *       "bollinger_period": 20,
+             *       "bollinger_deviations": 2,
+             *       "rsi_period": 14,
+             *       "rsi_overbought": 70,
+             *       "rsi_oversold": 30,
+             *       "macd_fast": 12,
+             *       "macd_slow": 26,
+             *       "macd_signal": 9,
+             *       "stochastic_k": 14,
+             *       "stochastic_d": 3,
+             *       "atr_period": 14
+             *     }
+             */
+            params: components["schemas"]["IndicatorParamsDTO"];
+        };
+        /** IndicatorsRequestDTO */
+        IndicatorsRequestDTO: {
+            /**
+             * @default {
+             *       "averages": [
+             *         {
+             *           "kind": "sma",
+             *           "period": 20
+             *         },
+             *         {
+             *           "kind": "ema",
+             *           "period": 50
+             *         }
+             *       ],
+             *       "bollinger_period": 20,
+             *       "bollinger_deviations": 2,
+             *       "rsi_period": 14,
+             *       "rsi_overbought": 70,
+             *       "rsi_oversold": 30,
+             *       "macd_fast": 12,
+             *       "macd_slow": 26,
+             *       "macd_signal": 9,
+             *       "stochastic_k": 14,
+             *       "stochastic_d": 3,
+             *       "atr_period": 14
+             *     }
+             */
+            params: components["schemas"]["IndicatorParamsDTO"];
+            /**
+             * Series
+             * @default []
+             */
+            series: components["schemas"]["IndicatorKey"][];
+        };
         /** InstallmentRowDTO */
         InstallmentRowDTO: {
             /** Number */
@@ -3236,6 +3448,15 @@ export interface components {
         };
         /** @enum {string} */
         LogFilter: "all" | "orders" | "modes";
+        /** MacdSeriesDTO */
+        MacdSeriesDTO: {
+            /** Line */
+            line: components["schemas"]["IndicatorPointDTO"][];
+            /** Signal */
+            signal: components["schemas"]["IndicatorPointDTO"][];
+            /** Histogram */
+            histogram: components["schemas"]["IndicatorPointDTO"][];
+        };
         /** MarketQuoteDTO */
         MarketQuoteDTO: {
             /** Id */
@@ -3353,6 +3574,14 @@ export interface components {
             /** Sell Count */
             sell_count: number;
         };
+        /** MovingAverageDTO */
+        MovingAverageDTO: {
+            kind: components["schemas"]["MovingAverageKind"];
+            /** Period */
+            period: number;
+        };
+        /** @enum {string} */
+        MovingAverageKind: "sma" | "ema";
         /** MyStrategyDTO */
         MyStrategyDTO: {
             active: components["schemas"]["StrategyActiveDTO"] | null;
@@ -4190,6 +4419,12 @@ export interface components {
             /** Value */
             value: string | null;
         };
+        /** @enum {string} */
+        ReadingGroup: "price" | "oscillator";
+        /** @enum {string} */
+        ReadingKey: "sma" | "ema" | "bollinger" | "rsi" | "macd" | "stochastic" | "atr" | "obv";
+        /** @enum {string} */
+        ReadingSignal: "buy" | "neutral" | "sell" | "none";
         /**
          * RealtimeEventCatalog
          * @description Um campo por nome de evento realtime, tipado para o DTO do payload
@@ -4556,6 +4791,35 @@ export interface components {
         SettingsRequest: {
             orders: components["schemas"]["OrderNotificationSettings"];
             players: components["schemas"]["PlayerNotificationSettings"];
+            /**
+             * @default {
+             *       "visible": [],
+             *       "params": {
+             *         "atr_period": 14,
+             *         "averages": [
+             *           {
+             *             "kind": "sma",
+             *             "period": 20
+             *           },
+             *           {
+             *             "kind": "ema",
+             *             "period": 50
+             *           }
+             *         ],
+             *         "bollinger_deviations": 2,
+             *         "bollinger_period": 20,
+             *         "macd_fast": 12,
+             *         "macd_signal": 9,
+             *         "macd_slow": 26,
+             *         "rsi_overbought": 70,
+             *         "rsi_oversold": 30,
+             *         "rsi_period": 14,
+             *         "stochastic_d": 3,
+             *         "stochastic_k": 14
+             *       }
+             *     }
+             */
+            indicators: components["schemas"]["IndicatorSettingsDTO"];
         } & {
             [key: string]: unknown;
         };
@@ -4566,6 +4830,35 @@ export interface components {
         SettingsResponse: {
             orders: components["schemas"]["OrderNotificationSettings"];
             players: components["schemas"]["PlayerNotificationSettings"];
+            /**
+             * @default {
+             *       "visible": [],
+             *       "params": {
+             *         "atr_period": 14,
+             *         "averages": [
+             *           {
+             *             "kind": "sma",
+             *             "period": 20
+             *           },
+             *           {
+             *             "kind": "ema",
+             *             "period": 50
+             *           }
+             *         ],
+             *         "bollinger_deviations": 2,
+             *         "bollinger_period": 20,
+             *         "macd_fast": 12,
+             *         "macd_signal": 9,
+             *         "macd_slow": 26,
+             *         "rsi_overbought": 70,
+             *         "rsi_oversold": 30,
+             *         "rsi_period": 14,
+             *         "stochastic_d": 3,
+             *         "stochastic_k": 14
+             *       }
+             *     }
+             */
+            indicators: components["schemas"]["IndicatorSettingsDTO"];
             /** Debug */
             debug: boolean;
         } & {
@@ -4957,6 +5250,13 @@ export interface components {
             /** Snapshots */
             snapshots: components["schemas"]["StatisticsSnapshotEntryDTO"][];
         };
+        /** StochasticSeriesDTO */
+        StochasticSeriesDTO: {
+            /** K */
+            k: components["schemas"]["IndicatorPointDTO"][];
+            /** D */
+            d: components["schemas"]["IndicatorPointDTO"][];
+        };
         /** StockDetailsDTO */
         StockDetailsDTO: {
             /** Id */
@@ -5296,6 +5596,8 @@ export interface components {
          * @enum {string}
          */
         SuggestionKind: "PAYOFF" | "VOLATILITY" | "ON_TIME" | "RECOVER";
+        /** @enum {string} */
+        SummaryVerdict: "strong_buy" | "buy" | "neutral" | "sell" | "strong_sell";
         /**
          * TeamCompositionDTO
          * @description Como a equipe dividiu o dinheiro no último dia: média das frações dos membros.
@@ -5455,6 +5757,49 @@ export interface components {
             simulation_id: number;
             /** Points */
             points: components["schemas"]["SeriesPointDTO"][];
+        };
+        /** TechnicalIndicatorsDTO */
+        TechnicalIndicatorsDTO: {
+            series: components["schemas"]["IndicatorSeriesDTO"];
+            summary: components["schemas"]["TechnicalSummaryDTO"];
+        };
+        /** TechnicalReadingDTO */
+        TechnicalReadingDTO: {
+            key: components["schemas"]["ReadingKey"];
+            group: components["schemas"]["ReadingGroup"];
+            /** Label */
+            label: string;
+            /** Value */
+            value: number | null;
+            /** Lower */
+            lower?: number | null;
+            /** Upper */
+            upper?: number | null;
+            signal: components["schemas"]["ReadingSignal"];
+            /** Reason */
+            reason: string;
+            /** Needed Sessions */
+            needed_sessions: number;
+            /** Missing Sessions */
+            missing_sessions: number;
+        };
+        /** TechnicalSummaryDTO */
+        TechnicalSummaryDTO: {
+            /** Date */
+            date: string | null;
+            /** Readings */
+            readings: components["schemas"]["TechnicalReadingDTO"][];
+            /** Buys */
+            buys: number;
+            /** Sells */
+            sells: number;
+            /** Counted */
+            counted: number;
+            /** Sided */
+            sided: number;
+            /** Score */
+            score: number | null;
+            verdict: components["schemas"]["SummaryVerdict"] | null;
         };
         /** TickerSuggestionDTO */
         TickerSuggestionDTO: {
@@ -5738,6 +6083,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StockDetailsDTO"] | null;
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_variable_income_indicators_api_variable_income__asset__indicators_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IndicatorsRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TechnicalIndicatorsDTO"];
                 };
             };
             /** @description Unprocessable Content */

@@ -69,6 +69,28 @@ def test_put_does_not_store_a_debug_sent_by_the_client(
     assert response.json()["debug"] is False
 
 
+def test_settings_stored_before_the_indicators_get_them_with_nothing_on(
+    client: TestClient, stored: _FakeSettingsRepository
+) -> None:
+    stored.stored = PREFERENCES
+
+    indicators = client.get("/api/settings").json()["indicators"]
+
+    assert indicators["visible"] == []
+    assert indicators["params"]["rsi_period"] == 14
+
+
+def test_put_stores_the_chosen_indicators(
+    client: TestClient, stored: _FakeSettingsRepository
+) -> None:
+    chosen = {"visible": ["rsi"], "params": {"rsi_period": 9}}
+
+    client.put("/api/settings", json={**PREFERENCES, "indicators": chosen})
+
+    assert stored.stored["indicators"]["visible"] == ["rsi"]
+    assert stored.stored["indicators"]["params"]["rsi_period"] == 9
+
+
 def test_server_value_wins_over_a_stale_stored_one(
     client: TestClient, stored: _FakeSettingsRepository, monkeypatch: pytest.MonkeyPatch
 ) -> None:

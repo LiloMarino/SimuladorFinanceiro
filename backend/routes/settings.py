@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict
 from backend import config
 from backend.core import repository
 from backend.core.dependencies import ClientID
+from backend.core.dto.technical_indicators import IndicatorSettingsDTO
 from backend.core.runtime.user_manager import UserManager
 
 settings_router = APIRouter(prefix="/api/settings", tags=["Settings"])
@@ -21,6 +22,8 @@ class PlayerNotificationSettings(BaseModel):
 class SettingsRequest(BaseModel):
     orders: OrderNotificationSettings
     players: PlayerNotificationSettings
+    # O que o jogador liga no gráfico das ações; quem gravou antes dele nasce com o padrão
+    indicators: IndicatorSettingsDTO = IndicatorSettingsDTO()
 
     model_config = ConfigDict(extra="allow")
 

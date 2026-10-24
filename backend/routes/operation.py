@@ -16,10 +16,18 @@ from backend.core.dto.fixed_income_projection import (
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO, TradeDTO
 from backend.core.dto.stock_details import StockDetailsDTO
+from backend.core.dto.technical_indicators import (
+    IndicatorsRequestDTO,
+    TechnicalIndicatorsDTO,
+)
 from backend.core.enum import OrderAction, OrderType
 from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
+)
+from backend.features.technical_analysis.summary import (
+    build_technical_indicators,
+    price_frame,
 )
 from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
 
@@ -80,6 +88,26 @@ def get_variable_income_details(simulation: ActiveSimulation, asset: str):
     if not stock:
         raise NotFoundError("Ativo não encontrado.")
     return stock
+
+
+@operation_router.post(
+    "/variable-income/{asset}/indicators",
+    response_model=TechnicalIndicatorsDTO,
+    summary="Indicadores técnicos de um ativo",
+    description=(
+        "Calcula os indicadores técnicos sobre o mesmo histórico do gráfico do ativo, "
+        "que termina na data da simulação, com os parâmetros enviados. Devolve as "
+        "séries pedidas em `series` e o Resumo técnico do dia, que conta todos os "
+        "indicadores."
+    ),
+)
+def get_variable_income_indicators(
+    simulation: ActiveSimulation, asset: str, payload: IndicatorsRequestDTO
+):
+    stock = simulation.get_stock_details(asset)
+    if not stock:
+        raise NotFoundError("Ativo não encontrado.")
+    return build_technical_indicators(price_frame(stock.history), payload)
 
 
 @operation_router.post(

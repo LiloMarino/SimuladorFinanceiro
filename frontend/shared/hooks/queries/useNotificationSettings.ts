@@ -5,7 +5,7 @@ import type { NotificationPreferences } from "@/types";
 
 export function useNotificationSettings() {
   return useQuery({
-    queryKey: queryKeys.notificationSettings(),
+    queryKey: queryKeys.userSettings(),
     queryFn: ({ signal }) => apiFetch<NotificationPreferences>("/api/settings", { signal }),
   });
 }

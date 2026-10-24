@@ -30,6 +30,9 @@ export const queryKeys = {
     ["fixed-income", id, "redemption", amount, currentDate] as const,
   variableIncomeList: () => ["variable-income", "list"] as const,
   variableIncomeStock: (ticker: string) => ["variable-income", ticker] as const,
+  stockIndicators: (ticker: string, request?: object) =>
+    request === undefined ? ["variable-income", ticker, "indicators"] as const
+      : ["variable-income", ticker, "indicators", request] as const,
   variableIncomeOrders: (ticker: string) => ["variable-income", ticker, "orders"] as const,
   portfolio: () => ["portfolio"] as const,
   patrimonialHistory: () => ["portfolio", "history"] as const,
@@ -42,7 +45,7 @@ export const queryKeys = {
   correlationAssets: () => ["correlation", "assets"] as const,
   correlation: (tickers: string[], window: string, end: string | null) =>
     ["correlation", window, end, ...tickers] as const,
-  notificationSettings: () => ["notifications", "settings"] as const,
+  userSettings: () => ["settings", "user"] as const,
   debugMode: () => ["settings", "debug"] as const,
   debugMetrics: () => ["debug", "metrics"] as const,
   seriesCoverage: () => ["import-assets", "coverage"] as const,

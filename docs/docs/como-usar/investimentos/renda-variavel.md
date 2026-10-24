@@ -196,5 +196,6 @@ Mantém posições por alguns dias/semanas para capturar tendências de médio p
 
 ## Próximos Passos
 
+- [Análise técnica](./analise-tecnica) - Indicadores do gráfico e o Resumo técnico
 - [Renda Fixa](./renda-fixa) - Investimentos de menor risco
 - [Carteira](../carteira) - Acompanhe seu portfólio

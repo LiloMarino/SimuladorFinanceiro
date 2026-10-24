@@ -112,6 +112,69 @@
         }
       }
     },
+    "/api/variable-income/{asset}/indicators": {
+      "post": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Indicadores técnicos de um ativo",
+        "description": "Calcula os indicadores técnicos sobre o mesmo histórico do gráfico do ativo, que termina na data da simulação, com os parâmetros enviados. Devolve as séries pedidas em `series` e o Resumo técnico do dia, que conta todos os indicadores.",
+        "operationId": "get_variable_income_indicators_api_variable_income__asset__indicators_post",
+        "parameters": [
+          {
+            "name": "asset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IndicatorsRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TechnicalIndicatorsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/variable-income/{asset}/orders": {
       "post": {
         "tags": [
@@ -6369,6 +6432,65 @@
         ],
         "title": "AssetClassRequest"
       },
+      "AverageSeriesDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/MovingAverageKind"
+          },
+          "period": {
+            "type": "integer",
+            "title": "Period"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorPointDTO"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "period",
+          "points"
+        ],
+        "title": "AverageSeriesDTO"
+      },
+      "BandsSeriesDTO": {
+        "properties": {
+          "upper": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorPointDTO"
+            },
+            "type": "array",
+            "title": "Upper"
+          },
+          "middle": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorPointDTO"
+            },
+            "type": "array",
+            "title": "Middle"
+          },
+          "lower": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorPointDTO"
+            },
+            "type": "array",
+            "title": "Lower"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "upper",
+          "middle",
+          "lower"
+        ],
+        "title": "BandsSeriesDTO"
+      },
       "BenchmarkDTO": {
         "properties": {
           "series": {
@@ -8780,6 +8902,142 @@
         ],
         "title": "IncomeTaxBracketDTO"
       },
+      "IndicatorKey": {
+        "type": "string",
+        "enum": [
+          "averages",
+          "bollinger",
+          "volume",
+          "rsi",
+          "macd",
+          "stochastic",
+          "atr",
+          "obv"
+        ]
+      },
+      "IndicatorParamsDTO": {
+        "properties": {
+          "averages": {
+            "items": {
+              "$ref": "#/components/schemas/MovingAverageDTO"
+            },
+            "type": "array",
+            "maxItems": 4,
+            "title": "Averages",
+            "default": [
+              {
+                "kind": "sma",
+                "period": 20
+              },
+              {
+                "kind": "ema",
+                "period": 50
+              }
+            ]
+          },
+          "bollinger_period": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 2.0,
+            "title": "Bollinger Period",
+            "default": 20
+          },
+          "bollinger_deviations": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 0.5,
+            "title": "Bollinger Deviations",
+            "default": 2
+          },
+          "rsi_period": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Rsi Period",
+            "default": 14
+          },
+          "rsi_overbought": {
+            "type": "integer",
+            "maximum": 95.0,
+            "minimum": 50.0,
+            "title": "Rsi Overbought",
+            "default": 70
+          },
+          "rsi_oversold": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 5.0,
+            "title": "Rsi Oversold",
+            "default": 30
+          },
+          "macd_fast": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Macd Fast",
+            "default": 12
+          },
+          "macd_slow": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 3.0,
+            "title": "Macd Slow",
+            "default": 26
+          },
+          "macd_signal": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Macd Signal",
+            "default": 9
+          },
+          "stochastic_k": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Stochastic K",
+            "default": 14
+          },
+          "stochastic_d": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Stochastic D",
+            "default": 3
+          },
+          "atr_period": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Atr Period",
+            "default": 14
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "IndicatorParamsDTO",
+        "description": "Os parâmetros de todos os indicadores; os padrões são os de mercado."
+      },
+      "IndicatorPointDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "value"
+        ],
+        "title": "IndicatorPointDTO"
+      },
       "IndicatorSeries": {
         "type": "string",
         "enum": [
@@ -8789,6 +9047,183 @@
           "IBOV"
         ],
         "title": "IndicatorSeries"
+      },
+      "IndicatorSeriesDTO": {
+        "properties": {
+          "averages": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/AverageSeriesDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Averages"
+          },
+          "bollinger": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BandsSeriesDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rsi": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IndicatorPointDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rsi"
+          },
+          "macd": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MacdSeriesDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stochastic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StochasticSeriesDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "atr": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IndicatorPointDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atr"
+          },
+          "obv": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IndicatorPointDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Obv"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "IndicatorSeriesDTO",
+        "description": "Só os pedidos vêm preenchidos; cada série começa no primeiro pregão com valor."
+      },
+      "IndicatorSettingsDTO": {
+        "properties": {
+          "visible": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorKey"
+            },
+            "type": "array",
+            "title": "Visible",
+            "default": []
+          },
+          "params": {
+            "$ref": "#/components/schemas/IndicatorParamsDTO",
+            "default": {
+              "averages": [
+                {
+                  "kind": "sma",
+                  "period": 20
+                },
+                {
+                  "kind": "ema",
+                  "period": 50
+                }
+              ],
+              "bollinger_period": 20,
+              "bollinger_deviations": 2.0,
+              "rsi_period": 14,
+              "rsi_overbought": 70,
+              "rsi_oversold": 30,
+              "macd_fast": 12,
+              "macd_slow": 26,
+              "macd_signal": 9,
+              "stochastic_k": 14,
+              "stochastic_d": 3,
+              "atr_period": 14
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "IndicatorSettingsDTO",
+        "description": "O que o jogador deixou ligado no gráfico e com quais parâmetros; vale para todas as ações."
+      },
+      "IndicatorsRequestDTO": {
+        "properties": {
+          "params": {
+            "$ref": "#/components/schemas/IndicatorParamsDTO",
+            "default": {
+              "averages": [
+                {
+                  "kind": "sma",
+                  "period": 20
+                },
+                {
+                  "kind": "ema",
+                  "period": 50
+                }
+              ],
+              "bollinger_period": 20,
+              "bollinger_deviations": 2.0,
+              "rsi_period": 14,
+              "rsi_overbought": 70,
+              "rsi_oversold": 30,
+              "macd_fast": 12,
+              "macd_slow": 26,
+              "macd_signal": 9,
+              "stochastic_k": 14,
+              "stochastic_d": 3,
+              "atr_period": 14
+            }
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorKey"
+            },
+            "type": "array",
+            "title": "Series",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "IndicatorsRequestDTO"
       },
       "InstallmentRowDTO": {
         "properties": {
@@ -9402,6 +9837,39 @@
           "modes"
         ]
       },
+      "MacdSeriesDTO": {
+        "properties": {
+          "line": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorPointDTO"
+            },
+            "type": "array",
+            "title": "Line"
+          },
+          "signal": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorPointDTO"
+            },
+            "type": "array",
+            "title": "Signal"
+          },
+          "histogram": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorPointDTO"
+            },
+            "type": "array",
+            "title": "Histogram"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "line",
+          "signal",
+          "histogram"
+        ],
+        "title": "MacdSeriesDTO"
+      },
       "MarketQuoteDTO": {
         "properties": {
           "id": {
@@ -9696,6 +10164,33 @@
           "sell_count"
         ],
         "title": "MonthlyVolumeDTO"
+      },
+      "MovingAverageDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/MovingAverageKind"
+          },
+          "period": {
+            "type": "integer",
+            "maximum": 200.0,
+            "minimum": 2.0,
+            "title": "Period"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "period"
+        ],
+        "title": "MovingAverageDTO"
+      },
+      "MovingAverageKind": {
+        "type": "string",
+        "enum": [
+          "sma",
+          "ema"
+        ]
       },
       "MyStrategyDTO": {
         "properties": {
@@ -12235,6 +12730,35 @@
         ],
         "title": "RatingVolatilityDTO"
       },
+      "ReadingGroup": {
+        "type": "string",
+        "enum": [
+          "price",
+          "oscillator"
+        ]
+      },
+      "ReadingKey": {
+        "type": "string",
+        "enum": [
+          "sma",
+          "ema",
+          "bollinger",
+          "rsi",
+          "macd",
+          "stochastic",
+          "atr",
+          "obv"
+        ]
+      },
+      "ReadingSignal": {
+        "type": "string",
+        "enum": [
+          "buy",
+          "neutral",
+          "sell",
+          "none"
+        ]
+      },
       "RealtimeEventCatalog": {
         "properties": {
           "simulation_started": {
@@ -13326,6 +13850,35 @@
           },
           "players": {
             "$ref": "#/components/schemas/PlayerNotificationSettings"
+          },
+          "indicators": {
+            "$ref": "#/components/schemas/IndicatorSettingsDTO",
+            "default": {
+              "visible": [],
+              "params": {
+                "atr_period": 14,
+                "averages": [
+                  {
+                    "kind": "sma",
+                    "period": 20
+                  },
+                  {
+                    "kind": "ema",
+                    "period": 50
+                  }
+                ],
+                "bollinger_deviations": 2.0,
+                "bollinger_period": 20,
+                "macd_fast": 12,
+                "macd_signal": 9,
+                "macd_slow": 26,
+                "rsi_overbought": 70,
+                "rsi_oversold": 30,
+                "rsi_period": 14,
+                "stochastic_d": 3,
+                "stochastic_k": 14
+              }
+            }
           }
         },
         "additionalProperties": true,
@@ -13343,6 +13896,35 @@
           },
           "players": {
             "$ref": "#/components/schemas/PlayerNotificationSettings"
+          },
+          "indicators": {
+            "$ref": "#/components/schemas/IndicatorSettingsDTO",
+            "default": {
+              "visible": [],
+              "params": {
+                "atr_period": 14,
+                "averages": [
+                  {
+                    "kind": "sma",
+                    "period": 20
+                  },
+                  {
+                    "kind": "ema",
+                    "period": 50
+                  }
+                ],
+                "bollinger_deviations": 2.0,
+                "bollinger_period": 20,
+                "macd_fast": 12,
+                "macd_signal": 9,
+                "macd_slow": 26,
+                "rsi_overbought": 70,
+                "rsi_oversold": 30,
+                "rsi_period": 14,
+                "stochastic_d": 3,
+                "stochastic_k": 14
+              }
+            }
           },
           "debug": {
             "type": "boolean",
@@ -14260,6 +14842,31 @@
           "snapshots"
         ],
         "title": "StatisticsSnapshotUpdateEventDTO"
+      },
+      "StochasticSeriesDTO": {
+        "properties": {
+          "k": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorPointDTO"
+            },
+            "type": "array",
+            "title": "K"
+          },
+          "d": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorPointDTO"
+            },
+            "type": "array",
+            "title": "D"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "k",
+          "d"
+        ],
+        "title": "StochasticSeriesDTO"
       },
       "StockDetailsDTO": {
         "properties": {
@@ -15382,6 +15989,16 @@
         ],
         "title": "SuggestionKind"
       },
+      "SummaryVerdict": {
+        "type": "string",
+        "enum": [
+          "strong_buy",
+          "buy",
+          "neutral",
+          "sell",
+          "strong_sell"
+        ]
+      },
       "TeamCompositionDTO": {
         "properties": {
           "team": {
@@ -15905,6 +16522,171 @@
         ],
         "title": "TeamScoreHistoryDTO",
         "description": "A nota da equipe em cada mês: a média dos membros que já têm nota nele."
+      },
+      "TechnicalIndicatorsDTO": {
+        "properties": {
+          "series": {
+            "$ref": "#/components/schemas/IndicatorSeriesDTO"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/TechnicalSummaryDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "series",
+          "summary"
+        ],
+        "title": "TechnicalIndicatorsDTO"
+      },
+      "TechnicalReadingDTO": {
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/ReadingKey"
+          },
+          "group": {
+            "$ref": "#/components/schemas/ReadingGroup"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "lower": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lower"
+          },
+          "upper": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upper"
+          },
+          "signal": {
+            "$ref": "#/components/schemas/ReadingSignal"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "needed_sessions": {
+            "type": "integer",
+            "title": "Needed Sessions"
+          },
+          "missing_sessions": {
+            "type": "integer",
+            "title": "Missing Sessions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "group",
+          "label",
+          "value",
+          "signal",
+          "reason",
+          "needed_sessions",
+          "missing_sessions"
+        ],
+        "title": "TechnicalReadingDTO"
+      },
+      "TechnicalSummaryDTO": {
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "readings": {
+            "items": {
+              "$ref": "#/components/schemas/TechnicalReadingDTO"
+            },
+            "type": "array",
+            "title": "Readings"
+          },
+          "buys": {
+            "type": "integer",
+            "title": "Buys"
+          },
+          "sells": {
+            "type": "integer",
+            "title": "Sells"
+          },
+          "counted": {
+            "type": "integer",
+            "title": "Counted"
+          },
+          "sided": {
+            "type": "integer",
+            "title": "Sided"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SummaryVerdict"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "readings",
+          "buys",
+          "sells",
+          "counted",
+          "sided",
+          "score",
+          "verdict"
+        ],
+        "title": "TechnicalSummaryDTO"
       },
       "TickerSuggestionDTO": {
         "properties": {

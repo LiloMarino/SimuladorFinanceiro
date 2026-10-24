@@ -7,15 +7,15 @@ export function useUpdateNotificationSettings() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: queryKeys.notificationSettings(),
+    mutationKey: queryKeys.userSettings(),
     mutationFn: (next: NotificationPreferences) =>
       apiFetch<NotificationPreferences>("/api/settings", { method: "PUT", body: next }),
 
     // UX instantâneo: escreve o valor otimista no cache antes da resposta do PUT.
     onMutate: async (next) => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.notificationSettings() });
-      const previous = queryClient.getQueryData<NotificationPreferences>(queryKeys.notificationSettings());
-      queryClient.setQueryData(queryKeys.notificationSettings(), next);
+      await queryClient.cancelQueries({ queryKey: queryKeys.userSettings() });
+      const previous = queryClient.getQueryData<NotificationPreferences>(queryKeys.userSettings());
+      queryClient.setQueryData(queryKeys.userSettings(), next);
       return { previous };
     },
 
@@ -24,14 +24,14 @@ export function useUpdateNotificationSettings() {
     // ela quem manda no cache, e não deixamos o rollback desta atropelar o
     // sucesso da mais recente (ver "Concurrent Optimistic Updates" do TkDodo).
     onError: (_err, _next, context) => {
-      if (queryClient.isMutating({ mutationKey: queryKeys.notificationSettings() }) === 1) {
-        queryClient.setQueryData(queryKeys.notificationSettings(), context?.previous);
+      if (queryClient.isMutating({ mutationKey: queryKeys.userSettings() }) === 1) {
+        queryClient.setQueryData(queryKeys.userSettings(), context?.previous);
       }
     },
 
     onSettled: () => {
-      if (queryClient.isMutating({ mutationKey: queryKeys.notificationSettings() }) === 1) {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.notificationSettings() });
+      if (queryClient.isMutating({ mutationKey: queryKeys.userSettings() }) === 1) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.userSettings() });
       }
     },
   });

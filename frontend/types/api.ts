@@ -98,6 +98,20 @@ export type Order = components["schemas"]["OrderDTO"];
 // Notifications
 export type NotificationPreferences = Pick<components["schemas"]["SettingsRequest"], "orders" | "players">;
 
+// Configurações do jogador, com o que ele deixou ligado no gráfico das ações
+export type UserSettings = components["schemas"]["SettingsRequest"];
+
+// Indicadores técnicos
+export type IndicatorSettings = components["schemas"]["IndicatorSettingsDTO"];
+export type IndicatorParams = components["schemas"]["IndicatorParamsDTO"];
+export type IndicatorKey = IndicatorSettings["visible"][number];
+export type MovingAverage = IndicatorParams["averages"][number];
+export type IndicatorsRequest = components["schemas"]["IndicatorsRequestDTO"];
+export type TechnicalIndicators = components["schemas"]["TechnicalIndicatorsDTO"];
+export type TechnicalSummary = TechnicalIndicators["summary"];
+export type TechnicalReading = TechnicalSummary["readings"][number];
+export type IndicatorPoint = components["schemas"]["IndicatorPointDTO"];
+
 // Modo debug: definido no boot do servidor, só leitura
 export type DebugMode = components["schemas"]["SettingsResponse"]["debug"];
 

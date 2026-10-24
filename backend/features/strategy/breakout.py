@@ -27,6 +27,7 @@ from backend.features.strategy.base_strategy import (
     param_tickers,
 )
 from backend.features.strategy.context import StrategyContext
+from backend.features.technical_analysis import indicators
 
 
 class VolumeBreakout(BaseStrategy):
@@ -250,7 +251,7 @@ def _channel(
     upper = cast(pd.Series, _col(frame, "high").rolling(high_window).max().shift(1))
     lower = cast(pd.Series, _col(frame, "low").rolling(exit_window).min().shift(1))
     volume = _col(frame, "volume")
-    average_volume = cast(pd.Series, volume.rolling(high_window).mean()).shift(1)
+    average_volume = indicators.sma(volume, high_window).shift(1)
     broke_out = (close > upper) & (volume * 100 > average_volume * volume_pct)
     broke_down = close < lower
     return upper, lower, broke_out, broke_down

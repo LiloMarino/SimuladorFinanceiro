@@ -28,6 +28,7 @@ from backend.features.strategy.base_strategy import (
     param_tickers,
 )
 from backend.features.strategy.context import StrategyContext
+from backend.features.technical_analysis import indicators
 
 
 class RelativeStrength(BaseStrategy):
@@ -238,21 +239,8 @@ def _crossings(
     close: pd.Series, period: int, buy_below: int, sell_above: int
 ) -> tuple[pd.Series, pd.Series, pd.Series]:
     """O IFR e os dias em que ele cruzou o nível de compra para baixo e o de venda para cima."""
-    rsi = _rsi(close, period)
+    rsi = indicators.rsi(close, period)
     before = rsi.shift(1)
     dipped = (before >= buy_below) & (rsi < buy_below)
     rallied = (before <= sell_above) & (rsi > sell_above)
     return rsi, dipped, rallied
-
-
-def _rsi(close: pd.Series, period: int) -> pd.Series:
-    """IFR de Wilder: média exponencial dos ganhos e das perdas com peso 1/período."""
-    change = close.diff()
-    alpha = 1 / period
-    gain = cast(pd.Series, change.clip(lower=0))
-    loss = cast(pd.Series, -change.clip(upper=0))
-    avg_gain = gain.ewm(alpha=alpha, adjust=False, min_periods=period).mean()
-    avg_loss = loss.ewm(alpha=alpha, adjust=False, min_periods=period).mean()
-    rsi = cast(pd.Series, 100 - 100 / (1 + avg_gain / avg_loss))
-    # Sem nenhuma variação o preço não tem força para nenhum lado
-    return rsi.where(~((avg_gain == 0) & (avg_loss == 0)), 50.0)

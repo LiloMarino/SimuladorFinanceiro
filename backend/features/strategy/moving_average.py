@@ -27,6 +27,7 @@ from backend.features.strategy.base_strategy import (
     param_tickers,
 )
 from backend.features.strategy.context import StrategyContext
+from backend.features.technical_analysis import indicators
 
 
 class MovingAverageCross(BaseStrategy):
@@ -217,8 +218,8 @@ def _crossings(
     close: pd.Series, short: int, long_: int
 ) -> tuple[pd.Series, pd.Series, pd.Series, pd.Series]:
     """As duas médias e os dias em que a curta cruzou a longa para cima e para baixo."""
-    short_avg = cast(pd.Series, close.rolling(short).mean())
-    long_avg = cast(pd.Series, close.rolling(long_).mean())
+    short_avg = indicators.sma(close, short)
+    long_avg = indicators.sma(close, long_)
     gap = cast(pd.Series, short_avg - long_avg)
     before = gap.shift(1)
     up = (before <= 0) & (gap > 0)
