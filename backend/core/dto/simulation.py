@@ -6,12 +6,49 @@ from pydantic import Field, model_validator
 from backend.core.dto.backtest import BacktestProgressDTO
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import (
+    ComputerDifficulty,
     GameType,
     PlayerGrouping,
     SimulationStatus,
     TeamNaming,
     VictoryCriterion,
 )
+
+GOVERNMENT_MIN_YEARS = 5
+
+
+def validate_government(
+    *,
+    game_type: GameType,
+    player_grouping: PlayerGrouping,
+    government_enabled: bool,
+    start_date: date,
+    end_date: date,
+    first_election: date | None,
+) -> None:
+    """As regras da expansão Governo & Política; valem igual para o DTO e para a requisição."""
+    if game_type is GameType.POLITICAL and not government_enabled:
+        raise ValueError("A vitória política exige a expansão Governo & Política.")
+    if not government_enabled:
+        return
+    if game_type is GameType.POLITICAL and player_grouping is PlayerGrouping.TEAMS:
+        raise ValueError("A vitória política exige o modo individual.")
+    if end_date < _add_years(start_date, GOVERNMENT_MIN_YEARS):
+        raise ValueError(
+            f"A expansão Governo & Política exige uma partida de {GOVERNMENT_MIN_YEARS} anos ou mais."
+        )
+    if first_election is None:
+        raise ValueError("Escolha a data da primeira eleição.")
+    if not start_date < first_election <= end_date:
+        raise ValueError("A primeira eleição precisa cair dentro da partida.")
+
+
+def _add_years(day: date, years: int) -> date:
+    try:
+        return day.replace(year=day.year + years)
+    except ValueError:
+        # 29 de fevereiro num ano sem ele
+        return day.replace(year=day.year + years, day=28)
 
 
 class SimulationSettingsDTO(BaseDTO):
@@ -40,11 +77,24 @@ class SimulationSettingsDTO(BaseDTO):
     # Ajudas da renda fixa: desligadas, o servidor omite os campos que dão a resposta
     show_equivalent_rate: bool = True
     show_maturity_projection: bool = True
+    # Expansão Governo & Política: trava quando a partida começa
+    government_enabled: bool = False
+    # Data do 1º turno da primeira eleição; as seguintes caem a cada 4 anos
+    first_election: date | None = None
+    computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
 
     @model_validator(mode="after")
     def validate_rules(self):
         if self.start_date > self.end_date:
             raise ValueError("Data de início deve ser antes da data de fim.")
+        validate_government(
+            game_type=self.game_type,
+            player_grouping=self.player_grouping,
+            government_enabled=self.government_enabled,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            first_election=self.first_election,
+        )
         if (
             self.game_type is GameType.GOAL_RACE
             and self.goal_net_worth <= self.starting_cash

@@ -1332,6 +1332,186 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/election": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter a eleição
+         * @description Retorna as datas, os partidos com chapa, filiados, verba e promessa, as pesquisas, a simulação do 2º turno, as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         */
+        get: operations["get_election_api_government_election_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/parties": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Fundar um partido
+         * @description Funda um partido com nome, sigla de 2 a 5 letras, cor, promessa na régua de 1 a 5 e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.
+         */
+        post: operations["found_party_api_government_parties_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/parties/{party_id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Filiar-se a um partido
+         * @description Entra no partido escolhendo quanto contribui por mês, que pode ser zero. Um partido por vez.
+         */
+        post: operations["join_party_api_government_parties__party_id__members_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/membership": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Sair do partido
+         * @description A contribuição para na hora e o que já saiu do caixa não volta. A fundadora que sai passa o partido ao filiado mais antigo; o último a sair desfaz o partido.
+         */
+        delete: operations["leave_party_api_government_membership_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/membership/contribution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Mudar a contribuição
+         * @description Troca a contribuição mensal ao partido; vale a partir do próximo dia 1º. Pode ser zero.
+         */
+        put: operations["set_contribution_api_government_membership_contribution_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/parties/expel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Expulsar um filiado
+         * @description Só a fundadora expulsa. A expulsão é pública; se o expulso era candidato ou vice, a vaga abre.
+         */
+        post: operations["expel_member_api_government_parties_expel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/parties/ticket": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Montar a chapa
+         * @description Só a fundadora escolhe candidato e vice entre os filiados, até o fim da inscrição (último dia do mês anterior ao 1º turno). O vice recebe o convite e aceita ou recusa; sem resposta, a chapa concorre sem vice.
+         */
+        put: operations["set_ticket_api_government_parties_ticket_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/vice/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Responder ao convite de vice
+         * @description Aceita ou recusa a vaga de vice. Recusar não tira do partido: a vaga volta para a fundadora indicar outro filiado.
+         */
+        post: operations["answer_vice_api_government_vice_answer_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/donations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Doar a um finalista
+         * @description Entre os turnos, quem ficou de fora doa a um dos finalistas, até a véspera do 2º turno. A doação é pública, sai do caixa de uma vez e vira apoio do finalista.
+         */
+        post: operations["donate_api_government_donations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/strategies": {
         parameters: {
             query?: never;
@@ -2726,12 +2906,23 @@ export interface components {
             /** Teams */
             teams: components["schemas"]["TeamCompositionDTO"][];
         };
+        /**
+         * ComputerDifficulty
+         * @description A verba de cada partido do computador, em múltiplo da média dos partidos de jogadores.
+         * @enum {string}
+         */
+        ComputerDifficulty: "EASY" | "NORMAL" | "HARD";
         /** ContractLoanRequestDTO */
         ContractLoanRequestDTO: {
             /** Amount */
             amount: number | string;
             /** Term Months */
             term_months: number;
+        };
+        /** ContributionRequest */
+        ContributionRequest: {
+            /** Contribution */
+            contribution: number | string;
         };
         /** CorrelationAssetDTO */
         CorrelationAssetDTO: {
@@ -2869,6 +3060,15 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            /**
+             * Government Enabled
+             * @default false
+             */
+            government_enabled: boolean;
+            /** First Election */
+            first_election?: string | null;
+            /** @default NORMAL */
+            computer_difficulty: components["schemas"]["ComputerDifficulty"];
         };
         /**
          * CreditCostDTO
@@ -3030,6 +3230,27 @@ export interface components {
             /** Debt Limit */
             debt_limit: string;
         };
+        /** DonationDTO */
+        DonationDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Nickname */
+            nickname: string;
+            /** Party Id */
+            party_id: number;
+            /** Amount */
+            amount: string;
+        };
+        /** DonationRequest */
+        DonationRequest: {
+            /** Party Id */
+            party_id: number;
+            /** Amount */
+            amount: number | string;
+        };
         /** DrawdownDTO */
         DrawdownDTO: {
             /** Value */
@@ -3054,6 +3275,88 @@ export interface components {
             /** Cdi */
             cdi: string;
         };
+        /** ElectionDatesDTO */
+        ElectionDatesDTO: {
+            /**
+             * Campaign Start
+             * Format: date
+             */
+            campaign_start: string;
+            /**
+             * Ticket Deadline
+             * Format: date
+             */
+            ticket_deadline: string;
+            /**
+             * First Round
+             * Format: date
+             */
+            first_round: string;
+            /**
+             * Runoff
+             * Format: date
+             */
+            runoff: string;
+            /**
+             * Donation Deadline
+             * Format: date
+             */
+            donation_deadline: string;
+            /**
+             * Inauguration
+             * Format: date
+             */
+            inauguration: string;
+        };
+        /** ElectionPanelDTO */
+        ElectionPanelDTO: {
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            phase: components["schemas"]["ElectionPhase"];
+            /** Election Year */
+            election_year: number;
+            dates: components["schemas"]["ElectionDatesDTO"];
+            /** Parties */
+            parties: components["schemas"]["PartyDTO"][];
+            /** Undecided */
+            undecided: string;
+            /** Polls */
+            polls: components["schemas"]["PollDTO"][];
+            runoff_simulation: components["schemas"]["RunoffSimulationDTO"] | null;
+            /** Finalists */
+            finalists: number[];
+            /** Donations */
+            donations: components["schemas"]["DonationDTO"][];
+            my_party: components["schemas"]["MyPartyDTO"] | null;
+            /** Can Found Or Join */
+            can_found_or_join: boolean;
+            /** Can Edit Ticket */
+            can_edit_ticket: boolean;
+            /** Can Donate */
+            can_donate: boolean;
+            last_result: components["schemas"]["RoundResultDTO"] | null;
+            /** Results */
+            results: components["schemas"]["RoundResultDTO"][];
+            term: components["schemas"]["TermDTO"] | null;
+            pending_term: components["schemas"]["TermDTO"] | null;
+            /** Decides Match */
+            decides_match: boolean;
+            /** Player Standings */
+            player_standings: components["schemas"]["PlayerStandingDTO"][];
+            /** Party Standings */
+            party_standings: components["schemas"]["PartyStandingDTO"][];
+            /** Computer Budget Factor */
+            computer_budget_factor: string;
+        };
+        /**
+         * ElectionPhase
+         * @description Onde a partida está no ciclo eleitoral.
+         * @enum {string}
+         */
+        ElectionPhase: "BEFORE_CAMPAIGN" | "CAMPAIGN" | "BETWEEN_ROUNDS" | "AWAITING_TERM" | "TERM";
         /** EngineInfo */
         EngineInfo: {
             /** Speed */
@@ -3065,6 +3368,11 @@ export interface components {
         ErrorResponse: {
             /** Message */
             message: string;
+        };
+        /** ExpelRequest */
+        ExpelRequest: {
+            /** Nickname */
+            nickname: string;
         };
         /** FixedAssetsUpdateEventDTO */
         FixedAssetsUpdateEventDTO: {
@@ -3267,6 +3575,22 @@ export interface components {
          * @enum {string}
          */
         FixedIncomeType: "CDB" | "LCI" | "LCA" | "Tesouro Direto";
+        /** FoundPartyRequest */
+        FoundPartyRequest: {
+            /** Name */
+            name: string;
+            /** Abbr */
+            abbr: string;
+            /** Color */
+            color: string;
+            /** Promise */
+            promise: number;
+            /**
+             * Contribution
+             * @default 0
+             */
+            contribution: number | string;
+        };
         /**
          * FutureParamsDTO
          * @description Os controles de uma geração: os mesmos valores geram o mesmo futuro.
@@ -3339,7 +3663,7 @@ export interface components {
          * @description O que decide a partida: o critério de vitória (Clássica) ou chegar a uma meta de patrimônio.
          * @enum {string}
          */
-        GameType: "CLASSIC" | "GOAL_RACE" | "FINANCIAL_INDEPENDENCE";
+        GameType: "CLASSIC" | "GOAL_RACE" | "FINANCIAL_INDEPENDENCE" | "POLITICAL";
         /** GeneratedFutureDTO */
         GeneratedFutureDTO: {
             /**
@@ -3384,6 +3708,33 @@ export interface components {
             team: number | null;
             /** Networth */
             networth: string;
+        };
+        /**
+         * GovernmentNoticeKind
+         * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
+         * @enum {string}
+         */
+        GovernmentNoticeKind: "UPDATED" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED";
+        /**
+         * GovernmentUpdateEventDTO
+         * @description A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve.
+         */
+        GovernmentUpdateEventDTO: {
+            kind: components["schemas"]["GovernmentNoticeKind"];
+            /** Actor */
+            actor?: string | null;
+            /** Target */
+            target?: string | null;
+            /** Party Abbr */
+            party_abbr?: string | null;
+            /** Amount */
+            amount?: string | null;
+            /** Round */
+            round?: number | null;
+            /** Winner Abbr */
+            winner_abbr?: string | null;
+            /** Accepted */
+            accepted?: boolean | null;
         };
         /** HighlightsDTO */
         HighlightsDTO: {
@@ -3640,6 +3991,14 @@ export interface components {
             color: string;
             /** Team */
             team?: number | null;
+        };
+        /** JoinPartyRequest */
+        JoinPartyRequest: {
+            /**
+             * Contribution
+             * @default 0
+             */
+            contribution: number | string;
         };
         /** LadderTierDTO */
         LadderTierDTO: {
@@ -3980,6 +4339,18 @@ export interface components {
         };
         /** @enum {string} */
         MovingAverageKind: "sma" | "ema";
+        /** MyPartyDTO */
+        MyPartyDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Is Founder */
+            is_founder: boolean;
+            /** Is Candidate */
+            is_candidate: boolean;
+            vice: components["schemas"]["VicePhase"];
+            /** Contribution */
+            contribution: string;
+        };
         /** MyStrategyDTO */
         MyStrategyDTO: {
             active: components["schemas"]["StrategyActiveDTO"] | null;
@@ -4194,10 +4565,115 @@ export interface components {
             min_score_days: number;
             criterion: components["schemas"]["VictoryCriterion"];
             game_type: components["schemas"]["GameType"];
+            /** Parties */
+            parties: components["schemas"]["PartyRankingDTO"][];
             /** Goal Net Worth */
             goal_net_worth: string | null;
             /** Goal Steps */
             goal_steps: components["schemas"]["SeriesPointDTO"][];
+        };
+        /**
+         * PartyCandidateDTO
+         * @description Quem vai à urna pelo partido; o do computador não é jogador.
+         */
+        PartyCandidateDTO: {
+            /** Nickname */
+            nickname: string | null;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string | null;
+        };
+        /** PartyDTO */
+        PartyDTO: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Abbr */
+            abbr: string;
+            /** Color */
+            color: string | null;
+            /** Is Computer */
+            is_computer: boolean;
+            /** Promise */
+            promise: number;
+            /** Founder */
+            founder: string | null;
+            /**
+             * Founded
+             * Format: date
+             */
+            founded: string;
+            /** Members */
+            members: components["schemas"]["PartyMemberDTO"][];
+            /** Budget */
+            budget: string;
+            /** Spent */
+            spent: string;
+            /** Intention Points */
+            intention_points: string;
+            /** Valid Share */
+            valid_share: string;
+            candidate: components["schemas"]["PartyCandidateDTO"] | null;
+            vice: components["schemas"]["PartyCandidateDTO"] | null;
+            vice_phase: components["schemas"]["VicePhase"];
+            /** Ticket Chosen */
+            ticket_chosen: boolean;
+        };
+        /** PartyMemberDTO */
+        PartyMemberDTO: {
+            /** Nickname */
+            nickname: string;
+            /** Color */
+            color: string;
+            /** Contribution */
+            contribution: string;
+            /** Is Founder */
+            is_founder: boolean;
+            /** Is Candidate */
+            is_candidate: boolean;
+            vice: components["schemas"]["VicePhase"];
+        };
+        /**
+         * PartyRankingDTO
+         * @description Partido da expansão Governo & Política: o patrimônio dele é a soma do dos filiados.
+         */
+        PartyRankingDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Abbr */
+            abbr: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string;
+            /** Position */
+            position: number;
+            /** Members */
+            members: string[];
+            /** Total Networth */
+            total_networth: string;
+            /** Leader Gap */
+            leader_gap: string;
+        };
+        /**
+         * PartyStandingDTO
+         * @description O patrimônio do partido é a soma do patrimônio dos filiados.
+         */
+        PartyStandingDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Abbr */
+            abbr: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string | null;
+            /** Members */
+            members: string[];
+            /** Total Networth */
+            total_networth: string;
         };
         /** PatrimonialHistoryDTO */
         PatrimonialHistoryDTO: {
@@ -4475,10 +4951,38 @@ export interface components {
             /** Points */
             points: components["schemas"]["SeriesPointDTO"][];
         };
+        /** PlayerStandingDTO */
+        PlayerStandingDTO: {
+            /** Nickname */
+            nickname: string;
+            /** Color */
+            color: string;
+            /** Party Id */
+            party_id: number | null;
+            /** Total Networth */
+            total_networth: string;
+        };
         /** PlayerTeamRequest */
         PlayerTeamRequest: {
             /** Team */
             team: number;
+        };
+        /** PollDTO */
+        PollDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Entries */
+            entries: components["schemas"]["PollEntryDTO"][];
+        };
+        /** PollEntryDTO */
+        PollEntryDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Points */
+            points: string;
         };
         /** PortfolioCorrelationDTO */
         PortfolioCorrelationDTO: {
@@ -4705,7 +5209,7 @@ export interface components {
          * @description As regras de um preset agrupadas como o painel as mostra.
          * @enum {string}
          */
-        PresetRuleGroup: "PERIOD" | "STARTING_CASH" | "MONTHLY_CONTRIBUTION" | "GROUPING" | "GAME_TYPE" | "VICTORY" | "GOAL" | "LIFE" | "ASSISTANCES" | "PRICE_IMPACT";
+        PresetRuleGroup: "PERIOD" | "STARTING_CASH" | "MONTHLY_CONTRIBUTION" | "GROUPING" | "GAME_TYPE" | "VICTORY" | "GOAL" | "LIFE" | "ASSISTANCES" | "PRICE_IMPACT" | "EXPANSIONS";
         /** PreviewPointDTO */
         PreviewPointDTO: {
             /**
@@ -4884,6 +5388,7 @@ export interface components {
             credit_installment_warning: components["schemas"]["CreditInstallmentWarningEventDTO"];
             credit_rating_changed: components["schemas"]["CreditRatingChangedEventDTO"];
             credit_loan_paid_off: components["schemas"]["CreditLoanPaidOffEventDTO"];
+            government_update: components["schemas"]["GovernmentUpdateEventDTO"];
             strategy_update: components["schemas"]["StrategyUpdateEventDTO"];
             strategy_orders: components["schemas"]["StrategyOrdersEventDTO"];
         };
@@ -4968,6 +5473,71 @@ export interface components {
             /** Team */
             team?: number | null;
         };
+        /** RoundPartyDTO */
+        RoundPartyDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Abbr */
+            abbr: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string | null;
+            /** Is Computer */
+            is_computer: boolean;
+            candidate: components["schemas"]["PartyCandidateDTO"] | null;
+            vice: components["schemas"]["PartyCandidateDTO"] | null;
+            /** Points */
+            points: string;
+            /** Share */
+            share: string;
+        };
+        /** RoundResultDTO */
+        RoundResultDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Election Year */
+            election_year: number;
+            /** Round */
+            round: number;
+            /** Parties */
+            parties: components["schemas"]["RoundPartyDTO"][];
+            /** Finalists */
+            finalists: number[];
+            /** Winner */
+            winner: number | null;
+            runoff: components["schemas"]["RunoffSimulationDTO"] | null;
+        };
+        /** RunoffEntryDTO */
+        RunoffEntryDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Own Points */
+            own_points: string;
+            /** Received Points */
+            received_points: string;
+            /** Share */
+            share: string;
+            /** Transfer To */
+            transfer_to: number | null;
+            /** Donated */
+            donated: string;
+        };
+        /**
+         * RunoffSimulationDTO
+         * @description A simulação do 2º turno (ou o resultado dele): os eleitores de quem sai vão ao finalista mais próximo.
+         */
+        RunoffSimulationDTO: {
+            /** Finalists */
+            finalists: number[];
+            /** Entries */
+            entries: components["schemas"]["RunoffEntryDTO"][];
+            /** Winner */
+            winner: number;
+        };
         /** SavePresetRequest */
         SavePresetRequest: {
             /** Name */
@@ -5026,6 +5596,15 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            /**
+             * Government Enabled
+             * @default false
+             */
+            government_enabled: boolean;
+            /** First Election */
+            first_election?: string | null;
+            /** @default NORMAL */
+            computer_difficulty: components["schemas"]["ComputerDifficulty"];
             /** Id */
             id: number;
             /** Is Backtest */
@@ -5420,6 +5999,15 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            /**
+             * Government Enabled
+             * @default false
+             */
+            government_enabled: boolean;
+            /** First Election */
+            first_election?: string | null;
+            /** @default NORMAL */
+            computer_difficulty: components["schemas"]["ComputerDifficulty"];
             /** Id */
             id: number;
         };
@@ -5513,6 +6101,15 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            /**
+             * Government Enabled
+             * @default false
+             */
+            government_enabled: boolean;
+            /** First Election */
+            first_election?: string | null;
+            /** @default NORMAL */
+            computer_difficulty: components["schemas"]["ComputerDifficulty"];
         };
         /** SimulationSelectedEventDTO */
         SimulationSelectedEventDTO: {
@@ -5571,6 +6168,15 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            /**
+             * Government Enabled
+             * @default false
+             */
+            government_enabled: boolean;
+            /** First Election */
+            first_election?: string | null;
+            /** @default NORMAL */
+            computer_difficulty: components["schemas"]["ComputerDifficulty"];
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
@@ -6229,12 +6835,33 @@ export interface components {
             score: number | null;
             verdict: components["schemas"]["SummaryVerdict"] | null;
         };
+        /** TermDTO */
+        TermDTO: {
+            /** Party Id */
+            party_id: number | null;
+            president: components["schemas"]["PartyCandidateDTO"] | null;
+            vice: components["schemas"]["PartyCandidateDTO"] | null;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /** Consecutive */
+            consecutive: number;
+        };
         /** TickerSuggestionDTO */
         TickerSuggestionDTO: {
             /** Ticker */
             ticker: string;
             /** Name */
             name: string;
+        };
+        /** TicketRequest */
+        TicketRequest: {
+            /** Candidate */
+            candidate: string;
+            /** Vice */
+            vice?: string | null;
         };
         /**
          * TradeDTO
@@ -6386,6 +7013,15 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            /**
+             * Government Enabled
+             * @default false
+             */
+            government_enabled: boolean;
+            /** First Election */
+            first_election?: string | null;
+            /** @default NORMAL */
+            computer_difficulty: components["schemas"]["ComputerDifficulty"];
         };
         /** UserClaimRequest */
         UserClaimRequest: {
@@ -6441,6 +7077,16 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** ViceAnswerRequest */
+        ViceAnswerRequest: {
+            /** Accept */
+            accept: boolean;
+        };
+        /**
+         * VicePhase
+         * @enum {string}
+         */
+        VicePhase: "NONE" | "PENDING" | "ACCEPTED";
         /**
          * VictoryCriterion
          * @enum {string}
@@ -9289,6 +9935,362 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_election_api_government_election_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ElectionPanelDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    found_party_api_government_parties_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FoundPartyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    join_party_api_government_parties__party_id__members_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                party_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JoinPartyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    leave_party_api_government_membership_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_contribution_api_government_membership_contribution_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContributionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    expel_member_api_government_parties_expel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpelRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_ticket_api_government_parties_ticket_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TicketRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    answer_vice_api_government_vice_answer_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ViceAnswerRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    donate_api_government_donations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DonationRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             204: {

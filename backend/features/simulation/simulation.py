@@ -25,6 +25,7 @@ from backend.core.dto.fixed_income_projection import (
     NextTaxDropDTO,
 )
 from backend.core.dto.goal import GoalProgressDTO, GoalRunnerDTO
+from backend.core.dto.government import ElectionPanelDTO, FoundPartyRequest
 from backend.core.dto.life import LifeEventDTO, LifeStatusDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO
@@ -85,11 +86,14 @@ from backend.features.fixed_income.assistance import (
     build_quote,
 )
 from backend.features.fixed_income.liquidity import overdraft_cover, total_redeemable
+from backend.features.government.government_book import GovernmentBook
+from backend.features.government.panel import build_panel
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     PortfolioUpdateEventDTO,
     SimulationTickUpdateEventDTO,
     SnapshotUpdateEventDTO,
+    SpeedUpdateEventDTO,
     StatisticsSnapshotEntryDTO,
     StatisticsSnapshotUpdateEventDTO,
     StocksUpdateEventDTO,
@@ -102,6 +106,7 @@ from backend.features.simulation.life_events import (
     unexpected_on,
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.simulation.simulation_loop import simulation_controller
 from backend.features.statistics.goal import goal_on, goal_reached
 from backend.features.strategy.runner import StrategyRunner
 from backend.features.variable_income.entities.order import MarketOrder, Order
@@ -196,6 +201,13 @@ class Simulation:
         )
         if backtest is not None:
             self._strategies.on_failure = self._backtest_failed
+
+        # Expansão Governo & Política: o estado político volta dos eventos gravados
+        self._government = (
+            GovernmentBook(settings, self._engine)
+            if settings.government_enabled and backtest is None
+            else None
+        )
 
         # Fora da Clássica: onde cada um está na meta e se alguém já chegou
         self._goal_progress: GoalProgressDTO | None = None
@@ -317,6 +329,82 @@ class Simulation:
         self, user: UserDTO, kind: LogFilter, offset: int, limit: int
     ) -> StrategyLogPageDTO:
         return self._strategies.log(user, kind, offset, limit)
+
+    @synchronized
+    def get_election(self, user: UserDTO) -> ElectionPanelDTO:
+        book = self._ensure_government()
+        networths = {
+            user_id: snapshot.total_networth
+            for user_id, snapshot in self._last_snapshots.items()
+        }
+        return build_panel(
+            book,
+            self.settings,
+            repository.simulation_player.participants(self.settings.id),
+            user,
+            self._current_date,
+            networths,
+        )
+
+    @synchronized
+    def found_party(self, user: UserDTO, party: FoundPartyRequest) -> None:
+        self._ensure_government().found_party(
+            user,
+            self._current_date,
+            name=party.name,
+            abbr=party.abbr,
+            color=party.color,
+            promise=party.promise,
+            contribution=party.contribution,
+        )
+
+    @synchronized
+    def join_party(self, user: UserDTO, party_id: int, contribution: Decimal) -> None:
+        self._ensure_government().join_party(
+            user, self._current_date, party_id, contribution
+        )
+
+    @synchronized
+    def leave_party(self, user: UserDTO) -> None:
+        self._ensure_government().leave_party(user, self._current_date)
+
+    @synchronized
+    def set_contribution(self, user: UserDTO, contribution: Decimal) -> None:
+        self._ensure_government().set_contribution(
+            user, self._current_date, contribution
+        )
+
+    @synchronized
+    def expel_member(self, founder: UserDTO, nickname: str) -> None:
+        self._ensure_government().expel(
+            founder,
+            self._current_date,
+            nickname,
+            repository.simulation_player.participants(self.settings.id),
+        )
+
+    @synchronized
+    def set_ticket(self, founder: UserDTO, candidate: str, vice: str | None) -> None:
+        self._ensure_government().set_ticket(
+            founder,
+            self._current_date,
+            candidate,
+            vice,
+            repository.simulation_player.participants(self.settings.id),
+        )
+
+    @synchronized
+    def answer_vice(self, user: UserDTO, accept: bool) -> None:
+        self._ensure_government().answer_vice(user, self._current_date, accept)
+
+    @synchronized
+    def donate_to_party(self, user: UserDTO, party_id: int, amount: Decimal) -> None:
+        self._ensure_government().donate(user, self._current_date, party_id, amount)
+
+    def _ensure_government(self) -> GovernmentBook:
+        if self._government is None:
+            raise ConflictError("Esta partida não usa a expansão Governo & Política.")
+        return self._government
 
     @synchronized
     def get_credit(self, client_id: UUID) -> CreditOverviewDTO:
@@ -514,6 +602,10 @@ class Simulation:
         elif month_changed:
             self._apply_monthly_contributions(users)
         self._settle_credit(users, month_changed)
+        if self._government is not None and self._government.on_tick(
+            users, self._current_date, month_changed
+        ):
+            self._pause_for_result()
         self._collect_income_tax(users)
         if self._life is not None:
             self._charge_overdraft(users)
@@ -551,7 +643,7 @@ class Simulation:
                 ).to_json(),
                 to=player.client_id,
             )
-        if self.settings.game_type is not GameType.CLASSIC:
+        if self.settings.game_type.has_goal:
             self._track_goal(snapshots)
 
         self._last_snapshots = {e.snapshot.user_id: e.snapshot for e in snapshots}
@@ -867,6 +959,12 @@ class Simulation:
         self._engine.fixed_broker._assets.pop(client_id, None)
         # Remove os empréstimos em cache
         self._engine.credit_book.forget(client_id)
+
+    def _pause_for_result(self) -> None:
+        """O resultado de um turno pausa a partida para todos, com o dia já apurado."""
+        self.set_speed(0)
+        simulation_controller.pause()
+        notify("speed_update", SpeedUpdateEventDTO(speed=0).to_json())
 
     def _has_month_changed(self) -> bool:
         current_month = (self._current_date.year, self._current_date.month)

@@ -2,6 +2,7 @@ import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport"
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import type { GoalRise } from "@/shared/lib/goal";
 import { parseLocalDate } from "@/shared/lib/utils/display";
+import { hasGoal } from "@/shared/lib/game-types";
 
 // Por quantos dias da partida o aviso de meta subindo fica na topbar
 const RISE_NOTICE_DAYS = 30;
@@ -14,7 +15,7 @@ export function useGoalSteps() {
   const { simulation } = useSimulation();
   const current = simulation?.active ? simulation.simulation : null;
 
-  const { data } = useStatisticsReport("overview", current && current.game_type !== "CLASSIC" ? [current.id] : []);
+  const { data } = useStatisticsReport("overview", current && hasGoal(current.game_type) ? [current.id] : []);
   return data?.goal_steps;
 }
 

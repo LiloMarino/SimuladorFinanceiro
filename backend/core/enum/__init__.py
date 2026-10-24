@@ -1,3 +1,4 @@
+from decimal import Decimal
 from enum import Enum
 
 
@@ -65,6 +66,8 @@ class CashflowEventType(Enum):
     OVERDRAFT_INTEREST = "OVERDRAFT_INTEREST"
     LOAN_PROCEEDS = "LOAN_PROCEEDS"
     LOAN_PAYMENT = "LOAN_PAYMENT"
+    CAMPAIGN_CONTRIBUTION = "CAMPAIGN_CONTRIBUTION"
+    CAMPAIGN_DONATION = "CAMPAIGN_DONATION"
 
     @property
     def sign(self) -> int:
@@ -89,6 +92,8 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.OVERDRAFT_INTEREST: -1,
     CashflowEventType.LOAN_PROCEEDS: 1,
     CashflowEventType.LOAN_PAYMENT: -1,
+    CashflowEventType.CAMPAIGN_CONTRIBUTION: -1,
+    CashflowEventType.CAMPAIGN_DONATION: -1,
 }
 
 # Aporte, salário, despesa e imprevisto são o dinheiro da vida do jogador; o juro
@@ -156,6 +161,13 @@ class GameType(Enum):
     CLASSIC = "CLASSIC"
     GOAL_RACE = "GOAL_RACE"
     FINANCIAL_INDEPENDENCE = "FINANCIAL_INDEPENDENCE"
+    # Da expansão Governo & Política: vence o partido com a maior soma de patrimônio dos filiados
+    POLITICAL = "POLITICAL"
+
+    @property
+    def has_goal(self) -> bool:
+        """A partida acaba quando alguém chega a um patrimônio-alvo."""
+        return self in (GameType.GOAL_RACE, GameType.FINANCIAL_INDEPENDENCE)
 
 
 class BacktestPriceImpact(Enum):
@@ -179,6 +191,7 @@ class PresetRuleGroup(Enum):
     LIFE = "LIFE"
     ASSISTANCES = "ASSISTANCES"
     PRICE_IMPACT = "PRICE_IMPACT"
+    EXPANSIONS = "EXPANSIONS"
 
 
 class AchievementCategory(Enum):
@@ -399,3 +412,72 @@ class SignalLineStyle(Enum):
 class SignalPane(Enum):
     PRICE = "price"
     OSCILLATOR = "oscillator"
+
+
+class ComputerDifficulty(Enum):
+    """A verba de cada partido do computador, em múltiplo da média dos partidos de jogadores."""
+
+    EASY = "EASY"
+    NORMAL = "NORMAL"
+    HARD = "HARD"
+
+    @property
+    def budget_factor(self) -> Decimal:
+        return {
+            ComputerDifficulty.EASY: Decimal("0.5"),
+            ComputerDifficulty.NORMAL: Decimal(1),
+            ComputerDifficulty.HARD: Decimal("1.5"),
+        }[self]
+
+
+class GovernmentEventType(Enum):
+    """Tudo o que muda o estado político da partida; o estado é o replay desses eventos."""
+
+    PARTY_FOUNDED = "PARTY_FOUNDED"
+    COMPUTER_PARTY_ADDED = "COMPUTER_PARTY_ADDED"
+    COMPUTER_PARTY_REMOVED = "COMPUTER_PARTY_REMOVED"
+    PARTY_JOINED = "PARTY_JOINED"
+    PARTY_LEFT = "PARTY_LEFT"
+    MEMBER_EXPELLED = "MEMBER_EXPELLED"
+    CONTRIBUTION_SET = "CONTRIBUTION_SET"
+    TICKET_SET = "TICKET_SET"
+    VICE_ANSWERED = "VICE_ANSWERED"
+    CAMPAIGN_SPENT = "CAMPAIGN_SPENT"
+    DONATION_MADE = "DONATION_MADE"
+    ELECTION_ROUND = "ELECTION_ROUND"
+    TERM_STARTED = "TERM_STARTED"
+
+
+class ElectionPhase(Enum):
+    """Onde a partida está no ciclo eleitoral."""
+
+    # Antes da campanha abrir: o governo é do computador e nada muda
+    BEFORE_CAMPAIGN = "BEFORE_CAMPAIGN"
+    # Partidos, chapas e verba abertos, até o 1º turno
+    CAMPAIGN = "CAMPAIGN"
+    # Entre os turnos: a partida pausa no resultado e quem ficou de fora pode doar
+    BETWEEN_ROUNDS = "BETWEEN_ROUNDS"
+    # Eleito, esperando a posse de 1º de janeiro
+    AWAITING_TERM = "AWAITING_TERM"
+    # Governo empossado, até a campanha da eleição seguinte
+    TERM = "TERM"
+
+
+class VicePhase(Enum):
+    NONE = "NONE"
+    # Convidado, ainda sem resposta
+    PENDING = "PENDING"
+    ACCEPTED = "ACCEPTED"
+
+
+class GovernmentNoticeKind(Enum):
+    """O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."""
+
+    UPDATED = "UPDATED"
+    PARTY_FOUNDED = "PARTY_FOUNDED"
+    EXPELLED = "EXPELLED"
+    VICE_INVITED = "VICE_INVITED"
+    VICE_ANSWERED = "VICE_ANSWERED"
+    DONATION = "DONATION"
+    ELECTION_RESULT = "ELECTION_RESULT"
+    TERM_STARTED = "TERM_STARTED"

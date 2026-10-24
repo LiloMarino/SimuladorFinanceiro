@@ -37,7 +37,7 @@ def is_finished(end_date: date, resume_from: date | None) -> bool:
 
 def leader_reached_goal(overview: OverviewReportDTO) -> bool:
     """Fora da Clássica, o valor do líder é a fração da meta: 1 é ter chegado."""
-    if overview.game_type is GameType.CLASSIC:
+    if not overview.game_type.has_goal:
         return False
     leaders = overview.teams or overview.players
     value = leaders[0].criterion_value if leaders else None
@@ -48,6 +48,8 @@ def compute_result(simulation_id: int) -> SimulationResultDTO:
     """Refaz o ranking da simulação pelos snapshots gravados."""
     overview = build_overview_report([simulation_id])
     players = overview.players
+    if overview.game_type is GameType.POLITICAL:
+        return _political_result(overview)
     if overview.teams:
         leader = team_name(overview.teams[0].team, overview.team_naming)
         team_position = {t.team: t.position for t in overview.teams}
@@ -64,6 +66,19 @@ def compute_result(simulation_id: int) -> SimulationResultDTO:
         players_count=len(players),
         leader_name=leader,
         positions=positions,
+    )
+
+
+def _political_result(overview: OverviewReportDTO) -> SimulationResultDTO:
+    """Vence o partido com a maior soma de patrimônio; quem está fora de partido fica sem colocação."""
+    parties = overview.parties
+    return SimulationResultDTO(
+        leader_reached_goal=False,
+        players_count=len(overview.players),
+        leader_name=parties[0].name if parties else None,
+        positions={
+            member: party.position for party in parties for member in party.members
+        },
     )
 
 

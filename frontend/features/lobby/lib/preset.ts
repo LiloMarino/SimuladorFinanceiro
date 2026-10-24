@@ -25,6 +25,7 @@ export const RULE_GROUP_LABELS: Record<PresetRuleGroup, string> = {
   LIFE: "Vida real",
   ASSISTANCES: "Assistências",
   PRICE_IMPACT: "Mercado",
+  EXPANSIONS: "Expansões",
 };
 
 // O servidor guarda as regras do preset como JSON livre: campo que o preset não traz fica de fora

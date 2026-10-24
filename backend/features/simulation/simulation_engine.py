@@ -154,6 +154,12 @@ class SimulationEngine:
         """Debita parcela, amortização, quitação ou atraso; o caixa pode passar do saldo só quando quem chama já o conferiu."""
         self._move_cash(client_id, -amount, CashflowEventType.LOAN_PAYMENT)
 
+    def pay_campaign(
+        self, client_id: UUID, amount: Decimal, event_type: CashflowEventType
+    ) -> None:
+        """Debita a contribuição mensal ou a doação de campanha; quem chama já conferiu o caixa."""
+        self._move_cash(client_id, -amount, event_type)
+
     def assess_income_tax(self, user_id: int) -> list[MonthlyTax]:
         asset_classes = {ticker: s.asset_class for ticker, s in self.stocks.items()}
         return assess(

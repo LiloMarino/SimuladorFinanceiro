@@ -18,6 +18,7 @@ from backend.core.models.models import (
     EventCredit,
     EventEquity,
     EventFixedIncome,
+    GovernmentEvent,
     Stock,
 )
 from backend.core.repository.strategy import log_models
@@ -84,7 +85,13 @@ class EventRepository:
                     model.simulation_id == simulation_id
                 )
             ).scalar_one_or_none()
-            for model in (EventCashflow, EventEquity, EventFixedIncome, EventCredit)
+            for model in (
+                EventCashflow,
+                EventEquity,
+                EventFixedIncome,
+                EventCredit,
+                GovernmentEvent,
+            )
         ]
         return max((d for d in dates if d is not None), default=None)
 

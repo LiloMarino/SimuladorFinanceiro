@@ -10,7 +10,9 @@ import type { OverviewReport, VictoryCriterion } from "@/types";
 export type RankingMeasure = VictoryCriterion | "GOAL";
 
 export function rankingMeasure(report: Pick<OverviewReport, "game_type" | "criterion">): RankingMeasure {
-  return report.game_type === "CLASSIC" ? report.criterion : "GOAL";
+  if (report.game_type === "CLASSIC") return report.criterion;
+  // Na Política o ranking de jogadores é informativo, em patrimônio; quem decide é o dos partidos
+  return report.game_type === "POLITICAL" ? "NETWORTH" : "GOAL";
 }
 
 /** O nome do que decide a partida: o critério, ou "Primeiro a chegar à meta (R$ 1,5 mi)". */

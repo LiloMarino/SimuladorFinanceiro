@@ -333,7 +333,13 @@ class Simulations(Base):
         server_default=text("'SCORE'"),
     )
     game_type: Mapped[str] = mapped_column(
-        Enum("CLASSIC", "GOAL_RACE", "FINANCIAL_INDEPENDENCE", name="game_type"),
+        Enum(
+            "CLASSIC",
+            "GOAL_RACE",
+            "FINANCIAL_INDEPENDENCE",
+            "POLITICAL",
+            name="game_type",
+        ),
         nullable=False,
         server_default=text("'CLASSIC'"),
     )
@@ -367,6 +373,16 @@ class Simulations(Base):
     )
     show_maturity_projection: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("true")
+    )
+    # Expansão Governo & Política: as regras travam quando a partida começa
+    government_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    first_election: Mapped[datetime.date | None] = mapped_column(Date)
+    computer_difficulty: Mapped[str] = mapped_column(
+        Enum("EASY", "NORMAL", "HARD", name="computer_difficulty"),
+        nullable=False,
+        server_default=text("'NORMAL'"),
     )
     # Partida só de estratégias, rodada pelo host sem espera entre os pregões
     is_backtest: Mapped[bool] = mapped_column(
@@ -543,6 +559,8 @@ class EventCashflow(Base):
             "OVERDRAFT_INTEREST",
             "LOAN_PROCEEDS",
             "LOAN_PAYMENT",
+            "CAMPAIGN_CONTRIBUTION",
+            "CAMPAIGN_DONATION",
             name="cashflow_event_type",
         ),
         nullable=False,
@@ -743,6 +761,63 @@ class EventCredit(Base):
     prepayment_mode: Mapped[str | None] = mapped_column(
         Enum("SHORTEN_TERM", "REDUCE_INSTALLMENT", name="credit_prepayment_mode")
     )
+    event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+
+
+class GovernmentEvent(Base):
+    """Fonte da verdade da expansão Governo & Política: o estado político é o replay desta tabela."""
+
+    __tablename__ = "government_event"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="government_event_simulation_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="government_event_pkey"),
+        Index("government_event_simulation_id_idx", "simulation_id", "id"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    event_type: Mapped[str] = mapped_column(
+        Enum(
+            "PARTY_FOUNDED",
+            "COMPUTER_PARTY_ADDED",
+            "COMPUTER_PARTY_REMOVED",
+            "PARTY_JOINED",
+            "PARTY_LEFT",
+            "MEMBER_EXPELLED",
+            "CONTRIBUTION_SET",
+            "TICKET_SET",
+            "VICE_ANSWERED",
+            "CAMPAIGN_SPENT",
+            "DONATION_MADE",
+            "ELECTION_ROUND",
+            "TERM_STARTED",
+            name="government_event_type",
+        ),
+        nullable=False,
+    )
+    # Os dados do evento; o formato de cada tipo mora no DTO de `GovernmentEventDTO`
+    payload: Mapped[dict] = mapped_column(JSONB, nullable=False)
     event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False

@@ -1,3 +1,5 @@
+import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
+import { EXPANSIONS } from "@/shared/lib/expansions";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -166,6 +168,11 @@ function SavedSimulationsContent({
         <div className="grid min-w-0 flex-1 gap-1">
           <div className="flex items-center gap-2">
             <span className="truncate font-semibold">{s.name}</span>
+            {s.government_enabled && (
+              <span title={EXPANSIONS.government.label}>
+                <ExpansionEmblem expansion="government" size="sm" />
+              </span>
+            )}
             {s.status === "FINISHED" ? (
               <Badge variant="success" size="sm">
                 {s.is_backtest ? "Concluído" : `Terminou${s.winner_nickname ? ` · ${s.winner_nickname} venceu` : ""}`}

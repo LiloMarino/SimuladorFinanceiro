@@ -8,6 +8,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { displayShortDate } from "@/shared/lib/utils/display";
 import { TopbarCash } from "./topbar-cash";
 import { TopbarGoal } from "./topbar-goal";
+import { hasGoal } from "@/shared/lib/game-types";
 
 interface TopbarProps {
   pageLabel: string;
@@ -40,7 +41,7 @@ export default function Topbar({ pageLabel }: TopbarProps) {
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Corrida à meta */}
-          {match && match.game_type !== "CLASSIC" && (
+          {match && hasGoal(match.game_type) && (
             <TopbarGoal
               grouping={match.player_grouping}
               teamNaming={match.team_naming}

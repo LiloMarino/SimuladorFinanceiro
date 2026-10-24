@@ -137,6 +137,21 @@ class TeamRankingDTO(BaseDTO):
     top_puller: TeamPullerDTO | None
 
 
+class PartyRankingDTO(BaseDTO):
+    """Partido da expansão Governo & Política: o patrimônio dele é a soma do dos filiados."""
+
+    party_id: int
+    abbr: str
+    name: str
+    # Cor escolhida pelo fundador (#RRGGBB)
+    color: str
+    position: int
+    members: list[str]
+    total_networth: Decimal
+    # Quanto falta para o primeiro (0 para o líder)
+    leader_gap: Decimal
+
+
 class OverviewReportDTO(TeamReportDTO):
     # Ordenado pelo ranking: o primeiro é o melhor
     players: list[PlayerRankingDTO]
@@ -148,6 +163,9 @@ class OverviewReportDTO(TeamReportDTO):
     criterion: VictoryCriterion
     # Fora da Clássica, `criterion_value` é a fração da meta (patrimônio ÷ meta)
     game_type: GameType
+    # Ranking de partidos da expansão Governo & Política; vazio sem ela. Decide a partida
+    # na vitória política e, nas outras, é só informação
+    parties: list[PartyRankingDTO]
     # A meta das partidas no último dia quando todas têm a mesma; None entre metas diferentes
     goal_net_worth: Decimal | None
     # A meta em degraus (o início e cada reajuste pelo IPCA) de uma partida com meta;

@@ -27,13 +27,14 @@ import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
+import { hasGoal } from "@/shared/lib/game-types";
 
 interface SidebarProps {
   navItems: NavItem[];
   activePage: string;
 }
 
-const NAV_GROUPS: NavItem["group"][] = ["Mercado", "Você", "Ferramentas"];
+const NAV_GROUPS: NavItem["group"][] = ["Mercado", "Você", "Expansões", "Ferramentas"];
 
 export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const { user } = useAuth();
@@ -53,7 +54,10 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const role = settings?.is_host ? "Host" : "Jogador";
   const playerCount = players?.length ?? 0;
   const match = simulation?.simulation;
-  const hasGoal = !!match && match.game_type !== "CLASSIC";
+  const racing = !!match && hasGoal(match.game_type);
+  const governmentOn = !!match?.government_enabled;
+  const isVisible = (item: NavItem) =>
+    (!item.debugOnly || showDebugTools) && (!item.goalOnly || racing) && (!item.expansion || governmentOn);
   const isExpert =
     !!match && summarizeAssistances([match.show_equivalent_rate, match.show_maturity_projection]).mode === "EXPERT";
   const ownGoal = goal && match ? ownStanding(goal, match.player_grouping, nickname) : undefined;
@@ -77,14 +81,12 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
 
       {/* Navegação por grupo */}
       <SidebarContent>
-        {NAV_GROUPS.map((group) => (
+        {NAV_GROUPS.filter((group) => navItems.some((item) => item.group === group && isVisible(item))).map((group) => (
           <SidebarGroup key={group}>
             <SidebarGroupLabel>{group}</SidebarGroupLabel>
             <SidebarMenu>
               {navItems
-                .filter(
-                  (item) => item.group === group && (!item.debugOnly || showDebugTools) && (!item.goalOnly || hasGoal),
-                )
+                .filter((item) => item.group === group && isVisible(item))
                 .map((item) => (
                   <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton isActive={activePage === item.key} render={<NavLink to={item.endpoint} />}>

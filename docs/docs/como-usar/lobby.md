@@ -258,6 +258,10 @@ Cada imprevisto aparece num aviso na tela.
 - **Vida financeira:** salário, despesa e sobra do mês, e a **reserva de emergência**, que é quantos meses de despesa o seu caixa cobre. Ex.: despesa de R$ 5.000 e caixa de R$ 15.000 dão uma reserva de 3 meses. Zero é ruim, 3 é razoável e 6 ou mais é confortável.
 - **Histórico:** imprevistos, demissões, entrada e saída do cheque especial e os juros de cada mês, com a data na partida e o seu caixa depois de cada evento. Dá para filtrar por tipo.
 
+#### Política
+
+Tipo da expansão [Governo & Política](./governo.md), disponível só com ela ligada na aba **Expansões**. Os jogadores se organizam em partidos e disputam eleições; vence o partido com a maior soma de patrimônio dos filiados, então o critério de vitória não se aplica e o modo de jogo fica individual.
+
 ---
 
 ### Critério de vitória

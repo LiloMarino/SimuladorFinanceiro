@@ -20,6 +20,7 @@ from backend.core.dto.statistics_report import (
     MonthlyReturnDTO,
     OperationsReportDTO,
     OverviewReportDTO,
+    PartyRankingDTO,
     PlayerCompositionDTO,
     PlayerHighlightDTO,
     PlayerOperationsDTO,
@@ -39,6 +40,7 @@ from backend.core.enum import (
     VictoryCriterion,
 )
 from backend.core.sectors import allocate_by_sector
+from backend.features.government.standings import party_ranking
 from backend.features.statistics import operations, returns, risk, sectors
 from backend.features.statistics.credit import CreditStanding, credit_standing
 from backend.features.statistics.goal import goal_on, goal_steps
@@ -72,7 +74,20 @@ def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
         in_teams=in_teams,
         team_naming=team_naming,
         delinquent=frozenset(key for key, s in standings.items() if s.delinquent),
+        parties=_party_ranking(simulation_ids, players),
     )
+
+
+def _party_ranking(
+    simulation_ids: list[int], players: list[PlayerHistoryDTO]
+) -> list[PartyRankingDTO]:
+    """Os partidos de uma partida com a expansão Governo & Política; vazio nos demais casos."""
+    if len(simulation_ids) != 1:
+        return []
+    summary = repository.simulation.get_simulation(simulation_ids[0])
+    if summary is None or not summary.government_enabled:
+        return []
+    return party_ranking(summary.id, players)
 
 
 def _credit_standings(
@@ -111,7 +126,7 @@ def _goal_steps(
     if len(simulation_ids) != 1 or not players:
         return []
     summary = repository.simulation.get_simulation(simulation_ids[0])
-    if summary is None or summary.game_type is GameType.CLASSIC:
+    if summary is None or not summary.game_type.has_goal:
         return []
     until = max(p.history[-1].snapshot_date for p in players)
     return [

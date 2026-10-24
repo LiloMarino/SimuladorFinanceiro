@@ -30,9 +30,12 @@ import {
   UNEXPECTED_OPTIONS,
 } from "@/shared/lib/financial-independence";
 import { summarizeAssistances } from "@/shared/lib/assistance";
+import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
+import { EXPANSIONS } from "@/shared/lib/expansions";
 import { GAME_TYPES } from "@/shared/lib/game-types";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type {
+  ComputerDifficulty,
   GameType,
   PlayerGrouping,
   RoomPlayer,
@@ -57,6 +60,7 @@ import {
 } from "../lib/life-rules";
 import { dateFieldError, isIsoDate } from "@/shared/lib/utils/date-field";
 import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "@/shared/lib/price-impact";
+import { COMPUTER_DIFFICULTIES, governmentRuleError } from "../lib/government-rules";
 import { CoverageAlerts } from "./coverage-alerts";
 import { joinNames } from "../lib/join-names";
 import { RulesSheet } from "./rules-sheet";
@@ -116,10 +120,34 @@ const simulationFormSchema = z
     teamNaming: z.custom<TeamNaming>((value) => value === "COLOR" || value === "NUMBER"),
     showEquivalentRate: z.boolean(),
     showMaturityProjection: z.boolean(),
+    governmentEnabled: z.boolean(),
+    // ISO quando a data está completa; vazio com a expansão desligada
+    firstElection: z.string().superRefine((value, ctx) => {
+      const message = dateFieldError(value);
+      if (message) ctx.addIssue({ code: "custom", message });
+    }),
+    computerDifficulty: z.custom<ComputerDifficulty>(
+      (value) => value === "EASY" || value === "NORMAL" || value === "HARD",
+    ),
   })
   .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
     message: "O fim precisa ser depois do início.",
     path: ["endDate"],
+  })
+  // A expansão pede 5 anos de partida e a primeira eleição dentro dela
+  .superRefine((data, ctx) => {
+    if (!data.governmentEnabled) return;
+    const error = governmentRuleError({ start: data.startDate, end: data.endDate, firstElection: data.firstElection });
+    if (error) ctx.addIssue({ code: "custom", message: error.message, path: [error.path] });
+  })
+  // A vitória política só existe no modo individual
+  .superRefine((data, ctx) => {
+    if (data.gameType !== "POLITICAL" || data.playerGrouping !== "TEAMS") return;
+    ctx.addIssue({
+      code: "custom",
+      message: "A vitória política vale só no modo todos contra todos.",
+      path: ["playerGrouping"],
+    });
   })
   // Na corrida a meta fica acima do que o jogador já tem no primeiro dia
   .superRefine((data, ctx) => {
@@ -292,12 +320,19 @@ export function LobbyMatch({
             value: <Badge variant="info">{VICTORY_CRITERIA[rules.victoryCriterion]?.label}</Badge>,
           },
         ]
-      : [
-          {
-            label: "Meta",
-            value: <span className="font-mono">{goalSummary}</span>,
-          },
-        ];
+      : rules.gameType === "POLITICAL"
+        ? [
+            {
+              label: "Vitória por",
+              value: <Badge variant="info">Partido com mais patrimônio</Badge>,
+            },
+          ]
+        : [
+            {
+              label: "Meta",
+              value: <span className="font-mono">{goalSummary}</span>,
+            },
+          ];
 
   const rows: { label: string; value: React.ReactNode }[] = [
     // O preset vale para a nova partida; as regras de uma salva não vêm dele
@@ -333,6 +368,30 @@ export function LobbyMatch({
     { label: "Modo", value: <GroupingBadge grouping={rules.playerGrouping} /> },
     { label: "Tipo de partida", value: <Badge variant="info">{GAME_TYPES[rules.gameType]?.label}</Badge> },
     ...typeRows,
+    {
+      label: "Expansões",
+      value: rules.governmentEnabled ? (
+        <Badge variant="outline">
+          <ExpansionEmblem expansion="government" size="xs" />
+          {EXPANSIONS.government.label}
+        </Badge>
+      ) : (
+        <span className="text-muted-foreground">—</span>
+      ),
+    },
+    ...(rules.governmentEnabled && isIsoDate(rules.firstElection)
+      ? [
+          {
+            label: "Primeira eleição",
+            value: (
+              <span>
+                <span className="font-mono">{displayDate(parseLocalDate(rules.firstElection))}</span> · computador{" "}
+                {COMPUTER_DIFFICULTIES.find((d) => d.value === rules.computerDifficulty)?.label.toLowerCase()}
+              </span>
+            ),
+          },
+        ]
+      : []),
     {
       label: "Impacto de preço",
       value: (

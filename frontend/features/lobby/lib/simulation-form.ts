@@ -29,6 +29,9 @@ export function toFormValues(settings: SimulationSettingsData): SimulationFormVa
     teamNaming: settings.team_naming,
     showEquivalentRate: settings.show_equivalent_rate,
     showMaturityProjection: settings.show_maturity_projection,
+    governmentEnabled: settings.government_enabled,
+    firstElection: settings.first_election ?? "",
+    computerDifficulty: settings.computer_difficulty,
   };
 }
 
@@ -58,5 +61,8 @@ export function toSettingsBody(values: SimulationFormValues): CreateSimulationRe
     team_naming: values.teamNaming,
     show_equivalent_rate: values.showEquivalentRate,
     show_maturity_projection: values.showMaturityProjection,
+    government_enabled: values.governmentEnabled,
+    first_election: values.governmentEnabled && values.firstElection ? values.firstElection : null,
+    computer_difficulty: values.computerDifficulty,
   };
 }

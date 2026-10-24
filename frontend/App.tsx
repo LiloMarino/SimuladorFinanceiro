@@ -2,10 +2,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import MainLayout from "@/layouts/main-layout";
 import { PlainLayout } from "@/layouts/plain-layout";
-import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge, Flag, Medal, Banknote } from "lucide-react";
+import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge, Flag, Medal, Banknote, Landmark } from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
 import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
+import ElectionPage from "./features/government/pages/election";
 import PortfolioPage from "./features/portfolio/pages/portfolio";
 import SettingsPage from "./features/settings/pages/settings";
 import FixedIncomePage from "./features/fixed-income/pages/fixed-income";
@@ -32,6 +33,7 @@ import { AuthProvider } from "./shared/context/auth";
 import { ErrorPage } from "./pages/error";
 import { NotificationSettingsProvider } from "@/shared/context/notifications-settings";
 import { GlobalNotifications } from "./shared/notifications";
+import { GovernmentNotifications } from "./features/government/components/government-notifications";
 import { SimulationProvider } from "./shared/context/simulation";
 import { GuardLayout } from "./layouts/guard-layout";
 import { SimulationModeLayout } from "./layouts/simulation-mode-layout";
@@ -46,6 +48,7 @@ const navItems: NavItem[] = [
   { key: "credit", label: "Crédito", endpoint: "/credit", icon: Banknote, group: "Você", creditAlert: true },
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: Trophy, group: "Você" },
   { key: "achievements", label: "Conquistas", endpoint: "/achievements", icon: Medal, group: "Você", achievementTally: true },
+  { key: "election", label: "Eleição", endpoint: "/election", icon: Landmark, group: "Expansões", expansion: "government" },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
   { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: Bot, group: "Ferramentas", strategyStatus: true },
   { key: "performance", label: "Desempenho", endpoint: "/performance", icon: Gauge, group: "Ferramentas", badge: "Debug", badgeTone: "warning", debugOnly: true },
@@ -67,6 +70,7 @@ export default function App() {
             <NotificationSettingsProvider>
               {/* Listeners globais de notificações */}
               <GlobalNotifications />
+              <GovernmentNotifications />
               <DebugTools />
               <PageLabelProvider routeLabels={routeLabels}>
                 <SimulationProvider>
@@ -95,6 +99,7 @@ export default function App() {
                         <Route path="/goal" element={<GoalPage />} />
                         <Route path="/credit" element={<CreditPage />} />
                         <Route path="/statistics" element={<StatisticsPage />} />
+                        <Route path="/election" element={<ElectionPage />} />
                       </Route>
                       <Route element={<SimulationModeLayout navItems={navItems} />}>
                         <Route path="/correlation" element={<CorrelationPage />} />

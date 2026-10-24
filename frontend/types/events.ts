@@ -52,6 +52,7 @@ export type SimulationEvents = {
   credit_installment_warning: RealtimeEventCatalog["credit_installment_warning"];
   credit_rating_changed: RealtimeEventCatalog["credit_rating_changed"];
   credit_loan_paid_off: RealtimeEventCatalog["credit_loan_paid_off"];
+  government_update: RealtimeEventCatalog["government_update"];
   strategy_update: RealtimeEventCatalog["strategy_update"];
   strategy_orders: RealtimeEventCatalog["strategy_orders"];
   backtest_started: RealtimeEventCatalog["backtest_started"];

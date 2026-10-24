@@ -7,7 +7,7 @@ export interface NavItem {
   label: string;
   endpoint: string;
   icon: LucideIcon;
-  group: "Mercado" | "Você" | "Ferramentas";
+  group: "Mercado" | "Você" | "Expansões" | "Ferramentas";
   badge?: string;
   /** `warning`: selo âmbar (ferramentas de debug) */
   badgeTone?: "warning";
@@ -21,6 +21,8 @@ export interface NavItem {
   creditAlert?: boolean;
   /** O selo mostra o modo do jogador (Ligada/Desligada), com um ponto vermelho quando a estratégia deu erro e o erro não foi visto */
   strategyStatus?: boolean;
+  /** Só aparece nas partidas com a expansão ligada */
+  expansion?: "government";
 }
 
 export type RedirectState = {

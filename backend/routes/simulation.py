@@ -18,10 +18,12 @@ from backend.core.dto.simulation import (
     SavedSimulationDTO,
     SimulationSettingsDTO,
     SimulationStatusResponse,
+    validate_government,
 )
 from backend.core.dto.strategy import StrategyInfoDTO, StrategyParamValue
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
+    ComputerDifficulty,
     GameType,
     LifeHistoryCategory,
     LifeHistorySort,
@@ -76,6 +78,21 @@ class SimulationRulesRequest(BaseModel):
     team_naming: TeamNaming = TeamNaming.COLOR
     show_equivalent_rate: bool = True
     show_maturity_projection: bool = True
+    government_enabled: bool = False
+    first_election: date | None = None
+    computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
+
+    @model_validator(mode="after")
+    def validate_government_rules(self):
+        validate_government(
+            game_type=self.game_type,
+            player_grouping=self.player_grouping,
+            government_enabled=self.government_enabled,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            first_election=self.first_election,
+        )
+        return self
 
     @model_validator(mode="after")
     def validate_dates(self):

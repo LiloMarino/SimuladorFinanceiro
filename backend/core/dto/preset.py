@@ -28,6 +28,11 @@ RULE_GROUP_FIELDS: dict[PresetRuleGroup, tuple[str, ...]] = {
         "price_impact_k",
         "price_impact_decay_days",
     ),
+    PresetRuleGroup.EXPANSIONS: (
+        "government_enabled",
+        "first_election",
+        "computer_difficulty",
+    ),
 }
 
 PRESET_FIELDS = frozenset(f for fields in RULE_GROUP_FIELDS.values() for f in fields)

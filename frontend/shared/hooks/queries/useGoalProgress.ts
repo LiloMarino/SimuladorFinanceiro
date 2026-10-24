@@ -4,6 +4,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import type { GoalProgress } from "@/types";
+import { hasGoal } from "@/shared/lib/game-types";
 
 function currentMatchId(simulation: ReturnType<typeof useSimulation>["simulation"]) {
   const current = simulation?.active ? simulation.simulation : null;
@@ -21,7 +22,7 @@ export function useGoalProgress() {
   const queryClient = useQueryClient();
   const { simulation } = useSimulation();
   const { current, simulationId } = currentMatchId(simulation);
-  const racing = !!current && current.game_type !== "CLASSIC";
+  const racing = !!current && hasGoal(current.game_type);
 
   const query = useQuery({
     queryKey: queryKeys.goalProgress(simulationId),

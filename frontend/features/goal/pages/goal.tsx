@@ -14,6 +14,7 @@ import { projectGoalDate } from "@/shared/lib/goal";
 import { GoalHero } from "../components/goal-hero";
 import { LifeCard } from "../components/life-card";
 import { LifeHistory } from "../components/life-history";
+import { hasGoal } from "@/shared/lib/game-types";
 
 export default function GoalPage() {
   usePageLabel("Meta");
@@ -27,7 +28,7 @@ export default function GoalPage() {
   const independence = match?.game_type === "FINANCIAL_INDEPENDENCE";
 
   // Sem meta não há corrida: a Clássica volta para a carteira
-  if (!match || match.game_type === "CLASSIC") return <Navigate to="/portfolio" replace />;
+  if (!match || !hasGoal(match.game_type)) return <Navigate to="/portfolio" replace />;
 
   // O viver de renda só abre com a vida financeira e o caixa na mão
   if (!progress || (independence && (!life || state?.cash === undefined))) {

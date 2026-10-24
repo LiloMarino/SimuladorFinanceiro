@@ -24,6 +24,9 @@ const settings: SimulationSettingsData = {
   team_naming: "NUMBER",
   show_equivalent_rate: false,
   show_maturity_projection: true,
+  government_enabled: false,
+  first_election: null,
+  computer_difficulty: "NORMAL",
 };
 
 describe("regras da partida ↔ formulário do lobby", () => {
@@ -31,6 +34,12 @@ describe("regras da partida ↔ formulário do lobby", () => {
     const body = toSettingsBody(toFormValues(settings));
     expect(body).toEqual(settings);
     expect(Object.keys(body)).toEqual(Object.keys(settings));
+  });
+
+  it("a primeira eleição só segue no corpo com a expansão ligada", () => {
+    const values = { ...toFormValues(settings), governmentEnabled: false, firstElection: "2010-10-07" };
+    expect(toSettingsBody(values).first_election).toBeNull();
+    expect(toSettingsBody({ ...values, governmentEnabled: true }).first_election).toBe("2010-10-07");
   });
 
   it("o formulário mostra o dinheiro com a máscara e a taxa em percentual", () => {

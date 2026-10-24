@@ -12,7 +12,13 @@ from backend.core.dto.simulation import (
     SimulationSettingsDTO,
     SimulationSummaryDTO,
 )
-from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
+from backend.core.enum import (
+    ComputerDifficulty,
+    GameType,
+    PlayerGrouping,
+    TeamNaming,
+    VictoryCriterion,
+)
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.models.models import (
     EconomicIndicatorHistory,
@@ -59,6 +65,9 @@ class SimulationRepository:
             team_naming=settings.team_naming.value,
             show_equivalent_rate=settings.show_equivalent_rate,
             show_maturity_projection=settings.show_maturity_projection,
+            government_enabled=settings.government_enabled,
+            first_election=settings.first_election,
+            computer_difficulty=settings.computer_difficulty.value,
             is_backtest=is_backtest,
             created_at=now,
             last_simulated_at=now,
@@ -234,6 +243,9 @@ class SimulationRepository:
             team_naming=TeamNaming(simulation.team_naming),
             show_equivalent_rate=simulation.show_equivalent_rate,
             show_maturity_projection=simulation.show_maturity_projection,
+            government_enabled=simulation.government_enabled,
+            first_election=simulation.first_election,
+            computer_difficulty=ComputerDifficulty(simulation.computer_difficulty),
             is_backtest=simulation.is_backtest,
             created_at=simulation.created_at,
             last_simulated_at=simulation.last_simulated_at,

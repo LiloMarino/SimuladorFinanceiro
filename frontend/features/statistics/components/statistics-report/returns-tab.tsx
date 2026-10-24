@@ -31,6 +31,7 @@ import { CreditCostCard } from "./credit-cost-card";
 import { PlayerLineChart, type LineSeries } from "@/shared/components/player-line-chart";
 import type { ChartAxis } from "@/shared/components/player-line-chart/utils";
 import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
+import { hasGoal } from "@/shared/lib/game-types";
 
 // Pregões por mês, para ler o eixo "desde o início" em meses
 const TRADING_DAYS_PER_MONTH = 21;
@@ -180,7 +181,7 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
     ...options,
   });
   // A meta acompanha o eixo da série mais longa: em degraus quando o servidor manda os reajustes, reta quando é uma só
-  const goal = overview?.game_type !== "CLASSIC" ? overview?.goal_net_worth : null;
+  const goal = overview && hasGoal(overview.game_type) ? overview.goal_net_worth : null;
   const goalSteps = overview?.goal_steps ?? [];
   const longestNetworth = [...data.players.map((p) => p.networth), ...data.teams.map((t) => t.networth)].reduce(
     (longest, points) => (points.length > longest.length ? points : longest),

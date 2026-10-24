@@ -6,6 +6,7 @@ from decimal import Decimal
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.statistics_report import (
     OverviewReportDTO,
+    PartyRankingDTO,
     PlayerRankingDTO,
     ScoreAxis,
     ScoreAxisDTO,
@@ -31,6 +32,7 @@ def build_overview(
     in_teams: bool = False,
     team_naming: TeamNaming = TeamNaming.COLOR,
     delinquent: frozenset[tuple[int, str]] = frozenset(),
+    parties: list[PartyRankingDTO] | None = None,
 ) -> OverviewReportDTO:
     """
     Ranqueia os jogadores pelo critério de vitória; quem ainda não tem o valor
@@ -109,6 +111,7 @@ def build_overview(
         players=ranked,
         teams=[team.dto for team in teams],
         average_return=average_return,
+        parties=parties or [],
         min_score_days=MIN_SCORE_DAYS,
         criterion=criterion,
         game_type=game_type,
@@ -268,6 +271,9 @@ def _strongest_axis(
 def _measure(criterion: VictoryCriterion, game_type: GameType) -> Measure:
     if game_type is GameType.CLASSIC:
         return lambda performance: _criterion_value(criterion, performance)
+    if game_type is GameType.POLITICAL:
+        # O ranking individual é informação: o que decide é o patrimônio dos partidos
+        return lambda performance: performance[2]
     return lambda performance: performance[2] / performance[0].goal_net_worth
 
 

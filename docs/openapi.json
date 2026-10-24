@@ -3878,6 +3878,454 @@
         }
       }
     },
+    "/api/government/election": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter a eleição",
+        "description": "Retorna as datas, os partidos com chapa, filiados, verba e promessa, as pesquisas, a simulação do 2º turno, as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "operationId": "get_election_api_government_election_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ElectionPanelDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/parties": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Fundar um partido",
+        "description": "Funda um partido com nome, sigla de 2 a 5 letras, cor, promessa na régua de 1 a 5 e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.",
+        "operationId": "found_party_api_government_parties_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FoundPartyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/parties/{party_id}/members": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Filiar-se a um partido",
+        "description": "Entra no partido escolhendo quanto contribui por mês, que pode ser zero. Um partido por vez.",
+        "operationId": "join_party_api_government_parties__party_id__members_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "party_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Party Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinPartyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/government/membership": {
+      "delete": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Sair do partido",
+        "description": "A contribuição para na hora e o que já saiu do caixa não volta. A fundadora que sai passa o partido ao filiado mais antigo; o último a sair desfaz o partido.",
+        "operationId": "leave_party_api_government_membership_delete",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/membership/contribution": {
+      "put": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Mudar a contribuição",
+        "description": "Troca a contribuição mensal ao partido; vale a partir do próximo dia 1º. Pode ser zero.",
+        "operationId": "set_contribution_api_government_membership_contribution_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContributionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/parties/expel": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Expulsar um filiado",
+        "description": "Só a fundadora expulsa. A expulsão é pública; se o expulso era candidato ou vice, a vaga abre.",
+        "operationId": "expel_member_api_government_parties_expel_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpelRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/parties/ticket": {
+      "put": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Montar a chapa",
+        "description": "Só a fundadora escolhe candidato e vice entre os filiados, até o fim da inscrição (último dia do mês anterior ao 1º turno). O vice recebe o convite e aceita ou recusa; sem resposta, a chapa concorre sem vice.",
+        "operationId": "set_ticket_api_government_parties_ticket_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/vice/answer": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Responder ao convite de vice",
+        "description": "Aceita ou recusa a vaga de vice. Recusar não tira do partido: a vaga volta para a fundadora indicar outro filiado.",
+        "operationId": "answer_vice_api_government_vice_answer_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ViceAnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/donations": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Doar a um finalista",
+        "description": "Entre os turnos, quem ficou de fora doa a um dos finalistas, até a véspera do 2º turno. A doação é pública, sai do caixa de uma vez e vira apoio do finalista.",
+        "operationId": "donate_api_government_donations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DonationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/strategies": {
       "get": {
         "tags": [
@@ -7874,6 +8322,16 @@
         ],
         "title": "CompositionReportDTO"
       },
+      "ComputerDifficulty": {
+        "type": "string",
+        "enum": [
+          "EASY",
+          "NORMAL",
+          "HARD"
+        ],
+        "title": "ComputerDifficulty",
+        "description": "A verba de cada partido do computador, em múltiplo da média dos partidos de jogadores."
+      },
       "ContractLoanRequestDTO": {
         "properties": {
           "amount": {
@@ -7899,6 +8357,28 @@
           "term_months"
         ],
         "title": "ContractLoanRequestDTO"
+      },
+      "ContributionRequest": {
+        "properties": {
+          "contribution": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Contribution"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contribution"
+        ],
+        "title": "ContributionRequest"
       },
       "CorrelationAssetDTO": {
         "properties": {
@@ -8264,6 +8744,27 @@
             "type": "boolean",
             "title": "Show Maturity Projection",
             "default": true
+          },
+          "government_enabled": {
+            "type": "boolean",
+            "title": "Government Enabled",
+            "default": false
+          },
+          "first_election": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Election"
+          },
+          "computer_difficulty": {
+            "$ref": "#/components/schemas/ComputerDifficulty",
+            "default": "NORMAL"
           }
         },
         "type": "object",
@@ -8737,6 +9238,63 @@
         ],
         "title": "CreditRatingChangedEventDTO"
       },
+      "DonationDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "nickname",
+          "party_id",
+          "amount"
+        ],
+        "title": "DonationDTO"
+      },
+      "DonationRequest": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "amount"
+        ],
+        "title": "DonationRequest"
+      },
       "DrawdownDTO": {
         "properties": {
           "value": {
@@ -8787,6 +9345,232 @@
         ],
         "title": "EconomicIndicatorsDTO"
       },
+      "ElectionDatesDTO": {
+        "properties": {
+          "campaign_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Campaign Start"
+          },
+          "ticket_deadline": {
+            "type": "string",
+            "format": "date",
+            "title": "Ticket Deadline"
+          },
+          "first_round": {
+            "type": "string",
+            "format": "date",
+            "title": "First Round"
+          },
+          "runoff": {
+            "type": "string",
+            "format": "date",
+            "title": "Runoff"
+          },
+          "donation_deadline": {
+            "type": "string",
+            "format": "date",
+            "title": "Donation Deadline"
+          },
+          "inauguration": {
+            "type": "string",
+            "format": "date",
+            "title": "Inauguration"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "campaign_start",
+          "ticket_deadline",
+          "first_round",
+          "runoff",
+          "donation_deadline",
+          "inauguration"
+        ],
+        "title": "ElectionDatesDTO"
+      },
+      "ElectionPanelDTO": {
+        "properties": {
+          "today": {
+            "type": "string",
+            "format": "date",
+            "title": "Today"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/ElectionPhase"
+          },
+          "election_year": {
+            "type": "integer",
+            "title": "Election Year"
+          },
+          "dates": {
+            "$ref": "#/components/schemas/ElectionDatesDTO"
+          },
+          "parties": {
+            "items": {
+              "$ref": "#/components/schemas/PartyDTO"
+            },
+            "type": "array",
+            "title": "Parties"
+          },
+          "undecided": {
+            "type": "string",
+            "title": "Undecided"
+          },
+          "polls": {
+            "items": {
+              "$ref": "#/components/schemas/PollDTO"
+            },
+            "type": "array",
+            "title": "Polls"
+          },
+          "runoff_simulation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunoffSimulationDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "finalists": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Finalists"
+          },
+          "donations": {
+            "items": {
+              "$ref": "#/components/schemas/DonationDTO"
+            },
+            "type": "array",
+            "title": "Donations"
+          },
+          "my_party": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MyPartyDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "can_found_or_join": {
+            "type": "boolean",
+            "title": "Can Found Or Join"
+          },
+          "can_edit_ticket": {
+            "type": "boolean",
+            "title": "Can Edit Ticket"
+          },
+          "can_donate": {
+            "type": "boolean",
+            "title": "Can Donate"
+          },
+          "last_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RoundResultDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/RoundResultDTO"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "term": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pending_term": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decides_match": {
+            "type": "boolean",
+            "title": "Decides Match"
+          },
+          "player_standings": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerStandingDTO"
+            },
+            "type": "array",
+            "title": "Player Standings"
+          },
+          "party_standings": {
+            "items": {
+              "$ref": "#/components/schemas/PartyStandingDTO"
+            },
+            "type": "array",
+            "title": "Party Standings"
+          },
+          "computer_budget_factor": {
+            "type": "string",
+            "title": "Computer Budget Factor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "today",
+          "phase",
+          "election_year",
+          "dates",
+          "parties",
+          "undecided",
+          "polls",
+          "runoff_simulation",
+          "finalists",
+          "donations",
+          "my_party",
+          "can_found_or_join",
+          "can_edit_ticket",
+          "can_donate",
+          "last_result",
+          "results",
+          "term",
+          "pending_term",
+          "decides_match",
+          "player_standings",
+          "party_standings",
+          "computer_budget_factor"
+        ],
+        "title": "ElectionPanelDTO"
+      },
+      "ElectionPhase": {
+        "type": "string",
+        "enum": [
+          "BEFORE_CAMPAIGN",
+          "CAMPAIGN",
+          "BETWEEN_ROUNDS",
+          "AWAITING_TERM",
+          "TERM"
+        ],
+        "title": "ElectionPhase",
+        "description": "Onde a partida está no ciclo eleitoral."
+      },
       "EngineInfo": {
         "properties": {
           "speed": {
@@ -8824,6 +9608,20 @@
           "message"
         ],
         "title": "ErrorResponse"
+      },
+      "ExpelRequest": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname"
+        ],
+        "title": "ExpelRequest"
       },
       "FixedAssetsUpdateEventDTO": {
         "properties": {
@@ -9426,6 +10224,55 @@
         ],
         "title": "FixedIncomeType"
       },
+      "FoundPartyRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "abbr": {
+            "type": "string",
+            "maxLength": 5,
+            "minLength": 2,
+            "title": "Abbr"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "title": "Color"
+          },
+          "promise": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Promise"
+          },
+          "contribution": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Contribution",
+            "default": "0"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "abbr",
+          "color",
+          "promise"
+        ],
+        "title": "FoundPartyRequest"
+      },
       "FutureParamsDTO": {
         "properties": {
           "until": {
@@ -9663,7 +10510,8 @@
         "enum": [
           "CLASSIC",
           "GOAL_RACE",
-          "FINANCIAL_INDEPENDENCE"
+          "FINANCIAL_INDEPENDENCE",
+          "POLITICAL"
         ],
         "title": "GameType",
         "description": "O que decide a partida: o critério de vitória (Clássica) ou chegar a uma meta de patrimônio."
@@ -9796,6 +10644,112 @@
           "networth"
         ],
         "title": "GoalRunnerDTO"
+      },
+      "GovernmentNoticeKind": {
+        "type": "string",
+        "enum": [
+          "UPDATED",
+          "PARTY_FOUNDED",
+          "EXPELLED",
+          "VICE_INVITED",
+          "VICE_ANSWERED",
+          "DONATION",
+          "ELECTION_RESULT",
+          "TERM_STARTED"
+        ],
+        "title": "GovernmentNoticeKind",
+        "description": "O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."
+      },
+      "GovernmentUpdateEventDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/GovernmentNoticeKind"
+          },
+          "actor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target"
+          },
+          "party_abbr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Abbr"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "round": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Round"
+          },
+          "winner_abbr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winner Abbr"
+          },
+          "accepted": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "GovernmentUpdateEventDTO",
+        "description": "A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve."
       },
       "HighlightsDTO": {
         "properties": {
@@ -10349,6 +11303,26 @@
           "color"
         ],
         "title": "JoinMatchRequest"
+      },
+      "JoinPartyRequest": {
+        "properties": {
+          "contribution": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Contribution",
+            "default": "0"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "JoinPartyRequest"
       },
       "LadderTierDTO": {
         "properties": {
@@ -11253,6 +12227,39 @@
           "ema"
         ]
       },
+      "MyPartyDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "is_founder": {
+            "type": "boolean",
+            "title": "Is Founder"
+          },
+          "is_candidate": {
+            "type": "boolean",
+            "title": "Is Candidate"
+          },
+          "vice": {
+            "$ref": "#/components/schemas/VicePhase"
+          },
+          "contribution": {
+            "type": "string",
+            "title": "Contribution"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "is_founder",
+          "is_candidate",
+          "vice",
+          "contribution"
+        ],
+        "title": "MyPartyDTO"
+      },
       "MyStrategyDTO": {
         "properties": {
           "active": {
@@ -11886,6 +12893,13 @@
           "game_type": {
             "$ref": "#/components/schemas/GameType"
           },
+          "parties": {
+            "items": {
+              "$ref": "#/components/schemas/PartyRankingDTO"
+            },
+            "type": "array",
+            "title": "Parties"
+          },
           "goal_net_worth": {
             "anyOf": [
               {
@@ -11916,10 +12930,314 @@
           "min_score_days",
           "criterion",
           "game_type",
+          "parties",
           "goal_net_worth",
           "goal_steps"
         ],
         "title": "OverviewReportDTO"
+      },
+      "PartyCandidateDTO": {
+        "properties": {
+          "nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nickname"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "name",
+          "color"
+        ],
+        "title": "PartyCandidateDTO",
+        "description": "Quem vai à urna pelo partido; o do computador não é jogador."
+      },
+      "PartyDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "is_computer": {
+            "type": "boolean",
+            "title": "Is Computer"
+          },
+          "promise": {
+            "type": "integer",
+            "title": "Promise"
+          },
+          "founder": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Founder"
+          },
+          "founded": {
+            "type": "string",
+            "format": "date",
+            "title": "Founded"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/PartyMemberDTO"
+            },
+            "type": "array",
+            "title": "Members"
+          },
+          "budget": {
+            "type": "string",
+            "title": "Budget"
+          },
+          "spent": {
+            "type": "string",
+            "title": "Spent"
+          },
+          "intention_points": {
+            "type": "string",
+            "title": "Intention Points"
+          },
+          "valid_share": {
+            "type": "string",
+            "title": "Valid Share"
+          },
+          "candidate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartyCandidateDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartyCandidateDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vice_phase": {
+            "$ref": "#/components/schemas/VicePhase"
+          },
+          "ticket_chosen": {
+            "type": "boolean",
+            "title": "Ticket Chosen"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "abbr",
+          "color",
+          "is_computer",
+          "promise",
+          "founder",
+          "founded",
+          "members",
+          "budget",
+          "spent",
+          "intention_points",
+          "valid_share",
+          "candidate",
+          "vice",
+          "vice_phase",
+          "ticket_chosen"
+        ],
+        "title": "PartyDTO"
+      },
+      "PartyMemberDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "contribution": {
+            "type": "string",
+            "title": "Contribution"
+          },
+          "is_founder": {
+            "type": "boolean",
+            "title": "Is Founder"
+          },
+          "is_candidate": {
+            "type": "boolean",
+            "title": "Is Candidate"
+          },
+          "vice": {
+            "$ref": "#/components/schemas/VicePhase"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "color",
+          "contribution",
+          "is_founder",
+          "is_candidate",
+          "vice"
+        ],
+        "title": "PartyMemberDTO"
+      },
+      "PartyRankingDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "members": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Members"
+          },
+          "total_networth": {
+            "type": "string",
+            "title": "Total Networth"
+          },
+          "leader_gap": {
+            "type": "string",
+            "title": "Leader Gap"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "abbr",
+          "name",
+          "color",
+          "position",
+          "members",
+          "total_networth",
+          "leader_gap"
+        ],
+        "title": "PartyRankingDTO",
+        "description": "Partido da expansão Governo & Política: o patrimônio dele é a soma do dos filiados."
+      },
+      "PartyStandingDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "members": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Members"
+          },
+          "total_networth": {
+            "type": "string",
+            "title": "Total Networth"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "abbr",
+          "name",
+          "color",
+          "members",
+          "total_networth"
+        ],
+        "title": "PartyStandingDTO",
+        "description": "O patrimônio do partido é a soma do patrimônio dos filiados."
       },
       "PatrimonialHistoryDTO": {
         "properties": {
@@ -12861,6 +14179,42 @@
         ],
         "title": "PlayerScoreHistoryDTO"
       },
+      "PlayerStandingDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "party_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Id"
+          },
+          "total_networth": {
+            "type": "string",
+            "title": "Total Networth"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "color",
+          "party_id",
+          "total_networth"
+        ],
+        "title": "PlayerStandingDTO"
+      },
       "PlayerTeamRequest": {
         "properties": {
           "team": {
@@ -12873,6 +14227,48 @@
           "team"
         ],
         "title": "PlayerTeamRequest"
+      },
+      "PollDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/PollEntryDTO"
+            },
+            "type": "array",
+            "title": "Entries"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "entries"
+        ],
+        "title": "PollDTO"
+      },
+      "PollEntryDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "points": {
+            "type": "string",
+            "title": "Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "points"
+        ],
+        "title": "PollEntryDTO"
       },
       "PortfolioCorrelationDTO": {
         "properties": {
@@ -13490,7 +14886,8 @@
           "GOAL",
           "LIFE",
           "ASSISTANCES",
-          "PRICE_IMPACT"
+          "PRICE_IMPACT",
+          "EXPANSIONS"
         ],
         "title": "PresetRuleGroup",
         "description": "As regras de um preset agrupadas como o painel as mostra."
@@ -13984,6 +15381,9 @@
           "credit_loan_paid_off": {
             "$ref": "#/components/schemas/CreditLoanPaidOffEventDTO"
           },
+          "government_update": {
+            "$ref": "#/components/schemas/GovernmentUpdateEventDTO"
+          },
           "strategy_update": {
             "$ref": "#/components/schemas/StrategyUpdateEventDTO"
           },
@@ -14034,6 +15434,7 @@
           "credit_installment_warning",
           "credit_rating_changed",
           "credit_loan_paid_off",
+          "government_update",
           "strategy_update",
           "strategy_orders"
         ],
@@ -14262,6 +15663,220 @@
         ],
         "title": "RoomBotRequest"
       },
+      "RoundPartyDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "is_computer": {
+            "type": "boolean",
+            "title": "Is Computer"
+          },
+          "candidate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartyCandidateDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartyCandidateDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "points": {
+            "type": "string",
+            "title": "Points"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "abbr",
+          "name",
+          "color",
+          "is_computer",
+          "candidate",
+          "vice",
+          "points",
+          "share"
+        ],
+        "title": "RoundPartyDTO"
+      },
+      "RoundResultDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "election_year": {
+            "type": "integer",
+            "title": "Election Year"
+          },
+          "round": {
+            "type": "integer",
+            "title": "Round"
+          },
+          "parties": {
+            "items": {
+              "$ref": "#/components/schemas/RoundPartyDTO"
+            },
+            "type": "array",
+            "title": "Parties"
+          },
+          "finalists": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Finalists"
+          },
+          "winner": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winner"
+          },
+          "runoff": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunoffSimulationDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "election_year",
+          "round",
+          "parties",
+          "finalists",
+          "winner",
+          "runoff"
+        ],
+        "title": "RoundResultDTO"
+      },
+      "RunoffEntryDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "own_points": {
+            "type": "string",
+            "title": "Own Points"
+          },
+          "received_points": {
+            "type": "string",
+            "title": "Received Points"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          },
+          "transfer_to": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transfer To"
+          },
+          "donated": {
+            "type": "string",
+            "title": "Donated"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "own_points",
+          "received_points",
+          "share",
+          "transfer_to",
+          "donated"
+        ],
+        "title": "RunoffEntryDTO"
+      },
+      "RunoffSimulationDTO": {
+        "properties": {
+          "finalists": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Finalists"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/RunoffEntryDTO"
+            },
+            "type": "array",
+            "title": "Entries"
+          },
+          "winner": {
+            "type": "integer",
+            "title": "Winner"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "finalists",
+          "entries",
+          "winner"
+        ],
+        "title": "RunoffSimulationDTO",
+        "description": "A simulação do 2º turno (ou o resultado dele): os eleitores de quem sai vão ao finalista mais próximo."
+      },
       "SavePresetRequest": {
         "properties": {
           "name": {
@@ -14368,6 +15983,27 @@
             "type": "boolean",
             "title": "Show Maturity Projection",
             "default": true
+          },
+          "government_enabled": {
+            "type": "boolean",
+            "title": "Government Enabled",
+            "default": false
+          },
+          "first_election": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Election"
+          },
+          "computer_difficulty": {
+            "$ref": "#/components/schemas/ComputerDifficulty",
+            "default": "NORMAL"
           },
           "id": {
             "type": "integer",
@@ -15358,6 +16994,27 @@
             "title": "Show Maturity Projection",
             "default": true
           },
+          "government_enabled": {
+            "type": "boolean",
+            "title": "Government Enabled",
+            "default": false
+          },
+          "first_election": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Election"
+          },
+          "computer_difficulty": {
+            "$ref": "#/components/schemas/ComputerDifficulty",
+            "default": "NORMAL"
+          },
           "id": {
             "type": "integer",
             "title": "Id"
@@ -15569,6 +17226,27 @@
             "type": "boolean",
             "title": "Show Maturity Projection",
             "default": true
+          },
+          "government_enabled": {
+            "type": "boolean",
+            "title": "Government Enabled",
+            "default": false
+          },
+          "first_election": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Election"
+          },
+          "computer_difficulty": {
+            "$ref": "#/components/schemas/ComputerDifficulty",
+            "default": "NORMAL"
           }
         },
         "type": "object",
@@ -15691,6 +17369,27 @@
             "type": "boolean",
             "title": "Show Maturity Projection",
             "default": true
+          },
+          "government_enabled": {
+            "type": "boolean",
+            "title": "Government Enabled",
+            "default": false
+          },
+          "first_election": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Election"
+          },
+          "computer_difficulty": {
+            "$ref": "#/components/schemas/ComputerDifficulty",
+            "default": "NORMAL"
           }
         },
         "additionalProperties": false,
@@ -17862,6 +19561,60 @@
         ],
         "title": "TechnicalSummaryDTO"
       },
+      "TermDTO": {
+        "properties": {
+          "party_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Id"
+          },
+          "president": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartyCandidateDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartyCandidateDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "consecutive": {
+            "type": "integer",
+            "title": "Consecutive"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "president",
+          "vice",
+          "start",
+          "consecutive"
+        ],
+        "title": "TermDTO"
+      },
       "TickerSuggestionDTO": {
         "properties": {
           "ticker": {
@@ -17880,6 +19633,31 @@
           "name"
         ],
         "title": "TickerSuggestionDTO"
+      },
+      "TicketRequest": {
+        "properties": {
+          "candidate": {
+            "type": "string",
+            "title": "Candidate"
+          },
+          "vice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vice"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "candidate"
+        ],
+        "title": "TicketRequest"
       },
       "TradeDTO": {
         "properties": {
@@ -18222,6 +20000,27 @@
             "type": "boolean",
             "title": "Show Maturity Projection",
             "default": true
+          },
+          "government_enabled": {
+            "type": "boolean",
+            "title": "Government Enabled",
+            "default": false
+          },
+          "first_election": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Election"
+          },
+          "computer_difficulty": {
+            "$ref": "#/components/schemas/ComputerDifficulty",
+            "default": "NORMAL"
           }
         },
         "type": "object",
@@ -18362,6 +20161,29 @@
           "version"
         ],
         "title": "VersionResponse"
+      },
+      "ViceAnswerRequest": {
+        "properties": {
+          "accept": {
+            "type": "boolean",
+            "title": "Accept"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "accept"
+        ],
+        "title": "ViceAnswerRequest"
+      },
+      "VicePhase": {
+        "type": "string",
+        "enum": [
+          "NONE",
+          "PENDING",
+          "ACCEPTED"
+        ],
+        "title": "VicePhase"
       },
       "VictoryCriterion": {
         "type": "string",

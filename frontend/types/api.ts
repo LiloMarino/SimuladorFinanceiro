@@ -150,11 +150,28 @@ export type SavePresetRequest = components["schemas"]["SavePresetRequest"];
 export type PriceImpactPreview = components["schemas"]["PriceImpactPreviewDTO"];
 export type VictoryCriterion = components["schemas"]["VictoryCriterion"];
 export type GameType = components["schemas"]["GameType"];
+export type ComputerDifficulty = components["schemas"]["ComputerDifficulty"];
 export type TunnelStatus = components["schemas"]["TunnelStatusDTO"];
 export type GoalProgress = components["schemas"]["GoalProgressDTO"];
 export type GoalRunner = GoalProgress["players"][number];
 export type PlayerGrouping = components["schemas"]["PlayerGrouping"];
 export type TeamNaming = components["schemas"]["TeamNaming"];
+
+// Governo & Política
+export type ElectionPanel = components["schemas"]["ElectionPanelDTO"];
+export type ElectionPhase = components["schemas"]["ElectionPhase"];
+export type ElectionParty = ElectionPanel["parties"][number];
+export type ElectionRound = components["schemas"]["RoundResultDTO"];
+export type ElectionRunoff = components["schemas"]["RunoffSimulationDTO"];
+export type PartyCandidate = components["schemas"]["PartyCandidateDTO"];
+export type VicePhase = components["schemas"]["VicePhase"];
+export type FoundPartyRequest = components["schemas"]["FoundPartyRequest"];
+export type JoinPartyRequest = components["schemas"]["JoinPartyRequest"];
+export type ContributionRequest = components["schemas"]["ContributionRequest"];
+export type ExpelRequest = components["schemas"]["ExpelRequest"];
+export type TicketRequest = components["schemas"]["TicketRequest"];
+export type ViceAnswerRequest = components["schemas"]["ViceAnswerRequest"];
+export type DonationRequest = components["schemas"]["DonationRequest"];
 
 // Viver de renda
 export type LifeStatus = components["schemas"]["LifeStatusDTO"];

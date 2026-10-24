@@ -32,7 +32,12 @@ from backend.core.dto.preset import PresetAppliedEventDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.strategy import StrategyOrderLineDTO
-from backend.core.enum import CreditGrade, OrderAction, PlayerActivity
+from backend.core.enum import (
+    CreditGrade,
+    GovernmentNoticeKind,
+    OrderAction,
+    PlayerActivity,
+)
 
 
 class CashUpdateEventDTO(BaseDTO):
@@ -184,6 +189,22 @@ class CreditLoanPaidOffEventDTO(BaseDTO):
     interest_saved: Decimal
 
 
+class GovernmentUpdateEventDTO(BaseDTO):
+    """A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve."""
+
+    kind: GovernmentNoticeKind
+    # Quem fez e quem sofreu a ação, pelo apelido
+    actor: str | None = None
+    target: str | None = None
+    party_abbr: str | None = None
+    amount: Decimal | None = None
+    # No resultado: o turno e o vencedor (sigla), se já houver
+    round: int | None = None
+    winner_abbr: str | None = None
+    # Na resposta ao convite de vice: se aceitou
+    accepted: bool | None = None
+
+
 class StrategyUpdateEventDTO(BaseDTO):
     """O modo do jogador mudou: ligou, trocou, desligou ou a estratégia deu erro."""
 
@@ -245,5 +266,6 @@ class RealtimeEventCatalog(BaseDTO):
     credit_installment_warning: CreditInstallmentWarningEventDTO
     credit_rating_changed: CreditRatingChangedEventDTO
     credit_loan_paid_off: CreditLoanPaidOffEventDTO
+    government_update: GovernmentUpdateEventDTO
     strategy_update: StrategyUpdateEventDTO
     strategy_orders: StrategyOrdersEventDTO
