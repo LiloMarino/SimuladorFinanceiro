@@ -6,7 +6,7 @@ sidebar_position: 8
 
 O projeto segue o [SemVer](https://semver.org/lang/pt-BR/): `MAIOR.MENOR.CORREÇÃO`, como em `2.1.3`. O número responde a uma pergunta sobre quem já tem o app instalado: **atualizar vai quebrar alguma coisa?**
 
-O número diz compatibilidade, não maturidade. A maturidade vai num rótulo à parte, **Acesso antecipado**, no README e no título de cada release.
+O número diz compatibilidade, não maturidade: nada na release diz que o jogo está em fase de testes.
 
 ## Quando sobe cada número
 

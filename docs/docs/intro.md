@@ -11,9 +11,7 @@ O Simulador Financeiro é um jogo de investimentos inspirado em jogos de estrat�
 
 ![O jogo rodando: o tempo da simulação avança e a carteira acompanha](/demo/gifs/time.gif)
 
-:::info Acesso antecipado
-O jogo já roda, mas ainda muda a cada versão. As [novidades de cada versão](./como-usar/novidades.md) ficam numa página só.
-:::
+As [novidades de cada versão](./como-usar/novidades.md) ficam numa página só.
 
 ## O que ele faz
 

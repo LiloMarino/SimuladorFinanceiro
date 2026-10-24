@@ -248,6 +248,8 @@ Migration que acrescenta tabela ou coluna não é maior, porque a F25 a aplica s
 
 O número sai dos commits, que seguem o Conventional Commits: `feat:` pede a menor, `fix:`, `docs:`, `refactor:` e os demais pedem a correção, e um `!` depois do tipo (`feat!: Removido o campo X do config.toml`) pede a maior. O `!` é a única marca de quebra de compatibilidade, e quem faz o commit que quebra é quem o coloca. Commit sem tipo não conta. O escopo (`feat(lobby):`) é opcional e não entra na conta, então o projeto segue sem ele. A conta é do `git-cliff --bumped-version` (F51), conferida antes de cada release.
 
+**Atualização (2026-10-24): fim do "Acesso antecipado".** O rótulo saiu do README, da introdução dos docs e do título da release, a partir da 2.3.0. O número continua regido só pela compatibilidade: sair do rótulo não move a versão.
+
 ### D13 — Um canal de tempo real só: Socket.IO, com fallback de polling
 **Status:** ✅ Decidida
 

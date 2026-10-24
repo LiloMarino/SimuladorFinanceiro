@@ -18,7 +18,7 @@
 
 O Simulador Financeiro é um jogo de investimentos inspirado em jogos de estratégia como Capitalism Lab e Victoria 3. Você recebe um capital, escolhe onde aplicar e acompanha o resultado enquanto o tempo da simulação passa, dia a dia, sobre os preços históricos da bolsa brasileira. Pode jogar sozinho ou numa sala com amigos. A partida pode ser clássica (jogar até a data final), uma corrida até uma meta de patrimônio ou uma partida de viver de renda, com salário e despesas.
 
-Acesso antecipado: o jogo já roda, mas ainda muda a cada versão. Em português, voltado ao mercado brasileiro.
+Em português, voltado ao mercado brasileiro.
 
 ## O que ele faz
 
