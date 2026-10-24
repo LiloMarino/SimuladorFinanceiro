@@ -20,6 +20,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { displayIsoDate } from "@/shared/lib/utils/display";
 import { useImportAsset, type ImportRequest, type Source } from "../hooks/mutations/useImportAsset";
 import { tickerFromFileName, type CsvInspection } from "../lib/csv-file";
+import { CorrectOnImportSwitch } from "./correct-on-import-switch";
 import { CsvDropzone } from "./csv-dropzone";
 import { TickerCombobox } from "./ticker-combobox";
 
@@ -150,6 +151,8 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
                   <FieldDescription>Desmarcado, só entram pregões que ainda não estão na base.</FieldDescription>
                 </FieldContent>
               </Field>
+
+              <CorrectOnImportSwitch />
 
               {/* Importando: progresso no próprio painel */}
               {importAsset.isPending && (

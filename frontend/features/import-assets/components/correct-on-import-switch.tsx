@@ -1,6 +1,5 @@
-import { Label } from "@/shared/components/ui/label";
+import { Field, FieldContent, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
 import { Switch } from "@/shared/components/ui/switch";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useSaveImportSettings } from "../hooks/mutations/useSaveImportSettings";
 import { useImportSettings } from "../hooks/queries/useImportSettings";
 
@@ -10,21 +9,20 @@ export function CorrectOnImportSwitch() {
   const save = useSaveImportSettings();
 
   return (
-    <div className="flex h-8 items-center gap-2 rounded-lg border border-input px-3">
+    <Field orientation="horizontal">
       <Switch
         id="correct-on-import"
         checked={settings?.correct_price_errors ?? true}
         disabled={!settings || save.isPending}
         onCheckedChange={(checked) => save.mutate({ correct_price_errors: checked })}
       />
-      <Tooltip>
-        <TooltipTrigger render={<Label htmlFor="correct-on-import" />}>Corrigir ao importar</TooltipTrigger>
-        <TooltipContent side="top" className="max-w-64">
-          Ligada, a importação troca por interpolação os dias em que o yfinance errou o preço (queda de 99% que volta em
-          poucos pregões). Desligada, o dado entra como a fonte mandou, com os erros. Vale para as próximas importações;
-          o que já está na base só muda pelo botão ao lado. Cripto nunca é corrigida.
-        </TooltipContent>
-      </Tooltip>
-    </div>
+      <FieldContent>
+        <FieldLabel htmlFor="correct-on-import">Corrigir erros de dado ao importar</FieldLabel>
+        <FieldDescription>
+          Troca por interpolação o dia em que o yFinance errou o preço (queda de 99% que volta em poucos pregões).
+          Desligado, o dado entra como a fonte mandou. Cripto nunca é corrigida.
+        </FieldDescription>
+      </FieldContent>
+    </Field>
   );
 }

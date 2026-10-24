@@ -25,7 +25,6 @@ import { useRefreshOutdatedStocks } from "../hooks/mutations/useRefreshOutdatedS
 import { useRefreshSeries } from "../hooks/mutations/useRefreshSeries";
 import { timelineRange, timelineTicks } from "../lib/timeline";
 import { ClassifyRow } from "./classify-row";
-import { CorrectOnImportSwitch } from "./correct-on-import-switch";
 import { CorrectedDaysBadge } from "./corrected-days-badge";
 import { CoverageBar } from "./coverage-bar";
 import { DeleteStockButton } from "./delete-stock-button";
@@ -97,7 +96,6 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
               <ToggleGroupItem value="ALL">Todas</ToggleGroupItem>
               <ToggleGroupItem value="ATTENTION">Precisam de atenção · {attentionCount}</ToggleGroupItem>
             </ToggleGroup>
-            <CorrectOnImportSwitch />
             <Button size="sm" variant="outline" disabled={busy} onClick={() => correctErrors.mutate()}>
               {correctErrors.isPending ? <Spinner /> : <Eraser />}
               Corrigir erros de dado
