@@ -15,11 +15,13 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/compon
 import { Input } from "@/shared/components/ui/input";
 import { cn } from "@/shared/lib/utils";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { displayDayMonth, displayMoney } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayMoney, displayMoneyCompact, displayPercent } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
 import type { ElectionPanel } from "@/types";
 import { useDonate } from "../hooks/mutations/useDonate";
-import { monthlyYield } from "../lib/election";
+import { useToday } from "../hooks/useToday";
+import { countdownLabel, monthlyYield } from "../lib/election";
+import { contributionText } from "../lib/contribution";
 import { PartyMark, PersonMark } from "./party-mark";
 
 type DonateDialogProps = {
@@ -29,12 +31,17 @@ type DonateDialogProps = {
   cash: string | undefined;
 };
 
+const SHORTCUTS = [5000, 10000, 20000];
+
 /** Doar a um finalista entre os turnos: a favor de quem lidera ou contra. */
 export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogProps) {
   const finalists = panel.parties.filter((party) => panel.finalists.includes(party.id));
   const [partyId, setPartyId] = useState(finalists[0]?.id);
   const [text, setText] = useState("");
   const donate = useDonate();
+  const mine = panel.my_party ? panel.parties.find((party) => party.id === panel.my_party?.party_id) : undefined;
+  const simulation = panel.runoff_simulation;
+  const today = useToday(panel);
 
   const amount = Number(normalizeNumberString(text)) || 0;
   const target = finalists.find((party) => party.id === partyId);
@@ -46,37 +53,47 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
         <DialogHeader variant="divided">
           <DialogTitle>Doar a um finalista</DialogTitle>
           <DialogDescription>
-            Quem ficou de fora escolhe o finalista, a favor de quem lidera ou contra. Até {displayDayMonth(panel.dates.donation_deadline)}.
+            Entre os turnos, até {displayDayMonth(panel.dates.donation_deadline)}.
+            {mine && ` Você é do ${mine.abbr}${panel.finalists.includes(mine.id) ? "." : ", que ficou de fora."}`}
           </DialogDescription>
         </DialogHeader>
 
         <DialogBody>
           <div className="grid gap-3.5">
-            <div role="radiogroup" aria-label="Finalista" className="grid gap-2">
-              {finalists.map((party) => (
-                <button
-                  key={party.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={party.id === partyId}
-                  onClick={() => setPartyId(party.id)}
-                  className={cn(
-                    "flex items-center gap-2.5 rounded-[10px] border px-3 py-2.5 text-left text-[13px] outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-                    party.id === partyId && "border-2 border-primary",
-                  )}
-                >
-                  <PartyMark abbr={party.abbr} color={party.color} />
-                  {party.candidate && <PersonMark person={party.candidate} />}
-                  <b className="flex-1 font-medium">{party.candidate?.name ?? party.name}</b>
-                  <span className="font-mono text-xs text-muted-foreground">
-                    promessa {party.promise}
-                  </span>
-                </button>
-              ))}
+            <div role="radiogroup" aria-label="Finalista" className="grid grid-cols-2 gap-2.5">
+              {finalists.map((party) => {
+                const entry = simulation?.entries.find((candidate) => candidate.party_id === party.id);
+                const leads = simulation?.winner === party.id;
+                return (
+                  <button
+                    key={party.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={party.id === partyId}
+                    onClick={() => setPartyId(party.id)}
+                    className={cn(
+                      "grid gap-1 rounded-[10px] border px-3 py-2.5 text-left text-[13px] outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+                      party.id === partyId && "border-2 border-primary",
+                    )}
+                  >
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      <b className="truncate font-medium">{party.candidate?.name ?? party.name}</b>
+                      <PartyMark abbr={party.abbr} color={party.color} size="sm" />
+                      {party.candidate && <PersonMark person={party.candidate} />}
+                    </span>
+                    {entry && (
+                      <span className="text-xs text-muted-foreground">
+                        {displayPercent(entry.share, 0)} na simulação ·{" "}
+                        {leads ? "lidera" : "doar aqui é contra quem lidera"}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             <Field data-invalid={overCash}>
-              <FieldLabel htmlFor="donation-amount">Valor da doação</FieldLabel>
+              <FieldLabel htmlFor="donation-amount">Quanto</FieldLabel>
               <Input
                 id="donation-amount"
                 fieldSize="xl"
@@ -87,16 +104,50 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
                 aria-invalid={overCash}
                 onChange={(event) => setText(formatMoney(event.target.value))}
               />
+              <div className="flex flex-wrap gap-1.5">
+                {SHORTCUTS.map((shortcut) => (
+                  <Button
+                    key={shortcut}
+                    type="button"
+                    size="xs"
+                    variant={amount === shortcut ? "info" : "outline"}
+                    onClick={() => setText(contributionText(String(shortcut)))}
+                  >
+                    {displayMoneyCompact(shortcut)}
+                  </Button>
+                ))}
+              </div>
               {overCash ? (
                 <FieldError>Seu caixa hoje é {displayMoney(cash)}.</FieldError>
               ) : (
                 <FieldDescription>
-                  {target && amount > 0
-                    ? `${displayMoney(amount)} rendem +${monthlyYield(amount).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} ponto de intenção ao ${target.abbr}: a raiz do valor dividida por 64, como a verba de campanha.`
-                    : "Sai do seu caixa de uma vez e vira apoio do finalista."}
+                  Sai do seu caixa de uma vez e vira verba do {target?.abbr ?? "finalista"} nos{" "}
+                  {countdownLabel(today, panel.dates.runoff)} até o 2º turno.
                 </FieldDescription>
               )}
             </Field>
+
+            {target && amount > 0 && (
+              <dl className="grid divide-y rounded-lg border px-3 text-[13px]">
+                <div className="flex justify-between gap-3 py-1.5">
+                  <dt className="text-muted-foreground">Efeito estimado</dt>
+                  <dd className="text-right font-mono font-semibold">
+                    +{monthlyYield(amount).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} pontos para o{" "}
+                    {target.abbr}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3 py-1.5">
+                  <dt className="text-muted-foreground">Seu patrimônio no ranking</dt>
+                  <dd className="text-right font-mono font-semibold">−{displayMoney(amount)}</dd>
+                </div>
+                {mine && (
+                  <div className="flex justify-between gap-3 py-1.5">
+                    <dt className="text-muted-foreground">{mine.abbr} no ranking de partidos</dt>
+                    <dd className="text-right font-mono font-semibold">−{displayMoney(amount)}</dd>
+                  </div>
+                )}
+              </dl>
+            )}
 
             <Alert variant="muted">
               <Info />

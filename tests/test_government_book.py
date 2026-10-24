@@ -229,6 +229,24 @@ def test_no_collection_before_the_campaign_opens(book: GovernmentBook):
     assert book.state.last_collection is None
 
 
+def test_page_renews_on_the_day_the_campaign_opens(book: GovernmentBook, notices):
+    book.on_tick(USERS, date(2020, 10, 5), False)
+    assert notices == []
+
+    book.on_tick(USERS, date(2020, 10, 7), False)
+    assert [notice["kind"] for notice in notices] == ["UPDATED"]
+
+    book.on_tick(USERS, date(2020, 10, 8), False)
+    assert len(notices) == 1
+
+
+def test_page_renews_on_the_day_the_tickets_close(book: GovernmentBook, notices):
+    book.on_tick(USERS, date(2021, 9, 29), False)
+    book.on_tick(USERS, date(2021, 10, 1), False)
+
+    assert [notice["kind"] for notice in notices] == ["UPDATED"]
+
+
 def run_campaign(book: GovernmentBook) -> None:
     for month in range(11, 13):
         book.on_tick(USERS, date(2020, month, 3), True)

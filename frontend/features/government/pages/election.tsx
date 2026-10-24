@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { MailQuestion, UserPlus, HandCoins } from "lucide-react";
-import { ErrorState } from "@/shared/components/error-state";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent } from "@/shared/components/ui/card";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useAuth } from "@/shared/hooks/useAuth";
@@ -12,7 +10,7 @@ import type { ElectionPanel } from "@/types";
 import { ContributionDialog } from "../components/contribution-dialog";
 import { DonateDialog } from "../components/donate-dialog";
 import { ElectionHeader } from "../components/election-header";
-import { BeforeCampaignEmpty, ElectionSkeleton, NoPartyBanner } from "../components/election-states";
+import { BeforeCampaignEmpty, ElectionError, ElectionSkeleton } from "../components/election-states";
 import { ExpelDialog } from "../components/expel-dialog";
 import { FoundPartyDialog } from "../components/found-party-dialog";
 import { JoinPartyDialog } from "../components/join-party-dialog";
@@ -24,27 +22,14 @@ import { RankingCard } from "../components/ranking-card";
 import { TermCard } from "../components/term-card";
 import { TicketDialog } from "../components/ticket-dialog";
 import { ViceInviteDialog } from "../components/vice-invite-dialog";
-import { useElection } from "../hooks/queries/useElection";
+import { useElection } from "@/shared/hooks/queries/useElection";
 
 export default function ElectionPage() {
   usePageLabel("Eleição");
   const { data: panel, error, refetch } = useElection();
 
   if (!panel) {
-    return error ? (
-      <Card>
-        <CardContent>
-          <ErrorState
-            title="Não deu para carregar a eleição"
-            description="A conexão com a partida caiu. Partidos, contribuições e votos seguem valendo; nada mudou fora da data."
-            error={error}
-            onRetry={() => void refetch()}
-          />
-        </CardContent>
-      </Card>
-    ) : (
-      <ElectionSkeleton />
-    );
+    return error ? <ElectionError onRetry={() => void refetch()} /> : <ElectionSkeleton />;
   }
 
   return <ElectionContent panel={panel} />;
@@ -80,7 +65,7 @@ function ElectionContent({ panel }: { panel: ElectionPanel }) {
 
   return (
     <div className="grid gap-5">
-      <ElectionHeader panel={panel} />
+      <ElectionHeader panel={panel} onJoin={() => openJoin()} onFound={() => setDialog("found")} />
 
       {mine?.vice === "PENDING" && party && (
         <Alert variant="info">
@@ -128,14 +113,6 @@ function ElectionContent({ panel }: { panel: ElectionPanel }) {
       )}
 
       {!campaignOpen && !hasTerm && <BeforeCampaignEmpty panel={panel} />}
-
-      {campaignOpen && !mine && panel.can_found_or_join && (
-        <NoPartyBanner
-          canJoin={playerParties.length > 0}
-          onJoin={() => openJoin()}
-          onFound={() => setDialog("found")}
-        />
-      )}
 
       {(campaignOpen || hasTerm) && (
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">

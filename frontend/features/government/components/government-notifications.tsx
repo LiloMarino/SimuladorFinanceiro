@@ -7,6 +7,7 @@ import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionRound } from "@/types";
+import { donationContext, roundToast } from "../lib/round-toast";
 import { RoundResultDialog } from "./round-result-dialog";
 
 /**
@@ -58,14 +59,25 @@ export function GovernmentNotifications() {
         }
         break;
       case "DONATION":
-        toast.info(`${event.actor} doou ${displayMoney(event.amount ?? 0)} ao ${abbr}`);
+        toast.info(`${event.actor} doou ${displayMoney(event.amount ?? 0)} ao ${abbr}`, {
+          description:
+            donationContext(queryClient.getQueryData<ElectionPanel>(queryKeys.election()), abbr) ?? undefined,
+        });
         break;
       case "ELECTION_RESULT":
         // O resultado só chega depois de o painel atualizar: o diálogo lê o turno apurado do cache
         void queryClient.refetchQueries({ queryKey: queryKeys.election() }).then(() => {
           const panel = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
           const last = panel?.last_result;
-          if (panel && last && last.round === event.round) setShown({ result: last, panel });
+          if (!panel || !last || last.round !== event.round) return;
+          setShown({ result: last, panel });
+          const notice = roundToast(panel);
+          if (notice) {
+            toast[notice.tone](notice.title, {
+              description: notice.description,
+              action: notice.donate ? { label: "Doar a um finalista", onClick: () => void navigate("/election") } : undefined,
+            });
+          }
         });
         break;
       case "TERM_STARTED":

@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
-import { BUDGET, INTENTION, PROMISE, SPENT } from "../lib/election-metrics";
+import { BUDGET, INTENTION, SPENT } from "../lib/election-metrics";
+import { PromiseLabel } from "./promise-hint";
 import { PROMISE_ENDS } from "../lib/election";
 import { PersonMark, PartyMark } from "./party-mark";
 import { PromiseRuler } from "./promise-ruler";
@@ -49,7 +50,7 @@ export function PartiesCard({ panel }: PartiesCardProps) {
                   <MetricLabel metric={SPENT} />
                 </TableHead>
                 <TableHead className="w-36">
-                  <MetricLabel metric={PROMISE} />
+                  <PromiseLabel />
                 </TableHead>
               </TableRow>
             </TableHeader>

@@ -6,7 +6,8 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayMoney, displayMoneyWhole, displayMonthShort } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
-import { BUDGET, PROMISE, SPENT, VOTE_YIELD } from "../lib/election-metrics";
+import { BUDGET, SPENT, VOTE_YIELD } from "../lib/election-metrics";
+import { PromiseLabel } from "./promise-hint";
 import { monthlyYield, promiseBand } from "../lib/election";
 import { PartyMark, PersonMark } from "./party-mark";
 import { PromiseRuler } from "./promise-ruler";
@@ -154,7 +155,7 @@ export function MyPartyCard({ panel, party, nickname, onEditTicket, onChangeCont
           {/* Promessa */}
           <div className="grid gap-1.5">
             <span className="text-sm font-medium">
-              <MetricLabel metric={PROMISE} />
+              <PromiseLabel />
             </span>
             <PromiseRuler
               showEnds

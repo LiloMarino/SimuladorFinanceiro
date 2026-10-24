@@ -5,7 +5,7 @@ eventos e só muda por `_emit`, que grava o evento e o aplica.
 """
 
 import logging
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core import repository
@@ -49,6 +49,7 @@ class GovernmentBook:
         self.state: GovernmentState = replay(
             repository.government.get_events(settings.id)
         )
+        self._previous_day: date | None = None
 
     # Calendário
 
@@ -71,6 +72,7 @@ class GovernmentBook:
             self._start_term(today)
 
         cycle = self.cycle()
+        self._announce_phase_change(cycle, today)
         if (
             month_changed
             and self.state.runoff is None
@@ -86,6 +88,15 @@ class GovernmentBook:
             self._hold_first_round(cycle, today)
             return True
         return False
+
+    def _announce_phase_change(self, cycle: ElectionCycle, today: date) -> None:
+        """A página renova no dia em que a campanha abre e no dia em que as chapas fecham."""
+        previous, self._previous_day = self._previous_day, today
+        if previous is None:
+            return
+        boundaries = (cycle.campaign_start, cycle.ticket_deadline + timedelta(days=1))
+        if any(previous < boundary <= today for boundary in boundaries):
+            self._notice(GovernmentNoticeKind.UPDATED)
 
     # Ações dos jogadores
 

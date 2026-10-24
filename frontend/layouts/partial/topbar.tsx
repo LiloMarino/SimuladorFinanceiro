@@ -8,6 +8,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { displayShortDate } from "@/shared/lib/utils/display";
 import { TopbarCash } from "./topbar-cash";
 import { TopbarGoal } from "./topbar-goal";
+import { TopbarGovernment } from "./topbar-government";
 import { hasGoal } from "@/shared/lib/game-types";
 
 interface TopbarProps {
@@ -48,6 +49,9 @@ export default function Topbar({ pageLabel }: TopbarProps) {
               currentDate={simData?.current_date}
             />
           )}
+
+          {/* Expansão Governo & Política */}
+          {match?.government_enabled && <TopbarGovernment />}
 
           {/* Data, pausa e velocidade */}
           <div className="flex items-center gap-2 rounded-lg border border-border bg-subtle p-1">

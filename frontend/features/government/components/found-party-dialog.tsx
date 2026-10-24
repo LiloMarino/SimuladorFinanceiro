@@ -22,6 +22,7 @@ import { useFoundParty } from "../hooks/mutations/useFoundParty";
 import { PARTY_COLORS } from "../lib/party-colors";
 import { contributionAmount } from "../lib/contribution";
 import { ContributionField } from "./contribution-field";
+import { PromiseHint } from "./promise-hint";
 import { PromisePicker } from "./promise-picker";
 
 const ABBR_PATTERN = /^[A-ZÀ-Ý]{2,5}$/;
@@ -160,7 +161,10 @@ export function FoundPartyDialog({ open, onOpenChange, takenColors, cash }: Foun
               name="promise"
               render={({ field }) => (
                 <Field>
-                  <FieldLabel>Promessa do partido</FieldLabel>
+                  <div className="flex items-center gap-1.5">
+                    <FieldLabel>Promessa do partido</FieldLabel>
+                    <PromiseHint />
+                  </div>
                   <PromisePicker value={field.value} onChange={field.onChange} />
                 </Field>
               )}

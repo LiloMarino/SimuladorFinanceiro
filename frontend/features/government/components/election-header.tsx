@@ -1,10 +1,12 @@
 import { Check } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
 import { cn } from "@/shared/lib/utils";
-import { displayShortDate, displayMonthShort } from "@/shared/lib/utils/display";
+import { displayList, displayMoneyWhole, displayShortDate, displayMonthShort } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionPhase } from "@/types";
+import { useToday } from "../hooks/useToday";
 import { countdownLabel, phaseLabel } from "../lib/election";
 import { PartyMark } from "./party-mark";
 
@@ -51,15 +53,23 @@ function viewerBadge(panel: ElectionPanel) {
   return { role, party };
 }
 
-type ElectionHeaderProps = { panel: ElectionPanel };
+type ElectionHeaderProps = {
+  panel: ElectionPanel;
+  /** Quem está sem partido com a candidatura aberta troca o selo por filiar-se e fundar */
+  onJoin: () => void;
+  onFound: () => void;
+};
 
 /** Cabeçalho da eleição: o ano, o papel de quem vê, a contagem regressiva e os quatro passos do calendário. */
-export function ElectionHeader({ panel }: ElectionHeaderProps) {
-  const { dates, phase, today } = panel;
+export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) {
+  const { dates, phase } = panel;
+  const today = useToday(panel);
   const milestone = nextMilestone(panel);
   const badge = viewerBadge(panel);
   const computers = panel.parties.filter((party) => party.is_computer).length;
   const players = panel.parties.length - computers;
+  const openParties = panel.parties.filter((party) => !party.is_computer);
+  const choosing = phase !== "BEFORE_CAMPAIGN" && !panel.my_party && panel.can_found_or_join;
   const runoffSkipped = phase === "AWAITING_TERM" && panel.last_result?.round === 1;
   const current = CURRENT_STEP[phase];
 
@@ -85,7 +95,7 @@ export function ElectionHeader({ panel }: ElectionHeaderProps) {
               <div className="flex flex-wrap items-center gap-2.5">
                 <b className="text-xl">Eleição de {monthYear(dates.first_round)}</b>
                 <Badge variant="secondary">{phaseLabel(phase)}</Badge>
-                {badge && (
+                {!choosing && badge && (
                   <Badge variant="info">
                     {badge.role}
                     <PartyMark abbr={badge.party.abbr} color={badge.party.color} size="sm" />
@@ -93,16 +103,44 @@ export function ElectionHeader({ panel }: ElectionHeaderProps) {
                 )}
               </div>
               <span className="text-[13px] text-muted-foreground">
-                {panel.parties.length === 0
+                {choosing
+                  ? `Você ainda não tem partido · inscrição de chapas até ${displayShortDate(dates.ticket_deadline)}`
+                  : panel.parties.length === 0
                   ? "Ainda sem partidos. Quando a candidatura abrir, é aqui que eles aparecem."
                   : `${panel.parties.length} ${panel.parties.length === 1 ? "partido" : "partidos"}: ${players} de jogadores e ${computers} do computador, que completa as vagas até 3 · mandato de 4 anos, com uma reeleição`}
               </span>
             </div>
+            {choosing && (
+              <div className="flex gap-2">
+                {openParties.length > 0 && (
+                  <Button variant="outline" onClick={onJoin}>
+                    Filiar-se
+                  </Button>
+                )}
+                <Button onClick={onFound}>Fundar partido</Button>
+              </div>
+            )}
             <div className="grid justify-items-end">
               <span className="text-xs text-muted-foreground uppercase">{milestone.label}</span>
               <span className="font-mono text-[22px] font-semibold">{countdownLabel(today, milestone.date)}</span>
             </div>
           </div>
+
+          {/* Partidos abertos */}
+          {choosing && openParties.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 text-[13px]">
+              <span className="text-muted-foreground">Partidos abertos:</span>
+              {openParties.map((party, index) => (
+                <span key={party.id} className="inline-flex items-center gap-2">
+                  {index > 0 && <span className="text-muted-foreground">·</span>}
+                  <PartyMark abbr={party.abbr} color={party.color} />
+                  <span>
+                    {displayList(party.members.map((member) => member.nickname))}, {displayMoneyWhole(party.budget)}/mês
+                  </span>
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Calendário */}
           <ol className="flex flex-wrap gap-3 border-t pt-3.5">
