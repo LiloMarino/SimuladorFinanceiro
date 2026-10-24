@@ -72,7 +72,6 @@
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 💤 |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
-| [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 💤 |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
@@ -104,7 +103,7 @@
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -124,6 +123,7 @@
 | **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | [F108](#f108) | ✅ |
 | [**F33**](#f33) | Indicadores técnicos | — | ✅ |
+| [**F68**](#f68) | Dica de firewall no lobby | — | ✅ |
 | [**F89**](#f89) | Presets de partida | — | ✅ |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
@@ -151,7 +151,6 @@
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
-| [**F68**](#f68) | Dica de firewall no lobby | — | 0 | ⏳ |
 | [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | ⏳ |
 | [**F90**](#f90) | Cenários | — | 0 | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
@@ -279,7 +278,7 @@
 
 ### Sem marco
 
-> **Progresso:** 5/36 concluídas
+> **Progresso:** 6/36 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -291,7 +290,6 @@
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 💤 |
 | [**F61**](#f61) | Host remove jogador da sala | — | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
-| [**F68**](#f68) | Dica de firewall no lobby | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 💤 |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
@@ -315,10 +313,11 @@
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | [F113](#f113) | 💤 |
 
-<details><summary>Concluído (5 itens)</summary>
+<details><summary>Concluído (6 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F68**](#f68) | Dica de firewall no lobby | — | ✅ |
 | [**F89**](#f89) | Presets de partida | — | ✅ |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
@@ -473,7 +472,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F14** | Janela desktop nativa | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
-| **F68** | Dica de firewall no lobby | — | — | — | Baixo | Baixo | Médio | Ótimo | ⏳ Pendente |
+| **F68** | Dica de firewall no lobby | — | — | — | Baixo | Baixo | Médio | Ótimo | ✅ Concluído |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
 
 <a id="f14"></a>
