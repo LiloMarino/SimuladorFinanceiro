@@ -63,7 +63,6 @@
 | [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | — | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
-| [**F33**](#f33) | Indicadores técnicos | — | ⏳ |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
 | [**F37**](#f37) | Tema escuro | — | 💤 |
 | [**F44**](#f44) | Expansão Gestoras: fundar a gestora e abrir capital | — | 🔍 |
@@ -106,7 +105,7 @@
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -125,6 +124,7 @@
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | — | ✅ |
 | **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | [F108](#f108) | ✅ |
+| [**F33**](#f33) | Indicadores técnicos | — | ✅ |
 | [**F89**](#f89) | Presets de partida | — | ✅ |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
@@ -145,8 +145,8 @@
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
 | [**F91**](#f91) | Caixa de entrada e resumo do mês | M15 | 2 | ⏳ |
 | [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | M6 | 1 | ⏳ |
-| [**F33**](#f33) | Indicadores técnicos | M11 | 1 | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | M4 | 0 | ⏳ |
+| [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
 | [**F49**](#f49) | Spike: animação dos tópicos do tutorial | M14 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
@@ -236,13 +236,20 @@
 >
 > **Serve:** N19
 >
-> **Progresso:** 0/3 concluídas
+> **Progresso:** 1/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F33**](#f33) | Indicadores técnicos | — | ⏳ |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | [F33](#f33) | 🔍 |
 | [**F96**](#f96) | Dicas de análise técnica | — | 💤 |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F33**](#f33) | Indicadores técnicos | — | ✅ |
+
+</details>
 
 ### M14 — Vitrine e primeiros passos
 
@@ -330,7 +337,7 @@
 | **F6** | Link de convite pela internet no lobby | N2 | — | M3 | [F5](#f5) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
-| **F33** | Indicadores técnicos | N19, N4 | D2 | M11 | — | Médio | Baixo | Alto | Ótimo | ⏳ Pendente |
+| **F33** | Indicadores técnicos | N19, N4 | D2 | M11 | — | Médio | Baixo | Alto | Ótimo | ✅ Concluído |
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
@@ -372,7 +379,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **Aceite:** duas estratégias idênticas, em mercado isolado e com a F13 ligada, terminam com o mesmo patrimônio.
 
 <a id="f33"></a>
-**F33 — Indicadores técnicos.** Serve N19 e N4; segue a D2. Hoje o gráfico de ações mostra só o preço (área ou velas); os indicadores que um site como o Investing.com mostra não existem. `backend/features/technical_analysis/indicators.py` calcula, sobre o histórico de preço e volume (`stock_price_history` já guarda o volume), funções puras em pandas com parâmetros editáveis: médias móveis simples e exponencial (MMS, MME), MACD (12, 26, 9: linha, sinal e histograma), IFR (14), Bandas de Bollinger (20 pregões, 2 desvios), estocástico (14, 3), ATR (14) e OBV. Implementação própria, sem TA-Lib, que exige uma biblioteca em C no executável; cada função tem teste contra uma série curta com valores calculados à mão. `GET /api/stocks/{ticker}/indicators` devolve as séries alinhadas às datas do preço; na partida, só até a data da simulação, como na correlação (F32). No gráfico, o que se desenha sobre o preço (médias, Bollinger) vira série no mesmo painel, e os osciladores (MACD, IFR, estocástico, volume) ganham painéis próprios embaixo, que o `lightweight-charts` 5 tem nativos. Um seletor "Indicadores" liga e desliga cada um e edita os parâmetros, e cada indicador traz a dica com o que mede e como ler (IFR acima de 70 costuma ser lido como sobrecomprado, abaixo de 30 como sobrevendido). Ao lado do gráfico, um "Resumo técnico" no formato do Investing.com: o valor de cada indicador no dia e a leitura (compra, neutro, venda). As mesmas funções entram no contexto da estratégia (F8), para que a estratégia decida pelo mesmo número que aparece na tela. Uma página "Análise Técnica" nos docs explica cada indicador.
+**F33 — Indicadores técnicos.** Serve N19 e N4; segue a D2. `backend/features/technical_analysis/indicators.py` calcula, sobre o histórico de preço e volume, funções puras em pandas com parâmetros editáveis: médias móveis simples e exponencial (MMS, MME), Bandas de Bollinger (20 pregões, 2 desvios), IFR (14, faixas 70 e 30), MACD (12, 26, 9), estocástico (14, 3), ATR (14) e OBV. Implementação própria, sem TA-Lib, com teste de cada função contra valores calculados à mão; as estratégias de IFR, médias e rompimento importam dali, para decidir pelo mesmo número da tela. `POST /api/variable-income/{asset}/indicators` devolve as séries alinhadas às datas do preço, cortadas na data da partida, e o resumo do dia. No gráfico, médias (até 4) e Bollinger viram linhas sobre o preço, e volume, IFR, MACD, estocástico, ATR e OBV ganham painéis próprios. O botão "Indicadores" abre o seletor, que liga, desliga e edita cada um, com dica do que mede e como ler; as escolhas ficam salvas por jogador no campo `indicators` de `/api/settings` e valem para todas as ações. A legenda e os rótulos dos painéis acompanham a mira, e um X ou a engrenagem no hover desliga ou edita sem abrir o seletor. Embaixo do gráfico, o "Resumo técnico" lê os 7 indicadores com lado (o ATR aparece como "Sem lado"), ligados ou não, com os parâmetros do seletor: cada linha traz o valor, a leitura e o porquê, e o ponteiro mostra a nota (compras − vendas) ÷ indicadores lidos, em cinco faixas de Venda forte a Compra forte. Com pouco histórico, o resumo espera a maioria ter valor e diz a partir de qual pregão aparece. A página "Análise técnica" dos docs explica cada indicador.
 
 <a id="f37"></a>
 **F37 — Tema escuro.** Serve N15. Hoje só existe o tema claro (F26): o `:root` de `frontend/index.css` é a única fonte dos tokens, e o `@custom-variant dark` ficou inerte.
