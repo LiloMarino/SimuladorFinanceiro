@@ -4,6 +4,53 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 2.3.0 (24/10/2026)
+
+Suas partidas salvas e o `config.toml` continuam valendo.
+
+
+### Novidades
+
+- Adicionada ordenação em todas as tabelas de dados
+- Adicionada ordenação em todas as tabelas de dados
+- Adicionada a exclusão de ativos na Central de dados
+- Adicionado o crédito com nota de risco, empréstimos e parcelas
+- Atalhos de valor da renda fixa somando ao campo
+- Adicionado o modo automático com estratégias por jogador
+- Adicionado o aviso de quando as estatísticas atualizam
+- Adicionada a renda fixa com liquidez diária e resgate em qualquer pregão
+- Adicionadas as estratégias prontas de comprar e segurar, rebalanceamento, IFR, rompimento e momentum
+- Adicionados os bots na sala
+- Adicionado o gráfico da nota ao longo da partida
+- Adicionado o gráfico de ações que acompanha o preço
+- Adicionada a lembrança da última configuração da partida
+- Adicionada a classe cripto com quantidade fracionária
+- Adicionado o seletor de período da partida com linha do tempo
+- Adicionados os presets de partida
+- Adicionados os indicadores técnicos
+- Voltado o quadrado da marca no cabeçalho da sala
+- Adicionado o link de ajuda para quando os amigos não entram na sala
+- Adicionada a compra a mercado por valor e ajustada ao caixa
+- Adicionado o total gasto no retorno da ordem
+- Adicionada a compra a mercado por valor e o botão Tudo na boleta
+- Adicionado o modo backtest para testar estratégias sem esperar o jogo
+- Adicionada a correção de erros de dado do yfinance na importação e na Central de dados
+
+### Correções
+
+- Corrigidas a pausa e a sincronização das operações de investimento
+- Canceladas as ordens abertas ao parar ou terminar a partida
+- Corrigido o gráfico das estratégias para acompanhar o dia da partida
+- Corrigidos ícones e textos do crédito para bater com o desenho
+- Corrigida a contagem de ordens abertas ao ligar o automático
+- Corrigido o encerramento do loop com pregão travado ou erro no meio da partida
+- Movida a chave de correção de erros de dado para o painel de importação
+# Changelog
+
+Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais antiga.
+O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
+deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
+
 ## 2.2.0 (22/10/2026)
 
 Suas partidas salvas e o `config.toml` continuam valendo.
