@@ -39,7 +39,7 @@ export function LobbyHeader({ isHost, hostNickname }: LobbyHeaderProps) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div className="flex items-center gap-3">
-        <BrandMark />
+        <BrandMark variant="square" />
         <div className="grid">
           <h1 className="text-xl font-bold">Sala {hostNickname ? `de ${hostNickname}` : ""}</h1>
           <span className="text-muted-foreground">
