@@ -60,7 +60,6 @@
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
-| [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ⏳ |
 | [**F22**](#f22) | Preço ajustado e proventos | — | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
@@ -101,7 +100,7 @@
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -121,6 +120,7 @@
 | **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | [F108](#f108) | ✅ |
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | [F49](#f49), [F126](#f126) | ✅ |
+| [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ✅ |
 | [**F33**](#f33) | Indicadores técnicos | — | ✅ |
 | [**F49**](#f49) | Spike: animação dos tópicos do tutorial | — | ✅ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ✅ |
@@ -145,8 +145,8 @@
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
 | [**F91**](#f91) | Caixa de entrada e resumo do mês | M15 | 2 | ⏳ |
-| [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | M6 | 1 | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | M4 | 0 | ⏳ |
+| [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
@@ -196,11 +196,19 @@
 >
 > **Serve:** N4, N8, N10
 >
-> **Progresso:** 0/1 concluídas
+> **Progresso:** 1/1 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ⏳ |
+| — | *(nada em aberto)* | — | — |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F19**](#f19) | Modo backtest: partida só de estratégias, sem interação | — | ✅ |
+
+</details>
 
 ### M8 — Dados reais, cuidados fora da partida
 
@@ -340,7 +348,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Link de convite pela internet no lobby | N2 | — | M3 | [F5](#f5) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
-| **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
+| **F19** | Modo backtest: partida só de estratégias, sem interação | N4, N10 | D8 | M6 | — | Alto | Alto | Alto | Bom | ✅ Concluído |
 | **F33** | Indicadores técnicos | N19, N4 | D2 | M11 | — | Médio | Baixo | Alto | Ótimo | ✅ Concluído |
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
