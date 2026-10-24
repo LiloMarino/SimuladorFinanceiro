@@ -168,7 +168,8 @@ O preço com impacto é o mesmo em toda a simulação: na lista de ativos, no gr
 3. Na tela de detalhes do ativo, use o card **Nova ordem** para:
    - Escolher entre **Comprar** e **Vender**.
    - Escolher o tipo de ordem: **A mercado** ou **Limitada**.
-   - Informar a **Quantidade** (use **Máx** para preencher o limite disponível).
+   - Informar a **Quantidade** (use **Máx** para preencher o limite disponível). Na compra a mercado, o botão vira **Tudo**: ele troca o campo para **Valor** e preenche o caixa inteiro em reais, e você ainda pode editar antes de enviar.
+   - Na compra a mercado, alternar entre **Quantidade** e **Valor** no rótulo do campo. Por valor, a boleta mostra a quantidade como estimada (≈) e a compra leva o que o valor paga ao preço da execução, sem passar dele; 25% e 50% valem em reais, como parte do caixa.
    - Informar o **Preço limite** quando a ordem for **Limitada**.
 4. Clique no botão de confirmação, que traz a conta: **Comprar 300 PETR4** ou **Vender 300 PETR4**.
 

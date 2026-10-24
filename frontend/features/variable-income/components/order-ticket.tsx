@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { AutomaticLock } from "@/shared/components/automatic-lock";
 import { ErrorState } from "@/shared/components/error-state";
@@ -12,16 +13,23 @@ import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { cn } from "@/shared/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { formatQuantityInput, quantityToInput } from "@/shared/lib/utils/format";
-import { displayDate, displayMoney, displayQuantity, parseLocalDate } from "@/shared/lib/utils/display";
+import { formatMoney, formatQuantityInput, quantityToInput } from "@/shared/lib/utils/format";
+import {
+  displayDate,
+  displayMoney,
+  displayQuantity,
+  parseLocalDate,
+  toCentsString,
+} from "@/shared/lib/utils/display";
 import { EXEMPT_SALES_LABEL, INCOME_TAX_RATE, salesMonthName } from "@/shared/lib/income-tax";
 import { displayPercent } from "@/shared/lib/utils/display";
-import type { AssetClass, OrderPreview } from "@/types";
+import type { AssetClass, OrderPreview, OrderPreviewRequest } from "@/types";
 import { useOrderPreview } from "../hooks/queries/useOrderPreview";
 import { useSubmitOrder } from "../hooks/mutations/useSubmitOrder";
 
 type Action = "buy" | "sell";
 type OrderKind = "market" | "limit";
+type SizeMode = "quantity" | "amount";
 
 const SHORTCUTS = [
   { label: "25%", share: 0.25 },
@@ -40,18 +48,31 @@ type OrderTicketProps = {
 export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps) {
   const [action, setAction] = useState<Action>("buy");
   const [kind, setKind] = useState<OrderKind>("market");
+  const [mode, setMode] = useState<SizeMode>("quantity");
   const [quantityText, setQuantityText] = useState("");
+  const [amountText, setAmountText] = useState("");
   const [limitText, setLimitText] = useState("");
 
   // Só a cripto aceita fração; a API recebe a quantidade como string decimal
   const fractional = assetClass === "CRYPTO";
   const quantity = quantityText.replace(",", ".").replace(/\.$/, "") || "0";
-  const amount = Number(quantity);
+  const quantityNumber = Number(quantity);
+  const amount = normalizeNumberString(amountText) || "0";
+  const amountNumber = Number(amount);
   const limitPrice = kind === "limit" ? Number(normalizeNumberString(limitText)) || null : null;
-  const [request] = useDebounce({ action, quantity, limit_price: limitPrice }, 250);
+
+  // O valor em reais só existe na compra a mercado; venda e Limitada medem a ordem em quantidade
+  const buyingAtMarket = action === "buy" && kind === "market";
+  const byAmount = buyingAtMarket && mode === "amount";
+  const size: Pick<OrderPreviewRequest, "quantity" | "amount"> = byAmount ? { amount } : { quantity };
+  const [request] = useDebounce({ action, ...size, limit_price: limitPrice }, 250);
 
   const { data: preview, error, isLoading, refetch } = useOrderPreview(ticker, request);
-  const requestMatches = request.action === action && request.quantity === quantity && request.limit_price === limitPrice;
+  const requestMatches =
+    request.action === action &&
+    request.quantity === size.quantity &&
+    request.amount === size.amount &&
+    request.limit_price === limitPrice;
 
   const submit = useSubmitOrder(ticker);
   // Com o automático ligado a boleta fica só para leitura
@@ -59,18 +80,70 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
 
   const selling = action === "sell";
   const maxQuantity = preview?.max_quantity ?? "0";
-  const overMax = amount > Number(maxQuantity);
+  const cash = Number(preview?.cash_before ?? 0);
+  const overMax = !byAmount && quantityNumber > Number(maxQuantity);
+  const overCash = byAmount && preview !== undefined && amountNumber > cash;
+  // Por valor, o preço estimado não paga nem uma unidade
+  const belowUnit =
+    byAmount &&
+    requestMatches &&
+    preview?.price != null &&
+    amountNumber > 0 &&
+    !overCash &&
+    Number(preview.quantity) === 0;
+  const invalidSize = overMax || overCash || belowUnit;
   const noPosition = selling && requestMatches && preview !== undefined && Number(preview.held) === 0;
-  const canSubmit = !locked && requestMatches && !error && amount > 0 && !overMax && !!preview?.price && (kind === "market" || !!limitPrice);
+  const hasSize = byAmount ? amountNumber > 0 : quantityNumber > 0;
+  const canSubmit =
+    !locked && requestMatches && !error && hasSize && !invalidSize && !!preview?.price && (kind === "market" || !!limitPrice);
 
   const quantityHint = selling
     ? preview && Number(preview.reserved) > 0
       ? `Máx = ${displayQuantity(maxQuantity)}: ${displayQuantity(preview.reserved)} das suas ${displayQuantity(preview.held)} já estão em ordens abertas.`
       : `Máx = ${displayQuantity(maxQuantity)}, tudo o que você tem.`
-    : `Máx = ${displayQuantity(maxQuantity)} com o caixa de hoje.`;
+    : buyingAtMarket
+      ? `O caixa paga até ${displayQuantity(maxQuantity)}. Se o preço subir antes da execução, compra até onde o caixa pagar.`
+      : `Máx = ${displayQuantity(maxQuantity)} com o caixa de hoje.`;
+  const amountHint =
+    amountNumber === 0 || error
+      ? null
+      : requestMatches && preview
+        ? `≈ ${displayQuantity(preview.quantity)} ${ticker} (estimado) ao melhor preço de venda, ${displayMoney(preview.price ?? 0)}.`
+        : `≈ … ${ticker} (estimado)`;
   const quantityError = selling
     ? `Você tem ${displayQuantity(maxQuantity)} disponíveis${preview && Number(preview.reserved) > 0 ? ` (${displayQuantity(preview.reserved)} já estão em ordens abertas)` : ""}.`
     : `O caixa paga até ${displayQuantity(maxQuantity)}.`;
+  const minimumUnit = fractional ? "0,00000001" : "1";
+  const amountError = overCash
+    ? `O caixa tem ${displayMoney(cash)}.`
+    : `${displayMoney(amountNumber)} não paga ${minimumUnit} ${ticker} (${displayMoney(preview?.price ?? 0)}).`;
+
+  // Tudo gasta o caixa inteiro, em reais; as frações valem na unidade do modo ativo
+  const fillShortcut = (share: number) => {
+    if (!preview) return;
+    if (buyingAtMarket && share === 1) {
+      setMode("amount");
+      setAmountText(formatMoney(toCentsString(preview.cash_before)));
+    } else if (byAmount) {
+      setAmountText(formatMoney(toCentsString(String(cash * share))));
+    } else {
+      setQuantityText(quantityToInput(share === 1 ? maxQuantity : Number(maxQuantity) * share, fractional));
+    }
+  };
+
+  const sendOrder = () =>
+    submit.mutate(
+      byAmount ? { action, type: kind, amount } : { action, type: kind, quantity, limit_price: limitPrice },
+      {
+        onSuccess: () => {
+          setQuantityText("");
+          setAmountText("");
+        },
+      },
+    );
+
+  // Na compra por valor a quantidade é estimada: o resumo marca com ≈ enquanto houver o que estimar
+  const approx = preview && Number(preview.quantity) > 0 ? "≈ " : "";
 
   return (
     <Card>
@@ -80,9 +153,6 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
       <CardContent>
         {locked && <AutomaticLock />}
         <div inert={locked} className={cn("grid gap-4", locked && "mt-4 opacity-55")}>
-          {error && <ErrorState title="Não deu para conferir a ordem" description="Atualize a prévia antes de enviar."
-            error={error} onRetry={() => void refetch()} />}
-          {(isLoading || !requestMatches) && <p role="status" className="text-sm text-muted-foreground">Conferindo a ordem…</p>}
           <ToggleGroup
             variant="segmented"
             size="lg"
@@ -121,34 +191,46 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                 <ToggleGroupItem value="limit">Limitada</ToggleGroupItem>
               </ToggleGroup>
 
-              {/* Quantidade */}
-              <Field data-invalid={overMax}>
-                <FieldLabel htmlFor="order-quantity">Quantidade</FieldLabel>
+              {/* Quantidade ou valor */}
+              <Field data-invalid={invalidSize}>
+                <div className="flex min-h-6.5 items-center justify-between">
+                  <FieldLabel htmlFor="order-size">{byAmount ? "Valor" : "Quantidade"}</FieldLabel>
+                  {buyingAtMarket && (
+                    <ToggleGroup
+                      variant="segmented"
+                      size="xs"
+                      aria-label="Medir a ordem por"
+                      value={[mode]}
+                      onValueChange={(values) => values[0] && setMode(values[0] as SizeMode)}
+                    >
+                      <ToggleGroupItem value="quantity">Quantidade</ToggleGroupItem>
+                      <ToggleGroupItem value="amount">Valor</ToggleGroupItem>
+                    </ToggleGroup>
+                  )}
+                </div>
                 <div className="flex gap-1.5">
                   <Input
-                    id="order-quantity"
+                    id="order-size"
                     numeric
-                    inputMode={fractional ? "decimal" : "numeric"}
-                    value={quantityText}
-                    aria-invalid={overMax}
-                    onChange={(e) => setQuantityText(formatQuantityInput(e.target.value, fractional))}
+                    inputMode={byAmount || !fractional ? "numeric" : "decimal"}
+                    value={byAmount ? amountText : quantityText}
+                    aria-invalid={invalidSize}
+                    onChange={(e) =>
+                      byAmount
+                        ? setAmountText(formatMoney(e.target.value))
+                        : setQuantityText(formatQuantityInput(e.target.value, fractional))
+                    }
                   />
                   {SHORTCUTS.map((s) => (
-                    <Button
-                      key={s.label}
-                      variant="outline"
-                      onClick={() =>
-                        setQuantityText(quantityToInput(s.share === 1 ? maxQuantity : Number(maxQuantity) * s.share, fractional))
-                      }
-                    >
-                      {s.label}
+                    <Button key={s.label} variant="outline" onClick={() => fillShortcut(s.share)}>
+                      {buyingAtMarket && s.share === 1 ? "Tudo" : s.label}
                     </Button>
                   ))}
                 </div>
-                {overMax ? (
-                  <FieldError>{quantityError}</FieldError>
+                {invalidSize ? (
+                  <FieldError>{byAmount ? amountError : quantityError}</FieldError>
                 ) : (
-                  <FieldDescription>{quantityHint}</FieldDescription>
+                  <FieldDescription>{byAmount ? amountHint : quantityHint}</FieldDescription>
                 )}
               </Field>
 
@@ -172,15 +254,19 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                 </Field>
               )}
 
+              {error && <ErrorState title="Não deu para conferir a ordem" description="Atualize a prévia antes de enviar."
+                error={error} onRetry={() => void refetch()} />}
+              {(isLoading || !requestMatches) && <p role="status" className="text-sm text-muted-foreground">Conferindo a ordem…</p>}
+
               {/* Resumo: a venda mostra só o total e o lucro */}
-              {preview && (
+              {preview ? (
                 <dl className="grid gap-1.5 border-t border-muted pt-3 text-[13px]">
                   {selling ? (
                     <>
                       <Row label="Total se executar" value={displayMoney(preview.total)} strong />
                       {preview.profit !== null && (
                         <Row
-                          label={`Lucro estimado · sobre preço médio ${displayMoney(averagePrice(preview, amount))}`}
+                          label={`Lucro estimado · sobre preço médio ${displayMoney(averagePrice(preview, quantityNumber))}`}
                           value={`${Number(preview.profit) >= 0 ? "+" : "-"}${displayMoney(Math.abs(Number(preview.profit)))}`}
                           tone={Number(preview.profit) >= 0 ? "positive" : "negative"}
                         />
@@ -192,15 +278,30 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                         label={kind === "limit" ? "Preço limite" : "Preço estimado · melhor venda no book"}
                         value={preview.price ? displayMoney(preview.price) : "—"}
                       />
-                      <Row label="Total estimado" value={displayMoney(preview.total)} strong />
+                      {byAmount && (
+                        <Row
+                          label="Quantidade estimada"
+                          value={overCash ? "—" : `${approx}${displayQuantity(preview.quantity)}`}
+                        />
+                      )}
+                      <Row
+                        label="Total estimado"
+                        value={overCash ? "—" : `${byAmount ? approx : ""}${displayMoney(preview.total)}`}
+                        strong
+                      />
                       <Row label="Caixa agora" value={displayMoney(preview.cash_before)} />
-                      <Row label="Caixa depois" value={displayMoney(preview.cash_after)} />
+                      <Row
+                        label="Caixa depois"
+                        value={overCash ? "—" : `${byAmount ? approx : ""}${displayMoney(preview.cash_after)}`}
+                      />
                     </>
                   )}
                 </dl>
+              ) : (
+                !error && <SummarySkeleton rows={selling ? 2 : 4} />
               )}
 
-              {selling && preview?.tax !== null && preview?.tax !== undefined && amount > 0 && (
+              {selling && preview?.tax !== null && preview?.tax !== undefined && quantityNumber > 0 && (
                 <TaxEstimate preview={preview} assetClass={assetClass} />
               )}
 
@@ -208,16 +309,12 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                 size="lg"
                 variant={selling ? "destructive" : "success"}
                 disabled={!canSubmit || submit.isPending}
-                onClick={() =>
-                  submit.mutate(
-                    { action, type: kind, quantity, limit_price: limitPrice },
-                    { onSuccess: () => setQuantityText("") },
-                  )
-                }
+                onClick={sendOrder}
               >
                 {submit.isPending && <Spinner />}
-                {selling ? "Vender" : "Comprar"} {quantityText} {ticker}
-                {preview?.price && amount > 0
+                {selling ? "Vender" : "Comprar"}{" "}
+                {byAmount ? (amountNumber > 0 ? `${amountText} em ${ticker}` : ticker) : `${quantityText} ${ticker}`}
+                {!byAmount && preview?.price && quantityNumber > 0
                   ? kind === "limit"
                     ? ` a ${displayMoney(preview.price)}`
                     : ` · ${displayMoney(preview.total)}`
@@ -228,6 +325,20 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+/** Linhas do resumo enquanto a prévia carrega. */
+function SummarySkeleton({ rows }: { rows: number }) {
+  return (
+    <div className="grid gap-2.5 border-t border-muted pt-3">
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="flex justify-between">
+          <Skeleton className="h-3.5 w-[150px]" />
+          <Skeleton className="h-3.5 w-20" />
+        </div>
+      ))}
+    </div>
   );
 }
 
