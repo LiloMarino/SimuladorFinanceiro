@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-23):** Prioridades revistas: servidor dedicado (F60) e imprevistos configuráveis (F69) sem prioridade; caixa de entrada (F91) e noticiário (F92) pendentes; comprar tudo sem estourar o caixa (F121), erros do yfinance (F87) e preço ajustado e proventos (F22) decididos e pendentes.
+> **Última mudança (2026-10-24):** Proventos na carteira e nas telas (F100) decididos e pendentes: provento cai no caixa, rendimento sintético pelo histórico do ativo e tudo isento de IR.
 
 ## Glossário
 
@@ -20,11 +20,11 @@
 | --- | --- | --- | --- |
 | **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — |
 | **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — |
-| **N3** | Confiar que os números do simulador são exatos e reprodutíveis | [F22](#f22), [F87](#f87) | — |
+| **N3** | Confiar que os números do simulador são exatos e reprodutíveis | [F22](#f22), [F87](#f87), [F100](#f100) | — |
 | **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F10](#f10), [F19](#f19), [F33](#f33), [F108](#f108), [F110](#f110), [F111](#f111), [F127](#f127) | — |
 | **N5** | Saber quanto risco foi corrido para chegar num resultado | — | — |
 | **N6** | Comparar resultados de simulações diferentes | — | — |
-| **N7** | Que o simulador cobre os custos de operar do mercado real | [F22](#f22) | — |
+| **N7** | Que o simulador cobre os custos de operar do mercado real | [F22](#f22), [F100](#f100) | — |
 | **N8** | Jogar contra oponentes controlados pelo computador | — | — |
 | **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — |
 | **N10** | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | [F19](#f19) | — |
@@ -85,7 +85,7 @@
 | [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 🔍 |
 | [**F96**](#f96) | Dicas de análise técnica | — | 💤 |
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
-| [**F100**](#f100) | Proventos na carteira e nas telas | — | 🔍 |
+| [**F100**](#f100) | Proventos na carteira e nas telas | — | ⏳ |
 | [**F101**](#f101) | Carteira separada do jogador | — | 💤 |
 | [**F102**](#f102) | Gestoras: emissão de novas cotas e recompra | — | 🔍 |
 | [**F103**](#f103) | Gestoras: troca de gestor pela assembleia | — | 🔍 |
@@ -110,12 +110,12 @@
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
-| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F22](#f22), [F122](#f122) | ✅ |
+| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F22](#f22), [F100](#f100), [F122](#f122) | ✅ |
 | **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | [F33](#f33) | ✅ |
-| **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F22](#f22), [F113](#f113), [F121](#f121), [F127](#f127) | ✅ |
+| **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F22](#f22), [F100](#f100), [F113](#f113), [F121](#f121), [F127](#f127) | ✅ |
 | **D4** | Banco de dados embarcado no executável | — | ✅ |
 | **D6** | A retomada continua no dia seguinte ao último evento | — | ✅ |
-| **D7** | O simulador lê as séries sem saber a origem | [F22](#f22), [F92](#f92) | ✅ |
+| **D7** | O simulador lê as séries sem saber a origem | [F22](#f22), [F92](#f92), [F100](#f100) | ✅ |
 | **D8** | Bot, modo automático e backtest são o mesmo mecanismo | [F19](#f19), [F110](#f110), [F111](#f111) | ✅ |
 | **D9** | De onde nasce uma mudança de schema | [F101](#f101), [F118](#f118) | ✅ |
 | **D10** | Como a nota geral é calculada | — | ✅ |
@@ -216,7 +216,7 @@
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F22**](#f22) | Preço ajustado e proventos | — | ⏳ |
-| [**F100**](#f100) | Proventos na carteira e nas telas | [F22](#f22) | 🔍 |
+| [**F100**](#f100) | Proventos na carteira e nas telas | [F22](#f22) | ⏳ |
 
 ### M9 — Mercado sem fim
 
@@ -354,6 +354,7 @@
 | **F121** | Comprar tudo a mercado sem estourar o caixa | N15 | D3 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F87** | Erros de dado do yfinance na base | N3 | — | — | — | Baixo | Médio | Médio | Bom | ⏳ Pendente |
 | **F22** | Preço ajustado e proventos | N3, N7 | D1, D3, D7 | M8 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
+| **F100** | Proventos na carteira e nas telas | N3, N7 | D1, D3, D7 | M8 | [F22](#f22) | Médio | Médio | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -454,6 +455,10 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **F22 — Preço ajustado e proventos.** Serve N3 e N7; segue a D1, a D3 e a D7. O importador usa `yf.download(auto_adjust=True)`: o preço vem ajustado por dividendos e desdobramentos até o dia da importação, e a atualização incremental (`upsert_dataframe` só grava linhas depois da última data guardada) emenda duas séries ajustadas em dias diferentes. Um desdobramento 2:1 entre a importação e a atualização vira um degrau falso, uma queda de 50% que não existiu; além disso, o preço exibido não é o que se negociava na época. Escolhido: preço bruto mais proventos como evento. Plano: (1) **Importação:** `auto_adjust=False` guarda o fechamento bruto, e as listas de dividendos e de desdobramentos que o `yfinance` traz entram numa tabela de eventos corporativos por ativo (data ex, tipo, valor ou razão), por migration. A série bruta não muda quando sai um provento novo, então a atualização incremental passa a emendar séries do mesmo tipo e o degrau some. (2) **Desdobramento e grupamento:** na data ex, a quantidade de cada posição é multiplicada pela razão e o preço médio dividido por ela, como evento da partida reconstruível (D1), com a quantidade em Decimal (D3). (3) **Dividendo:** na data ex, o valor por cota vezes a quantidade entra no caixa, como evento; sem esse crédito o retorno de quem paga dividendo cairia, porque o preço bruto cai na data ex e o ajuste que antes embutia o provento deixa de existir. Telas, rendimento por posição, IR e provento sintético ficam na F100. (4) **Números que mudam:** o retorno e a nota geral (D10) mudam de valor, então os testes de números fixos são regerados e conferidos contra uma conta à mão antes de aceitar. (5) **Partidas salvas:** jogaram sobre o preço ajustado; o primeiro passo é verificar se o congelamento por versão da D7 (hoje usado só para trecho gerado) cobre também o trecho real, ou se as partidas salvas são recalculadas. Gatilho: livre; a F100 espera esta.
 **Aceite:** num desdobramento 2:1 ocorrido depois da importação, a atualização incremental não produz queda de 50% no preço, e a posição de quem tinha o ativo dobra de quantidade sem mudar de valor.
 
+<a id="f100"></a>
+**F100 — Proventos na carteira e nas telas.** Serve N3 e N7; segue a D1, a D3 e a D7. Continua a F22, que guarda a lista de dividendos de cada ativo e credita o valor no caixa na data ex; aqui o provento passa a aparecer no jogo e a existir onde a API não o traz. O provento cai no caixa e nunca reinveste sozinho: o que fazer com o dinheiro é do jogador. Plano: (1) **Provento sintético:** para o futuro gerado, o gerador (D14) escreve os proventos na mesma tabela de eventos corporativos da F22, com origem gerada, junto com as séries; o motor lê real e gerado do mesmo jeito e o trecho congela com a partida salva, como as séries (D7). O rendimento anual de cada ativo é a média que ele pagou nos últimos anos do histórico real, com variação sorteada pela semente da geração, para todos receberem os mesmos nos mesmos dias; ativo sem histórico de proventos usa a média do setor, numa tabela de rendimento por setor. (2) **Carteira:** o total de proventos recebidos aparece no resumo e, em cada posição, o rendimento (proventos dos últimos 12 meses sobre o valor da posição hoje), em Decimal (D3). (3) **Detalhe do ativo:** a tela do ativo ganha o histórico de proventos (data ex, valor por cota, total recebido pelo jogador). (4) **Estatísticas e fechamento:** o que entrou como provento soma ao relatório da partida e à decomposição do retorno. (5) **IR:** dividendo e rendimento de FII são isentos para pessoa física, e a regra do simulador trata todo provento como isento; o `yfinance` não separa o JCP (juros sobre capital próprio, com 15% retidos na fonte) do dividendo, e essa simplificação entra escrita na página de impostos dos docs. Teste: um ativo com histórico paga o mesmo rendimento médio no futuro gerado com a mesma semente, e um ativo sem histórico usa a média do setor. Gatilho: F22 concluída; destrava os rendimentos mensais da gestora (F105).
+**Aceite:** num ativo que pagou dividendos, o total recebido na carteira bate com a soma dos créditos no caixa na data ex, e o rendimento da posição bate com a conta feita à mão.
+
 ---
 ## 2. Nice-to-have
 
@@ -502,7 +507,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F93** | Rumores antecipados | N31; opção da partida | M15 | [F92](#f92) | 🔍 Em avaliação |
 | **F95** | Expansão Governo: partidos, eleição e impostos | Serve N34, N23; o gasto público é a F106 e os perfis de público são a F107 | — | — | 🔍 Em avaliação |
 | **F97** | SELIC nas mãos do governo | N34; opção da expansão Governo | — | [F106](#f106) | 🔍 Em avaliação |
-| **F100** | Proventos na carteira e nas telas | Fecha o que a F22 deixa em aberto (dividendo nunca entra no caixa); destrava os rendimentos da gestora (F105) | M8 | [F22](#f22) | 🔍 Em avaliação |
 | **F102** | Gestoras: emissão de novas cotas e recompra | Serve N23; falta o prazo da preferência e o preço da emissão | — | [F44](#f44) | 🔍 Em avaliação |
 | **F103** | Gestoras: troca de gestor pela assembleia | Serve N23; falta como a assembleia escolhe o novo gestor | — | [F44](#f44) | 🔍 Em avaliação |
 | **F104** | Gestoras: co-gestores | Serve N23; falta a divisão das taxas | — | [F44](#f44) | 🔍 Em avaliação |
@@ -542,9 +546,6 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 
 <a id="f97"></a>
 **F97 — SELIC nas mãos do governo.** Ligado à N34; uma opção da expansão "Governo" (F95), no lugar do Banco Central autônomo. (1) **Ritmo do Copom:** o governo decide a SELIC em reuniões a cada 45 dias, como o Copom, que se reúne 8 vezes por ano desde 2006; entre reuniões ela não muda. (2) **Teto por reunião, pelo que aconteceu de verdade.** Das 150 mudanças da meta da SELIC entre 2000 e outubro de 2026 (série do Banco Central): 34 foram de 0,25 ponto, 67 de 0,5, 19 de 0,75, 19 de 1, 7 de 1,5, uma de 2, uma de 2,5 (cortes de 2003) e duas de 3 (as altas da crise de 2002); desde 2006, nunca passou de 1,5. O teto acompanha isso: até 0,75 ponto por reunião em tempo normal (80% das mudanças reais), 1,5 com a inflação bem acima da meta, como em 2021 e 2022, e 3 só com a inflação explodindo, como em 2002. (3) **O preço de cada lado:** a SELIC abaixo do que o Banco Central autônomo faria (a da série, ou a do gerador) faz a inflação subir com alguns meses de atraso, pelo mesmo mecanismo de efeito por cima das séries da F106, e inflação alta derruba a aprovação; a SELIC alta demais derruba a bolsa pelo coeficiente da D14, o que também pesa na aprovação. Falta definir: quanto a inflação reage à SELIC e com quanto atraso (medir no histórico, como a D14 mediu a reação da SELIC à inflação), e os limites de inflação que liberam cada degrau do teto.
-
-<a id="f100"></a>
-**F100 — Proventos na carteira e nas telas.** Ligado à F22 e à F44. Hoje o conceito de provento não existe no jogo: o preço vem ajustado por dividendos, o dinheiro nunca entra no caixa e nem os FIIs importados pagam rendimento mensal. Esta feature cria o provento como evento da partida: (1) **a fonte** é a que a F22 escolher; o `yfinance` traz a lista de dividendos de cada ativo, e é daí que saem os proventos reais; onde a API não trouxer (ativo gerado, ou sem histórico), eles são **gerados sinteticamente** com um rendimento coerente com o ativo (por exemplo, o dividend yield médio do setor), sorteado pela semente da partida, para todos receberem os mesmos nos mesmos dias; (2) **o crédito** entra no caixa na data ex (ou na de pagamento, a decidir) e vira evento reconstruível, como as ordens; (3) **as telas**: a carteira ganha o total de proventos recebidos e o rendimento (yield) de cada posição, o detalhe do ativo ganha o histórico de proventos, e as estatísticas e o fechamento da partida contam o que entrou; (4) **IR**: a tributação de provento (isenção de dividendo e de FII para pessoa física) segue a regra do mercado brasileiro. Destrava os rendimentos mensais da gestora (F105), que só distribui como um FII depois desta. Falta decidir: data ex ou de pagamento; se o provento reinveste sozinho; e como o yield sintético é calibrado.
 
 <a id="f102"></a>
 **F102 — Gestoras: emissão de novas cotas e recompra.** Serve N23; amplia a expansão Gestoras (F44). (1) **Emissão:** depois da oferta pública, o gestor emite cotas novas com preferência para quem já é cotista, na proporção das cotas de cada um, para ninguém ser diluído sem escolher; o dinheiro entra na gestora. (2) **Recompra:** a gestora compra as próprias cotas no livro com o caixa dela; vale quando a cota está com deságio (pagar R$ 80 por R$ 100 de patrimônio valoriza a cota de quem fica) e é a defesa contra a troca de gestor (F103). Falta decidir: quanto tempo dura a preferência, e se o preço da emissão é o patrimônio por cota ou o preço de mercado (com ágio, emitir a mercado traz mais dinheiro por cota).
