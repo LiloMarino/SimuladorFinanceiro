@@ -560,6 +560,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/import-assets/correct-price-errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Corrigir erros de dado do yfinance
+         * @description Procura nos pregões reais já guardados os dias em que o preço foi a quase zero ou disparou e voltou em poucos pregões, e troca o fechamento deles pela interpolação dos vizinhos. Cripto fica de fora. Devolve quantos dias foram trocados e em quantos ativos.
+         */
+        post: operations["correct_price_errors_api_import_assets_correct_price_errors_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/import-assets/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Configurações da importação
+         * @description Retorna como o host quer a importação, como corrigir ou não os erros de dado do yfinance.
+         */
+        get: operations["get_import_settings_api_import_assets_settings_get"];
+        /**
+         * Atualizar as configurações da importação
+         * @description Grava como a importação trata os erros de dado do yfinance. Vale para as próximas importações; o que já está na base fica como está.
+         */
+        put: operations["update_import_settings_api_import_assets_settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/import-assets/stocks/{ticker}/suggestion": {
         parameters: {
             query?: never;
@@ -3354,6 +3398,17 @@ export interface components {
             coverage: components["schemas"]["SeriesCoverageDTO"];
             replaced: components["schemas"]["ReplacedGeneratedDTO"] | null;
         };
+        /**
+         * ImportSettingsDTO
+         * @description Como a base é importada, escolha do host.
+         */
+        ImportSettingsDTO: {
+            /**
+             * Correct Price Errors
+             * @default true
+             */
+            correct_price_errors: boolean;
+        };
         /** ImportYFinanceBatchRequest */
         ImportYFinanceBatchRequest: {
             /** Tickers */
@@ -4673,6 +4728,16 @@ export interface components {
             /** Generated */
             generated: components["schemas"]["PreviewPointDTO"][];
         };
+        /**
+         * PriceCorrectionResultDTO
+         * @description O que a correção de erros de dado trocou na base.
+         */
+        PriceCorrectionResultDTO: {
+            /** Corrected Days */
+            corrected_days: number;
+            /** Stocks */
+            stocks: number;
+        };
         /** PriceImpactPointDTO */
         PriceImpactPointDTO: {
             /** Day */
@@ -5077,6 +5142,8 @@ export interface components {
             real_end: string | null;
             /** Generated End */
             generated_end: string | null;
+            /** Corrected Days */
+            corrected_days: number;
             asset_class: components["schemas"]["AssetClass"] | null;
             segment: components["schemas"]["StockSegmentDTO"] | null;
         };
@@ -7614,6 +7681,124 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImportResultDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    correct_price_errors_api_import_assets_correct_price_errors_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriceCorrectionResultDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_import_settings_api_import_assets_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportSettingsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    update_import_settings_api_import_assets_settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportSettingsDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportSettingsDTO"];
                 };
             };
             /** @description Unprocessable Content */

@@ -153,6 +153,21 @@ class LastSimulationSettings(Base):
     settings: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
 
+class ImportSettings(Base):
+    """As escolhas do host sobre como a base é importada; sem linha valem os padrões."""
+
+    __tablename__ = "import_settings"
+    __table_args__ = (
+        CheckConstraint("id = 1", name="import_settings_single_row"),
+        PrimaryKeyConstraint("id", name="import_settings_pkey"),
+    )
+
+    id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    correct_price_errors: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("true")
+    )
+
+
 class Preset(Base):
     """Regras de partida com nome: os prontos do app e os que o host salvou."""
 
@@ -922,6 +937,10 @@ class StockPriceHistory(Base):
         Enum("REAL", "GENERATED", name="data_origin"),
         nullable=False,
         server_default=text("'REAL'"),
+    )
+    # Dia em que a fonte errou o preço e o fechamento é a interpolação dos vizinhos
+    price_corrected: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
     )
     # 0 é a série comum; N é a cópia congelada da partida simulations.id = N
     version: Mapped[int] = mapped_column(

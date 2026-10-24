@@ -1,7 +1,7 @@
 from datetime import date
 
 import pandas as pd
-from sqlalchemy import delete, func, select, true
+from sqlalchemy import delete, func, select, true, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, aliased, selectinload
 
@@ -328,6 +328,50 @@ class StockRepository:
         return StockPriceHistoryDTO.from_model(price_history) if price_history else None
 
     @transactional
+    def get_real_history(
+        self, session: Session, stock_id: int
+    ) -> list[StockPriceHistoryDTO]:
+        """Todos os pregões reais da série comum, do mais antigo ao mais novo."""
+        rows = (
+            session.execute(
+                select(StockPriceHistory)
+                .where(
+                    StockPriceHistory.stock_id == stock_id,
+                    StockPriceHistory.version == COMMON_VERSION,
+                    StockPriceHistory.origin == DataOrigin.REAL.value,
+                )
+                .order_by(StockPriceHistory.price_date)
+            )
+            .scalars()
+            .all()
+        )
+        return [StockPriceHistoryDTO.from_model(row) for row in rows]
+
+    @transactional
+    def save_price_corrections(
+        self, session: Session, stock_id: int, rows: list[StockPriceHistoryDTO]
+    ) -> None:
+        """Troca o preço dos pregões reais de `rows` pelo corrigido e os marca."""
+        for row in rows:
+            session.execute(
+                update(StockPriceHistory)
+                .where(
+                    StockPriceHistory.stock_id == stock_id,
+                    StockPriceHistory.version == COMMON_VERSION,
+                    StockPriceHistory.origin == DataOrigin.REAL.value,
+                    StockPriceHistory.price_date == row.price_date,
+                )
+                .values(
+                    open=row.open,
+                    high=row.high,
+                    low=row.low,
+                    close=row.close,
+                    volume=row.volume,
+                    price_corrected=True,
+                )
+            )
+
+    @transactional
     def get_coverage(self, session: Session) -> list[OriginCoverageDTO]:
         rows = session.execute(
             select(
@@ -335,6 +379,7 @@ class StockRepository:
                 StockPriceHistory.origin,
                 func.min(StockPriceHistory.price_date),
                 func.max(StockPriceHistory.price_date),
+                func.count().filter(StockPriceHistory.price_corrected),
             )
             .join(StockPriceHistory, StockPriceHistory.stock_id == Stock.id)
             .where(StockPriceHistory.version == COMMON_VERSION)
@@ -342,9 +387,13 @@ class StockRepository:
         ).all()
         return [
             OriginCoverageDTO(
-                key=ticker, origin=DataOrigin(origin), start=start, end=end
+                key=ticker,
+                origin=DataOrigin(origin),
+                start=start,
+                end=end,
+                corrected_days=corrected_days,
             )
-            for ticker, origin, start, end in rows
+            for ticker, origin, start, end, corrected_days in rows
         ]
 
     @transactional

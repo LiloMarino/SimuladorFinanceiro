@@ -4,6 +4,7 @@ from backend.core.repository.economic import EconomicRepository
 from backend.core.repository.event import EventRepository
 from backend.core.repository.fixed_income import FixedIncomeRepository
 from backend.core.repository.generated_future import GeneratedFutureRepository
+from backend.core.repository.import_settings import ImportSettingsRepository
 from backend.core.repository.last_simulation_settings import (
     LastSimulationSettingsRepository,
 )
@@ -31,6 +32,7 @@ settings = SettingsRepository()
 simulation = SimulationRepository()
 simulation_player = SimulationPlayerRepository()
 generated_future = GeneratedFutureRepository()
+import_settings = ImportSettingsRepository()
 last_simulation_settings = LastSimulationSettingsRepository()
 preset = PresetRepository()
 achievements = AchievementsRepository()

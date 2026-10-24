@@ -10,7 +10,9 @@ from fastapi import UploadFile
 
 from backend.core import repository
 from backend.core.dto.generated_future import ReplacedGeneratedDTO
+from backend.core.dto.price_correction import PriceCorrectionResultDTO
 from backend.core.dto.sector import StockSegmentDTO
+from backend.core.dto.stock_price_history import StockPriceHistoryDTO
 from backend.core.dto.ticker_profile import TickerProfileDTO, TickerSuggestionDTO
 from backend.core.enum import AssetClass, DataOrigin
 from backend.core.exceptions.http_exceptions import (
@@ -19,6 +21,7 @@ from backend.core.exceptions.http_exceptions import (
     ServiceUnavailableError,
 )
 from backend.core.models.models import StockPriceHistory
+from backend.features.import_data.price_errors import fix_price_errors
 
 logger = logging.getLogger(__name__)
 
@@ -296,17 +299,31 @@ def upsert_dataframe(
 
     # 2. Incremental a partir do último pregão real: o gerado depois dele é
     # trocado pelo real que chegou
+    anchor_close = None
     if overwrite:
         logger.debug("Sobrescrevendo os dados de '%s'", ticker)
     else:
         last_real = repository.stock.get_last_stock_price_history(stock.id)
         if last_real:
+            anchor_close = last_real.close
             df = pd.DataFrame(df[df.index > pd.Timestamp(last_real.price_date)])
             if df.empty:
                 logger.debug("'%s' já está atualizado.", ticker)
                 return None
 
-    # 3. Inserir dados no banco
+    # 3. Dia de erro da fonte vira interpolação quando o host deixa a correção ligada;
+    # a cripto fica como veio, porque o pico que volta no dia seguinte é mercado
+    corrected: list[pd.Timestamp] = []
+    if (
+        stock.asset_class is not AssetClass.CRYPTO
+        and repository.import_settings.get().correct_price_errors
+    ):
+        df, corrected = fix_price_errors(df, anchor_close)
+        if corrected:
+            logger.info("%s dias de erro corrigidos em '%s'.", len(corrected), ticker)
+    corrected_days = {day.date() for day in corrected}
+
+    # 4. Inserir dados no banco
     registros = [
         StockPriceHistory(
             stock_id=stock.id,
@@ -317,6 +334,7 @@ def upsert_dataframe(
             close=row["Close"],
             volume=row["Volume"],
             origin=DataOrigin.REAL.value,
+            price_corrected=day in corrected_days,
         )
         for day, (_, row) in zip(
             df.index.to_numpy().astype("datetime64[D]").tolist(),
@@ -328,6 +346,49 @@ def upsert_dataframe(
     replaced = repository.stock.save_real_prices(stock.id, registros, overwrite)
     logger.info("%s registros inseridos para '%s'.", len(registros), ticker)
     return replaced
+
+
+def correct_stored_prices() -> PriceCorrectionResultDTO:
+    """Aplica a correção de erros de dado aos pregões reais já guardados."""
+    corrected_days = 0
+    affected = 0
+    for stock in repository.stock.get_stocks():
+        if stock.asset_class is AssetClass.CRYPTO:
+            continue
+        history = repository.stock.get_real_history(stock.id)
+        if not history:
+            continue
+        frame = pd.DataFrame(
+            {
+                "Open": [row.open for row in history],
+                "High": [row.high for row in history],
+                "Low": [row.low for row in history],
+                "Close": [row.close for row in history],
+                "Volume": [row.volume for row in history],
+            },
+            index=pd.DatetimeIndex([row.price_date for row in history]),
+        )
+        fixed, days = fix_price_errors(frame)
+        if not days:
+            continue
+        repository.stock.save_price_corrections(
+            stock.id,
+            [
+                StockPriceHistoryDTO(
+                    price_date=day.date(),
+                    open=float(row["Open"]),
+                    high=float(row["High"]),
+                    low=float(row["Low"]),
+                    close=float(row["Close"]),
+                    volume=0,
+                )
+                for day, row in fixed.loc[days].iterrows()
+            ],
+        )
+        corrected_days += len(days)
+        affected += 1
+        logger.info("%s dias de erro corrigidos em '%s'.", len(days), stock.ticker)
+    return PriceCorrectionResultDTO(corrected_days=corrected_days, stocks=affected)
 
 
 # -------------------

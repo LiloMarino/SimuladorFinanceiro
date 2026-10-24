@@ -18,6 +18,8 @@ class OriginCoverageDTO(BaseDTO):
     origin: DataOrigin
     start: date
     end: date
+    # Pregões reais em que a fonte errou o preço e o fechamento é interpolado
+    corrected_days: int = 0
 
 
 class SeriesCoverageDTO(BaseDTO):
@@ -27,6 +29,7 @@ class SeriesCoverageDTO(BaseDTO):
     start: date | None
     real_end: date | None
     generated_end: date | None
+    corrected_days: int
     # Só as ações têm classe; ela decide a alíquota do IR na venda
     asset_class: AssetClass | None
     segment: StockSegmentDTO | None

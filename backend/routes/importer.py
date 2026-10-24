@@ -14,6 +14,8 @@ from backend.core.dto.generated_future import (
     ImportResultDTO,
     ReplacedGeneratedDTO,
 )
+from backend.core.dto.import_settings import ImportSettingsDTO
+from backend.core.dto.price_correction import PriceCorrectionResultDTO
 from backend.core.dto.sector import SectorDTO, StockSegmentDTO
 from backend.core.dto.series_coverage import SeriesCoverageDTO
 from backend.core.dto.ticker_profile import TickerSuggestionDTO
@@ -32,6 +34,7 @@ from backend.features.import_data.future import (
 )
 from backend.features.import_data.importer_service import (
     bare_ticker,
+    correct_stored_prices,
     fetch_info,
     refresh_profile,
     search_tickers,
@@ -238,6 +241,37 @@ def import_assets_csv(
     """
     replaced = update_from_csv(csv_file, ticker, str_to_bool(overwrite))
     return ImportResultDTO(coverage=imported_series(ticker), replaced=replaced)
+
+
+@import_router.post(
+    "/correct-price-errors",
+    response_model=PriceCorrectionResultDTO,
+    summary="Corrigir erros de dado do yfinance",
+    description="Procura nos pregões reais já guardados os dias em que o preço foi a quase zero ou disparou e voltou em poucos pregões, e troca o fechamento deles pela interpolação dos vizinhos. Cripto fica de fora. Devolve quantos dias foram trocados e em quantos ativos.",
+)
+def correct_price_errors():
+    return correct_stored_prices()
+
+
+@import_router.get(
+    "/settings",
+    response_model=ImportSettingsDTO,
+    summary="Configurações da importação",
+    description="Retorna como o host quer a importação, como corrigir ou não os erros de dado do yfinance.",
+)
+def get_import_settings():
+    return repository.import_settings.get()
+
+
+@import_router.put(
+    "/settings",
+    response_model=ImportSettingsDTO,
+    summary="Atualizar as configurações da importação",
+    description="Grava como a importação trata os erros de dado do yfinance. Vale para as próximas importações; o que já está na base fica como está.",
+)
+def update_import_settings(request: ImportSettingsDTO):
+    repository.import_settings.save(request)
+    return request
 
 
 @import_router.get(

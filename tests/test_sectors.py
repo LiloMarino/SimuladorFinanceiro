@@ -11,6 +11,7 @@ from sqlalchemy import Engine, func, select
 from sqlalchemy.orm import Session
 
 from backend.core import repository
+from backend.core.dto.import_settings import ImportSettingsDTO
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.enum import AssetClass
@@ -104,6 +105,7 @@ def _existing_stock(monkeypatch: pytest.MonkeyPatch, classified: bool) -> None:
         "get_classification",
         lambda: {"PETR4": OIL} if classified else {},
     )
+    monkeypatch.setattr(repository.import_settings, "get", lambda: ImportSettingsDTO())
 
 
 def test_import_suggests_for_unclassified_stock(

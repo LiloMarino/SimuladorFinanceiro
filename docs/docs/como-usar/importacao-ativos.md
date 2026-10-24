@@ -96,6 +96,17 @@ Quando o dado real chega (pelo "Atualizar" de uma série ou pela atualização a
 
 Ao iniciar, o app também busca os indicadores sozinho, no máximo uma vez a cada 6 horas. Sem internet, os dados já guardados continuam valendo e o app segue funcionando normalmente.
 
+### Erros de dado do Yahoo Finance
+
+Às vezes o Yahoo Finance traz um dia com preço absurdo: uma ação que cai 99% e, poucos pregões depois, volta ao preço de antes. Isso é erro da fonte, não mercado, mas na partida pareceria uma oportunidade de comprar a quase zero.
+
+O simulador reconhece esse padrão quando o fechamento se afasta mais de 50% do último pregão bom e volta ao nível de antes em até 5 pregões. Nesses dias o fechamento vira uma **linha reta entre o último pregão bom e o primeiro que volta**, a abertura, a máxima e a mínima ficam iguais a ele e o volume zera, para o dia não desenhar uma vela falsa. Um salto que **não volta** (um desdobramento, por exemplo) não é tocado, e a cripto fica de fora, porque um pico real que some no dia seguinte é mercado.
+
+O preço desses dias é inventado: a troca é essa. A linha da série mostra o selo **N dias corrigidos**, e passar o mouse sobre ele explica o que mudou.
+
+- **Corrigir ao importar** (chave no topo da tabela): ligada por padrão, a importação já corrige os dias de erro. Desligada, o dado entra como o Yahoo Finance mandou. Vale para as próximas importações.
+- **Corrigir erros de dado** (botão): aplica a correção ao que já está na base e mostra quantos dias foram trocados e em quantos ativos. Rodar de novo não acha mais nada. A correção sobrescreve o preço original, então, para voltar ao dado da fonte, é preciso desligar **Corrigir ao importar** e importar o ativo de novo com **Substituir o que já existe**.
+
 ---
 
 ## Métodos de Importação

@@ -1698,6 +1698,140 @@
         }
       }
     },
+    "/api/import-assets/correct-price-errors": {
+      "post": {
+        "tags": [
+          "Import Assets"
+        ],
+        "summary": "Corrigir erros de dado do yfinance",
+        "description": "Procura nos pregões reais já guardados os dias em que o preço foi a quase zero ou disparou e voltou em poucos pregões, e troca o fechamento deles pela interpolação dos vizinhos. Cripto fica de fora. Devolve quantos dias foram trocados e em quantos ativos.",
+        "operationId": "correct_price_errors_api_import_assets_correct_price_errors_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceCorrectionResultDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/import-assets/settings": {
+      "get": {
+        "tags": [
+          "Import Assets"
+        ],
+        "summary": "Configurações da importação",
+        "description": "Retorna como o host quer a importação, como corrigir ou não os erros de dado do yfinance.",
+        "operationId": "get_import_settings_api_import_assets_settings_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportSettingsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Import Assets"
+        ],
+        "summary": "Atualizar as configurações da importação",
+        "description": "Grava como a importação trata os erros de dado do yfinance. Vale para as próximas importações; o que já está na base fica como está.",
+        "operationId": "update_import_settings_api_import_assets_settings_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportSettingsDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportSettingsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/import-assets/stocks/{ticker}/suggestion": {
       "get": {
         "tags": [
@@ -9751,6 +9885,19 @@
         ],
         "title": "ImportResultDTO"
       },
+      "ImportSettingsDTO": {
+        "properties": {
+          "correct_price_errors": {
+            "type": "boolean",
+            "title": "Correct Price Errors",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ImportSettingsDTO",
+        "description": "Como a base é importada, escolha do host."
+      },
       "ImportYFinanceBatchRequest": {
         "properties": {
           "tickers": {
@@ -13399,6 +13546,26 @@
         "title": "PreviewSeriesDTO",
         "description": "Uma série da prévia: a cauda real e o gerado que continua dela."
       },
+      "PriceCorrectionResultDTO": {
+        "properties": {
+          "corrected_days": {
+            "type": "integer",
+            "title": "Corrected Days"
+          },
+          "stocks": {
+            "type": "integer",
+            "title": "Stocks"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "corrected_days",
+          "stocks"
+        ],
+        "title": "PriceCorrectionResultDTO",
+        "description": "O que a correção de erros de dado trocou na base."
+      },
       "PriceImpactPointDTO": {
         "properties": {
           "day": {
@@ -14642,6 +14809,10 @@
             ],
             "title": "Generated End"
           },
+          "corrected_days": {
+            "type": "integer",
+            "title": "Corrected Days"
+          },
           "asset_class": {
             "anyOf": [
               {
@@ -14672,6 +14843,7 @@
           "start",
           "real_end",
           "generated_end",
+          "corrected_days",
           "asset_class",
           "segment"
         ],

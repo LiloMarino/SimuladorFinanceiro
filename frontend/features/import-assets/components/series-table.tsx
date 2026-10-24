@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import { ChevronDown, RefreshCw, TriangleAlert } from "lucide-react";
+import { ChevronDown, Eraser, RefreshCw, TriangleAlert } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -20,10 +20,13 @@ import { cn } from "@/shared/lib/utils";
 import { displayDate, parseLocalDate } from "@/shared/lib/utils/display";
 import type { AssetClass, SeriesCoverage } from "@/types";
 import { useChangeAssetClass } from "../hooks/mutations/useChangeAssetClass";
+import { useCorrectPriceErrors } from "../hooks/mutations/useCorrectPriceErrors";
 import { useRefreshOutdatedStocks } from "../hooks/mutations/useRefreshOutdatedStocks";
 import { useRefreshSeries } from "../hooks/mutations/useRefreshSeries";
 import { timelineRange, timelineTicks } from "../lib/timeline";
 import { ClassifyRow } from "./classify-row";
+import { CorrectOnImportSwitch } from "./correct-on-import-switch";
+import { CorrectedDaysBadge } from "./corrected-days-badge";
 import { CoverageBar } from "./coverage-bar";
 import { DeleteStockButton } from "./delete-stock-button";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
@@ -55,6 +58,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
 
   const refreshOne = useRefreshSeries();
   const refreshOutdated = useRefreshOutdatedStocks();
+  const correctErrors = useCorrectPriceErrors();
   const assetClass = useChangeAssetClass();
 
   const range = timelineRange(series);
@@ -74,7 +78,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
     { label: "Ativos", items: visible.filter((s) => s.kind === "STOCK") },
   ].filter((g) => g.items.length > 0);
 
-  const busy = refreshOne.isPending || refreshOutdated.isPending;
+  const busy = refreshOne.isPending || refreshOutdated.isPending || correctErrors.isPending;
   const updatingThis = (item: SeriesCoverage) => refreshOne.isPending && refreshOne.variables?.key === item.key;
 
   return (
@@ -93,6 +97,11 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
               <ToggleGroupItem value="ALL">Todas</ToggleGroupItem>
               <ToggleGroupItem value="ATTENTION">Precisam de atenção · {attentionCount}</ToggleGroupItem>
             </ToggleGroup>
+            <CorrectOnImportSwitch />
+            <Button size="sm" variant="outline" disabled={busy} onClick={() => correctErrors.mutate()}>
+              {correctErrors.isPending ? <Spinner /> : <Eraser />}
+              Corrigir erros de dado
+            </Button>
             <Button
               size="sm"
               disabled={busy || outdated.length === 0}
@@ -162,6 +171,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
                               <span className="text-xs whitespace-normal text-muted-foreground">{item.name}</span>
                             )}
                           </div>
+                          <CorrectedDaysBadge days={item.corrected_days} />
                           {item.asset_class && (
                             <Select
                               items={ASSET_CLASS_LABELS}

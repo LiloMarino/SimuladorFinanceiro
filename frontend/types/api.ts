@@ -42,6 +42,8 @@ export type Sector = components["schemas"]["SectorDTO"];
 export type StockSegment = components["schemas"]["StockSegmentDTO"];
 export type TickerSuggestion = components["schemas"]["TickerSuggestionDTO"];
 export type ImportResult = components["schemas"]["ImportResultDTO"];
+export type ImportSettings = components["schemas"]["ImportSettingsDTO"];
+export type PriceCorrectionResult = components["schemas"]["PriceCorrectionResultDTO"];
 export type ReplacedGenerated = components["schemas"]["ReplacedGeneratedDTO"];
 
 // Futuro gerado

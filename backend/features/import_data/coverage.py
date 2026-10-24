@@ -61,6 +61,7 @@ def _series(
         start=min(starts) if starts else None,
         real_end=real.end if real else None,
         generated_end=generated.end if generated else None,
+        corrected_days=real.corrected_days if real else 0,
         asset_class=asset_class,
         segment=segment,
     )
