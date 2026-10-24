@@ -1,6 +1,6 @@
 import threading
 from datetime import date
-from decimal import ROUND_DOWN, Decimal
+from decimal import Decimal
 from functools import cached_property
 from uuid import UUID
 
@@ -36,8 +36,13 @@ from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import CashUpdateEventDTO
 from backend.features.statistics.sectors import effective_sectors
-from backend.features.variable_income.broker import Broker, to_money
+from backend.features.variable_income.broker import (
+    Broker,
+    affordable_quantity,
+    to_money,
+)
 from backend.features.variable_income.entities.candle import Candle
+from backend.features.variable_income.entities.order import MarketOrder
 from backend.features.variable_income.entities.position import Position
 from backend.features.variable_income.income_tax import (
     CRYPTO_EXEMPTION_LIMIT,
@@ -48,9 +53,6 @@ from backend.features.variable_income.income_tax import (
     darf_due_date,
 )
 from backend.features.variable_income.matching_engine import MatchingEngine
-
-# Menor fração negociável da cripto: oito casas, a precisão do satoshi
-QUANTITY_STEP = Decimal("1E-8")
 
 
 class SimulationEngine:
@@ -174,53 +176,73 @@ class SimulationEngine:
         ):
             raise UnprocessableEntityError("Este ativo só negocia quantidade inteira")
 
-    def _max_buy(self, ticker: str, cash: Decimal, price: Decimal | None) -> Decimal:
-        """O que o caixa paga ao preço estimado: inteiro, ou até oito casas na cripto."""
-        if not price:
-            return Decimal(0)
+    def affordable(self, ticker: str, money: Decimal, price: Decimal | None) -> Decimal:
+        """O que o dinheiro paga ao preço: inteiro, ou até oito casas na cripto."""
         asset_class = self.asset_class(ticker)
-        if asset_class is not None and asset_class.fractional:
-            return (cash / price).quantize(QUANTITY_STEP, rounding=ROUND_DOWN)
-        return cash // price
+        return affordable_quantity(
+            money,
+            price,
+            fractional=asset_class is not None and asset_class.fractional,
+        )
 
-    def preview_order(
-        self,
-        client_id: UUID,
-        ticker: str,
-        action: OrderAction,
-        quantity: Decimal,
-        limit_price: float | None,
-    ) -> OrderPreviewDTO:
-        self.check_quantity(ticker, quantity)
-        position = self.broker.get_positions(client_id).get(ticker)
-        held = position.size if position else Decimal(0)
-        reserved = position.reserved if position else Decimal(0)
-        cash = self.get_cash(client_id)
-        asset_class = self.asset_class(ticker)
-
-        # Preço: o limite; a mercado, o melhor do outro lado do book; sem book, o último fechamento
+    def estimated_price(
+        self, ticker: str, action: OrderAction, limit_price: float | None
+    ) -> Decimal | None:
+        """O limite; a mercado, o melhor do outro lado do book; sem book, o último fechamento."""
+        if limit_price is not None:
+            return to_money(limit_price)
         book = self.matching_engine.order_book
         best = (
             book.best_sell(ticker)
             if action == OrderAction.BUY
             else book.best_buy(ticker)
         )
+        if best is not None:
+            return to_money(best.price)
         last = self.matching_engine.market_data.get_last(ticker)
-        if limit_price is not None:
-            price: Decimal | None = to_money(limit_price)
-        elif best is not None:
-            price = to_money(best.price)
-        else:
-            price = to_money(last.close) if last else None
+        return to_money(last.close) if last else None
+
+    def size_budget_order(self, order: MarketOrder) -> None:
+        """Dá à compra por valor a quantidade que o valor paga ao melhor preço de hoje."""
+        assert order.budget is not None
+        price = self.estimated_price(order.ticker, order.action, None)
+        order.size = order.remaining = self.affordable(
+            order.ticker, order.budget, price
+        )
+        if order.size <= 0:
+            raise UnprocessableEntityError("O valor não paga uma unidade")
+
+    def preview_order(
+        self,
+        client_id: UUID,
+        ticker: str,
+        action: OrderAction,
+        quantity: Decimal | None,
+        limit_price: float | None,
+        amount: Decimal | None = None,
+    ) -> OrderPreviewDTO:
+        position = self.broker.get_positions(client_id).get(ticker)
+        held = position.size if position else Decimal(0)
+        reserved = position.reserved if position else Decimal(0)
+        cash = self.get_cash(client_id)
+        asset_class = self.asset_class(ticker)
+
+        price = self.estimated_price(ticker, action, limit_price)
+        # Por valor, a quantidade é a que o valor paga ao preço estimado
+        if quantity is None:
+            assert amount is not None
+            quantity = self.affordable(ticker, amount, price)
+        self.check_quantity(ticker, quantity)
 
         total = (price or Decimal(0)) * quantity
         buying = action == OrderAction.BUY
         preview = OrderPreviewDTO(
             price=price,
+            quantity=quantity,
             total=total,
             cash_before=cash,
             cash_after=cash - total if buying else cash + total,
-            max_quantity=self._max_buy(ticker, cash, price)
+            max_quantity=self.affordable(ticker, cash, price)
             if buying
             else held - reserved,
             held=held,

@@ -9,6 +9,8 @@ class OrderPreviewDTO(BaseDTO):
 
     # Preço estimado: o limite, ou o melhor preço do outro lado do book; sem nenhum, o último fechamento
     price: Decimal | None
+    # A quantidade pedida; na compra por valor, a que o valor paga ao preço estimado
+    quantity: Decimal
     total: Decimal
     cash_before: Decimal
     cash_after: Decimal

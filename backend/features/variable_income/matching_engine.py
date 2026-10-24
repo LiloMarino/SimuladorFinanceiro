@@ -4,6 +4,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from backend.core.enum import OrderAction, OrderStatus
+from backend.core.exceptions import InsufficentCashError
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     ForbiddenError,
@@ -182,15 +183,27 @@ class MatchingEngine:
                 if order.action == OrderAction.SELL and counter.price < order.price:
                     break
 
-            self._execute_trade(order, counter, counter.price)
+            qty = min(order.remaining, counter.remaining)
+
+            # Compra a mercado: o caixa e o valor da ordem limitam a quantidade ao preço que vale agora
+            if isinstance(order, MarketOrder):
+                qty = min(qty, self.broker.market_buy_limit(order, counter.price))
+                if qty <= 0:
+                    if order.remaining == order.size:
+                        raise InsufficentCashError()
+                    self._close_at_executed(order)
+                    break
+
+            self._execute_trade(order, counter, counter.price, qty)
         return order.size - order.remaining
 
-    def _execute_trade(self, taker: Order, maker: LimitOrder, price: float):
+    def _execute_trade(
+        self, taker: Order, maker: LimitOrder, price: float, qty: Decimal
+    ):
         """
         Executa trade atomicamente entre taker (ordem ativa) e maker (ordem do book).
         Se falhar, maker é removido do book e notificado com rejeição.
         """
-        qty = min(taker.remaining, maker.remaining)
         logger.debug(
             "Ordem casada: %s %sx %s a R$ %s (taker %s, maker %s)",
             taker.action.value,
@@ -214,6 +227,13 @@ class MatchingEngine:
         taker.notional += float(qty) * price
         maker.notional += float(qty) * price
 
+        if isinstance(taker, MarketOrder):
+            if taker.budget is not None:
+                taker.budget -= to_money(price) * qty
+            # Nem mais uma unidade a este preço: a ordem termina com o que comprou
+            if taker.remaining > 0 and self.broker.market_buy_limit(taker, price) <= 0:
+                self._close_at_executed(taker)
+
         taker.status = (
             OrderStatus.EXECUTED if taker.remaining == 0 else OrderStatus.PARTIAL
         )
@@ -227,6 +247,13 @@ class MatchingEngine:
         if maker.remaining == 0:
             self.order_book.remove(maker)
             self._closed(maker)
+
+    @staticmethod
+    def _close_at_executed(order: Order) -> None:
+        """Compra a mercado que parou no caixa ou no valor: a ordem vale o que executou."""
+        order.size -= order.remaining
+        order.remaining = Decimal(0)
+        order.status = OrderStatus.EXECUTED
 
     def _closed(self, order: Order) -> None:
         if self.on_order_closed is not None and order.automatic:

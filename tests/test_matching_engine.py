@@ -30,6 +30,10 @@ class FakeBroker(Broker):
         if client_id in self._fail_for_uuids:
             raise self._fail_for_uuids[client_id]
 
+    def market_buy_limit(self, order: MarketOrder, price: float) -> Decimal:
+        # Sem caixa no fake: o teto da compra é o que falta da ordem
+        return order.remaining
+
     def execute_trade(self, **kwargs):
         self.calls.append(kwargs)
 

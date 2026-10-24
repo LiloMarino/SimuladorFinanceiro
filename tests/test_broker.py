@@ -9,7 +9,7 @@ import pytest
 from backend.core import repository
 from backend.core.dto.events.base_event import BaseEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
-from backend.core.enum import EquityEventType, OrderAction
+from backend.core.enum import AssetClass, EquityEventType, OrderAction, OrderStatus
 from backend.core.exceptions import InsufficentCashError, InsufficentPositionError
 from backend.core.runtime.user_manager import UserManager
 from backend.features.variable_income.broker import Broker, load_positions, to_money
@@ -382,3 +382,91 @@ def test_fractional_quantity_moves_cash_and_position_exactly(history):
     assert position.avg_price == Decimal("50000")
     assert engine.cash[BUYER] == Decimal("100000") - Decimal("6172.839")
     assert broker.get_available_position(BUYER, "ABCD") == Decimal("0.12345678")
+
+
+def _book(matching: MatchingEngine, *levels: tuple[float, int]) -> None:
+    """Põe ofertas de venda da liquidez do mercado no book, do melhor preço para o pior."""
+    for price, size in levels:
+        matching.order_book.add(_limit(MARKET, OrderAction.SELL, price, size))
+
+
+def test_market_buy_adjusts_to_the_cash_when_the_price_rises(history, captured_events):
+    """Com o preço acima da prévia, a compra a mercado leva o que o caixa paga e não estoura."""
+    broker, engine = _broker(buyer="1000")
+    matching = MatchingEngine(broker)
+    # A prévia via R$ 10 (100 unidades); na execução o melhor preço já é R$ 10,50
+    _book(matching, (10.5, 200))
+    order = _market(BUYER, OrderAction.BUY, 100)
+
+    matching.submit(order)
+
+    assert order.size == 95
+    assert order.status == OrderStatus.EXECUTED
+    assert engine.cash[BUYER] == Decimal("2.5")
+    assert broker.get_positions(BUYER)["ABCD"].size == 95
+
+
+def test_market_buy_without_cash_for_one_unit_is_rejected(history, captured_events):
+    """Se nem uma unidade cabe no caixa, a compra a mercado é recusada sem mexer em nada."""
+    broker, engine = _broker(buyer="5")
+    matching = MatchingEngine(broker)
+    _book(matching, (10, 5))
+
+    with pytest.raises(InsufficentCashError):
+        matching.submit(_market(BUYER, OrderAction.BUY, 1))
+
+    assert engine.cash[BUYER] == Decimal("5")
+    assert broker.get_positions(BUYER) == {}
+
+
+def test_market_buy_by_amount_never_spends_more_than_the_amount(
+    history, captured_events
+):
+    """A compra por valor anda pelo book e para quando o valor não paga mais uma unidade."""
+    broker, engine = _broker(buyer="1000")
+    matching = MatchingEngine(broker)
+    _book(matching, (10, 30), (12, 100))
+    order = MarketOrder(
+        client_id=BUYER,
+        ticker="ABCD",
+        size=Decimal(50),
+        action=OrderAction.BUY,
+        budget=Decimal(500),
+    )
+
+    matching.submit(order)
+
+    # 30 a R$ 10 (R$ 300) e 16 a R$ 12 (R$ 192): sobram R$ 8 do valor
+    assert order.size == 46
+    assert order.budget == Decimal(8)
+    assert engine.cash[BUYER] == Decimal("508")
+
+
+def test_crypto_market_buy_adjusts_to_eight_decimal_places(
+    history, captured_events, monkeypatch: pytest.MonkeyPatch
+):
+    """Na cripto a quantidade que cabe no caixa é arredondada para baixo em oito casas."""
+    broker, engine = _broker(buyer="100")
+    monkeypatch.setattr(engine, "asset_class", lambda _: AssetClass.CRYPTO)
+    matching = MatchingEngine(broker)
+    _book(matching, (30000, 1))
+    order = _market(BUYER, OrderAction.BUY, 1)
+
+    matching.submit(order)
+
+    assert order.size == Decimal("0.00333333")
+    assert engine.cash[BUYER] == Decimal("100") - Decimal("0.00333333") * 30000
+
+
+def test_strategy_market_buy_keeps_the_exact_quantity(history, captured_events):
+    """A ordem de estratégia não se ajusta: sem caixa para a quantidade, é recusada."""
+    broker, engine = _broker(buyer="1000")
+    matching = MatchingEngine(broker)
+    _book(matching, (10.5, 200))
+    order = _market(BUYER, OrderAction.BUY, 100)
+    order.automatic = True
+
+    with pytest.raises(InsufficentCashError):
+        matching.submit(order)
+
+    assert engine.cash[BUYER] == Decimal("1000")

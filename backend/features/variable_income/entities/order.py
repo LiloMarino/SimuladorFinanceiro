@@ -60,7 +60,8 @@ class Order(ABC):
 
 @dataclass(kw_only=True)
 class MarketOrder(Order):
-    pass
+    # Compra por valor: o dinheiro que ainda pode ser gasto; cada execução desconta o que custou
+    budget: Decimal | None = None
 
 
 @dataclass(kw_only=True)

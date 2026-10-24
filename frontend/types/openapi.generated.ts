@@ -3690,6 +3690,8 @@ export interface components {
         OrderPreviewDTO: {
             /** Price */
             price: string | null;
+            /** Quantity */
+            quantity: string;
             /** Total */
             total: string;
             /** Cash Before */
@@ -3717,7 +3719,9 @@ export interface components {
         OrderPreviewRequest: {
             action: components["schemas"]["OrderAction"];
             /** Quantity */
-            quantity: number | string;
+            quantity?: number | string | null;
+            /** Amount */
+            amount?: number | string | null;
             /** Limit Price */
             limit_price?: number | null;
         };
@@ -5563,7 +5567,9 @@ export interface components {
         /** SubmitOrderRequest */
         SubmitOrderRequest: {
             /** Quantity */
-            quantity: number | string;
+            quantity?: number | string | null;
+            /** Amount */
+            amount?: number | string | null;
             /** Type */
             type: string;
             /** Action */
@@ -5577,6 +5583,8 @@ export interface components {
             order_id: string;
             /** Status */
             status: string;
+            /** Quantity */
+            quantity: string;
         };
         /** SuggestionDTO */
         SuggestionDTO: {

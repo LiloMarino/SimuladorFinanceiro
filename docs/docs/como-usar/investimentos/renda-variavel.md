@@ -47,6 +47,8 @@ Uma **ordem a mercado** é executada imediatamente ao **melhor preço disponíve
 2. O sistema busca a melhor oferta disponível no livro de ofertas
 3. A ordem é executada instantaneamente ao preço da melhor oferta
 
+Se o preço subir entre o clique e a execução e o caixa não pagar mais a quantidade pedida, a compra a mercado leva a maior quantidade que cabe no caixa. Só é recusada, com "Saldo insuficiente", se nem uma unidade couber.
+
 **Vantagens:**
 - ✅ Execução garantida (se houver liquidez)
 - ✅ Imediata

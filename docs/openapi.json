@@ -10513,6 +10513,10 @@
             ],
             "title": "Price"
           },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
+          },
           "total": {
             "type": "string",
             "title": "Total"
@@ -10591,6 +10595,7 @@
         "type": "object",
         "required": [
           "price",
+          "quantity",
           "total",
           "cash_before",
           "cash_after",
@@ -10619,9 +10624,27 @@
               },
               {
                 "type": "string"
+              },
+              {
+                "type": "null"
               }
             ],
             "title": "Quantity"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
           },
           "limit_price": {
             "anyOf": [
@@ -10638,8 +10661,7 @@
         },
         "type": "object",
         "required": [
-          "action",
-          "quantity"
+          "action"
         ],
         "title": "OrderPreviewRequest"
       },
@@ -15861,9 +15883,27 @@
               },
               {
                 "type": "string"
+              },
+              {
+                "type": "null"
               }
             ],
             "title": "Quantity"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
           },
           "type": {
             "type": "string",
@@ -15887,7 +15927,6 @@
         },
         "type": "object",
         "required": [
-          "quantity",
           "type",
           "action"
         ],
@@ -15902,12 +15941,17 @@
           "status": {
             "type": "string",
             "title": "Status"
+          },
+          "quantity": {
+            "type": "string",
+            "title": "Quantity"
           }
         },
         "type": "object",
         "required": [
           "order_id",
-          "status"
+          "status",
+          "quantity"
         ],
         "title": "SubmitOrderResponse"
       },

@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Annotated
 
 from fastapi import APIRouter, Query, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from backend.core import repository
 from backend.core.dependencies import ActiveSimulation, ClientID
@@ -37,10 +37,18 @@ operation_router = APIRouter(prefix="/api", tags=["Operations"])
 
 
 class SubmitOrderRequest(BaseModel):
-    quantity: Decimal = Field(..., gt=0, decimal_places=8)
+    # Uma das duas: a quantidade, ou o valor que a compra a mercado pode gastar
+    quantity: Decimal | None = Field(default=None, gt=0, decimal_places=8)
+    amount: Decimal | None = Field(default=None, gt=0, decimal_places=2)
     type: str
     action: str
     limit_price: float | None = None
+
+    @model_validator(mode="after")
+    def exactly_one_size(self):
+        if (self.quantity is None) == (self.amount is None):
+            raise ValueError("Informe a quantidade ou o valor da ordem")
+        return self
 
 
 class CancelOrderRequest(BaseModel):
@@ -59,6 +67,8 @@ class BuyFixedIncomeRequest(BaseModel):
 class SubmitOrderResponse(BaseModel):
     order_id: str
     status: str
+    # O que a ordem executou; na compra a mercado que parou no caixa ou no valor, menos que o pedido
+    quantity: Decimal
 
 
 @operation_router.get(
@@ -125,7 +135,6 @@ def submit_order(
     """
     Submete uma nova ordem para o ativo.
     """
-    size = payload.quantity
     order_type: str = payload.type.lower()
     action: str = payload.action.lower()
 
@@ -139,9 +148,20 @@ def submit_order(
     except ValueError as e:
         raise UnprocessableEntityError("Tipo de ordem inválido") from e
 
+    if payload.amount is not None and not (
+        order_type_enum == OrderType.MARKET and action_enum == OrderAction.BUY
+    ):
+        raise UnprocessableEntityError("O valor só vale na compra a mercado")
+
+    # Na compra por valor a quantidade nasce no create_order, com o book de agora
+    size = payload.quantity if payload.quantity is not None else Decimal(0)
     if order_type_enum == OrderType.MARKET:
         order = MarketOrder(
-            client_id=client_id, ticker=asset, size=size, action=action_enum
+            client_id=client_id,
+            ticker=asset,
+            size=size,
+            action=action_enum,
+            budget=payload.amount,
         )
     else:
         price = payload.limit_price
@@ -166,7 +186,9 @@ def submit_order(
         client_id,
     )
     simulation.create_order(order)
-    return SubmitOrderResponse(order_id=order.id, status=order.status.name)
+    return SubmitOrderResponse(
+        order_id=order.id, status=order.status.name, quantity=order.size
+    )
 
 
 @operation_router.delete(
@@ -194,8 +216,20 @@ def cancel_order(
 
 class OrderPreviewRequest(BaseModel):
     action: OrderAction
-    quantity: Decimal = Field(..., ge=0, decimal_places=8)
+    # Uma das duas: a quantidade, ou o valor da compra a mercado
+    quantity: Decimal | None = Field(default=None, ge=0, decimal_places=8)
+    amount: Decimal | None = Field(default=None, ge=0, decimal_places=2)
     limit_price: float | None = Field(default=None, gt=0)
+
+    @model_validator(mode="after")
+    def exactly_one_size(self):
+        if (self.quantity is None) == (self.amount is None):
+            raise ValueError("Informe a quantidade ou o valor da ordem")
+        if self.amount is not None and (
+            self.action != OrderAction.BUY or self.limit_price is not None
+        ):
+            raise ValueError("O valor só vale na compra a mercado")
+        return self
 
 
 @operation_router.post(
@@ -211,7 +245,12 @@ def preview_order(
     payload: OrderPreviewRequest,
 ):
     return simulation.preview_order(
-        client_id, asset, payload.action, payload.quantity, payload.limit_price
+        client_id,
+        asset,
+        payload.action,
+        payload.quantity,
+        payload.limit_price,
+        payload.amount,
     )
 
 

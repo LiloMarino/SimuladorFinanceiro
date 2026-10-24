@@ -81,6 +81,7 @@ class FakeSimulationEngine(SimulationEngine):
         self.simulation_id = 1
         self.current_date = current_date
         self.cash: defaultdict[uuid.UUID, Decimal] = defaultdict(Decimal, cash or {})
+        self.stocks = {}
 
     def get_cash(self, client_id: uuid.UUID) -> Decimal:
         return self.cash[client_id]

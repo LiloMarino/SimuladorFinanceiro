@@ -103,7 +103,7 @@ from backend.features.simulation.life_events import (
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.statistics.goal import goal_on, goal_reached
 from backend.features.strategy.runner import StrategyRunner
-from backend.features.variable_income.entities.order import Order
+from backend.features.variable_income.entities.order import MarketOrder, Order
 from backend.features.variable_income.price_impact import PriceImpact
 
 # Pregões no mini gráfico da lista de mercado
@@ -229,6 +229,9 @@ class Simulation:
     @synchronized
     def create_order(self, order: Order) -> None:
         self._strategies.ensure_manual(order.client_id)
+        # A compra por valor ganha a quantidade com o book de agora, no mesmo lock da execução
+        if isinstance(order, MarketOrder) and order.budget is not None:
+            self._engine.size_budget_order(order)
         self._engine.check_quantity(order.ticker, order.size)
         try:
             self._engine.matching_engine.submit(order)
@@ -786,11 +789,12 @@ class Simulation:
         client_id: UUID,
         ticker: str,
         action: OrderAction,
-        quantity: Decimal,
+        quantity: Decimal | None,
         limit_price: float | None,
+        amount: Decimal | None = None,
     ) -> OrderPreviewDTO:
         return self._engine.preview_order(
-            client_id, ticker, action, quantity, limit_price
+            client_id, ticker, action, quantity, limit_price, amount
         )
 
     @synchronized
