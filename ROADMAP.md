@@ -73,7 +73,6 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 💤 |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
-| [**F87**](#f87) | Erros de dado do yfinance na base | — | ⏳ |
 | [**F90**](#f90) | Cenários | — | 🔍 |
 | [**F91**](#f91) | Caixa de entrada e resumo do mês | — | ⏳ |
 | [**F92**](#f92) | Noticiário da partida | — | ⏳ |
@@ -100,7 +99,7 @@
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -124,6 +123,7 @@
 | [**F33**](#f33) | Indicadores técnicos | — | ✅ |
 | [**F49**](#f49) | Spike: animação dos tópicos do tutorial | — | ✅ |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ✅ |
+| [**F87**](#f87) | Erros de dado do yfinance na base | — | ✅ |
 | [**F89**](#f89) | Presets de partida | — | ✅ |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
@@ -151,7 +151,6 @@
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
-| [**F87**](#f87) | Erros de dado do yfinance na base | — | 0 | ⏳ |
 | [**F90**](#f90) | Cenários | — | 0 | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
@@ -292,7 +291,7 @@
 
 ### Sem marco
 
-> **Progresso:** 7/36 concluídas
+> **Progresso:** 8/36 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -307,7 +306,6 @@
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 💤 |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
-| [**F87**](#f87) | Erros de dado do yfinance na base | — | ⏳ |
 | [**F90**](#f90) | Cenários | [F89](#f89) | 🔍 |
 | [**F95**](#f95) | Expansão Governo: partidos, eleição e impostos | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F106](#f106) | 🔍 |
@@ -326,11 +324,12 @@
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | [F113](#f113) | 💤 |
 
-<details><summary>Concluído (7 itens)</summary>
+<details><summary>Concluído (8 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F68**](#f68) | Dica de firewall no lobby | — | ✅ |
+| [**F87**](#f87) | Erros de dado do yfinance na base | — | ✅ |
 | [**F89**](#f89) | Presets de partida | — | ✅ |
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
@@ -371,7 +370,7 @@
 | **F127** | Estratégias e bots operam cripto em fração | N4, N37 | D3 | — | [F113](#f113) | Médio | Baixo | Baixo | Regular | 💤 Registrado, sem prioridade |
 | **F119** | Seletor de período da partida com linha do tempo | N15, N30 | — | — | — | — | — | — | — | ✅ Concluído |
 | **F121** | Comprar tudo a mercado sem estourar o caixa | N15 | D3 | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
-| **F87** | Erros de dado do yfinance na base | N3 | — | — | — | Baixo | Médio | Médio | Bom | ⏳ Pendente |
+| **F87** | Erros de dado do yfinance na base | N3 | — | — | — | Baixo | Médio | Médio | Bom | ✅ Concluído |
 | **F22** | Preço ajustado e proventos | N3, N7 | D1, D3, D7 | M8 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F100** | Proventos na carteira e nas telas | N3, N7 | D1, D3, D7 | M8 | [F22](#f22) | Médio | Médio | Médio | Bom | ⏳ Pendente |
 | **F49** | Spike: animação dos tópicos do tutorial | N25 | D17 | M14 | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
@@ -469,7 +468,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 **Aceite:** com o preço subindo 5% entre o clique em "Tudo" e a execução, a compra executa sem "Saldo insuficiente" e deixa no caixa menos que o preço de uma unidade.
 
 <a id="f87"></a>
-**F87 — Erros de dado do yfinance na base.** Serve N3. A base tem dias em que o preço vai a quase zero e volta: CMIG4 sobe 878% e cai 90% em agosto de 2003, XPML11 cai 99% em 14/01/2026 e volta 758 vezes cinco dias depois, e UGPA3, GOAU4, LREN3 e SUZB3 têm dias de −100%. A partida mostra esses dias como reais. O gerador (D14) já os trata como dia sem pregão. Escolhido: interpolar. Plano: (1) **Detector** no importador (`import_data/importer_service.py`): um dia é erro quando o fechamento se afasta do pregão anterior além de um limiar e, em poucos pregões, o preço volta ao nível anterior; salto que não volta (B3SA3 −66% em 2011) não é tocado, porque pode ser desdobramento, assunto da F22. (2) **Correção:** o fechamento do dia erro vira a interpolação linear entre o último pregão bom e o primeiro bom depois; abertura, máxima e mínima recebem o mesmo valor e o volume fica zerado, para o dia não desenhar uma vela falsa. (3) **Limiar por medição:** antes de fixar, uma varredura da base lista os dias candidatos em limiares de 30%, 50% e 70%; o limiar escolhido pega os casos acima e não pega B3SA3. (4) **Base já importada:** uma ação na Central de dados reaplica a correção às linhas guardadas, e o importador a aplica daí em diante; a Central mostra quantos dias foram corrigidos por ativo. Teste: série curta com um dia a quase zero que volta é corrigida, e série com degrau que não volta fica igual. O preço do dia corrigido é inventado, e a troca é essa: o erro deixa de aparecer na partida como se fosse mercado.
+**F87 — Erros de dado do yfinance na base.** Serve N3. Um dia é erro quando o fechamento se afasta mais de 50% do último pregão bom e, em até 5 pregões, volta ao nível de antes; o trecho vira interpolação linear entre o último pregão bom e o primeiro que volta, com abertura, máxima e mínima iguais ao fechamento e volume zero, e o dia fica marcado. Salto que não volta (B3SA3 −66% em 2011) e trecho no fim da série ficam como vieram; cripto fica de fora, porque pico que volta no dia seguinte é mercado. A importação aplica a correção usando o último fechamento guardado como âncora, e a Central de dados ganhou a chave "Corrigir ao importar" (ligada por padrão), o botão "Corrigir erros de dado" para a base já importada e o selo de dias corrigidos por ativo. O limiar foi medido em 15 ativos da B3: 50% e 70% pegam o CMIG4 sem marcar nenhum pregão legítimo, e 30% marca altas reais do MGLU3. O preço do dia corrigido é inventado, e a troca é essa: o erro deixa de aparecer na partida como se fosse mercado. A correção sobrescreve o preço original.
 
 <a id="f22"></a>
 **F22 — Preço ajustado e proventos.** Serve N3 e N7; segue a D1, a D3 e a D7. O importador usa `yf.download(auto_adjust=True)`: o preço vem ajustado por dividendos e desdobramentos até o dia da importação, e a atualização incremental (`upsert_dataframe` só grava linhas depois da última data guardada) emenda duas séries ajustadas em dias diferentes. Um desdobramento 2:1 entre a importação e a atualização vira um degrau falso, uma queda de 50% que não existiu; além disso, o preço exibido não é o que se negociava na época. Escolhido: preço bruto mais proventos como evento. Plano: (1) **Importação:** `auto_adjust=False` guarda o fechamento bruto, e as listas de dividendos e de desdobramentos que o `yfinance` traz entram numa tabela de eventos corporativos por ativo (data ex, tipo, valor ou razão), por migration. A série bruta não muda quando sai um provento novo, então a atualização incremental passa a emendar séries do mesmo tipo e o degrau some. (2) **Desdobramento e grupamento:** na data ex, a quantidade de cada posição é multiplicada pela razão e o preço médio dividido por ela, como evento da partida reconstruível (D1), com a quantidade em Decimal (D3). (3) **Dividendo:** na data ex, o valor por cota vezes a quantidade entra no caixa, como evento; sem esse crédito o retorno de quem paga dividendo cairia, porque o preço bruto cai na data ex e o ajuste que antes embutia o provento deixa de existir. Telas, rendimento por posição, IR e provento sintético ficam na F100. (4) **Números que mudam:** o retorno e a nota geral (D10) mudam de valor, então os testes de números fixos são regerados e conferidos contra uma conta à mão antes de aceitar. (5) **Partidas salvas:** jogaram sobre o preço ajustado; o primeiro passo é verificar se o congelamento por versão da D7 (hoje usado só para trecho gerado) cobre também o trecho real, ou se as partidas salvas são recalculadas. Gatilho: livre; a F100 espera esta.
