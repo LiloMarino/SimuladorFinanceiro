@@ -75,6 +75,18 @@ def has_changelog_section(version: Version) -> bool:
     )
 
 
+def keep_single_header() -> None:
+    """O `--prepend` do git-cliff repete o cabeçalho a cada versão; o arquivo guarda um só, no topo."""
+    text = CHANGELOG_PATH.read_text(encoding="utf-8")
+    first = text.index("## ")
+    repeated = re.compile(r"^# Changelog\n.*?(?=^## )", re.MULTILINE | re.DOTALL)
+    CHANGELOG_PATH.write_text(
+        text[:first] + repeated.sub("\n", text[first:]),
+        encoding="utf-8",
+        newline="",
+    )
+
+
 def notes() -> int:
     """Imprime a seção da versão atual do CHANGELOG.md, sem o título, para a descrição da release."""
     version = format_version(current_version())
@@ -134,6 +146,7 @@ def prepare() -> int:
             "--prepend",
             str(CHANGELOG_PATH),
         )
+        keep_single_header()
 
     print(f"Versão {format_version(version)} preparada.")
     print("Revise o diff e commite: `chore: Versão " + format_version(version) + "`.")

@@ -12,7 +12,6 @@ Suas partidas salvas e o `config.toml` continuam valendo.
 ### Novidades
 
 - Adicionada ordenação em todas as tabelas de dados
-- Adicionada ordenação em todas as tabelas de dados
 - Adicionada a exclusão de ativos na Central de dados
 - Adicionado o crédito com nota de risco, empréstimos e parcelas
 - Atalhos de valor da renda fixa somando ao campo
@@ -45,11 +44,6 @@ Suas partidas salvas e o `config.toml` continuam valendo.
 - Corrigida a contagem de ordens abertas ao ligar o automático
 - Corrigido o encerramento do loop com pregão travado ou erro no meio da partida
 - Movida a chave de correção de erros de dado para o painel de importação
-# Changelog
-
-Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais antiga.
-O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
-deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
 ## 2.2.0 (22/10/2026)
 
@@ -79,11 +73,6 @@ Suas partidas salvas e o `config.toml` continuam valendo.
 - Regenerado o openapi na versão 2.1.0
 - Corrigido o teste de configurações para usar o banco descartável
 - Corrigida a barra do topo das conquistas fora da partida para seguir o design
-# Changelog
-
-Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais antiga.
-O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
-deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
 ## 2.1.0 (21/10/2026)
 
@@ -116,6 +105,7 @@ Suas partidas salvas e o `config.toml` continuam valendo.
 - Adicionados os ícones do modo de jogo nas regras da partida
 - Corrigidas as regras do lobby que voltavam com o nome da partida anterior
 - Corrigida a saída do jogador da sala ao fechar uma de duas abas abertas
+
 ## 2.0.0 (17/10/2026)
 
 **Acesso antecipado.** A primeira versão desde a 1.0.0, de fevereiro de 2026. Muita coisa mudou, em resumo:
