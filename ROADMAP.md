@@ -94,7 +94,6 @@
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
-| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | ⏳ |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
@@ -102,7 +101,7 @@
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -129,6 +128,7 @@
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
 | [**F119**](#f119) | Seletor de período da partida com linha do tempo | — | ✅ |
+| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | ✅ |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ✅ |
 
 </details>
@@ -155,7 +155,6 @@
 | [**F90**](#f90) | Cenários | — | 0 | 🔍 |
 | [**F108**](#f108) | Bot pela API: guia e exemplo | M4 | 0 | ⏳ |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
-| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 0 | ⏳ |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | 0 | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 0 | 🔍 |
@@ -285,7 +284,7 @@
 
 ### Sem marco
 
-> **Progresso:** 6/36 concluídas
+> **Progresso:** 7/36 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -314,13 +313,12 @@
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
-| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | ⏳ |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | [F113](#f113) | 💤 |
 
-<details><summary>Concluído (6 itens)</summary>
+<details><summary>Concluído (7 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -329,6 +327,7 @@
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
 | [**F119**](#f119) | Seletor de período da partida com linha do tempo | — | ✅ |
+| [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | ✅ |
 | [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ✅ |
 
 </details>
@@ -363,7 +362,7 @@
 | **F126** | Janela "Como jogar" | N25 | D17 | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F127** | Estratégias e bots operam cripto em fração | N4, N37 | D3 | — | [F113](#f113) | Médio | Baixo | Baixo | Regular | 💤 Registrado, sem prioridade |
 | **F119** | Seletor de período da partida com linha do tempo | N15, N30 | — | — | — | — | — | — | — | ✅ Concluído |
-| **F121** | Comprar tudo a mercado sem estourar o caixa | N15 | D3 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F121** | Comprar tudo a mercado sem estourar o caixa | N15 | D3 | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F87** | Erros de dado do yfinance na base | N3 | — | — | — | Baixo | Médio | Médio | Bom | ⏳ Pendente |
 | **F22** | Preço ajustado e proventos | N3, N7 | D1, D3, D7 | M8 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F100** | Proventos na carteira e nas telas | N3, N7 | D1, D3, D7 | M8 | [F22](#f22) | Médio | Médio | Médio | Bom | ⏳ Pendente |
