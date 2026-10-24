@@ -8,7 +8,10 @@ export function PlainLayout() {
   const { pathname } = useLocation();
   // Conquistas abre com a barra do topo (volta, sala e jogador); o fim de partida já tem o botão de voltar no topo escuro
   const hasTopbar = matchPath("/achievements", pathname) !== null;
-  const hasOwnBackButton = hasTopbar || matchPath("/match-result/:simulationId", pathname) !== null;
+  const hasOwnBackButton =
+    hasTopbar ||
+    matchPath("/match-result/:simulationId", pathname) !== null ||
+    matchPath("/backtest/running", pathname) !== null;
 
   return (
     <div className="min-h-screen">

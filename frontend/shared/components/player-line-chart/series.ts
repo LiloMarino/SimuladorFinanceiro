@@ -7,6 +7,8 @@ export interface LineSeries {
   color: string;
   points: SeriesPoint[];
   dashed?: boolean;
+  /** Referência em pontos, para distinguir de uma tracejada na mesma tela */
+  dotted?: boolean;
   /** A linha de quem está vendo: mais grossa */
   emphasis?: boolean;
   /** Linha de contexto, mais apagada */

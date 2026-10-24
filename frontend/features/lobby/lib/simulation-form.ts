@@ -1,13 +1,10 @@
 import { withdrawalRateToField } from "@/shared/lib/financial-independence";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { displayDecimal, toCentsString } from "@/shared/lib/utils/display";
-import { formatMoney } from "@/shared/lib/utils/format";
+import { displayDecimal } from "@/shared/lib/utils/display";
+import { moneyToBody, moneyToField } from "@/shared/lib/utils/money-field";
 import type { CreateSimulationRequest, SimulationSettingsData } from "@/types";
 import type { SimulationFormValues } from "../components/lobby-match";
 import { withdrawalRateToBody } from "./life-rules";
-
-const moneyToField = (value: string) => formatMoney(toCentsString(value));
-const moneyToBody = (field: string) => toCentsString(normalizeNumberString(field));
 
 /** As regras da partida como o formulário do lobby as mostra. */
 export function toFormValues(settings: SimulationSettingsData): SimulationFormValues {

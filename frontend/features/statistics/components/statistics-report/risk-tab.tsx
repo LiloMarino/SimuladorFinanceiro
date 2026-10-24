@@ -30,7 +30,7 @@ import {
   WORST_MONTH,
 } from "../../lib/metrics";
 import { DebtTable } from "./debt-table";
-import { PlayerLineChart, type LineSeries } from "./player-line-chart";
+import { PlayerLineChart, type LineSeries } from "@/shared/components/player-line-chart";
 import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
 
 type TeamRisk = RiskReport["teams"][number];

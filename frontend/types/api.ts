@@ -183,6 +183,20 @@ export type PrepaymentMode = components["schemas"]["PrepaymentMode"];
 export type ContractLoanRequest = components["schemas"]["ContractLoanRequestDTO"];
 export type PrepayLoanRequest = components["schemas"]["PrepayLoanRequestDTO"];
 
+// Backtest
+export type BacktestConfig = components["schemas"]["BacktestConfigDTO-Output"];
+export type BacktestConfigRequest = components["schemas"]["BacktestConfigDTO-Input"];
+export type BacktestParticipant = components["schemas"]["BacktestParticipantDTO"];
+export type BacktestPriceImpact = components["schemas"]["BacktestPriceImpact"];
+export type BacktestSetup = components["schemas"]["BacktestSetupDTO"];
+export type BacktestCoverage = components["schemas"]["BacktestCoverageDTO"];
+export type BacktestStatus = components["schemas"]["BacktestStatusDTO"];
+export type BacktestProgress = NonNullable<BacktestStatus["progress"]>;
+export type BacktestPoint = components["schemas"]["BacktestPointDTO"];
+export type BacktestFailure = components["schemas"]["BacktestFailureDTO"];
+export type BacktestResult = components["schemas"]["BacktestResultDTO"];
+export type BacktestStopped = components["schemas"]["BacktestStoppedDTO"];
+
 // Estratégias
 export type StrategyInfo = components["schemas"]["StrategyInfoDTO"];
 export type StrategyParam = StrategyInfo["params"][number];

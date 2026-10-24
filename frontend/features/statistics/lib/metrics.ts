@@ -1,4 +1,10 @@
-import { displayMoney, displayNumber, displayPercent, displayPercentagePoints } from "@/shared/lib/utils/display";
+import {
+  displayMoney,
+  displayNumber,
+  displayPercent,
+  displayPercentagePoints,
+  displaySignedPercent,
+} from "@/shared/lib/utils/display";
 import type { MetricInfo } from "@/shared/lib/metric-info";
 import type { ScoreAxis, ScoreMetric } from "@/types";
 
@@ -327,3 +333,24 @@ export const SCORE_AXES: Record<ScoreAxis, { label: string; description: string 
 export function displayMetric(metric: MetricInfo, value: string | number | null | undefined) {
   return value === null || value === undefined ? "—" : metric.format(value);
 }
+
+/** O retorno do backtest: o patrimônio contra todo o dinheiro que entrou, aportes incluídos. */
+export const BACKTEST_RETURN: MetricInfo = {
+  label: "Retorno sobre o aportado",
+  description: "Quanto o patrimônio rendeu sobre todo o dinheiro que entrou",
+  definition: "Patrimônio final dividido por tudo o que foi posto na carteira (saldo inicial mais aportes), menos 1.",
+  example: "Ex.: entraram R$ 304.000 e a carteira vale R$ 889.720 → +192,7%.",
+  reading:
+    "Acima de 0% a estratégia ganhou dinheiro; abaixo, a carteira vale menos do que foi posto. Compare sempre com o CDI, que rende sem risco.",
+  format: (value) => displaySignedPercent(value, 1),
+};
+
+/** A coluna "Contra o CDI" do backtest: a diferença entre o retorno da estratégia e o do CDI. */
+export const BACKTEST_OVER_CDI: MetricInfo = {
+  label: "Contra o CDI",
+  description: "Retorno da estratégia menos o do CDI com os mesmos aportes, em pontos percentuais",
+  definition: "Pontos percentuais (p.p.) são a subtração de duas porcentagens: +192,7% menos +167,2% dá 25,5 p.p.",
+  example: "Ex.: estratégia +192,7% e CDI +167,2% → +25,5 p.p.",
+  reading: "Positivo bateu o CDI; negativo, deixar o dinheiro parado no CDI teria rendido mais.",
+  format: (value) => displayPercentagePoints(value, 1),
+};

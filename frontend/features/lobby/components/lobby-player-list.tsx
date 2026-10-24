@@ -19,7 +19,7 @@ import type { PlayerGrouping, RoomPlayer, TeamNaming } from "@/types";
 import { useApplyColorPreference } from "../hooks/useApplyColorPreference";
 import { checkTeams } from "../lib/teams-check";
 import { joinNames } from "../lib/join-names";
-import { BotDialog } from "./bot-dialog";
+import { LobbyBotDialog } from "./lobby-bot-dialog";
 import { LobbyBotMenu } from "./lobby-bot-menu";
 import { LobbyColorPicker } from "./lobby-color-picker";
 import { LobbyTeamPicker } from "./lobby-team-picker";
@@ -279,7 +279,7 @@ export function LobbyPlayersList({
         )}
       </CardContent>
 
-      <BotDialog
+      <LobbyBotDialog
         open={botDialog !== null}
         onOpenChange={(open) => !open && setBotDialog(null)}
         bot={botDialog?.bot}

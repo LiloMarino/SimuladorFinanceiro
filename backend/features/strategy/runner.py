@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import traceback
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -105,6 +106,8 @@ class StrategyRunner:
         self._engine = engine
         self._history = PriceHistory(engine.simulation_id, end_date, price_impact)
         self._active: dict[UUID, ActiveStrategy] = {}
+        # Chamado com o jogador, o dia e a mensagem quando a estratégia dele dá erro
+        self.on_failure: Callable[[UserDTO, date, str], None] | None = None
         engine.matching_engine.on_order_closed = self._on_order_closed
 
     # =========================
@@ -407,6 +410,8 @@ class StrategyRunner:
             StrategyUpdateEventDTO(active=False, error=message).to_json(),
             to=user.client_id,
         )
+        if self.on_failure is not None:
+            self.on_failure(user, today, message)
 
     def _execute(
         self, user: UserDTO, active: ActiveStrategy, intent: Intent, today: date

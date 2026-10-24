@@ -42,7 +42,7 @@ import {
   PRICE_IMPACT_PRESETS,
   priceImpactModeOf,
   type PriceImpactMode,
-} from "../lib/price-impact";
+} from "@/shared/lib/price-impact";
 import { AssistanceFields } from "./assistance-fields";
 import { CoverageAlerts } from "./coverage-alerts";
 import { LifeFields } from "./life-fields";

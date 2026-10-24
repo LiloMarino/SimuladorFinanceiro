@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from pydantic import Field, model_validator
 
+from backend.core.dto.backtest import BacktestProgressDTO
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import (
     GameType,
@@ -44,7 +45,10 @@ class SimulationSettingsDTO(BaseDTO):
     def validate_rules(self):
         if self.start_date > self.end_date:
             raise ValueError("Data de início deve ser antes da data de fim.")
-        if self.game_type is GameType.GOAL_RACE and self.goal_net_worth <= self.starting_cash:
+        if (
+            self.game_type is GameType.GOAL_RACE
+            and self.goal_net_worth <= self.starting_cash
+        ):
             raise ValueError("A meta precisa ser maior que o saldo inicial.")
         if self.game_type is not GameType.FINANCIAL_INDEPENDENCE:
             return self
@@ -65,8 +69,22 @@ class SimulationDTO(SimulationSettingsDTO):
 
 class SimulationSummaryDTO(SimulationSettingsDTO):
     id: int
+    # Partida só de bots, rodada pelo host: a lista de salvas a separa das partidas
+    is_backtest: bool
     created_at: datetime
     last_simulated_at: datetime
+
+
+class SimulationResultDTO(BaseDTO):
+    """O ranking de uma simulação até o último dia gravado, guardado para a lista."""
+
+    # Fora da Clássica, o líder chegou na meta e a simulação terminou
+    leader_reached_goal: bool
+    players_count: int
+    # Apelido do líder; em equipes, o nome da equipe líder
+    leader_name: str | None
+    # Colocação de cada jogador por apelido (a da equipe dele, em equipes)
+    positions: dict[str, int]
 
 
 class SavedSimulationDTO(SimulationSummaryDTO):
@@ -75,6 +93,8 @@ class SavedSimulationDTO(SimulationSummaryDTO):
     players_count: int
     # Apelido do vencedor; em equipes, o nome da equipe vencedora
     winner_nickname: str | None
+    # Quem lidera até o último dia gravado, com a simulação terminada ou não; mesma forma do vencedor
+    leader_nickname: str | None
     # Colocação de quem pede a lista (a da equipe dele, em equipes); None quando não jogou essa partida
     my_position: int | None
     # Quem está na sala, nunca jogou essa partida e não cabe nela; vazio quando dá para selecionar
@@ -95,3 +115,6 @@ class PriceImpactPreviewDTO(BaseDTO):
 class SimulationStatusResponse(BaseDTO):
     active: bool
     simulation: SimulationDTO | None = None
+    # O backtest que roda: para a sala não é partida (`active` fica falso), e este
+    # campo leva o andamento dele
+    backtest: BacktestProgressDTO | None = None

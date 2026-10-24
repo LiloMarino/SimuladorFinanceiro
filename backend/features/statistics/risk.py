@@ -9,9 +9,11 @@ from datetime import date
 from decimal import Decimal
 from itertools import groupby, pairwise
 
+from backend.core import repository
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.enum import IndicatorSeries
 from backend.core.indicators import BUSINESS_DAYS_PER_YEAR, index_daily_rate
+from backend.core.repository.economic import IndicatorHistory
 from backend.core.utils import subtract_business_days
 
 DAYS_PER_YEAR = Decimal(BUSINESS_DAYS_PER_YEAR)
@@ -96,13 +98,23 @@ def rolling_volatility(
 ) -> DailyReturns:
     """Volatilidade anual dos últimos `window` pregões, a partir do pregão `window`."""
     returns = [r for _, r in days]
-    return [
-        (
-            days[end - 1][0],
-            statistics.stdev(returns[end - window : end]) * DAYS_PER_YEAR.sqrt(),
-        )
-        for end in range(window, len(days) + 1)
-    ]
+    if len(returns) < window:
+        return []
+
+    # Janela deslizante: a soma e a soma dos quadrados andam um pregão por vez,
+    # então cada ponto custa O(1) e o desvio sai de (Σx² - (Σx)²/n) / (n - 1).
+    total = sum(returns[:window], Decimal(0))
+    squares = sum((r * r for r in returns[:window]), Decimal(0))
+    annualizer = DAYS_PER_YEAR.sqrt()
+    series = []
+    for end in range(window, len(returns) + 1):
+        if end > window:
+            entering, leaving = returns[end - 1], returns[end - 1 - window]
+            total += entering - leaving
+            squares += entering * entering - leaving * leaving
+        variance = max((squares - total * total / window) / (window - 1), Decimal(0))
+        series.append((days[end - 1][0], variance.sqrt() * annualizer))
+    return series
 
 
 def annual_return(days: DailyReturns) -> Decimal | None:
@@ -115,13 +127,26 @@ def annual_return(days: DailyReturns) -> Decimal | None:
     return quota ** (DAYS_PER_YEAR / len(days)) - 1
 
 
+# As taxas já calculadas valem para a série em memória a que pertencem: quando o
+# repositório recarrega o CDI, a série é outra e a tabela recomeça vazia.
+_cdi_memo: tuple[IndicatorHistory | None, dict[date, Decimal]] = (None, {})
+
+
 def cdi_return(day: date) -> Decimal:
     """
     O que um título de 100% do CDI rendeu entre o snapshot anterior e `day`: a
     taxa do dia útil anterior.
     """
-    rate = index_daily_rate(IndicatorSeries.CDI, subtract_business_days(day, 1))
-    return rate if rate is not None else Decimal(0)
+    global _cdi_memo
+    history = repository.economic.get_history(IndicatorSeries.CDI)
+    if _cdi_memo[0] is not history:
+        _cdi_memo = (history, {})
+    rates = _cdi_memo[1]
+    rate = rates.get(day)
+    if rate is None:
+        daily = index_daily_rate(IndicatorSeries.CDI, subtract_business_days(day, 1))
+        rate = rates[day] = daily if daily is not None else Decimal(0)
+    return rate
 
 
 def sharpe_ratio(days: DailyReturns, volatility: Decimal | None) -> Decimal | None:

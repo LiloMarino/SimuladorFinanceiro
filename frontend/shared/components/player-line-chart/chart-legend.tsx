@@ -34,8 +34,14 @@ export function LineChartLegend({ series, visible, toggle }: Props) {
             onPressedChange={() => keys.forEach((key) => visible[key] === pressed && toggle(key))}
           >
             <span
-              className={head.dashed ? "h-0.5 w-3.5 border-t-2 border-dashed" : "size-2.5 rounded-full"}
-              style={head.dashed ? { borderColor: head.color } : { backgroundColor: head.color }}
+              className={
+                head.dashed
+                  ? "h-0.5 w-3.5 border-t-2 border-dashed"
+                  : head.dotted
+                    ? "h-0.5 w-3.5 border-t-2 border-dotted"
+                    : "size-2.5 rounded-full"
+              }
+              style={head.dashed || head.dotted ? { borderColor: head.color } : { backgroundColor: head.color }}
               aria-hidden="true"
             />
             {label}

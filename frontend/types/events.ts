@@ -54,6 +54,9 @@ export type SimulationEvents = {
   credit_loan_paid_off: RealtimeEventCatalog["credit_loan_paid_off"];
   strategy_update: RealtimeEventCatalog["strategy_update"];
   strategy_orders: RealtimeEventCatalog["strategy_orders"];
+  backtest_started: RealtimeEventCatalog["backtest_started"];
+  backtest_progress: RealtimeEventCatalog["backtest_progress"];
+  backtest_ended: RealtimeEventCatalog["backtest_ended"];
 } & {
   [K in `stock_update:${string}`]: RealtimeEventCatalog["stock_update"];
 } & {

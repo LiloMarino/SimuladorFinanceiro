@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import threading
 from collections.abc import Callable
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from functools import wraps
 from typing import Concatenate, ParamSpec, TypeVar
@@ -65,6 +65,7 @@ from backend.features.achievements.evaluator import (
     match_result,
     unlocked_event,
 )
+from backend.features.backtest.progress import BacktestProgress
 from backend.features.credit.overview import (
     build_overview,
     build_prepayment_preview,
@@ -151,13 +152,20 @@ class Simulation:
         resume_from: date | None = None,
         *,
         random_seed: int,
+        backtest: BacktestProgress | None = None,
     ):
         """
         `resume_from` é o último dia já processado de uma simulação retomada; o
         primeiro tick é o dia útil seguinte. Sem ele, o primeiro tick é o `start_date`.
         `random_seed` é a semente gravada na partida, de onde saem os imprevistos.
+        `backtest` põe a partida no modo de estratégias: sem avisos por pregão, sem
+        meta nem conquistas, e os snapshots saem do balanço do motor, gravados em lote.
         """
         self._speed = 0
+        self.backtest = backtest
+        # Snapshots do backtest ainda não gravados, e o aporte acumulado de cada jogador
+        self._pending_snapshots: list[SnapshotDTO] = []
+        self._contributed = Decimal(0)
         self.settings = settings
         self._random_seed = random_seed
         self._life = (
@@ -186,6 +194,8 @@ class Simulation:
         self._strategies.load(
             repository.simulation_player.participants(settings.id), resume_from
         )
+        if backtest is not None:
+            self._strategies.on_failure = self._backtest_failed
 
         # Fora da Clássica: onde cada um está na meta e se alguém já chegou
         self._goal_progress: GoalProgressDTO | None = None
@@ -509,6 +519,10 @@ class Simulation:
             self._charge_overdraft(users)
         EventManager.flush()
 
+        if self.backtest is not None:
+            self._record_backtest_day(users, month_changed)
+            return
+
         snapshots = self._create_daily_snapshots(users, month_changed)
 
         # Emite notificações
@@ -547,6 +561,46 @@ class Simulation:
                 self._human_snapshots(users), month_changed
             ),
         )
+
+    def _record_backtest_day(self, users: list[UserDTO], month_changed: bool) -> None:
+        """
+        O snapshot do dia sai do balanço do motor e espera o lote: a cada passo do
+        gráfico o lote é gravado e a sala é avisada, nessa ordem, para quem abrir o
+        resultado já encontrar os dados.
+        """
+        assert self.backtest is not None
+        contribution = (
+            self.settings.monthly_contribution if month_changed else Decimal(0)
+        )
+        self._contributed += contribution
+        today = [self._balance_snapshot(user) for user in users]
+        self._pending_snapshots.extend(today)
+        if self.backtest.record_day(self._current_date, today, contribution):
+            self.flush_backtest()
+            self.backtest.publish()
+
+    def _balance_snapshot(self, user: UserDTO) -> SnapshotDTO:
+        equity, fixed, cash, debt = self._engine.balance_sheet(user.client_id)
+        return SnapshotDTO(
+            user_id=user.id,
+            snapshot_date=self._current_date,
+            total_equity=equity,
+            total_fixed=fixed,
+            total_cash=cash,
+            total_contribution=self._contributed,
+            total_debt=debt,
+            total_networth=cash + equity + fixed - debt,
+            created_at=datetime.now(UTC),
+        )
+
+    def _backtest_failed(self, user: UserDTO, day: date, message: str) -> None:
+        assert self.backtest is not None
+        self.backtest.fail(user.nickname, day, message)
+
+    def flush_backtest(self) -> None:
+        """Grava os snapshots pendentes do backtest."""
+        repository.snapshot.create_many(self.settings.id, self._pending_snapshots)
+        self._pending_snapshots = []
 
     def end_match(self) -> None:
         """

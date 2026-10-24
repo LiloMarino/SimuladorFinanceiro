@@ -77,6 +77,6 @@ def bot_orders(
 
 def _is_running(simulation_id: int) -> bool:
     return (
-        SimulationManager.has_active_simulation()
+        SimulationManager.has_running_simulation()
         and SimulationManager.get_active_simulation_id() == simulation_id
     )

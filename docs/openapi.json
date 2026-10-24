@@ -4981,49 +4981,68 @@
           "Simulation"
         ],
         "summary": "Listar as estratégias para os bots",
-        "description": "As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início das regras do lobby, e os nomes sugeridos para o bot. Apenas o host pode executar.",
+        "description": "As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Apenas o host pode executar.",
         "operationId": "list_bot_strategies_api_simulation_bots_strategies_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Date"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/StrategyInfoDTO"
                   },
-                  "type": "array",
                   "title": "Response List Bot Strategies Api Simulation Bots Strategies Get"
                 }
               }
             }
           },
           "422": {
-            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "500": {
-            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Internal Server Error"
           }
-        },
-        "security": [
-          {
-            "APIKeyCookie": []
-          }
-        ]
+        }
       }
     },
     "/api/simulation/bots/tickers": {
@@ -5492,6 +5511,310 @@
             "APIKeyCookie": []
           }
         ]
+      }
+    },
+    "/api/backtest/setup": {
+      "get": {
+        "tags": [
+          "Backtest"
+        ],
+        "summary": "Preparar a tela de novo backtest",
+        "description": "Até onde há mercado (primeiro dado, fim do real e fim do gerado) e a configuração inicial: a do backtest mais recente ou, com `from`, a de um backtest salvo (rodar de novo). O nome vem livre. Apenas o host pode executar.",
+        "operationId": "get_setup_api_backtest_setup_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BacktestSetupDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/backtest": {
+      "post": {
+        "tags": [
+          "Backtest"
+        ],
+        "summary": "Iniciar um backtest",
+        "description": "Roda as estratégias escolhidas sobre o mesmo mercado, sem esperar entre os pregões. Recusa com 409 se já há partida ou backtest, e com 422 se o período, as vagas ou os parâmetros não valem. Apenas o host pode executar.",
+        "operationId": "start_backtest_api_backtest_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BacktestConfigDTO-Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BacktestStatusDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/backtest/stop": {
+      "post": {
+        "tags": [
+          "Backtest"
+        ],
+        "summary": "Parar o backtest e salvar",
+        "description": "Para o backtest em andamento e o deixa salvo até onde chegou. Apenas o host pode executar.",
+        "operationId": "stop_backtest_api_backtest_stop_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BacktestStoppedDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/backtest/discard": {
+      "post": {
+        "tags": [
+          "Backtest"
+        ],
+        "summary": "Descartar o backtest",
+        "description": "Para o backtest em andamento e apaga o que ele gravou. Apenas o host pode executar.",
+        "operationId": "discard_backtest_api_backtest_discard_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/backtest/status": {
+      "get": {
+        "tags": [
+          "Backtest"
+        ],
+        "summary": "Andamento do backtest",
+        "description": "O andamento do backtest que roda, com os pontos do gráfico e as falhas; vazio quando não há. Qualquer jogador pode consultar.",
+        "operationId": "get_status_api_backtest_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BacktestStatusDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/backtest/{simulation_id}": {
+      "get": {
+        "tags": [
+          "Backtest"
+        ],
+        "summary": "Backtest salvo",
+        "description": "A configuração do backtest salvo, onde parou e a série de referência (aportado, CDI e Ibovespa) para o relatório.",
+        "operationId": "get_backtest_api_backtest__simulation_id__get",
+        "parameters": [
+          {
+            "name": "simulation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Simulation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BacktestResultDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
       }
     },
     "/api/presets": {
@@ -6457,6 +6780,597 @@
           "points"
         ],
         "title": "AverageSeriesDTO"
+      },
+      "BacktestConfigDTO-Input": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "title": "End Date"
+          },
+          "starting_cash": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Starting Cash"
+          },
+          "monthly_contribution": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Monthly Contribution"
+          },
+          "price_impact": {
+            "$ref": "#/components/schemas/BacktestPriceImpact"
+          },
+          "participants": {
+            "items": {
+              "$ref": "#/components/schemas/BacktestParticipantDTO"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Participants"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "start_date",
+          "end_date",
+          "starting_cash",
+          "monthly_contribution",
+          "price_impact",
+          "participants"
+        ],
+        "title": "BacktestConfigDTO",
+        "description": "Tudo o que o host escolhe para um backtest: o período, o dinheiro e as estratégias."
+      },
+      "BacktestConfigDTO-Output": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "title": "End Date"
+          },
+          "starting_cash": {
+            "type": "string",
+            "title": "Starting Cash"
+          },
+          "monthly_contribution": {
+            "type": "string",
+            "title": "Monthly Contribution"
+          },
+          "price_impact": {
+            "$ref": "#/components/schemas/BacktestPriceImpact"
+          },
+          "participants": {
+            "items": {
+              "$ref": "#/components/schemas/BacktestParticipantDTO"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Participants"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "start_date",
+          "end_date",
+          "starting_cash",
+          "monthly_contribution",
+          "price_impact",
+          "participants"
+        ],
+        "title": "BacktestConfigDTO",
+        "description": "Tudo o que o host escolhe para um backtest: o período, o dinheiro e as estratégias."
+      },
+      "BacktestCoverageDTO": {
+        "properties": {
+          "first_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Date"
+          },
+          "real_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Real End"
+          },
+          "generated_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generated End"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "first_date",
+          "real_end",
+          "generated_end"
+        ],
+        "title": "BacktestCoverageDTO",
+        "description": "Até onde há mercado para o backtest, somando todas as séries."
+      },
+      "BacktestEndedEventDTO": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "simulation_id": {
+            "type": "integer",
+            "title": "Simulation Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "simulation_id"
+        ],
+        "title": "BacktestEndedEventDTO"
+      },
+      "BacktestFailureDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "day",
+          "message"
+        ],
+        "title": "BacktestFailureDTO",
+        "description": "Estratégia que deu erro: para de operar e fica com a carteira que tinha."
+      },
+      "BacktestParticipantDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "strategy_key": {
+            "type": "string",
+            "title": "Strategy Key"
+          },
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/StrategyParamValue"
+            },
+            "type": "object",
+            "title": "Params"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "color",
+          "strategy_key"
+        ],
+        "title": "BacktestParticipantDTO",
+        "description": "Uma estratégia no backtest: vira um jogador sem pessoa, com carteira própria."
+      },
+      "BacktestPointDTO": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "equity": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Equity"
+          },
+          "contributed": {
+            "type": "string",
+            "title": "Contributed"
+          },
+          "cdi": {
+            "type": "string",
+            "title": "Cdi"
+          },
+          "ibov": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ibov"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "day",
+          "equity",
+          "contributed",
+          "cdi",
+          "ibov"
+        ],
+        "title": "BacktestPointDTO",
+        "description": "O retrato de um dia no gráfico: o patrimônio de cada estratégia e as referências."
+      },
+      "BacktestPriceImpact": {
+        "type": "string",
+        "enum": [
+          "OFF",
+          "REALISTIC",
+          "STRONG"
+        ],
+        "title": "BacktestPriceImpact",
+        "description": "Os níveis do impacto de preço que o backtest oferece: desligado, ou um dos dois ajustes prontos."
+      },
+      "BacktestProgressDTO": {
+        "properties": {
+          "simulation_id": {
+            "type": "integer",
+            "title": "Simulation Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "host_nickname": {
+            "type": "string",
+            "title": "Host Nickname"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Start Date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "title": "End Date"
+          },
+          "total_days": {
+            "type": "integer",
+            "title": "Total Days"
+          },
+          "done_days": {
+            "type": "integer",
+            "title": "Done Days"
+          },
+          "current_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Date"
+          },
+          "seconds_left": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seconds Left"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "simulation_id",
+          "name",
+          "host_nickname",
+          "start_date",
+          "end_date",
+          "total_days",
+          "done_days",
+          "current_date",
+          "seconds_left"
+        ],
+        "title": "BacktestProgressDTO"
+      },
+      "BacktestProgressEventDTO": {
+        "properties": {
+          "progress": {
+            "$ref": "#/components/schemas/BacktestProgressDTO"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/BacktestPointDTO"
+            },
+            "type": "array",
+            "title": "Points"
+          },
+          "failures": {
+            "items": {
+              "$ref": "#/components/schemas/BacktestFailureDTO"
+            },
+            "type": "array",
+            "title": "Failures"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "progress",
+          "points",
+          "failures"
+        ],
+        "title": "BacktestProgressEventDTO",
+        "description": "O que mudou desde o último aviso: o andamento e os pontos e falhas novos."
+      },
+      "BacktestReferencePointDTO": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "contributed": {
+            "type": "string",
+            "title": "Contributed"
+          },
+          "cdi": {
+            "type": "string",
+            "title": "Cdi"
+          },
+          "ibov": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ibov"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "day",
+          "contributed",
+          "cdi",
+          "ibov"
+        ],
+        "title": "BacktestReferencePointDTO"
+      },
+      "BacktestResultDTO": {
+        "properties": {
+          "simulation_id": {
+            "type": "integer",
+            "title": "Simulation Id"
+          },
+          "config": {
+            "$ref": "#/components/schemas/BacktestConfigDTO-Output"
+          },
+          "stopped_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stopped On"
+          },
+          "finished": {
+            "type": "boolean",
+            "title": "Finished"
+          },
+          "total_days": {
+            "type": "integer",
+            "title": "Total Days"
+          },
+          "done_days": {
+            "type": "integer",
+            "title": "Done Days"
+          },
+          "references": {
+            "items": {
+              "$ref": "#/components/schemas/BacktestReferencePointDTO"
+            },
+            "type": "array",
+            "title": "References"
+          },
+          "failures": {
+            "items": {
+              "$ref": "#/components/schemas/BacktestFailureDTO"
+            },
+            "type": "array",
+            "title": "Failures"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "simulation_id",
+          "config",
+          "stopped_on",
+          "finished",
+          "total_days",
+          "done_days",
+          "references",
+          "failures"
+        ],
+        "title": "BacktestResultDTO",
+        "description": "O backtest salvo: a configuração, onde parou e a série de referência para o relatório."
+      },
+      "BacktestSetupDTO": {
+        "properties": {
+          "coverage": {
+            "$ref": "#/components/schemas/BacktestCoverageDTO"
+          },
+          "config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BacktestConfigDTO-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "suggested_name": {
+            "type": "string",
+            "title": "Suggested Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "coverage",
+          "config",
+          "suggested_name"
+        ],
+        "title": "BacktestSetupDTO"
+      },
+      "BacktestStatusDTO": {
+        "properties": {
+          "progress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BacktestProgressDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "participants": {
+            "items": {
+              "$ref": "#/components/schemas/BacktestParticipantDTO"
+            },
+            "type": "array",
+            "title": "Participants"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/BacktestPointDTO"
+            },
+            "type": "array",
+            "title": "Points"
+          },
+          "failures": {
+            "items": {
+              "$ref": "#/components/schemas/BacktestFailureDTO"
+            },
+            "type": "array",
+            "title": "Failures"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "progress",
+          "participants",
+          "points",
+          "failures"
+        ],
+        "title": "BacktestStatusDTO"
+      },
+      "BacktestStoppedDTO": {
+        "properties": {
+          "simulation_id": {
+            "type": "integer",
+            "title": "Simulation Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "simulation_id"
+        ],
+        "title": "BacktestStoppedDTO",
+        "description": "O backtest parado e salvo até onde chegou."
       },
       "BandsSeriesDTO": {
         "properties": {
@@ -12789,6 +13703,15 @@
           "simulation_ended": {
             "$ref": "#/components/schemas/SimulationEndedEventDTO"
           },
+          "backtest_started": {
+            "$ref": "#/components/schemas/BacktestStatusDTO"
+          },
+          "backtest_progress": {
+            "$ref": "#/components/schemas/BacktestProgressEventDTO"
+          },
+          "backtest_ended": {
+            "$ref": "#/components/schemas/BacktestEndedEventDTO"
+          },
           "simulation_update": {
             "$ref": "#/components/schemas/SimulationTickUpdateEventDTO"
           },
@@ -12906,6 +13829,9 @@
         "required": [
           "simulation_started",
           "simulation_ended",
+          "backtest_started",
+          "backtest_progress",
+          "backtest_ended",
           "simulation_update",
           "speed_update",
           "cash_update",
@@ -13280,6 +14206,10 @@
             "type": "integer",
             "title": "Id"
           },
+          "is_backtest": {
+            "type": "boolean",
+            "title": "Is Backtest"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -13320,6 +14250,17 @@
             ],
             "title": "Winner Nickname"
           },
+          "leader_nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leader Nickname"
+          },
           "my_position": {
             "anyOf": [
               {
@@ -13359,12 +14300,14 @@
           "withdrawal_rate",
           "inflation_adjusted",
           "id",
+          "is_backtest",
           "created_at",
           "last_simulated_at",
           "resume_from",
           "status",
           "players_count",
           "winner_nickname",
+          "leader_nickname",
           "my_position",
           "room_overflow"
         ],
@@ -14695,6 +15638,16 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/SimulationDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "backtest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BacktestProgressDTO"
               },
               {
                 "type": "null"

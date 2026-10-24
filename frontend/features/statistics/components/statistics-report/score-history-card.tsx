@@ -5,7 +5,7 @@ import { teamColor, teamName } from "@/shared/lib/teams";
 import { displayNumber } from "@/shared/lib/utils/display";
 import { SCORE_HISTORY } from "../../lib/metrics";
 import { labelColors, playerLabel, youLabel } from "../../lib/player-label";
-import { PlayerLineChart, type LineSeries } from "./player-line-chart";
+import { PlayerLineChart, type LineSeries } from "@/shared/components/player-line-chart";
 import { ChartCard, type ReportProps } from "./shared";
 
 /** A nota total mês a mês: uma linha por jogador, ou por equipe na partida em equipes. */

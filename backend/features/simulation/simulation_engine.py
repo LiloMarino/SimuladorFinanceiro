@@ -335,6 +335,18 @@ class SimulationEngine:
             fixed = list(self.fixed_broker.get_fixed_positions(client_id).values())
             return equity, fixed, self._cash[client_id]
 
+    def balance_sheet(
+        self, client_id: UUID
+    ) -> tuple[Decimal, Decimal, Decimal, Decimal]:
+        """Ações, renda fixa, caixa e dívida do dia: o que o snapshot guarda, sem montar o portfólio da tela."""
+        equity, fixed, cash = self._holdings(client_id)
+        return (
+            sum((p.current_value for p in equity), Decimal(0)),
+            sum((p.current_value for p in fixed), Decimal(0)),
+            cash,
+            self.credit_book.debt(client_id, self.current_date),
+        )
+
     def assets_value(self, client_id: UUID) -> Decimal:
         """Caixa, ações e renda fixa, sem descontar a dívida."""
         equity, fixed, cash = self._holdings(client_id)

@@ -9,7 +9,6 @@ gerado ser trocado, e lê a própria cópia onde ela existe e a comum no resto.
 from sqlalchemy import ColumnElement, and_, exists, or_
 from sqlalchemy.orm import aliased
 
-from backend.core.exceptions import NoActiveSimulationError
 from backend.core.models.models import EconomicIndicatorHistory, StockPriceHistory
 from backend.core.runtime.simulation_manager import SimulationManager
 
@@ -22,10 +21,8 @@ def reading_version(simulation_id: int | None = None) -> int:
     """A versão da partida pedida, senão a da partida ativa, senão a comum."""
     if simulation_id is not None:
         return simulation_id
-    try:
-        return SimulationManager.get_active_simulation_id()
-    except NoActiveSimulationError:
-        return COMMON_VERSION
+    active = SimulationManager.find_active_simulation_id()
+    return COMMON_VERSION if active is None else active
 
 
 def _key(model: SeriesModel) -> tuple[str, str]:

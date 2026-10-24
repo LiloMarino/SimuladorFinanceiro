@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { Search, Trophy, Zap } from "lucide-react";
+import { FlaskConical, RotateCcw, Search, Trophy, Zap } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { ErrorState } from "@/shared/components/error-state";
 import { useRealtime } from "@/shared/hooks/useRealtime";
@@ -23,11 +24,26 @@ import { RoomOverflowAlert } from "./room-overflow-alert";
 
 type StatusFilter = "ALL" | SimulationListItem["status"];
 
-const FILTERS: { value: StatusFilter; label: string }[] = [
-  { value: "ALL", label: "Todas" },
-  { value: "PAUSED", label: "Pausadas" },
-  { value: "FINISHED", label: "Terminadas" },
-];
+type SavedKind = "matches" | "backtests";
+
+/** Concluído, o backtest tem vencedora; parado, só quem está na frente até onde rodou. */
+function backtestLeaderText(s: SimulationListItem) {
+  if (s.winner_nickname) return ` · venceu ${s.winner_nickname}`;
+  return s.leader_nickname ? ` · na frente: ${s.leader_nickname}` : "";
+}
+
+const FILTERS: Record<SavedKind, { value: StatusFilter; label: string }[]> = {
+  matches: [
+    { value: "ALL", label: "Todas" },
+    { value: "PAUSED", label: "Pausadas" },
+    { value: "FINISHED", label: "Terminadas" },
+  ],
+  backtests: [
+    { value: "ALL", label: "Todos" },
+    { value: "PAUSED", label: "Parados" },
+    { value: "FINISHED", label: "Concluídos" },
+  ],
+};
 
 type SavedSimulationsDialogProps = {
   open: boolean;
@@ -70,6 +86,7 @@ function SavedSimulationsContent({
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<StatusFilter>("ALL");
+  const [kind, setKind] = useState<SavedKind>("matches");
 
   const { data, isLoading, error, refetch } = useSimulationList({ refetchOnMount: "always" });
 
@@ -92,12 +109,15 @@ function SavedSimulationsContent({
   useRealtime("simulation_deleted", refreshFit);
 
   const term = search.trim().toLowerCase();
-  // A lista vem da mais recente para a mais antiga: a primeira é a que o atalho do lobby seleciona
-  const lastSimulation = data?.[0];
+  const matches = (data ?? []).filter((s) => !s.is_backtest);
+  const backtests = (data ?? []).filter((s) => s.is_backtest);
+  const inKind = kind === "matches" ? matches : backtests;
+  // A lista vem da mais recente para a mais antiga: a primeira partida é a que o atalho do lobby seleciona
+  const lastSimulation = matches[0];
   const empty = !isLoading && !error && data?.length === 0;
   // Com o que escolher (ou ainda carregando) o host também começa uma partida nova daqui
   const choosing = isHost && !empty;
-  const items = (data ?? []).filter(
+  const items = inKind.filter(
     (s) => (filter === "ALL" || s.status === filter) && (!term || s.name.toLowerCase().includes(term)),
   );
 
@@ -123,9 +143,11 @@ function SavedSimulationsContent({
     if (items.length === 0) {
       return (
         <p className="px-6 py-12 text-center text-muted-foreground">
-          {data?.length
+          {inKind.length
             ? "Nenhuma simulação com esse filtro."
-            : "Nenhuma partida salva ainda. Quando uma partida for pausada ou terminar, ela aparece aqui."}
+            : kind === "backtests"
+              ? "Nenhum backtest salvo ainda. Quando um backtest terminar ou for parado, ele aparece aqui."
+              : "Nenhuma partida salva ainda. Quando uma partida for pausada ou terminar, ela aparece aqui."}
         </p>
       );
     }
@@ -146,11 +168,13 @@ function SavedSimulationsContent({
             <span className="truncate font-semibold">{s.name}</span>
             {s.status === "FINISHED" ? (
               <Badge variant="success" size="sm">
-                Terminou{s.winner_nickname && ` · ${s.winner_nickname} venceu`}
+                {s.is_backtest ? "Concluído" : `Terminou${s.winner_nickname ? ` · ${s.winner_nickname} venceu` : ""}`}
               </Badge>
             ) : (
               <Badge variant="info" size="sm">
-                {s.resume_from ? `Pausada em ${displayDate(parseLocalDate(s.resume_from))}` : "Não começou"}
+                {s.resume_from
+                  ? `${s.is_backtest ? "Parado" : "Pausada"} em ${displayDate(parseLocalDate(s.resume_from))}`
+                  : "Não começou"}
               </Badge>
             )}
           </div>
@@ -158,10 +182,11 @@ function SavedSimulationsContent({
             {displayMonthSlashYear(s.start_date)} → {displayMonthSlashYear(s.end_date)}
           </span>
           <span className="text-xs text-muted-foreground">
-            {s.players_count <= 1 ? "Solo" : `${s.players_count} jogadores`} ·{" "}
-            {winRuleLabel(s.game_type, s.victory_criterion)}
+            {s.is_backtest
+              ? `${s.players_count} ${s.players_count === 1 ? "estratégia" : "estratégias"}${backtestLeaderText(s)}`
+              : `${s.players_count <= 1 ? "Solo" : `${s.players_count} jogadores`} · ${winRuleLabel(s.game_type, s.victory_criterion)}`}
           </span>
-          {isHost && s.status === "PAUSED" && s.room_overflow.length > 0 && (
+          {isHost && !s.is_backtest && s.status === "PAUSED" && s.room_overflow.length > 0 && (
             <RoomOverflowAlert names={s.room_overflow} />
           )}
           {isLast && (
@@ -174,7 +199,13 @@ function SavedSimulationsContent({
           <Trophy />
           Resultado
         </Button>
-        {isHost && s.status === "PAUSED" && (
+        {isHost && s.is_backtest && (
+          <Button variant="outline" size="sm" onClick={() => void navigate(`/backtest/new?from=${s.id}`)}>
+            <RotateCcw />
+            Rodar de novo
+          </Button>
+        )}
+        {isHost && !s.is_backtest && s.status === "PAUSED" && (
           <Button
             size="sm"
             variant={s.room_overflow.length > 0 ? "secondary" : "default"}
@@ -209,8 +240,50 @@ function SavedSimulationsContent({
         </DialogDescription>
       </DialogHeader>
 
+      {/* Partidas e backtests */}
+      <div className="-mx-6 -mt-4 px-6">
+        <Tabs
+          value={kind}
+          onValueChange={(value) => {
+            setKind(value as SavedKind);
+            setFilter("ALL");
+          }}
+        >
+          <TabsList variant="line">
+            <TabsTrigger value="matches">
+              Partidas
+              <Badge variant="secondary" size="tag">
+                {matches.length}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="backtests">
+              Backtests
+              <Badge variant="secondary" size="tag">
+                {backtests.length}
+              </Badge>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {/* Novo backtest: ação do host, em faixa própria acima da lista */}
+      {isHost && kind === "backtests" && !isLoading && !error && (
+        <div className="-mx-6 -mt-4 flex items-center gap-3 border-b border-info-border bg-info-soft px-6 py-4">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-[9px] bg-primary text-primary-foreground">
+            <FlaskConical className="size-[18px]" />
+          </span>
+          <div className="grid min-w-0 flex-1">
+            <span className="font-bold">Novo backtest</span>
+            <span className="text-xs text-muted-foreground">Estratégias contra o mercado, sem esperar o jogo</span>
+          </div>
+          <Button size="sm" onClick={() => void navigate("/backtest/new")}>
+            Configurar
+          </Button>
+        </div>
+      )}
+
       {/* Nova partida: ação do host, em faixa própria acima da lista de salvas */}
-      {choosing && (
+      {choosing && kind === "matches" && (
         <div className="-mx-6 -mt-4 flex items-center gap-3 border-b border-info-border bg-info-soft px-6 py-4">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-[9px] bg-primary text-primary-foreground">
             <Zap className="size-[18px]" />
@@ -225,7 +298,7 @@ function SavedSimulationsContent({
         </div>
       )}
 
-      {choosing && (
+      {choosing && kind === "matches" && (
         <span className="-mb-2 text-[11px] font-semibold tracking-[0.06em] text-faint-foreground uppercase">
           Partidas salvas
         </span>
@@ -246,7 +319,7 @@ function SavedSimulationsContent({
             value={[filter]}
             onValueChange={(values) => values[0] && setFilter(values[0] as StatusFilter)}
           >
-            {FILTERS.map((f) => (
+            {FILTERS[kind].map((f) => (
               <ToggleGroupItem key={f.value} value={f.value}>
                 {f.label}
               </ToggleGroupItem>

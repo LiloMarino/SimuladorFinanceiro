@@ -158,6 +158,14 @@ class GameType(Enum):
     FINANCIAL_INDEPENDENCE = "FINANCIAL_INDEPENDENCE"
 
 
+class BacktestPriceImpact(Enum):
+    """Os níveis do impacto de preço que o backtest oferece: desligado, ou um dos dois ajustes prontos."""
+
+    OFF = "OFF"
+    REALISTIC = "REALISTIC"
+    STRONG = "STRONG"
+
+
 class PresetRuleGroup(Enum):
     """As regras de um preset agrupadas como o painel as mostra."""
 

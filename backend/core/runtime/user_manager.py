@@ -711,8 +711,8 @@ class UserManager:
         Põe na sala um bot novo: um usuário próprio, com a estratégia e a cor (a próxima
         livre, sem `color`). Nome, vaga e cor são conferidos e gravados sob o mesmo lock.
         """
-        nickname = cls._bot_nickname(nickname)
-        config = cls._bot_config(strategy_key, params)
+        nickname = cls.bot_nickname(nickname)
+        config = cls.bot_config(strategy_key, params)
         team = cls._bot_team(team)
         if cls._saved_colors:
             raise ConflictError(
@@ -747,8 +747,8 @@ class UserManager:
         team: int | None = None,
     ) -> None:
         """Configura o bot da sala: estratégia, parâmetros, nome, cor e equipe. Sem `color`, fica a que tem."""
-        new_nickname = cls._bot_nickname(new_nickname)
-        config = cls._bot_config(strategy_key, params)
+        new_nickname = cls.bot_nickname(new_nickname)
+        config = cls.bot_config(strategy_key, params)
         team = cls._bot_team(team)
 
         with cls._lock:
@@ -816,7 +816,7 @@ class UserManager:
         """Conferido ao iniciar: as regras podem ter mudado desde que o bot entrou na sala."""
         for bot, config in cls.room_bots():
             try:
-                cls._bot_config(config.strategy_key, config.params, start_date)
+                cls.bot_config(config.strategy_key, config.params, start_date)
             except UnprocessableEntityError as error:
                 raise UnprocessableEntityError(
                     f"{bot.nickname} não joga com as regras de agora: {error.detail}"
@@ -917,7 +917,7 @@ class UserManager:
             raise ConflictError("A partida já começou: os bots ficam travados.")
 
     @classmethod
-    def _bot_nickname(cls, nickname: str) -> str:
+    def bot_nickname(cls, nickname: str) -> str:
         nickname = nickname.strip()
         if not nickname or len(nickname) > BOT_NAME_MAX or {"#", "/"} & set(nickname):
             raise UnprocessableEntityError(
@@ -926,7 +926,7 @@ class UserManager:
         return nickname
 
     @classmethod
-    def _bot_config(
+    def bot_config(
         cls,
         strategy_key: str,
         params: dict[str, StrategyParamValue],

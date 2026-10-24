@@ -212,6 +212,15 @@
   background: var(--toast-layer-2);
 }
 
+/* Trecho de mercado gerado: listrado âmbar, distinto do dado real */
+@utility bg-generated {
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--warning-soft) 0 6px,
+    color-mix(in srgb, var(--warning) 22%, var(--warning-soft)) 6px 8px
+  );
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

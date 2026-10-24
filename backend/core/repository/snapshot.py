@@ -1,7 +1,7 @@
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
-from sqlalchemy import func, select
+from sqlalchemy import func, insert, select
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -84,6 +84,38 @@ class SnapshotRepository:
         session.merge(snapshot)
 
         return SnapshotDTO.from_model(snapshot)
+
+    @transactional
+    def create_many(
+        self, session: Session, simulation_id: int, snapshots: list[SnapshotDTO]
+    ) -> None:
+        """Grava os snapshots já calculados numa transação só (o backtest grava em lote)."""
+        if not snapshots:
+            return
+        session.execute(
+            insert(Snapshots).values(
+                [
+                    {
+                        "simulation_id": simulation_id,
+                        **snapshot.model_dump(),
+                    }
+                    for snapshot in snapshots
+                ]
+            )
+        )
+
+    @transactional
+    def contributions(
+        self, session: Session, simulation_id: int
+    ) -> list[tuple[date, Decimal]]:
+        """O aporte acumulado até cada pregão gravado; é igual para todos os jogadores da partida."""
+        rows = session.execute(
+            select(Snapshots.snapshot_date, func.max(Snapshots.total_contribution))
+            .where(Snapshots.simulation_id == simulation_id)
+            .group_by(Snapshots.snapshot_date)
+            .order_by(Snapshots.snapshot_date)
+        ).all()
+        return [(day, total) for day, total in rows]
 
     @transactional
     def get_last_snapshot_date(

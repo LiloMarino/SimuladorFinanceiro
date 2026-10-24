@@ -173,7 +173,22 @@ def test_rolling_volatility_starts_after_a_full_window():
 
     assert [day for day, _ in rolling] == [days[2][0], days[3][0]]
     first = risk.annual_volatility([r for _, r in days[:3]])
-    assert rolling[0][1] == first
+    assert first is not None
+    assert float(rolling[0][1]) == pytest.approx(float(first))
+
+
+def test_rolling_volatility_matches_the_sample_deviation_of_every_window():
+    """A janela deslizante dá o mesmo desvio que refazer a conta de cada janela."""
+    networths = [str(100 + (i * 7) % 11 - (i * 3) % 5) for i in range(40)]
+    days = returns_of(*networths)
+    rolling = risk.rolling_volatility(days, window=5)
+
+    assert len(rolling) == len(days) - 4
+    for index, (_, volatility) in enumerate(rolling):
+        window = [r for _, r in days[index : index + 5]]
+        expected = risk.annual_volatility(window)
+        assert expected is not None
+        assert float(volatility) == pytest.approx(float(expected), abs=1e-12)
 
 
 def test_annual_return_compounds_the_quota():

@@ -13,6 +13,11 @@ from typing import Literal
 from uuid import UUID
 
 from backend.core.dto.achievements import AchievementUnlockedEventDTO
+from backend.core.dto.backtest import (
+    BacktestEndedEventDTO,
+    BacktestProgressEventDTO,
+    BacktestStatusDTO,
+)
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.candle import CandleDTO
@@ -202,6 +207,9 @@ class RealtimeEventCatalog(BaseDTO):
 
     simulation_started: SimulationStatusResponse
     simulation_ended: SimulationEndedEventDTO
+    backtest_started: BacktestStatusDTO
+    backtest_progress: BacktestProgressEventDTO
+    backtest_ended: BacktestEndedEventDTO
     simulation_update: SimulationTickUpdateEventDTO
     speed_update: SpeedUpdateEventDTO
     cash_update: CashUpdateEventDTO

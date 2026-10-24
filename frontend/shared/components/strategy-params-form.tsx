@@ -26,6 +26,8 @@ type StrategyParamsFormProps = {
   cashLabel?: string;
   /** Ação ao lado do título, como "Restaurar padrão" */
   headerAction?: ReactNode;
+  /** Compara cada número com o padrão da estratégia: o que mudou fica em azul, com o aviso "Mudou" */
+  compareToDefault?: boolean;
   onChange: (draft: ParamDraft) => void;
 };
 
@@ -39,6 +41,7 @@ export function StrategyParamsForm({
   cash,
   cashLabel = "o caixa de hoje",
   headerAction,
+  compareToDefault = false,
   onChange,
 }: StrategyParamsFormProps) {
   const percentParam = strategy.params.find((param) => param.kind === "percent");
@@ -81,6 +84,7 @@ export function StrategyParamsForm({
               param={param}
               text={String(draft[param.key] ?? "")}
               saved={saved[param.key]}
+              compareToDefault={compareToDefault}
               error={errors[param.key]}
               onChange={(text) => onChange({ ...draft, [param.key]: text })}
             />
@@ -103,15 +107,17 @@ type NumberFieldProps = {
   param: StrategyParam;
   text: string;
   saved: ParamValues[string];
+  compareToDefault: boolean;
   error: string | undefined;
   onChange: (text: string) => void;
 };
 
-function NumberField({ param, text, saved, error, onChange }: NumberFieldProps) {
+function NumberField({ param, text, saved, compareToDefault, error, onChange }: NumberFieldProps) {
   const unit = param.unit === "%" ? "%" : "";
   const savedNumber = typeof saved === "number" ? saved : null;
+  const changed = compareToDefault && text.trim() !== String(param.default);
   const description =
-    savedNumber !== null && text.trim() !== String(savedNumber)
+    !compareToDefault && savedNumber !== null && text.trim() !== String(savedNumber)
       ? `Era ${savedNumber}${unit} · de ${param.min}${unit} a ${param.max}${unit}`
       : rangeHint(param);
   const id = `strategy-param-${param.key}`;
@@ -122,7 +128,7 @@ function NumberField({ param, text, saved, error, onChange }: NumberFieldProps) 
         <FieldLabel htmlFor={id}>{param.label}</FieldLabel>
         <InfoHint label={`Como ${param.label} muda a estratégia`}>{param.hint}</InfoHint>
       </div>
-      <InputGroup size="lg">
+      <InputGroup size="lg" tone={changed ? "changed" : "default"}>
         <InputGroupInput
           id={id}
           numeric
@@ -134,7 +140,15 @@ function NumberField({ param, text, saved, error, onChange }: NumberFieldProps) 
         {param.unit && <InputGroupAddon align="inline-end">{param.unit}</InputGroupAddon>}
       </InputGroup>
       {error && <FieldError>{error}</FieldError>}
-      <FieldDescription>{description}</FieldDescription>
+      <FieldDescription>
+        {description}
+        {changed && (
+          <>
+            {" · "}
+            <b className="font-semibold text-info">Mudou</b>
+          </>
+        )}
+      </FieldDescription>
     </Field>
   );
 }

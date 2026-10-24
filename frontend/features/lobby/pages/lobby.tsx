@@ -10,6 +10,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
 import { LoadingPage } from "@/pages/loading";
 import type { SimulationSettings } from "@/types";
+import { BacktestBanner } from "../components/backtest-banner";
 import { LobbyHeader } from "../components/lobby-header";
 import { LobbyMatch } from "../components/lobby-match";
 import { useLobbyRules } from "../hooks/useLobbyRules";
@@ -71,6 +72,8 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
     <div className="mx-auto flex max-w-280 flex-col gap-5 px-7 py-10">
       <LobbyHeader isHost={settings.is_host} hostNickname={settings.host_nickname} />
 
+      <BacktestBanner />
+
       <div className="grid items-start gap-5 lg:grid-cols-[1.25fr_1fr]">
         <LobbyPlayersList
           isHost={settings.is_host}
@@ -91,7 +94,7 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
         />
       </div>
 
-      <OfflineTools onOpenSaved={() => setSavedOpen(true)} />
+      <OfflineTools onOpenSaved={() => setSavedOpen(true)} isHost={settings.is_host} />
 
       <SavedSimulationsDialog
         open={savedOpen}

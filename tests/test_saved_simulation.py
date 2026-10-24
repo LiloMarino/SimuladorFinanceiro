@@ -5,9 +5,11 @@ from decimal import Decimal
 
 import pytest
 
+from backend.core.dto.simulation import SimulationResultDTO
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
+from backend.features.simulation import saved_simulation
 from backend.features.simulation.saved_simulation import is_finished
 from backend.routes import simulation as simulation_routes
 from backend.routes.simulation import (
@@ -158,3 +160,67 @@ def test_delete_of_a_missing_match_is_not_found(
 
     with pytest.raises(NotFoundError):
         delete_simulation(404, None)
+
+
+class _StoredResults:
+    """O repositório de resultados guardados, em memória, contando os recálculos."""
+
+    def __init__(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        self.rows: dict[int, tuple[date | None, SimulationResultDTO]] = {}
+        self.computed = 0
+        repo = saved_simulation.repository.simulation
+        monkeypatch.setattr(repo, "get_result", self.rows.get)
+        monkeypatch.setattr(
+            repo,
+            "save_result",
+            lambda simulation_id, as_of, result: self.rows.__setitem__(
+                simulation_id, (as_of, result)
+            ),
+        )
+        monkeypatch.setattr(saved_simulation, "compute_result", self._compute)
+        monkeypatch.setattr(SimulationManager, "_simulation_id", None)
+
+    def _compute(self, _simulation_id: int) -> SimulationResultDTO:
+        self.computed += 1
+        return SimulationResultDTO(
+            leader_reached_goal=False,
+            players_count=2,
+            leader_name="ana",
+            positions={"ana": 1, "bia": 2},
+        )
+
+
+def test_saved_result_is_computed_once_while_the_simulation_does_not_advance(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    stored = _StoredResults(monkeypatch)
+    day = date(2023, 3, 14)
+
+    saved_simulation.saved_result(3, day)
+    result = saved_simulation.saved_result(3, day)
+
+    assert stored.computed == 1
+    assert result.positions == {"ana": 1, "bia": 2}
+
+
+def test_saved_result_is_recomputed_when_the_simulation_advances(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    stored = _StoredResults(monkeypatch)
+
+    saved_simulation.saved_result(3, date(2023, 3, 14))
+    saved_simulation.saved_result(3, date(2023, 3, 15))
+
+    assert stored.computed == 2
+    assert stored.rows[3][0] == date(2023, 3, 15)
+
+
+def test_saved_result_of_the_running_simulation_is_not_stored(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    stored = _StoredResults(monkeypatch)
+    monkeypatch.setattr(SimulationManager, "_simulation_id", 3)
+
+    saved_simulation.saved_result(3, date(2023, 3, 14))
+
+    assert stored.rows == {}

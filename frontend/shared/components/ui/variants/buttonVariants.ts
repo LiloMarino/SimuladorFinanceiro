@@ -11,6 +11,8 @@ export const buttonVariants = cva(
         inverse: "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/80",
         outline:
           "border-input bg-card text-foreground hover:bg-subtle aria-expanded:bg-subtle aria-expanded:text-foreground",
+        // Ação que apaga ou descarta, sem o peso do botão cheio
+        "outline-destructive": "border-input bg-card text-destructive hover:bg-destructive-soft",
         // Gatilho de um painel que fica azul enquanto aberto ("Indicadores" do gráfico)
         "outline-toggle":
           "border-input bg-card text-foreground hover:bg-subtle aria-expanded:border-info-border aria-expanded:bg-info-soft aria-expanded:text-info",

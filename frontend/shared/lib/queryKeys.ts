@@ -19,7 +19,11 @@ export const queryKeys = {
   priceImpactPreview: (k: number, decayDays: number) => ["simulation", "price-impact-preview", k, decayDays] as const,
   simulationPlayers: () => ["simulation", "players"] as const,
   matchPlayers: () => ["simulation", "match-players"] as const,
-  botStrategies: () => ["simulation", "bot-strategies"] as const,
+  botStrategies: (startDate?: string) =>
+    startDate === undefined ? ["simulation", "bot-strategies"] as const : ["simulation", "bot-strategies", startDate] as const,
+  backtestSetup: (from?: number) => ["backtest", "setup", from ?? null] as const,
+  backtestStatus: () => ["backtest", "status"] as const,
+  backtestResult: (simulationId: number) => ["backtest", "result", simulationId] as const,
   botTickers: () => ["simulation", "bot-tickers"] as const,
   economicIndicators: () => ["economic-indicators"] as const,
   fixedIncomeList: () => ["fixed-income", "list"] as const,

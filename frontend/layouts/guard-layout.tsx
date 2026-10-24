@@ -32,6 +32,8 @@ export function GuardLayout() {
   // Autenticado + SEM simulação → /lobby
   const allowedWithoutSimulation = [
     "/lobby",
+    "/backtest/new",
+    "/backtest/running",
     "/import-assets",
     "/compare-simulations",
     "/correlation",
@@ -39,6 +41,11 @@ export function GuardLayout() {
     "/match-result/:simulationId",
   ];
   if (isAuthenticated && !hasSimulation) {
+    // O host de um backtest em andamento acompanha o andamento no lugar do lobby e da configuração
+    const runsBacktest = simulation.backtest?.host_nickname === session?.user?.nickname;
+    if (runsBacktest && (pathname === "/lobby" || pathname === "/backtest/new")) {
+      return <Navigate to="/backtest/running" replace />;
+    }
     if (!allowedWithoutSimulation.some((pattern) => matchPath(pattern, pathname))) {
       return <Navigate to="/lobby" replace state={{ from: { pathname } } satisfies RedirectState} />;
     }

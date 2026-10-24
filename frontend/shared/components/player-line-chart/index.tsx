@@ -132,7 +132,7 @@ export function PlayerLineChart({
                 stroke={s.color}
                 strokeOpacity={s.muted ? 0.35 : 1}
                 strokeWidth={s.emphasis ? 2.5 : 1.5}
-                strokeDasharray={s.dashed ? "6 4" : undefined}
+                strokeDasharray={s.dashed ? "6 4" : s.dotted ? "2 3" : undefined}
                 dot={false}
                 connectNulls
                 hide={!visible[s.key]}

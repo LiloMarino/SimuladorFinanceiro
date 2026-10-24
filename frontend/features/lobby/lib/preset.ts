@@ -6,7 +6,7 @@ import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type { Preset, PresetRuleGroup, SimulationSettingsData } from "@/types";
 import type { SimulationFormValues } from "../components/lobby-match";
 import { joinNames } from "./join-names";
-import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "./price-impact";
+import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "@/shared/lib/price-impact";
 
 /** O servidor recusa com 409 o nome que outro preset já usa */
 export const NAME_TAKEN_STATUS = 409;

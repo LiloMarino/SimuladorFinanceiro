@@ -258,7 +258,7 @@ def test_batch_reads_use_active_match_version_and_import_uses_only_real_common_p
         generated.origin = "GENERATED"
         session.add_all([copy, generated])
         session.commit()
-    monkeypatch.setattr(SimulationManager, "get_active_simulation_id", lambda: 7)
+    monkeypatch.setattr(SimulationManager, "find_active_simulation_id", lambda: 7)
     candles = repository.stock.get_stocks_by_date(TODAY)
     assert next(c.close for c in candles if c.ticker == "ZETA3") == 99
     assert repository.stock.get_recent_closes(TODAY, 2)["ZETA3"] == [12, 99]

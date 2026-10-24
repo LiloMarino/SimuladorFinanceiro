@@ -11,6 +11,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { useBacktestStatus } from "@/shared/hooks/queries/useBacktestStatus";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
@@ -55,7 +56,7 @@ import {
   withdrawalRateFraction,
 } from "../lib/life-rules";
 import { dateFieldError, isIsoDate } from "@/shared/lib/utils/date-field";
-import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "../lib/price-impact";
+import { PRICE_IMPACT_MODE_LABELS, priceImpactModeOf } from "@/shared/lib/price-impact";
 import { CoverageAlerts } from "./coverage-alerts";
 import { joinNames } from "../lib/join-names";
 import { RulesSheet } from "./rules-sheet";
@@ -221,12 +222,15 @@ export function LobbyMatch({
 
   const { mutate: distributeTeams, isPending: distributing } = useDistributeTeams();
 
+  // Uma partida por vez: com backtest rodando o servidor recusa iniciar ou continuar
+  const { data: backtest } = useBacktestStatus();
+  const backtestRunning = !!backtest?.progress;
   const busy = creating || continuing;
   // Em equipes todo mundo precisa estar numa e a partida, ter pelo menos duas
   const inTeams = (selectedSimulation?.player_grouping ?? values.playerGrouping) === "TEAMS";
   const teams = checkTeams(roomPlayers ?? [], savedPlayers, selectedSimulation?.team_naming ?? values.teamNaming);
   const teamsBlock = inTeams && !teams.ready;
-  const canStart = isHost && !busy && !blockedByCoverage && form.formState.isValid && !teamsBlock;
+  const canStart = isHost && !busy && !backtestRunning && !blockedByCoverage && form.formState.isValid && !teamsBlock;
 
   // Com partida selecionada o card mostra as regras dela, em só leitura; sem seleção, as da nova partida
   const rules = selectedSimulation ? toFormValues(selectedSimulation) : values;
@@ -458,7 +462,7 @@ export function LobbyMatch({
             {isHost ? (
               selectedSimulation ? (
                 <div className="grid gap-2">
-                  <Button size="xl" className="min-w-0" disabled={busy || teamsBlock} onClick={() => continueSimulation()}>
+                  <Button size="xl" className="min-w-0" disabled={busy || teamsBlock || backtestRunning} onClick={() => continueSimulation()}>
                     {continuing ? <Spinner /> : <Play />}
                     <span className="min-w-0 truncate">Continuar {selectedSimulation.name}</span>
                   </Button>

@@ -353,6 +353,14 @@ class Simulations(Base):
     show_maturity_projection: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("true")
     )
+    # Partida só de estratégias, rodada pelo host sem espera entre os pregões
+    is_backtest: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    # Ranking calculado até o último dia gravado (`result_as_of`); serve a lista de
+    # salvas enquanto a simulação não avança
+    result: Mapped[dict | None] = mapped_column(JSONB)
+    result_as_of: Mapped[datetime.date | None] = mapped_column(Date)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )

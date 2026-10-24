@@ -6,7 +6,10 @@ from backend.core.dto.simulation import (
     SimulationSummaryDTO,
 )
 from backend.core.enum import PlayerGrouping
-from backend.core.exceptions.http_exceptions import UnprocessableEntityError
+from backend.core.exceptions.http_exceptions import (
+    ConflictError,
+    UnprocessableEntityError,
+)
 from backend.core.indicators import ensure_indicator_coverage
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -23,9 +26,15 @@ from backend.features.statistics.report import build_overview_report
 
 
 class SimulationLoader:
+    @staticmethod
+    def _ensure_no_backtest() -> None:
+        if SimulationManager.has_backtest():
+            raise ConflictError("Há um backtest em andamento.")
+
     @classmethod
     def create(cls, settings: SimulationSettingsDTO) -> SimulationDTO:
         """Persiste, instancia e inicia uma nova simulação com quem está na sala."""
+        cls._ensure_no_backtest()
         ensure_indicator_coverage(settings.start_date)
         in_teams = settings.player_grouping is PlayerGrouping.TEAMS
         if in_teams:
@@ -80,6 +89,9 @@ class SimulationLoader:
         Quem está na sala e nunca jogou essa partida entra nela agora, com a cor
         que tem na sala e o depósito inicial datado do último dia processado.
         """
+        cls._ensure_no_backtest()
+        if summary.is_backtest:
+            raise UnprocessableEntityError("Backtest não se continua: rode de novo.")
         resume_from = resume_point(summary.id)
 
         if is_finished(summary.end_date, resume_from):

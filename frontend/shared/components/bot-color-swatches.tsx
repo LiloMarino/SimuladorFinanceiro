@@ -4,8 +4,8 @@ import { cn } from "@/shared/lib/utils";
 import type { RoomPlayer } from "@/types";
 
 type BotColorSwatchesProps = {
-  /** Quem já tem cor na sala: a cor deles aparece riscada */
-  owners: RoomPlayer[];
+  /** Quem já tem cor (na sala ou no backtest): a cor deles aparece riscada */
+  owners: Pick<RoomPlayer, "nickname" | "color">[];
   selected: string;
   onSelect: (color: string) => void;
 };

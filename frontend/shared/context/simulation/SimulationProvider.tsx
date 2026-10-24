@@ -59,6 +59,15 @@ export function SimulationProvider({ children }: PropsWithChildren) {
     true,
   );
 
+  // O backtest não é partida, mas o guard decide a rota do host pelo status: ele muda com o início e o fim
+  useRealtime("backtest_started", () => {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.simulationStatus() });
+  });
+  useRealtime("backtest_ended", () => {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.simulationStatus() });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.simulationList() });
+  });
+
   return (
     <SimulationContext.Provider
       value={{

@@ -28,8 +28,8 @@ import {
   VS_CDI,
 } from "../../lib/metrics";
 import { CreditCostCard } from "./credit-cost-card";
-import { PlayerLineChart, type LineSeries } from "./player-line-chart";
-import type { ChartAxis } from "./player-line-chart/utils";
+import { PlayerLineChart, type LineSeries } from "@/shared/components/player-line-chart";
+import type { ChartAxis } from "@/shared/components/player-line-chart/utils";
 import { ChartCard, MetricsTable, TabStatus, type ReportProps } from "./shared";
 
 // Pregões por mês, para ler o eixo "desde o início" em meses

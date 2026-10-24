@@ -118,6 +118,18 @@ function ProgressEndMark() {
   );
 }
 
+/** Trecho listrado da trilha (variante `default`): a parte do caminho que é mercado gerado. */
+function ProgressGenerated({ from, to }: { from: number; to: number }) {
+  return (
+    <span
+      data-slot="progress-generated"
+      aria-hidden="true"
+      className="absolute inset-y-0 bg-generated"
+      style={{ left: `${from * 100}%`, width: `${Math.max(to - from, 0) * 100}%` }}
+    />
+  );
+}
+
 function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
   return (
     <ProgressPrimitive.Label className={cn("text-sm font-medium", className)} data-slot="progress-label" {...props} />
@@ -139,6 +151,7 @@ export {
   ProgressTrack,
   ProgressIndicator,
   ProgressEndMark,
+  ProgressGenerated,
   ProgressLabel,
   ProgressMarker,
   ProgressValue,

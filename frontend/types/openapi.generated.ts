@@ -1713,7 +1713,7 @@ export interface paths {
         };
         /**
          * Listar as estratégias para os bots
-         * @description As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início das regras do lobby, e os nomes sugeridos para o bot. Apenas o host pode executar.
+         * @description As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Apenas o host pode executar.
          */
         get: operations["list_bot_strategies_api_simulation_bots_strategies_get"];
         put?: never;
@@ -1862,6 +1862,126 @@ export interface paths {
          * @description Quem chegou depois do início escolhe uma cor livre (e a equipe, em partida em equipes) e passa a jogar: recebe o depósito inicial no dia corrente e entra nas estatísticas e no ranking. Se a cor já tem dono, a resposta é 409.
          */
         post: operations["join_match_api_simulation_join_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backtest/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preparar a tela de novo backtest
+         * @description Até onde há mercado (primeiro dado, fim do real e fim do gerado) e a configuração inicial: a do backtest mais recente ou, com `from`, a de um backtest salvo (rodar de novo). O nome vem livre. Apenas o host pode executar.
+         */
+        get: operations["get_setup_api_backtest_setup_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backtest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Iniciar um backtest
+         * @description Roda as estratégias escolhidas sobre o mesmo mercado, sem esperar entre os pregões. Recusa com 409 se já há partida ou backtest, e com 422 se o período, as vagas ou os parâmetros não valem. Apenas o host pode executar.
+         */
+        post: operations["start_backtest_api_backtest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backtest/stop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Parar o backtest e salvar
+         * @description Para o backtest em andamento e o deixa salvo até onde chegou. Apenas o host pode executar.
+         */
+        post: operations["stop_backtest_api_backtest_stop_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backtest/discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Descartar o backtest
+         * @description Para o backtest em andamento e apaga o que ele gravou. Apenas o host pode executar.
+         */
+        post: operations["discard_backtest_api_backtest_discard_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backtest/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Andamento do backtest
+         * @description O andamento do backtest que roda, com os pontos do gráfico e as falhas; vazio quando não há. Qualquer jogador pode consultar.
+         */
+        get: operations["get_status_api_backtest_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/backtest/{simulation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Backtest salvo
+         * @description A configuração do backtest salvo, onde parou e a série de referência (aportado, CDI e Ibovespa) para o relatório.
+         */
+        get: operations["get_backtest_api_backtest__simulation_id__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2207,6 +2327,229 @@ export interface components {
             period: number;
             /** Points */
             points: components["schemas"]["IndicatorPointDTO"][];
+        };
+        /**
+         * BacktestConfigDTO
+         * @description Tudo o que o host escolhe para um backtest: o período, o dinheiro e as estratégias.
+         */
+        "BacktestConfigDTO-Input": {
+            /** Name */
+            name: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Starting Cash */
+            starting_cash: number | string;
+            /** Monthly Contribution */
+            monthly_contribution: number | string;
+            price_impact: components["schemas"]["BacktestPriceImpact"];
+            /** Participants */
+            participants: components["schemas"]["BacktestParticipantDTO"][];
+        };
+        /**
+         * BacktestConfigDTO
+         * @description Tudo o que o host escolhe para um backtest: o período, o dinheiro e as estratégias.
+         */
+        "BacktestConfigDTO-Output": {
+            /** Name */
+            name: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Starting Cash */
+            starting_cash: string;
+            /** Monthly Contribution */
+            monthly_contribution: string;
+            price_impact: components["schemas"]["BacktestPriceImpact"];
+            /** Participants */
+            participants: components["schemas"]["BacktestParticipantDTO"][];
+        };
+        /**
+         * BacktestCoverageDTO
+         * @description Até onde há mercado para o backtest, somando todas as séries.
+         */
+        BacktestCoverageDTO: {
+            /** First Date */
+            first_date: string | null;
+            /** Real End */
+            real_end: string | null;
+            /** Generated End */
+            generated_end: string | null;
+        };
+        /** BacktestEndedEventDTO */
+        BacktestEndedEventDTO: {
+            /** Reason */
+            reason: string;
+            /** Simulation Id */
+            simulation_id: number;
+        };
+        /**
+         * BacktestFailureDTO
+         * @description Estratégia que deu erro: para de operar e fica com a carteira que tinha.
+         */
+        BacktestFailureDTO: {
+            /** Nickname */
+            nickname: string;
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Message */
+            message: string;
+        };
+        /**
+         * BacktestParticipantDTO
+         * @description Uma estratégia no backtest: vira um jogador sem pessoa, com carteira própria.
+         */
+        BacktestParticipantDTO: {
+            /** Nickname */
+            nickname: string;
+            /** Color */
+            color: string;
+            /** Strategy Key */
+            strategy_key: string;
+            /** Params */
+            params?: {
+                [key: string]: components["schemas"]["StrategyParamValue"];
+            };
+        };
+        /**
+         * BacktestPointDTO
+         * @description O retrato de um dia no gráfico: o patrimônio de cada estratégia e as referências.
+         */
+        BacktestPointDTO: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Equity */
+            equity: string[];
+            /** Contributed */
+            contributed: string;
+            /** Cdi */
+            cdi: string;
+            /** Ibov */
+            ibov: string | null;
+        };
+        /**
+         * BacktestPriceImpact
+         * @description Os níveis do impacto de preço que o backtest oferece: desligado, ou um dos dois ajustes prontos.
+         * @enum {string}
+         */
+        BacktestPriceImpact: "OFF" | "REALISTIC" | "STRONG";
+        /** BacktestProgressDTO */
+        BacktestProgressDTO: {
+            /** Simulation Id */
+            simulation_id: number;
+            /** Name */
+            name: string;
+            /** Host Nickname */
+            host_nickname: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Total Days */
+            total_days: number;
+            /** Done Days */
+            done_days: number;
+            /** Current Date */
+            current_date: string | null;
+            /** Seconds Left */
+            seconds_left: number | null;
+        };
+        /**
+         * BacktestProgressEventDTO
+         * @description O que mudou desde o último aviso: o andamento e os pontos e falhas novos.
+         */
+        BacktestProgressEventDTO: {
+            progress: components["schemas"]["BacktestProgressDTO"];
+            /** Points */
+            points: components["schemas"]["BacktestPointDTO"][];
+            /** Failures */
+            failures: components["schemas"]["BacktestFailureDTO"][];
+        };
+        /** BacktestReferencePointDTO */
+        BacktestReferencePointDTO: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Contributed */
+            contributed: string;
+            /** Cdi */
+            cdi: string;
+            /** Ibov */
+            ibov: string | null;
+        };
+        /**
+         * BacktestResultDTO
+         * @description O backtest salvo: a configuração, onde parou e a série de referência para o relatório.
+         */
+        BacktestResultDTO: {
+            /** Simulation Id */
+            simulation_id: number;
+            config: components["schemas"]["BacktestConfigDTO-Output"];
+            /** Stopped On */
+            stopped_on: string | null;
+            /** Finished */
+            finished: boolean;
+            /** Total Days */
+            total_days: number;
+            /** Done Days */
+            done_days: number;
+            /** References */
+            references: components["schemas"]["BacktestReferencePointDTO"][];
+            /** Failures */
+            failures: components["schemas"]["BacktestFailureDTO"][];
+        };
+        /** BacktestSetupDTO */
+        BacktestSetupDTO: {
+            coverage: components["schemas"]["BacktestCoverageDTO"];
+            config: components["schemas"]["BacktestConfigDTO-Output"] | null;
+            /** Suggested Name */
+            suggested_name: string;
+        };
+        /** BacktestStatusDTO */
+        BacktestStatusDTO: {
+            progress: components["schemas"]["BacktestProgressDTO"] | null;
+            /** Participants */
+            participants: components["schemas"]["BacktestParticipantDTO"][];
+            /** Points */
+            points: components["schemas"]["BacktestPointDTO"][];
+            /** Failures */
+            failures: components["schemas"]["BacktestFailureDTO"][];
+        };
+        /**
+         * BacktestStoppedDTO
+         * @description O backtest parado e salvo até onde chegou.
+         */
+        BacktestStoppedDTO: {
+            /** Simulation Id */
+            simulation_id: number;
         };
         /** BandsSeriesDTO */
         BandsSeriesDTO: {
@@ -4438,6 +4781,9 @@ export interface components {
         RealtimeEventCatalog: {
             simulation_started: components["schemas"]["SimulationStatusResponse"];
             simulation_ended: components["schemas"]["SimulationEndedEventDTO"];
+            backtest_started: components["schemas"]["BacktestStatusDTO"];
+            backtest_progress: components["schemas"]["BacktestProgressEventDTO"];
+            backtest_ended: components["schemas"]["BacktestEndedEventDTO"];
             simulation_update: components["schemas"]["SimulationTickUpdateEventDTO"];
             speed_update: components["schemas"]["SpeedUpdateEventDTO"];
             cash_update: components["schemas"]["CashUpdateEventDTO"];
@@ -4617,6 +4963,8 @@ export interface components {
             show_maturity_projection: boolean;
             /** Id */
             id: number;
+            /** Is Backtest */
+            is_backtest: boolean;
             /**
              * Created At
              * Format: date-time
@@ -4634,6 +4982,8 @@ export interface components {
             players_count: number;
             /** Winner Nickname */
             winner_nickname: string | null;
+            /** Leader Nickname */
+            leader_nickname: string | null;
             /** My Position */
             my_position: number | null;
             /** Room Overflow */
@@ -5190,6 +5540,7 @@ export interface components {
             /** Active */
             active: boolean;
             simulation?: components["schemas"]["SimulationDTO"] | null;
+            backtest?: components["schemas"]["BacktestProgressDTO"] | null;
         };
         /** SimulationTickUpdateEventDTO */
         SimulationTickUpdateEventDTO: {
@@ -9724,7 +10075,9 @@ export interface operations {
     };
     list_bot_strategies_api_simulation_bots_strategies_get: {
         parameters: {
-            query?: never;
+            query?: {
+                start_date?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -10059,6 +10412,240 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_setup_api_backtest_setup_get: {
+        parameters: {
+            query?: {
+                from?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacktestSetupDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    start_backtest_api_backtest_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BacktestConfigDTO-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacktestStatusDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    stop_backtest_api_backtest_stop_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacktestStoppedDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    discard_backtest_api_backtest_discard_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_status_api_backtest_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacktestStatusDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_backtest_api_backtest__simulation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                simulation_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacktestResultDTO"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

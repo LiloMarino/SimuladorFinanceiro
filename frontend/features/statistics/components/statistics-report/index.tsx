@@ -1,3 +1,4 @@
+import type { ComponentType } from "react";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { CompositionTab } from "./composition-tab";
@@ -25,9 +26,12 @@ export function StatisticsReport({
   currentPlayerName,
   onlyPlayer,
   title,
+  overview: Overview = OverviewTab,
 }: ReportProps & {
   /** Com título, as abas ficam no cabeçalho de um card, na mesma linha dele */
   title?: string;
+  /** O conteúdo da aba Geral, para quem tem um Geral próprio (o backtest) */
+  overview?: ComponentType<ReportProps>;
 }) {
   const tabs = (
     <TabsList>
@@ -38,11 +42,14 @@ export function StatisticsReport({
       ))}
     </TabsList>
   );
-  const contents = TABS.map(({ value, Content }) => (
-    <TabsContent key={value} value={value}>
-      <Content simulationIds={simulationIds} currentPlayerName={currentPlayerName} onlyPlayer={onlyPlayer} />
-    </TabsContent>
-  ));
+  const contents = TABS.map(({ value, Content }) => {
+    const Tab = value === "overview" ? Overview : Content;
+    return (
+      <TabsContent key={value} value={value}>
+        <Tab simulationIds={simulationIds} currentPlayerName={currentPlayerName} onlyPlayer={onlyPlayer} />
+      </TabsContent>
+    );
+  });
 
   return (
     <Tabs defaultValue={TABS[0].value}>

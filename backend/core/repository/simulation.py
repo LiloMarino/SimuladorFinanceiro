@@ -1,19 +1,25 @@
 import random
 import re
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
-from backend.core.dto.simulation import SimulationSettingsDTO, SimulationSummaryDTO
+from backend.core.dto.simulation import (
+    SimulationResultDTO,
+    SimulationSettingsDTO,
+    SimulationSummaryDTO,
+)
 from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.models.models import (
     EconomicIndicatorHistory,
+    SimulationPlayers,
     Simulations,
     StockPriceHistory,
+    Users,
 )
 
 _DEFAULT_NAME_PREFIX = "Simulação #"
@@ -23,7 +29,11 @@ _DEFAULT_NAME_PATTERN = re.compile(r"^Simulação #(\d+)$")
 class SimulationRepository:
     @transactional
     def create_simulation(
-        self, session: Session, settings: SimulationSettingsDTO
+        self,
+        session: Session,
+        settings: SimulationSettingsDTO,
+        *,
+        is_backtest: bool = False,
     ) -> int:
         now = datetime.now(UTC)
         simulation = Simulations(
@@ -49,6 +59,7 @@ class SimulationRepository:
             team_naming=settings.team_naming.value,
             show_equivalent_rate=settings.show_equivalent_rate,
             show_maturity_projection=settings.show_maturity_projection,
+            is_backtest=is_backtest,
             created_at=now,
             last_simulated_at=now,
         )
@@ -79,6 +90,34 @@ class SimulationRepository:
             stmt = stmt.where(Simulations.name.ilike(f"%{search}%"))
         simulations = session.scalars(stmt).all()
         return [self._to_summary(s) for s in simulations]
+
+    @transactional
+    def get_result(
+        self, session: Session, simulation_id: int
+    ) -> tuple[date | None, SimulationResultDTO] | None:
+        """O ranking guardado e o último dia gravado que ele cobre; None se nunca foi calculado."""
+        row = session.execute(
+            select(Simulations.result_as_of, Simulations.result).where(
+                Simulations.id == simulation_id
+            )
+        ).one_or_none()
+        if row is None or row.result is None:
+            return None
+        return row.result_as_of, SimulationResultDTO.model_validate(row.result)
+
+    @transactional
+    def save_result(
+        self,
+        session: Session,
+        simulation_id: int,
+        as_of: date | None,
+        result: SimulationResultDTO,
+    ) -> None:
+        session.execute(
+            update(Simulations)
+            .where(Simulations.id == simulation_id)
+            .values(result=result.to_json(), result_as_of=as_of)
+        )
 
     @transactional
     def get_last_simulated(self, session: Session) -> SimulationSummaryDTO | None:
@@ -139,6 +178,14 @@ class SimulationRepository:
         # Jogadores, eventos e snapshots saem em cascata pelas chaves estrangeiras;
         # a cópia congelada das séries (version = id da partida) não tem chave
         # estrangeira e sai na mesma transação.
+        bot_ids = session.scalars(
+            select(Users.id)
+            .join(SimulationPlayers, SimulationPlayers.user_id == Users.id)
+            .where(
+                SimulationPlayers.simulation_id == simulation_id,
+                Users.is_bot.is_(True),
+            )
+        ).all()
         session.execute(
             delete(EconomicIndicatorHistory).where(
                 EconomicIndicatorHistory.version == simulation_id
@@ -151,6 +198,15 @@ class SimulationRepository:
             delete(Simulations)
             .where(Simulations.id == simulation_id)
             .returning(Simulations.id)
+        )
+        # O bot é de uma partida só: sem ela, o usuário dele não serve a mais ninguém
+        session.execute(
+            delete(Users).where(
+                Users.id.in_(bot_ids),
+                ~select(SimulationPlayers.user_id)
+                .where(SimulationPlayers.user_id == Users.id)
+                .exists(),
+            )
         )
         return deleted_id is not None
 
@@ -178,6 +234,7 @@ class SimulationRepository:
             team_naming=TeamNaming(simulation.team_naming),
             show_equivalent_rate=simulation.show_equivalent_rate,
             show_maturity_projection=simulation.show_maturity_projection,
+            is_backtest=simulation.is_backtest,
             created_at=simulation.created_at,
             last_simulated_at=simulation.last_simulated_at,
         )

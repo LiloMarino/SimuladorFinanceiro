@@ -35,6 +35,7 @@ from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
+from backend.features.backtest import service as backtest_service
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     SimulationDeletedEventDTO,
@@ -189,6 +190,10 @@ def simulation_status():
     """
     Retorna o status atual da simulação.
     """
+    if SimulationManager.has_backtest():
+        return SimulationStatusResponse(
+            active=False, simulation=None, backtest=backtest_service.status().progress
+        )
     try:
         sim = SimulationManager.get_active_simulation()
         data = sim.settings
@@ -248,8 +253,13 @@ def select_simulation(payload: SelectSimulationRequest, _: HostVerified):
     """
     if SimulationManager.has_active_simulation():
         raise ConflictError("Já existe uma partida em andamento.")
-    if repository.simulation.get_simulation(payload.id) is None:
+    if SimulationManager.has_backtest():
+        raise ConflictError("Há um backtest em andamento.")
+    selected = repository.simulation.get_simulation(payload.id)
+    if selected is None:
         raise NotFoundError("Simulação não encontrada.")
+    if selected.is_backtest:
+        raise ConflictError("Backtest não se continua: rode de novo.")
 
     UserManager.apply_saved_colors(
         repository.simulation_player.colors(payload.id),
@@ -310,7 +320,7 @@ def delete_simulation(simulation_id: int, _: HostVerified):
     Exclui uma simulação salva e avisa a sala para atualizar a lista.
     """
     if (
-        SimulationManager.has_active_simulation()
+        SimulationManager.has_running_simulation()
         and SimulationManager.get_active_simulation_id() == simulation_id
     ):
         raise ConflictError("Esta partida está em andamento.")
@@ -488,14 +498,14 @@ def get_match_players():
     "/bots/strategies",
     response_model=list[StrategyInfoDTO],
     summary="Listar as estratégias para os bots",
-    description="As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início das regras do lobby, e os nomes sugeridos para o bot. Apenas o host pode executar.",
+    description="As estratégias do app com os parâmetros, a faixa de cada um e o padrão calculado para a data de início (a informada em `start_date` ou, sem ela, a das regras do lobby), e os nomes sugeridos para o bot. Apenas o host pode executar.",
 )
-def list_bot_strategies(_: HostVerified):
+def list_bot_strategies(_: HostVerified, start_date: date | None = None):
     """
-    Lista as estratégias que um bot da sala pode jogar.
+    Lista as estratégias que um bot pode jogar.
     """
     return catalog.infos(
-        SettingsManager.get().start_date, None, catalog.known_tickers()
+        start_date or SettingsManager.get().start_date, None, catalog.known_tickers()
     )
 
 

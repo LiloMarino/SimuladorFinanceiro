@@ -1,75 +1,97 @@
-import { Controller, useForm, useWatch } from "react-hook-form";
+import type { ReactNode } from "react";
+import { Controller, useForm, useWatch, type UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Dices, UserPlus } from "lucide-react";
+import { BotColorSwatches } from "@/shared/components/bot-color-swatches";
+import { BotNameField } from "@/shared/components/bot-name-field";
 import { ErrorState } from "@/shared/components/error-state";
 import { InfoHint } from "@/shared/components/info-hint";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { StrategyParamsForm } from "@/shared/components/strategy-params-form";
-import { TeamGrid } from "@/shared/components/team-grid";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/shared/components/ui/dialog";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
-import { Input } from "@/shared/components/ui/input";
+import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
-import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
-import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
+import { useBotStrategies } from "@/shared/hooks/queries/useBotStrategies";
+import { useBotTickers } from "@/shared/hooks/queries/useBotTickers";
+import type { BotFormValues, TakenSlot } from "@/shared/lib/bot-form";
+import { drawBotName, isDrawnName, nameTaken } from "@/shared/lib/bot-names";
 import { GROUP_SECTION } from "@/shared/lib/strategy-groups";
-import { defaultValues, draftErrors, fromDraft, toDraft } from "@/shared/lib/strategy-params";
+import { defaultValues, draftErrors, fromDraft, toDraft, type ParamValues } from "@/shared/lib/strategy-params";
 import { cn } from "@/shared/lib/utils";
-import type { PlayerGrouping, RoomPlayer, StrategyGroup, StrategyInfo, TeamNaming } from "@/types";
-import { useAddBot } from "../hooks/mutations/useAddBot";
-import { useUpdateBot } from "../hooks/mutations/useUpdateBot";
-import { useBotStrategies } from "../hooks/queries/useBotStrategies";
-import { useBotTickers } from "../hooks/queries/useBotTickers";
-import { addValues, editValues, NAME_TAKEN_STATUS, type BotFormValues } from "../lib/bot-form";
-import { drawBotName, isDrawnName, nameTaken } from "../lib/bot-names";
-import { BotColorSwatches } from "./bot-color-swatches";
+import type { StrategyGroup, StrategyInfo } from "@/types";
 
 const GROUPS: StrategyGroup[] = ["reference", "tactic"];
 const BOT_NAME_MAX = 30;
-const NAME_TAKEN_MESSAGE = "Já tem um jogador com esse nome na sala. Sorteie outro ou mude.";
+
+/** O que o diálogo entrega ao confirmar: os campos do formulário e os parâmetros já como números. */
+export type BotSubmit = BotFormValues & { params: ParamValues };
+
+export type BotSubmitControls = {
+  close: () => void;
+  /** O servidor recusou o nome: a mensagem aparece no campo */
+  refuseName: () => void;
+};
 
 type BotDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** O bot a configurar; sem ele, o diálogo adiciona um */
-  bot?: RoomPlayer;
-  grouping: PlayerGrouping;
-  naming: TeamNaming;
+  title: string;
+  description: string;
+  /** Data de início que fixa a faixa dos parâmetros; sem ela vale a das regras do lobby */
+  startDate?: string;
+  /** Quem já ocupa nome e cor; o bot em edição fica de fora */
+  others: TakenSlot[];
+  /** O dinheiro do exemplo em reais dos parâmetros e de onde ele vem */
+  startingCash: string;
+  cashLabel: string;
+  /** Os valores do formulário, resolvidos com a lista de estratégias já carregada */
+  initial: (strategies: StrategyInfo[]) => BotFormValues;
+  /** Parâmetros salvos do bot em edição, para o "Era X" */
+  saved?: { strategyKey: string; params: ParamValues };
+  nameTakenMessage: string;
+  nameHelp: string;
+  submitLabel: string;
+  submitIcon?: ReactNode;
+  saving: boolean;
+  /** Campos a mais depois da cor, como a equipe da sala */
+  extraFields?: (form: UseFormReturn<BotFormValues>, others: TakenSlot[]) => ReactNode;
+  /** Compara os parâmetros com o padrão da estratégia, em vez de com o salvo */
+  compareToDefault?: boolean;
+  /** Os dados que chegam por fora do diálogo (a sala, as regras) ainda carregam */
+  loading?: boolean;
+  onSubmit: (bot: BotSubmit, controls: BotSubmitControls) => void;
 };
 
-/** Adicionar ou configurar um bot: a estratégia à esquerda e, à direita, o nome, a cor, a equipe e os parâmetros. */
-export function BotDialog({ open, onOpenChange, bot, grouping, naming }: BotDialogProps) {
+/** Adicionar ou configurar um bot: a estratégia à esquerda e, à direita, o nome, a cor e os parâmetros. */
+export function BotDialog({ open, onOpenChange, ...content }: BotDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent flush className="max-h-[calc(100vh-4rem)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden sm:max-w-245">
-        <BotDialogContent bot={bot} grouping={grouping} naming={naming} onClose={() => onOpenChange(false)} />
+        <BotDialogContent {...content} onClose={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>
   );
 }
 
-type BotDialogContentProps = Pick<BotDialogProps, "bot" | "grouping" | "naming"> & { onClose: () => void };
+type BotDialogContentProps = Omit<BotDialogProps, "open" | "onOpenChange"> & { onClose: () => void };
 
 /** Cabeçalho e a lista de estratégias resolvida: o formulário só monta com o dado pronto. */
-function BotDialogContent({ bot, grouping, naming, onClose }: BotDialogContentProps) {
-  const strategies = useBotStrategies();
+function BotDialogContent({ title, description, startDate, loading = false, onClose, ...form }: BotDialogContentProps) {
+  const strategies = useBotStrategies(startDate);
   const tickers = useBotTickers();
-  const { data: players } = useRoomPlayers();
-  const { data: settings } = useSimulationSettings();
 
-  const ready = strategies.data && strategies.data.length > 0 && players && settings;
+  const ready = strategies.data && strategies.data.length > 0 && !loading;
 
   return (
     <>
       {/* Cabeçalho */}
       <div className="border-b px-6 py-5 pr-14">
-        <DialogTitle large>{bot ? "Configurar bot" : "Adicionar bot"}</DialogTitle>
-        <DialogDescription>Joga sozinho, com carteira própria e as mesmas regras de dinheiro de todos.</DialogDescription>
+        <DialogTitle large>{title}</DialogTitle>
+        <DialogDescription>{description}</DialogDescription>
       </div>
 
       {strategies.error ? (
@@ -82,16 +104,7 @@ function BotDialogContent({ bot, grouping, naming, onClose }: BotDialogContentPr
           />
         </div>
       ) : ready ? (
-        <BotForm
-          strategies={strategies.data}
-          tickerOptions={tickers.data ?? []}
-          players={players}
-          startingCash={settings.simulation.starting_cash}
-          bot={bot}
-          grouping={grouping}
-          naming={naming}
-          onClose={onClose}
-        />
+        <BotForm strategies={strategies.data} tickerOptions={tickers.data ?? []} onClose={onClose} {...form} />
       ) : (
         <BotDialogSkeleton />
       )}
@@ -115,27 +128,39 @@ function BotDialogSkeleton() {
   );
 }
 
-type BotFormProps = Pick<BotDialogProps, "bot" | "grouping" | "naming"> & {
+type BotFormProps = Omit<BotDialogContentProps, "title" | "description" | "startDate" | "loading"> & {
   strategies: StrategyInfo[];
   tickerOptions: string[];
-  players: RoomPlayer[];
-  startingCash: string;
-  onClose: () => void;
 };
 
-function BotForm({ strategies, tickerOptions, players, startingCash, bot, grouping, naming, onClose }: BotFormProps) {
-  // Cor, nome e equipe dos outros jogadores: o bot em edição não conta contra si mesmo
-  const others = players.filter((p) => p.nickname !== bot?.nickname);
+function BotForm({
+  strategies,
+  tickerOptions,
+  others,
+  startingCash,
+  cashLabel,
+  initial,
+  saved,
+  nameTakenMessage,
+  nameHelp,
+  submitLabel,
+  submitIcon,
+  saving,
+  extraFields,
+  compareToDefault,
+  onSubmit,
+  onClose,
+}: BotFormProps) {
   const takenNames = others.map((p) => p.nickname);
 
-  // O nome vale contra quem está na sala agora: a validação roda a cada digitação
+  // O nome vale contra quem ocupa nomes agora: a validação roda a cada digitação
   const schema = z.object({
     nickname: z
       .string()
       .trim()
       .min(1, "Dê um nome ao bot.")
       .max(BOT_NAME_MAX, `Use até ${BOT_NAME_MAX} letras.`)
-      .refine((name) => !nameTaken(name, takenNames), NAME_TAKEN_MESSAGE),
+      .refine((name) => !nameTaken(name, takenNames), nameTakenMessage),
     strategyKey: z.string(),
     color: z.string(),
     team: z.number().nullable(),
@@ -145,13 +170,9 @@ function BotForm({ strategies, tickerOptions, players, startingCash, bot, groupi
   const form = useForm<BotFormValues>({
     resolver: zodResolver(schema),
     mode: "onChange",
-    defaultValues: bot ? editValues(strategies, bot) : addValues(strategies, players),
+    defaultValues: initial(strategies),
   });
-  const { strategyKey, nickname, color, team, drafts } = useWatch({ control: form.control }) as BotFormValues;
-
-  const add = useAddBot();
-  const update = useUpdateBot(bot?.nickname ?? "");
-  const saving = add.isPending || update.isPending;
+  const { strategyKey, nickname, color, drafts } = useWatch({ control: form.control }) as BotFormValues;
 
   const strategy = strategies.find((s) => s.key === strategyKey) ?? strategies[0];
   const draft = drafts[strategy.key];
@@ -174,19 +195,11 @@ function BotForm({ strategies, tickerOptions, players, startingCash, bot, groupi
 
   const submit = form.handleSubmit((formValues) => {
     if (!values) return;
-    const request = {
-      nickname: formValues.nickname.trim(),
-      strategy_key: strategy.key,
-      params: values,
-      color: formValues.color,
-      team: grouping === "TEAMS" ? formValues.team : null,
-    };
-    const refuseName = (status: number) => {
-      if (status === NAME_TAKEN_STATUS) form.setError("nickname", { type: "server", message: NAME_TAKEN_MESSAGE });
-    };
-    const options = { onSuccess: onClose, onError: (err: { status: number }) => refuseName(err.status) };
-    if (bot) update.mutate(request, options);
-    else add.mutate(request, options);
+    const refuseName = () => form.setError("nickname", { type: "server", message: nameTakenMessage });
+    onSubmit(
+      { ...formValues, nickname: formValues.nickname.trim(), strategyKey: strategy.key, params: values },
+      { close: onClose, refuseName },
+    );
   });
 
   return (
@@ -231,7 +244,7 @@ function BotForm({ strategies, tickerOptions, players, startingCash, bot, groupi
           </RadioGroup>
         </div>
 
-        {/* Prévia, nome, cor, equipe e parâmetros */}
+        {/* Prévia, nome, cor, campos extras e parâmetros */}
         <div className="min-h-0 overflow-y-auto px-6 py-5">
           <div className="grid min-w-0 content-start gap-4.5">
             {/* Prévia */}
@@ -246,7 +259,7 @@ function BotForm({ strategies, tickerOptions, players, startingCash, bot, groupi
                 </span>
                 <span className="truncate text-xs text-muted-foreground">{strategy.name}</span>
               </div>
-              <span className="ml-auto shrink-0 text-xs text-muted-foreground">Assim ele aparece na sala</span>
+              <span className="ml-auto shrink-0 text-xs text-muted-foreground">Assim ele aparece</span>
             </div>
 
             {/* Nome */}
@@ -254,75 +267,42 @@ function BotForm({ strategies, tickerOptions, players, startingCash, bot, groupi
               control={form.control}
               name="nickname"
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="bot-nickname">Nome</FieldLabel>
-                  <div className="flex gap-2">
-                    <Input
-                      {...field}
-                      id="bot-nickname"
-                      autoComplete="off"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="shrink-0"
-                      onClick={() =>
-                        form.setValue("nickname", drawBotName(strategy, [...takenNames, nickname]), {
-                          shouldValidate: true,
-                        })
-                      }
-                    >
-                      <Dices className="size-[15px]" />
-                      Sortear
-                    </Button>
-                  </div>
-                  {fieldState.invalid ? (
-                    <FieldError errors={[fieldState.error]} />
-                  ) : (
-                    <FieldDescription>Da lista da estratégia; é o nome no ranking.</FieldDescription>
-                  )}
-                </Field>
+                <BotNameField
+                  id="bot-nickname"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error}
+                  help={nameHelp}
+                  onDraw={() =>
+                    form.setValue("nickname", drawBotName(strategy, [...takenNames, nickname]), {
+                      shouldValidate: true,
+                    })
+                  }
+                />
               )}
             />
 
             {/* Cor */}
             <Field>
               <FieldLabel>Cor</FieldLabel>
-              <BotColorSwatches
-                owners={others}
-                selected={color}
-                onSelect={(next) => form.setValue("color", next)}
-              />
+              <BotColorSwatches owners={others} selected={color} onSelect={(next) => form.setValue("color", next)} />
               <FieldDescription>Já vem a próxima livre. As riscadas estão em uso.</FieldDescription>
             </Field>
 
-            {/* Equipe */}
-            {grouping === "TEAMS" && (
-              <Field>
-                <FieldLabel>Equipe</FieldLabel>
-                <TeamGrid
-                  players={others}
-                  naming={naming}
-                  selected={team}
-                  onSelect={(next) => form.setValue("team", next)}
-                />
-                <FieldDescription>
-                  No modo em equipes, o host escolhe a equipe do bot. “Distribuir quem falta” também distribui os bots.
-                </FieldDescription>
-              </Field>
-            )}
+            {extraFields?.(form, others)}
 
             {/* Parâmetros */}
             <StrategyParamsForm
               key={strategy.key}
               strategy={strategy}
               draft={draft}
-              saved={bot?.bot?.strategy_key === strategy.key ? bot.bot.params : {}}
+              saved={saved?.strategyKey === strategy.key ? saved.params : {}}
+              compareToDefault={compareToDefault}
               errors={errors}
               tickerOptions={tickerOptions}
               cash={startingCash}
-              cashLabel="o saldo inicial"
+              cashLabel={cashLabel}
               headerAction={
                 <Button
                   type="button"
@@ -345,8 +325,8 @@ function BotForm({ strategies, tickerOptions, players, startingCash, bot, groupi
           Cancelar
         </Button>
         <Button type="submit" disabled={!canSave}>
-          {saving ? <Spinner /> : bot ? null : <UserPlus className="size-3.5" />}
-          {bot ? "Salvar" : "Adicionar bot"}
+          {saving ? <Spinner /> : submitIcon}
+          {submitLabel}
         </Button>
       </div>
     </form>

@@ -74,3 +74,29 @@ export function draftErrors(params: StrategyParam[], draft: ParamDraft) {
   }
   return errors;
 }
+
+export type ParamPill = {
+  key: string;
+  label: string;
+  value: string;
+  /** O valor difere do padrão da estratégia */
+  changed: boolean;
+};
+
+const valueChanged = (value: StrategyParamValue | undefined, standard: StrategyParamValue) =>
+  Array.isArray(value) && Array.isArray(standard)
+    ? value.length !== standard.length || value.some((ticker, index) => ticker !== standard[index])
+    : value !== standard;
+
+/** Um resumo curto de cada parâmetro ("Média curta 20 dias"), marcando o que saiu do padrão. */
+export function paramPills(strategy: StrategyInfo, values: ParamValues): ParamPill[] {
+  return strategy.params.map((param) => {
+    const value = values[param.key] ?? param.default;
+    const text = Array.isArray(value)
+      ? `${value.length} ${value.length === 1 ? "ação" : "ações"}`
+      : typeof value === "number"
+        ? `${value}${param.unit === "%" ? "%" : param.unit ? ` ${param.unit}` : ""}`
+        : String(value);
+    return { key: param.key, label: param.label, value: text, changed: valueChanged(value, param.default) };
+  });
+}

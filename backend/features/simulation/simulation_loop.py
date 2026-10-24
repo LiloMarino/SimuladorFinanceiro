@@ -7,6 +7,7 @@ import time
 from enum import Enum
 from typing import TYPE_CHECKING, Literal
 
+from backend.core.dto.backtest import BacktestEndedEventDTO
 from backend.core.exceptions import NoActiveSimulationError
 from backend.core.exceptions.http_exceptions import ServiceUnavailableError
 from backend.core.metrics import ENGINE_DAY, metrics
@@ -122,6 +123,8 @@ class SimulationLoopController:
                 self._state = SimulationState.STOPPED
             return
 
+        # O backtest corre sem pausa e sem espera entre os pregões
+        backtest = SimulationManager.has_backtest()
         # Sem motivo, o fim veio do stop(), e o aviso aos jogadores sai da rota
         reason: Literal["completed", "error"] | None = None
         try:
@@ -129,7 +132,7 @@ class SimulationLoopController:
                 speed = simulation.get_speed()
 
                 # 🔸 PAUSE (speed == 0)
-                if speed <= 0:
+                if speed <= 0 and not backtest:
                     self._pause_event.wait()  # bloqueia até unpause ou stop
                     continue
 
@@ -137,25 +140,32 @@ class SimulationLoopController:
                     with simulation.lock:
                         # A pausa pode ter sido pedida desde a leitura acima.
                         # Confirmá-la e iniciar um dia usam o mesmo lock.
-                        if self._stop_event.is_set() or simulation.get_speed() <= 0:
+                        if self._stop_event.is_set() or (
+                            simulation.get_speed() <= 0 and not backtest
+                        ):
                             continue
-                        metrics.set_engine_speed(speed)
+                        if not backtest:
+                            metrics.set_engine_speed(speed)
                         with metrics.measure("engine", ENGINE_DAY):
                             simulation.next_tick()
                 except StopIteration:
                     reason = "completed"
                     break
 
-                time.sleep(1 / speed)
+                if not backtest:
+                    time.sleep(1 / speed)
 
         except Exception:
             logger.critical("Erro fatal no loop da simulação", exc_info=True)
             reason = "error"
         finally:
-            self._release(simulation, reason)
+            self._release(simulation, reason, backtest)
 
     def _release(
-        self, simulation: Simulation, reason: Literal["completed", "error"] | None
+        self,
+        simulation: Simulation,
+        reason: Literal["completed", "error"] | None,
+        backtest: bool = False,
     ) -> None:
         """Fecha a partida e libera a simulação. Roda só na thread do loop."""
         try:
@@ -165,8 +175,11 @@ class SimulationLoopController:
             # Operações feitas depois do último tick (ex.: com o jogo pausado) só viram
             # evento persistido no flush; a retomada parte do que estiver no banco.
             EventManager.flush()
+            # O lote de snapshots pendente é gravado antes de a partida ser liberada
+            if backtest:
+                simulation.flush_backtest()
             # O fechamento lê a partida inteira: roda depois do último flush
-            if reason == "completed":
+            elif reason == "completed":
                 simulation.end_match()
         except Exception:
             logger.critical("Erro ao fechar a partida", exc_info=True)
@@ -180,6 +193,14 @@ class SimulationLoopController:
         # O loop já está parado quando o aviso sai: quem o recebe pode carregar outra
         # partida, e o start() a aceita.
         if reason is not None:
+            if backtest:
+                notify(
+                    "backtest_ended",
+                    BacktestEndedEventDTO(
+                        reason=reason, simulation_id=simulation.settings.id
+                    ).to_json(),
+                )
+                return
             notify(
                 "simulation_ended",
                 SimulationEndedEventDTO(

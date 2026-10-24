@@ -13,6 +13,7 @@ import {
 import { ErrorState } from "@/shared/components/error-state";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
+import { BacktestResultView } from "../components/backtest-result/backtest-result-view";
 import { HighlightsRow, HighlightsSkeleton } from "../components/match-result/highlights-row";
 import { MatchAchievements } from "../components/match-result/match-achievements";
 import { MatchHero, MatchHeroSkeleton } from "../components/match-result/match-hero";
@@ -25,7 +26,27 @@ export default function MatchResultPage() {
   const id = Number(simulationId);
   if (!Number.isInteger(id)) return null;
 
-  return <MatchResult simulationId={id} />;
+  return <ResultKind simulationId={id} />;
+}
+
+/** Backtest e partida fecham de jeitos diferentes: o tipo vem da lista de salvas. */
+function ResultKind({ simulationId }: { simulationId: number }) {
+  const { data: simulations, isPending, isFetching } = useSimulationList({ refetchOnMount: "always" });
+  const simulation = simulations?.find((s) => s.id === simulationId);
+
+  // Uma simulação recém-salva ainda não está na lista em cache: espera a busca trazê-la
+  if (isPending || (!simulation && isFetching)) {
+    return (
+      <div className="grid gap-5">
+        <MatchHeroSkeleton />
+        <HighlightsSkeleton />
+      </div>
+    );
+  }
+  if (simulation?.is_backtest) {
+    return <BacktestResultView simulationId={simulationId} />;
+  }
+  return <MatchResult simulationId={simulationId} />;
 }
 
 const backToLobby = (

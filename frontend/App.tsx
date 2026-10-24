@@ -14,6 +14,8 @@ import StrategiesPage from "./features/strategies/pages/strategies";
 import PerformancePage from "./features/performance/pages/performance";
 import { JoinMatchPage } from "./features/join/pages/join-match";
 import { LobbyPage } from "./features/lobby/pages/lobby";
+import BacktestNewPage from "./features/backtest/pages/backtest-new";
+import BacktestRunningPage from "./features/backtest/pages/backtest-running";
 import ImportAssetsPage from "./features/import-assets/pages/import-assets";
 import { RealtimeProvider } from "@/shared/context/realtime";
 import { Toaster } from "@/shared/components/ui/sonner";
@@ -74,6 +76,8 @@ export default function App() {
                       <Route path="/lobby" element={<LobbyPage />} />
                       <Route path="/join" element={<JoinMatchPage />} />
                       <Route element={<PlainLayout />}>
+                        <Route path="/backtest/new" element={<BacktestNewPage />} />
+                        <Route path="/backtest/running" element={<BacktestRunningPage />} />
                         <Route path="/import-assets" element={<ImportAssetsPage />} />
                         <Route path="/compare-simulations" element={<CompareSimulationsPage />} />
                         <Route path="/match-result/:simulationId" element={<MatchResultPage />} />
