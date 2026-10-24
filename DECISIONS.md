@@ -295,3 +295,20 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 - Bots (F16) e backtest (F19) rodam as estratégias do app: as prontas e as que quem desenvolve acrescenta. O `.py` no host só cobriria um caso a mais, estratégia própria no backtest para quem tem só o executável. É um público pequeno para o custo de processo filho, timeout, pasta, cópia no banco e contrato de bibliotecas, e para o risco de executar código de fora no PC do host.
 
 **Consequências:** bot pela API não entra no backtest, que não espera entre ticks, e com o tick mais rápido que a reação dele as ordens caem dias depois (números na D5). As estratégias do app rodam no processo do servidor, sem timeout: são código do projeto, testado como o resto. Reabre se aparecer quem queira backtest de estratégia própria sem mexer no código do app; o que o spike mediu para esse caminho está na D5.
+
+### D17 — Os tópicos do tutorial se animam em código, com o `motion`
+**Status:** ✅ Decidida
+
+**Decisão:** o movimento dos tópicos da janela "Como jogar" (F126) é escrito em código com o `motion` (o pacote que sucedeu o `framer-motion`): os componentes reais do app com dados de exemplo e um cursor roteirizado, no mesmo lugar da ilustração estática. Vídeo gravado pelo Playwright e Remotion ficam descartados para esse uso.
+
+**Por quê:** o spike (F49) fez o tópico "comprar uma ação" dos três jeitos (amostra de um tópico).
+- Tamanho: o `motion` soma 49,6 kB gzip (de 68,6 para 118,1 kB num app mínimo), cerca de 7% sobre o chunk principal de 669 kB, uma vez só, e não traz arquivo de mídia. O vídeo do Playwright custa 1,65 MB por tópico em 1080p (0,6 MB em 720p); o do Remotion, 0,25 MB.
+- Nitidez e tema: o código é vetorial, nítido em qualquer tamanho, e segue o tema. Os dois vídeos têm pixel fixo, e o do Playwright borra o texto no zoom da câmera.
+- Manutenção: com os componentes reais, a animação acompanha uma mudança de tela sem regravar nada, e o `tsc` acusa quando o componente muda. O Playwright regrava a demo inteira (não há opção de uma cena; pede banco de gravação, ffmpeg e Chromium). O Remotion é um projeto à parte (254 pacotes, 253 MB de dependências de desenvolvimento), e cada mudança de tela pede regravar e versionar o MP4.
+- A F126 já precisa de componente real com dados de exemplo para a ilustração estática; o `motion` aproveita esse palco.
+
+**Consequências:**
+- Mostrar o `OrderTicket` com dados de exemplo exige o contexto de autenticação, o de tempo real e um `fetch` simulado (cerca de 40 linhas). A F126 monta esse palco uma vez, e todo tópico o reaproveita.
+- Cada tópico animado são ~110 linhas de coreografia: o cursor mede os alvos no DOM, e o texto é digitado por eventos de input sobre o componente real.
+- O `motion` entra no `package.json` do front junto com a F126.
+- Reabre se a coreografia por tópico pesar mais que o previsto, com muitos tópicos animados.
