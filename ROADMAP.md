@@ -99,13 +99,12 @@
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | ⏳ |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
-| [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 | [**F126**](#f126) | Janela "Como jogar" | — | ⏳ |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -129,6 +128,7 @@
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
 | [**F119**](#f119) | Seletor de período da partida com linha do tempo | — | ✅ |
+| [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ✅ |
 
 </details>
 
@@ -159,7 +159,6 @@
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | 0 | ⏳ |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | 0 | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
-| [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | 0 | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 0 | 🔍 |
 | [**F126**](#f126) | Janela "Como jogar" | M14 | 0 | ⏳ |
 
@@ -280,7 +279,7 @@
 
 ### Sem marco
 
-> **Progresso:** 4/36 concluídas
+> **Progresso:** 5/36 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -313,11 +312,10 @@
 | [**F121**](#f121) | Comprar tudo a mercado sem estourar o caixa | — | ⏳ |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
-| [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ⏳ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | [F113](#f113) | 💤 |
 
-<details><summary>Concluído (4 itens)</summary>
+<details><summary>Concluído (5 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -325,6 +323,7 @@
 | [**F113**](#f113) | Classe de ativo cripto com quantidade fracionária | — | ✅ |
 | [**F118**](#f118) | Lembrar a última configuração da partida | — | ✅ |
 | [**F119**](#f119) | Seletor de período da partida com linha do tempo | — | ✅ |
+| [**F124**](#f124) | Voltar o quadrado da marca no cabeçalho da sala | — | ✅ |
 
 </details>
 
@@ -354,7 +353,7 @@
 | **F113** | Classe de ativo cripto com quantidade fracionária | N37 | D3 | — | — | Médio | Médio | Médio | Bom | ✅ Concluído |
 | **F118** | Lembrar a última configuração da partida | N30 | D9 | — | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F122** | Novas conquistas para as features recentes e antigas | N22 | D1 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F124** | Voltar o quadrado da marca no cabeçalho da sala | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
+| **F124** | Voltar o quadrado da marca no cabeçalho da sala | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ✅ Concluído |
 | **F126** | Janela "Como jogar" | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F127** | Estratégias e bots operam cripto em fração | N4, N37 | D3 | — | [F113](#f113) | Médio | Baixo | Baixo | Regular | 💤 Registrado, sem prioridade |
 | **F119** | Seletor de período da partida com linha do tempo | N15, N30 | — | — | — | — | — | — | — | ✅ Concluído |
