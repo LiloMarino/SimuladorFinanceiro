@@ -92,6 +92,9 @@ def test_two_players_can_buy_sell_and_read_history_while_paused(paused_match):
             )
             assert result.status_code == 200, result.text
             assert result.json()["status"] == "EXECUTED"
+            assert Decimal(result.json()["total"]) == Decimal(
+                preview.json()["total"]
+            ).quantize(Decimal("0.01"))
             position = client.get("/api/portfolio/BANK_A").json()
             assert Decimal(position["size"]) == (1 if action == "buy" else 0)
         assert sim.get_speed() == 0

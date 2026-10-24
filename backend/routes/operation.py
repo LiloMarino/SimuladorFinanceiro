@@ -29,6 +29,7 @@ from backend.features.technical_analysis.summary import (
     build_technical_indicators,
     price_frame,
 )
+from backend.features.variable_income.broker import to_money
 from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
 
 logger = logging.getLogger(__name__)
@@ -69,6 +70,8 @@ class SubmitOrderResponse(BaseModel):
     status: str
     # O que a ordem executou; na compra a mercado que parou no caixa ou no valor, menos que o pedido
     quantity: Decimal
+    # O que a execução movimentou em reais (quantidade x preço de cada fatia)
+    total: Decimal
 
 
 @operation_router.get(
@@ -187,7 +190,10 @@ def submit_order(
     )
     simulation.create_order(order)
     return SubmitOrderResponse(
-        order_id=order.id, status=order.status.name, quantity=order.size
+        order_id=order.id,
+        status=order.status.name,
+        quantity=order.size,
+        total=to_money(order.notional).quantize(Decimal("0.01")),
     )
 
 

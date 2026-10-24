@@ -5585,6 +5585,8 @@ export interface components {
             status: string;
             /** Quantity */
             quantity: string;
+            /** Total */
+            total: string;
         };
         /** SuggestionDTO */
         SuggestionDTO: {

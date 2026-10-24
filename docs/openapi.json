@@ -15945,13 +15945,18 @@
           "quantity": {
             "type": "string",
             "title": "Quantity"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
           }
         },
         "type": "object",
         "required": [
           "order_id",
           "status",
-          "quantity"
+          "quantity",
+          "total"
         ],
         "title": "SubmitOrderResponse"
       },
