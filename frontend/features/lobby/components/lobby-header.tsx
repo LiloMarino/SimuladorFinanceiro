@@ -9,6 +9,9 @@ import { useAchievementTally } from "@/shared/hooks/queries/useAchievementTally"
 import { useTunnelStatus } from "../hooks/queries/useTunnelStatus";
 import { useStartTunnel } from "../hooks/mutations/useStartTunnel";
 
+const FIREWALL_DOCS_URL =
+  "https://lilomarino.github.io/SimuladorFinanceiro/como-usar/multiplayer#amigos-não-conseguem-entrar";
+
 type LobbyHeaderProps = {
   isHost: boolean;
   hostNickname: string;
@@ -80,6 +83,17 @@ export function LobbyHeader({ isHost, hostNickname }: LobbyHeaderProps) {
               O navegador só copia sozinho em https. Selecione o link e copie com Ctrl+C.
             </AlertDescription>
           </Alert>
+        )}
+        {/* Ajuda para quem não consegue entrar */}
+        {isHost && (
+          <a
+            href={FIREWALL_DOCS_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="self-start text-xs text-muted-foreground hover:underline"
+          >
+            Amigos não conseguem entrar?
+          </a>
         )}
         {isHost && tunnelStatus && !tunnelStatus.active && (
           <Button variant="link" size="sm" className="self-start" disabled={tunnelLoading} onClick={() => startTunnel()}>
