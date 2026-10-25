@@ -14,13 +14,7 @@ import { cn } from "@/shared/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney, formatQuantityInput, quantityToInput } from "@/shared/lib/utils/format";
-import {
-  displayDate,
-  displayMoney,
-  displayQuantity,
-  parseLocalDate,
-  toCentsString,
-} from "@/shared/lib/utils/display";
+import { displayDate, displayMoney, displayQuantity, parseLocalDate, toCentsString } from "@/shared/lib/utils/display";
 import { EXEMPT_SALES_LABEL, INCOME_TAX_RATE, salesMonthName } from "@/shared/lib/income-tax";
 import { displayPercent } from "@/shared/lib/utils/display";
 import type { AssetClass, OrderPreview, OrderPreviewRequest } from "@/types";
@@ -96,7 +90,13 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
   const noPosition = selling && requestMatches && preview !== undefined && Number(preview.held) === 0;
   const hasSize = byAmount ? amountNumber > 0 : quantityNumber > 0;
   const canSubmit =
-    !locked && requestMatches && !error && hasSize && !invalidSize && !!preview?.price && (kind === "market" || !!limitPrice);
+    !locked &&
+    requestMatches &&
+    !error &&
+    hasSize &&
+    !invalidSize &&
+    !!preview?.price &&
+    (kind === "market" || !!limitPrice);
 
   const quantityHint = selling
     ? preview && Number(preview.reserved) > 0
@@ -255,9 +255,19 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
                 </Field>
               )}
 
-              {error && <ErrorState title="Não deu para conferir a ordem" description="Atualize a prévia antes de enviar."
-                error={error} onRetry={() => void refetch()} />}
-              {(isLoading || !requestMatches) && <p role="status" className="text-sm text-muted-foreground">Conferindo a ordem…</p>}
+              {error && (
+                <ErrorState
+                  title="Não deu para conferir a ordem"
+                  description="Atualize a prévia antes de enviar."
+                  error={error}
+                  onRetry={() => void refetch()}
+                />
+              )}
+              {(isLoading || !requestMatches) && (
+                <p role="status" className="text-sm text-muted-foreground">
+                  Conferindo a ordem…
+                </p>
+              )}
 
               {/* Resumo: a venda mostra só o total e o lucro */}
               {preview ? (

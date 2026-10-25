@@ -38,7 +38,13 @@ export function PodiumSteps<T extends { position: number }>({
             style={item && columnStyle ? columnStyle(item) : undefined}
           >
             {item ? renderEntry(item, first) : <span className="text-sidebar-muted">{emptyLabel(step.position)}</span>}
-            <div className={cn("flex w-full justify-center rounded-t-[10px] pt-2.5", step.height, stepClassName(item, first))}>
+            <div
+              className={cn(
+                "flex w-full justify-center rounded-t-[10px] pt-2.5",
+                step.height,
+                stepClassName(item, first),
+              )}
+            >
               <span className="font-mono text-[22px] font-semibold text-white">{step.position}º</span>
             </div>
           </div>

@@ -17,7 +17,10 @@ export function ApprovalChart({ approval, height = 180, compact = false }: Appro
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <LineChart data={rows} margin={compact ? { top: 4, right: 4, left: 4, bottom: 4 } : { top: 8, right: 8, left: 0, bottom: 0 }}>
+      <LineChart
+        data={rows}
+        margin={compact ? { top: 4, right: 4, left: 4, bottom: 4 } : { top: 8, right: 8, left: 0, bottom: 0 }}
+      >
         {!compact && <CartesianGrid vertical={false} stroke="var(--border)" />}
         <XAxis
           dataKey="time"

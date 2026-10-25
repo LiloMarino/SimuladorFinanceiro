@@ -23,9 +23,9 @@ export function PromiseHint() {
         </ol>
         <p className="text-muted-foreground">
           Cada medida aprovada tem uma posição na régua: corte geral de imposto vale 1, isenção setorial 2, taxar um
-          setor 4 e imposto geral novo 5. A marca do governo é a média das medidas aprovadas: isentar energia (2),
-          taxar bancos (4) e subir o day trade (5) dá 3,7. Cada faixa de distância até a promessa tira 3 pontos de
-          aprovação: prometer 3 e chegar a 3,7 tira 2.
+          setor 4 e imposto geral novo 5. A marca do governo é a média das medidas aprovadas: isentar energia (2), taxar
+          bancos (4) e subir o day trade (5) dá 3,7. Cada faixa de distância até a promessa tira 3 pontos de aprovação:
+          prometer 3 e chegar a 3,7 tira 2.
         </p>
       </div>
     </InfoHint>

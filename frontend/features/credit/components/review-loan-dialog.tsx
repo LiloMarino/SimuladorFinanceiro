@@ -28,10 +28,7 @@ export function ReviewLoanDialog({ open, onOpenChange, quote, rating }: ReviewLo
   const contract = useContractLoan();
 
   const sign = () =>
-    contract.mutate(
-      { amount: quote.amount, term_months: quote.term_months },
-      { onSuccess: () => onOpenChange(false) },
-    );
+    contract.mutate({ amount: quote.amount, term_months: quote.term_months }, { onSuccess: () => onOpenChange(false) });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -46,10 +43,7 @@ export function ReviewLoanDialog({ open, onOpenChange, quote, rating }: ReviewLo
             {/* Condições */}
             <div>
               <KeyValueRow label="Entra no caixa hoje" value={displayMoney(quote.amount)} />
-              <KeyValueRow
-                label="Parcela fixa"
-                value={`${quote.term_months} × ${displayMoney(quote.installment)}`}
-              />
+              <KeyValueRow label="Parcela fixa" value={`${quote.term_months} × ${displayMoney(quote.installment)}`} />
               <KeyValueRow label="Juro travado" value={`${displayPercent(quote.annual_rate)} ao ano`} />
               <KeyValueRow label="Juro no prazo todo" value={displayMoney(quote.total_interest)} />
               <KeyValueRow total label="Total a pagar" value={displayMoney(quote.total_paid)} />

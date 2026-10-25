@@ -32,7 +32,9 @@ export function RaceStandings({ progress, grouping, teamNaming, currentNickname 
               />
               <span className="truncate text-[13px] font-semibold">{teamName(team.team, teamNaming)}</span>
               <Progress value={Math.min(team.fraction, 1) * 100} size="md" color={teamColor(team.team)} />
-              <span className="text-right font-mono text-[13px] font-semibold">{displayGoalPercent(team.fraction)}</span>
+              <span className="text-right font-mono text-[13px] font-semibold">
+                {displayGoalPercent(team.fraction)}
+              </span>
               <span className="text-right font-mono text-xs text-muted-foreground">
                 {displayMoneyWhole(team.networth)} média
               </span>
@@ -68,8 +70,12 @@ export function RaceStandings({ progress, grouping, teamNaming, currentNickname 
               size="md"
               color={playerColorStyle(runner.color).background}
             />
-            <span className="text-right font-mono text-[13px] font-semibold">{displayGoalPercent(runner.fraction)}</span>
-            <span className="text-right font-mono text-xs text-muted-foreground">{displayMoneyWhole(runner.networth)}</span>
+            <span className="text-right font-mono text-[13px] font-semibold">
+              {displayGoalPercent(runner.fraction)}
+            </span>
+            <span className="text-right font-mono text-xs text-muted-foreground">
+              {displayMoneyWhole(runner.networth)}
+            </span>
           </div>
         );
       })}

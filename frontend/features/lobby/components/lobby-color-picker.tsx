@@ -2,7 +2,14 @@ import { useState } from "react";
 import { ChevronDown, Lock, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
-import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger } from "@/shared/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/shared/components/ui/popover";
 import { PlayerColorGrid } from "@/shared/components/player-color-grid";
 import { playerColorName, playerColorStyle } from "@/shared/lib/player-colors";
 import type { RoomPlayer } from "@/types";
@@ -45,7 +52,9 @@ export function LobbyColorPicker({ nickname, players, savedPlayers, simulationNa
       </PopoverTrigger>
       <PopoverContent align="end" className="w-88">
         <PopoverHeader>
-          <PopoverTitle>{locked && simulationName ? `Sua cor em ${simulationName}` : "Sua cor na partida"}</PopoverTitle>
+          <PopoverTitle>
+            {locked && simulationName ? `Sua cor em ${simulationName}` : "Sua cor na partida"}
+          </PopoverTitle>
           <PopoverDescription>
             {locked
               ? "É a cor que você teve nessa partida: não dá pra trocar."
@@ -66,7 +75,11 @@ export function LobbyColorPicker({ nickname, players, savedPlayers, simulationNa
           <Alert variant="warning">
             <TriangleAlert />
             <AlertTitle>{refusal}</AlertTitle>
-            {mine && <AlertDescription>Você continua com o {playerColorName(mine).toLowerCase()}. Escolha outra cor livre.</AlertDescription>}
+            {mine && (
+              <AlertDescription>
+                Você continua com o {playerColorName(mine).toLowerCase()}. Escolha outra cor livre.
+              </AlertDescription>
+            )}
           </Alert>
         )}
 

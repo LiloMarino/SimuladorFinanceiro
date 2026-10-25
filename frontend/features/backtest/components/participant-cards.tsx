@@ -37,13 +37,9 @@ export function ParticipantCards({
     <div className="grid grid-cols-3 gap-3">
       {participants.map((participant, index) => {
         const strategy = strategies.find((s) => s.key === participant.strategyKey) ?? strategies[0];
-        const values =
-          fromDraft(strategy.params, participant.drafts[strategy.key] ?? {}) ?? defaultValues(strategy);
+        const values = fromDraft(strategy.params, participant.drafts[strategy.key] ?? {}) ?? defaultValues(strategy);
         return (
-          <div
-            key={index}
-            className="grid min-w-0 content-start gap-2.5 rounded-xl border bg-card p-3.5"
-          >
+          <div key={index} className="grid min-w-0 content-start gap-2.5 rounded-xl border bg-card p-3.5">
             <div className="flex items-center gap-2.5">
               <PlayerAvatar nickname={participant.nickname} color={participant.color} bot size="lg" />
               <div className="grid min-w-0 flex-1">

@@ -79,7 +79,8 @@ export function TutorialStage({ width, height, children }: TutorialStageProps) {
       restore();
       // Prévias e ordens do ativo de exemplo não ficam na boleta real que está atrás da janela
       void appQueryClient.invalidateQueries({
-        predicate: ({ queryKey }) => queryKey[0] === "variable-income" && ["order-preview", "orders"].includes(String(queryKey[2])),
+        predicate: ({ queryKey }) =>
+          queryKey[0] === "variable-income" && ["order-preview", "orders"].includes(String(queryKey[2])),
       });
     };
   }, []);

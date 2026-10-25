@@ -2,12 +2,7 @@ import { useState } from "react";
 import { CircleAlert } from "lucide-react";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { useDebugStatus } from "@/shared/hooks/queries/useDebugMode";
-import {
-  Alert,
-  AlertAction,
-  AlertDescription,
-  AlertTitle,
-} from "@/shared/components/ui/alert";
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import type ApiError from "@/shared/lib/models/ApiError";
@@ -16,12 +11,7 @@ import { displayDuration } from "@/shared/lib/utils/display";
 import { ControlsBar } from "../components/controls-bar";
 import { KpiCards } from "../components/kpi-cards";
 import { PySpyCard } from "../components/pyspy-card";
-import {
-  PerformanceDebugOff,
-  PerformanceEmpty,
-  PerformanceHostOnly,
-  PerformanceLoading,
-} from "../components/states";
+import { PerformanceDebugOff, PerformanceEmpty, PerformanceHostOnly, PerformanceLoading } from "../components/states";
 import { TimeTable } from "../components/time-table";
 import { TrafficTable } from "../components/traffic-table";
 import { useMetrics } from "../hooks/queries/useMetrics";
@@ -31,13 +21,7 @@ import { buildRows, engineStatus, sortRows } from "../lib/stats";
 const TABLE_ID = "tabela-tempo";
 
 /** Falha de leitura sem nada para mostrar (as medições ou o modo debug). */
-function ReadFailure({
-  error,
-  onRetry,
-}: {
-  error: ApiError | null;
-  onRetry: () => void;
-}) {
+function ReadFailure({ error, onRetry }: { error: ApiError | null; onRetry: () => void }) {
   return (
     <Card>
       <CardContent>
@@ -54,12 +38,7 @@ function ReadFailure({
 
 export default function PerformancePage() {
   usePageLabel("Desempenho");
-  const {
-    debug,
-    isPending: debugPending,
-    error: debugError,
-    refetch: refetchDebug,
-  } = useDebugStatus();
+  const { debug, isPending: debugPending, error: debugError, refetch: refetchDebug } = useDebugStatus();
   const [paused, setPaused] = useState(false);
   const { data, error, isPending, refetch, dataUpdatedAt } = useMetrics({
     paused,
@@ -117,14 +96,10 @@ export default function PerformancePage() {
           {engine.late && engine.item && engine.budgetMs !== null && (
             <Alert variant="destructive">
               <CircleAlert />
-              <AlertTitle>
-                O tempo está andando mais devagar que o pedido
-              </AlertTitle>
+              <AlertTitle>O tempo está andando mais devagar que o pedido</AlertTitle>
               <AlertDescription>
-                A {engine.speed}× cada dia tem{" "}
-                {displayDuration(engine.budgetMs)}, e o motor leva{" "}
-                {displayDuration(engine.item.mean_ms)}. Na prática, a partida
-                corre a uns {engine.effectiveSpeed}×.
+                A {engine.speed}× cada dia tem {displayDuration(engine.budgetMs)}, e o motor leva{" "}
+                {displayDuration(engine.item.mean_ms)}. Na prática, a partida corre a uns {engine.effectiveSpeed}×.
               </AlertDescription>
             </Alert>
           )}
@@ -132,11 +107,7 @@ export default function PerformancePage() {
           <KpiCards
             data={data}
             rowsByTotal={rowsByTotal}
-            onSeeTable={() =>
-              document
-                .getElementById(TABLE_ID)
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
+            onSeeTable={() => document.getElementById(TABLE_ID)?.scrollIntoView({ behavior: "smooth" })}
           />
           <TimeTable id={TABLE_ID} rows={rows} />
           <div className="grid items-start gap-5 lg:grid-cols-[1.35fr_1fr]">

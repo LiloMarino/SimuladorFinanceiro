@@ -118,10 +118,7 @@ function HostPresetBar({ form, locked, applied, onApplyLoaded }: HostPresetBarPr
 
         {/* Seletor */}
         <DropdownMenu>
-          <DropdownMenuTrigger
-            disabled={locked}
-            render={<Button variant="field" className="min-w-0 flex-1" />}
-          >
+          <DropdownMenuTrigger disabled={locked} render={<Button variant="field" className="min-w-0 flex-1" />}>
             {applied ? (
               <>
                 <Bookmark className="text-primary" />
@@ -154,12 +151,22 @@ function HostPresetBar({ form, locked, applied, onApplyLoaded }: HostPresetBarPr
               <>
                 <MenuHeader hint="· não se apagam">Prontos</MenuHeader>
                 {builtIn.map((preset) => (
-                  <PresetItem key={preset.id} preset={preset} selected={applied?.id === preset.id} onSelect={loadPreset} />
+                  <PresetItem
+                    key={preset.id}
+                    preset={preset}
+                    selected={applied?.id === preset.id}
+                    onSelect={loadPreset}
+                  />
                 ))}
                 <DropdownMenuSeparator />
                 <MenuHeader>Meus presets</MenuHeader>
                 {mine.map((preset) => (
-                  <PresetItem key={preset.id} preset={preset} selected={applied?.id === preset.id} onSelect={loadPreset} />
+                  <PresetItem
+                    key={preset.id}
+                    preset={preset}
+                    selected={applied?.id === preset.id}
+                    onSelect={loadPreset}
+                  />
                 ))}
                 {mine.length === 0 && (
                   <div className="py-1.5 pr-2.5 pb-2.5 pl-8.5 text-xs text-muted-foreground">

@@ -2,12 +2,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
-import {
-  displayDayMonth,
-  displayMoney,
-  displayPercent,
-  displayShortDate,
-} from "@/shared/lib/utils/display";
+import { displayDayMonth, displayMoney, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { CreditLoan } from "@/types";
 import type { PrepayChoice } from "./prepay-dialog";
 

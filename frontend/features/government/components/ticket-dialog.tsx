@@ -36,7 +36,10 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
   const setTicket = useSetTicket();
 
   const nicknames = Object.fromEntries(party.members.map((member) => [member.nickname, member.nickname]));
-  const viceItems = { [NO_VICE]: "Sem vice", ...Object.fromEntries(party.members.filter((m) => m.nickname !== candidate).map((m) => [m.nickname, m.nickname])) };
+  const viceItems = {
+    [NO_VICE]: "Sem vice",
+    ...Object.fromEntries(party.members.filter((m) => m.nickname !== candidate).map((m) => [m.nickname, m.nickname])),
+  };
   const effectiveVice = vice === candidate ? NO_VICE : vice;
 
   const collections = remainingCollections(panel.today, panel.dates.first_round);
@@ -58,11 +61,7 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
           <div className="grid gap-3.5">
             <Field>
               <FieldLabel>Candidato</FieldLabel>
-              <Select
-                value={candidate}
-                items={nicknames}
-                onValueChange={(value) => value && setCandidate(value)}
-              >
+              <Select value={candidate} items={nicknames} onValueChange={(value) => value && setCandidate(value)}>
                 <SelectTrigger className="w-full" aria-label="Candidato">
                   <SelectValue />
                 </SelectTrigger>
@@ -79,11 +78,7 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
 
             <Field>
               <FieldLabel>Vice</FieldLabel>
-              <Select
-                value={effectiveVice}
-                items={viceItems}
-                onValueChange={(value) => value && setVice(value)}
-              >
+              <Select value={effectiveVice} items={viceItems} onValueChange={(value) => value && setVice(value)}>
                 <SelectTrigger className="w-full" aria-label="Vice">
                   <SelectValue />
                 </SelectTrigger>
@@ -128,7 +123,9 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
             <Alert variant="muted">
               <Info />
               <AlertTitle>A sala vê o partido inteiro</AlertTitle>
-              <AlertDescription>Chapa, filiados, contribuições e promessa são públicos desde o primeiro dia.</AlertDescription>
+              <AlertDescription>
+                Chapa, filiados, contribuições e promessa são públicos desde o primeiro dia.
+              </AlertDescription>
             </Alert>
           </div>
         </DialogBody>

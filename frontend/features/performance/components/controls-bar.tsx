@@ -12,30 +12,17 @@ interface ControlsBarProps {
   onReset: () => void;
 }
 
-export function ControlsBar({
-  paused,
-  failed,
-  updatedAt,
-  resetting,
-  onTogglePause,
-  onReset,
-}: ControlsBarProps) {
+export function ControlsBar({ paused, failed, updatedAt, resetting, onTogglePause, onReset }: ControlsBarProps) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <p className="max-w-[720px] text-muted-foreground">
-        Onde o tempo vai nesta partida, medido pelo próprio app. Cada linha usa
-        as últimas 1.000 medições dela.
+        Onde o tempo vai nesta partida, medido pelo próprio app. Cada linha usa as últimas 1.000 medições dela.
       </p>
       <div className="flex items-center gap-2">
         {failed ? (
-          <Badge variant="destructive">
-            Sem conexão · dados de{" "}
-            {new Date(updatedAt).toLocaleTimeString("pt-BR")}
-          </Badge>
+          <Badge variant="destructive">Sem conexão · dados de {new Date(updatedAt).toLocaleTimeString("pt-BR")}</Badge>
         ) : paused ? (
-          <Badge variant="warning">
-            Pausado · dados de {new Date(updatedAt).toLocaleTimeString("pt-BR")}
-          </Badge>
+          <Badge variant="warning">Pausado · dados de {new Date(updatedAt).toLocaleTimeString("pt-BR")}</Badge>
         ) : (
           <Badge variant="success">
             <span className="size-1.5 rounded-full bg-success" />
@@ -45,12 +32,7 @@ export function ControlsBar({
         <Button variant="outline" size="sm" onClick={onTogglePause}>
           {paused ? "Retomar" : "Pausar"}
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={resetting}
-          onClick={onReset}
-        >
+        <Button variant="outline" size="sm" disabled={resetting} onClick={onReset}>
           Zerar medições
         </Button>
       </div>

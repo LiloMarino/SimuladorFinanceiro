@@ -6,7 +6,14 @@ import { LayoutGrid, List, Play, Plus, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/shared/components/ui/empty";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { useBotTickers } from "@/shared/hooks/queries/useBotTickers";
@@ -17,12 +24,7 @@ import { displayMonthSlashYear } from "@/shared/lib/utils/display";
 import type ApiError from "@/shared/lib/models/ApiError";
 import type { BacktestSetup, StrategyInfo } from "@/types";
 import { useStartBacktest } from "../hooks/mutations/useStartBacktest";
-import {
-  backtestSchema,
-  MAX_PARTICIPANTS,
-  toRequest,
-  type BacktestFormValues,
-} from "../lib/form";
+import { backtestSchema, MAX_PARTICIPANTS, toRequest, type BacktestFormValues } from "../lib/form";
 import { displayEstimate, displaySpan, weekdaysBetween } from "../lib/period";
 import { loadViewPreference, saveViewPreference, type ParticipantsView } from "../lib/view-preference";
 import { BacktestBotDialog } from "./backtest-bot-dialog";
@@ -167,8 +169,8 @@ export function BacktestForm({ setup, strategies, values, startDate }: BacktestF
                     </EmptyMedia>
                     <EmptyTitle>Nenhuma estratégia ainda</EmptyTitle>
                     <EmptyDescription>
-                      Adicione pelo menos uma. Para ter com o que comparar, comece por Comprar e segurar: é o que faz quem
-                      só compra e espera.
+                      Adicione pelo menos uma. Para ter com o que comparar, comece por Comprar e segurar: é o que faz
+                      quem só compra e espera.
                     </EmptyDescription>
                   </EmptyHeader>
                   <EmptyContent className="flex-row justify-center">
@@ -181,7 +183,12 @@ export function BacktestForm({ setup, strategies, values, startDate }: BacktestF
                       Adicionar estratégia
                     </Button>
                     {strategies.some((s) => s.key === REFERENCE_STRATEGY) && (
-                      <Button type="button" variant="outline" size="sm" onClick={() => addParticipant(REFERENCE_STRATEGY)}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addParticipant(REFERENCE_STRATEGY)}
+                      >
                         Adicionar Comprar e segurar
                       </Button>
                     )}
@@ -229,8 +236,8 @@ export function BacktestForm({ setup, strategies, values, startDate }: BacktestF
                 <b className="text-white">
                   {list.length} {list.length === 1 ? "estratégia" : "estratégias"}
                 </b>{" "}
-                · {displaySpan(periodStart, periodEnd)}, de {displayMonthSlashYear(periodStart)} a {displayMonthSlashYear(periodEnd)} · CDI e
-                Ibovespa de referência
+                · {displaySpan(periodStart, periodEnd)}, de {displayMonthSlashYear(periodStart)} a{" "}
+                {displayMonthSlashYear(periodEnd)} · CDI e Ibovespa de referência
               </span>
               <span className="text-xs opacity-70">
                 Roda sem esperar: {displayEstimate(tradingDays, list.length)}. A sala espera enquanto isso.

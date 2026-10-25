@@ -57,8 +57,9 @@ export function BlockedRatingCard({ overview, onPayOverdue }: BlockedRatingCardP
                 </span>
               )}
               <AlertDescription>
-                {onPayOverdue ? "Pague a parcela em atraso e quite" : "Quite"} {displayMoneyCompact(recover.amount ?? 0)}: a
-                alavancagem cai para {displayWholePercent(recover.leverage_after ?? 0)}. A nota muda no fim do mês.
+                {onPayOverdue ? "Pague a parcela em atraso e quite" : "Quite"}{" "}
+                {displayMoneyCompact(recover.amount ?? 0)}: a alavancagem cai para{" "}
+                {displayWholePercent(recover.leverage_after ?? 0)}. A nota muda no fim do mês.
               </AlertDescription>
             </Alert>
           )}

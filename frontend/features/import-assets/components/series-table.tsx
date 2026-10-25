@@ -66,10 +66,16 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
   const attentionCount = series.filter(needsAttention).length;
   const sorting = useTableSort(filter === "ATTENTION" ? series.filter(needsAttention) : series, {
     series: (s) => s.key,
-    sector: (s) => s.segment ? `${s.segment.sector} · ${s.segment.segment}` : null,
+    sector: (s) => (s.segment ? `${s.segment.sector} · ${s.segment.segment}` : null),
     end: (s) => s.real_end,
-    status: (s) => !s.real_end ? "Sem dado" : isOutdatedStock(s) ? `Parou em ${s.real_end}`
-      : s.kind === "STOCK" && !s.segment ? "Sem setor" : "Em dia",
+    status: (s) =>
+      !s.real_end
+        ? "Sem dado"
+        : isOutdatedStock(s)
+          ? `Parou em ${s.real_end}`
+          : s.kind === "STOCK" && !s.segment
+            ? "Sem setor"
+            : "Em dia",
   });
   const visible = sorting.rows;
   const groups = [
@@ -244,24 +250,24 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
 
                       <TableCell>
                         <div className="flex items-center gap-1">
-                        {/* Só a linha desatualizada pede a ação por extenso */}
-                        {stale ? (
-                          <Button size="sm" disabled={busy} onClick={() => refreshOne.mutate(item)}>
-                            {updatingThis(item) ? <Spinner /> : <RefreshCw />}
-                            Atualizar
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            aria-label={`Atualizar ${item.key}`}
-                            disabled={busy}
-                            onClick={() => refreshOne.mutate(item)}
-                          >
-                            {updatingThis(item) ? <Spinner /> : <RefreshCw />}
-                          </Button>
-                        )}
-                        {item.kind === "STOCK" && <DeleteStockButton stock={item} disabled={busy} />}
+                          {/* Só a linha desatualizada pede a ação por extenso */}
+                          {stale ? (
+                            <Button size="sm" disabled={busy} onClick={() => refreshOne.mutate(item)}>
+                              {updatingThis(item) ? <Spinner /> : <RefreshCw />}
+                              Atualizar
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              aria-label={`Atualizar ${item.key}`}
+                              disabled={busy}
+                              onClick={() => refreshOne.mutate(item)}
+                            >
+                              {updatingThis(item) ? <Spinner /> : <RefreshCw />}
+                            </Button>
+                          )}
+                          {item.kind === "STOCK" && <DeleteStockButton stock={item} disabled={busy} />}
                         </div>
                       </TableCell>
                     </TableRow>

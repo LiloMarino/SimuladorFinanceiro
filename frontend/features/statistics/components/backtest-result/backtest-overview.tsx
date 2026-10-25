@@ -46,7 +46,11 @@ export function BacktestOverviewTab({ simulationIds }: ReportProps) {
   const simulationId = simulationIds[0];
   const { data: overview, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds);
   const { data: result, error: resultError, refetch: refetchResult } = useBacktestResult(simulationId);
-  const { data: strategies, error: strategiesError, refetch: refetchStrategies } = useBotStrategies(result?.config.start_date);
+  const {
+    data: strategies,
+    error: strategiesError,
+    refetch: refetchStrategies,
+  } = useBotStrategies(result?.config.start_date);
 
   if (!overview || !result || !strategies) {
     const failure = error ?? resultError ?? strategiesError;
@@ -73,7 +77,9 @@ export function BacktestOverviewTab({ simulationIds }: ReportProps) {
   }
 
   const rows = backtestRows(overview.players, result, references);
-  return <Loaded simulationIds={simulationIds} result={result} references={references} rows={rows} strategies={strategies} />;
+  return (
+    <Loaded simulationIds={simulationIds} result={result} references={references} rows={rows} strategies={strategies} />
+  );
 }
 
 type LoadedProps = {
@@ -114,7 +120,9 @@ function Loaded({ simulationIds, result, references, rows, strategies }: LoadedP
         </Alert>
       )}
 
-      {leader && <Summary rows={rows} leader={leader} references={references} beatCdi={beatCdi} strategies={strategies} />}
+      {leader && (
+        <Summary rows={rows} leader={leader} references={references} beatCdi={beatCdi} strategies={strategies} />
+      )}
       <EquityChart simulationIds={simulationIds} result={result} rows={rows} />
       <RankingTable
         rows={ranked}
@@ -359,7 +367,9 @@ function RankingTable({ rows, references, strategies, measure, onMeasureChange, 
                           </Badge>
                         )}
                       </span>
-                      <span className="truncate text-xs text-muted-foreground">{strategy?.name ?? row.participant.strategy_key}</span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {strategy?.name ?? row.participant.strategy_key}
+                      </span>
                     </span>
                   </span>
                 </TableCell>
@@ -369,7 +379,9 @@ function RankingTable({ rows, references, strategies, measure, onMeasureChange, 
                 <TableCell numeric>{row.score === null ? "—" : displayNumber(row.score, 0)}</TableCell>
                 <TableCell numeric>{displayMoney(row.networth)}</TableCell>
                 <TableCell numeric>
-                  <span className={tone(row.returnOnContributed)}>{displaySignedPercent(row.returnOnContributed, 1)}</span>
+                  <span className={tone(row.returnOnContributed)}>
+                    {displaySignedPercent(row.returnOnContributed, 1)}
+                  </span>
                 </TableCell>
                 <TableCell numeric>
                   <span className={tone(row.overCdi)}>{displayPercentagePoints(row.overCdi, 1)}</span>
@@ -379,12 +391,7 @@ function RankingTable({ rows, references, strategies, measure, onMeasureChange, 
           })}
 
           {/* Referências, sem posição */}
-          <ReferenceRow
-            name="CDI"
-            dash="dashed"
-            reference={references.cdi}
-            overCdi={null}
-          />
+          <ReferenceRow name="CDI" dash="dashed" reference={references.cdi} overCdi={null} />
           {references.ibov && ibovOverCdi !== null && (
             <ReferenceRow name="Ibovespa" dash="dotted" reference={references.ibov} overCdi={ibovOverCdi} />
           )}
@@ -429,7 +436,9 @@ function ReferenceRow({ name, dash, reference, overCdi }: ReferenceRowProps) {
       </TableCell>
       <TableCell numeric>{displayMoney(reference.networth)}</TableCell>
       <TableCell numeric>
-        <span className={tone(reference.returnOnContributed)}>{displaySignedPercent(reference.returnOnContributed, 1)}</span>
+        <span className={tone(reference.returnOnContributed)}>
+          {displaySignedPercent(reference.returnOnContributed, 1)}
+        </span>
       </TableCell>
       <TableCell numeric>
         <span className={overCdi === null ? "text-muted-foreground" : tone(overCdi)}>

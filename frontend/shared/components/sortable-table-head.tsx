@@ -28,7 +28,10 @@ export function SortableTableHead({ label, direction, onSort, hint, children, nu
           onClick={onSort}
           aria-label={`Ordenar por ${label}, ordem ${next}`}
           title={`Ordenar por ${label}, ordem ${next}`}
-          className={cn("inline-flex min-h-9 items-center gap-1 rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring", direction && "font-semibold text-foreground")}
+          className={cn(
+            "inline-flex min-h-9 items-center gap-1 rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring",
+            direction && "font-semibold text-foreground",
+          )}
         >
           {label}
           <Icon className="size-3.5 shrink-0" aria-hidden="true" />

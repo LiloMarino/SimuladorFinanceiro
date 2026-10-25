@@ -51,12 +51,7 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
 
   return (
     <div className="grid items-start gap-4 sm:grid-cols-2">
-      <div
-        className={cn(
-          "self-start overflow-hidden rounded-xl border bg-card",
-          enabled && "border-2 border-primary",
-        )}
-      >
+      <div className={cn("self-start overflow-hidden rounded-xl border bg-card", enabled && "border-2 border-primary")}>
         {/* Faixa do cartão */}
         <div className={cn("relative flex h-28 items-end px-4 py-3.5", GOVERNMENT.bannerClass)}>
           <span className="inline-flex size-14 items-center justify-center rounded-[14px] bg-white/15 text-white ring-1 ring-white/25 ring-inset">
@@ -130,7 +125,9 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
                       period={{ start: startDate, end: endDate }}
                     />
                     <FieldDescription>
-                      {opening ? `A candidatura abre um ano antes, em ${displayIsoDate(opening)}.` : "A candidatura abre um ano antes."}
+                      {opening
+                        ? `A candidatura abre um ano antes, em ${displayIsoDate(opening)}.`
+                        : "A candidatura abre um ano antes."}
                     </FieldDescription>
                     <FieldError errors={[fieldState.error]} />
                   </Field>
@@ -157,7 +154,9 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
                           jogadores. Cada um gasta uma verba por mês, medida sobre a média dos partidos de jogadores.
                         </p>
                         <p>{difficultyExample(field.value)}</p>
-                        <p>Mais verba, mais intenção de voto para o computador: a eleição fica mais difícil de ganhar.</p>
+                        <p>
+                          Mais verba, mais intenção de voto para o computador: a eleição fica mais difícil de ganhar.
+                        </p>
                       </div>
                     </InfoHint>
                   </FieldLabel>

@@ -31,8 +31,10 @@ const LEGEND: { kind: TimelineZone["kind"]; label: string }[] = [
   { kind: "repeat", label: "Repete o último valor" },
 ];
 
-const BUBBLE = "pointer-events-none absolute -top-[30px] inline-flex h-5 items-center rounded-[5px] bg-foreground px-1.5 font-mono text-[11px] whitespace-nowrap text-primary-foreground";
-const TIP = "pointer-events-none absolute top-[26px] z-20 rounded-md bg-foreground px-2.5 py-1.5 text-xs font-medium whitespace-nowrap text-primary-foreground";
+const BUBBLE =
+  "pointer-events-none absolute -top-[30px] inline-flex h-5 items-center rounded-[5px] bg-foreground px-1.5 font-mono text-[11px] whitespace-nowrap text-primary-foreground";
+const TIP =
+  "pointer-events-none absolute top-[26px] z-20 rounded-md bg-foreground px-2.5 py-1.5 text-xs font-medium whitespace-nowrap text-primary-foreground";
 
 /** Aviso sob a linha: onde a alça parou ou o que a barra mantém ao andar. */
 export type TimelineTip = { text: string; at: "start" | "end" | "bar" };
@@ -197,7 +199,9 @@ export function PeriodTimeline({
         ))}
       </div>
       {!range && !loading && (
-        <div className="pt-0.5 text-center text-xs text-muted-foreground">Escolha um atalho ou arraste as alças na linha.</div>
+        <div className="pt-0.5 text-center text-xs text-muted-foreground">
+          Escolha um atalho ou arraste as alças na linha.
+        </div>
       )}
       {/* Legenda */}
       <div className="mt-1.5 flex flex-wrap gap-3">

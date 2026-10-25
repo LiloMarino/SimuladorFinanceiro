@@ -30,8 +30,8 @@ export function PartiesCard({ panel }: PartiesCardProps) {
           <div className="grid gap-0.5">
             <h2 className="text-[15px] font-semibold">Partidos</h2>
             <span className="text-xs text-muted-foreground">
-              Filiados, contribuições, verba, gasto e promessa de cada partido são públicos, como a prestação de contas de
-              uma campanha.
+              Filiados, contribuições, verba, gasto e promessa de cada partido são públicos, como a prestação de contas
+              de uma campanha.
             </span>
           </div>
 
@@ -101,7 +101,11 @@ function PartyRow({ party, current, ticketOpen }: { party: ElectionParty; curren
             ) : (
               "sem candidato elegível"
             )}
-            {!party.ticket_chosen && !party.is_computer && <Badge variant="secondary" size="sm">chapa padrão</Badge>}
+            {!party.ticket_chosen && !party.is_computer && (
+              <Badge variant="secondary" size="sm">
+                chapa padrão
+              </Badge>
+            )}
           </span>
         </span>
       </TableCell>
@@ -123,12 +127,8 @@ function PartyRow({ party, current, ticketOpen }: { party: ElectionParty; curren
       <TableCell numeric className="whitespace-nowrap">
         {pointsFormat.format(Number(party.intention_points))}%
       </TableCell>
-      <TableCell numeric>
-        {displayMoneyWhole(party.budget)}
-      </TableCell>
-      <TableCell numeric>
-        {displayMoneyWhole(party.spent)}
-      </TableCell>
+      <TableCell numeric>{displayMoneyWhole(party.budget)}</TableCell>
+      <TableCell numeric>{displayMoneyWhole(party.spent)}</TableCell>
       <TableCell className="w-36">
         <PromiseRuler
           markers={[

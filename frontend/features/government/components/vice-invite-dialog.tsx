@@ -31,8 +31,14 @@ export function ViceInviteDialog({ open, onOpenChange, party, panel }: ViceInvit
 
   const lines = [
     { icon: Users, text: `Se o ${party.abbr} vencer, ${candidate} é o eleito e você é o vice.` },
-    { icon: CircleCheck, text: `Sem resposta até ${displayDayMonth(panel.dates.ticket_deadline)}, a chapa concorre sem vice.` },
-    { icon: Undo2, text: `Recusar não tira você do ${party.abbr}: a vaga volta para ${founder} indicar outro filiado.` },
+    {
+      icon: CircleCheck,
+      text: `Sem resposta até ${displayDayMonth(panel.dates.ticket_deadline)}, a chapa concorre sem vice.`,
+    },
+    {
+      icon: Undo2,
+      text: `Recusar não tira você do ${party.abbr}: a vaga volta para ${founder} indicar outro filiado.`,
+    },
   ];
 
   return (
@@ -53,8 +59,9 @@ export function ViceInviteDialog({ open, onOpenChange, party, panel }: ViceInvit
               <span className="grid flex-1 gap-0.5">
                 <b>{party.name}</b>
                 <span className="text-xs text-muted-foreground">
-                  Candidato: {candidate} · {Number(party.intention_points).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}% na
-                  pesquisa · verba de {displayMoney(party.budget)}/mês
+                  Candidato: {candidate} ·{" "}
+                  {Number(party.intention_points).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}% na pesquisa ·
+                  verba de {displayMoney(party.budget)}/mês
                 </span>
               </span>
             </div>

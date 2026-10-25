@@ -92,8 +92,8 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
             Entrar na partida
           </CardTitle>
           <CardDescription>
-            {match.name} já está em andamento. Escolha uma cor{inTeams ? " e uma equipe" : ""} e comece a jogar com o saldo inicial de{" "}
-            <span className="font-mono">{formatMoney(toCentsString(match.starting_cash))}</span>.
+            {match.name} já está em andamento. Escolha uma cor{inTeams ? " e uma equipe" : ""} e comece a jogar com o
+            saldo inicial de <span className="font-mono">{formatMoney(toCentsString(match.starting_cash))}</span>.
           </CardDescription>
         </CardHeader>
 

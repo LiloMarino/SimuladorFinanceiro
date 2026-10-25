@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { calculatedGoal, isPositiveMoney, isWithdrawalRate, withdrawalRateFraction, withdrawalRateToBody } from "./life-rules";
+import {
+  calculatedGoal,
+  isPositiveMoney,
+  isWithdrawalRate,
+  withdrawalRateFraction,
+  withdrawalRateToBody,
+} from "./life-rules";
 
 describe("taxa de retirada", () => {
   it("aceita de 1% a 10% ao ano, limites incluídos", () => {

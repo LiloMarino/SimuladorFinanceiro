@@ -23,7 +23,9 @@ type DiscardDialogProps = {
 /** Descartar apaga o que o backtest gravou; guardar até aqui é o "Parar e ver o resultado". */
 export function DiscardDialog({ progress, pending, onDiscard }: DiscardDialogProps) {
   const percent = progress.total_days > 0 ? Math.floor((progress.done_days / progress.total_days) * 100) : 0;
-  const reached = progress.current_date ? displayMonthSlashYear(progress.current_date) : displayMonthSlashYear(progress.start_date);
+  const reached = progress.current_date
+    ? displayMonthSlashYear(progress.current_date)
+    : displayMonthSlashYear(progress.start_date);
 
   return (
     <AlertDialog>
@@ -35,8 +37,8 @@ export function DiscardDialog({ progress, pending, onDiscard }: DiscardDialogPro
         <AlertDialogHeader>
           <AlertDialogTitle>Descartar este backtest?</AlertDialogTitle>
           <AlertDialogDescription>
-            Rodou até {reached} ({percent}%). Nada fica salvo e você volta ao lobby. Para guardar até aqui, use Parar e ver
-            o resultado.
+            Rodou até {reached} ({percent}%). Nada fica salvo e você volta ao lobby. Para guardar até aqui, use Parar e
+            ver o resultado.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

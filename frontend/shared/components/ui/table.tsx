@@ -70,7 +70,12 @@ function TableRow({
 }
 
 /** `numeric`: coluna de valores, alinhada à direita. */
-function TableHead({ className, numeric = false, variant = "default", ...props }: React.ComponentProps<"th"> & {
+function TableHead({
+  className,
+  numeric = false,
+  variant = "default",
+  ...props
+}: React.ComponentProps<"th"> & {
   numeric?: boolean;
   variant?: "default" | "compact" | "matrix" | "hint";
 }) {

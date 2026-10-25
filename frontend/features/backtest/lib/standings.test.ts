@@ -7,7 +7,13 @@ const participants = [
   { nickname: "B", color: "chart-2", strategy_key: "x", params: {} },
 ] as BacktestParticipant[];
 
-const point = { day: "2020-03-02", equity: ["110.00", "150.00"], contributed: "100.00", cdi: "120.00", ibov: null } as BacktestPoint;
+const point = {
+  day: "2020-03-02",
+  equity: ["110.00", "150.00"],
+  contributed: "100.00",
+  cdi: "120.00",
+  ibov: null,
+} as BacktestPoint;
 
 describe("standingsOf", () => {
   it("ordena pelo patrimônio e calcula o retorno sobre o aportado", () => {

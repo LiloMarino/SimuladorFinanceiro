@@ -16,7 +16,14 @@ import {
 } from "./government";
 
 const measure = (partial: Partial<GovernmentMeasure>) =>
-  ({ id: 1, status: "QUEUED", vote_date: "2020-03-31", effective: null, chance: null, ...partial }) as GovernmentMeasure;
+  ({
+    id: 1,
+    status: "QUEUED",
+    vote_date: "2020-03-31",
+    effective: null,
+    chance: null,
+    ...partial,
+  }) as GovernmentMeasure;
 
 describe("percentLabel", () => {
   it("escreve só as casas que fazem falta", () => {

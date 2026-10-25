@@ -25,7 +25,8 @@ export function votedToast(event: GovernmentNotice, held: string[]): MeasureToas
   }
   const mine = heldTickers(event, held);
   const when = event.effective ? `Vale em ${displayDayMonth(event.effective)}, daqui a 90 dias.` : "";
-  const wallet = mine.length > 0 ? ` Você tem ${displayList(mine)}: a regra vale para as vendas com lucro depois disso.` : "";
+  const wallet =
+    mine.length > 0 ? ` Você tem ${displayList(mine)}: a regra vale para as vendas com lucro depois disso.` : "";
   return { tone: "success", title: `Congresso aprovou: ${title}`, description: `${when}${wallet}`.trim() };
 }
 

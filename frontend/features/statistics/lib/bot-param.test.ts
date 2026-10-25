@@ -13,7 +13,9 @@ describe("displayBotParam", () => {
   it("lista as ações e resume as que passam de cinco", () => {
     const tickers = ["PETR4", "VALE3", "ITUB4", "BBDC4", "WEGE3", "ABEV3", "B3SA3"];
     // 7 ações: 5 por extenso e 2 no "+2"
-    expect(displayBotParam({ label: "Ações", value: tickers, unit: null })).toBe("PETR4, VALE3, ITUB4, BBDC4, WEGE3 +2");
+    expect(displayBotParam({ label: "Ações", value: tickers, unit: null })).toBe(
+      "PETR4, VALE3, ITUB4, BBDC4, WEGE3 +2",
+    );
     expect(displayBotParam({ label: "Ações", value: tickers.slice(0, 2), unit: null })).toBe("PETR4, VALE3");
   });
 

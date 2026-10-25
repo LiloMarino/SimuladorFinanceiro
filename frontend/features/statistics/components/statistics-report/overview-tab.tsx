@@ -4,14 +4,7 @@ import { sortNumber } from "@/shared/lib/table-sort";
 import { useState } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableEmptyRow,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table";
+import { Table, TableBody, TableCell, TableEmptyRow, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { Progress } from "@/shared/components/ui/progress";
@@ -40,11 +33,19 @@ import { PlayerCell, PlayerToggle, TabStatus, type ReportProps } from "./shared"
 import { TeamHeadline, TeamRanking } from "./team-ranking";
 import { TeamScore } from "./team-score";
 
-
 export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds, onlyPlayer);
   const [botLog, setBotLog] = useState<PlayerRef | null>(null);
-  if (!data) return <TabStatus simulationIds={simulationIds} loading={isLoading} title="o Geral" error={error} onRetry={() => void refetch()} />;
+  if (!data)
+    return (
+      <TabStatus
+        simulationIds={simulationIds}
+        loading={isLoading}
+        title="o Geral"
+        error={error}
+        onRetry={() => void refetch()}
+      />
+    );
 
   const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
   const botLogCard = botLog && <BotLogCard bot={botLog} onClose={() => setBotLog(null)} />;
@@ -71,7 +72,11 @@ export function OverviewTab({ simulationIds, currentPlayerName = "", onlyPlayer 
         />
         {botLogCard}
         {simulationIds.length === 1 && (
-          <ScoreHistoryCard simulationIds={simulationIds} currentPlayerName={currentPlayerName} onlyPlayer={onlyPlayer} />
+          <ScoreHistoryCard
+            simulationIds={simulationIds}
+            currentPlayerName={currentPlayerName}
+            onlyPlayer={onlyPlayer}
+          />
         )}
         <TeamScore report={data} currentPlayerName={currentPlayerName} />
       </div>
@@ -143,7 +148,8 @@ function YouVersusYou({
               {mine.map((p, i) => {
                 const value = pointsOf(p, axis);
                 const reference = pointsOf(base, axis);
-                const rawDiff = i > 0 && value !== null && reference !== null ? Number(value) - Number(reference) : null;
+                const rawDiff =
+                  i > 0 && value !== null && reference !== null ? Number(value) - Number(reference) : null;
                 // Diferença que arredonda para 0 não vira "+0"
                 const diff = rawDiff !== null && Math.round(rawDiff) !== 0 ? rawDiff : null;
                 return (
@@ -252,12 +258,17 @@ function Headline({ report, currentPlayerName }: { report: OverviewReport; curre
               {you && measure === "GOAL" && goal_net_worth && (
                 <span className="text-[13px] text-muted-foreground">
                   Faltam{" "}
-                  <b className="font-mono text-foreground">{displayRemainingToGoal(you.criterion_value, goal_net_worth)}</b>{" "}
+                  <b className="font-mono text-foreground">
+                    {displayRemainingToGoal(you.criterion_value, goal_net_worth)}
+                  </b>{" "}
                   para a meta
                   {you.position > 1 && (
                     <>
                       {" "}
-                      e <b className="font-mono text-foreground">{displayCriterionGap(measure, you.leader_gap, goal_net_worth)}</b>{" "}
+                      e{" "}
+                      <b className="font-mono text-foreground">
+                        {displayCriterionGap(measure, you.leader_gap, goal_net_worth)}
+                      </b>{" "}
                       para passar {leader.player_nickname} (1º)
                     </>
                   )}
@@ -329,7 +340,8 @@ function Ranking({
     player: (p) => playerLabel(p, simulationIds, currentPlayerName),
     score: (p) => sortNumber(goalRace ? p.criterion_value : p.score?.total),
     wealth: (p) => sortNumber(p.total_networth),
-    remaining: (p) => p.criterion_value == null ? null : Math.max(0, (1 - Number(p.criterion_value)) * Number(report.goal_net_worth)),
+    remaining: (p) =>
+      p.criterion_value == null ? null : Math.max(0, (1 - Number(p.criterion_value)) * Number(report.goal_net_worth)),
     return: (p) => sortNumber(p.return_percent),
     days: (p) => p.days,
     gap: (p) => sortNumber(p.leader_gap),
@@ -344,41 +356,43 @@ function Ranking({
       <CardHeader>
         <CardTitle>{title ?? (comparing ? `Ranking das ${simulationIds.length} partidas` : "Ranking")}</CardTitle>
         <CardDescription>
-          {hasBots ? `${rankingDescription.replace(/\.$/, "")}. Bots entram no ranking e na nota como qualquer jogador.` : rankingDescription}
+          {hasBots
+            ? `${rankingDescription.replace(/\.$/, "")}. Bots entram no ranking e na nota como qualquer jogador.`
+            : rankingDescription}
         </CardDescription>
         {(action || hasBots || comparing) && (
           <CardAction>
-          <div className="flex items-center gap-2">
-            {hasBots && (
-              <ToggleGroup
-                variant="segmented"
-                aria-label="Quem aparece no ranking"
-                value={[onlyPeople ? "people" : "all"]}
-                onValueChange={(values) => {
-                  if (values[0]) setOnlyPeople(values[0] === "people");
-                }}
-              >
-                <ToggleGroupItem value="all">Todos</ToggleGroupItem>
-                <ToggleGroupItem value="people">Só pessoas</ToggleGroupItem>
-              </ToggleGroup>
-            )}
-            {action}
-            {comparing && (
-              <ToggleGroup
-                variant="segmented"
-                aria-label="Ordenar por"
-                value={sortBy ? [sortBy] : []}
-                onValueChange={(values) => {
-                  const column = shortcuts[values[0] as keyof typeof shortcuts];
-                  if (column) sorting.setSort({ column, direction: "desc" });
-                }}
-              >
-                <ToggleGroupItem value="SCORE">{goalRace ? "% da meta" : "Nota"}</ToggleGroupItem>
-                <ToggleGroupItem value="RETURN">Retorno</ToggleGroupItem>
-                <ToggleGroupItem value="NETWORTH">Patrimônio</ToggleGroupItem>
-              </ToggleGroup>
-            )}
-          </div>
+            <div className="flex items-center gap-2">
+              {hasBots && (
+                <ToggleGroup
+                  variant="segmented"
+                  aria-label="Quem aparece no ranking"
+                  value={[onlyPeople ? "people" : "all"]}
+                  onValueChange={(values) => {
+                    if (values[0]) setOnlyPeople(values[0] === "people");
+                  }}
+                >
+                  <ToggleGroupItem value="all">Todos</ToggleGroupItem>
+                  <ToggleGroupItem value="people">Só pessoas</ToggleGroupItem>
+                </ToggleGroup>
+              )}
+              {action}
+              {comparing && (
+                <ToggleGroup
+                  variant="segmented"
+                  aria-label="Ordenar por"
+                  value={sortBy ? [sortBy] : []}
+                  onValueChange={(values) => {
+                    const column = shortcuts[values[0] as keyof typeof shortcuts];
+                    if (column) sorting.setSort({ column, direction: "desc" });
+                  }}
+                >
+                  <ToggleGroupItem value="SCORE">{goalRace ? "% da meta" : "Nota"}</ToggleGroupItem>
+                  <ToggleGroupItem value="RETURN">Retorno</ToggleGroupItem>
+                  <ToggleGroupItem value="NETWORTH">Patrimônio</ToggleGroupItem>
+                </ToggleGroup>
+              )}
+            </div>
           </CardAction>
         )}
       </CardHeader>
@@ -387,21 +401,35 @@ function Ranking({
           <TableRow>
             <SortableTableHead label={"#"} {...sorting.header("position")} />
             <SortableTableHead label={"Jogador"} {...sorting.header("player")} />
-            <SortableTableHead label={(goalRace ? GOAL_PERCENT : SCORE).label} {...sorting.header("score")} numeric hint={<MetricHint metric={goalRace ? GOAL_PERCENT : SCORE} />} />
+            <SortableTableHead
+              label={(goalRace ? GOAL_PERCENT : SCORE).label}
+              {...sorting.header("score")}
+              numeric
+              hint={<MetricHint metric={goalRace ? GOAL_PERCENT : SCORE} />}
+            />
             <SortableTableHead label={"Patrimônio"} {...sorting.header("wealth")} numeric />
             {showRemaining && (
-              <SortableTableHead label={GOAL_REMAINING.label} {...sorting.header("remaining")} numeric hint={<MetricHint metric={GOAL_REMAINING} />} />
+              <SortableTableHead
+                label={GOAL_REMAINING.label}
+                {...sorting.header("remaining")}
+                numeric
+                hint={<MetricHint metric={GOAL_REMAINING} />}
+              />
             )}
             <SortableTableHead label={goalRace ? "Rentabilidade" : "Retorno"} {...sorting.header("return")} numeric />
             {!goalRace && <SortableTableHead label={"Pregões"} {...sorting.header("days")} numeric />}
-            {!comparing && !goalRace && <SortableTableHead label={"Distância do líder"} {...sorting.header("gap")} numeric />}
+            {!comparing && !goalRace && (
+              <SortableTableHead label={"Distância do líder"} {...sorting.header("gap")} numeric />
+            )}
             {inTeams && <SortableTableHead label={"Na média da equipe"} {...sorting.header("contribution")} numeric />}
           </TableRow>
         </TableHeader>
         <TableBody>
           {report.players.length === 0 && (
             <TableEmptyRow
-              colSpan={5 + (goalRace ? 0 : 1) + (goalRace || comparing ? 0 : 1) + (showRemaining ? 1 : 0) + (inTeams ? 1 : 0)}
+              colSpan={
+                5 + (goalRace ? 0 : 1) + (goalRace || comparing ? 0 : 1) + (showRemaining ? 1 : 0) + (inTeams ? 1 : 0)
+              }
             >
               <p className="text-[13px] text-muted-foreground">
                 Ninguém tem patrimônio registrado ainda. O ranking aparece depois do primeiro pregão.
@@ -439,16 +467,24 @@ function Ranking({
                 </TableCell>
                 {comparing ? (
                   <TableCell numeric>
-                    {goalRace ? displayCriterionValue(measure, p.criterion_value) : displayMetric(SCORE, p.score?.total)}
+                    {goalRace
+                      ? displayCriterionValue(measure, p.criterion_value)
+                      : displayMetric(SCORE, p.score?.total)}
                   </TableCell>
                 ) : (
                   <TableCell>
                     <span className="flex items-center gap-2">
                       <span className="w-10 font-mono font-semibold">
-                        {goalRace ? displayCriterionValue(measure, p.criterion_value) : displayMetric(SCORE, p.score?.total)}
+                        {goalRace
+                          ? displayCriterionValue(measure, p.criterion_value)
+                          : displayMetric(SCORE, p.score?.total)}
                       </span>
                       {goalRace ? (
-                        <Progress value={Math.min(Number(p.criterion_value ?? 0), 1) * 100} size="sm" className="w-28" />
+                        <Progress
+                          value={Math.min(Number(p.criterion_value ?? 0), 1) * 100}
+                          size="sm"
+                          className="w-28"
+                        />
                       ) : (
                         <span className="h-1.5 w-28 overflow-hidden rounded-full bg-muted">
                           <span
@@ -493,9 +529,7 @@ function Ranking({
                   </TableCell>
                 )}
                 {!goalRace && <TableCell numeric>{p.days}</TableCell>}
-                {!comparing && !goalRace && (
-                  <TableCell numeric>{displayCriterionGap(measure, p.leader_gap)}</TableCell>
-                )}
+                {!comparing && !goalRace && <TableCell numeric>{displayCriterionGap(measure, p.leader_gap)}</TableCell>}
                 {inTeams && (
                   <TableCell numeric>
                     <span
@@ -547,8 +581,7 @@ function ScoreAxes({
   const [selected, setSelected] = useState<string | undefined>(
     yours ? playerLabel(yours, simulationIds, currentPlayerName) : labels[0],
   );
-  const player =
-    scored.find((p) => playerLabel(p, simulationIds, currentPlayerName) === selected) ?? scored[0];
+  const player = scored.find((p) => playerLabel(p, simulationIds, currentPlayerName) === selected) ?? scored[0];
 
   if (!player?.score) {
     return (

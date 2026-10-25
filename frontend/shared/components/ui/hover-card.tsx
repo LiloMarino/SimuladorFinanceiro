@@ -38,8 +38,10 @@ function HoverCardContent({
   side = "bottom",
   sideOffset = 6,
   ...props
-}: PreviewCardPrimitive.Popup.Props & { compact?: boolean } &
-  Pick<PreviewCardPrimitive.Positioner.Props, "align" | "alignOffset" | "side" | "sideOffset">) {
+}: PreviewCardPrimitive.Popup.Props & { compact?: boolean } & Pick<
+    PreviewCardPrimitive.Positioner.Props,
+    "align" | "alignOffset" | "side" | "sideOffset"
+  >) {
   return (
     <PreviewCardPrimitive.Portal>
       <PreviewCardPrimitive.Positioner

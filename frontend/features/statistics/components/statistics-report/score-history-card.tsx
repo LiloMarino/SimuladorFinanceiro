@@ -43,7 +43,13 @@ export function ScoreHistoryCard({ simulationIds, currentPlayerName = "", onlyPl
       : data.players.map((p) => {
           const label = playerLabel(p, simulationIds, currentPlayerName);
           const isYou = p.player_nickname === currentPlayerName;
-          return { key: label, label: youLabel(label, isYou), color: colorOf(label), points: p.points, emphasis: isYou };
+          return {
+            key: label,
+            label: youLabel(label, isYou),
+            color: colorOf(label),
+            points: p.points,
+            emphasis: isYou,
+          };
         });
 
   return (

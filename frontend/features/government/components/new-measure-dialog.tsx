@@ -42,9 +42,11 @@ const WHOLE_SECTOR = "all";
 const MARK = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
 /** Escolhe a opção de um grupo de uma só opção: soltar a marcada não muda nada. */
-const pick = <T extends string>(set: (value: T) => void) => (values: string[]) => {
-  if (values[0]) set(values[0] as T);
-};
+const pick =
+  <T extends string>(set: (value: T) => void) =>
+  (values: string[]) => {
+    if (values[0]) set(values[0] as T);
+  };
 
 type NewMeasureDialogProps = {
   open: boolean;
@@ -190,7 +192,11 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
                     onChange={(event) => setValueText(event.target.value)}
                   />
                   <FieldDescription>
-                    Hoje {kind === "FIXED_INCOME_TABLE" ? `${percentLabel(row.top_value ?? row.value)} no topo` : percentLabel(row.value)}.
+                    Hoje{" "}
+                    {kind === "FIXED_INCOME_TABLE"
+                      ? `${percentLabel(row.top_value ?? row.value)} no topo`
+                      : percentLabel(row.value)}
+                    .
                   </FieldDescription>
                 </Field>
               )}
@@ -252,7 +258,9 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
                     </SelectContent>
                   </Select>
                   {segmentOption && (
-                    <FieldDescription>Só os {segmentOption.assets} ativos desse segmento entram na medida.</FieldDescription>
+                    <FieldDescription>
+                      Só os {segmentOption.assets} ativos desse segmento entram na medida.
+                    </FieldDescription>
                   )}
                 </Field>
               )}
@@ -311,7 +319,8 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
                 )}
                 <Row label="Aprovação, ao valer">{signedPoints(data.impact)}</Row>
                 <Row label="Marca do governo na régua">
-                  {data.mark_before ? MARK.format(Number(data.mark_before)) : "—"} → {MARK.format(Number(data.mark_after))}
+                  {data.mark_before ? MARK.format(Number(data.mark_before)) : "—"} →{" "}
+                  {MARK.format(Number(data.mark_after))}
                 </Row>
               </dl>
               <p className="text-xs leading-normal text-muted-foreground">

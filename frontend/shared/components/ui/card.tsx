@@ -6,7 +6,10 @@ function Card({
   size = "default",
   variant = "default",
   ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" | "lg" | "flush"; variant?: "default" | "destructive" | "warning" | "success" }) {
+}: React.ComponentProps<"div"> & {
+  size?: "default" | "sm" | "lg" | "flush";
+  variant?: "default" | "destructive" | "warning" | "success";
+}) {
   return (
     <div
       data-slot="card"

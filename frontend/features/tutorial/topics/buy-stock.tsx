@@ -111,12 +111,7 @@ export default function BuyStockIllustration({ beat, step, still = false }: Illu
         </AnimatePresence>
 
         {ticketOnStage && (
-          <TypeInto
-            finder={SIZE}
-            text={beat >= TYPING ? SIZE_TEXT : ""}
-            typing={beat === TYPING}
-            delay={600}
-          />
+          <TypeInto finder={SIZE} text={beat >= TYPING ? SIZE_TEXT : ""} typing={beat === TYPING} delay={600} />
         )}
         {beat === BOUGHT && <StageToast>Compra de 100 PETR4 feita</StageToast>}
 

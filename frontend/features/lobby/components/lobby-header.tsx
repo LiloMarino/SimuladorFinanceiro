@@ -98,7 +98,13 @@ export function LobbyHeader({ isHost, hostNickname }: LobbyHeaderProps) {
           </a>
         )}
         {isHost && tunnelStatus && !tunnelStatus.active && (
-          <Button variant="link" size="sm" className="self-start" disabled={tunnelLoading} onClick={() => startTunnel()}>
+          <Button
+            variant="link"
+            size="sm"
+            className="self-start"
+            disabled={tunnelLoading}
+            onClick={() => startTunnel()}
+          >
             {tunnelLoading ? "Gerando link público…" : "Gerar link público pra quem está fora da rede →"}
           </Button>
         )}

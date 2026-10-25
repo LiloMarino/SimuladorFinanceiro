@@ -93,7 +93,10 @@ export function monthYear(day: string) {
   return `${displayMonthShort(day)} ${parseLocalDate(day).getFullYear()}`;
 }
 
-export const STAGES: Record<MeasureStatus, { label: string; variant: "warning" | "info" | "destructive" | "secondary" }> = {
+export const STAGES: Record<
+  MeasureStatus,
+  { label: string; variant: "warning" | "info" | "destructive" | "secondary" }
+> = {
   QUEUED: { label: "Na fila", variant: "warning" },
   APPROVED: { label: "Aprovada", variant: "info" },
   REJECTED: { label: "Rejeitada", variant: "destructive" },
@@ -147,9 +150,7 @@ export function approvalArrow(approval: Pick<GovernmentApproval, "value" | "prev
 /** Meses abaixo do piso, no plural certo: "2 meses seguidos abaixo de 25%". */
 export function lowStreakLabel(approval: Pick<GovernmentApproval, "low_streak" | "floor">) {
   const months = approval.low_streak;
-  return months === 1
-    ? `1 mês abaixo de ${approval.floor}%`
-    : `${months} meses seguidos abaixo de ${approval.floor}%`;
+  return months === 1 ? `1 mês abaixo de ${approval.floor}%` : `${months} meses seguidos abaixo de ${approval.floor}%`;
 }
 
 /** Quem assume se o impeachment vier: o vice, ou um governo neutro do computador. */

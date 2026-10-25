@@ -21,9 +21,7 @@ export async function apiFetch<R = unknown>(path: string, init: ApiFetchInit<R> 
   // Só leituras têm timeout: uma compra enviada pode ter sido executada mesmo
   // se a conexão cair e não deve ser reenviada automaticamente.
   const readOnly = method === "GET" || path.endsWith("/order-preview");
-  const requestSignal = readOnly
-    ? AbortSignal.any([...(signal ? [signal] : []), AbortSignal.timeout(30_000)])
-    : signal;
+  const requestSignal = readOnly ? AbortSignal.any([...(signal ? [signal] : []), AbortSignal.timeout(30_000)]) : signal;
 
   let res: Response;
   try {

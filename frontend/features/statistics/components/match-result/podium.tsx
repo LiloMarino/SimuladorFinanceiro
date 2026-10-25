@@ -23,7 +23,12 @@ export function Podium({ report, currentPlayerName }: PodiumProps) {
       renderEntry={(player, first) => (
         <>
           {first && <Trophy className="size-[26px] text-trophy" />}
-          <PlayerAvatar nickname={player.player_nickname} color={player.color} bot={player.is_bot} size={first ? "2xl" : "xl"} />
+          <PlayerAvatar
+            nickname={player.player_nickname}
+            color={player.color}
+            bot={player.is_bot}
+            size={first ? "2xl" : "xl"}
+          />
           <span className={cn("max-w-full truncate font-semibold text-white", first ? "text-lg" : "text-[15px]")}>
             {player.player_nickname}
             {player.player_nickname === currentPlayerName && " (você)"}

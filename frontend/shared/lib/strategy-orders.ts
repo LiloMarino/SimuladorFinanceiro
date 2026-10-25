@@ -22,7 +22,13 @@ export function dayOrdersSummary(orders: StrategyOrderLine[]) {
 export function orderToastTitle(order: StrategyOrderLine) {
   const what = order.ticker ?? order.asset_name ?? "";
   const quantity = order.quantity === null ? "" : `${displayQuantity(order.quantity)} `;
-  const verb = { buy: "comprou", sell: "vendeu", cancel: "cancelou a ordem de", invest: "aplicou em", redeem: "resgatou de" }[order.action];
+  const verb = {
+    buy: "comprou",
+    sell: "vendeu",
+    cancel: "cancelou a ordem de",
+    invest: "aplicou em",
+    redeem: "resgatou de",
+  }[order.action];
   return order.status === "refused"
     ? `A estratégia tentou ${order.action === "buy" ? "comprar" : order.action === "sell" ? "vender" : "operar"} ${quantity}${what}`
     : `A estratégia ${verb} ${quantity}${what}`.trim();

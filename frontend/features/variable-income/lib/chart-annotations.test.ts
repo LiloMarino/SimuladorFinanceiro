@@ -19,7 +19,10 @@ const line = (...values: number[]) => values.map((value, index) => ({ date: days
 
 describe("chart annotations", () => {
   it("põe o rótulo verde embaixo, o vermelho em cima e o cinza no doji", () => {
-    const markers = patternMarkers([pattern(days[0], "up"), pattern(days[1], "down"), pattern(days[2], "neutral")], colors);
+    const markers = patternMarkers(
+      [pattern(days[0], "up"), pattern(days[1], "down"), pattern(days[2], "neutral")],
+      colors,
+    );
     expect(markers.map((m) => [m.position, m.color, m.text])).toEqual([
       ["belowBar", "g", "Martelo"],
       ["aboveBar", "r", "Estrela cadente"],

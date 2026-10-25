@@ -85,12 +85,19 @@ export default function FixedIncomePage() {
     .filter((o) => (indexFilter === "ALL" || o.rate_index === indexFilter) && matchesType(o, typeFilter))
     .filter((o) => !onlyExempt || o.tax_exempt)
     .filter((o) => !onlyDaily || o.daily_liquidity);
-  const sorting = useTableSort(filtered, {
-    name: o => o.name, type: o => INVESTMENT_TYPE_LABELS[o.investment_type],
-    rate: o => Number(o.interest_rate), equivalent: o => sortNumber(o.effective_annual_rate),
-    maturity: o => o.maturity_date, liquidity: o => o.daily_liquidity ? 0 : 1,
-    tax: o => o.tax_exempt ? 0 : Number(o.income_tax_rate_at_maturity),
-  }, showRate ? { column: "equivalent", direction: "desc" } : { column: "maturity", direction: "asc" });
+  const sorting = useTableSort(
+    filtered,
+    {
+      name: (o) => o.name,
+      type: (o) => INVESTMENT_TYPE_LABELS[o.investment_type],
+      rate: (o) => Number(o.interest_rate),
+      equivalent: (o) => sortNumber(o.effective_annual_rate),
+      maturity: (o) => o.maturity_date,
+      liquidity: (o) => (o.daily_liquidity ? 0 : 1),
+      tax: (o) => (o.tax_exempt ? 0 : Number(o.income_tax_rate_at_maturity)),
+    },
+    showRate ? { column: "equivalent", direction: "desc" } : { column: "maturity", direction: "asc" },
+  );
   const visible = sorting.rows;
   const topRate = Math.max(...visible.map((o) => Number(o.effective_annual_rate)), 0.0001);
   const today = simulation?.current_date;
@@ -211,7 +218,9 @@ export default function FixedIncomePage() {
                         style={{ width: `${(Number(o.effective_annual_rate) / topRate) * 100}%` }}
                       />
                     </span>
-                    <span className="font-mono font-semibold">{o.effective_annual_rate === null ? "—" : `${displayPercent(o.effective_annual_rate)} a.a.`}</span>
+                    <span className="font-mono font-semibold">
+                      {o.effective_annual_rate === null ? "—" : `${displayPercent(o.effective_annual_rate)} a.a.`}
+                    </span>
                   </div>
                 </TableCell>
               )}
@@ -362,7 +371,7 @@ export default function FixedIncomePage() {
               <b className="font-semibold text-success">Qualquer dia</b>: resgata em qualquer pregão pelo valor do dia,
               com o IR do tempo que passou. Acima de 100% do CDI é rara: sai de vez em quando no catálogo do mês, com
               teto por jogador.
-          </span>
+            </span>
           </div>
         </CardFooter>
       </Card>

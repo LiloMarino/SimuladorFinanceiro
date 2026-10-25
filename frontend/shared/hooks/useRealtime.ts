@@ -6,7 +6,7 @@ import type { SimulationEvents } from "@/types";
 export function useRealtime<K extends keyof SimulationEvents>(
   event: K,
   callback: (data: SimulationEvents[K]) => void,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) {
   const { subscriber, connected } = useRealtimeContext<SimulationEvents>();
   const { session } = useAuth();

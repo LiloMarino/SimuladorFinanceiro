@@ -46,7 +46,9 @@ export function changedGroups(groups: PresetRuleGroup[]) {
 
 /** "R$ 100 mil" para os milhares redondos que um saldo costuma ser; o resto em reais inteiros */
 function moneyShort(value: number) {
-  return value >= 1000 && value % 1000 === 0 ? `R$ ${(value / 1000).toLocaleString("pt-BR")} mil` : displayMoneyWhole(value);
+  return value >= 1000 && value % 1000 === 0
+    ? `R$ ${(value / 1000).toLocaleString("pt-BR")} mil`
+    : displayMoneyWhole(value);
 }
 
 function yearsOf(rules: PresetRules) {
@@ -69,7 +71,8 @@ export function presetSummary(preset: Preset) {
   const rules = rulesOf(preset);
 
   if (!preset.built_in) {
-    const period = rules.start_date && rules.end_date ? [`${rules.start_date.slice(0, 4)} → ${rules.end_date.slice(0, 4)}`] : [];
+    const period =
+      rules.start_date && rules.end_date ? [`${rules.start_date.slice(0, 4)} → ${rules.end_date.slice(0, 4)}`] : [];
     return [`salvo em ${displayIsoDate(preset.created_at.slice(0, 10))}`, ...period, tagOf(rules)].join(" · ");
   }
 
@@ -79,12 +82,18 @@ export function presetSummary(preset: Preset) {
   if (gameType === "FINANCIAL_INDEPENDENCE") {
     parts.push("viver de renda");
     if (rules.price_impact_enabled) parts.push("impacto de preço");
-    if (rules.show_equivalent_rate === false && rules.show_maturity_projection === false && rules.show_chart_hints === false) {
+    if (
+      rules.show_equivalent_rate === false &&
+      rules.show_maturity_projection === false &&
+      rules.show_chart_hints === false
+    ) {
       parts.push("Especialista");
     }
   } else {
     if (rules.starting_cash) {
-      parts.push(`${moneyShort(Number(rules.starting_cash))} + ${displayMoneyWhole(rules.monthly_contribution ?? 0)}/mês`);
+      parts.push(
+        `${moneyShort(Number(rules.starting_cash))} + ${displayMoneyWhole(rules.monthly_contribution ?? 0)}/mês`,
+      );
     }
     parts.push(tagOf(rules));
   }
@@ -99,7 +108,11 @@ const GROUPING_LABELS: Record<SimulationFormValues["playerGrouping"], string> = 
 /** O que o preset guarda das regras de agora, na ordem do diálogo de salvar */
 export function presetIncludes(values: SimulationFormValues): { label: string; value: string }[] {
   const independence = values.gameType === "FINANCIAL_INDEPENDENCE";
-  const assistances = summarizeAssistances([values.showEquivalentRate, values.showMaturityProjection, values.showChartHints]);
+  const assistances = summarizeAssistances([
+    values.showEquivalentRate,
+    values.showMaturityProjection,
+    values.showChartHints,
+  ]);
   const impact = priceImpactModeOf(values.priceImpactEnabled, values.priceImpactK, values.priceImpactDecayDays);
 
   const decides =
@@ -112,11 +125,15 @@ export function presetIncludes(values: SimulationFormValues): { label: string; v
   return [
     {
       label: "Período",
-      value: isIsoDate(values.startDate) && isIsoDate(values.endDate)
-        ? `${displayIsoDate(values.startDate)} → ${displayIsoDate(values.endDate)}`
-        : "—",
+      value:
+        isIsoDate(values.startDate) && isIsoDate(values.endDate)
+          ? `${displayIsoDate(values.startDate)} → ${displayIsoDate(values.endDate)}`
+          : "—",
     },
-    { label: "Modo e tipo", value: `${GROUPING_LABELS[values.playerGrouping]} · ${GAME_TYPES[values.gameType]?.label}` },
+    {
+      label: "Modo e tipo",
+      value: `${GROUPING_LABELS[values.playerGrouping]} · ${GAME_TYPES[values.gameType]?.label}`,
+    },
     {
       label: "Saldo e aporte",
       value: independence ? values.startingCash : `${values.startingCash} + ${values.monthlyContribution}/mês`,

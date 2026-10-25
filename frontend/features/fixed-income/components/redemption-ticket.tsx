@@ -110,12 +110,12 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
   const [amountText, setAmountText] = useState(formatMoney("0"));
   const [touched, setTouched] = useState(false);
   const amount = Number(normalizeNumberString(amountText)) || 0;
-  const { data: quote, error, isLoading, refetch } = useFixedIncomeRedemption(
-    assetId,
-    normalizeNumberString(amountText),
-    today,
-    true,
-  );
+  const {
+    data: quote,
+    error,
+    isLoading,
+    refetch,
+  } = useFixedIncomeRedemption(assetId, normalizeNumberString(amountText), today, true);
   // Com o automático ligado a boleta fica só para leitura
   const tradeLock = useTradeLock();
   const locked = tradeLock !== null;
@@ -278,12 +278,7 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
 
         {leftCatalogOn && permanentCdbId && <PermanentCdbLink id={permanentCdbId} />}
 
-        <Button
-          size="lg"
-          variant="dark"
-          disabled={locked || !current || redeem.isPending}
-          onClick={submit}
-        >
+        <Button size="lg" variant="dark" disabled={locked || !current || redeem.isPending} onClick={submit}>
           {redeem.isPending && <Spinner />}
           {redeem.isPending
             ? "Resgatando…"
@@ -305,8 +300,8 @@ function noticeFor(quote: FixedIncomeRedemptionQuote, today: string): ReactNode 
     const days = daysUntil(quote.iof_free_date);
     return (
       <>
-        Nos primeiros 30 dias o IOF leva parte do rendimento: {displayPercent(quote.iof_rate, 0)} hoje, zero a partir
-        de <b>{displayDate(parseLocalDate(quote.iof_free_date))}</b> (daqui a {days} {days === 1 ? "dia" : "dias"}).
+        Nos primeiros 30 dias o IOF leva parte do rendimento: {displayPercent(quote.iof_rate, 0)} hoje, zero a partir de{" "}
+        <b>{displayDate(parseLocalDate(quote.iof_free_date))}</b> (daqui a {days} {days === 1 ? "dia" : "dias"}).
       </>
     );
   }
@@ -375,11 +370,7 @@ function WithoutLiquidity({ offer }: { offer: FixedIncomeOffer }) {
         Pra ter dinheiro que sai em qualquer dia, procure os títulos com{" "}
         <DailyLiquidityBadge size="sm">liquidez diária</DailyLiquidityBadge>.
       </span>
-      <Button
-        variant="outline"
-        nativeButton={false}
-        render={<Link to="/fixed-income?liquidity=daily" />}
-      >
+      <Button variant="outline" nativeButton={false} render={<Link to="/fixed-income?liquidity=daily" />}>
         Ver títulos com liquidez diária
       </Button>
     </div>

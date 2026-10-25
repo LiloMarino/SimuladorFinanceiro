@@ -4,30 +4,13 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "use-debounce";
 import { toast } from "sonner";
-import {
-  CalendarDays,
-  CircleX,
-  Dices,
-  ExternalLink,
-  Sparkles,
-  TriangleAlert,
-} from "lucide-react";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/shared/components/ui/alert";
+import { CalendarDays, CircleX, Dices, ExternalLink, Sparkles, TriangleAlert } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { DateField } from "@/shared/components/date-field";
 import { MarkedSlider } from "@/shared/components/marked-slider";
-import {
-  DialogBody,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/components/ui/dialog";
+import { DialogBody, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import {
   Empty,
   EmptyContent,
@@ -36,26 +19,15 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/shared/components/ui/empty";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/shared/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Progress } from "@/shared/components/ui/progress";
 import { Spinner } from "@/shared/components/ui/spinner";
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/shared/components/ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { cn } from "@/shared/lib/utils";
 import { dateFieldError } from "@/shared/lib/utils/date-field";
-import {
-  displayIsoDate,
-  displayNumber,
-} from "@/shared/lib/utils/display";
+import { displayIsoDate, displayNumber } from "@/shared/lib/utils/display";
 import type {
   FutureParams,
   FuturePreviewRequest,
@@ -86,11 +58,7 @@ import {
   temperatureReading,
   withMinus,
 } from "../lib/future-readings";
-import {
-  InflationShockHint,
-  StartRegimeHint,
-  TemperatureHint,
-} from "./future-hints";
+import { InflationShockHint, StartRegimeHint, TemperatureHint } from "./future-hints";
 import { FuturePreviewPanel } from "./future-preview-panel";
 
 const SHORTCUT_YEARS = [1, 2, 5, 10];
@@ -118,24 +86,15 @@ const futureFormSchema = (lastRealIso: string | null) =>
       }),
     seed: z
       .string()
-      .regex(
-        new RegExp(`^\\d{1,${SEED_DIGITS}}$`),
-        `A semente é um número inteiro de até ${SEED_DIGITS} dígitos`,
-      ),
+      .regex(new RegExp(`^\\d{1,${SEED_DIGITS}}$`), `A semente é um número inteiro de até ${SEED_DIGITS} dígitos`),
     temperature: z.number().min(TEMPERATURE.min).max(TEMPERATURE.max),
     startRegime: z.enum(["TODAY", "CALM", "NORMAL", "AGITATED"]),
-    inflationShock: z
-      .number()
-      .min(INFLATION_SHOCK.min)
-      .max(INFLATION_SHOCK.max),
+    inflationShock: z.number().min(INFLATION_SHOCK.min).max(INFLATION_SHOCK.max),
   });
 
 type FutureFormValues = z.infer<ReturnType<typeof futureFormSchema>>;
 
-function initialValues(
-  future: GeneratedFuture | null,
-  redrawSeed: boolean,
-): FutureFormValues {
+function initialValues(future: GeneratedFuture | null, redrawSeed: boolean): FutureFormValues {
   if (!future) {
     return {
       until: endOfYearAhead(5),
@@ -163,8 +122,7 @@ const toParams = (values: FutureFormValues): FutureParams => ({
   inflation_shock: values.inflationShock,
 });
 
-const countLabel = (count: number, one: string, many: string) =>
-  `${count} ${count === 1 ? one : many}`;
+const countLabel = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
 
 type FutureFormProps = {
   /** O futuro gravado, já resolvido; nulo quando a base ainda não tem um */
@@ -178,13 +136,7 @@ type FutureFormProps = {
 };
 
 /** Controles à esquerda, prévia à direita e o rodapé que grava. */
-export function FutureForm({
-  future,
-  coverage,
-  redrawSeed,
-  onClose,
-  onRecordingChange,
-}: FutureFormProps) {
+export function FutureForm({ future, coverage, redrawSeed, onClose, onRecordingChange }: FutureFormProps) {
   const ibovRealEnd = coverage.find((s) => s.key === "IBOV")?.real_end ?? null;
   const stocks = coverage.filter((s) => s.kind === "STOCK");
   const tickers = stocks.slice(0, PREVIEW_TICKERS).map((s) => s.key);
@@ -200,9 +152,7 @@ export function FutureForm({
 
   // Ativo mostrado ao lado do Ibovespa na prévia
   const [ticker, setTicker] = useState<string | null>(null);
-  const [progress, setProgress] = useState<FutureRecordingProgressEvent | null>(
-    null,
-  );
+  const [progress, setProgress] = useState<FutureRecordingProgressEvent | null>(null);
 
   const record = useRecordFuture();
   const cancel = useCancelFutureRecording();
@@ -213,9 +163,7 @@ export function FutureForm({
   // A prévia espera o slider parar; só controles válidos viram pedido
   const [settled] = useDebounce(values, 250);
   const parsed = schema.safeParse(settled);
-  const request: FuturePreviewRequest | null = parsed.success
-    ? { ...toParams(parsed.data), ticker }
-    : null;
+  const request: FuturePreviewRequest | null = parsed.success ? { ...toParams(parsed.data), ticker } : null;
   const previewQuery = useFuturePreview(request, {
     enabled: ibovRealEnd !== null && !recording,
   });
@@ -248,9 +196,7 @@ export function FutureForm({
   };
 
   const regime = preview?.current_regime;
-  const otherRegimes = (["AGITATED", "NORMAL", "CALM"] as const).filter(
-    (r) => r !== regime,
-  );
+  const otherRegimes = (["AGITATED", "NORMAL", "CALM"] as const).filter((r) => r !== regime);
   const shockReading = inflationShockReading(values.inflationShock);
   const temperature = temperatureReading(values.temperature);
   const recordFailed = record.isError && record.error.status !== 409;
@@ -262,15 +208,13 @@ export function FutureForm({
       <>
         Grava{" "}
         <b className="font-semibold text-foreground">
-          {countLabel(assets, "ativo", "ativos")} e{" "}
-          {countLabel(indicators, "indicador", "indicadores")}
+          {countLabel(assets, "ativo", "ativos")} e {countLabel(indicators, "indicador", "indicadores")}
         </b>
         {parsed.success && preview && (
           <>
             {" "}
-            até{" "}
-            <span className="font-mono">{displayIsoDate(parsed.data.until)}</span> ·
-            cerca de {displayNumber(preview.trading_days, 0)} pregões por série
+            até <span className="font-mono">{displayIsoDate(parsed.data.until)}</span> · cerca de{" "}
+            {displayNumber(preview.trading_days, 0)} pregões por série
           </>
         )}
       </>
@@ -284,10 +228,7 @@ export function FutureForm({
   };
 
   return (
-    <form
-      className="flex min-h-0 flex-col gap-4"
-      onSubmit={(event) => void form.handleSubmit(submit)(event)}
-    >
+    <form className="flex min-h-0 flex-col gap-4" onSubmit={(event) => void form.handleSubmit(submit)(event)}>
       {/* Cabeçalho */}
       <DialogHeader variant="divided">
         <div className="flex items-center gap-2">
@@ -295,9 +236,8 @@ export function FutureForm({
           <DialogTitle>Gerar dados futuros</DialogTitle>
         </div>
         <DialogDescription className="max-w-3xl">
-          Um futuro plausível montado com trechos reais da bolsa desde 2000.
-          Fica gravado como dado gerado, e as partidas o leem como leem o
-          histórico.{" "}
+          Um futuro plausível montado com trechos reais da bolsa desde 2000. Fica gravado como dado gerado, e as
+          partidas o leem como leem o histórico.{" "}
           <a
             href={FUTURE_DOCS_URL}
             target="_blank"
@@ -316,8 +256,8 @@ export function FutureForm({
           <Alert variant="warning" role="status">
             <TriangleAlert />
             <p>
-              <b>Já há um futuro gerado até {displayIsoDate(future.until)}.</b>{" "}
-              Gravar troca esse futuro pelo novo em todas as séries.
+              <b>Já há um futuro gerado até {displayIsoDate(future.until)}.</b> Gravar troca esse futuro pelo novo em
+              todas as séries.
             </p>
             {future.saved_simulations_on_future > 0 && (
               <p className="text-muted-foreground">
@@ -334,9 +274,7 @@ export function FutureForm({
             <AlertTitle>Não deu pra gravar o futuro.</AlertTitle>
             <AlertDescription>
               Nada mudou na base: o futuro anterior, se havia, continua lá.
-              <span className="mt-1 block font-mono text-[11px]">
-                {record.error.message}
-              </span>
+              <span className="mt-1 block font-mono text-[11px]">{record.error.message}</span>
             </AlertDescription>
           </Alert>
         )}
@@ -350,16 +288,12 @@ export function FutureForm({
               </EmptyMedia>
               <EmptyTitle>Falta o Ibovespa na base</EmptyTitle>
               <EmptyDescription>
-                Cada trecho do futuro é sorteado pelo clima do Ibovespa naquele
-                trimestre. Baixe os indicadores e volte aqui.
+                Cada trecho do futuro é sorteado pelo clima do Ibovespa naquele trimestre. Baixe os indicadores e volte
+                aqui.
               </EmptyDescription>
             </EmptyHeader>
             <EmptyContent className="flex-row justify-center">
-              <Button
-                type="button"
-                disabled={downloadIndicators.isPending}
-                onClick={() => downloadIndicators.mutate()}
-              >
+              <Button type="button" disabled={downloadIndicators.isPending} onClick={() => downloadIndicators.mutate()}>
                 {downloadIndicators.isPending && <Spinner />}
                 Baixar indicadores
               </Button>
@@ -368,12 +302,7 @@ export function FutureForm({
         ) : (
           <div className="grid gap-7 lg:grid-cols-[400px_minmax(0,1fr)]">
             {/* Controles */}
-            <div
-              className={cn(
-                "grid content-start gap-4.5 transition-opacity",
-                recording && "opacity-55",
-              )}
-            >
+            <div className={cn("grid content-start gap-4.5 transition-opacity", recording && "opacity-55")}>
               <Controller
                 name="until"
                 control={form.control}
@@ -394,11 +323,7 @@ export function FutureForm({
                           key={years}
                           type="button"
                           size="xs"
-                          variant={
-                            field.value === endOfYearAhead(years)
-                              ? "info"
-                              : "outline"
-                          }
+                          variant={field.value === endOfYearAhead(years) ? "info" : "outline"}
                           disabled={recording}
                           onClick={() => field.onChange(endOfYearAhead(years))}
                         >
@@ -411,17 +336,12 @@ export function FutureForm({
                     ) : (
                       preview && (
                         <FieldDescription>
-                          Cada série continua do dia útil seguinte ao seu último
-                          dado real: Ibovespa em{" "}
-                          <span className="font-mono">
-                            {displayIsoDate(preview.ibov_start.start)}
-                          </span>
+                          Cada série continua do dia útil seguinte ao seu último dado real: Ibovespa em{" "}
+                          <span className="font-mono">{displayIsoDate(preview.ibov_start.start)}</span>
                           {preview.laggard_start && (
                             <>
                               , {preview.laggard_start.key} em{" "}
-                              <span className="font-mono">
-                                {displayIsoDate(preview.laggard_start.start)}
-                              </span>
+                              <span className="font-mono">{displayIsoDate(preview.laggard_start.start)}</span>
                             </>
                           )}
                           .
@@ -447,9 +367,7 @@ export function FutureForm({
                         value={field.value}
                         aria-invalid={fieldState.invalid}
                         disabled={recording}
-                        onChange={(event) =>
-                          field.onChange(event.target.value.replace(/\D/g, ""))
-                        }
+                        onChange={(event) => field.onChange(event.target.value.replace(/\D/g, ""))}
                         onBlur={field.onBlur}
                       />
                       <Button
@@ -465,9 +383,7 @@ export function FutureForm({
                     {fieldState.invalid ? (
                       <FieldError errors={[fieldState.error]} />
                     ) : (
-                      <FieldDescription>
-                        Mesma semente e mesmos controles geram o mesmo futuro.
-                      </FieldDescription>
+                      <FieldDescription>Mesma semente e mesmos controles geram o mesmo futuro.</FieldDescription>
                     )}
                   </Field>
                 )}
@@ -497,18 +413,11 @@ export function FutureForm({
                       marks={TEMPERATURE_MARKS}
                       disabled={recording}
                     />
-                    <Alert
-                      variant={temperature.extreme ? "warning" : "info"}
-                      role="status"
-                    >
+                    <Alert variant={temperature.extreme ? "warning" : "info"} role="status">
                       <p>
-                        <b>{temperature.headline}</b> {temperature.subject}{" "}
-                        <b>{temperature.volatility}%</b>, e em{" "}
-                        <b>{temperature.crashYears} de 100</b>{" "}
-                        {temperature.closing}{" "}
-                        <span className="text-muted-foreground">
-                          Medido em 100 futuros de 5 anos.
-                        </span>
+                        <b>{temperature.headline}</b> {temperature.subject} <b>{temperature.volatility}%</b>, e em{" "}
+                        <b>{temperature.crashYears} de 100</b> {temperature.closing}{" "}
+                        <span className="text-muted-foreground">Medido em 100 futuros de 5 anos.</span>
                       </p>
                     </Alert>
                   </Field>
@@ -530,19 +439,13 @@ export function FutureForm({
                       aria-label="Começar em"
                       value={[field.value]}
                       disabled={recording}
-                      onValueChange={(next) =>
-                        next[0] && field.onChange(next[0])
-                      }
+                      onValueChange={(next) => next[0] && field.onChange(next[0])}
                     >
                       <ToggleGroupItem value="TODAY" className="flex-1">
                         Hoje{regime && ` · ${REGIME_NAMES[regime]}`}
                       </ToggleGroupItem>
                       {START_CHOICES.map((choice) => (
-                        <ToggleGroupItem
-                          key={choice.value}
-                          value={choice.value}
-                          className="flex-1"
-                        >
+                        <ToggleGroupItem key={choice.value} value={choice.value} className="flex-1">
                           {choice.label}
                         </ToggleGroupItem>
                       ))}
@@ -553,15 +456,12 @@ export function FutureForm({
                         {regime && (
                           <>
                             {" "}
-                            Hoje o mercado está <b>{REGIME_NAMES[regime]}</b>: o
-                            1º ano oscila uns{" "}
-                            <b>{FIRST_YEAR_VOLATILITY[regime]}%</b> (começando
-                            em{" "}
+                            Hoje o mercado está <b>{REGIME_NAMES[regime]}</b>: o 1º ano oscila uns{" "}
+                            <b>{FIRST_YEAR_VOLATILITY[regime]}%</b> (começando em{" "}
                             {otherRegimes.map((other, index) => (
                               <span key={other}>
                                 {index > 0 && "; em "}
-                                {REGIME_NAMES[other]},{" "}
-                                {FIRST_YEAR_VOLATILITY[other]}%
+                                {REGIME_NAMES[other]}, {FIRST_YEAR_VOLATILITY[other]}%
                               </span>
                             ))}
                             ).
@@ -583,10 +483,7 @@ export function FutureForm({
                         <FieldLabel>Choque de inflação</FieldLabel>
                         <InflationShockHint />
                       </div>
-                      <Badge
-                        variant={field.value === 0 ? "info" : "warning"}
-                        numeric
-                      >
+                      <Badge variant={field.value === 0 ? "info" : "warning"} numeric>
                         {displayShock(field.value)}
                       </Badge>
                     </div>
@@ -600,30 +497,18 @@ export function FutureForm({
                       marks={INFLATION_SHOCK_MARKS}
                       disabled={recording}
                     />
-                    <Alert
-                      variant={field.value === 0 ? "info" : "warning"}
-                      role="status"
-                    >
+                    <Alert variant={field.value === 0 ? "info" : "warning"} role="status">
                       {field.value === 0 ? (
                         <p>
-                          <b>Sem choque.</b> A inflação fica no que já aconteceu
-                          desde 2000: no pico, uns{" "}
-                          <b>{shockReading.inflationPeak}%</b> em 12 meses, com
-                          a SELIC a <b>{shockReading.selicPeak}%</b>.
+                          <b>Sem choque.</b> A inflação fica no que já aconteceu desde 2000: no pico, uns{" "}
+                          <b>{shockReading.inflationPeak}%</b> em 12 meses, com a SELIC a{" "}
+                          <b>{shockReading.selicPeak}%</b>.
                         </p>
                       ) : (
                         <p>
-                          <b>{displayShock(field.value)}.</b> A inflação de 12
-                          meses chega a uns <b>{shockReading.inflationPeak}%</b>{" "}
-                          e a SELIC a <b>{shockReading.selicPeak}%</b>; a bolsa
-                          cai uns{" "}
-                          <b>
-                            {withMinus(
-                              String(Math.abs(shockReading.twoYearDrop)),
-                            )}
-                            %
-                          </b>{" "}
-                          em 2 anos.
+                          <b>{displayShock(field.value)}.</b> A inflação de 12 meses chega a uns{" "}
+                          <b>{shockReading.inflationPeak}%</b> e a SELIC a <b>{shockReading.selicPeak}%</b>; a bolsa cai
+                          uns <b>{withMinus(String(Math.abs(shockReading.twoYearDrop)))}%</b> em 2 anos.
                         </p>
                       )}
                     </Alert>
@@ -633,18 +518,8 @@ export function FutureForm({
             </div>
 
             {/* Prévia */}
-            <div
-              className={cn(
-                "min-w-0 lg:border-l lg:pl-7",
-                recording && "opacity-55",
-              )}
-            >
-              <FuturePreviewPanel
-                query={previewQuery}
-                tickers={tickers}
-                ticker={ticker}
-                onTickerChange={setTicker}
-              />
+            <div className={cn("min-w-0 lg:border-l lg:pl-7", recording && "opacity-55")}>
+              <FuturePreviewPanel query={previewQuery} tickers={tickers} ticker={ticker} onTickerChange={setTicker} />
             </div>
           </div>
         )}
@@ -652,14 +527,9 @@ export function FutureForm({
         {/* Progresso da gravação */}
         {recording && (
           <div className="grid gap-1.5">
-            <Progress
-              size="sm"
-              value={progress ? (progress.done / progress.total) * 100 : 0}
-            />
+            <Progress size="sm" value={progress ? (progress.done / progress.total) * 100 : 0} />
             <span className="text-xs text-muted-foreground">
-              {progress
-                ? `Gravando ${progress.series} · ${progress.done} de ${progress.total} séries`
-                : "Gravando…"}
+              {progress ? `Gravando ${progress.series} · ${progress.done} de ${progress.total} séries` : "Gravando…"}
             </span>
           </div>
         )}
@@ -668,9 +538,7 @@ export function FutureForm({
       {/* Rodapé */}
       <DialogFooter variant="divided">
         <span className="text-[13px] text-muted-foreground">
-          {ibovRealEnd === null
-            ? "Sem o Ibovespa não há o que gerar"
-            : footerSummary()}
+          {ibovRealEnd === null ? "Sem o Ibovespa não há o que gerar" : footerSummary()}
         </span>
         <div className="flex gap-2">
           <Button
@@ -683,12 +551,7 @@ export function FutureForm({
           </Button>
           <Button
             type="submit"
-            disabled={
-              recording ||
-              ibovRealEnd === null ||
-              !form.formState.isValid ||
-              previewQuery.isError
-            }
+            disabled={recording || ibovRealEnd === null || !form.formState.isValid || previewQuery.isError}
           >
             {recording && <Spinner />}
             {submitLabel()}

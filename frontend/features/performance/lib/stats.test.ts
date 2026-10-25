@@ -78,9 +78,7 @@ describe("linhas da tabela", () => {
 
 describe("estado do motor", () => {
   it("atrasado quando o dia leva mais que o orçamento, com a velocidade que dá para manter", () => {
-    const status = engineStatus(
-      metrics({ items: [metric({ kind: "engine", name: ENGINE_DAY, mean_ms: 500 })] }),
-    );
+    const status = engineStatus(metrics({ items: [metric({ kind: "engine", name: ENGINE_DAY, mean_ms: 500 })] }));
     // 1.000 ms ÷ 500 ms por dia = 2 dias por segundo
     expect(status).toMatchObject({ speed: 4, budgetMs: 250, late: true, effectiveSpeed: 2 });
   });

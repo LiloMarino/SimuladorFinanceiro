@@ -63,7 +63,15 @@ type RangeSliderProps = Omit<
 };
 
 /** Barra entre as alças: arrastá-la desloca a faixa inteira, sem mexer na alça mais próxima. */
-function RangeBar({ onDrag, disabled, span }: { onDrag?: (drag: RangeBarDrag) => void; disabled?: boolean; span: number }) {
+function RangeBar({
+  onDrag,
+  disabled,
+  span,
+}: {
+  onDrag?: (drag: RangeBarDrag) => void;
+  disabled?: boolean;
+  span: number;
+}) {
   const gesture = useRef<{ originX: number; pxPerStep: number } | null>(null);
   const draggable = !disabled && onDrag !== undefined;
 

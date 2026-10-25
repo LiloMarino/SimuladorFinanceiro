@@ -3,10 +3,16 @@ import { BaseSubscriberRealtime } from "./BaseSubscriberRealtime";
 
 class Subscriber extends BaseSubscriberRealtime<{ cash_update: { cash: string } }> {
   sent: string[][] = [];
-  connect() { this.setConnected(true); }
-  disconnect() { this.setConnected(false); }
+  connect() {
+    this.setConnected(true);
+  }
+  disconnect() {
+    this.setConnected(false);
+  }
   send() {}
-  protected async updateBackendSubscription() { this.sent.push([...this.getSubscribedEvents()]); }
+  protected async updateBackendSubscription() {
+    this.sent.push([...this.getSubscribedEvents()]);
+  }
 }
 
 it("refaz a assinatura quando reconecta mesmo sem mudar os eventos", async () => {

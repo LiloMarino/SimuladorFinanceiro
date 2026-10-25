@@ -40,8 +40,8 @@ export function DeleteStockButton({ stock, disabled }: DeleteStockButtonProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Apagar {stock.key}?</AlertDialogTitle>
             <AlertDialogDescription>
-              Os preços, o perfil e a classificação do ativo somem da base, e o futuro gerado passa a pedir
-              recálculo. Isso não pode ser desfeito. Ativo negociado em partida salva não é apagado.
+              Os preços, o perfil e a classificação do ativo somem da base, e o futuro gerado passa a pedir recálculo.
+              Isso não pode ser desfeito. Ativo negociado em partida salva não é apagado.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

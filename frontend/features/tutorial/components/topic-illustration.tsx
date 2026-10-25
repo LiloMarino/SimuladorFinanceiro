@@ -1,4 +1,12 @@
-import { createElement, lazy, Suspense, useState, type ComponentType, type LazyExoticComponent, type ReactNode } from "react";
+import {
+  createElement,
+  lazy,
+  Suspense,
+  useState,
+  type ComponentType,
+  type LazyExoticComponent,
+  type ReactNode,
+} from "react";
 import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";

@@ -35,7 +35,11 @@ export function GoalHero({ gameType, progress, life, projection, grouping, teamN
 
   // Colocação entre jogadores, ou entre equipes pela média
   const ranking = inTeams
-    ? teamStandings(progress).map((t) => ({ key: String(t.team), name: teamName(t.team, teamNaming), networth: t.networth }))
+    ? teamStandings(progress).map((t) => ({
+        key: String(t.team),
+        name: teamName(t.team, teamNaming),
+        networth: t.networth,
+      }))
     : playerStandings(progress).map((p) => ({ key: p.nickname, name: p.nickname, networth: Number(p.networth) }));
   const yourKey = yours && ("nickname" in yours ? yours.nickname : String(yours.team));
   const position = ranking.findIndex((r) => r.key === yourKey) + 1;

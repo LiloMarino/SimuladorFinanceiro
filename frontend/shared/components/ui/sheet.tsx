@@ -78,11 +78,29 @@ function SheetContent({
 }
 
 function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="sheet-header" className={cn("flex flex-col gap-0.5 p-4 group-data-[size=lg]/sheet:border-b group-data-[size=lg]/sheet:px-6 group-data-[size=lg]/sheet:py-5", className)} {...props} />;
+  return (
+    <div
+      data-slot="sheet-header"
+      className={cn(
+        "flex flex-col gap-0.5 p-4 group-data-[size=lg]/sheet:border-b group-data-[size=lg]/sheet:px-6 group-data-[size=lg]/sheet:py-5",
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="sheet-footer" className={cn("mt-auto flex flex-col gap-2 p-4 group-data-[size=lg]/sheet:flex-row group-data-[size=lg]/sheet:items-center group-data-[size=lg]/sheet:justify-between group-data-[size=lg]/sheet:border-t group-data-[size=lg]/sheet:px-6", className)} {...props} />;
+  return (
+    <div
+      data-slot="sheet-footer"
+      className={cn(
+        "mt-auto flex flex-col gap-2 p-4 group-data-[size=lg]/sheet:flex-row group-data-[size=lg]/sheet:items-center group-data-[size=lg]/sheet:justify-between group-data-[size=lg]/sheet:border-t group-data-[size=lg]/sheet:px-6",
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {

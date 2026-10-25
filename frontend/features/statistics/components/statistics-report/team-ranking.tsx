@@ -7,14 +7,7 @@ import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableEmptyRow,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table";
+import { Table, TableBody, TableCell, TableEmptyRow, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { teamColor, teamName } from "@/shared/lib/teams";
@@ -95,15 +88,19 @@ export function TeamHeadline({ report, currentPlayerName }: { report: OverviewRe
               <span className="text-[13px] text-muted-foreground">
                 {next && subject.position === 1 && (
                   <>
-                    <b className="font-mono text-foreground">{displayCriterionGap(measure, next.leader_gap, goal_net_worth)}</b> à
-                    frente da {teamName(next.team, team_naming)}.{" "}
+                    <b className="font-mono text-foreground">
+                      {displayCriterionGap(measure, next.leader_gap, goal_net_worth)}
+                    </b>{" "}
+                    à frente da {teamName(next.team, team_naming)}.{" "}
                   </>
                 )}
                 {next && subject.position > 1 && (
                   <>
                     Faltam{" "}
-                    <b className="text-foreground">{displayCriterionGap(measure, subject.leader_gap, goal_net_worth)}</b> pra passar a{" "}
-                    {teamName(next.team, team_naming)} (1ª).{" "}
+                    <b className="text-foreground">
+                      {displayCriterionGap(measure, subject.leader_gap, goal_net_worth)}
+                    </b>{" "}
+                    pra passar a {teamName(next.team, team_naming)} (1ª).{" "}
                   </>
                 )}
                 {mine && you && you.team_contribution !== null && Number(you.team_contribution) !== 0 && (
@@ -187,12 +184,16 @@ export function TeamRanking({
     wealth: (t) => sortNumber(t.total_networth),
     return: (t) => sortNumber(t.return_percent),
     days: (t) => daysOf(membersOf(report, t.team)),
-    gap: (t) => goalRace && report.goal_net_worth
-      ? t.criterion_value == null ? null : Math.max(0, (1 - Number(t.criterion_value)) * Number(report.goal_net_worth))
-      : t.position === 1 ? null : sortNumber(t.leader_gap),
+    gap: (t) =>
+      goalRace && report.goal_net_worth
+        ? t.criterion_value == null
+          ? null
+          : Math.max(0, (1 - Number(t.criterion_value)) * Number(report.goal_net_worth))
+        : t.position === 1
+          ? null
+          : sortNumber(t.leader_gap),
   });
   if (view === "PLAYERS") return playerRanking(toggle);
-
 
   return (
     <Card className="overflow-hidden">
@@ -208,11 +209,20 @@ export function TeamRanking({
           <TableRow>
             <SortableTableHead label={"#"} {...sorting.header("position")} />
             <SortableTableHead label={"Equipe e membros"} {...sorting.header("name")} />
-            <SortableTableHead label={(goalRace ? GOAL_PERCENT : SCORE).label} {...sorting.header("score")} numeric hint={<MetricHint metric={goalRace ? GOAL_PERCENT : SCORE} />} />
+            <SortableTableHead
+              label={(goalRace ? GOAL_PERCENT : SCORE).label}
+              {...sorting.header("score")}
+              numeric
+              hint={<MetricHint metric={goalRace ? GOAL_PERCENT : SCORE} />}
+            />
             <SortableTableHead label={"Patrimônio"} {...sorting.header("wealth")} numeric />
             <SortableTableHead label={"Retorno"} {...sorting.header("return")} numeric />
             <SortableTableHead label={"Pregões"} {...sorting.header("days")} numeric />
-            <SortableTableHead label={goalRace && report.goal_net_worth ? GOAL_REMAINING.label : "Distância do líder"} {...sorting.header("gap")} numeric />
+            <SortableTableHead
+              label={goalRace && report.goal_net_worth ? GOAL_REMAINING.label : "Distância do líder"}
+              {...sorting.header("gap")}
+              numeric
+            />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -263,15 +273,19 @@ function TeamRows({
   onToggle: () => void;
   sort: TableSort | null;
 }) {
-  const members = sortTableRows(membersOf(report, team.team), {
-    position: (m) => m.position,
-    name: (m) => m.player_nickname,
-    score: (m) => sortNumber(rankingMeasure(report) === "GOAL" ? m.criterion_value : m.score?.total),
-    wealth: (m) => sortNumber(m.total_networth),
-    return: (m) => sortNumber(m.return_percent),
-    days: (m) => m.days,
-    gap: (m) => sortNumber(m.team_contribution),
-  }, sort);
+  const members = sortTableRows(
+    membersOf(report, team.team),
+    {
+      position: (m) => m.position,
+      name: (m) => m.player_nickname,
+      score: (m) => sortNumber(rankingMeasure(report) === "GOAL" ? m.criterion_value : m.score?.total),
+      wealth: (m) => sortNumber(m.total_networth),
+      return: (m) => sortNumber(m.return_percent),
+      days: (m) => m.days,
+      gap: (m) => sortNumber(m.team_contribution),
+    },
+    sort,
+  );
   const style = { "--team": teamColor(team.team) } as CSSProperties;
   const naming = report.team_naming;
   const maxScore = topScore;
@@ -291,7 +305,13 @@ function TeamRows({
             <TeamBadge team={team.team} naming={naming} form="full" />
             <span className="flex -space-x-1.5">
               {members.map((m) => (
-                <PlayerAvatar key={m.player_nickname} nickname={m.player_nickname} color={m.color} bot={m.is_bot} size="sm" />
+                <PlayerAvatar
+                  key={m.player_nickname}
+                  nickname={m.player_nickname}
+                  color={m.color}
+                  bot={m.is_bot}
+                  size="sm"
+                />
               ))}
             </span>
             <span className="text-xs font-normal text-muted-foreground">
@@ -389,7 +409,12 @@ function returnTone(value: string) {
 }
 
 /** O texto e o comprimento (0 a 1) da barra: a nota contra a maior nota, ou a fração da meta. */
-function barOf(measure: ReturnType<typeof rankingMeasure>, score: string | undefined, fraction: string | null, max: number) {
+function barOf(
+  measure: ReturnType<typeof rankingMeasure>,
+  score: string | undefined,
+  fraction: string | null,
+  max: number,
+) {
   return measure === "GOAL"
     ? { text: displayCriterionValue(measure, fraction), ratio: Math.min(Number(fraction ?? 0), 1) }
     : { text: displayMetric(SCORE, score), ratio: Number(score ?? 0) / max };

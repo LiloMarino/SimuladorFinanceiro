@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { FUTURE_DOCS_URL } from "../lib/future-readings";
 
 /** Como ler a tabela: as barras, o Atualizar, a classe e o setor. */
@@ -24,12 +19,7 @@ export function HowToRead() {
               <span className="mt-1 h-2.5 w-8 shrink-0 rounded-full bg-chart-3" />
               <span>
                 Dado gerado: futuro plausível montado com trechos reais.{" "}
-                <a
-                  href={FUTURE_DOCS_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-medium text-primary"
-                >
+                <a href={FUTURE_DOCS_URL} target="_blank" rel="noreferrer" className="font-medium text-primary">
                   Como o futuro é gerado
                 </a>
               </span>
@@ -40,17 +30,15 @@ export function HowToRead() {
             </span>
           </div>
           <p>
-            <b className="text-foreground">Atualizar</b> troca o gerado pelo
-            real nos dias que o real já cobre.
+            <b className="text-foreground">Atualizar</b> troca o gerado pelo real nos dias que o real já cobre.
           </p>
           <p>
-            <b className="text-foreground">Classe</b> decide o IR na venda. Vem
-            do final do código (11 → FII, 34 → BDR), mas ETF e units também
-            terminam em 11: confira.
+            <b className="text-foreground">Classe</b> decide o IR na venda. Vem do final do código (11 → FII, 34 → BDR),
+            mas ETF e units também terminam em 11: confira.
           </p>
           <p>
-            <b className="text-foreground">Setor</b> agrupa a carteira e as
-            estatísticas. O yFinance sugere na importação.
+            <b className="text-foreground">Setor</b> agrupa a carteira e as estatísticas. O yFinance sugere na
+            importação.
           </p>
         </div>
       </CardContent>

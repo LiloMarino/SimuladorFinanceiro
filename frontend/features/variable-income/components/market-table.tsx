@@ -1,14 +1,7 @@
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/shared/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableEmptyRow,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table";
+import { Table, TableBody, TableCell, TableEmptyRow, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayCompactNumber, displayMoney, displayQuantity, displaySignedPercent } from "@/shared/lib/utils/display";
 import type { MarketQuote } from "@/types";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
@@ -73,10 +66,13 @@ type MarketTableProps = {
 export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
   const navigate = useNavigate();
   const sorting = useTableSort(quotes, {
-    ticker: q => q.ticker, price: q => q.close, day: q => q.change_pct,
-    range: q => q.high - q.low,
-    month: q => q.sparkline.length > 1 && q.sparkline[0] !== 0 ? q.sparkline.at(-1)! / q.sparkline[0] - 1 : null,
-    volume: q => q.volume, held: q => Number(holdings.get(q.ticker) ?? 0),
+    ticker: (q) => q.ticker,
+    price: (q) => q.close,
+    day: (q) => q.change_pct,
+    range: (q) => q.high - q.low,
+    month: (q) => (q.sparkline.length > 1 && q.sparkline[0] !== 0 ? q.sparkline.at(-1)! / q.sparkline[0] - 1 : null),
+    volume: (q) => q.volume,
+    held: (q) => Number(holdings.get(q.ticker) ?? 0),
   });
 
   return (
@@ -86,7 +82,11 @@ export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
           <SortableTableHead {...sorting.header("ticker")} label="Ativo" />
           <SortableTableHead {...sorting.header("price")} label="Preço" numeric />
           <SortableTableHead {...sorting.header("day")} label="Dia" numeric />
-          <SortableTableHead {...sorting.header("range")} label="Faixa do dia" hint={<span className="sr-only">Amplitude entre mínima e máxima</span>} />
+          <SortableTableHead
+            {...sorting.header("range")}
+            label="Faixa do dia"
+            hint={<span className="sr-only">Amplitude entre mínima e máxima</span>}
+          />
           <SortableTableHead {...sorting.header("month")} label="30 dias" />
           <SortableTableHead {...sorting.header("volume")} label="Volume" numeric />
           <SortableTableHead {...sorting.header("held")} label="Você tem" numeric />

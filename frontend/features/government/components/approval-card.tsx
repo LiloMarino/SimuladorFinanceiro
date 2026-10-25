@@ -35,7 +35,8 @@ export function ApprovalCard({ panel }: ApprovalCardProps) {
               {approval.value}%
             </span>
             <span className="text-xs leading-snug text-muted-foreground">
-              De cada 100 eleitores, {approval.value} aprovam o governo. É também a chance de cada medida passar no Congresso.
+              De cada 100 eleitores, {approval.value} aprovam o governo. É também a chance de cada medida passar no
+              Congresso.
             </span>
           </div>
 
@@ -93,8 +94,8 @@ export function ApprovalCard({ panel }: ApprovalCardProps) {
           </div>
 
           <p className="rounded-lg bg-subtle px-2.5 py-2 text-xs leading-normal text-muted-foreground">
-            A linha vermelha tracejada é o piso: {approval.impeachment_months} meses seguidos abaixo de {approval.floor}%
-            levam a impeachment, e {successionLabel(panel)}.
+            A linha vermelha tracejada é o piso: {approval.impeachment_months} meses seguidos abaixo de {approval.floor}
+            % levam a impeachment, e {successionLabel(panel)}.
           </p>
         </div>
       </CardContent>

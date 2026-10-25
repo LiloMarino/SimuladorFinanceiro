@@ -152,7 +152,9 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
                 <span className="inline-flex items-center gap-1">
                   spread da nota {overview.rating.grade} <MetricHint metric={SPREAD} />
                 </span>
-                <b className="font-mono">{(Number(spread) * 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</b>
+                <b className="font-mono">
+                  {(Number(spread) * 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                </b>
               </>
             )}
             <span className="text-faint-foreground">=</span>
@@ -185,7 +187,12 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
                 ) : (
                   <>
                     Sua carteira rendeu{" "}
-                    <b className={cn("font-mono", Number(portfolioReturn) >= annualRate ? "text-success" : "text-destructive")}>
+                    <b
+                      className={cn(
+                        "font-mono",
+                        Number(portfolioReturn) >= annualRate ? "text-success" : "text-destructive",
+                      )}
+                    >
                       {displayPercent(portfolioReturn, 1)}
                     </b>{" "}
                     em 12 meses

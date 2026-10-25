@@ -17,17 +17,7 @@ const YOUR_CRITERION: Record<RankingMeasure, string> = {
   SHARPE: "Seu Sharpe",
 };
 
-function Figure({
-  label,
-  value,
-  detail,
-  tone,
-}: {
-  label: string;
-  value: string;
-  detail?: string;
-  tone?: "negative";
-}) {
+function Figure({ label, value, detail, tone }: { label: string; value: string; detail?: string; tone?: "negative" }) {
   return (
     <div className="grid gap-0.5">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>

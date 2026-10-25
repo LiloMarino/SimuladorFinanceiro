@@ -261,13 +261,13 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
   groups,
 }: MetricsTableProps<T, G>) {
   const playerColumns: SortColumns<T> = {
-    player: r => playerLabel(r, simulationIds, currentPlayerName),
-    ...Object.fromEntries(columns.map(c => [c.metric.label, (r: T) => sortNumber(c.value(r))])),
+    player: (r) => playerLabel(r, simulationIds, currentPlayerName),
+    ...Object.fromEntries(columns.map((c) => [c.metric.label, (r: T) => sortNumber(c.value(r))])),
   };
   const sorting = useTableSort(rows, playerColumns);
   const teamColumns: SortColumns<G> = {
-    player: t => groups ? teamName(t.team, groups.naming) : String(t.team),
-    ...Object.fromEntries(columns.map(c => [c.metric.label, (t: G) => sortNumber(c.teamValue?.(t))])),
+    player: (t) => (groups ? teamName(t.team, groups.naming) : String(t.team)),
+    ...Object.fromEntries(columns.map((c) => [c.metric.label, (t: G) => sortNumber(c.teamValue?.(t))])),
   };
   const teams = sortTableRows(groups?.teams ?? [], teamColumns, sorting.sort);
   const bestOf = columns.map((column) => {
@@ -311,7 +311,9 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
                 <Badge variant="success">{displayMetric(column.metric, value)}</Badge>
               ) : (
                 <span
-                  className={tone === "negative" ? "text-destructive" : tone === "positive" ? "text-success" : undefined}
+                  className={
+                    tone === "negative" ? "text-destructive" : tone === "positive" ? "text-success" : undefined
+                  }
                 >
                   {displayMetric(column.metric, value)}
                 </span>
@@ -333,7 +335,13 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
               <TeamBadge team={team.team} naming={naming} form="full" />
               <span className="flex -space-x-1.5">
                 {members.map((m) => (
-                  <PlayerAvatar key={m.player_nickname} nickname={m.player_nickname} color={m.color} bot={m.is_bot} size="sm" />
+                  <PlayerAvatar
+                    key={m.player_nickname}
+                    nickname={m.player_nickname}
+                    color={m.color}
+                    bot={m.is_bot}
+                    size="sm"
+                  />
                 ))}
               </span>
               {note && <span className="text-xs font-normal text-muted-foreground">{note}</span>}
@@ -367,8 +375,13 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
             <SortableTableHead {...sorting.header("player")} label={groups ? "Equipe e membros" : "Jogador"} />
             {extraColumn && <TableHead>{extraColumn.header}</TableHead>}
             {columns.map((column) => (
-              <SortableTableHead key={column.metric.label} {...sorting.header(column.metric.label)} label={column.metric.label}
-                numeric hint={<MetricHint metric={column.metric} />} />
+              <SortableTableHead
+                key={column.metric.label}
+                {...sorting.header(column.metric.label)}
+                label={column.metric.label}
+                numeric
+                hint={<MetricHint metric={column.metric} />}
+              />
             ))}
           </TableRow>
         </TableHeader>

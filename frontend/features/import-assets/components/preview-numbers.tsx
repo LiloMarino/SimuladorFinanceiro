@@ -50,7 +50,10 @@ export function PreviewNumbers({ preview }: { preview: FuturePreview }) {
         hint={
           <>
             <p>Quanto o Ibovespa muda do último dado real até o fim do futuro gerado.</p>
-            <p>+31% quer dizer que 100 mil pontos viram 131 mil. É o resultado desta semente: outra semente dá outro número, igualmente plausível.</p>
+            <p>
+              +31% quer dizer que 100 mil pontos viram 131 mil. É o resultado desta semente: outra semente dá outro
+              número, igualmente plausível.
+            </p>
           </>
         }
       />

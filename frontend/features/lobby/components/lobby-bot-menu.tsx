@@ -22,7 +22,9 @@ export function LobbyBotMenu({ player, onConfigure }: LobbyBotMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="ghost" size="icon-sm" className="size-7" aria-label={`Opções de ${player.nickname}`} />}
+        render={
+          <Button variant="ghost" size="icon-sm" className="size-7" aria-label={`Opções de ${player.nickname}`} />
+        }
       >
         <Ellipsis className="size-4" />
       </DropdownMenuTrigger>

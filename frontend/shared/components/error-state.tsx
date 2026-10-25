@@ -1,6 +1,13 @@
 import { CircleAlert } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/shared/components/ui/empty";
 import type ApiError from "@/shared/lib/models/ApiError";
 
 interface ErrorStateProps {

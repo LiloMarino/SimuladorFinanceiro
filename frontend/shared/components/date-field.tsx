@@ -36,7 +36,17 @@ const CALENDAR_START = new Date(CALENDAR_START_YEAR, 0);
 const CALENDAR_END = new Date(CALENDAR_END_YEAR, 11);
 
 /** Data em dd/mm/aaaa com máscara; o calendário é um atalho para escolher o dia. */
-export function DateField({ id, value, onChange, onBlur, invalid, disabled, todayChip, dataEnds, period }: DateFieldProps) {
+export function DateField({
+  id,
+  value,
+  onChange,
+  onBlur,
+  invalid,
+  disabled,
+  todayChip,
+  dataEnds,
+  period,
+}: DateFieldProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const selected = isIsoDate(value) ? parseLocalDate(value) : undefined;
   const today = todayIso();

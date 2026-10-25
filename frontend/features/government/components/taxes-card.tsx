@@ -6,14 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { GovernmentPanel, MeasureKind } from "@/types";
 import { useToday } from "../hooks/useToday";
-import {
-  generalLabel,
-  generalToday,
-  isGeneral,
-  measureTarget,
-  monthYear,
-  sectorEffect,
-} from "../lib/government";
+import { generalLabel, generalToday, isGeneral, measureTarget, monthYear, sectorEffect } from "../lib/government";
 
 type TaxesCardProps = {
   panel: GovernmentPanel;
@@ -107,7 +100,11 @@ export function TaxesCard({ panel, onPropose }: TaxesCardProps) {
                       {sectorEffect(measure, baseRate, today)}
                     </TableCell>
                     <TableCell numeric variant="note">
-                      {waiting ? "aprovada, esperando" : measure.effective ? `desde ${monthYear(measure.effective)}` : ""}
+                      {waiting
+                        ? "aprovada, esperando"
+                        : measure.effective
+                          ? `desde ${monthYear(measure.effective)}`
+                          : ""}
                     </TableCell>
                   </TableRow>
                 );

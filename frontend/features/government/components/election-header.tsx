@@ -74,12 +74,18 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
   const current = CURRENT_STEP[phase];
 
   const steps = [
-    { title: "Campanha", date: `${monthYear(dates.campaign_start)} → ${monthYear(dates.ticket_deadline)}`, note: "Partidos, chapas e verba abertos" },
+    {
+      title: "Campanha",
+      date: `${monthYear(dates.campaign_start)} → ${monthYear(dates.ticket_deadline)}`,
+      note: "Partidos, chapas e verba abertos",
+    },
     { title: "1º turno", date: displayShortDate(dates.first_round), note: "Mais de 50% dos votos válidos leva" },
     {
       title: "2º turno, se precisar",
       date: displayShortDate(dates.runoff),
-      note: runoffSkipped ? "Dispensado: houve vencedor no 1º turno" : "Os dois mais votados; quem ficou de fora pode doar",
+      note: runoffSkipped
+        ? "Dispensado: houve vencedor no 1º turno"
+        : "Os dois mais votados; quem ficou de fora pode doar",
     },
     { title: "Posse", date: displayShortDate(dates.inauguration), note: "Começa o mandato de 4 anos" },
   ];
@@ -106,8 +112,8 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
                 {choosing
                   ? `Você ainda não tem partido · inscrição de chapas até ${displayShortDate(dates.ticket_deadline)}`
                   : panel.parties.length === 0
-                  ? "Ainda sem partidos. Quando a candidatura abrir, é aqui que eles aparecem."
-                  : `${panel.parties.length} ${panel.parties.length === 1 ? "partido" : "partidos"}: ${players} de jogadores e ${computers} do computador, que completa as vagas até 3 · mandato de 4 anos, com uma reeleição`}
+                    ? "Ainda sem partidos. Quando a candidatura abrir, é aqui que eles aparecem."
+                    : `${panel.parties.length} ${panel.parties.length === 1 ? "partido" : "partidos"}: ${players} de jogadores e ${computers} do computador, que completa as vagas até 3 · mandato de 4 anos, com uma reeleição`}
               </span>
             </div>
             {choosing && (

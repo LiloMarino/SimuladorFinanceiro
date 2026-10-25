@@ -54,7 +54,9 @@ export function LoginShowcase() {
             strokeWidth="2"
           />
         </svg>
-        <p className="mt-2 font-mono text-xs text-sidebar-muted">Simulação local · o servidor roda no computador do host</p>
+        <p className="mt-2 font-mono text-xs text-sidebar-muted">
+          Simulação local · o servidor roda no computador do host
+        </p>
       </div>
     </aside>
   );

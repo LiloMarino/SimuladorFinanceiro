@@ -27,11 +27,7 @@ export function criterionLabel(report: Pick<OverviewReport, "game_type" | "crite
  * Na meta é a diferença de frações vezes a meta, em reais; sem meta única (comparando
  * partidas de metas diferentes) fica em pontos percentuais da meta.
  */
-export function displayCriterionGap(
-  criterion: RankingMeasure,
-  gap: string | null | undefined,
-  goal?: string | null,
-) {
+export function displayCriterionGap(criterion: RankingMeasure, gap: string | null | undefined, goal?: string | null) {
   if (gap === null || gap === undefined) return "—";
   if (Number(gap) === 0) return "líder";
   switch (criterion) {

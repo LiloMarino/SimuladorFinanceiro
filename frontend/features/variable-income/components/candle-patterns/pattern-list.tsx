@@ -111,7 +111,10 @@ function Outcome({ pattern, challengeOpen }: { pattern: CandlePattern; challenge
         {displaySignedPercent(pattern.change_5d, 1)}
       </span>
       {pattern.hit !== null && (
-        <span className={pattern.hit ? "text-success" : "text-destructive"} aria-label={pattern.hit ? "acertou" : "errou"}>
+        <span
+          className={pattern.hit ? "text-success" : "text-destructive"}
+          aria-label={pattern.hit ? "acertou" : "errou"}
+        >
           {pattern.hit ? "✓" : "✕"}
         </span>
       )}

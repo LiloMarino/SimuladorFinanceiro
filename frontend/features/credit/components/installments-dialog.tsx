@@ -26,8 +26,8 @@ export function InstallmentsDialog({ open, onOpenChange, quote }: InstallmentsDi
         <DialogHeader variant="divided">
           <DialogTitle>As {quote.term_months} parcelas</DialogTitle>
           <DialogDescription>
-            {displayMoney(quote.amount)} a {displayPercent(quote.annual_rate)} ao ano, com {quote.term_months} parcelas de{" "}
-            {displayMoney(quote.installment)}.
+            {displayMoney(quote.amount)} a {displayPercent(quote.annual_rate)} ao ano, com {quote.term_months} parcelas
+            de {displayMoney(quote.installment)}.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>

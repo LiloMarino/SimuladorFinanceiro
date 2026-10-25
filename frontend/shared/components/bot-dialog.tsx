@@ -70,7 +70,10 @@ type BotDialogProps = {
 export function BotDialog({ open, onOpenChange, ...content }: BotDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent flush className="max-h-[calc(100vh-4rem)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden sm:max-w-245">
+      <DialogContent
+        flush
+        className="max-h-[calc(100vh-4rem)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden sm:max-w-245"
+      >
         <BotDialogContent {...content} onClose={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>

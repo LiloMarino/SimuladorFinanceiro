@@ -7,8 +7,7 @@ export function useReproposeMeasure() {
   const renew = useRenewElection();
 
   return useMutation({
-    mutationFn: (measureId: number) =>
-      apiFetch(`/api/government/measures/${measureId}/repropose`, { method: "POST" }),
+    mutationFn: (measureId: number) => apiFetch(`/api/government/measures/${measureId}/repropose`, { method: "POST" }),
     onSuccess: renew,
     onError: (err) => toastApiError(err),
   });

@@ -38,7 +38,16 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
     tax: (p) => sortNumber(p.income_tax_paid),
     impact: (p) => sortNumber(p.impact_cost),
   });
-  if (!data) return <TabStatus simulationIds={simulationIds} loading={isLoading} title="as Operações" error={error} onRetry={() => void refetch()} />;
+  if (!data)
+    return (
+      <TabStatus
+        simulationIds={simulationIds}
+        loading={isLoading}
+        title="as Operações"
+        error={error}
+        onRetry={() => void refetch()}
+      />
+    );
 
   const mostTrades = Math.max(...data.players.map((p) => p.buy_trades + p.sell_trades), 1);
   const mostTeamTrades = Math.max(...data.teams.map((t) => t.buy_trades + t.sell_trades), 1);
@@ -46,14 +55,18 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
   const naming = data.team_naming;
   const groups = groupByTeam(
     sorting.rows,
-    sortTableRows(data.teams, {
-      player: (t) => teamName(t.team, data.team_naming),
-      trades: (t) => t.buy_trades + t.sell_trades,
-      volume: (t) => sortNumber(t.traded_volume),
-      turnover: (t) => sortNumber(t.turnover),
-      tax: (t) => sortNumber(t.income_tax_paid),
-      impact: (t) => sortNumber(t.impact_cost),
-    }, sorting.sort).map((t) => t.team),
+    sortTableRows(
+      data.teams,
+      {
+        player: (t) => teamName(t.team, data.team_naming),
+        trades: (t) => t.buy_trades + t.sell_trades,
+        volume: (t) => sortNumber(t.traded_volume),
+        turnover: (t) => sortNumber(t.turnover),
+        tax: (t) => sortNumber(t.income_tax_paid),
+        impact: (t) => sortNumber(t.impact_cost),
+      },
+      sorting.sort,
+    ).map((t) => t.team),
   );
   const teamOf = (team: number | null) => data.teams.find((t) => t.team === team);
 
@@ -79,18 +92,42 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
         <Table>
           <TableHeader>
             <TableRow>
-              <SortableTableHead label={data.teams.length > 0 ? "Equipe e membros" : "Jogador"} {...sorting.header("player")} />
+              <SortableTableHead
+                label={data.teams.length > 0 ? "Equipe e membros" : "Jogador"}
+                {...sorting.header("player")}
+              />
               <SortableTableHead label={"Negócios"} {...sorting.header("trades")} numeric />
-              <SortableTableHead label={TRADED_VOLUME.label} {...sorting.header("volume")} numeric hint={<MetricHint metric={TRADED_VOLUME} />} />
-              <SortableTableHead label={TURNOVER.label} {...sorting.header("turnover")} numeric hint={<MetricHint metric={TURNOVER} />} />
-              <SortableTableHead label={INCOME_TAX_PAID.label} {...sorting.header("tax")} numeric hint={<MetricHint metric={INCOME_TAX_PAID} />} />
-              <SortableTableHead label={IMPACT_COST.label} {...sorting.header("impact")} numeric hint={<MetricHint metric={IMPACT_COST} />} />
+              <SortableTableHead
+                label={TRADED_VOLUME.label}
+                {...sorting.header("volume")}
+                numeric
+                hint={<MetricHint metric={TRADED_VOLUME} />}
+              />
+              <SortableTableHead
+                label={TURNOVER.label}
+                {...sorting.header("turnover")}
+                numeric
+                hint={<MetricHint metric={TURNOVER} />}
+              />
+              <SortableTableHead
+                label={INCOME_TAX_PAID.label}
+                {...sorting.header("tax")}
+                numeric
+                hint={<MetricHint metric={INCOME_TAX_PAID} />}
+              />
+              <SortableTableHead
+                label={IMPACT_COST.label}
+                {...sorting.header("impact")}
+                numeric
+                hint={<MetricHint metric={IMPACT_COST} />}
+              />
             </TableRow>
           </TableHeader>
           <TableBody>
             {groups.map((group) => {
               const team = teamOf(group.team);
-              const teamStyle = group.team !== null ? ({ "--team": teamColor(group.team) } as CSSProperties) : undefined;
+              const teamStyle =
+                group.team !== null ? ({ "--team": teamColor(group.team) } as CSSProperties) : undefined;
               return (
                 <Fragment key={group.team ?? "all"}>
                   {group.team !== null && team && (
@@ -287,7 +324,12 @@ function VolumeHeatmap({
                     return (
                       <div key={playerKey(p)} className="contents">
                         <span className="min-w-0 self-center text-[13px]">
-                          <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={p.player_nickname === currentPlayerName} />
+                          <PlayerCell
+                            player={p}
+                            label={label}
+                            simulationIds={simulationIds}
+                            isYou={p.player_nickname === currentPlayerName}
+                          />
                         </span>
                         {months.map((month) => {
                           const entry = byMonth.get(month);

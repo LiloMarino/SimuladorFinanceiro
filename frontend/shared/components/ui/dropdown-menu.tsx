@@ -47,7 +47,10 @@ function DropdownMenuItem({
   variant = "default",
   size = "default",
   ...props
-}: MenuPrimitive.Item.Props & { variant?: "default" | "destructive" | "selected" | "action"; size?: "default" | "rich" }) {
+}: MenuPrimitive.Item.Props & {
+  variant?: "default" | "destructive" | "selected" | "action";
+  size?: "default" | "rich";
+}) {
   return (
     <MenuPrimitive.Item
       data-slot="dropdown-menu-item"

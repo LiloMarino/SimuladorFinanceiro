@@ -49,7 +49,10 @@ export function NetworthChart({ history, goalSteps }: { history: PortfolioHistor
   const data: ChartPoint[] = history.map((p) => ({ ...p, goal: goalAt(goalSteps ?? [], p.snapshot_date) }));
   const last = data.at(-1);
   const hasGoal = data.some((p) => p.goal !== undefined);
-  const peak = Math.max(0, ...data.map((p) => Math.max(num(p, "total_networth"), num(p, "total_provided"), p.goal ?? 0)));
+  const peak = Math.max(
+    0,
+    ...data.map((p) => Math.max(num(p, "total_networth"), num(p, "total_provided"), p.goal ?? 0)),
+  );
   // Eixo Y em múltiplos redondos, a partir de zero; sem patrimônio, a escala é 0 a 1
   const ticks = peak > 0 ? niceTicks(0, peak) : [0, 1];
   const top = ticks[ticks.length - 1];
@@ -97,10 +100,7 @@ export function NetworthChart({ history, goalSteps }: { history: PortfolioHistor
                     tickLine={false}
                     width={56}
                   />
-                  <Tooltip
-                    cursor={{ stroke: "var(--foreground)", strokeOpacity: 0.4 }}
-                    content={<NetworthTooltip />}
-                  />
+                  <Tooltip cursor={{ stroke: "var(--foreground)", strokeOpacity: 0.4 }} content={<NetworthTooltip />} />
                   {BANDS.map((band) => (
                     <Area
                       key={band.key}
@@ -190,7 +190,12 @@ function EndLabels({ last, top }: { last: ChartPoint; top: number }) {
         strong: false,
         // Faixa fina demais não comporta o nome
         visible: (value / top) * PLOT_HEIGHT >= LABEL_SPACING,
-        color: band.key === "total_fixed" ? "text-chart-2" : band.key === "total_equity" ? "text-chart-1" : "text-faint-foreground",
+        color:
+          band.key === "total_fixed"
+            ? "text-chart-2"
+            : band.key === "total_equity"
+              ? "text-chart-1"
+              : "text-faint-foreground",
       };
     }),
   ].filter((item) => !("visible" in item) || item.visible);

@@ -23,8 +23,14 @@ export default function VariableIncomeDetailPage() {
   const { data: indicatorSettings } = useIndicatorSettings();
 
   if (error && error.status !== 404) {
-    return <ErrorState title="Não deu para carregar esse ativo" description="Confira a conexão e tente novamente."
-      error={error} onRetry={() => void refetch()} />;
+    return (
+      <ErrorState
+        title="Não deu para carregar esse ativo"
+        description="Confira a conexão e tente novamente."
+        error={error}
+        onRetry={() => void refetch()}
+      />
+    );
   }
 
   if (isLoading) {
@@ -63,7 +69,12 @@ export default function VariableIncomeDetailPage() {
           <OrderBookCard ticker={stock.ticker} orders={orders} />
         </div>
         <div className="grid gap-5">
-          <OrderTicket key={stock.ticker} ticker={stock.ticker} assetClass={stock.asset_class} todayPrice={stock.close} />
+          <OrderTicket
+            key={stock.ticker}
+            ticker={stock.ticker}
+            assetClass={stock.asset_class}
+            todayPrice={stock.close}
+          />
           <PositionCard ticker={stock.ticker} position={position ?? null} />
           <Button variant="link" size="sm" nativeButton={false} render={<Link to="/portfolio" />}>
             Ver carteira

@@ -9,7 +9,13 @@ export const STRATEGY_LOG_PAGE_SIZE = 6;
 
 /** O registro da estratégia, da linha mais recente à mais antiga, uma página por vez. */
 export function useStrategyLog(kind: StrategyLogFilter) {
-  return useInfiniteQuery<StrategyLogPage, ApiError, StrategyLogPage[], ReturnType<typeof queryKeys.strategyLog>, number>({
+  return useInfiniteQuery<
+    StrategyLogPage,
+    ApiError,
+    StrategyLogPage[],
+    ReturnType<typeof queryKeys.strategyLog>,
+    number
+  >({
     queryKey: queryKeys.strategyLog(kind),
     queryFn: ({ pageParam, signal }) => {
       const params = new URLSearchParams({ kind, offset: String(pageParam), limit: String(STRATEGY_LOG_PAGE_SIZE) });

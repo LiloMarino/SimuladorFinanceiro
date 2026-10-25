@@ -8,8 +8,7 @@ export function useBuyFixedIncome(assetId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: BuyFixedIncomeRequest) =>
-      apiFetch(`/api/fixed-income/${assetId}/buy`, { method: "POST", body }),
+    mutationFn: (body: BuyFixedIncomeRequest) => apiFetch(`/api/fixed-income/${assetId}/buy`, { method: "POST", body }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
       void queryClient.invalidateQueries({ queryKey: queryKeys.simulationState() });

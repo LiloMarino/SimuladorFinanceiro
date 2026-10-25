@@ -89,7 +89,9 @@ export default function OrderTypesIllustration({ beat, step, still = false }: Il
           </motion.div>
         </AnimatePresence>
 
-        {onTicket && <PressWhen finder={buttonNamed("Limitada")} id="kind" pressed={beat >= LIMIT_TICKET} delay={900} />}
+        {onTicket && (
+          <PressWhen finder={buttonNamed("Limitada")} id="kind" pressed={beat >= LIMIT_TICKET} delay={900} />
+        )}
         {onTicket && beat >= LIMIT_TICKET && (
           <TypeInto
             finder={LIMIT_INPUT}

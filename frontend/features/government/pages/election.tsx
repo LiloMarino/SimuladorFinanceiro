@@ -70,9 +70,12 @@ function ElectionContent({ panel }: { panel: ElectionPanel }) {
       {mine?.vice === "PENDING" && party && (
         <Alert variant="info">
           <MailQuestion />
-          <AlertTitle>{party.founder ?? party.name} convidou você para vice no {party.abbr}</AlertTitle>
+          <AlertTitle>
+            {party.founder ?? party.name} convidou você para vice no {party.abbr}
+          </AlertTitle>
           <AlertDescription>
-            Aceite ou recuse até {displayDayMonth(panel.dates.ticket_deadline)}; sem resposta, a chapa concorre sem vice.
+            Aceite ou recuse até {displayDayMonth(panel.dates.ticket_deadline)}; sem resposta, a chapa concorre sem
+            vice.
           </AlertDescription>
           <AlertAction>
             <Button size="sm" onClick={() => setDialog("vice")}>
@@ -139,12 +142,7 @@ function ElectionContent({ panel }: { panel: ElectionPanel }) {
       )}
 
       {/* Diálogos */}
-      <FoundPartyDialog
-        open={dialog === "found"}
-        onOpenChange={close}
-        takenColors={takenColors}
-        cash={cash}
-      />
+      <FoundPartyDialog open={dialog === "found"} onOpenChange={close} takenColors={takenColors} cash={cash} />
       <JoinPartyDialog
         open={dialog === "join"}
         onOpenChange={close}

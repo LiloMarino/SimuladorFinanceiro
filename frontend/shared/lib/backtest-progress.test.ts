@@ -3,7 +3,15 @@ import type { BacktestPoint } from "@/types";
 import { applyProgress, EMPTY_STATUS } from "./backtest-progress";
 
 const point = (day: string): BacktestPoint => ({ day, equity: ["100"], contributed: "100", cdi: "100", ibov: null });
-const progress = { ...{ simulation_id: 1, name: "n", host_nickname: "h" }, start_date: "2011-01-03", end_date: "2011-12-30", total_days: 100, done_days: 20, current_date: "2011-02-01", seconds_left: 10 };
+const progress = {
+  ...{ simulation_id: 1, name: "n", host_nickname: "h" },
+  start_date: "2011-01-03",
+  end_date: "2011-12-30",
+  total_days: 100,
+  done_days: 20,
+  current_date: "2011-02-01",
+  seconds_left: 10,
+};
 
 describe("applyProgress", () => {
   it("soma os pontos novos ao fim da série", () => {

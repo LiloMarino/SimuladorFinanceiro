@@ -2,7 +2,22 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import MainLayout from "@/layouts/main-layout";
 import { PlainLayout } from "@/layouts/plain-layout";
-import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge, Flag, Medal, Banknote, Landmark, Gavel, GraduationCap } from "lucide-react";
+import {
+  TrendingUp,
+  Coins,
+  Wallet,
+  Bot,
+  Trophy,
+  Settings,
+  Grid3x3,
+  Gauge,
+  Flag,
+  Medal,
+  Banknote,
+  Landmark,
+  Gavel,
+  GraduationCap,
+} from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
 import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
@@ -49,13 +64,50 @@ const navItems: NavItem[] = [
   { key: "goal", label: "Meta", endpoint: "/goal", icon: Flag, group: "Você", goalOnly: true },
   { key: "credit", label: "Crédito", endpoint: "/credit", icon: Banknote, group: "Você", creditAlert: true },
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: Trophy, group: "Você" },
-  { key: "achievements", label: "Conquistas", endpoint: "/achievements", icon: Medal, group: "Você", achievementTally: true },
-  { key: "election", label: "Eleição", endpoint: "/election", icon: Landmark, group: "Expansões", expansion: "government" },
-  { key: "government", label: "Governo", endpoint: "/government", icon: Gavel, group: "Expansões", expansion: "government" },
+  {
+    key: "achievements",
+    label: "Conquistas",
+    endpoint: "/achievements",
+    icon: Medal,
+    group: "Você",
+    achievementTally: true,
+  },
+  {
+    key: "election",
+    label: "Eleição",
+    endpoint: "/election",
+    icon: Landmark,
+    group: "Expansões",
+    expansion: "government",
+  },
+  {
+    key: "government",
+    label: "Governo",
+    endpoint: "/government",
+    icon: Gavel,
+    group: "Expansões",
+    expansion: "government",
+  },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
   { key: "tutorial", label: "Como jogar", endpoint: "", icon: GraduationCap, group: "Ferramentas", tutorial: true },
-  { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: Bot, group: "Ferramentas", strategyStatus: true },
-  { key: "performance", label: "Desempenho", endpoint: "/performance", icon: Gauge, group: "Ferramentas", badge: "Debug", badgeTone: "warning", debugOnly: true },
+  {
+    key: "strategies",
+    label: "Estratégias",
+    endpoint: "/strategies",
+    icon: Bot,
+    group: "Ferramentas",
+    strategyStatus: true,
+  },
+  {
+    key: "performance",
+    label: "Desempenho",
+    endpoint: "/performance",
+    icon: Gauge,
+    group: "Ferramentas",
+    badge: "Debug",
+    badgeTone: "warning",
+    debugOnly: true,
+  },
   { key: "settings", label: "Configurações", endpoint: "/settings", icon: Settings, group: "Ferramentas" },
 ];
 

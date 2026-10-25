@@ -33,7 +33,8 @@ export function LeavePartyDialog({ open, onOpenChange, party, isFounder, isVice 
             A contribuição para na hora, e o que você já contribuiu não volta.
             {alone && ` Você é o único filiado: sair desfaz o ${party.abbr}.`}
             {!alone && isFounder && ` Como fundou o partido, ele passa ao filiado mais antigo.`}
-            {isVice && ` A vaga de vice do ${party.abbr} abre e a chapa concorre sem vice até a fundação indicar outro filiado.`}
+            {isVice &&
+              ` A vaga de vice do ${party.abbr} abre e a chapa concorre sem vice até a fundação indicar outro filiado.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

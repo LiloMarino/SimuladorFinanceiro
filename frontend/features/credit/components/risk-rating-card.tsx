@@ -31,7 +31,8 @@ export function RiskRatingCard({ rating }: RiskRatingCardProps) {
     {
       key: "volatility",
       name: <MetricLabel metric={VOLATILITY} />,
-      value: rating.volatility.value === null ? "Pouco histórico" : `${displayPercent(rating.volatility.value, 0)} a.a.`,
+      value:
+        rating.volatility.value === null ? "Pouco histórico" : `${displayPercent(rating.volatility.value, 0)} a.a.`,
       part: rating.volatility,
       description: "45% ao ano ou mais vale zero.",
     },
@@ -67,11 +68,17 @@ export function RiskRatingCard({ rating }: RiskRatingCardProps) {
           <div className="grid gap-1.5">
             <ol className="grid grid-cols-8 gap-1">
               {rating.ladder.map((tier) => (
-                <LadderCell key={tier.grade} tier={tier} current={tier.grade === rating.grade} previous={tier.grade === rating.previous_grade} />
+                <LadderCell
+                  key={tier.grade}
+                  tier={tier}
+                  current={tier.grade === rating.grade}
+                  previous={tier.grade === rating.previous_grade}
+                />
               ))}
             </ol>
             <span className="text-xs text-muted-foreground">
-              Spread sobre a SELIC, em pontos ao ano, e o limite da dívida em % do patrimônio. D não recebe crédito novo.
+              Spread sobre a SELIC, em pontos ao ano, e o limite da dívida em % do patrimônio. D não recebe crédito
+              novo.
             </span>
           </div>
 

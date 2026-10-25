@@ -6,7 +6,14 @@ import type { MarketQuote, Order, Position, StockDetails } from "@/types";
 const sparklineTo = (close: number, drift: number) =>
   Array.from({ length: 30 }, (_, i) => close * (1 - drift * ((29 - i) / 29) + 0.004 * Math.sin(i * 1.7)));
 
-const quote = (id: number, ticker: string, name: string, close: number, changePct: number, volume: number): MarketQuote => ({
+const quote = (
+  id: number,
+  ticker: string,
+  name: string,
+  close: number,
+  changePct: number,
+  volume: number,
+): MarketQuote => ({
   id,
   ticker,
   name,

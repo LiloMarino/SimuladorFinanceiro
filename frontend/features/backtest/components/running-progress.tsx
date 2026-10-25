@@ -16,7 +16,8 @@ export function RunningProgress({ progress, realEnd }: RunningProgressProps) {
   const percent = total > 0 ? (done / total) * 100 : 0;
   const startTime = parseLocalDate(start).getTime();
   const span = parseLocalDate(end).getTime() - startTime;
-  const generatedFrom = realEnd && realEnd < end ? Math.max((parseLocalDate(realEnd).getTime() - startTime) / span, 0) : null;
+  const generatedFrom =
+    realEnd && realEnd < end ? Math.max((parseLocalDate(realEnd).getTime() - startTime) / span, 0) : null;
 
   return (
     <Card>

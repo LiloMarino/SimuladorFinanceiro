@@ -26,7 +26,12 @@ export function BotIdentity({ player, label, simulationIds, onOpenLog }: BotIden
 
   return (
     <span className="flex items-center gap-2.5">
-      <PlayerAvatar nickname={player.player_nickname} color={simulationIds.length > 1 ? undefined : player.color} bot size="sm" />
+      <PlayerAvatar
+        nickname={player.player_nickname}
+        color={simulationIds.length > 1 ? undefined : player.color}
+        bot
+        size="sm"
+      />
       <span className="grid min-w-0">
         <span className="flex items-center gap-1.5">
           <HoverCard>

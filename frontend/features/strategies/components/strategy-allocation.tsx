@@ -40,8 +40,8 @@ export function AllocationBlock({ allocation }: AllocationBlockProps) {
           fora, ela vende ou resgata para voltar.
         </span>
         <InfoHint label="O que é p.p.">
-          p.p. é a diferença entre dois percentuais: 66% de ações contra a meta de 60% são 6 p.p. acima. Com limite de
-          5 p.p., esse desvio já faria a estratégia vender.
+          p.p. é a diferença entre dois percentuais: 66% de ações contra a meta de 60% são 6 p.p. acima. Com limite de 5
+          p.p., esse desvio já faria a estratégia vender.
         </InfoHint>
       </p>
 

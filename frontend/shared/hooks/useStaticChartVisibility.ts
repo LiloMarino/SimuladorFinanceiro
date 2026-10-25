@@ -4,7 +4,7 @@ export function useStaticChartVisibility<T extends readonly { key: string; defau
   type Key = T[number]["key"];
 
   const [visible, setVisible] = useState<Record<Key, boolean>>(
-    () => Object.fromEntries(series.map((s) => [s.key, s.defaultVisible ?? true])) as Record<Key, boolean>
+    () => Object.fromEntries(series.map((s) => [s.key, s.defaultVisible ?? true])) as Record<Key, boolean>,
   );
 
   const toggle = (key: Key) => {

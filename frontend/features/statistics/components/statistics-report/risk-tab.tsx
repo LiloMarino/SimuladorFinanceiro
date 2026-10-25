@@ -43,7 +43,16 @@ export function RiskTab({ simulationIds, currentPlayerName, onlyPlayer }: Report
   const { data, isLoading, error, refetch } = useStatisticsReport("risk", simulationIds, onlyPlayer);
   const { data: returns } = useStatisticsReport("returns", simulationIds);
   const [view, setView] = useState<View>("DRAWDOWN");
-  if (!data) return <TabStatus simulationIds={simulationIds} loading={isLoading} title="o Risco" error={error} onRetry={() => void refetch()} />;
+  if (!data)
+    return (
+      <TabStatus
+        simulationIds={simulationIds}
+        loading={isLoading}
+        title="o Risco"
+        error={error}
+        onRetry={() => void refetch()}
+      />
+    );
 
   const labels = data.players.map((p) => playerLabel(p, simulationIds, currentPlayerName));
   const someoneIsYou = data.players.some((p) => p.player_nickname === currentPlayerName);
@@ -112,10 +121,20 @@ export function RiskTab({ simulationIds, currentPlayerName, onlyPlayer }: Report
         currentPlayerName={currentPlayerName}
         columns={[
           { metric: MAX_DRAWDOWN, value: (r) => r.max_drawdown, teamValue: (t) => t.max_drawdown, best: "min" },
-          { metric: ANNUAL_VOLATILITY, value: (r) => r.annual_volatility, teamValue: (t) => t.annual_volatility, best: "min" },
+          {
+            metric: ANNUAL_VOLATILITY,
+            value: (r) => r.annual_volatility,
+            teamValue: (t) => t.annual_volatility,
+            best: "min",
+          },
           { metric: SHARPE_RATIO, value: (r) => r.sharpe_ratio, teamValue: (t) => t.sharpe_ratio, best: "max" },
           { metric: SORTINO_RATIO, value: (r) => r.sortino_ratio, teamValue: (t) => t.sortino_ratio, best: "max" },
-          { metric: TIME_UNDERWATER, value: (r) => r.time_underwater, teamValue: (t) => (t.time_underwater === null ? null : Math.round(Number(t.time_underwater))), best: "min" },
+          {
+            metric: TIME_UNDERWATER,
+            value: (r) => r.time_underwater,
+            teamValue: (t) => (t.time_underwater === null ? null : Math.round(Number(t.time_underwater))),
+            best: "min",
+          },
           { metric: WORST_MONTH, value: (r) => r.worst_month, teamValue: (t) => t.worst_month, best: "max" },
           { metric: SAMPLE_DAYS, value: (r) => r.days },
         ]}
@@ -206,7 +225,8 @@ function RiskReturn({
   const bestTeam = teamPoints.filter((t) => t.sharpe !== null).sort((a, b) => Number(b.sharpe) - Number(a.sharpe))[0];
   // A equipe que rendeu mais oscilando menos que a seguinte: o losango dela fica acima e à esquerda
   const byReturn = [...teamPoints].sort((a, b) => b.y - a.y);
-  const dominant = byReturn.length > 1 && byReturn[0].x < byReturn[1].x ? { winner: byReturn[0], other: byReturn[1] } : undefined;
+  const dominant =
+    byReturn.length > 1 && byReturn[0].x < byReturn[1].x ? { winner: byReturn[0], other: byReturn[1] } : undefined;
   // Em cada equipe com três ou mais, quem segura a média (o mais perto do losango) e quem puxa
   // para baixo e para a direita (menos retorno e mais oscilação que a média)
   const holders = teamPoints.flatMap((t) => {
@@ -368,7 +388,13 @@ function RiskReturn({
                         />
                       )}
                     >
-                      <LabelList dataKey="label" position="top" fontSize={11} fontWeight={700} fill="var(--foreground)" />
+                      <LabelList
+                        dataKey="label"
+                        position="top"
+                        fontSize={11}
+                        fontWeight={700}
+                        fill="var(--foreground)"
+                      />
                     </Scatter>
                   )}
                   {cdi !== null && (
@@ -394,8 +420,8 @@ function RiskReturn({
                 )}
                 {holders.map(({ team, holder, dragger }) => (
                   <span key={team} className="text-muted-foreground">
-                    Na {teamShortName(team, naming)}, <b className="text-foreground">{holder.player_nickname}</b> segura a
-                    média
+                    Na {teamShortName(team, naming)}, <b className="text-foreground">{holder.player_nickname}</b> segura
+                    a média
                     {dragger && (
                       <>
                         ; <b className="text-foreground">{dragger.player_nickname}</b> puxa para baixo e para a direita
@@ -408,8 +434,8 @@ function RiskReturn({
                   <span className="text-muted-foreground">
                     A <b className="text-foreground">{teamName(bestTeam.team, naming)}</b> rendeu mais por unidade de
                     oscilação: Sharpe médio{" "}
-                    <b className="font-mono text-foreground">{displayNumber(bestTeam.sharpe ?? 0)}</b>, o melhor entre as
-                    equipes.
+                    <b className="font-mono text-foreground">{displayNumber(bestTeam.sharpe ?? 0)}</b>, o melhor entre
+                    as equipes.
                   </span>
                 )}
                 {bestSharpe && (

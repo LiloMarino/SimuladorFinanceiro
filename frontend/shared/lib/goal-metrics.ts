@@ -5,7 +5,8 @@ import { displayGoalPercent } from "./goal";
 export const GOAL_PERCENT: MetricInfo = {
   label: "% da meta",
   description: "Quanto do caminho até a meta o patrimônio já andou",
-  definition: "O patrimônio dividido pela meta. Como a meta é a mesma para todos, quem tem mais patrimônio está mais perto.",
+  definition:
+    "O patrimônio dividido pela meta. Como a meta é a mesma para todos, quem tem mais patrimônio está mais perto.",
   example: "Ex.: R$ 930.000 de uma meta de R$ 1.500.000 → 62%.",
   reading: "100% é chegar. Em equipes, vale a média do patrimônio dos membros dividida pela meta.",
   format: (value) => displayGoalPercent(Number(value)),

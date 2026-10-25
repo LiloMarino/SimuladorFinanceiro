@@ -29,9 +29,7 @@ describe("texto do histórico da vida real", () => {
     expect(lifeRowText(row({ category: "OVERDRAFT", kind: "OVERDRAFT_ENDED" }), "0.08")).toBe(
       "Caixa voltou ao positivo",
     );
-    expect(lifeRowText(row({ category: "OVERDRAFT", kind: "OVERDRAFT_INTEREST" }), "0.08")).toBe(
-      "Juros de 8% ao mês",
-    );
+    expect(lifeRowText(row({ category: "OVERDRAFT", kind: "OVERDRAFT_INTEREST" }), "0.08")).toBe("Juros de 8% ao mês");
   });
 });
 

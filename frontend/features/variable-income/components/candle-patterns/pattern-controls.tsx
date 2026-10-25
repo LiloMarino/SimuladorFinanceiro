@@ -63,7 +63,8 @@ export function PatternNotice(props: PatternNoticeProps) {
   const text =
     props.kind === "line" ? (
       <>
-        <b className="font-mono">{props.count}</b> {props.count === 1 ? "padrão de vela neste período" : "padrões de vela neste período"}
+        <b className="font-mono">{props.count}</b>{" "}
+        {props.count === 1 ? "padrão de vela neste período" : "padrões de vela neste período"}
         {props.todayCode && `, entre eles ${PATTERN_INFO[props.todayCode].name.toLowerCase()} hoje`}
       </>
     ) : (

@@ -2,8 +2,20 @@ import { describe, expect, it } from "vitest";
 import type { StockDetails } from "@/types";
 import { mergeStockUpdate } from "./stock-history";
 
-const candle = { id: 1, ticker: "ABCD3", name: "Empresa", asset_class: "STOCK" as const,
-  price_date: "2020-01-06", open: 10, close: 11, low: 9, high: 12, volume: 100, change: 1, change_pct: 0.1 };
+const candle = {
+  id: 1,
+  ticker: "ABCD3",
+  name: "Empresa",
+  asset_class: "STOCK" as const,
+  price_date: "2020-01-06",
+  open: 10,
+  close: 11,
+  low: 9,
+  high: 12,
+  volume: 100,
+  change: 1,
+  change_pct: 0.1,
+};
 const detail: StockDetails = { ...candle, history: [{ ...candle }] };
 
 describe("histórico recebido ao pausar", () => {

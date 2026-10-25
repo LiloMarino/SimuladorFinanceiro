@@ -59,12 +59,21 @@ function EmptyPositions({
 export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
   const navigate = useNavigate();
   const stockSort = useTableSort(portfolio.variable_income, {
-    name: p => p.ticker, quantity: p => Number(p.size), average: p => Number(p.avg_price), price: p => Number(p.current_price),
-    value: p => Number(p.current_value), share: p => Number(p.portfolio_pct), result: p => Number(p.return_value),
+    name: (p) => p.ticker,
+    quantity: (p) => Number(p.size),
+    average: (p) => Number(p.avg_price),
+    price: (p) => Number(p.current_price),
+    value: (p) => Number(p.current_value),
+    share: (p) => Number(p.portfolio_pct),
+    result: (p) => Number(p.return_value),
   });
   const bondSort = useTableSort(portfolio.fixed_income, {
-    name: p => p.asset.name, applied: p => Number(p.total_applied), value: p => Number(p.current_value),
-    rate: p => Number(p.asset.interest_rate), share: p => Number(p.portfolio_pct), result: p => Number(p.return_value),
+    name: (p) => p.asset.name,
+    applied: (p) => Number(p.total_applied),
+    value: (p) => Number(p.current_value),
+    rate: (p) => Number(p.asset.interest_rate),
+    share: (p) => Number(p.portfolio_pct),
+    result: (p) => Number(p.return_value),
   });
   const stocks = stockSort.rows;
   const bonds = bondSort.rows;
@@ -178,12 +187,17 @@ export function PositionsCard({ portfolio }: { portfolio: PortfolioState }) {
               </TableHeader>
               <TableBody>
                 {bonds.map((p) => (
-                  <TableRow key={p.asset.asset_uuid} onActivate={() => void navigate(`/fixed-income/${p.asset.asset_uuid}`)}>
+                  <TableRow
+                    key={p.asset.asset_uuid}
+                    onActivate={() => void navigate(`/fixed-income/${p.asset.asset_uuid}`)}
+                  >
                     <TableCell>
                       <span className="grid">
                         <span className="flex items-center gap-1.5 font-semibold">
                           {p.asset.name}
-                          {p.asset.daily_liquidity && <DailyLiquidityBadge size="sm">liquidez diária</DailyLiquidityBadge>}
+                          {p.asset.daily_liquidity && (
+                            <DailyLiquidityBadge size="sm">liquidez diária</DailyLiquidityBadge>
+                          )}
                         </span>
                         <span className="text-xs text-muted-foreground">{p.asset.issuer}</span>
                       </span>

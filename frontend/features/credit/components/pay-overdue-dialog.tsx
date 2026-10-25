@@ -80,7 +80,9 @@ export function PayOverdueDialog({ loan, rating, cash, open, onOpenChange }: Pay
             <Alert variant="destructive">
               <TriangleAlert />
               <AlertTitle>
-                {gradeFell ? `A nota já caiu de ${rating.previous_grade} para ${rating.grade}` : "O atraso pesa na nota"}
+                {gradeFell
+                  ? `A nota já caiu de ${rating.previous_grade} para ${rating.grade}`
+                  : "O atraso pesa na nota"}
               </AlertTitle>
               <AlertDescription>Pagar agora para a mora; o atraso pesa na nota por 12 meses.</AlertDescription>
             </Alert>

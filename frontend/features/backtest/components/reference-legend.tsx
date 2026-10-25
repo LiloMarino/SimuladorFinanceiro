@@ -18,7 +18,9 @@ export function ReferenceLegend({ compact = false }: ReferenceLegendProps) {
           Ibovespa
         </span>
         <span className="text-xs text-muted-foreground">
-          {compact ? "linhas de referência, sem vaga" : "Linhas de referência no gráfico e no ranking. Não ocupam vaga."}
+          {compact
+            ? "linhas de referência, sem vaga"
+            : "Linhas de referência no gráfico e no ranking. Não ocupam vaga."}
         </span>
       </div>
     </div>

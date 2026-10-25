@@ -46,9 +46,7 @@ export function PriceImpactExample({ k, decayDays, ticker }: PriceImpactExampleP
           {ticker ?? "uma ação"} sobe o preço{" "}
           <b className="font-mono text-foreground">+{displayPercent(preview.first_day_impact)}</b> no pregão seguinte.
         </p>
-        <p className="text-xs text-muted-foreground">
-          O efeito some em {tValue} pregões. Personalizado libera k e T.
-        </p>
+        <p className="text-xs text-muted-foreground">O efeito some em {tValue} pregões. Personalizado libera k e T.</p>
       </div>
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -68,7 +66,12 @@ export function PriceImpactExample({ k, decayDays, ticker }: PriceImpactExampleP
           1
         </text>
         {lastDay > MIDDLE_DAY && (
-          <text x={xOf(MIDDLE_DAY)} y={HEIGHT - 1} textAnchor="middle" className="fill-faint-foreground font-mono text-[10px]">
+          <text
+            x={xOf(MIDDLE_DAY)}
+            y={HEIGHT - 1}
+            textAnchor="middle"
+            className="fill-faint-foreground font-mono text-[10px]"
+          >
             {MIDDLE_DAY}
           </text>
         )}

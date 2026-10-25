@@ -1,4 +1,14 @@
-import { CartesianGrid, Line, LineChart, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ReferenceArea,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { displayDate } from "@/shared/lib/utils/display";
 import type { FuturePreview } from "@/types";
 import { previewChartData, yearTicks, type PreviewRow } from "../lib/preview-chart";
@@ -75,7 +85,14 @@ export function PreviewChart({ series, height, formatValue, formatTooltip, maxYe
             );
           }}
         />
-        <Line type="linear" dataKey="real" stroke="var(--chart-1)" strokeWidth={1.75} dot={false} isAnimationActive={false} />
+        <Line
+          type="linear"
+          dataKey="real"
+          stroke="var(--chart-1)"
+          strokeWidth={1.75}
+          dot={false}
+          isAnimationActive={false}
+        />
         <Line
           type="linear"
           dataKey="generated"

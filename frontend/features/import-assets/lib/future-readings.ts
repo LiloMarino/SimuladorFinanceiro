@@ -2,8 +2,7 @@ import { format } from "date-fns";
 import { displayNumber } from "@/shared/lib/utils/display";
 import type { MarketRegime } from "@/types";
 
-export const FUTURE_DOCS_URL =
-  "https://lilomarino.github.io/SimuladorFinanceiro/como-usar/futuro-gerado";
+export const FUTURE_DOCS_URL = "https://lilomarino.github.io/SimuladorFinanceiro/como-usar/futuro-gerado";
 
 export const TEMPERATURE = { min: 0, max: 3, step: 0.1, default: 1 } as const;
 export const INFLATION_SHOCK = {
@@ -44,12 +43,8 @@ export const FIRST_YEAR_VOLATILITY: Record<MarketRegime, number> = {
   AGITATED: 30,
 };
 
-export const startChoiceToRegime = (
-  choice: StartChoice,
-): MarketRegime | null => (choice === "TODAY" ? null : choice);
-export const regimeToStartChoice = (
-  regime: MarketRegime | null | undefined,
-): StartChoice => regime ?? "TODAY";
+export const startChoiceToRegime = (choice: StartChoice): MarketRegime | null => (choice === "TODAY" ? null : choice);
+export const regimeToStartChoice = (regime: MarketRegime | null | undefined): StartChoice => regime ?? "TODAY";
 
 // Medido em 100 futuros de 5 anos para cada temperatura inteira
 type TemperatureLevel = {
@@ -100,20 +95,15 @@ const TEMPERATURE_LEVELS: TemperatureLevel[] = [
 
 /** A leitura mostrada é a do nível inteiro mais próximo. */
 export function temperatureReading(temperature: number): TemperatureLevel {
-  const level = Math.min(
-    Math.max(Math.round(temperature), TEMPERATURE.min),
-    TEMPERATURE.max,
-  );
+  const level = Math.min(Math.max(Math.round(temperature), TEMPERATURE.min), TEMPERATURE.max);
   return TEMPERATURE_LEVELS[level];
 }
 
-export const TEMPERATURE_TABLE = TEMPERATURE_LEVELS.map(
-  ({ level, volatility, crashYears }) => ({
-    level,
-    volatility,
-    crashYears,
-  }),
-);
+export const TEMPERATURE_TABLE = TEMPERATURE_LEVELS.map(({ level, volatility, crashYears }) => ({
+  level,
+  volatility,
+  crashYears,
+}));
 
 export const TEMPERATURE_MARKS = [
   { value: 0, label: "0 calmo" },
@@ -122,8 +112,7 @@ export const TEMPERATURE_MARKS = [
   { value: 3, label: "3" },
 ];
 
-export const displayTemperature = (temperature: number) =>
-  displayNumber(temperature, 1);
+export const displayTemperature = (temperature: number) => displayNumber(temperature, 1);
 
 // Medianas de 50 futuros partindo de hoje, para cada marca do choque
 export const INFLATION_SHOCK_TABLE = [
@@ -144,15 +133,12 @@ export const INFLATION_SHOCK_MARKS = INFLATION_SHOCK_TABLE.map(({ shock }) => ({
 /** Para um valor entre as marcas vale a leitura da marca mais próxima. */
 export function inflationShockReading(shock: number) {
   return INFLATION_SHOCK_TABLE.reduce((nearest, row) =>
-    Math.abs(row.shock - shock) < Math.abs(nearest.shock - shock)
-      ? row
-      : nearest,
+    Math.abs(row.shock - shock) < Math.abs(nearest.shock - shock) ? row : nearest,
   );
 }
 
 /** "0 pontos", "+10 pontos", "+1 ponto". */
-export const displayShock = (shock: number) =>
-  `${signedShock(shock)} ${Math.abs(shock) === 1 ? "ponto" : "pontos"}`;
+export const displayShock = (shock: number) => `${signedShock(shock)} ${Math.abs(shock) === 1 ? "ponto" : "pontos"}`;
 
 /** 31/12 do ano que fica `years` anos à frente: o atalho "+N anos" do campo de data. */
 export const endOfYearAhead = (years: number) =>

@@ -71,7 +71,9 @@ export function GovernmentHeader({ panel }: GovernmentHeaderProps) {
               <PromiseRuler markers={markers} showEnds />
               <span className="text-[11px] text-muted-foreground">
                 Avatar: prometido, {term.promise}
-                {mark ? ` · ponto preto: a média das aprovadas, ${NUMBER.format(Number(mark))}` : " · nenhuma medida aprovada ainda"}
+                {mark
+                  ? ` · ponto preto: a média das aprovadas, ${NUMBER.format(Number(mark))}`
+                  : " · nenhuma medida aprovada ainda"}
               </span>
             </div>
           )}

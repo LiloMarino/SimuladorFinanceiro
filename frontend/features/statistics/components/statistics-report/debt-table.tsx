@@ -17,7 +17,16 @@ type DebtTableProps = {
 };
 
 // Nota na ordem da escada, da melhor para a pior, para a coluna ordenar pela qualidade
-const GRADE_RANK: Record<RiskPlayer["credit_grade"], number> = { AAA: 0, AA: 1, A: 2, BBB: 3, BB: 4, B: 5, CCC: 6, D: 7 };
+const GRADE_RANK: Record<RiskPlayer["credit_grade"], number> = {
+  AAA: 0,
+  AA: 1,
+  A: 2,
+  BBB: 3,
+  BB: 4,
+  B: 5,
+  CCC: 6,
+  D: 7,
+};
 
 /** "Dívida na sala": quanto cada jogador deve, quanto isso pesa no patrimônio e a nota que isso rende. */
 export function DebtTable({ players, simulationIds, currentPlayerName }: DebtTableProps) {
@@ -39,8 +48,18 @@ export function DebtTable({ players, simulationIds, currentPlayerName }: DebtTab
           <TableRow>
             <SortableTableHead label="Jogador" {...sorting.header("player")} />
             <SortableTableHead label="Dívida" {...sorting.header("debt")} numeric />
-            <SortableTableHead label={LEVERAGE.label} {...sorting.header("leverage")} numeric hint={<MetricHint metric={LEVERAGE} />} />
-            <SortableTableHead label={RISK_RATING.label} {...sorting.header("grade")} numeric hint={<MetricHint metric={RISK_RATING} />} />
+            <SortableTableHead
+              label={LEVERAGE.label}
+              {...sorting.header("leverage")}
+              numeric
+              hint={<MetricHint metric={LEVERAGE} />}
+            />
+            <SortableTableHead
+              label={RISK_RATING.label}
+              {...sorting.header("grade")}
+              numeric
+              hint={<MetricHint metric={RISK_RATING} />}
+            />
           </TableRow>
         </TableHeader>
         <TableBody>

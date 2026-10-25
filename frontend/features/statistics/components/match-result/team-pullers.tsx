@@ -72,7 +72,12 @@ function TeamPullerCard({
         <>
           {puller && pullerPlayer && (
             <div className="flex items-center gap-3 rounded-lg bg-[color-mix(in_srgb,var(--team)_8%,transparent)] p-3.5">
-              <PlayerAvatar nickname={pullerPlayer.player_nickname} color={pullerPlayer.color} bot={pullerPlayer.is_bot} size="xl" />
+              <PlayerAvatar
+                nickname={pullerPlayer.player_nickname}
+                color={pullerPlayer.color}
+                bot={pullerPlayer.is_bot}
+                size="xl"
+              />
               <div className="grid gap-0.5">
                 <span className="text-xs font-medium text-(--team)">
                   Quem mais puxou a {teamShortName(team.team, naming)}

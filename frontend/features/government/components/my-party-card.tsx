@@ -36,7 +36,15 @@ function roleOf(member: ElectionParty["members"][number]) {
 }
 
 /** O partido de quem vê: verba, filiados e contribuições, a curva de rendimento e a promessa. */
-export function MyPartyCard({ panel, party, nickname, onEditTicket, onChangeContribution, onExpel, onLeave }: MyPartyCardProps) {
+export function MyPartyCard({
+  panel,
+  party,
+  nickname,
+  onEditTicket,
+  onChangeContribution,
+  onExpel,
+  onLeave,
+}: MyPartyCardProps) {
   const mine = panel.my_party;
   const locked = panel.phase === "BETWEEN_ROUNDS";
   const budget = Number(party.budget);
@@ -135,7 +143,8 @@ export function MyPartyCard({ panel, party, nickname, onEditTicket, onChangeCont
           </div>
           <p className="rounded-lg bg-subtle px-3 py-2 text-xs leading-normal text-muted-foreground">
             Cada filiado escolhe quanto contribui, e pode ser zero.
-            {mine?.is_founder && " Como quem fundou o partido, você escolhe candidato e vice entre os filiados e pode expulsar."}
+            {mine?.is_founder &&
+              " Como quem fundou o partido, você escolhe candidato e vice entre os filiados e pode expulsar."}
           </p>
 
           {/* Quanto a verba rende */}
@@ -176,7 +185,13 @@ export function MyPartyCard({ panel, party, nickname, onEditTicket, onChangeCont
             </span>
           </div>
 
-          <Button variant="outline-destructive" size="sm" className="justify-self-start" disabled={locked} onClick={onLeave}>
+          <Button
+            variant="outline-destructive"
+            size="sm"
+            className="justify-self-start"
+            disabled={locked}
+            onClick={onLeave}
+          >
             <LogOut />
             Sair do partido
           </Button>

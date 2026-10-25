@@ -30,7 +30,10 @@ export function RankingCard({ panel }: RankingCardProps) {
                   <span className="min-w-0 flex-1 truncate">
                     {player.nickname}
                     {player.party_id !== null && (
-                      <span className="text-xs font-normal text-muted-foreground"> · {abbrOf.get(player.party_id)}</span>
+                      <span className="text-xs font-normal text-muted-foreground">
+                        {" "}
+                        · {abbrOf.get(player.party_id)}
+                      </span>
                     )}
                   </span>
                   <span className="font-mono">{displayMoneyWhole(player.total_networth)}</span>

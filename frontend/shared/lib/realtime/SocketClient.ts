@@ -3,7 +3,7 @@ import { logger } from "@/shared/lib/logger";
 import { BaseSubscriberRealtime } from "./BaseSubscriberRealtime";
 
 export class SocketClient<
-  TEvents extends Record<string, unknown> = Record<string, unknown>
+  TEvents extends Record<string, unknown> = Record<string, unknown>,
 > extends BaseSubscriberRealtime<TEvents> {
   private socket: Socket | null = null;
 

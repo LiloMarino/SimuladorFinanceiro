@@ -9,8 +9,7 @@ export function toastReplacedGenerated(key: string, replaced: ReplacedGenerated 
   if (!replaced) return;
   const sameYear = replaced.start.slice(0, 4) === replaced.end.slice(0, 4);
   const start = sameYear ? dayMonth(replaced.start) : displayDate(parseLocalDate(replaced.start));
-  const entered =
-    replaced.days === 1 ? "1 pregão real entrou" : `${replaced.days} pregões reais entraram`;
+  const entered = replaced.days === 1 ? "1 pregão real entrou" : `${replaced.days} pregões reais entraram`;
   toast.success(`${key} atualizada`, {
     description: `${entered} no lugar do gerado, de ${start} a ${displayDate(parseLocalDate(replaced.end))}. Gere de novo para emendar o futuro.`,
   });

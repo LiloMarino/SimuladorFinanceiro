@@ -60,7 +60,8 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const isVisible = (item: NavItem) =>
     (!item.debugOnly || showDebugTools) && (!item.goalOnly || racing) && (!item.expansion || governmentOn);
   const isExpert =
-    !!match && summarizeAssistances([match.show_equivalent_rate, match.show_maturity_projection, match.show_chart_hints]).mode ===
+    !!match &&
+    summarizeAssistances([match.show_equivalent_rate, match.show_maturity_projection, match.show_chart_hints]).mode ===
       "EXPERT";
   const ownGoal = goal && match ? ownStanding(goal, match.player_grouping, nickname) : undefined;
 
@@ -93,49 +94,54 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                   item.tutorial ? (
                     <TutorialMenuItem key={item.key} label={item.label} icon={item.icon} />
                   ) : (
-                  <SidebarMenuItem key={item.key}>
-                    <SidebarMenuButton isActive={activePage === item.key} render={<NavLink to={item.endpoint} />}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                    {item.badge && <SidebarMenuBadge tone={item.badgeTone}>{item.badge}</SidebarMenuBadge>}
-                    {item.goalOnly && ownGoal && <SidebarMenuBadge>{displayGoalPercent(ownGoal.fraction)}</SidebarMenuBadge>}
-                    {item.creditAlert && portfolio?.credit_alert && (
-                      <SidebarMenuBadge>
-                        <span aria-label="Parcela de crédito pedindo atenção" className="size-2 rounded-full bg-destructive ring-2 ring-sidebar" />
-                      </SidebarMenuBadge>
-                    )}
-                    {item.strategyStatus && myStrategy && (
-                      <SidebarMenuBadge tone="plain">
-                        {myStrategy.active ? (
-                          <span className="inline-flex items-center gap-1.5 text-toast-success">
-                            <span className="size-2 rounded-full bg-toast-success" />
-                            Ligada
-                          </span>
-                        ) : myStrategy.error && !myStrategy.error.seen && activePage !== item.key ? (
-                          <span className="inline-flex items-center gap-1.5 text-toast-error">
-                            Desligada
-                            <span
-                              aria-label="A estratégia deu erro"
-                              className="size-2 rounded-full bg-destructive ring-2 ring-sidebar"
-                            />
-                          </span>
-                        ) : (
-                          <span className="text-sidebar-muted">Desligada</span>
-                        )}
-                      </SidebarMenuBadge>
-                    )}
-                    {item.achievementTally && tally && (
-                      <SidebarMenuBadge>
-                        <span className="inline-flex items-center gap-1.5">
-                          {tally.hasNew && activePage !== item.key && (
-                            <span aria-label="Conquista nova" className="size-1.5 rounded-full bg-toast-warning" />
+                    <SidebarMenuItem key={item.key}>
+                      <SidebarMenuButton isActive={activePage === item.key} render={<NavLink to={item.endpoint} />}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </SidebarMenuButton>
+                      {item.badge && <SidebarMenuBadge tone={item.badgeTone}>{item.badge}</SidebarMenuBadge>}
+                      {item.goalOnly && ownGoal && (
+                        <SidebarMenuBadge>{displayGoalPercent(ownGoal.fraction)}</SidebarMenuBadge>
+                      )}
+                      {item.creditAlert && portfolio?.credit_alert && (
+                        <SidebarMenuBadge>
+                          <span
+                            aria-label="Parcela de crédito pedindo atenção"
+                            className="size-2 rounded-full bg-destructive ring-2 ring-sidebar"
+                          />
+                        </SidebarMenuBadge>
+                      )}
+                      {item.strategyStatus && myStrategy && (
+                        <SidebarMenuBadge tone="plain">
+                          {myStrategy.active ? (
+                            <span className="inline-flex items-center gap-1.5 text-toast-success">
+                              <span className="size-2 rounded-full bg-toast-success" />
+                              Ligada
+                            </span>
+                          ) : myStrategy.error && !myStrategy.error.seen && activePage !== item.key ? (
+                            <span className="inline-flex items-center gap-1.5 text-toast-error">
+                              Desligada
+                              <span
+                                aria-label="A estratégia deu erro"
+                                className="size-2 rounded-full bg-destructive ring-2 ring-sidebar"
+                              />
+                            </span>
+                          ) : (
+                            <span className="text-sidebar-muted">Desligada</span>
                           )}
-                          {tally.unlocked}/{tally.total}
-                        </span>
-                      </SidebarMenuBadge>
-                    )}
-                  </SidebarMenuItem>
+                        </SidebarMenuBadge>
+                      )}
+                      {item.achievementTally && tally && (
+                        <SidebarMenuBadge>
+                          <span className="inline-flex items-center gap-1.5">
+                            {tally.hasNew && activePage !== item.key && (
+                              <span aria-label="Conquista nova" className="size-1.5 rounded-full bg-toast-warning" />
+                            )}
+                            {tally.unlocked}/{tally.total}
+                          </span>
+                        </SidebarMenuBadge>
+                      )}
+                    </SidebarMenuItem>
                   ),
                 )}
             </SidebarMenu>

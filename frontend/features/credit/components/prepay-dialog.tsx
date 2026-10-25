@@ -39,9 +39,7 @@ type PrepayDialogProps = {
 /** "Pagar antes": amortiza uma parte (encurta o prazo ou reduz a parcela) ou quita o empréstimo. */
 export function PrepayDialog({ loan, open, onOpenChange, initialChoice, initialAmount }: PrepayDialogProps) {
   const [choice, setChoice] = useState<PrepayChoice>(initialChoice);
-  const [amountText, setAmountText] = useState(() =>
-    initialAmount ? formatMoney(toCentsString(initialAmount)) : "",
-  );
+  const [amountText, setAmountText] = useState(() => (initialAmount ? formatMoney(toCentsString(initialAmount)) : ""));
   const [mode, setMode] = useState<PrepaymentMode>("SHORTEN_TERM");
 
   const amount = Number(normalizeNumberString(amountText)) || 0;
@@ -74,8 +72,8 @@ export function PrepayDialog({ loan, open, onOpenChange, initialChoice, initialA
         <DialogHeader variant="divided">
           <DialogTitle>Empréstimo {loan.number} · pagar antes</DialogTitle>
           <DialogDescription>
-            {displayMoney(loan.principal)} em {loan.total_installments} parcelas, a {displayPercent(loan.annual_rate)} ao
-            ano · {loan.paid_installments} de {loan.total_installments} pagas
+            {displayMoney(loan.principal)} em {loan.total_installments} parcelas, a {displayPercent(loan.annual_rate)}{" "}
+            ao ano · {loan.paid_installments} de {loan.total_installments} pagas
           </DialogDescription>
         </DialogHeader>
 
@@ -180,14 +178,15 @@ export function PrepayDialog({ loan, open, onOpenChange, initialChoice, initialA
           {choice === "part" ? (
             <Button
               disabled={!canPrepay || prepay.isPending}
-              onClick={() =>
-                prepay.mutate({ amount: normalizeNumberString(amountText), mode }, { onSuccess: close })
-              }
+              onClick={() => prepay.mutate({ amount: normalizeNumberString(amountText), mode }, { onSuccess: close })}
             >
               Pagar {displayMoney(amount)}
             </Button>
           ) : (
-            <Button disabled={!canPayoff || payoff.isPending} onClick={() => payoff.mutate(undefined, { onSuccess: close })}>
+            <Button
+              disabled={!canPayoff || payoff.isPending}
+              onClick={() => payoff.mutate(undefined, { onSuccess: close })}
+            >
               Quitar {preview ? displayMoney(payoffAmount) : ""}
             </Button>
           )}
@@ -218,7 +217,9 @@ function PrepayOption({ value, selected, title, interestSaved, detail }: PrepayO
       <span className="font-mono font-semibold text-success">
         {interestSaved === undefined ? "—" : `−${displayMoney(interestSaved)} de juro`}
       </span>
-      <span className="col-span-2 col-start-2 text-xs text-muted-foreground">{detail || "Digite um valor para ver o efeito"}</span>
+      <span className="col-span-2 col-start-2 text-xs text-muted-foreground">
+        {detail || "Digite um valor para ver o efeito"}
+      </span>
     </label>
   );
 }

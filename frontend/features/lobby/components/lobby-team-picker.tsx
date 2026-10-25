@@ -58,7 +58,9 @@ export function LobbyTeamPicker({ nickname, players, savedPlayers, naming, simul
       </PopoverTrigger>
       <PopoverContent align="end" className="w-96">
         <PopoverHeader>
-          <PopoverTitle>{locked && simulationName ? `Sua equipe em ${simulationName}` : "Sua equipe na partida"}</PopoverTitle>
+          <PopoverTitle>
+            {locked && simulationName ? `Sua equipe em ${simulationName}` : "Sua equipe na partida"}
+          </PopoverTitle>
           <PopoverDescription>
             {locked
               ? `Você jogou esta partida na ${mine ? teamName(mine, naming) : "equipe dela"}. A equipe fica com a partida salva, como a cor.`
@@ -68,7 +70,13 @@ export function LobbyTeamPicker({ nickname, players, savedPlayers, naming, simul
           </PopoverDescription>
         </PopoverHeader>
 
-        <TeamGrid players={players} naming={naming} selected={mine} disabled={locked || isPending} onSelect={chooseTeam} />
+        <TeamGrid
+          players={players}
+          naming={naming}
+          selected={mine}
+          disabled={locked || isPending}
+          onSelect={chooseTeam}
+        />
 
         {refusal && (
           <Alert variant="warning">

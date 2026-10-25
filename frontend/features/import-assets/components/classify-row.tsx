@@ -103,7 +103,12 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
           {/* Ações */}
           <div className="flex items-center justify-between gap-2">
             {current ? (
-              <Button variant="link-destructive" size="sm" disabled={busy} onClick={() => remove.mutate(undefined, { onSuccess: onClose })}>
+              <Button
+                variant="link-destructive"
+                size="sm"
+                disabled={busy}
+                onClick={() => remove.mutate(undefined, { onSuccess: onClose })}
+              >
                 Tirar classificação
               </Button>
             ) : (
@@ -117,9 +122,7 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
               <Button
                 size="sm"
                 disabled={busy || !sector}
-                onClick={() =>
-                  save.mutate({ sector, segment: segment.trim() || sector }, { onSuccess: onClose })
-                }
+                onClick={() => save.mutate({ sector, segment: segment.trim() || sector }, { onSuccess: onClose })}
               >
                 Salvar
               </Button>

@@ -83,8 +83,8 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
                 {displayRatePercent(life.overdraft_monthly_rate)} ao mês).{" "}
                 {life.overdraft_cover ? (
                   <>
-                    Você tem <b className="font-mono text-foreground">{displayMoney(life.reserve_daily_liquidity)}</b> em
-                    liquidez diária, que cobre isso hoje.
+                    Você tem <b className="font-mono text-foreground">{displayMoney(life.reserve_daily_liquidity)}</b>{" "}
+                    em liquidez diária, que cobre isso hoje.
                   </>
                 ) : (
                   "Venda ou resgate algo para cobrir."
@@ -174,7 +174,9 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className={cn("size-2.5 rounded-xs", barColors.liquidity)} aria-hidden="true" />
-                    Liquidez diária <b className="font-mono">{displayMoneyWhole(life.reserve_daily_liquidity)}</b> ·{" "}
+                    Liquidez diária <b className="font-mono">
+                      {displayMoneyWhole(life.reserve_daily_liquidity)}
+                    </b> ·{" "}
                     {displayMonths(liquidityMonths)}
                   </span>
                 </div>

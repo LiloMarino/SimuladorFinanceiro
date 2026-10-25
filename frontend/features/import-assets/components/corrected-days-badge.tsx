@@ -16,8 +16,8 @@ export function CorrectedDaysBadge({ days }: CorrectedDaysBadgeProps) {
         </Badge>
       </TooltipTrigger>
       <TooltipContent side="top" className="max-w-64">
-        Nesses dias a fonte (yfinance) trouxe um preço absurdo que voltou ao normal em poucos pregões, como uma queda
-        de 99% seguida de recuperação. O fechamento foi trocado por uma linha reta entre os pregões vizinhos e o volume
+        Nesses dias a fonte (yfinance) trouxe um preço absurdo que voltou ao normal em poucos pregões, como uma queda de
+        99% seguida de recuperação. O fechamento foi trocado por uma linha reta entre os pregões vizinhos e o volume
         ficou zerado.
       </TooltipContent>
     </Tooltip>

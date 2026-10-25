@@ -169,7 +169,12 @@ function DebtBreakdown({ portfolio }: { portfolio: PortfolioState }) {
       <div className="flex items-start justify-between gap-4">
         <div className="grid gap-5 sm:grid-cols-2 sm:gap-12">
           <Kpi label="Ativos" value={displayMoney(portfolio.assets_value)} note="Ações, renda fixa e caixa" />
-          <Kpi label="Dívida" value={displaySignedMoney(-Number(portfolio.debt))} tone="destructive" note="Empréstimos em aberto" />
+          <Kpi
+            label="Dívida"
+            value={displaySignedMoney(-Number(portfolio.debt))}
+            tone="destructive"
+            note="Empréstimos em aberto"
+          />
         </div>
         <Link to="/credit" className="text-[13px] font-semibold text-primary hover:text-primary-hover">
           Ver crédito →

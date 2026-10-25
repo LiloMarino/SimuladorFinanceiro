@@ -120,7 +120,11 @@ function MatchResult({ simulationId }: { simulationId: number }) {
             simulationId={simulationId}
             currentPlayerName={user?.nickname}
             currentPlayerColor={overview.players.find((p) => p.player_nickname === user?.nickname)?.color}
-            teamOf={overview.teams.length > 0 ? (nickname) => overview.players.find((p) => p.player_nickname === nickname)?.team : undefined}
+            teamOf={
+              overview.teams.length > 0
+                ? (nickname) => overview.players.find((p) => p.player_nickname === nickname)?.team
+                : undefined
+            }
             teamNaming={overview.team_naming}
           />
           <MatchAchievements simulationId={simulationId} />

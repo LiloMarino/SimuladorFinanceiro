@@ -39,7 +39,11 @@ export function PollCard({ panel }: PollCardProps) {
               <span key={party.id} className="inline-flex items-center gap-1.5">
                 <span
                   className={party.is_computer ? "w-3.5 border-t-2 border-dashed" : "h-0.5 w-3.5 rounded-full"}
-                  style={party.is_computer ? { borderColor: party.color ?? "var(--muted-foreground)" } : { backgroundColor: party.color ?? "var(--muted-foreground)" }}
+                  style={
+                    party.is_computer
+                      ? { borderColor: party.color ?? "var(--muted-foreground)" }
+                      : { backgroundColor: party.color ?? "var(--muted-foreground)" }
+                  }
                 />
                 {party.abbr}
                 {party.candidate && ` · ${party.candidate.name}`}

@@ -91,7 +91,9 @@ function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; cu
   const you = report.players.find((p) => p.player_nickname === currentPlayerName);
   const mine = teams.find((t) => t.team === you?.team);
   const tie =
-    second && first.criterion_value !== null && second.criterion_value !== null &&
+    second &&
+    first.criterion_value !== null &&
+    second.criterion_value !== null &&
     Number(first.criterion_value) === Number(second.criterion_value);
   const partial = teams.find((t) => t.measured_members < t.members);
 
@@ -100,10 +102,10 @@ function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; cu
       {tie && (
         <>
           {" "}
-          As duas fecharam com <b className="font-mono text-white">{displayCriterionValue(criterion, first.criterion_value)}</b>{" "}
-          de média. Desempata o patrimônio médio:{" "}
-          <b className="font-mono text-white">{displayMoney(first.total_networth)}</b> contra{" "}
-          <b className="font-mono text-white">{displayMoney(second.total_networth)}</b>.
+          As duas fecharam com{" "}
+          <b className="font-mono text-white">{displayCriterionValue(criterion, first.criterion_value)}</b> de média.
+          Desempata o patrimônio médio: <b className="font-mono text-white">{displayMoney(first.total_networth)}</b>{" "}
+          contra <b className="font-mono text-white">{displayMoney(second.total_networth)}</b>.
         </>
       )}
       {mine &&
@@ -115,8 +117,10 @@ function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; cu
             {second && second.leader_gap !== null && (
               <>
                 ,{" "}
-                <b className="font-mono text-white">{displayCriterionGap(criterion, second.leader_gap, goal_net_worth)}</b> à frente da{" "}
-                {teamName(second.team, naming)}
+                <b className="font-mono text-white">
+                  {displayCriterionGap(criterion, second.leader_gap, goal_net_worth)}
+                </b>{" "}
+                à frente da {teamName(second.team, naming)}
               </>
             )}
             .
@@ -127,7 +131,10 @@ function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; cu
             Sua equipe ficou em <b className="text-white">{mine.position}º</b>
             {mine.leader_gap !== null && (
               <>
-                , a <b className="font-mono text-white">{displayCriterionGap(criterion, mine.leader_gap, goal_net_worth)}</b>
+                , a{" "}
+                <b className="font-mono text-white">
+                  {displayCriterionGap(criterion, mine.leader_gap, goal_net_worth)}
+                </b>
               </>
             )}
             .
@@ -138,8 +145,7 @@ function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; cu
                 <b className="font-mono text-white">
                   {displayCriterionContribution(criterion, mine.top_puller.contribution)}
                 </b>{" "}
-                na
-                média.
+                na média.
               </>
             )}
           </>
@@ -147,7 +153,8 @@ function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; cu
       {partial && (
         <>
           {" "}
-          Na {teamName(partial.team, naming)} a média usa quem tem valor ({partial.measured_members} de {partial.members}).
+          Na {teamName(partial.team, naming)} a média usa quem tem valor ({partial.measured_members} de{" "}
+          {partial.members}).
         </>
       )}
     </>
@@ -214,13 +221,13 @@ function GoalSummary({
           {independence && simulation ? (
             <>
               {inTeams ? "a média do patrimônio da" : "o patrimônio de"} <b className="text-white">{leaderName}</b>{" "}
-              chegou a <b className="text-white">{displayAnnualMultiple(Number(simulation.withdrawal_rate))}</b> a despesa
-              anual: retirando {displayRatePercent(simulation.withdrawal_rate)} ao ano, dá para viver de renda.
+              chegou a <b className="text-white">{displayAnnualMultiple(Number(simulation.withdrawal_rate))}</b> a
+              despesa anual: retirando {displayRatePercent(simulation.withdrawal_rate)} ao ano, dá para viver de renda.
             </>
           ) : (
             <>
-              com <b className="font-mono text-white">{displayMoney(leader.total_networth)}</b>{" "}
-              de {inTeams ? "patrimônio médio" : "patrimônio"}
+              com <b className="font-mono text-white">{displayMoney(leader.total_networth)}</b> de{" "}
+              {inTeams ? "patrimônio médio" : "patrimônio"}
               {goalText}.
             </>
           )}
@@ -248,7 +255,8 @@ function GoalSummary({
   );
 }
 
-const displayGoalPercentOf = (fraction: string | null) => (fraction === null ? "—" : displayGoalPercent(Number(fraction)));
+const displayGoalPercentOf = (fraction: string | null) =>
+  fraction === null ? "—" : displayGoalPercent(Number(fraction));
 
 interface MatchHeroProps {
   report: OverviewReport;
@@ -280,7 +288,12 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
         </h1>
         <p className="text-[15px]">
           {measure === "GOAL" ? (
-            <GoalSummary report={report} simulation={simulation} reached={reached} currentPlayerName={currentPlayerName} />
+            <GoalSummary
+              report={report}
+              simulation={simulation}
+              reached={reached}
+              currentPlayerName={currentPlayerName}
+            />
           ) : inTeams ? (
             <>
               Vitória por <b className="text-white">{criterion?.label}</b>, em equipes: vale a média dos membros.

@@ -55,7 +55,10 @@ describe("roundToast", () => {
 
 describe("donationContext", () => {
   const panel = {
-    parties: [{ id: 1, abbr: "FDS" }, { id: 2, abbr: "UPR" }],
+    parties: [
+      { id: 1, abbr: "FDS" },
+      { id: 2, abbr: "UPR" },
+    ],
     runoff_simulation: { winner: 1 },
   } as unknown as ElectionPanel;
 

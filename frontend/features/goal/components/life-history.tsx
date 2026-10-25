@@ -8,14 +8,7 @@ import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/shar
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableEmptyRow,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table";
+import { Table, TableBody, TableCell, TableEmptyRow, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { unexpectedLabel } from "@/shared/lib/financial-independence";
 import { displayDate, displaySignedMoney, parseLocalDate } from "@/shared/lib/utils/display";
@@ -70,7 +63,8 @@ export function LifeHistory({ life }: LifeHistoryProps) {
       <CardHeader>
         <CardTitle>Histórico</CardTitle>
         <CardDescription>
-          O que aconteceu na partida. Clique nos cabeçalhos para ordenar todo o histórico. Os imprevistos são iguais para todos; o caixa depois é o seu.
+          O que aconteceu na partida. Clique nos cabeçalhos para ordenar todo o histórico. Os imprevistos são iguais
+          para todos; o caixa depois é o seu.
         </CardDescription>
         <CardAction>
           <ToggleGroup

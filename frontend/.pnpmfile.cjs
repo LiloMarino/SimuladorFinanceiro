@@ -4,11 +4,11 @@
 module.exports = {
   hooks: {
     readPackage(pkg) {
-      if (pkg.name === 'openapi-typescript') {
-        delete pkg.peerDependencies.typescript
-        pkg.dependencies = { ...pkg.dependencies, typescript: 'npm:@typescript/typescript6@^6' }
+      if (pkg.name === "openapi-typescript") {
+        delete pkg.peerDependencies.typescript;
+        pkg.dependencies = { ...pkg.dependencies, typescript: "npm:@typescript/typescript6@^6" };
       }
-      return pkg
+      return pkg;
     },
   },
-}
+};

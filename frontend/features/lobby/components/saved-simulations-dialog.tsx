@@ -92,11 +92,7 @@ function SavedSimulationsContent({
 
   const { data, isLoading, error, refetch } = useSimulationList({ refetchOnMount: "always" });
 
-  const {
-    mutate: selectSimulation,
-    isPending: loading,
-    variables,
-  } = useSelectSimulation();
+  const { mutate: selectSimulation, isPending: loading, variables } = useSelectSimulation();
 
   const { mutate: clearSelection, isPending: clearing } = useClearSimulationSelection();
 
@@ -158,78 +154,79 @@ function SavedSimulationsContent({
       const isLast = s.id === lastSimulation?.id && s.status === "PAUSED";
       const selected = s.id === selectedSimulationId;
       return (
-      <div
-        key={s.id}
-        className={cn(
-          "flex items-center gap-4 border-b border-muted px-6 py-3.5 last:border-0",
-          selected && "bg-info-soft shadow-[inset_3px_0_0_var(--primary)]",
-        )}
-      >
-        <div className="grid min-w-0 flex-1 gap-1">
-          <div className="flex items-center gap-2">
-            <span className="truncate font-semibold">{s.name}</span>
-            {s.government_enabled && (
-              <span title={EXPANSIONS.government.label}>
-                <ExpansionEmblem expansion="government" size="sm" />
+        <div
+          key={s.id}
+          className={cn(
+            "flex items-center gap-4 border-b border-muted px-6 py-3.5 last:border-0",
+            selected && "bg-info-soft shadow-[inset_3px_0_0_var(--primary)]",
+          )}
+        >
+          <div className="grid min-w-0 flex-1 gap-1">
+            <div className="flex items-center gap-2">
+              <span className="truncate font-semibold">{s.name}</span>
+              {s.government_enabled && (
+                <span title={EXPANSIONS.government.label}>
+                  <ExpansionEmblem expansion="government" size="sm" />
+                </span>
+              )}
+              {s.status === "FINISHED" ? (
+                <Badge variant="success" size="sm">
+                  {s.is_backtest ? "Concluído" : `Terminou${s.winner_nickname ? ` · ${s.winner_nickname} venceu` : ""}`}
+                </Badge>
+              ) : (
+                <Badge variant="info" size="sm">
+                  {s.resume_from
+                    ? `${s.is_backtest ? "Parado" : "Pausada"} em ${displayDate(parseLocalDate(s.resume_from))}`
+                    : "Não começou"}
+                </Badge>
+              )}
+            </div>
+            <span className="font-mono text-xs text-muted-foreground">
+              {displayMonthSlashYear(s.start_date)} → {displayMonthSlashYear(s.end_date)}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {s.is_backtest
+                ? `${s.players_count} ${s.players_count === 1 ? "estratégia" : "estratégias"}${backtestLeaderText(s)}`
+                : `${s.players_count <= 1 ? "Solo" : `${s.players_count} jogadores`} · ${winRuleLabel(s.game_type, s.victory_criterion)}`}
+            </span>
+            {isHost && !s.is_backtest && s.status === "PAUSED" && s.room_overflow.length > 0 && (
+              <RoomOverflowAlert names={s.room_overflow} />
+            )}
+            {isLast && (
+              <span className="flex items-center gap-1 text-xs font-semibold text-primary">
+                <Zap className="size-3" />
+                Última partida salva
               </span>
             )}
-            {s.status === "FINISHED" ? (
-              <Badge variant="success" size="sm">
-                {s.is_backtest ? "Concluído" : `Terminou${s.winner_nickname ? ` · ${s.winner_nickname} venceu` : ""}`}
-              </Badge>
-            ) : (
-              <Badge variant="info" size="sm">
-                {s.resume_from
-                  ? `${s.is_backtest ? "Parado" : "Pausada"} em ${displayDate(parseLocalDate(s.resume_from))}`
-                  : "Não começou"}
-              </Badge>
-            )}
           </div>
-          <span className="font-mono text-xs text-muted-foreground">
-            {displayMonthSlashYear(s.start_date)} → {displayMonthSlashYear(s.end_date)}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            {s.is_backtest
-              ? `${s.players_count} ${s.players_count === 1 ? "estratégia" : "estratégias"}${backtestLeaderText(s)}`
-              : `${s.players_count <= 1 ? "Solo" : `${s.players_count} jogadores`} · ${winRuleLabel(s.game_type, s.victory_criterion)}`}
-          </span>
-          {isHost && !s.is_backtest && s.status === "PAUSED" && s.room_overflow.length > 0 && (
-            <RoomOverflowAlert names={s.room_overflow} />
+          <Button variant="outline" size="sm" onClick={() => void navigate(`/match-result/${s.id}`)}>
+            <Trophy />
+            Resultado
+          </Button>
+          {isHost && s.is_backtest && (
+            <Button variant="outline" size="sm" onClick={() => void navigate(`/backtest/new?from=${s.id}`)}>
+              <RotateCcw />
+              Rodar de novo
+            </Button>
           )}
-          {isLast && (
-            <span className="flex items-center gap-1 text-xs font-semibold text-primary">
-              <Zap className="size-3" />Última partida salva
-            </span>
+          {isHost && !s.is_backtest && s.status === "PAUSED" && (
+            <Button
+              size="sm"
+              variant={s.room_overflow.length > 0 ? "secondary" : "default"}
+              disabled={loading || selected || s.room_overflow.length > 0}
+              onClick={() => selectSimulation(s.id, { onSuccess: onSelected })}
+            >
+              {selected
+                ? "Selecionada"
+                : s.room_overflow.length > 0
+                  ? "Indisponível"
+                  : loading && variables === s.id
+                    ? "Selecionando…"
+                    : "Selecionar"}
+            </Button>
           )}
+          {isHost && <DeleteSimulationButton simulation={s} disabled={selected} />}
         </div>
-        <Button variant="outline" size="sm" onClick={() => void navigate(`/match-result/${s.id}`)}>
-          <Trophy />
-          Resultado
-        </Button>
-        {isHost && s.is_backtest && (
-          <Button variant="outline" size="sm" onClick={() => void navigate(`/backtest/new?from=${s.id}`)}>
-            <RotateCcw />
-            Rodar de novo
-          </Button>
-        )}
-        {isHost && !s.is_backtest && s.status === "PAUSED" && (
-          <Button
-            size="sm"
-            variant={s.room_overflow.length > 0 ? "secondary" : "default"}
-            disabled={loading || selected || s.room_overflow.length > 0}
-            onClick={() => selectSimulation(s.id, { onSuccess: onSelected })}
-          >
-            {selected
-              ? "Selecionada"
-              : s.room_overflow.length > 0
-                ? "Indisponível"
-                : loading && variables === s.id
-                  ? "Selecionando…"
-                  : "Selecionar"}
-          </Button>
-        )}
-        {isHost && <DeleteSimulationButton simulation={s} disabled={selected} />}
-      </div>
       );
     });
   };

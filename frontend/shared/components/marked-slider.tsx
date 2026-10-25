@@ -17,8 +17,19 @@ type MarkedSliderProps = {
 const percentOf = (value: number, min: number, max: number) => ((value - min) / (max - min)) * 100;
 
 /** Slider com as marcas de referência embaixo; a mais próxima do valor aparece em destaque. */
-export function MarkedSlider({ value, onValueChange, min, max, step, marks, disabled, "aria-label": ariaLabel }: MarkedSliderProps) {
-  const nearest = marks.reduce((best, mark) => (Math.abs(mark.value - value) < Math.abs(best.value - value) ? mark : best));
+export function MarkedSlider({
+  value,
+  onValueChange,
+  min,
+  max,
+  step,
+  marks,
+  disabled,
+  "aria-label": ariaLabel,
+}: MarkedSliderProps) {
+  const nearest = marks.reduce((best, mark) =>
+    Math.abs(mark.value - value) < Math.abs(best.value - value) ? mark : best,
+  );
 
   return (
     <div className="grid gap-1.5">

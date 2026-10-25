@@ -250,8 +250,8 @@ export function LobbyPlayersList({
               {joinNames(teams.missing.map((p) => (p.nickname === user?.nickname ? "você" : p.nickname)))}
             </AlertTitle>
             <AlertDescription>
-              Cada um escolhe a sua no próprio card. Para não esperar, “Distribuir quem falta” põe cada um na equipe
-              com menos gente.
+              Cada um escolhe a sua no próprio card. Para não esperar, “Distribuir quem falta” põe cada um na equipe com
+              menos gente.
             </AlertDescription>
           </Alert>
         )}
@@ -269,7 +269,8 @@ export function LobbyPlayersList({
           <Alert variant="warning" className="mt-4">
             <TriangleAlert />
             <AlertTitle>
-              Equipes desiguais: {teams.sizes.length === 2 ? teams.sizes.join(" contra ") : joinNames(teams.sizes.map(String))}
+              Equipes desiguais:{" "}
+              {teams.sizes.length === 2 ? teams.sizes.join(" contra ") : joinNames(teams.sizes.map(String))}
             </AlertTitle>
             <AlertDescription>
               Dá pra jogar assim. A nota da equipe é a <strong>média</strong> dos membros, então a equipe maior não

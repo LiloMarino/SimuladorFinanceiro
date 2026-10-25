@@ -69,8 +69,8 @@ export function JoinPartyDialog({ open, onOpenChange, parties, initialPartyId, c
                     <span />
                     <span className="text-xs text-muted-foreground">
                       Fundado por {candidate.founder} · {candidate.members.length}{" "}
-                      {candidate.members.length === 1 ? "filiado" : "filiados"} · {displayMoneyWhole(candidate.budget)}/mês ·
-                      promessa {candidate.promise}
+                      {candidate.members.length === 1 ? "filiado" : "filiados"} · {displayMoneyWhole(candidate.budget)}
+                      /mês · promessa {candidate.promise}
                     </span>
                   </button>
                 );
@@ -98,8 +98,8 @@ export function JoinPartyDialog({ open, onOpenChange, parties, initialPartyId, c
               <Info />
               <AlertTitle>Sair é livre</AlertTitle>
               <AlertDescription>
-                A contribuição para na hora, e o que você já contribuiu não volta. Para entrar em outro partido, saia deste
-                primeiro.
+                A contribuição para na hora, e o que você já contribuiu não volta. Para entrar em outro partido, saia
+                deste primeiro.
               </AlertDescription>
             </Alert>
           </div>
@@ -111,7 +111,9 @@ export function JoinPartyDialog({ open, onOpenChange, parties, initialPartyId, c
           </Button>
           <Button
             disabled={!party || join.isPending}
-            onClick={() => join.mutate({ contribution: contributionAmount(contribution) }, { onSuccess: () => onOpenChange(false) })}
+            onClick={() =>
+              join.mutate({ contribution: contributionAmount(contribution) }, { onSuccess: () => onOpenChange(false) })
+            }
           >
             Filiar-se{party ? ` ao ${party.abbr}` : ""}
           </Button>

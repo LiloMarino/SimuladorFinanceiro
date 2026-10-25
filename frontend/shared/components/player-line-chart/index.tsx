@@ -55,8 +55,7 @@ export function PlayerLineChart({
   const ticks = niceTicks(Math.min(...values, 0), Math.max(...values, 0));
   const [floor, ceiling] = [ticks[0], ticks[ticks.length - 1]];
   // No eixo de datas, uma marca por mês: sem isso o mesmo mês se repete em dias diferentes
-  const dateTicks =
-    xTicks ?? (axis === "date" ? monthStartTicks(data[0].x, data[data.length - 1].x) : undefined);
+  const dateTicks = xTicks ?? (axis === "date" ? monthStartTicks(data[0].x, data[data.length - 1].x) : undefined);
   const yOf = (value: number) => MARGIN.top + (1 - (value - floor) / (ceiling - floor || 1)) * PLOT_HEIGHT;
 
   // Último valor de cada linha visível, do topo para baixo; o rótulo que colide desce

@@ -1,12 +1,6 @@
 import { ArrowLeft, ArrowRight, GraduationCap, X } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/shared/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/shared/components/ui/dialog";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useTutorial } from "@/shared/hooks/useTutorial";
 import { findTopic, topicList } from "../lib/topics";
@@ -25,7 +19,9 @@ export function TutorialDialog() {
   const next = topicList[index + 1];
 
   const summary =
-    unseenCount > 0 ? `${topicList.length} tópicos · ${unseenCount} para ver` : `${topicList.length} tópicos · todos vistos`;
+    unseenCount > 0
+      ? `${topicList.length} tópicos · ${unseenCount} para ver`
+      : `${topicList.length} tópicos · todos vistos`;
 
   return (
     <>

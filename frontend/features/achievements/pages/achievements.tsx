@@ -21,9 +21,7 @@ export default function AchievementsPage() {
   return (
     <section className="grid gap-5">
       {/* Título: dentro da partida quem o mostra é a barra do topo */}
-      {!simulationActive && (
-        <h1 className="text-lg font-semibold">Conquistas</h1>
-      )}
+      {!simulationActive && <h1 className="text-lg font-semibold">Conquistas</h1>}
 
       <span className="max-w-190 text-muted-foreground">
         Objetivos para buscar além de vencer a partida. Cada uma sai uma vez só, na partida em que você chegou lá.

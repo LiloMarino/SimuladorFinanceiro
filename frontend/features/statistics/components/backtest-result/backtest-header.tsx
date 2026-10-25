@@ -52,7 +52,11 @@ export function BacktestHeader({ simulationId, result, isHost }: BacktestHeaderP
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" nativeButton={false} render={<Link to={`/compare-simulations?ids=${simulationId}`} />}>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link to={`/compare-simulations?ids=${simulationId}`} />}
+          >
             <Scale />
             Comparar com outras
           </Button>

@@ -98,7 +98,13 @@ export function Cursor({ finder, id, at = [0.5, 0.5], click = false, start, sett
         />
       )}
       <svg width="22" height="22" viewBox="0 0 24 24" className="drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]">
-        <path d="M5 3l14 7-6 2-2 6z" fill="var(--foreground)" stroke="var(--color-card)" strokeWidth="1.5" strokeLinejoin="round" />
+        <path
+          d="M5 3l14 7-6 2-2 6z"
+          fill="var(--foreground)"
+          stroke="var(--color-card)"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
       </svg>
     </motion.div>
   );

@@ -60,7 +60,8 @@ export const PATTERN_INFO: Record<CandlePatternCode, PatternInfo> = {
     name: "Doji",
     of: "do doji",
     side: "neutral",
-    summary: "Abriu e fechou quase no mesmo preço: compradores e vendedores empataram no pregão. Indecisão, sem lado sugerido.",
+    summary:
+      "Abriu e fechou quase no mesmo preço: compradores e vendedores empataram no pregão. Indecisão, sem lado sugerido.",
     candles: [bullish(14, 49, 51, 86)],
   },
   bullish_engulfing: {
@@ -99,16 +100,14 @@ export const PATTERN_INFO: Record<CandlePatternCode, PatternInfo> = {
     name: "Três soldados brancos",
     of: "dos três soldados brancos",
     side: "up",
-    summary:
-      "Três velas de alta seguidas, cada uma fechando mais alto que a anterior: compra firme por três pregões.",
+    summary: "Três velas de alta seguidas, cada uma fechando mais alto que a anterior: compra firme por três pregões.",
     candles: [bullish(14, 18, 40, 44), bullish(32, 36, 60, 64), bullish(50, 54, 82, 86)],
   },
   three_black_crows: {
     name: "Três corvos negros",
     of: "dos três corvos negros",
     side: "down",
-    summary:
-      "Três velas de baixa seguidas, cada uma fechando mais baixo que a anterior: venda firme por três pregões.",
+    summary: "Três velas de baixa seguidas, cada uma fechando mais baixo que a anterior: venda firme por três pregões.",
     candles: [bearish(50, 54, 82, 86), bearish(32, 36, 64, 68), bearish(14, 18, 46, 50)],
   },
 };

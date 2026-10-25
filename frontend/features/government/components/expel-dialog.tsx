@@ -26,10 +26,12 @@ export function ExpelDialog({ nickname, onClose, party }: ExpelDialogProps) {
     <AlertDialog open={nickname !== null} onOpenChange={(open) => !open && onClose()}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Expulsar {nickname} do {party.abbr}?</AlertDialogTitle>
+          <AlertDialogTitle>
+            Expulsar {nickname} do {party.abbr}?
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            A expulsão é pública: a sala vê o aviso. Se {nickname} era candidato ou vice, a vaga abre e a chapa
-            concorre sem ele até você indicar outro filiado.
+            A expulsão é pública: a sala vê o aviso. Se {nickname} era candidato ou vice, a vaga abre e a chapa concorre
+            sem ele até você indicar outro filiado.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

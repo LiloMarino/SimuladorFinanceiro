@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { displaySelicSpread, displaySpread, displayWholePercent, gradeTone, isDowngrade, monthlyEquivalent } from "./credit";
+import {
+  displaySelicSpread,
+  displaySpread,
+  displayWholePercent,
+  gradeTone,
+  isDowngrade,
+  monthlyEquivalent,
+} from "./credit";
 
 describe("monthlyEquivalent", () => {
   it("converte 9,25% ao ano em cerca de 0,74% ao mês", () => {

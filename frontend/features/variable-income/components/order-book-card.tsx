@@ -71,12 +71,19 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
 
   const { data: trades } = useTrades(ticker, { enabled: tab === "HISTORY" });
   const openSort = useTableSort(open, {
-    date: o => o.created_at, player: o => o.player_nickname, side: o => o.action === "buy" ? "Compra" : "Venda",
-    quantity: o => Number(o.size), price: o => sortNumber(o.limit_price), status: o => o.status === "partial" ? "Parcial" : "Pendente",
+    date: (o) => o.created_at,
+    player: (o) => o.player_nickname,
+    side: (o) => (o.action === "buy" ? "Compra" : "Venda"),
+    quantity: (o) => Number(o.size),
+    price: (o) => sortNumber(o.limit_price),
+    status: (o) => (o.status === "partial" ? "Parcial" : "Pendente"),
   });
   const tradeSort = useTableSort(trades ?? [], {
-    date: t => t.event_date, player: t => t.player_nickname, side: t => t.action === "buy" ? "Compra" : "Venda",
-    quantity: t => Number(t.quantity), price: t => Number(t.price),
+    date: (t) => t.event_date,
+    player: (t) => t.player_nickname,
+    side: (t) => (t.action === "buy" ? "Compra" : "Venda"),
+    quantity: (t) => Number(t.quantity),
+    price: (t) => Number(t.price),
   });
 
   const cancel = useCancelOrder(ticker);
@@ -108,8 +115,9 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
             <Alert variant="warning">
               <TriangleAlert />
               <AlertDescription>
-                Sua {o.action === "buy" ? "compra" : "venda"} de {displayQuantity(o.size)} {ticker} executou {executedQuantity(o)}. As
-                outras {displayQuantity(o.remaining)} seguem abertas até alguém {o.action === "buy" ? "vender" : "comprar"}
+                Sua {o.action === "buy" ? "compra" : "venda"} de {displayQuantity(o.size)} {ticker} executou{" "}
+                {executedQuantity(o)}. As outras {displayQuantity(o.remaining)} seguem abertas até alguém{" "}
+                {o.action === "buy" ? "vender" : "comprar"}
                 {o.limit_price !== null ? ` a ${displayMoney(o.limit_price)}` : ""}.
               </AlertDescription>
             </Alert>
@@ -207,7 +215,11 @@ export function OrderBookCard({ ticker, orders }: { ticker: string; orders: Orde
                   <span className="font-mono">{displayDate(parseLocalDate(t.event_date))}</span>
                 </TableCell>
                 <TableCell>
-                  <Player nickname={t.player_nickname} color={t.player_color} isYou={t.player_nickname === user?.nickname} />
+                  <Player
+                    nickname={t.player_nickname}
+                    color={t.player_color}
+                    isYou={t.player_nickname === user?.nickname}
+                  />
                 </TableCell>
                 <TableCell>
                   <Side action={t.action} />

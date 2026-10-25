@@ -47,8 +47,22 @@ export function BrandMark({ variant, size }: VariantProps<typeof brandMarkVarian
     >
       <g transform="rotate(-90 16 16)">
         <circle cx="16" cy="16" r="11" stroke="var(--color-primary)" strokeDasharray="32 37.115" />
-        <circle cx="16" cy="16" r="11" stroke="var(--color-chart-2)" strokeDasharray="17 52.115" strokeDashoffset="-35" />
-        <circle cx="16" cy="16" r="11" stroke="var(--color-chart-3)" strokeDasharray="11.1 58.015" strokeDashoffset="-55" />
+        <circle
+          cx="16"
+          cy="16"
+          r="11"
+          stroke="var(--color-chart-2)"
+          strokeDasharray="17 52.115"
+          strokeDashoffset="-35"
+        />
+        <circle
+          cx="16"
+          cy="16"
+          r="11"
+          stroke="var(--color-chart-3)"
+          strokeDasharray="11.1 58.015"
+          strokeDashoffset="-55"
+        />
       </g>
     </svg>
   );

@@ -6,10 +6,8 @@ export const INTENTION: MetricInfo = {
   description: "De cada 100 eleitores, quantos votariam no partido hoje",
   definition:
     "Pontos de apoio de cada partido. Cada ponto é um eleitor em cada 100; quem não escolheu ninguém fica como indeciso.",
-  example:
-    "Ex.: UPR com 33, FDS com 32 e PRL com 23 somam 88; os outros 12 são indecisos.",
-  reading:
-    "Mais pontos, mais perto de vencer. A conta da eleição ignora os indecisos: ela usa só os votos válidos.",
+  example: "Ex.: UPR com 33, FDS com 32 e PRL com 23 somam 88; os outros 12 são indecisos.",
+  reading: "Mais pontos, mais perto de vencer. A conta da eleição ignora os indecisos: ela usa só os votos válidos.",
   format: (value) => Number(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 }),
 };
 
@@ -30,7 +28,8 @@ export const RUNOFF: MetricInfo = {
     "Os dois partidos com mais pontos disputam. Os eleitores de cada partido que ficou de fora vão para o finalista com a promessa mais parecida com a do partido deles.",
   example:
     "Ex.: o PRL (promessa 2) saiu; o FDS (promessa 3) está mais perto do que o UPR (promessa 5), então os 23 pontos do PRL vão para o FDS.",
-  reading: "Quem somar mais pontos vence. É só uma projeção: a pesquisa muda a cada mês e as doações entre os turnos também mexem.",
+  reading:
+    "Quem somar mais pontos vence. É só uma projeção: a pesquisa muda a cada mês e as doações entre os turnos também mexem.",
   format: (value) => displayPercent(value, 0),
 };
 

@@ -37,7 +37,10 @@ function Calendar({
           defaultClassNames.button_next,
         ),
         month_caption: cn("flex h-8 items-center justify-center px-9", defaultClassNames.month_caption),
-        dropdowns: cn("flex h-8 items-center justify-center gap-1.5 text-sm font-semibold", defaultClassNames.dropdowns),
+        dropdowns: cn(
+          "flex h-8 items-center justify-center gap-1.5 text-sm font-semibold",
+          defaultClassNames.dropdowns,
+        ),
         dropdown_root: cn(
           "relative rounded-md border border-input has-focus:border-ring has-focus:ring-3 has-focus:ring-ring/50",
           defaultClassNames.dropdown_root,
@@ -50,10 +53,7 @@ function Calendar({
         ),
         month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
         weekdays: cn("flex", defaultClassNames.weekdays),
-        weekday: cn(
-          "flex-1 text-[0.8rem] font-medium text-muted-foreground select-none",
-          defaultClassNames.weekday,
-        ),
+        weekday: cn("flex-1 text-[0.8rem] font-medium text-muted-foreground select-none", defaultClassNames.weekday),
         week: cn("mt-1 flex w-full", defaultClassNames.week),
         day: cn("group/day relative aspect-square size-9 p-0 text-center select-none", defaultClassNames.day),
         day_button: cn(
@@ -61,7 +61,10 @@ function Calendar({
           "size-9 font-normal group-data-[selected=true]/day:bg-primary group-data-[selected=true]/day:text-primary-foreground group-data-[selected=true]/day:hover:bg-primary-hover",
           defaultClassNames.day_button,
         ),
-        today: cn("[&_button]:font-semibold [&_button]:ring-[1.5px] [&_button]:ring-foreground [&_button]:ring-inset", defaultClassNames.today),
+        today: cn(
+          "[&_button]:font-semibold [&_button]:ring-[1.5px] [&_button]:ring-foreground [&_button]:ring-inset",
+          defaultClassNames.today,
+        ),
         outside: cn("text-muted-foreground aria-selected:text-muted-foreground", defaultClassNames.outside),
         disabled: cn("text-muted-foreground opacity-50", defaultClassNames.disabled),
         hidden: cn("invisible", defaultClassNames.hidden),
@@ -69,10 +72,12 @@ function Calendar({
       }}
       modifiersClassNames={{
         // Futuro gerado: dias sem dado real, com um ponto embaixo
-        future: "rounded-lg bg-future-soft text-future-foreground after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-future data-[selected=true]:after:bg-primary-foreground",
+        future:
+          "rounded-lg bg-future-soft text-future-foreground after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-future data-[selected=true]:after:bg-primary-foreground",
         // Período da partida: faixa contínua entre o início e o fim, azul no dado real e violeta no futuro
         period: "rounded-none bg-real-range text-info",
-        period_future: "rounded-none bg-future-range text-future-foreground after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-future data-[selected=true]:after:bg-primary-foreground",
+        period_future:
+          "rounded-none bg-future-range text-future-foreground after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-future data-[selected=true]:after:bg-primary-foreground",
         period_start: "rounded-l-lg",
         period_end: "rounded-r-lg",
         ...modifiersClassNames,

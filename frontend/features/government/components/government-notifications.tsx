@@ -33,7 +33,11 @@ export function GovernmentNotifications() {
   };
 
   const openGovernment = () => void navigate("/government");
-  const showMeasure = (notice: { tone: "success" | "info" | "warning" | "error"; title: string; description: string }) =>
+  const showMeasure = (notice: {
+    tone: "success" | "info" | "warning" | "error";
+    title: string;
+    description: string;
+  }) =>
     toast[notice.tone](notice.title, {
       description: notice.description,
       action: { label: "Ver medidas", onClick: openGovernment },
@@ -86,7 +90,9 @@ export function GovernmentNotifications() {
           if (notice) {
             toast[notice.tone](notice.title, {
               description: notice.description,
-              action: notice.donate ? { label: "Doar a um finalista", onClick: () => void navigate("/election") } : undefined,
+              action: notice.donate
+                ? { label: "Doar a um finalista", onClick: () => void navigate("/election") }
+                : undefined,
             });
           }
         });

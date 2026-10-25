@@ -40,9 +40,7 @@ export function BotLogCard({ bot, onClose }: BotLogCardProps) {
           <PlayerAvatar nickname={bot.player_nickname} color={bot.color} bot size="lg" />
           <div className="grid gap-1">
             <CardTitle>O que {bot.player_nickname} fez</CardTitle>
-            <CardDescription>
-              {plural(total, "ordem", "ordens")} na partida, cada uma com o motivo
-            </CardDescription>
+            <CardDescription>{plural(total, "ordem", "ordens")} na partida, cada uma com o motivo</CardDescription>
           </div>
         </div>
         <CardAction>

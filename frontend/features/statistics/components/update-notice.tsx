@@ -24,8 +24,8 @@ export function UpdateNotice() {
       <InfoHint label="Por que as estatísticas atualizam por mês">
         <div className="space-y-1 text-left">
           <p>
-            Risco e nota são calculados sobre uma série de retornos mensais, então os números só fecham na virada do
-            mês da partida.
+            Risco e nota são calculados sobre uma série de retornos mensais, então os números só fecham na virada do mês
+            da partida.
           </p>
           <p>Os dias contados são dias da partida, não do relógio: com a partida pausada, a contagem não anda.</p>
         </div>

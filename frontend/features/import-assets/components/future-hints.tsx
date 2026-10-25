@@ -7,16 +7,22 @@ import { withMinus, INFLATION_SHOCK_TABLE, signedShock, TEMPERATURE_TABLE } from
 type HintRow = { values: number[]; cells: ReactNode[] };
 
 function HintTable({ head, rows }: { head: string[]; rows: HintRow[] }) {
-  const sorting = useTableSort(rows, Object.fromEntries(head.map((_, index) => [
-    String(index), (row: HintRow) => row.values[index],
-  ])));
+  const sorting = useTableSort(
+    rows,
+    Object.fromEntries(head.map((_, index) => [String(index), (row: HintRow) => row.values[index]])),
+  );
   return (
     <table className="mt-1 w-full border-collapse text-xs tabular-nums">
       <thead>
         <tr className="opacity-70">
           {head.map((cell, index) => (
-            <SortableTableHead key={cell} label={cell} {...sorting.header(String(index))} numeric={index > 0}
-              variant="hint" />
+            <SortableTableHead
+              key={cell}
+              label={cell}
+              {...sorting.header(String(index))}
+              numeric={index > 0}
+              variant="hint"
+            />
           ))}
         </tr>
       </thead>
@@ -93,11 +99,12 @@ export function InflationShockHint() {
           rows={INFLATION_SHOCK_TABLE.map((row) => ({
             values: [row.shock, row.inflationPeak, row.selicPeak, -row.twoYearDrop],
             cells: [
-            signedShock(row.shock),
-            `${row.inflationPeak}%`,
-            `${row.selicPeak}%`,
-            withMinus(`${row.twoYearDrop}%`),
-          ]}))}
+              signedShock(row.shock),
+              `${row.inflationPeak}%`,
+              `${row.selicPeak}%`,
+              withMinus(`${row.twoYearDrop}%`),
+            ],
+          }))}
         />
         <p className="opacity-70">Medianas de 50 futuros partindo de hoje, com a SELIC em 13,65%.</p>
       </div>

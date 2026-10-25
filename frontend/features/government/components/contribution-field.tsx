@@ -37,7 +37,9 @@ export function ContributionField({ id, value, onChange, note, error }: Contribu
             key={amount}
             type="button"
             size="xs"
-            variant={contributionAmount(value) === contributionAmount(contributionText(String(amount))) ? "info" : "outline"}
+            variant={
+              contributionAmount(value) === contributionAmount(contributionText(String(amount))) ? "info" : "outline"
+            }
             onClick={() => onChange(contributionText(String(amount)))}
           >
             {amount === 0 ? "R$ 0" : displayMoneyCompact(amount)}

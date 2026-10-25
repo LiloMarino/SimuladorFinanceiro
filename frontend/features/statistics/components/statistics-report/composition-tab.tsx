@@ -44,7 +44,16 @@ function diversificationWord(value: number) {
 export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }: ReportProps) {
   const { data, isLoading, error, refetch } = useStatisticsReport("composition", simulationIds, onlyPlayer);
   const [unit, setUnit] = useState<Unit>("PCT");
-  if (!data) return <TabStatus simulationIds={simulationIds} loading={isLoading} title="a Composição" error={error} onRetry={() => void refetch()} />;
+  if (!data)
+    return (
+      <TabStatus
+        simulationIds={simulationIds}
+        loading={isLoading}
+        title="a Composição"
+        error={error}
+        onRetry={() => void refetch()}
+      />
+    );
 
   const naming = data.team_naming;
   const groups = groupByTeam(
@@ -88,7 +97,9 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
             </div>
             {groups.map((group) => (
               <div key={group.team ?? "all"} className="grid gap-3">
-                {group.team !== null && <TeamGroupHeader team={group.team} naming={naming} composition={teamOf(group.team)} />}
+                {group.team !== null && (
+                  <TeamGroupHeader team={group.team} naming={naming} composition={teamOf(group.team)} />
+                )}
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   {group.players.map((p) => {
                     const label = playerLabel(p, simulationIds, currentPlayerName);
@@ -140,7 +151,8 @@ function TeamGroupHeader({
   naming: TeamNaming;
   composition: TeamComposition | undefined;
 }) {
-  const share = (value: string | null | undefined) => (value === null || value === undefined ? "—" : displayPercent(value, 0));
+  const share = (value: string | null | undefined) =>
+    value === null || value === undefined ? "—" : displayPercent(value, 0);
   return (
     <div
       className="flex flex-wrap items-center gap-3 border-l-[3px] border-(--team) pl-3"
@@ -260,7 +272,8 @@ function SectorExposure({
     diversification: (p) => sortNumber(p.effective_sectors),
   };
   for (const sector of sectors) {
-    columns[`sector:${sector}`] = (p) => Number(p.sectors.find((s) => (s.sector ?? NO_SECTOR) === sector)?.fraction ?? 0);
+    columns[`sector:${sector}`] = (p) =>
+      Number(p.sectors.find((s) => (s.sector ?? NO_SECTOR) === sector)?.fraction ?? 0);
   }
   const sorting = useTableSort(players, columns);
 
@@ -284,7 +297,11 @@ function SectorExposure({
               {sectors.map((s) => (
                 <SortableTableHead key={s} label={s} numeric {...sorting.header(`sector:${s}`)} />
               ))}
-              <SortableTableHead label="Diversificação" {...sorting.header("diversification")} hint={<MetricHint metric={EFFECTIVE_SECTORS} />} />
+              <SortableTableHead
+                label="Diversificação"
+                {...sorting.header("diversification")}
+                hint={<MetricHint metric={EFFECTIVE_SECTORS} />}
+              />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -297,52 +314,55 @@ function SectorExposure({
                     </TableCell>
                   </TableRow>
                 )}
-                {sorting.rows.filter((p) => group.players.includes(p)).map((p) => {
-                  const label = playerLabel(p, simulationIds, currentPlayerName);
-                  const isYou = p.player_nickname === currentPlayerName;
-                  const bySector = new Map(p.sectors.map((s) => [s.sector ?? NO_SECTOR, Number(s.fraction)]));
-                  const effective = p.effective_sectors !== null ? Number(p.effective_sectors) : null;
-                  return (
-                    <TableRow
-                      key={playerKey(p)}
-                      variant={group.team !== null ? "member" : isYou ? "current" : "default"}
-                      style={group.team !== null ? ({ "--team": teamColor(group.team) } as CSSProperties) : undefined}
-                    >
-                      <TableCell>
-                        <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={isYou} />
-                      </TableCell>
-                      {sectors.map((s) => {
-                        const fraction = bySector.get(s);
-                        return (
-                          <TableCell key={s} numeric>
-                            {fraction ? (
-                              <span
-                                className="inline-block w-14 rounded px-1.5 py-1 text-center"
-                                style={{
-                                  backgroundColor: `color-mix(in oklab, var(--primary) ${Math.round(fraction * 80)}%, transparent)`,
-                                  color: fraction > 0.45 ? "var(--primary-foreground)" : undefined,
-                                }}
-                              >
-                                {displayPercent(fraction, 0)}
-                              </span>
-                            ) : (
-                              <span className="text-faint-foreground">·</span>
-                            )}
-                          </TableCell>
-                        );
-                      })}
-                      <TableCell>
-                        {effective === null ? (
-                          <span className="text-[13px] text-muted-foreground">Sem ações no último dia</span>
-                        ) : (
-                          <span className="text-[13px]">
-                            <b className="font-mono">{displayNumber(effective, 2)}</b> · {diversificationWord(effective)}
-                          </span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {sorting.rows
+                  .filter((p) => group.players.includes(p))
+                  .map((p) => {
+                    const label = playerLabel(p, simulationIds, currentPlayerName);
+                    const isYou = p.player_nickname === currentPlayerName;
+                    const bySector = new Map(p.sectors.map((s) => [s.sector ?? NO_SECTOR, Number(s.fraction)]));
+                    const effective = p.effective_sectors !== null ? Number(p.effective_sectors) : null;
+                    return (
+                      <TableRow
+                        key={playerKey(p)}
+                        variant={group.team !== null ? "member" : isYou ? "current" : "default"}
+                        style={group.team !== null ? ({ "--team": teamColor(group.team) } as CSSProperties) : undefined}
+                      >
+                        <TableCell>
+                          <PlayerCell player={p} label={label} simulationIds={simulationIds} isYou={isYou} />
+                        </TableCell>
+                        {sectors.map((s) => {
+                          const fraction = bySector.get(s);
+                          return (
+                            <TableCell key={s} numeric>
+                              {fraction ? (
+                                <span
+                                  className="inline-block w-14 rounded px-1.5 py-1 text-center"
+                                  style={{
+                                    backgroundColor: `color-mix(in oklab, var(--primary) ${Math.round(fraction * 80)}%, transparent)`,
+                                    color: fraction > 0.45 ? "var(--primary-foreground)" : undefined,
+                                  }}
+                                >
+                                  {displayPercent(fraction, 0)}
+                                </span>
+                              ) : (
+                                <span className="text-faint-foreground">·</span>
+                              )}
+                            </TableCell>
+                          );
+                        })}
+                        <TableCell>
+                          {effective === null ? (
+                            <span className="text-[13px] text-muted-foreground">Sem ações no último dia</span>
+                          ) : (
+                            <span className="text-[13px]">
+                              <b className="font-mono">{displayNumber(effective, 2)}</b> ·{" "}
+                              {diversificationWord(effective)}
+                            </span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
               </Fragment>
             ))}
           </TableBody>
@@ -394,54 +414,59 @@ function SectorProfit({
                 </div>
               )}
               <div className="grid gap-4 md:grid-cols-2">
-          {group.players.map((p) => {
-            const total = p.sector_profit.reduce((sum, s) => sum + Number(s.profit), 0);
-            return (
-              <div key={playerKey(p)} className="grid content-start gap-2 rounded-[10px] border border-border p-4">
-                <div className="flex justify-between">
-                  <span className="font-semibold">{playerLabel(p, simulationIds, currentPlayerName)}</span>
-                  <span className={total >= 0 ? "font-mono text-success" : "font-mono text-destructive"}>
-                    {p.sector_profit.length ? `${total >= 0 ? "+" : ""}${displayMoney(total)}` : "—"}
-                  </span>
-                </div>
-                {p.sector_profit.length === 0 ? (
-                  <span className="text-[13px] text-muted-foreground">Não negociou ações.</span>
-                ) : (
-                  p.sector_profit.map((s) => {
-                    const value = Number(s.profit);
-                    const width = (Math.abs(value) / scale) * 50;
-                    return (
-                      <div
-                        key={s.sector ?? NO_SECTOR}
-                        className="grid grid-cols-[110px_1fr_90px] items-center gap-2 text-xs"
-                      >
-                        <span className="truncate text-muted-foreground">{s.sector ?? NO_SECTOR}</span>
-                        <span className="relative h-2.5">
-                          <span className="absolute inset-y-0 left-1/2 w-px bg-input" />
-                          <span
-                            className={
-                              value >= 0
-                                ? "absolute inset-y-0 left-1/2 rounded-r bg-success"
-                                : "absolute inset-y-0 right-1/2 rounded-l bg-destructive"
-                            }
-                            style={{ width: `${width}%` }}
-                          />
-                        </span>
-                        <span
-                          className={
-                            value >= 0 ? "text-right font-mono text-success" : "text-right font-mono text-destructive"
-                          }
-                        >
-                          {value >= 0 ? "+" : ""}
-                          {displayMoney(value)}
+                {group.players.map((p) => {
+                  const total = p.sector_profit.reduce((sum, s) => sum + Number(s.profit), 0);
+                  return (
+                    <div
+                      key={playerKey(p)}
+                      className="grid content-start gap-2 rounded-[10px] border border-border p-4"
+                    >
+                      <div className="flex justify-between">
+                        <span className="font-semibold">{playerLabel(p, simulationIds, currentPlayerName)}</span>
+                        <span className={total >= 0 ? "font-mono text-success" : "font-mono text-destructive"}>
+                          {p.sector_profit.length ? `${total >= 0 ? "+" : ""}${displayMoney(total)}` : "—"}
                         </span>
                       </div>
-                    );
-                  })
-                )}
-              </div>
-            );
-          })}
+                      {p.sector_profit.length === 0 ? (
+                        <span className="text-[13px] text-muted-foreground">Não negociou ações.</span>
+                      ) : (
+                        p.sector_profit.map((s) => {
+                          const value = Number(s.profit);
+                          const width = (Math.abs(value) / scale) * 50;
+                          return (
+                            <div
+                              key={s.sector ?? NO_SECTOR}
+                              className="grid grid-cols-[110px_1fr_90px] items-center gap-2 text-xs"
+                            >
+                              <span className="truncate text-muted-foreground">{s.sector ?? NO_SECTOR}</span>
+                              <span className="relative h-2.5">
+                                <span className="absolute inset-y-0 left-1/2 w-px bg-input" />
+                                <span
+                                  className={
+                                    value >= 0
+                                      ? "absolute inset-y-0 left-1/2 rounded-r bg-success"
+                                      : "absolute inset-y-0 right-1/2 rounded-l bg-destructive"
+                                  }
+                                  style={{ width: `${width}%` }}
+                                />
+                              </span>
+                              <span
+                                className={
+                                  value >= 0
+                                    ? "text-right font-mono text-success"
+                                    : "text-right font-mono text-destructive"
+                                }
+                              >
+                                {value >= 0 ? "+" : ""}
+                                {displayMoney(value)}
+                              </span>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}

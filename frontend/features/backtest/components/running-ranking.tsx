@@ -3,12 +3,7 @@ import { InfoHint } from "@/shared/components/info-hint";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import {
-  displayIsoDate,
-  displayMonthSlashYear,
-  displayMoney,
-  displaySignedPercent,
-} from "@/shared/lib/utils/display";
+import { displayIsoDate, displayMonthSlashYear, displayMoney, displaySignedPercent } from "@/shared/lib/utils/display";
 import { cn } from "@/shared/lib/utils";
 import type { BacktestPoint, BacktestFailure, BacktestParticipant, StrategyInfo } from "@/types";
 import { referencesOf, standingsOf } from "../lib/standings";
@@ -37,14 +32,16 @@ export function RunningRanking({ participants, strategies, point, failures }: Ru
         </CardDescription>
         <CardAction>
           <InfoHint label="O que é o retorno sobre o aportado">
-            Mede quanto o patrimônio rendeu sobre todo o dinheiro que entrou (saldo inicial mais aportes). Exemplo: entrou
-            R$ 150.000 e a carteira vale R$ 213.000, então o retorno é +42%. Acima de 0% a estratégia ganhou dinheiro;
-            abaixo, a carteira vale menos do que foi posto. Compare com o CDI, que é o rendimento sem risco.
+            Mede quanto o patrimônio rendeu sobre todo o dinheiro que entrou (saldo inicial mais aportes). Exemplo:
+            entrou R$ 150.000 e a carteira vale R$ 213.000, então o retorno é +42%. Acima de 0% a estratégia ganhou
+            dinheiro; abaixo, a carteira vale menos do que foi posto. Compare com o CDI, que é o rendimento sem risco.
           </InfoHint>
         </CardAction>
       </CardHeader>
       <CardContent className="grid">
-        {standings.length === 0 && <p className="text-sm text-muted-foreground">O primeiro ponto chega em instantes.</p>}
+        {standings.length === 0 && (
+          <p className="text-sm text-muted-foreground">O primeiro ponto chega em instantes.</p>
+        )}
         {standings.map((standing, index) => {
           const { participant, failedOn } = standing;
           return (

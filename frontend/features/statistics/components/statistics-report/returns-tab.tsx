@@ -130,14 +130,24 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
   const [scopeChoice, setScope] = useState<Scope>("TEAMS");
   const [focusChoice, setFocus] = useState<number | null>(null);
   if (!data)
-    return <TabStatus simulationIds={simulationIds} loading={isLoading} title="a Rentabilidade" error={error} onRetry={() => void refetch()} />;
+    return (
+      <TabStatus
+        simulationIds={simulationIds}
+        loading={isLoading}
+        title="a Rentabilidade"
+        error={error}
+        onRetry={() => void refetch()}
+      />
+    );
 
   const comparing = simulationIds.length > 1;
   const inTeams = data.player_grouping === "TEAMS";
   const players = data.players.map((p) => ({ player: p, label: playerLabel(p, simulationIds, currentPlayerName) }));
   const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
   const isYou = (p: ReturnsPlayer) => p.player_nickname === currentPlayerName;
-  const cdiOf = new Map(data.benchmarks.filter((b) => b.series === "CDI").map((b) => [b.simulation_id, b.annual_return]));
+  const cdiOf = new Map(
+    data.benchmarks.filter((b) => b.series === "CDI").map((b) => [b.simulation_id, b.annual_return]),
+  );
 
   // Comparando partidas, a cor é da partida: você nela em destaque, os outros em cinza
   const playerSeries = (points: (p: ReturnsPlayer) => ReturnsPlayer["networth"]): LineSeries[] =>
@@ -364,13 +374,17 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
           {
             metric: MONTHS_ABOVE_CDI,
             value: (r) => r.months_above_cdi,
-            cell: (r) => <MonthsCell months={r.monthly_returns} count={r.months_above_cdi} passed={aboveCdi} color="bg-success" />,
+            cell: (r) => (
+              <MonthsCell months={r.monthly_returns} count={r.months_above_cdi} passed={aboveCdi} color="bg-success" />
+            ),
             teamCell: (t) => <TeamMonthsCell average={t.months_above_cdi} months={t.months} color="bg-success" />,
           },
           {
             metric: POSITIVE_MONTHS,
             value: (r) => r.positive_months,
-            cell: (r) => <MonthsCell months={r.monthly_returns} count={r.positive_months} passed={positive} color="bg-chart-1" />,
+            cell: (r) => (
+              <MonthsCell months={r.monthly_returns} count={r.positive_months} passed={positive} color="bg-chart-1" />
+            ),
             teamCell: (t) => <TeamMonthsCell average={t.positive_months} months={t.months} color="bg-chart-1" />,
           },
         ]}

@@ -47,7 +47,8 @@ const oscillatorFormat = (levels: StrategySignal["levels"]) =>
   ({
     type: "custom",
     minMove: 1,
-    formatter: (value: number) => (value === 0 || levels.some((level) => level.value === value) ? value.toFixed(0) : ""),
+    formatter: (value: number) =>
+      value === 0 || levels.some((level) => level.value === value) ? value.toFixed(0) : "",
   }) as const;
 
 /** Preço e linhas da estratégia, com o oscilador num 2º painel de 0 a 100 e ▲ nos dias de compra e ▼ nos de venda. */

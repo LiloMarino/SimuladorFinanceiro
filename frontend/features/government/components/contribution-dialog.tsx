@@ -53,7 +53,9 @@ export function ContributionDialog({ open, onOpenChange, party, current, cash }:
           </Button>
           <Button
             disabled={set.isPending}
-            onClick={() => set.mutate({ contribution: contributionAmount(text) }, { onSuccess: () => onOpenChange(false) })}
+            onClick={() =>
+              set.mutate({ contribution: contributionAmount(text) }, { onSuccess: () => onOpenChange(false) })
+            }
           >
             Salvar
           </Button>

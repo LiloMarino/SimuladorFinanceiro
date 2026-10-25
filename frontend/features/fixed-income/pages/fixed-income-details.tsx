@@ -52,17 +52,33 @@ export default function FixedIncomeDetailPage() {
   const { data: simulation, error: stateError, refetch: refetchState } = useSimulationState();
 
   if (error?.status === 404) return NOT_FOUND;
-  if (error || stateError) return <ErrorState title="Não deu para carregar esse título"
-    description="Confira a conexão e tente novamente." error={error ?? stateError}
-    onRetry={() => { void refetch(); void refetchState(); }} />;
+  if (error || stateError)
+    return (
+      <ErrorState
+        title="Não deu para carregar esse título"
+        description="Confira a conexão e tente novamente."
+        error={error ?? stateError}
+        onRetry={() => {
+          void refetch();
+          void refetchState();
+        }}
+      />
+    );
 
   if (isLoading || !simulation?.current_date) {
     return <Skeleton className="h-96" />;
   }
   if (!offer || !id) return NOT_FOUND;
-  if (offer.maturity_date <= simulation.current_date) return <ErrorPage code="410"
-    title="Esse título já venceu" message="Consulte as ofertas disponíveis na data atual da partida."
-    actionLabel="Ver renda fixa" actionHref="/fixed-income" />;
+  if (offer.maturity_date <= simulation.current_date)
+    return (
+      <ErrorPage
+        code="410"
+        title="Esse título já venceu"
+        message="Consulte as ofertas disponíveis na data atual da partida."
+        actionLabel="Ver renda fixa"
+        actionHref="/fixed-income"
+      />
+    );
 
   return <FixedIncomeDetail key={id} id={id} offer={offer} today={simulation.current_date} />;
 }
@@ -71,7 +87,12 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState<"invest" | "redeem">(searchParams.get("tab") === "redeem" ? "redeem" : "invest");
   const [amountText, setAmountText] = useState(formatMoney("0"));
-  const { data: quote, error, isLoading, refetch } = useFixedIncomeProjection(id, normalizeNumberString(amountText), today);
+  const {
+    data: quote,
+    error,
+    isLoading,
+    refetch,
+  } = useFixedIncomeProjection(id, normalizeNumberString(amountText), today);
   const { data: offers } = useFixedIncomeAssets();
   const { data: portfolio } = usePortfolio();
   const position = portfolio?.fixed_income.find((p) => p.asset.asset_uuid === id);
@@ -82,11 +103,11 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
   const liquid = offer.daily_liquidity;
   // A oferta rara some do catálogo no fim do mês: quem aplicou segue resgatando, ninguém aplica mais
   const leftCatalogOn =
-    offer.offered_until && today > offer.offered_until
-      ? displayIsoNextDay(offer.offered_until)
-      : null;
+    offer.offered_until && today > offer.offered_until ? displayIsoNextDay(offer.offered_until) : null;
   const activeTab = leftCatalogOn ? "redeem" : tab;
-  const heldDays = position ? differenceInCalendarDays(parseLocalDate(today), parseLocalDate(position.first_applied_date)) : 0;
+  const heldDays = position
+    ? differenceInCalendarDays(parseLocalDate(today), parseLocalDate(position.first_applied_date))
+    : 0;
   const bracketIndex = quote?.income_tax_brackets.findIndex((b) => b.max_days === null || heldDays <= b.max_days) ?? -1;
   const taxToday = quote && bracketIndex >= 0 ? quote.income_tax_brackets[bracketIndex].rate : null;
 
@@ -104,7 +125,9 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
                 : null,
           },
         ]),
-    ...(liquid ? [{ label: "Resgate", value: "Qualquer dia", detail: "pelo valor do dia", tone: "success" as const }] : []),
+    ...(liquid
+      ? [{ label: "Resgate", value: "Qualquer dia", detail: "pelo valor do dia", tone: "success" as const }]
+      : []),
     {
       label: "Vencimento",
       value: displayDate(parseLocalDate(offer.maturity_date)),
@@ -176,15 +199,17 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
       </Card>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-        {error && <ErrorState title="Não deu para conferir o investimento" description="Atualize a cotação antes de investir."
-          error={error} onRetry={() => void refetch()} />}
+        {error && (
+          <ErrorState
+            title="Não deu para conferir o investimento"
+            description="Atualize a cotação antes de investir."
+            error={error}
+            onRetry={() => void refetch()}
+          />
+        )}
         {isLoading && <Skeleton className="h-64" />}
         <div className="grid gap-5">
-          {liquid ? (
-            <LiquidityInfo offer={offer} alternatives={offers ?? []} />
-          ) : (
-            quote && <Projection quote={quote} />
-          )}
+          {liquid ? <LiquidityInfo offer={offer} alternatives={offers ?? []} /> : quote && <Projection quote={quote} />}
           {quote && daysToRedeem !== null && (liquid || !offer.tax_exempt) && (
             <TaxSteps
               quote={quote}
@@ -216,9 +241,15 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
                       Resgatar
                     </ToggleGroupItem>
                   </ToggleGroup>
-  
+
                   {activeTab === "invest" ? (
-                    <InvestmentTicket assetId={id} offer={offer} amountText={amountText} onAmountChange={setAmountText} quote={quote} />
+                    <InvestmentTicket
+                      assetId={id}
+                      offer={offer}
+                      amountText={amountText}
+                      onAmountChange={setAmountText}
+                      quote={quote}
+                    />
                   ) : (
                     <RedemptionTicket
                       assetId={id}
@@ -268,7 +299,10 @@ function PositionCard({
         <div className="grid gap-2.5">
           <span className="text-xs font-medium text-muted-foreground">Sua posição</span>
           <div className="grid grid-cols-2 gap-3">
-            <PositionFigure label="Aplicado" detail={`desde ${displayDate(parseLocalDate(position.first_applied_date))}`}>
+            <PositionFigure
+              label="Aplicado"
+              detail={`desde ${displayDate(parseLocalDate(position.first_applied_date))}`}
+            >
               {displayMoney(position.total_applied)}
             </PositionFigure>
             <PositionFigure label="Valor hoje" detail="bruto, antes do IR">
@@ -294,8 +328,8 @@ function PositionCard({
                 {displayDate(parseLocalDate(offer.maturity_date))}
               </PositionFigure>
             )}
+          </div>
         </div>
-      </div>
       </CardContent>
     </Card>
   );
@@ -326,7 +360,10 @@ function LiquidityInfo({ offer, alternatives }: { offer: FixedIncomeOffer; alter
   // O melhor CDB que prende o dinheiro até o vencimento, para mostrar o que a liquidez custa
   const locked = alternatives
     .filter((o) => !o.daily_liquidity && o.rate_index === "CDI")
-    .reduce<FixedIncomeOffer | null>((best, o) => (!best || Number(o.interest_rate) > Number(best.interest_rate) ? o : best), null);
+    .reduce<FixedIncomeOffer | null>(
+      (best, o) => (!best || Number(o.interest_rate) > Number(best.interest_rate) ? o : best),
+      null,
+    );
   const costs = locked !== null && Number(locked.interest_rate) > Number(offer.interest_rate);
 
   const rate = displayRateLabel(offer.rate_index, offer.interest_rate);

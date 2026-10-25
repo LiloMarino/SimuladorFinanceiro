@@ -20,7 +20,16 @@ import {
 } from "./period";
 
 const series = (key: string, start: string | null, real_end: string | null, generated_end: string | null = null) =>
-  ({ kind: "INDICATOR", key, name: key, start, real_end, generated_end, asset_class: null, segment: null }) as SeriesCoverage;
+  ({
+    kind: "INDICATOR",
+    key,
+    name: key,
+    start,
+    real_end,
+    generated_end,
+    asset_class: null,
+    segment: null,
+  }) as SeriesCoverage;
 
 const COVERAGE = [
   series("CDI", "1995-01-02", "2026-10-09", "2036-12-31"),

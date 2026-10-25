@@ -28,7 +28,13 @@ export function usePlayer(topic: HowToTopic) {
     playing,
     toggle: () => setPlaying((current) => !current),
     /** Salta para o primeiro trecho do passo. */
-    jumpToStep: (step: number) => setBeat(Math.max(0, beats.findIndex((item) => item.step === step))),
+    jumpToStep: (step: number) =>
+      setBeat(
+        Math.max(
+          0,
+          beats.findIndex((item) => item.step === step),
+        ),
+      ),
   };
 }
 

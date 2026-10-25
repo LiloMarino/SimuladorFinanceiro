@@ -58,7 +58,8 @@ describe("pattern view", () => {
   });
 
   it("mantém na faixa a resposta que espera e a conferida há pouco", () => {
-    const answer = (status: ChallengeAnswer["status"], settles_on: string) => ({ status, settles_on }) as ChallengeAnswer;
+    const answer = (status: ChallengeAnswer["status"], settles_on: string) =>
+      ({ status, settles_on }) as ChallengeAnswer;
     expect(isAnswerFresh(answer("waiting", "2024-03-21"), "2024-03-14")).toBe(true);
     expect(isAnswerFresh(answer("hit", "2024-03-21"), "2024-03-25")).toBe(true);
     expect(isAnswerFresh(answer("hit", "2024-03-21"), "2024-04-30")).toBe(false);

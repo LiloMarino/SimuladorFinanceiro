@@ -24,8 +24,7 @@ export type Flag = "slow" | "stall" | null;
 
 export function flagOf(item: MetricItem): Flag {
   if (item.p95_ms > SLOW_P95_MS) return "slow";
-  if (item.mean_ms > 0 && item.p95_ms >= STALL_RATIO * item.mean_ms)
-    return "stall";
+  if (item.mean_ms > 0 && item.p95_ms >= STALL_RATIO * item.mean_ms) return "stall";
   return null;
 }
 
@@ -47,31 +46,15 @@ export function buildRows(items: MetricItem[]): Row[] {
   }));
 }
 
-export type SortKey =
-  | "calls"
-  | "total_ms"
-  | "mean_ms"
-  | "p95_ms"
-  | "max_ms"
-  | "share";
+export type SortKey = "calls" | "total_ms" | "mean_ms" | "p95_ms" | "max_ms" | "share";
 
 export function sortRows(rows: Row[], key: SortKey): Row[] {
-  return [...rows].sort(
-    (a, b) => b[key] - a[key] || a.label.localeCompare(b.label),
-  );
+  return [...rows].sort((a, b) => b[key] - a[key] || a.label.localeCompare(b.label));
 }
 
-export function filterRows(
-  rows: Row[],
-  kind: KindFilter,
-  search: string,
-): Row[] {
+export function filterRows(rows: Row[], kind: KindFilter, search: string): Row[] {
   const term = search.trim().toLowerCase();
-  return rows.filter(
-    (row) =>
-      (kind === "all" || row.kind === kind) &&
-      row.label.toLowerCase().includes(term),
-  );
+  return rows.filter((row) => (kind === "all" || row.kind === kind) && row.label.toLowerCase().includes(term));
 }
 
 export function countByKind(rows: Row[]): Record<KindFilter, number> {
@@ -96,9 +79,7 @@ export interface EngineStatus {
 }
 
 export function engineStatus(data: MetricsData): EngineStatus {
-  const item = data.items.find(
-    (i) => i.kind === "engine" && i.name === ENGINE_DAY,
-  );
+  const item = data.items.find((i) => i.kind === "engine" && i.name === ENGINE_DAY);
   const budgetMs = data.engine.budget_ms ?? null;
   const late = !!item && budgetMs !== null && item.mean_ms > budgetMs;
   return {
@@ -138,10 +119,7 @@ export function trafficSummary(traffic: TrafficItem[]): TrafficSummary {
   return {
     msgsPerSecond: traffic.reduce((sum, t) => sum + t.msgs_per_s, 0),
     bytesPerSecond,
-    top:
-      top && bytesPerSecond > 0
-        ? { event: top.event, share: top.bytes_per_s / bytesPerSecond }
-        : null,
+    top: top && bytesPerSecond > 0 ? { event: top.event, share: top.bytes_per_s / bytesPerSecond } : null,
   };
 }
 

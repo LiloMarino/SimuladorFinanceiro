@@ -52,7 +52,9 @@ describe("aviso da tela", () => {
 describe("pausa da partida", () => {
   it("conta só os jogadores de verdade", () => {
     // Você e 2 bots: um humano só
-    expect(countHumans([{ bot: null }, { bot: { strategy: "x" } as never }, { bot: { strategy: "y" } as never }])).toBe(1);
+    expect(countHumans([{ bot: null }, { bot: { strategy: "x" } as never }, { bot: { strategy: "y" } as never }])).toBe(
+      1,
+    );
   });
 
   it("pausa sozinho com o tempo correndo, e não pausa acompanhado nem já parado", () => {

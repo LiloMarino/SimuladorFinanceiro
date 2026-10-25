@@ -6,14 +6,22 @@ const notice = (partial: Partial<GovernmentNotice>): GovernmentNotice => ({ kind
 
 describe("votedToast", () => {
   it("conta a rejeição com a chance que a medida tinha", () => {
-    const toast = votedToast(notice({ accepted: false, measure_title: "Renda fixa: tabela única de 15%", chance: 59 }), []);
+    const toast = votedToast(
+      notice({ accepted: false, measure_title: "Renda fixa: tabela única de 15%", chance: 59 }),
+      [],
+    );
     expect(toast.title).toBe("Congresso rejeitou: Renda fixa: tabela única de 15%");
     expect(toast.description).toBe("Tinha 59% de chance. Nada muda.");
   });
 
   it("liga a aprovação à carteira de quem tem os ativos", () => {
     const toast = votedToast(
-      notice({ accepted: true, measure_title: "Bancos: +5 pontos", effective: "2020-05-29", tickers: ["ITUB4", "BBDC4", "SANB11"] }),
+      notice({
+        accepted: true,
+        measure_title: "Bancos: +5 pontos",
+        effective: "2020-05-29",
+        tickers: ["ITUB4", "BBDC4", "SANB11"],
+      }),
       ["ITUB4", "BBDC4", "VALE3"],
     );
     expect(toast.tone).toBe("success");
@@ -29,7 +37,9 @@ describe("votedToast", () => {
 
 describe("inForceToast", () => {
   it("resume os ativos da medida de setor", () => {
-    const toast = inForceToast(notice({ measure_title: "IR de bancos", tickers: ["ITUB4", "BBDC4", "A", "B", "C", "D"] }));
+    const toast = inForceToast(
+      notice({ measure_title: "IR de bancos", tickers: ["ITUB4", "BBDC4", "A", "B", "C", "D"] }),
+    );
     expect(toast.description).toBe("Vale para todas as vendas com lucro de ITUB4, BBDC4 e mais 4 ativos.");
   });
 

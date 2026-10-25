@@ -11,8 +11,9 @@ export const queryKeys = {
   lifeHistory: (simulationId: number, category: string, column = "date", direction = "desc") =>
     ["simulation", "life-history", simulationId, category, column, direction] as const,
   orderPreview: (ticker: string, params?: object) =>
-    params === undefined ? ["variable-income", ticker, "order-preview"] as const
-      : ["variable-income", ticker, "order-preview", params] as const,
+    params === undefined
+      ? (["variable-income", ticker, "order-preview"] as const)
+      : (["variable-income", ticker, "order-preview", params] as const),
   variableIncome: () => ["variable-income"] as const,
   fixedIncome: () => ["fixed-income"] as const,
   trades: (ticker: string) => ["variable-income", ticker, "trades"] as const,
@@ -20,7 +21,9 @@ export const queryKeys = {
   simulationPlayers: () => ["simulation", "players"] as const,
   matchPlayers: () => ["simulation", "match-players"] as const,
   botStrategies: (startDate?: string) =>
-    startDate === undefined ? ["simulation", "bot-strategies"] as const : ["simulation", "bot-strategies", startDate] as const,
+    startDate === undefined
+      ? (["simulation", "bot-strategies"] as const)
+      : (["simulation", "bot-strategies", startDate] as const),
   backtestSetup: (from?: number) => ["backtest", "setup", from ?? null] as const,
   backtestStatus: () => ["backtest", "status"] as const,
   backtestResult: (simulationId: number) => ["backtest", "result", simulationId] as const,
@@ -35,8 +38,9 @@ export const queryKeys = {
   variableIncomeList: () => ["variable-income", "list"] as const,
   variableIncomeStock: (ticker: string) => ["variable-income", ticker] as const,
   stockIndicators: (ticker: string, request?: object) =>
-    request === undefined ? ["variable-income", ticker, "indicators"] as const
-      : ["variable-income", ticker, "indicators", request] as const,
+    request === undefined
+      ? (["variable-income", ticker, "indicators"] as const)
+      : (["variable-income", ticker, "indicators", request] as const),
   candlePatterns: (ticker: string) => ["variable-income", ticker, "patterns"] as const,
   candleChallenge: (ticker: string) => ["variable-income", ticker, "challenge"] as const,
   candleChallengeRanking: (simulationIds: number[]) => ["statistics", "candle-challenge", ...simulationIds] as const,

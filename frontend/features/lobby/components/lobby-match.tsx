@@ -15,20 +15,11 @@ import { useBacktestStatus } from "@/shared/hooks/queries/useBacktestStatus";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
-import {
-  displayDate,
-  displayMoneyCompact,
-  displayMoneyWhole,
-  parseLocalDate,
-} from "@/shared/lib/utils/display";
+import { displayDate, displayMoneyCompact, displayMoneyWhole, parseLocalDate } from "@/shared/lib/utils/display";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { useSeriesCoverage } from "@/shared/hooks/queries/useSeriesCoverage";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
-import {
-  displayRatePercent,
-  unexpectedLabel,
-  UNEXPECTED_OPTIONS,
-} from "@/shared/lib/financial-independence";
+import { displayRatePercent, unexpectedLabel, UNEXPECTED_OPTIONS } from "@/shared/lib/financial-independence";
 import { summarizeAssistances } from "@/shared/lib/assistance";
 import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
 import { EXPANSIONS } from "@/shared/lib/expansions";
@@ -271,11 +262,16 @@ export function LobbyMatch({
   });
   const loadingSelection = selectedSimulationId !== null && !selectedSimulation && listPending;
   const rulesImpactMode = priceImpactModeOf(rules.priceImpactEnabled, rules.priceImpactK, rules.priceImpactDecayDays);
-  const assistances = summarizeAssistances([rules.showEquivalentRate, rules.showMaturityProjection, rules.showChartHints]);
+  const assistances = summarizeAssistances([
+    rules.showEquivalentRate,
+    rules.showMaturityProjection,
+    rules.showChartHints,
+  ]);
 
   // A meta com o múltiplo do saldo inicial quando ele é redondo: "R$ 1.000.000,00 · 10× o saldo"
   const startingCashAmount = Number(normalizeNumberString(rules.startingCash));
-  const goalMultiple = startingCashAmount > 0 ? Number(normalizeNumberString(rules.goalNetWorth)) / startingCashAmount : NaN;
+  const goalMultiple =
+    startingCashAmount > 0 ? Number(normalizeNumberString(rules.goalNetWorth)) / startingCashAmount : NaN;
   const goalSummary = Number.isInteger(goalMultiple)
     ? `${rules.goalNetWorth} · ${goalMultiple}× o saldo`
     : rules.goalNetWorth;
@@ -397,7 +393,9 @@ export function LobbyMatch({
       label: "Impacto de preço",
       value: (
         <span className="flex items-center gap-2">
-          <Badge variant={rulesImpactMode === "OFF" ? "secondary" : "info"}>{PRICE_IMPACT_MODE_LABELS[rulesImpactMode]}</Badge>
+          <Badge variant={rulesImpactMode === "OFF" ? "secondary" : "info"}>
+            {PRICE_IMPACT_MODE_LABELS[rulesImpactMode]}
+          </Badge>
           {rulesImpactMode !== "OFF" && (
             <span className="font-mono text-xs text-muted-foreground">
               k {rules.priceImpactK} · T {rules.priceImpactDecayDays}
@@ -409,7 +407,9 @@ export function LobbyMatch({
     {
       label: "Assistências",
       value: (
-        <Badge variant={assistances.mode === "NORMAL" ? "secondary" : assistances.mode === "EXPERT" ? "inverse" : "info"}>
+        <Badge
+          variant={assistances.mode === "NORMAL" ? "secondary" : assistances.mode === "EXPERT" ? "inverse" : "info"}
+        >
           {assistances.mode === "NORMAL" && "Normal"}
           {assistances.mode === "EXPERT" && "Especialista"}
           {assistances.mode === "CUSTOM" && `Personalizado · ${assistances.shown} de ${assistances.total} ligadas`}
@@ -522,7 +522,12 @@ export function LobbyMatch({
             {isHost ? (
               selectedSimulation ? (
                 <div className="grid gap-2">
-                  <Button size="xl" className="min-w-0" disabled={busy || teamsBlock || backtestRunning} onClick={() => continueSimulation()}>
+                  <Button
+                    size="xl"
+                    className="min-w-0"
+                    disabled={busy || teamsBlock || backtestRunning}
+                    onClick={() => continueSimulation()}
+                  >
                     {continuing ? <Spinner /> : <Play />}
                     <span className="min-w-0 truncate">Continuar {selectedSimulation.name}</span>
                   </Button>

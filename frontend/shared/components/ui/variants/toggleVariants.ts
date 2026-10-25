@@ -15,7 +15,8 @@ export const toggleVariants = cva(
       // Cor do item: lado de compra (success), de venda (destructive), de resgate (dark) ou de futuro (future)
       tone: {
         neutral: "",
-        success: "aria-pressed:bg-success aria-pressed:text-success-foreground aria-pressed:hover:text-success-foreground",
+        success:
+          "aria-pressed:bg-success aria-pressed:text-success-foreground aria-pressed:hover:text-success-foreground",
         destructive:
           "aria-pressed:bg-destructive aria-pressed:text-destructive-foreground aria-pressed:hover:text-destructive-foreground",
         dark: "aria-pressed:bg-foreground aria-pressed:text-primary-foreground aria-pressed:hover:text-primary-foreground",

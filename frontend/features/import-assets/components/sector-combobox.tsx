@@ -37,7 +37,14 @@ export function SectorCombobox({ id, sectors, value, onChange }: SectorComboboxP
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
-          <Button id={id} type="button" variant="outline" role="combobox" aria-expanded={open} className="justify-between" />
+          <Button
+            id={id}
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="justify-between"
+          />
         }
       >
         <span className={value ? "truncate font-normal" : "truncate font-normal text-muted-foreground"}>

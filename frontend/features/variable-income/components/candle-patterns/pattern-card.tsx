@@ -27,7 +27,10 @@ export function PatternCard({ ticker, pattern, stats, today, challengeOpen, clas
   const days = displayPatternDays(pattern);
 
   return (
-    <div className={cn("grid gap-2.5 rounded-xl border bg-popover p-3.5 text-[13px] shadow-lg", className)} style={style}>
+    <div
+      className={cn("grid gap-2.5 rounded-xl border bg-popover p-3.5 text-[13px] shadow-lg", className)}
+      style={style}
+    >
       {/* Cabeçalho */}
       <div className="flex items-start gap-3">
         <PatternDrawing key={pattern.code} code={pattern.code} />
@@ -86,7 +89,11 @@ function HistoryBlock({ ticker, stats, side }: HistoryBlockProps) {
               histórico da {ticker}: pouco para dizer se costuma acertar.
             </span>
             <span className="text-xs text-muted-foreground">
-              Em <b className="font-mono">{stats.hits} de {stats.checked}</b> o preço {went} nos 5 pregões seguintes.
+              Em{" "}
+              <b className="font-mono">
+                {stats.hits} de {stats.checked}
+              </b>{" "}
+              o preço {went} nos 5 pregões seguintes.
             </span>
           </>
         )}
@@ -124,7 +131,12 @@ function HistoryBlock({ ticker, stats, side }: HistoryBlockProps) {
 const displayCount = (value: number) => new Intl.NumberFormat("pt-BR").format(value);
 
 function ThisTime({ pattern, challengeOpen }: { pattern: CandlePattern; challengeOpen: boolean }) {
-  if (challengeOpen) return <Badge variant="info" size="sm">Desafio aberto · responda acima</Badge>;
+  if (challengeOpen)
+    return (
+      <Badge variant="info" size="sm">
+        Desafio aberto · responda acima
+      </Badge>
+    );
   if (pattern.change_5d === null) {
     return <span className="text-xs text-muted-foreground">ainda faltam pregões para conferir</span>;
   }

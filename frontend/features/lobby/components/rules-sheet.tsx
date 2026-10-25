@@ -1,6 +1,17 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
-import { CircleCheck, Flag, Info, Lock, RefreshCw, Shield, Swords, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import {
+  CircleCheck,
+  Flag,
+  Info,
+  Lock,
+  RefreshCw,
+  Shield,
+  Swords,
+  TriangleAlert,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -123,21 +134,30 @@ export function RulesSheet({
   onPresetLoaded,
   locked = false,
 }: RulesSheetProps) {
-  const [startDate, impactEnabled, impactK, impactT, grouping, gameType, startingCash, goalNetWorth, governmentEnabled] =
-    useWatch({
-      control: form.control,
-      name: [
-        "startDate",
-        "priceImpactEnabled",
-        "priceImpactK",
-        "priceImpactDecayDays",
-        "playerGrouping",
-        "gameType",
-        "startingCash",
-        "goalNetWorth",
-        "governmentEnabled",
-      ],
-    });
+  const [
+    startDate,
+    impactEnabled,
+    impactK,
+    impactT,
+    grouping,
+    gameType,
+    startingCash,
+    goalNetWorth,
+    governmentEnabled,
+  ] = useWatch({
+    control: form.control,
+    name: [
+      "startDate",
+      "priceImpactEnabled",
+      "priceImpactK",
+      "priceImpactDecayDays",
+      "playerGrouping",
+      "gameType",
+      "startingCash",
+      "goalNetWorth",
+      "governmentEnabled",
+    ],
+  });
   const [tab, setTab] = useState<RulesTab>("rules");
   // Personalizado fica aberto mesmo quando k e T coincidem com um preset
   const [customOpen, setCustomOpen] = useState(false);
@@ -320,7 +340,11 @@ export function RulesSheet({
                           disabled={readOnly}
                         >
                           {(["COLOR", "NUMBER"] as const).map((naming) => (
-                            <ToggleGroupItem key={naming} value={naming} style={{ "--team": teamColor(2) } as CSSProperties}>
+                            <ToggleGroupItem
+                              key={naming}
+                              value={naming}
+                              style={{ "--team": teamColor(2) } as CSSProperties}
+                            >
                               <Shield className="fill-(--team) stroke-(--team)" />
                               {teamShortName(2, naming)}
                             </ToggleGroupItem>
@@ -332,7 +356,9 @@ export function RulesSheet({
                   <Alert variant="info">
                     <Info />
                     <AlertTitle>Cada jogador escolhe a equipe no próprio card</AlertTitle>
-                    <AlertDescription>Começa todo mundo sem equipe. Equipes desiguais valem: conta a média.</AlertDescription>
+                    <AlertDescription>
+                      Começa todo mundo sem equipe. Equipes desiguais valem: conta a média.
+                    </AlertDescription>
                   </Alert>
                 </>
               )}
@@ -409,7 +435,8 @@ export function RulesSheet({
                           <Alert variant="muted">
                             <Info />
                             <AlertDescription>
-                              Em equipes o time já está definido. Para disputar por partidos, volte a Todos contra todos.
+                              Em equipes o time já está definido. Para disputar por partidos, volte a Todos contra
+                              todos.
                             </AlertDescription>
                           </Alert>
                         )}
@@ -418,8 +445,8 @@ export function RulesSheet({
                       <Alert variant="muted">
                         <Info />
                         <AlertDescription>
-                          A expansão {EXPANSIONS.government.label} acrescenta o tipo “{POLITICAL_GAME_TYPE.label}”. Ligue
-                          na aba Expansões.
+                          A expansão {EXPANSIONS.government.label} acrescenta o tipo “{POLITICAL_GAME_TYPE.label}”.
+                          Ligue na aba Expansões.
                         </AlertDescription>
                       </Alert>
                     )}
@@ -441,9 +468,14 @@ export function RulesSheet({
                         Meta de patrimônio
                         <InfoHint label="Como funciona a meta">
                           <div className="space-y-1 text-left">
-                            <p>É o patrimônio (caixa, renda fixa e ações) que um jogador precisa atingir para vencer.</p>
+                            <p>
+                              É o patrimônio (caixa, renda fixa e ações) que um jogador precisa atingir para vencer.
+                            </p>
                             <p>Ex.: com saldo inicial de R$ 100.000, a meta de 10× é R$ 1.000.000.</p>
-                            <p>Meta alta demais pode não ser alcançada até a data final; nesse caso vence quem chegar mais perto.</p>
+                            <p>
+                              Meta alta demais pode não ser alcançada até a data final; nesse caso vence quem chegar
+                              mais perto.
+                            </p>
                           </div>
                         </InfoHint>
                       </FieldLabel>
@@ -461,8 +493,14 @@ export function RulesSheet({
                             key={multiple}
                             type="button"
                             size="xs"
-                            variant={startingCashAmount > 0 && goalAmount === startingCashAmount * multiple ? "info" : "outline"}
-                            onClick={() => field.onChange(formatMoney(String(Math.round(startingCashAmount * multiple * 100))))}
+                            variant={
+                              startingCashAmount > 0 && goalAmount === startingCashAmount * multiple
+                                ? "info"
+                                : "outline"
+                            }
+                            onClick={() =>
+                              field.onChange(formatMoney(String(Math.round(startingCashAmount * multiple * 100))))
+                            }
                           >
                             {multiple}× o saldo inicial
                           </Button>
@@ -484,8 +522,8 @@ export function RulesSheet({
                   <AlertTitle>Quem vence já está definido</AlertTitle>
                   <AlertDescription>
                     A partida termina no dia em que alguém chega à meta. Chegando dois no mesmo dia, vence o maior
-                    patrimônio. Se ninguém chegar até a data final, vence quem ficou mais perto. Em equipes, conta a média
-                    do patrimônio dos membros.
+                    patrimônio. Se ninguém chegar até a data final, vence quem ficou mais perto. Em equipes, conta a
+                    média do patrimônio dos membros.
                   </AlertDescription>
                 </Alert>
               </FieldSet>

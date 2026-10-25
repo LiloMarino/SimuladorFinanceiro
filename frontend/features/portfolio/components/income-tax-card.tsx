@@ -66,7 +66,9 @@ export function IncomeTaxCard({ portfolio }: { portfolio: PortfolioState }) {
             </div>
             <div className="grid gap-0.5">
               <span className="text-xs text-muted-foreground">A pagar</span>
-              <span className={due ? "font-mono text-lg font-semibold text-warning" : "font-mono text-lg font-semibold"}>
+              <span
+                className={due ? "font-mono text-lg font-semibold text-warning" : "font-mono text-lg font-semibold"}
+              >
                 {displayMoney(portfolio.income_tax_due)}
               </span>
             </div>

@@ -55,13 +55,7 @@ import {
   rsiShapes,
   type AnnotationColors,
 } from "../lib/chart-annotations";
-import {
-  isAnswerFresh,
-  nextScaleWithPatterns,
-  patternOn,
-  patternsSince,
-  statsOf,
-} from "../lib/pattern-view";
+import { isAnswerFresh, nextScaleWithPatterns, patternOn, patternsSince, statsOf } from "../lib/pattern-view";
 import {
   AVERAGE_COLORS,
   INDICATOR_BY_KEY,
@@ -512,7 +506,18 @@ export function StockChart({
     return { markers, shapes };
     // `panels` e `averages` mudam junto com `layout`, que já está nas dependências
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [hintsOn, candleMode, settings.patterns, periodPatterns, activePattern, days, indicators, periodStart, layout, shortAverage]);
+  }, [
+    hintsOn,
+    candleMode,
+    settings.patterns,
+    periodPatterns,
+    activePattern,
+    days,
+    indicators,
+    periodStart,
+    layout,
+    shortAverage,
+  ]);
 
   useChartAnnotations(
     {
@@ -538,7 +543,11 @@ export function StockChart({
       from: days[Math.max(0, index - 15)],
       to: days[Math.min(days.length - 1, index + 10)],
     });
-    setHover({ day: pattern.end, x: timeScale.timeToCoordinate(pattern.end) ?? 0, width: chartRef.current?.clientWidth ?? 0 });
+    setHover({
+      day: pattern.end,
+      x: timeScale.timeToCoordinate(pattern.end) ?? 0,
+      width: chartRef.current?.clientWidth ?? 0,
+    });
   }
 
   function goToToday() {

@@ -27,8 +27,7 @@ const AXES = Object.keys(SCORE_AXES) as ScoreAxis[];
 /** Quem a nota mostra: uma equipe ou um jogador (`t:<equipe>` ou `p:<apelido>`). */
 type Subject = `t:${number}` | `p:${string}`;
 
-const axisPoints = (score: Team["score"], axis: ScoreAxis) =>
-  score?.axes.find((a) => a.axis === axis)?.points ?? null;
+const axisPoints = (score: Team["score"], axis: ScoreAxis) => score?.axes.find((a) => a.axis === axis)?.points ?? null;
 
 /** A nota da equipe em quatro eixos (média dos membros), a comparação entre equipes e os membros eixo a eixo. */
 export function TeamScore({ report, currentPlayerName }: { report: OverviewReport; currentPlayerName: string }) {
@@ -36,7 +35,9 @@ export function TeamScore({ report, currentPlayerName }: { report: OverviewRepor
   const you = players.find((p) => p.player_nickname === currentPlayerName);
   const [subject, setSubject] = useState<Subject>(`t:${you?.team ?? teams[0]?.team}`);
 
-  const selectedPlayer = subject.startsWith("p:") ? players.find((p) => p.player_nickname === subject.slice(2)) : undefined;
+  const selectedPlayer = subject.startsWith("p:")
+    ? players.find((p) => p.player_nickname === subject.slice(2))
+    : undefined;
   const selectedTeam = selectedPlayer
     ? teams.find((t) => t.team === selectedPlayer.team)
     : teams.find((t) => `t:${t.team}` === subject);
@@ -47,7 +48,12 @@ export function TeamScore({ report, currentPlayerName }: { report: OverviewRepor
   return (
     <>
       {selectedPlayer ? (
-        <PlayerScoreCard report={report} player={selectedPlayer} currentPlayerName={currentPlayerName} action={picker} />
+        <PlayerScoreCard
+          report={report}
+          player={selectedPlayer}
+          currentPlayerName={currentPlayerName}
+          action={picker}
+        />
       ) : (
         <TeamAxes report={report} team={selectedTeam} picker={picker} />
       )}
@@ -88,9 +94,15 @@ function SubjectPicker({
     <span className="flex items-center gap-2.5">
       <span className="text-xs font-medium text-muted-foreground">Ver nota de</span>
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger render={<Button variant="outline" role="combobox" aria-expanded={open} className="min-w-56 justify-between" />}>
+        <PopoverTrigger
+          render={
+            <Button variant="outline" role="combobox" aria-expanded={open} className="min-w-56 justify-between" />
+          }
+        >
           <span className="flex items-center gap-2 truncate">
-            {subject.startsWith("t:") && <TeamBadge team={Number(subject.slice(2))} naming={naming} form="icon" size="sm" />}
+            {subject.startsWith("t:") && (
+              <TeamBadge team={Number(subject.slice(2))} naming={naming} form="icon" size="sm" />
+            )}
             {label}
           </span>
           <ChevronDown className="text-faint-foreground" />
@@ -125,7 +137,12 @@ function SubjectPicker({
                       selected={subject === `p:${player.player_nickname}`}
                       onSelect={() => choose(`p:${player.player_nickname}`)}
                     >
-                      <PlayerAvatar nickname={player.player_nickname} color={player.color} bot={player.is_bot} size="sm" />
+                      <PlayerAvatar
+                        nickname={player.player_nickname}
+                        color={player.color}
+                        bot={player.is_bot}
+                        size="sm"
+                      />
                       {player.player_nickname}
                     </CommandItem>
                   ))}
@@ -197,7 +214,11 @@ function TeamAxes({ report, team, picker }: { report: OverviewReport; team: Team
                       className="absolute inset-y-0 left-0 rounded-full bg-(--team)"
                       style={{ width: `${Math.min(points / AXIS_SCALE, 1) * 100}%` }}
                     />
-                    <span className="absolute -top-1 h-4 w-px bg-faint-foreground" style={{ left: "50%" }} title="100 = bom" />
+                    <span
+                      className="absolute -top-1 h-4 w-px bg-faint-foreground"
+                      style={{ left: "50%" }}
+                      title="100 = bom"
+                    />
                   </div>
                   <span className="font-mono text-[11px] text-faint-foreground">0 · 100 = bom · {AXIS_SCALE}</span>
                 </div>
@@ -281,9 +302,17 @@ function TeamMembersAxes({
                 {rows.map(({ member, points }) => {
                   const diff = Math.round(points - mean);
                   return (
-                    <span key={member.player_nickname} className="grid grid-cols-[110px_1fr_34px_34px] items-center gap-2.5">
+                    <span
+                      key={member.player_nickname}
+                      className="grid grid-cols-[110px_1fr_34px_34px] items-center gap-2.5"
+                    >
                       <span className="flex min-w-0 items-center gap-1.5 text-[13px]">
-                        <PlayerAvatar nickname={member.player_nickname} color={member.color} bot={member.is_bot} size="sm" />
+                        <PlayerAvatar
+                          nickname={member.player_nickname}
+                          color={member.color}
+                          bot={member.is_bot}
+                          size="sm"
+                        />
                         <span className="truncate">{member.player_nickname}</span>
                         {member.player_nickname === currentPlayerName && (
                           <Badge variant="info" size="sm">

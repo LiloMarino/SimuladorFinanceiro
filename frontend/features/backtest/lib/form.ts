@@ -6,7 +6,13 @@ import { dateFieldError, isIsoDate, toIso } from "@/shared/lib/utils/date-field"
 import { displayIsoDate, parseLocalDate } from "@/shared/lib/utils/display";
 import { moneyToBody, moneyToField } from "@/shared/lib/utils/money-field";
 import { draftErrors, fromDraft, type ParamDraft } from "@/shared/lib/strategy-params";
-import type { BacktestConfigRequest, BacktestCoverage, BacktestPriceImpact, BacktestSetup, StrategyInfo } from "@/types";
+import type {
+  BacktestConfigRequest,
+  BacktestCoverage,
+  BacktestPriceImpact,
+  BacktestSetup,
+  StrategyInfo,
+} from "@/types";
 import { MIN_TRADING_DAYS, weekdaysBetween } from "./period";
 
 /** O teto é o das vagas da sala. */

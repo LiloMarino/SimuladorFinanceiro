@@ -16,17 +16,19 @@ export function sortTableRows<T, K extends string>(
   const value = columns[sort.column];
   if (!value) return [...rows];
   return rows
-    .map(row => ({ row, value: value(row) }))
+    .map((row) => ({ row, value: value(row) }))
     .sort((a, b) => {
       const left = a.value;
       const right = b.value;
       if (missing(left)) return missing(right) ? 0 : 1;
       if (missing(right)) return -1;
-      const compared = typeof left === "number" && typeof right === "number"
-        ? left - right : collator.compare(String(left), String(right));
+      const compared =
+        typeof left === "number" && typeof right === "number"
+          ? left - right
+          : collator.compare(String(left), String(right));
       return sort.direction === "asc" ? compared : -compared;
     })
-    .map(entry => entry.row);
+    .map((entry) => entry.row);
 }
 
 export function nextTableSort<K extends string>(current: TableSort<K> | null, column: K): TableSort<K> {

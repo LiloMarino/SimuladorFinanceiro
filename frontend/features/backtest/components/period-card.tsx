@@ -140,8 +140,8 @@ export function PeriodCard({ form, coverage, layout }: PeriodCardProps) {
 
   const futureNote = generated && futureStart && (
     <FieldDescription>
-      De {displayMonthSlashYear(futureStart)} em diante o mercado é gerado, sorteado de trechos do histórico. Serve
-      para ver se a estratégia se sustenta fora do que já aconteceu.
+      De {displayMonthSlashYear(futureStart)} em diante o mercado é gerado, sorteado de trechos do histórico. Serve para
+      ver se a estratégia se sustenta fora do que já aconteceu.
     </FieldDescription>
   );
 
@@ -194,11 +194,13 @@ export function PeriodCard({ form, coverage, layout }: PeriodCardProps) {
           {generated && futureStart && (
             <Alert variant="warning">
               <TriangleAlert />
-              <AlertTitle>{displaySpan(futureStart <= endDate ? futureStart : endDate, endDate)} de futuro gerado</AlertTitle>
+              <AlertTitle>
+                {displaySpan(futureStart <= endDate ? futureStart : endDate, endDate)} de futuro gerado
+              </AlertTitle>
               <AlertDescription>
                 De {displayMonthSlashYear(futureStart)} a {displayMonthSlashYear(endDate)} o mercado é sorteado de
-                trechos do histórico desde {coverage.first_date?.slice(0, 4)}. O gráfico e o resultado avisam que essa parte
-                não aconteceu de verdade.
+                trechos do histórico desde {coverage.first_date?.slice(0, 4)}. O gráfico e o resultado avisam que essa
+                parte não aconteceu de verdade.
               </AlertDescription>
             </Alert>
           )}

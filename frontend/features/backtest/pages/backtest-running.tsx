@@ -87,8 +87,8 @@ export default function BacktestRunningPage() {
       <div className="flex items-center gap-3 rounded-xl bg-sidebar px-4 py-3 text-[13px] text-sidebar-foreground">
         <Info className="size-4 shrink-0 text-sidebar-primary" />
         <span>
-          <b className="text-white">A sala está esperando.</b> Quem está na sala vê este andamento no lobby; ninguém inicia
-          partida até o backtest terminar.
+          <b className="text-white">A sala está esperando.</b> Quem está na sala vê este andamento no lobby; ninguém
+          inicia partida até o backtest terminar.
         </span>
       </div>
     </div>
@@ -114,8 +114,8 @@ function Running({ progress, participants, points, failures }: RunningProps) {
           <CardHeader>
             <CardTitle>Patrimônio de cada estratégia</CardTitle>
             <CardDescription>
-              O gráfico anda a cada 20 pregões, e o eixo cresce junto. A linha cinza é quanto foi aportado: acima dela, a
-              estratégia ganhou dinheiro.
+              O gráfico anda a cada 20 pregões, e o eixo cresce junto. A linha cinza é quanto foi aportado: acima dela,
+              a estratégia ganhou dinheiro.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -129,7 +129,12 @@ function Running({ progress, participants, points, failures }: RunningProps) {
         </Card>
 
         {/* Classificação de agora */}
-        <RunningRanking participants={participants} strategies={strategies ?? []} point={points.at(-1)} failures={failures} />
+        <RunningRanking
+          participants={participants}
+          strategies={strategies ?? []}
+          point={points.at(-1)}
+          failures={failures}
+        />
       </div>
     </>
   );

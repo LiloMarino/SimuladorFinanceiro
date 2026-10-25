@@ -56,7 +56,9 @@ export function FuturePreviewPanel({ query, tickers, ticker, onTickerChange }: F
         <ErrorState
           title="Não deu pra montar a prévia"
           description={
-            error.status === 400 ? error.message : "Confira se o servidor do host está ligado. Os controles continuam valendo."
+            error.status === 400
+              ? error.message
+              : "Confira se o servidor do host está ligado. Os controles continuam valendo."
           }
           error={error}
           onRetry={() => void query.refetch()}

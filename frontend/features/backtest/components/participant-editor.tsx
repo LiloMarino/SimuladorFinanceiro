@@ -6,7 +6,15 @@ import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { StrategyParamsForm } from "@/shared/components/strategy-params-form";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/shared/components/ui/field";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
 import { drawBotName, isDrawnName } from "@/shared/lib/bot-names";
 import { GROUP_SECTION } from "@/shared/lib/strategy-groups";
 import { defaultValues, draftErrors, toDraft, type ParamDraft } from "@/shared/lib/strategy-params";
@@ -152,7 +160,12 @@ export function ParticipantEditor({
         cash={moneyToBody(startingCash)}
         cashLabel="o saldo inicial"
         headerAction={
-          <Button type="button" variant="link-muted" size="sm" onClick={() => setDraft(toDraft(defaultValues(strategy)))}>
+          <Button
+            type="button"
+            variant="link-muted"
+            size="sm"
+            onClick={() => setDraft(toDraft(defaultValues(strategy)))}
+          >
             Restaurar padrão
           </Button>
         }

@@ -25,7 +25,10 @@ export function CoverageBar({ coverage, window }: CoverageBarProps) {
       {/* Barra de cobertura */}
       <div className="relative h-7 overflow-hidden rounded-md bg-muted" role="img" aria-label="Cobertura do mercado">
         <span className="absolute inset-y-0 left-0 bg-info-border" style={{ width: `${realWidth}%` }} />
-        <span className="absolute inset-y-0 bg-generated" style={{ left: `${realWidth}%`, width: `${100 - realWidth}%` }} />
+        <span
+          className="absolute inset-y-0 bg-generated"
+          style={{ left: `${realWidth}%`, width: `${100 - realWidth}%` }}
+        />
         {window && windowEnd > windowStart && (
           <span
             className="absolute inset-y-[3px] rounded-[5px] border-2 border-primary bg-primary/10"

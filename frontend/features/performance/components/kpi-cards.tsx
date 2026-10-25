@@ -1,20 +1,9 @@
 import type { ReactNode } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import {
-  displayBytes,
-  displayDuration,
-  displayNumber,
-  displayPercent,
-} from "@/shared/lib/utils/display";
+import { displayBytes, displayDuration, displayNumber, displayPercent } from "@/shared/lib/utils/display";
 import type { MetricsData } from "@/types";
-import {
-  engineStatus,
-  httpSummary,
-  SLOW_P95_MS,
-  trafficSummary,
-  type Row,
-} from "../lib/stats";
+import { engineStatus, httpSummary, SLOW_P95_MS, trafficSummary, type Row } from "../lib/stats";
 
 interface KpiProps {
   label: string;
@@ -25,35 +14,17 @@ interface KpiProps {
   tone?: "default" | "destructive";
 }
 
-function Kpi({
-  label,
-  value,
-  unit,
-  note,
-  children,
-  tone = "default",
-}: KpiProps) {
+function Kpi({ label, value, unit, note, children, tone = "default" }: KpiProps) {
   return (
-    <Card
-      size="sm"
-      variant={tone === "destructive" ? "destructive" : "default"}
-    >
+    <Card size="sm" variant={tone === "destructive" ? "destructive" : "default"}>
       <CardContent>
         <div className="grid content-start gap-1.5">
-          <span className="text-xs font-medium text-muted-foreground">
-            {label}
-          </span>
+          <span className="text-xs font-medium text-muted-foreground">{label}</span>
           <span className="font-mono text-[22px] leading-tight font-semibold">
             {value}
-            {unit && (
-              <span className="ml-1.5 font-sans text-[13px] font-medium text-muted-foreground">
-                {unit}
-              </span>
-            )}
+            {unit && <span className="ml-1.5 font-sans text-[13px] font-medium text-muted-foreground">{unit}</span>}
           </span>
-          {note && (
-            <span className="text-xs text-muted-foreground">{note}</span>
-          )}
+          {note && <span className="text-xs text-muted-foreground">{note}</span>}
           {children}
         </div>
       </CardContent>
@@ -71,11 +42,7 @@ export function EngineCard({ data }: EngineCardProps) {
 
   if (!item) {
     return (
-      <Kpi
-        label="Ritmo do tempo · motor"
-        value="—"
-        note="Nenhum dia processado ainda. Dê play na partida."
-      >
+      <Kpi label="Ritmo do tempo · motor" value="—" note="Nenhum dia processado ainda. Dê play na partida.">
         <Badge variant="secondary" className="w-max">
           Sem medição
         </Badge>
@@ -108,10 +75,7 @@ export function EngineCard({ data }: EngineCardProps) {
             className={`absolute inset-y-0 left-0 rounded-full ${late ? "bg-destructive" : "bg-primary"}`}
             style={{ width: `${fill}%` }}
           />
-          <div
-            className="absolute -top-1 h-4 w-0.5 rounded-sm bg-foreground"
-            style={{ left: `${marker}%` }}
-          />
+          <div className="absolute -top-1 h-4 w-0.5 rounded-sm bg-foreground" style={{ left: `${marker}%` }} />
         </div>
       )}
       {late && effectiveSpeed !== null ? (
@@ -135,16 +99,11 @@ function HttpCard({ data }: EngineCardProps) {
     <Kpi
       label="Requisições HTTP"
       value={displayNumber(calls, 0)}
-      note={
-        p95Ms !== null
-          ? `p95 geral de ${displayDuration(p95Ms)}`
-          : "Nenhuma requisição medida"
-      }
+      note={p95Ms !== null ? `p95 geral de ${displayDuration(p95Ms)}` : "Nenhuma requisição medida"}
     >
       {slowRoutes > 0 ? (
         <Badge variant="destructive" className="w-max">
-          {slowRoutes} {slowRoutes === 1 ? "rota lenta" : "rotas lentas"} (p95
-          &gt; {SLOW_P95_MS} ms)
+          {slowRoutes} {slowRoutes === 1 ? "rota lenta" : "rotas lentas"} (p95 &gt; {SLOW_P95_MS} ms)
         </Badge>
       ) : (
         calls > 0 && (
@@ -170,10 +129,7 @@ function TrafficCard({ data }: EngineCardProps) {
       }
     >
       {top && (
-        <Badge
-          variant={top.share >= 0.5 ? "warning" : "secondary"}
-          className="w-max"
-        >
+        <Badge variant={top.share >= 0.5 ? "warning" : "secondary"} className="w-max">
           {displayPercent(top.share, 0)} é {top.event}
         </Badge>
       )}
@@ -194,11 +150,7 @@ function TopCard({ rows, onSeeTable }: TopCardProps) {
   return (
     <Kpi
       label="Onde mais vai tempo"
-      value={
-        <span className="font-sans text-lg leading-snug">
-          {top ? top.label : "—"}
-        </span>
-      }
+      value={<span className="font-sans text-lg leading-snug">{top ? top.label : "—"}</span>}
       note={
         top
           ? `${displayPercent(top.share, 0)} do tempo medido${top.kind === "engine" && outsideEngine ? ` · fora o motor: ${outsideEngine.label} (${displayPercent(outsideEngine.share, 0)})` : ""}`

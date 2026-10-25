@@ -118,7 +118,11 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
 }
 
 /** `numeric`: valor em mono com algarismos alinhados (datas, valores). */
-function InputGroupInput({ className, numeric = false, ...props }: React.ComponentProps<"input"> & { numeric?: boolean }) {
+function InputGroupInput({
+  className,
+  numeric = false,
+  ...props
+}: React.ComponentProps<"input"> & { numeric?: boolean }) {
   return (
     <Input
       data-slot="input-group-control"

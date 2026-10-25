@@ -43,7 +43,9 @@ export function referencesOf(point: BacktestPoint | undefined): ReferenceStandin
   if (!point) return [];
   const contributed = Number(point.contributed);
   const cdi = Number(point.cdi);
-  const references: ReferenceStanding[] = [{ key: "cdi", equity: cdi, returnOnContributed: returnOn(cdi, contributed) }];
+  const references: ReferenceStanding[] = [
+    { key: "cdi", equity: cdi, returnOnContributed: returnOn(cdi, contributed) },
+  ];
   if (point.ibov !== null) {
     const ibov = Number(point.ibov);
     references.push({ key: "ibov", equity: ibov, returnOnContributed: returnOn(ibov, contributed) });

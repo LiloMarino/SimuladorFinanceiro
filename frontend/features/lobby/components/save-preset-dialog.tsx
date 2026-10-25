@@ -4,7 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Info } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
@@ -79,7 +86,13 @@ function SavePresetForm({ values, rules, onClose }: SavePresetFormProps) {
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
             <FieldLabel htmlFor="preset-name">Nome do preset</FieldLabel>
-            <Input {...field} id="preset-name" autoFocus placeholder="Ex.: Sexta com a turma" aria-invalid={fieldState.invalid} />
+            <Input
+              {...field}
+              id="preset-name"
+              autoFocus
+              placeholder="Ex.: Sexta com a turma"
+              aria-invalid={fieldState.invalid}
+            />
             <FieldDescription>Até {PRESET_NAME_MAX} letras. Só você, o host, vê os seus presets.</FieldDescription>
             <FieldError errors={[fieldState.error]} />
           </Field>
@@ -88,10 +101,15 @@ function SavePresetForm({ values, rules, onClose }: SavePresetFormProps) {
 
       {/* O que entra */}
       <div>
-        <div className="mb-1 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">O que entra</div>
+        <div className="mb-1 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+          O que entra
+        </div>
         <dl>
           {presetIncludes(values).map((row) => (
-            <div key={row.label} className="flex items-center justify-between gap-3 border-t py-1.75 text-[13px] first:border-t-0">
+            <div
+              key={row.label}
+              className="flex items-center justify-between gap-3 border-t py-1.75 text-[13px] first:border-t-0"
+            >
               <dt className="shrink-0 text-muted-foreground">{row.label}</dt>
               <dd className="min-w-0 truncate text-right">{row.value}</dd>
             </div>

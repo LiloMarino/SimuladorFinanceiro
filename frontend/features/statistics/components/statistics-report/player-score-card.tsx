@@ -63,7 +63,10 @@ export function PlayerScoreCard({
                 <div className="grid gap-1">
                   <div className="relative h-2 rounded-full bg-muted">
                     <span
-                      className={cn("absolute inset-y-0 left-0 rounded-full", belowLeader ? "bg-chart-3" : "bg-primary")}
+                      className={cn(
+                        "absolute inset-y-0 left-0 rounded-full",
+                        belowLeader ? "bg-chart-3" : "bg-primary",
+                      )}
                       style={{ width: `${Math.min(points / AXIS_SCALE, 1) * 100}%` }}
                     />
                     <span
@@ -110,7 +113,10 @@ export function PlayerScoreCard({
   );
 }
 
-function ScoreMetricsTable({ metrics, months }: {
+function ScoreMetricsTable({
+  metrics,
+  months,
+}: {
   metrics: NonNullable<Player["score"]>["axes"][number]["metrics"];
   months: number;
 }) {
@@ -132,8 +138,12 @@ function ScoreMetricsTable({ metrics, months }: {
         {sorting.rows.map((m) => (
           <tr key={m.metric} className="border-t border-muted">
             <td className="py-1.5 pr-2 text-muted-foreground">{SCORE_METRICS[m.metric].label}</td>
-            <td className="py-1.5 text-right font-mono whitespace-nowrap">{displayScoreMetric(m.metric, m.value, months)}</td>
-            <td className="py-1.5 pl-2 text-right font-mono text-muted-foreground">{m.points === null ? "—" : displayNumber(m.points, 0)}</td>
+            <td className="py-1.5 text-right font-mono whitespace-nowrap">
+              {displayScoreMetric(m.metric, m.value, months)}
+            </td>
+            <td className="py-1.5 pl-2 text-right font-mono text-muted-foreground">
+              {m.points === null ? "—" : displayNumber(m.points, 0)}
+            </td>
           </tr>
         ))}
       </tbody>

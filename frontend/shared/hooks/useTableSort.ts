@@ -9,7 +9,7 @@ export function useTableSortState<K extends string>(defaultSort: TableSort<K> | 
     setSort,
     header: (column: K) => ({
       direction: sort?.column === column ? sort.direction : undefined,
-      onSort: () => setSort(previous => nextTableSort(previous ?? defaultSort, column)),
+      onSort: () => setSort((previous) => nextTableSort(previous ?? defaultSort, column)),
     }),
   };
 }

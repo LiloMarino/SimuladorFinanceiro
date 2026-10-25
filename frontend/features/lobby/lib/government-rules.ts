@@ -62,7 +62,10 @@ type GovernmentRuleInput = { start: string; end: string; firstElection: string }
 export function governmentRuleError({ start, end, firstElection }: GovernmentRuleInput) {
   if (!isIsoDate(start) || !isIsoDate(end)) return null;
   if (!spansYears(start, end, GOVERNMENT_MIN_YEARS)) {
-    return { path: "endDate" as const, message: `O Governo & Política pede uma partida de ${GOVERNMENT_MIN_YEARS} anos ou mais.` };
+    return {
+      path: "endDate" as const,
+      message: `O Governo & Política pede uma partida de ${GOVERNMENT_MIN_YEARS} anos ou mais.`,
+    };
   }
   if (!firstElection) return { path: "firstElection" as const, message: "Escolha a data da primeira eleição." };
   if (!isIsoDate(firstElection)) return null;

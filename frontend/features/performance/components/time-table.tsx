@@ -1,34 +1,13 @@
 import { useState } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableEmptyRow,
-  TableHeader,
-  TableRow,
-} from "@/shared/components/ui/table";
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/shared/components/ui/toggle-group";
+import { Table, TableBody, TableCell, TableEmptyRow, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { cn } from "@/shared/lib/utils";
-import {
-  displayDuration,
-  displayNumber,
-  displayPercent,
-} from "@/shared/lib/utils/display";
+import { displayDuration, displayNumber, displayPercent } from "@/shared/lib/utils/display";
 import {
   countByKind,
   filterRows,
@@ -52,10 +31,7 @@ const KIND_STYLE: Record<Kind, string> = {
 function KindTag({ kind }: { kind: Kind }) {
   return (
     <span
-      className={cn(
-        "inline-flex h-5.5 items-center rounded-md px-1.75 text-[11px] font-semibold",
-        KIND_STYLE[kind],
-      )}
+      className={cn("inline-flex h-5.5 items-center rounded-md px-1.75 text-[11px] font-semibold", KIND_STYLE[kind])}
     >
       {KIND_LABEL[kind]}
     </span>
@@ -67,14 +43,9 @@ function ShareBar({ share }: { share: number }) {
   return (
     <span className="inline-flex items-center justify-end gap-2">
       <span className="inline-block h-1.5 w-24 overflow-hidden rounded-full bg-muted">
-        <span
-          className="block h-full rounded-full bg-primary"
-          style={{ width: `${Math.min(100, share * 100)}%` }}
-        />
+        <span className="block h-full rounded-full bg-primary" style={{ width: `${Math.min(100, share * 100)}%` }} />
       </span>
-      <span className="w-10 text-right">
-        {share > 0 && share < 0.01 ? "< 1%" : displayPercent(share, 0)}
-      </span>
+      <span className="w-10 text-right">{share > 0 && share < 0.01 ? "< 1%" : displayPercent(share, 0)}</span>
     </span>
   );
 }
@@ -90,16 +61,20 @@ export function TimeTable({ rows, id }: TimeTableProps) {
   const [expanded, setExpanded] = useState(false);
 
   const counts = countByKind(rows);
-  const sorting = useTableSort(filterRows(rows, kind, search), {
-    kind: (row) => KIND_LABEL[row.kind],
-    name: (row) => row.label,
-    calls: (row) => row.calls,
-    total_ms: (row) => row.total_ms,
-    mean_ms: (row) => row.mean_ms,
-    p95_ms: (row) => row.p95_ms,
-    max_ms: (row) => row.max_ms,
-    share: (row) => row.share,
-  }, { column: "total_ms", direction: "desc" });
+  const sorting = useTableSort(
+    filterRows(rows, kind, search),
+    {
+      kind: (row) => KIND_LABEL[row.kind],
+      name: (row) => row.label,
+      calls: (row) => row.calls,
+      total_ms: (row) => row.total_ms,
+      mean_ms: (row) => row.mean_ms,
+      p95_ms: (row) => row.p95_ms,
+      max_ms: (row) => row.max_ms,
+      share: (row) => row.share,
+    },
+    { column: "total_ms", direction: "desc" },
+  );
   const filtered = sorting.rows;
   const visible = expanded ? filtered : filtered.slice(0, PAGE_SIZE);
 
@@ -108,8 +83,7 @@ export function TimeTable({ rows, id }: TimeTableProps) {
       <CardHeader>
         <CardTitle>Tempo gasto por rota ou evento</CardTitle>
         <CardDescription>
-          Requisições HTTP, eventos recebidos pelo Socket.IO e o processamento
-          de cada dia.
+          Requisições HTTP, eventos recebidos pelo Socket.IO e o processamento de cada dia.
         </CardDescription>
         <CardAction>
           <div className="flex items-center gap-2">
@@ -117,14 +91,11 @@ export function TimeTable({ rows, id }: TimeTableProps) {
               variant="segmented"
               aria-label="Filtrar por origem"
               value={[kind]}
-              onValueChange={(values) =>
-                values[0] && setKind(values[0] as KindFilter)
-              }
+              onValueChange={(values) => values[0] && setKind(values[0] as KindFilter)}
             >
               {KIND_FILTERS.map((option) => (
                 <ToggleGroupItem key={option} value={option}>
-                  {option === "all" ? "Tudo" : KIND_LABEL[option]}{" "}
-                  {counts[option]}
+                  {option === "all" ? "Tudo" : KIND_LABEL[option]} {counts[option]}
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
@@ -160,9 +131,7 @@ export function TimeTable({ rows, id }: TimeTableProps) {
         <TableBody>
           {visible.length === 0 && (
             <TableEmptyRow colSpan={8}>
-              <span className="text-muted-foreground">
-                Nenhuma rota ou evento com esse filtro.
-              </span>
+              <span className="text-muted-foreground">Nenhuma rota ou evento com esse filtro.</span>
             </TableEmptyRow>
           )}
           {visible.map((row) => (
@@ -187,18 +156,11 @@ export function TimeTable({ rows, id }: TimeTableProps) {
               </TableCell>
               <TableCell numeric>{displayNumber(row.calls, 0)}</TableCell>
               <TableCell numeric>
-                <span className="font-semibold">
-                  {displayDuration(row.total_ms)}
-                </span>
+                <span className="font-semibold">{displayDuration(row.total_ms)}</span>
               </TableCell>
               <TableCell numeric>{displayDuration(row.mean_ms)}</TableCell>
               <TableCell numeric>
-                <span
-                  className={cn(
-                    row.flag === "slow" && "text-destructive",
-                    row.flag === "stall" && "text-warning",
-                  )}
-                >
+                <span className={cn(row.flag === "slow" && "text-destructive", row.flag === "stall" && "text-warning")}>
                   {displayDuration(row.p95_ms)}
                 </span>
               </TableCell>
@@ -216,11 +178,7 @@ export function TimeTable({ rows, id }: TimeTableProps) {
           Mostrando {visible.length} de {filtered.length}
         </span>
         {filtered.length > PAGE_SIZE && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setExpanded((open) => !open)}
-          >
+          <Button variant="outline" size="sm" onClick={() => setExpanded((open) => !open)}>
             {expanded ? "Mostrar menos" : "Mostrar todas"}
           </Button>
         )}

@@ -18,7 +18,8 @@ export const VOLATILITY: MetricInfo = {
   description: "O quanto o patrimônio balança",
   definition:
     "O tamanho típico das oscilações diárias do patrimônio, levado para um ano. Mede o susto: uma carteira que sobe e desce muito é mais difícil de sustentar com parcela fixa.",
-  example: "Ex.: 18% ao ano quer dizer que, num ano comum, o patrimônio costuma variar uns 18% para cima ou para baixo.",
+  example:
+    "Ex.: 18% ao ano quer dizer que, num ano comum, o patrimônio costuma variar uns 18% para cima ou para baixo.",
   reading:
     "Quanto menor, melhor. De 0% a 45% ao ano a nota perde pontos aos poucos; 45% ou mais vale zero. Com menos de 21 pregões de histórico, vale como se fosse 0%.",
   format: (value) => displayPercent(value, 1),

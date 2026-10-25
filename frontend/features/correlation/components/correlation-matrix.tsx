@@ -26,16 +26,21 @@ export function CorrelationMatrixGrid({ matrix, pinned, onPin }: CorrelationMatr
   const reference = labels.indexOf(REFERENCE);
   const columns: SortColumns<string> = { asset: (ticker) => ticker };
   for (const label of labels) {
-    columns[`correlation:${label}`] = (ticker) => sortNumber(rows[labels.indexOf(ticker)][labels.indexOf(label)].correlation);
+    columns[`correlation:${label}`] = (ticker) =>
+      sortNumber(rows[labels.indexOf(ticker)][labels.indexOf(label)].correlation);
   }
-  const sorting = useTableSort(labels.filter((l) => l !== REFERENCE), columns);
+  const sorting = useTableSort(
+    labels.filter((l) => l !== REFERENCE),
+    columns,
+  );
   const tickers = sorting.rows;
 
   const cell = (row: number, column: number) => {
     const value = rows[row][column].correlation;
     const number = value === null ? null : Number(value);
-    const active = !!pinned && ((pinned.row === row && pinned.column === column)
-      || (pinned.row === column && pinned.column === row));
+    const active =
+      !!pinned &&
+      ((pinned.row === row && pinned.column === column) || (pinned.row === column && pinned.column === row));
     return (
       <td key={column} className="p-0.5">
         <button
@@ -87,10 +92,18 @@ export function CorrelationMatrixGrid({ matrix, pinned, onPin }: CorrelationMatr
             {/* Ibovespa */}
             <tr>
               <th scope="row" className="pt-3 pr-2 text-right text-xs font-semibold">
-                <button type="button" onClick={sorting.header(`correlation:${REFERENCE}`).onSort}
+                <button
+                  type="button"
+                  onClick={sorting.header(`correlation:${REFERENCE}`).onSort}
                   aria-label={`Ordenar pela correlação com Ibovespa, ordem ${sorting.sort?.column === `correlation:${REFERENCE}` && sorting.sort.direction === "asc" ? "decrescente" : "crescente"}`}
-                  className="inline-flex min-h-9 items-center gap-1 rounded-sm focus-visible:ring-2 focus-visible:ring-ring">
-                  Ibovespa {sorting.sort?.column === `correlation:${REFERENCE}` ? (sorting.sort.direction === "asc" ? "↑" : "↓") : "↕"}
+                  className="inline-flex min-h-9 items-center gap-1 rounded-sm focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Ibovespa{" "}
+                  {sorting.sort?.column === `correlation:${REFERENCE}`
+                    ? sorting.sort.direction === "asc"
+                      ? "↑"
+                      : "↓"
+                    : "↕"}
                 </button>
               </th>
               {tickers.map((t) => cell(reference, labels.indexOf(t)))}

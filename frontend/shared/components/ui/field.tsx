@@ -28,7 +28,10 @@ function FieldLegend({
     <legend
       data-slot="field-legend"
       data-variant={variant}
-      className={cn("mb-1.5 font-medium data-[variant=caption]:text-[11px] data-[variant=caption]:font-semibold data-[variant=caption]:tracking-[.06em] data-[variant=caption]:text-faint-foreground data-[variant=caption]:uppercase data-[variant=label]:text-sm data-[variant=legend]:text-base", className)}
+      className={cn(
+        "mb-1.5 font-medium data-[variant=caption]:text-[11px] data-[variant=caption]:font-semibold data-[variant=caption]:tracking-[.06em] data-[variant=caption]:text-faint-foreground data-[variant=caption]:uppercase data-[variant=label]:text-sm data-[variant=legend]:text-base",
+        className,
+      )}
       {...props}
     />
   );
@@ -214,7 +217,10 @@ function FieldError({
     <div
       role="alert"
       data-slot="field-error"
-      className={cn("flex items-center gap-1.5 text-xs font-normal text-destructive [&>svg]:size-3.5 [&>svg]:shrink-0", className)}
+      className={cn(
+        "flex items-center gap-1.5 text-xs font-normal text-destructive [&>svg]:size-3.5 [&>svg]:shrink-0",
+        className,
+      )}
       {...props}
     >
       <TriangleAlert aria-hidden="true" />
