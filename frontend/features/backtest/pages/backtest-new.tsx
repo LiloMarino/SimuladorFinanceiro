@@ -25,14 +25,11 @@ export default function BacktestNewPage() {
   return (
     <div className="grid gap-5">
       {/* Cabeçalho */}
-      <div className="grid justify-items-start gap-3">
-        {backToLobby}
-        <div className="grid gap-1">
-          <h1 className="text-2xl font-bold">Novo backtest</h1>
-          <p className="text-sm text-muted-foreground">
-            Escolha o período, o dinheiro e as estratégias. Todas jogam o mesmo mercado, dia a dia, sem esperar.
-          </p>
-        </div>
+      <div className="grid gap-1">
+        <h1 className="text-2xl font-bold">Novo backtest</h1>
+        <p className="text-sm text-muted-foreground">
+          Escolha o período, o dinheiro e as estratégias. Todas jogam o mesmo mercado, dia a dia, sem esperar.
+        </p>
       </div>
 
       {error && !setup ? (

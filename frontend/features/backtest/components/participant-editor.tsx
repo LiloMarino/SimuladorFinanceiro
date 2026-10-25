@@ -71,7 +71,7 @@ export function ParticipantEditor({
           <Copy />
           Duplicar
         </Button>
-        <Button type="button" variant="outline-destructive" size="sm" onClick={onRemove}>
+        <Button type="button" variant="outline-destructive-icon" size="sm" onClick={onRemove}>
           <Trash2 />
           Remover
         </Button>

@@ -13,6 +13,8 @@ export const buttonVariants = cva(
           "border-input bg-card text-foreground hover:bg-subtle aria-expanded:bg-subtle aria-expanded:text-foreground",
         // Ação que apaga ou descarta, sem o peso do botão cheio
         "outline-destructive": "border-input bg-card text-destructive hover:bg-destructive-soft",
+        // Ação que apaga lado a lado com ações neutras ("Duplicar · Remover"): o par lê como iguais, o ícone avisa
+        "outline-destructive-icon": "border-input bg-card text-foreground hover:bg-subtle [&_svg]:text-destructive",
         // Resposta afirmativa sem o peso do botão cheio ("Sobe" do desafio da vela)
         "outline-success": "border-input bg-card text-success hover:bg-success-soft",
         // Chama a atenção para o que o jogador ainda não usou: contorno azul com halo
