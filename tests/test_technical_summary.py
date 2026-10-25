@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from typing import cast
+
+import pandas as pd
 import pytest
 
 from backend.core.dto.technical_indicators import (
@@ -125,7 +128,7 @@ def test_series_start_at_the_first_session_with_a_value():
     [sma, _] = build_technical_indicators(rising(), request).series.averages or []
 
     assert len(sma.points) == 60 - 19
-    assert sma.points[0].date == rising().index[19].date()
+    assert sma.points[0].date == cast(pd.Timestamp, rising().index[19]).date()
 
 
 def test_an_empty_history_has_no_readings_with_value():

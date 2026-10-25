@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+from typing import cast
+
+import pandas as pd
 
 from backend.core.dto.strategy import (
     AllocationViewDTO,
@@ -155,7 +158,7 @@ def _first_session_of_month(ctx: StrategyContext, tickers: list[str]) -> bool:
     for ticker in tickers:
         frame = ctx.history(ticker, 2)
         if len(frame) == 2:
-            return frame.index[-2].month != ctx.date.month
+            return cast(pd.Timestamp, frame.index[-2]).month != ctx.date.month
     return False
 
 

@@ -84,7 +84,7 @@ def build_summary(
     has_majority = len(counted) * 2 > len(sided)
     score = (buys - sells) / len(counted) if has_majority else None
     return TechnicalSummaryDTO(
-        date=frame.index[-1].date() if len(frame) else None,
+        date=cast(pd.Timestamp, frame.index[-1]).date() if len(frame) else None,
         readings=readings,
         buys=buys,
         sells=sells,

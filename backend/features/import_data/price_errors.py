@@ -1,4 +1,5 @@
 import math
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -46,7 +47,7 @@ def fix_price_errors(
             for column in ("Open", "High", "Low", "Close"):
                 fixed.iat[position, fixed.columns.get_loc(column)] = value
             fixed.iat[position, fixed.columns.get_loc("Volume")] = 0
-            corrected.append(df.index[position])
+            corrected.append(cast(pd.Timestamp, df.index[position]))
     return fixed, corrected
 
 
