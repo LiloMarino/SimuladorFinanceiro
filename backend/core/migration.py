@@ -81,7 +81,7 @@ def fingerprint(engine: Engine) -> Fingerprint:
             columns = [column["name"] for column in inspector.get_columns(table)]
             filled = " + ".join(f"COUNT({quote(column)})" for column in columns)
             rows, filled_cells = connection.execute(
-                text(f"SELECT COUNT(*), {filled} FROM {quote(table)}")
+                text(f"SELECT COUNT(*), {filled} FROM {quote(table)}")  # noqa: S608
             ).one()
             result[table] = TableFingerprint(rows=rows, filled_cells=filled_cells)
     return result

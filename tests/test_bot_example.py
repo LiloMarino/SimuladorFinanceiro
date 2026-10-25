@@ -14,7 +14,7 @@ def load_example() -> ModuleType:
     # Executa o código-fonte direto: importar gravaria __pycache__ ao lado do exemplo publicado
     module = ModuleType("bot_cruzamento_medias")
     code = compile(EXAMPLE.read_text(encoding="utf-8"), str(EXAMPLE), "exec")
-    exec(code, module.__dict__)
+    exec(code, module.__dict__)  # noqa: S102
     return module
 
 

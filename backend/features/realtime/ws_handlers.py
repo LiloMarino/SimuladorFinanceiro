@@ -27,7 +27,7 @@ def register_ws_handlers(sio: AsyncServer):
 
     @sio.event
     @metrics.timed("socket", "connect")
-    async def connect(sid, environ):  # type: ignore
+    async def connect(sid, environ):
         broker = get_socket_broker()
         client_id = await _extract_client_id(environ)
         if not client_id:
@@ -40,7 +40,7 @@ def register_ws_handlers(sio: AsyncServer):
 
     @sio.event
     @metrics.timed("socket", "disconnect")
-    async def disconnect(sid):  # type: ignore
+    async def disconnect(sid):
         broker = get_socket_broker()
         client_id = broker.get_client_id_by_sid(sid)
 
@@ -57,7 +57,7 @@ def register_ws_handlers(sio: AsyncServer):
 
     @sio.event
     @metrics.timed("socket", "subscribe")
-    async def subscribe(sid, data):  # type: ignore
+    async def subscribe(sid, data):
         broker = get_socket_broker()
         client_id = broker.get_client_id_by_sid(sid)
 
@@ -72,7 +72,7 @@ def register_ws_handlers(sio: AsyncServer):
 
     @sio.event
     @metrics.timed("socket", "presence")
-    async def presence(sid, data):  # type: ignore
+    async def presence(sid, data):
         client_id = get_socket_broker().get_client_id_by_sid(sid)
         if not client_id or not isinstance(data, dict):
             return

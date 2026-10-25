@@ -231,7 +231,7 @@ def fetch_info(ticker: str) -> dict:
         return _profile_to_info(profile)
     try:
         profile = _download_profile(ticker)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.warning(f"Não foi possível obter dados de '{ticker}' no yfinance: {e}")
         return {}
     repository.stock.save_ticker_profile(profile)

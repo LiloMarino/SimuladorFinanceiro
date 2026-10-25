@@ -112,5 +112,5 @@ def test_beta_distribution_keeps_volume_and_range():
 
 def test_beta_distribution_needs_two_levels():
     """Distribuição com menos de dois níveis de preço é inválida."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="levels must be >= 2"):
         BetaLiquidityDistribution(levels=1)

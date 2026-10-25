@@ -76,6 +76,7 @@ class NetworkDetector:
                 capture_output=True,
                 text=True,
                 timeout=5,
+                check=False,
             )
 
             for line in result.stdout.splitlines():

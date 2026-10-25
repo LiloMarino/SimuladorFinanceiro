@@ -199,7 +199,7 @@ class AchievementCategory(Enum):
     WEALTH = "WEALTH"
     MARKET = "MARKET"
     MATCH = "MATCH"
-    SECRET = "SECRET"
+    SECRET = "SECRET"  # noqa: S105
 
 
 class AchievementIcon(Enum):

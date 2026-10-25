@@ -6,7 +6,7 @@
     "backend": "uv run python main.py",
     "frontend": "cd frontend && pnpm run dev",
     "dev": "concurrently --kill-others -n backend,frontend -c cyan,yellow \"pnpm run backend\" \"pnpm run frontend\"",
-    "lint": "uv run ruff check && pnpm run lint:actions",
+    "lint": "uv run ruff check && uv run ruff format --check && pnpm run lint:actions",
     "lint:actions": "uv run actionlint",
     "lint:fix": "uv run ruff check --fix",
     "format": "uv run ruff format",

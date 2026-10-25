@@ -1,6 +1,7 @@
 import logging
 import uuid
 
+from backend.core.utils import required
 from backend.features.tunnel.tunnel_provider import TunnelProvider
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ class ExampleProvider(TunnelProvider):
         """Simula criação de túnel gerando URL mock."""
         if self._active:
             logger.warning("Túnel example já está ativo")
-            return self._url  # type: ignore
+            return required(self._url)
 
         # Gera URL mock única
         tunnel_id = str(uuid.uuid4())[:8]

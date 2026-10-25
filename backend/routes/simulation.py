@@ -1,6 +1,6 @@
 from datetime import date
 from decimal import Decimal
-from typing import Literal
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Query, status
 from pydantic import BaseModel, Field, model_validator
@@ -381,12 +381,11 @@ PREVIEW_VOLUME_SHARE = 0.10
 
 @simulation_router.get(
     "/price-impact-preview",
-    response_model=PriceImpactPreviewDTO,
     summary="Prévia do impacto de preço",
     description="Quanto uma compra de 10% do volume médio diário move o preço no pregão seguinte e como o efeito some até voltar ao histórico.",
 )
 def price_impact_preview(
-    k: float = Query(ge=0), decay_days: int = Query(ge=1, le=250)
+    k: Annotated[float, Query(ge=0)], decay_days: Annotated[int, Query(ge=1, le=250)]
 ) -> PriceImpactPreviewDTO:
     first_day = impact(Decimal(round(PREVIEW_VOLUME_SHARE * 1_000_000)), 1_000_000, k)
     return PriceImpactPreviewDTO(
@@ -650,8 +649,8 @@ def get_life_status(client_id: ClientID):
 def get_life_history(
     client_id: ClientID,
     category: LifeHistoryCategory | None = None,
-    offset: int = Query(default=0, ge=0),
-    limit: int = Query(default=6, ge=1, le=100),
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 6,
     sort_by: LifeHistorySort = LifeHistorySort.DATE,
     sort_direction: Literal["asc", "desc"] = "desc",
 ):

@@ -378,7 +378,8 @@ class StrategyRunner:
             lines = [
                 self._execute(user, active, intent, today) for intent in ctx.intents
             ]
-        except Exception as exc:
+        # A estratégia é código de terceiro: qualquer erro dela volta o jogador ao manual
+        except Exception as exc:  # noqa: BLE001
             self._fail(user, active, exc, today)
             return
 
@@ -393,7 +394,7 @@ class StrategyRunner:
         self, user: UserDTO, active: ActiveStrategy, exc: Exception, today: date
     ) -> None:
         """A estratégia que dá erro volta o jogador ao manual, com a causa no registro."""
-        logger.exception("Erro na estratégia %s", active.cls.key, exc_info=exc)
+        logger.error("Erro na estratégia %s", active.cls.key, exc_info=exc)
         cause = (
             str(exc.detail)
             if isinstance(exc, HTTPException)

@@ -21,7 +21,7 @@ import time
 import tomllib
 import urllib.error
 import urllib.request
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -72,7 +72,7 @@ def base_database_url() -> str:
 
 
 @contextmanager
-def recording_database() -> Iterator[str]:
+def recording_database() -> Generator[str]:
     """Uma cópia do banco-base para uma gravação; na saída, a cópia é apagada."""
     base = make_url(base_database_url())
     copy = base.set(database=f"{base.database}_run")
@@ -92,7 +92,7 @@ def wait_until_up(base_url: str, process: subprocess.Popen, log_path: Path) -> N
             )
         # Qualquer resposta HTTP, mesmo de erro, é o servidor de pé
         try:
-            with urllib.request.urlopen(f"{base_url}/api/simulation/status"):
+            with urllib.request.urlopen(f"{base_url}/api/simulation/status"):  # noqa: S310
                 return
         except urllib.error.HTTPError:
             return
@@ -119,7 +119,7 @@ def stop(process: subprocess.Popen) -> None:
 
 
 @contextmanager
-def demo_server(workdir: Path, database_url: str) -> Iterator[str]:
+def demo_server(workdir: Path, database_url: str) -> Generator[str]:
     """
     Sobe o backend no banco `database_url`, com `workdir` como diretório de trabalho,
     e devolve a URL do app. O log fica em `workdir/<banco>.log`.

@@ -61,14 +61,34 @@ select = [
     "PLC0415",
     "ERA",
     "DTZ",
+    "PLE",
+    "PLW",
+    "S",
+    "LOG",
+    "PGH",
+    "FAST",
+    "BLE",
+    "PT011",
 ]
 ignore = [
-    "E501",   # line too long
-    "UP047",  # pyupgrade
-    "TRY003", # raise-vanilla-args
+    "E501",    # line too long
+    "UP047",   # pyupgrade
+    "TRY003",  # raise-vanilla-args
+    "PLW0603", # global-statement: os globais são caches de módulo
+    "PLW0108", # unnecessary-lambda: o lambda adia a busca do nome no monkeypatch
+    "S311",    # random do simulador, que não é criptografia
+    "S603",    # subprocess com lista de argumentos, sem shell
+    "S607",    # executável pelo PATH (git, pnpm) nos scripts
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+"scripts/**" = ["S101"]
+"backend/migrations/**" = ["S608"] # SQL montado com as constantes da própria migration
+
 [tool.ruff.format]
+# Os trechos de código do guia são recortes, com a indentação da classe de onde saíram
+exclude = ["*.md"]
 quote-style = "double"
 indent-style = "space"
 

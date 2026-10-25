@@ -114,8 +114,9 @@ def _with_goal_of_the_day(players: list[PlayerHistoryDTO]) -> list[PlayerHistory
         summary = summaries[player.simulation_id]
         if summary is not None:
             goal = goal_on(summary, player.history[-1].snapshot_date)
-            player = player.model_copy(update={"goal_net_worth": goal})
-        result.append(player)
+            result.append(player.model_copy(update={"goal_net_worth": goal}))
+        else:
+            result.append(player)
     return result
 
 

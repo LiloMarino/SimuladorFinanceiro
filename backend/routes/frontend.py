@@ -28,7 +28,7 @@ def register_frontend_routes(app: FastAPI):
 
     # Arquivos soltos (logo.svg etc)
     @app.get("/logo.svg", include_in_schema=False)
-    async def serve_logo():  # type: ignore
+    async def serve_logo():
         return FileResponse(static_dir / "logo.svg")
 
     # SPA fallback (React Router)
@@ -38,7 +38,7 @@ def register_frontend_routes(app: FastAPI):
         description="Rota de fallback para o Single Page Application (SPA) - devolve index.html para rotas não capturadas.",
         include_in_schema=False,
     )
-    async def spa_fallback(request: Request, full_path: str):  # type: ignore
+    async def spa_fallback(request: Request, full_path: str):
         """
         Fallback para rotas não capturadas do SPA.
         """

@@ -300,7 +300,7 @@ def test_pause_arriving_after_stop_does_not_hold_the_thread(loop, monkeypatch):
     def stop() -> None:
         try:
             loop.controller.stop()
-        except BaseException as exc:
+        except BaseException as exc:  # noqa: BLE001
             errors.append(exc)
 
     stopping = threading.Thread(target=stop)

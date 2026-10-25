@@ -82,7 +82,7 @@ def _tickers_before_strip(pg_url: str, engine: Engine, tickers: list[str]) -> No
         for position, ticker in enumerate(tickers):
             connection.execute(
                 text(
-                    "INSERT INTO stock (ticker, name, asset_class) "
+                    "INSERT INTO stock (ticker, name, asset_class) "  # noqa: S608
                     f"VALUES ('{ticker}', 'Nome {position}', 'STOCK')"
                 )
             )

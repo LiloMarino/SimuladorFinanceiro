@@ -61,7 +61,6 @@ class MetricsResponse(BaseModel):
 
 @debug_router.get(
     "/metrics",
-    response_model=MetricsResponse,
     summary="Medições de desempenho",
     description=(
         "Tempo gasto pelas requisições HTTP, pelos eventos Socket.IO recebidos e pelo "

@@ -1,4 +1,4 @@
-import os
+import subprocess
 from collections import defaultdict
 from pathlib import Path
 
@@ -129,8 +129,10 @@ def save_descriptions_template(dirs: list[str], output_path: Path):
 
 
 if __name__ == "__main__":
-    with os.popen("git ls-files") as f:
-        files = [line.strip() for line in f if line.strip()]
+    listed = subprocess.run(
+        ["git", "ls-files"], capture_output=True, text=True, check=True
+    ).stdout
+    files = [line.strip() for line in listed.splitlines() if line.strip()]
 
     dirs = list(extract_dirs_from_files(files, STOP_DIRS))
     tree = build_tree(dirs)

@@ -64,18 +64,18 @@ def register_routes(app: FastAPI):
     register_frontend_routes(app)
 
     @app.exception_handler(Exception)
-    async def handle_error(request: Request, e: Exception):  # type: ignore
+    async def handle_error(request: Request, e: Exception):
         """
         Exceções normais do python serão tratadas como Internal Server Error
         """
-        logger.exception("%s: %s", e.__class__.__name__, e)
+        logger.error("%s: %s", e.__class__.__name__, e, exc_info=e)
         return JSONResponse(
             status_code=500,
             content=ErrorResponse(message=UNEXPECTED_ERROR_MESSAGE).model_dump(),
         )
 
     @app.exception_handler(StarletteHTTPException)
-    async def handle_http_exception(request: Request, e: StarletteHTTPException):  # type: ignore
+    async def handle_http_exception(request: Request, e: StarletteHTTPException):
         """
         Exceções HTTP serão tratadas devidamente com seus respetivos status code
         """
@@ -92,7 +92,7 @@ def register_routes(app: FastAPI):
         )
 
     @app.exception_handler(RequestValidationError)
-    async def handle_validation_error(request: Request, e: RequestValidationError):  # type: ignore
+    async def handle_validation_error(request: Request, e: RequestValidationError):
         """
         Falhas de validação viram uma frase em português (`message`, o que o
         frontend mostra) mais a lista por campo (`detail`)

@@ -106,7 +106,7 @@ async def lifespan(app: FastAPI):
         if isinstance(broker, SocketBroker):
             broker.bind_event_loop(asyncio.get_running_loop())
             logger.debug("Event loop vinculado ao SocketBroker.")
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         logger.warning("Não foi possível vincular o event loop ao SocketBroker: %s", e)
 
     # --------------------------------------------------
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     # Os loggers do uvicorn sobem para o raiz: o servidor escreve nos mesmos arquivos
     uvicorn.run(
         asgi_app,
-        host="0.0.0.0",
+        host="0.0.0.0",  # noqa: S104
         port=config.toml.server.port,
         reload=False,
         log_config=None,

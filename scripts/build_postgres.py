@@ -78,7 +78,7 @@ def fetch_official_zip(source: Path | None) -> Path:
         if not source.exists():
             CACHE_DIR.mkdir(parents=True, exist_ok=True)
             print(f"Baixando {POSTGRES_ZIP_URL}")
-            urllib.request.urlretrieve(POSTGRES_ZIP_URL, source)
+            urllib.request.urlretrieve(POSTGRES_ZIP_URL, source)  # noqa: S310
     if sha256_of(source) != POSTGRES_ZIP_SHA256:
         raise SystemExit(
             f"O hash de {source} não é o fixado para o Postgres {POSTGRES_VERSION}."
@@ -128,6 +128,7 @@ def run_initdb(server: Path, data: Path) -> None:
         capture_output=True,
         text=True,
         errors="replace",
+        check=False,
     )
     if result.returncode != 0:
         # O código em hexadecimal identifica o travamento quando a saída vem vazia

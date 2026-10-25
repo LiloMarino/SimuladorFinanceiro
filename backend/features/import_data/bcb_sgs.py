@@ -28,12 +28,12 @@ def fetch_sgs(code: int, start: date, end: date) -> list[tuple[date, Decimal]]:
 
 
 def _fetch_window(code: int, start: date, end: date) -> list[tuple[date, Decimal]]:
-    request = Request(
+    request = Request(  # noqa: S310
         SGS_URL.format(code=code, start=start, end=end),
         headers={"Accept": "application/json", "User-Agent": "SimuladorFinanceiro"},
     )
     try:
-        with urlopen(request, timeout=TIMEOUT_SECONDS) as response:
+        with urlopen(request, timeout=TIMEOUT_SECONDS) as response:  # noqa: S310
             payload = json.load(response)
     except HTTPError as error:
         # O SGS responde 404 quando a janela não tem nenhum valor

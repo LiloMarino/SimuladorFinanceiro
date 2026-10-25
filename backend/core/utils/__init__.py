@@ -33,7 +33,7 @@ def resource_path(relative: str) -> Path:
     config.toml, .env e logs (`app_files_dir`).
     """
     if getattr(sys, "frozen", False):
-        return Path(sys._MEIPASS) / relative  # type: ignore
+        return Path(sys._MEIPASS) / relative  # pyright: ignore[reportAttributeAccessIssue]
     return PROJECT_ROOT / relative
 
 

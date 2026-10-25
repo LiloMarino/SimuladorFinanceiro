@@ -272,7 +272,7 @@ def test_non_positive_size_is_rejected(history):
     """Trade com quantidade zero ou negativa falha."""
     broker, _ = _broker(buyer="1000")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="maior que zero"):
         broker.execute_trade(
             taker_order=_market(BUYER, OrderAction.BUY, 1),
             maker_order=_limit(MARKET, OrderAction.SELL, 10, 1),
