@@ -4,6 +4,39 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 3.0.0 Governo & Política (25/10/2026)
+
+- A expansão Governo & Política: os jogadores fundam partidos, disputam eleições em dois turnos, governam por mandatos de quatro anos, propõem medidas de imposto ao Congresso e acompanham a aprovação do governo.
+- As dicas de análise técnica no gráfico: padrões de vela reconhecidos, legendas dos indicadores e o desafio da vela.
+- A janela Como jogar, com os tópicos de compra, tipos de ordem e alavancagem.
+- O guia para escrever um bot pela API, com um bot de exemplo.
+- As conquistas passam a ser guardadas mesmo quando a partida em que saíram é excluída.
+
+As partidas salvas da 2.3 abrem direto; da 2.0 à 2.2, abra uma vez na 2.3 antes.
+
+**Atenção, esta versão quebra a compatibilidade:** algo que funcionava deixa de funcionar para quem atualiza.
+
+### Quebras
+
+- Exigida a 2.3 para atualizar as partidas salvas da 2.0, 2.1 e 2.2
+
+
+### Novidades
+
+- Adicionada a eleição por partidos na expansão Governo & Política
+- Adicionados os detalhes que faltavam na eleição da expansão Governo & Política
+- Adicionado o governo com impostos, Congresso e aprovação
+- Adicionado o guia do bot pela API com bot de exemplo
+- Adicionada a janela Como jogar com os tópicos de compra, tipos de ordem e alavancagem
+- Adicionadas as dicas de análise técnica com padrões de vela, legendas dos indicadores e o desafio da vela
+
+### Correções
+
+- Corrigido o tópico de Alavancagem para a métrica do app e movido o núcleo do tutorial para shared
+- Corrigidas as datas lidas do índice do pandas para o pyright não depender da inferência
+- Corrigidos o Voltar ao lobby duplicado e o botão Remover na configuração do backtest
+- Mantidas as conquistas quando a partida em que saíram é excluída
+
 ## 2.3.0 (24/10/2026)
 
 Suas partidas salvas e o `config.toml` continuam valendo.
