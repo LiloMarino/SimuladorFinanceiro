@@ -17,7 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/
 import { teamColor, teamName, teamShortName } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
-import type { OverviewReport, Player, ScoreAxis, Team } from "@/types";
+import type { OverviewReport, ScoreAxis, Team } from "@/types";
 import { AXIS_SCALE, SCORE_AXES } from "../../lib/metrics";
 import { PlayerScoreCard } from "./player-score-card";
 import { membersOf } from "../../lib/teams";
@@ -27,7 +27,7 @@ const AXES = Object.keys(SCORE_AXES) as ScoreAxis[];
 /** Quem a nota mostra: uma equipe ou um jogador (`t:<equipe>` ou `p:<apelido>`). */
 type Subject = `t:${number}` | `p:${string}`;
 
-const axisPoints = (score: Team["score"] | Player["score"], axis: ScoreAxis) =>
+const axisPoints = (score: Team["score"], axis: ScoreAxis) =>
   score?.axes.find((a) => a.axis === axis)?.points ?? null;
 
 /** A nota da equipe em quatro eixos (média dos membros), a comparação entre equipes e os membros eixo a eixo. */

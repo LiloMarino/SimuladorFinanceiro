@@ -203,7 +203,7 @@ function SmallMultiple({
                 <YAxis hide />
                 <Tooltip
                   contentStyle={{ borderRadius: 10, borderColor: "var(--border)", fontSize: 11 }}
-                  labelFormatter={(d) => displayMonthSlashYear(String(d))}
+                  labelFormatter={(d) => (typeof d === "string" ? displayMonthSlashYear(d) : d)}
                   formatter={(v, name) => [displayMoney(Number(v)), SERIES.find((s) => s.key === name)?.label ?? name]}
                 />
                 {SERIES.map((s) => (

@@ -66,12 +66,13 @@ function ProgressIndicator({
   color,
   style,
   ...props
-}: ProgressPrimitive.Indicator.Props & VariantProps<typeof progressIndicatorVariants> & { color?: string }) {
+}: Omit<ProgressPrimitive.Indicator.Props, "style"> &
+  VariantProps<typeof progressIndicatorVariants> & { color?: string; style?: CSSProperties }) {
   return (
     <ProgressPrimitive.Indicator
       data-slot="progress-indicator"
       className={cn(progressIndicatorVariants({ tone }), className)}
-      style={color ? ({ ...style, backgroundColor: color } as CSSProperties) : style}
+      style={color ? { ...style, backgroundColor: color } : style}
       {...props}
     />
   );

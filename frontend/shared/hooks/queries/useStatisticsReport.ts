@@ -38,8 +38,8 @@ export function useStatisticsReport<T extends StatisticsTab>(tab: T, simulationI
     enabled: simulationIds.length > 0,
     placeholderData: keepPreviousData,
     select: (report) =>
-      onlyPlayer && "players" in report
-        ? { ...report, players: report.players.filter((p) => p.player_nickname === onlyPlayer) }
+      onlyPlayer && !Array.isArray(report) && "players" in report
+        ? Object.assign({}, report, { players: report.players.filter((p) => p.player_nickname === onlyPlayer) })
         : report,
   });
 }

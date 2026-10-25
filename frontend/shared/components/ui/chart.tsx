@@ -132,7 +132,7 @@ function ChartTooltipContent({
     }
 
     const [item] = payload;
-    const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`;
+    const key = payloadKey(labelKey, item?.dataKey, item?.name);
     const itemConfig = getPayloadConfigFromPayload(config, item, key);
     const value = !labelKey && typeof label === "string" ? (config[label]?.label ?? label) : itemConfig?.label;
 
@@ -165,7 +165,7 @@ function ChartTooltipContent({
         {payload
           .filter((item) => item.type !== "none")
           .map((item, index) => {
-            const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`;
+            const key = payloadKey(nameKey, item.name, item.dataKey);
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
             const indicatorColor = color ?? item.payload?.fill ?? item.color;
 
@@ -250,7 +250,7 @@ function ChartLegendContent({
       {payload
         .filter((item) => item.type !== "none")
         .map((item, index) => {
-          const key = `${nameKey ?? item.dataKey ?? "value"}`;
+          const key = payloadKey(nameKey, item.dataKey);
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
           return (
@@ -274,6 +274,12 @@ function ChartLegendContent({
         })}
     </div>
   );
+}
+
+/** A primeira chave textual ou numérica do payload; `dataKey` pode ser função, que não nomeia nada. */
+function payloadKey(...candidates: unknown[]) {
+  const found = candidates.find((candidate) => typeof candidate === "string" || typeof candidate === "number");
+  return found === undefined ? "value" : String(found);
 }
 
 function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key: string) {

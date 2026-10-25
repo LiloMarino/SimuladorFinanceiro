@@ -1,4 +1,5 @@
 import * as React from "react";
+import type { CSSProperties } from "react";
 import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
 import { cn } from "@/shared/lib/utils";
 
@@ -39,7 +40,7 @@ function AvatarFallback({
   foreground,
   style,
   ...props
-}: AvatarPrimitive.Fallback.Props & { color?: string; foreground?: string }) {
+}: Omit<AvatarPrimitive.Fallback.Props, "style"> & { color?: string; foreground?: string; style?: CSSProperties }) {
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"

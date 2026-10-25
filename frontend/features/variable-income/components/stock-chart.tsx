@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { AlertCircle, Settings, Sparkles, X } from "lucide-react";
 import { Alert, AlertAction, AlertDescription } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -126,6 +126,16 @@ function isoDay(time: Time): string {
   return `${time.year}-${String(time.month).padStart(2, "0")}-${String(time.day).padStart(2, "0")}`;
 }
 
+/** O primeiro dia do período escolhido, contado a partir do último candle do histórico. */
+function fromDay(history: StockCandle[], scale: TimeScale) {
+  const last = history[history.length - 1];
+  const days = SCALE_DAYS[scale];
+  if (!last || days === null) return null;
+  const from = new Date(last.price_date);
+  from.setDate(from.getDate() - days);
+  return from.toISOString().slice(0, 10);
+}
+
 function valueOn(points: IndicatorPoint[] | null | undefined, day: string | null) {
   if (!points?.length) return null;
   if (day === null) return points[points.length - 1].value;
@@ -167,31 +177,17 @@ export function StockChart({
 
   const closeByDay = useMemo(() => new Map(initialData.map((candle) => [dayOf(candle), candle.close])), [initialData]);
 
-  // Filtra os dados conforme selectedScale usando datas reais
-  function fromDay(scale: TimeScale) {
-    const last = historyRef.current[historyRef.current.length - 1];
-    const days = SCALE_DAYS[scale];
-    if (!last || days === null) return null;
-    const from = new Date(last.price_date);
-    from.setDate(from.getDate() - days);
-    return from.toISOString().slice(0, 10);
-  }
-
-  function getFilteredData(scale: TimeScale) {
-    const from = fromDay(scale);
-    return from === null ? historyRef.current : historyRef.current.filter((d) => dayOf(d) >= from);
-  }
-
   // Preenche o preço e cada indicador com os pontos do período escolhido
-  function fill() {
-    const data = getFilteredData(selectedScale);
+  const fill = useCallback(() => {
+    const history = historyRef.current;
+    const from = fromDay(history, selectedScale);
+    const data = from === null ? history : history.filter((d) => dayOf(d) >= from);
     if (chartType === "line") {
       (seriesRef.current as AreaSeriesRef | null)?.setData(data.map((d) => ({ time: dayOf(d), value: d.close })));
     } else {
       (seriesRef.current as CandlestickSeriesRef | null)?.setData(data.map((d) => ({ ...d, time: dayOf(d) })));
     }
 
-    const from = fromDay(selectedScale);
     const toData = (points: IndicatorPoint[] | null | undefined) =>
       (points ?? [])
         .filter((point) => from === null || point.date >= from)
@@ -230,13 +226,13 @@ export function StockChart({
         color: `${d.close >= d.open ? up : down}80`,
       })),
     );
-  }
+  }, [selectedScale, chartType, indicators]);
 
   // O histórico é o mesmo cache do detalhe, atualizado por WS e pela conferência da pausa.
   useEffect(() => {
     historyRef.current = [...initialData];
     fill();
-  }, [initialData, indicators, ticker, selectedScale, chartType]);
+  }, [initialData, ticker, fill]);
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -420,6 +416,8 @@ export function StockChart({
       linesRef.current = new Map();
       barsRef.current = new Map();
     };
+    // O gráfico é recriado só quando `layout` ou a altura mudam: `layout` resume painéis, médias, Bollinger e RSI.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [chartType, selectedScale, ticker, hasHistory, layout, height]);
 
   function goToToday() {
