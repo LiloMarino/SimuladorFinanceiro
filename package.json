@@ -9,7 +9,7 @@
     "lint": "uv run ruff check && uv run ruff format --check && pnpm run lint:actions",
     "lint:actions": "uv run actionlint",
     "lint:fix": "uv run ruff check --fix",
-    "format": "uv run ruff format",
+    "format": "uv run ruff format && pnpm --dir frontend run format",
     "typecheck": "uv run pyright",
     "test": "uv run pytest",
     "db:revision": "uv run alembic revision --autogenerate -m",

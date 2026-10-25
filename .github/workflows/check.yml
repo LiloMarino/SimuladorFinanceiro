@@ -1,7 +1,7 @@
 name: Checagem do projeto
 
 # A mesma checagem roda nas PRs do Dependabot e antes de cada release: lint,
-# typecheck, pytest e oxlint + tsc do frontend, com PostgreSQL para os testes de banco
+# typecheck, pytest e oxlint, oxfmt e tsc do frontend, com PostgreSQL para os testes de banco
 on:
   workflow_call:
 
@@ -57,6 +57,6 @@ jobs:
         working-directory: frontend
         run: pnpm install --frozen-lockfile
 
-      # lint, typecheck, pytest e oxlint + tsc do frontend
+      # lint, typecheck, pytest e oxlint, oxfmt e tsc do frontend
       - name: Rodar a checagem do projeto
         run: pnpm run check

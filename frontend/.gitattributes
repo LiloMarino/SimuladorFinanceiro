@@ -1,0 +1,2 @@
+# O oxfmt escreve e confere LF; a cópia local fica em LF em qualquer sistema
+* text=auto eol=lf
