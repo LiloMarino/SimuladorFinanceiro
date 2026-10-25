@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-24):** Proventos na carteira e nas telas (F100) decididos e pendentes: provento cai no caixa, rendimento sintético pelo histórico do ativo e tudo isento de IR.
+> **Última mudança (2026-10-25):** Acabamentos das telas (F134) registrados como pendentes: os ajustes pequenos do desenho aprovado que ficaram de fora das telas implementadas.
 
 ## Glossário
 
@@ -32,7 +32,7 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F134](#f134) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
@@ -97,6 +97,7 @@
 | [**F131**](#f131) | Catálogo de padrões de vela | — | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | — | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | ⏳ |
+| [**F134**](#f134) | Acabamentos das telas | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
@@ -154,6 +155,7 @@
 | [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
+| [**F134**](#f134) | Acabamentos das telas | — | 0 | ⏳ |
 
 ---
 
@@ -275,7 +277,7 @@
 
 ### Sem marco
 
-> **Progresso:** 1/30 concluídas
+> **Progresso:** 1/31 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -308,6 +310,7 @@
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 🔍 |
 | [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 🔍 |
+| [**F134**](#f134) | Acabamentos das telas | — | ⏳ |
 
 <details><summary>Concluído (1 item)</summary>
 
@@ -343,6 +346,7 @@
 | **F100** | Proventos na carteira e nas telas | N3, N7 | D1, D3, D7 | M8 | [F22](#f22) | Médio | Médio | Médio | Bom | ⏳ Pendente |
 | **F132** | Tópicos de "como se joga" do Como jogar | N25 | — | M14 | [F126](#f126) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F133** | Tópicos de conceitos do Como jogar | N25 | — | M14 | [F126](#f126) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F134** | Acabamentos das telas | N15 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -415,6 +419,9 @@
 
 <a id="f133"></a>
 **F133 — Tópicos de conceitos do Como jogar.** Serve N25. Completa o grupo de conceitos da janela (F126), ao lado de "Alavancagem": médias móveis, nota de risco e correlação. Cada um é uma ilustração numérica com um exemplo concreto, no molde de "Alavancagem" (`features/tutorial/topics/leverage.tsx`): números pequenos que mostram a ideia, texto curto e um aviso "Bom e ruim" que diz o que é valor bom e ruim. Entra no registro `features/tutorial/lib/topics.ts`, e a dica da métrica correspondente ganha o "Saiba mais" apontando para ele (campo `topic` do `MetricInfo`). Não pede roteiro animado: pede o desenho da ilustração no canvas.
+
+<a id="f134"></a>
+**F134 — Acabamentos das telas.** Serve N15. Ajustes pequenos que as telas implementadas deixaram de fora do desenho aprovado e que hoje só existem como post-its azuis no canvas, conferidos no código em 25/out. Cada item é uma troca local, sem rota nem modelo novos, e a referência visual é o board da linha no canvas. **Estatísticas:** o melhor da sala em verde na aba Geral, como em Rentabilidade e Risco (`statistics-report/overview-tab.tsx`, padrão em `risk-tab.tsx`); o caixa com cor própria no resumo "caixa · RV · RF" da Composição (`composition-tab.tsx`). **Fim de partida:** texto próprio para a partida só com você e, no viver de renda, a frase "passou por N imprevistos" (`match-result/match-hero.tsx`). **Página Meta:** rodapé "Juros pagos na partida" no histórico. **Lobby:** título "Continuar · nome da partida" e selo do tipo de partida na tela de entrada em equipes (`lobby-match.tsx`); a linha "Expansões" no diálogo de salvar preset (`preset-bar.tsx`, com o rótulo que `lobby/lib/preset.ts` já tem); legenda "dias sem dado" no calendário das datas (`ui/calendar.tsx`). **Modo Especialista:** erro ao salvar com "Tentar de novo" e o interruptor voltando ao valor anterior, esqueleto nas Assistências enquanto carregam e a contagem "N de M ligadas" no card da sala também fora do Personalizado (`rules-sheet.tsx`, `assistance-fields.tsx`); o clique no interruptor com Personalizado ligado segue o board, que pede a confirmação na sessão antes do código. **Correlação:** a linha que lê o par fixado no painel, o erro sem a linha técnica e a célula sem dado listrada com a causa (`correlation-side-panel.tsx`, `correlation-tool.tsx`). **Configurações:** duas colunas em qualquer largura e o erro ao salvar em vermelho suave (`settings.tsx`, `notifications-card.tsx`). **Sistema:** a nota de 12 px abaixo dos botões no 404 (`pages/error.tsx`). **Central de dados:** "buscando…" na sugestão enquanto o yFinance responde (`ticker-combobox.tsx`) e a mensagem de arquivo que não é CSV citando vírgula ou ponto e vírgula (`csv-file.ts`). **Governo:** a coluna "Hoje" do card de impostos alinhada à direita (`taxes-card.tsx`). **Backtest:** "Bateram o CDI" com o percentual ao lado da amostra e o selo Backtest no seletor de Comparar simulações (`compare/simulation-picker.tsx`). **Crédito:** o aviso "O automático está ligado" no Revisar e assinar, com o `TradeLockNotice` das boletas. **Dicas de análise técnica:** o cartão do minigame no fim da partida em cinza (`candle-challenge-card.tsx`). Ao terminar, os post-its azuis desses itens saem do canvas na sincronização.
 
 ---
 ## 2. Nice-to-have
