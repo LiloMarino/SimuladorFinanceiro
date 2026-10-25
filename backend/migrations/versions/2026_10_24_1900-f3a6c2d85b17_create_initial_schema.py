@@ -1,8 +1,8 @@
 """create initial schema
 
-Revision ID: c0b110c6a2e8
+Revision ID: f3a6c2d85b17
 Revises:
-Create Date: 2026-10-17 14:03:42.083780
+Create Date: 2026-10-25 19:27:34.727354
 """
 
 from __future__ import annotations
@@ -13,10 +13,49 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision: str = "c0b110c6a2e8"
+revision: str = "f3a6c2d85b17"
 down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
+
+# Os prontos do app: o que cada um não traz vem do padrão ao carregar
+BUILT_IN_PRESETS: list[tuple[str, dict[str, object]]] = [
+    (
+        "Iniciante",
+        {
+            "start_date": "2018-01-01",
+            "end_date": "2022-12-31",
+            "starting_cash": "10000",
+            "monthly_contribution": "500",
+            "game_type": "CLASSIC",
+            "victory_criterion": "NETWORTH",
+        },
+    ),
+    (
+        "Clássico",
+        {
+            "start_date": "2010-01-01",
+            "end_date": "2024-12-31",
+            "starting_cash": "100000",
+            "monthly_contribution": "1000",
+            "game_type": "CLASSIC",
+            "victory_criterion": "SCORE",
+        },
+    ),
+    (
+        "Realista",
+        {
+            "start_date": "2000-01-01",
+            "end_date": "2024-12-31",
+            "game_type": "FINANCIAL_INDEPENDENCE",
+            "price_impact_enabled": True,
+            "price_impact_k": 0.02,
+            "price_impact_decay_days": 20,
+            "show_equivalent_rate": False,
+            "show_maturity_projection": False,
+        },
+    ),
+]
 
 
 def upgrade() -> None:
@@ -32,8 +71,11 @@ def upgrade() -> None:
         sa.Column(
             "origin", sa.Enum("REAL", "GENERATED", name="data_origin"), nullable=False
         ),
+        sa.Column(
+            "version", sa.BigInteger(), server_default=sa.text("0"), nullable=False
+        ),
         sa.PrimaryKeyConstraint(
-            "series", "ref_date", name="economic_indicator_history_pkey"
+            "series", "ref_date", "version", name="economic_indicator_history_pkey"
         ),
     )
     op.create_table(
@@ -78,8 +120,81 @@ def upgrade() -> None:
         ),
         sa.Column("maturity_date", sa.Date(), nullable=False),
         sa.Column("interest_rate", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.Column(
+            "daily_liquidity",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+        ),
+        sa.Column("player_cap", sa.Numeric(precision=20, scale=2), nullable=True),
+        sa.Column("offered_until", sa.Date(), nullable=True),
         sa.PrimaryKeyConstraint("id", name="fixed_income_asset_pkey"),
         sa.UniqueConstraint("asset_uuid", name="fixed_income_asset_uuid_key"),
+    )
+    op.create_table(
+        "generated_future",
+        sa.Column("id", sa.SmallInteger(), nullable=False),
+        sa.Column("seed", sa.BigInteger(), nullable=False),
+        sa.Column("temperature", sa.Numeric(precision=4, scale=2), nullable=False),
+        sa.Column(
+            "start_regime",
+            sa.Enum("CALM", "NORMAL", "AGITATED", name="market_regime"),
+            nullable=True,
+        ),
+        sa.Column("inflation_shock", sa.Numeric(precision=5, scale=2), nullable=False),
+        sa.Column("until", sa.Date(), nullable=False),
+        sa.Column("generated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("real_advanced_until", sa.Date(), nullable=True),
+        sa.CheckConstraint("id = 1", name="generated_future_single_row"),
+        sa.PrimaryKeyConstraint("id", name="generated_future_pkey"),
+    )
+    op.create_table(
+        "import_settings",
+        sa.Column("id", sa.SmallInteger(), nullable=False),
+        sa.Column(
+            "correct_price_errors",
+            sa.Boolean(),
+            server_default=sa.text("true"),
+            nullable=False,
+        ),
+        sa.CheckConstraint("id = 1", name="import_settings_single_row"),
+        sa.PrimaryKeyConstraint("id", name="import_settings_pkey"),
+    )
+    op.create_table(
+        "last_simulation_settings",
+        sa.Column("id", sa.SmallInteger(), nullable=False),
+        sa.Column("settings", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.CheckConstraint("id = 1", name="last_simulation_settings_single_row"),
+        sa.PrimaryKeyConstraint("id", name="last_simulation_settings_pkey"),
+    )
+    preset = op.create_table(
+        "preset",
+        sa.Column("id", sa.Integer(), sa.Identity(always=True), nullable=False),
+        sa.Column("name", sa.Text(), nullable=False),
+        sa.Column(
+            "built_in", sa.Boolean(), server_default=sa.text("false"), nullable=False
+        ),
+        sa.Column("config", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.PrimaryKeyConstraint("id", name="preset_pkey"),
+    )
+    op.create_index(
+        "preset_name_lower_key",
+        "preset",
+        [sa.literal_column("lower(name)")],
+        unique=True,
+    )
+    op.bulk_insert(
+        preset,
+        [
+            {"name": name, "built_in": True, "config": config}
+            for name, config in BUILT_IN_PRESETS
+        ],
     )
     op.create_table(
         "sectors",
@@ -135,6 +250,48 @@ def upgrade() -> None:
         ),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("last_simulated_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column(
+            "player_grouping",
+            sa.Enum("INDIVIDUAL", "TEAMS", name="player_grouping"),
+            server_default=sa.text("'INDIVIDUAL'"),
+            nullable=False,
+        ),
+        sa.Column(
+            "team_naming",
+            sa.Enum("COLOR", "NUMBER", name="team_naming"),
+            server_default=sa.text("'COLOR'"),
+            nullable=False,
+        ),
+        sa.Column(
+            "game_type",
+            sa.Enum("CLASSIC", "GOAL_RACE", "FINANCIAL_INDEPENDENCE", name="game_type"),
+            server_default=sa.text("'CLASSIC'"),
+            nullable=False,
+        ),
+        sa.Column("goal_net_worth", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.Column("monthly_salary", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.Column("monthly_expense", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.Column("unexpected_per_year", sa.SmallInteger(), nullable=False),
+        sa.Column("withdrawal_rate", sa.Numeric(precision=10, scale=6), nullable=False),
+        sa.Column("inflation_adjusted", sa.Boolean(), nullable=False),
+        sa.Column("random_seed", sa.BigInteger(), nullable=False),
+        sa.Column(
+            "show_equivalent_rate",
+            sa.Boolean(),
+            server_default=sa.text("true"),
+            nullable=False,
+        ),
+        sa.Column(
+            "show_maturity_projection",
+            sa.Boolean(),
+            server_default=sa.text("true"),
+            nullable=False,
+        ),
+        sa.Column(
+            "is_backtest", sa.Boolean(), server_default=sa.text("false"), nullable=False
+        ),
+        sa.Column("result", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column("result_as_of", sa.Date(), nullable=True),
         sa.PrimaryKeyConstraint("id", name="simulations_pkey"),
         sa.UniqueConstraint("name", name="simulations_name_key"),
     )
@@ -178,9 +335,56 @@ def upgrade() -> None:
             server_default=sa.text("'{}'::jsonb"),
             nullable=False,
         ),
+        sa.Column(
+            "is_bot", sa.Boolean(), server_default=sa.text("false"), nullable=False
+        ),
         sa.PrimaryKeyConstraint("id", name="users_pkey"),
         sa.UniqueConstraint("client_id", name="users_client_id_key"),
-        sa.UniqueConstraint("nickname", name="users_nickname_key"),
+    )
+    op.create_index(
+        "users_nickname_key",
+        "users",
+        ["nickname"],
+        unique=True,
+        postgresql_where=sa.text("NOT is_bot"),
+    )
+    op.create_table(
+        "achievement_progress",
+        sa.Column("user_id", sa.Integer(), nullable=False),
+        sa.Column("code", sa.Text(), nullable=False),
+        sa.Column("best", sa.Numeric(precision=30, scale=6), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            name="achievement_progress_user_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("user_id", "code", name="achievement_progress_pkey"),
+    )
+    op.create_table(
+        "achievements",
+        sa.Column("user_id", sa.Integer(), nullable=False),
+        sa.Column("code", sa.Text(), nullable=False),
+        sa.Column("simulation_id", sa.BigInteger(), nullable=False),
+        sa.Column("unlocked_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("game_date", sa.Date(), nullable=False),
+        sa.Column("seen_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            name="achievements_simulation_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            name="achievements_user_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("user_id", "code", name="achievements_pkey"),
     )
     op.create_table(
         "event_cashflow",
@@ -208,6 +412,12 @@ def upgrade() -> None:
                 "DIVIDEND",
                 "CONTRIBUTION",
                 "TAX",
+                "SALARY",
+                "EXPENSE",
+                "UNEXPECTED_EXPENSE",
+                "OVERDRAFT_INTEREST",
+                "LOAN_PROCEEDS",
+                "LOAN_PAYMENT",
                 name="cashflow_event_type",
             ),
             nullable=False,
@@ -215,6 +425,7 @@ def upgrade() -> None:
         sa.Column("amount", sa.Numeric(precision=20, scale=6), nullable=False),
         sa.Column("event_date", sa.Date(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("life_event_key", sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(
             ["simulation_id"],
             ["simulations.id"],
@@ -230,6 +441,74 @@ def upgrade() -> None:
             ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id", name="event_cashflow_pkey"),
+    )
+    op.create_table(
+        "event_credit",
+        sa.Column(
+            "id",
+            sa.BigInteger(),
+            sa.Identity(
+                always=True,
+                start=1,
+                increment=1,
+                minvalue=1,
+                maxvalue=9223372036854775807,
+                cycle=False,
+                cache=1,
+            ),
+            nullable=False,
+        ),
+        sa.Column("simulation_id", sa.BigInteger(), nullable=False),
+        sa.Column("user_id", sa.Integer(), nullable=False),
+        sa.Column("loan_id", sa.Uuid(), nullable=False),
+        sa.Column(
+            "event_type",
+            sa.Enum(
+                "CONTRACT",
+                "INSTALLMENT_PAID",
+                "INSTALLMENT_LATE",
+                "OVERDUE_PAID",
+                "PREPAYMENT",
+                "PAYOFF",
+                name="credit_event_type",
+            ),
+            nullable=False,
+        ),
+        sa.Column("amount", sa.Numeric(precision=20, scale=6), nullable=False),
+        sa.Column("installment_number", sa.Integer(), nullable=True),
+        sa.Column("annual_rate", sa.Numeric(precision=10, scale=6), nullable=True),
+        sa.Column("term_months", sa.Integer(), nullable=True),
+        sa.Column(
+            "grade",
+            sa.Enum(
+                "AAA", "AA", "A", "BBB", "BB", "B", "CCC", "D", name="credit_grade"
+            ),
+            nullable=True,
+        ),
+        sa.Column(
+            "prepayment_mode",
+            sa.Enum(
+                "SHORTEN_TERM", "REDUCE_INSTALLMENT", name="credit_prepayment_mode"
+            ),
+            nullable=True,
+        ),
+        sa.Column("event_date", sa.Date(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            name="event_credit_simulation_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            name="event_credit_user_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("id", name="event_credit_pkey"),
     )
     op.create_table(
         "event_fixed_income",
@@ -314,6 +593,10 @@ def upgrade() -> None:
         sa.Column("simulation_id", sa.BigInteger(), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("color", sa.Text(), nullable=False),
+        sa.Column("team", sa.SmallInteger(), nullable=True),
+        sa.CheckConstraint(
+            "team BETWEEN 1 AND 10", name="simulation_players_team_check"
+        ),
         sa.ForeignKeyConstraint(
             ["simulation_id"],
             ["simulations.id"],
@@ -348,6 +631,12 @@ def upgrade() -> None:
         ),
         sa.Column("total_networth", sa.Numeric(precision=20, scale=6), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column(
+            "total_debt",
+            sa.Numeric(precision=20, scale=6),
+            server_default=sa.text("0"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(
             ["simulation_id"],
             ["simulations.id"],
@@ -365,6 +654,62 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint(
             "simulation_id", "user_id", "snapshot_date", name="snapshots_pkey"
         ),
+    )
+    op.create_table(
+        "strategy_log",
+        sa.Column(
+            "id",
+            sa.BigInteger(),
+            sa.Identity(
+                always=True,
+                start=1,
+                increment=1,
+                minvalue=1,
+                maxvalue=9223372036854775807,
+                cycle=False,
+                cache=1,
+            ),
+            nullable=False,
+        ),
+        sa.Column("simulation_id", sa.BigInteger(), nullable=False),
+        sa.Column("user_id", sa.Integer(), nullable=False),
+        sa.Column("event_date", sa.Date(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("kind", sa.Text(), nullable=False),
+        sa.Column("strategy_key", sa.Text(), nullable=True),
+        sa.Column("params", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column("action", sa.Text(), nullable=True),
+        sa.Column("ticker", sa.Text(), nullable=True),
+        sa.Column("asset_uuid", sa.Uuid(), nullable=True),
+        sa.Column("asset_name", sa.Text(), nullable=True),
+        sa.Column("quantity", sa.Numeric(precision=20, scale=8), nullable=True),
+        sa.Column("price", sa.Numeric(precision=20, scale=6), nullable=True),
+        sa.Column("order_type", sa.Text(), nullable=True),
+        sa.Column("order_id", sa.Text(), nullable=True),
+        sa.Column("reason", sa.Text(), nullable=True),
+        sa.Column("status", sa.Text(), nullable=True),
+        sa.Column("detail", sa.Text(), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            name="strategy_log_simulation_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            name="strategy_log_user_id_fkey",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint("id", name="strategy_log_pkey"),
+    )
+    op.create_index(
+        "strategy_log_user_idx",
+        "strategy_log",
+        ["simulation_id", "user_id", "event_date"],
+        unique=False,
     )
     op.create_table(
         "stock",
@@ -386,7 +731,7 @@ def upgrade() -> None:
         sa.Column("name", sa.Text(), nullable=False),
         sa.Column(
             "asset_class",
-            sa.Enum("STOCK", "FII", "ETF", "BDR", name="asset_class"),
+            sa.Enum("STOCK", "FII", "ETF", "BDR", "CRYPTO", name="asset_class"),
             nullable=False,
         ),
         sa.Column("segment_id", sa.Integer(), nullable=True),
@@ -398,7 +743,6 @@ def upgrade() -> None:
             ondelete="SET NULL",
         ),
         sa.PrimaryKeyConstraint("id", name="stock_pkey"),
-        sa.UniqueConstraint("name", name="stock_name_key"),
         sa.UniqueConstraint("ticker", name="stock_ticker_key"),
     )
     op.create_table(
@@ -425,7 +769,7 @@ def upgrade() -> None:
             sa.Enum("BUY", "SELL", name="equity_event_type"),
             nullable=False,
         ),
-        sa.Column("quantity", sa.Integer(), nullable=False),
+        sa.Column("quantity", sa.Numeric(precision=20, scale=8), nullable=False),
         sa.Column("price", sa.Numeric(precision=20, scale=6), nullable=False),
         sa.Column("event_date", sa.Date(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
@@ -467,6 +811,15 @@ def upgrade() -> None:
             server_default=sa.text("'REAL'"),
             nullable=False,
         ),
+        sa.Column(
+            "version", sa.BigInteger(), server_default=sa.text("0"), nullable=False
+        ),
+        sa.Column(
+            "price_corrected",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+        ),
         sa.ForeignKeyConstraint(
             ["stock_id"],
             ["stock.id"],
@@ -475,7 +828,7 @@ def upgrade() -> None:
             ondelete="RESTRICT",
         ),
         sa.PrimaryKeyConstraint(
-            "stock_id", "price_date", name="stock_price_history_pkey"
+            "stock_id", "price_date", "version", name="stock_price_history_pkey"
         ),
     )
 
@@ -484,28 +837,48 @@ def downgrade() -> None:
     op.drop_table("stock_price_history")
     op.drop_table("event_equity")
     op.drop_table("stock")
+    op.drop_index("strategy_log_user_idx", table_name="strategy_log")
+    op.drop_table("strategy_log")
     op.drop_table("snapshots")
     op.drop_table("simulation_players")
     op.drop_table("segments")
     op.drop_table("event_fixed_income")
+    op.drop_table("event_credit")
     op.drop_table("event_cashflow")
+    op.drop_table("achievements")
+    op.drop_table("achievement_progress")
+    op.drop_index(
+        "users_nickname_key", table_name="users", postgresql_where=sa.text("NOT is_bot")
+    )
     op.drop_table("users")
     op.drop_table("ticker_profile")
     op.drop_table("simulations")
     op.drop_table("sectors")
+    op.drop_index("preset_name_lower_key", table_name="preset")
+    op.drop_table("preset")
+    op.drop_table("last_simulation_settings")
+    op.drop_table("import_settings")
+    op.drop_table("generated_future")
     op.drop_table("fixed_income_asset")
     op.drop_table("fetch_log")
     op.drop_table("economic_indicator_history")
     # Os ENUM nativos do Postgres sobrevivem ao drop das tabelas que os usam
     for enum_name in (
-        "indicator_series",
-        "data_origin",
-        "investment_type",
-        "rate_type",
-        "victory_criterion",
-        "cashflow_event_type",
-        "fixed_income_event_type",
-        "equity_event_type",
         "asset_class",
+        "cashflow_event_type",
+        "credit_event_type",
+        "credit_grade",
+        "credit_prepayment_mode",
+        "data_origin",
+        "equity_event_type",
+        "fixed_income_event_type",
+        "game_type",
+        "indicator_series",
+        "investment_type",
+        "market_regime",
+        "player_grouping",
+        "rate_type",
+        "team_naming",
+        "victory_criterion",
     ):
         sa.Enum(name=enum_name).drop(op.get_bind())

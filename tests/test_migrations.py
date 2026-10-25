@@ -3,6 +3,7 @@ num banco existente quando nada se perde."""
 
 from __future__ import annotations
 
+import json
 import os
 from datetime import date
 from decimal import Decimal
@@ -16,7 +17,7 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.pool import NullPool
 
 from backend.core import migration
-from backend.core.enum import GameType
+from backend.core.enum import VictoryCriterion
 from backend.core.migration import (
     MigrationError,
     TableFingerprint,
@@ -76,50 +77,6 @@ def test_versioned_database_migrates_through_the_dry_run(
             assert connection.execute(text("SELECT ticker FROM stock")).scalar() == "T"
     finally:
         drop_databases(make_url(pg_url), _backups(pg_url))
-
-
-BEFORE_SUFFIX_STRIP = "9707da5dfa82"
-
-
-def _tickers_before_strip(pg_url: str, engine: Engine, tickers: list[str]) -> None:
-    """Banco na revisão anterior à que tira o `.SA`, com estes códigos em `stock`."""
-    command.upgrade(alembic_config(pg_url), BEFORE_SUFFIX_STRIP)
-    with engine.begin() as connection:
-        for position, ticker in enumerate(tickers):
-            connection.execute(
-                text(
-                    "INSERT INTO stock (ticker, name, asset_class) "  # noqa: S608
-                    f"VALUES ('{ticker}', 'Nome {position}', 'STOCK')"
-                )
-            )
-        connection.execute(
-            text("INSERT INTO ticker_profile (ticker) VALUES ('VALE3.SA')")
-        )
-
-
-def test_suffix_is_stripped_from_stored_tickers(pg_url: str, engine: Engine) -> None:
-    """Os códigos importados com o `.SA` passam a valer sem ele; os outros ficam."""
-    _tickers_before_strip(pg_url, engine, ["PETR4.SA", "ITSA4", "BTC-USD"])
-
-    command.upgrade(alembic_config(pg_url), "head")
-
-    with engine.connect() as connection:
-        stocks = connection.execute(text("SELECT ticker FROM stock")).scalars().all()
-        profiles = connection.execute(
-            text("SELECT ticker FROM ticker_profile")
-        ).scalars()
-        assert sorted(stocks) == ["BTC-USD", "ITSA4", "PETR4"]
-        assert list(profiles) == ["VALE3"]
-
-
-def test_suffix_strip_stops_when_the_bare_code_exists(
-    pg_url: str, engine: Engine
-) -> None:
-    """Com `PETR4` e `PETR4.SA` na base, a migration para em vez de mesclar."""
-    _tickers_before_strip(pg_url, engine, ["PETR4.SA", "PETR4"])
-
-    with pytest.raises(RuntimeError, match=r"PETR4.SA"):
-        command.upgrade(alembic_config(pg_url), "head")
 
 
 NEWER_REVISION = "test_newer"
@@ -290,25 +247,22 @@ def test_merging_columns_into_json_keeps_the_total(pg_url: str, engine: Engine) 
         assert_no_data_loss(before, fingerprint(engine))
 
 
-BEFORE_RULES_IN_JSON = "5836e0819ac7"
+SAVED_BY_2_3 = "f3a6c2d85b17"
 
 
-def test_saved_match_keeps_its_rules_through_the_json_migration(
-    pg_url: str, engine: Engine
-) -> None:
-    """A partida das colunas migra para o JSON sem perder célula, abre igual no DTO e volta."""
+def test_match_saved_by_2_3_opens_the_same_in_3_0(pg_url: str, engine: Engine) -> None:
+    """A partida das colunas da 2.3 migra para o JSON sem perder célula e abre igual no DTO."""
     expected = simulation_settings().model_copy(
         update={
-            "name": "Política",
-            "end_date": date(2026, 12, 31),
-            "game_type": GameType.POLITICAL,
-            "government_enabled": True,
-            "first_election": date(2022, 10, 2),
+            "name": "Clássica",
+            "end_date": date(2024, 12, 31),
             "starting_cash": Decimal("12345.67"),
+            "victory_criterion": VictoryCriterion.NETWORTH,
+            "price_impact_enabled": True,
         }
     )
     alembic = alembic_config(pg_url)
-    command.upgrade(alembic, BEFORE_RULES_IN_JSON)
+    command.upgrade(alembic, SAVED_BY_2_3)
     with engine.begin() as connection:
         connection.execute(
             text(
@@ -317,19 +271,18 @@ def test_saved_match_keeps_its_rules_through_the_json_migration(
                 "price_impact_decay_days, victory_criterion, game_type, goal_net_worth, "
                 "monthly_salary, monthly_expense, unexpected_per_year, withdrawal_rate, "
                 "inflation_adjusted, random_seed, player_grouping, team_naming, "
-                "show_equivalent_rate, show_maturity_projection, show_chart_hints, "
-                "government_enabled, first_election, computer_difficulty, "
+                "show_equivalent_rate, show_maturity_projection, "
                 "created_at, last_simulated_at) VALUES ("
-                "'Política', '2020-01-01', '2026-12-31', 12345.67, 0, false, 0.02, 20, "
-                "'SCORE', 'POLITICAL', 100000, 8000, 5000, 3, 0.04, false, 7, "
-                "'INDIVIDUAL', 'COLOR', true, true, true, true, '2022-10-02', 'NORMAL', "
-                "now(), now())"
+                "'Clássica', '2020-01-01', '2024-12-31', 12345.67, 0, true, 0.02, 20, "
+                "'NETWORTH', 'CLASSIC', 100000, 8000, 5000, 3, 0.04, false, 7, "
+                "'INDIVIDUAL', 'COLOR', true, true, now(), now())"
             )
         )
     before = fingerprint(engine)
 
     command.upgrade(alembic, "head")
 
+    assert current_revision(engine) == head_revision()
     assert_no_data_loss(before, fingerprint(engine))
     with engine.connect() as connection:
         name, rules = connection.execute(
@@ -338,19 +291,60 @@ def test_saved_match_keeps_its_rules_through_the_json_migration(
     assert decode_settings(name, rules) == expected
     assert rules.keys() == encode_rules(expected).keys()
 
-    command.downgrade(alembic, BEFORE_RULES_IN_JSON)
+
+def test_rules_return_to_columns_on_downgrade(pg_url: str, engine: Engine) -> None:
+    """Descer da 3.0 devolve as regras da partida às colunas, com os mesmos valores."""
+    migrate(pg_url)
+    settings = simulation_settings().model_copy(
+        update={"starting_cash": Decimal("12345.67")}
+    )
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO simulations (name, rules, random_seed, created_at, "
+                "last_simulated_at) VALUES ('Partida', CAST(:rules AS jsonb), 7, now(), now())"
+            ),
+            {"rules": json.dumps(encode_rules(settings))},
+        )
+
+    command.downgrade(alembic_config(pg_url), SAVED_BY_2_3)
 
     with engine.connect() as connection:
         row = connection.execute(
             text(
-                "SELECT start_date, starting_cash, game_type::text, first_election, "
-                "government_enabled FROM simulations"
+                "SELECT start_date, starting_cash, game_type::text, victory_criterion::text "
+                "FROM simulations"
             )
         ).one()
     assert tuple(row) == (
         date(2020, 1, 1),
         Decimal("12345.670000"),
-        "POLITICAL",
-        date(2022, 10, 2),
-        True,
+        "CLASSIC",
+        "SCORE",
     )
+
+
+def test_revision_from_before_2_3_is_refused_untouched(
+    pg_url: str, engine: Engine
+) -> None:
+    """Banco numa revisão que a 3.0 não conhece é recusado com o caminho de volta pela 2.3."""
+    with engine.begin() as connection:
+        connection.execute(text("CREATE TABLE alembic_version (version_num text)"))
+        connection.execute(text("INSERT INTO alembic_version VALUES ('9707da5dfa82')"))
+        connection.execute(text("CREATE TABLE stock (ticker text)"))
+        connection.execute(text("INSERT INTO stock VALUES ('PETR4.SA')"))
+
+    with pytest.raises(
+        MigrationError, match=r"anterior à 2\.3\.0\. Abra-o uma vez com a 2\.3\.0"
+    ):
+        migrate(pg_url)
+
+    with engine.connect() as connection:
+        assert (
+            connection.execute(text("SELECT version_num FROM alembic_version")).scalar()
+            == "9707da5dfa82"
+        )
+        assert (
+            connection.execute(text("SELECT ticker FROM stock")).scalar() == "PETR4.SA"
+        )
+    assert _backups(pg_url) == []

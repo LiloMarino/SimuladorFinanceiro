@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 BACKUPS_KEPT = 3
 VERSION_TABLE = "alembic_version"
+RELEASES_URL = "https://github.com/LiloMarino/SimuladorFinanceiro/releases"
 
 
 class MigrationError(Exception):
@@ -57,6 +58,13 @@ def head_revision() -> str | None:
 def current_revision(engine: Engine) -> str | None:
     with engine.connect() as connection:
         return MigrationContext.configure(connection).get_current_revision()
+
+
+def known_revisions() -> set[str]:
+    return {
+        script.revision
+        for script in ScriptDirectory.from_config(alembic_config()).walk_revisions()
+    }
 
 
 def schema_diff(engine: Engine) -> list:
@@ -262,6 +270,14 @@ def migrate(database_url: str) -> None:
     config = alembic_config(database_url)
     if revision == head:
         return
+    # A linha de revisões começa na 2.3.0: banco gravado numa revisão fora dela
+    # só atualiza passando antes pela 2.3.0
+    if revision is not None and revision not in known_revisions():
+        raise MigrationError(
+            f"O banco {url.database} é de uma versão anterior à 2.3.0. Abra-o uma "
+            "vez com a 2.3.0, que atualiza as partidas salvas, e depois volte para "
+            f"esta versão. A 2.3.0 está em {RELEASES_URL}."
+        )
     if revision is None and not tables:
         command.upgrade(config, "head")
         logger.info("Banco criado na revisão %s", head, extra=TERMINAL)
