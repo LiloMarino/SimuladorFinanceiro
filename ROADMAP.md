@@ -58,7 +58,6 @@
 | **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
-| [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F22**](#f22) | Preço ajustado e proventos | — | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | — | 🔍 |
@@ -101,7 +100,7 @@
 | [**F131**](#f131) | Catálogo de padrões de vela | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (16 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -121,6 +120,7 @@
 | **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | — | ✅ |
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | [F126](#f126) | ✅ |
+| [**F10**](#f10) | Guia de como escrever uma estratégia | — | ✅ |
 
 </details>
 
@@ -137,7 +137,6 @@
 | [**F91**](#f91) | Caixa de entrada e resumo do mês | M15 | 2 | ⏳ |
 | [**F126**](#f126) | Janela "Como jogar" | M14 | 2 | ⏳ |
 | [**F106**](#f106) | Governo & Política: gasto público e inflação | — | 1 | 🔍 |
-| [**F10**](#f10) | Guia de como escrever uma estratégia | M4 | 0 | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
@@ -176,11 +175,19 @@
 >
 > **Serve:** N4
 >
-> **Progresso:** 0/1 concluídas
+> **Progresso:** 1/1 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F10**](#f10) | Guia de como escrever uma estratégia | — | ⏳ |
+| — | *(nada em aberto)* | — | — |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F10**](#f10) | Guia de como escrever uma estratégia | — | ✅ |
+
+</details>
 
 ### M8 — Dados reais, cuidados fora da partida
 
@@ -291,7 +298,7 @@
 | ID | Resumo | Atende (N#) | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Link de convite pela internet no lobby | N2 | — | M3 | [F5](#f5) | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
