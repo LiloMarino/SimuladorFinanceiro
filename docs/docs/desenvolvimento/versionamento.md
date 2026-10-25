@@ -16,7 +16,7 @@ O número diz compatibilidade, não maturidade: nada na release diz que o jogo e
 | **Menor** (2.1.0) | feature nova e nada quebra: as partidas salvas abrem e o `config.toml` antigo funciona | bots, modo Especialista, indicadores técnicos |
 | **Maior** (3.0.0) | algo deixa de funcionar para quem atualiza: partida salva que não abre, chave do `config.toml` removida ou renomeada, troca de banco sem migrar os dados | trocar o Postgres pelo SQLite sem importar os dados |
 
-Migration que acrescenta tabela ou coluna não é maior, porque a aplicação das migrations a faz sozinha nas partidas salvas. Ritmo: um marco concluído vira uma versão menor, correção solta vira correção, e a maior só com quebra de compatibilidade.
+Migration que acrescenta tabela ou coluna não é maior, porque a aplicação das migrations a faz sozinha nas partidas salvas. Cortar o caminho de atualização de uma versão antiga, quando as migrations dela deixam de existir, é maior: veja [Uma migration por versão](./ciclo-banco-dados.md#uma-migration-por-versão). Ritmo: um marco concluído vira uma versão menor, correção solta vira correção, e a maior só com quebra de compatibilidade.
 
 ## O número sai dos commits
 
@@ -35,8 +35,21 @@ O `!` é a única marca de quebra de compatibilidade, e quem faz o commit que qu
 
 O `CHANGELOG.md` da raiz é gerado pelo mesmo `git-cliff`, sem edição manual: `feat:` vira "Novidades", `fix:` vira "Correções", e os outros tipos ficam de fora. Cada seção diz se as partidas salvas e o `config.toml` continuam valendo. A seção da versão vira a descrição da release no GitHub e a página [Novidades](../como-usar/novidades.md) destes docs.
 
+### Nome e resumo da versão
+
+Uma versão pode ter um nome e um parágrafo de resumo. Escreva um arquivo de texto: a primeira linha é o nome, e o resto é o resumo, que abre a seção da versão.
+
+```text
+Governo & Política
+
+A expansão traz partidos, eleição, mandato, medidas e aprovação do governo.
+Suas partidas salvas da 2.3 abrem direto.
+```
+
+Passe o arquivo ao `pnpm release --message-file CAMINHO`. O título da seção vira `## 3.0.0 Governo & Política (25/10/2026)`, e o título da release no GitHub, `v3.0.0 Governo & Política`. Sem o arquivo, a versão não tem nome e o título é só `v3.0.0`.
+
 ## Publicando uma versão
 
-1. `pnpm release` calcula a versão pelos commits, grava no `pyproject.toml` (a fonte única do número) e no `uv.lock`, regenera o `docs/openapi.json` e acrescenta a seção ao `CHANGELOG.md`. Se o `pyproject.toml` já estiver acima do calculado, o número fica como está.
+1. `pnpm release` (ou `pnpm release --message-file CAMINHO`, para dar nome e resumo à versão) calcula a versão pelos commits, grava no `pyproject.toml` (a fonte única do número) e no `uv.lock`, regenera o `docs/openapi.json` e acrescenta a seção ao `CHANGELOG.md`. Se o `pyproject.toml` já estiver acima do calculado, o número fica como está.
 2. Revise o diff e commite como `chore: Versão X.Y.Z`.
 3. Dispare o workflow **Release Multi-Plataforma** no GitHub. Ele lê a versão do `pyproject.toml`, confere que não está abaixo da pedida pelos commits, gera os executáveis e cria a tag e a release.

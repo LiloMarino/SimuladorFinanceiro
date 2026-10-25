@@ -1,6 +1,8 @@
 # git-cliff: gera o CHANGELOG.md e calcula a próxima versão a partir dos commits.
 # Os commits seguem o Conventional Commits (`tipo: Descrição`, sem escopo);
 # a tabela de quando sobe cada número está em docs/docs/desenvolvimento/versionamento.md.
+# A mensagem da tag (`--with-tag-message`) dá nome e resumo à versão: a 1ª linha entra no
+# título e as demais viram o parágrafo que abre a seção.
 
 [changelog]
 header = """
@@ -13,7 +15,16 @@ deixa de funcionar para quem atualiza, a menor traz novidade e a de correção c
 """
 body = """
 {% if version %}\
+{% if message %}\
+{% set message_lines = message | split(pat="\n") %}\
+## {{ version | trim_start_matches(pat="v") }} {{ message_lines | first | trim }} ({{ timestamp | date(format="%d/%m/%Y") }})
+{% set summary = message_lines | slice(start=1) | join(sep="\n") | trim %}\
+{% if summary %}\
+{{ "\n" }}{{ summary }}
+{% endif %}\
+{% else %}\
 ## {{ version | trim_start_matches(pat="v") }} ({{ timestamp | date(format="%d/%m/%Y") }})
+{% endif %}\
 {% else %}\
 ## Não lançado
 {% endif %}\

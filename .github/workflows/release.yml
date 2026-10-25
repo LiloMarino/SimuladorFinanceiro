@@ -185,6 +185,11 @@ jobs:
       - name: Extrair as notas da versão
         run: python3 scripts/release.py --notes > release-notes.md
 
+      # O título da release é o número da versão e o nome dela, quando tem
+      - name: Ler o título da release
+        id: title
+        run: echo "title=$(python3 scripts/release.py --title)" >> "$GITHUB_OUTPUT"
+
       - name: Download dos artefatos
         uses: actions/download-artifact@v8
         with:
@@ -202,7 +207,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ needs.validate.outputs.version }}
-          name: v${{ needs.validate.outputs.version }}
+          name: ${{ steps.title.outputs.title }}
           body_path: release-notes.md
           files: |
             release-assets/SimuladorFinanceiro-windows.exe

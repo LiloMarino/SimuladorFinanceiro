@@ -4,9 +4,13 @@
 `uv.lock` e no `docs/openapi.json` e acrescenta a seção da versão ao `CHANGELOG.md`. Nada é commitado:
 o diff é revisado e vai num `chore: Versão X`.
 
+Com `--message-file PATH` a versão ganha nome e resumo: a 1ª linha do arquivo entra
+no título da seção do changelog e as demais viram o parágrafo que a abre.
+
 Com `--check` (usado pelo workflow de release) só confere que a versão do
 `pyproject.toml` não ficou abaixo da calculada dos commits; com `--notes` imprime
-a seção da versão atual do `CHANGELOG.md`, que vira a descrição da release.
+a seção da versão atual do `CHANGELOG.md`, que vira a descrição da release; com
+`--title` imprime o título da release: `v3.0.0 Nome` ou só `v3.0.0` sem nome.
 """
 
 import re
@@ -65,12 +69,21 @@ def write_version(version: Version) -> None:
     PYPROJECT_PATH.write_text(updated, encoding="utf-8", newline="")
 
 
+def heading_pattern(version: Version) -> str:
+    """O título da seção da versão: `## 3.0.0 (data)`, com um nome opcional antes da data."""
+    number = re.escape(format_version(version))
+    return rf"^## {number}(?: (?P<name>.+?))? \(\d{{2}}/\d{{2}}/\d{{4}}\)$"
+
+
 def has_changelog_section(version: Version) -> bool:
     if not CHANGELOG_PATH.exists():
         return False
-    pattern = rf"^## {re.escape(format_version(version))} \("
     return (
-        re.search(pattern, CHANGELOG_PATH.read_text(encoding="utf-8"), re.MULTILINE)
+        re.search(
+            heading_pattern(version),
+            CHANGELOG_PATH.read_text(encoding="utf-8"),
+            re.MULTILINE,
+        )
         is not None
     )
 
@@ -80,26 +93,46 @@ def keep_single_header() -> None:
     text = CHANGELOG_PATH.read_text(encoding="utf-8")
     first = text.index("## ")
     repeated = re.compile(r"^# Changelog\n.*?(?=^## )", re.MULTILINE | re.DOTALL)
+    merged = text[:first] + repeated.sub("\n", text[first:])
+    # Uma linha em branco separa cada seção da anterior
     CHANGELOG_PATH.write_text(
-        text[:first] + repeated.sub("\n", text[first:]),
-        encoding="utf-8",
-        newline="",
+        re.sub(r"(?<=[^\n])\n(?=## )", "\n\n", merged), encoding="utf-8", newline=""
     )
 
 
 def notes() -> int:
     """Imprime a seção da versão atual do CHANGELOG.md, sem o título, para a descrição da release."""
-    version = format_version(current_version())
+    version = current_version()
     text = CHANGELOG_PATH.read_text(encoding="utf-8")
     match = re.search(
-        rf"^## {re.escape(version)} \(.*?\)\n(.*?)(?=^## |\Z)",
+        heading_pattern(version) + r"\n(?P<body>.*?)(?=^## |\Z)",
         text,
         re.MULTILINE | re.DOTALL,
     )
     if match is None:
-        print(f"O CHANGELOG.md não tem a seção da versão {version}.", file=sys.stderr)
+        print(
+            f"O CHANGELOG.md não tem a seção da versão {format_version(version)}.",
+            file=sys.stderr,
+        )
         return 1
-    print(match.group(1).strip())
+    print(match.group("body").strip())
+    return 0
+
+
+def title() -> int:
+    """Imprime o título da release: `v3.0.0 Nome`, ou só `v3.0.0` quando a versão não tem nome."""
+    version = current_version()
+    text = CHANGELOG_PATH.read_text(encoding="utf-8")
+    match = re.search(heading_pattern(version), text, re.MULTILINE)
+    if match is None:
+        print(
+            f"O CHANGELOG.md não tem a seção da versão {format_version(version)}.",
+            file=sys.stderr,
+        )
+        return 1
+    name = match.group("name")
+    number = f"v{format_version(version)}"
+    print(f"{number} {name}" if name else number)
     return 0
 
 
@@ -117,7 +150,7 @@ def check() -> int:
     return 0
 
 
-def prepare() -> int:
+def prepare(message_file: Path | None) -> int:
     if run("git", "status", "--porcelain"):
         print(
             "A árvore de trabalho tem mudanças. Commite ou guarde antes.",
@@ -138,11 +171,17 @@ def prepare() -> int:
         run(sys.executable, "-m", "scripts.openapi")
 
     if not has_changelog_section(version):
+        message = (
+            ["--with-tag-message", message_file.read_text(encoding="utf-8").strip()]
+            if message_file is not None
+            else []
+        )
         run(
             "git-cliff",
             "--unreleased",
             "--tag",
             f"v{format_version(version)}",
+            *message,
             "--prepend",
             str(CHANGELOG_PATH),
         )
@@ -159,4 +198,11 @@ if __name__ == "__main__":
         sys.exit(check())
     if "--notes" in args:
         sys.exit(notes())
-    sys.exit(prepare())
+    if "--title" in args:
+        sys.exit(title())
+    message_path = (
+        Path(args[args.index("--message-file") + 1])
+        if "--message-file" in args
+        else None
+    )
+    sys.exit(prepare(message_path))
