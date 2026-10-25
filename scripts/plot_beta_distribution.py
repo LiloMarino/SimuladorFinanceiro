@@ -14,7 +14,7 @@ def main():
     # Candle base
     # -------------------------
     base_candle = Candle(
-        price_date=date.today(),
+        price_date=date.today(),  # noqa: DTZ011
         ticker="TEST",
         open=1.00,
         high=1.20,

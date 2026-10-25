@@ -43,6 +43,9 @@ def _fetch_window(code: int, start: date, end: date) -> list[tuple[date, Decimal
 
     # O valor vem como texto ("0.055131") e vira Decimal sem passar por float
     return [
-        (datetime.strptime(item["data"], "%d/%m/%Y").date(), Decimal(item["valor"]))
+        (
+            datetime.strptime(item["data"], "%d/%m/%Y").date(),  # noqa: DTZ007
+            Decimal(item["valor"]),
+        )
         for item in payload
     ]

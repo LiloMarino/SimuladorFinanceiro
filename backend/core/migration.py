@@ -212,7 +212,7 @@ def _dry_run(url: URL) -> None:
 
 
 def _backup(url: URL) -> None:
-    name = f"{url.database}_bkp_{datetime.now():%Y%m%d_%H%M%S}"
+    name = f"{url.database}_bkp_{datetime.now():%Y%m%d_%H%M%S}"  # noqa: DTZ005
     copy_database(url, name)
     logger.info("Backup do banco antes da migration: %s", name)
     drop_databases(url, backups_to_drop(_list_backups(url)))

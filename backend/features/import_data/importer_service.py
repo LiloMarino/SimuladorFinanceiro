@@ -51,7 +51,7 @@ def from_yfinance(
 ) -> pd.DataFrame:
     symbol = yfinance_symbol(ticker)
     if start:
-        end = end or datetime.today().strftime("%Y-%m-%d")
+        end = end or datetime.today().strftime("%Y-%m-%d")  # noqa: DTZ002
         logger.debug(
             "Baixando dados do YFinance para %s de %s a %s", symbol, start, end
         )

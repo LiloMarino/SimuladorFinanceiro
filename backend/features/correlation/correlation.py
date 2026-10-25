@@ -101,7 +101,7 @@ def resolve_end(end: date | None) -> date:
         return SimulationManager.get_active_simulation().get_current_date()
     if end is not None:
         return end
-    return _last_price_date(repository.stock.get_coverage()) or date.today()
+    return _last_price_date(repository.stock.get_coverage()) or date.today()  # noqa: DTZ011
 
 
 def _last_price_date(coverage: list[OriginCoverageDTO]) -> date | None:
