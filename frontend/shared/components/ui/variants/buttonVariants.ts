@@ -13,6 +13,8 @@ export const buttonVariants = cva(
           "border-input bg-card text-foreground hover:bg-subtle aria-expanded:bg-subtle aria-expanded:text-foreground",
         // Ação que apaga ou descarta, sem o peso do botão cheio
         "outline-destructive": "border-input bg-card text-destructive hover:bg-destructive-soft",
+        // Chama a atenção para o que o jogador ainda não usou: contorno azul com halo
+        "outline-highlight": "border-primary bg-card text-foreground ring-3 ring-primary/15 hover:bg-subtle",
         // Gatilho de um painel que fica azul enquanto aberto ("Indicadores" do gráfico)
         "outline-toggle":
           "border-input bg-card text-foreground hover:bg-subtle aria-expanded:border-info-border aria-expanded:bg-info-soft aria-expanded:text-info",
@@ -24,6 +26,9 @@ export const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:border-destructive/40 focus-visible:ring-destructive/20",
         info: "bg-info-soft text-info hover:bg-info-soft/70 aria-expanded:bg-info-soft",
+        // Acesso ainda não usado: fundo azul claro com anel azul
+        "info-outline":
+          "bg-info-soft text-primary ring-1 ring-primary ring-inset hover:bg-info-soft/70 [&_svg:not([class*='size-'])]:size-4.5",
         success: "bg-success text-success-foreground hover:bg-success/90 focus-visible:ring-success/20",
         warning: "bg-warning text-warning-foreground hover:bg-warning/90 focus-visible:ring-warning/20",
         link: "h-auto px-0 text-primary hover:text-primary-hover",

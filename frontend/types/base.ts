@@ -21,6 +21,8 @@ export interface NavItem {
   creditAlert?: boolean;
   /** O selo mostra o modo do jogador (Ligada/Desligada), com um ponto vermelho quando a estratégia deu erro e o erro não foi visto */
   strategyStatus?: boolean;
+  /** Abre a janela Como jogar em vez de navegar; só aparece quando o jogador escolheu o acesso pelo menu */
+  tutorial?: boolean;
   /** Só aparece nas partidas com a expansão ligada */
   expansion?: "government";
 }

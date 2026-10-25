@@ -8,6 +8,7 @@ import { BrandMark } from "@/shared/components/brand-mark";
 import { useAchievementTally } from "@/shared/hooks/queries/useAchievementTally";
 import { useTunnelStatus } from "../hooks/queries/useTunnelStatus";
 import { useStartTunnel } from "../hooks/mutations/useStartTunnel";
+import { LobbyTutorialButton } from "@/features/tutorial/components/lobby-button";
 
 const FIREWALL_DOCS_URL =
   "https://lilomarino.github.io/SimuladorFinanceiro/como-usar/multiplayer#amigos-não-conseguem-entrar";
@@ -60,6 +61,7 @@ export function LobbyHeader({ isHost, hostNickname }: LobbyHeaderProps) {
           )}
           {tally?.hasNew && <span aria-label="Conquista nova" className="size-1.5 rounded-full bg-toast-warning" />}
         </Button>
+        <LobbyTutorialButton />
       </div>
 
       {/* Convite */}

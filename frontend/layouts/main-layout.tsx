@@ -5,6 +5,7 @@ import Topbar from "@/layouts/partial/topbar";
 import type { NavItem } from "@/types";
 import { Outlet } from "react-router-dom";
 import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
+import { EdgeTab } from "@/features/tutorial/components/edge-tab";
 
 interface LayoutProps {
   navItems: NavItem[];
@@ -23,6 +24,7 @@ export default function MainLayout({ navItems }: LayoutProps) {
           <Outlet />
         </main>
       </SidebarInset>
+      <EdgeTab />
     </SidebarProvider>
   );
 }

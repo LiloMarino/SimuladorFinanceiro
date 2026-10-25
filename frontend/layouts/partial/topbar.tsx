@@ -7,6 +7,7 @@ import { Button } from "@/shared/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { displayShortDate } from "@/shared/lib/utils/display";
 import { TopbarCash } from "./topbar-cash";
+import { TopbarTutorialButton } from "@/features/tutorial/components/topbar-button";
 import { TopbarGoal } from "./topbar-goal";
 import { GoverningBanner } from "@/features/government/components/governing-banner";
 import { TopbarGovernment } from "@/features/government/components/topbar-government";
@@ -53,6 +54,9 @@ export default function Topbar({ pageLabel }: TopbarProps) {
 
           {/* Expansão Governo & Política */}
           {match?.government_enabled && <TopbarGovernment />}
+
+          {/* Como jogar */}
+          <TopbarTutorialButton />
 
           {/* Data, pausa e velocidade */}
           <div className="flex items-center gap-2 rounded-lg border border-border bg-subtle p-1">

@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import MainLayout from "@/layouts/main-layout";
 import { PlainLayout } from "@/layouts/plain-layout";
-import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge, Flag, Medal, Banknote, Landmark, Gavel } from "lucide-react";
+import { TrendingUp, Coins, Wallet, Bot, Trophy, Settings, Grid3x3, Gauge, Flag, Medal, Banknote, Landmark, Gavel, GraduationCap } from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
 import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
@@ -36,6 +36,7 @@ import { NotificationSettingsProvider } from "@/shared/context/notifications-set
 import { GlobalNotifications } from "./shared/notifications";
 import { GovernmentNotifications } from "./features/government/components/government-notifications";
 import { SimulationProvider } from "./shared/context/simulation";
+import { TutorialProvider } from "./features/tutorial/context/TutorialProvider";
 import { GuardLayout } from "./layouts/guard-layout";
 import { SimulationModeLayout } from "./layouts/simulation-mode-layout";
 import { queryClient } from "@/shared/lib/queryClient";
@@ -52,13 +53,14 @@ const navItems: NavItem[] = [
   { key: "election", label: "Eleição", endpoint: "/election", icon: Landmark, group: "Expansões", expansion: "government" },
   { key: "government", label: "Governo", endpoint: "/government", icon: Gavel, group: "Expansões", expansion: "government" },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
+  { key: "tutorial", label: "Como jogar", endpoint: "", icon: GraduationCap, group: "Ferramentas", tutorial: true },
   { key: "strategies", label: "Estratégias", endpoint: "/strategies", icon: Bot, group: "Ferramentas", strategyStatus: true },
   { key: "performance", label: "Desempenho", endpoint: "/performance", icon: Gauge, group: "Ferramentas", badge: "Debug", badgeTone: "warning", debugOnly: true },
   { key: "settings", label: "Configurações", endpoint: "/settings", icon: Settings, group: "Ferramentas" },
 ];
 
 const routeLabels = navItems.reduce<Record<string, string>>((acc, item) => {
-  acc[item.endpoint] = item.label;
+  if (!item.tutorial) acc[item.endpoint] = item.label;
   return acc;
 }, {});
 
@@ -76,43 +78,45 @@ export default function App() {
               <DebugTools />
               <PageLabelProvider routeLabels={routeLabels}>
                 <SimulationProvider>
-                  <Routes>
-                    <Route element={<GuardLayout />}>
-                      <Route path="/login" element={<LoginPage />} />
-                      <Route path="/lobby" element={<LobbyPage />} />
-                      <Route path="/join" element={<JoinMatchPage />} />
-                      <Route element={<PlainLayout />}>
-                        <Route path="/backtest/new" element={<BacktestNewPage />} />
-                        <Route path="/backtest/running" element={<BacktestRunningPage />} />
-                        <Route path="/import-assets" element={<ImportAssetsPage />} />
-                        <Route path="/compare-simulations" element={<CompareSimulationsPage />} />
-                        <Route path="/match-result/:simulationId" element={<MatchResultPage />} />
+                  <TutorialProvider>
+                    <Routes>
+                      <Route element={<GuardLayout />}>
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/lobby" element={<LobbyPage />} />
+                        <Route path="/join" element={<JoinMatchPage />} />
+                        <Route element={<PlainLayout />}>
+                          <Route path="/backtest/new" element={<BacktestNewPage />} />
+                          <Route path="/backtest/running" element={<BacktestRunningPage />} />
+                          <Route path="/import-assets" element={<ImportAssetsPage />} />
+                          <Route path="/compare-simulations" element={<CompareSimulationsPage />} />
+                          <Route path="/match-result/:simulationId" element={<MatchResultPage />} />
+                        </Route>
+                        <Route element={<MainLayout navItems={navItems} />}>
+                          <Route path="/" element={<PortfolioPage />} />
+                          <Route path="/variable-income" element={<VariableIncomePage />} />
+                          <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
+                          <Route path="/fixed-income" element={<FixedIncomePage />} />
+                          <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
+                          <Route path="/portfolio" element={<PortfolioPage />} />
+                          <Route path="/strategies" element={<StrategiesPage />} />
+                          <Route path="/performance" element={<PerformancePage />} />
+                          <Route path="/settings" element={<SettingsPage />} />
+                          <Route path="/goal" element={<GoalPage />} />
+                          <Route path="/credit" element={<CreditPage />} />
+                          <Route path="/statistics" element={<StatisticsPage />} />
+                          <Route path="/election" element={<ElectionPage />} />
+                          <Route path="/government" element={<GovernmentPage />} />
+                        </Route>
+                        <Route element={<SimulationModeLayout navItems={navItems} />}>
+                          <Route path="/correlation" element={<CorrelationPage />} />
+                          <Route path="/achievements" element={<AchievementsPage />} />
+                        </Route>
                       </Route>
-                      <Route element={<MainLayout navItems={navItems} />}>
-                        <Route path="/" element={<PortfolioPage />} />
-                        <Route path="/variable-income" element={<VariableIncomePage />} />
-                        <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
-                        <Route path="/fixed-income" element={<FixedIncomePage />} />
-                        <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
-                        <Route path="/portfolio" element={<PortfolioPage />} />
-                        <Route path="/strategies" element={<StrategiesPage />} />
-                        <Route path="/performance" element={<PerformancePage />} />
-                        <Route path="/settings" element={<SettingsPage />} />
-                        <Route path="/goal" element={<GoalPage />} />
-                        <Route path="/credit" element={<CreditPage />} />
-                        <Route path="/statistics" element={<StatisticsPage />} />
-                        <Route path="/election" element={<ElectionPage />} />
-                        <Route path="/government" element={<GovernmentPage />} />
-                      </Route>
-                      <Route element={<SimulationModeLayout navItems={navItems} />}>
-                        <Route path="/correlation" element={<CorrelationPage />} />
-                        <Route path="/achievements" element={<AchievementsPage />} />
-                      </Route>
-                    </Route>
-                    {/* 404 */}
-                    <Route path="*" element={<ErrorPage />} />
-                  </Routes>
-                  <Toaster position="bottom-right" />
+                      {/* 404 */}
+                      <Route path="*" element={<ErrorPage />} />
+                    </Routes>
+                    <Toaster position="bottom-right" />
+                  </TutorialProvider>
                 </SimulationProvider>
               </PageLabelProvider>
             </NotificationSettingsProvider>

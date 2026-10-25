@@ -4,6 +4,7 @@ import { DangerZoneCard } from "../components/danger-zone-card";
 import { MatchCard } from "../components/match-card";
 import { NotificationsCard } from "../components/notifications-card";
 import { ProfileCard } from "../components/profile-card";
+import { TutorialStyleCard } from "../components/tutorial-style-card";
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -20,6 +21,7 @@ export default function SettingsPage() {
         <NotificationsCard />
         <DangerZoneCard nickname={user.nickname} />
       </div>
+      <TutorialStyleCard />
     </div>
   );
 }

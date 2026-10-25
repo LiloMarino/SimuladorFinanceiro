@@ -429,6 +429,9 @@ const sidebarMenuButtonVariants = cva(
     variants: {
       variant: {
         default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        // Item que o jogador ainda não usou: contorno azul e ícone claro
+        highlight:
+          "text-primary-foreground shadow-[inset_0_0_0_1px_var(--primary)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground [&_svg]:text-sidebar-primary",
         outline:
           "bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]",
       },
@@ -524,19 +527,19 @@ function SidebarMenuAction({
   });
 }
 
-/** `tone="warning"`: selo âmbar, para o que só existe em modo debug. */
+/** `tone="warning"`: selo âmbar, para o que só existe em modo debug. `tone="primary"`: pílula azul de contador novo. */
 function SidebarMenuBadge({
   className,
   tone = "default",
   ...props
-}: React.ComponentProps<"div"> & { tone?: "default" | "warning" | "plain" }) {
+}: React.ComponentProps<"div"> & { tone?: "default" | "warning" | "plain" | "primary" }) {
   return (
     <div
       data-slot="sidebar-menu-badge"
       data-tone={tone}
       data-sidebar="menu-badge"
       className={cn(
-        "pointer-events-none absolute right-2 flex h-5 min-w-5 items-center justify-center rounded-sm bg-sidebar-accent px-2 text-[11px] font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground data-[tone=plain]:bg-transparent data-[tone=plain]:px-0 data-[tone=warning]:bg-sidebar-warning-soft data-[tone=warning]:text-sidebar-warning peer-hover/menu-button:data-[tone=warning]:text-sidebar-warning peer-data-active/menu-button:data-[tone=warning]:text-sidebar-warning",
+        "pointer-events-none absolute right-2 flex h-5 min-w-5 items-center justify-center rounded-sm bg-sidebar-accent px-2 text-[11px] font-medium text-sidebar-foreground tabular-nums select-none group-data-[collapsible=icon]:hidden peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 peer-data-active/menu-button:text-sidebar-accent-foreground data-[tone=plain]:bg-transparent data-[tone=plain]:px-0 data-[tone=primary]:rounded-full data-[tone=primary]:bg-primary data-[tone=primary]:font-semibold data-[tone=primary]:text-primary-foreground peer-hover/menu-button:data-[tone=primary]:text-primary-foreground peer-data-active/menu-button:data-[tone=primary]:text-primary-foregrounddata-[tone=warning]:bg-sidebar-warning-soft data-[tone=warning]:text-sidebar-warning peer-hover/menu-button:data-[tone=warning]:text-sidebar-warning peer-data-active/menu-button:data-[tone=warning]:text-sidebar-warning",
         className,
       )}
       {...props}

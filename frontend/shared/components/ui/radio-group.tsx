@@ -2,12 +2,17 @@ import { Radio as RadioPrimitive } from "@base-ui/react/radio";
 import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
 import { cn } from "@/shared/lib/utils";
 
-/** `dense`: opções em cartão, quase coladas. */
-function RadioGroup({ className, dense = false, ...props }: RadioGroupPrimitive.Props & { dense?: boolean }) {
+/** `dense`: opções em cartão, quase coladas. `spacious`: cartões grandes, com respiro entre eles. */
+function RadioGroup({
+  className,
+  dense = false,
+  spacious = false,
+  ...props
+}: RadioGroupPrimitive.Props & { dense?: boolean; spacious?: boolean }) {
   return (
     <RadioGroupPrimitive
       data-slot="radio-group"
-      className={cn("grid w-full", dense ? "gap-0.5" : "gap-2", className)}
+      className={cn("grid w-full", dense ? "gap-0.5" : spacious ? "gap-4" : "gap-2", className)}
       {...props}
     />
   );

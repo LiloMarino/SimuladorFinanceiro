@@ -15,6 +15,8 @@ export const badgeVariants = cva(
         outline: "border-input bg-card text-foreground",
         // Selo de destaque sobre fundo claro: o contraste máximo do tema
         inverse: "bg-foreground text-background",
+        // Selo sobre fundo azul (aba do Como jogar): branco com texto azul
+        "on-primary": "bg-primary-foreground text-primary",
         // Selo no menu lateral: o tom do item ativo, sobre o fundo escuro
         sidebar: "bg-sidebar-accent text-sidebar-foreground",
         // Selo de equipe: a cor vem da variável --team, definida por quem renderiza

@@ -28,6 +28,7 @@ import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
 import { hasGoal } from "@/shared/lib/game-types";
+import { TutorialMenuItem } from "@/features/tutorial/components/menu-item";
 
 interface SidebarProps {
   navItems: NavItem[];
@@ -87,7 +88,10 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
             <SidebarMenu>
               {navItems
                 .filter((item) => item.group === group && isVisible(item))
-                .map((item) => (
+                .map((item) =>
+                  item.tutorial ? (
+                    <TutorialMenuItem key={item.key} label={item.label} icon={item.icon} />
+                  ) : (
                   <SidebarMenuItem key={item.key}>
                     <SidebarMenuButton isActive={activePage === item.key} render={<NavLink to={item.endpoint} />}>
                       <item.icon />
@@ -131,7 +135,8 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                       </SidebarMenuBadge>
                     )}
                   </SidebarMenuItem>
-                ))}
+                  ),
+                )}
             </SidebarMenu>
           </SidebarGroup>
         ))}

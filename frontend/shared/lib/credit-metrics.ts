@@ -10,6 +10,7 @@ export const LEVERAGE: MetricInfo = {
   reading:
     "Sem dívida é 0%. Quanto menor, melhor: cada 10% tira 4 pontos da nota de risco, e acima de 100% você deve mais do que tem.",
   format: (value) => displayPercent(value, 1),
+  topic: "leverage",
 };
 
 export const VOLATILITY: MetricInfo = {
