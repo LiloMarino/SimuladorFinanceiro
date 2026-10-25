@@ -15,6 +15,7 @@ from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
 from backend.routes.simulation import get_active_players
+from backend.types import ClientID, Event, JSONValue
 from tests.conftest import _SilentRealtimeBroker
 from tests.fakes import client, simulation_settings
 
@@ -30,8 +31,10 @@ class _RecordingBroker(_SilentRealtimeBroker):
     def __init__(self, sent: Sent) -> None:
         self.sent = sent
 
-    def notify(self, *args: Any, **_kwargs: object) -> None:
-        event, payload = args[:2]
+    def notify(
+        self, event: Event, payload: JSONValue, to: ClientID | None = None
+    ) -> None:
+        assert isinstance(payload, dict)
         self.sent.append((event, payload))
 
 

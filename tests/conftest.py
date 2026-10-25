@@ -33,12 +33,15 @@ from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
+from backend.types import ClientID, Event, JSONValue
 from tests.fakes import USER_ID, client, simulation_settings
 from tests.test_synthetic_series import build_history
 
 
 class _SilentRealtimeBroker:
-    def notify(self, *_args: object, **_kwargs: object) -> None:
+    def notify(
+        self, event: Event, payload: JSONValue, to: ClientID | None = None
+    ) -> None:
         pass
 
 
