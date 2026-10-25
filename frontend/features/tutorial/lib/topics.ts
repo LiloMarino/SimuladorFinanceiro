@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { TrendingUp } from "lucide-react";
+import { TOPIC_IDS, type TopicId } from "@/shared/lib/tutorial-topic-ids";
 
 /** Parte da linha do tempo da animação: a partir de `start` (s) vale o passo `step` do texto. */
 export interface Beat {
@@ -17,7 +18,7 @@ export interface IllustrationProps {
 }
 
 type TopicBase = {
-  id: string;
+  id: TopicId;
   group: keyof typeof groups;
   title: string;
   /** Duração de leitura, em minutos. */
@@ -55,8 +56,9 @@ export const groups = {
   "variable-income": { label: "Renda variável", icon: TrendingUp },
 } as const;
 
-export const topics = [
-  {
+// Um tópico por id de TOPIC_IDS, e a chave é o id do próprio tópico
+const registry = {
+  "buy-stock": {
     id: "buy-stock",
     group: "variable-income",
     kind: "howto",
@@ -87,7 +89,7 @@ export const topics = [
     poster: 6,
     loadIllustration: () => import("../topics/buy-stock"),
   },
-  {
+  "order-types": {
     id: "order-types",
     group: "variable-income",
     kind: "howto",
@@ -117,7 +119,7 @@ export const topics = [
     poster: 5,
     loadIllustration: () => import("../topics/order-types"),
   },
-  {
+  leverage: {
     id: "leverage",
     group: "variable-income",
     kind: "concept",
@@ -125,22 +127,20 @@ export const topics = [
     minutes: 2,
     summary: "Investir com dinheiro emprestado: o ganho e a perda crescem juntos.",
     screens: ["/credit"],
-    body: "Investir com dinheiro emprestado. **Alavancagem 2×** quer dizer que cada R$ 1 seu está investido junto com R$ 1 do banco: o ganho e a perda dobram.",
+    body: "Alavancagem é a **dívida dividida pelo seu patrimônio** (o que você tem menos o que deve). Com R$ 10.000 seus e R$ 10.000 emprestados, a dívida é igual ao patrimônio: **100%**. Com o dobro investido, o ganho e a perda também dobram.",
     callout: {
       title: "Bom e ruim",
-      text: "Até 1,3× é folga; acima de 2× uma queda pequena come boa parte do seu dinheiro e derruba a nota de risco.",
+      text: "Sem dívida é 0%, o melhor. Cada 10% tira 4 dos 40 pontos que a alavancagem vale na nota de risco: em 25% você perde 10 pontos, e em 100% perde os 40. Acima de 100%, você deve mais do que tem.",
     },
     loadIllustration: () => import("../topics/leverage"),
   },
-] as const satisfies readonly Topic[];
+} as const satisfies { [K in TopicId]: Topic & { id: K } };
 
-export type TopicId = (typeof topics)[number]["id"];
+export type RegisteredTopic = (typeof registry)[TopicId];
 
-export type RegisteredTopic = (typeof topics)[number];
+export const topicList: readonly RegisteredTopic[] = TOPIC_IDS.map((id) => registry[id]);
 
-export const topicList: readonly RegisteredTopic[] = topics;
-
-export const findTopic = (id: TopicId) => topicList.find((topic) => topic.id === id)!;
+export const findTopic = (id: TopicId): RegisteredTopic => registry[id];
 
 /** Grupos que têm mais de um tópico abrem e fecham; tópico sozinho aparece solto na lista. */
 export function groupTopics(list: readonly RegisteredTopic[]) {

@@ -1,4 +1,4 @@
-import type { TopicId } from "@/features/tutorial/lib/topics";
+import type { TopicId } from "@/shared/lib/tutorial-topic-ids";
 
 /** Texto de uma métrica: a descrição curta fica ao lado do número; o resto vai na dica. */
 export interface MetricInfo {

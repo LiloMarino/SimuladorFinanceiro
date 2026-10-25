@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight, GraduationCap } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
-import { useTutorial } from "../hooks/useTutorial";
+import { useTutorial } from "@/shared/hooks/useTutorial";
 import { TutorialNudge } from "./tutorial-nudge";
 
 /** Aba na borda direita da tela (acesso "Aba na borda"): abre o Como jogar e pode recolher em alça. */

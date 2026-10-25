@@ -174,6 +174,8 @@ function useWhenFound(finder: Finder, id: string, action: (element: HTMLElement)
 /** Escreve no campo pelo mesmo caminho do teclado: o React recebe um evento de input e a boleta reage. */
 function setInputValue(input: HTMLInputElement, value: string) {
   // oxlint-disable-next-line typescript/unbound-method
+  // O setter nativo roda com o input como `this`: é o valor que o React confere ao receber o evento
+  // oxlint-disable-next-line typescript/unbound-method
   const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
   setter?.call(input, value);
   input.dispatchEvent(new Event("input", { bubbles: true }));

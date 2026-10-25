@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BookOpen, Check } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/shared/lib/utils";
-import { useTutorial } from "../hooks/useTutorial";
+import { useTutorial } from "@/shared/hooks/useTutorial";
 import { groups, groupTopics, topicList, type RegisteredTopic } from "../lib/topics";
 import { isSeen, unseenTopics } from "../lib/tutorial-progress";
 

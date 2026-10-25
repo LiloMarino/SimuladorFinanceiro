@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import type { LucideIcon } from "lucide-react";
 import { SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from "@/shared/components/ui/sidebar";
-import { useTutorial } from "../hooks/useTutorial";
+import { useTutorial } from "@/shared/hooks/useTutorial";
 import { TutorialNudge } from "./tutorial-nudge";
 
 interface TutorialMenuItemProps {

@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { useSimulation } from "@/shared/hooks/useSimulation";
-import { useTutorial } from "../hooks/useTutorial";
+import { useTutorial } from "@/shared/hooks/useTutorial";
 import { findTopic, topicList } from "../lib/topics";
 import { MatchPause, MatchStatus, MatchSubtitle } from "./match-status";
 import { TopicList } from "./topic-list";

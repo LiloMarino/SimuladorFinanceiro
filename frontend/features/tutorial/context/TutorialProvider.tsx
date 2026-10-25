@@ -1,6 +1,7 @@
 import { useState, type PropsWithChildren } from "react";
 import { TutorialDialog } from "../components/tutorial-dialog";
-import { topicList, type TopicId } from "../lib/topics";
+import { topicList } from "../lib/topics";
+import type { TopicId } from "@/shared/lib/tutorial-topic-ids";
 import { unseenTopics } from "../lib/tutorial-progress";
 import {
   loadTutorialState,
@@ -9,8 +10,8 @@ import {
   saveTutorialState,
   type TutorialState,
   type TutorialStyle,
-} from "../lib/tutorial-storage";
-import { TutorialContext } from "./TutorialContext";
+} from "@/shared/lib/tutorial-storage";
+import { TutorialContext } from "@/shared/context/tutorial";
 
 export function TutorialProvider({ children }: PropsWithChildren) {
   const [state, setState] = useState(loadTutorialState);

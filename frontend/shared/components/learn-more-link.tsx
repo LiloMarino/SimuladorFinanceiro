@@ -1,8 +1,8 @@
 import { ArrowRight, GraduationCap } from "lucide-react";
 import { useContext } from "react";
 import { PageLabelContext } from "@/shared/context/page-label";
-import { useTutorial } from "../hooks/useTutorial";
-import type { TopicId } from "../lib/topics";
+import { useTutorial } from "@/shared/hooks/useTutorial";
+import type { TopicId } from "@/shared/lib/tutorial-topic-ids";
 
 /** Rodapé da dica de uma métrica: abre o tópico do Como jogar que a explica por inteiro. */
 export function LearnMoreLink({ topic }: { topic: TopicId }) {

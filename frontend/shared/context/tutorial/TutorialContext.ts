@@ -1,6 +1,6 @@
 import { createContext } from "react";
-import type { TopicId } from "../lib/topics";
-import type { TutorialState, TutorialStyle } from "../lib/tutorial-storage";
+import type { TopicId } from "@/shared/lib/tutorial-topic-ids";
+import type { TutorialState, TutorialStyle } from "@/shared/lib/tutorial-storage";
 
 export interface TutorialContextValue {
   state: TutorialState;

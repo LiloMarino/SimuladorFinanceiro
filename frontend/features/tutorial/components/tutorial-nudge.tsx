@@ -3,10 +3,10 @@ import { useLocation } from "react-router-dom";
 import { GraduationCap, X } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent } from "@/shared/components/ui/popover";
-import { useTutorial } from "../hooks/useTutorial";
+import { useTutorial } from "@/shared/hooks/useTutorial";
 import { topicList } from "../lib/topics";
 import { nudgeTopicFor } from "../lib/tutorial-progress";
-import type { TutorialStyle } from "../lib/tutorial-storage";
+import type { TutorialStyle } from "@/shared/lib/tutorial-storage";
 
 interface TutorialNudgeProps {
   /** O acesso a que o aviso pertence: só o escolhido pelo jogador mostra o aviso. */

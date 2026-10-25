@@ -38,7 +38,7 @@ export function TopicIllustration({ topic, beat, step, controls }: TopicIllustra
     <div
       className={cn(
         "relative overflow-hidden rounded-xl border bg-background",
-        topic.kind === "howto" ? "h-140" : "h-50",
+        topic.kind === "howto" ? "h-140" : "h-60",
       )}
     >
       <IllustrationBoundary

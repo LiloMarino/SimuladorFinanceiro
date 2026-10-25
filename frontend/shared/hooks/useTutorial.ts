@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { TutorialContext } from "../context/TutorialContext";
+import { TutorialContext } from "../context/tutorial";
 
 export function useTutorial() {
   const ctx = useContext(TutorialContext);

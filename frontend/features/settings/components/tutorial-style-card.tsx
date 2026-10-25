@@ -3,8 +3,8 @@ import { Ban } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
-import { useTutorial } from "@/features/tutorial/hooks/useTutorial";
-import { DEFAULT_TUTORIAL_STYLE, type TutorialStyle } from "@/features/tutorial/lib/tutorial-storage";
+import { useTutorial } from "@/shared/hooks/useTutorial";
+import { DEFAULT_TUTORIAL_STYLE, type TutorialStyle } from "@/shared/lib/tutorial-storage";
 import { cn } from "@/shared/lib/utils";
 
 interface StyleOption {

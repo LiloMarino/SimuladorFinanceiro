@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { GraduationCap } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
-import { useTutorial } from "../hooks/useTutorial";
+import { useTutorial } from "@/shared/hooks/useTutorial";
 import { TutorialNudge } from "./tutorial-nudge";
 
 /** Chapéu na topbar (acesso "Botão na topbar"): o ponto azul diz que ainda há tópico para ver. */

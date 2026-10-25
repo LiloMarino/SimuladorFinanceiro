@@ -1,16 +1,15 @@
 import { matchPath } from "react-router-dom";
 import type { RoomPlayer } from "@/types";
-import type { Topic } from "./topics";
-import type { TutorialState } from "./tutorial-storage";
+import type { TutorialState } from "@/shared/lib/tutorial-storage";
 
-export const isSeen = (state: TutorialState, topic: Pick<Topic, "id">) => state.seen.includes(topic.id);
+export const isSeen = (state: TutorialState, topic: { id: string }) => state.seen.includes(topic.id);
 
 /** Tópicos que o jogador ainda não abriu. */
-export const unseenTopics = <T extends Pick<Topic, "id">>(state: TutorialState, topics: readonly T[]) =>
+export const unseenTopics = <T extends { id: string }>(state: TutorialState, topics: readonly T[]) =>
   topics.filter((topic) => !isSeen(state, topic));
 
 /** O primeiro tópico da tela que ainda não foi visto nem avisado. */
-export function nudgeTopicFor<T extends Pick<Topic, "id" | "screens">>(
+export function nudgeTopicFor<T extends { id: string; screens: readonly string[] }>(
   state: TutorialState,
   topics: readonly T[],
   pathname: string,

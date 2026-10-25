@@ -1,6 +1,6 @@
 import { InfoHint } from "@/shared/components/info-hint";
 import type { MetricInfo } from "@/shared/lib/metric-info";
-import { LearnMoreLink } from "@/features/tutorial/components/learn-more-link";
+import { LearnMoreLink } from "@/shared/components/learn-more-link";
 
 interface Props {
   metric: MetricInfo;

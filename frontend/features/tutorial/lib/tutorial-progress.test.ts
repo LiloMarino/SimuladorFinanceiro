@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { countHumans, nudgeTopicFor, shouldPause, shouldResume, unseenTopics } from "./tutorial-progress";
-import { EMPTY_TUTORIAL_STATE, markNudged, markSeen, parseTutorialState } from "./tutorial-storage";
+import { EMPTY_TUTORIAL_STATE, markNudged, markSeen, parseTutorialState } from "@/shared/lib/tutorial-storage";
 
 const topics = [
   { id: "a", screens: ["/variable-income"] },

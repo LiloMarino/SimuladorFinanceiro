@@ -9,6 +9,8 @@ const BORROWED = 10_000;
 const DROP = 0.1;
 
 const invested = OWN + BORROWED;
+// A mesma conta da nota de risco: dívida ÷ patrimônio líquido, que aqui é o dinheiro do jogador
+const leverage = BORROWED / OWN;
 const loss = invested * DROP;
 const lossOfOwn = loss / OWN;
 
@@ -21,7 +23,7 @@ function Bar({ label, value, tone }: { label: string; value: number; tone: "prim
     <div className="grid grid-cols-[120px_1fr_110px] items-center gap-2.5 text-[13px]">
       <span className="text-muted-foreground">{label}</span>
       <motion.span
-        className={cn("h-[22px] rounded-[5px]", tone === "primary" ? "bg-primary" : "bg-muted-foreground/30")}
+        className={cn("h-5.5 rounded-[5px]", tone === "primary" ? "bg-primary" : "bg-muted-foreground/30")}
         initial={{ width: reduced ? `${(value / invested) * 100}%` : 0 }}
         animate={{ width: `${(value / invested) * 100}%` }}
         transition={{ duration: 0.8, ease: "easeOut" }}
@@ -31,7 +33,7 @@ function Bar({ label, value, tone }: { label: string; value: number; tone: "prim
   );
 }
 
-/** Alavancagem 2×: R$ 1 seu e R$ 1 do banco; uma queda de 10% na ação tira 20% do seu dinheiro. */
+/** Alavancagem de 100%: R$ 1 seu e R$ 1 do banco; uma queda de 10% na ação tira 20% do seu dinheiro. */
 export default function LeverageIllustration({ still = false }: IllustrationProps) {
   void still;
   return (
@@ -40,6 +42,10 @@ export default function LeverageIllustration({ still = false }: IllustrationProp
       <Bar label="Emprestado" value={BORROWED} tone="muted" />
       <Bar label="Investido" value={invested} tone="primary" />
       <div className="grid gap-1.5 border-t border-dashed border-input pt-3 text-[13px]">
+        <div className="flex justify-between">
+          <span>Alavancagem · dívida ÷ patrimônio</span>
+          <span className="font-mono">{percent.format(leverage)}</span>
+        </div>
         <div className="flex justify-between">
           <span>Ação cai {percent.format(DROP)}</span>
           <span className="font-mono text-destructive">−{displayMoneyWhole(loss)}</span>
