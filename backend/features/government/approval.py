@@ -10,6 +10,7 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from backend.core.enum import ApprovalFactorKind, IndicatorSeries, MeasureStatus
 from backend.core.indicators import annual_index_rate, last_known_value
+from backend.core.utils import required
 from backend.features.government import measures as rules
 from backend.features.government.state import Measure, Term
 
@@ -137,11 +138,11 @@ def measure_factors(measures: Iterable[Measure], today: date) -> list[Factor]:
     """Corte soma enquanto o governo dura; imposto novo tira ao valer e some em 6 meses."""
     factors = []
     for measure in measures:
-        assert measure.effective is not None
-        if measure.effective > today:
+        effective = required(measure.effective)
+        if effective > today:
             continue
         impact = rules.approval_impact(measure)
-        since = f"valendo desde {month_label(measure.effective)}"
+        since = f"valendo desde {month_label(effective)}"
         if impact > 0:
             factors.append(
                 Factor(
@@ -155,7 +156,7 @@ def measure_factors(measures: Iterable[Measure], today: date) -> list[Factor]:
         points = rules.current_effect(measure, today)
         if points == 0:
             continue
-        ends = measure.effective + timedelta(days=rules.FADE_DAYS)
+        ends = effective + timedelta(days=rules.FADE_DAYS)
         factors.append(
             Factor(
                 ApprovalFactorKind.NEW_TAX,

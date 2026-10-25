@@ -13,6 +13,7 @@ from decimal import Decimal
 from backend.core.dto.events.government import GovernmentEventDTO
 from backend.core.enum import GovernmentEventType as Event
 from backend.core.enum import MeasureKind, MeasureStatus
+from backend.core.utils import required
 
 # Pontos de intenção de voto por gasto: R$ 8 mil num mês dão √8000 ÷ 64 = 1,4 ponto
 # (de 100 eleitores). O apoio rende pela raiz quadrada, então dobrar a verba não
@@ -290,7 +291,6 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             state.pending_term = None
             _reset_government(state)
         case Event.MEASURE_PROPOSED:
-            assert state.term is not None
             measure_id = _int(p, "measure_id")
             state.measures[measure_id] = Measure(
                 id=measure_id,
@@ -300,7 +300,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 sector=_opt_str(p, "sector"),
                 segment=_opt_str(p, "segment"),
                 proposer_id=_int(p, "proposer_id"),
-                term_start=state.term.start,
+                term_start=required(state.term).start,
                 proposed=day,
             )
             state.next_measure_id = max(state.next_measure_id, measure_id + 1)
@@ -333,8 +333,7 @@ def _reset_government(state: GovernmentState) -> None:
 
 
 def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> None:
-    term = state.term
-    assert term is not None
+    term = required(state.term)
     successor = _opt_int(event.payload, "successor_id")
     state.impeachments.append(
         Impeachment(

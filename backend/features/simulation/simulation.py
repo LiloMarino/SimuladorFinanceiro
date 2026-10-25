@@ -67,7 +67,7 @@ from backend.core.life_budget import LifeBudget
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
-from backend.core.utils import next_business_day, next_month_turn
+from backend.core.utils import next_business_day, next_month_turn, required
 from backend.features.achievements.catalog import Achievement
 from backend.features.achievements.evaluator import (
     AchievementEvaluator,
@@ -763,16 +763,16 @@ class Simulation:
         gráfico o lote é gravado e a sala é avisada, nessa ordem, para quem abrir o
         resultado já encontrar os dados.
         """
-        assert self.backtest is not None
+        backtest = required(self.backtest)
         contribution = (
             self.settings.monthly_contribution if month_changed else Decimal(0)
         )
         self._contributed += contribution
         today = [self._balance_snapshot(user) for user in users]
         self._pending_snapshots.extend(today)
-        if self.backtest.record_day(self._current_date, today, contribution):
+        if backtest.record_day(self._current_date, today, contribution):
             self.flush_backtest()
-            self.backtest.publish()
+            backtest.publish()
 
     def _balance_snapshot(self, user: UserDTO) -> SnapshotDTO:
         equity, fixed, cash, debt = self._engine.balance_sheet(user.client_id)
@@ -789,8 +789,7 @@ class Simulation:
         )
 
     def _backtest_failed(self, user: UserDTO, day: date, message: str) -> None:
-        assert self.backtest is not None
-        self.backtest.fail(user.nickname, day, message)
+        required(self.backtest).fail(user.nickname, day, message)
 
     def flush_backtest(self) -> None:
         """Grava os snapshots pendentes do backtest."""

@@ -32,6 +32,7 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
+from backend.core.utils import required
 from backend.features.government import approval as approval_rules
 from backend.features.government import congress, election
 from backend.features.government import measures as rules
@@ -66,12 +67,11 @@ class GovernmentBook:
         random_seed: int,
     ):
         """`on_office` roda na posse de cada presidente jogador: a carteira dele congela."""
-        assert settings.first_election is not None
         self._settings = settings
         self._engine = engine
         self._on_office = on_office
         self._seed = random_seed
-        self._first_election = settings.first_election
+        self._first_election = required(settings.first_election)
         self._factor = settings.computer_difficulty.budget_factor
         self.state: GovernmentState = replay(
             repository.government.get_events(settings.id)
@@ -108,8 +108,7 @@ class GovernmentBook:
         president = self.president()
         if president is None or president.client_id != client_id:
             return
-        end = self.term_end()
-        assert end is not None
+        end = required(self.term_end())
         raise ConflictError(
             "Presidente não compra nem vende enquanto governa: sua carteira volta a "
             f"operar em {rules.short_date(end + timedelta(days=1))}."
@@ -454,12 +453,9 @@ class GovernmentBook:
         """O que a medida faria, sem propô-la: régua, pontos na aprovação, voto e vigência."""
         self._ensure_president(user)
         draft = self._draft(user, today, kind, value, sector, segment)
-        assert self.state.term is not None
-        approved = approval_rules.term_measures(
-            self.state.measures.values(), self.state.term
-        )
-        current = self.approval(today)
-        assert current is not None
+        term = required(self.state.term)
+        approved = approval_rules.term_measures(self.state.measures.values(), term)
+        current = required(self.approval(today))
         vote = congress.next_vote_date(today)
         tickers = self.tickers(draft)
         return MeasurePreviewDTO(
@@ -467,7 +463,7 @@ class GovernmentBook:
             ruler_band=rules.ruler_band(draft),
             mark_before=current.mark,
             mark_after=approval_rules.mark_of([*approved, draft]) or Decimal(0),
-            promise=self.state.term.promise,
+            promise=term.promise,
             impact=rules.approval_impact(draft),
             chance=current.value,
             vote_date=vote,
@@ -510,8 +506,7 @@ class GovernmentBook:
         segment: str | None,
     ) -> Measure:
         """Valida o pedido e monta a medida como entraria na fila."""
-        term = self.state.term
-        assert term is not None
+        term = required(self.state.term)
         before: Decimal | None = None
         if kind.is_sector:
             self._ensure_located(sector, segment)
@@ -605,8 +600,7 @@ class GovernmentBook:
             or self.state.last_measured == month
         ):
             return False
-        current = self.approval(today)
-        assert current is not None
+        current = required(self.approval(today))
         streak = (
             self.state.low_streak + 1 if current.value < approval_rules.FLOOR else 0
         )
@@ -655,8 +649,7 @@ class GovernmentBook:
 
     def _impeach(self, today: date) -> None:
         """Assume o vice que ainda é filiado; sem ele, o computador governa sem propor medidas."""
-        term = self.state.term
-        assert term is not None
+        term = required(self.state.term)
         out = self.president()
         successor = self._successor()
         self._emit(
@@ -674,8 +667,7 @@ class GovernmentBook:
         )
 
     def _successor(self) -> UserDTO | None:
-        term = self.state.term
-        assert term is not None
+        term = required(self.state.term)
         party = self.state.parties.get(term.party_id) if term.party_id else None
         if term.vice_id is None or party is None or term.vice_id not in party.members:
             return None
@@ -830,8 +822,7 @@ class GovernmentBook:
         )
 
     def _start_term(self, today: date, people: dict[int, UserDTO]) -> None:
-        pending = self.state.pending_term
-        assert pending is not None
+        pending = required(self.state.pending_term)
         self._emit(
             GovernmentEventType.TERM_STARTED,
             today,

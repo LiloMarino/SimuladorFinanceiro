@@ -16,7 +16,7 @@ from backend.core.enum import (
     StrategyParamKind,
     StrategyView,
 )
-from backend.core.utils import format_money
+from backend.core.utils import format_money, required
 from backend.features.strategy.allocation import Item, distribute, whole_shares
 from backend.features.strategy.base_strategy import (
     BaseStrategy,
@@ -245,8 +245,9 @@ def _redeem(ctx: StrategyContext, need: Decimal, why: str) -> Decimal:
         key=lambda h: (-(h.redeemable or ZERO), str(h.asset_uuid)),
     )
     for holding in liquid:
-        assert holding.redeemable is not None
-        value = min(need - redeemed, holding.redeemable).quantize(CENT, ROUND_DOWN)
+        value = min(need - redeemed, required(holding.redeemable)).quantize(
+            CENT, ROUND_DOWN
+        )
         if value < MIN_MOVE:
             continue
         ctx.redeem(

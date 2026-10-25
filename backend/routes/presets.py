@@ -17,6 +17,7 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.user_manager import UserManager
+from backend.core.utils import required
 from backend.routes.simulation import (
     SimulationRulesRequest,
     notify_preset_changed,
@@ -105,9 +106,7 @@ def rename_preset(preset_id: int, payload: RenamePresetRequest, _: HostVerified)
     _ensure_name_free(payload.name, preset_id)
     repository.preset.rename(preset_id, payload.name)
     notify_preset_changed()
-    preset = repository.preset.get(preset_id)
-    assert preset is not None
-    return preset
+    return required(repository.preset.get(preset_id))
 
 
 @presets_router.put(
@@ -125,9 +124,7 @@ def update_preset_rules(
     if SettingsManager.get_selected_simulation_id() is None:
         SettingsManager.mark_preset(preset_id)
     notify_preset_changed()
-    preset = repository.preset.get(preset_id)
-    assert preset is not None
-    return preset
+    return required(repository.preset.get(preset_id))
 
 
 @presets_router.delete(
@@ -170,8 +167,7 @@ def load_preset(preset_id: int, _: HostVerified):
         UserManager.reset_teams()
 
     notify_settings_changed(settings)
-    applied = SettingsManager.applied_preset()
-    assert applied is not None
+    applied = required(SettingsManager.applied_preset())
     # Os prontos só dizem o essencial de cada jogo: o resto vir do padrão é o desenho deles
     return PresetLoadResponse(
         settings=settings,

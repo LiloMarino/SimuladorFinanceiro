@@ -6,6 +6,17 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
+def required[T](value: T | None) -> T:
+    """
+    O valor que a regra do domínio garante presente, já sem `None` para o pyright. A
+    checagem vale também no executável, que é empacotado com `optimize=2` e perde os
+    `assert`.
+    """
+    if value is None:
+        raise ValueError("Valor obrigatório ausente")
+    return value
+
+
 def format_percent(rate: float | Decimal) -> str:
     return f"{rate * 100:.2f}%"
 

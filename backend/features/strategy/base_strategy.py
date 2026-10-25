@@ -115,19 +115,22 @@ class BaseStrategy:
 
 def param_int(params: dict[str, StrategyParamValue], key: str) -> int:
     value = params[key]
-    assert isinstance(value, int)
+    if not isinstance(value, int):
+        raise TypeError(f"O parâmetro {key} precisa ser inteiro")
     return value
 
 
 def param_ticker(params: dict[str, StrategyParamValue], key: str) -> str:
     value = params[key]
-    assert isinstance(value, str)
+    if not isinstance(value, str):
+        raise TypeError(f"O parâmetro {key} precisa ser texto")
     return value
 
 
 def param_tickers(params: dict[str, StrategyParamValue], key: str) -> list[str]:
     value = params[key]
-    assert isinstance(value, list)
+    if not isinstance(value, list):
+        raise TypeError(f"O parâmetro {key} precisa ser lista")
     return value
 
 

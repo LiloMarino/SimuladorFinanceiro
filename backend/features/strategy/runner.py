@@ -44,6 +44,7 @@ from backend.core.exceptions.http_exceptions import (
 from backend.core.indicators import annual_index_rate
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
+from backend.core.utils import required
 from backend.features.fixed_income.accrual import offer
 from backend.features.fixed_income.liquidity import redeemable_today
 from backend.features.realtime import notify
@@ -440,14 +441,13 @@ class StrategyRunner:
             row = row.model_copy(update={"detail": str(exc.detail)})
 
         EventManager.push_event(row)
-        assert row.status is not None
         return StrategyOrderLineDTO(
             action=row.action or intent.action,
             ticker=row.ticker,
             asset_name=row.asset_name,
             quantity=row.quantity,
             price=row.price,
-            status=row.status,
+            status=required(row.status),
             reason=row.reason,
             asset_uuid=row.asset_uuid,
         )
@@ -458,7 +458,8 @@ class StrategyRunner:
         engine = self._engine
         match intent.action:
             case StrategyAction.BUY | StrategyAction.SELL:
-                assert intent.ticker and intent.quantity
+                if not intent.ticker or not intent.quantity:
+                    raise ValueError("Compra e venda precisam de ativo e quantidade")
                 order: Order = (
                     LimitOrder(
                         client_id=user.client_id,
@@ -485,7 +486,8 @@ class StrategyRunner:
                     }
                 )
             case StrategyAction.CANCEL:
-                assert intent.order_id
+                if not intent.order_id:
+                    raise ValueError("Cancelamento precisa da ordem")
                 resting = engine.matching_engine.order_book.find(intent.order_id)
                 if resting is None or not engine.matching_engine.cancel(
                     order_id=intent.order_id, client_id=user.client_id
@@ -501,7 +503,8 @@ class StrategyRunner:
                     }
                 )
             case StrategyAction.INVEST:
-                assert intent.asset_uuid and intent.value
+                if not intent.asset_uuid or not intent.value:
+                    raise ValueError("Aplicação e resgate precisam de título e valor")
                 asset = engine.fixed_income_market.get_asset(str(intent.asset_uuid))
                 if asset is None:
                     raise ConflictError("O título não está mais disponível")
@@ -517,7 +520,8 @@ class StrategyRunner:
                     }
                 )
             case StrategyAction.REDEEM:
-                assert intent.asset_uuid and intent.value
+                if not intent.asset_uuid or not intent.value:
+                    raise ValueError("Aplicação e resgate precisam de título e valor")
                 asset = engine.fixed_income_market.get_asset(str(intent.asset_uuid))
                 if asset is None:
                     raise ConflictError("O título não está mais disponível")

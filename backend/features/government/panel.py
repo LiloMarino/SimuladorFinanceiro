@@ -25,6 +25,7 @@ from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import ElectionPhase, GameType, VicePhase
 from backend.core.runtime.user_manager import UserManager
+from backend.core.utils import required
 from backend.features.government import election
 from backend.features.government.calendar import ElectionCycle
 from backend.features.government.government_book import GovernmentBook
@@ -316,9 +317,8 @@ def _stored_runoff(result: RoundResult) -> RunoffSimulationDTO:
         )
         for pid in sorted(result.points)
     ]
-    assert result.winner_id is not None
     return RunoffSimulationDTO(
-        finalists=result.finalists, entries=entries, winner=result.winner_id
+        finalists=result.finalists, entries=entries, winner=required(result.winner_id)
     )
 
 

@@ -8,6 +8,7 @@ from uuid import UUID
 from backend.core.dto.events.credit import CreditEventDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.enum import CreditEventType, CreditGrade
+from backend.core.utils import required
 from backend.features.credit.credit_book import ClientCredit, Loan, close_rating
 from backend.features.credit.price import ZERO
 from backend.features.credit.rating import (
@@ -95,8 +96,9 @@ def _interest_of(
         case CreditEventType.INSTALLMENT_PAID:
             return event.amount - (state.cycle_balance - state.advance().cycle_balance)
         case CreditEventType.PREPAYMENT:
-            assert event.prepayment_mode is not None
-            after = state.prepay(event.amount, event.event_date, event.prepayment_mode)
+            after = state.prepay(
+                event.amount, event.event_date, required(event.prepayment_mode)
+            )
             return event.amount - (state.cycle_balance - after.cycle_balance)
         case CreditEventType.INSTALLMENT_LATE:
             late_principal[(loan.loan_id, state.next_number)] = (

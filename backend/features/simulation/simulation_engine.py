@@ -25,7 +25,7 @@ from backend.core.exceptions.http_exceptions import UnprocessableEntityError
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
 from backend.core.sectors import allocate_by_sector
-from backend.core.utils import ratio
+from backend.core.utils import ratio, required
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.credit.credit_book import CreditBook
 from backend.features.fixed_income.entities.fixed_income_position import (
@@ -225,10 +225,9 @@ class SimulationEngine:
 
     def size_budget_order(self, order: MarketOrder) -> None:
         """Dá à compra por valor a quantidade que o valor paga ao melhor preço de hoje."""
-        assert order.budget is not None
         price = self.estimated_price(order.ticker, order.action, None)
         order.size = order.remaining = self.affordable(
-            order.ticker, order.budget, price
+            order.ticker, required(order.budget), price
         )
         if order.size <= 0:
             raise UnprocessableEntityError("O valor não paga uma unidade")
@@ -252,8 +251,7 @@ class SimulationEngine:
         price = self.estimated_price(ticker, action, limit_price)
         # Por valor, a quantidade é a que o valor paga ao preço estimado
         if quantity is None:
-            assert amount is not None
-            quantity = self.affordable(ticker, amount, price)
+            quantity = self.affordable(ticker, required(amount), price)
         self.check_quantity(ticker, quantity)
 
         total = (price or Decimal(0)) * quantity

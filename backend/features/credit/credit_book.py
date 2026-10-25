@@ -27,7 +27,7 @@ from backend.core.exceptions.http_exceptions import (
 from backend.core.indicators import annual_index_rate
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
-from backend.core.utils import next_business_day
+from backend.core.utils import next_business_day, required
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.credit.loan import LoanState
 from backend.features.credit.price import (
@@ -183,20 +183,21 @@ class ClientCredit:
         loan = self.loans.get(event.loan_id)
         match event.event_type:
             case CreditEventType.CONTRACT:
-                assert event.annual_rate is not None and event.term_months is not None
-                assert event.grade is not None
+                annual_rate = required(event.annual_rate)
+                term_months = required(event.term_months)
+                grade = required(event.grade)
                 self.contracts += 1
                 self.loans[event.loan_id] = Loan(
                     loan_id=event.loan_id,
                     number=self.contracts,
                     principal=event.amount,
-                    term_months=event.term_months,
-                    grade=event.grade,
+                    term_months=term_months,
+                    grade=grade,
                     state=LoanState.sign(
                         event.event_date,
                         event.amount,
-                        event.annual_rate,
-                        event.term_months,
+                        annual_rate,
+                        term_months,
                     ),
                 )
             case CreditEventType.INSTALLMENT_PAID if loan:
@@ -211,9 +212,8 @@ class ClientCredit:
                     o for o in loan.overdue if o.number != event.installment_number
                 ]
             case CreditEventType.PREPAYMENT if loan:
-                assert event.prepayment_mode is not None
                 loan.state = loan.state.prepay(
-                    event.amount, event.event_date, event.prepayment_mode
+                    event.amount, event.event_date, required(event.prepayment_mode)
                 )
             case CreditEventType.PAYOFF if loan:
                 loan.state = loan.state.close()

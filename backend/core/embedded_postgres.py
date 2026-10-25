@@ -29,7 +29,7 @@ from psycopg import sql
 from backend import config
 from backend.config.paths import user_data_dir
 from backend.core.logger import TERMINAL
-from backend.core.utils import resource_path
+from backend.core.utils import required, resource_path
 
 logger = logging.getLogger(__name__)
 
@@ -208,7 +208,7 @@ class EmbeddedPostgres:
         return port
 
     def _wait_until_ready(self, port: int) -> None:
-        assert self._process is not None
+        process = required(self._process)
         password = (
             self._password_file.read_text("utf-8").strip()
             if self._password_file.exists()
@@ -216,7 +216,7 @@ class EmbeddedPostgres:
         )
         deadline = time.monotonic() + STARTUP_TIMEOUT_SECONDS
         while time.monotonic() < deadline:
-            if self._process.poll() is not None:
+            if process.poll() is not None:
                 break
             try:
                 self._connect(port, password).close()
@@ -228,7 +228,7 @@ class EmbeddedPostgres:
             else:
                 return
             time.sleep(0.2)
-        exit_code = self._process.poll()
+        exit_code = process.poll()
         if exit_code is not None and exit_code & 0xFFFFFFFF == MISSING_DLL_EXIT_CODE:
             raise EmbeddedPostgresError(
                 "O Windows não encontrou uma DLL do Visual C++ de que o banco de "

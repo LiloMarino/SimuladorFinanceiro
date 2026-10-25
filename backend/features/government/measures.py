@@ -10,6 +10,7 @@ from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 
 from backend.core.enum import MeasureKind, MeasureStatus
+from backend.core.utils import required
 from backend.features.government.state import Measure
 from backend.features.tax_policy import (
     DEFAULT_TAX_POLICY,
@@ -67,8 +68,9 @@ def _clamp(value: int, low: int, high: int) -> int:
 
 def _step(measure: Measure) -> Decimal:
     """O quanto a medida muda o imposto geral: positivo é imposto maior."""
-    assert measure.value is not None and measure.before is not None
-    return measure.value - measure.before
+    value = required(measure.value)
+    before = required(measure.before)
+    return value - before
 
 
 def is_cut(measure: Measure) -> bool:
@@ -101,8 +103,9 @@ def approval_impact(measure: Measure) -> int:
         case MeasureKind.SECTOR_EXEMPT:
             return SECTOR_EXEMPT_BONUS
         case MeasureKind.SECTOR_TAX:
-            assert measure.value is not None
-            points = _round(measure.value * HUNDRED / SECTOR_POINTS_PER_PENALTY)
+            points = _round(
+                required(measure.value) * HUNDRED / SECTOR_POINTS_PER_PENALTY
+            )
             return -_clamp(points, 1, MAX_TAX_PENALTY)
         case MeasureKind.STOCK_EXEMPTION:
             return (
@@ -119,8 +122,7 @@ def approval_impact(measure: Measure) -> int:
 
 def fade(measure: Measure, today: date) -> Decimal:
     """Quanto do efeito de imposto novo ainda pesa: cheio ao valer, zero em 6 meses."""
-    assert measure.effective is not None
-    elapsed = (today - measure.effective).days
+    elapsed = (today - required(measure.effective)).days
     return max(Decimal(0), 1 - Decimal(elapsed) / FADE_DAYS)
 
 
@@ -134,24 +136,24 @@ def apply_measure(policy: TaxPolicy, measure: Measure) -> TaxPolicy:
     value = measure.value
     match measure.kind:
         case MeasureKind.STOCK_PROFIT_RATE:
-            assert value is not None
-            return replace(policy, rates={**policy.rates, LossPool.COMMON: value})
+            return replace(
+                policy, rates={**policy.rates, LossPool.COMMON: required(value)}
+            )
         case MeasureKind.DAY_TRADE_RATE:
-            assert value is not None
-            return replace(policy, rates={**policy.rates, LossPool.DAY_TRADE: value})
+            return replace(
+                policy, rates={**policy.rates, LossPool.DAY_TRADE: required(value)}
+            )
         case MeasureKind.STOCK_EXEMPTION:
-            assert value is not None
-            return replace(policy, stock_exemption_limit=value)
+            return replace(policy, stock_exemption_limit=required(value))
         case MeasureKind.FIXED_INCOME_TABLE:
-            assert value is not None
-            return replace(policy, fixed_income_brackets=(), fixed_income_floor=value)
+            return replace(
+                policy, fixed_income_brackets=(), fixed_income_floor=required(value)
+            )
         case MeasureKind.LCI_LCA_RATE:
-            assert value is not None
-            return replace(policy, lci_lca_rate=value)
+            return replace(policy, lci_lca_rate=required(value))
         case MeasureKind.SECTOR_EXEMPT | MeasureKind.SECTOR_TAX:
-            assert measure.sector is not None
             rule = SectorRule(
-                sector=measure.sector,
+                sector=required(measure.sector),
                 segment=measure.segment,
                 exempt=measure.kind is MeasureKind.SECTOR_EXEMPT,
                 extra=value or Decimal(0),
@@ -192,9 +194,8 @@ class PolicyTimeline:
         self._policies: list[TaxPolicy] = []
         policy = DEFAULT_TAX_POLICY
         for measure in approved:
-            assert measure.effective is not None
             policy = apply_measure(policy, measure)
-            self._days.append(measure.effective)
+            self._days.append(required(measure.effective))
             self._policies.append(policy)
 
     def on(self, day: date) -> TaxPolicy:
@@ -227,9 +228,8 @@ def title(measure: Measure) -> str:
         case MeasureKind.SECTOR_EXEMPT:
             return f"{target_name(measure)}: IR isento"
         case MeasureKind.SECTOR_TAX:
-            assert value is not None
             return (
-                f"{target_name(measure)}: +{number(value * HUNDRED)} pontos no IR "
+                f"{target_name(measure)}: +{number(required(value) * HUNDRED)} pontos no IR "
                 "das vendas com lucro"
             )
 
