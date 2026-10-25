@@ -99,6 +99,7 @@
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 🔍 |
 | [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 🔍 |
+| [**F131**](#f131) | Catálogo de padrões de vela | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
@@ -148,6 +149,7 @@
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
 | [**F91**](#f91) | Caixa de entrada e resumo do mês | M15 | 2 | ⏳ |
 | [**F106**](#f106) | Governo & Política: gasto público e inflação | — | 1 | 🔍 |
+| [**F126**](#f126) | Janela "Como jogar" | M14 | 1 | ⏳ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | M4 | 0 | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
@@ -161,7 +163,6 @@
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | 0 | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 0 | 🔍 |
-| [**F126**](#f126) | Janela "Como jogar" | M14 | 0 | ⏳ |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 0 | 🔍 |
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 0 | 🔍 |
 | [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 0 | 🔍 |
@@ -247,12 +248,13 @@
 >
 > **Serve:** N19
 >
-> **Progresso:** 1/3 concluídas
+> **Progresso:** 1/4 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | [F33](#f33) | 🔍 |
 | [**F96**](#f96) | Dicas de análise técnica | — | 💤 |
+| [**F131**](#f131) | Catálogo de padrões de vela | [F96](#f96), [F126](#f126) | 🔍 |
 
 <details><summary>Concluído (1 item)</summary>
 
@@ -553,6 +555,7 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 | **F128** | Governo & Política: rever os impostos por setor | Serve N34; revisão da versão jogável | — | [F95](#f95) | 🔍 Em avaliação |
 | **F129** | Governo & Política: rever a aprovação do governo | Serve N34; inclui a aprovação pesar na reeleição | — | [F95](#f95) | 🔍 Em avaliação |
 | **F130** | Governo & Política: rever os votos e a eleição | Serve N34; revisão da versão jogável | — | [F95](#f95) | 🔍 Em avaliação |
+| **F131** | Catálogo de padrões de vela | Serve N19; tópico do Como jogar com cada padrão animado | M11 | [F96](#f96), [F126](#f126) | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -615,3 +618,6 @@ O que falta definir para sair deste estado é a lista final, e ela sai de mediç
 
 <a id="f130"></a>
 **F130 — Governo & Política: rever os votos e a eleição.** Serve N34; revisão da versão jogável que a F95 entregou. **Como funciona hoje:** a primeira eleição é escolhida no lobby e precisa cair dentro da partida; o mandato é de 4 anos, com até 2 seguidos. A campanha abre 1 ano antes do 1º turno (ou no início da partida), as chapas fecham no último dia do mês anterior, o 1º turno é em 7 de outubro e o 2º, 21 dias depois, no próximo dia útil quando a data cai em fim de semana; a posse é em 1º de janeiro. No 1º dia útil de cada mês da campanha, cada filiado paga a contribuição que escolheu, se tiver caixa, e o gasto vira pontos pela raiz quadrada ÷ 64 (R$ 8 mil dão 1,4 ponto) num eleitorado de 100; o que sobra são os indecisos, e a pesquisa guarda uma foto por mês. No 1º turno, vence quem tiver mais de 50% dos votos válidos; senão, vão os dois mais votados, e o empate fica com o partido mais antigo. No 2º turno, os votos de quem ficou de fora vão inteiros para o finalista com a promessa mais próxima. Entre os turnos, até a véspera do 2º, quem está num partido eliminado pode doar a um finalista; a doação rende pela mesma raiz e entra na hora. Os partidos do computador (União do Progresso, Movimento Novo Vigor e Aliança Cidadã) completam até 3 chapas, com a verba da média dos partidos de jogadores vezes 0,5, 1 ou 1,5 pela dificuldade, e a promessa na faixa mais longe dos partidos que já existem. Cada resultado de turno e o impeachment pausam a partida. Só jogadores fundam e se filiam, durante a campanha e fora do 2º turno; bots ficam fora. Na vitória política, vence o partido com a maior soma de patrimônio dos filiados, sem os do computador. Falta definir: o que muda no voto e na eleição, a partir das ideias de refazer o sistema; a F107 (perfis de público) já é uma dessas mudanças.
+
+<a id="f131"></a>
+**F131 — Catálogo de padrões de vela.** Serve N19. Um tópico do "Como jogar" (F126) que lista todos os padrões que as dicas de análise técnica (F96) reconhecem, cada um com o ícone e o nome que aparecem no gráfico (o martelo com o símbolo dele, por exemplo). Navegar pelo catálogo mostra um padrão por vez, com a animação das velas se formando no molde dos roteiros do tutorial, o que o padrão costuma sugerir e o lembrete de que padrão não é garantia. Em aberto: se o catálogo é um tópico do tutorial ou uma tela própria, e se o card do padrão no gráfico ganha um "ver no catálogo". Gatilho: com as dicas de análise técnica e a janela "Como jogar" prontas.
