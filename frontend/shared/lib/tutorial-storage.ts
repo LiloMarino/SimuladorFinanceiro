@@ -33,7 +33,7 @@ const isStringList = (value: unknown): value is string[] =>
 export function parseTutorialState(raw: string | null): TutorialState {
   if (!raw) return EMPTY_TUTORIAL_STATE;
   try {
-    const data: Record<string, unknown> = JSON.parse(raw);
+    const data = JSON.parse(raw) as Record<string, unknown>;
     return {
       seen: isStringList(data.seen) ? data.seen : [],
       nudged: isStringList(data.nudged) ? data.nudged : [],

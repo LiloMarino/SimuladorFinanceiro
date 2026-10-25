@@ -1,14 +1,13 @@
 import type { UseQueryResult } from "@tanstack/react-query";
 import { ErrorState } from "@/shared/components/error-state";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import type ApiError from "@/shared/lib/models/ApiError";
 import type { StrategyViewData, StrategyViewKind } from "@/types";
 import { AllocationBlock } from "./strategy-allocation";
 import { RankingBlock } from "./strategy-ranking";
 
 type StrategyDataBlockProps = {
   kind: Extract<StrategyViewKind, "ranking" | "allocation">;
-  query: UseQueryResult<StrategyViewData, ApiError>;
+  query: UseQueryResult<StrategyViewData>;
 };
 
 /** O ranking ou a alocação da estratégia: esqueleto ao carregar, erro com nova tentativa e o bloco pronto. */

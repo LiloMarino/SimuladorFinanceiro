@@ -10,7 +10,7 @@ export const INTENTION: MetricInfo = {
     "Ex.: UPR com 33, FDS com 32 e PRL com 23 somam 88; os outros 12 são indecisos.",
   reading:
     "Mais pontos, mais perto de vencer. A conta da eleição ignora os indecisos: ela usa só os votos válidos.",
-  format: (value) => `${Number(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}`,
+  format: (value) => Number(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 }),
 };
 
 export const VALID_SHARE: MetricInfo = {

@@ -158,7 +158,7 @@ function ElectionContent({ panel }: { panel: ElectionPanel }) {
             open={dialog === "contribution"}
             onOpenChange={close}
             party={party}
-            current={String(mine.contribution)}
+            current={mine.contribution}
             cash={cash}
           />
           <TicketDialog open={dialog === "ticket"} onOpenChange={close} party={party} panel={panel} cash={cash} />

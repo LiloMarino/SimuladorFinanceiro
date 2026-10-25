@@ -108,8 +108,8 @@ export function StrategyDetail({
   const lines = signal.data?.lines ?? [];
   const levels = signal.data?.levels ?? [];
   const shortHistory =
-    signalReady && signal.data!.available_days < signal.data!.needed_days
-      ? `${watched} tem ${signal.data!.available_days} dias de histórico nesta partida, e a estratégia pede ${signal.data!.needed_days}.`
+    signalReady && signal.data.available_days < signal.data.needed_days
+      ? `${watched} tem ${signal.data.available_days} dias de histórico nesta partida, e a estratégia pede ${signal.data.needed_days}.`
       : null;
 
   return (

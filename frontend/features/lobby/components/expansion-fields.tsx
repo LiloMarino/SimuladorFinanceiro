@@ -11,7 +11,6 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { EXPANSIONS } from "@/shared/lib/expansions";
 import { displayIsoDate } from "@/shared/lib/utils/display";
 import { cn } from "@/shared/lib/utils";
-import type { ComputerDifficulty } from "@/types";
 import {
   campaignOpening,
   COMPUTER_DIFFICULTIES,
@@ -166,7 +165,7 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
                     variant="segmented"
                     aria-label="Dificuldade do computador"
                     value={[field.value]}
-                    onValueChange={(values) => values[0] && field.onChange(values[0] as ComputerDifficulty)}
+                    onValueChange={(values) => values[0] && field.onChange(values[0])}
                     disabled={readOnly}
                     className="w-full"
                   >

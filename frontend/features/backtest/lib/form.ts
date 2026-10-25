@@ -5,7 +5,7 @@ import { normalizeNumberString } from "@/shared/lib/utils";
 import { dateFieldError, isIsoDate, toIso } from "@/shared/lib/utils/date-field";
 import { displayIsoDate, parseLocalDate } from "@/shared/lib/utils/display";
 import { moneyToBody, moneyToField } from "@/shared/lib/utils/money-field";
-import { draftErrors, fromDraft } from "@/shared/lib/strategy-params";
+import { draftErrors, fromDraft, type ParamDraft } from "@/shared/lib/strategy-params";
 import type { BacktestConfigRequest, BacktestCoverage, BacktestPriceImpact, BacktestSetup, StrategyInfo } from "@/types";
 import { MIN_TRADING_DAYS, weekdaysBetween } from "./period";
 
@@ -111,7 +111,7 @@ export function backtestSchema(coverage: BacktestCoverage, strategies: StrategyI
             strategyKey: z.string(),
             color: z.string(),
             team: z.number().nullable(),
-            drafts: z.record(z.string(), z.any()),
+            drafts: z.record(z.string(), z.custom<ParamDraft>()),
           }),
         )
         .min(1, "Falta pelo menos 1 estratégia")

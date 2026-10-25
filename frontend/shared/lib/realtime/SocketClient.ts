@@ -16,7 +16,7 @@ export class SocketClient<
 
     this.socket.onAny((event: string, payload: unknown) => {
       logger.debug("[SocketClient] event", event, payload);
-      this.notify(event as keyof TEvents, payload as TEvents[keyof TEvents]);
+      this.notify(event, payload as TEvents[keyof TEvents]);
     });
 
     this.socket.on("connect", () => {

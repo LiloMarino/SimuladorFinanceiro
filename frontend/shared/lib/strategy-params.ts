@@ -96,7 +96,7 @@ export function paramPills(strategy: StrategyInfo, values: ParamValues): ParamPi
       ? `${value.length} ${value.length === 1 ? "ação" : "ações"}`
       : typeof value === "number"
         ? `${value}${param.unit === "%" ? "%" : param.unit ? ` ${param.unit}` : ""}`
-        : String(value);
+        : value;
     return { key: param.key, label: param.label, value: text, changed: valueChanged(value, param.default) };
   });
 }

@@ -124,14 +124,14 @@ type ChartType = "line" | "candle";
 type AreaSeriesRef = ISeriesApi<
   "Area",
   Time,
-  AreaData<Time> | WhitespaceData<Time>,
+  AreaData | WhitespaceData,
   AreaSeriesOptions,
   DeepPartial<AreaStyleOptions & SeriesOptionsCommon>
 >;
 type CandlestickSeriesRef = ISeriesApi<
   "Candlestick",
   Time,
-  WhitespaceData<Time> | CandlestickData<Time>,
+  WhitespaceData | CandlestickData,
   CandlestickSeriesOptions,
   DeepPartial<CandlestickStyleOptions & SeriesOptionsCommon>
 >;
@@ -469,7 +469,8 @@ export function StockChart({
       linesRef.current = new Map();
       barsRef.current = new Map();
     };
-    // O gráfico é recriado só quando `layout` ou a altura mudam: `layout` resume painéis, médias, Bollinger e RSI.
+    // `layout` resume painéis, médias, Bollinger e RSI, e a altura segue os painéis. O `fill` troca a cada
+    // dado novo de indicador, e quem repreenche as séries é o efeito do histórico, sem recriar o gráfico.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [chartType, selectedScale, ticker, hasHistory, layout, height]);
 
@@ -534,10 +535,10 @@ export function StockChart({
     const index = days.indexOf(pattern.end);
     const timeScale = chart.timeScale();
     timeScale.setVisibleRange({
-      from: days[Math.max(0, index - 15)] as Time,
-      to: days[Math.min(days.length - 1, index + 10)] as Time,
+      from: days[Math.max(0, index - 15)],
+      to: days[Math.min(days.length - 1, index + 10)],
     });
-    setHover({ day: pattern.end, x: timeScale.timeToCoordinate(pattern.end as Time) ?? 0, width: chartRef.current?.clientWidth ?? 0 });
+    setHover({ day: pattern.end, x: timeScale.timeToCoordinate(pattern.end) ?? 0, width: chartRef.current?.clientWidth ?? 0 });
   }
 
   function goToToday() {

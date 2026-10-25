@@ -1,9 +1,8 @@
 import type { TooltipContentProps } from "recharts";
-import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { displayDate } from "@/shared/lib/utils/display";
 import type { ChartAxis, LineChartRow } from "./utils";
 
-interface Props extends TooltipContentProps<ValueType, NameType> {
+interface Props extends TooltipContentProps {
   format: (value: string) => string;
   axis: ChartAxis;
 }

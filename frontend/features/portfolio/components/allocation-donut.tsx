@@ -1,11 +1,11 @@
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { PieChart as PieChartIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia } from "@/shared/components/ui/empty";
 import { displayMoney, displayMoneyCompact, displayPercent } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
 
-type Slice = { name: string; value: number; pct: number; color: string };
+type Slice = { name: string; value: number; pct: number; fill: string };
 type Group = { label: string; slices: Slice[]; pct: number };
 
 // Do maior ativo ao menor, o tom da classe vai clareando; o piso mantém o contraste com o cartão
@@ -18,7 +18,7 @@ function toGroup(label: string, base: string, items: { name: string; value: stri
   const slices = items
     .map((p) => ({ name: p.name, value: Number(p.value), pct: Number(p.pct) }))
     .sort((a, b) => b.value - a.value)
-    .map((p, i): Slice => ({ ...p, color: toneOf(base, i) }));
+    .map((p, i): Slice => ({ ...p, fill: toneOf(base, i) }));
   return { label, slices, pct: slices.reduce((sum, s) => sum + s.pct, 0) };
 }
 
@@ -69,11 +69,7 @@ export function AllocationDonut({ portfolio }: { portfolio: PortfolioState }) {
                     paddingAngle={1}
                     stroke="var(--card)"
                     strokeWidth={2}
-                  >
-                    {slices.map((s) => (
-                      <Cell key={s.name} fill={s.color} />
-                    ))}
-                  </Pie>
+                  />
                   <Tooltip
                     contentStyle={{ borderRadius: 10, borderColor: "var(--border)", fontSize: 12 }}
                     formatter={(v) => displayMoney(Number(v))}
@@ -103,7 +99,7 @@ export function AllocationDonut({ portfolio }: { portfolio: PortfolioState }) {
                       <li key={s.name} className="flex min-w-0 items-center gap-2">
                         <span
                           className="size-2.5 shrink-0 rounded-sm"
-                          style={{ backgroundColor: s.color }}
+                          style={{ backgroundColor: s.fill }}
                           aria-hidden="true"
                         />
                         <span className="min-w-0 flex-1 truncate" title={s.name}>

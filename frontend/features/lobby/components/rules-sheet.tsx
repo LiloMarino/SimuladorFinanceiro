@@ -38,7 +38,7 @@ import { BASE_GAME_TYPE_OPTIONS, POLITICAL_GAME_TYPE } from "@/shared/lib/game-t
 import { DEFAULT_GOAL_MULTIPLE, GOAL_SHORTCUTS } from "@/shared/lib/goal";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import { teamColor, teamShortName } from "@/shared/lib/teams";
-import type { AppliedPreset, GameType, PlayerGrouping, SimulationSettingsData, TeamNaming, VictoryCriterion } from "@/types";
+import type { AppliedPreset, GameType, PlayerGrouping, SimulationSettingsData, VictoryCriterion } from "@/types";
 import type { CoverageCheck } from "../lib/coverage";
 import { isPositiveMoney, isWithdrawalRate, withdrawalRateFraction } from "../lib/life-rules";
 import {
@@ -316,7 +316,7 @@ export function RulesSheet({
                           variant="segmented"
                           aria-label="Nome das equipes"
                           value={[field.value]}
-                          onValueChange={(values) => values[0] && field.onChange(values[0] as TeamNaming)}
+                          onValueChange={(values) => values[0] && field.onChange(values[0])}
                           disabled={readOnly}
                         >
                           {(["COLOR", "NUMBER"] as const).map((naming) => (

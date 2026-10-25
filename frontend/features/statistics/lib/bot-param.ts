@@ -9,7 +9,7 @@ export function displayBotParam({ value, unit }: BotParam) {
     const rest = value.length - VISIBLE_TICKERS;
     return rest > 0 ? `${value.slice(0, VISIBLE_TICKERS).join(", ")} +${rest}` : value.join(", ");
   }
-  const text = typeof value === "number" ? value.toLocaleString("pt-BR") : String(value);
+  const text = typeof value === "number" ? value.toLocaleString("pt-BR") : value;
   if (!unit) return text;
   return unit === "%" ? `${text}%` : `${text} ${unit}`;
 }

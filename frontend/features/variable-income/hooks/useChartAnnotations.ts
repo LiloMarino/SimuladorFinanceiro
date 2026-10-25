@@ -20,12 +20,12 @@ export interface Annotations {
 interface ChartRefs {
   chart: RefObject<IChartApi | null>;
   /** Por chave, a série em que a anotação se liga; lida na hora, porque o gráfico é recriado. */
-  series: Record<string, () => ISeriesApi<SeriesType, Time> | null | undefined>;
+  series: Record<string, () => ISeriesApi<SeriesType> | null | undefined>;
 }
 
 interface Attached {
   chart: IChartApi;
-  overlays: Map<string, { series: ISeriesApi<SeriesType, Time>; overlay: ChartOverlay }>;
+  overlays: Map<string, { series: ISeriesApi<SeriesType>; overlay: ChartOverlay }>;
   markers: ISeriesMarkersPluginApi<Time> | null;
 }
 

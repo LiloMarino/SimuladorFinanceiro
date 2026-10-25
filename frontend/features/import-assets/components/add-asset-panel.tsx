@@ -143,7 +143,7 @@ export function AddAssetPanel({ onClassify }: { onClassify: (ticker: string) => 
                 <Checkbox
                   id="add-asset-overwrite"
                   checked={overwrite}
-                  onCheckedChange={(checked) => setOverwrite(Boolean(checked))}
+                  onCheckedChange={(checked) => setOverwrite(checked)}
                   disabled={importAsset.isPending}
                 />
                 <FieldContent>

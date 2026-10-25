@@ -51,7 +51,7 @@ export function NotificationsCard() {
         <div className="grid">
           {OPTIONS.map((o) => (
             <label
-              key={`${o.section}.${String(o.item)}`}
+              key={`${o.section}.${o.item}`}
               className="flex cursor-pointer items-center justify-between gap-3 border-t border-muted py-2.5"
             >
               <span className="grid">

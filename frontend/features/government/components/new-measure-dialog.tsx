@@ -128,7 +128,7 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
                   items={Object.fromEntries(generalRows.map((tax) => [tax.kind, generalLabel(tax.kind, tax.value)]))}
                   onValueChange={(value) => {
                     if (!value) return;
-                    setKind(value as GeneralKind);
+                    setKind(value);
                     setRule("keep");
                     setValueText("");
                   }}

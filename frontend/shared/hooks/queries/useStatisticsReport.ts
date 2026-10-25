@@ -39,7 +39,9 @@ export function useStatisticsReport<T extends StatisticsTab>(tab: T, simulationI
     placeholderData: keepPreviousData,
     select: (report) =>
       onlyPlayer && !Array.isArray(report) && "players" in report
-        ? Object.assign({}, report, { players: report.players.filter((p) => p.player_nickname === onlyPlayer) })
+        ? // O `Array.isArray` já tirou a lista; a regra não estreita o `T` genérico
+          // oxlint-disable-next-line typescript/no-misused-spread
+          { ...report, players: report.players.filter((p) => p.player_nickname === onlyPlayer) }
         : report,
   });
 }

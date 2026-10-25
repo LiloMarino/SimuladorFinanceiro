@@ -6,7 +6,6 @@ import type {
   ISeriesPrimitive,
   SeriesAttachedParameter,
   SeriesType,
-  Time,
 } from "lightweight-charts";
 
 type DrawTarget = Parameters<IPrimitivePaneRenderer["draw"]>[0];
@@ -24,10 +23,10 @@ const FONT = "12px -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ub
 const CIRCLE_RADIUS = 5;
 
 /** Desenha faixas, contornos, círculos e legendas sobre o painel da série em que está ligado. */
-export class ChartOverlay implements ISeriesPrimitive<Time> {
+export class ChartOverlay implements ISeriesPrimitive {
   private shapes: OverlayShape[] = [];
-  private chart: IChartApiBase<Time> | null = null;
-  private series: ISeriesApi<SeriesType, Time> | null = null;
+  private chart: IChartApiBase | null = null;
+  private series: ISeriesApi<SeriesType> | null = null;
   private requestUpdate: (() => void) | null = null;
 
   private readonly background: string;
@@ -43,7 +42,7 @@ export class ChartOverlay implements ISeriesPrimitive<Time> {
     { zOrder: () => "top", renderer: () => this.renderer((shape) => shape.kind !== "band") },
   ];
 
-  attached({ chart, series, requestUpdate }: SeriesAttachedParameter<Time>) {
+  attached({ chart, series, requestUpdate }: SeriesAttachedParameter) {
     this.chart = chart;
     this.series = series;
     this.requestUpdate = requestUpdate;
@@ -73,7 +72,7 @@ export class ChartOverlay implements ISeriesPrimitive<Time> {
     if (!chart || !series) return;
     const timeScale = chart.timeScale();
     const halfBar = timeScale.options().barSpacing / 2;
-    const x = (day: string) => timeScale.timeToCoordinate(day as Time);
+    const x = (day: string) => timeScale.timeToCoordinate(day);
     const y = (value: number) => series.priceToCoordinate(value);
 
     target.useMediaCoordinateSpace(({ context: ctx, mediaSize }) => {

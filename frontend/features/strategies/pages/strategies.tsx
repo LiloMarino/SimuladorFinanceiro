@@ -95,7 +95,10 @@ function StrategiesWorkspace({ strategies, mine }: WorkspaceProps) {
   const changeMode = (mode: Mode) => {
     if (mode === "manual") return setChange({ kind: "manual" });
     const values = valuesOf(selected);
-    if (!values) return toast.error("Corrija os parâmetros antes de ligar.");
+    if (!values) {
+      toast.error("Corrija os parâmetros antes de ligar.");
+      return;
+    }
     requestTurnOn(selected, values);
   };
 
@@ -117,7 +120,10 @@ function StrategiesWorkspace({ strategies, mine }: WorkspaceProps) {
   const turnOnAgain = () => {
     if (!errorStrategy) return;
     const values = valuesOf(errorStrategy);
-    if (!values) return toast.error("Corrija os parâmetros antes de ligar.");
+    if (!values) {
+      toast.error("Corrija os parâmetros antes de ligar.");
+      return;
+    }
     setPickedKey(errorStrategy.key);
     requestTurnOn(errorStrategy, values);
   };
