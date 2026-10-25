@@ -91,7 +91,6 @@
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
-| [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 🔍 |
@@ -101,7 +100,7 @@
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -122,6 +121,7 @@
 | **D16** | Estratégias do app no host, personalização pela API | — | ✅ |
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | [F126](#f126) | ✅ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ✅ |
+| [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | ✅ |
 | [**F126**](#f126) | Janela "Como jogar" | — | ✅ |
 
 </details>
@@ -149,7 +149,6 @@
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | 0 | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
-| [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 0 | 🔍 |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 0 | 🔍 |
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 0 | 🔍 |
 | [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 0 | 🔍 |
@@ -269,7 +268,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/30 concluídas
+> **Progresso:** 1/30 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -298,11 +297,18 @@
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
-| [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 🔍 |
 | [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 🔍 |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | ✅ |
+
+</details>
 
 ---
 
@@ -412,6 +418,7 @@
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
+| **F125** | Revisão das regras de lint e da checagem de tipos | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -426,6 +433,9 @@
 
 <a id="f81"></a>
 **F81 — CORS restrito à mesma origem.** O backend libera CORS para qualquer origem com credenciais (`allow_origins=["*"]` e `allow_credentials=True` no FastAPI, `cors_allowed_origins="*"` no Socket.IO). Não é necessário: o front é servido pelo próprio backend e, no `pnpm dev`, chega pelo proxy do Vite. Hoje o que protege o jogador de um site malicioso aberto durante a partida é o cookie `client_id` com `SameSite=Lax`, que o navegador não manda em requisição de outro site; o CORS liberado só deixa outro site ler as rotas que não pedem identidade. (1) Sai o `CORSMiddleware` de `main.py`. (2) O Socket.IO fica com `cors_allowed_origins` na mesma origem, mais `http://localhost:5173` quando o modo debug estiver ligado: o proxy do Vite troca o `Host` (`changeOrigin: true`) mas mantém o `Origin` do Vite, e o Socket.IO recusaria a conexão em dev sem essa exceção. (3) Teste manual antes de fechar: jogo pelo `localhost`, por outro computador da LAN pelo IP e pelo `pnpm dev`. Gatilho: junto com o link de convite pela internet, quando o servidor passa a ficar exposto fora da LAN.
+
+<a id="f125"></a>
+**F125 — Revisão das regras de lint e da checagem de tipos.** Cada candidata foi medida rodando a ferramenta no código atual (Ruff com 0 achados, oxlint com 11 avisos e pyright com 0 erros no ponto de partida) e julgada pelo que apontava: bug ou código morto fica, reescrita de estilo e falso positivo saem. **Ligadas:** no Ruff, `ERA` (código comentado, 0 achados) e `DTZ` (data sem fuso, 5 achados, todos de data local do app, marcados com `noqa`); no oxlint, a categoria `correctness` inteira como erro e o `exhaustive-deps` como erro, com os 11 achados corrigidos (dependências do efeito do gráfico de preço, `style` do avatar e do indicador de progresso tipado como objeto, chave do payload dos gráficos, filtro por jogador do relatório de estatísticas); no pyright, o modo `standard`, com 5 achados, todos em testes, corrigidos; no lint, o actionlint (0 achados nos 5 workflows). **Fora, com o motivo:** Ruff `C4` (5), `RET` (14), `PT` (28), `PL` (361, 349 delas de refatoração), `FBT` (137) e `S` (2.325, 2.272 de `assert` em teste) pedem só reescrita de estilo ou dão falso positivo; `ARG` (223) está quase todo em stubs de teste. No oxlint, `pedantic` (3.589) e `suspicious` (7.151, 6.936 de `react-in-jsx-scope`, falso positivo com o `jsx: react-jsx`) são ruído; `no-unstable-nested-components` deu 17 achados e nenhum era componente instável de verdade (são funções de renderização passadas como prop ao Recharts e callbacks de `toast`); `consistent-return` deu 29, metade em `switch` exaustivo sem `default`, que o tsc já confere pelo tipo; `import`, `unicorn`, `promise` e `vitest` têm 10 a 13 achados de estilo, e o risco de promise sem `await` já é coberto pelo `no-floating-promises`. O `jsx-a11y` (49), o `deptry` (11, metade falso positivo) e o Knip (2 arquivos, 72 exports e 37 tipos sem uso, que pedem ignorar o shadcn e o arquivo gerado) ficaram para uma rodada própria. O `strict` do pyright deu 3.352 achados; as pastas `backend/config`, `backend/routes` e `main.py` ficam quase limpas e são as candidatas a um piloto. Os 12 `noqa` de `PLC0415` ficam: são imports tardios de um arquivo só, `user_manager.py`.
 
 ---
 ## 3. Descartada
@@ -453,7 +463,6 @@
 | **F107** | Perfis de público na eleição | Serve N34; eleitores com perfil sobre a eleição da F95 | — | — | 🔍 Em avaliação |
 | **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | Serve N15; falta escolher o desenho dos dois cards no canvas; liga à F72 | — | — | 🔍 Em avaliação |
 | **F123** | Redesenhar o aviso de conquista desbloqueada | Serve N22 e N15; falta escolher o desenho do aviso no canvas; liga à F122 | — | — | 🔍 Em avaliação |
-| **F125** | Revisão das regras de lint e da checagem de tipos | Nenhuma N#; qualidade do código. A configuração do oxlint é da D15 | — | — | 🔍 Em avaliação |
 | **F128** | Governo & Política: rever os impostos por setor | Serve N34; revisão da versão jogável | — | — | 🔍 Em avaliação |
 | **F129** | Governo & Política: rever a aprovação do governo | Serve N34; inclui a aprovação pesar na reeleição | — | — | 🔍 Em avaliação |
 | **F130** | Governo & Política: rever os votos e a eleição | Serve N34; revisão da versão jogável | — | — | 🔍 Em avaliação |
@@ -506,11 +515,6 @@
 
 <a id="f123"></a>
 **F123 — Redesenhar o aviso de conquista desbloqueada.** Hoje o aviso (`achievement-toast.tsx`, aberto com `toast.custom` do sonner) é um cartão escuro de 380 px com uma faixa amarela de 3 px à esquerda, o ícone, o rótulo amarelo em maiúsculas ("Conquista desbloqueada"), o nome e a descrição; quando várias saem no mesmo dia, vira uma lista com "Ver todas". O incômodo existe, mas não está claro de onde vem: pode ser a faixa amarela do canto, o rótulo, o peso do cartão escuro, o tamanho ou a falta de movimento. Falta escolher o desenho depois de ver variantes lado a lado no canvas: (a) o cartão atual sem a faixa, com o ícone em destaque; (b) um cartão claro, no tema do app; (c) um formato compacto, com o ícone e o nome numa linha só e a descrição ao passar o mouse; (d) um formato de "selo" com a categoria e a cor dela. A rodada cobre os estados uma conquista, várias no mesmo dia, secreta revelada e conquista com barra de progresso completa, e decide a posição na tela e a entrada e saída. Sai daqui para Pendente com a variante escolhida.
-
-<a id="f125"></a>
-**F125 — Revisão das regras de lint e da checagem de tipos.** Os pares do projeto são o Ruff e o oxlint no lint, o pyright e o `tsc` nos tipos, e cada um liga e desliga regras uma a uma. A configuração atual nasceu aos poucos: o Ruff seleciona `E`, `F`, `W`, `I`, `N`, `B`, `UP`, `SIM`, `PERF`, `RUF`, `TRY`, `PTH` e `PLC0415`, e ignora `E501`, `UP047` e `TRY003` (`pyproject.toml`); o oxlint liga só os plugins `react`, `typescript` e `oxc`, com as regras do React Compiler, três regras de promise que olham os tipos e o `@shadcn/lint` (`frontend/.oxlintrc.json`); o pyright roda em `typeCheckingMode: "basic"` (`pyrightconfig.json`). A revisão responde duas perguntas: que regra desligada pegaria erro de verdade aqui, e que regra ligada só gera ruído e pode afrouxar.
-
-O que falta definir para sair deste estado é a lista final, e ela sai de medição. (1) **Candidatas a ligar:** no Ruff, rodar `ruff check --select <grupo> --statistics` para `C4`, `RET`, `ARG`, `DTZ` (datas sem fuso), `PT` (estilo do pytest), `PL` (pylint), `ERA` (código comentado), `FBT` e `S` (bandit, segurança); no oxlint, as categorias `suspicious` e `pedantic` e os plugins `import`, `unicorn`, `promise`, `jsx-a11y` e `vitest`; no pyright, o modo `standard` e o `strict` por pasta. Cada grupo é julgado pelos achados reais: os que apontam bug ou código morto ficam, os que só pedem reescrita de estilo saem. (2) **Candidatas a afrouxar:** as regras com mais `noqa` hoje (`PLC0415` tem 12 dos 19 no backend) e as que forçam reescrita sem ganho; cada uma é confrontada com o motivo de ter entrado. (3) **Ferramentas além dessas quatro:** se cabe uma checagem que nenhuma delas faz, como export, arquivo e dependência sem uso no front (Knip), dependência sem uso no backend (deptry) e sintaxe dos workflows do GitHub Actions (actionlint). O resultado vira uma `F#` de aplicação, com as regras escolhidas e as violações corrigidas; o que mudar no oxlint atualiza a D15.
 
 <a id="f128"></a>
 **F128 — Governo & Política: rever os impostos por setor.** Serve N34; revisão da versão jogável que a F95 entregou. **Como funciona hoje:** a política de impostos padrão é a de antes da expansão (15% no ganho comum de ações, 20% no day trade e no FII, isenção das vendas de ações até R$ 20 mil no mês, tabela da renda fixa de 22,5% a 15% por prazo, LCI e LCA isentas). O presidente propõe medidas gerais (alíquota do ganho comum, alíquota do day trade, teto da isenção de ações, uma alíquota única no lugar da tabela da renda fixa e a alíquota de LCI e LCA, de 0 a 100% e diferente da vigente) e medidas de setor ou segmento (isentar, ou taxar de mais de 0 até 20 pontos por medida, que se empilham sem teto acumulado). No IR do mês, vale a regra do dia de cada venda; segmento vence setor e, entre iguais, vale a mais nova. A venda de setor isento conta no volume dos R$ 20 mil, mas o ganho e o prejuízo dela saem do cálculo; a venda de setor taxado soma os pontos extras ao resultado positivo. A medida aprovada vale 90 dias depois. Na régua da promessa, corte geral é 1, isenção de setor 2, taxar setor 4 e imposto geral novo 5; na aprovação, isentar setor soma 2, taxar setor tira de 1 a 5 (pontos ÷ 2), corte geral soma de 1 a 3 e imposto geral novo tira de 1 a 5. Falta definir: o que muda nessa mecânica, a partir das ideias de refazer o sistema.
