@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import date
 from decimal import Decimal
@@ -66,7 +66,7 @@ def quotes(database: Engine) -> Engine:
 
 
 @contextmanager
-def _selects(database: Engine) -> Iterator[list[str]]:
+def _selects(database: Engine) -> Generator[list[str]]:
     statements: list[str] = []
 
     def capture(_connection: object, _cursor: object, sql: str, *_args: object) -> None:

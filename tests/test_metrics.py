@@ -159,15 +159,15 @@ def client(live: Metrics) -> Iterator[TestClient]:
     app = FastAPI()
 
     @app.get("/api/stocks/{ticker}")
-    def stock(ticker: str) -> dict[str, str]:  # type: ignore[reportUnusedFunction]
+    def stock(ticker: str) -> dict[str, str]:
         return {"ticker": ticker}
 
     @app.get("/api/falha")
-    def failure() -> None:  # type: ignore[reportUnusedFunction]
+    def failure() -> None:
         raise RuntimeError("falhou")
 
     @app.get("/{path:path}")
-    def spa(path: str) -> dict[str, str]:  # type: ignore[reportUnusedFunction]
+    def spa(path: str) -> dict[str, str]:
         return {"path": path}
 
     app.add_middleware(MetricsMiddleware)
@@ -205,7 +205,7 @@ def test_a_failing_request_still_counts(client: TestClient, live: Metrics) -> No
 
 
 def _user(nickname: str) -> UserDTO:
-    return UserDTO(id=1, nickname=nickname, client_id=uuid4())  # type: ignore[call-arg]
+    return UserDTO(id=1, nickname=nickname, client_id=uuid4())
 
 
 @pytest.fixture

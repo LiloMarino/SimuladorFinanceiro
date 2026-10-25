@@ -68,9 +68,9 @@ def test_settings_update_is_refused_while_a_saved_simulation_is_selected(
     monkeypatch.setattr(SettingsManager, "_settings", None)
 
     with pytest.raises(ConflictError):
-        update_simulation_settings(_settings_payload(), None)  # type: ignore[arg-type]
+        update_simulation_settings(_settings_payload(), None)
 
-    assert SettingsManager._settings is None  # type: ignore[reportPrivateUsage]
+    assert SettingsManager._settings is None
 
 
 @pytest.mark.usefixtures("database")
@@ -81,7 +81,7 @@ def test_settings_update_is_accepted_without_a_selection(
     monkeypatch.setattr(SettingsManager, "_settings", None)
     monkeypatch.setattr(simulation_routes, "notify", lambda *_args, **_kwargs: None)
 
-    settings = update_simulation_settings(_settings_payload(), None)  # type: ignore[arg-type]
+    settings = update_simulation_settings(_settings_payload(), None)
 
     assert settings.name == "Teste"
 

@@ -51,15 +51,15 @@ def client() -> TestClient:
     app = FastAPI()
 
     @app.post("/create")
-    def create(body: CreateSimulationRequest) -> None:  # type: ignore[reportUnusedFunction]
+    def create(body: CreateSimulationRequest) -> None:
         pass
 
     @app.get("/boom")
-    def boom() -> None:  # type: ignore[reportUnusedFunction]
+    def boom() -> None:
         raise RuntimeError("levels must be >= 2")
 
     @app.get("/typed")
-    def typed(quantity: int) -> None:  # type: ignore[reportUnusedFunction]
+    def typed(quantity: int) -> None:
         pass
 
     register_routes(app)

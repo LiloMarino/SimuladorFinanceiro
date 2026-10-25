@@ -173,6 +173,6 @@ def computer_spend(state: GovernmentState, factor: Decimal) -> Decimal:
 def _founder_first(party: Party) -> list[int]:
     ordered = list(party.members)
     if party.founder_id in party.members:
-        ordered.remove(party.founder_id)  # type: ignore[arg-type]
-        ordered.insert(0, party.founder_id)  # type: ignore[arg-type]
+        ordered.remove(party.founder_id)
+        ordered.insert(0, party.founder_id)
     return ordered

@@ -13,6 +13,8 @@
     "typeCheckingMode": "standard",
     "reportMissingImports": "error",
     "reportUnusedVariable": "error",
-    "reportUnusedFunction": "warning",
-    "reportUnnecessaryComparison": "warning"
+    "reportUnusedFunction": "error",
+    "reportUnnecessaryComparison": "error",
+    "reportUnnecessaryTypeIgnoreComment": "error",
+    "reportDeprecated": "error"
 }

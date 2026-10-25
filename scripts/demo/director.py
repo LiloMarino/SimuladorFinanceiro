@@ -9,7 +9,7 @@ foi pintado, no mesmo relógio (`time.time()`) em que as ações são anotadas.
 import base64
 import math
 import time
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -95,7 +95,7 @@ class Director:
     # ------------------------------------------------------------------
 
     @contextmanager
-    def scene(self, name: str) -> Iterator[Scene]:
+    def scene(self, name: str) -> Generator[Scene]:
         """Um trecho do vídeo, que vira um MP4 e um GIF; começa e termina parado."""
         self.wait(0.6)
         scene = Scene(name, time.time())

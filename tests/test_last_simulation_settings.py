@@ -57,7 +57,7 @@ def test_manager_remembers_rules_but_generates_a_new_name(
     assert stored is not None
     assert "name" not in stored
 
-    SettingsManager._settings = None  # type: ignore[reportPrivateUsage]
+    SettingsManager._settings = None
     restored = SettingsManager.get()
 
     assert restored.name == "Nova"
@@ -78,13 +78,13 @@ def test_manager_falls_back_for_missing_or_invalid_persisted_fields(
     assert restored.show_equivalent_rate is True
 
     repository.last_simulation_settings.save({"start_date": "não é uma data"})
-    SettingsManager._settings = None  # type: ignore[reportPrivateUsage]
+    SettingsManager._settings = None
     assert SettingsManager.get().start_date == date.fromisoformat(
         config.toml.simulation.start_date
     )
 
     repository.last_simulation_settings.save({"starting_cash": "-1"})
-    SettingsManager._settings = None  # type: ignore[reportPrivateUsage]
+    SettingsManager._settings = None
     assert SettingsManager.get().starting_cash == Decimal(
         str(config.toml.simulation.starting_cash)
     )
@@ -104,7 +104,7 @@ def test_restore_settings_deletes_the_saved_rules_and_notifies_the_room(
         lambda event, payload: events.append((event, payload)),
     )
 
-    restored = restore_simulation_settings(None)  # type: ignore[arg-type]
+    restored = restore_simulation_settings(None)
 
     assert restored.name == "Nova"
     assert restored.start_date == date.fromisoformat(config.toml.simulation.start_date)
@@ -121,7 +121,7 @@ def test_restore_settings_is_refused_while_a_saved_match_is_selected(
     monkeypatch.setattr(SettingsManager, "_selected_simulation_id", 7)
 
     with pytest.raises(ConflictError):
-        restore_simulation_settings(None)  # type: ignore[arg-type]
+        restore_simulation_settings(None)
 
 
 def test_restore_settings_route_requires_a_host() -> None:

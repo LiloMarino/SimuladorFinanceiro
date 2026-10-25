@@ -225,7 +225,7 @@ def test_marking_the_error_as_seen_keeps_it_out_of_the_log(match):
 
     sim.mark_strategy_error_seen(ana)
 
-    assert sim.get_my_strategy(ana).error.seen  # type: ignore[union-attr]
+    assert sim.get_my_strategy(ana).error.seen
     assert StrategyLogKind.ERROR_SEEN not in [r.kind for r in log_of(sim, ana)]
 
 
@@ -254,7 +254,7 @@ def test_changing_the_parameters_keeps_the_start_date(match):
         "tickers": ["BANK_A"],
     }
     sim.set_my_strategy(ana, "moving_average_cross", params)
-    since = sim.get_my_strategy(ana).active.since  # type: ignore[union-attr]
+    since = sim.get_my_strategy(ana).active.since
     sim.next_tick()
 
     sim.set_my_strategy(ana, "moving_average_cross", {**params, "cash_pct": 30})
