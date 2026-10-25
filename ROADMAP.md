@@ -107,7 +107,7 @@
 | [**F141**](#f141) | README com as features de hoje | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -127,10 +127,12 @@
 | **D15** | Lint com oxlint, formatação com oxfmt e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | — | ✅ |
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | [F126](#f126) | ✅ |
+| **D18** | Uma migration por versão; caminho antigo só cai numa major | [F142](#f142) | ✅ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ✅ |
 | [**F96**](#f96) | Dicas de análise técnica | — | ✅ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | ✅ |
 | [**F126**](#f126) | Janela "Como jogar" | — | ✅ |
+| [**F142**](#f142) | Banco da 3.0: regras em JSON, conquistas preservadas e migrations por versão | — | ✅ |
 
 </details>
 
@@ -293,7 +295,7 @@
 
 ### Sem marco
 
-> **Progresso:** 1/35 concluídas
+> **Progresso:** 2/36 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -332,11 +334,12 @@
 | [**F137**](#f137) | Acessibilidade das telas | — | ⏳ |
 | [**F138**](#f138) | Piloto do modo strict do pyright | — | ⏳ |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | ✅ |
+| [**F142**](#f142) | Banco da 3.0: regras em JSON, conquistas preservadas e migrations por versão | — | ✅ |
 
 </details>
 
@@ -469,6 +472,7 @@
 | **F136** | Código e dependências sem uso | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F137** | Acessibilidade das telas | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F138** | Piloto do modo strict do pyright | — | — | — | Médio | Baixo | Baixo | Médio | ⏳ Pendente |
+| **F142** | Banco da 3.0: regras em JSON, conquistas preservadas e migrations por versão | D18 | — | — | Alto | Médio | Alto | Bom | ✅ Concluído |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -512,6 +516,9 @@ O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F13
 
 <a id="f138"></a>
 **F138 — Piloto do modo strict do pyright.** O `strict` no projeto inteiro dá 3.352 achados; `backend/config`, `backend/routes` e `main.py` ficam quase limpos. Plano: listar essas pastas em `strict` no `pyrightconfig.json`, corrigir os achados e medir quanto cada achado custou; se o custo por achado valer, ampliar pasta por pasta, começando pelas que não tocam o pandas. Gatilho: livre.
+
+<a id="f142"></a>
+**F142 — Banco da 3.0: regras em JSON, conquistas preservadas e migrations por versão.** Entregue com a D18. **Regras da partida:** as 24 colunas de regra de `simulations` viraram um campo JSON `rules`, no mesmo formato do preset e das últimas regras; a leitura é estrita e passa por um decodificador só, que serve a lista de salvas, as estatísticas e a troca das séries geradas. Regra nova é um campo do DTO com valor padrão, sem migration. **Conquistas:** sobrevivem à exclusão da partida em que saíram (a chave vira `SET NULL`), e a tela mostra "Partida excluída". **Migrations:** a inicial é o banco da 2.3 e a da 3.0 junta tudo o que veio depois; quem está na 2.3 atualiza sem perder nada, e da 2.0 à 2.2 o app recusa e manda abrir uma vez na 2.3. **Trava de dado perdido:** conta cada valor do primeiro nível de um JSONB como uma célula. Conferido com o `pg_dump --schema-only` da cadeia antiga contra o da nova, nos dois pontos (2.3 e 3.0), e com uma partida criada pela 2.3 aberta na 3.0.
 
 ---
 ## 3. Descartada

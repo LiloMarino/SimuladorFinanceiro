@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança (2026-10-25):** Atualizada a D15: o frontend é formatado pelo oxfmt e o oxlint ganhou as regras de tipo que barram `any`, API obsoleta e código morto.
+> **Última mudança (2026-10-25):** Registrada a D18: uma migration por versão, com o caminho antigo cortado só numa major.
 
 ---
 
@@ -314,3 +314,14 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 - Cada tópico animado são ~110 linhas de coreografia: o cursor mede os alvos no DOM, e o texto é digitado por eventos de input sobre o componente real.
 - O `motion` entra no `package.json` do front junto com a F126.
 - Reabre se a coreografia por tópico pesar mais que o previsto, com muitos tópicos animados.
+
+### D18 — Uma migration por versão; caminho antigo só cai numa major
+**Status:** ✅ Decidida
+
+**Decisão:** no release de cada versão, as migrations que nasceram nela se juntam numa só. A linha de revisões começa na migration inicial, que é o banco da última versão que o jogador ainda pode ter, e cada versão acrescenta uma. O caminho de atualização de uma versão antiga só é cortado numa major: quem vem de uma versão que a linha não cobre mais é recusado, com a instrução de abrir o app uma vez na versão que a cobre e depois voltar. A regra nova da partida é um campo do DTO com valor padrão, guardado no JSON `simulations.rules`, e não pede migration.
+**Por quê:**
+- Juntar no release não quebra ninguém de fora: quem está na versão anterior atualiza do mesmo jeito, e o banco de desenvolvimento que já estava no último passo se reconhece na revisão juntada, porque ela leva o ID da última.
+- Cortar caminho é perda para quem atualiza, e o guia de versionamento (D12) define perda assim como major.
+- Sem a junção, cada feature com banco deixaria um arquivo para sempre, e a linha cresceria sem que o jogador de uma versão recente precisasse de nada dela.
+- Regra de partida em colunas pedia migration a cada regra; no JSON a regra nova é só um campo com padrão, e a leitura estrita recusa chave desconhecida, então regra removida pede uma migration `rules - 'chave'`.
+**Consequências:** a trava de dado perdido conta cada valor preenchido do primeiro nível de um JSONB como uma célula, para que juntar colunas num JSON passe no ensaio e tirar uma chave o reprove. Cada junção se confere com o `pg_dump --schema-only` de um banco feito pela cadeia antiga igual ao de um banco feito pela nova.

@@ -65,6 +65,13 @@ O banco do `.env` precisa estar no head antes de gerar uma revisão nova: subir 
 * **`ENUM` removido no `downgrade`** sobrevive ao `drop_table` e é dropado explicitamente: `sa.Enum(name="...").drop(op.get_bind())`.
 * **Coluna `NOT NULL` nova em tabela com dado** precisa de valor para as linhas existentes: `server_default` na coluna ou um `UPDATE` na própria migration, antes de tornar a coluna obrigatória.
 * **Renomear tabela ou coluna** aparece como remoção + criação; troque por `op.rename_table` / `op.alter_column(..., new_column_name=...)` para não perder o dado.
+* **Regra nova da partida não pede migration.** As regras ficam no JSON `simulations.rules`, no formato do `SimulationSettingsDTO`: a regra nova é um campo do DTO com valor padrão, e as partidas salvas abrem com esse padrão. Regra removida pede uma migration `rules - 'chave'`, porque a leitura recusa chave desconhecida.
+
+### Uma migration por versão
+
+No release de cada versão, as migrations que nasceram nela se juntam numa só, que leva o ID da última delas para os bancos de desenvolvimento que já estavam no fim se reconhecerem. A linha de revisões começa na migration inicial, que é o banco da última versão que o jogador ainda pode ter. Juntar não quebra quem atualiza de fora, mas cortar o caminho de uma versão antiga é perda para quem atualiza e só acontece numa versão maior ([versionamento](./versionamento.md)).
+
+Antes de apagar as migrations antigas, confira que o `pg_dump --schema-only` de um banco feito pela cadeia antiga é igual ao de um banco feito pela nova, inclusive a ordem das colunas e dos valores dos enums.
 
 ---
 
@@ -79,8 +86,9 @@ O banco do `.env` precisa estar no head antes de gerar uma revisão nova: subir 
 | Com tabelas, sem `alembic_version`, igual aos models | É marcado no head (`stamp`) |
 | Com tabelas, sem `alembic_version`, diferente dos models | A inicialização é recusada: o banco é anterior às migrations e precisa ser trocado por um novo |
 | Numa revisão anterior | Ensaio numa cópia, backup, e então upgrade |
+| Numa revisão que esta versão não conhece | Recusado: o banco é de uma versão anterior à que a linha de revisões cobre; abra-o uma vez com a versão anterior e volte |
 
-**Ensaio:** as migrations rodam primeiro numa cópia (`<banco>_dryrun`), e o upgrade só é aplicado no banco real se nenhuma tabela perder linha nem célula preenchida. A cópia é apagada no fim.
+**Ensaio:** as migrations rodam primeiro numa cópia (`<banco>_dryrun`), e o upgrade só é aplicado no banco real se nenhuma tabela perder linha nem célula preenchida. Numa coluna JSONB, cada valor não nulo do primeiro nível de um objeto é uma célula, então juntar colunas num JSON passa no ensaio e tirar uma chave do JSON não. A cópia é apagada no fim.
 
 **Backup:** antes do upgrade, o banco como estava é copiado para `<banco>_bkp_AAAAMMDD_HHMMSS`; ficam os 3 mais recentes.
 
