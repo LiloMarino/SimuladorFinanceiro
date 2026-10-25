@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-25):** Incluída nos Acabamentos das telas a régua de 0 a 100 na dica dos indicadores.
+> **Última mudança (2026-10-25):** Registradas a regravação da demonstração, a reorganização da docs por tipo de leitor e a atualização do README, no marco Vitrine e primeiros passos.
 
 ## Glossário
 
@@ -42,7 +42,7 @@
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F122](#f122) | — |
 | **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F101](#f101) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | — | — |
-| **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F126](#f126), [F132](#f132), [F133](#f133) | — |
+| **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F126](#f126), [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141) | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | — | — |
 | **N27** | Entrar numa partida que já começou | — | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
@@ -102,6 +102,9 @@
 | [**F136**](#f136) | Código e dependências sem uso | — | ⏳ |
 | [**F137**](#f137) | Acessibilidade das telas | — | ⏳ |
 | [**F138**](#f138) | Piloto do modo strict do pyright | — | ⏳ |
+| [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | ⏳ |
+| [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
+| [**F141**](#f141) | README com as features de hoje | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
@@ -143,6 +146,7 @@
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
 | [**F91**](#f91) | Caixa de entrada e resumo do mês | M15 | 2 | ⏳ |
 | [**F106**](#f106) | Governo & Política: gasto público e inflação | — | 1 | 🔍 |
+| [**F139**](#f139) | Demonstração regravada com o jogo de hoje | M14 | 1 | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
@@ -164,6 +168,7 @@
 | [**F136**](#f136) | Código e dependências sem uso | — | 0 | ⏳ |
 | [**F137**](#f137) | Acessibilidade das telas | — | 0 | ⏳ |
 | [**F138**](#f138) | Piloto do modo strict do pyright | — | 0 | ⏳ |
+| [**F140**](#f140) | Docs reorganizada por tipo de leitor | M14 | 0 | ⏳ |
 
 ---
 
@@ -254,12 +259,15 @@
 >
 > **Serve:** N25
 >
-> **Progresso:** 1/3 concluídas
+> **Progresso:** 1/6 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | [F126](#f126) | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | [F126](#f126) | ⏳ |
+| [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | ⏳ |
+| [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
+| [**F141**](#f141) | README com as features de hoje | [F139](#f139) | ⏳ |
 
 <details><summary>Concluído (1 item)</summary>
 
@@ -359,6 +367,9 @@
 | **F132** | Tópicos de "como se joga" do Como jogar | N25 | — | M14 | [F126](#f126) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F133** | Tópicos de conceitos do Como jogar | N25 | — | M14 | [F126](#f126) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F134** | Acabamentos das telas | N15 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F139** | Demonstração regravada com o jogo de hoje | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F140** | Docs reorganizada por tipo de leitor | N25 | — | M14 | — | Alto | Baixo | Alto | Bom | ⏳ Pendente |
+| **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -434,6 +445,15 @@
 
 <a id="f134"></a>
 **F134 — Acabamentos das telas.** Serve N15. Ajustes pequenos que as telas implementadas deixaram de fora do desenho aprovado e que hoje só existem como post-its azuis no canvas, conferidos no código em 25/out. Cada item é uma troca local, sem rota nem modelo novos, e a referência visual é o board da linha no canvas. **Estatísticas:** o melhor da sala em verde na aba Geral, como em Rentabilidade e Risco (`statistics-report/overview-tab.tsx`, padrão em `risk-tab.tsx`); o caixa com cor própria no resumo "caixa · RV · RF" da Composição (`composition-tab.tsx`). **Fim de partida:** texto próprio para a partida só com você e, no viver de renda, a frase "passou por N imprevistos" (`match-result/match-hero.tsx`). **Página Meta:** rodapé "Juros pagos na partida" no histórico. **Lobby:** título "Continuar · nome da partida" e selo do tipo de partida na tela de entrada em equipes (`lobby-match.tsx`); a linha "Expansões" no diálogo de salvar preset (`preset-bar.tsx`, com o rótulo que `lobby/lib/preset.ts` já tem); legenda "dias sem dado" no calendário das datas (`ui/calendar.tsx`). **Modo Especialista:** erro ao salvar com "Tentar de novo" e o interruptor voltando ao valor anterior, esqueleto nas Assistências enquanto carregam e a contagem "N de M ligadas" no card da sala também fora do Personalizado (`rules-sheet.tsx`, `assistance-fields.tsx`); o clique no interruptor com Personalizado ligado segue o board, que pede a confirmação na sessão antes do código. **Correlação:** a linha que lê o par fixado no painel, o erro sem a linha técnica e a célula sem dado listrada com a causa (`correlation-side-panel.tsx`, `correlation-tool.tsx`). **Configurações:** duas colunas em qualquer largura e o erro ao salvar em vermelho suave (`settings.tsx`, `notifications-card.tsx`). **Sistema:** a nota de 12 px abaixo dos botões no 404 (`pages/error.tsx`). **Central de dados:** "buscando…" na sugestão enquanto o yFinance responde (`ticker-combobox.tsx`) e a mensagem de arquivo que não é CSV citando vírgula ou ponto e vírgula (`csv-file.ts`). **Governo:** a coluna "Hoje" do card de impostos alinhada à direita (`taxes-card.tsx`). **Backtest:** "Bateram o CDI" com o percentual ao lado da amostra e o selo Backtest no seletor de Comparar simulações (`compare/simulation-picker.tsx`). **Crédito:** o aviso "O automático está ligado" no Revisar e assinar, com o `TradeLockNotice` das boletas. **Indicadores técnicos:** a régua de 0 a 100 na dica ⓘ dos indicadores de escala fixa (IFR, Estocástico), marcando onde está o valor de hoje (`indicator-selector.tsx`, dica em `metric-hint`). **Dicas de análise técnica:** o cartão do minigame no fim da partida em cinza (`candle-challenge-card.tsx`). Ao terminar, os post-its azuis desses itens saem do canvas na sincronização.
+
+<a id="f139"></a>
+**F139 — Demonstração regravada com o jogo de hoje.** Serve N25; retrabalho da F47 e da F48. A última publicação do branch `demo` é de 2026-10-21, e de lá para cá entraram dezenas de features que a demonstração não mostra: modo automático com estratégias e bots na sala, backtest, crédito, governo e eleição, cripto, indicadores técnicos e dicas de análise técnica, presets e linha do tempo do período no lobby, compra a mercado por valor na boleta, a janela "Como jogar". Plano: (1) **Inventário:** cruzar o `git log` de `frontend/src` desde a última publicação com as cenas de `scripts/demo/script.py` (lobby, ações, renda fixa, tempo, estatísticas, fechamento) e as screenshots de `docs/static/demo/screens/`, listando cena por cena o que mudou na tela e o que não tem imagem. (2) **Cenas que mudaram:** o lobby passa pelo preset e pela linha do tempo; a cena de ações usa a compra por valor e mostra o gráfico com um indicador ligado. (3) **Cenas novas:** uma do modo automático (escolher a estratégia e ver o bot negociar) e screenshots de crédito, governo, análise técnica, backtest e "Como jogar"; o banco-base da demo ganha o que essas telas precisarem (um ativo cripto, os indicadores do governo). (4) **Página das imagens:** cada screenshot nova ganha o nome que a página dos docs vai usar, e a lista de screenshots esperadas fica no próprio roteiro, para a reorganização da docs (F140) pedir imagem acrescentando uma linha. (5) `pnpm demo` e `pnpm demo publish`. Gatilho: agora; destrava o README (F141).
+
+<a id="f140"></a>
+**F140 — Docs reorganizada por tipo de leitor.** Serve N25; retrabalho da F48. As páginas cresceram junto com as features e misturam três leituras: o passo a passo de quem joga, a referência campo a campo e a explicação de como o simulador calcula (o lobby tem 3 mil palavras e uma seção "Como funciona internamente"; estatísticas e futuro gerado carregam a metodologia inteira no meio do guia). "Novidades" mora dentro de "Como Usar", o "Desenvolvimento" põe o setup lado a lado com notas internas (async × sync, investigação de lentidão, cotações em lote, ordenação de tabelas), e há features sem página para quem joga (modo automático e backtest só aparecem em `desenvolvimento/estrategias.md`; a janela "Como jogar" não aparece em lugar nenhum); a intro e o README ainda dizem "Estratégias automáticas: em breve". Guia de escrita: o Diátaxis (https://diataxis.fr), que separa tutorial (aprender fazendo), guia prático (resolver uma tarefa), referência (consultar) e explicação (entender o porquê). Plano: (1) **Auditoria** página por página contra o app de hoje: o que está desatualizado, o que falta e de qual dos quatro tipos é cada seção, numa tabela entregue ao usuário com a barra lateral proposta antes de mover arquivo. (2) **Barra lateral nova:** "Primeiros passos" (instalação e uma primeira partida curta, apoiada no tour), "Como usar" com uma página curta por tela dizendo o que dá para fazer nela, "Referência" (os campos do lobby, as regras de imposto, os tipos de ordem) e "Como funciona" (a nota da partida, o futuro gerado, o governo, a correlação), para onde a metodologia sai do meio dos guias. "Novidades" vai para a barra superior, ao lado da API. (3) **Desenvolvimento:** o caminho de quem contribui (setup, estrutura de pastas, convenções, contribuindo, versionamento) separado das notas internas, num subgrupo próprio. (4) **Páginas novas:** modo automático e bots na sala, backtest, e a menção à janela "Como jogar" na primeira partida. (5) **Tom:** caixa-alta, negrito em sequência, avisos em excesso e seções "Próximos passos" saem; cada página abre dizendo para que serve a tela, e toda métrica ganha a definição curta e um exemplo numérico. (6) Os links do README, do app (link de ajuda da sala) e entre páginas são conferidos depois de mover, com o build do Docusaurus, que já falha em link quebrado entre páginas (`onBrokenLinks`); os links de fora (README e app) são conferidos à mão. As imagens que faltarem entram no roteiro da demonstração (F139). Gatilho: agora; a auditoria do passo 1 não depende da regravação.
+
+<a id="f141"></a>
+**F141 — README com as features de hoje.** Serve N25; retrabalho da F48. O README lista o que o jogo fazia em 2026-10-21 e termina em "Estratégias automáticas: em breve", que já existe. Plano: (1) "O que ele faz" ganha modo automático com estratégias e bots, crédito, governo e eleição, cripto e análise técnica, cada um com uma frase e a imagem da demonstração regravada (F139); as seções com GIF ficam nas quatro ou cinco mais fortes, e o resto vai para "E também", que deixa de ter item "em breve". (2) O parágrafo de abertura e os tipos de partida conferidos contra o lobby de hoje (presets, período). (3) Os links para os docs apontam para as páginas da reorganização (F140) quando ela tiver mudado os caminhos. (4) A intro dos docs repete a mesma lista, e as duas mudam juntas. Gatilho: F139 publicada.
 
 ---
 ## 2. Nice-to-have
