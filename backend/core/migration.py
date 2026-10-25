@@ -13,10 +13,11 @@ from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.script import ScriptDirectory
-from sqlalchemy import Engine, create_engine, inspect, text
+from sqlalchemy import JSON, Engine, create_engine, inspect, text
 from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.pool import NullPool
+from sqlalchemy.types import TypeEngine
 
 from backend.core.logger import TERMINAL
 from backend.core.models.models import Base
@@ -65,6 +66,25 @@ def schema_diff(engine: Engine) -> list:
         return compare_metadata(context, Base.metadata)
 
 
+def _filled_cells(column: str, column_type: TypeEngine) -> str:
+    """O SQL que conta as células preenchidas de uma coluna.
+
+    Num JSONB, cada valor não nulo do primeiro nível de um objeto é uma célula;
+    um valor que não é objeto conta 1, e nulo conta 0. Assim juntar colunas num
+    JSON preserva o total, e tirar uma chave do JSON o reduz.
+    """
+    if not isinstance(column_type, JSON):
+        return f"COUNT({column})"
+    return (
+        f"COALESCE(SUM(CASE WHEN {column} IS NULL THEN 0 "  # noqa: S608
+        f"ELSE CASE jsonb_typeof({column}) "
+        "WHEN 'null' THEN 0 "
+        f"WHEN 'object' THEN (SELECT COUNT(*) FROM jsonb_each({column}) "
+        "WHERE value <> 'null'::jsonb) "
+        "ELSE 1 END END), 0)"
+    )
+
+
 def fingerprint(engine: Engine) -> Fingerprint:
     """Linhas e células preenchidas por tabela.
 
@@ -78,8 +98,10 @@ def fingerprint(engine: Engine) -> Fingerprint:
         for table in inspector.get_table_names():
             if table == VERSION_TABLE:
                 continue
-            columns = [column["name"] for column in inspector.get_columns(table)]
-            filled = " + ".join(f"COUNT({quote(column)})" for column in columns)
+            filled = " + ".join(
+                _filled_cells(quote(column["name"]), column["type"])
+                for column in inspector.get_columns(table)
+            )
             rows, filled_cells = connection.execute(
                 text(f"SELECT COUNT(*), {filled} FROM {quote(table)}")  # noqa: S608
             ).one()

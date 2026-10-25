@@ -4,6 +4,8 @@ num banco existente quando nada se perde."""
 from __future__ import annotations
 
 import os
+from datetime import date
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -14,6 +16,7 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.pool import NullPool
 
 from backend.core import migration
+from backend.core.enum import GameType
 from backend.core.migration import (
     MigrationError,
     TableFingerprint,
@@ -22,11 +25,14 @@ from backend.core.migration import (
     backups_to_drop,
     current_revision,
     drop_databases,
+    fingerprint,
     head_revision,
     migrate,
     schema_diff,
 )
 from backend.core.models.models import Base
+from backend.core.repository.simulation import decode_settings, encode_rules
+from tests.fakes import simulation_settings
 
 
 def test_schema_matches_models(pg_url: str, engine: Engine) -> None:
@@ -186,14 +192,14 @@ def test_unversioned_database_with_old_schema_is_refused(
     """Banco do `create_all` com schema antigo é recusado e fica como estava."""
     Base.metadata.create_all(engine)
     with engine.begin() as connection:
-        connection.execute(text("ALTER TABLE simulations DROP COLUMN price_impact_k"))
+        connection.execute(text("ALTER TABLE simulations DROP COLUMN random_seed"))
 
     with pytest.raises(MigrationError, match="anterior às migrations"):
         migrate(pg_url)
 
     assert current_revision(engine) is None
     columns = {column["name"] for column in inspect(engine).get_columns("simulations")}
-    assert "price_impact_k" not in columns
+    assert "random_seed" not in columns
 
 
 def test_data_loss_is_refused() -> None:
@@ -235,3 +241,116 @@ def test_only_the_latest_backups_are_kept() -> None:
 
     assert backups_to_drop(backups, keep=3) == ["db_bkp_20261001_090000"]
     assert backups_to_drop(backups[:2], keep=3) == []
+
+
+def test_fingerprint_counts_the_values_of_a_json_object(
+    pg_url: str, engine: Engine
+) -> None:
+    """Num JSONB, cada valor não nulo do primeiro nível é uma célula."""
+    with engine.begin() as connection:
+        connection.execute(text("CREATE TABLE sample (id int, data jsonb)"))
+        connection.execute(
+            text(
+                "INSERT INTO sample VALUES "
+                """(1, '{"a": 1, "b": null, "c": "x"}'), """  # objeto: a e c
+                "(2, '[1, 2]'), "  # não é objeto: 1
+                "(3, 'null'), "  # nulo do JSON: 0
+                "(4, NULL), "  # nulo do SQL: 0
+                "(5, '5')"  # escalar: 1
+            )
+        )
+
+    assert fingerprint(engine)["sample"] == TableFingerprint(
+        rows=5, filled_cells=5 + 2 + 1 + 0 + 0 + 1
+    )
+
+
+def test_merging_columns_into_json_keeps_the_total(pg_url: str, engine: Engine) -> None:
+    """Juntar colunas num JSON preserva o total; tirar uma chave do JSON o reduz."""
+    with engine.begin() as connection:
+        connection.execute(text("CREATE TABLE sample (a int, b text, c text)"))
+        connection.execute(
+            text("INSERT INTO sample VALUES (1, 'x', NULL), (2, NULL, NULL)")
+        )
+    before = fingerprint(engine)
+
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE sample ADD COLUMN data jsonb"))
+        connection.execute(
+            text("UPDATE sample SET data = jsonb_build_object('a', a, 'b', b, 'c', c)")
+        )
+        connection.execute(
+            text("ALTER TABLE sample DROP COLUMN a, DROP COLUMN b, DROP COLUMN c")
+        )
+    assert_no_data_loss(before, fingerprint(engine))
+
+    with engine.begin() as connection:
+        connection.execute(text("UPDATE sample SET data = data - 'a'"))
+    with pytest.raises(MigrationError, match="células preenchidas"):
+        assert_no_data_loss(before, fingerprint(engine))
+
+
+BEFORE_RULES_IN_JSON = "5836e0819ac7"
+
+
+def test_saved_match_keeps_its_rules_through_the_json_migration(
+    pg_url: str, engine: Engine
+) -> None:
+    """A partida das colunas migra para o JSON sem perder célula, abre igual no DTO e volta."""
+    expected = simulation_settings().model_copy(
+        update={
+            "name": "Política",
+            "end_date": date(2026, 12, 31),
+            "game_type": GameType.POLITICAL,
+            "government_enabled": True,
+            "first_election": date(2022, 10, 2),
+            "starting_cash": Decimal("12345.67"),
+        }
+    )
+    alembic = alembic_config(pg_url)
+    command.upgrade(alembic, BEFORE_RULES_IN_JSON)
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO simulations (name, start_date, end_date, starting_cash, "
+                "monthly_contribution, price_impact_enabled, price_impact_k, "
+                "price_impact_decay_days, victory_criterion, game_type, goal_net_worth, "
+                "monthly_salary, monthly_expense, unexpected_per_year, withdrawal_rate, "
+                "inflation_adjusted, random_seed, player_grouping, team_naming, "
+                "show_equivalent_rate, show_maturity_projection, show_chart_hints, "
+                "government_enabled, first_election, computer_difficulty, "
+                "created_at, last_simulated_at) VALUES ("
+                "'Política', '2020-01-01', '2026-12-31', 12345.67, 0, false, 0.02, 20, "
+                "'SCORE', 'POLITICAL', 100000, 8000, 5000, 3, 0.04, false, 7, "
+                "'INDIVIDUAL', 'COLOR', true, true, true, true, '2022-10-02', 'NORMAL', "
+                "now(), now())"
+            )
+        )
+    before = fingerprint(engine)
+
+    command.upgrade(alembic, "head")
+
+    assert_no_data_loss(before, fingerprint(engine))
+    with engine.connect() as connection:
+        name, rules = connection.execute(
+            text("SELECT name, rules FROM simulations")
+        ).one()
+    assert decode_settings(name, rules) == expected
+    assert rules.keys() == encode_rules(expected).keys()
+
+    command.downgrade(alembic, BEFORE_RULES_IN_JSON)
+
+    with engine.connect() as connection:
+        row = connection.execute(
+            text(
+                "SELECT start_date, starting_cash, game_type::text, first_election, "
+                "government_enabled FROM simulations"
+            )
+        ).one()
+    assert tuple(row) == (
+        date(2020, 1, 1),
+        Decimal("12345.670000"),
+        "POLITICAL",
+        date(2022, 10, 2),
+        True,
+    )

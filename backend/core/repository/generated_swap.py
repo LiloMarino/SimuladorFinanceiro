@@ -35,6 +35,7 @@ from backend.core.models.models import (
     StockPriceHistory,
 )
 from backend.core.repository.series_version import COMMON_VERSION, SeriesModel
+from backend.core.repository.simulation import decode_settings
 
 
 def _date_column(model: SeriesModel) -> InstrumentedAttribute[date]:
@@ -58,11 +59,15 @@ def played_periods(session: Session) -> list[tuple[int, date, date]]:
         .subquery()
     )
     rows = session.execute(
-        select(Simulations.id, Simulations.start_date, last_day.c.day).join(
-            last_day, last_day.c.simulation_id == Simulations.id
-        )
+        select(
+            Simulations.id, Simulations.name, Simulations.rules, last_day.c.day
+        ).join(last_day, last_day.c.simulation_id == Simulations.id)
     ).all()
-    return [(sim_id, start, end) for sim_id, start, end in rows if end >= start]
+    periods = [
+        (sim_id, decode_settings(name, rules).start_date, end)
+        for sim_id, name, rules, end in rows
+    ]
+    return [(sim_id, start, end) for sim_id, start, end in periods if end >= start]
 
 
 def _generated(

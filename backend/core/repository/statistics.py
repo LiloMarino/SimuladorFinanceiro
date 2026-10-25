@@ -21,6 +21,7 @@ from backend.core.models.models import (
     Users,
 )
 from backend.core.repository.credit import credit_event_dto
+from backend.core.repository.simulation import decode_settings
 
 # Jogador numa simulação: o nickname é único entre os usuários
 type PlayerKey = tuple[int, str]
@@ -39,8 +40,7 @@ class StatisticsRepository:
                 Users.nickname,
                 Users.is_bot,
                 Simulations.name,
-                Simulations.starting_cash,
-                Simulations.goal_net_worth,
+                Simulations.rules,
                 SimulationPlayers.color,
                 SimulationPlayers.team,
             )
@@ -62,6 +62,10 @@ class StatisticsRepository:
         for row in rows:
             grouped[(row.Snapshots.simulation_id, row.Snapshots.user_id)].append(row)
 
+        settings = {
+            simulation_id: decode_settings(group[0].name, group[0].rules)
+            for (simulation_id, _), group in grouped.items()
+        }
         return [
             PlayerHistoryDTO(
                 player_nickname=group[0].nickname,
@@ -70,8 +74,8 @@ class StatisticsRepository:
                 is_bot=group[0].is_bot,
                 simulation_id=simulation_id,
                 simulation_name=group[0].name,
-                starting_cash=group[0].starting_cash,
-                goal_net_worth=group[0].goal_net_worth,
+                starting_cash=settings[simulation_id].starting_cash,
+                goal_net_worth=settings[simulation_id].goal_net_worth,
                 history=[
                     PatrimonialHistoryDTO(
                         snapshot_date=r.Snapshots.snapshot_date,

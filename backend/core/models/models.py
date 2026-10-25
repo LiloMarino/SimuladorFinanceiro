@@ -316,81 +316,17 @@ class Simulations(Base):
         primary_key=True,
     )
     name: Mapped[str] = mapped_column(Text, nullable=False)
-    start_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
-    end_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
-    starting_cash: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(20, 6), nullable=False
-    )
-    monthly_contribution: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(20, 6), nullable=False
-    )
-    price_impact_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    price_impact_k: Mapped[float] = mapped_column(Double(53), nullable=False)
-    price_impact_decay_days: Mapped[int] = mapped_column(Integer, nullable=False)
-    victory_criterion: Mapped[str] = mapped_column(
-        Enum("SCORE", "RETURN", "NETWORTH", "SHARPE", name="victory_criterion"),
-        nullable=False,
-        server_default=text("'SCORE'"),
-    )
-    game_type: Mapped[str] = mapped_column(
-        Enum(
-            "CLASSIC",
-            "GOAL_RACE",
-            "FINANCIAL_INDEPENDENCE",
-            "POLITICAL",
-            name="game_type",
-        ),
-        nullable=False,
-        server_default=text("'CLASSIC'"),
-    )
-    goal_net_worth: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(20, 6), nullable=False
-    )
-    monthly_salary: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(20, 6), nullable=False
-    )
-    monthly_expense: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(20, 6), nullable=False
-    )
-    unexpected_per_year: Mapped[int] = mapped_column(SmallInteger, nullable=False)
-    withdrawal_rate: Mapped[decimal.Decimal] = mapped_column(
-        Numeric(10, 6), nullable=False
-    )
-    inflation_adjusted: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    # Os imprevistos saem dela: fica no servidor, fora das regras
     random_seed: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    player_grouping: Mapped[str] = mapped_column(
-        Enum("INDIVIDUAL", "TEAMS", name="player_grouping"),
-        nullable=False,
-        server_default=text("'INDIVIDUAL'"),
-    )
-    team_naming: Mapped[str] = mapped_column(
-        Enum("COLOR", "NUMBER", name="team_naming"),
-        nullable=False,
-        server_default=text("'COLOR'"),
-    )
-    show_equivalent_rate: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=text("true")
-    )
-    show_maturity_projection: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=text("true")
-    )
-    show_chart_hints: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=text("true")
-    )
-    # Expansão Governo & Política: as regras travam quando a partida começa
-    government_enabled: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=text("false")
-    )
-    first_election: Mapped[datetime.date | None] = mapped_column(Date)
-    computer_difficulty: Mapped[str] = mapped_column(
-        Enum("EASY", "NORMAL", "HARD", name="computer_difficulty"),
-        nullable=False,
-        server_default=text("'NORMAL'"),
-    )
     # Partida só de estratégias, rodada pelo host sem espera entre os pregões
     is_backtest: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("false")
     )
+    # As regras da partida: `SimulationSettingsDTO.model_dump(mode="json")` sem o
+    # nome, o mesmo formato de `Preset.config`. A leitura valida o JSON inteiro
+    # contra o DTO e recusa chave desconhecida: regra nova é um campo do DTO com
+    # valor padrão; regra removida pede uma migration `rules - 'chave'`.
+    rules: Mapped[dict] = mapped_column(JSONB, nullable=False)
     # Ranking calculado até o último dia gravado (`result_as_of`); serve a lista de
     # salvas enquanto a simulação não avança
     result: Mapped[dict | None] = mapped_column(JSONB)

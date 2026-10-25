@@ -1,6 +1,7 @@
 import random
 import re
 from datetime import UTC, date, datetime
+from typing import Any
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
@@ -11,13 +12,6 @@ from backend.core.dto.simulation import (
     SimulationResultDTO,
     SimulationSettingsDTO,
     SimulationSummaryDTO,
-)
-from backend.core.enum import (
-    ComputerDifficulty,
-    GameType,
-    PlayerGrouping,
-    TeamNaming,
-    VictoryCriterion,
 )
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.models.models import (
@@ -32,6 +26,16 @@ _DEFAULT_NAME_PREFIX = "Simulação #"
 _DEFAULT_NAME_PATTERN = re.compile(r"^Simulação #(\d+)$")
 
 
+def encode_rules(settings: SimulationSettingsDTO) -> dict[str, Any]:
+    """As regras como `Simulations.rules` as guarda: as configurações sem o nome."""
+    return settings.model_dump(mode="json", exclude={"name"})
+
+
+def decode_settings(name: str, rules: dict[str, Any]) -> SimulationSettingsDTO:
+    """As configurações da partida, lidas de `Simulations.rules`; é a única porta de leitura."""
+    return SimulationSettingsDTO.model_validate({**rules, "name": name})
+
+
 class SimulationRepository:
     @transactional
     def create_simulation(
@@ -44,31 +48,8 @@ class SimulationRepository:
         now = datetime.now(UTC)
         simulation = Simulations(
             name=settings.name,
-            start_date=settings.start_date,
-            end_date=settings.end_date,
-            starting_cash=settings.starting_cash,
-            monthly_contribution=settings.monthly_contribution,
-            price_impact_enabled=settings.price_impact_enabled,
-            price_impact_k=settings.price_impact_k,
-            price_impact_decay_days=settings.price_impact_decay_days,
-            victory_criterion=settings.victory_criterion.value,
-            game_type=settings.game_type.value,
-            goal_net_worth=settings.goal_net_worth,
-            monthly_salary=settings.monthly_salary,
-            monthly_expense=settings.monthly_expense,
-            unexpected_per_year=settings.unexpected_per_year,
-            withdrawal_rate=settings.withdrawal_rate,
-            inflation_adjusted=settings.inflation_adjusted,
-            # Os imprevistos saem dela: fica no servidor, fora das configurações
+            rules=encode_rules(settings),
             random_seed=random.SystemRandom().randrange(2**31),
-            player_grouping=settings.player_grouping.value,
-            team_naming=settings.team_naming.value,
-            show_equivalent_rate=settings.show_equivalent_rate,
-            show_maturity_projection=settings.show_maturity_projection,
-            show_chart_hints=settings.show_chart_hints,
-            government_enabled=settings.government_enabled,
-            first_election=settings.first_election,
-            computer_difficulty=settings.computer_difficulty.value,
             is_backtest=is_backtest,
             created_at=now,
             last_simulated_at=now,
@@ -223,31 +204,8 @@ class SimulationRepository:
     @staticmethod
     def _to_summary(simulation: Simulations) -> SimulationSummaryDTO:
         return SimulationSummaryDTO(
+            **decode_settings(simulation.name, simulation.rules).model_dump(),
             id=simulation.id,
-            name=simulation.name,
-            start_date=simulation.start_date,
-            end_date=simulation.end_date,
-            starting_cash=simulation.starting_cash,
-            monthly_contribution=simulation.monthly_contribution,
-            price_impact_enabled=simulation.price_impact_enabled,
-            price_impact_k=simulation.price_impact_k,
-            price_impact_decay_days=simulation.price_impact_decay_days,
-            victory_criterion=VictoryCriterion(simulation.victory_criterion),
-            game_type=GameType(simulation.game_type),
-            goal_net_worth=simulation.goal_net_worth,
-            monthly_salary=simulation.monthly_salary,
-            monthly_expense=simulation.monthly_expense,
-            unexpected_per_year=simulation.unexpected_per_year,
-            withdrawal_rate=simulation.withdrawal_rate,
-            inflation_adjusted=simulation.inflation_adjusted,
-            player_grouping=PlayerGrouping(simulation.player_grouping),
-            team_naming=TeamNaming(simulation.team_naming),
-            show_equivalent_rate=simulation.show_equivalent_rate,
-            show_maturity_projection=simulation.show_maturity_projection,
-            show_chart_hints=simulation.show_chart_hints,
-            government_enabled=simulation.government_enabled,
-            first_election=simulation.first_election,
-            computer_difficulty=ComputerDifficulty(simulation.computer_difficulty),
             is_backtest=simulation.is_backtest,
             created_at=simulation.created_at,
             last_simulated_at=simulation.last_simulated_at,
