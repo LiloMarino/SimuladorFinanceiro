@@ -76,7 +76,6 @@
 | [**F91**](#f91) | Caixa de entrada e resumo do mês | — | ⏳ |
 | [**F92**](#f92) | Noticiário da partida | — | ⏳ |
 | [**F93**](#f93) | Rumores antecipados | — | 🔍 |
-| [**F96**](#f96) | Dicas de análise técnica | — | ⏳ |
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
 | [**F100**](#f100) | Proventos na carteira e nas telas | — | ⏳ |
 | [**F101**](#f101) | Carteira separada do jogador | — | 💤 |
@@ -100,7 +99,7 @@
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -121,6 +120,7 @@
 | **D16** | Estratégias do app no host, personalização pela API | — | ✅ |
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | [F126](#f126) | ✅ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ✅ |
+| [**F96**](#f96) | Dicas de análise técnica | — | ✅ |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | ✅ |
 | [**F126**](#f126) | Janela "Como jogar" | — | ✅ |
 
@@ -137,7 +137,6 @@
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
 | [**F91**](#f91) | Caixa de entrada e resumo do mês | M15 | 2 | ⏳ |
-| [**F96**](#f96) | Dicas de análise técnica | M11 | 1 | ⏳ |
 | [**F106**](#f106) | Governo & Política: gasto público e inflação | — | 1 | 🔍 |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
@@ -152,6 +151,7 @@
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 0 | 🔍 |
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 0 | 🔍 |
 | [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 0 | 🔍 |
+| [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
 
@@ -223,13 +223,20 @@
 >
 > **Serve:** N19
 >
-> **Progresso:** 0/3 concluídas
+> **Progresso:** 1/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
-| [**F96**](#f96) | Dicas de análise técnica | [F126](#f126) | ⏳ |
 | [**F131**](#f131) | Catálogo de padrões de vela | [F96](#f96), [F126](#f126) | 🔍 |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F96**](#f96) | Dicas de análise técnica | [F126](#f126) | ✅ |
+
+</details>
 
 ### M14 — Vitrine e primeiros passos
 
@@ -325,7 +332,7 @@
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F91** | Caixa de entrada e resumo do mês | N32 | — | M15 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F92** | Noticiário da partida | N31 | D7 | M15 | [F91](#f91) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
-| **F96** | Dicas de análise técnica | N19 | — | M11 | [F126](#f126) | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F96** | Dicas de análise técnica | N19 | — | M11 | [F126](#f126) | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F101** | Carteira separada do jogador | N23 | D9 | — | — | Alto | Alto | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F110** | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
@@ -375,7 +382,7 @@
 **F92 — Noticiário da partida.** Serve N31; segue a D7. Um noticiário sintético: as manchetes nascem das séries que a partida já lê, e por isso funcionam igual no futuro gerado, que é onde o jogo passa a maior parte do tempo, e na história real. Sem LLM e sem internet. (1) **Motor genérico:** uma lista de regras, cada uma olhando as séries no tick e, quando dispara, criando uma entrada da sala na caixa de entrada (F91) a partir de um modelo de texto com algumas variações, para a mesma frase não se repetir. Regra nova é só mais um item da lista. (2) **Macro, as manchetes padrão:** Copom subiu, baixou ou manteve a SELIC, com o tamanho ("Copom sobe a SELIC em 0,5 ponto, para 14,25%"); IPCA do mês acima ou abaixo do anterior; Ibovespa no recorde ou na maior queda do ano. (3) **Empresas:** a mesma lógica para um ativo que sobe ou cai mais de um limite no dia, chega à máxima de 52 semanas ou anuncia provento. O movimento ganha uma causa sintética plausível, sorteada de um banco de causas por setor e direção ("resultado do trimestre acima do esperado", "troca no comando", "vendas de fim de ano fracas" para o varejo). A notícia sai depois do movimento: dá contexto e não dá vantagem. (4) As notícias de um ativo aparecem também na tela dele, como marcadores no gráfico de preço. (5) **Extra, para período real:** marcos históricos curados à mão (crise de 2008, Joesley Day em 2017, Covid em março de 2020), num arquivo de dados com data, manchete e ativos ligados. O futuro gerado sempre começa depois do último dia real, então um marco datado só aparece em período real, e um cenário (F90) pode trazer os seus. Gatilho: depois da caixa de entrada.
 
 <a id="f96"></a>
-**F96 — Dicas de análise técnica.** Serve N19. Aprender análise técnica jogando: o gráfico aponta e explica o que um trader enxergaria, para quem quer jogar pelo gráfico sem já saber as regras. É ajuda, então o modo Especialista (F40) a desliga, como as outras. (1) **Padrões de vela:** regras fixas sobre abertura, máxima, mínima e fechamento de cada pregão detectam uns dez padrões clássicos (martelo, estrela cadente, engolfo de alta e de baixa, doji, três soldados brancos). O candle ganha um marcador; ao passar o mouse, um card com o nome, o desenho do padrão e o que ele costuma sugerir. **E se ele acertou:** o card conta quantas vezes o padrão apareceu neste ativo no período já jogado e em quantas o preço foi para o lado sugerido nos 5 pregões seguintes ("apareceu 12 vezes; em 7 o preço subiu"), o que ensina também que padrão não é garantia. (2) **Indicadores (F33):** as faixas ganham legenda (IFR acima de 70, "sobrecomprado": subiu rápido demais e costuma devolver; abaixo de 30, "sobrevendido") e os cruzamentos do MACD e das médias móveis ganham marcador com uma frase do que significam. (3) **Desafio da vela:** quando aparece um padrão, o jogo pergunta "e agora, sobe ou desce?" e confere dias depois, com um placar de acertos que pode virar conquista (F41). Gatilho: a janela "Como jogar" (F126) pronta, porque o desenho animado do padrão no card e o catálogo da F131 usam o palco e as animações em código que ela monta; os indicadores (F33) já estão prontos.
+**F96 — Dicas de análise técnica.** Serve N19. Aprender análise técnica jogando: o gráfico de velas aponta e explica o que um trader enxergaria. É ajuda, então o modo Especialista (F40) a desliga, como as outras, com um interruptor próprio (Esconder dicas de análise técnica). (1) Padrões de vela: 11 padrões clássicos detectados por regras fixas (martelo, martelo invertido, enforcado, estrela cadente, doji, engolfo de alta e de baixa, estrela da manhã e da tarde, três soldados brancos e três corvos negros). Marcador com o nome sobre a vela, faixa atrás dos padrões de várias velas, interruptor "Padrões de vela" no topo do gráfico, lista recolhível dos padrões do período e card "E se ele acertou?" ao passar o mouse, com o desenho animado do padrão, o contorno dos 5 pregões seguintes e a taxa de acerto (só com 10 ocorrências ou mais). (2) Indicadores (F33): legendas "Sobrecomprado"/"Sobrevendido" no IFR e círculo com frase nos cruzamentos do MACD e das médias móveis. (3) Desafio da vela: quando surge um padrão com lado, o jogo pergunta "sobe ou desce?" e confere no fechamento do 5º pregão, com placar, cartão no fim da partida e as conquistas Primeira leitura e Leitor de velas. O preset Realista passou a esconder as dicas, para o rótulo Especialista continuar valendo.
 
 <a id="f101"></a>
 **F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
