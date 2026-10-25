@@ -13,27 +13,43 @@ from backend.features.fixed_income.accrual import RedemptionBreakdown
 from backend.features.fixed_income.entities.fixed_income_position import (
     FixedIncomePosition,
 )
+from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
 
 CENT = Decimal("0.01")
 
 
-def redeemable_today(position: FixedIncomePosition, today: date) -> Decimal | None:
+def redeemable_today(
+    position: FixedIncomePosition,
+    today: date,
+    policy: TaxPolicy = DEFAULT_TAX_POLICY,
+) -> Decimal | None:
     """Líquido de resgatar a posição inteira hoje; None sem liquidez diária."""
     if not position.asset.daily_liquidity:
         return None
-    return position.breakdown(today, None).net
+    return position.breakdown(today, None, policy).net
 
 
-def total_redeemable(positions: Iterable[FixedIncomePosition], today: date) -> Decimal:
+def total_redeemable(
+    positions: Iterable[FixedIncomePosition],
+    today: date,
+    policy: TaxPolicy = DEFAULT_TAX_POLICY,
+) -> Decimal:
     """Soma do líquido resgatável hoje das posições de liquidez diária."""
     return sum(
-        (net for p in positions if (net := redeemable_today(p, today)) is not None),
+        (
+            net
+            for p in positions
+            if (net := redeemable_today(p, today, policy)) is not None
+        ),
         Decimal(0),
     )
 
 
 def overdraft_cover(
-    cash: Decimal, positions: Iterable[FixedIncomePosition], today: date
+    cash: Decimal,
+    positions: Iterable[FixedIncomePosition],
+    today: date,
+    policy: TaxPolicy = DEFAULT_TAX_POLICY,
 ) -> OverdraftCoverDTO | None:
     """
     Com o caixa negativo, o título de liquidez diária de menor taxa cujo líquido de
@@ -45,9 +61,9 @@ def overdraft_cover(
     debt = (-cash).quantize(CENT, ROUND_CEILING)
     covering: list[tuple[FixedIncomePosition, RedemptionBreakdown]] = []
     for position in positions:
-        net = redeemable_today(position, today)
+        net = redeemable_today(position, today, policy)
         if net is not None and net >= debt:
-            covering.append((position, position.breakdown(today, debt)))
+            covering.append((position, position.breakdown(today, debt, policy)))
     if not covering:
         return None
 

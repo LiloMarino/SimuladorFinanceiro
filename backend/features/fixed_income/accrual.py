@@ -31,16 +31,9 @@ from backend.core.indicators import (
     last_known_value,
 )
 from backend.core.utils import is_business_day, next_business_day
+from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
 
 CENT = Decimal("0.01")
-
-# Tabela regressiva de IR: (até N dias corridos de aplicação, alíquota)
-INCOME_TAX_BRACKETS: list[tuple[int, Decimal]] = [
-    (180, Decimal("0.225")),
-    (360, Decimal("0.20")),
-    (720, Decimal("0.175")),
-]
-INCOME_TAX_FLOOR = Decimal("0.15")
 
 # IOF regressivo sobre o rendimento: alíquota do 1º ao 29º dia corrido; do 30º em diante é zero
 IOF_TABLE: tuple[Decimal, ...] = tuple(
@@ -124,15 +117,19 @@ def redemption_date(maturity: date) -> date:
     return maturity if is_business_day(maturity) else next_business_day(maturity)
 
 
-def income_tax_rate(investment_type: FixedIncomeType, days_held: int) -> Decimal:
-    """Alíquota de IR pelos dias corridos de aplicação. LCI e LCA são isentas."""
+def income_tax_rate(
+    investment_type: FixedIncomeType,
+    days_held: int,
+    policy: TaxPolicy = DEFAULT_TAX_POLICY,
+) -> Decimal:
+    """Alíquota de IR pelos dias corridos de aplicação; LCI e LCA têm alíquota própria."""
     if investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA):
-        return Decimal(0)
+        return policy.lci_lca_rate
 
-    for max_days, rate in INCOME_TAX_BRACKETS:
+    for max_days, rate in policy.fixed_income_brackets:
         if days_held <= max_days:
             return rate
-    return INCOME_TAX_FLOOR
+    return policy.fixed_income_floor
 
 
 def iof_rate(days_held: int) -> Decimal:
@@ -164,6 +161,7 @@ def redemption_breakdown(
     investment_type: FixedIncomeType,
     days_held: int,
     net_wanted: Decimal | None,
+    policy: TaxPolicy = DEFAULT_TAX_POLICY,
 ) -> RedemptionBreakdown:
     """
     Resgate de um título de montante M e capital C.
@@ -174,7 +172,7 @@ def redemption_breakdown(
     inverso da fórmula); sem ele, ou com um valor que pede o título inteiro, resgata tudo.
     """
     iof = iof_rate(days_held)
-    ir = income_tax_rate(investment_type, days_held)
+    ir = income_tax_rate(investment_type, days_held, policy)
     profit_share = (
         max(current_value - total_applied, Decimal(0)) / current_value
         if current_value > 0
@@ -224,15 +222,19 @@ class TaxDrop:
 
 
 def next_tax_drop(
-    investment_type: FixedIncomeType, first_applied: date, today: date
+    investment_type: FixedIncomeType,
+    first_applied: date,
+    today: date,
+    policy: TaxPolicy = DEFAULT_TAX_POLICY,
 ) -> TaxDrop | None:
     """A próxima queda do IR; None quando já está na alíquota final ou o título é isento."""
     if investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA):
         return None
 
     days_held = (today - first_applied).days
-    rates = [rate for _, rate in INCOME_TAX_BRACKETS] + [INCOME_TAX_FLOOR]
-    for (max_days, _), next_rate in zip(INCOME_TAX_BRACKETS, rates[1:], strict=True):
+    brackets = policy.fixed_income_brackets
+    rates = [rate for _, rate in brackets] + [policy.fixed_income_floor]
+    for (max_days, _), next_rate in zip(brackets, rates[1:], strict=True):
         if days_held <= max_days:
             return TaxDrop(
                 on=first_applied + timedelta(days=max_days + 1), rate=next_rate
@@ -247,7 +249,10 @@ def iof_free_date(first_applied: date, today: date) -> date | None:
 
 
 def project(
-    asset: FixedIncomeAssetDTO, amount: Decimal, on: date
+    asset: FixedIncomeAssetDTO,
+    amount: Decimal,
+    on: date,
+    policy: TaxPolicy = DEFAULT_TAX_POLICY,
 ) -> FixedIncomeProjectionDTO:
     """
     Projeta `amount` aplicado em `on` até o resgate, com o indexador congelado no
@@ -279,11 +284,11 @@ def project(
         previous, day = day, next_business_day(day)
 
     days_held = (redeem_on - on).days
-    tax_rate = income_tax_rate(asset.investment_type, days_held)
+    tax_rate = income_tax_rate(asset.investment_type, days_held, policy)
     gross_return = gross_amount - amount
     # Os impostos do resgate são IR e, em título que vence antes de 30 dias, o IOF
     net_amount = redemption_breakdown(
-        gross_amount, amount, asset.investment_type, days_held, None
+        gross_amount, amount, asset.investment_type, days_held, None, policy
     ).net
     gross_return_pct = growth - 1
     taxes = gross_amount - net_amount
@@ -307,26 +312,33 @@ def project(
     )
 
 
-def offer(asset: FixedIncomeAssetDTO, on: date) -> FixedIncomeOfferDTO:
+def offer(
+    asset: FixedIncomeAssetDTO, on: date, policy: TaxPolicy = DEFAULT_TAX_POLICY
+) -> FixedIncomeOfferDTO:
     """O título com a taxa equivalente de `on` e a alíquota de IR se levado ao vencimento."""
     index_rate = index_rate_on(asset.rate_index, on)
     return FixedIncomeOfferDTO(
         **asset.model_dump(),
         index_rate=index_rate,
         effective_annual_rate=effective_annual_rate(asset, index_rate),
-        tax_exempt=asset.investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA),
+        tax_exempt=asset.investment_type in (FixedIncomeType.LCI, FixedIncomeType.LCA)
+        and policy.lci_lca_rate == 0,
         income_tax_rate_at_maturity=income_tax_rate(
-            asset.investment_type, (redemption_date(asset.maturity_date) - on).days
+            asset.investment_type,
+            (redemption_date(asset.maturity_date) - on).days,
+            policy,
         ),
     )
 
 
-def income_tax_brackets() -> list[IncomeTaxBracketDTO]:
+def income_tax_brackets(
+    policy: TaxPolicy = DEFAULT_TAX_POLICY,
+) -> list[IncomeTaxBracketDTO]:
     """A tabela regressiva inteira, da primeira faixa à alíquota final."""
     return [
         *(
             IncomeTaxBracketDTO(max_days=days, rate=rate)
-            for days, rate in INCOME_TAX_BRACKETS
+            for days, rate in policy.fixed_income_brackets
         ),
-        IncomeTaxBracketDTO(max_days=None, rate=INCOME_TAX_FLOOR),
+        IncomeTaxBracketDTO(max_days=None, rate=policy.fixed_income_floor),
     ]

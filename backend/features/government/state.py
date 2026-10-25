@@ -1,22 +1,26 @@
 """
 O estado político da partida é o replay dos eventos: quem fundou, filiou, contribuiu,
-quanto cada partido já tem de apoio, o resultado de cada turno e o governo em vigor.
-`apply` é o único lugar que muda o estado, na partida rodando e na retomada.
+quanto cada partido já tem de apoio, o resultado de cada turno, o governo em vigor, a
+fila do Congresso e a aprovação. `apply` é o único lugar que muda o estado, na partida
+rodando e na retomada.
 """
 
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core.dto.events.government import GovernmentEventDTO
 from backend.core.enum import GovernmentEventType as Event
+from backend.core.enum import MeasureKind, MeasureStatus
 
 # Pontos de intenção de voto por gasto: R$ 8 mil num mês dão √8000 ÷ 64 = 1,4 ponto
 # (de 100 eleitores). O apoio rende pela raiz quadrada, então dobrar a verba não
 # dobra os votos.
 SQRT_DIVISOR = Decimal(64)
 ELECTORATE = Decimal(100)
+# A medida aprovada vale depois da noventena
+VIGENCE_DAYS = 90
 
 
 def vote_points(amount: Decimal) -> Decimal:
@@ -109,6 +113,48 @@ class Term:
     start: date
     # Mandatos seguidos do mesmo presidente: o 2º é o último
     consecutive: int
+    # A promessa do partido na campanha, na régua de 1 a 5
+    promise: int | None = None
+    # O vice assumiu depois de um impeachment, ou o computador ficou no lugar
+    succession: bool = False
+
+
+@dataclass
+class Measure:
+    """Uma proposta do presidente ao Congresso e o que aconteceu com ela."""
+
+    id: int
+    kind: MeasureKind
+    # A alíquota (0.20), o teto em reais ou os pontos somados, conforme o tipo
+    value: Decimal | None
+    # O que a medida muda, como estava no dia da proposta
+    before: Decimal | None
+    sector: str | None
+    segment: str | None
+    proposer_id: int
+    # Início do governo que propôs: a marca e o efeito na aprovação contam por governo
+    term_start: date
+    proposed: date
+    status: MeasureStatus = MeasureStatus.QUEUED
+    decided: date | None = None
+    # A chance que a medida tinha no voto
+    chance: Decimal | None = None
+    effective: date | None = None
+
+
+@dataclass(frozen=True)
+class ApprovalPoint:
+    day: date
+    value: int
+
+
+@dataclass(frozen=True)
+class Impeachment:
+    day: date
+    president_id: int | None
+    party_id: int | None
+    # O vice que assumiu; nulo quando o computador ficou no lugar
+    successor_id: int | None
 
 
 @dataclass
@@ -126,6 +172,14 @@ class GovernmentState:
     # O eleito que espera a posse
     pending_term: Term | None = None
     term: Term | None = None
+    measures: dict[int, Measure] = field(default_factory=dict)
+    next_measure_id: int = 1
+    # A aprovação medida no fechamento de cada mês do governo em curso
+    approvals: list[ApprovalPoint] = field(default_factory=list)
+    # Meses seguidos abaixo do piso; o impeachment vem quando chega ao limite
+    low_streak: int = 0
+    last_measured: date | None = None
+    impeachments: list[Impeachment] = field(default_factory=list)
 
     def party_of(self, user_id: int) -> Party | None:
         return next(
@@ -231,8 +285,75 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 vice_id=_opt_int(p, "vice_id"),
                 start=day,
                 consecutive=_int(p, "consecutive"),
+                promise=_opt_int(p, "promise"),
             )
             state.pending_term = None
+            _reset_government(state)
+        case Event.MEASURE_PROPOSED:
+            assert state.term is not None
+            measure_id = _int(p, "measure_id")
+            state.measures[measure_id] = Measure(
+                id=measure_id,
+                kind=MeasureKind(_str(p, "kind")),
+                value=_opt_money(p, "value"),
+                before=_opt_money(p, "before"),
+                sector=_opt_str(p, "sector"),
+                segment=_opt_str(p, "segment"),
+                proposer_id=_int(p, "proposer_id"),
+                term_start=state.term.start,
+                proposed=day,
+            )
+            state.next_measure_id = max(state.next_measure_id, measure_id + 1)
+        case Event.MEASURE_WITHDRAWN:
+            state.measures[_int(p, "measure_id")].status = MeasureStatus.WITHDRAWN
+        case Event.MEASURE_VOTED:
+            measure = state.measures[_int(p, "measure_id")]
+            measure.decided = day
+            measure.chance = _money(p, "chance")
+            if p["approved"]:
+                measure.status = MeasureStatus.APPROVED
+                measure.effective = day + timedelta(days=VIGENCE_DAYS)
+            else:
+                measure.status = MeasureStatus.REJECTED
+        case Event.APPROVAL_MEASURED:
+            state.approvals.append(ApprovalPoint(day, _int(p, "value")))
+            state.low_streak = _int(p, "low_streak")
+            state.last_measured = date.fromisoformat(_str(p, "month"))
+        case Event.IMPEACHED:
+            _apply_impeachment(state, event)
+
+
+def _reset_government(state: GovernmentState) -> None:
+    """Um governo novo começa sem a fila do anterior e sem o histórico de aprovação."""
+    for measure in state.measures.values():
+        if measure.status is MeasureStatus.QUEUED:
+            measure.status = MeasureStatus.DROPPED
+    state.approvals = []
+    state.low_streak = 0
+
+
+def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    term = state.term
+    assert term is not None
+    successor = _opt_int(event.payload, "successor_id")
+    state.impeachments.append(
+        Impeachment(
+            day=event.event_date,
+            president_id=term.president_id,
+            party_id=term.party_id,
+            successor_id=successor,
+        )
+    )
+    state.term = Term(
+        party_id=term.party_id if successor is not None else None,
+        president_id=successor,
+        vice_id=None,
+        start=event.event_date,
+        consecutive=1,
+        promise=term.promise if successor is not None else None,
+        succession=True,
+    )
+    _reset_government(state)
 
 
 def _remove_member(state: GovernmentState, user_id: int) -> None:
@@ -294,12 +415,14 @@ def _apply_round(state: GovernmentState, event: GovernmentEventDTO) -> None:
         and president is not None
         and previous.president_id == president
     )
+    winner_party = state.parties.get(winner) if winner is not None else None
     state.pending_term = Term(
         party_id=winner,
         president_id=president,
         vice_id=ticket.vice_id if ticket else None,
         start=date(event.event_date.year + 1, 1, 1),
         consecutive=(previous.consecutive + 1 if previous and same_president else 1),
+        promise=winner_party.promise if winner_party else None,
     )
     # A campanha seguinte recomeça do zero: os partidos ficam, o apoio não
     state.runoff = None
@@ -322,6 +445,11 @@ def _opt_int(p: dict[str, object], key: str) -> int | None:
 
 def _str(p: dict[str, object], key: str) -> str:
     return str(p[key])
+
+
+def _opt_money(p: dict[str, object], key: str) -> Decimal | None:
+    value = p.get(key)
+    return None if value is None else Decimal(str(value))
 
 
 def _opt_str(p: dict[str, object], key: str) -> str | None:

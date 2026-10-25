@@ -6,14 +6,16 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMoney } from "@/shared/lib/utils/display";
-import type { ElectionPanel, ElectionRound } from "@/types";
+import type { ElectionPanel, ElectionRound, GovernmentPanel, PortfolioState } from "@/types";
+import { inForceToast, votedToast, warningToast } from "../lib/measure-toast";
 import { donationContext, roundToast } from "../lib/round-toast";
+import { ImpeachmentDialog } from "./impeachment-dialog";
 import { RoundResultDialog } from "./round-result-dialog";
 
 /**
  * Dono único dos avisos da eleição em tempo real: cada evento renova a página da eleição
  * e a carteira (contribuição e doação saem do caixa) e conta o que aconteceu.
- * O resultado de um turno abre o diálogo para todos, ao vivo, com a partida pausada.
+ * O resultado de um turno e o impeachment abrem um diálogo para todos, ao vivo, com a partida pausada.
  */
 export function GovernmentNotifications() {
   const queryClient = useQueryClient();
@@ -21,12 +23,21 @@ export function GovernmentNotifications() {
   const { user } = useAuth();
   // O painel viaja com o turno: o diálogo mostra as datas e a doação do momento da apuração
   const [shown, setShown] = useState<{ result: ElectionRound; panel: ElectionPanel } | null>(null);
+  const [impeachment, setImpeachment] = useState<GovernmentPanel | null>(null);
   const me = user?.nickname;
 
   const renew = () => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.election() });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.government() });
     void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
   };
+
+  const openGovernment = () => void navigate("/government");
+  const showMeasure = (notice: { tone: "success" | "info" | "warning" | "error"; title: string; description: string }) =>
+    toast[notice.tone](notice.title, {
+      description: notice.description,
+      action: { label: "Ver medidas", onClick: openGovernment },
+    });
 
   useRealtime("government_update", (event) => {
     const abbr = event.party_abbr ?? "";
@@ -83,7 +94,39 @@ export function GovernmentNotifications() {
       case "TERM_STARTED":
         toast.success(`${event.winner_abbr} toma posse`, {
           description: "O mandato dura 4 anos, com uma reeleição possível.",
-          action: { label: "Ver", onClick: () => void navigate("/election") },
+          action: { label: "Ver", onClick: openGovernment },
+        });
+        break;
+      case "MEASURE_PROPOSED":
+        toast.info(`${event.actor} propôs: ${event.measure_title}`, {
+          action: { label: "Ver fila", onClick: openGovernment },
+        });
+        break;
+      case "MEASURE_WITHDRAWN":
+        toast.info(`${event.actor} retirou: ${event.measure_title}`);
+        break;
+      case "MEASURE_VOTED": {
+        const portfolio = queryClient.getQueryData<PortfolioState>(queryKeys.portfolio());
+        showMeasure(votedToast(event, portfolio?.variable_income.map((position) => position.ticker) ?? []));
+        break;
+      }
+      case "MEASURE_IN_FORCE":
+        showMeasure(inForceToast(event));
+        break;
+      case "IMPEACHMENT_WARNING":
+        if (event.actor === me) {
+          const floor = queryClient.getQueryData<GovernmentPanel>(queryKeys.government())?.approval?.floor ?? 25;
+          const notice = warningToast(event, floor);
+          toast.error(notice.title, {
+            description: notice.description,
+            action: { label: "Ver governo", onClick: openGovernment },
+          });
+        }
+        break;
+      case "IMPEACHMENT":
+        // O diálogo lê o governo já com o sucessor no cache
+        void queryClient.refetchQueries({ queryKey: queryKeys.government() }).then(() => {
+          setImpeachment(queryClient.getQueryData<GovernmentPanel>(queryKeys.government()) ?? null);
         });
         break;
       case "UPDATED":
@@ -93,14 +136,17 @@ export function GovernmentNotifications() {
   });
 
   return (
-    <RoundResultDialog
-      result={shown?.result ?? null}
-      panel={shown?.panel}
-      onClose={() => setShown(null)}
-      onOpenPage={() => {
-        setShown(null);
-        void navigate("/election");
-      }}
-    />
+    <>
+      <ImpeachmentDialog panel={impeachment} onClose={() => setImpeachment(null)} />
+      <RoundResultDialog
+        result={shown?.result ?? null}
+        panel={shown?.panel}
+        onClose={() => setShown(null)}
+        onOpenPage={() => {
+          setShown(null);
+          void navigate("/election");
+        }}
+      />
+    </>
   );
 }

@@ -25,7 +25,13 @@ from backend.core.dto.fixed_income_projection import (
     NextTaxDropDTO,
 )
 from backend.core.dto.goal import GoalProgressDTO, GoalRunnerDTO
-from backend.core.dto.government import ElectionPanelDTO, FoundPartyRequest
+from backend.core.dto.government import (
+    ElectionPanelDTO,
+    FoundPartyRequest,
+    GovernmentPanelDTO,
+    MeasurePreviewDTO,
+    ProposeMeasureRequest,
+)
 from backend.core.dto.life import LifeEventDTO, LifeStatusDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO
@@ -86,6 +92,7 @@ from backend.features.fixed_income.assistance import (
     build_quote,
 )
 from backend.features.fixed_income.liquidity import overdraft_cover, total_redeemable
+from backend.features.government.governance import build_governance
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_panel
 from backend.features.realtime import notify
@@ -109,6 +116,7 @@ from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.simulation.simulation_loop import simulation_controller
 from backend.features.statistics.goal import goal_on, goal_reached
 from backend.features.strategy.runner import StrategyRunner
+from backend.features.tax_policy import TaxPolicy
 from backend.features.variable_income.entities.order import MarketOrder, Order
 from backend.features.variable_income.price_impact import PriceImpact
 
@@ -204,7 +212,7 @@ class Simulation:
 
         # Expansão Governo & Política: o estado político volta dos eventos gravados
         self._government = (
-            GovernmentBook(settings, self._engine)
+            GovernmentBook(settings, self._engine, self._take_office, random_seed)
             if settings.government_enabled and backtest is None
             else None
         )
@@ -250,7 +258,7 @@ class Simulation:
 
     @synchronized
     def create_order(self, order: Order) -> None:
-        self._strategies.ensure_manual(order.client_id)
+        self._ensure_can_operate(order.client_id)
         # A compra por valor ganha a quantidade com o book de agora, no mesmo lock da execução
         if isinstance(order, MarketOrder) and order.budget is not None:
             self._engine.size_budget_order(order)
@@ -263,7 +271,7 @@ class Simulation:
 
     @synchronized
     def cancel_order(self, *, order_id: str, client_id: UUID) -> bool:
-        self._strategies.ensure_manual(client_id)
+        self._ensure_can_operate(client_id)
         canceled = self._engine.matching_engine.cancel(
             order_id=order_id, client_id=client_id
         )
@@ -279,7 +287,7 @@ class Simulation:
     def buy_fixed_income(
         self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal
     ) -> None:
-        self._strategies.ensure_manual(client_id)
+        self._ensure_can_operate(client_id)
         self._engine.fixed_broker.buy(client_id, asset, value)
         EventManager.flush()
 
@@ -287,7 +295,7 @@ class Simulation:
     def redeem_fixed_income(
         self, client_id: UUID, asset: FixedIncomeAssetDTO, net_amount: Decimal
     ) -> None:
-        self._strategies.ensure_manual(client_id)
+        self._ensure_can_operate(client_id)
         self._engine.fixed_broker.redeem(client_id, asset, net_amount)
         EventManager.flush()
 
@@ -306,6 +314,8 @@ class Simulation:
         key: str | None,
         params: dict[str, StrategyParamValue],
     ) -> None:
+        if key is not None:
+            self._ensure_can_trade(user.client_id)
         self._strategies.set_mode(user, key, params, self._current_date)
 
     @synchronized
@@ -401,6 +411,71 @@ class Simulation:
     def donate_to_party(self, user: UserDTO, party_id: int, amount: Decimal) -> None:
         self._ensure_government().donate(user, self._current_date, party_id, amount)
 
+    @synchronized
+    def get_governance(self, user: UserDTO) -> GovernmentPanelDTO:
+        return build_governance(
+            self._ensure_government(),
+            self._engine,
+            repository.simulation_player.participants(self.settings.id),
+            user,
+            self._current_date,
+        )
+
+    @synchronized
+    def propose_measure(self, user: UserDTO, measure: ProposeMeasureRequest) -> None:
+        self._ensure_government().propose(
+            user,
+            self._current_date,
+            measure.kind,
+            measure.value,
+            measure.sector,
+            measure.segment,
+        )
+
+    @synchronized
+    def preview_measure(
+        self, user: UserDTO, measure: ProposeMeasureRequest
+    ) -> MeasurePreviewDTO:
+        return self._ensure_government().preview(
+            user,
+            self._current_date,
+            measure.kind,
+            measure.value,
+            measure.sector,
+            measure.segment,
+        )
+
+    @synchronized
+    def withdraw_measure(self, user: UserDTO, measure_id: int) -> None:
+        self._ensure_government().withdraw(user, self._current_date, measure_id)
+
+    @synchronized
+    def repropose_measure(self, user: UserDTO, measure_id: int) -> None:
+        self._ensure_government().repropose(user, self._current_date, measure_id)
+
+    def _tax_policy(self) -> TaxPolicy:
+        return self._engine.tax_policy_on(self._current_date)
+
+    def _ensure_can_trade(self, client_id: UUID) -> None:
+        """A carteira do presidente fica congelada durante o mandato."""
+        if self._government is not None:
+            self._government.ensure_can_trade(client_id)
+
+    def _ensure_can_operate(self, client_id: UUID) -> None:
+        self._ensure_can_trade(client_id)
+        self._strategies.ensure_manual(client_id)
+
+    def _take_office(self, president: UserDTO, day: date) -> None:
+        """Na posse as ordens abertas somem e o automático desliga: a carteira congela."""
+        self._engine.matching_engine.cancel_all(president.client_id)
+        self._strategies.set_mode(
+            president,
+            None,
+            {},
+            day,
+            reason="Você assumiu a presidência: a carteira fica congelada",
+        )
+
     def _ensure_government(self) -> GovernmentBook:
         if self._government is None:
             raise ConflictError("Esta partida não usa a expansão Governo & Política.")
@@ -463,7 +538,9 @@ class Simulation:
     @synchronized
     def get_fixed_offers(self) -> list[FixedIncomeOfferDTO]:
         return [
-            apply_offer_assistance(offer(a, self._current_date), self.settings)
+            apply_offer_assistance(
+                offer(a, self._current_date, self._tax_policy()), self.settings
+            )
             for a in self.get_fixed_assets()
         ]
 
@@ -472,7 +549,9 @@ class Simulation:
         asset = self.get_fixed_asset(asset_uuid)
         if not asset:
             return None
-        return apply_offer_assistance(offer(asset, self._current_date), self.settings)
+        return apply_offer_assistance(
+            offer(asset, self._current_date, self._tax_policy()), self.settings
+        )
 
     @synchronized
     def quote_fixed_income(
@@ -488,13 +567,13 @@ class Simulation:
         if asset.offered_until is not None and self._current_date > asset.offered_until:
             max_amount = Decimal(0)
         return build_quote(
-            project(asset, amount, self._current_date),
+            project(asset, amount, self._current_date, self._tax_policy()),
             self.settings,
             cash_before=cash,
             cash_after=cash - amount,
             max_amount=max_amount,
             cap_used=None if asset.player_cap is None else applied,
-            income_tax_brackets=income_tax_brackets(),
+            income_tax_brackets=income_tax_brackets(self._tax_policy()),
         )
 
     def _applied(self, client_id: UUID, asset: FixedIncomeAssetDTO) -> Decimal:
@@ -513,14 +592,15 @@ class Simulation:
             raise NotFoundError(f"Você não tem posição em {asset.name}")
 
         today = self._current_date
-        maximum = position.breakdown(today, None).net
+        policy = self._tax_policy()
+        maximum = position.breakdown(today, None, policy).net
         redemption = (
-            position.breakdown(today, amount) if 0 < amount <= maximum else None
+            position.breakdown(today, amount, policy) if 0 < amount <= maximum else None
         )
         cash = self.get_cash(client_id)
         first = position.first_applied_date
         days_held = (today - first).days
-        drop = next_tax_drop(asset.investment_type, first, today)
+        drop = next_tax_drop(asset.investment_type, first, today, policy)
         return FixedIncomeRedemptionQuoteDTO(
             amount=amount,
             max_amount=maximum,
@@ -532,7 +612,7 @@ class Simulation:
             yield_amount=redemption and redemption.yield_amount,
             iof_rate=iof_rate(days_held),
             iof=redemption and redemption.iof,
-            income_tax_rate=income_tax_rate(asset.investment_type, days_held),
+            income_tax_rate=income_tax_rate(asset.investment_type, days_held, policy),
             income_tax=redemption and redemption.income_tax,
             net_amount=redemption and redemption.net,
             cash_before=cash,
@@ -819,7 +899,8 @@ class Simulation:
         rate = _overdraft_rate()
         # A reserva soma o caixa e a liquidez diária líquida, e nunca fica negativa
         positions = list(self.get_fixed_positions(client_id).values())
-        daily_liquidity = total_redeemable(positions, day)
+        policy = self._tax_policy()
+        daily_liquidity = total_redeemable(positions, day, policy)
         reserve = max(cash + daily_liquidity, Decimal(0))
         reserve_cash = max(cash, Decimal(0))
         return LifeStatusDTO(
@@ -838,7 +919,7 @@ class Simulation:
             reserve_months=reserve / expense,
             reserve_cash=reserve_cash,
             reserve_daily_liquidity=reserve - reserve_cash,
-            overdraft_cover=overdraft_cover(cash, positions, day),
+            overdraft_cover=overdraft_cover(cash, positions, day, policy),
         )
 
     @synchronized

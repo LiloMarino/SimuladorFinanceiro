@@ -1,0 +1,346 @@
+"""A página Governo: impostos em vigor, aprovação, fila do Congresso e a carteira do presidente."""
+
+from collections.abc import Callable
+from datetime import date
+from decimal import Decimal
+
+from backend.core.dto.government import (
+    ApprovalDTO,
+    ApprovalFactorDTO,
+    ApprovalPointDTO,
+    FrozenPortfolioDTO,
+    FrozenSliceDTO,
+    GovernmentPanelDTO,
+    ImpeachmentDTO,
+    InterestDTO,
+    MeasureDTO,
+    SectorMeasureDTO,
+    SectorOptionDTO,
+    SegmentOptionDTO,
+    TaxRowDTO,
+    UpcomingEffectDTO,
+)
+from backend.core.dto.portfolio import PortfolioDTO
+from backend.core.dto.user import UserDTO
+from backend.core.enum import MeasureKind, MeasureStatus
+from backend.features.government import approval as approval_rules
+from backend.features.government import congress
+from backend.features.government import measures as rules
+from backend.features.government.government_book import GovernmentBook
+from backend.features.government.panel import build_term
+from backend.features.government.state import VIGENCE_DAYS, Measure
+from backend.features.simulation.simulation_engine import SimulationEngine
+
+GENERAL_KINDS = (
+    MeasureKind.STOCK_PROFIT_RATE,
+    MeasureKind.DAY_TRADE_RATE,
+    MeasureKind.STOCK_EXEMPTION,
+    MeasureKind.FIXED_INCOME_TABLE,
+    MeasureKind.LCI_LCA_RATE,
+)
+
+
+def build_governance(
+    book: GovernmentBook,
+    engine: SimulationEngine,
+    users: list[UserDTO],
+    viewer: UserDTO,
+    today: date,
+) -> GovernmentPanelDTO:
+    state = book.state
+    people = {user.id: user for user in users}
+    term = state.term
+    president = book.president()
+    is_president = president is not None and president.id == viewer.id
+    current = book.approval(today)
+    measures = sorted(state.measures.values(), key=lambda m: m.id)
+
+    def dto(measure: Measure) -> MeasureDTO:
+        return _measure(measure, people, today, current, is_president, measures)
+
+    pending = [
+        m
+        for m in measures
+        if m.status is MeasureStatus.QUEUED
+        or (m.status is MeasureStatus.APPROVED and _waiting(m, today))
+    ]
+    rejected = [
+        m
+        for m in reversed(measures)
+        if m.status is MeasureStatus.REJECTED
+        and book.is_current(m)
+        and not _retried(m, measures)
+    ]
+    policy = book.policy(today)
+    end = book.term_end()
+    impeachment = state.impeachments[-1] if state.impeachments else None
+
+    return GovernmentPanelDTO(
+        today=today,
+        term=build_term(term, state, people),
+        computer_until_inauguration=term is None,
+        is_president=is_president,
+        term_end=end,
+        next_election=book.cycle().first_round,
+        approval=_approval(book, current, today),
+        taxes=[
+            TaxRowDTO(
+                kind=kind,
+                value=(
+                    policy.fixed_income_floor
+                    if kind is MeasureKind.FIXED_INCOME_TABLE
+                    else rules.general_value(policy, kind) or Decimal(0)
+                ),
+                top_value=(
+                    policy.fixed_income_top_rate
+                    if kind is MeasureKind.FIXED_INCOME_TABLE
+                    else None
+                ),
+                pending=next(
+                    (dto(m) for m in reversed(pending) if m.kind is kind), None
+                ),
+            )
+            for kind in GENERAL_KINDS
+        ],
+        sector_measures=[
+            SectorMeasureDTO(measure=dto(m), assets=len(book.tickers(m)))
+            for m in reversed(measures)
+            if m.kind.is_sector and m.status is MeasureStatus.APPROVED
+        ],
+        queue=[dto(m) for m in [*pending, *rejected]],
+        next_vote=congress.next_vote_date(today),
+        portfolio=(
+            _portfolio(book, engine, president, end, pending, today)
+            if president is not None and end is not None
+            else None
+        ),
+        sectors=_sector_options(engine),
+        last_impeachment=(
+            ImpeachmentDTO(
+                date=impeachment.day,
+                president=_nickname(people, impeachment.president_id),
+                successor=_nickname(people, impeachment.successor_id),
+                months=approval_rules.IMPEACHMENT_MONTHS,
+                floor=approval_rules.FLOOR,
+            )
+            if impeachment
+            else None
+        ),
+        vigence_days=VIGENCE_DAYS,
+    )
+
+
+def _nickname(people: dict[int, UserDTO], user_id: int | None) -> str | None:
+    user = people.get(user_id) if user_id is not None else None
+    return user.nickname if user else None
+
+
+def _waiting(measure: Measure, today: date) -> bool:
+    return measure.effective is not None and measure.effective > today
+
+
+def _retried(rejected: Measure, measures: list[Measure]) -> bool:
+    """A medida rejeitada que já voltou à fila (ou passou) não pede outra tentativa."""
+    return any(
+        m.id > rejected.id
+        and (m.kind, m.sector, m.segment)
+        == (rejected.kind, rejected.sector, rejected.segment)
+        and m.status in (MeasureStatus.QUEUED, MeasureStatus.APPROVED)
+        for m in measures
+    )
+
+
+def _measure(
+    measure: Measure,
+    people: dict[int, UserDTO],
+    today: date,
+    current: approval_rules.Approval | None,
+    is_president: bool,
+    measures: list[Measure],
+) -> MeasureDTO:
+    queued = measure.status is MeasureStatus.QUEUED
+    waiting = measure.status is MeasureStatus.APPROVED and _waiting(measure, today)
+    days_left = (
+        (measure.effective - today).days if waiting and measure.effective else None
+    )
+    return MeasureDTO(
+        id=measure.id,
+        kind=measure.kind,
+        title=rules.title(measure),
+        sector=measure.sector,
+        segment=measure.segment,
+        value=measure.value,
+        proposer=_nickname(people, measure.proposer_id) or "?",
+        proposed=measure.proposed,
+        status=measure.status,
+        vote_date=congress.next_vote_date(today) if queued else measure.decided,
+        chance=(
+            current.value
+            if queued and current
+            else int(measure.chance)
+            if measure.chance is not None
+            else None
+        ),
+        effective=measure.effective,
+        waiting_days=VIGENCE_DAYS - days_left if days_left is not None else None,
+        days_left=days_left,
+        ruler_band=rules.ruler_band(measure),
+        impact=rules.approval_impact(measure),
+        can_withdraw=is_president and queued,
+        can_repropose=(
+            is_president
+            and measure.status is MeasureStatus.REJECTED
+            and not _retried(measure, measures)
+        ),
+    )
+
+
+def _approval(
+    book: GovernmentBook, current: approval_rules.Approval | None, today: date
+) -> ApprovalDTO | None:
+    term = book.state.term
+    if current is None or term is None:
+        return None
+    measured = book.state.approvals
+    history = [ApprovalPointDTO(date=term.start, value=approval_rules.BASE)]
+    history += [ApprovalPointDTO(date=p.day, value=p.value) for p in measured]
+    if history[-1].date != today:
+        history.append(ApprovalPointDTO(date=today, value=current.value))
+    before = [p for p in history if p.date < today]
+    return ApprovalDTO(
+        value=current.value,
+        previous=before[-1].value if before else None,
+        history=history,
+        factors=[
+            ApprovalFactorDTO(
+                kind=f.kind,
+                points=f.points,
+                description=f.description,
+                measure_id=f.measure_id,
+            )
+            for f in current.factors
+        ],
+        upcoming=[
+            UpcomingEffectDTO(
+                measure_id=m.id,
+                description=(
+                    f"A caminho: {rules.title(m)}, aprovada em "
+                    f"{rules.short_date(m.decided or today)}, pesa quando valer"
+                ),
+                effective=m.effective or today,
+                impact=rules.approval_impact(m),
+            )
+            for m in current.upcoming
+        ],
+        floor=approval_rules.FLOOR,
+        low_streak=book.state.low_streak,
+        impeachment_months=approval_rules.IMPEACHMENT_MONTHS,
+        mark=current.mark,
+        promise=term.promise,
+    )
+
+
+def _portfolio(
+    book: GovernmentBook,
+    engine: SimulationEngine,
+    president: UserDTO,
+    end: date,
+    pending: list[Measure],
+    today: date,
+) -> FrozenPortfolioDTO:
+    portfolio = engine.get_portfolio(president.client_id)
+    total = (
+        portfolio.cash + portfolio.variable_income_value + portfolio.fixed_income_value
+    )
+
+    def share(value: Decimal) -> Decimal:
+        return value / total if total > 0 else Decimal(0)
+
+    held = {p.ticker for p in portfolio.variable_income}
+    slices = []
+    for sector in portfolio.sectors:
+        tickers = sorted(
+            t
+            for t, located in engine.classification.items()
+            if t in held and located.sector == sector.sector
+        )
+        slices.append(
+            FrozenSliceDTO(
+                label=sector.sector or "Sem setor",
+                tickers=tickers,
+                share=share(sector.value),
+            )
+        )
+    slices += [
+        FrozenSliceDTO(label=pos.asset.name, tickers=[], share=share(pos.current_value))
+        for pos in portfolio.fixed_income
+    ]
+    slices.append(
+        FrozenSliceDTO(label="Caixa", tickers=[], share=share(portfolio.cash))
+    )
+    return FrozenPortfolioDTO(
+        nickname=president.nickname,
+        total_networth=portfolio.total_networth,
+        frozen_until=end,
+        slices=sorted(slices, key=lambda s: s.share, reverse=True),
+        interests=_interests(portfolio, pending, share, today),
+    )
+
+
+def _interests(
+    portfolio: PortfolioDTO,
+    pending: list[Measure],
+    share: Callable[[Decimal], Decimal],
+    today: date,
+) -> list[InterestDTO]:
+    """Os setores do presidente que têm medida na fila ou esperando a vigência."""
+    interests = []
+    for measure in pending:
+        if not measure.kind.is_sector:
+            continue
+        value = Decimal(0)
+        for sector in portfolio.sectors:
+            if sector.sector != measure.sector:
+                continue
+            if measure.segment is None:
+                value = sector.value
+            else:
+                value = sum(
+                    (s.value for s in sector.segments if s.segment == measure.segment),
+                    Decimal(0),
+                )
+        if value > 0:
+            interests.append(
+                InterestDTO(
+                    sector=rules.target_name(measure),
+                    share=share(value),
+                    measure_id=measure.id,
+                    vote_date=(
+                        congress.next_vote_date(today)
+                        if measure.status is MeasureStatus.QUEUED
+                        else None
+                    ),
+                    effective=measure.effective,
+                )
+            )
+    return interests
+
+
+def _sector_options(engine: SimulationEngine) -> list[SectorOptionDTO]:
+    by_sector: dict[str, dict[str, list[str]]] = {}
+    for ticker, located in engine.classification.items():
+        by_sector.setdefault(located.sector, {}).setdefault(located.segment, []).append(
+            ticker
+        )
+    return [
+        SectorOptionDTO(
+            name=name,
+            assets=sum(len(t) for t in segments.values()),
+            tickers=sorted(t for tickers in segments.values() for t in tickers),
+            segments=[
+                SegmentOptionDTO(name=seg, assets=len(tickers))
+                for seg, tickers in sorted(segments.items())
+            ],
+        )
+        for name, segments in sorted(by_sector.items())
+    ]

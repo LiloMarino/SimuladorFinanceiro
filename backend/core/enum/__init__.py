@@ -446,6 +446,11 @@ class GovernmentEventType(Enum):
     DONATION_MADE = "DONATION_MADE"
     ELECTION_ROUND = "ELECTION_ROUND"
     TERM_STARTED = "TERM_STARTED"
+    MEASURE_PROPOSED = "MEASURE_PROPOSED"
+    MEASURE_WITHDRAWN = "MEASURE_WITHDRAWN"
+    MEASURE_VOTED = "MEASURE_VOTED"
+    APPROVAL_MEASURED = "APPROVAL_MEASURED"
+    IMPEACHED = "IMPEACHED"
 
 
 class ElectionPhase(Enum):
@@ -481,3 +486,48 @@ class GovernmentNoticeKind(Enum):
     DONATION = "DONATION"
     ELECTION_RESULT = "ELECTION_RESULT"
     TERM_STARTED = "TERM_STARTED"
+    MEASURE_PROPOSED = "MEASURE_PROPOSED"
+    MEASURE_WITHDRAWN = "MEASURE_WITHDRAWN"
+    MEASURE_VOTED = "MEASURE_VOTED"
+    MEASURE_IN_FORCE = "MEASURE_IN_FORCE"
+    IMPEACHMENT = "IMPEACHMENT"
+    IMPEACHMENT_WARNING = "IMPEACHMENT_WARNING"
+
+
+class MeasureKind(Enum):
+    """O que uma medida muda: um imposto geral ou a regra de um setor ou segmento."""
+
+    # Alíquota do ganho comum nas vendas de ações
+    STOCK_PROFIT_RATE = "STOCK_PROFIT_RATE"
+    DAY_TRADE_RATE = "DAY_TRADE_RATE"
+    # Teto mensal de vendas de ações com ganho isento; zero acaba com a isenção
+    STOCK_EXEMPTION = "STOCK_EXEMPTION"
+    # Tabela única: a mesma alíquota em qualquer prazo
+    FIXED_INCOME_TABLE = "FIXED_INCOME_TABLE"
+    LCI_LCA_RATE = "LCI_LCA_RATE"
+    SECTOR_EXEMPT = "SECTOR_EXEMPT"
+    # Soma pontos à alíquota do ganho do setor
+    SECTOR_TAX = "SECTOR_TAX"
+
+    @property
+    def is_sector(self) -> bool:
+        return self in (MeasureKind.SECTOR_EXEMPT, MeasureKind.SECTOR_TAX)
+
+
+class MeasureStatus(Enum):
+    QUEUED = "QUEUED"
+    # Aprovada, esperando a vigência ou já valendo
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    WITHDRAWN = "WITHDRAWN"
+    # A fila não votada sai quando o governo muda
+    DROPPED = "DROPPED"
+
+
+class ApprovalFactorKind(Enum):
+    BASE = "BASE"
+    INFLATION = "INFLATION"
+    STOCKS = "STOCKS"
+    NEW_TAX = "NEW_TAX"
+    TAX_CUT = "TAX_CUT"
+    PROMISE = "PROMISE"

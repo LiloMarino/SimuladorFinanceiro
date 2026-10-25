@@ -8,7 +8,8 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { displayShortDate } from "@/shared/lib/utils/display";
 import { TopbarCash } from "./topbar-cash";
 import { TopbarGoal } from "./topbar-goal";
-import { TopbarGovernment } from "./topbar-government";
+import { GoverningBanner } from "@/features/government/components/governing-banner";
+import { TopbarGovernment } from "@/features/government/components/topbar-government";
 import { hasGoal } from "@/shared/lib/game-types";
 
 interface TopbarProps {
@@ -86,6 +87,9 @@ export default function Topbar({ pageLabel }: TopbarProps) {
           <TopbarCash cash={simData?.cash} independence={match?.game_type === "FINANCIAL_INDEPENDENCE"} />
         </div>
       </div>
+
+      {/* Aviso do presidente */}
+      {match?.government_enabled && <GoverningBanner />}
     </header>
   );
 }

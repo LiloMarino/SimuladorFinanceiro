@@ -200,13 +200,14 @@ class FixedBroker:
             if position is None:
                 raise NotFoundError(f"Você não tem posição em {asset.name}")
 
-            maximum = position.breakdown(today, None).net
+            policy = self._simulation_engine.tax_policy_on(today)
+            maximum = position.breakdown(today, None, policy).net
             if net_wanted > maximum:
                 raise UnprocessableEntityError(
                     f"Você pode resgatar até {format_money(maximum)} hoje."
                 )
 
-            breakdown = position.breakdown(today, net_wanted)
+            breakdown = position.breakdown(today, net_wanted, policy)
             if breakdown.full:
                 del positions[asset.asset_uuid]
             else:
@@ -248,7 +249,11 @@ class FixedBroker:
         user_id: int,
         position: FixedIncomePosition,
     ) -> None:
-        breakdown = position.breakdown(position.redemption_date, None)
+        breakdown = position.breakdown(
+            position.redemption_date,
+            None,
+            self._simulation_engine.tax_policy_on(position.redemption_date),
+        )
 
         self._simulation_engine.add_cash(client_id, breakdown.net)
         asset_id = repository.fixed_income.get_or_create_asset(position.asset)

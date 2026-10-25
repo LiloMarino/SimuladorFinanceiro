@@ -7,9 +7,9 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/compon
 import { Input } from "@/shared/components/ui/input";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
-import { AutomaticLock } from "@/shared/components/automatic-lock";
+import { useTradeLock } from "@/shared/hooks/useTradeLock";
+import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { ErrorState } from "@/shared/components/error-state";
-import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { cn } from "@/shared/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { normalizeNumberString } from "@/shared/lib/utils";
@@ -76,7 +76,8 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
 
   const submit = useSubmitOrder(ticker);
   // Com o automático ligado a boleta fica só para leitura
-  const locked = !!useMyStrategy().data?.active;
+  const tradeLock = useTradeLock();
+  const locked = tradeLock !== null;
 
   const selling = action === "sell";
   const maxQuantity = preview?.max_quantity ?? "0";
@@ -151,7 +152,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice }: OrderTicketProps
         <CardTitle>Nova ordem</CardTitle>
       </CardHeader>
       <CardContent>
-        {locked && <AutomaticLock />}
+        {tradeLock && <TradeLockNotice lock={tradeLock} />}
         <div inert={locked} className={cn("grid gap-4", locked && "mt-4 opacity-55")}>
           <ToggleGroup
             variant="segmented"

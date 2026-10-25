@@ -4326,6 +4326,262 @@
         ]
       }
     },
+    "/api/government": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter o governo",
+        "description": "Retorna o governo em vigor, a aprovação com o histórico e os fatores, os impostos de hoje, as medidas por setor, a fila do Congresso (pública), o próximo voto e a carteira congelada do presidente. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "operationId": "get_government_api_government_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernmentPanelDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/measures": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Propor uma medida",
+        "description": "Só o presidente propõe. A medida entra na fila do Congresso na hora, sem pausar a partida; no último dia útil do mês o Congresso vota a fila com chance igual à aprovação, e a aprovada vale 90 dias depois.",
+        "operationId": "propose_measure_api_government_measures_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposeMeasureRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/measures/preview": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Simular uma medida",
+        "description": "Mostra o que a medida faria sem propô-la: faixa na régua, marca do governo antes e depois, pontos na aprovação, chance no próximo voto, quando passaria a valer e, nas medidas de setor, quem tem os ativos atingidos.",
+        "operationId": "preview_measure_api_government_measures_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposeMeasureRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeasurePreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/measures/{measure_id}": {
+      "delete": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Retirar uma medida da fila",
+        "description": "Só o presidente retira, e só antes do voto do Congresso.",
+        "operationId": "withdraw_measure_api_government_measures__measure_id__delete",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "measure_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Measure Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/government/measures/{measure_id}/repropose": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Propor de novo uma medida rejeitada",
+        "description": "A medida rejeitada deste governo volta à fila do Congresso para o próximo voto.",
+        "operationId": "repropose_measure_api_government_measures__measure_id__repropose_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "measure_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Measure Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/strategies": {
       "get": {
         "tags": [
@@ -7314,6 +7570,162 @@
         "title": "AppliedPresetDTO",
         "description": "O preset de onde vieram as regras de agora e o que mudou desde que foi carregado."
       },
+      "ApprovalDTO": {
+        "properties": {
+          "value": {
+            "type": "integer",
+            "title": "Value"
+          },
+          "previous": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalPointDTO"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "factors": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalFactorDTO"
+            },
+            "type": "array",
+            "title": "Factors"
+          },
+          "upcoming": {
+            "items": {
+              "$ref": "#/components/schemas/UpcomingEffectDTO"
+            },
+            "type": "array",
+            "title": "Upcoming"
+          },
+          "floor": {
+            "type": "integer",
+            "title": "Floor"
+          },
+          "low_streak": {
+            "type": "integer",
+            "title": "Low Streak"
+          },
+          "impeachment_months": {
+            "type": "integer",
+            "title": "Impeachment Months"
+          },
+          "mark": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mark"
+          },
+          "promise": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promise"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "previous",
+          "history",
+          "factors",
+          "upcoming",
+          "floor",
+          "low_streak",
+          "impeachment_months",
+          "mark",
+          "promise"
+        ],
+        "title": "ApprovalDTO"
+      },
+      "ApprovalFactorDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/ApprovalFactorKind"
+          },
+          "points": {
+            "type": "integer",
+            "title": "Points"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "measure_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measure Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "points",
+          "description",
+          "measure_id"
+        ],
+        "title": "ApprovalFactorDTO"
+      },
+      "ApprovalFactorKind": {
+        "type": "string",
+        "enum": [
+          "BASE",
+          "INFLATION",
+          "STOCKS",
+          "NEW_TAX",
+          "TAX_CUT",
+          "PROMISE"
+        ],
+        "title": "ApprovalFactorKind"
+      },
+      "ApprovalPointDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "value": {
+            "type": "integer",
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "value"
+        ],
+        "title": "ApprovalPointDTO"
+      },
       "AssetClass": {
         "type": "string",
         "enum": [
@@ -10273,6 +10685,74 @@
         ],
         "title": "FoundPartyRequest"
       },
+      "FrozenPortfolioDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "total_networth": {
+            "type": "string",
+            "title": "Total Networth"
+          },
+          "frozen_until": {
+            "type": "string",
+            "format": "date",
+            "title": "Frozen Until"
+          },
+          "slices": {
+            "items": {
+              "$ref": "#/components/schemas/FrozenSliceDTO"
+            },
+            "type": "array",
+            "title": "Slices"
+          },
+          "interests": {
+            "items": {
+              "$ref": "#/components/schemas/InterestDTO"
+            },
+            "type": "array",
+            "title": "Interests"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "total_networth",
+          "frozen_until",
+          "slices",
+          "interests"
+        ],
+        "title": "FrozenPortfolioDTO"
+      },
+      "FrozenSliceDTO": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "tickers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tickers"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "tickers",
+          "share"
+        ],
+        "title": "FrozenSliceDTO"
+      },
       "FutureParamsDTO": {
         "properties": {
           "until": {
@@ -10655,10 +11135,147 @@
           "VICE_ANSWERED",
           "DONATION",
           "ELECTION_RESULT",
-          "TERM_STARTED"
+          "TERM_STARTED",
+          "MEASURE_PROPOSED",
+          "MEASURE_WITHDRAWN",
+          "MEASURE_VOTED",
+          "MEASURE_IN_FORCE",
+          "IMPEACHMENT",
+          "IMPEACHMENT_WARNING"
         ],
         "title": "GovernmentNoticeKind",
         "description": "O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."
+      },
+      "GovernmentPanelDTO": {
+        "properties": {
+          "today": {
+            "type": "string",
+            "format": "date",
+            "title": "Today"
+          },
+          "term": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "computer_until_inauguration": {
+            "type": "boolean",
+            "title": "Computer Until Inauguration"
+          },
+          "is_president": {
+            "type": "boolean",
+            "title": "Is President"
+          },
+          "term_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term End"
+          },
+          "next_election": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Election"
+          },
+          "approval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ApprovalDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "taxes": {
+            "items": {
+              "$ref": "#/components/schemas/TaxRowDTO"
+            },
+            "type": "array",
+            "title": "Taxes"
+          },
+          "sector_measures": {
+            "items": {
+              "$ref": "#/components/schemas/SectorMeasureDTO"
+            },
+            "type": "array",
+            "title": "Sector Measures"
+          },
+          "queue": {
+            "items": {
+              "$ref": "#/components/schemas/MeasureDTO"
+            },
+            "type": "array",
+            "title": "Queue"
+          },
+          "next_vote": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Vote"
+          },
+          "portfolio": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FrozenPortfolioDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sectors": {
+            "items": {
+              "$ref": "#/components/schemas/SectorOptionDTO"
+            },
+            "type": "array",
+            "title": "Sectors"
+          },
+          "last_impeachment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImpeachmentDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vigence_days": {
+            "type": "integer",
+            "title": "Vigence Days"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "today",
+          "term",
+          "computer_until_inauguration",
+          "is_president",
+          "term_end",
+          "next_election",
+          "approval",
+          "taxes",
+          "sector_measures",
+          "queue",
+          "next_vote",
+          "portfolio",
+          "sectors",
+          "last_impeachment",
+          "vigence_days"
+        ],
+        "title": "GovernmentPanelDTO"
       },
       "GovernmentUpdateEventDTO": {
         "properties": {
@@ -10741,6 +11358,76 @@
               }
             ],
             "title": "Accepted"
+          },
+          "measure_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measure Title"
+          },
+          "chance": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chance"
+          },
+          "effective": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective"
+          },
+          "tickers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tickers"
+          },
+          "months_below_floor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months Below Floor"
+          },
+          "approval": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval"
           }
         },
         "additionalProperties": false,
@@ -10814,6 +11501,55 @@
           "your_best_month"
         ],
         "title": "HighlightsDTO"
+      },
+      "ImpeachmentDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "president": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "President"
+          },
+          "successor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Successor"
+          },
+          "months": {
+            "type": "integer",
+            "title": "Months"
+          },
+          "floor": {
+            "type": "integer",
+            "title": "Floor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "president",
+          "successor",
+          "months",
+          "floor"
+        ],
+        "title": "ImpeachmentDTO"
       },
       "ImportResultDTO": {
         "properties": {
@@ -11279,6 +12015,57 @@
           "balance"
         ],
         "title": "InstallmentRowDTO"
+      },
+      "InterestDTO": {
+        "properties": {
+          "sector": {
+            "type": "string",
+            "title": "Sector"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          },
+          "measure_id": {
+            "type": "integer",
+            "title": "Measure Id"
+          },
+          "vote_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vote Date"
+          },
+          "effective": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sector",
+          "share",
+          "measure_id",
+          "vote_date",
+          "effective"
+        ],
+        "title": "InterestDTO",
+        "description": "Um setor em que o presidente tem carteira e que tem medida na fila ou esperando a vigência."
       },
       "JoinMatchRequest": {
         "properties": {
@@ -12015,6 +12802,301 @@
         ],
         "title": "MarketRegime",
         "description": "Bioma de um trecho do mercado, pelo tercil da volatilidade do Ibovespa."
+      },
+      "MeasureDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/MeasureKind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "proposer": {
+            "type": "string",
+            "title": "Proposer"
+          },
+          "proposed": {
+            "type": "string",
+            "format": "date",
+            "title": "Proposed"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MeasureStatus"
+          },
+          "vote_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vote Date"
+          },
+          "chance": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chance"
+          },
+          "effective": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective"
+          },
+          "waiting_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Waiting Days"
+          },
+          "days_left": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Days Left"
+          },
+          "ruler_band": {
+            "type": "integer",
+            "title": "Ruler Band"
+          },
+          "impact": {
+            "type": "integer",
+            "title": "Impact"
+          },
+          "can_withdraw": {
+            "type": "boolean",
+            "title": "Can Withdraw"
+          },
+          "can_repropose": {
+            "type": "boolean",
+            "title": "Can Repropose"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "sector",
+          "segment",
+          "value",
+          "proposer",
+          "proposed",
+          "status",
+          "vote_date",
+          "chance",
+          "effective",
+          "waiting_days",
+          "days_left",
+          "ruler_band",
+          "impact",
+          "can_withdraw",
+          "can_repropose"
+        ],
+        "title": "MeasureDTO"
+      },
+      "MeasureHoldingDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "share",
+          "value"
+        ],
+        "title": "MeasureHoldingDTO"
+      },
+      "MeasureKind": {
+        "type": "string",
+        "enum": [
+          "STOCK_PROFIT_RATE",
+          "DAY_TRADE_RATE",
+          "STOCK_EXEMPTION",
+          "FIXED_INCOME_TABLE",
+          "LCI_LCA_RATE",
+          "SECTOR_EXEMPT",
+          "SECTOR_TAX"
+        ],
+        "title": "MeasureKind",
+        "description": "O que uma medida muda: um imposto geral ou a regra de um setor ou segmento."
+      },
+      "MeasurePreviewDTO": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "ruler_band": {
+            "type": "integer",
+            "title": "Ruler Band"
+          },
+          "mark_before": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mark Before"
+          },
+          "mark_after": {
+            "type": "string",
+            "title": "Mark After"
+          },
+          "promise": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promise"
+          },
+          "impact": {
+            "type": "integer",
+            "title": "Impact"
+          },
+          "chance": {
+            "type": "integer",
+            "title": "Chance"
+          },
+          "vote_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Vote Date"
+          },
+          "effective": {
+            "type": "string",
+            "format": "date",
+            "title": "Effective"
+          },
+          "assets": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assets"
+          },
+          "holdings": {
+            "items": {
+              "$ref": "#/components/schemas/MeasureHoldingDTO"
+            },
+            "type": "array",
+            "title": "Holdings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "ruler_band",
+          "mark_before",
+          "mark_after",
+          "promise",
+          "impact",
+          "chance",
+          "vote_date",
+          "effective",
+          "assets",
+          "holdings"
+        ],
+        "title": "MeasurePreviewDTO"
+      },
+      "MeasureStatus": {
+        "type": "string",
+        "enum": [
+          "QUEUED",
+          "APPROVED",
+          "REJECTED",
+          "WITHDRAWN",
+          "DROPPED"
+        ],
+        "title": "MeasureStatus"
       },
       "MetricItem": {
         "properties": {
@@ -15009,6 +16091,56 @@
         ],
         "title": "PriceImpactPreviewDTO"
       },
+      "ProposeMeasureRequest": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/MeasureKind"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "ProposeMeasureRequest"
+      },
       "RankingRowDTO": {
         "properties": {
           "ticker": {
@@ -16326,6 +17458,59 @@
         ],
         "title": "SectorDTO"
       },
+      "SectorMeasureDTO": {
+        "properties": {
+          "measure": {
+            "$ref": "#/components/schemas/MeasureDTO"
+          },
+          "assets": {
+            "type": "integer",
+            "title": "Assets"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "measure",
+          "assets"
+        ],
+        "title": "SectorMeasureDTO"
+      },
+      "SectorOptionDTO": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "assets": {
+            "type": "integer",
+            "title": "Assets"
+          },
+          "tickers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tickers"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/SegmentOptionDTO"
+            },
+            "type": "array",
+            "title": "Segments"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "assets",
+          "tickers",
+          "segments"
+        ],
+        "title": "SectorOptionDTO"
+      },
       "SectorProfitDTO": {
         "properties": {
           "sector": {
@@ -16382,6 +17567,25 @@
           "fraction"
         ],
         "title": "SegmentAllocationDTO"
+      },
+      "SegmentOptionDTO": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "assets": {
+            "type": "integer",
+            "title": "Assets"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "assets"
+        ],
+        "title": "SegmentOptionDTO"
       },
       "SelectSimulationRequest": {
         "properties": {
@@ -18872,6 +20076,47 @@
           "strong_sell"
         ]
       },
+      "TaxRowDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/MeasureKind"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "top_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top Value"
+          },
+          "pending": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MeasureDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "value",
+          "top_value",
+          "pending"
+        ],
+        "title": "TaxRowDTO"
+      },
       "TeamCompositionDTO": {
         "properties": {
           "team": {
@@ -19602,6 +20847,21 @@
           "consecutive": {
             "type": "integer",
             "title": "Consecutive"
+          },
+          "promise": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promise"
+          },
+          "succession": {
+            "type": "boolean",
+            "title": "Succession"
           }
         },
         "additionalProperties": false,
@@ -19611,7 +20871,9 @@
           "president",
           "vice",
           "start",
-          "consecutive"
+          "consecutive",
+          "promise",
+          "succession"
         ],
         "title": "TermDTO"
       },
@@ -19807,6 +21069,37 @@
           "secret"
         ],
         "title": "UnlockedAchievementDTO"
+      },
+      "UpcomingEffectDTO": {
+        "properties": {
+          "measure_id": {
+            "type": "integer",
+            "title": "Measure Id"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "effective": {
+            "type": "string",
+            "format": "date",
+            "title": "Effective"
+          },
+          "impact": {
+            "type": "integer",
+            "title": "Impact"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "measure_id",
+          "description",
+          "effective",
+          "impact"
+        ],
+        "title": "UpcomingEffectDTO",
+        "description": "Medida aprovada que ainda não vale e vai pesar na aprovação quando valer."
       },
       "UpcomingInstallmentDTO": {
         "properties": {

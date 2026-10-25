@@ -172,6 +172,14 @@ export type ExpelRequest = components["schemas"]["ExpelRequest"];
 export type TicketRequest = components["schemas"]["TicketRequest"];
 export type ViceAnswerRequest = components["schemas"]["ViceAnswerRequest"];
 export type DonationRequest = components["schemas"]["DonationRequest"];
+export type GovernmentPanel = components["schemas"]["GovernmentPanelDTO"];
+export type GovernmentMeasure = components["schemas"]["MeasureDTO"];
+export type GovernmentNotice = components["schemas"]["GovernmentUpdateEventDTO"];
+export type MeasureKind = components["schemas"]["MeasureKind"];
+export type MeasureStatus = components["schemas"]["MeasureStatus"];
+export type ProposeMeasureRequest = components["schemas"]["ProposeMeasureRequest"];
+export type MeasurePreview = components["schemas"]["MeasurePreviewDTO"];
+export type GovernmentApproval = NonNullable<GovernmentPanel["approval"]>;
 
 // Viver de renda
 export type LifeStatus = components["schemas"]["LifeStatusDTO"];

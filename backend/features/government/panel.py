@@ -124,8 +124,8 @@ def build_panel(
         ),
         last_result=_round(state, state.results[-1], people) if state.results else None,
         results=[_round(state, r, people) for r in state.results],
-        term=_term(state.term, state, people),
-        pending_term=_term(state.pending_term, state, people),
+        term=build_term(state.term, state, people),
+        pending_term=build_term(state.pending_term, state, people),
         decides_match=settings.game_type is GameType.POLITICAL,
         player_standings=_players(state, users, networths),
         party_standings=_parties(state, people, networths),
@@ -338,7 +338,7 @@ def _round_party(
     )
 
 
-def _term(
+def build_term(
     term: Term | None, state: GovernmentState, people: dict[int, UserDTO]
 ) -> TermDTO | None:
     if term is None:
@@ -354,6 +354,8 @@ def _term(
         vice=_person(people, term.vice_id),
         start=term.start,
         consecutive=term.consecutive,
+        promise=term.promise,
+        succession=term.succession,
     )
 
 

@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { addDays, format } from "date-fns";
 import { CircleCheck } from "lucide-react";
-import { AutomaticLock } from "@/shared/components/automatic-lock";
-import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
+import { useTradeLock } from "@/shared/hooks/useTradeLock";
+import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { cn } from "@/shared/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -52,7 +52,8 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
 
   const invest = useBuyFixedIncome(assetId);
   // Com o automático ligado a boleta fica só para leitura
-  const locked = !!useMyStrategy().data?.active;
+  const tradeLock = useTradeLock();
+  const locked = tradeLock !== null;
 
   const setAmount = (value: string) => {
     setTouched(true);
@@ -102,7 +103,7 @@ export function InvestmentTicket({ assetId, offer, amountText, onAmountChange, q
 
   return (
     <>
-      {locked && <AutomaticLock />}
+      {tradeLock && <TradeLockNotice lock={tradeLock} />}
       <div inert={locked} className={cn("grid gap-4", locked && "opacity-55")}>
         {cap !== null && offer.offered_until && (
           <RareOfferCap cap={cap} applied={applied} room={room} offeredUntil={offer.offered_until} />

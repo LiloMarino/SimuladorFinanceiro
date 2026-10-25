@@ -1512,6 +1512,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter o governo
+         * @description Retorna o governo em vigor, a aprovação com o histórico e os fatores, os impostos de hoje, as medidas por setor, a fila do Congresso (pública), o próximo voto e a carteira congelada do presidente. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         */
+        get: operations["get_government_api_government_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/measures": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Propor uma medida
+         * @description Só o presidente propõe. A medida entra na fila do Congresso na hora, sem pausar a partida; no último dia útil do mês o Congresso vota a fila com chance igual à aprovação, e a aprovada vale 90 dias depois.
+         */
+        post: operations["propose_measure_api_government_measures_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/measures/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simular uma medida
+         * @description Mostra o que a medida faria sem propô-la: faixa na régua, marca do governo antes e depois, pontos na aprovação, chance no próximo voto, quando passaria a valer e, nas medidas de setor, quem tem os ativos atingidos.
+         */
+        post: operations["preview_measure_api_government_measures_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/measures/{measure_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Retirar uma medida da fila
+         * @description Só o presidente retira, e só antes do voto do Congresso.
+         */
+        delete: operations["withdraw_measure_api_government_measures__measure_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/measures/{measure_id}/repropose": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Propor de novo uma medida rejeitada
+         * @description A medida rejeitada deste governo volta à fila do Congresso para o próximo voto.
+         */
+        post: operations["repropose_measure_api_government_measures__measure_id__repropose_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/strategies": {
         parameters: {
             query?: never;
@@ -2534,6 +2634,54 @@ export interface components {
             built_in: boolean;
             /** Changed */
             changed: components["schemas"]["PresetRuleGroup"][];
+        };
+        /** ApprovalDTO */
+        ApprovalDTO: {
+            /** Value */
+            value: number;
+            /** Previous */
+            previous: number | null;
+            /** History */
+            history: components["schemas"]["ApprovalPointDTO"][];
+            /** Factors */
+            factors: components["schemas"]["ApprovalFactorDTO"][];
+            /** Upcoming */
+            upcoming: components["schemas"]["UpcomingEffectDTO"][];
+            /** Floor */
+            floor: number;
+            /** Low Streak */
+            low_streak: number;
+            /** Impeachment Months */
+            impeachment_months: number;
+            /** Mark */
+            mark: string | null;
+            /** Promise */
+            promise: number | null;
+        };
+        /** ApprovalFactorDTO */
+        ApprovalFactorDTO: {
+            kind: components["schemas"]["ApprovalFactorKind"];
+            /** Points */
+            points: number;
+            /** Description */
+            description: string;
+            /** Measure Id */
+            measure_id: number | null;
+        };
+        /**
+         * ApprovalFactorKind
+         * @enum {string}
+         */
+        ApprovalFactorKind: "BASE" | "INFLATION" | "STOCKS" | "NEW_TAX" | "TAX_CUT" | "PROMISE";
+        /** ApprovalPointDTO */
+        ApprovalPointDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Value */
+            value: number;
         };
         /**
          * AssetClass
@@ -3591,6 +3739,31 @@ export interface components {
              */
             contribution: number | string;
         };
+        /** FrozenPortfolioDTO */
+        FrozenPortfolioDTO: {
+            /** Nickname */
+            nickname: string;
+            /** Total Networth */
+            total_networth: string;
+            /**
+             * Frozen Until
+             * Format: date
+             */
+            frozen_until: string;
+            /** Slices */
+            slices: components["schemas"]["FrozenSliceDTO"][];
+            /** Interests */
+            interests: components["schemas"]["InterestDTO"][];
+        };
+        /** FrozenSliceDTO */
+        FrozenSliceDTO: {
+            /** Label */
+            label: string;
+            /** Tickers */
+            tickers: string[];
+            /** Share */
+            share: string;
+        };
         /**
          * FutureParamsDTO
          * @description Os controles de uma geração: os mesmos valores geram o mesmo futuro.
@@ -3714,7 +3887,45 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED";
+        GovernmentNoticeKind: "UPDATED" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING";
+        /** GovernmentPanelDTO */
+        GovernmentPanelDTO: {
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            term: components["schemas"]["TermDTO"] | null;
+            /** Computer Until Inauguration */
+            computer_until_inauguration: boolean;
+            /** Is President */
+            is_president: boolean;
+            /** Term End */
+            term_end: string | null;
+            /**
+             * Next Election
+             * Format: date
+             */
+            next_election: string;
+            approval: components["schemas"]["ApprovalDTO"] | null;
+            /** Taxes */
+            taxes: components["schemas"]["TaxRowDTO"][];
+            /** Sector Measures */
+            sector_measures: components["schemas"]["SectorMeasureDTO"][];
+            /** Queue */
+            queue: components["schemas"]["MeasureDTO"][];
+            /**
+             * Next Vote
+             * Format: date
+             */
+            next_vote: string;
+            portfolio: components["schemas"]["FrozenPortfolioDTO"] | null;
+            /** Sectors */
+            sectors: components["schemas"]["SectorOptionDTO"][];
+            last_impeachment: components["schemas"]["ImpeachmentDTO"] | null;
+            /** Vigence Days */
+            vigence_days: number;
+        };
         /**
          * GovernmentUpdateEventDTO
          * @description A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve.
@@ -3735,6 +3946,18 @@ export interface components {
             winner_abbr?: string | null;
             /** Accepted */
             accepted?: boolean | null;
+            /** Measure Title */
+            measure_title?: string | null;
+            /** Chance */
+            chance?: number | null;
+            /** Effective */
+            effective?: string | null;
+            /** Tickers */
+            tickers?: string[] | null;
+            /** Months Below Floor */
+            months_below_floor?: number | null;
+            /** Approval */
+            approval?: number | null;
         };
         /** HighlightsDTO */
         HighlightsDTO: {
@@ -3743,6 +3966,22 @@ export interface components {
             most_trades: components["schemas"]["PlayerHighlightDTO"] | null;
             most_tax: components["schemas"]["PlayerHighlightDTO"] | null;
             your_best_month: components["schemas"]["BestMonthDTO"] | null;
+        };
+        /** ImpeachmentDTO */
+        ImpeachmentDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** President */
+            president: string | null;
+            /** Successor */
+            successor: string | null;
+            /** Months */
+            months: number;
+            /** Floor */
+            floor: number;
         };
         /** ImportResultDTO */
         ImportResultDTO: {
@@ -3984,6 +4223,22 @@ export interface components {
             payment: string;
             /** Balance */
             balance: string;
+        };
+        /**
+         * InterestDTO
+         * @description Um setor em que o presidente tem carteira e que tem medida na fila ou esperando a vigência.
+         */
+        InterestDTO: {
+            /** Sector */
+            sector: string;
+            /** Share */
+            share: string;
+            /** Measure Id */
+            measure_id: number;
+            /** Vote Date */
+            vote_date: string | null;
+            /** Effective */
+            effective: string | null;
         };
         /** JoinMatchRequest */
         JoinMatchRequest: {
@@ -4255,6 +4510,97 @@ export interface components {
          * @enum {string}
          */
         MarketRegime: "CALM" | "NORMAL" | "AGITATED";
+        /** MeasureDTO */
+        MeasureDTO: {
+            /** Id */
+            id: number;
+            kind: components["schemas"]["MeasureKind"];
+            /** Title */
+            title: string;
+            /** Sector */
+            sector: string | null;
+            /** Segment */
+            segment: string | null;
+            /** Value */
+            value: string | null;
+            /** Proposer */
+            proposer: string;
+            /**
+             * Proposed
+             * Format: date
+             */
+            proposed: string;
+            status: components["schemas"]["MeasureStatus"];
+            /** Vote Date */
+            vote_date: string | null;
+            /** Chance */
+            chance: number | null;
+            /** Effective */
+            effective: string | null;
+            /** Waiting Days */
+            waiting_days: number | null;
+            /** Days Left */
+            days_left: number | null;
+            /** Ruler Band */
+            ruler_band: number;
+            /** Impact */
+            impact: number;
+            /** Can Withdraw */
+            can_withdraw: boolean;
+            /** Can Repropose */
+            can_repropose: boolean;
+        };
+        /** MeasureHoldingDTO */
+        MeasureHoldingDTO: {
+            /** Nickname */
+            nickname: string;
+            /** Share */
+            share: string;
+            /** Value */
+            value: string;
+        };
+        /**
+         * MeasureKind
+         * @description O que uma medida muda: um imposto geral ou a regra de um setor ou segmento.
+         * @enum {string}
+         */
+        MeasureKind: "STOCK_PROFIT_RATE" | "DAY_TRADE_RATE" | "STOCK_EXEMPTION" | "FIXED_INCOME_TABLE" | "LCI_LCA_RATE" | "SECTOR_EXEMPT" | "SECTOR_TAX";
+        /** MeasurePreviewDTO */
+        MeasurePreviewDTO: {
+            /** Title */
+            title: string;
+            /** Ruler Band */
+            ruler_band: number;
+            /** Mark Before */
+            mark_before: string | null;
+            /** Mark After */
+            mark_after: string;
+            /** Promise */
+            promise: number | null;
+            /** Impact */
+            impact: number;
+            /** Chance */
+            chance: number;
+            /**
+             * Vote Date
+             * Format: date
+             */
+            vote_date: string;
+            /**
+             * Effective
+             * Format: date
+             */
+            effective: string;
+            /** Assets */
+            assets: number | null;
+            /** Holdings */
+            holdings: components["schemas"]["MeasureHoldingDTO"][];
+        };
+        /**
+         * MeasureStatus
+         * @enum {string}
+         */
+        MeasureStatus: "QUEUED" | "APPROVED" | "REJECTED" | "WITHDRAWN" | "DROPPED";
         /** MetricItem */
         MetricItem: {
             /**
@@ -5258,6 +5604,16 @@ export interface components {
             /** Curve */
             curve: components["schemas"]["PriceImpactPointDTO"][];
         };
+        /** ProposeMeasureRequest */
+        ProposeMeasureRequest: {
+            kind: components["schemas"]["MeasureKind"];
+            /** Value */
+            value?: number | string | null;
+            /** Sector */
+            sector?: string | null;
+            /** Segment */
+            segment?: string | null;
+        };
         /** RankingRowDTO */
         RankingRowDTO: {
             /** Ticker */
@@ -5687,6 +6043,23 @@ export interface components {
             /** Segments */
             segments: string[];
         };
+        /** SectorMeasureDTO */
+        SectorMeasureDTO: {
+            measure: components["schemas"]["MeasureDTO"];
+            /** Assets */
+            assets: number;
+        };
+        /** SectorOptionDTO */
+        SectorOptionDTO: {
+            /** Name */
+            name: string;
+            /** Assets */
+            assets: number;
+            /** Tickers */
+            tickers: string[];
+            /** Segments */
+            segments: components["schemas"]["SegmentOptionDTO"][];
+        };
         /** SectorProfitDTO */
         SectorProfitDTO: {
             /** Sector */
@@ -5702,6 +6075,13 @@ export interface components {
             value: string;
             /** Fraction */
             fraction: string;
+        };
+        /** SegmentOptionDTO */
+        SegmentOptionDTO: {
+            /** Name */
+            name: string;
+            /** Assets */
+            assets: number;
         };
         /** SelectSimulationRequest */
         SelectSimulationRequest: {
@@ -6632,6 +7012,15 @@ export interface components {
         SuggestionKind: "PAYOFF" | "VOLATILITY" | "ON_TIME" | "RECOVER";
         /** @enum {string} */
         SummaryVerdict: "strong_buy" | "buy" | "neutral" | "sell" | "strong_sell";
+        /** TaxRowDTO */
+        TaxRowDTO: {
+            kind: components["schemas"]["MeasureKind"];
+            /** Value */
+            value: string;
+            /** Top Value */
+            top_value: string | null;
+            pending: components["schemas"]["MeasureDTO"] | null;
+        };
         /**
          * TeamCompositionDTO
          * @description Como a equipe dividiu o dinheiro no último dia: média das frações dos membros.
@@ -6848,6 +7237,10 @@ export interface components {
             start: string;
             /** Consecutive */
             consecutive: number;
+            /** Promise */
+            promise: number | null;
+            /** Succession */
+            succession: boolean;
         };
         /** TickerSuggestionDTO */
         TickerSuggestionDTO: {
@@ -6917,6 +7310,23 @@ export interface components {
             icon: components["schemas"]["AchievementIcon"];
             /** Secret */
             secret: boolean;
+        };
+        /**
+         * UpcomingEffectDTO
+         * @description Medida aprovada que ainda não vale e vai pesar na aprovação quando valer.
+         */
+        UpcomingEffectDTO: {
+            /** Measure Id */
+            measure_id: number;
+            /** Description */
+            description: string;
+            /**
+             * Effective
+             * Format: date
+             */
+            effective: string;
+            /** Impact */
+            impact: number;
         };
         /** UpcomingInstallmentDTO */
         UpcomingInstallmentDTO: {
@@ -10291,6 +10701,202 @@ export interface operations {
                 "application/json": components["schemas"]["DonationRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_government_api_government_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GovernmentPanelDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    propose_measure_api_government_measures_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposeMeasureRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_measure_api_government_measures_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposeMeasureRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeasurePreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    withdraw_measure_api_government_measures__measure_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                measure_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    repropose_measure_api_government_measures__measure_id__repropose_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                measure_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             204: {

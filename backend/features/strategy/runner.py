@@ -274,8 +274,12 @@ class StrategyRunner:
         key: str | None,
         params: dict[str, StrategyParamValue],
         today: date,
+        reason: str | None = None,
     ) -> None:
-        """Liga, troca, ajusta ou desliga a estratégia do jogador a partir do próximo dia."""
+        """
+        Liga, troca, ajusta ou desliga a estratégia do jogador a partir do próximo dia.
+        `reason` conta no registro por que o jogador voltou ao manual.
+        """
         previous = self._active.get(user.client_id)
         if key is None:
             if previous is None:
@@ -288,7 +292,8 @@ class StrategyRunner:
                 None,
                 None,
                 today,
-                reason=f"Você voltou ao manual{_canceled_phrase(canceled, previous.cls.name)}",
+                reason=reason
+                or f"Você voltou ao manual{_canceled_phrase(canceled, previous.cls.name)}",
                 quantity=Decimal(canceled),
             )
             self._finish_mode_change(user, active=False)
@@ -565,7 +570,7 @@ class StrategyRunner:
         return _Market(
             quotes=quotes,
             offers=[
-                offer(asset, today)
+                offer(asset, today, engine.tax_policy_on(today))
                 for asset in engine.fixed_income_market.get_available_assets()
                 if asset.maturity_date > today
             ],
@@ -593,7 +598,7 @@ class StrategyRunner:
                     p.asset.name,
                     p.current_value,
                     p.asset.daily_liquidity,
-                    redeemable_today(p, today),
+                    redeemable_today(p, today, engine.tax_policy_on(today)),
                 )
                 for p in engine.fixed_broker.get_fixed_positions(client_id).values()
             ],

@@ -1,4 +1,5 @@
 import threading
+from collections.abc import Sequence
 from datetime import date
 from decimal import Decimal
 from functools import cached_property
@@ -36,6 +37,7 @@ from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import CashUpdateEventDTO
 from backend.features.statistics.sectors import effective_sectors
+from backend.features.tax_policy import DEFAULT_TAX_POLICY, PolicyOn, TaxPolicy
 from backend.features.variable_income.broker import (
     Broker,
     affordable_quantity,
@@ -45,9 +47,6 @@ from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.order import MarketOrder
 from backend.features.variable_income.entities.position import Position
 from backend.features.variable_income.income_tax import (
-    CRYPTO_EXEMPTION_LIMIT,
-    EXEMPTION_LIMITS,
-    STOCK_EXEMPTION_LIMIT,
     MonthlyTax,
     assess,
     darf_due_date,
@@ -91,6 +90,17 @@ class SimulationEngine:
 
         # Configura os alias
         self.get_positions = self.broker.get_positions
+
+    # A política de impostos de cada dia vem do governo quando a expansão está ligada;
+    # sem ele vale a padrão
+    _tax_policy_source: PolicyOn | None = None
+
+    def use_tax_policy(self, source: PolicyOn) -> None:
+        self._tax_policy_source = source
+
+    def tax_policy_on(self, day: date) -> TaxPolicy:
+        source = self._tax_policy_source
+        return DEFAULT_TAX_POLICY if source is None else source(day)
 
     def get_cash(self, client_id: UUID) -> Decimal:
         with self._lock:
@@ -161,11 +171,16 @@ class SimulationEngine:
         self._move_cash(client_id, -amount, event_type)
 
     def assess_income_tax(self, user_id: int) -> list[MonthlyTax]:
+        return self._assess(
+            repository.portfolio.get_equity_events(user_id), self.current_date
+        )
+
+    def _assess(
+        self, events: Sequence[EquityEventDTO], today: date
+    ) -> list[MonthlyTax]:
         asset_classes = {ticker: s.asset_class for ticker, s in self.stocks.items()}
         return assess(
-            repository.portfolio.get_equity_events(user_id),
-            asset_classes,
-            self.current_date,
+            events, asset_classes, today, self.tax_policy_on, self.classification
         )
 
     def asset_class(self, ticker: str) -> AssetClass | None:
@@ -231,6 +246,7 @@ class SimulationEngine:
         held = position.size if position else Decimal(0)
         reserved = position.reserved if position else Decimal(0)
         cash = self.get_cash(client_id)
+        policy = self.tax_policy_on(self.current_date)
         asset_class = self.asset_class(ticker)
 
         price = self.estimated_price(ticker, action, limit_price)
@@ -256,8 +272,8 @@ class SimulationEngine:
             profit=None,
             tax=None,
             month_sales_after=None,
-            exemption_limit=EXEMPTION_LIMITS.get(
-                asset_class or AssetClass.STOCK, STOCK_EXEMPTION_LIMIT
+            exemption_limit=policy.exemption_limits.get(
+                asset_class or AssetClass.STOCK, policy.stock_exemption_limit
             ),
             tax_due_date=None,
         )
@@ -276,10 +292,9 @@ class SimulationEngine:
             quantity=quantity,
             price=price,
         )
-        asset_classes = {ticker: s.asset_class for ticker, s in self.stocks.items()}
         today = self.current_date
-        without = _month(assess(events, asset_classes, today), today)
-        with_sale = _month(assess([*events, sale], asset_classes, today), today)
+        without = _month(self._assess(events, today), today)
+        with_sale = _month(self._assess([*events, sale], today), today)
         return preview.model_copy(
             update={
                 "profit": (price - position.avg_price) * quantity,
@@ -364,6 +379,7 @@ class SimulationEngine:
 
     def get_portfolio(self, client_id: UUID) -> PortfolioDTO:
         equity, fixed, cash = self._holdings(client_id)
+        policy = self.tax_policy_on(self.current_date)
 
         variable_income_value = sum((p.current_value for p in equity), Decimal(0))
         fixed_income_value = sum((p.current_value for p in fixed), Decimal(0))
@@ -407,7 +423,7 @@ class SimulationEngine:
             invested_value=invested_value,
             variable_income_value=variable_income_value,
             fixed_income_value=fixed_income_value,
-            fixed_income_redeemable=total_redeemable(fixed, self.current_date),
+            fixed_income_redeemable=total_redeemable(fixed, self.current_date, policy),
             invested_pct=ratio(invested_value, assets_value),
             variable_income_pct=ratio(variable_income_value, invested_value),
             fixed_income_pct=ratio(fixed_income_value, invested_value),
@@ -424,9 +440,9 @@ class SimulationEngine:
             income_tax_due=income_tax_assessed - income_tax_paid,
             income_tax_due_date=min(upcoming_due) if upcoming_due else None,
             month_stock_sales=this_month.stock_sales if this_month else Decimal(0),
-            stock_sales_exemption=STOCK_EXEMPTION_LIMIT,
+            stock_sales_exemption=policy.stock_exemption_limit,
             month_crypto_sales=this_month.crypto_sales if this_month else Decimal(0),
-            crypto_sales_exemption=CRYPTO_EXEMPTION_LIMIT,
+            crypto_sales_exemption=policy.crypto_exemption_limit,
             variable_income=[
                 PortfolioPositionDTO(
                     **pos.model_dump(),
@@ -448,7 +464,7 @@ class SimulationEngine:
                         pos.current_value - pos.total_applied, pos.total_applied
                     ),
                     portfolio_pct=ratio(pos.current_value, invested_value),
-                    redeemable_today=redeemable_today(pos, self.current_date),
+                    redeemable_today=redeemable_today(pos, self.current_date, policy),
                 )
                 for pos in fixed
             ],

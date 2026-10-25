@@ -8,7 +8,13 @@ from typing import Annotated
 from pydantic import Field, StringConstraints
 
 from backend.core.dto.base import BaseDTO
-from backend.core.enum import ElectionPhase, VicePhase
+from backend.core.enum import (
+    ApprovalFactorKind,
+    ElectionPhase,
+    MeasureKind,
+    MeasureStatus,
+    VicePhase,
+)
 
 PARTY_NAME_MAX_LENGTH = 60
 PARTY_ABBR_PATTERN = re.compile(r"^[A-ZÀ-Ý]{2,5}$")
@@ -143,6 +149,10 @@ class TermDTO(BaseDTO):
     vice: PartyCandidateDTO | None
     start: date
     consecutive: int
+    # A promessa do partido na régua; nula no governo do computador
+    promise: int | None
+    # O vice assumiu depois de um impeachment
+    succession: bool
 
 
 class PlayerStandingDTO(BaseDTO):
@@ -208,6 +218,190 @@ class ElectionPanelDTO(BaseDTO):
     party_standings: list[PartyStandingDTO]
     # Quantas vezes a verba média dos partidos de jogadores cada partido do computador gasta
     computer_budget_factor: Decimal
+
+
+# Governo
+
+
+class MeasureDTO(BaseDTO):
+    id: int
+    kind: MeasureKind
+    title: str
+    sector: str | None
+    segment: str | None
+    value: Decimal | None
+    proposer: str
+    proposed: date
+    status: MeasureStatus
+    # Na fila: o dia do próximo voto. Decidida: o dia em que foi votada
+    vote_date: date | None
+    # Em cada 100 eleitores, quantos aprovavam no voto (ou aprovam hoje, na fila)
+    chance: int | None
+    # Aprovada: o dia em que passa a valer
+    effective: date | None
+    # Aprovada: dias de espera já cumpridos e os que faltam
+    waiting_days: int | None
+    days_left: int | None
+    # Faixa da régua, de 1 a 5
+    ruler_band: int
+    # Pontos na aprovação ao valer: positivo é corte, negativo é imposto novo
+    impact: int
+    can_withdraw: bool
+    can_repropose: bool
+
+
+class ApprovalFactorDTO(BaseDTO):
+    kind: ApprovalFactorKind
+    points: int
+    description: str
+    measure_id: int | None
+
+
+class ApprovalPointDTO(BaseDTO):
+    date: date
+    value: int
+
+
+class UpcomingEffectDTO(BaseDTO):
+    """Medida aprovada que ainda não vale e vai pesar na aprovação quando valer."""
+
+    measure_id: int
+    description: str
+    effective: date
+    impact: int
+
+
+class ApprovalDTO(BaseDTO):
+    value: int
+    # Aprovação do mês anterior, para a seta
+    previous: int | None
+    history: list[ApprovalPointDTO]
+    factors: list[ApprovalFactorDTO]
+    upcoming: list[UpcomingEffectDTO]
+    floor: int
+    # Meses seguidos abaixo do piso e quantos levam ao impeachment
+    low_streak: int
+    impeachment_months: int
+    # A marca do governo e a promessa da campanha, na régua de 1 a 5
+    mark: Decimal | None
+    promise: int | None
+
+
+class TaxRowDTO(BaseDTO):
+    kind: MeasureKind
+    # O valor em vigor hoje: alíquota, teto em reais ou, na renda fixa, a alíquota mínima
+    value: Decimal
+    # Na renda fixa, a alíquota do prazo mais curto
+    top_value: Decimal | None
+    # A medida da fila ou esperando a vigência que muda esta linha
+    pending: MeasureDTO | None
+
+
+class SectorMeasureDTO(BaseDTO):
+    measure: MeasureDTO
+    assets: int
+
+
+class FrozenSliceDTO(BaseDTO):
+    label: str
+    tickers: list[str]
+    # Fatia do patrimônio, de 0 a 1
+    share: Decimal
+
+
+class InterestDTO(BaseDTO):
+    """Um setor em que o presidente tem carteira e que tem medida na fila ou esperando a vigência."""
+
+    sector: str
+    share: Decimal
+    measure_id: int
+    vote_date: date | None
+    effective: date | None
+
+
+class FrozenPortfolioDTO(BaseDTO):
+    nickname: str
+    total_networth: Decimal
+    frozen_until: date
+    slices: list[FrozenSliceDTO]
+    interests: list[InterestDTO]
+
+
+class SegmentOptionDTO(BaseDTO):
+    name: str
+    assets: int
+
+
+class SectorOptionDTO(BaseDTO):
+    name: str
+    assets: int
+    tickers: list[str]
+    segments: list[SegmentOptionDTO]
+
+
+class ImpeachmentDTO(BaseDTO):
+    date: date
+    president: str | None
+    successor: str | None
+    # A regra que o disparou: meses seguidos abaixo do piso de aprovação
+    months: int
+    floor: int
+
+
+class GovernmentPanelDTO(BaseDTO):
+    today: date
+    term: TermDTO | None
+    # O governo do computador vale até a primeira posse
+    computer_until_inauguration: bool
+    is_president: bool
+    # Fim do mandato: a carteira do presidente congelada vai até aqui
+    term_end: date | None
+    next_election: date
+    approval: ApprovalDTO | None
+    taxes: list[TaxRowDTO]
+    sector_measures: list[SectorMeasureDTO]
+    queue: list[MeasureDTO]
+    next_vote: date
+    portfolio: FrozenPortfolioDTO | None
+    sectors: list[SectorOptionDTO]
+    last_impeachment: ImpeachmentDTO | None
+    # Quantos dias a medida aprovada espera para valer
+    vigence_days: int
+
+
+# Requisições do governo
+
+
+class ProposeMeasureRequest(BaseDTO):
+    kind: MeasureKind
+    # Alíquota (0.20), teto em reais ou pontos somados, conforme o tipo
+    value: Annotated[Decimal, Field(ge=0, max_digits=14, decimal_places=4)] | None = (
+        None
+    )
+    sector: str | None = None
+    segment: str | None = None
+
+
+class MeasureHoldingDTO(BaseDTO):
+    nickname: str
+    # Fatia do patrimônio dele no setor (0 a 1) e o valor em reais
+    share: Decimal
+    value: Decimal
+
+
+class MeasurePreviewDTO(BaseDTO):
+    title: str
+    ruler_band: int
+    mark_before: Decimal | None
+    mark_after: Decimal
+    promise: int | None
+    # Pontos na aprovação ao valer: positivo é corte, negativo é imposto novo
+    impact: int
+    chance: int
+    vote_date: date
+    effective: date
+    assets: int | None
+    holdings: list[MeasureHoldingDTO]
 
 
 # Requisições

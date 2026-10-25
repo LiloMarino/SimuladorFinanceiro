@@ -2,9 +2,9 @@ import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { differenceInCalendarDays } from "date-fns";
 import { CircleCheck, Info, TriangleAlert } from "lucide-react";
-import { AutomaticLock } from "@/shared/components/automatic-lock";
+import { useTradeLock } from "@/shared/hooks/useTradeLock";
+import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
-import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
@@ -117,7 +117,8 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
     true,
   );
   // Com o automático ligado a boleta fica só para leitura
-  const locked = !!useMyStrategy().data?.active;
+  const tradeLock = useTradeLock();
+  const locked = tradeLock !== null;
 
   const max = quote ? Number(quote.max_amount) : 0;
   const zero = amount <= 0;
@@ -172,7 +173,7 @@ function RedemptionForm({ assetId, offer, today, leftCatalogOn, permanentCdbId, 
 
   return (
     <>
-      {locked && <AutomaticLock />}
+      {tradeLock && <TradeLockNotice lock={tradeLock} />}
       <div inert={locked} className={cn("grid gap-4", locked && "opacity-55")}>
         {leftCatalogOn && <LeftCatalog date={leftCatalogOn} offer={offer} />}
 

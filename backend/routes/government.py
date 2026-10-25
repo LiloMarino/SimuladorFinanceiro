@@ -7,7 +7,10 @@ from backend.core.dto.government import (
     ElectionPanelDTO,
     ExpelRequest,
     FoundPartyRequest,
+    GovernmentPanelDTO,
     JoinPartyRequest,
+    MeasurePreviewDTO,
+    ProposeMeasureRequest,
     TicketRequest,
     ViceAnswerRequest,
 )
@@ -116,3 +119,57 @@ def answer_vice(
 )
 def donate(simulation: ActiveSimulation, user: CurrentUser, payload: DonationRequest):
     simulation.donate_to_party(user, payload.party_id, payload.amount)
+
+
+@government_router.get(
+    "",
+    response_model=GovernmentPanelDTO,
+    summary="Obter o governo",
+    description="Retorna o governo em vigor, a aprovação com o histórico e os fatores, os impostos de hoje, as medidas por setor, a fila do Congresso (pública), o próximo voto e a carteira congelada do presidente. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+)
+def get_government(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_governance(user)
+
+
+@government_router.post(
+    "/measures",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Propor uma medida",
+    description="Só o presidente propõe. A medida entra na fila do Congresso na hora, sem pausar a partida; no último dia útil do mês o Congresso vota a fila com chance igual à aprovação, e a aprovada vale 90 dias depois.",
+)
+def propose_measure(
+    simulation: ActiveSimulation, user: CurrentUser, payload: ProposeMeasureRequest
+):
+    simulation.propose_measure(user, payload)
+
+
+@government_router.post(
+    "/measures/preview",
+    response_model=MeasurePreviewDTO,
+    summary="Simular uma medida",
+    description="Mostra o que a medida faria sem propô-la: faixa na régua, marca do governo antes e depois, pontos na aprovação, chance no próximo voto, quando passaria a valer e, nas medidas de setor, quem tem os ativos atingidos.",
+)
+def preview_measure(
+    simulation: ActiveSimulation, user: CurrentUser, payload: ProposeMeasureRequest
+):
+    return simulation.preview_measure(user, payload)
+
+
+@government_router.delete(
+    "/measures/{measure_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Retirar uma medida da fila",
+    description="Só o presidente retira, e só antes do voto do Congresso.",
+)
+def withdraw_measure(simulation: ActiveSimulation, user: CurrentUser, measure_id: int):
+    simulation.withdraw_measure(user, measure_id)
+
+
+@government_router.post(
+    "/measures/{measure_id}/repropose",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Propor de novo uma medida rejeitada",
+    description="A medida rejeitada deste governo volta à fila do Congresso para o próximo voto.",
+)
+def repropose_measure(simulation: ActiveSimulation, user: CurrentUser, measure_id: int):
+    simulation.repropose_measure(user, measure_id)

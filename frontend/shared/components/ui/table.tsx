@@ -91,14 +91,32 @@ function TableHead({ className, numeric = false, variant = "default", ...props }
   );
 }
 
-/** `numeric`: valor alinhado à direita, em mono com algarismos alinhados. */
-function TableCell({ className, numeric = false, ...props }: React.ComponentProps<"td"> & { numeric?: boolean }) {
+/**
+ * `numeric`: valor alinhado à direita, em mono com algarismos alinhados.
+ * `variant`: `group` é o título de um grupo de linhas; `note` é o texto de apoio, em tom discreto.
+ * `tone`: cor do valor, para o que está esperando (`warning`) ou isento (`success`).
+ */
+function TableCell({
+  className,
+  numeric = false,
+  variant = "default",
+  tone,
+  ...props
+}: React.ComponentProps<"td"> & {
+  numeric?: boolean;
+  variant?: "default" | "group" | "note";
+  tone?: "warning" | "success";
+}) {
   return (
     <td
       data-slot="table-cell"
       data-numeric={numeric ? "" : undefined}
       className={cn(
         "px-4 py-3 align-middle whitespace-nowrap data-numeric:text-right data-numeric:font-mono data-numeric:tabular-nums [&:has([role=checkbox])]:pr-0",
+        variant === "group" && "py-2 text-xs font-semibold",
+        variant === "note" && "text-xs text-muted-foreground",
+        tone === "warning" && "text-warning",
+        tone === "success" && "text-success",
         className,
       )}
       {...props}

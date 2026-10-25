@@ -4,7 +4,7 @@ sidebar_position: 8.7
 
 # Governo & Política
 
-**Governo & Política** é uma expansão opcional: os jogadores se organizam em **partidos** e disputam uma **eleição presidencial** dentro da partida. Ela se liga no lobby, na aba **Expansões** das regras, e aparece como o item **Eleição** no menu lateral.
+**Governo & Política** é uma expansão opcional: os jogadores se organizam em **partidos** e disputam uma **eleição presidencial** dentro da partida. Ela se liga no lobby, na aba **Expansões** das regras, e aparece como os itens **Eleição** e **Governo** no menu lateral.
 
 Com a expansão ligada, você pode jogar a partida normalmente e usar a eleição como um extra, ou escolher o tipo de partida **Política**, em que o vencedor é o partido (veja [Vitória política](#vitória-política)).
 
@@ -53,7 +53,7 @@ Cada partido assume uma posição de 1 a 5 numa régua entre **impostos baixos**
 | 4 | Gasto alto (taxa um setor) |
 | 5 | Gasto bem alto (imposto geral novo) |
 
-A promessa decide para onde vão os votos de quem sai no 2º turno (veja abaixo). Governar a partir da promessa não faz parte desta versão da expansão.
+A promessa decide para onde vão os votos de quem sai no 2º turno (veja abaixo) e pesa na aprovação de quem governa (veja [Governar](#governar)).
 
 ## Como a verba vira votos
 
@@ -100,3 +100,43 @@ A página da eleição traz o **patrimônio de cada jogador** e o de cada **part
 No tipo de partida **Política**, a partida acaba na data final e vence o **partido com a maior soma de patrimônio dos filiados**, e não o critério de vitória escolhido para as demais. Por isso o seletor do critério some quando a Política está marcada, e o modo de jogo fica **individual** (cada jogador compete por seu partido, e não em equipes). O ranking individual continua na tela de resultado, só para informação.
 
 A Política só aparece quando a expansão **Governo & Política** está ligada. Desligar a expansão devolve o tipo para Clássica.
+
+## Governar
+
+Quem vence a eleição toma posse em 1º de janeiro e governa por 4 anos. A página **Governo** mostra a aprovação, os impostos em vigor, a fila do Congresso e a carteira do presidente. Até a primeira posse, um governo neutro do computador conduz o país e não muda impostos.
+
+### Propor medidas
+
+O presidente propõe medidas pelo botão **Nova medida**. Dois tipos:
+
+- **Imposto geral:** muda a alíquota do imposto sobre o lucro de ações, o teto de isenção de ações (R$ por mês), a tabela de imposto da renda fixa ou a alíquota das LCI/LCA. Alíquotas vão de 0% a 100%.
+- **Por setor ou segmento:** soma pontos de imposto aos ativos de um setor (até 20 pontos) ou isenta o setor. Ex.: +5 pontos num setor com imposto de 15% passa a cobrar 20% sobre o lucro dos ativos dele.
+
+Antes de enviar, o diálogo mostra a **prévia**: o que a medida faz na carteira de cada jogador e o efeito esperado na aprovação. Só pode haver uma medida igual na fila por vez, e o presidente pode retirar uma medida enquanto ela espera a votação.
+
+### O Congresso
+
+O Congresso vota as medidas da fila no **último dia útil de cada mês**. A **chance** de a medida passar é igual à aprovação do governo naquele dia: com 60% de aprovação, cada medida tem 60% de chance (é um sorteio, então 60% não garante nada). Se for aprovada, a medida vale **90 dias depois** da votação; se for rejeitada, nada muda e o presidente pode propor de novo. Todos os jogadores recebem aviso da votação e de quando a medida passa a valer.
+
+### A aprovação
+
+A aprovação é quantos eleitores, em cada 100, aprovam o governo. Ela começa em **50%** na posse e é recalculada com os fatores abaixo, sempre entre 0 e 100:
+
+| Fator | Efeito |
+| --- | --- |
+| Inflação em 12 meses | +4 pontos se estiver dentro da meta do ano; cada ponto percentual acima da meta tira 3 |
+| Bolsa em 12 meses | +1 ponto a cada 5% de alta e −1 a cada 5% de queda, até 6 pontos para cada lado |
+| Corte de imposto | Soma de 1 a 3 pontos enquanto o governo dura |
+| Imposto novo | Tira de 1 a 5 pontos ao passar a valer, e o efeito some em 6 meses |
+| Promessa | Tira 3 pontos por faixa de distância entre a promessa do partido e a marca do governo na régua |
+
+A **marca do governo** é a média das faixas das medidas aprovadas. Ex.: um partido que prometeu a faixa 2 (isenção para um setor) e aprovou só aumento geral de imposto (faixa 5) está 3 faixas à direita da promessa e perde 9 pontos. A aprovação é calculada só quando um jogador governa.
+
+### Impeachment
+
+Se a aprovação fechar **3 meses seguidos abaixo de 25%**, o presidente sofre impeachment. A partir do primeiro mês abaixo do piso o presidente recebe um aviso. Quem assume é o **vice**, se ainda estiver filiado ao partido, e governa até o fim do mandato; sem vice, um governo neutro do computador conduz o país até a próxima eleição. A carteira de quem saiu volta a operar.
+
+### A carteira do presidente
+
+Enquanto governa, o presidente **não compra nem vende**: a carteira fica congelada até o fim do mandato, e a boleta mostra o aviso. A carteira é **pública**: todos os jogadores veem os ativos que o presidente tem e a fatia de cada um, para que ninguém governe em causa própria sem a sala saber. A prévia de uma medida setorial também mostra quanto cada jogador tem naquele setor.
+

@@ -10,6 +10,7 @@ import pytest
 
 from backend.core import repository
 from backend.core.dto.events.government import GovernmentEventDTO
+from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
@@ -17,16 +18,20 @@ from backend.core.enum import (
     ComputerDifficulty,
     ElectionPhase,
     GovernmentNoticeKind,
+    MeasureKind,
+    MeasureStatus,
 )
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     ForbiddenError,
     NotFoundError,
 )
-from backend.features.government import election
+from backend.features.government import approval as approval_rules
+from backend.features.government import congress, election
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_panel
 from backend.features.government.state import Party, replay, vote_points
+from backend.features.tax_policy import LossPool
 from tests.fakes import FakeSimulationEngine, client, simulation_settings
 
 ALICE = UserDTO(id=1, client_id=client("alice"), nickname="Alice")
@@ -39,6 +44,7 @@ CAMPAIGN_OPEN = date(2020, 10, 7)
 FIRST_ROUND = date(2021, 10, 7)
 RUNOFF = date(2021, 10, 28)
 TERM_START = date(2022, 1, 3)
+SEED = 7
 RED = "#dc2626"
 BLUE = "#2563eb"
 GREEN = "#15803d"
@@ -94,8 +100,16 @@ def engine() -> PoliticalEngine:
 
 
 @pytest.fixture
-def book(engine, stored, notices, captured_events) -> GovernmentBook:
-    return GovernmentBook(settings(), engine)
+def office() -> list[int]:
+    """Quem tomou posse: o livro avisa a partida a cada presidente jogador."""
+    return []
+
+
+@pytest.fixture
+def book(engine, stored, notices, captured_events, office) -> GovernmentBook:
+    return GovernmentBook(
+        settings(), engine, lambda user, _day: office.append(user.id), SEED
+    )
 
 
 def found(book: GovernmentBook, user: UserDTO, abbr: str, color: str, amount="10000"):
@@ -403,7 +417,7 @@ def test_resumed_book_starts_from_the_stored_events(
     found(book, ALICE, "AAA", RED, "10000")
     book.on_tick(USERS, date(2020, 11, 3), True)
 
-    resumed = GovernmentBook(settings(), engine)
+    resumed = GovernmentBook(settings(), engine, lambda *_: None, SEED)
 
     assert party_of(resumed, ALICE).points == party_of(book, ALICE).points
     assert resumed.state.last_collection == date(2020, 11, 1)
@@ -457,3 +471,294 @@ def test_party_ranking_adds_up_the_networth_of_the_members(book: GovernmentBook)
     ]
     assert panel.player_standings[0].nickname == "Carla"
     assert panel.player_standings[0].party_id is None
+
+
+# Governar: medidas, Congresso, aprovação e impeachment
+
+GOOD_MARKET = approval_rules.Market(
+    inflation=Decimal("0.03"), stocks=Decimal("0.10"), target=Decimal("0.04")
+)
+# Inflação 8 pontos acima da meta e bolsa em queda: 50 - 20 - 6 = 24%, abaixo do piso
+BAD_MARKET = approval_rules.Market(
+    inflation=Decimal("0.12"), stocks=Decimal("-0.40"), target=Decimal("0.04")
+)
+FIRST_VOTE = date(2022, 1, 31)
+SECTORS = {
+    "TAEE11": StockSegmentDTO(sector="Energia", segment="Transmissão"),
+    "EGIE3": StockSegmentDTO(sector="Energia", segment="Geração"),
+    "ITUB4": StockSegmentDTO(sector="Bancos", segment="Bancos"),
+}
+
+
+@pytest.fixture
+def market(monkeypatch: pytest.MonkeyPatch):
+    """O mercado que a aprovação lê; cada teste escolhe o dele."""
+
+    def use(value: approval_rules.Market) -> None:
+        monkeypatch.setattr(approval_rules, "market_on", lambda _day: value)
+
+    use(GOOD_MARKET)
+    return use
+
+
+def congress_says(monkeypatch: pytest.MonkeyPatch, approved: bool) -> None:
+    monkeypatch.setattr(congress, "passes", lambda *_: approved)
+
+
+def govern(book: GovernmentBook, engine, *, vice: bool = False) -> None:
+    """Alice vence a eleição e toma posse; com `vice`, Bob é o vice dela."""
+    engine.classification = SECTORS
+    found(book, ALICE, "AAA", RED, "10000")
+    if vice:
+        book.join_party(BOB, CAMPAIGN_OPEN, party_of(book, ALICE).id, Decimal(0))
+        book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Bob", USERS)
+        book.answer_vice(BOB, CAMPAIGN_OPEN, True)
+    run_campaign(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+    book.on_tick(USERS, RUNOFF, False)
+    book.on_tick(USERS, TERM_START, False)
+    assert book.state.term is not None
+    assert book.state.term.president_id == ALICE.id
+
+
+def propose(book: GovernmentBook, rate="0.20") -> None:
+    book.propose(
+        ALICE, TERM_START, MeasureKind.STOCK_PROFIT_RATE, Decimal(rate), None, None
+    )
+
+
+def test_term_start_hands_the_office_to_the_player_president(
+    book: GovernmentBook, engine, office
+):
+    govern(book, engine)
+
+    assert office == [ALICE.id]
+    assert book.state.term is not None
+    assert book.state.term.promise == 3
+
+
+def test_only_the_president_proposes_and_the_queue_is_public(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+
+    with pytest.raises(ForbiddenError):
+        book.propose(
+            BOB, TERM_START, MeasureKind.STOCK_PROFIT_RATE, Decimal("0.2"), None, None
+        )
+    propose(book)
+
+    [queued] = book.state.measures.values()
+    assert (queued.status, queued.before, queued.value) == (
+        MeasureStatus.QUEUED,
+        Decimal("0.15"),
+        Decimal("0.20"),
+    )
+    with pytest.raises(ConflictError):
+        propose(book, "0.25")
+    with pytest.raises(ConflictError):
+        book.propose(
+            ALICE, TERM_START, MeasureKind.DAY_TRADE_RATE, Decimal("0.20"), None, None
+        )
+
+
+def test_sector_measure_needs_a_known_sector_and_segment(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+
+    with pytest.raises(NotFoundError):
+        book.propose(
+            ALICE, TERM_START, MeasureKind.SECTOR_EXEMPT, None, "Mineração", None
+        )
+    with pytest.raises(NotFoundError):
+        book.propose(
+            ALICE, TERM_START, MeasureKind.SECTOR_EXEMPT, None, "Energia", "Bancos"
+        )
+    book.propose(ALICE, TERM_START, MeasureKind.SECTOR_EXEMPT, None, "Energia", None)
+    assert book.tickers(book.state.measures[1]) == ["EGIE3", "TAEE11"]
+
+
+def test_approved_measure_binds_only_ninety_days_after_the_vote(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    propose(book)
+    congress_says(monkeypatch, True)
+
+    book.on_tick(USERS, FIRST_VOTE, False)
+
+    measure = book.state.measures[1]
+    assert measure.status is MeasureStatus.APPROVED
+    assert measure.chance == 56
+    assert measure.effective == date(2022, 5, 1)
+    before, after = date(2022, 4, 29), date(2022, 5, 2)
+    assert book.policy(before).rates[LossPool.COMMON] == Decimal("0.15")
+    assert book.policy(after).rates[LossPool.COMMON] == Decimal("0.20")
+    assert engine.tax_policy_on(after).rates[LossPool.COMMON] == Decimal("0.20")
+
+
+def test_congress_votes_only_on_the_last_business_day_of_the_month(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    propose(book)
+    congress_says(monkeypatch, True)
+
+    book.on_tick(USERS, date(2022, 1, 28), False)
+    assert book.state.measures[1].status is MeasureStatus.QUEUED
+
+    book.on_tick(USERS, FIRST_VOTE, False)
+    assert book.state.measures[1].status is MeasureStatus.APPROVED
+
+
+def test_rejected_measure_comes_back_to_the_queue(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    propose(book)
+    congress_says(monkeypatch, False)
+    book.on_tick(USERS, FIRST_VOTE, False)
+    assert book.state.measures[1].status is MeasureStatus.REJECTED
+
+    book.repropose(ALICE, date(2022, 2, 1), 1)
+
+    assert book.state.measures[2].status is MeasureStatus.QUEUED
+    with pytest.raises(ConflictError):
+        book.repropose(ALICE, date(2022, 2, 1), 2)
+
+
+def test_withdrawn_measure_is_not_voted(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    propose(book)
+    congress_says(monkeypatch, True)
+
+    book.withdraw(ALICE, TERM_START, 1)
+    book.on_tick(USERS, FIRST_VOTE, False)
+
+    assert book.state.measures[1].status is MeasureStatus.WITHDRAWN
+    with pytest.raises(ConflictError):
+        book.withdraw(ALICE, FIRST_VOTE, 1)
+
+
+def test_approval_is_measured_every_month_and_kept_for_the_chart(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+
+    book.on_tick(USERS, FIRST_VOTE, False)
+
+    assert [(p.day, p.value) for p in book.state.approvals] == [(FIRST_VOTE, 56)]
+    assert book.state.low_streak == 0
+    # Fechado o mês, a mesma data não mede de novo
+    book.on_tick(USERS, FIRST_VOTE, False)
+    assert len(book.state.approvals) == 1
+
+
+def test_president_wallet_is_frozen_and_the_others_keep_trading(
+    book: GovernmentBook, engine
+):
+    govern(book, engine)
+
+    with pytest.raises(ConflictError, match="carteira volta a operar"):
+        book.ensure_can_trade(ALICE.client_id)
+    book.ensure_can_trade(BOB.client_id)
+    assert book.term_end() == date(2025, 12, 31)
+
+
+def test_three_months_below_the_floor_remove_the_president_and_the_vice_takes_over(
+    book: GovernmentBook, engine, market, office, notices, monkeypatch
+):
+    govern(book, engine, vice=True)
+    propose(book)
+    congress_says(monkeypatch, True)
+    book.on_tick(USERS, FIRST_VOTE, False)
+    market(BAD_MARKET)
+
+    assert book.on_tick(USERS, date(2022, 2, 28), False) is False
+    assert book.on_tick(USERS, date(2022, 3, 31), False) is False
+    propose(book, "0.25")
+    assert GovernmentNoticeKind.IMPEACHMENT_WARNING.value in [
+        n["kind"] for n in notices
+    ]
+    assert book.on_tick(USERS, date(2022, 4, 29), False) is True
+
+    term = book.state.term
+    assert term is not None
+    assert (term.president_id, term.succession) == (BOB.id, True)
+    assert office[-1] == BOB.id
+    # A medida aprovada segue os 90 dias; a fila não votada de quem saiu some
+    assert book.state.measures[1].status is MeasureStatus.APPROVED
+    assert book.state.measures[2].status is MeasureStatus.DROPPED
+    book.ensure_can_trade(ALICE.client_id)
+    with pytest.raises(ConflictError):
+        book.ensure_can_trade(BOB.client_id)
+    assert book.state.impeachments[0].successor_id == BOB.id
+
+
+def test_impeachment_without_a_vice_leaves_a_neutral_computer_government(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    market(BAD_MARKET)
+
+    for day in (date(2022, 1, 31), date(2022, 2, 28), date(2022, 3, 31)):
+        book.on_tick(USERS, day, False)
+
+    term = book.state.term
+    assert term is not None
+    assert (term.president_id, term.party_id) == (None, None)
+    book.ensure_can_trade(ALICE.client_id)
+    with pytest.raises(ForbiddenError):
+        propose(book, "0.25")
+
+
+def test_a_month_above_the_floor_resets_the_streak(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+    market(BAD_MARKET)
+    book.on_tick(USERS, date(2022, 1, 31), False)
+    book.on_tick(USERS, date(2022, 2, 28), False)
+    assert book.state.low_streak == 2
+
+    market(GOOD_MARKET)
+    book.on_tick(USERS, date(2022, 3, 31), False)
+
+    assert book.state.low_streak == 0
+    assert book.state.term is not None
+    assert book.state.term.president_id == ALICE.id
+
+
+def test_replay_rebuilds_measures_approval_and_policy(
+    book: GovernmentBook, engine, stored, market, monkeypatch
+):
+    govern(book, engine, vice=True)
+    propose(book)
+    congress_says(monkeypatch, True)
+    book.on_tick(USERS, FIRST_VOTE, False)
+
+    resumed = GovernmentBook(settings(), engine, lambda *_: None, SEED)
+
+    assert resumed.state.measures == book.state.measures
+    assert resumed.state.approvals == book.state.approvals
+    assert resumed.policy(date(2022, 6, 1)).rates[LossPool.COMMON] == Decimal("0.20")
+
+
+def test_measure_in_force_is_announced_on_its_day(
+    book: GovernmentBook, engine, market, notices, monkeypatch
+):
+    govern(book, engine)
+    propose(book)
+    congress_says(monkeypatch, True)
+    book.on_tick(USERS, FIRST_VOTE, False)
+
+    book.on_tick(USERS, date(2022, 4, 29), False)
+    kinds = [n["kind"] for n in notices]
+    assert GovernmentNoticeKind.MEASURE_IN_FORCE.value not in kinds
+    book.on_tick(USERS, date(2022, 5, 2), False)
+
+    kinds = [n["kind"] for n in notices]
+    assert kinds.count(GovernmentNoticeKind.MEASURE_IN_FORCE.value) == 1

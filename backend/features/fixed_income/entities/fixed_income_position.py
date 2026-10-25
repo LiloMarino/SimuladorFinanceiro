@@ -10,6 +10,7 @@ from backend.features.fixed_income.accrual import (
     redemption_breakdown,
     redemption_date,
 )
+from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
 
 
 @dataclass
@@ -61,14 +62,20 @@ class FixedIncomePosition:
         self.total_applied -= gross * self.total_applied / self.current_value
         self.current_value -= gross
 
-    def breakdown(self, on: date, net_wanted: Decimal | None) -> RedemptionBreakdown:
-        """O resgate em `on`; sem `net_wanted`, o título inteiro."""
+    def breakdown(
+        self,
+        on: date,
+        net_wanted: Decimal | None,
+        policy: TaxPolicy = DEFAULT_TAX_POLICY,
+    ) -> RedemptionBreakdown:
+        """O resgate em `on` pela política de impostos de `on`; sem `net_wanted`, o título inteiro."""
         return redemption_breakdown(
             self.current_value,
             self.total_applied,
             self.asset.investment_type,
             (on - self.first_applied_date).days,
             net_wanted,
+            policy,
         )
 
     def net_redemption_value(self) -> Decimal:

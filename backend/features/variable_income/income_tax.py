@@ -23,43 +23,20 @@ import calendar
 from collections import defaultdict
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from collections.abc import Set as AbstractSet
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal
-from enum import Enum
 
 from backend.core.dto.events.equity import EquityEventDTO
+from backend.core.dto.sector import StockSegmentDTO
 from backend.core.enum import AssetClass, EquityEventType
 from backend.core.utils import is_business_day
+from backend.features.tax_policy import LossPool, PolicyOn, default_policy_on
 from backend.features.variable_income.entities.position import Position
 
 ZERO = Decimal(0)
 CENT = Decimal("0.01")
-STOCK_EXEMPTION_LIMIT = Decimal(20000)
-CRYPTO_EXEMPTION_LIMIT = Decimal(35000)
-# Teto mensal de vendas abaixo do qual o ganho comum da classe é isento
-EXEMPTION_LIMITS: Mapping[AssetClass, Decimal] = {
-    AssetClass.STOCK: STOCK_EXEMPTION_LIMIT,
-    AssetClass.CRYPTO: CRYPTO_EXEMPTION_LIMIT,
-}
 DARF_MINIMUM = Decimal(10)
-
-
-class LossPool(Enum):
-    """Conjunto de operações cujos prejuízos se compensam entre si."""
-
-    COMMON = "COMMON"
-    DAY_TRADE = "DAY_TRADE"
-    FII = "FII"
-    CRYPTO = "CRYPTO"
-
-
-RATES: Mapping[LossPool, Decimal] = {
-    LossPool.COMMON: Decimal("0.15"),
-    LossPool.DAY_TRADE: Decimal("0.20"),
-    LossPool.FII: Decimal("0.20"),
-    LossPool.CRYPTO: Decimal("0.15"),
-}
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -102,6 +79,10 @@ class MonthlyTax:
 class _Category:
     result: Decimal = ZERO
     sales: Decimal = ZERO
+    # Parte do resultado que vem de setor taxado, por pontos somados à alíquota
+    taxed: defaultdict[Decimal, Decimal] = field(
+        default_factory=lambda: defaultdict(Decimal)
+    )
 
 
 def _consume(
@@ -204,14 +185,33 @@ def darf_due_date(year: int, month: int) -> date:
     return day
 
 
+def _surcharge(members: Sequence[_Category], taxable: Decimal, net: Decimal) -> Decimal:
+    """Os pontos de setor taxado sobre o ganho dele, na mesma fração em que a
+    compensação de prejuízo reduziu a base do conjunto."""
+    if taxable <= ZERO:
+        return ZERO
+    by_extra: defaultdict[Decimal, Decimal] = defaultdict(Decimal)
+    for item in members:
+        for extra, result in item.taxed.items():
+            by_extra[extra] += result
+    return sum((max(gain, ZERO) * extra for extra, gain in by_extra.items()), ZERO) * (
+        taxable / net
+    )
+
+
 def assess(
     events: Sequence[EquityEventDTO],
     asset_classes: Mapping[str, AssetClass],
     today: date,
+    policy_on: PolicyOn = default_policy_on,
+    classification: Mapping[str, StockSegmentDTO] | None = None,
 ) -> list[MonthlyTax]:
     """Todos os meses da primeira operação até o mês de `today`, com o prejuízo e o
     saldo abaixo do mínimo atravessando de um mês para o outro. `events` vem em
-    ordem cronológica, como `get_equity_events` devolve."""
+    ordem cronológica, como `get_equity_events` devolve.
+
+    As alíquotas e o teto de isenção de cada mês são os vigentes no último dia dele (ou
+    em `today`, no mês corrente); a regra de setor vale pelo dia de cada venda."""
     if not events:
         return []
 
@@ -223,16 +223,35 @@ def assess(
         key = (asset_classes[ticker], day_trade)
         return by_month[(day.year, day.month)].setdefault(key, _Category())
 
+    def add(
+        item: _Category, ticker: str, day: date, result: Decimal, sales: Decimal
+    ) -> None:
+        # A venda de setor isento conta no volume do mês e sai do ganho e do prejuízo
+        item.sales += sales
+        located = (classification or {}).get(ticker)
+        rule = policy_on(day).sector_rule(
+            located.sector if located else None, located.segment if located else None
+        )
+        if rule is not None and rule.exempt:
+            return
+        item.result += result
+        if rule is not None and rule.extra:
+            item.taxed[rule.extra] += result
+
     without_day_trade = {t for t, cls in asset_classes.items() if cls.fractional}
     settled, day_trades = settle_day_trades(events, without_day_trade)
     for sale, result in _sales_results(settled):
         item = category(sale.event_date, sale.ticker, day_trade=False)
-        item.result += result
-        item.sales += sale.price * sale.quantity
+        add(
+            item,
+            sale.ticker,
+            sale.event_date,
+            result,
+            sale.price * sale.quantity,
+        )
     for trade in day_trades:
         item = category(trade.trade_date, trade.ticker, day_trade=True)
-        item.result += trade.result
-        item.sales += trade.proceeds
+        add(item, trade.ticker, trade.trade_date, trade.result, trade.proceeds)
 
     losses: dict[LossPool, Decimal] = dict.fromkeys(LossPool, ZERO)
     carried = ZERO
@@ -240,19 +259,22 @@ def assess(
 
     for year, month in _months(events[0].event_date, today):
         raw = by_month.get((year, month), {})
+        month_end = date(year, month, calendar.monthrange(year, month)[1])
+        policy = policy_on(min(month_end, today))
+        limits = policy.exemption_limits
         class_sales = {
             cls: sum(
                 (item.sales for (c, _), item in raw.items() if c is cls),
                 ZERO,
             )
-            for cls in EXEMPTION_LIMITS
+            for cls in limits
         }
 
         # O ganho comum de cada classe com isenção sai da base quando as vendas
         # do mês dela ficam dentro do teto
         exempt_keys = {
             (cls, False)
-            for cls, limit in EXEMPTION_LIMITS.items()
+            for cls, limit in limits.items()
             if (item := raw.get((cls, False))) is not None
             and item.result > ZERO
             and class_sales[cls] <= limit
@@ -262,15 +284,12 @@ def assess(
         # Líquido de cada conjunto de compensação, abatido do prejuízo acumulado
         pools: dict[LossPool, PoolResult] = {}
         for pool in LossPool:
-            net = sum(
-                (
-                    item.result
-                    for (cls, day_trade), item in raw.items()
-                    if _pool(cls, day_trade) is pool
-                    and (cls, day_trade) not in exempt_keys
-                ),
-                ZERO,
-            )
+            members = [
+                item
+                for (cls, day_trade), item in raw.items()
+                if _pool(cls, day_trade) is pool and (cls, day_trade) not in exempt_keys
+            ]
+            net = sum((item.result for item in members), ZERO)
             if net > ZERO:
                 compensated = min(losses[pool], net)
                 taxable = net - compensated
@@ -280,7 +299,7 @@ def assess(
                 losses[pool] -= net
             pools[pool] = PoolResult(
                 taxable=taxable,
-                tax=taxable * RATES[pool],
+                tax=taxable * policy.rates[pool] + _surcharge(members, taxable, net),
                 loss_after=losses[pool],
             )
 
