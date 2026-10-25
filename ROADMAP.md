@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-25):** Acabamentos das telas (F134) registrados como pendentes: os ajustes pequenos do desenho aprovado que ficaram de fora das telas implementadas.
+> **Última mudança (2026-10-25):** Revisada a revisão das regras de lint e da checagem de tipos (F125), com o oxfmt no frontend; registrados os tipos mais rígidos no frontend (F135), o código sem uso (F136), a acessibilidade (F137) e o piloto do strict do pyright (F138).
 
 ## Glossário
 
@@ -98,6 +98,10 @@
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | — | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | ⏳ |
 | [**F134**](#f134) | Acabamentos das telas | — | ⏳ |
+| [**F135**](#f135) | Tipos mais rígidos no frontend | — | ⏳ |
+| [**F136**](#f136) | Código e dependências sem uso | — | ⏳ |
+| [**F137**](#f137) | Acessibilidade das telas | — | ⏳ |
+| [**F138**](#f138) | Piloto do modo strict do pyright | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
@@ -117,7 +121,7 @@
 | **D12** | Como numerar as versões | — | ✅ |
 | **D13** | Um canal de tempo real só: Socket.IO, com fallback de polling | — | ✅ |
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | — | ✅ |
-| **D15** | Lint com oxlint e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
+| **D15** | Lint com oxlint, formatação com oxfmt e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | — | ✅ |
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | [F126](#f126) | ✅ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ✅ |
@@ -156,6 +160,10 @@
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
 | [**F134**](#f134) | Acabamentos das telas | — | 0 | ⏳ |
+| [**F135**](#f135) | Tipos mais rígidos no frontend | — | 0 | ⏳ |
+| [**F136**](#f136) | Código e dependências sem uso | — | 0 | ⏳ |
+| [**F137**](#f137) | Acessibilidade das telas | — | 0 | ⏳ |
+| [**F138**](#f138) | Piloto do modo strict do pyright | — | 0 | ⏳ |
 
 ---
 
@@ -277,7 +285,7 @@
 
 ### Sem marco
 
-> **Progresso:** 1/31 concluídas
+> **Progresso:** 1/35 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -311,6 +319,10 @@
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 🔍 |
 | [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 🔍 |
 | [**F134**](#f134) | Acabamentos das telas | — | ⏳ |
+| [**F135**](#f135) | Tipos mais rígidos no frontend | — | ⏳ |
+| [**F136**](#f136) | Código e dependências sem uso | — | ⏳ |
+| [**F137**](#f137) | Acessibilidade das telas | — | ⏳ |
+| [**F138**](#f138) | Piloto do modo strict do pyright | — | ⏳ |
 
 <details><summary>Concluído (1 item)</summary>
 
@@ -433,6 +445,10 @@
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
 | **F125** | Revisão das regras de lint e da checagem de tipos | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
+| **F135** | Tipos mais rígidos no frontend | — | — | — | Alto | Médio | Médio | Médio | ⏳ Pendente |
+| **F136** | Código e dependências sem uso | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F137** | Acessibilidade das telas | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F138** | Piloto do modo strict do pyright | — | — | — | Médio | Baixo | Baixo | Médio | ⏳ Pendente |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -449,7 +465,33 @@
 **F81 — CORS restrito à mesma origem.** O backend libera CORS para qualquer origem com credenciais (`allow_origins=["*"]` e `allow_credentials=True` no FastAPI, `cors_allowed_origins="*"` no Socket.IO). Não é necessário: o front é servido pelo próprio backend e, no `pnpm dev`, chega pelo proxy do Vite. Hoje o que protege o jogador de um site malicioso aberto durante a partida é o cookie `client_id` com `SameSite=Lax`, que o navegador não manda em requisição de outro site; o CORS liberado só deixa outro site ler as rotas que não pedem identidade. (1) Sai o `CORSMiddleware` de `main.py`. (2) O Socket.IO fica com `cors_allowed_origins` na mesma origem, mais `http://localhost:5173` quando o modo debug estiver ligado: o proxy do Vite troca o `Host` (`changeOrigin: true`) mas mantém o `Origin` do Vite, e o Socket.IO recusaria a conexão em dev sem essa exceção. (3) Teste manual antes de fechar: jogo pelo `localhost`, por outro computador da LAN pelo IP e pelo `pnpm dev`. Gatilho: junto com o link de convite pela internet, quando o servidor passa a ficar exposto fora da LAN.
 
 <a id="f125"></a>
-**F125 — Revisão das regras de lint e da checagem de tipos.** Cada candidata foi medida rodando a ferramenta no código atual (Ruff com 0 achados, oxlint com 11 avisos e pyright com 0 erros no ponto de partida) e julgada pelo que apontava: bug ou código morto fica, reescrita de estilo e falso positivo saem. **Ligadas:** no Ruff, `ERA` (código comentado, 0 achados) e `DTZ` (data sem fuso, 5 achados, todos de data local do app, marcados com `noqa`); no oxlint, a categoria `correctness` inteira como erro e o `exhaustive-deps` como erro, com os 11 achados corrigidos (dependências do efeito do gráfico de preço, `style` do avatar e do indicador de progresso tipado como objeto, chave do payload dos gráficos, filtro por jogador do relatório de estatísticas); no pyright, o modo `standard`, com 5 achados, todos em testes, corrigidos; no lint, o actionlint (0 achados nos 5 workflows). **Fora, com o motivo:** Ruff `C4` (5), `RET` (14), `PT` (28), `PL` (361, 349 delas de refatoração), `FBT` (137) e `S` (2.325, 2.272 de `assert` em teste) pedem só reescrita de estilo ou dão falso positivo; `ARG` (223) está quase todo em stubs de teste. No oxlint, `pedantic` (3.589) e `suspicious` (7.151, 6.936 de `react-in-jsx-scope`, falso positivo com o `jsx: react-jsx`) são ruído; `no-unstable-nested-components` deu 17 achados e nenhum era componente instável de verdade (são funções de renderização passadas como prop ao Recharts e callbacks de `toast`); `consistent-return` deu 29, metade em `switch` exaustivo sem `default`, que o tsc já confere pelo tipo; `import`, `unicorn`, `promise` e `vitest` têm 10 a 13 achados de estilo, e o risco de promise sem `await` já é coberto pelo `no-floating-promises`. O `jsx-a11y` (49), o `deptry` (11, metade falso positivo) e o Knip (2 arquivos, 72 exports e 37 tipos sem uso, que pedem ignorar o shadcn e o arquivo gerado) ficaram para uma rodada própria. O `strict` do pyright deu 3.352 achados; as pastas `backend/config`, `backend/routes` e `main.py` ficam quase limpas e são as candidatas a um piloto. Os 12 `noqa` de `PLC0415` ficam: são imports tardios de um arquivo só, `user_manager.py`.
+**F125 — Revisão das regras de lint e da checagem de tipos.** Cada candidata foi medida rodando a ferramenta no código atual e julgada regra a regra, não pela categoria inteira: fica o que aponta bug, código morto ou risco de segurança; saem reescrita de estilo e falso positivo. Toda regra ligada é erro, porque o pyright e o oxlint saem com código 0 em aviso e o aviso se acumularia.
+
+**Ruff.** `ERA` (código comentado, 0 achados). `DTZ` (data sem fuso): o app grava `datetime.now(UTC)` e o banco usa `DateTime(timezone=True)`, então misturar data com e sem fuso é bug; os 5 `noqa` são de data local do app. `PLE` (erros que o Python só mostra ao executar, 0). `PLW` menos `PLW0603` (os `global` são caches de módulo) e `PLW0108` (o lambda do `monkeypatch` adia a busca do nome): pegou 2 `subprocess.run` sem `check` e uma variável de `for` reescrita. `S` (segurança) menos `S311` (o `random` é do jogo, não de criptografia), `S603` e `S607` (os `subprocess` chamam comandos fixos): os 15 achados eram de propósito (SQL montado nas migrations, `urlopen` do BCB, bind em `0.0.0.0` para a rede local) e levam `noqa` com o motivo. `LOG` (2 `logger.exception` fora de `except`, que podem sair sem traceback). `PGH` (11 `# type: ignore` sem código, que escondem erro novo na mesma linha). `FAST` (6: `Annotated` nas dependências e `response_model` redundante). `BLE` (4 `except Exception`, todos de propósito: erro de estratégia de terceiro devolve o jogador ao manual). Do `PT`, só a `PT011` (2 `pytest.raises` sem `match`, que passam pelo motivo errado). O lint também roda `ruff format --check` (os recortes de código dos guias em Markdown ficam fora).
+
+**Asserts.** O executável é empacotado com `optimize=2`, que apaga docstrings e `assert`. Os 45 `assert` do backend viraram `required()` (`backend/core/utils`), que levanta erro também no executável, ou `if`/`raise` explícito onde a checagem não é de `None` (tipo de parâmetro de estratégia, quantidade zero numa ordem). A `S101` vale no backend e libera `tests/` e `scripts/`.
+
+**pyright.** Modo `standard`. `reportUnusedFunction` e `reportUnnecessaryComparison` são erro. `reportUnnecessaryTypeIgnoreComment` (9 dos 11 `# type: ignore` sem código e 19 dos com código estavam mortos) e `reportDeprecated` (`Iterator` trocado por `Generator` nos `@contextmanager`) estão ligados. Ficam fora `reportUnnecessaryIsInstance` (1 achado, validação de fronteira em `base_strategy.py`) e `reportUnnecessaryCast` (3, casts do pandas, cuja inferência muda com a ordem em que o pyright avalia os arquivos).
+
+**oxlint e tsc.** A categoria `correctness` inteira e o `exhaustive-deps` são erro, e `only-export-components`, `incompatible-library` e `unsupported-syntax` também. Ligadas: as `no-unsafe-assignment`, `-argument`, `-member-access`, `-return` e `-call` (`any` vazando de `JSON.parse` e do zod; os componentes do shadcn em `shared/components/ui` e o `.pnpmfile.cjs` ficam fora); `no-deprecated` (o `Cell` do Recharts virou o `fill` da fatia); `no-unnecessary-type-assertion`, `-type-arguments`, `-type-conversion` e `-template-expression` (código morto, com autofix); `switch-exhaustiveness-check` com `considerDefaultExhaustiveForUnions` (`switch` sem `default` que esquece um caso da união é erro). No `tsc`, `noImplicitReturns` garante que todo caminho de uma função com retorno retorna.
+
+**Medidas e deixadas de fora.** Ruff `C4`, `RET`, `PIE`, `FBT`, `FURB157`, `SLF`, `INP` e `PLR` são estilo e refatoração. `ARG` (18 no backend) é quase toda assinatura exigida (handler do FastAPI, método base de estratégia, `lifespan`); os dois parâmetros mortos de verdade, em funções privadas do governo, saíram. No oxlint: `pedantic` (`prefer-readonly-parameter-types` 2.332, `no-confusing-void-expression` 490, `strict-boolean-expressions` 428), `no-unsafe-type-assertion` (141), `eqeqeq` (o `== null` é idioma), `no-unstable-nested-components` (17, funções de render do Recharts e do `toast`), `prefer-nullish-coalescing` (11, todos `||` de propósito), `no-unmodified-loop-condition` (o `setDate` muda a data dentro do laço), `style-prop-object` (o `style` textual do aviso do tutorial), `exhaustive-effect-dependencies` (o `id` no array é de propósito), `no-accumulating-spread` (listas de rótulos pequenas) e `jsx-no-constructed-context-values` (os providers ficam na raiz e o valor muda com o dado de todo jeito).
+
+**Formatação.** O frontend é formatado pelo oxfmt (`frontend/.oxfmtrc.json`, 120 colunas: é a largura que menos mexe no código existente, 214 arquivos contra 470 com 100 e 317 com 140). O `check` do frontend roda `oxfmt --check` e o `pnpm format` da raiz formata backend e frontend. O `frontend/.gitattributes` fixa LF na cópia local, porque o oxfmt não aceita fim de linha automático e o Windows faz checkout em CRLF.
+
+O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F135](#f135)), código e dependências sem uso ([F136](#f136)), acessibilidade ([F137](#f137)) e o piloto do strict do pyright ([F138](#f138)).
+
+<a id="f135"></a>
+**F135 — Tipos mais rígidos no frontend.** Liga três checagens que o TypeScript e o oxlint têm e o projeto não usa. `noUncheckedIndexedAccess` (237 erros hoje): ler `lista[i]` ou `registro[chave]` passa a dar `T | undefined`, e o código precisa tratar o item que não existe. `exactOptionalPropertyTypes` (222): um campo opcional deixa de aceitar `undefined` escrito explicitamente, o que separa "campo ausente" de "campo presente e vazio". `typescript/no-unnecessary-condition` (66): condição que o tipo diz ser sempre verdadeira ou sempre falsa. As três só valem se o tipo gerado da API (`types/openapi.generated.ts`) for fiel ao que o backend manda: um campo que sempre vem, mas sai opcional no OpenAPI, faz a regra pedir checagem à toa. Plano: conferir quais DTOs do backend saem com campo opcional sem precisar (o FastAPI marca como opcional todo campo com valor padrão) e corrigir no schema; depois ligar uma flag por vez, corrigir e commitar separado. Gatilho: um bug de item ausente ou de campo opcional chegar ao jogador, ou uma rodada de qualidade.
+
+<a id="f136"></a>
+**F136 — Código e dependências sem uso.** O Knip no frontend acha arquivo, export e tipo que ninguém importa (hoje 2 arquivos, 72 exports e 37 tipos), e o deptry no backend acha pacote declarado e não importado, ou importado e não declarado (hoje 11, cerca de metade falso positivo). Plano: `knip.json` ignorando `shared/components/ui` (os componentes do shadcn exportam peças que o projeto ainda não usa) e o arquivo gerado da API; configuração do deptry no `pyproject.toml` com as exceções que a triagem dos 11 confirmar; apagar o que for morto de verdade e pôr os dois no `check`. Gatilho: livre, é limpeza sem dependência.
+
+<a id="f137"></a>
+**F137 — Acessibilidade das telas.** Liga o plugin `jsx-a11y` do oxlint, que confere no JSX o que leitor de tela e teclado precisam: botão só com ícone sem rótulo, clique em elemento que não recebe foco, imagem sem texto alternativo. Hoje são 49 achados. Plano: ligar o plugin, triar os 49 regra a regra como na revisão das regras de lint (fica o que impede alguém de usar a tela, sai o falso positivo), corrigir e deixar como erro. Gatilho: livre.
+
+<a id="f138"></a>
+**F138 — Piloto do modo strict do pyright.** O `strict` no projeto inteiro dá 3.352 achados; `backend/config`, `backend/routes` e `main.py` ficam quase limpos. Plano: listar essas pastas em `strict` no `pyrightconfig.json`, corrigir os achados e medir quanto cada achado custou; se o custo por achado valer, ampliar pasta por pasta, começando pelas que não tocam o pandas. Gatilho: livre.
 
 ---
 ## 3. Descartada
