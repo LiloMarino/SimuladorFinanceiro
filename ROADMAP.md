@@ -42,7 +42,7 @@
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F122](#f122) | — |
 | **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F101](#f101) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | — | — |
-| **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F126](#f126) | — |
+| **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F126](#f126), [F132](#f132), [F133](#f133) | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | — | — |
 | **N27** | Entrar numa partida que já começou | — | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
@@ -92,15 +92,16 @@
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | 🔍 |
-| [**F126**](#f126) | Janela "Como jogar" | — | ⏳ |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 🔍 |
 | [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 🔍 |
 | [**F131**](#f131) | Catálogo de padrões de vela | — | 🔍 |
+| [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | — | ⏳ |
+| [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -121,6 +122,7 @@
 | **D16** | Estratégias do app no host, personalização pela API | — | ✅ |
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | [F126](#f126) | ✅ |
 | [**F10**](#f10) | Guia de como escrever uma estratégia | — | ✅ |
+| [**F126**](#f126) | Janela "Como jogar" | — | ✅ |
 
 </details>
 
@@ -135,7 +137,7 @@
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
 | [**F91**](#f91) | Caixa de entrada e resumo do mês | M15 | 2 | ⏳ |
-| [**F126**](#f126) | Janela "Como jogar" | M14 | 2 | ⏳ |
+| [**F96**](#f96) | Dicas de análise técnica | M11 | 1 | ⏳ |
 | [**F106**](#f106) | Governo & Política: gasto público e inflação | — | 1 | 🔍 |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
@@ -151,6 +153,8 @@
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 0 | 🔍 |
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 0 | 🔍 |
 | [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 0 | 🔍 |
+| [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
+| [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
 
 ---
 
@@ -234,11 +238,20 @@
 >
 > **Serve:** N25
 >
-> **Progresso:** 0/1 concluídas
+> **Progresso:** 1/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F126**](#f126) | Janela "Como jogar" | — | ⏳ |
+| [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | [F126](#f126) | ⏳ |
+| [**F133**](#f133) | Tópicos de conceitos do Como jogar | [F126](#f126) | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F126**](#f126) | Janela "Como jogar" | — | ✅ |
+
+</details>
 
 ### M15 — Notícias e resumo do mês
 
@@ -311,10 +324,12 @@
 | **F110** | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F122** | Novas conquistas para as features recentes e antigas | N22 | D1 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F126** | Janela "Como jogar" | N25 | D17 | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F126** | Janela "Como jogar" | N25 | D17 | M14 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F127** | Estratégias e bots operam cripto em fração | N4, N37 | D3 | — | — | Médio | Baixo | Baixo | Regular | 💤 Registrado, sem prioridade |
 | **F22** | Preço ajustado e proventos | N3, N7 | D1, D3, D7 | M8 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F100** | Proventos na carteira e nas telas | N3, N7 | D1, D3, D7 | M8 | [F22](#f22) | Médio | Médio | Médio | Bom | ⏳ Pendente |
+| **F132** | Tópicos de "como se joga" do Como jogar | N25 | — | M14 | [F126](#f126) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F133** | Tópicos de conceitos do Como jogar | N25 | — | M14 | [F126](#f126) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -369,7 +384,7 @@
 **F122 — Novas conquistas para as features recentes e antigas.** Serve N22; segue a D1. O catálogo tem 22 conquistas, quase todas de antes das últimas features, e várias coisas que o jogo já faz não rendem nada. Acrescentar uma é uma linha em `catalog.py` mais, quando a medida não existe, uma função `@metric` em `metrics.py` (o `code` nunca muda; nome, descrição e ícone podem mudar). Primeira leva, sobre o que já existe: (1) **Dentro da isenção** (IR da venda): fechar um mês vendendo ações sem pagar imposto por ficar abaixo do limite de isenção; (2) **Day trader** (IR): comprar e vender o mesmo ativo no mesmo dia; (3) **Em todo setor** (setores): ter ativos de cinco setores diferentes ao mesmo tempo, com barra de progresso; (4) **Mexeu o mercado** (impacto de preço): uma ordem sua mover o preço do ativo, valendo só em partida com o impacto ligado; (5) **Sem muletas** (modo Especialista): vencer a partida no modo Especialista; (6) **Time vencedor** (equipes): vencer uma partida em equipes; (7) **Além do horizonte** (dados gerados): jogar um dia além do último dia com dado real; (8) **Nota de craque** (nota geral): chegar a uma nota geral alta, com a meta calibrada nas notas das partidas já jogadas; (9) **Ordem com paciência**: ter a primeira ordem limite executada. Vale também uma regra daqui para a frente: cada feature nova que mexe no jogo traz as próprias conquistas no mesmo trabalho (crédito, proventos, bots e estratégias automáticas, por exemplo), em vez de esperar uma leva à parte. Gatilho: qualquer momento; nomes, descrições e ícones se fecham na hora de escrever cada linha.
 
 <a id="f126"></a>
-**F126 — Janela "Como jogar".** Serve N25. É o tutorial em si, no molde das Dicas e truques do Factorio; cada tópico se anima em código com o `motion` (D17), no mesmo lugar da ilustração; esta feature monta o palco uma vez (contextos de autenticação e tempo real e um `fetch` com dados de exemplo) e todo tópico o reaproveita. **A janela:** um diálogo quase em tela cheia, com a lista de tópicos à esquerda em dois grupos, "Como se joga" (entrar na sala, comprar uma ação, aplicar em renda fixa, avançar o tempo, ler as estatísticas) e "Conceitos" (alavancagem, médias móveis, nota de risco), e o tópico aberto à direita: título, a ilustração e um texto curto em passos, com "Próximo tópico" no rodapé. A ilustração é o componente real do app com dados de exemplo e sem interação, para seguir o tema e ficar nítida em qualquer tamanho; o `motion` entra no `package.json` do front com ela. Os tópicos moram no front, num registro com id, grupo, título, texto e ilustração, e cada tela declara os tópicos dela. Feature que traz uma explicação longa acrescenta o tópico dela ao registro. **Nunca abre sozinha.** Abre pelo botão "Como jogar" no topo do lobby, ao lado de Conquistas, e por um acesso dentro da partida. **Aviso pelo contexto:** a primeira vez que o jogador abre uma tela com um tópico que ele não viu, aparece um aviso pequeno, que não bloqueia a tela ("Tem um tópico sobre isto: Renda variável", com "Ver" e "Agora não"); cada tópico avisa uma vez só. Na lista, tópico não visto leva um ponto, e o botão mostra quantos faltam. O navegador guarda o que foi visto e o que já avisou. Para não disputar com as Novidades (F56), que também se destacam no lobby, o lobby nunca destaca as duas ao mesmo tempo: depois de uma atualização, quem se destaca são as Novidades. **Tempo:** com um só jogador humano na sala (bots não contam), abrir a janela pausa a partida e fechar retoma; com mais gente, o tempo segue e a janela avisa isso no cabeçalho. **Sai do canvas antes de implementar:** o lugar do acesso dentro da partida (aba flutuante na borda direita, item no menu lateral ou botão na topbar) e se a dica de um termo leva ao tópico dele.
+**F126 — Janela "Como jogar".** Serve N25. Tutorial no molde das Dicas e truques do Factorio, com cada tópico animado em código com o `motion` (D17). **Entregue:** a janela (lista de tópicos à esquerda, tópico à direita com ilustração, passos e dica, "Próximo" no rodapé), o palco reutilizável (componentes reais do app com contextos de exemplo, um `fetch` de exemplo só para a prévia de ordem, cursor e destaque que medem o DOM) e três tópicos no grupo "Renda variável": "Comprar uma ação" e "Ordem a mercado e limitada" (passo a passo animado) e "Alavancagem" (conceito, ilustração numérica; é o destino do "Saiba mais" da dica de alavancagem em Crédito). Tópico novo entra no registro `features/tutorial/lib/topics.ts` com id, grupo, texto e ilustração. **Nunca abre sozinha:** abre pelo botão do lobby, ao lado de Conquistas, e por um acesso na partida que o jogador escolhe em Configurações (aba na borda, padrão; item no menu; botão na topbar; desligado). **Aviso pelo contexto:** o primeiro tópico não visto da tela avisa uma vez, ancorado no acesso escolhido. "Visto" é abrir o tópico; o navegador guarda o que foi visto e avisado. **Tempo:** com um só jogador humano (bots não contam) e o tempo andando, abrir pausa e fechar retoma só se a janela pausou; com mais gente o tempo segue e o cabeçalho avisa. Se a animação não carrega, fica a imagem parada com "Tentar de novo". Com movimento reduzido a animação nasce pausada. O estado "depois de atualizar" não foi desenhado: as Novidades (F56) ainda não existem. Os demais tópicos saem nas F132 e F133.
 
 <a id="f127"></a>
 **F127 — Estratégias e bots operam cripto em fração.** Serve N4 e N37. Com a classe de cripto e a quantidade fracionária no ar, as estratégias seguem comprando só unidades inteiras (`int(caixa // preço)`), então um bot só compra bitcoin se o caixa pagar 1 unidade inteira. Plano: o contexto da estratégia passa a conhecer a classe do ativo, e as estratégias (comprar e segurar, rebalanceamento, momentum, RSI, médias móveis, rompimento) arredondam a quantidade em oito casas para cripto e em inteiro para as demais; `whole_shares` ganha a variante fracionária. Gatilho: a F113 concluída e o uso pedir bot com bitcoin.
@@ -381,6 +396,12 @@
 <a id="f100"></a>
 **F100 — Proventos na carteira e nas telas.** Serve N3 e N7; segue a D1, a D3 e a D7. Continua a F22, que guarda a lista de dividendos de cada ativo e credita o valor no caixa na data ex; aqui o provento passa a aparecer no jogo e a existir onde a API não o traz. O provento cai no caixa e nunca reinveste sozinho: o que fazer com o dinheiro é do jogador. Plano: (1) **Provento sintético:** para o futuro gerado, o gerador (D14) escreve os proventos na mesma tabela de eventos corporativos da F22, com origem gerada, junto com as séries; o motor lê real e gerado do mesmo jeito e o trecho congela com a partida salva, como as séries (D7). O rendimento anual de cada ativo é a média que ele pagou nos últimos anos do histórico real, com variação sorteada pela semente da geração, para todos receberem os mesmos nos mesmos dias; ativo sem histórico de proventos usa a média do setor, numa tabela de rendimento por setor. (2) **Carteira:** o total de proventos recebidos aparece no resumo e, em cada posição, o rendimento (proventos dos últimos 12 meses sobre o valor da posição hoje), em Decimal (D3). (3) **Detalhe do ativo:** a tela do ativo ganha o histórico de proventos (data ex, valor por cota, total recebido pelo jogador). (4) **Estatísticas e fechamento:** o que entrou como provento soma ao relatório da partida e à decomposição do retorno. (5) **IR:** dividendo e rendimento de FII são isentos para pessoa física, e a regra do simulador trata todo provento como isento; o `yfinance` não separa o JCP (juros sobre capital próprio, com 15% retidos na fonte) do dividendo, e essa simplificação entra escrita na página de impostos dos docs. Teste: um ativo com histórico paga o mesmo rendimento médio no futuro gerado com a mesma semente, e um ativo sem histórico usa a média do setor. Gatilho: F22 concluída; destrava os rendimentos mensais da gestora (F105).
 **Aceite:** num ativo que pagou dividendos, o total recebido na carteira bate com a soma dos créditos no caixa na data ex, e o rendimento da posição bate com a conta feita à mão.
+
+<a id="f132"></a>
+**F132 — Tópicos de "como se joga" do Como jogar.** Serve N25. Completa o grupo de passo a passo da janela (F126) com os tópicos que faltam: entrar na sala, avançar o tempo, aplicar em renda fixa, ler as estatísticas e pegar crédito. Cada um é animado como "Comprar uma ação": componentes reais do app no palco, com contextos e dados de exemplo, e cursor e destaque que medem o DOM; entra no registro `features/tutorial/lib/topics.ts` com a cena em `features/tutorial/topics/`. Cada tópico pede um roteiro no canvas antes do código (quais passos, quanto dura, o que o cursor toca), e quem precisar de um dado novo no palco o acrescenta em `stage-data.ts`. Cada tela declara o tópico dela para o aviso pelo contexto.
+
+<a id="f133"></a>
+**F133 — Tópicos de conceitos do Como jogar.** Serve N25. Completa o grupo de conceitos da janela (F126), ao lado de "Alavancagem": médias móveis, nota de risco e correlação. Cada um é uma ilustração numérica com um exemplo concreto, no molde de "Alavancagem" (`features/tutorial/topics/leverage.tsx`): números pequenos que mostram a ideia, texto curto e um aviso "Bom e ruim" que diz o que é valor bom e ruim. Entra no registro `features/tutorial/lib/topics.ts`, e a dica da métrica correspondente ganha o "Saiba mais" apontando para ele (campo `topic` do `MetricInfo`). Não pede roteiro animado: pede o desenho da ilustração no canvas.
 
 ---
 ## 2. Nice-to-have
