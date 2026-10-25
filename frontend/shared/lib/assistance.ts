@@ -12,6 +12,13 @@ export const ASSISTANCES = [
     description: "Esconde quanto o valor investido vira no vencimento, com o IR já descontado.",
     scope: "Renda fixa · detalhe e compra",
   },
+  {
+    field: "showChartHints",
+    label: "Esconder dicas de análise técnica",
+    description:
+      "Esconde os padrões de vela, as legendas dos indicadores e o desafio da vela: você lê o gráfico sozinho.",
+    scope: "Renda variável · gráfico",
+  },
 ] as const;
 
 export type AssistanceField = (typeof ASSISTANCES)[number]["field"];

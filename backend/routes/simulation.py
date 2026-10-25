@@ -78,6 +78,7 @@ class SimulationRulesRequest(BaseModel):
     team_naming: TeamNaming = TeamNaming.COLOR
     show_equivalent_rate: bool = True
     show_maturity_projection: bool = True
+    show_chart_hints: bool = True
     government_enabled: bool = False
     first_election: date | None = None
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL

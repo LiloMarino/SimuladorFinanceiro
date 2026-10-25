@@ -1,4 +1,5 @@
 import {
+  ChartCandlestick,
   CloudLightning,
   CircleHelp,
   Crown,
@@ -52,6 +53,7 @@ const ICONS: Record<AchievementIconName, LucideIcon> = {
   SUNRISE: Sunrise,
   WALLET: Wallet,
   FLAME: Flame,
+  CHART_CANDLESTICK: ChartCandlestick,
 };
 
 type AchievementIconProps = {

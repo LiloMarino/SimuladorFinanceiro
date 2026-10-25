@@ -4,6 +4,7 @@ from fastapi import APIRouter, Query
 
 from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.bot import BotReportDTO
+from backend.core.dto.candle_challenge import CandleChallengeRankingDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
 from backend.core.dto.statistics_report import (
     CompositionReportDTO,
@@ -17,6 +18,7 @@ from backend.core.dto.statistics_report import (
 )
 from backend.core.dto.strategy import StrategyLogPageDTO
 from backend.core.runtime.user_manager import UserManager
+from backend.features.candle_challenge import service as candle_challenge
 from backend.features.statistics.bots import bot_orders, build_bots_report
 from backend.features.statistics.report import (
     build_composition_report,
@@ -53,6 +55,16 @@ def get_overview(simulation_ids: SimulationIds):
 def get_highlights(simulation_ids: SimulationIds, client_id: ClientID):
     user = UserManager.get_user(client_id)
     return build_highlights(simulation_ids, user.nickname if user else None)
+
+
+@statistics_router.get(
+    "/statistics/candle-challenge",
+    response_model=CandleChallengeRankingDTO,
+    summary="Estatísticas: desafio da vela",
+    description="Quem mais acertou o desafio da vela nas simulações informadas. Conta só as respostas já conferidas; no empate de acertos, vence a maior taxa de acerto.",
+)
+def get_candle_challenge_ranking(simulation_ids: SimulationIds):
+    return candle_challenge.ranking(simulation_ids)
 
 
 @statistics_router.get(

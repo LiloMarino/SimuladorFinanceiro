@@ -1,4 +1,5 @@
 from backend.core.repository.achievements import AchievementsRepository
+from backend.core.repository.candle_challenge import CandleChallengeRepository
 from backend.core.repository.credit import CreditRepository
 from backend.core.repository.economic import EconomicRepository
 from backend.core.repository.event import EventRepository
@@ -39,3 +40,4 @@ last_simulation_settings = LastSimulationSettingsRepository()
 preset = PresetRepository()
 achievements = AchievementsRepository()
 strategy = StrategyRepository()
+candle_challenge = CandleChallengeRepository()

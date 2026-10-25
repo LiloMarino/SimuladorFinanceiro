@@ -8,6 +8,8 @@ from pydantic import BaseModel, Field, model_validator
 from backend.core import repository
 from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.candle import MarketQuoteDTO
+from backend.core.dto.candle_challenge import AnswerChallengeRequest, CandleChallengeDTO
+from backend.core.dto.candle_patterns import CandlePatternsDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeOfferDTO
 from backend.core.dto.fixed_income_projection import (
     FixedIncomeQuoteDTO,
@@ -25,6 +27,10 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
+from backend.core.runtime.user_manager import UserManager
+from backend.features.candle_challenge import service as candle_challenge
+from backend.features.technical_analysis.assistance import ensure_chart_hints
+from backend.features.technical_analysis.patterns import build_candle_patterns
 from backend.features.technical_analysis.summary import (
     build_technical_indicators,
     price_frame,
@@ -121,6 +127,79 @@ def get_variable_income_indicators(
     if not stock:
         raise NotFoundError("Ativo não encontrado.")
     return build_technical_indicators(price_frame(stock.history), payload)
+
+
+@operation_router.get(
+    "/variable-income/{asset}/patterns",
+    response_model=CandlePatternsDTO,
+    summary="Padrões de vela de um ativo",
+    description=(
+        "Os padrões de vela do histórico do ativo até a data da simulação, cada um com a "
+        "variação do preço 5 pregões depois e se foi para o lado que o padrão sugere, e "
+        "quantas vezes cada padrão acertou. Recusa quando as dicas de análise técnica "
+        "estão desligadas na partida."
+    ),
+)
+def get_variable_income_patterns(simulation: ActiveSimulation, asset: str):
+    ensure_chart_hints(simulation.settings)
+    stock = simulation.get_stock_details(asset)
+    if not stock:
+        raise NotFoundError("Ativo não encontrado.")
+    return build_candle_patterns(price_frame(stock.history))
+
+
+@operation_router.get(
+    "/variable-income/{asset}/challenge",
+    response_model=CandleChallengeDTO,
+    summary="Desafio da vela de um ativo",
+    description=(
+        "A pergunta de hoje (um padrão de vela que fechou no último pregão e ainda não "
+        "foi respondido), a última resposta do jogador nesse ativo e o placar dele na "
+        "partida. Recusa quando as dicas de análise técnica estão desligadas."
+    ),
+)
+def get_candle_challenge(simulation: ActiveSimulation, client_id: ClientID, asset: str):
+    ensure_chart_hints(simulation.settings)
+    user_id = UserManager.get_user_id(client_id)
+    # A resposta vale até o próximo pregão: ler e gravar acontecem no mesmo dia
+    with simulation.lock:
+        stock = simulation.get_stock_details(asset)
+        if not stock:
+            raise NotFoundError("Ativo não encontrado.")
+        return candle_challenge.current(
+            simulation.settings.id, user_id, asset, price_frame(stock.history)
+        )
+
+
+@operation_router.post(
+    "/variable-income/{asset}/challenge",
+    response_model=CandleChallengeDTO,
+    summary="Responder ao desafio da vela",
+    description=(
+        "Grava a resposta (sobe ou desce) ao padrão de hoje. Só vale enquanto o último "
+        "pregão for o do padrão, uma vez por padrão; a conferência vem no fechamento do "
+        "5º pregão depois dele."
+    ),
+)
+def answer_candle_challenge(
+    simulation: ActiveSimulation,
+    client_id: ClientID,
+    asset: str,
+    payload: AnswerChallengeRequest,
+):
+    ensure_chart_hints(simulation.settings)
+    user_id = UserManager.get_user_id(client_id)
+    with simulation.lock:
+        stock = simulation.get_stock_details(asset)
+        if not stock:
+            raise NotFoundError("Ativo não encontrado.")
+        return candle_challenge.answer(
+            simulation.settings.id,
+            user_id,
+            asset,
+            payload.direction,
+            price_frame(stock.history),
+        )
 
 
 @operation_router.post(

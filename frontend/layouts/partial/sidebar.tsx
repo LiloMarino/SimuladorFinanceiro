@@ -60,7 +60,8 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const isVisible = (item: NavItem) =>
     (!item.debugOnly || showDebugTools) && (!item.goalOnly || racing) && (!item.expansion || governmentOn);
   const isExpert =
-    !!match && summarizeAssistances([match.show_equivalent_rate, match.show_maturity_projection]).mode === "EXPERT";
+    !!match && summarizeAssistances([match.show_equivalent_rate, match.show_maturity_projection, match.show_chart_hints]).mode ===
+      "EXPERT";
   const ownGoal = goal && match ? ownStanding(goal, match.player_grouping, nickname) : undefined;
 
   return (

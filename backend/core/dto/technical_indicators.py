@@ -73,6 +73,8 @@ class IndicatorSettingsDTO(BaseDTO):
 
     visible: list[IndicatorKey] = Field(default=[])
     params: IndicatorParamsDTO = IndicatorParamsDTO()
+    # Os marcadores de padrões de vela no gráfico de velas
+    patterns: bool = True
 
 
 class IndicatorsRequestDTO(BaseDTO):

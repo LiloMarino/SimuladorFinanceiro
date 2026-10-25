@@ -22,7 +22,11 @@ RULE_GROUP_FIELDS: dict[PresetRuleGroup, tuple[str, ...]] = {
         "withdrawal_rate",
         "inflation_adjusted",
     ),
-    PresetRuleGroup.ASSISTANCES: ("show_equivalent_rate", "show_maturity_projection"),
+    PresetRuleGroup.ASSISTANCES: (
+        "show_equivalent_rate",
+        "show_maturity_projection",
+        "show_chart_hints",
+    ),
     PresetRuleGroup.PRICE_IMPACT: (
         "price_impact_enabled",
         "price_impact_k",

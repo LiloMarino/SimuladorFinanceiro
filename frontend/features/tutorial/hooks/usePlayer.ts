@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { HowToTopic } from "../lib/topics";
-import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
+import { usePrefersReducedMotion } from "@/shared/hooks/usePrefersReducedMotion";
 
 /** Pausa entre o fim de uma volta e o começo da próxima, em segundos. */
 const LOOP_PAUSE = 1;

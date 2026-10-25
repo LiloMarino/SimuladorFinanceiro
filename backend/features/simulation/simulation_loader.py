@@ -133,9 +133,10 @@ class SimulationLoader:
         UserManager.release_saved_colors()
         UserManager.release_room_teams()
 
-        # O registro das estratégias volta ao último dia processado, como os eventos
+        # O registro das estratégias e as respostas do desafio da vela voltam ao último dia processado, como os eventos
         if resume_from is not None:
             repository.strategy.rewind(summary.id, resume_from)
+            repository.candle_challenge.rewind(summary.id, resume_from)
 
         SimulationManager.clear_simulation()
         SimulationManager.set_simulation_id(summary.id)

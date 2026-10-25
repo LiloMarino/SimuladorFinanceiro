@@ -290,6 +290,7 @@ Ajudas da interface que já dão a resposta. Ligar o **Modo Especialista** escon
 * **Modo Especialista:** o interruptor esconde todas as ajudas de uma vez. Em **Ajustar uma a uma**, cada ajuda tem o próprio interruptor; com só parte delas escondida, o modo aparece como **Personalizado**
 * **Esconder taxa equivalente:** some a coluna e o card **Equivale hoje** (a taxa por ano de cada título, já combinada com CDI e IPCA do dia). A lista de [Renda fixa](./investimentos/renda-fixa) passa a ser ordenada por vencimento
 * **Esconder projeção no vencimento:** some o bloco **Quanto R$ X viram no vencimento** e o **Resgate líquido** da boleta de investimento. Ficam a rentabilidade, o vencimento, o IR e a tabela de IR por prazo
+* **Esconder dicas de análise técnica:** somem os [padrões de vela](./investimentos/analise-tecnica#padrões-de-vela), o desafio da vela, as legendas dos indicadores e o cartão do fim da partida. Ficam o gráfico, os indicadores e o Resumo técnico
 
 Durante a partida, o menu lateral mostra o selo **Especialista** sob o nome da partida. Os números escondidos não saem do servidor, então abrir as ferramentas do navegador não os revela. As ajudas ficam gravadas na simulação, que é retomada com a mesma configuração.
 

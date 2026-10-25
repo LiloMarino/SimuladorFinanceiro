@@ -125,6 +125,54 @@ Cada indicador precisa de alguns pregões antes de ter valor: a MMS 20 precisa d
 
 O veredito só sai quando a maioria dos 7 indicadores (pelo menos 4) já tem valor. Antes disso, o card mostra **Ainda sem leitura** e a partir de quantos pregões o resumo aparece.
 
+## Padrões de vela
+
+No gráfico de **Velas**, o interruptor **Padrões de vela** (ligado por padrão) marca as formas de vela que costumam anteceder uma alta ou uma baixa. Cada marcação traz o nome curto sobre a vela: seta verde embaixo quando o padrão sugere alta, vermelha em cima quando sugere baixa e um ponto cinza no doji, que só mostra indecisão. Padrão de várias velas ganha também uma faixa atrás dele. O interruptor lembra a sua escolha.
+
+| Padrão | Velas | Sugere |
+|---|---|---|
+| Martelo | 1, depois de uma queda | Alta |
+| Martelo invertido | 1, depois de uma queda | Alta |
+| Engolfo de alta | 2 | Alta |
+| Estrela da manhã | 3 | Alta |
+| Três soldados brancos | 3 | Alta |
+| Enforcado | 1, depois de uma alta | Baixa |
+| Estrela cadente | 1, depois de uma alta | Baixa |
+| Engolfo de baixa | 2 | Baixa |
+| Estrela da tarde | 3 | Baixa |
+| Três corvos negros | 3 | Baixa |
+| Doji | 1 | Nenhum (indecisão) |
+
+Com o mouse sobre um padrão aparece o card **E se ele acertou?**, com o desenho animado da forma, o que ela conta sobre o pregão e o histórico do padrão naquela ação. Os 5 pregões seguintes ficam contornados no gráfico.
+
+**Como ler "acertou":** o padrão acerta quando o fechamento do 5º pregão depois dele vai para o lado que ele sugeriu. Ex.: um martelo fecha a R$ 10,00; cinco pregões depois o fechamento é R$ 10,40. O preço subiu, então o martelo acertou. Se fechasse a R$ 9,80, errou.
+
+**Amostra:** o percentual só aparece com 10 ocorrências ou mais. "61% de 31" quer dizer que, em 31 vezes que o padrão apareceu naquela ação, 19 acertaram. Com menos de 10 o card só conta quantas vezes ele apareceu, porque "100% de 3" não diz nada. Mesmo um percentual alto não é promessa: o padrão errou nas outras vezes.
+
+No gráfico de **Linha**, os marcadores não aparecem; um aviso conta quantos padrões há no período e o botão **Ver em velas** troca o gráfico. Se não há padrão no período, o aviso diz isso e oferece o período maior mais próximo que tem.
+
+### Lista dos padrões
+
+Embaixo do gráfico, a seção **Padrões neste período** lista cada padrão com a data, o lado, o nome, a variação do preço em 5 pregões e ✓ ou ✕. Fechada, ela mostra só a contagem e quantos acertaram ("X de Y"); o doji não aposta em lado e fica fora dessa conta. Clicar numa linha leva o gráfico até o padrão e abre o card. A seção lembra se você a deixou aberta.
+
+### Desafio da vela
+
+Quando um padrão com lado aparece no último pregão, uma faixa acima do gráfico pergunta **sobe ou desce?** até o fechamento do 5º pregão seguinte. Você responde com **▲ Sobe** ou **▼ Desce**, e a resposta vale até o pregão seguinte: sem resposta, o desafio passa e não conta.
+
+- **Acertou ou errou:** o resultado sai no fechamento do 5º pregão. Preço igual ao do padrão anula a pergunta.
+- **Placar:** a faixa mostra "acertos de respostas" na partida. O doji não gera desafio.
+- **Fim da partida:** o cartão **Desafio da vela** lista quem mais acertou. Ele não entra na nota nem no ranking.
+- **Conquistas:** **Primeira leitura** (1 acerto) e **Leitor de velas** (10 acertos).
+
+## Legendas nos indicadores
+
+Com as dicas ligadas, os indicadores ganham legendas curtas sobre o gráfico:
+
+- **IFR:** "Sobrecomprado" na linha de 70 e "Sobrevendido" na de 30, com o que cada um costuma significar.
+- **MACD e médias móveis:** um círculo em cada cruzamento (a linha do MACD cruzando o sinal; uma média cruzando outra) e uma frase só no último, dizendo o que o cruzamento costuma indicar. Nas médias, só com 2 ou mais ligadas.
+
+As dicas de análise técnica (padrões, desafio, avisos, legendas e o cartão do fim da partida) somem no **Modo Especialista** ou com **Esconder dicas de análise técnica** ligado em [Assistências](../lobby#assistências-modo-especialista).
+
 ## Os mesmos números das estratégias
 
 As estratégias automáticas usam as mesmas contas do gráfico. A estratégia de IFR, por exemplo, decide pelo mesmo IFR que aparece no painel.

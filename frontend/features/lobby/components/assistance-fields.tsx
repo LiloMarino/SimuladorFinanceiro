@@ -26,11 +26,8 @@ type AssistanceFieldsProps = {
 /** "Assistências": o interruptor do Modo Especialista e, por baixo, cada ajuda que ele esconde. */
 export function AssistanceFields({ form, readOnly, lockNote }: AssistanceFieldsProps) {
   const [listOpen, setListOpen] = useState(false);
-  const [showEquivalentRate, showMaturityProjection] = useWatch({
-    control: form.control,
-    name: ["showEquivalentRate", "showMaturityProjection"],
-  });
-  const { mode } = summarizeAssistances([showEquivalentRate, showMaturityProjection]);
+  const shown = useWatch({ control: form.control, name: ASSISTANCES.map((a) => a.field) });
+  const { mode } = summarizeAssistances(shown);
 
   // Ligar o Modo Especialista esconde todas as ajudas; desligar mostra todas
   const setExpertMode = (expert: boolean) => {

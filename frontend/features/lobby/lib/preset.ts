@@ -79,7 +79,9 @@ export function presetSummary(preset: Preset) {
   if (gameType === "FINANCIAL_INDEPENDENCE") {
     parts.push("viver de renda");
     if (rules.price_impact_enabled) parts.push("impacto de preço");
-    if (rules.show_equivalent_rate === false && rules.show_maturity_projection === false) parts.push("Especialista");
+    if (rules.show_equivalent_rate === false && rules.show_maturity_projection === false && rules.show_chart_hints === false) {
+      parts.push("Especialista");
+    }
   } else {
     if (rules.starting_cash) {
       parts.push(`${moneyShort(Number(rules.starting_cash))} + ${displayMoneyWhole(rules.monthly_contribution ?? 0)}/mês`);
@@ -97,7 +99,7 @@ const GROUPING_LABELS: Record<SimulationFormValues["playerGrouping"], string> = 
 /** O que o preset guarda das regras de agora, na ordem do diálogo de salvar */
 export function presetIncludes(values: SimulationFormValues): { label: string; value: string }[] {
   const independence = values.gameType === "FINANCIAL_INDEPENDENCE";
-  const assistances = summarizeAssistances([values.showEquivalentRate, values.showMaturityProjection]);
+  const assistances = summarizeAssistances([values.showEquivalentRate, values.showMaturityProjection, values.showChartHints]);
   const impact = priceImpactModeOf(values.priceImpactEnabled, values.priceImpactK, values.priceImpactDecayDays);
 
   const decides =

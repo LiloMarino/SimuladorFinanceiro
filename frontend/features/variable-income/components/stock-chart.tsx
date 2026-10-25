@@ -29,8 +29,39 @@ import {
 } from "lightweight-charts";
 import { cn } from "@/shared/lib/utils";
 import { displayCompactNumber, displayMoney, displayNumber, parseLocalDate } from "@/shared/lib/utils/display";
-import type { IndicatorKey, IndicatorPoint, IndicatorSettings, StockCandle, TechnicalIndicators } from "@/types";
+import type {
+  CandleChallenge,
+  CandlePattern,
+  CandlePatterns,
+  ChallengeDirection,
+  IndicatorKey,
+  IndicatorPoint,
+  IndicatorSettings,
+  StockCandle,
+  TechnicalIndicators,
+} from "@/types";
 import { IndicatorSelector, Swatch } from "./indicator-selector";
+import { ChallengeStrip } from "./candle-patterns/challenge-strip";
+import { PatternCard } from "./candle-patterns/pattern-card";
+import { PatternNotice, PatternSwitch, type PatternNoticeProps } from "./candle-patterns/pattern-controls";
+import { PatternList } from "./candle-patterns/pattern-list";
+import { useChartAnnotations, type Annotations } from "../hooks/useChartAnnotations";
+import {
+  AVERAGE_PHRASES,
+  MACD_PHRASES,
+  crossoverShapes,
+  patternMarkers,
+  patternShapes,
+  rsiShapes,
+  type AnnotationColors,
+} from "../lib/chart-annotations";
+import {
+  isAnswerFresh,
+  nextScaleWithPatterns,
+  patternOn,
+  patternsSince,
+  statsOf,
+} from "../lib/pattern-view";
 import {
   AVERAGE_COLORS,
   INDICATOR_BY_KEY,
@@ -64,6 +95,7 @@ const SCALE_DAYS: Record<TimeScale, number | null> = {
 
 const PRICE_HEIGHT = 360;
 const POP_WIDTH = 200;
+const CARD_WIDTH = 320;
 // O eixo de tempo fica fora dos painéis: somado à altura, cada painel recebe exatamente a sua
 const TIME_AXIS_HEIGHT = 28;
 // Com muitos painéis, cada um encolhe para o preço seguir legível
@@ -107,6 +139,16 @@ type LineSeriesRef = ISeriesApi<"Line">;
 type HistogramSeriesRef = ISeriesApi<"Histogram">;
 type Series = TechnicalIndicators["series"];
 
+/** As dicas de análise técnica do gráfico; `null` quando a partida as desliga. */
+export interface ChartHints {
+  patterns: CandlePatterns | undefined;
+  patternsStatus: "pending" | "error" | "success";
+  onRetryPatterns: () => void;
+  challenge: CandleChallenge | undefined;
+  answering: boolean;
+  onAnswer: (direction: ChallengeDirection) => void;
+}
+
 interface StockChartProps {
   ticker: string;
   initialData: StockCandle[];
@@ -115,6 +157,7 @@ interface StockChartProps {
   indicatorsStatus: "pending" | "error" | "success";
   onRetryIndicators: () => void;
   onSettingsChange: (next: IndicatorSettings) => void;
+  hints: ChartHints | null;
 }
 
 const dayOf = (candle: StockCandle) => candle.price_date.split("T")[0];
@@ -136,6 +179,18 @@ function fromDay(history: StockCandle[], scale: TimeScale) {
   return from.toISOString().slice(0, 10);
 }
 
+/** As cores do tema que as anotações do gráfico usam. */
+function readAnnotationColors(): AnnotationColors {
+  const styles = getComputedStyle(document.documentElement);
+  const color = (token: string) => styles.getPropertyValue(token).trim();
+  return {
+    up: color("--candle-up"),
+    down: color("--candle-down"),
+    neutral: color("--faint-foreground"),
+    band: color("--chart-1-canvas"),
+  };
+}
+
 function valueOn(points: IndicatorPoint[] | null | undefined, day: string | null) {
   if (!points?.length) return null;
   if (day === null) return points[points.length - 1].value;
@@ -150,11 +205,12 @@ export function StockChart({
   indicatorsStatus,
   onRetryIndicators,
   onSettingsChange,
+  hints,
 }: StockChartProps) {
   const [selectedScale, setSelectedScale] = useState<TimeScale>("1m");
   const [chartType, setChartType] = useState<ChartType>("line");
   const [selectorOpen, setSelectorOpen] = useState(false);
-  const [hover, setHover] = useState<{ day: string; left: number } | null>(null);
+  const [hover, setHover] = useState<{ day: string; x: number; width: number } | null>(null);
   const [expanded, setExpanded] = useState<IndicatorKey | null>(null);
   const chartInstance = useRef<IChartApi>(null);
   const chartRef = useRef<HTMLDivElement>(null);
@@ -396,13 +452,10 @@ export function StockChart({
     pricePane?.setStretchFactor(PRICE_HEIGHT);
     for (const pane of panes) pane.setStretchFactor(panelHeight);
 
-    // A mira leva a legenda e os rótulos dos painéis para o dia apontado; o quadro do dia
-    // fica à direita da mira e passa para a esquerda perto da borda
+    // A mira leva a legenda e os rótulos dos painéis para o dia apontado
     chart.subscribeCrosshairMove((param) => {
       if (param.time === undefined || !param.point) return setHover(null);
-      const width = chartRef.current?.clientWidth ?? 0;
-      const left = param.point.x + 16 + POP_WIDTH > width ? param.point.x - 16 - POP_WIDTH : param.point.x + 16;
-      setHover({ day: isoDay(param.time), left });
+      setHover({ day: isoDay(param.time), x: param.point.x, width: chartRef.current?.clientWidth ?? 0 });
     });
 
     fill();
@@ -420,12 +473,78 @@ export function StockChart({
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [chartType, selectedScale, ticker, hasHistory, layout, height]);
 
+  // Dicas de análise técnica: padrões de vela e legendas dos indicadores sobre o gráfico
+  const candleMode = chartType === "candle";
+  const hintsOn = hints !== null;
+  const showPatterns = hintsOn && settings.patterns;
+  const days = useMemo(() => initialData.map(dayOf), [initialData]);
+  const lastDay = days[days.length - 1] as string | undefined;
+  const periodStart = fromDay(initialData, selectedScale);
+  const allPatterns = hints?.patterns?.patterns;
+  const periodPatterns = useMemo(() => patternsSince(allPatterns ?? [], periodStart), [allPatterns, periodStart]);
+  const hoverDay = hover?.day ?? null;
+  const activePattern =
+    hoverDay !== null && candleMode && showPatterns ? patternOn(periodPatterns, hoverDay) : undefined;
+  const chartKey = [chartType, selectedScale, ticker, hasHistory, layout, height].join("|");
+  const shortAverage = averages.length >= 2 && averages[0].period > averages[1].period ? 1 : 0;
+
+  const annotations = useMemo<Annotations>(() => {
+    if (!hintsOn) return { markers: [], shapes: {} };
+    const colors = readAnnotationColors();
+    const series = indicators?.series ?? {};
+    const shapes: Annotations["shapes"] = {};
+    let markers: Annotations["markers"] = [];
+
+    if (candleMode && settings.patterns) {
+      markers = patternMarkers(periodPatterns, colors);
+      shapes.price = patternShapes(periodPatterns, activePattern, days, colors);
+    }
+    if (panels.includes("rsi")) shapes.rsi = rsiShapes(rsi_overbought, rsi_oversold, colors);
+    if (panels.includes("macd") && series.macd) {
+      shapes.macd = crossoverShapes(series.macd.line, series.macd.signal, periodStart, MACD_PHRASES, colors);
+    }
+    if (averages.length >= 2 && series.averages?.length) {
+      const short = series.averages[shortAverage]?.points;
+      const long = series.averages[1 - shortAverage]?.points;
+      if (short && long) shapes.average = crossoverShapes(short, long, periodStart, AVERAGE_PHRASES, colors);
+    }
+    return { markers, shapes };
+    // `panels` e `averages` mudam junto com `layout`, que já está nas dependências
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [hintsOn, candleMode, settings.patterns, periodPatterns, activePattern, days, indicators, periodStart, layout, shortAverage]);
+
+  useChartAnnotations(
+    {
+      chart: chartInstance,
+      series: {
+        price: () => seriesRef.current,
+        rsi: () => linesRef.current.get("rsi"),
+        macd: () => linesRef.current.get("macd:line"),
+        average: () => linesRef.current.get(`average:${shortAverage}`),
+      },
+    },
+    chartKey,
+    annotations,
+  );
+
+  // Leva o gráfico até o padrão da lista e abre o card dele
+  function focusPattern(pattern: CandlePattern) {
+    const chart = chartInstance.current;
+    if (!chart) return;
+    const index = days.indexOf(pattern.end);
+    const timeScale = chart.timeScale();
+    timeScale.setVisibleRange({
+      from: days[Math.max(0, index - 15)] as Time,
+      to: days[Math.min(days.length - 1, index + 10)] as Time,
+    });
+    setHover({ day: pattern.end, x: timeScale.timeToCoordinate(pattern.end as Time) ?? 0, width: chartRef.current?.clientWidth ?? 0 });
+  }
+
   function goToToday() {
     seriesRef.current?.priceScale().applyOptions({ autoScale: true });
     chartInstance.current?.timeScale().scrollToRealTime();
   }
 
-  const hoverDay = hover?.day ?? null;
   const loadingIndicators = indicatorsStatus === "pending" && !indicators;
   const priceClose = hoverDay === null ? initialData[initialData.length - 1]?.close : closeByDay.get(hoverDay);
   const series: Series = indicators?.series ?? {};
@@ -440,8 +559,43 @@ export function StockChart({
     setExpanded(key);
     setSelectorOpen(true);
   };
+  const todayPattern = [...periodPatterns].reverse().find((pattern) => pattern.end === lastDay);
+  const freshAnswer =
+    hints?.challenge?.last && lastDay && isAnswerFresh(hints.challenge.last, lastDay) ? hints.challenge.last : null;
+  const notice = patternNotice();
   const turnOnFirstAverage = () =>
     onSettingsChange(toggled(withParams(settings, { averages: [{ kind: "sma", period: 20 }] }), "averages", true));
+
+  /** O aviso de padrões acima do gráfico, quando há o que dizer. */
+  function patternNotice(): PatternNoticeProps | null {
+    if (!hints || !showPatterns || !hasHistory) return null;
+    if (!hints.patterns) {
+      return hints.patternsStatus === "error" && candleMode ? { kind: "error", onRetry: hints.onRetryPatterns } : null;
+    }
+    if (!candleMode) {
+      if (periodPatterns.length === 0) return null;
+      return {
+        kind: "line",
+        count: periodPatterns.length,
+        todayCode: todayPattern?.code ?? null,
+        onSeeCandles: () => setChartType("candle"),
+      };
+    }
+    if (periodPatterns.length > 0 || !lastDay) return null;
+    const all = hints.patterns.patterns;
+    const bigger = nextScaleWithPatterns(
+      TIME_SCALES,
+      selectedScale,
+      (scale) => patternsSince(all, fromDay(initialData, scale)).length,
+    );
+    return {
+      kind: "empty",
+      from: periodStart,
+      to: lastDay,
+      suggestion: bigger && { label: SCALE_LABELS[bigger.scale], count: bigger.count },
+      onSuggest: () => bigger && setSelectedScale(bigger.scale),
+    };
+  }
 
   return (
     <Card>
@@ -541,16 +695,35 @@ export function StockChart({
                 </>
               )}
             </div>
-            <IndicatorSelector
-              settings={settings}
-              summary={indicators?.summary}
-              onChange={onSettingsChange}
-              open={selectorOpen}
-              onOpenChange={setSelectorOpen}
-              expanded={expanded}
-              onExpandedChange={setExpanded}
-            />
+            <div className="flex items-center gap-2">
+              {hintsOn && (
+                <PatternSwitch
+                  checked={settings.patterns}
+                  onCheckedChange={(patterns) => onSettingsChange({ ...settings, patterns })}
+                />
+              )}
+              <IndicatorSelector
+                settings={settings}
+                summary={indicators?.summary}
+                onChange={onSettingsChange}
+                open={selectorOpen}
+                onOpenChange={setSelectorOpen}
+                expanded={expanded}
+                onExpandedChange={setExpanded}
+              />
+            </div>
           </div>
+
+          {/* Desafio da vela e avisos dos padrões */}
+          {hints?.challenge && (hints.challenge.open || freshAnswer) && (
+            <ChallengeStrip
+              challenge={hints.challenge}
+              answer={freshAnswer}
+              pending={hints.answering}
+              onAnswer={hints.onAnswer}
+            />
+          )}
+          {notice && <PatternNotice {...notice} />}
 
           {/* Gráfico, com o nome e o valor de cada painel no canto */}
           {hasHistory ? (
@@ -598,11 +771,23 @@ export function StockChart({
                   </div>
                 </div>
               ))}
+              {/* Card do padrão sob a mira */}
+              {hover && activePattern && hints && (
+                <PatternCard
+                  className="pointer-events-none absolute top-3 z-20"
+                  style={{ left: popLeft(hover, CARD_WIDTH), width: CARD_WIDTH }}
+                  ticker={ticker}
+                  pattern={activePattern}
+                  stats={statsOf(hints.patterns, activePattern.code)}
+                  today={activePattern.end === lastDay}
+                  challengeOpen={hints.challenge?.open?.pattern_date === activePattern.end}
+                />
+              )}
               {/* Quadro do dia apontado pela mira */}
-              {hover && (
+              {hover && !activePattern && (
                 <div
                   className="pointer-events-none absolute top-3 z-20 grid gap-0.5 rounded-xl border bg-popover px-3 py-2.5 text-xs shadow-lg"
-                  style={{ left: hover.left, width: POP_WIDTH }}
+                  style={{ left: popLeft(hover, POP_WIDTH), width: POP_WIDTH }}
                 >
                   <b>{displayCrosshairDay(hover.day)}</b>
                   <PopRow
@@ -635,6 +820,16 @@ export function StockChart({
             </div>
           )}
 
+          {/* Lista dos padrões do período */}
+          {hasHistory && candleMode && showPatterns && periodPatterns.length > 0 && (
+            <PatternList
+              patterns={periodPatterns}
+              openDay={hints?.challenge?.open?.pattern_date ?? null}
+              activeDay={activePattern?.end ?? null}
+              onSelect={focusPattern}
+            />
+          )}
+
           {/* Erro dos indicadores: o preço segue atualizado */}
           {failed && settings.visible.length > 0 && (
             <Alert variant="destructive">
@@ -653,6 +848,11 @@ export function StockChart({
       </CardContent>
     </Card>
   );
+}
+
+/** O quadro fica à direita da mira e passa para a esquerda perto da borda. */
+function popLeft({ x, width }: { x: number; width: number }, popWidth: number) {
+  return x + 16 + popWidth > width ? x - 16 - popWidth : x + 16;
 }
 
 /** O valor do dia, ou quando o indicador aparece se o histórico ainda é curto. */

@@ -36,6 +36,7 @@ describe("resumo do preset", () => {
         price_impact_enabled: true,
         show_equivalent_rate: false,
         show_maturity_projection: false,
+        show_chart_hints: false,
       },
     });
     expect(presetSummary(realista)).toBe("25 anos · viver de renda · impacto de preço · Especialista");

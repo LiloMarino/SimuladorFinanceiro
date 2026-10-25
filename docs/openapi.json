@@ -175,6 +175,183 @@
         }
       }
     },
+    "/api/variable-income/{asset}/patterns": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Padrões de vela de um ativo",
+        "description": "Os padrões de vela do histórico do ativo até a data da simulação, cada um com a variação do preço 5 pregões depois e se foi para o lado que o padrão sugere, e quantas vezes cada padrão acertou. Recusa quando as dicas de análise técnica estão desligadas na partida.",
+        "operationId": "get_variable_income_patterns_api_variable_income__asset__patterns_get",
+        "parameters": [
+          {
+            "name": "asset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandlePatternsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/variable-income/{asset}/challenge": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Desafio da vela de um ativo",
+        "description": "A pergunta de hoje (um padrão de vela que fechou no último pregão e ainda não foi respondido), a última resposta do jogador nesse ativo e o placar dele na partida. Recusa quando as dicas de análise técnica estão desligadas.",
+        "operationId": "get_candle_challenge_api_variable_income__asset__challenge_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandleChallengeDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Responder ao desafio da vela",
+        "description": "Grava a resposta (sobe ou desce) ao padrão de hoje. Só vale enquanto o último pregão for o do padrão, uma vez por padrão; a conferência vem no fechamento do 5º pregão depois dele.",
+        "operationId": "answer_candle_challenge_api_variable_income__asset__challenge_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "asset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerChallengeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandleChallengeDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/variable-income/{asset}/orders": {
       "post": {
         "tags": [
@@ -2694,6 +2871,63 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HighlightsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/statistics/candle-challenge": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "Estatísticas: desafio da vela",
+        "description": "Quem mais acertou o desafio da vela nas simulações informadas. Conta só as respostas já conferidas; no empate de acertos, vence a maior taxa de acerto.",
+        "operationId": "get_candle_challenge_ranking_api_statistics_candle_challenge_get",
+        "parameters": [
+          {
+            "name": "simulation_ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "minItems": 1,
+              "title": "Simulation Ids"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandleChallengeRankingDTO"
                 }
               }
             }
@@ -7373,7 +7607,8 @@
           "HOURGLASS",
           "SUNRISE",
           "WALLET",
-          "FLAME"
+          "FLAME",
+          "CHART_CANDLESTICK"
         ],
         "title": "AchievementIcon",
         "description": "Nomes dos ícones do `lucide-react`; o front tem um ícone para cada valor."
@@ -7536,6 +7771,19 @@
         ],
         "title": "AllocationViewDTO",
         "description": "A carteira da estratégia contra a meta e o que ela faria hoje."
+      },
+      "AnswerChallengeRequest": {
+        "properties": {
+          "direction": {
+            "$ref": "#/components/schemas/ChallengeDirection"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "direction"
+        ],
+        "title": "AnswerChallengeRequest"
       },
       "AppliedPresetDTO": {
         "properties": {
@@ -8605,6 +8853,59 @@
         ],
         "title": "CancelOrderRequest"
       },
+      "CandleChallengeDTO": {
+        "properties": {
+          "open": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpenChallengeDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChallengeAnswerDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "score": {
+            "$ref": "#/components/schemas/ChallengeScoreDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "open",
+          "last",
+          "score"
+        ],
+        "title": "CandleChallengeDTO"
+      },
+      "CandleChallengeRankingDTO": {
+        "properties": {
+          "players": {
+            "items": {
+              "$ref": "#/components/schemas/ChallengeRankEntryDTO"
+            },
+            "type": "array",
+            "title": "Players"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "players"
+        ],
+        "title": "CandleChallengeRankingDTO",
+        "description": "O placar da partida, por acertos; no empate decide o percentual de acerto."
+      },
       "CandleDTO": {
         "properties": {
           "id": {
@@ -8674,6 +8975,101 @@
         ],
         "title": "CandleDTO"
       },
+      "CandlePatternCode": {
+        "type": "string",
+        "enum": [
+          "hammer",
+          "inverted_hammer",
+          "hanging_man",
+          "shooting_star",
+          "doji",
+          "bullish_engulfing",
+          "bearish_engulfing",
+          "morning_star",
+          "evening_star",
+          "three_white_soldiers",
+          "three_black_crows"
+        ]
+      },
+      "CandlePatternDTO": {
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/CandlePatternCode"
+          },
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          },
+          "direction": {
+            "$ref": "#/components/schemas/PatternDirection"
+          },
+          "change_5d": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change 5D"
+          },
+          "hit": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "start",
+          "end",
+          "direction",
+          "change_5d",
+          "hit"
+        ],
+        "title": "CandlePatternDTO"
+      },
+      "CandlePatternsDTO": {
+        "properties": {
+          "patterns": {
+            "items": {
+              "$ref": "#/components/schemas/CandlePatternDTO"
+            },
+            "type": "array",
+            "title": "Patterns"
+          },
+          "stats": {
+            "items": {
+              "$ref": "#/components/schemas/PatternStatsDTO"
+            },
+            "type": "array",
+            "title": "Stats"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "patterns",
+          "stats"
+        ],
+        "title": "CandlePatternsDTO",
+        "description": "A lista e as estatísticas contam o histórico inteiro até a data da simulação."
+      },
       "CashResponse": {
         "properties": {
           "cash": {
@@ -8700,6 +9096,158 @@
           "cash"
         ],
         "title": "CashUpdateEventDTO"
+      },
+      "ChallengeAnswerDTO": {
+        "properties": {
+          "pattern_code": {
+            "$ref": "#/components/schemas/CandlePatternCode"
+          },
+          "pattern_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pattern Date"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ChallengeStatus"
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChallengeDirection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "settles_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Settles On"
+          },
+          "sessions_left": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sessions Left"
+          },
+          "current_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Price"
+          },
+          "change": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/PatternStatsDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "pattern_code",
+          "pattern_date",
+          "status",
+          "direction",
+          "price",
+          "settles_on",
+          "sessions_left",
+          "current_price",
+          "change",
+          "stats"
+        ],
+        "title": "ChallengeAnswerDTO"
+      },
+      "ChallengeDirection": {
+        "type": "string",
+        "enum": [
+          "up",
+          "down"
+        ]
+      },
+      "ChallengeRankEntryDTO": {
+        "properties": {
+          "position": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Position"
+          },
+          "player_nickname": {
+            "type": "string",
+            "title": "Player Nickname"
+          },
+          "hits": {
+            "type": "integer",
+            "title": "Hits"
+          },
+          "answered": {
+            "type": "integer",
+            "title": "Answered"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "position",
+          "player_nickname",
+          "hits",
+          "answered"
+        ],
+        "title": "ChallengeRankEntryDTO"
+      },
+      "ChallengeScoreDTO": {
+        "properties": {
+          "hits": {
+            "type": "integer",
+            "title": "Hits"
+          },
+          "answered": {
+            "type": "integer",
+            "title": "Answered"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "hits",
+          "answered"
+        ],
+        "title": "ChallengeScoreDTO",
+        "description": "Acertos entre as respostas já conferidas; as anuladas e as que esperam ficam fora."
+      },
+      "ChallengeStatus": {
+        "type": "string",
+        "enum": [
+          "waiting",
+          "hit",
+          "miss",
+          "void",
+          "expired"
+        ]
       },
       "CompositionReportDTO": {
         "properties": {
@@ -9155,6 +9703,11 @@
           "show_maturity_projection": {
             "type": "boolean",
             "title": "Show Maturity Projection",
+            "default": true
+          },
+          "show_chart_hints": {
+            "type": "boolean",
+            "title": "Show Chart Hints",
             "default": true
           },
           "government_enabled": {
@@ -11928,6 +12481,11 @@
               "stochastic_d": 3,
               "atr_period": 14
             }
+          },
+          "patterns": {
+            "type": "boolean",
+            "title": "Patterns",
+            "default": true
           }
         },
         "additionalProperties": false,
@@ -13414,6 +13972,37 @@
         ],
         "title": "NextTaxDropDTO"
       },
+      "OpenChallengeDTO": {
+        "properties": {
+          "pattern_code": {
+            "$ref": "#/components/schemas/CandlePatternCode"
+          },
+          "pattern_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pattern Date"
+          },
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "settles_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Settles On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "pattern_code",
+          "pattern_date",
+          "price",
+          "settles_on"
+        ],
+        "title": "OpenChallengeDTO",
+        "description": "A pergunta de hoje: o padrão que fechou no último pregão e ainda não foi respondido."
+      },
       "OperationsReportDTO": {
         "properties": {
           "player_grouping": {
@@ -14365,6 +14954,37 @@
           "total_contribution"
         ],
         "title": "PatrimonialHistoryDTO"
+      },
+      "PatternDirection": {
+        "type": "string",
+        "enum": [
+          "up",
+          "down",
+          "neutral"
+        ]
+      },
+      "PatternStatsDTO": {
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/CandlePatternCode"
+          },
+          "checked": {
+            "type": "integer",
+            "title": "Checked"
+          },
+          "hits": {
+            "type": "integer",
+            "title": "Hits"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "checked",
+          "hits"
+        ],
+        "title": "PatternStatsDTO"
       },
       "PeakDTO": {
         "properties": {
@@ -17116,6 +17736,11 @@
             "title": "Show Maturity Projection",
             "default": true
           },
+          "show_chart_hints": {
+            "type": "boolean",
+            "title": "Show Chart Hints",
+            "default": true
+          },
           "government_enabled": {
             "type": "boolean",
             "title": "Government Enabled",
@@ -17854,7 +18479,8 @@
                 "rsi_period": 14,
                 "stochastic_d": 3,
                 "stochastic_k": 14
-              }
+              },
+              "patterns": true
             }
           }
         },
@@ -17900,7 +18526,8 @@
                 "rsi_period": 14,
                 "stochastic_d": 3,
                 "stochastic_k": 14
-              }
+              },
+              "patterns": true
             }
           },
           "debug": {
@@ -18198,6 +18825,11 @@
             "title": "Show Maturity Projection",
             "default": true
           },
+          "show_chart_hints": {
+            "type": "boolean",
+            "title": "Show Chart Hints",
+            "default": true
+          },
           "government_enabled": {
             "type": "boolean",
             "title": "Government Enabled",
@@ -18431,6 +19063,11 @@
             "title": "Show Maturity Projection",
             "default": true
           },
+          "show_chart_hints": {
+            "type": "boolean",
+            "title": "Show Chart Hints",
+            "default": true
+          },
           "government_enabled": {
             "type": "boolean",
             "title": "Government Enabled",
@@ -18572,6 +19209,11 @@
           "show_maturity_projection": {
             "type": "boolean",
             "title": "Show Maturity Projection",
+            "default": true
+          },
+          "show_chart_hints": {
+            "type": "boolean",
+            "title": "Show Chart Hints",
             "default": true
           },
           "government_enabled": {
@@ -21292,6 +21934,11 @@
           "show_maturity_projection": {
             "type": "boolean",
             "title": "Show Maturity Projection",
+            "default": true
+          },
+          "show_chart_hints": {
+            "type": "boolean",
+            "title": "Show Chart Hints",
             "default": true
           },
           "government_enabled": {

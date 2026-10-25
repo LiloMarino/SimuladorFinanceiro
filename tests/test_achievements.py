@@ -119,6 +119,7 @@ def fake(monkeypatch: pytest.MonkeyPatch) -> FakeAchievements:
     fake = FakeAchievements()
     monkeypatch.setattr(repository, "achievements", fake)
     monkeypatch.setattr(repository.portfolio, "get_patrimonial_history", lambda _: [])
+    monkeypatch.setattr(repository.candle_challenge, "score", lambda *_: (0, 0))
     monkeypatch.setattr(EventManager, "pop_touched_users", lambda: set())
     return fake
 

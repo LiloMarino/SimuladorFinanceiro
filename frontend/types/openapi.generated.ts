@@ -64,6 +64,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/variable-income/{asset}/patterns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Padrões de vela de um ativo
+         * @description Os padrões de vela do histórico do ativo até a data da simulação, cada um com a variação do preço 5 pregões depois e se foi para o lado que o padrão sugere, e quantas vezes cada padrão acertou. Recusa quando as dicas de análise técnica estão desligadas na partida.
+         */
+        get: operations["get_variable_income_patterns_api_variable_income__asset__patterns_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/variable-income/{asset}/challenge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Desafio da vela de um ativo
+         * @description A pergunta de hoje (um padrão de vela que fechou no último pregão e ainda não foi respondido), a última resposta do jogador nesse ativo e o placar dele na partida. Recusa quando as dicas de análise técnica estão desligadas.
+         */
+        get: operations["get_candle_challenge_api_variable_income__asset__challenge_get"];
+        put?: never;
+        /**
+         * Responder ao desafio da vela
+         * @description Grava a resposta (sobe ou desce) ao padrão de hoje. Só vale enquanto o último pregão for o do padrão, uma vez por padrão; a conferência vem no fechamento do 5º pregão depois dele.
+         */
+        post: operations["answer_candle_challenge_api_variable_income__asset__challenge_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/variable-income/{asset}/orders": {
         parameters: {
             query?: never;
@@ -940,6 +984,26 @@ export interface paths {
          * @description Quem teve o maior retorno, a menor queda, mais negócios e mais IR pago, e o melhor mês de quem pede.
          */
         get: operations["get_highlights_api_statistics_highlights_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/statistics/candle-challenge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estatísticas: desafio da vela
+         * @description Quem mais acertou o desafio da vela nas simulações informadas. Conta só as respostas já conferidas; no empate de acertos, vence a maior taxa de acerto.
+         */
+        get: operations["get_candle_challenge_ranking_api_statistics_candle_challenge_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2549,7 +2613,7 @@ export interface components {
          * @description Nomes dos ícones do `lucide-react`; o front tem um ícone para cada valor.
          * @enum {string}
          */
-        AchievementIcon: "SHOPPING_CART" | "LANDMARK" | "HAND_COINS" | "HAMMER" | "TRENDING_UP" | "PIGGY_BANK" | "GEM" | "CROWN" | "EGG" | "CLOUD_LIGHTNING" | "SNOWFLAKE" | "PERCENT" | "TARGET" | "SHIELD_CHECK" | "TROPHY" | "USERS" | "FLAG" | "ROCKET" | "HOURGLASS" | "SUNRISE" | "WALLET" | "FLAME";
+        AchievementIcon: "SHOPPING_CART" | "LANDMARK" | "HAND_COINS" | "HAMMER" | "TRENDING_UP" | "PIGGY_BANK" | "GEM" | "CROWN" | "EGG" | "CLOUD_LIGHTNING" | "SNOWFLAKE" | "PERCENT" | "TARGET" | "SHIELD_CHECK" | "TROPHY" | "USERS" | "FLAG" | "ROCKET" | "HOURGLASS" | "SUNRISE" | "WALLET" | "FLAME" | "CHART_CANDLESTICK";
         /**
          * AchievementProgressDTO
          * @description Onde a conquista com meta numérica está: `current` de `goal`, na unidade `unit`.
@@ -2620,6 +2684,10 @@ export interface components {
             has_liquid_offer: boolean;
             /** Today */
             today: string[];
+        };
+        /** AnswerChallengeRequest */
+        AnswerChallengeRequest: {
+            direction: components["schemas"]["ChallengeDirection"];
         };
         /**
          * AppliedPresetDTO
@@ -3006,6 +3074,20 @@ export interface components {
             /** Order Id */
             order_id: string;
         };
+        /** CandleChallengeDTO */
+        CandleChallengeDTO: {
+            open: components["schemas"]["OpenChallengeDTO"] | null;
+            last: components["schemas"]["ChallengeAnswerDTO"] | null;
+            score: components["schemas"]["ChallengeScoreDTO"];
+        };
+        /**
+         * CandleChallengeRankingDTO
+         * @description O placar da partida, por acertos; no empate decide o percentual de acerto.
+         */
+        CandleChallengeRankingDTO: {
+            /** Players */
+            players: components["schemas"]["ChallengeRankEntryDTO"][];
+        };
         /** CandleDTO */
         CandleDTO: {
             /** Id */
@@ -3035,6 +3117,37 @@ export interface components {
             /** Change Pct */
             change_pct: number;
         };
+        /** @enum {string} */
+        CandlePatternCode: "hammer" | "inverted_hammer" | "hanging_man" | "shooting_star" | "doji" | "bullish_engulfing" | "bearish_engulfing" | "morning_star" | "evening_star" | "three_white_soldiers" | "three_black_crows";
+        /** CandlePatternDTO */
+        CandlePatternDTO: {
+            code: components["schemas"]["CandlePatternCode"];
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            direction: components["schemas"]["PatternDirection"];
+            /** Change 5D */
+            change_5d: number | null;
+            /** Hit */
+            hit: boolean | null;
+        };
+        /**
+         * CandlePatternsDTO
+         * @description A lista e as estatísticas contam o histórico inteiro até a data da simulação.
+         */
+        CandlePatternsDTO: {
+            /** Patterns */
+            patterns: components["schemas"]["CandlePatternDTO"][];
+            /** Stats */
+            stats: components["schemas"]["PatternStatsDTO"][];
+        };
         /** CashResponse */
         CashResponse: {
             /** Cash */
@@ -3045,6 +3158,56 @@ export interface components {
             /** Cash */
             cash: string;
         };
+        /** ChallengeAnswerDTO */
+        ChallengeAnswerDTO: {
+            pattern_code: components["schemas"]["CandlePatternCode"];
+            /**
+             * Pattern Date
+             * Format: date
+             */
+            pattern_date: string;
+            status: components["schemas"]["ChallengeStatus"];
+            direction: components["schemas"]["ChallengeDirection"] | null;
+            /** Price */
+            price: number;
+            /**
+             * Settles On
+             * Format: date
+             */
+            settles_on: string;
+            /** Sessions Left */
+            sessions_left: number | null;
+            /** Current Price */
+            current_price: number | null;
+            /** Change */
+            change: number | null;
+            stats: components["schemas"]["PatternStatsDTO"];
+        };
+        /** @enum {string} */
+        ChallengeDirection: "up" | "down";
+        /** ChallengeRankEntryDTO */
+        ChallengeRankEntryDTO: {
+            /** Position */
+            position: number;
+            /** Player Nickname */
+            player_nickname: string;
+            /** Hits */
+            hits: number;
+            /** Answered */
+            answered: number;
+        };
+        /**
+         * ChallengeScoreDTO
+         * @description Acertos entre as respostas já conferidas; as anuladas e as que esperam ficam fora.
+         */
+        ChallengeScoreDTO: {
+            /** Hits */
+            hits: number;
+            /** Answered */
+            answered: number;
+        };
+        /** @enum {string} */
+        ChallengeStatus: "waiting" | "hit" | "miss" | "void" | "expired";
         /** CompositionReportDTO */
         CompositionReportDTO: {
             player_grouping: components["schemas"]["PlayerGrouping"];
@@ -3208,6 +3371,11 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            /**
+             * Show Chart Hints
+             * @default true
+             */
+            show_chart_hints: boolean;
             /**
              * Government Enabled
              * @default false
@@ -4171,6 +4339,11 @@ export interface components {
              *     }
              */
             params: components["schemas"]["IndicatorParamsDTO"];
+            /**
+             * Patterns
+             * @default true
+             */
+            patterns: boolean;
         };
         /** IndicatorsRequestDTO */
         IndicatorsRequestDTO: {
@@ -4717,6 +4890,25 @@ export interface components {
             /** Rate */
             rate: string;
         };
+        /**
+         * OpenChallengeDTO
+         * @description A pergunta de hoje: o padrão que fechou no último pregão e ainda não foi respondido.
+         */
+        OpenChallengeDTO: {
+            pattern_code: components["schemas"]["CandlePatternCode"];
+            /**
+             * Pattern Date
+             * Format: date
+             */
+            pattern_date: string;
+            /** Price */
+            price: number;
+            /**
+             * Settles On
+             * Format: date
+             */
+            settles_on: string;
+        };
         /** OperationsReportDTO */
         OperationsReportDTO: {
             player_grouping: components["schemas"]["PlayerGrouping"];
@@ -5043,6 +5235,16 @@ export interface components {
              * @default 0
              */
             total_debt: string;
+        };
+        /** @enum {string} */
+        PatternDirection: "up" | "down" | "neutral";
+        /** PatternStatsDTO */
+        PatternStatsDTO: {
+            code: components["schemas"]["CandlePatternCode"];
+            /** Checked */
+            checked: number;
+            /** Hits */
+            hits: number;
         };
         /** PeakDTO */
         PeakDTO: {
@@ -5953,6 +6155,11 @@ export interface components {
              */
             show_maturity_projection: boolean;
             /**
+             * Show Chart Hints
+             * @default true
+             */
+            show_chart_hints: boolean;
+            /**
              * Government Enabled
              * @default false
              */
@@ -6196,7 +6403,8 @@ export interface components {
              *         "rsi_period": 14,
              *         "stochastic_d": 3,
              *         "stochastic_k": 14
-             *       }
+             *       },
+             *       "patterns": true
              *     }
              */
             indicators: components["schemas"]["IndicatorSettingsDTO"];
@@ -6235,7 +6443,8 @@ export interface components {
              *         "rsi_period": 14,
              *         "stochastic_d": 3,
              *         "stochastic_k": 14
-             *       }
+             *       },
+             *       "patterns": true
              *     }
              */
             indicators: components["schemas"]["IndicatorSettingsDTO"];
@@ -6380,6 +6589,11 @@ export interface components {
              */
             show_maturity_projection: boolean;
             /**
+             * Show Chart Hints
+             * @default true
+             */
+            show_chart_hints: boolean;
+            /**
              * Government Enabled
              * @default false
              */
@@ -6482,6 +6696,11 @@ export interface components {
              */
             show_maturity_projection: boolean;
             /**
+             * Show Chart Hints
+             * @default true
+             */
+            show_chart_hints: boolean;
+            /**
              * Government Enabled
              * @default false
              */
@@ -6548,6 +6767,11 @@ export interface components {
              * @default true
              */
             show_maturity_projection: boolean;
+            /**
+             * Show Chart Hints
+             * @default true
+             */
+            show_chart_hints: boolean;
             /**
              * Government Enabled
              * @default false
@@ -7424,6 +7648,11 @@ export interface components {
              */
             show_maturity_projection: boolean;
             /**
+             * Show Chart Hints
+             * @default true
+             */
+            show_chart_hints: boolean;
+            /**
              * Government Enabled
              * @default false
              */
@@ -7611,6 +7840,130 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TechnicalIndicatorsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_variable_income_patterns_api_variable_income__asset__patterns_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandlePatternsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_candle_challenge_api_variable_income__asset__challenge_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandleChallengeDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    answer_candle_challenge_api_variable_income__asset__challenge_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnswerChallengeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandleChallengeDTO"];
                 };
             };
             /** @description Unprocessable Content */
@@ -9559,6 +9912,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HighlightsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_candle_challenge_ranking_api_statistics_candle_challenge_get: {
+        parameters: {
+            query: {
+                simulation_ids: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandleChallengeRankingDTO"];
                 };
             };
             /** @description Unprocessable Content */

@@ -227,6 +227,7 @@ class AchievementIcon(Enum):
     SUNRISE = "SUNRISE"
     WALLET = "WALLET"
     FLAME = "FLAME"
+    CHART_CANDLESTICK = "CHART_CANDLESTICK"
 
 
 class AchievementUnit(Enum):

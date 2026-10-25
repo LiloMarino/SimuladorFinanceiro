@@ -24,6 +24,7 @@ const settings: SimulationSettingsData = {
   team_naming: "NUMBER",
   show_equivalent_rate: false,
   show_maturity_projection: true,
+  show_chart_hints: false,
   government_enabled: false,
   first_election: null,
   computer_difficulty: "NORMAL",

@@ -120,6 +120,7 @@ const simulationFormSchema = z
     teamNaming: z.custom<TeamNaming>((value) => value === "COLOR" || value === "NUMBER"),
     showEquivalentRate: z.boolean(),
     showMaturityProjection: z.boolean(),
+    showChartHints: z.boolean(),
     governmentEnabled: z.boolean(),
     // ISO quando a data está completa; vazio com a expansão desligada
     firstElection: z.string().superRefine((value, ctx) => {
@@ -270,7 +271,7 @@ export function LobbyMatch({
   });
   const loadingSelection = selectedSimulationId !== null && !selectedSimulation && listPending;
   const rulesImpactMode = priceImpactModeOf(rules.priceImpactEnabled, rules.priceImpactK, rules.priceImpactDecayDays);
-  const assistances = summarizeAssistances([rules.showEquivalentRate, rules.showMaturityProjection]);
+  const assistances = summarizeAssistances([rules.showEquivalentRate, rules.showMaturityProjection, rules.showChartHints]);
 
   // A meta com o múltiplo do saldo inicial quando ele é redondo: "R$ 1.000.000,00 · 10× o saldo"
   const startingCashAmount = Number(normalizeNumberString(rules.startingCash));

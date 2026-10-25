@@ -114,6 +114,16 @@ export type TechnicalSummary = TechnicalIndicators["summary"];
 export type TechnicalReading = TechnicalSummary["readings"][number];
 export type IndicatorPoint = components["schemas"]["IndicatorPointDTO"];
 
+// Padrões de vela e desafio da vela
+export type CandlePatterns = components["schemas"]["CandlePatternsDTO"];
+export type CandlePattern = CandlePatterns["patterns"][number];
+export type CandlePatternCode = CandlePattern["code"];
+export type PatternStats = components["schemas"]["PatternStatsDTO"];
+export type CandleChallenge = components["schemas"]["CandleChallengeDTO"];
+export type ChallengeAnswer = NonNullable<CandleChallenge["last"]>;
+export type ChallengeDirection = components["schemas"]["AnswerChallengeRequest"]["direction"];
+export type CandleChallengeRanking = components["schemas"]["CandleChallengeRankingDTO"];
+
 // Modo debug: definido no boot do servidor, só leitura
 export type DebugMode = components["schemas"]["SettingsResponse"]["debug"];
 

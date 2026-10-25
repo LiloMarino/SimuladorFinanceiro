@@ -67,6 +67,14 @@ CATALOG: tuple[Achievement, ...] = (
         Decimal(100),
         Unit.COUNT,
     ),
+    Achievement(
+        "first_candle_read",
+        "Primeira leitura",
+        "Acertou um desafio da vela.",
+        Icon.CHART_CANDLESTICK,
+        Category.FIRST_STEPS,
+        "candle_challenge_hits",
+    ),
     # Patrimônio
     Achievement(
         "doubled_capital",
@@ -159,6 +167,16 @@ CATALOG: tuple[Achievement, ...] = (
         Icon.TARGET,
         Category.MARKET,
         "beat_ibov_year",
+    ),
+    Achievement(
+        "candle_reader",
+        "Leitor de velas",
+        "Acertou 10 desafios da vela numa partida.",
+        Icon.CHART_CANDLESTICK,
+        Category.MARKET,
+        "candle_challenge_hits",
+        Decimal(10),
+        Unit.COUNT,
     ),
     # Partida
     Achievement(
