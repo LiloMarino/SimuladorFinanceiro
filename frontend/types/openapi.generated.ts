@@ -2644,9 +2644,9 @@ export interface components {
              */
             game_date: string;
             /** Simulation Id */
-            simulation_id: number;
+            simulation_id: number | null;
             /** Simulation Name */
-            simulation_name: string;
+            simulation_name: string | null;
             /** Is New */
             is_new: boolean;
         };

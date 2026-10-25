@@ -16,8 +16,9 @@ class AchievementProgressDTO(BaseDTO):
 class AchievementUnlockDTO(BaseDTO):
     unlocked_at: datetime
     game_date: date
-    simulation_id: int
-    simulation_name: str
+    # Vazios quando a partida em que a conquista saiu foi excluída
+    simulation_id: int | None
+    simulation_name: str | None
     # Ainda não vista: o jogador não abriu a tela depois que ela saiu
     is_new: bool
 

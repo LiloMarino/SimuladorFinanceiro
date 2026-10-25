@@ -19,8 +19,8 @@ from backend.core.models.models import (
 @dataclass(frozen=True)
 class UnlockRow:
     code: str
-    simulation_id: int
-    simulation_name: str
+    simulation_id: int | None
+    simulation_name: str | None
     unlocked_at: datetime
     game_date: date
     seen_at: datetime | None
@@ -70,7 +70,7 @@ class AchievementsRepository:
     def unlocks(self, session: Session, user_id: int) -> list[UnlockRow]:
         rows = session.execute(
             select(Achievements, Simulations.name)
-            .join(Simulations, Simulations.id == Achievements.simulation_id)
+            .outerjoin(Simulations, Simulations.id == Achievements.simulation_id)
             .where(Achievements.user_id == user_id)
         ).all()
         return [

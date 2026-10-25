@@ -988,7 +988,7 @@ class Achievements(Base):
         ForeignKeyConstraint(
             ["simulation_id"],
             ["simulations.id"],
-            ondelete="CASCADE",
+            ondelete="SET NULL",
             onupdate="CASCADE",
             name="achievements_simulation_id_fkey",
         ),
@@ -1005,7 +1005,8 @@ class Achievements(Base):
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     # Código estável do catálogo; o texto e o ícone vivem no código
     code: Mapped[str] = mapped_column(Text, primary_key=True)
-    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # Nulo quando a partida em que saiu foi excluída: a conquista é do jogador
+    simulation_id: Mapped[int | None] = mapped_column(BigInteger)
     unlocked_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )

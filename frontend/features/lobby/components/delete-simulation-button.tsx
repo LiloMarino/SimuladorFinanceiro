@@ -44,7 +44,8 @@ export function DeleteSimulationButton({ simulation, disabled }: DeleteSimulatio
             <AlertDialogTitle>Excluir a partida {simulation.name}?</AlertDialogTitle>
             <AlertDialogDescription>
               {displayMonthSlashYear(simulation.start_date)} → {displayMonthSlashYear(simulation.end_date)} · {players}.
-              A partida e tudo o que ela guarda somem da lista. Isso não pode ser desfeito.
+              A partida e tudo o que ela guarda somem da lista. Isso não pode ser desfeito. As conquistas ganhas nela
+              continuam.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

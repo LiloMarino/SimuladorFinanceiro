@@ -84,6 +84,18 @@ def test_new_flag_lasts_until_the_player_marks_them_seen(match: tuple[int, int])
     assert after["first_sale"].unlock is None
 
 
+def test_deleting_the_match_keeps_its_achievements(match: tuple[int, int]):
+    user_id, simulation_id = match
+    repository.achievements.unlock(user_id, ["first_buy"], simulation_id, DAY)
+
+    repository.simulation.delete(simulation_id)
+
+    unlock = {a.code: a for a in service.list_achievements(user_id)}["first_buy"].unlock
+    assert unlock is not None
+    assert (unlock.simulation_id, unlock.simulation_name) == (None, None)
+    assert unlock.game_date == DAY
+
+
 def test_other_players_do_not_see_each_others_achievements(match: tuple[int, int]):
     user_id, simulation_id = match
     other = repository.user.create_user(client("Bia"), "Bia")

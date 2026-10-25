@@ -24,6 +24,8 @@ export function AchievementRow({ achievement }: AchievementRowProps) {
   // A secreta bloqueada chega sem nome e sem descrição
   const hidden = achievement.name === null;
   const state = unlock ? "unlocked" : hidden ? "secret" : "locked";
+  // A conquista sobrevive à exclusão da partida em que saiu
+  const simulationName = unlock?.simulation_name ?? "Partida excluída";
 
   return (
     <li className={cn(ROW_GRID, "border-b border-muted py-3 last:border-b-0", !unlock && "bg-subtle")}>
@@ -62,19 +64,36 @@ export function AchievementRow({ achievement }: AchievementRowProps) {
       {/* Desbloqueio ou progresso */}
       {unlock ? (
         <Tooltip>
-          <TooltipTrigger render={<Link to={`/match-result/${unlock.simulation_id}`} className="min-w-0 text-right" />}>
+          <TooltipTrigger
+            render={
+              unlock.simulation_id === null ? (
+                <div className="min-w-0 text-right" />
+              ) : (
+                <Link to={`/match-result/${unlock.simulation_id}`} className="min-w-0 text-right" />
+              )
+            }
+          >
             <div className="grid gap-0.5">
               <span className="text-[13px]">{displayUnlockedAt(unlock)}</span>
-              <span className="truncate text-xs text-primary">{unlock.simulation_name}</span>
+              <span
+                className={cn(
+                  "truncate text-xs",
+                  unlock.simulation_id === null ? "text-muted-foreground" : "text-primary",
+                )}
+              >
+                {simulationName}
+              </span>
             </div>
           </TooltipTrigger>
           <TooltipContent side="left">
             <div className="grid gap-0.5">
               <span>
-                {unlock.simulation_name} · {displayUnlockedMoment(unlock)}
+                {simulationName} · {displayUnlockedMoment(unlock)}
               </span>
               <span className="opacity-70">No jogo: {displayShortDate(unlock.game_date)}</span>
-              <span className="opacity-70">Clique para abrir o fechamento da partida</span>
+              {unlock.simulation_id !== null && (
+                <span className="opacity-70">Clique para abrir o fechamento da partida</span>
+              )}
             </div>
           </TooltipContent>
         </Tooltip>

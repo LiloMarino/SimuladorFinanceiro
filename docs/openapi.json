@@ -7661,11 +7661,25 @@
             "title": "Game Date"
           },
           "simulation_id": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Simulation Id"
           },
           "simulation_name": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Simulation Name"
           },
           "is_new": {
