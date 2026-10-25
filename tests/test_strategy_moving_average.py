@@ -34,14 +34,20 @@ def markers(prices: list[float], side: str) -> int:
     return [m.side for m in signal.markers].count(side)
 
 
+def first_crossing(prices: list[float], tickers: list[str]):
+    """O primeiro dia da série em que o cruzamento para cima gera ordens, com o contexto desse dia."""
+    for end in range(55, len(prices) + 1):
+        history = {ticker: closes(prices[:end]) for ticker in tickers}
+        ctx = context(cash="10000", history=history)
+        MovingAverageCross().next(ctx, {**PARAMS, "tickers": tickers})
+        if ctx.intents:
+            return ctx, end
+    raise AssertionError("o cruzamento para cima nunca aconteceu")
+
+
 def test_buys_with_the_configured_share_of_cash_when_the_short_average_crosses_up():
     prices = falling_then_rising()
-    # O primeiro dia da série em que o cruzamento para cima acontece
-    for end in range(55, len(prices) + 1):
-        ctx = context(cash="10000", history={"AAA": closes(prices[:end])})
-        MovingAverageCross().next(ctx, PARAMS)
-        if ctx.intents:
-            break
+    ctx, end = first_crossing(prices, ["AAA"])
     [intent] = ctx.intents
     price = Decimal(str(prices[end - 1]))
     assert intent.action is StrategyAction.BUY
@@ -83,12 +89,7 @@ def test_signal_marks_the_crossings_on_the_chart():
 
 def test_each_purchase_uses_the_cash_left_by_the_previous_ones():
     prices = falling_then_rising()
-    for end in range(55, len(prices) + 1):
-        history = {"AAA": closes(prices[:end]), "BBB": closes(prices[:end])}
-        ctx = context(cash="10000", history=history)
-        MovingAverageCross().next(ctx, {**PARAMS, "tickers": ["AAA", "BBB"]})
-        if ctx.intents:
-            break
+    ctx, end = first_crossing(prices, ["AAA", "BBB"])
     first, second = ctx.intents
     price = Decimal(str(prices[end - 1]))
     assert first.quantity == int(Decimal(2000) // price)

@@ -10,7 +10,7 @@
         "__pycache__"
     ],
     "pythonVersion": "3.13",
-    "typeCheckingMode": "basic",
+    "typeCheckingMode": "standard",
     "reportMissingImports": "error",
     "reportUnusedVariable": "error",
     "reportUnusedFunction": "warning",

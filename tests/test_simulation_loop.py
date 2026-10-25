@@ -249,9 +249,7 @@ def test_error_in_a_day_releases_the_simulation_and_warns_the_players(
         loop.controller.stop()
 
 
-def test_failure_while_closing_the_match_still_releases_it(
-    loop, monkeypatch, caplog
-):
+def test_failure_while_closing_the_match_still_releases_it(loop, monkeypatch, caplog):
     simulation = _FakeSimulation(loop.log, days=5, fail_on=1)
 
     def broken_flush() -> None:

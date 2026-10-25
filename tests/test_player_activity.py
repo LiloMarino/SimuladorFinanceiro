@@ -30,7 +30,8 @@ class _RecordingBroker(_SilentRealtimeBroker):
     def __init__(self, sent: Sent) -> None:
         self.sent = sent
 
-    def notify(self, event: str, payload: Any, *_args: object, **_kwargs: object):
+    def notify(self, *args: Any, **_kwargs: object) -> None:
+        event, payload = args[:2]
         self.sent.append((event, payload))
 
 
