@@ -123,8 +123,8 @@ def build_panel(
             and mine.id not in (state.runoff or [])
             and today <= cycle.donation_deadline
         ),
-        last_result=_round(state, state.results[-1], people) if state.results else None,
-        results=[_round(state, r, people) for r in state.results],
+        last_result=_round(state.results[-1], people) if state.results else None,
+        results=[_round(r, people) for r in state.results],
         term=build_term(state.term, state, people),
         pending_term=build_term(state.pending_term, state, people),
         decides_match=settings.game_type is GameType.POLITICAL,
@@ -268,9 +268,7 @@ def _runoff_dto(
     )
 
 
-def _round(
-    state: GovernmentState, result: RoundResult, people: dict[int, UserDTO]
-) -> RoundResultDTO:
+def _round(result: RoundResult, people: dict[int, UserDTO]) -> RoundResultDTO:
     parties = [
         _round_party(pid, ticket, result, people)
         for pid, ticket in sorted(result.tickets.items())

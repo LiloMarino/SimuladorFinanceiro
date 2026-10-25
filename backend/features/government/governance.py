@@ -110,7 +110,7 @@ def build_governance(
         queue=[dto(m) for m in [*pending, *rejected]],
         next_vote=congress.next_vote_date(today),
         portfolio=(
-            _portfolio(book, engine, president, end, pending, today)
+            _portfolio(engine, president, end, pending, today)
             if president is not None and end is not None
             else None
         ),
@@ -241,7 +241,6 @@ def _approval(
 
 
 def _portfolio(
-    book: GovernmentBook,
     engine: SimulationEngine,
     president: UserDTO,
     end: date,
