@@ -1526,7 +1526,7 @@ export interface paths {
         get?: never;
         /**
          * Montar a chapa
-         * @description Só a fundadora escolhe candidato e vice entre os filiados, até o fim da inscrição (último dia do mês anterior ao 1º turno). O vice recebe o convite e aceita ou recusa; sem resposta, a chapa concorre sem vice.
+         * @description Só a fundadora escolhe o candidato entre os filiados e o vice entre os jogadores da sala (de outro partido ou sem partido), até o fim da inscrição (último dia do mês anterior ao 1º turno). Não vale quem já é vice ou candidato de outra chapa. O vice recebe o convite e aceita ou recusa; sem resposta, a chapa concorre sem vice.
          */
         put: operations["set_ticket_api_government_parties_ticket_put"];
         post?: never;
@@ -1547,7 +1547,7 @@ export interface paths {
         put?: never;
         /**
          * Responder ao convite de vice
-         * @description Aceita ou recusa a vaga de vice. Recusar não tira do partido: a vaga volta para a fundadora indicar outro filiado.
+         * @description Aceita ou recusa a vaga de vice. Recusar não muda o partido de quem responde: a vaga volta para a fundadora indicar outro jogador.
          */
         post: operations["answer_vice_api_government_vice_answer_post"];
         delete?: never;
@@ -3647,6 +3647,9 @@ export interface components {
             /** Donations */
             donations: components["schemas"]["DonationDTO"][];
             my_party: components["schemas"]["MyPartyDTO"] | null;
+            my_vice: components["schemas"]["MyViceDTO"] | null;
+            /** Vice Options */
+            vice_options: components["schemas"]["ViceOptionDTO"][];
             /** Can Found Or Join */
             can_found_or_join: boolean;
             /** Can Edit Ticket */
@@ -4872,7 +4875,6 @@ export interface components {
             is_founder: boolean;
             /** Is Candidate */
             is_candidate: boolean;
-            vice: components["schemas"]["VicePhase"];
             /** Contribution */
             contribution: string;
         };
@@ -4885,6 +4887,15 @@ export interface components {
             /** Open Orders */
             open_orders: number;
             panel: components["schemas"]["StrategyPanelDTO"] | null;
+        };
+        /**
+         * MyViceDTO
+         * @description A chapa em que quem vê foi indicado vice, de qualquer partido.
+         */
+        MyViceDTO: {
+            /** Party Id */
+            party_id: number;
+            phase: components["schemas"]["VicePhase"];
         };
         /** NextTaxDropDTO */
         NextTaxDropDTO: {
@@ -7726,6 +7737,20 @@ export interface components {
         ViceAnswerRequest: {
             /** Accept */
             accept: boolean;
+        };
+        /**
+         * ViceOptionDTO
+         * @description Um jogador da sala que a fundadora pode convidar para vice.
+         */
+        ViceOptionDTO: {
+            /** Nickname */
+            nickname: string;
+            /** Color */
+            color: string;
+            /** Party Abbr */
+            party_abbr: string | null;
+            /** Blocked */
+            blocked: string | null;
         };
         /**
          * VicePhase

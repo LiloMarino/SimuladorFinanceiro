@@ -4416,7 +4416,7 @@
           "Government"
         ],
         "summary": "Montar a chapa",
-        "description": "Só a fundadora escolhe candidato e vice entre os filiados, até o fim da inscrição (último dia do mês anterior ao 1º turno). O vice recebe o convite e aceita ou recusa; sem resposta, a chapa concorre sem vice.",
+        "description": "Só a fundadora escolhe o candidato entre os filiados e o vice entre os jogadores da sala (de outro partido ou sem partido), até o fim da inscrição (último dia do mês anterior ao 1º turno). Não vale quem já é vice ou candidato de outra chapa. O vice recebe o convite e aceita ou recusa; sem resposta, a chapa concorre sem vice.",
         "operationId": "set_ticket_api_government_parties_ticket_put",
         "requestBody": {
           "content": {
@@ -4466,7 +4466,7 @@
           "Government"
         ],
         "summary": "Responder ao convite de vice",
-        "description": "Aceita ou recusa a vaga de vice. Recusar não tira do partido: a vaga volta para a fundadora indicar outro filiado.",
+        "description": "Aceita ou recusa a vaga de vice. Recusar não muda o partido de quem responde: a vaga volta para a fundadora indicar outro jogador.",
         "operationId": "answer_vice_api_government_vice_answer_post",
         "requestBody": {
           "content": {
@@ -10438,6 +10438,23 @@
               }
             ]
           },
+          "my_vice": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MyViceDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vice_options": {
+            "items": {
+              "$ref": "#/components/schemas/ViceOptionDTO"
+            },
+            "type": "array",
+            "title": "Vice Options"
+          },
           "can_found_or_join": {
             "type": "boolean",
             "title": "Can Found Or Join"
@@ -10524,6 +10541,8 @@
           "finalists",
           "donations",
           "my_party",
+          "my_vice",
+          "vice_options",
           "can_found_or_join",
           "can_edit_ticket",
           "can_donate",
@@ -13947,9 +13966,6 @@
             "type": "boolean",
             "title": "Is Candidate"
           },
-          "vice": {
-            "$ref": "#/components/schemas/VicePhase"
-          },
           "contribution": {
             "type": "string",
             "title": "Contribution"
@@ -13961,7 +13977,6 @@
           "party_id",
           "is_founder",
           "is_candidate",
-          "vice",
           "contribution"
         ],
         "title": "MyPartyDTO"
@@ -14017,6 +14032,25 @@
           "panel"
         ],
         "title": "MyStrategyDTO"
+      },
+      "MyViceDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/VicePhase"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "phase"
+        ],
+        "title": "MyViceDTO",
+        "description": "A chapa em que quem vê foi indicado vice, de qualquer partido."
       },
       "NextTaxDropDTO": {
         "properties": {
@@ -22188,6 +22222,50 @@
           "accept"
         ],
         "title": "ViceAnswerRequest"
+      },
+      "ViceOptionDTO": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "party_abbr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Abbr"
+          },
+          "blocked": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "color",
+          "party_abbr",
+          "blocked"
+        ],
+        "title": "ViceOptionDTO",
+        "description": "Um jogador da sala que a fundadora pode convidar para vice."
       },
       "VicePhase": {
         "type": "string",

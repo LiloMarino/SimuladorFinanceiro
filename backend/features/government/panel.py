@@ -8,6 +8,7 @@ from backend.core.dto.government import (
     ElectionDatesDTO,
     ElectionPanelDTO,
     MyPartyDTO,
+    MyViceDTO,
     PartyCandidateDTO,
     PartyDTO,
     PartyMemberDTO,
@@ -20,6 +21,7 @@ from backend.core.dto.government import (
     RunoffEntryDTO,
     RunoffSimulationDTO,
     TermDTO,
+    ViceOptionDTO,
 )
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
@@ -105,12 +107,13 @@ def build_panel(
                 party_id=mine.id,
                 is_founder=is_founder,
                 is_candidate=election.effective_ticket(state, mine)[0] == viewer.id,
-                vice=_vice_phase(mine, viewer.id),
                 contribution=mine.members[viewer.id],
             )
             if mine is not None
             else None
         ),
+        my_vice=_my_vice(state, viewer.id),
+        vice_options=_vice_options(state, mine, users) if is_founder else [],
         can_found_or_join=in_campaign and mine is None and not viewer.is_bot,
         can_edit_ticket=(
             is_founder
@@ -159,6 +162,35 @@ def _vice_phase(party: Party, user_id: int) -> VicePhase:
     if party.vice_id != user_id:
         return VicePhase.NONE
     return VicePhase.ACCEPTED if party.vice_accepted else VicePhase.PENDING
+
+
+def _my_vice(state: GovernmentState, user_id: int) -> MyViceDTO | None:
+    party = next((p for p in state.player_parties() if p.vice_id == user_id), None)
+    if party is None:
+        return None
+    return MyViceDTO(party_id=party.id, phase=_vice_phase(party, user_id))
+
+
+def _vice_options(
+    state: GovernmentState, party: Party | None, users: list[UserDTO]
+) -> list[ViceOptionDTO]:
+    """Todo jogador da sala, com o partido dele e o motivo quando não pode ser convidado."""
+    if party is None:
+        return []
+    options = []
+    for user in users:
+        if user.is_bot:
+            continue
+        home = state.party_of(user.id)
+        options.append(
+            ViceOptionDTO(
+                nickname=user.nickname,
+                color=_color(user.id),
+                party_abbr=home.abbr if home else None,
+                blocked=election.vice_blocker(state, party, user.id),
+            )
+        )
+    return options
 
 
 def _person(

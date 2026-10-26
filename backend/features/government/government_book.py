@@ -337,11 +337,12 @@ class GovernmentBook:
             raise ConflictError(
                 f"{candidate} cumpriu dois mandatos seguidos e não concorre de novo."
             )
-        vice_user = members.get(vice) if vice else None
-        if vice and vice_user is None:
-            raise NotFoundError("O vice precisa ser filiado ao partido.")
-        if vice_user is not None and vice_user.id == candidate_user.id:
-            raise ConflictError("Candidato e vice precisam ser pessoas diferentes.")
+        rival = election.vice_of_other(self.state, party, candidate_user.id)
+        if rival is not None:
+            raise ConflictError(f"{candidate} é vice do {rival.abbr} e não concorre.")
+        vice_user = (
+            self._pick_vice(party, vice, candidate_user, users) if vice else None
+        )
         # Quem já aceitou o convite segue aceito se a vaga continua dele
         keeps_vice = (
             vice_user is not None
@@ -366,6 +367,26 @@ class GovernmentBook:
         else:
             self._notice(GovernmentNoticeKind.UPDATED, founder, party_abbr=party.abbr)
 
+    def _pick_vice(
+        self,
+        party: Party,
+        nickname: str,
+        candidate: UserDTO,
+        users: list[UserDTO],
+    ) -> UserDTO:
+        """O vice é qualquer jogador da sala que a regra da chapa deixa convidar."""
+        person = next((u for u in users if u.nickname == nickname), None)
+        if person is None:
+            raise NotFoundError("Esse jogador não está na sala.")
+        if person.is_bot:
+            raise ForbiddenError("Bot não é vice.")
+        if person.id == candidate.id:
+            raise ConflictError("Candidato e vice precisam ser pessoas diferentes.")
+        blocker = election.vice_blocker(self.state, party, person.id)
+        if blocker is not None:
+            raise ConflictError(f"{nickname} não pode ser vice: {blocker}.")
+        return person
+
     def answer_vice(self, user: UserDTO, today: date, accept: bool) -> None:
         party = next(
             (
@@ -380,9 +401,11 @@ class GovernmentBook:
         self._emit(
             GovernmentEventType.VICE_ANSWERED, today, party_id=party.id, accepted=accept
         )
+        founder = self._people.get(party.founder_id) if party.founder_id else None
         self._notice(
             GovernmentNoticeKind.VICE_ANSWERED,
             user,
+            target=founder,
             party_abbr=party.abbr,
             accepted=accept,
         )
@@ -677,7 +700,7 @@ class GovernmentBook:
             )
 
     def _impeach(self, today: date) -> None:
-        """Assume o vice que ainda é filiado; sem ele, o computador governa sem propor medidas."""
+        """Assume o vice que segue na partida; sem ele, o computador governa sem propor medidas."""
         term = required(self.state.term)
         out = self.president()
         successor = self._successor()
@@ -697,8 +720,7 @@ class GovernmentBook:
 
     def _successor(self) -> UserDTO | None:
         term = required(self.state.term)
-        party = self.state.parties.get(term.party_id) if term.party_id else None
-        if term.vice_id is None or party is None or term.vice_id not in party.members:
+        if term.vice_id is None:
             return None
         return self._people.get(term.vice_id)
 

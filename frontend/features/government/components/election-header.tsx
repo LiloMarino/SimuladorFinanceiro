@@ -43,14 +43,16 @@ function viewerBadge(panel: ElectionPanel) {
   const mine = panel.my_party;
   const party = mine && panel.parties.find((p) => p.id === mine.party_id);
   if (!mine || !party) return null;
-  const role = mine.is_candidate
-    ? "Você concorre pelo"
-    : mine.vice === "ACCEPTED"
-      ? "Você é vice no"
-      : mine.vice === "PENDING"
-        ? "Convite de vice do"
-        : "Você é filiado ao";
+  const role = mine.is_candidate ? "Você concorre pelo" : "Você é filiado ao";
   return { role, party };
+}
+
+/** O vice responde pela chapa que o indicou, mesmo de outro partido ou sem partido. */
+function viceBadge(panel: ElectionPanel) {
+  const vice = panel.my_vice;
+  const party = vice && panel.parties.find((p) => p.id === vice.party_id);
+  if (!vice || !party) return null;
+  return { role: vice.phase === "ACCEPTED" ? "Você é vice no" : "Convite de vice do", party };
 }
 
 type ElectionHeaderProps = {
@@ -65,7 +67,10 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
   const { dates, phase } = panel;
   const today = useToday(panel);
   const milestone = nextMilestone(panel);
-  const badge = viewerBadge(panel);
+  const vice = viceBadge(panel);
+  // O vice do próprio partido aparece só como vice
+  const badge =
+    vice?.party.id === panel.my_party?.party_id && !panel.my_party?.is_candidate ? null : viewerBadge(panel);
   const computers = panel.parties.filter((party) => party.is_computer).length;
   const players = panel.parties.length - computers;
   const openParties = panel.parties.filter((party) => !party.is_computer);
@@ -105,6 +110,12 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
                   <Badge variant="info">
                     {badge.role}
                     <PartyMark abbr={badge.party.abbr} color={badge.party.color} size="sm" />
+                  </Badge>
+                )}
+                {vice && (
+                  <Badge variant="info">
+                    {vice.role}
+                    <PartyMark abbr={vice.party.abbr} color={vice.party.color} size="sm" />
                   </Badge>
                 )}
               </div>

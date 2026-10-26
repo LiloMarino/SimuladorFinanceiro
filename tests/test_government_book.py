@@ -20,6 +20,7 @@ from backend.core.enum import (
     GovernmentNoticeKind,
     MeasureKind,
     MeasureStatus,
+    VicePhase,
 )
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -511,6 +512,98 @@ def test_declined_vice_leaves_the_slot_empty(book: GovernmentBook):
         book.answer_vice(BOB, CAMPAIGN_OPEN, True)
 
 
+def test_vice_can_come_from_another_party_or_from_no_party(
+    book: GovernmentBook, notices
+):
+    found(book, ALICE, "AAA", RED)
+    found(book, CARLA, "CCC", BLUE)
+    book.join_party(BOB, CAMPAIGN_OPEN, party_of(book, CARLA).id, Decimal(0))
+    party = party_of(book, ALICE)
+    book.on_tick(USERS, CAMPAIGN_OPEN, False)
+
+    book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Bob", USERS)
+    assert notices[-1]["kind"] == GovernmentNoticeKind.VICE_INVITED.value
+    assert notices[-1]["target"] == "Bob"
+    book.answer_vice(BOB, CAMPAIGN_OPEN, True)
+    assert notices[-1]["target"] == "Alice"
+    assert election.effective_ticket(book.state, party) == (ALICE.id, BOB.id)
+    # O vice segue no partido dele
+    assert party_of(book, BOB).abbr == "CCC"
+    assert BOB.id not in party.members
+
+    # Sai do partido e segue vice; sem partido, também pode ser convidado
+    book.leave_party(BOB, CAMPAIGN_OPEN)
+    assert election.effective_ticket(book.state, party) == (ALICE.id, BOB.id)
+    book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", None, USERS)
+    book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Bob", USERS)
+    assert party.vice_id == BOB.id
+    assert party.vice_accepted is False
+    book.answer_vice(BOB, CAMPAIGN_OPEN, True)
+    assert book.state.party_of(BOB.id) is None
+    assert election.effective_ticket(book.state, party) == (ALICE.id, BOB.id)
+
+
+def test_vice_cannot_be_a_bot_or_someone_on_another_ticket(book: GovernmentBook):
+    found(book, ALICE, "AAA", RED)
+    found(book, BOB, "BBB", BLUE)
+
+    with pytest.raises(ForbiddenError, match="Bot"):
+        book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Robo", USERS)
+    with pytest.raises(NotFoundError, match="na sala"):
+        book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Ninguem", USERS)
+    # Bob é o candidato padrão do BBB
+    with pytest.raises(ConflictError, match="candidato pelo BBB"):
+        book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Bob", USERS)
+
+    book.set_ticket(BOB, CAMPAIGN_OPEN, "Bob", "Carla", USERS)
+    with pytest.raises(ConflictError, match="já foi convidado para vice do BBB"):
+        book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Carla", USERS)
+    book.answer_vice(CARLA, CAMPAIGN_OPEN, True)
+    with pytest.raises(ConflictError, match="já é vice do BBB"):
+        book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Carla", USERS)
+
+
+def test_vice_of_another_ticket_does_not_run_for_her_own_party(book: GovernmentBook):
+    found(book, ALICE, "AAA", RED)
+    found(book, BOB, "BBB", BLUE)
+    book.join_party(CARLA, CAMPAIGN_OPEN, party_of(book, ALICE).id, Decimal(0))
+    book.set_ticket(BOB, CAMPAIGN_OPEN, "Bob", "Carla", USERS)
+    book.answer_vice(CARLA, CAMPAIGN_OPEN, True)
+
+    with pytest.raises(ConflictError, match="é vice do BBB"):
+        book.set_ticket(ALICE, CAMPAIGN_OPEN, "Carla", None, USERS)
+
+
+def test_panel_lists_every_human_with_the_reason_when_blocked(book: GovernmentBook):
+    found(book, ALICE, "AAA", RED)
+    found(book, BOB, "BBB", BLUE)
+    networths = {u.id: Decimal(0) for u in USERS}
+
+    def panel(user: UserDTO):
+        return build_panel(book, settings(), USERS, user, CAMPAIGN_OPEN, networths)
+
+    options = {o.nickname: o for o in panel(ALICE).vice_options}
+    assert set(options) == {"Alice", "Bob", "Carla"}
+    assert (options["Bob"].party_abbr, options["Bob"].blocked) == (
+        "BBB",
+        "candidato pelo BBB",
+    )
+    assert (options["Carla"].party_abbr, options["Carla"].blocked) == (None, None)
+    assert panel(CARLA).vice_options == []
+
+    book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Carla", USERS)
+    invited = panel(CARLA).my_vice
+    assert invited is not None
+    assert invited.phase is VicePhase.PENDING
+    book.answer_vice(CARLA, CAMPAIGN_OPEN, True)
+    accepted = panel(CARLA).my_vice
+    assert accepted is not None
+    assert accepted.phase is VicePhase.ACCEPTED
+    assert panel(BOB).my_vice is None
+    options = {o.nickname: o for o in panel(BOB).vice_options}
+    assert options["Carla"].blocked == "já é vice do AAA"
+
+
 def test_ticket_registration_closes_the_month_before_the_vote(book: GovernmentBook):
     found(book, ALICE, "AAA", RED)
 
@@ -831,6 +924,29 @@ def test_three_months_below_the_floor_remove_the_president_and_the_vice_takes_ov
     with pytest.raises(ConflictError):
         book.ensure_can_trade(BOB.client_id)
     assert book.state.impeachments[0].successor_id == BOB.id
+
+
+def test_impeachment_hands_the_office_to_a_vice_from_another_party(
+    book: GovernmentBook, engine, market, office, monkeypatch
+):
+    engine.classification = SECTORS
+    found(book, ALICE, "AAA", RED, "10000")
+    book.set_ticket(ALICE, CAMPAIGN_OPEN, "Alice", "Carla", USERS)
+    book.answer_vice(CARLA, CAMPAIGN_OPEN, True)
+    run_campaign(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+    book.on_tick(USERS, RUNOFF, False)
+    book.on_tick(USERS, TERM_START, False)
+    market(BAD_MARKET)
+
+    for day in (date(2022, 1, 31), date(2022, 2, 28), date(2022, 3, 31)):
+        book.on_tick(USERS, day, False)
+
+    term = book.state.term
+    assert term is not None
+    assert (term.president_id, term.succession) == (CARLA.id, True)
+    assert office[-1] == CARLA.id
+    assert book.state.party_of(CARLA.id) is None
 
 
 def test_impeachment_without_a_vice_leaves_a_neutral_computer_government(

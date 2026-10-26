@@ -144,7 +144,7 @@ export function MyPartyCard({
           <p className="rounded-lg bg-subtle px-3 py-2 text-xs leading-normal text-muted-foreground">
             Cada filiado escolhe quanto contribui, e pode ser zero.
             {mine?.is_founder &&
-              " Como quem fundou o partido, você escolhe candidato e vice entre os filiados e pode expulsar."}
+              " Como quem fundou o partido, você escolhe o candidato entre os filiados, o vice entre os jogadores da sala e pode expulsar."}
           </p>
 
           {/* Quanto a verba rende */}

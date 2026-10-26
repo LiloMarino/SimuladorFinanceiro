@@ -14,6 +14,7 @@ import { donationContext, roundToast } from "../lib/round-toast";
 import { CampaignOpenedDialog } from "./campaign-opened-dialog";
 import { ImpeachmentDialog } from "./impeachment-dialog";
 import { RoundResultDialog } from "./round-result-dialog";
+import { ViceInviteDialog } from "./vice-invite-dialog";
 
 /**
  * Dono único dos avisos da eleição em tempo real: cada evento renova a página da eleição
@@ -28,6 +29,7 @@ export function GovernmentNotifications() {
   const [shown, setShown] = useState<{ result: ElectionRound; panel: ElectionPanel } | null>(null);
   const [impeachment, setImpeachment] = useState<GovernmentPanel | null>(null);
   const [campaign, setCampaign] = useState<GovernmentNotice | null>(null);
+  const [viceInvite, setViceInvite] = useState(false);
   const me = user?.nickname;
 
   const renew = () => {
@@ -79,10 +81,9 @@ export function GovernmentNotifications() {
         }
         break;
       case "VICE_INVITED":
+        // O convite abre na tela de quem foi indicado, do partido que for, já com o painel atualizado
         if (event.target === me) {
-          toast.info(`${event.actor} convidou você para vice no ${abbr}`, {
-            action: { label: "Responder", onClick: () => void navigate("/election") },
-          });
+          void queryClient.refetchQueries({ queryKey: queryKeys.election() }).then(() => setViceInvite(true));
         }
         break;
       case "VICE_ANSWERED":
@@ -165,11 +166,14 @@ export function GovernmentNotifications() {
     void navigate("/election", { state: { dialog } });
   };
 
+  const electionPanel = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
+
   return (
     <>
+      {electionPanel && <ViceInviteDialog open={viceInvite} onOpenChange={setViceInvite} panel={electionPanel} />}
       <CampaignOpenedDialog
         notice={campaign}
-        panel={queryClient.getQueryData<ElectionPanel>(queryKeys.election())}
+        panel={electionPanel}
         onClose={() => setCampaign(null)}
         onShortcut={openShortcut}
       />

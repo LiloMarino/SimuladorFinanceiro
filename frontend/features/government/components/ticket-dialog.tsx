@@ -29,16 +29,18 @@ type TicketDialogProps = {
   cash: string | undefined;
 };
 
-/** Montar a chapa: candidato e vice entre os filiados, com a conta da campanha até o 1º turno. */
+/** Montar a chapa: candidato entre os filiados, vice entre os jogadores da sala, com a conta da campanha até o 1º turno. */
 export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketDialogProps) {
   const [candidate, setCandidate] = useState(party.candidate?.nickname ?? party.members[0]?.nickname ?? "");
   const [vice, setVice] = useState(party.vice?.nickname ?? NO_VICE);
   const setTicket = useSetTicket();
 
   const nicknames = Object.fromEntries(party.members.map((member) => [member.nickname, member.nickname]));
+  const blockedBy = Object.fromEntries(panel.vice_options.map((option) => [option.nickname, option.blocked]));
+  const viceOptions = panel.vice_options.filter((option) => option.nickname !== candidate);
   const viceItems = {
     [NO_VICE]: "Sem vice",
-    ...Object.fromEntries(party.members.filter((m) => m.nickname !== candidate).map((m) => [m.nickname, m.nickname])),
+    ...Object.fromEntries(viceOptions.map((option) => [option.nickname, option.nickname])),
   };
   const effectiveVice = vice === candidate ? NO_VICE : vice;
 
@@ -67,8 +69,11 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
                 </SelectTrigger>
                 <SelectContent>
                   {party.members.map((member) => (
-                    <SelectItem key={member.nickname} value={member.nickname}>
+                    <SelectItem key={member.nickname} value={member.nickname} disabled={!!blockedBy[member.nickname]}>
                       {member.nickname}
+                      {blockedBy[member.nickname] && (
+                        <span className="text-xs text-muted-foreground">{blockedBy[member.nickname]}</span>
+                      )}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -84,19 +89,20 @@ export function TicketDialog({ open, onOpenChange, party, panel, cash }: TicketD
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={NO_VICE}>Sem vice</SelectItem>
-                  {party.members
-                    .filter((member) => member.nickname !== candidate)
-                    .map((member) => (
-                      <SelectItem key={member.nickname} value={member.nickname}>
-                        {member.nickname}
-                      </SelectItem>
-                    ))}
+                  {viceOptions.map((option) => (
+                    <SelectItem key={option.nickname} value={option.nickname} disabled={!!option.blocked}>
+                      {option.nickname}
+                      <span className="text-xs text-muted-foreground">
+                        {option.blocked ?? (option.party_abbr ? `do ${option.party_abbr}` : "sem partido")}
+                      </span>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FieldDescription>
                 {effectiveVice === NO_VICE
                   ? "Sem vice, a chapa concorre só com o candidato."
-                  : `${effectiveVice} recebe o convite e aceita ou recusa. Até lá, a chapa concorre sem vice.`}
+                  : `${effectiveVice} recebe o convite na tela dele e aceita ou recusa. Até lá, a chapa concorre sem vice. O vice segue no partido dele.`}
               </FieldDescription>
             </Field>
 

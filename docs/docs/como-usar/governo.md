@@ -39,7 +39,7 @@ Quem joga sozinho fundou um partido de um filiado: vale igual.
 
 ### A chapa
 
-A chapa é o **candidato** e o **vice**. Por padrão o candidato é o fundador e a chapa vai sem vice. O fundador pode escolher outro filiado como candidato e **convidar um vice** até o fim da inscrição de chapas. O vice só conta depois de **aceitar** o convite; sem resposta, a chapa concorre sem vice.
+A chapa é o **candidato** e o **vice**. Por padrão o candidato é o fundador e a chapa vai sem vice. O fundador pode escolher outro filiado como candidato e **convidar um vice** até o fim da inscrição de chapas. O vice pode ser qualquer jogador da sala, de outro partido ou sem partido, como numa coligação; ele continua filiado ao próprio partido e soma para ele no ranking. Não vale convidar quem já é vice ou candidato de outra chapa. O vice só conta depois de **aceitar** o convite, que aparece na tela dele; sem resposta, a chapa concorre sem vice.
 
 ### A promessa na régua
 
@@ -134,7 +134,7 @@ A **marca do governo** é a média das faixas das medidas aprovadas. Ex.: um par
 
 ### Impeachment
 
-Se a aprovação fechar **3 meses seguidos abaixo de 25%**, o presidente sofre impeachment. A partir do primeiro mês abaixo do piso o presidente recebe um aviso. Quem assume é o **vice**, se ainda estiver filiado ao partido, e governa até o fim do mandato; sem vice, um governo neutro do computador conduz o país até a próxima eleição. A carteira de quem saiu volta a operar.
+Se a aprovação fechar **3 meses seguidos abaixo de 25%**, o presidente sofre impeachment. A partir do primeiro mês abaixo do piso o presidente recebe um aviso. Quem assume é o **vice**, se ainda estiver na partida, e governa até o fim do mandato; sem vice, um governo neutro do computador conduz o país até a próxima eleição. A carteira de quem saiu volta a operar.
 
 ### A carteira do presidente
 

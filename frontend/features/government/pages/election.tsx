@@ -64,6 +64,9 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
     setDialog("join");
   };
 
+  // A chapa que convidou quem vê para vice, do partido dele ou de outro
+  const invitingParty = panel.parties.find((candidate) => candidate.id === panel.my_vice?.party_id);
+
   // Vaga de vice aberta: a chapa tem candidato e ainda não tem vice nem convite pendente
   const viceOpen =
     !!party && !!mine?.is_founder && panel.can_edit_ticket && party.vice === null && party.vice_phase === "NONE";
@@ -72,11 +75,11 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
     <div className="grid gap-5">
       <ElectionHeader panel={panel} onJoin={() => openJoin()} onFound={() => setDialog("found")} />
 
-      {mine?.vice === "PENDING" && party && (
+      {panel.my_vice?.phase === "PENDING" && invitingParty && (
         <Alert variant="info">
           <MailQuestion />
           <AlertTitle>
-            {party.founder ?? party.name} convidou você para vice no {party.abbr}
+            {invitingParty.founder ?? invitingParty.name} convidou você para vice no {invitingParty.abbr}
           </AlertTitle>
           <AlertDescription>
             Aceite ou recuse até {displayDayMonth(panel.dates.ticket_deadline)}; sem resposta, a chapa concorre sem
@@ -95,7 +98,8 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
           <UserPlus />
           <AlertTitle>A chapa do {party.abbr} está sem vice</AlertTitle>
           <AlertDescription>
-            Indique um filiado até {displayDayMonth(panel.dates.ticket_deadline)}; ele precisa aceitar o convite.
+            Indique um jogador da sala até {displayDayMonth(panel.dates.ticket_deadline)}; ele precisa aceitar o
+            convite.
           </AlertDescription>
           <AlertAction>
             <Button size="sm" variant="outline" onClick={() => setDialog("ticket")}>
@@ -165,17 +169,17 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
             cash={cash}
           />
           <TicketDialog open={dialog === "ticket"} onOpenChange={close} party={party} panel={panel} cash={cash} />
-          <ViceInviteDialog open={dialog === "vice"} onOpenChange={close} party={party} panel={panel} />
           <LeavePartyDialog
             open={dialog === "leave"}
             onOpenChange={close}
             party={party}
             isFounder={mine.is_founder}
-            isVice={mine.vice === "ACCEPTED"}
+            isVice={panel.my_vice?.party_id === party.id && panel.my_vice.phase === "ACCEPTED"}
           />
           <ExpelDialog nickname={expelling} onClose={() => setExpelling(null)} party={party} />
         </>
       )}
+      <ViceInviteDialog open={dialog === "vice"} onOpenChange={close} panel={panel} />
       <DonateDialog open={dialog === "donate"} onOpenChange={close} panel={panel} cash={cash} />
     </div>
   );

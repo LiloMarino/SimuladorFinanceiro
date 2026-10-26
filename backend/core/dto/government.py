@@ -186,8 +186,25 @@ class MyPartyDTO(BaseDTO):
     party_id: int
     is_founder: bool
     is_candidate: bool
-    vice: VicePhase
     contribution: Decimal
+
+
+class MyViceDTO(BaseDTO):
+    """A chapa em que quem vê foi indicado vice, de qualquer partido."""
+
+    party_id: int
+    phase: VicePhase
+
+
+class ViceOptionDTO(BaseDTO):
+    """Um jogador da sala que a fundadora pode convidar para vice."""
+
+    nickname: str
+    color: str
+    # Sigla do partido dele; nula para quem não tem partido
+    party_abbr: str | None
+    # Por que não pode ser convidado ("já é vice do ABC"); nulo quando pode
+    blocked: str | None
 
 
 class ElectionPanelDTO(BaseDTO):
@@ -204,6 +221,10 @@ class ElectionPanelDTO(BaseDTO):
     finalists: list[int]
     donations: list[DonationDTO]
     my_party: MyPartyDTO | None
+    # O convite de vice de quem vê, em qualquer partido
+    my_vice: MyViceDTO | None
+    # Só para quem funda: os jogadores da sala e quem pode ser convidado
+    vice_options: list[ViceOptionDTO]
     can_found_or_join: bool
     can_edit_ticket: bool
     can_donate: bool

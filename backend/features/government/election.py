@@ -53,22 +53,55 @@ def is_eligible(state: GovernmentState, user_id: int) -> bool:
     )
 
 
+def vice_of_other(state: GovernmentState, party: Party, user_id: int) -> Party | None:
+    """A outra chapa de jogadores em que `user_id` é vice (convidado ou já aceito)."""
+    return next(
+        (
+            p
+            for p in state.player_parties()
+            if p.id != party.id and p.vice_id == user_id
+        ),
+        None,
+    )
+
+
 def effective_ticket(
     state: GovernmentState, party: Party
 ) -> tuple[int | None, int | None]:
     """
     A chapa que vai à urna: o candidato escolhido, ou a fundadora (ou o primeiro filiado
     que pode concorrer) quando ninguém foi indicado; o vice só vale depois de aceitar.
+    Quem é vice de outra chapa não concorre por esta.
     """
     if party.is_computer:
         return None, None
-    candidate = party.candidate_id
-    if candidate is None or not is_eligible(state, candidate):
-        candidate = next(
-            (u for u in _founder_first(party) if is_eligible(state, u)), None
+
+    def can_run(user_id: int) -> bool:
+        return (
+            is_eligible(state, user_id) and vice_of_other(state, party, user_id) is None
         )
+
+    candidate = party.candidate_id
+    if candidate is None or not can_run(candidate):
+        candidate = next((u for u in _founder_first(party) if can_run(u)), None)
     vice = party.vice_id if party.vice_accepted and party.vice_id != candidate else None
     return candidate, vice
+
+
+def vice_blocker(state: GovernmentState, party: Party, user_id: int) -> str | None:
+    """
+    Por que `user_id` não pode ser vice da chapa de `party`; nulo quando pode. O vice é
+    qualquer jogador da sala, de outro partido ou sem partido, desde que não seja vice
+    nem candidato de outra chapa.
+    """
+    other = vice_of_other(state, party, user_id)
+    if other is not None:
+        status = "já é vice" if other.vice_accepted else "já foi convidado para vice"
+        return f"{status} do {other.abbr}"
+    for rival in state.player_parties():
+        if rival.id != party.id and effective_ticket(state, rival)[0] == user_id:
+            return f"candidato pelo {rival.abbr}"
+    return None
 
 
 def runs(state: GovernmentState, party: Party) -> bool:

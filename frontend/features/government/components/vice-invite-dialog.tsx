@@ -1,4 +1,4 @@
-import { CircleCheck, Undo2, Users } from "lucide-react";
+import { CircleCheck, Handshake, Undo2, Users } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { displayDayMonth, displayMoney, displayMonthShort } from "@/shared/lib/utils/display";
-import type { ElectionPanel, ElectionParty } from "@/types";
+import type { ElectionPanel } from "@/types";
 import { useAnswerVice } from "../hooks/mutations/useAnswerVice";
 import { PartyMark, PersonMark } from "./party-mark";
 import { PromiseRuler } from "./promise-ruler";
@@ -18,26 +18,37 @@ import { PromiseRuler } from "./promise-ruler";
 type ViceInviteDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  party: ElectionParty;
   panel: ElectionPanel;
 };
 
-/** O convite de vice: o que o filiado indicado vê antes de aceitar ou recusar. */
-export function ViceInviteDialog({ open, onOpenChange, party, panel }: ViceInviteDialogProps) {
+/** O convite de vice: o que o jogador indicado, de qualquer partido, vê antes de aceitar ou recusar. */
+export function ViceInviteDialog({ open, onOpenChange, panel }: ViceInviteDialogProps) {
   const answer = useAnswerVice();
+  const party = panel.parties.find((candidateParty) => candidateParty.id === panel.my_vice?.party_id);
+  if (!party) return null;
+
   const founder = party.founder ?? party.name;
   const candidate = party.candidate?.name ?? founder;
   const respond = (accept: boolean) => answer.mutate({ accept }, { onSuccess: () => onOpenChange(false) });
 
+  const homeParty = panel.parties.find((candidateParty) => candidateParty.id === panel.my_party?.party_id);
+  const staysIn =
+    homeParty && homeParty.id !== party.id
+      ? `Você continua no ${homeParty.abbr} e soma para ele no ranking.`
+      : homeParty
+        ? `Você continua no ${homeParty.abbr}.`
+        : "Você continua sem partido.";
+
   const lines = [
     { icon: Users, text: `Se o ${party.abbr} vencer, ${candidate} é o eleito e você é o vice.` },
+    { icon: Handshake, text: staysIn },
     {
       icon: CircleCheck,
       text: `Sem resposta até ${displayDayMonth(panel.dates.ticket_deadline)}, a chapa concorre sem vice.`,
     },
     {
       icon: Undo2,
-      text: `Recusar não tira você do ${party.abbr}: a vaga volta para ${founder} indicar outro filiado.`,
+      text: `Recusar não muda nada para você: a vaga volta para ${founder} indicar outro jogador.`,
     },
   ];
 

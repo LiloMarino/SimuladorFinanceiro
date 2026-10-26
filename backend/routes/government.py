@@ -93,7 +93,7 @@ def expel_member(
     "/parties/ticket",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Montar a chapa",
-    description="Só a fundadora escolhe candidato e vice entre os filiados, até o fim da inscrição (último dia do mês anterior ao 1º turno). O vice recebe o convite e aceita ou recusa; sem resposta, a chapa concorre sem vice.",
+    description="Só a fundadora escolhe o candidato entre os filiados e o vice entre os jogadores da sala (de outro partido ou sem partido), até o fim da inscrição (último dia do mês anterior ao 1º turno). Não vale quem já é vice ou candidato de outra chapa. O vice recebe o convite e aceita ou recusa; sem resposta, a chapa concorre sem vice.",
 )
 def set_ticket(simulation: ActiveSimulation, user: CurrentUser, payload: TicketRequest):
     simulation.set_ticket(user, payload.candidate, payload.vice)
@@ -103,7 +103,7 @@ def set_ticket(simulation: ActiveSimulation, user: CurrentUser, payload: TicketR
     "/vice/answer",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Responder ao convite de vice",
-    description="Aceita ou recusa a vaga de vice. Recusar não tira do partido: a vaga volta para a fundadora indicar outro filiado.",
+    description="Aceita ou recusa a vaga de vice. Recusar não muda o partido de quem responde: a vaga volta para a fundadora indicar outro jogador.",
 )
 def answer_vice(
     simulation: ActiveSimulation, user: CurrentUser, payload: ViceAnswerRequest
