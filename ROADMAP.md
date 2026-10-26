@@ -21,7 +21,7 @@
 | **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — |
 | **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — |
 | **N3** | Confiar que os números do simulador são exatos e reprodutíveis | [F22](#f22), [F100](#f100) | — |
-| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F110](#f110), [F111](#f111), [F127](#f127), [F149](#f149) | — |
+| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F110](#f110), [F111](#f111), [F127](#f127) | — |
 | **N5** | Saber quanto risco foi corrido para chegar num resultado | — | — |
 | **N6** | Comparar resultados de simulações diferentes | — | — |
 | **N7** | Que o simulador cobre os custos de operar do mercado real | [F22](#f22), [F100](#f100) | — |
@@ -32,7 +32,7 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F134](#f134), [F149](#f149), [F155](#f155) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F134](#f134), [F155](#f155) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
@@ -109,7 +109,6 @@
 | [**F141**](#f141) | README com as features de hoje | — | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
 | [**F145**](#f145) | Convite de vice para qualquer jogador | — | ⏳ |
-| [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
 | [**F150**](#f150) | Aviso de abertura da campanha | — | ⏳ |
 | [**F151**](#f151) | Segundo turno com disputa | — | 🔍 |
 | [**F152**](#f152) | Promessas de campanha em texto | — | 🔍 |
@@ -183,7 +182,6 @@
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | M14 | 0 | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
 | [**F145**](#f145) | Convite de vice para qualquer jogador | M17 | 0 | ⏳ |
-| [**F149**](#f149) | Desligar o automático na própria boleta | M16 | 0 | ⏳ |
 | [**F150**](#f150) | Aviso de abertura da campanha | M17 | 0 | ⏳ |
 | [**F151**](#f151) | Segundo turno com disputa | M17 | 0 | 🔍 |
 | [**F152**](#f152) | Promessas de campanha em texto | M17 | 0 | 🔍 |
@@ -284,11 +282,10 @@
 >
 > **Serve:** N4, N8, N15, N33, N34, N40
 >
-> **Progresso:** 0/4 concluídas
+> **Progresso:** 0/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
 | [**F155**](#f155) | Filtro "Na carteira" na renda fixa | — | ⏳ |
 | [**F156**](#f156) | Estatísticas rápidas em partida longa | — | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
@@ -380,7 +377,6 @@
 | **F140** | Docs reorganizada por tipo de leitor | N25 | — | M14 | — | Alto | Baixo | Alto | Bom | ⏳ Pendente |
 | **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F145** | Convite de vice para qualquer jogador | N34 | — | M17 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F149** | Desligar o automático na própria boleta | N4, N15 | — | M16 | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F150** | Aviso de abertura da campanha | N34 | — | M17 | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F155** | Filtro "Na carteira" na renda fixa | N15 | — | M16 | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F156** | Estatísticas rápidas em partida longa | N40, N38 | — | M16 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
@@ -462,9 +458,6 @@
 
 <a id="f145"></a>
 **F145 — Convite de vice para qualquer jogador.** Serve N34. Hoje o vice sai de um `Select` com os filiados do partido (`ticket-dialog.tsx:81`), e o backend recusa quem não é filiado (`government_book.py:311`); o convite e o aceite já existem (`government_book.py:343`, `vice-invite-dialog.tsx`). Plano: (1) **Regra:** o vice pode ser qualquer jogador humano da sala, de outro partido ou sem partido, como numa coligação, e continua filiado ao próprio partido. Fica bloqueado quem já é vice de outra chapa, quem é candidato de alguma chapa e os bots. (2) **Quem convida:** o `Select` vira uma lista de todos os jogadores, com o partido de cada um, e os bloqueados aparecem desabilitados com o motivo ("já é vice do ABC", "candidato pelo XYZ"). (3) **Quem é convidado:** um aviso que se abre na tela dele, pelo Socket.IO, com aceitar e recusar, reaproveitando o `vice-invite-dialog.tsx`; quem convida vê o convite como pendente até a resposta. (4) **Efeitos:** no impeachment, assume o vice enquanto ele estiver na partida, sem exigir filiação; na vitória política, o vice soma para o próprio partido. Esse aviso de aceitar ou recusar é o mecanismo que a negociação com as bancadas (F154) reaproveita.
-
-<a id="f149"></a>
-**F149 — Desligar o automático na própria boleta.** Serve N4 e N15. Com o automático ligado, a boleta fica travada (`order-ticket.tsx:72`, `inert` em `:156`) e o aviso manda o jogador para Estratégias (`trade-lock-notice.tsx`, link "Ir para Estratégias"); para comprar uma ação na mão, ele sai da tela, desliga lá e volta. Plano: o aviso ganha o botão "Desligar o automático", que chama a mesma mutation da página de Estratégias e, com sucesso, destrava a boleta ali mesmo, mantendo ativo, lado, quantidade e preço preenchidos; o link para Estratégias continua para quem quer trocar a estratégia. A troca vale para todo lugar que usa o `useTradeLock`, como a renda fixa.
 
 <a id="f150"></a>
 **F150 — Aviso de abertura da campanha.** Serve N34. A campanha abre sem aviso (1 ano antes do 1º turno, ou no início da partida), e no playtest ninguém percebeu a tempo de fundar partido, se filiar ou mudar a contribuição. Plano: no dia da abertura, um evento `campaign_opened` pausa a partida, como já fazem o resultado de turno e o impeachment, e abre para todos um aviso com a data do 1º turno, o dia em que as chapas fecham e atalhos para Fundar partido, Filiar-se e Contribuição. Dois lembretes sem pausa, como toast: alguns dias antes de as chapas fecharem e na véspera do 1º turno. Quando a caixa de entrada (F91) existir, cada aviso também vira uma entrada da sala; o aviso não espera por ela.
