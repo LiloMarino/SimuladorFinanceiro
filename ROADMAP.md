@@ -21,11 +21,11 @@
 | **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — |
 | **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — |
 | **N3** | Confiar que os números do simulador são exatos e reprodutíveis | [F22](#f22), [F100](#f100) | — |
-| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F10](#f10), [F110](#f110), [F111](#f111), [F127](#f127), [F149](#f149) | — |
+| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F110](#f110), [F111](#f111), [F127](#f127), [F149](#f149) | — |
 | **N5** | Saber quanto risco foi corrido para chegar num resultado | — | — |
 | **N6** | Comparar resultados de simulações diferentes | — | — |
 | **N7** | Que o simulador cobre os custos de operar do mercado real | [F22](#f22), [F100](#f100) | — |
-| **N8** | Jogar contra oponentes controlados pelo computador | [F146](#f146) | — |
+| **N8** | Jogar contra oponentes controlados pelo computador | — | — |
 | **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — |
 | **N10** | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | — | — |
 | **N11** | Que o cenário econômico simulado seja o histórico real | — | — |
@@ -36,13 +36,13 @@
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
-| **N19** | Analisar um ativo com as ferramentas de um trader | [F96](#f96) | — |
+| **N19** | Analisar um ativo com as ferramentas de um trader | — | — |
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | — | — |
 | **N22** | Ter objetivos para buscar além de vencer a partida | [F122](#f122) | — |
 | **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F101](#f101) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | — | — |
-| **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F126](#f126), [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141) | — |
+| **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141) | — |
 | **N26** | Achar a causa de um erro sem vasculhar o log inteiro | — | — |
 | **N27** | Entrar numa partida que já começou | — | — |
 | **N28** | Liberar uma vaga sem depender de o jogador sair | [F61](#f61) | — |
@@ -110,7 +110,6 @@
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
 | [**F144**](#f144) | Ajustes de layout do playtest | — | ⏳ |
 | [**F145**](#f145) | Convite de vice para qualquer jogador | — | ⏳ |
-| [**F146**](#f146) | Bots "saindo" ao iniciar a partida | — | ⏳ |
 | [**F147**](#f147) | Nome do presidente eleito aparecendo como null | — | ⏳ |
 | [**F148**](#f148) | Empréstimo que não se deixa pagar com o jogador negativado | — | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
@@ -125,7 +124,7 @@
 | [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -144,13 +143,8 @@
 | **D14** | Como o futuro é gerado: bootstrap em blocos conjunto, com biomas e encaixe de nível | — | ✅ |
 | **D15** | Lint com oxlint, formatação com oxfmt e o TypeScript 7 com a API do 6 ao lado | — | ✅ |
 | **D16** | Estratégias do app no host, personalização pela API | — | ✅ |
-| **D17** | Os tópicos do tutorial se animam em código, com o motion | [F126](#f126) | ✅ |
-| **D18** | Uma migration por versão; caminho antigo só cai numa major | [F142](#f142) | ✅ |
-| [**F10**](#f10) | Guia de como escrever uma estratégia | — | ✅ |
-| [**F96**](#f96) | Dicas de análise técnica | — | ✅ |
-| [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | ✅ |
-| [**F126**](#f126) | Janela "Como jogar" | — | ✅ |
-| [**F142**](#f142) | Banco da 3.0: regras em JSON, conquistas preservadas e migrations por versão | — | ✅ |
+| **D17** | Os tópicos do tutorial se animam em código, com o motion | — | ✅ |
+| **D18** | Uma migration por versão; caminho antigo só cai numa major | — | ✅ |
 
 </details>
 
@@ -193,7 +187,6 @@
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
 | [**F144**](#f144) | Ajustes de layout do playtest | M16 | 0 | ⏳ |
 | [**F145**](#f145) | Convite de vice para qualquer jogador | M17 | 0 | ⏳ |
-| [**F146**](#f146) | Bots "saindo" ao iniciar a partida | M16 | 0 | ⏳ |
 | [**F147**](#f147) | Nome do presidente eleito aparecendo como null | M16 | 0 | ⏳ |
 | [**F148**](#f148) | Empréstimo que não se deixa pagar com o jogador negativado | M16 | 0 | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | M16 | 0 | ⏳ |
@@ -221,26 +214,6 @@
 | --- | --- | --- | --- |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | [F5](#f5) | ⏳ |
-
-### M4 — Estratégias automáticas
-
-> **Objetivo:** Escrever ou escolher uma estratégia e deixar o simulador operar com ela.
->
-> **Serve:** N4
->
-> **Progresso:** 1/1 concluídas
-
-| ID | Resumo | Depende de | Status |
-| --- | --- | --- | --- |
-| — | *(nada em aberto)* | — | — |
-
-<details><summary>Concluído (1 item)</summary>
-
-| ID | Resumo | Depende de | Status |
-| --- | --- | --- | --- |
-| [**F10**](#f10) | Guia de como escrever uma estratégia | — | ✅ |
-
-</details>
 
 ### M8 — Dados reais, cuidados fora da partida
 
@@ -273,20 +246,12 @@
 >
 > **Serve:** N19
 >
-> **Progresso:** 1/3 concluídas
+> **Progresso:** 0/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | — | 🔍 |
-| [**F131**](#f131) | Catálogo de padrões de vela | [F96](#f96), [F126](#f126) | 🔍 |
-
-<details><summary>Concluído (1 item)</summary>
-
-| ID | Resumo | Depende de | Status |
-| --- | --- | --- | --- |
-| [**F96**](#f96) | Dicas de análise técnica | [F126](#f126) | ✅ |
-
-</details>
+| [**F131**](#f131) | Catálogo de padrões de vela | — | 🔍 |
 
 ### M14 — Vitrine e primeiros passos
 
@@ -294,24 +259,16 @@
 >
 > **Serve:** N25
 >
-> **Progresso:** 1/7 concluídas
+> **Progresso:** 0/6 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | [F126](#f126) | ⏳ |
-| [**F133**](#f133) | Tópicos de conceitos do Como jogar | [F126](#f126) | ⏳ |
+| [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | — | ⏳ |
+| [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | ⏳ |
 | [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | ⏳ |
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
 | [**F141**](#f141) | README com as features de hoje | [F139](#f139) | ⏳ |
-| [**F158**](#f158) | Animações do Como jogar revistas | [F126](#f126) | 🔍 |
-
-<details><summary>Concluído (1 item)</summary>
-
-| ID | Resumo | Depende de | Status |
-| --- | --- | --- | --- |
-| [**F126**](#f126) | Janela "Como jogar" | — | ✅ |
-
-</details>
+| [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
 
 ### M15 — Notícias e resumo do mês
 
@@ -333,12 +290,11 @@
 >
 > **Serve:** N4, N8, N15, N33, N34, N40
 >
-> **Progresso:** 0/8 concluídas
+> **Progresso:** 0/7 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F144**](#f144) | Ajustes de layout do playtest | — | ⏳ |
-| [**F146**](#f146) | Bots "saindo" ao iniciar a partida | — | ⏳ |
 | [**F147**](#f147) | Nome do presidente eleito aparecendo como null | — | ⏳ |
 | [**F148**](#f148) | Empréstimo que não se deixa pagar com o jogador negativado | — | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
@@ -368,7 +324,7 @@
 
 ### Sem marco
 
-> **Progresso:** 2/34 concluídas
+> **Progresso:** 0/32 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -405,15 +361,6 @@
 | [**F138**](#f138) | Piloto do modo strict do pyright | — | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
 
-<details><summary>Concluído (2 itens)</summary>
-
-| ID | Resumo | Depende de | Status |
-| --- | --- | --- | --- |
-| [**F125**](#f125) | Revisão das regras de lint e da checagem de tipos | — | ✅ |
-| [**F142**](#f142) | Banco da 3.0: regras em JSON, conquistas preservadas e migrations por versão | — | ✅ |
-
-</details>
-
 ---
 
 ## 1. Atende necessidade
@@ -421,7 +368,6 @@
 | ID | Resumo | Atende (N#) | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F6** | Link de convite pela internet no lobby | N2 | — | M3 | [F5](#f5) | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F10** | Guia de como escrever uma estratégia | N4 | — | M4 | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F37** | Tema escuro | N15 | — | — | — | Médio | Baixo | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F61** | Host remove jogador da sala | N28 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
@@ -429,24 +375,21 @@
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F91** | Caixa de entrada e resumo do mês | N32 | — | M15 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F92** | Noticiário da partida | N31 | D7 | M15 | [F91](#f91) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
-| **F96** | Dicas de análise técnica | N19 | — | M11 | [F126](#f126) | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F101** | Carteira separada do jogador | N23 | D9 | — | — | Alto | Alto | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F110** | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F122** | Novas conquistas para as features recentes e antigas | N22 | D1 | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F126** | Janela "Como jogar" | N25 | D17 | M14 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 | **F127** | Estratégias e bots operam cripto em fração | N4, N37 | D3 | — | — | Médio | Baixo | Baixo | Regular | 💤 Registrado, sem prioridade |
 | **F22** | Preço ajustado e proventos | N3, N7 | D1, D3, D7 | M8 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F100** | Proventos na carteira e nas telas | N3, N7 | D1, D3, D7 | M8 | [F22](#f22) | Médio | Médio | Médio | Bom | ⏳ Pendente |
-| **F132** | Tópicos de "como se joga" do Como jogar | N25 | — | M14 | [F126](#f126) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
-| **F133** | Tópicos de conceitos do Como jogar | N25 | — | M14 | [F126](#f126) | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F132** | Tópicos de "como se joga" do Como jogar | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F133** | Tópicos de conceitos do Como jogar | N25 | — | M14 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F134** | Acabamentos das telas | N15 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F139** | Demonstração regravada com o jogo de hoje | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F140** | Docs reorganizada por tipo de leitor | N25 | — | M14 | — | Alto | Baixo | Alto | Bom | ⏳ Pendente |
 | **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F144** | Ajustes de layout do playtest | N15, N34 | — | M16 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F145** | Convite de vice para qualquer jogador | N34 | — | M17 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F146** | Bots "saindo" ao iniciar a partida | N8 | — | M16 | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F147** | Nome do presidente eleito aparecendo como null | N34 | — | M16 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F148** | Empréstimo que não se deixa pagar com o jogador negativado | N33 | — | M16 | — | Médio | Médio | Alto | Excelente | ⏳ Pendente |
 | **F149** | Desligar o automático na própria boleta | N4, N15 | — | M16 | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
@@ -457,9 +400,6 @@
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
 **Aceite:** um amigo fora da rede local entra na partida só abrindo o link, sem instalar nada; com o host desconectado, nenhum outro jogador consegue virar host.
-
-<a id="f10"></a>
-**F10 — Guia de como escrever uma estratégia.** Origem: #49. Página no Docusaurus (grupo "Desenvolvimento"): como acrescentar uma estratégia ao app, com a classe base, o contexto que ela recebe a cada tick, como declarar nome e parâmetros e onde registrá-la para aparecer na página de Estratégias, nos bots e no backtest; uma das estratégias da F9 comentada linha a linha; e os limites (uma exceção devolve o jogador ao manual, o estado interno não volta na retomada). Quem não quer mexer no código do app tem o bot pela API (F108). Gatilho: F8 concluída — a API da classe base só fica estável depois dela.
 
 <a id="f37"></a>
 **F37 — Tema escuro.** Serve N15. Hoje só existe o tema claro (F26): o `:root` de `frontend/index.css` é a única fonte dos tokens, e o `@custom-variant dark` ficou inerte.
@@ -491,9 +431,6 @@
 <a id="f92"></a>
 **F92 — Noticiário da partida.** Serve N31; segue a D7. Um noticiário sintético: as manchetes nascem das séries que a partida já lê, e por isso funcionam igual no futuro gerado, que é onde o jogo passa a maior parte do tempo, e na história real. Sem LLM e sem internet. (1) **Motor genérico:** uma lista de regras, cada uma olhando as séries no tick e, quando dispara, criando uma entrada da sala na caixa de entrada (F91) a partir de um modelo de texto com algumas variações, para a mesma frase não se repetir. Regra nova é só mais um item da lista. (2) **Macro, as manchetes padrão:** Copom subiu, baixou ou manteve a SELIC, com o tamanho ("Copom sobe a SELIC em 0,5 ponto, para 14,25%"); IPCA do mês acima ou abaixo do anterior; Ibovespa no recorde ou na maior queda do ano. (3) **Empresas:** a mesma lógica para um ativo que sobe ou cai mais de um limite no dia, chega à máxima de 52 semanas ou anuncia provento. O movimento ganha uma causa sintética plausível, sorteada de um banco de causas por setor e direção ("resultado do trimestre acima do esperado", "troca no comando", "vendas de fim de ano fracas" para o varejo). A notícia sai depois do movimento: dá contexto e não dá vantagem. (4) As notícias de um ativo aparecem também na tela dele, como marcadores no gráfico de preço. (5) **Extra, para período real:** marcos históricos curados à mão (crise de 2008, Joesley Day em 2017, Covid em março de 2020), num arquivo de dados com data, manchete e ativos ligados. O futuro gerado sempre começa depois do último dia real, então um marco datado só aparece em período real, e um cenário (F90) pode trazer os seus. Gatilho: depois da caixa de entrada.
 
-<a id="f96"></a>
-**F96 — Dicas de análise técnica.** Serve N19. Aprender análise técnica jogando: o gráfico de velas aponta e explica o que um trader enxergaria. É ajuda, então o modo Especialista (F40) a desliga, como as outras, com um interruptor próprio (Esconder dicas de análise técnica). (1) Padrões de vela: 11 padrões clássicos detectados por regras fixas (martelo, martelo invertido, enforcado, estrela cadente, doji, engolfo de alta e de baixa, estrela da manhã e da tarde, três soldados brancos e três corvos negros). Marcador com o nome sobre a vela, faixa atrás dos padrões de várias velas, interruptor "Padrões de vela" no topo do gráfico, lista recolhível dos padrões do período e card "E se ele acertou?" ao passar o mouse, com o desenho animado do padrão, o contorno dos 5 pregões seguintes e a taxa de acerto (só com 10 ocorrências ou mais). (2) Indicadores (F33): legendas "Sobrecomprado"/"Sobrevendido" no IFR e círculo com frase nos cruzamentos do MACD e das médias móveis. (3) Desafio da vela: quando surge um padrão com lado, o jogo pergunta "sobe ou desce?" e confere no fechamento do 5º pregão, com placar, cartão no fim da partida e as conquistas Primeira leitura e Leitor de velas. O preset Realista passou a esconder as dicas, para o rótulo Especialista continuar valendo.
-
 <a id="f101"></a>
 **F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
 
@@ -505,9 +442,6 @@
 
 <a id="f122"></a>
 **F122 — Novas conquistas para as features recentes e antigas.** Serve N22; segue a D1. O catálogo tem 22 conquistas, quase todas de antes das últimas features, e várias coisas que o jogo já faz não rendem nada. Acrescentar uma é uma linha em `catalog.py` mais, quando a medida não existe, uma função `@metric` em `metrics.py` (o `code` nunca muda; nome, descrição e ícone podem mudar). Primeira leva, sobre o que já existe: (1) **Dentro da isenção** (IR da venda): fechar um mês vendendo ações sem pagar imposto por ficar abaixo do limite de isenção; (2) **Day trader** (IR): comprar e vender o mesmo ativo no mesmo dia; (3) **Em todo setor** (setores): ter ativos de cinco setores diferentes ao mesmo tempo, com barra de progresso; (4) **Mexeu o mercado** (impacto de preço): uma ordem sua mover o preço do ativo, valendo só em partida com o impacto ligado; (5) **Sem muletas** (modo Especialista): vencer a partida no modo Especialista; (6) **Time vencedor** (equipes): vencer uma partida em equipes; (7) **Além do horizonte** (dados gerados): jogar um dia além do último dia com dado real; (8) **Nota de craque** (nota geral): chegar a uma nota geral alta, com a meta calibrada nas notas das partidas já jogadas; (9) **Ordem com paciência**: ter a primeira ordem limite executada. Vale também uma regra daqui para a frente: cada feature nova que mexe no jogo traz as próprias conquistas no mesmo trabalho (crédito, proventos, bots e estratégias automáticas, por exemplo), em vez de esperar uma leva à parte. Gatilho: qualquer momento; nomes, descrições e ícones se fecham na hora de escrever cada linha.
-
-<a id="f126"></a>
-**F126 — Janela "Como jogar".** Serve N25. Tutorial no molde das Dicas e truques do Factorio, com cada tópico animado em código com o `motion` (D17). **Entregue:** a janela (lista de tópicos à esquerda, tópico à direita com ilustração, passos e dica, "Próximo" no rodapé), o palco reutilizável (componentes reais do app com contextos de exemplo, um `fetch` de exemplo só para a prévia de ordem, cursor e destaque que medem o DOM) e três tópicos no grupo "Renda variável": "Comprar uma ação" e "Ordem a mercado e limitada" (passo a passo animado) e "Alavancagem" (conceito, ilustração numérica; é o destino do "Saiba mais" da dica de alavancagem em Crédito). Tópico novo entra no registro `features/tutorial/lib/topics.ts` com id, grupo, texto e ilustração. **Nunca abre sozinha:** abre pelo botão do lobby, ao lado de Conquistas, e por um acesso na partida que o jogador escolhe em Configurações (aba na borda, padrão; item no menu; botão na topbar; desligado). **Aviso pelo contexto:** o primeiro tópico não visto da tela avisa uma vez, ancorado no acesso escolhido. "Visto" é abrir o tópico; o navegador guarda o que foi visto e avisado. **Tempo:** com um só jogador humano (bots não contam) e o tempo andando, abrir pausa e fechar retoma só se a janela pausou; com mais gente o tempo segue e o cabeçalho avisa. Se a animação não carrega, fica a imagem parada com "Tentar de novo". Com movimento reduzido a animação nasce pausada. O estado "depois de atualizar" não foi desenhado: as Novidades (F56) ainda não existem. Os demais tópicos saem nas F132 e F133.
 
 <a id="f127"></a>
 **F127 — Estratégias e bots operam cripto em fração.** Serve N4 e N37. Com a classe de cripto e a quantidade fracionária no ar, as estratégias seguem comprando só unidades inteiras (`int(caixa // preço)`), então um bot só compra bitcoin se o caixa pagar 1 unidade inteira. Plano: o contexto da estratégia passa a conhecer a classe do ativo, e as estratégias (comprar e segurar, rebalanceamento, momentum, RSI, médias móveis, rompimento) arredondam a quantidade em oito casas para cripto e em inteiro para as demais; `whole_shares` ganha a variante fracionária. Gatilho: a F113 concluída e o uso pedir bot com bitcoin.
@@ -544,9 +478,6 @@
 <a id="f145"></a>
 **F145 — Convite de vice para qualquer jogador.** Serve N34. Hoje o vice sai de um `Select` com os filiados do partido (`ticket-dialog.tsx:81`), e o backend recusa quem não é filiado (`government_book.py:311`); o convite e o aceite já existem (`government_book.py:343`, `vice-invite-dialog.tsx`). Plano: (1) **Regra:** o vice pode ser qualquer jogador humano da sala, de outro partido ou sem partido, como numa coligação, e continua filiado ao próprio partido. Fica bloqueado quem já é vice de outra chapa, quem é candidato de alguma chapa e os bots. (2) **Quem convida:** o `Select` vira uma lista de todos os jogadores, com o partido de cada um, e os bloqueados aparecem desabilitados com o motivo ("já é vice do ABC", "candidato pelo XYZ"). (3) **Quem é convidado:** um aviso que se abre na tela dele, pelo Socket.IO, com aceitar e recusar, reaproveitando o `vice-invite-dialog.tsx`; quem convida vê o convite como pendente até a resposta. (4) **Efeitos:** no impeachment, assume o vice enquanto ele estiver na partida, sem exigir filiação; na vitória política, o vice soma para o próprio partido. Esse aviso de aceitar ou recusar é o mecanismo que a negociação com as bancadas (F154) reaproveita.
 
-<a id="f146"></a>
-**F146 — Bots "saindo" ao iniciar a partida.** Serve N8. Ao começar a partida, o log mostrou "Tio Patinhas saiu da sala". O início chama `release_bots` (`simulation_loader.py:58` e `:132`), que tira os bots da sala com `_take_out_bots(park=False)` (`user_manager.py:848`) e emite a saída de cada um pelo mesmo `_emit_player_exit` da saída de verdade; o front transforma isso no aviso de saída (`GlobalNotifications.tsx:54`). Plano: separar a liberação do lobby, que acontece no início, da remoção do bot, e emitir a saída só na remoção (`remove_bot`, `user_manager.py:789`), para o bot passar do lobby à partida sem aviso. Teste: iniciar uma partida com bot na sala e conferir que nenhum evento de saída é emitido.
-
 <a id="f147"></a>
 **F147 — Nome do presidente eleito aparecendo como null.** Serve N34. No playtest, o anúncio do resultado mostrou "null" no lugar do jogador eleito. Os pontos que montam o nome: o resultado do turno usa o nome do candidato, com o nome do partido como reserva (`round-result-dialog.tsx:79`), a posse mostra só a sigla (`government-notifications.tsx:101`) e o evento de tempo real tem `party_abbr` e `winner_abbr` opcionais, sem o nome do jogador (`realtime/schemas.py:199`). Plano: reproduzir na partida salva do playtest até o resultado; achar qual campo chega nulo (o caso provável é o candidato que saiu da sala, sem apelido no `user_manager`); levar o nome do eleito no próprio evento, gravado no momento da apuração, para o texto não depender de o jogador estar online; e mostrar "o candidato do ABC" quando a chapa não tiver candidato.
 
@@ -574,12 +505,10 @@
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
-| **F125** | Revisão das regras de lint e da checagem de tipos | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F135** | Tipos mais rígidos no frontend | — | — | — | Alto | Médio | Médio | Médio | ⏳ Pendente |
 | **F136** | Código e dependências sem uso | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F137** | Acessibilidade das telas | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F138** | Piloto do modo strict do pyright | — | — | — | Médio | Baixo | Baixo | Médio | ⏳ Pendente |
-| **F142** | Banco da 3.0: regras em JSON, conquistas preservadas e migrations por versão | D18 | — | — | Alto | Médio | Alto | Bom | ✅ Concluído |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -595,23 +524,6 @@
 <a id="f81"></a>
 **F81 — CORS restrito à mesma origem.** O backend libera CORS para qualquer origem com credenciais (`allow_origins=["*"]` e `allow_credentials=True` no FastAPI, `cors_allowed_origins="*"` no Socket.IO). Não é necessário: o front é servido pelo próprio backend e, no `pnpm dev`, chega pelo proxy do Vite. Hoje o que protege o jogador de um site malicioso aberto durante a partida é o cookie `client_id` com `SameSite=Lax`, que o navegador não manda em requisição de outro site; o CORS liberado só deixa outro site ler as rotas que não pedem identidade. (1) Sai o `CORSMiddleware` de `main.py`. (2) O Socket.IO fica com `cors_allowed_origins` na mesma origem, mais `http://localhost:5173` quando o modo debug estiver ligado: o proxy do Vite troca o `Host` (`changeOrigin: true`) mas mantém o `Origin` do Vite, e o Socket.IO recusaria a conexão em dev sem essa exceção. (3) Teste manual antes de fechar: jogo pelo `localhost`, por outro computador da LAN pelo IP e pelo `pnpm dev`. Gatilho: junto com o link de convite pela internet, quando o servidor passa a ficar exposto fora da LAN.
 
-<a id="f125"></a>
-**F125 — Revisão das regras de lint e da checagem de tipos.** Cada candidata foi medida rodando a ferramenta no código atual e julgada regra a regra, não pela categoria inteira: fica o que aponta bug, código morto ou risco de segurança; saem reescrita de estilo e falso positivo. Toda regra ligada é erro, porque o pyright e o oxlint saem com código 0 em aviso e o aviso se acumularia.
-
-**Ruff.** `ERA` (código comentado, 0 achados). `DTZ` (data sem fuso): o app grava `datetime.now(UTC)` e o banco usa `DateTime(timezone=True)`, então misturar data com e sem fuso é bug; os 5 `noqa` são de data local do app. `PLE` (erros que o Python só mostra ao executar, 0). `PLW` menos `PLW0603` (os `global` são caches de módulo) e `PLW0108` (o lambda do `monkeypatch` adia a busca do nome): pegou 2 `subprocess.run` sem `check` e uma variável de `for` reescrita. `S` (segurança) menos `S311` (o `random` é do jogo, não de criptografia), `S603` e `S607` (os `subprocess` chamam comandos fixos): os 15 achados eram de propósito (SQL montado nas migrations, `urlopen` do BCB, bind em `0.0.0.0` para a rede local) e levam `noqa` com o motivo. `LOG` (2 `logger.exception` fora de `except`, que podem sair sem traceback). `PGH` (11 `# type: ignore` sem código, que escondem erro novo na mesma linha). `FAST` (6: `Annotated` nas dependências e `response_model` redundante). `BLE` (4 `except Exception`, todos de propósito: erro de estratégia de terceiro devolve o jogador ao manual). Do `PT`, só a `PT011` (2 `pytest.raises` sem `match`, que passam pelo motivo errado). O lint também roda `ruff format --check` (os recortes de código dos guias em Markdown ficam fora).
-
-**Asserts.** O executável é empacotado com `optimize=2`, que apaga docstrings e `assert`. Os 45 `assert` do backend viraram `required()` (`backend/core/utils`), que levanta erro também no executável, ou `if`/`raise` explícito onde a checagem não é de `None` (tipo de parâmetro de estratégia, quantidade zero numa ordem). A `S101` vale no backend e libera `tests/` e `scripts/`.
-
-**pyright.** Modo `standard`. `reportUnusedFunction` e `reportUnnecessaryComparison` são erro. `reportUnnecessaryTypeIgnoreComment` (9 dos 11 `# type: ignore` sem código e 19 dos com código estavam mortos) e `reportDeprecated` (`Iterator` trocado por `Generator` nos `@contextmanager`) estão ligados. Ficam fora `reportUnnecessaryIsInstance` (1 achado, validação de fronteira em `base_strategy.py`) e `reportUnnecessaryCast` (3, casts do pandas, cuja inferência muda com a ordem em que o pyright avalia os arquivos).
-
-**oxlint e tsc.** A categoria `correctness` inteira e o `exhaustive-deps` são erro, e `only-export-components`, `incompatible-library` e `unsupported-syntax` também. Ligadas: as `no-unsafe-assignment`, `-argument`, `-member-access`, `-return` e `-call` (`any` vazando de `JSON.parse` e do zod; os componentes do shadcn em `shared/components/ui` e o `.pnpmfile.cjs` ficam fora); `no-deprecated` (o `Cell` do Recharts virou o `fill` da fatia); `no-unnecessary-type-assertion`, `-type-arguments`, `-type-conversion` e `-template-expression` (código morto, com autofix); `switch-exhaustiveness-check` com `considerDefaultExhaustiveForUnions` (`switch` sem `default` que esquece um caso da união é erro). No `tsc`, `noImplicitReturns` garante que todo caminho de uma função com retorno retorna.
-
-**Medidas e deixadas de fora.** Ruff `C4`, `RET`, `PIE`, `FBT`, `FURB157`, `SLF`, `INP` e `PLR` são estilo e refatoração. `ARG` (18 no backend) é quase toda assinatura exigida (handler do FastAPI, método base de estratégia, `lifespan`); os dois parâmetros mortos de verdade, em funções privadas do governo, saíram. No oxlint: `pedantic` (`prefer-readonly-parameter-types` 2.332, `no-confusing-void-expression` 490, `strict-boolean-expressions` 428), `no-unsafe-type-assertion` (141), `eqeqeq` (o `== null` é idioma), `no-unstable-nested-components` (17, funções de render do Recharts e do `toast`), `prefer-nullish-coalescing` (11, todos `||` de propósito), `no-unmodified-loop-condition` (o `setDate` muda a data dentro do laço), `style-prop-object` (o `style` textual do aviso do tutorial), `exhaustive-effect-dependencies` (o `id` no array é de propósito), `no-accumulating-spread` (listas de rótulos pequenas) e `jsx-no-constructed-context-values` (os providers ficam na raiz e o valor muda com o dado de todo jeito).
-
-**Formatação.** O frontend é formatado pelo oxfmt (`frontend/.oxfmtrc.json`, 120 colunas: é a largura que menos mexe no código existente, 214 arquivos contra 470 com 100 e 317 com 140). O `check` do frontend roda `oxfmt --check` e o `pnpm format` da raiz formata backend e frontend. O `frontend/.gitattributes` fixa LF na cópia local, porque o oxfmt não aceita fim de linha automático e o Windows faz checkout em CRLF.
-
-O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F135](#f135)), código e dependências sem uso ([F136](#f136)), acessibilidade ([F137](#f137)) e o piloto do strict do pyright ([F138](#f138)).
-
 <a id="f135"></a>
 **F135 — Tipos mais rígidos no frontend.** Liga três checagens que o TypeScript e o oxlint têm e o projeto não usa. `noUncheckedIndexedAccess` (237 erros hoje): ler `lista[i]` ou `registro[chave]` passa a dar `T | undefined`, e o código precisa tratar o item que não existe. `exactOptionalPropertyTypes` (222): um campo opcional deixa de aceitar `undefined` escrito explicitamente, o que separa "campo ausente" de "campo presente e vazio". `typescript/no-unnecessary-condition` (66): condição que o tipo diz ser sempre verdadeira ou sempre falsa. As três só valem se o tipo gerado da API (`types/openapi.generated.ts`) for fiel ao que o backend manda: um campo que sempre vem, mas sai opcional no OpenAPI, faz a regra pedir checagem à toa. Plano: conferir quais DTOs do backend saem com campo opcional sem precisar (o FastAPI marca como opcional todo campo com valor padrão) e corrigir no schema; depois ligar uma flag por vez, corrigir e commitar separado. Gatilho: um bug de item ausente ou de campo opcional chegar ao jogador, ou uma rodada de qualidade.
 
@@ -623,9 +535,6 @@ O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F13
 
 <a id="f138"></a>
 **F138 — Piloto do modo strict do pyright.** O `strict` no projeto inteiro dá 3.352 achados; `backend/config`, `backend/routes` e `main.py` ficam quase limpos. Plano: listar essas pastas em `strict` no `pyrightconfig.json`, corrigir os achados e medir quanto cada achado custou; se o custo por achado valer, ampliar pasta por pasta, começando pelas que não tocam o pandas. Gatilho: livre.
-
-<a id="f142"></a>
-**F142 — Banco da 3.0: regras em JSON, conquistas preservadas e migrations por versão.** Entregue com a D18. **Regras da partida:** as 24 colunas de regra de `simulations` viraram um campo JSON `rules`, no mesmo formato do preset e das últimas regras; a leitura é estrita e passa por um decodificador só, que serve a lista de salvas, as estatísticas e a troca das séries geradas. Regra nova é um campo do DTO com valor padrão, sem migration. **Conquistas:** sobrevivem à exclusão da partida em que saíram (a chave vira `SET NULL`), e a tela mostra "Partida excluída". **Migrations:** a inicial é o banco da 2.3 e a da 3.0 junta tudo o que veio depois; quem está na 2.3 atualiza sem perder nada, e da 2.0 à 2.2 o app recusa e manda abrir uma vez na 2.3. **Trava de dado perdido:** conta cada valor do primeiro nível de um JSONB como uma célula. Conferido com o `pg_dump --schema-only` da cadeia antiga contra o da nova, nos dois pontos (2.3 e 3.0), e com uma partida criada pela 2.3 aberta na 3.0.
 
 ---
 ## 3. Descartada
@@ -656,14 +565,14 @@ O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F13
 | **F128** | Governo & Política: rever os impostos por setor | Serve N34; revisão da versão jogável | — | — | 🔍 Em avaliação |
 | **F129** | Governo & Política: rever a aprovação do governo | Serve N34; inclui a aprovação pesar na reeleição | M17 | — | 🔍 Em avaliação |
 | **F130** | Governo & Política: rever os votos e a eleição | Serve N34; revisão da versão jogável | M17 | — | 🔍 Em avaliação |
-| **F131** | Catálogo de padrões de vela | Serve N19; tópico do Como jogar com cada padrão animado | M11 | [F96](#f96), [F126](#f126) | 🔍 Em avaliação |
+| **F131** | Catálogo de padrões de vela | Serve N19; tópico do Como jogar com cada padrão animado | M11 | — | 🔍 Em avaliação |
 | **F143** | Preparação de cada jogador no lobby | Serve N39 e N34; falta escolher o que cada jogador prepara | — | — | 🔍 Em avaliação |
 | **F151** | Segundo turno com disputa | Serve N34; falta escolher o que mexe nos votos entre os turnos | M17 | — | 🔍 Em avaliação |
 | **F152** | Promessas de campanha em texto | Serve N34; falta escolher entre texto livre e medida da lista | M17 | — | 🔍 Em avaliação |
 | **F153** | Congresso eleito, com bancadas | Serve N34; falta o tamanho da casa e a fórmula do voto | M17 | — | 🔍 Em avaliação |
 | **F154** | Negociar apoio com as bancadas | Serve N34; falta a moeda da troca | M17 | [F153](#f153) | 🔍 Em avaliação |
 | **F157** | Velocidade x100 que quase não acelera | Serve N40 e N24; falta medir o tick no x100 com o painel de desempenho | M16 | — | 🔍 Em avaliação |
-| **F158** | Animações do Como jogar revistas | Serve N25; falta o visual numa rodada no canvas | M14 | [F126](#f126) | 🔍 Em avaliação |
+| **F158** | Animações do Como jogar revistas | Serve N25; falta o visual numa rodada no canvas | M14 | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.

@@ -719,3 +719,59 @@ Referência de custo: o tick leva hoje ~50–100 ms (medido na F11), então 10 a
 *Marco:* Estratégia contra estratégia · serve N4, N8, N10
 
 > **Objetivo:** Pôr bots na sala e rodar uma partida só de estratégias, do começo ao fim, sem esperar.
+
+### F10 · arquivado em 2026-10-26
+
+*Kanban:* Guia de como escrever uma estratégia · 1. Atende necessidade · ✅ Concluído · atende N4 · marco M4
+
+**F10 — Guia de como escrever uma estratégia.** Origem: #49. Página no Docusaurus (grupo "Desenvolvimento"): como acrescentar uma estratégia ao app, com a classe base, o contexto que ela recebe a cada tick, como declarar nome e parâmetros e onde registrá-la para aparecer na página de Estratégias, nos bots e no backtest; uma das estratégias da F9 comentada linha a linha; e os limites (uma exceção devolve o jogador ao manual, o estado interno não volta na retomada). Quem não quer mexer no código do app tem o bot pela API (F108). Gatilho: F8 concluída — a API da classe base só fica estável depois dela.
+
+### F96 · arquivado em 2026-10-26
+
+*Kanban:* Dicas de análise técnica · 1. Atende necessidade · ✅ Concluído · atende N19 · marco M11 · depende de F126 · dependência de F131
+
+**F96 — Dicas de análise técnica.** Serve N19. Aprender análise técnica jogando: o gráfico de velas aponta e explica o que um trader enxergaria. É ajuda, então o modo Especialista (F40) a desliga, como as outras, com um interruptor próprio (Esconder dicas de análise técnica). (1) Padrões de vela: 11 padrões clássicos detectados por regras fixas (martelo, martelo invertido, enforcado, estrela cadente, doji, engolfo de alta e de baixa, estrela da manhã e da tarde, três soldados brancos e três corvos negros). Marcador com o nome sobre a vela, faixa atrás dos padrões de várias velas, interruptor "Padrões de vela" no topo do gráfico, lista recolhível dos padrões do período e card "E se ele acertou?" ao passar o mouse, com o desenho animado do padrão, o contorno dos 5 pregões seguintes e a taxa de acerto (só com 10 ocorrências ou mais). (2) Indicadores (F33): legendas "Sobrecomprado"/"Sobrevendido" no IFR e círculo com frase nos cruzamentos do MACD e das médias móveis. (3) Desafio da vela: quando surge um padrão com lado, o jogo pergunta "sobe ou desce?" e confere no fechamento do 5º pregão, com placar, cartão no fim da partida e as conquistas Primeira leitura e Leitor de velas. O preset Realista passou a esconder as dicas, para o rótulo Especialista continuar valendo.
+
+### F125 · arquivado em 2026-10-26
+
+*Kanban:* Revisão das regras de lint e da checagem de tipos · 2. Nice-to-have · ✅ Concluído
+
+**F125 — Revisão das regras de lint e da checagem de tipos.** Cada candidata foi medida rodando a ferramenta no código atual e julgada regra a regra, não pela categoria inteira: fica o que aponta bug, código morto ou risco de segurança; saem reescrita de estilo e falso positivo. Toda regra ligada é erro, porque o pyright e o oxlint saem com código 0 em aviso e o aviso se acumularia.
+
+**Ruff.** `ERA` (código comentado, 0 achados). `DTZ` (data sem fuso): o app grava `datetime.now(UTC)` e o banco usa `DateTime(timezone=True)`, então misturar data com e sem fuso é bug; os 5 `noqa` são de data local do app. `PLE` (erros que o Python só mostra ao executar, 0). `PLW` menos `PLW0603` (os `global` são caches de módulo) e `PLW0108` (o lambda do `monkeypatch` adia a busca do nome): pegou 2 `subprocess.run` sem `check` e uma variável de `for` reescrita. `S` (segurança) menos `S311` (o `random` é do jogo, não de criptografia), `S603` e `S607` (os `subprocess` chamam comandos fixos): os 15 achados eram de propósito (SQL montado nas migrations, `urlopen` do BCB, bind em `0.0.0.0` para a rede local) e levam `noqa` com o motivo. `LOG` (2 `logger.exception` fora de `except`, que podem sair sem traceback). `PGH` (11 `# type: ignore` sem código, que escondem erro novo na mesma linha). `FAST` (6: `Annotated` nas dependências e `response_model` redundante). `BLE` (4 `except Exception`, todos de propósito: erro de estratégia de terceiro devolve o jogador ao manual). Do `PT`, só a `PT011` (2 `pytest.raises` sem `match`, que passam pelo motivo errado). O lint também roda `ruff format --check` (os recortes de código dos guias em Markdown ficam fora).
+
+**Asserts.** O executável é empacotado com `optimize=2`, que apaga docstrings e `assert`. Os 45 `assert` do backend viraram `required()` (`backend/core/utils`), que levanta erro também no executável, ou `if`/`raise` explícito onde a checagem não é de `None` (tipo de parâmetro de estratégia, quantidade zero numa ordem). A `S101` vale no backend e libera `tests/` e `scripts/`.
+
+**pyright.** Modo `standard`. `reportUnusedFunction` e `reportUnnecessaryComparison` são erro. `reportUnnecessaryTypeIgnoreComment` (9 dos 11 `# type: ignore` sem código e 19 dos com código estavam mortos) e `reportDeprecated` (`Iterator` trocado por `Generator` nos `@contextmanager`) estão ligados. Ficam fora `reportUnnecessaryIsInstance` (1 achado, validação de fronteira em `base_strategy.py`) e `reportUnnecessaryCast` (3, casts do pandas, cuja inferência muda com a ordem em que o pyright avalia os arquivos).
+
+**oxlint e tsc.** A categoria `correctness` inteira e o `exhaustive-deps` são erro, e `only-export-components`, `incompatible-library` e `unsupported-syntax` também. Ligadas: as `no-unsafe-assignment`, `-argument`, `-member-access`, `-return` e `-call` (`any` vazando de `JSON.parse` e do zod; os componentes do shadcn em `shared/components/ui` e o `.pnpmfile.cjs` ficam fora); `no-deprecated` (o `Cell` do Recharts virou o `fill` da fatia); `no-unnecessary-type-assertion`, `-type-arguments`, `-type-conversion` e `-template-expression` (código morto, com autofix); `switch-exhaustiveness-check` com `considerDefaultExhaustiveForUnions` (`switch` sem `default` que esquece um caso da união é erro). No `tsc`, `noImplicitReturns` garante que todo caminho de uma função com retorno retorna.
+
+**Medidas e deixadas de fora.** Ruff `C4`, `RET`, `PIE`, `FBT`, `FURB157`, `SLF`, `INP` e `PLR` são estilo e refatoração. `ARG` (18 no backend) é quase toda assinatura exigida (handler do FastAPI, método base de estratégia, `lifespan`); os dois parâmetros mortos de verdade, em funções privadas do governo, saíram. No oxlint: `pedantic` (`prefer-readonly-parameter-types` 2.332, `no-confusing-void-expression` 490, `strict-boolean-expressions` 428), `no-unsafe-type-assertion` (141), `eqeqeq` (o `== null` é idioma), `no-unstable-nested-components` (17, funções de render do Recharts e do `toast`), `prefer-nullish-coalescing` (11, todos `||` de propósito), `no-unmodified-loop-condition` (o `setDate` muda a data dentro do laço), `style-prop-object` (o `style` textual do aviso do tutorial), `exhaustive-effect-dependencies` (o `id` no array é de propósito), `no-accumulating-spread` (listas de rótulos pequenas) e `jsx-no-constructed-context-values` (os providers ficam na raiz e o valor muda com o dado de todo jeito).
+
+**Formatação.** O frontend é formatado pelo oxfmt (`frontend/.oxfmtrc.json`, 120 colunas: é a largura que menos mexe no código existente, 214 arquivos contra 470 com 100 e 317 com 140). O `check` do frontend roda `oxfmt --check` e o `pnpm format` da raiz formata backend e frontend. O `frontend/.gitattributes` fixa LF na cópia local, porque o oxfmt não aceita fim de linha automático e o Windows faz checkout em CRLF.
+
+O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F135](#f135)), código e dependências sem uso ([F136](#f136)), acessibilidade ([F137](#f137)) e o piloto do strict do pyright ([F138](#f138)).
+
+### F126 · arquivado em 2026-10-26
+
+*Kanban:* Janela "Como jogar" · 1. Atende necessidade · ✅ Concluído · atende N25 · decisões D17 · marco M14 · dependência de F132, F133, F131, F158
+
+**F126 — Janela "Como jogar".** Serve N25. Tutorial no molde das Dicas e truques do Factorio, com cada tópico animado em código com o `motion` (D17). **Entregue:** a janela (lista de tópicos à esquerda, tópico à direita com ilustração, passos e dica, "Próximo" no rodapé), o palco reutilizável (componentes reais do app com contextos de exemplo, um `fetch` de exemplo só para a prévia de ordem, cursor e destaque que medem o DOM) e três tópicos no grupo "Renda variável": "Comprar uma ação" e "Ordem a mercado e limitada" (passo a passo animado) e "Alavancagem" (conceito, ilustração numérica; é o destino do "Saiba mais" da dica de alavancagem em Crédito). Tópico novo entra no registro `features/tutorial/lib/topics.ts` com id, grupo, texto e ilustração. **Nunca abre sozinha:** abre pelo botão do lobby, ao lado de Conquistas, e por um acesso na partida que o jogador escolhe em Configurações (aba na borda, padrão; item no menu; botão na topbar; desligado). **Aviso pelo contexto:** o primeiro tópico não visto da tela avisa uma vez, ancorado no acesso escolhido. "Visto" é abrir o tópico; o navegador guarda o que foi visto e avisado. **Tempo:** com um só jogador humano (bots não contam) e o tempo andando, abrir pausa e fechar retoma só se a janela pausou; com mais gente o tempo segue e o cabeçalho avisa. Se a animação não carrega, fica a imagem parada com "Tentar de novo". Com movimento reduzido a animação nasce pausada. O estado "depois de atualizar" não foi desenhado: as Novidades (F56) ainda não existem. Os demais tópicos saem nas F132 e F133.
+
+### F142 · arquivado em 2026-10-26
+
+*Kanban:* Banco da 3.0: regras em JSON, conquistas preservadas e migrations por versão · 2. Nice-to-have · ✅ Concluído · decisões D18
+
+**F142 — Banco da 3.0: regras em JSON, conquistas preservadas e migrations por versão.** Entregue com a D18. **Regras da partida:** as 24 colunas de regra de `simulations` viraram um campo JSON `rules`, no mesmo formato do preset e das últimas regras; a leitura é estrita e passa por um decodificador só, que serve a lista de salvas, as estatísticas e a troca das séries geradas. Regra nova é um campo do DTO com valor padrão, sem migration. **Conquistas:** sobrevivem à exclusão da partida em que saíram (a chave vira `SET NULL`), e a tela mostra "Partida excluída". **Migrations:** a inicial é o banco da 2.3 e a da 3.0 junta tudo o que veio depois; quem está na 2.3 atualiza sem perder nada, e da 2.0 à 2.2 o app recusa e manda abrir uma vez na 2.3. **Trava de dado perdido:** conta cada valor do primeiro nível de um JSONB como uma célula. Conferido com o `pg_dump --schema-only` da cadeia antiga contra o da nova, nos dois pontos (2.3 e 3.0), e com uma partida criada pela 2.3 aberta na 3.0.
+
+### M4 · arquivado em 2026-10-26
+
+*Marco:* Estratégias automáticas · serve N4
+
+> **Objetivo:** Escrever ou escolher uma estratégia e deixar o simulador operar com ela.
+
+### F146 · arquivado em 2026-10-26
+
+*Kanban:* Bots "saindo" ao iniciar a partida · 1. Atende necessidade · ✅ Concluído · atende N8 · marco M16
+
+**F146 — Bots "saindo" ao iniciar a partida.** Serve N8. A liberação dos bots no início da partida (`release_bots`) deixou de emitir a saída de cada um; o aviso "saiu da sala" só vem de `remove_bot` e da troca para uma partida salva. O front refaz a lista de jogadores ao receber o início da partida (`SimulationProvider`). Testes em `tests/test_bots.py`: nenhuma saída ao iniciar com bot na sala, e a saída continua saindo ao remover o bot.
