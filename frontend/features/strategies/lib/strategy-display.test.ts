@@ -26,6 +26,7 @@ function line(action: StrategyOrderLine["action"]): StrategyOrderLine {
     price: "18.40",
     status: "executed",
     reason: null,
+    asset_uuid: null,
   };
 }
 

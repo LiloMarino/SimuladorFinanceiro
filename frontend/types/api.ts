@@ -34,7 +34,7 @@ export type Sector = components["schemas"]["SectorDTO"];
 export type StockSegment = components["schemas"]["StockSegmentDTO"];
 export type TickerSuggestion = components["schemas"]["TickerSuggestionDTO"];
 export type ImportResult = components["schemas"]["ImportResultDTO"];
-export type ImportSettings = components["schemas"]["ImportSettingsDTO"];
+export type ImportSettings = components["schemas"]["ImportSettingsDTO-Output"];
 export type PriceCorrectionResult = components["schemas"]["PriceCorrectionResultDTO"];
 export type ReplacedGenerated = components["schemas"]["ReplacedGeneratedDTO"];
 
@@ -93,8 +93,8 @@ export type NotificationPreferences = Pick<components["schemas"]["SettingsReques
 export type UserSettings = components["schemas"]["SettingsRequest"];
 
 // Indicadores técnicos
-export type IndicatorSettings = components["schemas"]["IndicatorSettingsDTO"];
-export type IndicatorParams = components["schemas"]["IndicatorParamsDTO"];
+export type IndicatorSettings = components["schemas"]["IndicatorSettingsDTO-Output"];
+export type IndicatorParams = components["schemas"]["IndicatorParamsDTO-Output"];
 export type IndicatorKey = IndicatorSettings["visible"][number];
 export type MovingAverage = IndicatorParams["averages"][number];
 export type IndicatorsRequest = components["schemas"]["IndicatorsRequestDTO"];
@@ -209,7 +209,7 @@ export type PrepayLoanRequest = components["schemas"]["PrepayLoanRequestDTO"];
 
 // Backtest
 export type BacktestConfigRequest = components["schemas"]["BacktestConfigDTO-Input"];
-export type BacktestParticipant = components["schemas"]["BacktestParticipantDTO"];
+export type BacktestParticipant = components["schemas"]["BacktestParticipantDTO-Output"];
 export type BacktestPriceImpact = components["schemas"]["BacktestPriceImpact"];
 export type BacktestSetup = components["schemas"]["BacktestSetupDTO"];
 export type BacktestCoverage = components["schemas"]["BacktestCoverageDTO"];

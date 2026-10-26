@@ -2034,7 +2034,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ImportSettingsDTO"
+                  "$ref": "#/components/schemas/ImportSettingsDTO-Output"
                 }
               }
             }
@@ -2072,7 +2072,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ImportSettingsDTO"
+                "$ref": "#/components/schemas/ImportSettingsDTO-Input"
               }
             }
           },
@@ -2084,7 +2084,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ImportSettingsDTO"
+                  "$ref": "#/components/schemas/ImportSettingsDTO-Output"
                 }
               }
             }
@@ -8402,7 +8402,7 @@
           },
           "participants": {
             "items": {
-              "$ref": "#/components/schemas/BacktestParticipantDTO"
+              "$ref": "#/components/schemas/BacktestParticipantDTO-Input"
             },
             "type": "array",
             "maxItems": 10,
@@ -8454,7 +8454,7 @@
           },
           "participants": {
             "items": {
-              "$ref": "#/components/schemas/BacktestParticipantDTO"
+              "$ref": "#/components/schemas/BacktestParticipantDTO-Output"
             },
             "type": "array",
             "maxItems": 10,
@@ -8570,7 +8570,7 @@
         "title": "BacktestFailureDTO",
         "description": "Estratégia que deu erro: para de operar e fica com a carteira que tinha."
       },
-      "BacktestParticipantDTO": {
+      "BacktestParticipantDTO-Input": {
         "properties": {
           "nickname": {
             "type": "string",
@@ -8598,6 +8598,39 @@
           "nickname",
           "color",
           "strategy_key"
+        ],
+        "title": "BacktestParticipantDTO",
+        "description": "Uma estratégia no backtest: vira um jogador sem pessoa, com carteira própria."
+      },
+      "BacktestParticipantDTO-Output": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "strategy_key": {
+            "type": "string",
+            "title": "Strategy Key"
+          },
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/StrategyParamValue"
+            },
+            "type": "object",
+            "title": "Params"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nickname",
+          "color",
+          "strategy_key",
+          "params"
         ],
         "title": "BacktestParticipantDTO",
         "description": "Uma estratégia no backtest: vira um jogador sem pessoa, com carteira própria."
@@ -8902,7 +8935,7 @@
           },
           "participants": {
             "items": {
-              "$ref": "#/components/schemas/BacktestParticipantDTO"
+              "$ref": "#/components/schemas/BacktestParticipantDTO-Output"
             },
             "type": "array",
             "title": "Participants"
@@ -9766,7 +9799,8 @@
         "type": "object",
         "required": [
           "correlation",
-          "days"
+          "days",
+          "reason"
         ],
         "title": "CorrelationCellDTO"
       },
@@ -11019,12 +11053,16 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "asset_uuid",
           "name",
           "issuer",
           "investment_type",
           "rate_index",
           "maturity_date",
-          "interest_rate"
+          "interest_rate",
+          "daily_liquidity",
+          "player_cap",
+          "offered_until"
         ],
         "title": "FixedIncomeAssetDTO"
       },
@@ -11113,12 +11151,16 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "asset_uuid",
           "name",
           "issuer",
           "investment_type",
           "rate_index",
           "maturity_date",
           "interest_rate",
+          "daily_liquidity",
+          "player_cap",
+          "offered_until",
           "index_rate",
           "effective_annual_rate",
           "tax_exempt",
@@ -11964,6 +12006,7 @@
           "until",
           "seed",
           "temperature",
+          "start_regime",
           "inflation_shock",
           "generated_at",
           "real_advanced_until",
@@ -12376,7 +12419,23 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "kind"
+          "kind",
+          "actor",
+          "target",
+          "party_abbr",
+          "amount",
+          "round",
+          "winner_abbr",
+          "winner_name",
+          "accepted",
+          "measure_title",
+          "chance",
+          "effective",
+          "tickers",
+          "months_below_floor",
+          "approval",
+          "ticket_deadline",
+          "first_round"
         ],
         "title": "GovernmentUpdateEventDTO",
         "description": "A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve."
@@ -12518,7 +12577,7 @@
         ],
         "title": "ImportResultDTO"
       },
-      "ImportSettingsDTO": {
+      "ImportSettingsDTO-Input": {
         "properties": {
           "correct_price_errors": {
             "type": "boolean",
@@ -12528,6 +12587,22 @@
         },
         "additionalProperties": false,
         "type": "object",
+        "title": "ImportSettingsDTO",
+        "description": "Como a base é importada, escolha do host."
+      },
+      "ImportSettingsDTO-Output": {
+        "properties": {
+          "correct_price_errors": {
+            "type": "boolean",
+            "title": "Correct Price Errors",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "correct_price_errors"
+        ],
         "title": "ImportSettingsDTO",
         "description": "Como a base é importada, escolha do host."
       },
@@ -12680,7 +12755,7 @@
           "obv"
         ]
       },
-      "IndicatorParamsDTO": {
+      "IndicatorParamsDTO-Input": {
         "properties": {
           "averages": {
             "items": {
@@ -12780,6 +12855,123 @@
         },
         "additionalProperties": false,
         "type": "object",
+        "title": "IndicatorParamsDTO",
+        "description": "Os parâmetros de todos os indicadores; os padrões são os de mercado."
+      },
+      "IndicatorParamsDTO-Output": {
+        "properties": {
+          "averages": {
+            "items": {
+              "$ref": "#/components/schemas/MovingAverageDTO"
+            },
+            "type": "array",
+            "maxItems": 4,
+            "title": "Averages",
+            "default": [
+              {
+                "kind": "sma",
+                "period": 20
+              },
+              {
+                "kind": "ema",
+                "period": 50
+              }
+            ]
+          },
+          "bollinger_period": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 2.0,
+            "title": "Bollinger Period",
+            "default": 20
+          },
+          "bollinger_deviations": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 0.5,
+            "title": "Bollinger Deviations",
+            "default": 2
+          },
+          "rsi_period": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Rsi Period",
+            "default": 14
+          },
+          "rsi_overbought": {
+            "type": "integer",
+            "maximum": 95.0,
+            "minimum": 50.0,
+            "title": "Rsi Overbought",
+            "default": 70
+          },
+          "rsi_oversold": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 5.0,
+            "title": "Rsi Oversold",
+            "default": 30
+          },
+          "macd_fast": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Macd Fast",
+            "default": 12
+          },
+          "macd_slow": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 3.0,
+            "title": "Macd Slow",
+            "default": 26
+          },
+          "macd_signal": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Macd Signal",
+            "default": 9
+          },
+          "stochastic_k": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Stochastic K",
+            "default": 14
+          },
+          "stochastic_d": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Stochastic D",
+            "default": 3
+          },
+          "atr_period": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 2.0,
+            "title": "Atr Period",
+            "default": 14
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "averages",
+          "bollinger_period",
+          "bollinger_deviations",
+          "rsi_period",
+          "rsi_overbought",
+          "rsi_oversold",
+          "macd_fast",
+          "macd_slow",
+          "macd_signal",
+          "stochastic_k",
+          "stochastic_d",
+          "atr_period"
+        ],
         "title": "IndicatorParamsDTO",
         "description": "Os parâmetros de todos os indicadores; os padrões são os de mercado."
       },
@@ -12904,10 +13096,19 @@
         },
         "additionalProperties": false,
         "type": "object",
+        "required": [
+          "averages",
+          "bollinger",
+          "rsi",
+          "macd",
+          "stochastic",
+          "atr",
+          "obv"
+        ],
         "title": "IndicatorSeriesDTO",
         "description": "Só os pedidos vêm preenchidos; cada série começa no primeiro pregão com valor."
       },
-      "IndicatorSettingsDTO": {
+      "IndicatorSettingsDTO-Input": {
         "properties": {
           "visible": {
             "items": {
@@ -12918,7 +13119,7 @@
             "default": []
           },
           "params": {
-            "$ref": "#/components/schemas/IndicatorParamsDTO",
+            "$ref": "#/components/schemas/IndicatorParamsDTO-Input",
             "default": {
               "averages": [
                 {
@@ -12954,10 +13155,62 @@
         "title": "IndicatorSettingsDTO",
         "description": "O que o jogador deixou ligado no gráfico e com quais parâmetros; vale para todas as ações."
       },
+      "IndicatorSettingsDTO-Output": {
+        "properties": {
+          "visible": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorKey"
+            },
+            "type": "array",
+            "title": "Visible",
+            "default": []
+          },
+          "params": {
+            "$ref": "#/components/schemas/IndicatorParamsDTO-Output",
+            "default": {
+              "averages": [
+                {
+                  "kind": "sma",
+                  "period": 20
+                },
+                {
+                  "kind": "ema",
+                  "period": 50
+                }
+              ],
+              "bollinger_period": 20,
+              "bollinger_deviations": 2.0,
+              "rsi_period": 14,
+              "rsi_overbought": 70,
+              "rsi_oversold": 30,
+              "macd_fast": 12,
+              "macd_slow": 26,
+              "macd_signal": 9,
+              "stochastic_k": 14,
+              "stochastic_d": 3,
+              "atr_period": 14
+            }
+          },
+          "patterns": {
+            "type": "boolean",
+            "title": "Patterns",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "visible",
+          "params",
+          "patterns"
+        ],
+        "title": "IndicatorSettingsDTO",
+        "description": "O que o jogador deixou ligado no gráfico e com quais parâmetros; vale para todas as ações."
+      },
       "IndicatorsRequestDTO": {
         "properties": {
           "params": {
-            "$ref": "#/components/schemas/IndicatorParamsDTO",
+            "$ref": "#/components/schemas/IndicatorParamsDTO-Input",
             "default": {
               "averages": [
                 {
@@ -13376,6 +13629,9 @@
           "event_date",
           "category",
           "kind",
+          "life_event_key",
+          "label",
+          "amount",
           "cash_after"
         ],
         "title": "LifeHistoryRowDTO"
@@ -14353,6 +14609,7 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "kind",
           "month",
           "networth_start",
           "networth_end",
@@ -15554,7 +15811,8 @@
           "total_equity",
           "total_fixed",
           "total_cash",
-          "total_contribution"
+          "total_contribution",
+          "total_debt"
         ],
         "title": "PatrimonialHistoryDTO"
       },
@@ -15989,7 +16247,11 @@
         "type": "object",
         "required": [
           "nickname",
-          "color"
+          "color",
+          "team",
+          "activity",
+          "bot",
+          "previous_nickname"
         ],
         "title": "PlayerPresenceEventDTO",
         "description": "Entrada, saída e troca de cor, equipe ou atividade de um jogador: a cor é a chave da paleta."
@@ -16841,6 +17103,7 @@
           "total_fixed",
           "total_cash",
           "total_contribution",
+          "total_debt",
           "total_provided"
         ],
         "title": "PortfolioHistoryPointDTO"
@@ -18560,6 +18823,14 @@
           "unexpected_per_year",
           "withdrawal_rate",
           "inflation_adjusted",
+          "player_grouping",
+          "team_naming",
+          "show_equivalent_rate",
+          "show_maturity_projection",
+          "show_chart_hints",
+          "government_enabled",
+          "first_election",
+          "computer_difficulty",
           "id",
           "is_backtest",
           "created_at",
@@ -19090,7 +19361,8 @@
         "type": "object",
         "required": [
           "authenticated",
-          "user"
+          "user",
+          "pending_join"
         ],
         "title": "SessionDTO"
       },
@@ -19155,7 +19427,7 @@
             "$ref": "#/components/schemas/PlayerNotificationSettings"
           },
           "indicators": {
-            "$ref": "#/components/schemas/IndicatorSettingsDTO",
+            "$ref": "#/components/schemas/IndicatorSettingsDTO-Input",
             "default": {
               "visible": [],
               "params": {
@@ -19202,7 +19474,7 @@
             "$ref": "#/components/schemas/PlayerNotificationSettings"
           },
           "indicators": {
-            "$ref": "#/components/schemas/IndicatorSettingsDTO",
+            "$ref": "#/components/schemas/IndicatorSettingsDTO-Output",
             "default": {
               "visible": [],
               "params": {
@@ -19576,6 +19848,14 @@
           "unexpected_per_year",
           "withdrawal_rate",
           "inflation_adjusted",
+          "player_grouping",
+          "team_naming",
+          "show_equivalent_rate",
+          "show_maturity_projection",
+          "show_chart_hints",
+          "government_enabled",
+          "first_election",
+          "computer_difficulty",
           "id"
         ],
         "title": "SimulationDTO"
@@ -19957,7 +20237,15 @@
           "monthly_expense",
           "unexpected_per_year",
           "withdrawal_rate",
-          "inflation_adjusted"
+          "inflation_adjusted",
+          "player_grouping",
+          "team_naming",
+          "show_equivalent_rate",
+          "show_maturity_projection",
+          "show_chart_hints",
+          "government_enabled",
+          "first_election",
+          "computer_difficulty"
         ],
         "title": "SimulationSettingsDTO"
       },
@@ -20076,7 +20364,9 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "active"
+          "active",
+          "simulation",
+          "backtest"
         ],
         "title": "SimulationStatusResponse"
       },
@@ -20951,7 +21241,8 @@
           "quantity",
           "price",
           "status",
-          "reason"
+          "reason",
+          "asset_uuid"
         ],
         "title": "StrategyOrderLineDTO"
       },
@@ -21120,6 +21411,9 @@
           "label",
           "kind",
           "default",
+          "min",
+          "max",
+          "unit",
           "hint"
         ],
         "title": "StrategyParamDTO"
@@ -21171,7 +21465,8 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "active"
+          "active",
+          "error"
         ],
         "title": "StrategyUpdateEventDTO",
         "description": "O modo do jogador mudou: ligou, trocou, desligou ou a estratégia deu erro."
@@ -21395,7 +21690,11 @@
         "type": "object",
         "required": [
           "kind",
-          "target_grade"
+          "target_grade",
+          "amount",
+          "interest_saved",
+          "leverage_after",
+          "volatility"
         ],
         "title": "SuggestionDTO"
       },
@@ -22069,6 +22368,8 @@
           "group",
           "label",
           "value",
+          "lower",
+          "upper",
           "signal",
           "reason",
           "needed_sessions",
@@ -22715,7 +23016,8 @@
         "required": [
           "id",
           "client_id",
-          "nickname"
+          "nickname",
+          "is_bot"
         ],
         "title": "UserDTO"
       },
@@ -22986,6 +23288,7 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "kind",
           "year",
           "networth_start",
           "networth_end",

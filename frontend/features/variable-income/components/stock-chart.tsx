@@ -133,6 +133,17 @@ type LineSeriesRef = ISeriesApi<"Line">;
 type HistogramSeriesRef = ISeriesApi<"Histogram">;
 type Series = TechnicalIndicators["series"];
 
+// Séries antes de o cálculo chegar: todos os indicadores ausentes
+const NO_SERIES: Series = {
+  averages: null,
+  bollinger: null,
+  rsi: null,
+  macd: null,
+  stochastic: null,
+  atr: null,
+  obv: null,
+};
+
 /** As dicas de análise técnica do gráfico; `null` quando a partida as desliga. */
 interface ChartHints {
   patterns: CandlePatterns | undefined;
@@ -245,7 +256,7 @@ export function StockChart({
           time: point.date,
           value: point.value,
         }));
-    const series: Series = indicators?.series ?? {};
+    const series: Series = indicators?.series ?? NO_SERIES;
     const styles = getComputedStyle(document.documentElement);
     const up = styles.getPropertyValue("--candle-up").trim();
     const down = styles.getPropertyValue("--candle-down").trim();
@@ -486,7 +497,7 @@ export function StockChart({
   const annotations = useMemo<Annotations>(() => {
     if (!hintsOn) return { markers: [], shapes: {} };
     const colors = readAnnotationColors();
-    const series = indicators?.series ?? {};
+    const series = indicators?.series ?? NO_SERIES;
     const shapes: Annotations["shapes"] = {};
     let markers: Annotations["markers"] = [];
 
@@ -557,7 +568,7 @@ export function StockChart({
 
   const loadingIndicators = indicatorsStatus === "pending" && !indicators;
   const priceClose = hoverDay === null ? initialData[initialData.length - 1]?.close : closeByDay.get(hoverDay);
-  const series: Series = indicators?.series ?? {};
+  const series: Series = indicators?.series ?? NO_SERIES;
   const bollingerLabel = `Bollinger ${settings.params.bollinger_period} ${displayNumber(settings.params.bollinger_deviations, 0)}`;
   const removeAverage = (index: number) =>
     onSettingsChange(

@@ -2,7 +2,31 @@ import { describe, expect, it } from "vitest";
 import type { GovernmentNotice } from "@/types";
 import { inForceToast, votedToast, warningToast } from "./measure-toast";
 
-const notice = (partial: Partial<GovernmentNotice>): GovernmentNotice => ({ kind: "MEASURE_VOTED", ...partial });
+const EMPTY_NOTICE: GovernmentNotice = {
+  kind: "UPDATED",
+  actor: null,
+  target: null,
+  party_abbr: null,
+  amount: null,
+  round: null,
+  winner_abbr: null,
+  winner_name: null,
+  accepted: null,
+  measure_title: null,
+  chance: null,
+  effective: null,
+  tickers: null,
+  months_below_floor: null,
+  approval: null,
+  ticket_deadline: null,
+  first_round: null,
+};
+
+const notice = (partial: Partial<GovernmentNotice>): GovernmentNotice => ({
+  ...EMPTY_NOTICE,
+  kind: "MEASURE_VOTED",
+  ...partial,
+});
 
 describe("votedToast", () => {
   it("conta a rejeição com a chance que a medida tinha", () => {

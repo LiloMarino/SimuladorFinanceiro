@@ -7,6 +7,9 @@ const row = (overrides: Partial<LifeHistoryRow>): LifeHistoryRow => ({
   event_date: "2024-10-15",
   category: "UNEXPECTED",
   kind: "UNEXPECTED_EXPENSE",
+  life_event_key: null,
+  label: null,
+  amount: null,
   cash_after: "1000.00",
   ...overrides,
 });

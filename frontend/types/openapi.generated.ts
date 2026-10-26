@@ -2918,7 +2918,7 @@ export interface components {
             monthly_contribution: number | string;
             price_impact: components["schemas"]["BacktestPriceImpact"];
             /** Participants */
-            participants: components["schemas"]["BacktestParticipantDTO"][];
+            participants: components["schemas"]["BacktestParticipantDTO-Input"][];
         };
         /**
          * BacktestConfigDTO
@@ -2943,7 +2943,7 @@ export interface components {
             monthly_contribution: string;
             price_impact: components["schemas"]["BacktestPriceImpact"];
             /** Participants */
-            participants: components["schemas"]["BacktestParticipantDTO"][];
+            participants: components["schemas"]["BacktestParticipantDTO-Output"][];
         };
         /**
          * BacktestCoverageDTO
@@ -2983,7 +2983,7 @@ export interface components {
          * BacktestParticipantDTO
          * @description Uma estratégia no backtest: vira um jogador sem pessoa, com carteira própria.
          */
-        BacktestParticipantDTO: {
+        "BacktestParticipantDTO-Input": {
             /** Nickname */
             nickname: string;
             /** Color */
@@ -2992,6 +2992,22 @@ export interface components {
             strategy_key: string;
             /** Params */
             params?: {
+                [key: string]: components["schemas"]["StrategyParamValue"];
+            };
+        };
+        /**
+         * BacktestParticipantDTO
+         * @description Uma estratégia no backtest: vira um jogador sem pessoa, com carteira própria.
+         */
+        "BacktestParticipantDTO-Output": {
+            /** Nickname */
+            nickname: string;
+            /** Color */
+            color: string;
+            /** Strategy Key */
+            strategy_key: string;
+            /** Params */
+            params: {
                 [key: string]: components["schemas"]["StrategyParamValue"];
             };
         };
@@ -3104,7 +3120,7 @@ export interface components {
         BacktestStatusDTO: {
             progress: components["schemas"]["BacktestProgressDTO"] | null;
             /** Participants */
-            participants: components["schemas"]["BacktestParticipantDTO"][];
+            participants: components["schemas"]["BacktestParticipantDTO-Output"][];
             /** Points */
             points: components["schemas"]["BacktestPointDTO"][];
             /** Failures */
@@ -3384,7 +3400,7 @@ export interface components {
             correlation: string | null;
             /** Days */
             days: number;
-            reason?: components["schemas"]["CorrelationGap"] | null;
+            reason: components["schemas"]["CorrelationGap"] | null;
         };
         /** @enum {string} */
         CorrelationGap: "insufficient_days" | "constant_series";
@@ -3831,7 +3847,7 @@ export interface components {
              * Asset Uuid
              * Format: uuid
              */
-            asset_uuid?: string;
+            asset_uuid: string;
             /** Name */
             name: string;
             /** Issuer */
@@ -3851,9 +3867,9 @@ export interface components {
              */
             daily_liquidity: boolean;
             /** Player Cap */
-            player_cap?: string | null;
+            player_cap: string | null;
             /** Offered Until */
-            offered_until?: string | null;
+            offered_until: string | null;
         };
         /**
          * FixedIncomeOfferDTO
@@ -3864,7 +3880,7 @@ export interface components {
              * Asset Uuid
              * Format: uuid
              */
-            asset_uuid?: string;
+            asset_uuid: string;
             /** Name */
             name: string;
             /** Issuer */
@@ -3884,9 +3900,9 @@ export interface components {
              */
             daily_liquidity: boolean;
             /** Player Cap */
-            player_cap?: string | null;
+            player_cap: string | null;
             /** Offered Until */
-            offered_until?: string | null;
+            offered_until: string | null;
             /** Index Rate */
             index_rate: string;
             /** Effective Annual Rate */
@@ -4146,7 +4162,7 @@ export interface components {
             seed: number;
             /** Temperature */
             temperature: number;
-            start_regime?: components["schemas"]["MarketRegime"] | null;
+            start_regime: components["schemas"]["MarketRegime"] | null;
             /** Inflation Shock */
             inflation_shock: number;
             /**
@@ -4231,37 +4247,37 @@ export interface components {
         GovernmentUpdateEventDTO: {
             kind: components["schemas"]["GovernmentNoticeKind"];
             /** Actor */
-            actor?: string | null;
+            actor: string | null;
             /** Target */
-            target?: string | null;
+            target: string | null;
             /** Party Abbr */
-            party_abbr?: string | null;
+            party_abbr: string | null;
             /** Amount */
-            amount?: string | null;
+            amount: string | null;
             /** Round */
-            round?: number | null;
+            round: number | null;
             /** Winner Abbr */
-            winner_abbr?: string | null;
+            winner_abbr: string | null;
             /** Winner Name */
-            winner_name?: string | null;
+            winner_name: string | null;
             /** Accepted */
-            accepted?: boolean | null;
+            accepted: boolean | null;
             /** Measure Title */
-            measure_title?: string | null;
+            measure_title: string | null;
             /** Chance */
-            chance?: number | null;
+            chance: number | null;
             /** Effective */
-            effective?: string | null;
+            effective: string | null;
             /** Tickers */
-            tickers?: string[] | null;
+            tickers: string[] | null;
             /** Months Below Floor */
-            months_below_floor?: number | null;
+            months_below_floor: number | null;
             /** Approval */
-            approval?: number | null;
+            approval: number | null;
             /** Ticket Deadline */
-            ticket_deadline?: string | null;
+            ticket_deadline: string | null;
             /** First Round */
-            first_round?: string | null;
+            first_round: string | null;
         };
         /** HighlightsDTO */
         HighlightsDTO: {
@@ -4296,7 +4312,18 @@ export interface components {
          * ImportSettingsDTO
          * @description Como a base é importada, escolha do host.
          */
-        ImportSettingsDTO: {
+        "ImportSettingsDTO-Input": {
+            /**
+             * Correct Price Errors
+             * @default true
+             */
+            correct_price_errors: boolean;
+        };
+        /**
+         * ImportSettingsDTO
+         * @description Como a base é importada, escolha do host.
+         */
+        "ImportSettingsDTO-Output": {
             /**
              * Correct Price Errors
              * @default true
@@ -4359,7 +4386,82 @@ export interface components {
          * IndicatorParamsDTO
          * @description Os parâmetros de todos os indicadores; os padrões são os de mercado.
          */
-        IndicatorParamsDTO: {
+        "IndicatorParamsDTO-Input": {
+            /**
+             * Averages
+             * @default [
+             *       {
+             *         "kind": "sma",
+             *         "period": 20
+             *       },
+             *       {
+             *         "kind": "ema",
+             *         "period": 50
+             *       }
+             *     ]
+             */
+            averages: components["schemas"]["MovingAverageDTO"][];
+            /**
+             * Bollinger Period
+             * @default 20
+             */
+            bollinger_period: number;
+            /**
+             * Bollinger Deviations
+             * @default 2
+             */
+            bollinger_deviations: number;
+            /**
+             * Rsi Period
+             * @default 14
+             */
+            rsi_period: number;
+            /**
+             * Rsi Overbought
+             * @default 70
+             */
+            rsi_overbought: number;
+            /**
+             * Rsi Oversold
+             * @default 30
+             */
+            rsi_oversold: number;
+            /**
+             * Macd Fast
+             * @default 12
+             */
+            macd_fast: number;
+            /**
+             * Macd Slow
+             * @default 26
+             */
+            macd_slow: number;
+            /**
+             * Macd Signal
+             * @default 9
+             */
+            macd_signal: number;
+            /**
+             * Stochastic K
+             * @default 14
+             */
+            stochastic_k: number;
+            /**
+             * Stochastic D
+             * @default 3
+             */
+            stochastic_d: number;
+            /**
+             * Atr Period
+             * @default 14
+             */
+            atr_period: number;
+        };
+        /**
+         * IndicatorParamsDTO
+         * @description Os parâmetros de todos os indicadores; os padrões são os de mercado.
+         */
+        "IndicatorParamsDTO-Output": {
             /**
              * Averages
              * @default [
@@ -4451,22 +4553,22 @@ export interface components {
          */
         IndicatorSeriesDTO: {
             /** Averages */
-            averages?: components["schemas"]["AverageSeriesDTO"][] | null;
-            bollinger?: components["schemas"]["BandsSeriesDTO"] | null;
+            averages: components["schemas"]["AverageSeriesDTO"][] | null;
+            bollinger: components["schemas"]["BandsSeriesDTO"] | null;
             /** Rsi */
-            rsi?: components["schemas"]["IndicatorPointDTO"][] | null;
-            macd?: components["schemas"]["MacdSeriesDTO"] | null;
-            stochastic?: components["schemas"]["StochasticSeriesDTO"] | null;
+            rsi: components["schemas"]["IndicatorPointDTO"][] | null;
+            macd: components["schemas"]["MacdSeriesDTO"] | null;
+            stochastic: components["schemas"]["StochasticSeriesDTO"] | null;
             /** Atr */
-            atr?: components["schemas"]["IndicatorPointDTO"][] | null;
+            atr: components["schemas"]["IndicatorPointDTO"][] | null;
             /** Obv */
-            obv?: components["schemas"]["IndicatorPointDTO"][] | null;
+            obv: components["schemas"]["IndicatorPointDTO"][] | null;
         };
         /**
          * IndicatorSettingsDTO
          * @description O que o jogador deixou ligado no gráfico e com quais parâmetros; vale para todas as ações.
          */
-        IndicatorSettingsDTO: {
+        "IndicatorSettingsDTO-Input": {
             /**
              * Visible
              * @default []
@@ -4497,7 +4599,49 @@ export interface components {
              *       "atr_period": 14
              *     }
              */
-            params: components["schemas"]["IndicatorParamsDTO"];
+            params: components["schemas"]["IndicatorParamsDTO-Input"];
+            /**
+             * Patterns
+             * @default true
+             */
+            patterns: boolean;
+        };
+        /**
+         * IndicatorSettingsDTO
+         * @description O que o jogador deixou ligado no gráfico e com quais parâmetros; vale para todas as ações.
+         */
+        "IndicatorSettingsDTO-Output": {
+            /**
+             * Visible
+             * @default []
+             */
+            visible: components["schemas"]["IndicatorKey"][];
+            /**
+             * @default {
+             *       "averages": [
+             *         {
+             *           "kind": "sma",
+             *           "period": 20
+             *         },
+             *         {
+             *           "kind": "ema",
+             *           "period": 50
+             *         }
+             *       ],
+             *       "bollinger_period": 20,
+             *       "bollinger_deviations": 2,
+             *       "rsi_period": 14,
+             *       "rsi_overbought": 70,
+             *       "rsi_oversold": 30,
+             *       "macd_fast": 12,
+             *       "macd_slow": 26,
+             *       "macd_signal": 9,
+             *       "stochastic_k": 14,
+             *       "stochastic_d": 3,
+             *       "atr_period": 14
+             *     }
+             */
+            params: components["schemas"]["IndicatorParamsDTO-Output"];
             /**
              * Patterns
              * @default true
@@ -4531,7 +4675,7 @@ export interface components {
              *       "atr_period": 14
              *     }
              */
-            params: components["schemas"]["IndicatorParamsDTO"];
+            params: components["schemas"]["IndicatorParamsDTO-Input"];
             /**
              * Series
              * @default []
@@ -4676,11 +4820,11 @@ export interface components {
             category: components["schemas"]["LifeHistoryCategory"];
             kind: components["schemas"]["LifeHistoryKind"];
             /** Life Event Key */
-            life_event_key?: string | null;
+            life_event_key: string | null;
             /** Label */
-            label?: string | null;
+            label: string | null;
             /** Amount */
-            amount?: string | null;
+            amount: string | null;
             /** Cash After */
             cash_after: string;
         };
@@ -5566,11 +5710,11 @@ export interface components {
             /** Color */
             color: string;
             /** Team */
-            team?: number | null;
-            activity?: components["schemas"]["PlayerActivity"] | null;
-            bot?: components["schemas"]["RoomBotDTO"] | null;
+            team: number | null;
+            activity: components["schemas"]["PlayerActivity"] | null;
+            bot: components["schemas"]["RoomBotDTO"] | null;
             /** Previous Nickname */
-            previous_nickname?: string | null;
+            previous_nickname: string | null;
         };
         /** PlayerRankingDTO */
         PlayerRankingDTO: {
@@ -6399,7 +6543,7 @@ export interface components {
              */
             government_enabled: boolean;
             /** First Election */
-            first_election?: string | null;
+            first_election: string | null;
             /** @default NORMAL */
             computer_difficulty: components["schemas"]["ComputerDifficulty"];
             /** Id */
@@ -6641,7 +6785,7 @@ export interface components {
              *       "patterns": true
              *     }
              */
-            indicators: components["schemas"]["IndicatorSettingsDTO"];
+            indicators: components["schemas"]["IndicatorSettingsDTO-Input"];
         } & {
             [key: string]: unknown;
         };
@@ -6681,7 +6825,7 @@ export interface components {
              *       "patterns": true
              *     }
              */
-            indicators: components["schemas"]["IndicatorSettingsDTO"];
+            indicators: components["schemas"]["IndicatorSettingsDTO-Output"];
             /** Debug */
             debug: boolean;
         } & {
@@ -6833,7 +6977,7 @@ export interface components {
              */
             government_enabled: boolean;
             /** First Election */
-            first_election?: string | null;
+            first_election: string | null;
             /** @default NORMAL */
             computer_difficulty: components["schemas"]["ComputerDifficulty"];
             /** Id */
@@ -7012,7 +7156,7 @@ export interface components {
              */
             government_enabled: boolean;
             /** First Election */
-            first_election?: string | null;
+            first_election: string | null;
             /** @default NORMAL */
             computer_difficulty: components["schemas"]["ComputerDifficulty"];
         };
@@ -7050,8 +7194,8 @@ export interface components {
         SimulationStatusResponse: {
             /** Active */
             active: boolean;
-            simulation?: components["schemas"]["SimulationDTO"] | null;
-            backtest?: components["schemas"]["BacktestProgressDTO"] | null;
+            simulation: components["schemas"]["SimulationDTO"] | null;
+            backtest: components["schemas"]["BacktestProgressDTO"] | null;
         };
         /** SimulationTickUpdateEventDTO */
         SimulationTickUpdateEventDTO: {
@@ -7330,7 +7474,7 @@ export interface components {
             /** Reason */
             reason: string | null;
             /** Asset Uuid */
-            asset_uuid?: string | null;
+            asset_uuid: string | null;
         };
         /**
          * StrategyOrderStatus
@@ -7377,11 +7521,11 @@ export interface components {
             kind: components["schemas"]["StrategyParamKind"];
             default: components["schemas"]["StrategyParamValue"];
             /** Min */
-            min?: number | null;
+            min: number | null;
             /** Max */
-            max?: number | null;
+            max: number | null;
             /** Unit */
-            unit?: string | null;
+            unit: string | null;
             /** Hint */
             hint: string;
         };
@@ -7399,7 +7543,7 @@ export interface components {
             /** Active */
             active: boolean;
             /** Error */
-            error?: string | null;
+            error: string | null;
         };
         /**
          * StrategyView
@@ -7455,13 +7599,13 @@ export interface components {
             kind: components["schemas"]["SuggestionKind"];
             target_grade: components["schemas"]["CreditGrade"] | null;
             /** Amount */
-            amount?: string | null;
+            amount: string | null;
             /** Interest Saved */
-            interest_saved?: string | null;
+            interest_saved: string | null;
             /** Leverage After */
-            leverage_after?: string | null;
+            leverage_after: string | null;
             /** Volatility */
-            volatility?: string | null;
+            volatility: string | null;
         };
         /**
          * SuggestionKind
@@ -7653,9 +7797,9 @@ export interface components {
             /** Value */
             value: number | null;
             /** Lower */
-            lower?: number | null;
+            lower: number | null;
             /** Upper */
-            upper?: number | null;
+            upper: number | null;
             signal: components["schemas"]["ReadingSignal"];
             /** Reason */
             reason: string;
@@ -9527,7 +9671,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ImportSettingsDTO"];
+                    "application/json": components["schemas"]["ImportSettingsDTO-Output"];
                 };
             };
             /** @description Unprocessable Content */
@@ -9559,7 +9703,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ImportSettingsDTO"];
+                "application/json": components["schemas"]["ImportSettingsDTO-Input"];
             };
         };
         responses: {
@@ -9569,7 +9713,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ImportSettingsDTO"];
+                    "application/json": components["schemas"]["ImportSettingsDTO-Output"];
                 };
             };
             /** @description Unprocessable Content */

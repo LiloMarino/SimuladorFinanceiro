@@ -2,8 +2,32 @@ import { describe, expect, it } from "vitest";
 import type { GovernmentNotice } from "@/types";
 import { calendarToast } from "./calendar-toast";
 
-const notice = (kind: GovernmentNotice["kind"]) =>
-  ({ kind, ticket_deadline: "2021-09-30", first_round: "2021-10-07" }) as GovernmentNotice;
+const EMPTY_NOTICE: GovernmentNotice = {
+  kind: "UPDATED",
+  actor: null,
+  target: null,
+  party_abbr: null,
+  amount: null,
+  round: null,
+  winner_abbr: null,
+  winner_name: null,
+  accepted: null,
+  measure_title: null,
+  chance: null,
+  effective: null,
+  tickers: null,
+  months_below_floor: null,
+  approval: null,
+  ticket_deadline: null,
+  first_round: null,
+};
+
+const notice = (kind: GovernmentNotice["kind"]): GovernmentNotice => ({
+  ...EMPTY_NOTICE,
+  kind,
+  ticket_deadline: "2021-09-30",
+  first_round: "2021-10-07",
+});
 
 describe("calendarToast", () => {
   it("avisa a data em que as chapas fecham", () => {
@@ -17,7 +41,7 @@ describe("calendarToast", () => {
   });
 
   it("ignora o aviso sem as datas do calendário", () => {
-    expect(calendarToast({ kind: "TICKETS_CLOSING" })).toBeNull();
+    expect(calendarToast({ ...EMPTY_NOTICE, kind: "TICKETS_CLOSING" })).toBeNull();
     expect(calendarToast(notice("UPDATED"))).toBeNull();
   });
 });
