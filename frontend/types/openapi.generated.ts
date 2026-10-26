@@ -1272,6 +1272,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/inbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Caixa de entrada
+         * @description As entradas do jogador e as da sala na partida em andamento, da mais nova para a mais antiga, com quantas ainda não foram lidas.
+         */
+        get: operations["get_inbox_api_inbox_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inbox/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Marcar todas como lidas
+         * @description Marca como lidas todas as entradas do jogador na partida em andamento.
+         */
+        post: operations["mark_all_read_api_inbox_read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inbox/{entry_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Marcar uma entrada como lida
+         * @description Chamado ao abrir a entrada na caixa de entrada.
+         */
+        post: operations["mark_read_api_inbox__entry_id__read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/correlation/assets": {
         parameters: {
             query?: never;
@@ -4263,6 +4323,29 @@ export interface components {
              */
             overwrite: boolean;
         };
+        /** InboxDTO */
+        InboxDTO: {
+            /** Entries */
+            entries: components["schemas"]["InboxEntryDTO"][];
+            /** Unread */
+            unread: number;
+        };
+        /** InboxEntryDTO */
+        InboxEntryDTO: {
+            /** Id */
+            id: number;
+            /**
+             * Game Date
+             * Format: date
+             */
+            game_date: string;
+            /** Room */
+            room: boolean;
+            /** Read */
+            read: boolean;
+            /** Content */
+            content: components["schemas"]["MonthSummaryDTO"] | components["schemas"]["YearReviewDTO"];
+        };
         /** IncomeTaxBracketDTO */
         IncomeTaxBracketDTO: {
             /** Max Days */
@@ -4899,6 +4982,38 @@ export interface components {
             paid_late: number;
             /** Late */
             late: number;
+        };
+        /** MonthSummaryDTO */
+        MonthSummaryDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "MONTH_SUMMARY";
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Networth Start */
+            networth_start: string;
+            /** Networth End */
+            networth_end: string;
+            /** Return Pct */
+            return_pct: string | null;
+            /** Cdi Pct */
+            cdi_pct: string;
+            /** Ibov Pct */
+            ibov_pct: string | null;
+            best_position: components["schemas"]["PositionResultDTO"] | null;
+            worst_position: components["schemas"]["PositionResultDTO"] | null;
+            /** Dividends */
+            dividends: string;
+            /** Income Tax */
+            income_tax: string;
+            /** Contributions */
+            contributions: string;
+            ranking: components["schemas"]["RankingMoveDTO"] | null;
         };
         /** MonthlyReturnDTO */
         MonthlyReturnDTO: {
@@ -5771,6 +5886,20 @@ export interface components {
             /** Return Pct */
             return_pct: string;
         };
+        /**
+         * PositionResultDTO
+         * @description O que uma posição de renda variável rendeu no período, em reais e sobre o capital dela.
+         */
+        PositionResultDTO: {
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            /** Result */
+            result: string;
+            /** Result Pct */
+            result_pct: string | null;
+        };
         /** PositionUpdateEventDTO */
         PositionUpdateEventDTO: {
             position: components["schemas"]["PositionDTO"];
@@ -5910,6 +6039,15 @@ export interface components {
             /** Segment */
             segment?: string | null;
         };
+        /** RankingMoveDTO */
+        RankingMoveDTO: {
+            /** Position */
+            position: number;
+            /** Players */
+            players: number;
+            /** Change */
+            change: number | null;
+        };
         /** RankingRowDTO */
         RankingRowDTO: {
             /** Ticker */
@@ -6035,6 +6173,7 @@ export interface components {
             order_book_snapshot: components["schemas"]["OrderBookSnapshotEventDTO"];
             future_recording_progress: components["schemas"]["FutureRecordingProgressEventDTO"];
             achievement_unlocked: components["schemas"]["AchievementUnlockedEventDTO"];
+            inbox_entry: components["schemas"]["InboxEntryDTO"];
             credit_installment_paid: components["schemas"]["CreditInstallmentPaidEventDTO"];
             credit_monthly_summary: components["schemas"]["CreditMonthlySummaryEventDTO"];
             credit_installment_late: components["schemas"]["CreditInstallmentLateEventDTO"];
@@ -7840,6 +7979,44 @@ export interface components {
          * @enum {string}
          */
         VictoryCriterion: "SCORE" | "RETURN" | "NETWORTH" | "SHARPE";
+        /** YearMonthDTO */
+        YearMonthDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Return Pct */
+            return_pct: string;
+            /** Networth End */
+            networth_end: string;
+        };
+        /** YearReviewDTO */
+        YearReviewDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "YEAR_REVIEW";
+            /** Year */
+            year: number;
+            /** Networth Start */
+            networth_start: string;
+            /** Networth End */
+            networth_end: string;
+            /** Return Pct */
+            return_pct: string | null;
+            /** Cdi Pct */
+            cdi_pct: string;
+            /** Ibov Pct */
+            ibov_pct: string | null;
+            /** Contributions */
+            contributions: string;
+            /** Months */
+            months: components["schemas"]["YearMonthDTO"][];
+            best_month: components["schemas"]["YearMonthDTO"] | null;
+            worst_month: components["schemas"]["YearMonthDTO"] | null;
+        };
     };
     responses: never;
     parameters: never;
@@ -10561,6 +10738,118 @@ export interface operations {
             query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_inbox_api_inbox_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InboxDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    mark_all_read_api_inbox_read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    mark_read_api_inbox__entry_id__read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entry_id: number;
+            };
             cookie?: never;
         };
         requestBody?: never;

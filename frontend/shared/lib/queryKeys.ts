@@ -7,6 +7,7 @@ export const queryKeys = {
   presets: () => ["presets"] as const,
   goalProgress: (simulationId: number) => ["simulation", "goal-progress", simulationId] as const,
   lifeStatus: (simulationId: number) => ["simulation", "life", simulationId] as const,
+  inbox: (simulationId: number) => ["simulation", "inbox", simulationId] as const,
   lifeHistoryAll: (simulationId: number) => ["simulation", "life-history", simulationId] as const,
   lifeHistory: (simulationId: number, category: string, column = "date", direction = "desc") =>
     ["simulation", "life-history", simulationId, category, column, direction] as const,

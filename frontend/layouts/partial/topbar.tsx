@@ -11,6 +11,7 @@ import { TopbarTutorialButton } from "@/features/tutorial/components/topbar-butt
 import { TopbarGoal } from "./topbar-goal";
 import { GoverningBanner } from "@/features/government/components/governing-banner";
 import { TopbarGovernment } from "@/features/government/components/topbar-government";
+import { TopbarInbox } from "@/features/inbox/components/topbar-inbox";
 import { hasGoal } from "@/shared/lib/game-types";
 
 interface TopbarProps {
@@ -54,6 +55,9 @@ export default function Topbar({ pageLabel }: TopbarProps) {
 
           {/* Expansão Governo & Política */}
           {match?.government_enabled && <TopbarGovernment />}
+
+          {/* Caixa de entrada */}
+          {match && <TopbarInbox simulationId={match.id} />}
 
           {/* Como jogar */}
           <TopbarTutorialButton />

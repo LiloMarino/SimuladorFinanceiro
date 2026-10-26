@@ -544,3 +544,10 @@ class ApprovalFactorKind(Enum):
     NEW_TAX = "NEW_TAX"
     TAX_CUT = "TAX_CUT"
     PROMISE = "PROMISE"
+
+
+class InboxEntryKind(Enum):
+    """O que a entrada da caixa de entrada conta."""
+
+    MONTH_SUMMARY = "MONTH_SUMMARY"
+    YEAR_REVIEW = "YEAR_REVIEW"

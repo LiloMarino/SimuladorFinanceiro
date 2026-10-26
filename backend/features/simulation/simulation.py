@@ -98,6 +98,7 @@ from backend.features.fixed_income.liquidity import overdraft_cover, total_redee
 from backend.features.government.governance import build_governance
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_panel
+from backend.features.inbox.service import Inbox
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     PortfolioUpdateEventDTO,
@@ -119,6 +120,7 @@ from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.simulation.simulation_loop import simulation_controller
 from backend.features.statistics.cache import ReportCache
 from backend.features.statistics.goal import goal_on, goal_reached
+from backend.features.statistics.report import build_overview_report
 from backend.features.strategy.runner import StrategyRunner
 from backend.features.tax_policy import TaxPolicy
 from backend.features.technical_analysis.summary import price_frame
@@ -224,6 +226,17 @@ class Simulation:
 
         # As abas das Estatísticas desta partida, montadas uma vez por mês
         self.statistics = ReportCache()
+
+        # O resumo do mês usa o ranking da aba Geral do mês que começa
+        self._inbox = Inbox(
+            settings.id,
+            settings.start_date,
+            settings.starting_cash,
+            lambda: self.statistics.report(
+                "overview", lambda: build_overview_report([settings.id])
+            ),
+            lambda: {ticker: s.name for ticker, s in self._engine.stocks.items()},
+        )
 
         # Fora da Clássica: onde cada um está na meta e se alguém já chegou
         self._goal_progress: GoalProgressDTO | None = None
@@ -739,6 +752,8 @@ class Simulation:
             self._track_goal(snapshots)
 
         self._last_snapshots = {e.snapshot.user_id: e.snapshot for e in snapshots}
+        if month_changed:
+            self._deliver_inbox(users)
         self._unlock_achievements(
             users,
             lambda: self._achievements.on_tick(
@@ -846,6 +861,16 @@ class Simulation:
                     unlocked_event(achievements).to_json(),
                     to=user.client_id,
                 )
+
+    def _deliver_inbox(self, users: list[UserDTO]) -> None:
+        """
+        O resumo do mês sai depois dos snapshots do dia. A caixa de entrada é um
+        extra: um erro ao montá-la não interrompe a partida.
+        """
+        try:
+            self._inbox.on_month_turn(users, self._current_date)
+        except Exception:
+            logger.exception("Erro ao montar a caixa de entrada")
 
     def get_goal_progress(self) -> GoalProgressDTO | None:
         return self._goal_progress

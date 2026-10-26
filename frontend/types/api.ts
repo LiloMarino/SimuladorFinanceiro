@@ -258,3 +258,9 @@ export type StrategyLogPage = components["schemas"]["StrategyLogPageDTO"];
 export type StrategyLogRow = StrategyLogPage["items"][number];
 export type StrategyLogKind = components["schemas"]["StrategyLogKind"];
 export type StrategyLogFilter = "all" | "orders" | "modes";
+
+// Caixa de entrada
+export type Inbox = components["schemas"]["InboxDTO"];
+export type InboxEntry = components["schemas"]["InboxEntryDTO"];
+export type MonthSummary = components["schemas"]["MonthSummaryDTO"];
+export type YearReview = components["schemas"]["YearReviewDTO"];

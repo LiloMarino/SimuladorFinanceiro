@@ -47,6 +47,7 @@ export type SimulationEvents = {
   life_event: LifeEvent;
   future_recording_progress: FutureRecordingProgressEvent;
   achievement_unlocked: AchievementUnlockedEvent;
+  inbox_entry: RealtimeEventCatalog["inbox_entry"];
   credit_installment_paid: RealtimeEventCatalog["credit_installment_paid"];
   credit_monthly_summary: RealtimeEventCatalog["credit_monthly_summary"];
   credit_installment_late: RealtimeEventCatalog["credit_installment_late"];

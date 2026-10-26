@@ -3664,6 +3664,144 @@
         ]
       }
     },
+    "/api/inbox": {
+      "get": {
+        "tags": [
+          "Inbox"
+        ],
+        "summary": "Caixa de entrada",
+        "description": "As entradas do jogador e as da sala na partida em andamento, da mais nova para a mais antiga, com quantas ainda não foram lidas.",
+        "operationId": "get_inbox_api_inbox_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InboxDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/inbox/read": {
+      "post": {
+        "tags": [
+          "Inbox"
+        ],
+        "summary": "Marcar todas como lidas",
+        "description": "Marca como lidas todas as entradas do jogador na partida em andamento.",
+        "operationId": "mark_all_read_api_inbox_read_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/inbox/{entry_id}/read": {
+      "post": {
+        "tags": [
+          "Inbox"
+        ],
+        "summary": "Marcar uma entrada como lida",
+        "description": "Chamado ao abrir a entrada na caixa de entrada.",
+        "operationId": "mark_read_api_inbox__entry_id__read_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Entry Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/correlation/assets": {
       "get": {
         "tags": [
@@ -12432,6 +12570,77 @@
         ],
         "title": "ImportYFinanceRequest"
       },
+      "InboxDTO": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/InboxEntryDTO"
+            },
+            "type": "array",
+            "title": "Entries"
+          },
+          "unread": {
+            "type": "integer",
+            "title": "Unread"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entries",
+          "unread"
+        ],
+        "title": "InboxDTO"
+      },
+      "InboxEntryDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "game_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Game Date"
+          },
+          "room": {
+            "type": "boolean",
+            "title": "Room"
+          },
+          "read": {
+            "type": "boolean",
+            "title": "Read"
+          },
+          "content": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MonthSummaryDTO"
+              },
+              {
+                "$ref": "#/components/schemas/YearReviewDTO"
+              }
+            ],
+            "title": "Content",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "MONTH_SUMMARY": "#/components/schemas/MonthSummaryDTO",
+                "YEAR_REVIEW": "#/components/schemas/YearReviewDTO"
+              }
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "game_date",
+          "room",
+          "read",
+          "content"
+        ],
+        "title": "InboxEntryDTO"
+      },
       "IncomeTaxBracketDTO": {
         "properties": {
           "max_days": {
@@ -14050,6 +14259,114 @@
           "late"
         ],
         "title": "MonthPaymentsDTO"
+      },
+      "MonthSummaryDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "MONTH_SUMMARY",
+            "title": "Kind",
+            "default": "MONTH_SUMMARY"
+          },
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "networth_start": {
+            "type": "string",
+            "title": "Networth Start"
+          },
+          "networth_end": {
+            "type": "string",
+            "title": "Networth End"
+          },
+          "return_pct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Pct"
+          },
+          "cdi_pct": {
+            "type": "string",
+            "title": "Cdi Pct"
+          },
+          "ibov_pct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ibov Pct"
+          },
+          "best_position": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PositionResultDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "worst_position": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PositionResultDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dividends": {
+            "type": "string",
+            "title": "Dividends"
+          },
+          "income_tax": {
+            "type": "string",
+            "title": "Income Tax"
+          },
+          "contributions": {
+            "type": "string",
+            "title": "Contributions"
+          },
+          "ranking": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankingMoveDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "networth_start",
+          "networth_end",
+          "return_pct",
+          "cdi_pct",
+          "ibov_pct",
+          "best_position",
+          "worst_position",
+          "dividends",
+          "income_tax",
+          "contributions",
+          "ranking"
+        ],
+        "title": "MonthSummaryDTO"
       },
       "MonthlyReturnDTO": {
         "properties": {
@@ -16659,6 +16976,43 @@
         ],
         "title": "PositionDTO"
       },
+      "PositionResultDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "result": {
+            "type": "string",
+            "title": "Result"
+          },
+          "result_pct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Pct"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "name",
+          "result",
+          "result_pct"
+        ],
+        "title": "PositionResultDTO",
+        "description": "O que uma posição de renda variável rendeu no período, em reais e sobre o capital dela."
+      },
       "PositionUpdateEventDTO": {
         "properties": {
           "position": {
@@ -17062,6 +17416,37 @@
         ],
         "title": "ProposeMeasureRequest"
       },
+      "RankingMoveDTO": {
+        "properties": {
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "players": {
+            "type": "integer",
+            "title": "Players"
+          },
+          "change": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "position",
+          "players",
+          "change"
+        ],
+        "title": "RankingMoveDTO"
+      },
       "RankingRowDTO": {
         "properties": {
           "ticker": {
@@ -17426,6 +17811,9 @@
           "achievement_unlocked": {
             "$ref": "#/components/schemas/AchievementUnlockedEventDTO"
           },
+          "inbox_entry": {
+            "$ref": "#/components/schemas/InboxEntryDTO"
+          },
           "credit_installment_paid": {
             "$ref": "#/components/schemas/CreditInstallmentPaidEventDTO"
           },
@@ -17492,6 +17880,7 @@
           "order_book_snapshot",
           "future_recording_progress",
           "achievement_unlocked",
+          "inbox_entry",
           "credit_installment_paid",
           "credit_monthly_summary",
           "credit_installment_late",
@@ -22490,6 +22879,125 @@
           "SHARPE"
         ],
         "title": "VictoryCriterion"
+      },
+      "YearMonthDTO": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "return_pct": {
+            "type": "string",
+            "title": "Return Pct"
+          },
+          "networth_end": {
+            "type": "string",
+            "title": "Networth End"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "return_pct",
+          "networth_end"
+        ],
+        "title": "YearMonthDTO"
+      },
+      "YearReviewDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "YEAR_REVIEW",
+            "title": "Kind",
+            "default": "YEAR_REVIEW"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "networth_start": {
+            "type": "string",
+            "title": "Networth Start"
+          },
+          "networth_end": {
+            "type": "string",
+            "title": "Networth End"
+          },
+          "return_pct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Pct"
+          },
+          "cdi_pct": {
+            "type": "string",
+            "title": "Cdi Pct"
+          },
+          "ibov_pct": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ibov Pct"
+          },
+          "contributions": {
+            "type": "string",
+            "title": "Contributions"
+          },
+          "months": {
+            "items": {
+              "$ref": "#/components/schemas/YearMonthDTO"
+            },
+            "type": "array",
+            "title": "Months"
+          },
+          "best_month": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/YearMonthDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "worst_month": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/YearMonthDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "year",
+          "networth_start",
+          "networth_end",
+          "return_pct",
+          "cdi_pct",
+          "ibov_pct",
+          "contributions",
+          "months",
+          "best_month",
+          "worst_month"
+        ],
+        "title": "YearReviewDTO"
       }
     },
     "securitySchemes": {

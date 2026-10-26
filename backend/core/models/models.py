@@ -972,6 +972,60 @@ class AchievementProgress(Base):
     best: Mapped[decimal.Decimal] = mapped_column(Numeric(30, 6), nullable=False)
 
 
+class InboxEntries(Base):
+    """O que a partida conta aos jogadores, criado pelo motor e lido na caixa de entrada."""
+
+    __tablename__ = "inbox_entries"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="inbox_entries_simulation_id_fkey",
+        ),
+        ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="inbox_entries_user_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="inbox_entries_pkey"),
+        Index("inbox_entries_simulation_user_idx", "simulation_id", "user_id"),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # Nulo quando a entrada é da sala inteira
+    user_id: Mapped[int | None] = mapped_column(Integer)
+    game_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    kind: Mapped[str] = mapped_column(
+        Enum("MONTH_SUMMARY", "YEAR_REVIEW", name="inbox_entry_kind"),
+        nullable=False,
+    )
+    # O formato de cada tipo mora no DTO de `InboxContent`
+    content: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    read: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(True), nullable=False
+    )
+
+
 class StockPriceHistory(Base):
     __tablename__ = "stock_price_history"
     __table_args__ = (
