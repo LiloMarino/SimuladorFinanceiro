@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { ChevronsUpDown, Plus } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -23,6 +23,7 @@ type SectorComboboxProps = {
 export function SectorCombobox({ id, sectors, value, onChange }: SectorComboboxProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const listId = useId();
 
   const typed = search.trim();
   const canCreate = typed !== "" && !sectors.some((name) => name.toLowerCase() === typed.toLowerCase());
@@ -43,6 +44,7 @@ export function SectorCombobox({ id, sectors, value, onChange }: SectorComboboxP
             variant="outline"
             role="combobox"
             aria-expanded={open}
+            aria-controls={listId}
             className="justify-between"
           />
         }
@@ -52,7 +54,7 @@ export function SectorCombobox({ id, sectors, value, onChange }: SectorComboboxP
         </span>
         <ChevronsUpDown className="text-faint-foreground" />
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-72">
+      <PopoverContent id={listId} align="start" className="w-72">
         <Command>
           <CommandInput value={search} onValueChange={setSearch} placeholder="Buscar setor" />
           <CommandList>

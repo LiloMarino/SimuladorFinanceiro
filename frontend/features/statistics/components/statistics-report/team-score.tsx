@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useId, useState, type CSSProperties } from "react";
 import { ChevronDown, Shield } from "lucide-react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { TeamBadge } from "@/shared/components/team-badge";
@@ -82,6 +82,7 @@ function SubjectPicker({
   onSelect: (subject: Subject) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const listId = useId();
   const naming = report.team_naming;
   const choose = (next: Subject) => {
     onSelect(next);
@@ -96,7 +97,13 @@ function SubjectPicker({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           render={
-            <Button variant="outline" role="combobox" aria-expanded={open} className="min-w-56 justify-between" />
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              aria-controls={listId}
+              className="min-w-56 justify-between"
+            />
           }
         >
           <span className="flex items-center gap-2 truncate">
@@ -107,7 +114,7 @@ function SubjectPicker({
           </span>
           <ChevronDown className="text-faint-foreground" />
         </PopoverTrigger>
-        <PopoverContent align="end" className="w-80">
+        <PopoverContent id={listId} align="end" className="w-80">
           <Command>
             <CommandInput placeholder="Buscar equipe ou jogador…" />
             <CommandList>

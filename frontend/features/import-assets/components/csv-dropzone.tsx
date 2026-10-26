@@ -74,6 +74,8 @@ export function CsvDropzone({ id, picked, disabled, onPick }: CsvDropzoneProps) 
   }
 
   return (
+    // Soltar o arquivo é atalho do mouse; o teclado usa o input de arquivo que o label aciona.
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <label
       htmlFor={id}
       onDragOver={(event) => {

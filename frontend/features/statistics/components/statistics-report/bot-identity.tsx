@@ -35,6 +35,7 @@ export function BotIdentity({ player, label, simulationIds, onOpenLog }: BotIden
       <span className="grid min-w-0">
         <span className="flex items-center gap-1.5">
           <HoverCard>
+            {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label */}
             <HoverCardTrigger term delay={150} render={<button type="button" />}>
               {label}
             </HoverCardTrigger>

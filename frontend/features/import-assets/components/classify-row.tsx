@@ -94,7 +94,7 @@ export function ClassifyRow({ series, columns, onClose }: ClassifyRowProps) {
               <Input id={segmentId} value={segment} onChange={(e) => setSegment(e.target.value)} list={datalistId} />
               <datalist id={datalistId}>
                 {segmentOptions.map((name) => (
-                  <option key={name} value={name} />
+                  <option key={name}>{name}</option>
                 ))}
               </datalist>
             </Field>

@@ -64,6 +64,7 @@ export function TickerCombobox({ id, value, onChange, suggest, placeholder, inva
       />
       {showList && (
         // O mouse-down não tira o foco do campo, senão o onBlur fecha a lista antes do clique
+        // oxlint-disable-next-line jsx-a11y/no-static-element-interactions
         <div
           className="absolute inset-x-0 top-full z-50 mt-1 rounded-lg bg-popover shadow-md ring-1 ring-foreground/10"
           onMouseDown={(e) => e.preventDefault()}

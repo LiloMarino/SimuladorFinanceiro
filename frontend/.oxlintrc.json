@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
+  "plugins": ["react", "typescript", "oxc", "jsx-a11y"],
   "jsPlugins": ["@shadcn/lint"],
   "categories": {
     "correctness": "error"
@@ -54,7 +54,16 @@
         "allow": ["layout"]
       }
     ],
-    "shadcn/no-raw-colors": "error"
+    "shadcn/no-raw-colors": "error",
+    "jsx-a11y/label-has-associated-control": [
+      "error",
+      {
+        "controlComponents": ["Input", "Switch"],
+        "depth": 4
+      }
+    ],
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "jsx-a11y/no-autofocus": "off"
   },
   "overrides": [
     {
@@ -63,7 +72,10 @@
         "shadcn/no-restyle": "off",
         "typescript/no-unsafe-assignment": "off",
         "typescript/no-unsafe-argument": "off",
-        "typescript/no-unsafe-member-access": "off"
+        "typescript/no-unsafe-member-access": "off",
+        "jsx-a11y/label-has-associated-control": "off",
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off"
       }
     },
     {

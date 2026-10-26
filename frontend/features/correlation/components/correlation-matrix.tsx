@@ -87,7 +87,9 @@ export function CorrelationMatrixGrid({ matrix, pinned, onPin }: CorrelationMatr
                   <th scope="row" className="pr-2 text-right font-mono text-xs font-medium text-muted-foreground">
                     {t}
                   </th>
-                  {tickers.map((other, j) => (j <= k ? cell(row, labels.indexOf(other)) : <td key={other} />))}
+                  {tickers.map((other, j) =>
+                    j <= k ? cell(row, labels.indexOf(other)) : <td key={other} aria-hidden />,
+                  )}
                 </tr>
               );
             })}
