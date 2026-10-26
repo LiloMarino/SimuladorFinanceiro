@@ -859,3 +859,9 @@ O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F13
 *Kanban:* Código e dependências sem uso · 2. Nice-to-have · ✅ Concluído
 
 **F136 — Código e dependências sem uso.** Entregue: Knip no frontend (`frontend/knip.json`, ignorando `shared/components/ui` e o arquivo gerado da API) e deptry no backend (`[tool.deptry]` no `pyproject.toml`), os dois dentro do `pnpm run check`. Apagado o que era morto: `base-card.tsx`, tipos e constantes sem uso (`types/api.ts`, `types/events.ts`, `metrics.ts`), `displayMonthYear`, `MAX_TEAMS`, `isOpenOn`, `ApiError`; os exports que só o próprio arquivo usa deixaram de ser exportados. Dependências: saíram `psycopg-pool`, `python-dotenv` (o pydantic-settings já o traz) e `@types/js-cookie`; `starlette` passou a ser declarada, pois o backend a importa direto. Os scripts `fta` chamam o binário direto, sem `npx`.
+
+### F137 · arquivado em 2026-10-26
+
+*Kanban:* Acessibilidade das telas · 2. Nice-to-have · ✅ Concluído
+
+**F137 — Acessibilidade das telas.** Entregue: plugin `jsx-a11y` do oxlint ligado em `frontend/.oxlintrc.json`, como erro, dentro do `pnpm run check`. Dos 42 achados (o card contava 49): corrigidos o `<option>` vazio da lista de segmentos, a célula vazia da matriz de correlação (`aria-hidden`) e os dois seletores `role="combobox"` (setor e "Ver nota de"), que agora apontam com `aria-controls` para a lista que abrem. Três falsos positivos ficaram com desativação pontual e comentário: o botão de `render` do cartão do bot, a área de soltar do CSV e a lista de sugestões do ticker. Regras ajustadas: `label-has-associated-control` reconhece `Input` e `Switch`; `prefer-tag-over-role` desligada (os `role` de `img`, `status`, `radio`, `group`, `combobox` e `heading` são o padrão ARIA correto em `svg`, `div` e botões do shadcn); `no-autofocus` desligada (o único uso é o foco no primeiro campo do diálogo recém-aberto); as regras de clique e rótulo desligadas só em `shared/components/ui`.
