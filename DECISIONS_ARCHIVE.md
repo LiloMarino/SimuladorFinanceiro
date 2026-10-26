@@ -775,3 +775,9 @@ O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F13
 *Kanban:* Bots "saindo" ao iniciar a partida · 1. Atende necessidade · ✅ Concluído · atende N8 · marco M16
 
 **F146 — Bots "saindo" ao iniciar a partida.** Serve N8. A liberação dos bots no início da partida (`release_bots`) deixou de emitir a saída de cada um; o aviso "saiu da sala" só vem de `remove_bot` e da troca para uma partida salva. O front refaz a lista de jogadores ao receber o início da partida (`SimulationProvider`). Testes em `tests/test_bots.py`: nenhuma saída ao iniciar com bot na sala, e a saída continua saindo ao remover o bot.
+
+### F148 · arquivado em 2026-10-26
+
+*Kanban:* Empréstimo que não se deixa pagar com o jogador negativado · 1. Atende necessidade · ✅ Concluído · atende N33 · marco M16
+
+**F148 — Empréstimo que não se deixa pagar com o jogador negativado.** Serve N33. A alavancagem (dívida ÷ patrimônio líquido) passou a ser nula quando o patrimônio é zero ou negativo, em todo lugar que a calcula: `leverage` devolve nulo (sem limite) e `leverage_points` pontua zero nesse caso. Isso tirou o `Infinity` que quebrava a simulação de empréstimo, o resumo da nota e o fechamento mensal. No DTO, `leverage_before` e `leverage_after` da simulação e o `value` da alavancagem na nota ficaram nulos, e a tela mostra "—". Testes em `tests/test_credit_book.py` (simulação e resumo com patrimônio zero e negativo) e `tests/test_credit_rating.py`. Em aberto: refazer o pagamento na partida salva do playtest para confirmar que a recusa vinha desse erro; no código, o valor do botão e a conferência de caixa (`_require_cash`) usam o mesmo caixa e as mesmas cobranças do dia.

@@ -50,7 +50,7 @@
 | **N30** | Repetir uma configuração de partida sem montá-la de novo | — | — |
 | **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92) | — |
 | **N32** | Saber como foi o mês sem montar a conta | [F91](#f91) | — |
-| **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111), [F148](#f148) | — |
+| **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — |
 | **N34** | Disputar o poder de mudar as regras da economia da partida | [F144](#f144), [F145](#f145), [F147](#f147), [F150](#f150) | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — |
@@ -111,7 +111,6 @@
 | [**F144**](#f144) | Ajustes de layout do playtest | — | ⏳ |
 | [**F145**](#f145) | Convite de vice para qualquer jogador | — | ⏳ |
 | [**F147**](#f147) | Nome do presidente eleito aparecendo como null | — | ⏳ |
-| [**F148**](#f148) | Empréstimo que não se deixa pagar com o jogador negativado | — | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
 | [**F150**](#f150) | Aviso de abertura da campanha | — | ⏳ |
 | [**F151**](#f151) | Segundo turno com disputa | — | 🔍 |
@@ -188,7 +187,6 @@
 | [**F144**](#f144) | Ajustes de layout do playtest | M16 | 0 | ⏳ |
 | [**F145**](#f145) | Convite de vice para qualquer jogador | M17 | 0 | ⏳ |
 | [**F147**](#f147) | Nome do presidente eleito aparecendo como null | M16 | 0 | ⏳ |
-| [**F148**](#f148) | Empréstimo que não se deixa pagar com o jogador negativado | M16 | 0 | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | M16 | 0 | ⏳ |
 | [**F150**](#f150) | Aviso de abertura da campanha | M17 | 0 | ⏳ |
 | [**F151**](#f151) | Segundo turno com disputa | M17 | 0 | 🔍 |
@@ -290,13 +288,12 @@
 >
 > **Serve:** N4, N8, N15, N33, N34, N40
 >
-> **Progresso:** 0/7 concluídas
+> **Progresso:** 0/6 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F144**](#f144) | Ajustes de layout do playtest | — | ⏳ |
 | [**F147**](#f147) | Nome do presidente eleito aparecendo como null | — | ⏳ |
-| [**F148**](#f148) | Empréstimo que não se deixa pagar com o jogador negativado | — | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
 | [**F155**](#f155) | Filtro "Na carteira" na renda fixa | — | ⏳ |
 | [**F156**](#f156) | Estatísticas rápidas em partida longa | — | ⏳ |
@@ -391,7 +388,6 @@
 | **F144** | Ajustes de layout do playtest | N15, N34 | — | M16 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F145** | Convite de vice para qualquer jogador | N34 | — | M17 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F147** | Nome do presidente eleito aparecendo como null | N34 | — | M16 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
-| **F148** | Empréstimo que não se deixa pagar com o jogador negativado | N33 | — | M16 | — | Médio | Médio | Alto | Excelente | ⏳ Pendente |
 | **F149** | Desligar o automático na própria boleta | N4, N15 | — | M16 | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F150** | Aviso de abertura da campanha | N34 | — | M17 | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F155** | Filtro "Na carteira" na renda fixa | N15 | — | M16 | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
@@ -480,9 +476,6 @@
 
 <a id="f147"></a>
 **F147 — Nome do presidente eleito aparecendo como null.** Serve N34. No playtest, o anúncio do resultado mostrou "null" no lugar do jogador eleito. Os pontos que montam o nome: o resultado do turno usa o nome do candidato, com o nome do partido como reserva (`round-result-dialog.tsx:79`), a posse mostra só a sigla (`government-notifications.tsx:101`) e o evento de tempo real tem `party_abbr` e `winner_abbr` opcionais, sem o nome do jogador (`realtime/schemas.py:199`). Plano: reproduzir na partida salva do playtest até o resultado; achar qual campo chega nulo (o caso provável é o candidato que saiu da sala, sem apelido no `user_manager`); levar o nome do eleito no próprio evento, gravado no momento da apuração, para o texto não depender de o jogador estar online; e mostrar "o candidato do ABC" quando a chapa não tiver candidato.
-
-<a id="f148"></a>
-**F148 — Empréstimo que não se deixa pagar com o jogador negativado.** Serve N33. No playtest, um jogador negativado com R$ 20 mil em caixa não conseguiu pagar um empréstimo que a tela mostrava como "Pagar R$ 13 mil", e o console falava em empréstimo infinito. O `logs/error.log` de 25/out tem a pista: a simulação de empréstimo (`routes/credit.py:41`, `features/credit/overview.py:355`) quebra com `leverage_after = Infinity`, porque a alavancagem (dívida ÷ patrimônio) divide por um patrimônio líquido zero ou negativo. O resumo da tela já trata esse caso (`overview.py:296`, nulo quando o patrimônio não é positivo); a simulação e as linhas `:193` e `:375` não. Plano: (1) alavancagem com patrimônio ≤ 0 vira "sem limite" (nulo no DTO e "—" na tela) em todo lugar que a calcula, com teste para patrimônio zero e negativo; (2) abrir a partida salva do playtest e refazer o pagamento, para confirmar se a recusa vinha desse erro (a tela de Crédito quebrando por causa dele) ou do `_require_cash` (`credit_book.py:681`), que compara o valor com o caixa; (3) se for o caixa, conferir de onde sai o valor do botão e o caixa usado na conferência, que precisam ser o mesmo número. **Aceite:** na partida salva, o jogador negativado paga a parcela com o caixa que tem.
 
 <a id="f149"></a>
 **F149 — Desligar o automático na própria boleta.** Serve N4 e N15. Com o automático ligado, a boleta fica travada (`order-ticket.tsx:72`, `inert` em `:156`) e o aviso manda o jogador para Estratégias (`trade-lock-notice.tsx`, link "Ir para Estratégias"); para comprar uma ação na mão, ele sai da tela, desliga lá e volta. Plano: o aviso ganha o botão "Desligar o automático", que chama a mesma mutation da página de Estratégias e, com sucesso, destrava a boleta ali mesmo, mantendo ativo, lado, quantidade e preço preenchidos; o link para Estratégias continua para quem quer trocar a estratégia. A troca vale para todo lugar que usa o `useTradeLock`, como a renda fixa.
