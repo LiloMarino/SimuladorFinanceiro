@@ -25,6 +25,7 @@ import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useEconomicIndicators } from "@/shared/hooks/queries/useEconomicIndicators";
 import {
   displayDate,
+  displayMoney,
   displayMonthName,
   displayPercent,
   displayRateLabel,
@@ -74,14 +75,17 @@ export default function FixedIncomePage() {
   const [indexFilter, setIndexFilter] = useState<IndexFilter>("ALL");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
   const [onlyExempt, setOnlyExempt] = useState(false);
+  const [onlyHeld, setOnlyHeld] = useState(false);
   // O detalhe de um título sem liquidez aponta para cá com o filtro já ligado
   const [onlyDaily, setOnlyDaily] = useState(searchParams.get("liquidity") === "daily");
 
-  const held = new Set((portfolio?.fixed_income ?? []).map((p) => p.asset.asset_uuid));
+  const held = new Map((portfolio?.fixed_income ?? []).map((p) => [p.asset.asset_uuid, p]));
   // O CDB de 100% do CDI mora no destaque do topo; a tabela lista o resto da vitrine
   const permanentCdb = (offers ?? []).find(isPermanentCdb);
-  const filtered = (offers ?? [])
-    .filter((o) => o !== permanentCdb)
+  const listed = (offers ?? []).filter((o) => o !== permanentCdb);
+  const heldCount = listed.filter((o) => held.has(o.asset_uuid)).length;
+  const filtered = listed
+    .filter((o) => !onlyHeld || held.has(o.asset_uuid))
     .filter((o) => (indexFilter === "ALL" || o.rate_index === indexFilter) && matchesType(o, typeFilter))
     .filter((o) => !onlyExempt || o.tax_exempt)
     .filter((o) => !onlyDaily || o.daily_liquidity);
@@ -117,6 +121,11 @@ export default function FixedIncomePage() {
           <>
             <EmptyTitle>Nenhuma oferta acima de 100% do CDI com liquidez diária este mês</EmptyTitle>
             <EmptyDescription>O CDB de 100% do CDI, no topo, segue aberto.</EmptyDescription>
+          </>
+        ) : onlyHeld && heldCount === 0 ? (
+          <>
+            <EmptyTitle>Nenhum título da lista na carteira</EmptyTitle>
+            <EmptyDescription>Os títulos que você comprar aparecem aqui.</EmptyDescription>
           </>
         ) : onlyDaily ? (
           <>
@@ -194,6 +203,11 @@ export default function FixedIncomePage() {
                       </Badge>
                     )}
                   </span>
+                  {onlyHeld && (
+                    <span className="text-xs font-medium text-info">
+                      {displayMoney(held.get(o.asset_uuid)?.total_applied ?? 0)} aplicados
+                    </span>
+                  )}
                   <span className="max-w-[300px] truncate text-xs text-muted-foreground">{o.issuer}</span>
                   {isRareOffer(o) && o.offered_until && o.player_cap && (
                     <span className="text-xs font-medium text-warning">
@@ -340,6 +354,10 @@ export default function FixedIncomePage() {
               ))}
             </ToggleGroup>
             <div className="ml-auto flex items-center gap-3">
+              <div className="flex h-10 items-center gap-2 rounded-lg border border-input px-3">
+                <Switch id="only-held" checked={onlyHeld} onCheckedChange={setOnlyHeld} />
+                <Label htmlFor="only-held">Na carteira · {heldCount}</Label>
+              </div>
               <div className="flex h-10 items-center gap-2 rounded-lg border border-input px-3">
                 <Switch id="only-daily" checked={onlyDaily} onCheckedChange={setOnlyDaily} />
                 <Label htmlFor="only-daily">Só liquidez diária</Label>
