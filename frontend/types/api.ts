@@ -124,6 +124,10 @@ export type ChallengeAnswer = NonNullable<CandleChallenge["last"]>;
 export type ChallengeDirection = components["schemas"]["AnswerChallengeRequest"]["direction"];
 export type CandleChallengeRanking = components["schemas"]["CandleChallengeRankingDTO"];
 
+// Pastas do app no computador do host (config.toml e logs)
+export type AppFolders = components["schemas"]["AppFoldersResponse"];
+export type AppFolderTarget = keyof AppFolders;
+
 // Modo debug: definido no boot do servidor, só leitura
 export type DebugMode = components["schemas"]["SettingsResponse"]["debug"];
 

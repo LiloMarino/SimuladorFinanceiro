@@ -1337,6 +1337,109 @@
         ]
       }
     },
+    "/api/settings/folders": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Caminho das pastas do app",
+        "description": "Onde ficam o config.toml e os logs no computador do host.",
+        "operationId": "get_app_folders_api_settings_folders_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppFoldersResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/settings/open-folder": {
+      "post": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Abrir uma pasta do app no computador do host",
+        "description": "Abre a pasta de configurações (`target=config`) ou de logs (`target=logs`) no gerenciador de arquivos. Só atende o próprio computador do host; sem interface gráfica responde 409 com o caminho.",
+        "operationId": "open_app_folder_api_settings_open_folder_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "target",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "config",
+                "logs"
+              ],
+              "type": "string",
+              "default": "config",
+              "title": "Target"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/import-assets/coverage": {
       "get": {
         "tags": [
@@ -7849,6 +7952,24 @@
           "direction"
         ],
         "title": "AnswerChallengeRequest"
+      },
+      "AppFoldersResponse": {
+        "properties": {
+          "config": {
+            "type": "string",
+            "title": "Config"
+          },
+          "logs": {
+            "type": "string",
+            "title": "Logs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "config",
+          "logs"
+        ],
+        "title": "AppFoldersResponse"
       },
       "AppliedPresetDTO": {
         "properties": {

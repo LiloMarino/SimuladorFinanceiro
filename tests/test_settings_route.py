@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
@@ -11,9 +12,12 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend import config
+from backend.config.paths import app_files_dir
 from backend.core import repository
-from backend.core.dependencies import get_client_id
+from backend.core.dependencies import get_client_id, get_current_user, verify_host
+from backend.core.dto.user import UserDTO
 from backend.core.runtime.user_manager import UserManager
+from backend.routes import settings as settings_route
 from backend.routes.settings import settings_router
 
 PREFERENCES = {
@@ -98,3 +102,97 @@ def test_server_value_wins_over_a_stale_stored_one(
     stored.stored = {**PREFERENCES, "debug": True}
 
     assert client.get("/api/settings").json()["debug"] is False
+
+
+class _FolderOpener:
+    def __init__(self) -> None:
+        self.opened: list[Path] = []
+        self.succeeds = True
+
+    def __call__(self, folder: Path) -> bool:
+        self.opened.append(folder)
+        return self.succeeds
+
+
+@pytest.fixture
+def opener(monkeypatch: pytest.MonkeyPatch) -> _FolderOpener:
+    fake = _FolderOpener()
+    monkeypatch.setattr(settings_route, "open_in_file_manager", fake)
+    return fake
+
+
+def _folder_client(host: str, *, is_host: bool = True) -> TestClient:
+    app = FastAPI()
+    app.include_router(settings_router)
+    app.dependency_overrides[get_client_id] = uuid4
+    if is_host:
+        app.dependency_overrides[verify_host] = lambda: None
+    else:
+        app.dependency_overrides[get_current_user] = lambda: UserDTO(
+            id=1, client_id=uuid4(), nickname="convidado"
+        )
+    return TestClient(app, client=(host, 50000))
+
+
+@pytest.mark.parametrize(
+    ("target", "expected"),
+    [
+        ("config", app_files_dir().resolve()),
+        ("logs", (app_files_dir() / config.toml.logging.logs_path).resolve()),
+    ],
+)
+def test_open_folder_opens_the_requested_folder(
+    opener: _FolderOpener, target: str, expected: Path
+) -> None:
+    response = _folder_client("127.0.0.1").post(
+        "/api/settings/open-folder", params={"target": target}
+    )
+
+    assert response.status_code == 204
+    assert opener.opened == [expected]
+
+
+def test_open_folder_accepts_ipv6_loopback(opener: _FolderOpener) -> None:
+    response = _folder_client("::1").post("/api/settings/open-folder")
+
+    assert response.status_code == 204
+
+
+def test_open_folder_refuses_a_request_from_another_ip(opener: _FolderOpener) -> None:
+    response = _folder_client("192.168.0.20").post("/api/settings/open-folder")
+
+    assert response.status_code == 403
+    assert opener.opened == []
+
+
+def test_open_folder_refuses_who_is_not_the_host(
+    opener: _FolderOpener, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(config.toml.host, "nickname", "dono")
+
+    response = _folder_client("127.0.0.1", is_host=False).post(
+        "/api/settings/open-folder"
+    )
+
+    assert response.status_code == 403
+    assert opener.opened == []
+
+
+def test_open_folder_answers_409_with_the_path_when_it_cannot_open(
+    opener: _FolderOpener,
+) -> None:
+    opener.succeeds = False
+
+    response = _folder_client("127.0.0.1").post("/api/settings/open-folder")
+
+    assert response.status_code == 409
+    assert str(app_files_dir().resolve()) in response.json()["detail"]
+
+
+def test_folders_lists_the_paths_for_the_host(opener: _FolderOpener) -> None:
+    response = _folder_client("127.0.0.1").get("/api/settings/folders")
+
+    assert response.json() == {
+        "config": str(app_files_dir().resolve()),
+        "logs": str((app_files_dir() / config.toml.logging.logs_path).resolve()),
+    }

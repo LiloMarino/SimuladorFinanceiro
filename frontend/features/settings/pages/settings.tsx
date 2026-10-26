@@ -1,5 +1,6 @@
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
+import { AppFoldersCard } from "../components/app-folders-card";
 import { DangerZoneCard } from "../components/danger-zone-card";
 import { MatchCard } from "../components/match-card";
 import { NotificationsCard } from "../components/notifications-card";
@@ -16,6 +17,7 @@ export default function SettingsPage() {
       <div className="grid gap-5">
         <ProfileCard nickname={user.nickname} />
         {settings?.is_host && <MatchCard />}
+        {settings?.is_host && <AppFoldersCard />}
       </div>
       <div className="grid gap-5">
         <NotificationsCard />

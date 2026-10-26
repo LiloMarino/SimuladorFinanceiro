@@ -400,6 +400,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/settings/folders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Caminho das pastas do app
+         * @description Onde ficam o config.toml e os logs no computador do host.
+         */
+        get: operations["get_app_folders_api_settings_folders_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/settings/open-folder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Abrir uma pasta do app no computador do host
+         * @description Abre a pasta de configurações (`target=config`) ou de logs (`target=logs`) no gerenciador de arquivos. Só atende o próprio computador do host; sem interface gráfica responde 409 com o caminho.
+         */
+        post: operations["open_app_folder_api_settings_open_folder_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/import-assets/coverage": {
         parameters: {
             query?: never;
@@ -2708,6 +2748,13 @@ export interface components {
         /** AnswerChallengeRequest */
         AnswerChallengeRequest: {
             direction: components["schemas"]["ChallengeDirection"];
+        };
+        /** AppFoldersResponse */
+        AppFoldersResponse: {
+            /** Config */
+            config: string;
+            /** Logs */
+            logs: string;
         };
         /**
          * AppliedPresetDTO
@@ -8715,6 +8762,82 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["SettingsResponse"];
                 };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_app_folders_api_settings_folders_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppFoldersResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    open_app_folder_api_settings_open_folder_post: {
+        parameters: {
+            query?: {
+                target?: "config" | "logs";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unprocessable Content */
             422: {

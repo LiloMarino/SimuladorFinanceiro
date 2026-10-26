@@ -1,11 +1,17 @@
-from fastapi import APIRouter
+from pathlib import Path
+from typing import Literal
+
+from fastapi import APIRouter, Request
 from pydantic import BaseModel, ConfigDict
 
 from backend import config
+from backend.config.paths import app_files_dir
 from backend.core import repository
-from backend.core.dependencies import ClientID
+from backend.core.dependencies import ClientID, HostVerified
 from backend.core.dto.technical_indicators import IndicatorSettingsDTO
+from backend.core.exceptions.http_exceptions import ConflictError, ForbiddenError
 from backend.core.runtime.user_manager import UserManager
+from backend.core.utils.file_manager import open_in_file_manager
 
 settings_router = APIRouter(prefix="/api/settings", tags=["Settings"])
 
@@ -89,3 +95,53 @@ def update_settings(client_id: ClientID, data: SettingsRequest):
     settings = repository.settings.get_by_user_id(user_id)
 
     return _with_debug(settings)
+
+
+LOCAL_HOSTS = {"127.0.0.1", "::1"}
+
+
+class AppFoldersResponse(BaseModel):
+    config: str
+    logs: str
+
+
+def _app_folders() -> dict[Literal["config", "logs"], Path]:
+    """A pasta do config.toml e do .env, e a dos logs, sempre em caminho absoluto."""
+    return {
+        "config": app_files_dir().resolve(),
+        "logs": (app_files_dir() / config.toml.logging.logs_path).resolve(),
+    }
+
+
+@settings_router.get(
+    "/folders",
+    response_model=AppFoldersResponse,
+    summary="Caminho das pastas do app",
+    description="Onde ficam o config.toml e os logs no computador do host.",
+)
+def get_app_folders(_: HostVerified):
+    return AppFoldersResponse.model_validate(
+        {name: str(path) for name, path in _app_folders().items()}
+    )
+
+
+@settings_router.post(
+    "/open-folder",
+    status_code=204,
+    summary="Abrir uma pasta do app no computador do host",
+    description=(
+        "Abre a pasta de configurações (`target=config`) ou de logs (`target=logs`) no "
+        "gerenciador de arquivos. Só atende o próprio computador do host; sem interface "
+        "gráfica responde 409 com o caminho."
+    ),
+)
+def open_app_folder(
+    _: HostVerified, request: Request, target: Literal["config", "logs"] = "config"
+):
+    # A janela abre na máquina do servidor: só quem está nela pode pedir
+    if request.client is None or request.client.host not in LOCAL_HOSTS:
+        raise ForbiddenError("A pasta só abre no computador do host.")
+
+    folder = _app_folders()[target]
+    if not open_in_file_manager(folder):
+        raise ConflictError(f"Este computador não abriu a pasta. O caminho é {folder}")

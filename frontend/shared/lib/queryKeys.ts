@@ -58,6 +58,7 @@ export const queryKeys = {
     ["correlation", window, end, ...tickers] as const,
   userSettings: () => ["settings", "user"] as const,
   debugMode: () => ["settings", "debug"] as const,
+  appFolders: () => ["settings", "folders"] as const,
   debugMetrics: () => ["debug", "metrics"] as const,
   seriesCoverage: () => ["import-assets", "coverage"] as const,
   sectors: () => ["import-assets", "sectors"] as const,
