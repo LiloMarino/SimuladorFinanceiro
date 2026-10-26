@@ -51,7 +51,7 @@
 | **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92) | — |
 | **N32** | Saber como foi o mês sem montar a conta | [F91](#f91) | — |
 | **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — |
-| **N34** | Disputar o poder de mudar as regras da economia da partida | [F144](#f144), [F145](#f145), [F147](#f147), [F150](#f150) | — |
+| **N34** | Disputar o poder de mudar as regras da economia da partida | [F144](#f144), [F145](#f145), [F150](#f150) | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — |
 | **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F127](#f127) | — |
@@ -110,7 +110,6 @@
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
 | [**F144**](#f144) | Ajustes de layout do playtest | — | ⏳ |
 | [**F145**](#f145) | Convite de vice para qualquer jogador | — | ⏳ |
-| [**F147**](#f147) | Nome do presidente eleito aparecendo como null | — | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
 | [**F150**](#f150) | Aviso de abertura da campanha | — | ⏳ |
 | [**F151**](#f151) | Segundo turno com disputa | — | 🔍 |
@@ -186,7 +185,6 @@
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
 | [**F144**](#f144) | Ajustes de layout do playtest | M16 | 0 | ⏳ |
 | [**F145**](#f145) | Convite de vice para qualquer jogador | M17 | 0 | ⏳ |
-| [**F147**](#f147) | Nome do presidente eleito aparecendo como null | M16 | 0 | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | M16 | 0 | ⏳ |
 | [**F150**](#f150) | Aviso de abertura da campanha | M17 | 0 | ⏳ |
 | [**F151**](#f151) | Segundo turno com disputa | M17 | 0 | 🔍 |
@@ -288,12 +286,11 @@
 >
 > **Serve:** N4, N8, N15, N33, N34, N40
 >
-> **Progresso:** 0/6 concluídas
+> **Progresso:** 0/5 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F144**](#f144) | Ajustes de layout do playtest | — | ⏳ |
-| [**F147**](#f147) | Nome do presidente eleito aparecendo como null | — | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
 | [**F155**](#f155) | Filtro "Na carteira" na renda fixa | — | ⏳ |
 | [**F156**](#f156) | Estatísticas rápidas em partida longa | — | ⏳ |
@@ -387,7 +384,6 @@
 | **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F144** | Ajustes de layout do playtest | N15, N34 | — | M16 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F145** | Convite de vice para qualquer jogador | N34 | — | M17 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F147** | Nome do presidente eleito aparecendo como null | N34 | — | M16 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F149** | Desligar o automático na própria boleta | N4, N15 | — | M16 | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F150** | Aviso de abertura da campanha | N34 | — | M17 | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F155** | Filtro "Na carteira" na renda fixa | N15 | — | M16 | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
@@ -473,9 +469,6 @@
 
 <a id="f145"></a>
 **F145 — Convite de vice para qualquer jogador.** Serve N34. Hoje o vice sai de um `Select` com os filiados do partido (`ticket-dialog.tsx:81`), e o backend recusa quem não é filiado (`government_book.py:311`); o convite e o aceite já existem (`government_book.py:343`, `vice-invite-dialog.tsx`). Plano: (1) **Regra:** o vice pode ser qualquer jogador humano da sala, de outro partido ou sem partido, como numa coligação, e continua filiado ao próprio partido. Fica bloqueado quem já é vice de outra chapa, quem é candidato de alguma chapa e os bots. (2) **Quem convida:** o `Select` vira uma lista de todos os jogadores, com o partido de cada um, e os bloqueados aparecem desabilitados com o motivo ("já é vice do ABC", "candidato pelo XYZ"). (3) **Quem é convidado:** um aviso que se abre na tela dele, pelo Socket.IO, com aceitar e recusar, reaproveitando o `vice-invite-dialog.tsx`; quem convida vê o convite como pendente até a resposta. (4) **Efeitos:** no impeachment, assume o vice enquanto ele estiver na partida, sem exigir filiação; na vitória política, o vice soma para o próprio partido. Esse aviso de aceitar ou recusar é o mecanismo que a negociação com as bancadas (F154) reaproveita.
-
-<a id="f147"></a>
-**F147 — Nome do presidente eleito aparecendo como null.** Serve N34. No playtest, o anúncio do resultado mostrou "null" no lugar do jogador eleito. Os pontos que montam o nome: o resultado do turno usa o nome do candidato, com o nome do partido como reserva (`round-result-dialog.tsx:79`), a posse mostra só a sigla (`government-notifications.tsx:101`) e o evento de tempo real tem `party_abbr` e `winner_abbr` opcionais, sem o nome do jogador (`realtime/schemas.py:199`). Plano: reproduzir na partida salva do playtest até o resultado; achar qual campo chega nulo (o caso provável é o candidato que saiu da sala, sem apelido no `user_manager`); levar o nome do eleito no próprio evento, gravado no momento da apuração, para o texto não depender de o jogador estar online; e mostrar "o candidato do ABC" quando a chapa não tiver candidato.
 
 <a id="f149"></a>
 **F149 — Desligar o automático na própria boleta.** Serve N4 e N15. Com o automático ligado, a boleta fica travada (`order-ticket.tsx:72`, `inert` em `:156`) e o aviso manda o jogador para Estratégias (`trade-lock-notice.tsx`, link "Ir para Estratégias"); para comprar uma ação na mão, ele sai da tela, desliga lá e volta. Plano: o aviso ganha o botão "Desligar o automático", que chama a mesma mutation da página de Estratégias e, com sucesso, destrava a boleta ali mesmo, mantendo ativo, lado, quantidade e preço preenchidos; o link para Estratégias continua para quem quer trocar a estratégia. A troca vale para todo lugar que usa o `useTradeLock`, como a renda fixa.

@@ -781,3 +781,9 @@ O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F13
 *Kanban:* Empréstimo que não se deixa pagar com o jogador negativado · 1. Atende necessidade · ✅ Concluído · atende N33 · marco M16
 
 **F148 — Empréstimo que não se deixa pagar com o jogador negativado.** Serve N33. A alavancagem (dívida ÷ patrimônio líquido) passou a ser nula quando o patrimônio é zero ou negativo, em todo lugar que a calcula: `leverage` devolve nulo (sem limite) e `leverage_points` pontua zero nesse caso. Isso tirou o `Infinity` que quebrava a simulação de empréstimo, o resumo da nota e o fechamento mensal. No DTO, `leverage_before` e `leverage_after` da simulação e o `value` da alavancagem na nota ficaram nulos, e a tela mostra "—". Testes em `tests/test_credit_book.py` (simulação e resumo com patrimônio zero e negativo) e `tests/test_credit_rating.py`. Em aberto: refazer o pagamento na partida salva do playtest para confirmar que a recusa vinha desse erro; no código, o valor do botão e a conferência de caixa (`_require_cash`) usam o mesmo caixa e as mesmas cobranças do dia.
+
+### F147 · arquivado em 2026-10-26
+
+*Kanban:* Nome do presidente eleito aparecendo como null · 1. Atende necessidade · ✅ Concluído · atende N34 · marco M16
+
+**F147 — Nome do presidente eleito aparecendo como null.** Serve N34. O aviso da posse lia um campo que o servidor não enviava e mostrava "null toma posse". O evento da posse agora leva a sigla e o nome do presidente (apelido do jogador ou nome do candidato do computador), e a posse e o resultado do turno mostram "O candidato do ABC" quando a chapa não tem candidato.
