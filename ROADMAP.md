@@ -32,7 +32,7 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F134](#f134), [F144](#f144), [F149](#f149), [F155](#f155) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F134](#f134), [F149](#f149), [F155](#f155) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
@@ -51,7 +51,7 @@
 | **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92) | — |
 | **N32** | Saber como foi o mês sem montar a conta | [F91](#f91) | — |
 | **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — |
-| **N34** | Disputar o poder de mudar as regras da economia da partida | [F144](#f144), [F145](#f145), [F150](#f150) | — |
+| **N34** | Disputar o poder de mudar as regras da economia da partida | [F145](#f145), [F150](#f150) | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — |
 | **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F127](#f127) | — |
@@ -108,7 +108,6 @@
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
 | [**F141**](#f141) | README com as features de hoje | — | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
-| [**F144**](#f144) | Ajustes de layout do playtest | — | ⏳ |
 | [**F145**](#f145) | Convite de vice para qualquer jogador | — | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
 | [**F150**](#f150) | Aviso de abertura da campanha | — | ⏳ |
@@ -183,7 +182,6 @@
 | [**F138**](#f138) | Piloto do modo strict do pyright | — | 0 | ⏳ |
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | M14 | 0 | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
-| [**F144**](#f144) | Ajustes de layout do playtest | M16 | 0 | ⏳ |
 | [**F145**](#f145) | Convite de vice para qualquer jogador | M17 | 0 | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | M16 | 0 | ⏳ |
 | [**F150**](#f150) | Aviso de abertura da campanha | M17 | 0 | ⏳ |
@@ -286,11 +284,10 @@
 >
 > **Serve:** N4, N8, N15, N33, N34, N40
 >
-> **Progresso:** 0/5 concluídas
+> **Progresso:** 0/4 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F144**](#f144) | Ajustes de layout do playtest | — | ⏳ |
 | [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
 | [**F155**](#f155) | Filtro "Na carteira" na renda fixa | — | ⏳ |
 | [**F156**](#f156) | Estatísticas rápidas em partida longa | — | ⏳ |
@@ -382,7 +379,6 @@
 | **F139** | Demonstração regravada com o jogo de hoje | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F140** | Docs reorganizada por tipo de leitor | N25 | — | M14 | — | Alto | Baixo | Alto | Bom | ⏳ Pendente |
 | **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
-| **F144** | Ajustes de layout do playtest | N15, N34 | — | M16 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F145** | Convite de vice para qualquer jogador | N34 | — | M17 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F149** | Desligar o automático na própria boleta | N4, N15 | — | M16 | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F150** | Aviso de abertura da campanha | N34 | — | M17 | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
@@ -463,9 +459,6 @@
 
 <a id="f141"></a>
 **F141 — README com as features de hoje.** Serve N25; retrabalho da F48. O README lista o que o jogo fazia em 2026-10-21 e termina em "Estratégias automáticas: em breve", que já existe. Plano: (1) "O que ele faz" ganha modo automático com estratégias e bots, crédito, governo e eleição, cripto e análise técnica, cada um com uma frase e a imagem da demonstração regravada (F139); as seções com GIF ficam nas quatro ou cinco mais fortes, e o resto vai para "E também", que deixa de ter item "em breve". (2) O parágrafo de abertura e os tipos de partida conferidos contra o lobby de hoje (presets, período). (3) Os links para os docs apontam para as páginas da reorganização (F140) quando ela tiver mudado os caminhos. (4) A intro dos docs repete a mesma lista, e as duas mudam juntas. Gatilho: F139 publicada.
-
-<a id="f144"></a>
-**F144 — Ajustes de layout do playtest.** Serve N15 e N34. Três trocas locais, sem rota nem modelo novos. (1) **Aba Expansões do lobby:** os cards ficam estreitos porque o grid divide a aba em duas colunas a partir do `sm` e o card de dentro divide de novo (`expansion-fields.tsx:53` e `:111`); o card passa a ocupar a largura da aba, com as opções internas em duas colunas só em telas largas. (2) **Sigla do partido:** hoje vai de 2 a 5 letras maiúsculas, no DTO (`core/dto/government.py:20` e `:33`), no `government_book.py:211` e no formulário (`found-party-dialog.tsx:28`, `:32` e `:108`); o teto sobe para 8 letras nos três lugares, e os lugares que mostram a sigla (selo do partido, pesquisa, resultado do turno, topbar do governo) são conferidos com uma sigla de 8. (3) **Rentabilidade por jogador:** em partida longa, a aba (`statistics-report/returns-tab.tsx`, título em `:339`) estoura a largura da tela; o conteúdo largo ganha rolagem própria dentro do card e a página fica sem rolagem horizontal.
 
 <a id="f145"></a>
 **F145 — Convite de vice para qualquer jogador.** Serve N34. Hoje o vice sai de um `Select` com os filiados do partido (`ticket-dialog.tsx:81`), e o backend recusa quem não é filiado (`government_book.py:311`); o convite e o aceite já existem (`government_book.py:343`, `vice-invite-dialog.tsx`). Plano: (1) **Regra:** o vice pode ser qualquer jogador humano da sala, de outro partido ou sem partido, como numa coligação, e continua filiado ao próprio partido. Fica bloqueado quem já é vice de outra chapa, quem é candidato de alguma chapa e os bots. (2) **Quem convida:** o `Select` vira uma lista de todos os jogadores, com o partido de cada um, e os bloqueados aparecem desabilitados com o motivo ("já é vice do ABC", "candidato pelo XYZ"). (3) **Quem é convidado:** um aviso que se abre na tela dele, pelo Socket.IO, com aceitar e recusar, reaproveitando o `vice-invite-dialog.tsx`; quem convida vê o convite como pendente até a resposta. (4) **Efeitos:** no impeachment, assume o vice enquanto ele estiver na partida, sem exigir filiação; na vitória política, o vice soma para o próprio partido. Esse aviso de aceitar ou recusar é o mecanismo que a negociação com as bancadas (F154) reaproveita.
