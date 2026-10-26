@@ -835,9 +835,15 @@ class GovernmentBook:
         president = people.get(pending.president_id) if pending.president_id else None
         if president is not None:
             self._on_office(president, today)
+        party = self.state.parties.get(pending.party_id) if pending.party_id else None
+        # O aviso da posse leva o nome do presidente: o computador usa o nome da chapa, o jogador o apelido
+        name = president.nickname if president else None
+        if party is not None and party.is_computer:
+            name = party.candidate_name
         self._notice(
             GovernmentNoticeKind.TERM_STARTED,
-            party_abbr=self._party_abbr(pending.party_id),
+            winner_abbr=party.abbr if party else None,
+            winner_name=name,
         )
 
     def _running(self) -> list[Party]:
@@ -934,6 +940,7 @@ class GovernmentBook:
         amount: Decimal | None = None,
         round_number: int | None = None,
         winner_abbr: str | None = None,
+        winner_name: str | None = None,
         accepted: bool | None = None,
         measure_title: str | None = None,
         chance: int | None = None,
@@ -952,6 +959,7 @@ class GovernmentBook:
                 amount=amount,
                 round=round_number,
                 winner_abbr=winner_abbr,
+                winner_name=winner_name,
                 accepted=accepted,
                 measure_title=measure_title,
                 chance=chance,

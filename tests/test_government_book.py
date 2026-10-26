@@ -289,7 +289,12 @@ def test_two_rounds_end_with_the_term_starting_in_january(
     assert book.on_tick(USERS, TERM_START, False) is False
     assert book.state.term is not None
     assert book.state.term.consecutive == 1
-    assert [n["kind"] for n in notices][-1] == GovernmentNoticeKind.TERM_STARTED.value
+    posse = notices[-1]
+    assert posse["kind"] == GovernmentNoticeKind.TERM_STARTED.value
+    # O aviso da posse diz quem governa: sigla do partido eleito e nome do presidente
+    assert book.state.term.party_id is not None
+    assert posse["winner_abbr"] == book.state.parties[book.state.term.party_id].abbr
+    assert posse["winner_name"]
 
 
 def test_winning_party_keeps_members_but_restarts_the_support(book: GovernmentBook):

@@ -76,7 +76,8 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
                   <Alert variant="success">
                     <Trophy />
                     <AlertTitle>
-                      {winner.candidate?.name ?? winner.name} ({winner.abbr}) venceu
+                      {winner.candidate ? `${winner.candidate.name} (${winner.abbr})` : `O candidato do ${winner.abbr}`}{" "}
+                      venceu
                       {result.round === 1 ? " já no 1º turno" : ""}
                     </AlertTitle>
                     <AlertDescription>

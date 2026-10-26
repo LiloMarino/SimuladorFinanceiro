@@ -4112,6 +4112,8 @@ export interface components {
             round?: number | null;
             /** Winner Abbr */
             winner_abbr?: string | null;
+            /** Winner Name */
+            winner_name?: string | null;
             /** Accepted */
             accepted?: boolean | null;
             /** Measure Title */

@@ -198,9 +198,10 @@ class GovernmentUpdateEventDTO(BaseDTO):
     target: str | None = None
     party_abbr: str | None = None
     amount: Decimal | None = None
-    # No resultado: o turno e o vencedor (sigla), se já houver
+    # No resultado: o turno e o vencedor (sigla), se já houver; na posse, a sigla e o nome do presidente
     round: int | None = None
     winner_abbr: str | None = None
+    winner_name: str | None = None
     # Na resposta ao convite de vice: se aceitou
     accepted: bool | None = None
     # Nas medidas: o título, a chance no voto, o dia em que passa a valer e os ativos que atinge

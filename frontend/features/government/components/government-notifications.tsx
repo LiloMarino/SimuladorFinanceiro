@@ -98,7 +98,7 @@ export function GovernmentNotifications() {
         });
         break;
       case "TERM_STARTED":
-        toast.success(`${event.winner_abbr} toma posse`, {
+        toast.success(`${event.winner_name ?? `O candidato do ${event.winner_abbr ?? "partido eleito"}`} toma posse`, {
           description: "O mandato dura 4 anos, com uma reeleição possível.",
           action: { label: "Ver", onClick: openGovernment },
         });
