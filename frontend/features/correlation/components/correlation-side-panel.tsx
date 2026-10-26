@@ -18,14 +18,17 @@ function SelectedPair({ matrix, pinned }: { matrix: CorrelationMatrix; pinned: P
       </div>
     );
   }
-  const cell = matrix.rows[pinned.row][pinned.column];
+  const cell = matrix.rows[pinned.row]?.[pinned.column];
+  const rowLabel = matrix.labels[pinned.row];
+  const columnLabel = matrix.labels[pinned.column];
+  if (!cell || rowLabel === undefined || columnLabel === undefined) return null;
   const value = cell.correlation === null ? null : Number(cell.correlation);
 
   return (
     <div className="grid gap-1.5 rounded-[10px] bg-subtle p-3.5">
       <span className="text-[11px] font-semibold tracking-[0.06em] text-faint-foreground uppercase">Selecionado</span>
       <span className="font-semibold">
-        {nameOf(matrix.labels[pinned.row])} × {nameOf(matrix.labels[pinned.column])}
+        {nameOf(rowLabel)} × {nameOf(columnLabel)}
       </span>
       {value === null ? (
         <>

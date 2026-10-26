@@ -109,7 +109,7 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
     ? differenceInCalendarDays(parseLocalDate(today), parseLocalDate(position.first_applied_date))
     : 0;
   const bracketIndex = quote?.income_tax_brackets.findIndex((b) => b.max_days === null || heldDays <= b.max_days) ?? -1;
-  const taxToday = quote && bracketIndex >= 0 ? quote.income_tax_brackets[bracketIndex].rate : null;
+  const taxToday = quote?.income_tax_brackets[bracketIndex]?.rate ?? null;
 
   const metrics: Metric[] = [
     { label: "Rentabilidade", value: displayRateLabel(offer.rate_index, offer.interest_rate) },
@@ -532,7 +532,7 @@ function TaxSteps({
       <CardContent>
         <div className="flex gap-1.5">
           {brackets.map((b, i) => {
-            const from = i === 0 ? 0 : (brackets[i - 1].max_days ?? 0) + 1;
+            const from = i === 0 ? 0 : (brackets[i - 1]?.max_days ?? 0) + 1;
             const label =
               b.max_days === null
                 ? `acima de ${from - 1} dias`

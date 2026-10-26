@@ -18,13 +18,14 @@ function pollRows(panel: ElectionPanel): PollRow[] {
     for (const entry of poll.entries) {
       const points = Number(entry.points);
       row[partyKey(entry.party_id)] = points;
-      row[UNDECIDED_KEY] -= points;
+      row[UNDECIDED_KEY] = (row[UNDECIDED_KEY] ?? 0) - points;
     }
     return row;
   });
 
   const today = parseLocalDate(panel.today).getTime();
-  if (rows.length === 0 || rows[rows.length - 1].time < today) {
+  const lastRow = rows.at(-1);
+  if (!lastRow || lastRow.time < today) {
     const row: PollRow = { time: today, [UNDECIDED_KEY]: Number(panel.undecided) };
     for (const party of panel.parties) row[partyKey(party.id)] = Number(party.intention_points);
     rows.push(row);

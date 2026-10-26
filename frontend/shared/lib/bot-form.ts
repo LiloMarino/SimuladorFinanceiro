@@ -36,11 +36,13 @@ const defaultDrafts = (strategies: StrategyInfo[]) =>
 export function addValues(strategies: StrategyInfo[], taken: TakenSlot[], strategyKey?: string): BotFormValues {
   const strategy = strategies.find((s) => s.key === strategyKey) ?? strategies[0];
   return {
-    nickname: drawBotName(
-      strategy,
-      taken.map((p) => p.nickname),
-    ),
-    strategyKey: strategy.key,
+    nickname: strategy
+      ? drawBotName(
+          strategy,
+          taken.map((p) => p.nickname),
+        )
+      : "",
+    strategyKey: strategy?.key ?? "",
     color: nextFreeColor(taken),
     team: null,
     drafts: defaultDrafts(strategies),

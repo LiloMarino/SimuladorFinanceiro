@@ -75,8 +75,8 @@ export function BacktestForm({ setup, strategies, values, startDate }: BacktestF
 
   const duplicate = (index: number) => {
     const source = list[index];
-    const strategy = strategies.find((s) => s.key === source.strategyKey) ?? strategies[0];
-    if (!source || list.length >= MAX_PARTICIPANTS) return;
+    const strategy = strategies.find((s) => s.key === source?.strategyKey) ?? strategies[0];
+    if (!source || !strategy || list.length >= MAX_PARTICIPANTS) return;
     participants.insert(index + 1, {
       ...structuredClone(source),
       nickname: drawBotName(

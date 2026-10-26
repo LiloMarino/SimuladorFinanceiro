@@ -3,7 +3,6 @@ import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/shared/c
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber, displaySignedPercent } from "@/shared/lib/utils/display";
-import type { Player } from "@/types";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { criterionLabel, displayCriterionValue, rankingMeasure, type RankingMeasure } from "../../lib/criterion";
 import { simulationColor, simulationLetter } from "../../lib/player-label";
@@ -42,7 +41,7 @@ function SimulationSummary({ simulationIds, simulationId, currentPlayerName }: S
   if (!data) return <Skeleton className="h-36" />;
 
   const measure = rankingMeasure(data);
-  const winner = data.players[0] as Player | undefined;
+  const winner = data.players[0];
   const you = data.players.find((p) => p.player_nickname === currentPlayerName);
   const name = winner?.simulation_name ?? "Sem jogadores";
 

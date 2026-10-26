@@ -57,7 +57,7 @@ type TemperatureLevel = {
   extreme?: boolean;
 };
 
-const TEMPERATURE_LEVELS: TemperatureLevel[] = [
+const TEMPERATURE_LEVELS: [TemperatureLevel, TemperatureLevel, TemperatureLevel, TemperatureLevel] = [
   {
     level: 0,
     headline: "O mais calmo possível.",
@@ -96,7 +96,7 @@ const TEMPERATURE_LEVELS: TemperatureLevel[] = [
 /** A leitura mostrada é a do nível inteiro mais próximo. */
 export function temperatureReading(temperature: number): TemperatureLevel {
   const level = Math.min(Math.max(Math.round(temperature), TEMPERATURE.min), TEMPERATURE.max);
-  return TEMPERATURE_LEVELS[level];
+  return TEMPERATURE_LEVELS[level] ?? TEMPERATURE_LEVELS[0];
 }
 
 export const TEMPERATURE_TABLE = TEMPERATURE_LEVELS.map(({ level, volatility, crashYears }) => ({

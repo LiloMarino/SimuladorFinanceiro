@@ -40,6 +40,7 @@ export function ParticipantList({
       <div className="grid content-start gap-2 pr-5">
         {participants.map((participant, index) => {
           const strategy = strategies.find((s) => s.key === participant.strategyKey) ?? strategies[0];
+          if (!strategy) return null;
           const values = fromDraft(strategy.params, participant.drafts[strategy.key] ?? {});
           const summary = values
             ? paramPills(strategy, values)

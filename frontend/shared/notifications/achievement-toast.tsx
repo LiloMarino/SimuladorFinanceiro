@@ -9,6 +9,8 @@ type AchievementToastProps = {
 /** Conteúdo do aviso de conquista: uma só mostra nome e descrição, várias no mesmo dia viram uma lista. */
 export function AchievementToast({ achievements, onSeeAll }: AchievementToastProps) {
   const [first] = achievements;
+  if (!first) return null;
+
   const several = achievements.length > 1;
 
   return (

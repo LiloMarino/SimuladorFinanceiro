@@ -47,8 +47,10 @@ export function ParticipantEditor({
   const participants = useWatch({ control: form.control, name: "participants" });
   const startingCash = useWatch({ control: form.control, name: "startingCash" });
   const participant = participants[index];
-  const strategy = strategies.find((s) => s.key === participant.strategyKey) ?? strategies[0];
-  const draft = participant.drafts[strategy.key];
+  const strategy = strategies.find((s) => s.key === participant?.strategyKey) ?? strategies[0];
+  if (!participant || !strategy) return null;
+
+  const draft = participant.drafts[strategy.key] ?? toDraft(defaultValues(strategy));
   const others = participants.filter((_, other) => other !== index);
   const takenNames = others.map((o) => o.nickname);
   const path = `participants.${index}` as const;

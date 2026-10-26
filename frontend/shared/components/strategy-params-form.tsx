@@ -106,7 +106,7 @@ export function StrategyParamsForm({
 type NumberFieldProps = {
   param: StrategyParam;
   text: string;
-  saved: ParamValues[string];
+  saved: ParamValues[string] | undefined;
   compareToDefault: boolean;
   error: string | undefined;
   onChange: (text: string) => void;
@@ -169,7 +169,14 @@ function AssetField({ param, ticker, error, options, onChange }: AssetFieldProps
           <FieldLabel>{param.label}</FieldLabel>
           <InfoHint label={`Como ${param.label} muda a estratégia`}>{param.hint}</InfoHint>
         </div>
-        <TickerPicker single options={options} selected={[ticker]} onChange={([next]) => onChange(next)} />
+        <TickerPicker
+          single
+          options={options}
+          selected={[ticker]}
+          onChange={([next]) => {
+            if (next !== undefined) onChange(next);
+          }}
+        />
       </div>
       <div className="flex flex-wrap gap-1.5">
         <Badge variant="secondary" size="tag" numeric>

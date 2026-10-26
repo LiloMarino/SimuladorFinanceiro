@@ -18,9 +18,9 @@ const point = {
 describe("standingsOf", () => {
   it("ordena pelo patrimônio e calcula o retorno sobre o aportado", () => {
     const [first, second] = standingsOf(participants, point, []);
-    expect(first.participant.nickname).toBe("B");
-    expect(first.returnOnContributed).toBeCloseTo(0.5);
-    expect(second.returnOnContributed).toBeCloseTo(0.1);
+    expect(first?.participant.nickname).toBe("B");
+    expect(first?.returnOnContributed).toBeCloseTo(0.5);
+    expect(second?.returnOnContributed).toBeCloseTo(0.1);
   });
 
   it("marca o dia do erro", () => {
@@ -36,6 +36,6 @@ describe("standingsOf", () => {
 describe("referencesOf", () => {
   it("omite o Ibovespa sem dado", () => {
     expect(referencesOf(point).map((r) => r.key)).toEqual(["cdi"]);
-    expect(referencesOf(point)[0].returnOnContributed).toBeCloseTo(0.2);
+    expect(referencesOf(point)[0]?.returnOnContributed).toBeCloseTo(0.2);
   });
 });

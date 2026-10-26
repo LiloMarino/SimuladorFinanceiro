@@ -25,12 +25,13 @@ export function checkTeams(players: RoomPlayer[], saved: RoomPlayer[], naming: T
   }
   const sizes = [...members.values()].sort((a, b) => a - b);
   const single = missing.length === 0 && members.size === 1;
+  const [onlyTeam] = members.keys();
   return {
     missing,
     sizes,
     single,
     uneven: missing.length === 0 && sizes.length >= 2 && sizes[0] !== sizes[sizes.length - 1],
     ready: missing.length === 0 && members.size >= 2,
-    singleName: single ? teamName([...members.keys()][0], naming) : null,
+    singleName: single && onlyTeam !== undefined ? teamName(onlyTeam, naming) : null,
   };
 }

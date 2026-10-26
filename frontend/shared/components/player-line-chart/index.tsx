@@ -1,5 +1,5 @@
 import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { niceTicks } from "@/shared/lib/chart-scale";
+import { niceScale } from "@/shared/lib/chart-scale";
 import { displayShortMonthYear } from "@/shared/lib/utils/display";
 import { useStaticChartVisibility } from "@/shared/hooks/useStaticChartVisibility";
 import { LineChartLegend } from "./chart-legend";
@@ -42,7 +42,9 @@ export function PlayerLineChart({
   const { visible, toggle } = useStaticChartVisibility(series);
   const data = buildChartData(series, axis);
 
-  if (!data.length) {
+  const firstRow = data[0];
+  const lastRow = data.at(-1);
+  if (!firstRow || !lastRow) {
     return (
       <div className="flex h-72 items-center justify-center rounded-[10px] border border-dashed border-input text-sm text-muted-foreground">
         {emptyMessage}
@@ -52,17 +54,17 @@ export function PlayerLineChart({
 
   const shown = series.filter((s) => visible[s.key]);
   const values = data.flatMap((row) => shown.map((s) => row.numbers[s.key]).filter((v) => v !== undefined));
-  const ticks = niceTicks(Math.min(...values, 0), Math.max(...values, 0));
-  const [floor, ceiling] = [ticks[0], ticks[ticks.length - 1]];
+  const { ticks, floor, ceiling } = niceScale(Math.min(...values, 0), Math.max(...values, 0));
   // No eixo de datas, uma marca por mês: sem isso o mesmo mês se repete em dias diferentes
-  const dateTicks = xTicks ?? (axis === "date" ? monthStartTicks(data[0].x, data[data.length - 1].x) : undefined);
+  const dateTicks = xTicks ?? (axis === "date" ? monthStartTicks(firstRow.x, lastRow.x) : undefined);
   const yOf = (value: number) => MARGIN.top + (1 - (value - floor) / (ceiling - floor || 1)) * PLOT_HEIGHT;
 
   // Último valor de cada linha visível, do topo para baixo; o rótulo que colide desce
   const ends = shown
     .map((s) => {
       const last = [...data].reverse().find((row) => row.numbers[s.key] !== undefined);
-      return last ? { series: s, y: yOf(last.numbers[s.key]) } : null;
+      const value = last?.numbers[s.key];
+      return value === undefined ? null : { series: s, y: yOf(value) };
     })
     .filter((end): end is { series: LineSeries; y: number } => end !== null)
     .sort((a, b) => a.y - b.y)

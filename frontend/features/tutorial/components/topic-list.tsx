@@ -46,7 +46,8 @@ export function TopicList() {
   return (
     <nav aria-label="Tópicos" className="flex w-70 shrink-0 flex-col gap-0.5 overflow-y-auto border-r px-3 pt-2 pb-4">
       {groupTopics(topicList).map(({ key, topics }) => {
-        if (topics.length === 1) return row(topics[0]);
+        const [only] = topics;
+        if (only && topics.length === 1) return row(only);
 
         const { label, icon: Icon } = groups[key];
         const open = !collapsed.includes(key);

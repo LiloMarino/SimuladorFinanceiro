@@ -39,12 +39,12 @@ const SHORTCUT_YEARS = { past: [5, 10, 20], future: [5, 10] } as const;
 
 /** Mês de uma data na linha do tempo: 0 é jan/1993. */
 function monthIndex(isoDate: string): number {
-  const [year, month] = isoDate.split("-").map(Number);
+  const [year = 0, month = 0] = isoDate.split("-").map(Number);
   return (year - CALENDAR_START_YEAR) * 12 + (month - 1);
 }
 
 function daysInMonth(isoDate: string): number {
-  const [year, month] = isoDate.split("-").map(Number);
+  const [year = 0, month = 0] = isoDate.split("-").map(Number);
   return new Date(year, month, 0).getDate();
 }
 

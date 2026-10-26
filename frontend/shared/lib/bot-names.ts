@@ -13,7 +13,8 @@ export function nameTaken(name: string, taken: string[]) {
  */
 export function drawBotName(strategy: StrategyInfo, taken: string[], random: () => number = Math.random) {
   const free = strategy.bot_names.filter((name) => !nameTaken(name, taken));
-  if (free.length > 0) return free[Math.floor(random() * free.length)];
+  const drawn = free[Math.floor(random() * free.length)];
+  if (drawn !== undefined) return drawn;
 
   let number = 2;
   while (nameTaken(`${strategy.name} #${number}`, taken)) number++;

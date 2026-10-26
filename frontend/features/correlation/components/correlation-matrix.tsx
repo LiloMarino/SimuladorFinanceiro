@@ -27,7 +27,7 @@ export function CorrelationMatrixGrid({ matrix, pinned, onPin }: CorrelationMatr
   const columns: SortColumns<string> = { asset: (ticker) => ticker };
   for (const label of labels) {
     columns[`correlation:${label}`] = (ticker) =>
-      sortNumber(rows[labels.indexOf(ticker)][labels.indexOf(label)].correlation);
+      sortNumber(rows[labels.indexOf(ticker)]?.[labels.indexOf(label)]?.correlation);
   }
   const sorting = useTableSort(
     labels.filter((l) => l !== REFERENCE),
@@ -36,7 +36,9 @@ export function CorrelationMatrixGrid({ matrix, pinned, onPin }: CorrelationMatr
   const tickers = sorting.rows;
 
   const cell = (row: number, column: number) => {
-    const { correlation: value } = rows[row][column];
+    const pair = rows[row]?.[column];
+    if (!pair) return null;
+    const value = pair.correlation;
     const number = value === null ? null : Number(value);
     const active =
       !!pinned &&
@@ -48,7 +50,7 @@ export function CorrelationMatrixGrid({ matrix, pinned, onPin }: CorrelationMatr
           onClick={() => onPin({ row, column })}
           aria-pressed={active}
           aria-label={`${labels[row]} × ${labels[column]}`}
-          title={number === null ? gapReason(rows[row][column], matrix.min_days) : undefined}
+          title={number === null ? gapReason(pair, matrix.min_days) : undefined}
           className={cn(
             "grid h-11 w-full min-w-14 place-content-center rounded-md font-mono text-[13px] transition-shadow",
             number === null &&

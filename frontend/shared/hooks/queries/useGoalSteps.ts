@@ -22,10 +22,10 @@ export function useGoalSteps() {
 /** O último reajuste da meta pelo IPCA, enquanto o dia da partida está a até 30 dias dele. */
 export function useGoalRise(currentDate: string | undefined): GoalRise | null {
   const steps = useGoalSteps();
-  if (!steps || steps.length < 2 || !currentDate) return null;
+  const last = steps?.at(-1);
+  const previous = steps?.at(-2);
+  if (!last || !previous || !currentDate) return null;
 
-  const last = steps[steps.length - 1];
-  const previous = steps[steps.length - 2];
   const days = (parseLocalDate(currentDate).getTime() - parseLocalDate(last.date).getTime()) / 86_400_000;
   if (days > RISE_NOTICE_DAYS) return null;
   return {

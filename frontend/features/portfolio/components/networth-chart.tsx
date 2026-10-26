@@ -2,7 +2,7 @@ import { Area, AreaChart, CartesianGrid, Line, ResponsiveContainer, Tooltip, XAx
 import { LineChart as LineChartIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
-import { niceTicks } from "@/shared/lib/chart-scale";
+import { niceScale } from "@/shared/lib/chart-scale";
 import {
   displayDate,
   displayMoney,
@@ -54,8 +54,7 @@ export function NetworthChart({ history, goalSteps }: { history: PortfolioHistor
     ...data.map((p) => Math.max(num(p, "total_networth"), num(p, "total_provided"), p.goal ?? 0)),
   );
   // Eixo Y em múltiplos redondos, a partir de zero; sem patrimônio, a escala é 0 a 1
-  const ticks = peak > 0 ? niceTicks(0, peak) : [0, 1];
-  const top = ticks[ticks.length - 1];
+  const { ticks, ceiling: top } = peak > 0 ? niceScale(0, peak) : { ticks: [0, 1], ceiling: 1 };
 
   return (
     <Card>

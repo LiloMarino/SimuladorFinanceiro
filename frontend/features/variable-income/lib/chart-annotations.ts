@@ -43,9 +43,11 @@ export function patternShapes(
 
   if (active) {
     const after = days.slice(days.indexOf(active.end) + 1, days.indexOf(active.end) + 1 + OUTCOME_SESSIONS);
-    if (after.length > 0) {
+    const from = after[0];
+    const to = after.at(-1);
+    if (from !== undefined && to !== undefined) {
       const color = active.direction === "down" ? colors.down : active.direction === "up" ? colors.up : colors.neutral;
-      shapes.push({ kind: "outline", from: after[0], to: after[after.length - 1], color });
+      shapes.push({ kind: "outline", from, to, color });
     }
   }
   return shapes;

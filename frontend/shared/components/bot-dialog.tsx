@@ -178,7 +178,9 @@ function BotForm({
   const { strategyKey, nickname, color, drafts } = useWatch({ control: form.control }) as BotFormValues;
 
   const strategy = strategies.find((s) => s.key === strategyKey) ?? strategies[0];
-  const draft = drafts[strategy.key];
+  if (!strategy) return null;
+
+  const draft = drafts[strategy.key] ?? toDraft(defaultValues(strategy));
   const errors = draftErrors(strategy.params, draft);
   const values = fromDraft(strategy.params, draft);
   const canSave = values !== null && Object.keys(errors).length === 0 && form.formState.isValid && !saving;

@@ -195,7 +195,7 @@ function RiskReturn({
   const points = [...byPosition.values()].map((p) => ({
     ...p,
     label: displayList(p.names),
-    colorKey: p.keys[0],
+    colorKey: p.keys[0] ?? "",
   }));
   const cdi = cdiReturn !== null ? Number(cdiReturn) : null;
   // Losango da equipe: volatilidade média × retorno médio; o tracejado liga cada membro a ele
@@ -212,7 +212,7 @@ function RiskReturn({
   const ys = [...points.map((p) => p.y), ...teamPoints.map((t) => t.y), cdi ?? 0];
   const minY = Math.min(...ys, 0) * 1.15;
   const maxY = Math.max(...ys, 0.01) * 1.15;
-  const medianX = points.length ? [...points].sort((a, b) => a.x - b.x)[Math.floor(points.length / 2)].x : maxX / 2;
+  const medianX = [...points].sort((a, b) => a.x - b.x)[Math.floor(points.length / 2)]?.x ?? maxX / 2;
 
   // "Melhor da sala" só faz sentido com pelo menos dois Sharpes medidos
   const withSharpe = measured.filter((p) => p.sharpe_ratio !== null);
@@ -225,8 +225,8 @@ function RiskReturn({
   const bestTeam = teamPoints.filter((t) => t.sharpe !== null).sort((a, b) => Number(b.sharpe) - Number(a.sharpe))[0];
   // A equipe que rendeu mais oscilando menos que a seguinte: o losango dela fica acima e à esquerda
   const byReturn = [...teamPoints].sort((a, b) => b.y - a.y);
-  const dominant =
-    byReturn.length > 1 && byReturn[0].x < byReturn[1].x ? { winner: byReturn[0], other: byReturn[1] } : undefined;
+  const [topTeam, nextTeam] = byReturn;
+  const dominant = topTeam && nextTeam && topTeam.x < nextTeam.x ? { winner: topTeam, other: nextTeam } : undefined;
   // Em cada equipe com três ou mais, quem segura a média (o mais perto do losango) e quem puxa
   // para baixo e para a direita (menos retorno e mais oscilação que a média)
   const holders = teamPoints.flatMap((t) => {
@@ -236,6 +236,7 @@ function RiskReturn({
     const worse = (p: RiskPlayer) => Number(p.annual_volatility) - t.x - (Number(p.annual_return) - t.y);
     const holder = [...members].sort((a, b) => distance(a) - distance(b))[0];
     const dragger = [...members].sort((a, b) => worse(b) - worse(a))[0];
+    if (!holder || !dragger) return [];
     return [{ team: t.team, holder, dragger: worse(dragger) > 0 && dragger !== holder ? dragger : undefined }];
   });
 

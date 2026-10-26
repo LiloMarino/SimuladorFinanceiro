@@ -46,7 +46,7 @@ const TARGETS: Record<number, Target> = {
 const withBought = (orders: Order[]) =>
   orders.map((order, i) => (i === 0 ? { ...order, size: "400", remaining: "400" } : order));
 
-const priceDrop: Order[] = [
+const priceDrop: [Order, Order] = [
   { ...STAGE_SELL_BOOK[0], id: "s4", size: "400", remaining: "400", limit_price: 37.9 },
   { ...STAGE_SELL_BOOK[0], id: "s5", size: "100", remaining: "100", limit_price: 37.5 },
 ];

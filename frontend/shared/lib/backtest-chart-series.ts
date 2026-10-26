@@ -8,7 +8,10 @@ export function chartSeries(participants: BacktestParticipant[], points: Backtes
     label: participant.nickname,
     color: `var(--${participant.color})`,
     emphasis: true,
-    points: points.map((point) => ({ date: point.day, value: point.equity[index] })),
+    points: points.flatMap((point) => {
+      const value = point.equity[index];
+      return value === undefined ? [] : [{ date: point.day, value }];
+    }),
   }));
 
   return [...strategies, ...referenceSeries(points)];

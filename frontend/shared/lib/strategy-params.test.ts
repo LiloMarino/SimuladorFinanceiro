@@ -33,6 +33,6 @@ describe("paramPills", () => {
 
   it("compara a lista de ações pela ordem e pelo conteúdo", () => {
     const pills = paramPills(strategy, { short: 50, share: 20, tickers: ["VALE3", "PETR4"] });
-    expect(pills[2].changed).toBe(true);
+    expect(pills[2]?.changed).toBe(true);
   });
 });

@@ -14,13 +14,13 @@ const PERCENT = new Intl.NumberFormat("pt-BR", { style: "percent", maximumFracti
 
 export type GeneralKind = Exclude<MeasureKind, "SECTOR_EXEMPT" | "SECTOR_TAX">;
 
-export const GENERAL_KINDS: GeneralKind[] = [
+export const GENERAL_KINDS = [
   "STOCK_PROFIT_RATE",
   "DAY_TRADE_RATE",
   "STOCK_EXEMPTION",
   "FIXED_INCOME_TABLE",
   "LCI_LCA_RATE",
-];
+] as const satisfies readonly GeneralKind[];
 
 export const isGeneral = (kind: MeasureKind): kind is GeneralKind => GENERAL_KINDS.includes(kind as GeneralKind);
 

@@ -27,7 +27,7 @@ export function FrozenPortfolioCard({ panel }: FrozenPortfolioCardProps) {
   if (!portfolio) return null;
   const colored = portfolio.slices.map((slice, index) => ({
     ...slice,
-    color: SLICE_COLORS[index % SLICE_COLORS.length],
+    color: SLICE_COLORS[index % SLICE_COLORS.length] ?? SLICE_COLORS[0],
   }));
 
   return (

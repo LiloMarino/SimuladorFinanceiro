@@ -22,7 +22,7 @@ function parseCsvDate(raw: string): Date | null {
 /** Código do ativo tirado do nome do arquivo: "itsa4_2015-2026.csv" vira "ITSA4". */
 export function tickerFromFileName(fileName: string): string {
   const match = /^([a-z]{4}\d{1,2}|[a-z]{3,6}-[a-z]{3})/i.exec(fileName);
-  return match ? match[1].toUpperCase() : "";
+  return match?.[1]?.toUpperCase() ?? "";
 }
 
 /** Confere o arquivo no navegador antes de enviar: extensão, tamanho, colunas e período. */

@@ -68,7 +68,7 @@ describe("classificação de jogadores e equipes", () => {
       [2, 150000, 0.75],
       [1, 100000, 0.5],
     ]);
-    expect(teams[1].members.map((m) => m.nickname)).toEqual(["Ana", "Bia"]);
+    expect(teams[1]?.members.map((m) => m.nickname)).toEqual(["Ana", "Bia"]);
   });
 
   it("acha a posição do próprio jogador ou da equipe dele", () => {

@@ -21,7 +21,7 @@ const QUANTITY_DECIMALS = 8;
 /** Quantidade digitada: inteira, ou com uma vírgula e até oito casas quando o ativo é fracionável. */
 export function formatQuantityInput(value: string, fractional: boolean) {
   if (!fractional) return onlyDigits(value);
-  const [whole, ...fraction] = value
+  const [whole = "", ...fraction] = value
     .replace(/\./g, ",")
     .replace(/[^\d,]/g, "")
     .split(",");

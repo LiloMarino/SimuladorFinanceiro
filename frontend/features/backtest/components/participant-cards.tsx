@@ -37,6 +37,7 @@ export function ParticipantCards({
     <div className="grid grid-cols-3 gap-3">
       {participants.map((participant, index) => {
         const strategy = strategies.find((s) => s.key === participant.strategyKey) ?? strategies[0];
+        if (!strategy) return null;
         const values = fromDraft(strategy.params, participant.drafts[strategy.key] ?? {}) ?? defaultValues(strategy);
         return (
           <div key={index} className="grid min-w-0 content-start gap-2.5 rounded-xl border bg-card p-3.5">

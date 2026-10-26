@@ -5,7 +5,7 @@ import { notifyExecution } from "./useSubmitOrder";
 vi.mock("sonner", () => ({ toast: { info: vi.fn() } }));
 
 // O Intl separa o R$ do número com espaço não separável
-const lastMessage = () => (vi.mocked(toast.info).mock.calls[0][0] as string).replace(/\s/g, " ");
+const lastMessage = () => (vi.mocked(toast.info).mock.calls[0]![0] as string).replace(/\s/g, " ");
 
 const response = (quantity: string, total: string) => ({ order_id: "a", status: "EXECUTED", quantity, total });
 

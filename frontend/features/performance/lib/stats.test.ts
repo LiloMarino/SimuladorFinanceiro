@@ -62,7 +62,7 @@ describe("linhas da tabela", () => {
   });
 
   it("sem tempo nenhum a fatia é zero", () => {
-    expect(buildRows([metric({ total_ms: 0 })])[0].share).toBe(0);
+    expect(buildRows([metric({ total_ms: 0 })])[0]?.share).toBe(0);
   });
 
   it("ordena do maior para o menor e desempata pelo rótulo", () => {

@@ -11,7 +11,7 @@ const points = [
 describe("chartSeries", () => {
   it("põe cada estratégia no índice da carteira dela", () => {
     const [strategy] = chartSeries(participants, points);
-    expect(strategy.points.map((p) => p.value)).toEqual(["100", "110"]);
+    expect(strategy?.points.map((p) => p.value)).toEqual(["100", "110"]);
   });
 
   it("começa o Ibovespa só no primeiro dia com dado", () => {
@@ -20,7 +20,7 @@ describe("chartSeries", () => {
   });
 
   it("omite o Ibovespa quando nenhum ponto tem dado", () => {
-    const series = chartSeries(participants, [points[0]]);
+    const series = chartSeries(participants, [points[0]!]);
     expect(series.some((s) => s.key === "ibov")).toBe(false);
   });
 });

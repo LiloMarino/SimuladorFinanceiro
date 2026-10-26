@@ -71,9 +71,6 @@ function StrategiesWorkspace({ strategies, mine }: WorkspaceProps) {
   const selected =
     strategies.find((strategy) => strategy.key === (pickedKey ?? mine.active?.key ?? errorKey)) ?? strategies[0];
   const activeStrategy = strategies.find((strategy) => strategy.key === mine.active?.key);
-  const activeHere = mine.active?.key === selected.key ? mine.active : null;
-
-  const draft = drafts[selected.key] ?? toDraft(activeHere ? activeHere.params : defaultValues(selected));
   const tickerOptions = quotes?.map((quote) => quote.ticker) ?? [];
 
   const errorUnseen = !!mine.error && !mine.error.seen;
@@ -81,6 +78,11 @@ function StrategiesWorkspace({ strategies, mine }: WorkspaceProps) {
   useEffect(() => {
     if (errorUnseen) markErrorSeen();
   }, [errorUnseen, markErrorSeen]);
+
+  if (!selected) return null;
+
+  const activeHere = mine.active?.key === selected.key ? mine.active : null;
+  const draft = drafts[selected.key] ?? toDraft(activeHere ? activeHere.params : defaultValues(selected));
 
   const clearDraft = (key: string) =>
     setDrafts((current) => Object.fromEntries(Object.entries(current).filter(([draftKey]) => draftKey !== key)));

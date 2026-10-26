@@ -44,7 +44,12 @@ const tone = (value: number) => (value > 0 ? "text-success" : value < 0 ? "text-
 
 /** O Geral de um backtest: quem venceu, o patrimônio de cada estratégia contra o CDI e o Ibovespa, e a tabela com os parâmetros. */
 export function BacktestOverviewTab({ simulationIds }: ReportProps) {
-  const simulationId = simulationIds[0];
+  const [simulationId] = simulationIds;
+  if (simulationId === undefined) return null;
+  return <BacktestOverviewContent simulationIds={simulationIds} simulationId={simulationId} />;
+}
+
+function BacktestOverviewContent({ simulationIds, simulationId }: { simulationIds: number[]; simulationId: number }) {
   const { data: overview, isLoading, error, refetch } = useStatisticsReport("overview", simulationIds);
   const { data: result, error: resultError, refetch: refetchResult } = useBacktestResult(simulationId);
   const {

@@ -58,7 +58,7 @@ export function CoverageAlerts({ check, startDate, onChangeDate }: CoverageAlert
         </Alert>
       )}
 
-      {endingBeforeEnd.length > 0 && (
+      {firstRealEnd !== undefined && (
         <Alert variant="warning">
           <TriangleAlert />
           <AlertDescription>

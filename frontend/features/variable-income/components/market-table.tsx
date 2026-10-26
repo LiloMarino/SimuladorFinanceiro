@@ -36,14 +36,18 @@ function DayRange({ quote }: { quote: MarketQuote }) {
 
 /** Mini gráfico dos últimos 30 fechamentos; a cor diz se subiu ou caiu no período. */
 function Sparkline({ values }: { values: number[] }) {
-  if (values.length < 2) return <span className="text-faint-foreground">—</span>;
+  const first = values[0];
+  const last = values.at(-1);
+  if (first === undefined || last === undefined || values.length < 2) {
+    return <span className="text-faint-foreground">—</span>;
+  }
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 1;
   const points = values
     .map((v, i) => `${((i / (values.length - 1)) * 96).toFixed(1)},${(24 - ((v - min) / span) * 22).toFixed(1)}`)
     .join(" ");
-  const up = values.at(-1)! >= values[0];
+  const up = last >= first;
   return (
     <svg
       viewBox="0 0 96 26"
@@ -70,7 +74,11 @@ export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
     price: (q) => q.close,
     day: (q) => q.change_pct,
     range: (q) => q.high - q.low,
-    month: (q) => (q.sparkline.length > 1 && q.sparkline[0] !== 0 ? q.sparkline.at(-1)! / q.sparkline[0] - 1 : null),
+    month: (q) => {
+      const first = q.sparkline[0];
+      const last = q.sparkline.at(-1);
+      return q.sparkline.length > 1 && first && last !== undefined ? last / first - 1 : null;
+    },
     volume: (q) => q.volume,
     held: (q) => Number(holdings.get(q.ticker) ?? 0),
   });

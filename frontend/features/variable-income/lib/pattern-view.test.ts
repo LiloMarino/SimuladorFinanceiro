@@ -44,11 +44,11 @@ describe("pattern view", () => {
 
   it("sugere o primeiro período maior que tem padrões", () => {
     const counts: Record<string, number> = { "1m": 0, "3m": 0, "1a": 14 };
-    expect(nextScaleWithPatterns(["1m", "3m", "1a"], "1m", (scale) => counts[scale])).toEqual({
+    expect(nextScaleWithPatterns(["1m", "3m", "1a"], "1m", (scale) => counts[scale] ?? 0)).toEqual({
       scale: "1a",
       count: 14,
     });
-    expect(nextScaleWithPatterns(["1m", "3m", "1a"], "1a", (scale) => counts[scale])).toBeNull();
+    expect(nextScaleWithPatterns(["1m", "3m", "1a"], "1a", (scale) => counts[scale] ?? 0)).toBeNull();
   });
 
   it("escreve os dias do padrão", () => {

@@ -19,8 +19,8 @@ type PollCardProps = { panel: ElectionPanel };
 /** Pesquisa de intenção de voto, o 1º turno de hoje em votos válidos e a simulação do 2º turno. */
 export function PollCard({ panel }: PollCardProps) {
   const ranked = sortByShare(panel.parties);
-  const leaderShare = ranked[0] ? Number(ranked[0].valid_share) : 0;
-  const decidedInFirstRound = leaderShare > WIN_LINE;
+  const [leader, runnerUp] = ranked;
+  const decidedInFirstRound = leader !== undefined && Number(leader.valid_share) > WIN_LINE;
 
   return (
     <Card>
@@ -83,9 +83,9 @@ export function PollCard({ panel }: PollCardProps) {
               </div>
               <span className="text-xs text-muted-foreground">
                 {decidedInFirstRound
-                  ? `Se fosse hoje, ${ranked[0].abbr} venceria já no 1º turno.`
-                  : ranked.length >= 2
-                    ? `Ninguém passa de 50%: haveria 2º turno entre o ${ranked[0].abbr} e o ${ranked[1].abbr}.`
+                  ? `Se fosse hoje, ${leader.abbr} venceria já no 1º turno.`
+                  : leader && runnerUp
+                    ? `Ninguém passa de 50%: haveria 2º turno entre o ${leader.abbr} e o ${runnerUp.abbr}.`
                     : "Ainda não há partidos suficientes para uma disputa."}
               </span>
             </div>

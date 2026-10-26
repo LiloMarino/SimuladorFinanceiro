@@ -150,7 +150,7 @@ function RangeSlider({
         <SliderPrimitive.Track data-slot="range-slider-track" className="relative h-full w-full rounded-full">
           {track}
           <RangeBar onDrag={onBarDrag} disabled={props.disabled} span={max - min} />
-          {[0, 1].map((index) => (
+          {([0, 1] as const).map((index) => (
             <SliderPrimitive.Thumb
               key={index}
               index={index}

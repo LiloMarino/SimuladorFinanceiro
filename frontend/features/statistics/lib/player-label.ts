@@ -2,7 +2,13 @@ import { playerColorStyle } from "@/shared/lib/player-colors";
 import type { PlayerRef } from "@/types";
 
 // Cor de cada simulação na ordem da escolha: a mesma da letra no seletor
-const SIMULATION_PALETTE = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
+const SIMULATION_PALETTE = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+] as const;
 
 /** A letra da simulação pela ordem em que foi escolhida: a primeira é A. */
 export function simulationLetter(simulationIds: number[], simulationId: number) {
@@ -10,7 +16,7 @@ export function simulationLetter(simulationIds: number[], simulationId: number) 
 }
 
 export function simulationColor(simulationIds: number[], simulationId: number) {
-  return SIMULATION_PALETTE[simulationIds.indexOf(simulationId) % SIMULATION_PALETTE.length];
+  return SIMULATION_PALETTE[simulationIds.indexOf(simulationId) % SIMULATION_PALETTE.length] ?? SIMULATION_PALETTE[0];
 }
 
 /**

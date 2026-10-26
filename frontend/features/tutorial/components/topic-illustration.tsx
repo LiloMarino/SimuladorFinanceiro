@@ -65,7 +65,7 @@ export function TopicIllustration({ topic, beat, step, controls }: TopicIllustra
 /** A imagem do trecho-pôster, sem cursor nem marcador, com o aviso e a nova tentativa. */
 function StillFrame({ topic, attempt, onRetry }: { topic: Topic; attempt: number; onRetry: () => void }) {
   const poster = topic.kind === "howto" ? topic.poster : 0;
-  const step = topic.kind === "howto" ? topic.beats[poster].step : 0;
+  const step = topic.kind === "howto" ? (topic.beats[poster]?.step ?? 0) : 0;
 
   return (
     <>

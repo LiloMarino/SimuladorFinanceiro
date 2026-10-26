@@ -3,9 +3,10 @@ import type { GovernmentPanel } from "@/types";
 import { effectiveDate } from "../lib/government";
 
 type Step = { title: string; when: string; text: string };
+type Steps = [Step, Step, Step, Step];
 type StepsPanel = Pick<GovernmentPanel, "today" | "next_vote" | "vigence_days">;
 
-function steps(panel: StepsPanel): Step[] {
+function steps(panel: StepsPanel): Steps {
   const effective = effectiveDate(panel.next_vote, panel.vigence_days);
   return [
     {

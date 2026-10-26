@@ -30,6 +30,7 @@ const sum = (values: string[]) => values.reduce((total, value) => total + Number
 export function PayOverdueDialog({ loan, rating, cash, open, onOpenChange }: PayOverdueDialogProps) {
   const pay = usePayOverdue(loan.id);
   const overdue = loan.overdue;
+  const firstOverdue = overdue[0];
   const total = sum(overdue.map((item) => item.total));
   const daysLate = Math.max(...overdue.map((item) => item.days_late), 0);
   const covered = Number(cash) >= total;
@@ -50,8 +51,8 @@ export function PayOverdueDialog({ loan, rating, cash, open, onOpenChange }: Pay
             <div>
               <KeyValueRow
                 label={
-                  overdue.length === 1
-                    ? `Parcela de ${displayDayMonth(overdue[0].due_date)}`
+                  overdue.length === 1 && firstOverdue
+                    ? `Parcela de ${displayDayMonth(firstOverdue.due_date)}`
                     : `${overdue.length} parcelas em atraso`
                 }
                 value={displayMoney(sum(overdue.map((item) => item.installment)))}

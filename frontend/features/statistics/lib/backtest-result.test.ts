@@ -43,14 +43,14 @@ describe("backtestRows", () => {
   });
 
   it("calcula o retorno e a diferença para o CDI em fração", () => {
-    expect(rows[0].returnOnContributed).toBeCloseTo(0.5);
-    expect(rows[0].overCdi).toBeCloseTo(0.4);
-    expect(rows[1].overCdi).toBeCloseTo(-0.05);
+    expect(rows[0]?.returnOnContributed).toBeCloseTo(0.5);
+    expect(rows[0]?.overCdi).toBeCloseTo(0.4);
+    expect(rows[1]?.overCdi).toBeCloseTo(-0.05);
   });
 
   it("marca o dia em que a estratégia parou de operar", () => {
-    expect(rows[1].failedOn).toBe("2018-03-14");
-    expect(rows[0].failedOn).toBeNull();
+    expect(rows[1]?.failedOn).toBe("2018-03-14");
+    expect(rows[0]?.failedOn).toBeNull();
   });
 
   it("ordena pela medida e deixa quem não tem nota no fim", () => {

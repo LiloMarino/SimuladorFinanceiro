@@ -42,8 +42,10 @@ export function TeamHeadline({ report, currentPlayerName }: { report: OverviewRe
   const mine = teams.find((t) => t.team === you?.team);
   const byReturn = [...players].sort((a, b) => Number(b.return_percent) - Number(a.return_percent));
   const best = byReturn[0];
-  const worst = byReturn.at(-1)!;
+  const worst = byReturn.at(-1);
   const subject = mine ?? teams[0];
+  if (!subject || !best || !worst) return null;
+
   const next = subject.position === 1 ? teams[1] : teams[0];
 
   const kpis = [

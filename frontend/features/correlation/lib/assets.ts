@@ -21,6 +21,6 @@ export function bySector(assets: Asset[]): [string, Asset[]][] {
 export function oneOfEachSector(assets: Asset[]) {
   return bySector(assets)
     .filter(([sector]) => sector !== NO_SECTOR)
-    .map(([, items]) => items[0].ticker)
+    .flatMap(([, [first]]) => (first ? [first.ticker] : []))
     .slice(0, MAX_TICKERS);
 }

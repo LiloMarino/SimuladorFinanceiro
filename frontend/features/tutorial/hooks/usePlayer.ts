@@ -14,17 +14,17 @@ export function usePlayer(topic: HowToTopic) {
 
   // Cada trecho agenda o seguinte; o último agenda o recomeço depois da pausa
   useEffect(() => {
-    if (!playing) return;
-    const next = beat + 1;
-    const last = next >= beats.length;
-    const seconds = last ? duration - beats[beat].start + LOOP_PAUSE : beats[next].start - beats[beat].start;
-    const timer = setTimeout(() => setBeat(last ? 0 : next), seconds * 1000);
+    const current = beats[beat];
+    if (!playing || !current) return;
+    const upcoming = beats[beat + 1];
+    const seconds = upcoming ? upcoming.start - current.start : duration - current.start + LOOP_PAUSE;
+    const timer = setTimeout(() => setBeat(upcoming ? beat + 1 : 0), seconds * 1000);
     return () => clearTimeout(timer);
   }, [beat, playing, beats, duration]);
 
   return {
     beat,
-    step: beats[beat].step,
+    step: beats[beat]?.step ?? 0,
     playing,
     toggle: () => setPlaying((current) => !current),
     /** Salta para o primeiro trecho do passo. */

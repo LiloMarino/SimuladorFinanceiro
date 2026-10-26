@@ -33,7 +33,7 @@ const axisPoints = (score: Team["score"], axis: ScoreAxis) => score?.axes.find((
 export function TeamScore({ report, currentPlayerName }: { report: OverviewReport; currentPlayerName: string }) {
   const { teams, players, team_naming: naming } = report;
   const you = players.find((p) => p.player_nickname === currentPlayerName);
-  const [subject, setSubject] = useState<Subject>(`t:${you?.team ?? teams[0]?.team}`);
+  const [subject, setSubject] = useState<Subject>(`t:${you?.team ?? teams[0]?.team ?? 0}`);
 
   const selectedPlayer = subject.startsWith("p:")
     ? players.find((p) => p.player_nickname === subject.slice(2))

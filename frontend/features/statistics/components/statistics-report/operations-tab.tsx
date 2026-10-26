@@ -263,7 +263,7 @@ function VolumeHeatmap({
   const max = Math.max(...players.flatMap((p) => p.monthly_volume.map(volumeOf)), 1);
   // O ano aparece só no primeiro mês e na virada
   const monthLabel = (month: string, i: number) =>
-    i === 0 || month.slice(0, 4) !== months[i - 1].slice(0, 4)
+    i === 0 || month.slice(0, 4) !== months[i - 1]?.slice(0, 4)
       ? displayShortMonthYear(month)
       : displayMonthShort(month);
 

@@ -1,8 +1,11 @@
-/** Marcas redondas do eixo Y (1, 2, 2,5 ou 5 por potência de 10) que englobam de `min` a `max`. */
-export function niceTicks(min: number, max: number, count = 5): number[] {
+/**
+ * Marcas redondas do eixo Y (1, 2, 2,5 ou 5 por potência de 10) que englobam de `min` a `max`,
+ * com a primeira (`floor`) e a última (`ceiling`) já separadas.
+ */
+export function niceScale(min: number, max: number, count = 5): { ticks: number[]; floor: number; ceiling: number } {
   if (min === max) {
     const pad = Math.abs(min) * 0.1 || 1;
-    return niceTicks(min - pad, max + pad, count);
+    return niceScale(min - pad, max + pad, count);
   }
   const rough = (max - min) / count;
   const base = 10 ** Math.floor(Math.log10(rough));
@@ -11,5 +14,5 @@ export function niceTicks(min: number, max: number, count = 5): number[] {
   const end = Math.ceil(max / step) * step;
   const ticks: number[] = [];
   for (let tick = start; tick <= end + step / 2; tick += step) ticks.push(Number(tick.toFixed(10)));
-  return ticks;
+  return { ticks, floor: ticks[0] ?? start, ceiling: ticks.at(-1) ?? end };
 }

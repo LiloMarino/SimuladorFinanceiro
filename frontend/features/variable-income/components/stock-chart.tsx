@@ -57,7 +57,7 @@ import {
 } from "../lib/chart-annotations";
 import { isAnswerFresh, nextScaleWithPatterns, patternOn, patternsSince, statsOf } from "../lib/pattern-view";
 import {
-  AVERAGE_COLORS,
+  averageColor,
   INDICATOR_BY_KEY,
   PANEL_KEYS,
   averageLabel,
@@ -165,7 +165,7 @@ interface StockChartProps {
   hints: ChartHints | null;
 }
 
-const dayOf = (candle: StockCandle) => candle.price_date.split("T")[0];
+const dayOf = (candle: StockCandle) => candle.price_date.slice(0, 10);
 
 /** O dia ISO de um ponto do eixo de tempo, venha ele como texto ou como dia útil. */
 function isoDay(time: Time): string {
@@ -198,7 +198,7 @@ function readAnnotationColors(): AnnotationColors {
 
 function valueOn(points: IndicatorPoint[] | null | undefined, day: string | null) {
   if (!points?.length) return null;
-  if (day === null) return points[points.length - 1].value;
+  if (day === null) return points.at(-1)?.value ?? null;
   return points.find((point) => point.date === day)?.value ?? null;
 }
 
@@ -375,7 +375,7 @@ export function StockChart({
         title: "",
       });
 
-    averages.forEach((_, index) => addLine(`average:${index}`, AVERAGE_COLORS[index], 0));
+    averages.forEach((_, index) => addLine(`average:${index}`, averageColor(index), 0));
     if (showBollinger) {
       addLine("bollinger:upper", "--chart-2", 0, { lineWidth: 1 });
       addLine("bollinger:middle", "--chart-2", 0, {
@@ -484,7 +484,7 @@ export function StockChart({
   const hintsOn = hints !== null;
   const showPatterns = hintsOn && settings.patterns;
   const days = useMemo(() => initialData.map(dayOf), [initialData]);
-  const lastDay = days[days.length - 1] as string | undefined;
+  const lastDay = days[days.length - 1];
   const periodStart = fromDay(initialData, selectedScale);
   const allPatterns = hints?.patterns?.patterns;
   const periodPatterns = useMemo(() => patternsSince(allPatterns ?? [], periodStart), [allPatterns, periodStart]);
@@ -492,7 +492,8 @@ export function StockChart({
   const activePattern =
     hoverDay !== null && candleMode && showPatterns ? patternOn(periodPatterns, hoverDay) : undefined;
   const chartKey = [chartType, selectedScale, ticker, hasHistory, layout, height].join("|");
-  const shortAverage = averages.length >= 2 && averages[0].period > averages[1].period ? 1 : 0;
+  const [firstAverage, secondAverage] = averages;
+  const shortAverage = firstAverage && secondAverage && firstAverage.period > secondAverage.period ? 1 : 0;
 
   const annotations = useMemo<Annotations>(() => {
     if (!hintsOn) return { markers: [], shapes: {} };
@@ -549,11 +550,11 @@ export function StockChart({
     const chart = chartInstance.current;
     if (!chart) return;
     const index = days.indexOf(pattern.end);
+    const from = days[Math.max(0, index - 15)];
+    const to = days[Math.min(days.length - 1, index + 10)];
+    if (from === undefined || to === undefined) return;
     const timeScale = chart.timeScale();
-    timeScale.setVisibleRange({
-      from: days[Math.max(0, index - 15)],
-      to: days[Math.min(days.length - 1, index + 10)],
-    });
+    timeScale.setVisibleRange({ from, to });
     setHover({
       day: pattern.end,
       x: timeScale.timeToCoordinate(pattern.end) ?? 0,
@@ -693,7 +694,7 @@ export function StockChart({
                     return (
                       <LegendItem
                         key={index}
-                        token={AVERAGE_COLORS[index]}
+                        token={averageColor(index)}
                         name={averageLabel(average)}
                         value={formatOrMissing(
                           valueOn(points, hoverDay),
@@ -820,7 +821,7 @@ export function StockChart({
                     averages.map((average, index) => (
                       <PopRow
                         key={index}
-                        token={AVERAGE_COLORS[index]}
+                        token={averageColor(index)}
                         name={averageLabel(average)}
                         value={displayOrDash(valueOn(series.averages?.[index]?.points, hover.day), displayMoney)}
                       />

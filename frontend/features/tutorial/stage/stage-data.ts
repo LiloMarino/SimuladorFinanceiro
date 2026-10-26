@@ -83,7 +83,7 @@ const sellOrder = (id: string, size: string, price: number): Order => ({
 });
 
 /** O livro de quem vende PETR4, da menor venda para a maior. */
-export const STAGE_SELL_BOOK: Order[] = [
+export const STAGE_SELL_BOOK: [Order, Order, Order] = [
   sellOrder("s1", "500", 38.12),
   sellOrder("s2", "300", 38.15),
   sellOrder("s3", "800", 38.2),

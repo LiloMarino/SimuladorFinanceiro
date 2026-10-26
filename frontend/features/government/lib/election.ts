@@ -19,7 +19,7 @@ export const PROMISE_BANDS = [
 export const PROMISE_ENDS = { low: "Impostos baixos", high: "Gasto alto" } as const;
 
 export function promiseBand(promise: number) {
-  return PROMISE_BANDS[Math.min(Math.max(promise, 1), 5) - 1];
+  return PROMISE_BANDS[Math.min(Math.max(promise, 1), 5) - 1] ?? PROMISE_BANDS[0];
 }
 
 /** Posição da faixa na régua, em % da largura: cada uma das 5 faixas ocupa um quinto e o marcador fica no meio dela. */

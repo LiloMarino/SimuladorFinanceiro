@@ -64,6 +64,7 @@ export function TutorialStage({ width, height, children }: TutorialStageProps) {
     const element = frame.current;
     if (!element) return;
     const observer = new ResizeObserver(([entry]) => {
+      if (!entry) return;
       const { width: w, height: h } = entry.contentRect;
       setScale(Math.min(w / width, h / height, 1));
     });

@@ -12,7 +12,7 @@ import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
 import type { IndicatorKey, IndicatorParams, IndicatorSettings, MovingAverage, TechnicalSummary } from "@/types";
 import {
-  AVERAGE_COLORS,
+  averageColor,
   DEFAULT_PARAMS,
   INDICATORS,
   MAX_AVERAGES,
@@ -294,7 +294,7 @@ function AveragesEditor({
     <div className="grid gap-1.5">
       {averages.map((average, index) => (
         <div key={index} className="flex items-center gap-2 text-[13px]">
-          <Swatch token={AVERAGE_COLORS[index]} />
+          <Swatch token={averageColor(index)} />
           <ToggleGroup
             variant="segmented"
             size="sm"

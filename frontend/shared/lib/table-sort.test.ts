@@ -24,7 +24,7 @@ describe("ordenação das tabelas", () => {
       "20.50",
       "9.90",
     ]);
-    expect(rows[0].price).toBe("100.00");
+    expect(rows[0]?.price).toBe("100.00");
   });
   it("mantém ausentes no fim e não confunde zero ou negativos com ausência", () => {
     const data = [{ v: null }, { v: 0 }, { v: -2 }, { v: NaN }, { v: 10 }];

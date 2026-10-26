@@ -103,10 +103,10 @@ describe("faixas da linha", () => {
   it("separa sem dado, real, futuro e o trecho que repete o último valor", () => {
     const zones = timelineZones(FLOOR, { realEnd: "2026-10-09", generatedEnd: "2036-12-31" });
     expect(zones.map((z) => z.kind)).toEqual(["no-data", "real", "future", "repeat"]);
-    expect(zones[0].to).toBeCloseTo(14.59, 1);
-    expect(zones[1].to).toBeCloseTo(70.37, 1);
-    expect(zones[2].to).toBeCloseTo(91.67, 1);
-    expect(zones[3].to).toBe(100);
+    expect(zones[0]?.to).toBeCloseTo(14.59, 1);
+    expect(zones[1]?.to).toBeCloseTo(70.37, 1);
+    expect(zones[2]?.to).toBeCloseTo(91.67, 1);
+    expect(zones[3]?.to).toBe(100);
   });
 
   it("sem futuro gerado a faixa violeta some", () => {

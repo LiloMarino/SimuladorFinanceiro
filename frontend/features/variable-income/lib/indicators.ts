@@ -202,9 +202,12 @@ export const DEFAULT_PARAMS: IndicatorParams = {
 export const PANEL_KEYS = INDICATORS.filter((info) => info.place === "panel").map((info) => info.key);
 
 /** Cor de cada média, pela posição dela na lista do seletor. */
-export const AVERAGE_COLORS = ["--chart-5", "--chart-4", "--chart-3", "--chart-10"] as const;
+const AVERAGE_COLORS = ["--chart-5", "--chart-4", "--chart-3", "--chart-10"] as const;
 
 export const MAX_AVERAGES = AVERAGE_COLORS.length;
+
+/** A cor da média de posição `index`; passando do limite, a paleta recomeça. */
+export const averageColor = (index: number) => AVERAGE_COLORS[index % AVERAGE_COLORS.length] ?? AVERAGE_COLORS[0];
 
 /** Limites de cada parâmetro, os mesmos que o servidor aceita. */
 export const PARAM_LIMITS = {

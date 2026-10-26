@@ -197,12 +197,13 @@ function ReadingRow({ reading, params }: { reading: TechnicalReading; params: In
   );
 }
 
+// As faixas da nota, de −1 a 1: −1, −0,5, −0,2, 0,2, 0,5, 1
 const SEGMENTS = [
-  { token: "--destructive" },
-  { token: "--destructive-soft" },
-  { token: "--muted" },
-  { token: "--success-soft" },
-  { token: "--success" },
+  { token: "--destructive", from: -1, to: -0.5 },
+  { token: "--destructive-soft", from: -0.5, to: -0.2 },
+  { token: "--muted", from: -0.2, to: 0.2 },
+  { token: "--success-soft", from: 0.2, to: 0.5 },
+  { token: "--success", from: 0.5, to: 1 },
 ] as const;
 
 /** Meia-lua de Venda forte (esquerda) a Compra forte (direita), com o ponteiro na nota. */
@@ -214,14 +215,12 @@ function Gauge({ score }: { score: number }) {
     const angle = Math.PI * (1 - fraction);
     return [cx + r * Math.cos(angle), cy - r * Math.sin(angle)] as const;
   };
-  // As faixas da nota: −1, −0,5, −0,2, 0,2, 0,5, 1
-  const edges = [-1, -0.5, -0.2, 0.2, 0.5, 1].map((value) => (value + 1) / 2);
   const [needleX, needleY] = point((score + 1) / 2, radius - 14);
   return (
     <svg width={200} height={110} viewBox="0 0 200 110" role="img" aria-label="Ponteiro do resumo técnico">
-      {SEGMENTS.map((segment, i) => {
-        const [x1, y1] = point(edges[i], radius);
-        const [x2, y2] = point(edges[i + 1], radius);
+      {SEGMENTS.map((segment) => {
+        const [x1, y1] = point((segment.from + 1) / 2, radius);
+        const [x2, y2] = point((segment.to + 1) / 2, radius);
         return (
           <path
             key={segment.token}

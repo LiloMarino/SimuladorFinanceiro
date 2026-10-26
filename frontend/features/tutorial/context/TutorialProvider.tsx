@@ -1,7 +1,7 @@
 import { useState, type PropsWithChildren } from "react";
 import { TutorialDialog } from "../components/tutorial-dialog";
 import { topicList } from "../lib/topics";
-import type { TopicId } from "@/shared/lib/tutorial-topic-ids";
+import { TOPIC_IDS, type TopicId } from "@/shared/lib/tutorial-topic-ids";
 import { unseenTopics } from "../lib/tutorial-progress";
 import {
   loadTutorialState,
@@ -16,7 +16,7 @@ import { TutorialContext } from "@/shared/context/tutorial";
 export function TutorialProvider({ children }: PropsWithChildren) {
   const [state, setState] = useState(loadTutorialState);
   const [isOpen, setIsOpen] = useState(false);
-  const [topicId, setTopicId] = useState<TopicId>(topicList[0].id);
+  const [topicId, setTopicId] = useState<TopicId>(TOPIC_IDS[0]);
   const [origin, setOrigin] = useState<string | null>(null);
 
   const update = (next: TutorialState) => {
@@ -26,7 +26,7 @@ export function TutorialProvider({ children }: PropsWithChildren) {
 
   // Abrir o tópico é vê-lo
   const open = (requested?: TopicId, from?: string) => {
-    const target = requested ?? (unseenTopics(state, topicList)[0] ?? topicList[0]).id;
+    const target = requested ?? unseenTopics(state, topicList)[0]?.id ?? TOPIC_IDS[0];
     update(markSeen({ ...state, opened: true }, target));
     setTopicId(target);
     setOrigin(from ?? null);

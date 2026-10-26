@@ -221,7 +221,7 @@ export function PeriodCard({ form, coverage, layout }: PeriodCardProps) {
 
 /** O primeiro dia do mês seguinte ao dado: de onde o mercado passa a ser gerado. */
 function nextMonth(iso: string) {
-  const [year, month] = iso.split("-").map(Number);
+  const [year = 0, month = 0] = iso.split("-").map(Number);
   const next = new Date(year, month, 1);
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${next.getFullYear()}-${pad(next.getMonth() + 1)}-01`;

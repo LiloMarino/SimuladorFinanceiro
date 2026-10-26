@@ -50,7 +50,8 @@ export function LoansTable({ loans, onPrepay, onPayOverdue }: LoansTableProps) {
         </TableHeader>
         <TableBody>
           {loans.map((loan) => {
-            const late = loan.overdue.length > 0;
+            const firstOverdue = loan.overdue[0];
+            const late = firstOverdue !== undefined;
             return (
               <TableRow key={loan.id} variant={late ? "warning" : "default"}>
                 <TableCell>
@@ -76,8 +77,8 @@ export function LoansTable({ loans, onPrepay, onPayOverdue }: LoansTableProps) {
                 <TableCell>
                   {late ? (
                     <span className="font-semibold text-destructive">
-                      {displayDayMonth(loan.overdue[0].due_date)} · {loan.overdue[0].days_late}{" "}
-                      {loan.overdue[0].days_late === 1 ? "dia" : "dias"}
+                      {displayDayMonth(firstOverdue.due_date)} · {firstOverdue.days_late}{" "}
+                      {firstOverdue.days_late === 1 ? "dia" : "dias"}
                     </span>
                   ) : loan.next_due ? (
                     dueDate(loan.next_due)

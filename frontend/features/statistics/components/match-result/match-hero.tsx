@@ -23,6 +23,8 @@ import {
 import { Podium } from "./podium";
 import { TeamPodium } from "./team-podium";
 
+type TeamRanking = OverviewReport["teams"][number];
+
 /** A meta foi atingida quando a fração da meta do líder chega a 1. */
 const reachedGoal = (fraction: string | null) => fraction !== null && Number(fraction) >= 1;
 
@@ -74,8 +76,7 @@ function soloHeadline(report: OverviewReport, player: Player) {
 }
 
 /** A frase da equipe vencedora; empate na média vai para o patrimônio médio. */
-function teamHeadline(report: OverviewReport) {
-  const [first, second] = report.teams;
+function teamHeadline(report: OverviewReport, first: TeamRanking, second: TeamRanking | undefined) {
   const name = teamName(first.team, report.team_naming);
   const value = first.criterion_value;
   if (value === null) return `${name} ficou em 1ª`;
@@ -111,6 +112,8 @@ function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; cu
   const { teams, team_naming: naming, goal_net_worth } = report;
   const criterion = rankingMeasure(report);
   const [first, second] = teams;
+  if (!first) return null;
+
   const you = report.players.find((p) => p.player_nickname === currentPlayerName);
   const mine = teams.find((t) => t.team === you?.team);
   const tie =
@@ -223,7 +226,9 @@ function GoalSummary({
 }) {
   const { goal_net_worth: goal, teams } = report;
   const inTeams = teams.length > 0;
-  const leader = inTeams ? teams[0] : report.players[0];
+  const leader = teams[0] ?? report.players[0];
+  if (!leader) return null;
+
   const you = report.players.find((p) => p.player_nickname === currentPlayerName);
   const yourRank = inTeams ? teams.find((t) => t.team === you?.team) : you;
   const lastDay = simulation?.resume_from ?? simulation?.end_date;
@@ -295,11 +300,14 @@ interface MatchHeroProps {
 /** Topo do fim de partida: quem venceu, por qual critério, onde você ficou e o pódio. */
 export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroProps) {
   const winner = report.players[0];
-  const inTeams = report.teams.length > 0;
+  if (!winner) return null;
+
+  const firstTeam = report.teams[0];
+  const inTeams = firstTeam !== undefined;
   const you = report.players.find((p) => p.player_nickname === currentPlayerName);
   const measure = rankingMeasure(report);
   const criterion = measure === "GOAL" ? null : VICTORY_CRITERIA[measure];
-  const reached = measure === "GOAL" && reachedGoal((inTeams ? report.teams[0] : winner).criterion_value);
+  const reached = measure === "GOAL" && reachedGoal((firstTeam ?? winner).criterion_value);
   const solo = !inTeams && report.players.length === 1;
   const tradingDays = Math.max(...report.players.map((p) => p.days));
   const lastDay = simulation?.resume_from ?? simulation?.end_date;
@@ -313,7 +321,11 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
         </span>
         <h1 className="flex items-center gap-3 text-[34px] leading-tight font-bold text-white">
           {reached && <Flag className="size-7 shrink-0 text-trophy" />}
-          {inTeams ? teamHeadline(report) : solo ? soloHeadline(report, winner) : headline(report, winner)}
+          {firstTeam
+            ? teamHeadline(report, firstTeam, report.teams[1])
+            : solo
+              ? soloHeadline(report, winner)
+              : headline(report, winner)}
         </h1>
         <p className="text-[15px]">
           {measure === "GOAL" ? (

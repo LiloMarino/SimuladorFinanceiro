@@ -129,7 +129,8 @@ function YouVersusYou({
   if (mine.length < 2) return null;
 
   const pointsOf = (p: Player, axis: string) => p.score?.axes.find((a) => a.axis === axis)?.points ?? null;
-  const base = mine[0];
+  const [base] = mine;
+  if (!base) return null;
 
   return (
     <Card>
@@ -201,7 +202,8 @@ function Headline({ report, currentPlayerName }: { report: OverviewReport; curre
   const leader = players[0];
   const byReturn = [...players].sort((a, b) => Number(b.return_percent) - Number(a.return_percent));
   const best = byReturn[0];
-  const worst = byReturn.at(-1)!;
+  const worst = byReturn.at(-1);
+  if (!leader || !best || !worst) return null;
 
   const kpis = [
     { label: "Média da sala", value: average_return ? displaySignedPercent(average_return) : "—", detail: null },
