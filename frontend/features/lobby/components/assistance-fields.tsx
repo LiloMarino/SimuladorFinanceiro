@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
-import { Calculator, ChevronDown, ChevronUp, Lock } from "lucide-react";
+import { Calculator, ChevronDown, ChevronUp, Lock, TriangleAlert } from "lucide-react";
+import { Alert, AlertAction, AlertDescription } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -12,6 +13,7 @@ import {
   FieldSet,
   FieldTitle,
 } from "@/shared/components/ui/field";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Switch } from "@/shared/components/ui/switch";
 import { ASSISTANCES, summarizeAssistances } from "@/shared/lib/assistance";
 import type { SimulationFormValues } from "./lobby-match";
@@ -21,10 +23,15 @@ type AssistanceFieldsProps = {
   readOnly: boolean;
   /** Por que as ajudas não mudam, quando não mudam */
   lockNote: string | null;
+  /** As regras estão sendo trocadas (restaurar padrões): o bloco espera os valores novos */
+  loading: boolean;
+  /** O servidor recusou a última escolha e o interruptor voltou ao valor salvo */
+  rejected: boolean;
+  onRetry: () => void;
 };
 
 /** "Assistências": o interruptor do Modo Especialista e, por baixo, cada ajuda que ele esconde. */
-export function AssistanceFields({ form, readOnly, lockNote }: AssistanceFieldsProps) {
+export function AssistanceFields({ form, readOnly, lockNote, loading, rejected, onRetry }: AssistanceFieldsProps) {
   const [listOpen, setListOpen] = useState(false);
   const shown = useWatch({ control: form.control, name: ASSISTANCES.map((a) => a.field) });
   const { mode } = summarizeAssistances(shown);
@@ -48,69 +55,92 @@ export function AssistanceFields({ form, readOnly, lockNote }: AssistanceFieldsP
         )}
       </div>
 
-      {/* Modo Especialista */}
-      <FieldLabel htmlFor="rules-expertMode">
-        <Field orientation="horizontal" className="items-center">
-          <Switch
-            id="rules-expertMode"
-            checked={mode === "EXPERT"}
-            mixed={mode === "CUSTOM"}
-            onCheckedChange={setExpertMode}
-            disabled={readOnly}
-          />
-          <FieldContent>
-            <FieldTitle>
-              <Calculator className="size-3.5" />
-              Modo Especialista
-              {mode === "CUSTOM" && <Badge variant="info">Personalizado</Badge>}
-            </FieldTitle>
-            <FieldDescription>Esconde as ajudas que dão a resposta: você faz as contas.</FieldDescription>
-          </FieldContent>
-        </Field>
-      </FieldLabel>
-
-      <Button
-        type="button"
-        variant="link"
-        size="sm"
-        className="w-fit"
-        aria-expanded={listOpen}
-        onClick={() => setListOpen((open) => !open)}
-      >
-        {listOpen ? "Ocultar" : "Ajustar uma a uma"}
-        {listOpen ? <ChevronUp /> : <ChevronDown />}
-      </Button>
-
-      {/* Uma linha por ajuda */}
-      {listOpen && (
-        <div className="divide-y overflow-hidden rounded-lg border">
-          {ASSISTANCES.map(({ field, label, description, scope }) => (
-            <Controller
-              key={field}
-              control={form.control}
-              name={field}
-              render={({ field: control }) => (
-                <div className="px-3 py-2.5">
-                  <Field orientation="horizontal" className="items-center">
-                    <Switch
-                      id={`rules-${field}`}
-                      checked={!control.value}
-                      onCheckedChange={(hidden) => control.onChange(!hidden)}
-                      disabled={readOnly}
-                    />
-                    <FieldContent>
-                      <FieldLabel htmlFor={`rules-${field}`}>
-                        <FieldTitle>{label}</FieldTitle>
-                      </FieldLabel>
-                      <FieldDescription>{description}</FieldDescription>
-                    </FieldContent>
-                    <Badge variant="secondary">{scope}</Badge>
-                  </Field>
-                </div>
-              )}
-            />
-          ))}
+      {loading ? (
+        <div className="grid gap-2" aria-busy="true">
+          <span className="sr-only">Carregando as regras…</span>
+          <Skeleton className="h-14 w-full" />
+          <Skeleton className="h-4 w-32" />
         </div>
+      ) : (
+        <>
+          {/* Modo Especialista */}
+          <FieldLabel htmlFor="rules-expertMode">
+            <Field orientation="horizontal" className="items-center">
+              <Switch
+                id="rules-expertMode"
+                checked={mode === "EXPERT"}
+                mixed={mode === "CUSTOM"}
+                onCheckedChange={setExpertMode}
+                disabled={readOnly}
+              />
+              <FieldContent>
+                <FieldTitle>
+                  <Calculator className="size-3.5" />
+                  Modo Especialista
+                  {mode === "CUSTOM" && <Badge variant="info">Personalizado</Badge>}
+                </FieldTitle>
+                <FieldDescription>Esconde as ajudas que dão a resposta: você faz as contas.</FieldDescription>
+              </FieldContent>
+            </Field>
+          </FieldLabel>
+
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            className="w-fit"
+            aria-expanded={listOpen}
+            onClick={() => setListOpen((open) => !open)}
+          >
+            {listOpen ? "Ocultar" : "Ajustar uma a uma"}
+            {listOpen ? <ChevronUp /> : <ChevronDown />}
+          </Button>
+
+          {/* Uma linha por ajuda */}
+          {listOpen && (
+            <div className="divide-y overflow-hidden rounded-lg border">
+              {ASSISTANCES.map(({ field, label, description, scope }) => (
+                <Controller
+                  key={field}
+                  control={form.control}
+                  name={field}
+                  render={({ field: control }) => (
+                    <div className="px-3 py-2.5">
+                      <Field orientation="horizontal" className="items-center">
+                        <Switch
+                          id={`rules-${field}`}
+                          checked={!control.value}
+                          onCheckedChange={(hidden) => control.onChange(!hidden)}
+                          disabled={readOnly}
+                        />
+                        <FieldContent>
+                          <FieldLabel htmlFor={`rules-${field}`}>
+                            <FieldTitle>{label}</FieldTitle>
+                          </FieldLabel>
+                          <FieldDescription>{description}</FieldDescription>
+                        </FieldContent>
+                        <Badge variant="secondary">{scope}</Badge>
+                      </Field>
+                    </div>
+                  )}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Escolha recusada pelo servidor */}
+          {rejected && (
+            <Alert variant="destructive">
+              <TriangleAlert />
+              <AlertDescription>Não salvou a mudança. Sua escolha voltou ao que estava.</AlertDescription>
+              <AlertAction>
+                <Button type="button" variant="outline" size="sm" onClick={onRetry}>
+                  Tentar de novo
+                </Button>
+              </AlertAction>
+            </Alert>
+          )}
+        </>
       )}
 
       <FieldDescription>

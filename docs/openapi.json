@@ -13094,6 +13094,10 @@
           },
           "counts": {
             "$ref": "#/components/schemas/LifeHistoryCountsDTO"
+          },
+          "interest_paid": {
+            "type": "string",
+            "title": "Interest Paid"
           }
         },
         "additionalProperties": false,
@@ -13101,7 +13105,8 @@
         "required": [
           "items",
           "total",
-          "counts"
+          "counts",
+          "interest_paid"
         ],
         "title": "LifeHistoryPageDTO"
       },

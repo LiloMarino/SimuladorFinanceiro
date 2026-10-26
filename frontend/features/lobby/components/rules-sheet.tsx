@@ -109,7 +109,16 @@ type RulesSheetProps = {
   coverageCheck: CoverageCheck;
   /** Ativo citado no exemplo do impacto; vazio quando a base não tem ação */
   exampleTicker: string | undefined;
-  saveStatus: { savedAt: number | null; saving: boolean; saveError: Error | null };
+  saveStatus: {
+    savedAt: number | null;
+    saving: boolean;
+    /** Restaurar os padrões em andamento: as regras estão sendo trocadas */
+    restoring: boolean;
+    saveError: Error | null;
+    /** O servidor recusou a última escolha de assistências e o interruptor voltou ao valor salvo */
+    rejectedAssistances: boolean;
+    retryAssistances: () => void;
+  };
   onRestoreDefaults?: () => void;
   /** O preset de onde vieram as regras da nova partida, com o que mudou desde que foi carregado */
   appliedPreset: AppliedPreset | null;
@@ -581,6 +590,9 @@ export function RulesSheet({
             <AssistanceFields
               form={form}
               readOnly={readOnly}
+              loading={saveStatus.restoring}
+              rejected={saveStatus.rejectedAssistances}
+              onRetry={saveStatus.retryAssistances}
               lockNote={locked ? "Regras da partida salva não mudam" : isHost ? null : "Só o host muda as regras"}
             />
 

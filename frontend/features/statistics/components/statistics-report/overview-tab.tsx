@@ -349,6 +349,9 @@ function Ranking({
   });
   const players = visibleRankingRows(sorting.rows, onlyPeople);
   const shortcuts = { SCORE: "score", RETURN: "return", NETWORTH: "wealth" } as const;
+  // O melhor da sala em verde, como nas tabelas de Rentabilidade e Risco; só vale com pelo menos dois na tabela
+  const bestWealth = players.length > 1 ? Math.max(...players.map((p) => Number(p.total_networth))) : null;
+  const bestReturn = players.length > 1 ? Math.max(...players.map((p) => Number(p.return_percent))) : null;
   const sortBy = Object.entries(shortcuts).find(([, column]) => column === sorting.sort?.column)?.[0];
 
   return (
@@ -497,9 +500,13 @@ function Ranking({
                   </TableCell>
                 )}
                 <TableCell numeric>
-                  <span className={cn(Number(p.total_networth) < 0 && "text-destructive")}>
-                    {displaySignedMoney(p.total_networth)}
-                  </span>
+                  {Number(p.total_networth) === bestWealth ? (
+                    <Badge variant="success">{displaySignedMoney(p.total_networth)}</Badge>
+                  ) : (
+                    <span className={cn(Number(p.total_networth) < 0 && "text-destructive")}>
+                      {displaySignedMoney(p.total_networth)}
+                    </span>
+                  )}
                 </TableCell>
                 {showRemaining && (
                   <TableCell numeric>{displayRemainingToGoal(p.criterion_value, report.goal_net_worth)}</TableCell>
@@ -525,7 +532,11 @@ function Ranking({
                   </TableCell>
                 ) : (
                   <TableCell numeric>
-                    <span className={returnTone}>{displaySignedPercent(p.return_percent)}</span>
+                    {change === bestReturn ? (
+                      <Badge variant="success">{displaySignedPercent(p.return_percent)}</Badge>
+                    ) : (
+                      <span className={returnTone}>{displaySignedPercent(p.return_percent)}</span>
+                    )}
                   </TableCell>
                 )}
                 {!goalRace && <TableCell numeric>{p.days}</TableCell>}

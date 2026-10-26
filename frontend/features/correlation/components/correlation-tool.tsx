@@ -88,7 +88,6 @@ export function CorrelationTool({ assets, lastDate, endFixed }: CorrelationToolP
         <ErrorState
           title="Não deu pra calcular agora"
           description="Confira se o servidor do host está ligado e tente de novo."
-          error={error}
           onRetry={() => void refetch()}
         />
       ) : (

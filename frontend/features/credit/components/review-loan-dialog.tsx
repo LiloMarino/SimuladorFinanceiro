@@ -10,6 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
+import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { displayPercent, displayMoney, displayMonthName } from "@/shared/lib/utils/display";
 import { LEVERAGE } from "@/shared/lib/credit-metrics";
 import type { CreditOverview, LoanQuote } from "@/types";
@@ -29,6 +31,7 @@ const leverageLabel = (value: LoanQuote["leverage_after"]) => (value === null ? 
 /** "Revisar o empréstimo": o custo inteiro à vista antes da assinatura. */
 export function ReviewLoanDialog({ open, onOpenChange, quote, rating }: ReviewLoanDialogProps) {
   const contract = useContractLoan();
+  const tradeLock = useTradeLock();
 
   const sign = () =>
     contract.mutate({ amount: quote.amount, term_months: quote.term_months }, { onSuccess: () => onOpenChange(false) });
@@ -69,6 +72,9 @@ export function ReviewLoanDialog({ open, onOpenChange, quote, rating }: ReviewLo
                 value={`${quote.projected_grade}, com ${quote.projected_points} pontos`}
               />
             </div>
+
+            {/* Estratégia automática ligada */}
+            {tradeLock?.reason === "automatic" && <TradeLockNotice lock={tradeLock} />}
 
             <Alert variant="warning">
               <TriangleAlert />

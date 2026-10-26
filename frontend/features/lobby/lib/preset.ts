@@ -1,5 +1,6 @@
 import { displayIsoDate, displayMoneyWhole, parseLocalDate } from "@/shared/lib/utils/display";
 import { summarizeAssistances } from "@/shared/lib/assistance";
+import { EXPANSIONS } from "@/shared/lib/expansions";
 import { GAME_TYPES, winRuleLabel } from "@/shared/lib/game-types";
 import { isIsoDate } from "@/shared/lib/utils/date-field";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
@@ -151,6 +152,10 @@ export function presetIncludes(values: SimulationFormValues): { label: string; v
     {
       label: "Mercado",
       value: impact === "OFF" ? "Impacto de preço desligado" : `Impacto de preço · ${PRICE_IMPACT_MODE_LABELS[impact]}`,
+    },
+    {
+      label: RULE_GROUP_LABELS.EXPANSIONS,
+      value: values.governmentEnabled ? EXPANSIONS.government.label : "Nenhuma",
     },
   ];
 }

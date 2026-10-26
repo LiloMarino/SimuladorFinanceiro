@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
@@ -97,7 +98,14 @@ export function SimulationPicker({ selected, onToggle }: SimulationPickerProps) 
                       color={simulationColor(selected, s.id)}
                     />
                     <span className="grid min-w-0 gap-0.5">
-                      <span className="truncate font-semibold">{s.name}</span>
+                      <span className="flex min-w-0 items-center gap-1.5">
+                        <span className="truncate font-semibold">{s.name}</span>
+                        {s.is_backtest && (
+                          <Badge variant="secondary" size="tag" className="shrink-0">
+                            Backtest
+                          </Badge>
+                        )}
+                      </span>
                       <span className="font-mono text-xs text-muted-foreground">
                         {displayMonthSlashYear(s.start_date)} → {displayMonthSlashYear(s.resume_from ?? s.end_date)}
                       </span>

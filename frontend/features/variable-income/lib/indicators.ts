@@ -319,6 +319,18 @@ export function readingRule(reading: TechnicalReading, params: IndicatorParams) 
   }
 }
 
+/** As faixas da régua dos indicadores de escala fixa (0 a 100); os demais não têm régua. */
+export function scaleBands(key: IndicatorKey, params: IndicatorParams) {
+  switch (key) {
+    case "rsi":
+      return { low: params.rsi_oversold, high: params.rsi_overbought };
+    case "stochastic":
+      return { low: 20, high: 80 };
+    default:
+      return null;
+  }
+}
+
 /** A dica de cada leitura do resumo é a do indicador que ela lê. */
 export const READING_HINT: Record<TechnicalReading["key"], MetricInfo> = {
   sma: INDICATOR_BY_KEY.averages.hint,

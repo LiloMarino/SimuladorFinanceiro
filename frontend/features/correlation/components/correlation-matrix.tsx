@@ -4,7 +4,7 @@ import { sortNumber, type SortColumns } from "@/shared/lib/table-sort";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
 import type { CorrelationMatrix } from "@/types";
-import { REFERENCE, cellColor } from "../lib/correlation";
+import { REFERENCE, cellColor, gapReason } from "../lib/correlation";
 
 export interface PairPosition {
   row: number;
@@ -36,7 +36,7 @@ export function CorrelationMatrixGrid({ matrix, pinned, onPin }: CorrelationMatr
   const tickers = sorting.rows;
 
   const cell = (row: number, column: number) => {
-    const value = rows[row][column].correlation;
+    const { correlation: value } = rows[row][column];
     const number = value === null ? null : Number(value);
     const active =
       !!pinned &&
@@ -48,9 +48,11 @@ export function CorrelationMatrixGrid({ matrix, pinned, onPin }: CorrelationMatr
           onClick={() => onPin({ row, column })}
           aria-pressed={active}
           aria-label={`${labels[row]} × ${labels[column]}`}
+          title={number === null ? gapReason(rows[row][column], matrix.min_days) : undefined}
           className={cn(
             "grid h-11 w-full min-w-14 place-content-center rounded-md font-mono text-[13px] transition-shadow",
-            number === null && "border border-dashed border-input text-faint-foreground",
+            number === null &&
+              "border border-dashed border-input bg-[repeating-linear-gradient(135deg,transparent_0_4px,var(--muted)_4px_8px)] text-faint-foreground",
             number !== null && Math.abs(number) > 0.6 && "text-white",
             active && "ring-2 ring-foreground ring-offset-1",
           )}

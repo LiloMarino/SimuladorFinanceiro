@@ -27,7 +27,7 @@ type TeamComposition = CompositionReport["teams"][number];
 type Unit = "PCT" | "MONEY";
 
 const SERIES = [
-  { key: "total_cash", label: "Caixa", color: "var(--input)" },
+  { key: "total_cash", label: "Caixa", color: "var(--chart-3)" },
   { key: "total_equity", label: "Renda variável", color: "var(--chart-1)" },
   { key: "total_fixed", label: "Renda fixa", color: "var(--chart-2)" },
 ] as const;
@@ -161,8 +161,9 @@ function TeamGroupHeader({
       <TeamBadge team={team} naming={naming} form="full" />
       {composition && (
         <span className="text-xs text-muted-foreground">
-          média: {share(composition.cash_share)} caixa · {share(composition.equity_share)} RV ·{" "}
-          {share(composition.fixed_share)} RF
+          média: <span className="text-chart-3">{share(composition.cash_share)} caixa</span> ·{" "}
+          <span className="text-chart-1">{share(composition.equity_share)} RV</span> ·{" "}
+          <span className="text-chart-2">{share(composition.fixed_share)} RF</span>
         </span>
       )}
     </div>
@@ -238,7 +239,7 @@ function SmallMultiple({
           </div>
           {/* Como terminou: a fatia de cada classe no último dia */}
           <span className="text-xs font-medium">
-            <span className="text-muted-foreground">{share(last.total_cash)} caixa</span>
+            <span className="text-chart-3">{share(last.total_cash)} caixa</span>
             {" · "}
             <span className="text-chart-1">{share(last.total_equity)} RV</span>
             {" · "}

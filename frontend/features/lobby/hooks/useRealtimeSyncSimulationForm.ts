@@ -1,13 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { CreateSimulationRequest, SimulationSettingsData } from "@/types";
 import type { SimulationFormValues } from "../components/lobby-match";
 import { useAsyncLock } from "@/shared/hooks/useAsyncLock";
+import { ASSISTANCES, type AssistanceField } from "@/shared/lib/assistance";
 import { toFormValues, toSettingsBody } from "../lib/simulation-form";
 import { useRestoreSimulationSettings } from "./mutations/useRestoreSimulationSettings";
 import { useUpdateSimulationSettings } from "./mutations/useUpdateSimulationSettings";
+
+type AssistanceChoice = Record<AssistanceField, boolean>;
+
+const assistancesOf = (values: SimulationFormValues): AssistanceChoice =>
+  Object.fromEntries(ASSISTANCES.map(({ field }) => [field, values[field]])) as AssistanceChoice;
 
 export function useRealtimeSyncSimulationForm({
   form,
@@ -29,6 +35,10 @@ export function useRealtimeSyncSimulationForm({
 
   /** Mantém o último payload REAL enviado à API */
   const lastSentRef = useRef<CreateSimulationRequest | null>(toSettingsBody(toFormValues(initial)));
+  // As assistências que o servidor confirmou: a escolha recusada volta para elas
+  const confirmedAssistancesRef = useRef(assistancesOf(toFormValues(initial)));
+  // A escolha de assistências que o servidor recusou; some quando um salvamento é confirmado
+  const [rejectedAssistances, setRejectedAssistances] = useState<AssistanceChoice | null>(null);
 
   const {
     mutateAsync: updateSettings,
@@ -46,7 +56,26 @@ export function useRealtimeSyncSimulationForm({
   const applySettings = (settings: SimulationSettingsData) => {
     const formValues = toFormValues(settings);
     lastSentRef.current = toSettingsBody(formValues);
+    confirmedAssistancesRef.current = assistancesOf(formValues);
     form.reset(formValues);
+  };
+
+  /** O interruptor volta ao valor confirmado e a escolha fica guardada para "Tentar de novo". */
+  const rejectAssistances = useCallback(
+    (attempted: SimulationFormValues) => {
+      const chosen = assistancesOf(attempted);
+      const confirmed = confirmedAssistancesRef.current;
+      if (ASSISTANCES.every(({ field }) => chosen[field] === confirmed[field])) return;
+      setRejectedAssistances(chosen);
+      for (const { field } of ASSISTANCES) form.setValue(field, confirmed[field], { shouldValidate: true });
+    },
+    [form],
+  );
+
+  const retryAssistances = () => {
+    if (!rejectedAssistances) return;
+    for (const { field } of ASSISTANCES) form.setValue(field, rejectedAssistances[field], { shouldValidate: true });
+    setRejectedAssistances(null);
   };
 
   /** 🔹 Realtime → Form */
@@ -80,9 +109,15 @@ export function useRealtimeSyncSimulationForm({
 
     void lock.runExclusive(async () => {
       // A falha fica em `saveError`, mostrada no rodapé do painel de regras
-      await updateSettings(payload, { onSuccess: () => setSavedAt(Date.now()) }).catch(() => undefined);
+      await updateSettings(payload, {
+        onSuccess: () => {
+          confirmedAssistancesRef.current = assistancesOf(debouncedValues);
+          setRejectedAssistances(null);
+          setSavedAt(Date.now());
+        },
+      }).catch(() => rejectAssistances(debouncedValues));
     });
-  }, [debouncedValues, isHost, locked, updateSettings, form.formState.isValid, lock]);
+  }, [debouncedValues, isHost, locked, updateSettings, form.formState.isValid, lock, rejectAssistances]);
 
   const restoreDefaults = () =>
     lock.runExclusive(async () => {
@@ -107,7 +142,10 @@ export function useRealtimeSyncSimulationForm({
   return {
     savedAt,
     saving: saving || restoring,
+    restoring,
     saveError: saveError ?? restoreError,
+    rejectedAssistances: rejectedAssistances !== null,
+    retryAssistances,
     restoreDefaults,
     applyServerSettings,
   };

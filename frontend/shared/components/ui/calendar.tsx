@@ -71,6 +71,8 @@ function Calendar({
         ...classNames,
       }}
       modifiersClassNames={{
+        // Depois do último dia com dado, real ou gerado
+        no_data: "rounded-lg bg-muted text-faint-foreground",
         // Futuro gerado: dias sem dado real, com um ponto embaixo
         future:
           "rounded-lg bg-future-soft text-future-foreground after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-future data-[selected=true]:after:bg-primary-foreground",

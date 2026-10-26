@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { DoorOpen, TriangleAlert } from "lucide-react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
+import { GroupingBadge } from "@/shared/components/grouping-badge";
 import { PlayerColorGrid } from "@/shared/components/player-color-grid";
 import { TeamBadge } from "@/shared/components/team-badge";
 import { TeamGrid } from "@/shared/components/team-grid";
@@ -101,9 +102,12 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
           <div className="grid gap-5">
             {/* Jogadores da partida */}
             <div className="grid gap-2">
-              <span className="text-xs font-semibold text-muted-foreground">
-                Quem joga ({players.length} de {PLAYER_COLORS.length})
-              </span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Quem joga ({players.length} de {PLAYER_COLORS.length})
+                </span>
+                <GroupingBadge grouping={match.player_grouping} />
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 {players.map((player) => {
                   const onlinePlayer = onlinePlayers.get(player.nickname);

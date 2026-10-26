@@ -8,7 +8,15 @@ import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@/shar
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/shared/components/ui/empty";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
-import { Table, TableBody, TableCell, TableEmptyRow, TableHeader, TableRow } from "@/shared/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableEmptyRow,
+  TableFooter,
+  TableHeader,
+  TableRow,
+} from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { unexpectedLabel } from "@/shared/lib/financial-independence";
 import { displayDate, displaySignedMoney, parseLocalDate } from "@/shared/lib/utils/display";
@@ -57,6 +65,7 @@ export function LifeHistory({ life }: LifeHistoryProps) {
   const counts = pages?.[0]?.counts;
   const rows = pages?.flatMap((page) => page.items) ?? [];
   const remaining = (pages?.[0]?.total ?? 0) - rows.length;
+  const interestPaid = Number(pages?.[0]?.interest_paid ?? 0);
 
   return (
     <Card>
@@ -156,6 +165,20 @@ export function LifeHistory({ life }: LifeHistoryProps) {
               );
             })}
           </TableBody>
+          {/* Juros do cheque especial da partida inteira */}
+          {interestPaid > 0 && (
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={3} variant="group">
+                  Juros pagos na partida
+                </TableCell>
+                <TableCell numeric>
+                  <span className="text-destructive">{displaySignedMoney(-interestPaid)}</span>
+                </TableCell>
+                <TableCell />
+              </TableRow>
+            </TableFooter>
+          )}
         </Table>
       )}
 

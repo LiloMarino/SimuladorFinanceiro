@@ -78,3 +78,5 @@ class LifeHistoryPageDTO(BaseDTO):
     # Linhas da categoria pedida, para o "Mostrar mais"
     total: int
     counts: LifeHistoryCountsDTO
+    # Juro do cheque especial pago na partida inteira (positivo), qualquer que seja o filtro
+    interest_paid: Decimal

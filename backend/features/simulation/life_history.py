@@ -134,6 +134,14 @@ def history_page(
             layoff=count(LifeHistoryCategory.LAYOFF),
             overdraft=count(LifeHistoryCategory.OVERDRAFT),
         ),
+        interest_paid=-sum(
+            (
+                r.amount
+                for r in rows
+                if r.kind is LifeHistoryKind.OVERDRAFT_INTEREST and r.amount is not None
+            ),
+            Decimal(0),
+        ),
     )
 
 

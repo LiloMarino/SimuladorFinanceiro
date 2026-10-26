@@ -62,7 +62,7 @@ export function NotificationsCard() {
             </label>
           ))}
           {failure && (
-            <Alert variant="warning">
+            <Alert variant="destructive">
               <TriangleAlert />
               <AlertDescription>{failure}</AlertDescription>
             </Alert>

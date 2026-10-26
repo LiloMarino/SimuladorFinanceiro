@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { MetricHint } from "@/shared/components/metric-hint";
 import { displayList, displayNumber } from "@/shared/lib/utils/display";
 import type { CorrelationMatrix } from "@/types";
-import { COMMON_DAYS, REFERENCE, correlationReading, gapReason, valueColor } from "../lib/correlation";
+import { COMMON_DAYS, REFERENCE, correlationReading, gapReason, pairExplanation, valueColor } from "../lib/correlation";
 import type { PairPosition } from "./correlation-matrix";
 
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
@@ -43,6 +43,7 @@ function SelectedPair({ matrix, pinned }: { matrix: CorrelationMatrix; pinned: P
               <MetricHint metric={COMMON_DAYS} />
             </span>
           </span>
+          <span className="text-[13px] text-muted-foreground">{pairExplanation(value)}</span>
         </>
       )}
     </div>

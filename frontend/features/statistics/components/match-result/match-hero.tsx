@@ -50,6 +50,29 @@ function headline(report: OverviewReport, winner: Player) {
   }
 }
 
+/** A frase de quem jogou sozinho: não há vencedor a declarar, só o que a partida rendeu. */
+function soloHeadline(report: OverviewReport, player: Player) {
+  const value = player.criterion_value;
+  if (value === null) return "Você terminou a partida";
+  switch (rankingMeasure(report)) {
+    case "GOAL":
+      if (report.game_type === "FINANCIAL_INDEPENDENCE") {
+        return reachedGoal(value)
+          ? "Você conquistou a independência financeira"
+          : `Você chegou a ${displayGoalPercentOf(value)} da independência financeira`;
+      }
+      return reachedGoal(value) ? "Você chegou à meta" : `Você chegou a ${displayGoalPercentOf(value)} da meta`;
+    case "SCORE":
+      return `Você terminou com ${displayNumber(value, 0)} pontos`;
+    case "RETURN":
+      return `Você terminou com ${displaySignedPercent(value)} de retorno`;
+    case "NETWORTH":
+      return `Você terminou com ${displayMoney(value)} de patrimônio`;
+    case "SHARPE":
+      return `Você terminou com Sharpe ${displayNumber(value, 2)}`;
+  }
+}
+
 /** A frase da equipe vencedora; empate na média vai para o patrimônio médio. */
 function teamHeadline(report: OverviewReport) {
   const [first, second] = report.teams;
@@ -188,11 +211,14 @@ function GoalSummary({
   report,
   simulation,
   reached,
+  solo,
   currentPlayerName,
 }: {
   report: OverviewReport;
   simulation: SimulationListItem | undefined;
   reached: boolean;
+  /** Partida só com você: não há outro a quem ganhar ou perder */
+  solo: boolean;
   currentPlayerName?: string;
 }) {
   const { goal_net_worth: goal, teams } = report;
@@ -235,13 +261,15 @@ function GoalSummary({
         </>
       ) : (
         <>
-          Chegou a data final com <b className="text-white">{leaderName}</b> em{" "}
+          Chegou a data final com {solo ? "você" : <b className="text-white">{leaderName}</b>} em{" "}
           <b className="font-mono text-white">{displayCriterionValue("GOAL", leader.criterion_value)}</b> da{" "}
           {independence ? "independência" : "meta"}
-          {goal ? <> de {displayMoneyCompact(goal)}</> : null}: quem fica mais perto vence.
+          {goal ? <> de {displayMoneyCompact(goal)}</> : null}
+          {solo ? "." : ": quem fica mais perto vence."}
         </>
       )}
       {yourRank &&
+        !solo &&
         (yourRank.position === 1 ? (
           <> Você venceu.</>
         ) : (
@@ -272,6 +300,7 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
   const measure = rankingMeasure(report);
   const criterion = measure === "GOAL" ? null : VICTORY_CRITERIA[measure];
   const reached = measure === "GOAL" && reachedGoal((inTeams ? report.teams[0] : winner).criterion_value);
+  const solo = !inTeams && report.players.length === 1;
   const tradingDays = Math.max(...report.players.map((p) => p.days));
   const lastDay = simulation?.resume_from ?? simulation?.end_date;
 
@@ -284,7 +313,7 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
         </span>
         <h1 className="flex items-center gap-3 text-[34px] leading-tight font-bold text-white">
           {reached && <Flag className="size-7 shrink-0 text-trophy" />}
-          {inTeams ? teamHeadline(report) : headline(report, winner)}
+          {inTeams ? teamHeadline(report) : solo ? soloHeadline(report, winner) : headline(report, winner)}
         </h1>
         <p className="text-[15px]">
           {measure === "GOAL" ? (
@@ -292,6 +321,7 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
               report={report}
               simulation={simulation}
               reached={reached}
+              solo={solo}
               currentPlayerName={currentPlayerName}
             />
           ) : inTeams ? (
@@ -299,12 +329,17 @@ export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroPr
               Vitória por <b className="text-white">{criterion?.label}</b>, em equipes: vale a média dos membros.
               <TeamSummary report={report} currentPlayerName={currentPlayerName} />
             </>
+          ) : solo ? (
+            <>
+              Critério da partida: <b className="text-white">{criterion?.label}</b>: {criterion?.description}
+            </>
           ) : (
             <>
               Vitória por <b className="text-white">{criterion?.label}</b>: {criterion?.description}
             </>
           )}
           {!inTeams &&
+            !solo &&
             measure !== "GOAL" &&
             you &&
             (you.position === 1 ? (

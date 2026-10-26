@@ -166,7 +166,14 @@ const simulationFormSchema = z
 export type SimulationFormValues = z.infer<typeof simulationFormSchema>;
 
 const NO_COVERAGE_ISSUES = { missingAtStart: [], endingBeforeEnd: [] };
-const IDLE_SAVE_STATUS = { savedAt: null, saving: false, saveError: null };
+const IDLE_SAVE_STATUS = {
+  savedAt: null,
+  saving: false,
+  restoring: false,
+  saveError: null,
+  rejectedAssistances: false,
+  retryAssistances: () => undefined,
+};
 
 type LobbyMatchProps = {
   simulationData: SimulationSettingsData;
@@ -422,7 +429,13 @@ export function LobbyMatch({
     <Card>
       <CardHeader>
         <div className="grid gap-1">
-          <CardTitle>{selectedSimulation || loadingSelection ? "Continuar partida" : "Nova partida"}</CardTitle>
+          <CardTitle>
+            {selectedSimulation
+              ? `Continuar · ${selectedSimulation.name}`
+              : loadingSelection
+                ? "Continuar partida"
+                : "Nova partida"}
+          </CardTitle>
           {(selectedSimulation || !loadingSelection) && (
             <CardDescription>
               {selectedSimulation?.resume_from

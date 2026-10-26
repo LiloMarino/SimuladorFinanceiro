@@ -49,6 +49,11 @@ export function ErrorPage({
             </Button>
           ))}
         </div>
+        {!actionLabel && (
+          <p className="text-xs text-muted-foreground">
+            Durante a partida o primeiro botão leva à carteira; fora dela, só aparece “Voltar ao lobby”.
+          </p>
+        )}
       </div>
     </section>
   );

@@ -103,6 +103,16 @@ def test_page_is_newest_first_with_counts_per_category():
     assert (page.counts.all, page.counts.unexpected, page.counts.layoff) == (6, 1, 1)
 
 
+def test_interest_paid_sums_the_whole_match_whatever_the_filter():
+    rows = build_history(EVENTS)
+
+    assert history_page(rows, None, 0, 6).interest_paid == Decimal("25.89")
+    assert history_page(
+        rows, LifeHistoryCategory.LAYOFF, 0, 6
+    ).interest_paid == Decimal("25.89")
+    assert history_page([], None, 0, 6).interest_paid == Decimal(0)
+
+
 def test_amount_sort_is_numeric_global_and_keeps_missing_last():
     rows = build_history(EVENTS)
     ascending = history_page(rows, None, 0, 6, LifeHistorySort.AMOUNT, "asc")

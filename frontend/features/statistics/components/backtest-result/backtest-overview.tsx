@@ -21,6 +21,7 @@ import {
   displayMoney,
   displayMoneyCompact,
   displayNumber,
+  displayPercent,
   displayPercentagePoints,
   displaySignedMoney,
   displaySignedPercent,
@@ -181,7 +182,7 @@ function Summary({ rows, leader, references, beatCdi, strategies }: SummaryProps
       : [
           {
             label: "Bateram o CDI",
-            value: `${beatCdi} de ${rows.length}`,
+            value: `${beatCdi} de ${rows.length} · ${displayPercent(beatCdi / rows.length, 0)}`,
             detail: beatCdi === 1 ? "só a vencedora" : beatCdi === 0 ? "nenhuma" : "quem terminou à frente",
             toneValue: 0,
           },

@@ -23,9 +23,11 @@ export function TickerCombobox({ id, value, onChange, suggest, placeholder, inva
   const [debounced] = useDebounce(value.trim(), 300);
 
   const enabled = suggest && debounced.length >= MIN_CHARS;
-  const { data: suggestions = [] } = useTickerSearch(debounced, { enabled });
+  const { data: suggestions = [], isFetching } = useTickerSearch(debounced, { enabled });
 
-  const showList = open && enabled && suggestions.length > 0;
+  // Enquanto o yFinance responde, a lista mostra "buscando…" no lugar das sugestões
+  const searching = enabled && suggestions.length === 0 && isFetching;
+  const showList = open && enabled && (suggestions.length > 0 || searching);
 
   const choose = (ticker: string) => {
     onChange(ticker);
@@ -67,6 +69,7 @@ export function TickerCombobox({ id, value, onChange, suggest, placeholder, inva
           onMouseDown={(e) => e.preventDefault()}
         >
           <CommandList>
+            {searching && <div className="px-3 py-2 text-[13px] text-muted-foreground">buscando…</div>}
             {suggestions.map((item) => (
               <CommandItem key={item.ticker} value={item.ticker} onSelect={() => choose(item.ticker)}>
                 <span className="font-mono">{item.ticker}</span>

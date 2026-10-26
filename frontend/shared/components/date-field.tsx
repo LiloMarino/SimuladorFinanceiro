@@ -51,11 +51,13 @@ export function DateField({
   const selected = isIsoDate(value) ? parseLocalDate(value) : undefined;
   const today = todayIso();
   const { realEnd, generatedEnd } = dataEnds ?? {};
+  const lastDataDay = generatedEnd ?? realEnd;
 
   const isFuture = (day: Date) => {
     const iso = toIso(day);
     return !!realEnd && !!generatedEnd && iso > realEnd && iso <= generatedEnd;
   };
+  const hasNoData = (day: Date) => !!lastDataDay && toIso(day) > lastDataDay;
   const inPeriod = (day: Date) => {
     const iso = toIso(day);
     return !!period && iso >= period.start && iso <= period.end;
@@ -104,6 +106,7 @@ export function DateField({
                 if (day) pick(toIso(day));
               }}
               modifiers={{
+                no_data: (day) => hasNoData(day) && !inPeriod(day),
                 future: (day) => isFuture(day) && !inPeriod(day),
                 period: (day) => inPeriod(day) && !isFuture(day),
                 period_future: (day) => inPeriod(day) && isFuture(day),
@@ -129,6 +132,10 @@ export function DateField({
                     Futuro gerado até {displayIsoDate(generatedEnd)}
                   </span>
                 )}
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="size-3 rounded-[3px] bg-muted ring-1 ring-border ring-inset" />
+                  Dias sem dado
+                </span>
               </div>
             )}
           </PopoverContent>

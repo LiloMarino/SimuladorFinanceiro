@@ -18,7 +18,7 @@ export function CandleChallengeCard({ simulationId, currentPlayerName }: CandleC
       <CardHeader>
         <CardTitle>
           <span className="flex items-center gap-2">
-            <ChartCandlestick className="size-4 text-primary" />
+            <ChartCandlestick className="size-4 text-muted-foreground" />
             Desafio da vela
           </span>
         </CardTitle>

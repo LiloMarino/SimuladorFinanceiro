@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/
 import { Switch } from "@/shared/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { MetricHint } from "@/shared/components/metric-hint";
+import { ScaleRuler } from "@/shared/components/scale-ruler";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber } from "@/shared/lib/utils/display";
 import type { IndicatorKey, IndicatorParams, IndicatorSettings, MovingAverage, TechnicalSummary } from "@/types";
@@ -18,6 +19,7 @@ import {
   PARAM_LIMITS,
   countShown,
   isShown,
+  scaleBands,
   toggled,
   withParams,
   type IndicatorInfo,
@@ -197,6 +199,7 @@ export function IndicatorSelector({
                 info={info}
                 on={isShown(settings, info.key)}
                 params={settings.params}
+                summary={summary}
                 expanded={expanded === info.key}
                 editor={editors[info.key]}
                 onToggle={(on) => onChange(toggled(settings, info.key, on))}
@@ -222,14 +225,26 @@ interface IndicatorRowProps {
   info: IndicatorInfo;
   on: boolean;
   params: IndicatorParams;
+  summary: TechnicalSummary | undefined;
   expanded: boolean;
   editor: ReactNode;
   onToggle: (on: boolean) => void;
   onExpand: () => void;
 }
 
-function IndicatorRow({ info, on, params, expanded, editor, onToggle, onExpand }: IndicatorRowProps) {
+function IndicatorRow({
+  info,
+  on,
+  params,
+  summary: technical,
+  expanded,
+  editor,
+  onToggle,
+  onExpand,
+}: IndicatorRowProps) {
   const summary = info.summary?.(params);
+  const bands = scaleBands(info.key, params);
+  const today = technical?.readings.find((reading) => reading.key === info.key)?.value ?? null;
   const open = expanded && editor !== undefined;
   return (
     <div
@@ -240,7 +255,10 @@ function IndicatorRow({ info, on, params, expanded, editor, onToggle, onExpand }
         <span className="flex items-center gap-1.5 font-semibold">
           {info.name}
           {on && info.color && info.key !== "averages" && <Swatch token={info.color} />}
-          <MetricHint metric={info.hint} />
+          <MetricHint
+            metric={info.hint}
+            extra={bands && <ScaleRuler value={today} low={bands.low} high={bands.high} />}
+          />
         </span>
         <span className="text-xs text-muted-foreground">{info.description}</span>
         {open && <div className="mt-2.5">{editor}</div>}

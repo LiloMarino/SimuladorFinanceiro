@@ -32,7 +32,10 @@ export async function inspectCsv(file: File): Promise<CsvInspection> {
   if (!file.name.toLowerCase().endsWith(".csv")) {
     return {
       ...empty,
-      problem: { title: `${file.name} não é CSV`, hint: "Salve a planilha como .csv e tente de novo." },
+      problem: {
+        title: `${file.name} não é CSV`,
+        hint: "Salve a planilha como .csv, com as colunas separadas por vírgula, e tente de novo.",
+      },
     };
   }
   if (file.size > CSV_MAX_BYTES) {

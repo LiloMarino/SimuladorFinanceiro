@@ -41,7 +41,7 @@ export function TaxesCard({ panel, onPropose }: TaxesCardProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Imposto</TableHead>
-                <TableHead>Hoje</TableHead>
+                <TableHead numeric>Hoje</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>

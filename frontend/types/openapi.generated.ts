@@ -4580,6 +4580,8 @@ export interface components {
             /** Total */
             total: number;
             counts: components["schemas"]["LifeHistoryCountsDTO"];
+            /** Interest Paid */
+            interest_paid: string;
         };
         /** LifeHistoryRowDTO */
         LifeHistoryRowDTO: {

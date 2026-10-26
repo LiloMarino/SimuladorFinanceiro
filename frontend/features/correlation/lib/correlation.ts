@@ -42,6 +42,14 @@ export function correlationReading(value: number) {
   return READING_BANDS.find((band) => value >= band.min)!.label;
 }
 
+/** O par em uma frase: o que a correlação diz sobre ter os dois ativos juntos. */
+export function pairExplanation(value: number) {
+  if (value >= 0.7) return "Quando um sobe, o outro costuma subir junto: ter os dois é quase a mesma aposta.";
+  if (value >= 0.3) return "Sobem e caem juntos em boa parte dos dias, mas não sempre: diversificam só um pouco.";
+  if (value >= -0.3) return "Um não diz nada sobre o outro: ter os dois ajuda a diversificar.";
+  return "Quando um cai, o outro tende a subir: ter os dois protege a carteira.";
+}
+
 // Última linha e coluna da matriz: o mercado como referência
 export const REFERENCE = "IBOV";
 

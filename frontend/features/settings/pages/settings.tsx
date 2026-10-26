@@ -13,7 +13,7 @@ export default function SettingsPage() {
   if (!user) return null;
 
   return (
-    <div className="grid items-start gap-5 lg:grid-cols-2">
+    <div className="grid items-start gap-5 grid-cols-2">
       <div className="grid gap-5">
         <ProfileCard nickname={user.nickname} />
         {settings?.is_host && <MatchCard />}
