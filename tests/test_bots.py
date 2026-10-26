@@ -18,6 +18,7 @@ from backend.core.dto.user import UserDTO
 from backend.core.enum import PlayerGrouping, StrategyLogKind
 from backend.core.exceptions.http_exceptions import ForbiddenError
 from backend.core.player_colors import PLAYER_COLORS
+from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
@@ -241,6 +242,36 @@ def test_starting_the_match_moves_the_bots_out_of_the_room(room):
     assert repository.simulation_player.colors(simulation_id)[bot.id]
     assert repository.user.get_by_client_id(bot.client_id) is not None
     assert ana.id in repository.simulation_player.colors(simulation_id)
+
+
+def test_starting_the_match_emits_no_exit_for_the_bots(room, monkeypatch):
+    person("Ana")
+    UserManager.add_bot("Tio Patinhas", "buy_and_hold", {})
+    sent: list[str] = []
+    monkeypatch.setattr(
+        RealtimeBrokerManager,
+        "get_broker",
+        lambda: SimpleNamespace(notify=lambda event, *_a, **_k: sent.append(event)),
+    )
+
+    SimulationLoader.create(rules())
+
+    assert "player_exit" not in sent
+    assert UserManager.room_bots() == []
+
+
+def test_removing_a_bot_emits_its_exit(room, monkeypatch):
+    UserManager.add_bot("Tio Patinhas", "buy_and_hold", {})
+    sent: list[str] = []
+    monkeypatch.setattr(
+        RealtimeBrokerManager,
+        "get_broker",
+        lambda: SimpleNamespace(notify=lambda event, *_a, **_k: sent.append(event)),
+    )
+
+    UserManager.remove_bot("Tio Patinhas")
+
+    assert sent == ["player_exit"]
 
 
 def test_the_bot_runs_its_strategy_and_receives_the_contribution(room):

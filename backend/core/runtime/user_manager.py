@@ -826,15 +826,15 @@ class UserManager:
     def release_bots(cls) -> None:
         """
         A partida começou: os bots passam a morar nela e a próxima sala começa só com
-        as pessoas. Os guardados de partida nova nunca jogaram e somem.
+        as pessoas. Os guardados de partida nova nunca jogaram e somem. Os bots seguem
+        jogando: a saída da sala não é um evento de jogador saindo, e os clientes
+        refazem a lista de jogadores ao receber o início da partida.
         """
         with cls._lock:
-            left = cls._take_out_bots(park=False)
+            cls._take_out_bots(park=False)
             abandoned = list(cls._parked_bots.values())
             cls._parked_bots.clear()
 
-        for user, color, info in left:
-            cls._emit_player_exit(user, color, info)
         for parked in abandoned:
             repository.user.delete_user(parked.user.id)
 

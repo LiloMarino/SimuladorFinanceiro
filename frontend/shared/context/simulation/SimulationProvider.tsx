@@ -36,6 +36,8 @@ export function SimulationProvider({ children }: PropsWithChildren) {
         void revalidateSimulation(queryClient);
         // A partida começou com as regras do lobby, e o servidor já as zerou para a próxima
         void queryClient.invalidateQueries({ queryKey: queryKeys.simulationSettings() });
+        // Os bots deixam a sala ao iniciar, sem evento de saída
+        void queryClient.invalidateQueries({ queryKey: queryKeys.simulationPlayers() });
       }
     },
     true,
