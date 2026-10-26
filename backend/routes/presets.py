@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, status
 from pydantic import BaseModel, StringConstraints, ValidationError
@@ -48,7 +48,7 @@ class UpdatePresetRulesRequest(BaseModel):
     rules: SimulationRulesRequest
 
 
-def _config_of(rules: SimulationRulesRequest) -> dict:
+def _config_of(rules: SimulationRulesRequest) -> dict[str, Any]:
     return rules.model_dump(mode="json", exclude={"name"})
 
 

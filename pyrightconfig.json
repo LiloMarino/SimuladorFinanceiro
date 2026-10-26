@@ -9,6 +9,11 @@
         "venv",
         "__pycache__"
     ],
+    "strict": [
+        "backend/config",
+        "backend/routes",
+        "main.py"
+    ],
     "pythonVersion": "3.13",
     "typeCheckingMode": "standard",
     "reportMissingImports": "error",

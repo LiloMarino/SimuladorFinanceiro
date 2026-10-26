@@ -47,7 +47,7 @@ import webbrowser
 from contextlib import asynccontextmanager
 from threading import Thread, Timer
 
-import socketio
+import socketio  # pyright: ignore[reportMissingTypeStubs]
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -96,7 +96,7 @@ async def lifespan(app: FastAPI):
     # --------------------------------------------------
     if config.toml.server.provider == "lan":
         logger.debug("Inicializando o provider LAN no startup.")
-        await TunnelManager._provider.start(config.toml.server.port)
+        await TunnelManager.start_tunnel()
 
     # --------------------------------------------------
     # 🔌 Vincula o event loop ao broker WS

@@ -70,7 +70,7 @@ class TomlSettings(BaseModel):
     debug: DebugConfig = DebugConfig()
 
 
-def _load_toml_settings() -> TomlSettings:  # pyright: ignore[reportUnusedFunction]
+def load_toml_settings() -> TomlSettings:
     if not CONFIG_PATH.exists():
         defaults = TomlSettings().model_dump()
 

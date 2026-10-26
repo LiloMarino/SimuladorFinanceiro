@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import APIRouter, Request
 from pydantic import BaseModel, ConfigDict
@@ -49,7 +49,7 @@ DEFAULT_SETTINGS = SettingsRequest(
 )
 
 
-def _with_debug(settings: dict) -> SettingsResponse:
+def _with_debug(settings: dict[str, Any]) -> SettingsResponse:
     """Sobrepõe o `debug` do config.toml, mesmo que o banco tenha um valor antigo."""
     return SettingsResponse.model_validate(
         {**settings, "debug": config.toml.debug.enabled}

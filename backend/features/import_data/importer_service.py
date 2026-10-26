@@ -192,7 +192,7 @@ YFINANCE_SECTORS = {
 }
 
 
-def suggest_segment(info: dict) -> StockSegmentDTO | None:
+def suggest_segment(info: dict[str, str | None]) -> StockSegmentDTO | None:
     """Setor e indústria do yfinance como sugestão de setor e segmento."""
     sector: str = info.get("sector") or ""
     if not sector:
@@ -215,7 +215,7 @@ def _download_profile(ticker: str) -> TickerProfileDTO:
     )
 
 
-def _profile_to_info(profile: TickerProfileDTO) -> dict:
+def _profile_to_info(profile: TickerProfileDTO) -> dict[str, str | None]:
     return {
         "longName": profile.name,
         "quoteType": profile.quote_type,
@@ -224,7 +224,7 @@ def _profile_to_info(profile: TickerProfileDTO) -> dict:
     }
 
 
-def fetch_info(ticker: str) -> dict:
+def fetch_info(ticker: str) -> dict[str, str | None]:
     """O perfil do ativo: lê o guardado e só vai ao yfinance quando não há. A resposta
     vazia também é guardada; se a fonte falhar, nada é gravado e volta vazio."""
     if profile := repository.stock.get_ticker_profile(ticker):
