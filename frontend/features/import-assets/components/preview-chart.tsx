@@ -69,7 +69,7 @@ export function PreviewChart({ series, height, formatValue, formatTooltip, maxYe
         <Tooltip
           cursor={{ stroke: "var(--foreground)", strokeOpacity: 0.4 }}
           content={({ active, payload }) => {
-            const row = payload?.[0]?.payload as PreviewRow | undefined;
+            const row = payload[0]?.payload as PreviewRow | undefined;
             if (!active || !row) return null;
             const generated = row.real === undefined;
             return (

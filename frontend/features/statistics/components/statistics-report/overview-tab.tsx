@@ -388,7 +388,7 @@ function Ranking({
                   aria-label="Ordenar por"
                   value={sortBy ? [sortBy] : []}
                   onValueChange={(values) => {
-                    const column = shortcuts[values[0] as keyof typeof shortcuts];
+                    const column = Object.entries(shortcuts).find(([key]) => key === values[0])?.[1];
                     if (column) sorting.setSort({ column, direction: "desc" });
                   }}
                 >

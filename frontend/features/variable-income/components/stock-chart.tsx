@@ -846,7 +846,7 @@ export function StockChart({
           {hasHistory && candleMode && showPatterns && periodPatterns.length > 0 && (
             <PatternList
               patterns={periodPatterns}
-              openDay={hints?.challenge?.open?.pattern_date ?? null}
+              openDay={hints.challenge?.open?.pattern_date ?? null}
               activeDay={activePattern?.end ?? null}
               onSelect={focusPattern}
             />

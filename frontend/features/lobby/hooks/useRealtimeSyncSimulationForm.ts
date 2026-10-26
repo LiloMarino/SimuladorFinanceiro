@@ -96,7 +96,6 @@ export function useRealtimeSyncSimulationForm({
   useEffect(() => {
     if (!isHost || locked) return;
     if (!form.formState.isValid) return;
-    if (!debouncedValues) return;
     if (lock.isLocked()) return;
 
     // O corpo anterior e o novo saem do toSettingsBody: o JSON compara as chaves na mesma ordem

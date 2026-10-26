@@ -74,7 +74,7 @@ export function formValues(setup: BacktestSetup, strategies: StrategyInfo[]): Ba
           nickname: p.nickname,
           color: p.color,
           strategyKey: p.strategy_key,
-          params: p.params ?? {},
+          params: p.params,
         }),
       ),
   };

@@ -87,9 +87,9 @@ export function StrategyDetail({
 
   // Erro do servidor (por campo) e o que a digitação ainda não permite
   const errors: Record<string, string> = signalReady
-    ? { ...signal.data?.errors }
+    ? { ...signal.data.errors }
     : dataReady
-      ? { ...dataView.data?.errors }
+      ? { ...dataView.data.errors }
       : {};
   Object.assign(errors, draftErrors(strategy.params, draft));
   const valid =
@@ -98,7 +98,7 @@ export function StrategyDetail({
   const savedLines: SavedSignalLine[] = [];
   if (previewing && signalReady && savedSignal.data && !savedSignal.isPlaceholderData) {
     for (const line of savedSignal.data.lines) {
-      const current = signal.data?.lines.find((candidate) => candidate.key === line.key);
+      const current = signal.data.lines.find((candidate) => candidate.key === line.key);
       if (line.style !== "price" && current && current.label !== line.label)
         savedLines.push({ ...line, legend: `${line.label.replace(/ dias$/, "")} (salva)` });
     }

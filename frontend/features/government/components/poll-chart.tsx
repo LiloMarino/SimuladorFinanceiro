@@ -67,7 +67,7 @@ export function PollChart({ panel, height = 220 }: PollChartProps) {
         <Tooltip
           cursor={{ stroke: "var(--foreground)", strokeOpacity: 0.4 }}
           content={({ active, payload }) => {
-            const row = payload?.[0]?.payload as PollRow | undefined;
+            const row = payload[0]?.payload as PollRow | undefined;
             if (!active || !row) return null;
             return (
               <div className="grid gap-1 rounded-lg border bg-popover px-2.5 py-1.5 text-xs shadow-md">

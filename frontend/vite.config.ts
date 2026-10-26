@@ -14,7 +14,7 @@ function readBackendPort(): number {
   if (!existsSync(configPath)) return DEFAULT_BACKEND_PORT;
 
   const server = parse(readFileSync(configPath, "utf-8")).server;
-  const port = typeof server === "object" && server !== null && "port" in server ? server.port : undefined;
+  const port = typeof server === "object" && "port" in server ? server.port : undefined;
   return typeof port === "number" ? port : DEFAULT_BACKEND_PORT;
 }
 

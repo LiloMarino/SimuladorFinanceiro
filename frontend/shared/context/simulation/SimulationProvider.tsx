@@ -31,7 +31,7 @@ export function SimulationProvider({ children }: PropsWithChildren) {
   useRealtime(
     "simulation_started",
     (payload) => {
-      if (payload?.active) {
+      if (payload.active) {
         queryClient.setQueryData(queryKeys.simulationStatus(), payload);
         void revalidateSimulation(queryClient);
         // A partida começou com as regras do lobby, e o servidor já as zerou para a próxima

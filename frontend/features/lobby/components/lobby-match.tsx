@@ -321,7 +321,7 @@ export function LobbyMatch({
       ? [
           {
             label: "Vitória por",
-            value: <Badge variant="info">{VICTORY_CRITERIA[rules.victoryCriterion]?.label}</Badge>,
+            value: <Badge variant="info">{VICTORY_CRITERIA[rules.victoryCriterion].label}</Badge>,
           },
         ]
       : rules.gameType === "POLITICAL"

@@ -87,7 +87,7 @@ export function engineStatus(data: MetricsData): EngineStatus {
     speed: data.engine.speed,
     budgetMs,
     late,
-    effectiveSpeed: late && item ? Math.round(1000 / item.mean_ms) : null,
+    effectiveSpeed: late ? Math.round(1000 / item.mean_ms) : null,
   };
 }
 

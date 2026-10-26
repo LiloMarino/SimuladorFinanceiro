@@ -144,6 +144,7 @@ export const findTopic = (id: TopicId): RegisteredTopic => registry[id];
 
 /** Grupos que têm mais de um tópico abrem e fecham; tópico sozinho aparece solto na lista. */
 export function groupTopics(list: readonly RegisteredTopic[]) {
-  const keys = [...new Set(list.map((topic) => topic.group))];
-  return keys.map((key) => ({ key, topics: list.filter((topic) => topic.group === key) }));
+  const byGroup = new Map<RegisteredTopic["group"], RegisteredTopic[]>();
+  for (const topic of list) byGroup.set(topic.group, [...(byGroup.get(topic.group) ?? []), topic]);
+  return [...byGroup].map(([key, topics]) => ({ key, topics }));
 }

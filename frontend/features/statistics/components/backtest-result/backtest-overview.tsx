@@ -380,7 +380,7 @@ function RankingTable({ rows, references, strategies, measure, onMeasureChange, 
                   </span>
                 </TableCell>
                 <TableCell className="whitespace-normal">
-                  {strategy && <ParamPills strategy={strategy} values={row.participant.params ?? {}} />}
+                  {strategy && <ParamPills strategy={strategy} values={row.participant.params} />}
                 </TableCell>
                 <TableCell numeric>{row.score === null ? "—" : displayNumber(row.score, 0)}</TableCell>
                 <TableCell numeric>{displayMoney(row.networth)}</TableCell>

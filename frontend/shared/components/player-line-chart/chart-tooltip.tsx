@@ -8,7 +8,7 @@ interface Props extends TooltipContentProps {
 }
 
 export function LineChartTooltip({ active, payload, label, format, axis }: Props) {
-  if (!active || !payload || !payload.length || label === undefined) return null;
+  if (!active || !payload.length || label === undefined) return null;
 
   const entries = payload as unknown as Array<{ name?: string; color?: string; payload?: LineChartRow }>;
 

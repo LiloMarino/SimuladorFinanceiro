@@ -125,7 +125,7 @@ export function LifeHistory({ life }: LifeHistoryProps) {
             {rows.map((row) => {
               const kind = LIFE_HISTORY_KINDS[row.kind];
               const Icon = lifeRowIcon(row);
-              const amount = row.amount === null || row.amount === undefined ? null : Number(row.amount);
+              const amount = row.amount === null ? null : Number(row.amount);
               const isNew = row.event_date === highlightDate;
               return (
                 <TableRow

@@ -84,7 +84,7 @@ export function SeriesTable({ series, classifying, onClassify }: SeriesTableProp
   ].filter((g) => g.items.length > 0);
 
   const busy = refreshOne.isPending || refreshOutdated.isPending || correctErrors.isPending;
-  const updatingThis = (item: SeriesCoverage) => refreshOne.isPending && refreshOne.variables?.key === item.key;
+  const updatingThis = (item: SeriesCoverage) => refreshOne.isPending && refreshOne.variables.key === item.key;
 
   return (
     <Card className="overflow-hidden">

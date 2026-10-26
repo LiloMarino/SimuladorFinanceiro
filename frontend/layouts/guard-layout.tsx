@@ -40,9 +40,9 @@ export function GuardLayout() {
     "/achievements",
     "/match-result/:simulationId",
   ];
-  if (isAuthenticated && !hasSimulation) {
+  if (!hasSimulation) {
     // O host de um backtest em andamento acompanha o andamento no lugar do lobby e da configuração
-    const runsBacktest = simulation.backtest?.host_nickname === session?.user?.nickname;
+    const runsBacktest = simulation.backtest?.host_nickname === session.user?.nickname;
     if (runsBacktest && (pathname === "/lobby" || pathname === "/backtest/new")) {
       return <Navigate to="/backtest/running" replace />;
     }
@@ -53,7 +53,7 @@ export function GuardLayout() {
   }
 
   // Autenticado + COM simulação + ainda fora dela → /join escolher a cor e entrar
-  if (isAuthenticated && hasSimulation && session?.pending_join) {
+  if (session.pending_join) {
     if (pathname !== "/join") {
       return <Navigate to="/join" replace />;
     }
@@ -62,11 +62,8 @@ export function GuardLayout() {
 
   // Autenticado + COM simulação: a Central de dados só abre fora da partida
   const blockedDuringSimulation = ["/login", "/lobby", "/import-assets", "/join"];
-  if (isAuthenticated && hasSimulation) {
-    if (blockedDuringSimulation.includes(pathname)) {
-      return <Navigate to="/" replace />;
-    }
-    return <Outlet />;
+  if (blockedDuringSimulation.includes(pathname)) {
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;

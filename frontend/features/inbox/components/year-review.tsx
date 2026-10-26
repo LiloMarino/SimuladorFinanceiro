@@ -45,7 +45,7 @@ export function YearReviewView({ review }: YearReviewViewProps) {
               <Tooltip
                 cursor={{ fill: "var(--muted)" }}
                 content={({ active, payload }) => {
-                  const row = payload?.[0]?.payload as (typeof rows)[number] | undefined;
+                  const row = payload[0]?.payload as (typeof rows)[number] | undefined;
                   if (!active || !row) return null;
                   return (
                     <div className="grid gap-0.5 rounded-lg border bg-popover px-2.5 py-1.5 text-xs shadow-md">
