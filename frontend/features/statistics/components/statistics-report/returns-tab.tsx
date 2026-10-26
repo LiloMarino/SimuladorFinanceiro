@@ -250,7 +250,7 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
   const borrower = data.players.find((p) => isYou(p) && p.credit_cost !== null);
 
   return (
-    <div className="grid gap-5">
+    <div className="grid grid-cols-1 gap-5">
       {/* Custo da dívida de quem contratou crédito */}
       {borrower?.credit_cost && <CreditCostCard player={{ ...borrower, credit_cost: borrower.credit_cost }} />}
 

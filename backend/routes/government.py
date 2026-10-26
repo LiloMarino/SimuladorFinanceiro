@@ -32,7 +32,7 @@ def get_election(simulation: ActiveSimulation, user: CurrentUser):
     "/parties",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Fundar um partido",
-    description="Funda um partido com nome, sigla de 2 a 5 letras, cor, promessa na régua de 1 a 5 e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.",
+    description="Funda um partido com nome, sigla de 2 a 8 letras, cor, promessa na régua de 1 a 5 e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.",
 )
 def found_party(
     simulation: ActiveSimulation, user: CurrentUser, payload: FoundPartyRequest

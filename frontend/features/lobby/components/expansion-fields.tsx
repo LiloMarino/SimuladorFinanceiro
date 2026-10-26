@@ -50,7 +50,7 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
   };
 
   return (
-    <div className="grid items-start gap-4 sm:grid-cols-2">
+    <div className="grid items-start gap-4">
       <div className={cn("self-start overflow-hidden rounded-xl border bg-card", enabled && "border-2 border-primary")}>
         {/* Faixa do cartão */}
         <div className={cn("relative flex h-28 items-end px-4 py-3.5", GOVERNMENT.bannerClass)}>
@@ -108,7 +108,7 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
         {/* Regras da expansão */}
         {enabled && (
           <div className="grid gap-3.5 border-t px-4 py-3.5">
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 lg:grid-cols-2">
               <Controller
                 control={form.control}
                 name="firstElection"

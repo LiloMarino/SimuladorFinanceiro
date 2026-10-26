@@ -25,11 +25,11 @@ import { ContributionField } from "./contribution-field";
 import { PromiseHint } from "./promise-hint";
 import { PromisePicker } from "./promise-picker";
 
-const ABBR_PATTERN = /^[A-ZÀ-Ý]{2,5}$/;
+const ABBR_PATTERN = /^[A-ZÀ-Ý]{2,8}$/;
 
 const foundPartySchema = z.object({
   name: z.string().trim().min(2, "Dê um nome de pelo menos 2 letras.").max(60, "O nome vai até 60 letras."),
-  abbr: z.string().regex(ABBR_PATTERN, "A sigla tem de 2 a 5 letras."),
+  abbr: z.string().regex(ABBR_PATTERN, "A sigla tem de 2 a 8 letras."),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Escolha uma cor."),
   promise: z.number().int().min(1).max(5),
 });
@@ -105,7 +105,7 @@ export function FoundPartyDialog({ open, onOpenChange, takenColors, cash }: Foun
                       id="party-abbr"
                       numeric
                       autoComplete="off"
-                      maxLength={5}
+                      maxLength={8}
                       aria-invalid={fieldState.invalid}
                       {...field}
                       onChange={(event) => field.onChange(event.target.value.toUpperCase().replace(/[^A-ZÀ-Ý]/g, ""))}
@@ -113,7 +113,7 @@ export function FoundPartyDialog({ open, onOpenChange, takenColors, cash }: Foun
                     {fieldState.error ? (
                       <FieldError errors={[fieldState.error]} />
                     ) : (
-                      <FieldDescription>2 a 5 letras.</FieldDescription>
+                      <FieldDescription>2 a 8 letras.</FieldDescription>
                     )}
                   </Field>
                 )}

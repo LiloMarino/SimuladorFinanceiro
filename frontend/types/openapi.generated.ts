@@ -1427,7 +1427,7 @@ export interface paths {
         put?: never;
         /**
          * Fundar um partido
-         * @description Funda um partido com nome, sigla de 2 a 5 letras, cor, promessa na régua de 1 a 5 e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.
+         * @description Funda um partido com nome, sigla de 2 a 8 letras, cor, promessa na régua de 1 a 5 e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.
          */
         post: operations["found_party_api_government_parties_post"];
         delete?: never;

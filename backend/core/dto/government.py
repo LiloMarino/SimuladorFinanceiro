@@ -17,7 +17,7 @@ from backend.core.enum import (
 )
 
 PARTY_NAME_MAX_LENGTH = 60
-PARTY_ABBR_PATTERN = re.compile(r"^[A-ZÀ-Ý]{2,5}$")
+PARTY_ABBR_PATTERN = re.compile(r"^[A-ZÀ-Ý]{2,8}$")
 PARTY_COLOR_PATTERN = r"^#[0-9A-Fa-f]{6}$"
 PROMISE_MIN = 1
 PROMISE_MAX = 5

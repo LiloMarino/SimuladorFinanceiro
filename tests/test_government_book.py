@@ -25,6 +25,7 @@ from backend.core.exceptions.http_exceptions import (
     ConflictError,
     ForbiddenError,
     NotFoundError,
+    UnprocessableEntityError,
 )
 from backend.features.government import approval as approval_rules
 from backend.features.government import congress, election
@@ -164,6 +165,16 @@ def test_party_opens_only_during_the_campaign_year(book: GovernmentBook):
             promise=2,
             contribution=Decimal(0),
         )
+
+
+def test_party_abbr_takes_two_to_eight_letters(book: GovernmentBook):
+    found(book, ALICE, "ABCDEFGH", RED)
+
+    assert party_of(book, ALICE).abbr == "ABCDEFGH"
+    with pytest.raises(UnprocessableEntityError, match="2 a 8 letras"):
+        found(book, BOB, "ABCDEFGHI", BLUE)
+    with pytest.raises(UnprocessableEntityError, match="2 a 8 letras"):
+        found(book, BOB, "A", BLUE)
 
 
 def test_bots_stay_out_of_parties(book: GovernmentBook):

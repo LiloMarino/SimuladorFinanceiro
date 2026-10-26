@@ -209,7 +209,7 @@ class GovernmentBook:
         self._ensure_campaign_open(today)
         self._ensure_without_party(user)
         if not PARTY_ABBR_PATTERN.match(abbr):
-            raise UnprocessableEntityError("A sigla tem de 2 a 5 letras.")
+            raise UnprocessableEntityError("A sigla tem de 2 a 8 letras.")
         parties = self.state.parties.values()
         if any(p.abbr == abbr for p in parties):
             raise ConflictError(f"Já existe um partido com a sigla {abbr}.")
