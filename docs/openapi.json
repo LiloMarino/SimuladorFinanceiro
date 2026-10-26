@@ -11696,6 +11696,9 @@
         "type": "string",
         "enum": [
           "UPDATED",
+          "CAMPAIGN_OPENED",
+          "TICKETS_CLOSING",
+          "ELECTION_EVE",
           "PARTY_FOUNDED",
           "EXPELLED",
           "VICE_INVITED",
@@ -12006,6 +12009,30 @@
               }
             ],
             "title": "Approval"
+          },
+          "ticket_deadline": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Deadline"
+          },
+          "first_round": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Round"
           }
         },
         "additionalProperties": false,

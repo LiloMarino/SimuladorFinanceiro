@@ -12,6 +12,8 @@ TERM_YEARS = 4
 CAMPAIGN_YEARS = 1
 # Entre o 1º e o 2º turno: 3 semanas (07 e 28 de out)
 RUNOFF_DAYS = 21
+# O lembrete das chapas sai 7 dias antes de a inscrição fechar
+TICKET_REMINDER_DAYS = 7
 
 
 @dataclass(frozen=True)
@@ -29,6 +31,19 @@ class ElectionCycle:
     def donation_deadline(self) -> date:
         """Último dia para doar entre os turnos: a véspera do 2º turno."""
         return self.runoff - timedelta(days=1)
+
+    @property
+    def ticket_reminder(self) -> date:
+        """O dia do lembrete de que a inscrição das chapas está para fechar."""
+        return self.ticket_deadline - timedelta(days=TICKET_REMINDER_DAYS)
+
+    @property
+    def eve(self) -> date:
+        """A véspera do 1º turno: o último dia útil antes da votação."""
+        day = self.first_round - timedelta(days=1)
+        while not is_business_day(day):
+            day -= timedelta(days=1)
+        return day
 
 
 def election_cycle(first_election: date, index: int, start_date: date) -> ElectionCycle:

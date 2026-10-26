@@ -4055,7 +4055,7 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING";
+        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING";
         /** GovernmentPanelDTO */
         GovernmentPanelDTO: {
             /**
@@ -4128,6 +4128,10 @@ export interface components {
             months_below_floor?: number | null;
             /** Approval */
             approval?: number | null;
+            /** Ticket Deadline */
+            ticket_deadline?: string | null;
+            /** First Round */
+            first_round?: string | null;
         };
         /** HighlightsDTO */
         HighlightsDTO: {

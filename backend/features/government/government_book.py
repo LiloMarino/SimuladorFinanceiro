@@ -32,7 +32,7 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
-from backend.core.utils import required
+from backend.core.utils import next_business_day, required
 from backend.features.government import approval as approval_rules
 from backend.features.government import congress, election
 from backend.features.government import measures as rules
@@ -150,8 +150,8 @@ class GovernmentBook:
     def on_tick(self, users: list[UserDTO], today: date, month_changed: bool) -> bool:
         """
         Roda o calendário do dia: posse, contribuição do mês, fechamento do mês do governo
-        e apuração. Devolve se o dia trouxe um resultado de turno ou um impeachment, que
-        pausam a partida para todos.
+        e apuração. Devolve se o dia trouxe a abertura da campanha, um resultado de turno ou
+        um impeachment, que pausam a partida para todos.
         """
         people = {user.id: user for user in users}
         self._people = people
@@ -161,7 +161,7 @@ class GovernmentBook:
             self._start_term(today, people)
 
         cycle = self.cycle()
-        self._announce_phase_change(cycle, previous, today)
+        campaign_opened = self._announce_calendar(cycle, previous, today)
         self._announce_in_force(previous, today)
         if (
             month_changed
@@ -180,17 +180,46 @@ class GovernmentBook:
         elif today >= cycle.first_round:
             self._hold_first_round(cycle, today)
             return True
-        return False
+        return campaign_opened
 
-    def _announce_phase_change(
+    def _announce_calendar(
         self, cycle: ElectionCycle, previous: date | None, today: date
-    ) -> None:
-        """A página renova no dia em que a campanha abre e no dia em que as chapas fecham."""
+    ) -> bool:
+        """
+        Avisa a sala dos marcos do calendário: a abertura da campanha (que pausa a partida),
+        os lembretes das chapas e da véspera do 1º turno e a página que renova quando as
+        chapas fecham. Devolve se a campanha abriu hoje.
+        """
         if previous is None:
-            return
-        boundaries = (cycle.campaign_start, cycle.ticket_deadline + timedelta(days=1))
-        if any(previous < boundary <= today for boundary in boundaries):
+            # Numa partida nova o primeiro dia simulado é o primeiro dia útil da data inicial,
+            # e a campanha que já abre nele também é anunciada; numa retomada não há o que anunciar
+            first_day = next_business_day(self._settings.start_date - timedelta(days=1))
+            if today != first_day:
+                return False
+            previous = self._settings.start_date - timedelta(days=1)
+
+        if previous < cycle.campaign_start <= today:
+            self._notice(
+                GovernmentNoticeKind.CAMPAIGN_OPENED,
+                ticket_deadline=cycle.ticket_deadline,
+                first_round=cycle.first_round,
+            )
+            return True
+        if previous < cycle.ticket_deadline + timedelta(days=1) <= today:
             self._notice(GovernmentNoticeKind.UPDATED)
+        if previous < cycle.ticket_reminder <= today:
+            self._notice(
+                GovernmentNoticeKind.TICKETS_CLOSING,
+                ticket_deadline=cycle.ticket_deadline,
+                first_round=cycle.first_round,
+            )
+        if previous < cycle.eve <= today:
+            self._notice(
+                GovernmentNoticeKind.ELECTION_EVE,
+                ticket_deadline=cycle.ticket_deadline,
+                first_round=cycle.first_round,
+            )
+        return False
 
     # Ações dos jogadores
 
@@ -948,6 +977,8 @@ class GovernmentBook:
         tickers: list[str] | None = None,
         months_below_floor: int | None = None,
         approval: int | None = None,
+        ticket_deadline: date | None = None,
+        first_round: date | None = None,
     ) -> None:
         notify(
             "government_update",
@@ -967,5 +998,7 @@ class GovernmentBook:
                 tickers=tickers,
                 months_below_floor=months_below_floor,
                 approval=approval,
+                ticket_deadline=ticket_deadline,
+                first_round=first_round,
             ).to_json(),
         )

@@ -6,16 +6,19 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMoney } from "@/shared/lib/utils/display";
-import type { ElectionPanel, ElectionRound, GovernmentPanel, PortfolioState } from "@/types";
+import type { ElectionPanel, ElectionRound, GovernmentNotice, GovernmentPanel, PortfolioState } from "@/types";
+import { calendarToast } from "../lib/calendar-toast";
 import { inForceToast, votedToast, warningToast } from "../lib/measure-toast";
+import type { ElectionShortcut } from "../lib/election";
 import { donationContext, roundToast } from "../lib/round-toast";
+import { CampaignOpenedDialog } from "./campaign-opened-dialog";
 import { ImpeachmentDialog } from "./impeachment-dialog";
 import { RoundResultDialog } from "./round-result-dialog";
 
 /**
  * Dono único dos avisos da eleição em tempo real: cada evento renova a página da eleição
  * e a carteira (contribuição e doação saem do caixa) e conta o que aconteceu.
- * O resultado de um turno e o impeachment abrem um diálogo para todos, ao vivo, com a partida pausada.
+ * A abertura da campanha, o resultado de um turno e o impeachment abrem um diálogo para todos, ao vivo, com a partida pausada.
  */
 export function GovernmentNotifications() {
   const queryClient = useQueryClient();
@@ -24,6 +27,7 @@ export function GovernmentNotifications() {
   // O painel viaja com o turno: o diálogo mostra as datas e a doação do momento da apuração
   const [shown, setShown] = useState<{ result: ElectionRound; panel: ElectionPanel } | null>(null);
   const [impeachment, setImpeachment] = useState<GovernmentPanel | null>(null);
+  const [campaign, setCampaign] = useState<GovernmentNotice | null>(null);
   const me = user?.nickname;
 
   const renew = () => {
@@ -47,6 +51,21 @@ export function GovernmentNotifications() {
     const abbr = event.party_abbr ?? "";
 
     switch (event.kind) {
+      case "CAMPAIGN_OPENED":
+        // O diálogo lê do painel atualizado se quem vê já tem partido
+        void queryClient.refetchQueries({ queryKey: queryKeys.election() }).then(() => setCampaign(event));
+        break;
+      case "TICKETS_CLOSING":
+      case "ELECTION_EVE": {
+        const notice = calendarToast(event);
+        if (notice) {
+          toast[notice.tone](notice.title, {
+            description: notice.description,
+            action: { label: "Ver eleição", onClick: () => void navigate("/election") },
+          });
+        }
+        break;
+      }
       case "PARTY_FOUNDED":
         toast.info(`${event.actor} fundou o ${abbr}`);
         break;
@@ -141,8 +160,19 @@ export function GovernmentNotifications() {
     renew();
   });
 
+  const openShortcut = (dialog: ElectionShortcut) => {
+    setCampaign(null);
+    void navigate("/election", { state: { dialog } });
+  };
+
   return (
     <>
+      <CampaignOpenedDialog
+        notice={campaign}
+        panel={queryClient.getQueryData<ElectionPanel>(queryKeys.election())}
+        onClose={() => setCampaign(null)}
+        onShortcut={openShortcut}
+      />
       <ImpeachmentDialog panel={impeachment} onClose={() => setImpeachment(null)} />
       <RoundResultDialog
         result={shown?.result ?? null}

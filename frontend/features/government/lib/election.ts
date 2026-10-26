@@ -2,6 +2,9 @@ import { addMonths, differenceInCalendarDays, differenceInCalendarMonths } from 
 import { parseLocalDate } from "@/shared/lib/utils/display";
 import type { ElectionPhase } from "@/types";
 
+/** Os diálogos da página da eleição que um atalho de fora (o aviso da campanha) abre ao chegar. */
+export type ElectionShortcut = "found" | "join" | "contribution";
+
 /** Quantas vezes a raiz do gasto mensal divide em pontos de intenção (a cada 100 eleitores). */
 const VOTE_DIVISOR = 64;
 

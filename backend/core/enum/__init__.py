@@ -480,6 +480,9 @@ class GovernmentNoticeKind(Enum):
     """O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."""
 
     UPDATED = "UPDATED"
+    CAMPAIGN_OPENED = "CAMPAIGN_OPENED"
+    TICKETS_CLOSING = "TICKETS_CLOSING"
+    ELECTION_EVE = "ELECTION_EVE"
     PARTY_FOUNDED = "PARTY_FOUNDED"
     EXPELLED = "EXPELLED"
     VICE_INVITED = "VICE_INVITED"

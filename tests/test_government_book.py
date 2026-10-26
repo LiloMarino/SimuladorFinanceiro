@@ -29,6 +29,7 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.features.government import approval as approval_rules
 from backend.features.government import congress, election
+from backend.features.government.calendar import election_cycle
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_panel
 from backend.features.government.state import Party, replay, vote_points
@@ -246,23 +247,98 @@ def test_member_without_cash_skips_the_month(
     assert party_of(book, ALICE).points == 0
 
 
-def test_no_collection_before_the_campaign_opens(book: GovernmentBook):
+def test_no_collection_before_the_campaign_opens(
+    book: GovernmentBook, engine: PoliticalEngine
+):
     found(book, ALICE, "AAA", RED)
 
+    book.on_tick(USERS, date(2020, 8, 3), True)
     book.on_tick(USERS, date(2020, 9, 1), True)
 
     assert book.state.last_collection is None
+    assert engine.get_cash(ALICE.client_id) == Decimal(100000)
+    assert party_of(book, ALICE).points == 0
 
 
-def test_page_renews_on_the_day_the_campaign_opens(book: GovernmentBook, notices):
-    book.on_tick(USERS, date(2020, 10, 5), False)
+def test_campaign_opening_is_announced_once_and_pauses_the_game(
+    book: GovernmentBook, notices
+):
+    assert book.on_tick(USERS, date(2020, 10, 5), False) is False
     assert notices == []
 
-    book.on_tick(USERS, date(2020, 10, 7), False)
-    assert [notice["kind"] for notice in notices] == ["UPDATED"]
+    assert book.on_tick(USERS, date(2020, 10, 7), False) is True
+    assert [notice["kind"] for notice in notices] == ["CAMPAIGN_OPENED"]
+    # O aviso leva as datas que o diálogo conta: fecho das chapas e 1º turno
+    assert notices[0]["ticket_deadline"] == "2021-09-30"
+    assert notices[0]["first_round"] == "2021-10-07"
 
-    book.on_tick(USERS, date(2020, 10, 8), False)
+    assert book.on_tick(USERS, date(2020, 10, 8), False) is False
     assert len(notices) == 1
+
+
+def test_campaign_opening_on_a_weekend_is_announced_on_the_next_tick(
+    engine, stored, notices, captured_events
+):
+    rules = settings().model_dump()
+    # 1º turno numa segunda: a campanha abre num domingo
+    rules.update(first_election=date(2021, 10, 4))
+    weekend = GovernmentBook(SimulationDTO(**rules), engine, lambda *_: None, SEED)
+
+    weekend.on_tick(USERS, date(2020, 10, 1), False)
+    assert weekend.on_tick(USERS, date(2020, 10, 2), False) is False
+    assert notices == []
+    assert weekend.on_tick(USERS, date(2020, 10, 5), False) is True
+    assert [notice["kind"] for notice in notices] == ["CAMPAIGN_OPENED"]
+
+
+def test_campaign_that_opens_with_the_game_is_announced_on_the_first_day(
+    engine, stored, notices, captured_events
+):
+    rules = settings().model_dump()
+    rules.update(first_election=date(2020, 6, 1))
+    early = GovernmentBook(SimulationDTO(**rules), engine, lambda *_: None, SEED)
+
+    assert early.on_tick(USERS, date(2020, 1, 1), False) is True
+    assert [notice["kind"] for notice in notices] == ["CAMPAIGN_OPENED"]
+
+
+def test_resumed_game_does_not_repeat_the_campaign_opening(
+    engine, stored, notices, captured_events
+):
+    rules = settings().model_dump()
+    rules.update(first_election=date(2020, 6, 1))
+    resumed = GovernmentBook(SimulationDTO(**rules), engine, lambda *_: None, SEED)
+
+    assert resumed.on_tick(USERS, date(2020, 2, 3), False) is False
+    assert notices == []
+
+
+def test_reminders_come_before_the_tickets_close_and_on_the_eve_of_the_vote(
+    book: GovernmentBook, notices
+):
+    book.on_tick(USERS, date(2021, 9, 22), False)
+    assert notices == []
+
+    # Sem pausa: os lembretes são só toast
+    assert book.on_tick(USERS, date(2021, 9, 23), False) is False
+    assert [n["kind"] for n in notices] == ["TICKETS_CLOSING"]
+    assert notices[0]["ticket_deadline"] == "2021-09-30"
+
+    book.on_tick(USERS, date(2021, 9, 24), False)
+    assert len(notices) == 1
+
+    book.on_tick(USERS, date(2021, 10, 5), False)
+    assert book.on_tick(USERS, date(2021, 10, 6), False) is False
+    kinds = [n["kind"] for n in notices]
+    assert kinds == ["TICKETS_CLOSING", "UPDATED", "ELECTION_EVE"]
+    assert notices[-1]["first_round"] == "2021-10-07"
+
+
+def test_election_eve_falls_on_the_last_business_day_before_the_vote():
+    # 1º turno numa segunda-feira: a véspera é a sexta
+    cycle = election_cycle(date(2021, 10, 4), 0, date(2020, 1, 1))
+    assert cycle.first_round == date(2021, 10, 4)
+    assert cycle.eve == date(2021, 10, 1)
 
 
 def test_page_renews_on_the_day_the_tickets_close(book: GovernmentBook, notices):
@@ -277,6 +353,49 @@ def run_campaign(book: GovernmentBook) -> None:
         book.on_tick(USERS, date(2020, month, 3), True)
     for month in range(1, 10):
         book.on_tick(USERS, date(2021, month, 3), True)
+
+
+def test_no_collection_between_the_rounds(
+    book: GovernmentBook, engine: PoliticalEngine
+):
+    found(book, ALICE, "AAA", RED, "8000")
+    found(book, BOB, "BBB", BLUE, "2000")
+    run_campaign(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+    assert book.state.runoff is not None
+    cash = {u.id: engine.get_cash(u.client_id) for u in (ALICE, BOB)}
+    collected = book.state.last_collection
+
+    # Mesmo com a virada do mês entre os turnos, ninguém paga contribuição
+    book.on_tick(USERS, date(2021, 10, 15), True)
+    book.on_tick(USERS, date(2021, 10, 27), True)
+
+    assert {u.id: engine.get_cash(u.client_id) for u in (ALICE, BOB)} == cash
+    assert book.state.last_collection == collected
+
+
+def test_no_collection_after_the_result(book: GovernmentBook, engine: PoliticalEngine):
+    found(book, ALICE, "AAA", RED, "8000")
+    found(book, BOB, "BBB", BLUE, "2000")
+    run_campaign(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+    book.on_tick(USERS, RUNOFF, False)
+    assert book.state.pending_term is not None
+    cash = {u.id: engine.get_cash(u.client_id) for u in (ALICE, BOB)}
+    collected = book.state.last_collection
+
+    # Do resultado à posse e durante o mandato: a campanha seguinte só abre em 2023
+    for day in (
+        date(2021, 11, 3),
+        date(2021, 12, 1),
+        TERM_START,
+        date(2022, 2, 1),
+        date(2022, 3, 1),
+    ):
+        book.on_tick(USERS, day, True)
+
+    assert {u.id: engine.get_cash(u.client_id) for u in (ALICE, BOB)} == cash
+    assert book.state.last_collection == collected
 
 
 def test_two_rounds_end_with_the_term_starting_in_january(

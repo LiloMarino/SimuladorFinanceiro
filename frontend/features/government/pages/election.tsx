@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { MailQuestion, UserPlus, HandCoins } from "lucide-react";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -22,25 +23,29 @@ import { RankingCard } from "../components/ranking-card";
 import { TermCard } from "../components/term-card";
 import { TicketDialog } from "../components/ticket-dialog";
 import { ViceInviteDialog } from "../components/vice-invite-dialog";
+import type { ElectionShortcut } from "../lib/election";
 import { useElection } from "@/shared/hooks/queries/useElection";
 
 export default function ElectionPage() {
   usePageLabel("Eleição");
   const { data: panel, error, refetch } = useElection();
+  const location = useLocation();
+  const shortcut = (location.state as { dialog?: ElectionShortcut } | null)?.dialog;
 
   if (!panel) {
     return error ? <ElectionError onRetry={() => void refetch()} /> : <ElectionSkeleton />;
   }
 
-  return <ElectionContent panel={panel} />;
+  // Cada navegação remonta a página, e o atalho de quem chegou pelo aviso da campanha abre o diálogo
+  return <ElectionContent key={location.key} panel={panel} initialDialog={shortcut ?? null} />;
 }
 
 type Dialog = "found" | "join" | "contribution" | "ticket" | "vice" | "leave" | "donate";
 
-function ElectionContent({ panel }: { panel: ElectionPanel }) {
+function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initialDialog: Dialog | null }) {
   const { user } = useAuth();
   const { data: portfolio } = usePortfolio();
-  const [dialog, setDialog] = useState<Dialog | null>(null);
+  const [dialog, setDialog] = useState<Dialog | null>(initialDialog);
   const [joinPartyId, setJoinPartyId] = useState<number | undefined>();
   const [expelling, setExpelling] = useState<string | null>(null);
 
