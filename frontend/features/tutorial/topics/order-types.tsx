@@ -27,9 +27,9 @@ const LIMIT_INPUT = byId("order-limit");
 interface Target {
   id: string;
   finder: Finder;
-  at?: readonly [number, number];
-  click?: boolean;
-  settle?: number;
+  at?: readonly [number, number] | undefined;
+  click?: boolean | undefined;
+  settle?: number | undefined;
 }
 
 /** O que o cursor, o contorno e o marcador apontam em cada trecho; a comparação final não tem alvo. */

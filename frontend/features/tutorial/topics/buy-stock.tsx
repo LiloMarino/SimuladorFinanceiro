@@ -36,10 +36,10 @@ const SIZE = byId("order-size");
 interface Target {
   id: string;
   finder: Finder;
-  at?: readonly [number, number];
-  click?: boolean;
+  at?: readonly [number, number] | undefined;
+  click?: boolean | undefined;
   /** Espera até o alvo terminar de entrar em cena. */
-  settle?: number;
+  settle?: number | undefined;
 }
 
 /** O que o cursor, o contorno e o marcador apontam em cada trecho. */

@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Query, status
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from backend import config
 from backend.core import repository
@@ -163,6 +163,9 @@ class JoinMatchRequest(BaseModel):
 
 
 class PlayerNickname(BaseModel):
+    # Só sai em respostas: o schema de saída traz todos os campos como obrigatórios
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
     nickname: str
     # Chave da paleta (chart-1 a chart-10)
     color: str

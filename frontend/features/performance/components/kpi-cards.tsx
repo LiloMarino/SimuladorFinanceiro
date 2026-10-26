@@ -11,7 +11,7 @@ interface KpiProps {
   unit?: string;
   note?: ReactNode;
   children?: ReactNode;
-  tone?: "default" | "destructive";
+  tone?: "default" | "destructive" | undefined;
 }
 
 function Kpi({ label, value, unit, note, children, tone = "default" }: KpiProps) {

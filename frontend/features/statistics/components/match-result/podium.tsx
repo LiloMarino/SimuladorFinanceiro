@@ -8,7 +8,7 @@ import { PodiumSteps } from "./podium-steps";
 
 interface PodiumProps {
   report: OverviewReport;
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
 }
 
 /** Os três primeiros pelo critério de vitória, sobre o fundo escuro do topo. */

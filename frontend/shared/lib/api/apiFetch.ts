@@ -5,9 +5,9 @@ import ApiError, { defaultErrorMessage, NETWORK_ERROR_STATUS } from "@/shared/li
 export interface ApiFetchInit<R = unknown> {
   readonly method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   readonly body?: unknown;
-  readonly headers?: Record<string, string>;
+  readonly headers?: Record<string, string> | undefined;
   readonly responseSchema?: ZodType<R>;
-  readonly signal?: AbortSignal;
+  readonly signal?: AbortSignal | undefined;
 }
 
 /**
@@ -28,9 +28,9 @@ export async function apiFetch<R = unknown>(path: string, init: ApiFetchInit<R> 
     res = await fetch(path, {
       method,
       credentials: "include",
-      signal: requestSignal,
-      headers: isFormData ? headers : { "Content-Type": "application/json", ...(headers ?? {}) },
-      body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
+      signal: requestSignal ?? null,
+      headers: isFormData ? (headers ?? {}) : { "Content-Type": "application/json", ...(headers ?? {}) },
+      body: body === undefined ? null : isFormData ? body : JSON.stringify(body),
     });
     return await handleApiResponse<R>(res, responseSchema);
   } catch (err) {

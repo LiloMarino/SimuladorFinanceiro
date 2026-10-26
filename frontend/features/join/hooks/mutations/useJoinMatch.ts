@@ -8,7 +8,7 @@ export function useJoinMatch() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ color, team }: { color: string; team?: number }) =>
+    mutationFn: ({ color, team }: { color: string; team?: number | undefined }) =>
       apiFetch<void>("/api/simulation/join", { method: "POST", body: { color, team } }),
     onSuccess: async (_, { color }) => {
       saveColorPreference(color);

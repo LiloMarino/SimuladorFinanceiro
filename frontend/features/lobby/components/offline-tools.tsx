@@ -12,9 +12,9 @@ type Tool = {
   title: string;
   description: string;
   onClick: () => void;
-  badge?: { text: string; variant: "secondary" | "warning" | "info" };
+  badge?: { text: string; variant: "secondary" | "warning" | "info" } | undefined;
   /** Por que a ferramenta está bloqueada agora; sem isso ela abre normalmente */
-  lockedBecause?: string;
+  lockedBecause?: string | undefined;
 };
 
 /** Ferramentas de fora da partida, com contadores do que pede atenção. */

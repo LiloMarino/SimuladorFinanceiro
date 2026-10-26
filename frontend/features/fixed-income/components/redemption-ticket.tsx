@@ -318,7 +318,7 @@ function noticeFor(quote: FixedIncomeRedemptionQuote, today: string): ReactNode 
   return null;
 }
 
-function Row({ label, tone, children }: { label: string; tone?: "up" | "down"; children: ReactNode }) {
+function Row({ label, tone, children }: { label: string; tone?: "up" | "down" | undefined; children: ReactNode }) {
   return (
     <div className="flex justify-between gap-3">
       <dt className="text-muted-foreground">{label}</dt>

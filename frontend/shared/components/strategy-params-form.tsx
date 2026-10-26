@@ -27,7 +27,7 @@ type StrategyParamsFormProps = {
   /** Ação ao lado do título, como "Restaurar padrão" */
   headerAction?: ReactNode;
   /** Compara cada número com o padrão da estratégia: o que mudou fica em azul, com o aviso "Mudou" */
-  compareToDefault?: boolean;
+  compareToDefault?: boolean | undefined;
   onChange: (draft: ParamDraft) => void;
 };
 

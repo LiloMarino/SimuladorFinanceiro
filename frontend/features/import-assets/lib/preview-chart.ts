@@ -18,7 +18,7 @@ const time = (iso: string) => parseLocalDate(iso).getTime();
 export function previewChartData(series: PreviewSeries): PreviewChartData {
   const real: PreviewRow[] = series.real.map((p) => ({ time: time(p.date), real: p.value }));
   const lastReal = real.at(-1);
-  const bridge: PreviewRow[] = lastReal ? [{ ...lastReal, generated: lastReal.real }] : [];
+  const bridge: PreviewRow[] = lastReal?.real === undefined ? [] : [{ ...lastReal, generated: lastReal.real }];
   const generated: PreviewRow[] = series.generated.map((p) => ({ time: time(p.date), generated: p.value }));
   const rows = [...real.slice(0, -1), ...bridge, ...generated];
   return { rows, lastRealTime: lastReal?.time ?? null, lastTime: rows.at(-1)?.time ?? 0 };

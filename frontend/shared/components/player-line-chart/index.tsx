@@ -15,9 +15,9 @@ interface PlayerLineChartProps {
   axisFormat: (value: number) => string;
   axis?: ChartAxis;
   /** Rótulo do eixo X; o padrão é "abr/22" para datas e "12º" para o número do pregão */
-  xTickFormat?: (x: number) => string;
+  xTickFormat?: ((x: number) => string) | undefined;
   /** Posições fixas das marcas do eixo X, no lugar das automáticas */
-  xTicks?: number[];
+  xTicks?: number[] | undefined;
   /** O que aparece quando nenhuma série tem ponto */
   emptyMessage?: string;
 }
@@ -88,7 +88,7 @@ export function PlayerLineChart({
               tickFormatter={(v: number) =>
                 xTickFormat ? xTickFormat(v) : axis === "date" ? displayShortMonthYear(new Date(v)) : `${v}º`
               }
-              ticks={dateTicks}
+              {...(dateTicks ? { ticks: dateTicks } : {})}
               minTickGap={56}
               tick={{ fontSize: 11, fill: "var(--faint-foreground)" }}
               axisLine={false}
@@ -133,7 +133,7 @@ export function PlayerLineChart({
                 stroke={s.color}
                 strokeOpacity={s.muted ? 0.35 : 1}
                 strokeWidth={s.emphasis ? 2.5 : 1.5}
-                strokeDasharray={s.dashed ? "6 4" : s.dotted ? "2 3" : undefined}
+                strokeDasharray={s.dashed ? "6 4" : s.dotted ? "2 3" : "none"}
                 dot={false}
                 connectNulls
                 hide={!visible[s.key]}

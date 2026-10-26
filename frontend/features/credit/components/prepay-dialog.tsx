@@ -33,7 +33,7 @@ type PrepayDialogProps = {
   /** Abre em "Amortizar uma parte" ou em "Quitar tudo" */
   initialChoice: PrepayChoice;
   /** Valor já preenchido, em reais (vem das sugestões de nota) */
-  initialAmount?: string;
+  initialAmount?: string | undefined;
 };
 
 /** "Pagar antes": amortiza uma parte (encurta o prazo ou reduz a parcela) ou quita o empréstimo. */

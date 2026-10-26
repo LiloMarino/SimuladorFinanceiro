@@ -359,7 +359,7 @@ interface ParamFieldProps {
   unit?: string;
   value: number;
   limits: Limits;
-  step?: number;
+  step?: number | undefined;
   onCommit: (value: number) => void;
 }
 
@@ -376,7 +376,7 @@ function ParamField({ label, unit, value, limits, step, onCommit }: ParamFieldPr
 interface NumberInputProps {
   value: number;
   limits: Limits;
-  step?: number;
+  step?: number | undefined;
   label: string;
   onCommit: (value: number) => void;
 }

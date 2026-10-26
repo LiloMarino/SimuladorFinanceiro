@@ -265,7 +265,7 @@ export function LobbyMatch({
   const savedRulesForm = useForm<SimulationFormValues>({
     resolver: zodResolver(simulationFormSchema),
     defaultValues: values,
-    values: selectedSimulation ? rules : undefined,
+    ...(selectedSimulation ? { values: rules } : {}),
   });
   const loadingSelection = selectedSimulationId !== null && !selectedSimulation && listPending;
   const rulesImpactMode = priceImpactModeOf(rules.priceImpactEnabled, rules.priceImpactK, rules.priceImpactDecayDays);

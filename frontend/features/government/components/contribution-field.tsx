@@ -14,7 +14,7 @@ type ContributionFieldProps = {
   onChange: (value: string) => void;
   /** Explicação sob o campo; some quando há erro */
   note: ReactNode;
-  error?: string | null;
+  error?: string | null | undefined;
 };
 
 /** "Sua contribuição mensal": campo de valor, atalhos e a nota de como o dinheiro sai. */

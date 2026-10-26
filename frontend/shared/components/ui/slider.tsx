@@ -68,8 +68,8 @@ function RangeBar({
   disabled,
   span,
 }: {
-  onDrag?: (drag: RangeBarDrag) => void;
-  disabled?: boolean;
+  onDrag?: ((drag: RangeBarDrag) => void) | undefined;
+  disabled?: boolean | undefined;
   span: number;
 }) {
   const gesture = useRef<{ originX: number; pxPerStep: number } | null>(null);

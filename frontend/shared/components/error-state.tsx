@@ -13,8 +13,8 @@ import type ApiError from "@/shared/lib/models/ApiError";
 interface ErrorStateProps {
   title: string;
   description: string;
-  error?: ApiError | null;
-  onRetry?: () => void;
+  error?: ApiError | null | undefined;
+  onRetry?: (() => void) | undefined;
   children?: React.ReactNode;
 }
 

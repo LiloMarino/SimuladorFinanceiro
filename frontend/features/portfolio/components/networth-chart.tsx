@@ -23,7 +23,7 @@ const BANDS = [
 
 type ChartPoint = PortfolioHistoryPoint & {
   /** Meta vigente no dia: reta na corrida, em degraus no viver de renda; ausente fora da corrida */
-  goal?: number;
+  goal?: number | undefined;
 };
 
 // A API entrega os valores em string decimal; o gráfico e as contas leem sempre via num
@@ -45,7 +45,13 @@ const displayThousands = (value: number) => {
 };
 
 /** Evolução da carteira: uma faixa por classe e, por cima, a linha tracejada do que foi aportado. */
-export function NetworthChart({ history, goalSteps }: { history: PortfolioHistoryPoint[]; goalSteps?: SeriesPoint[] }) {
+export function NetworthChart({
+  history,
+  goalSteps,
+}: {
+  history: PortfolioHistoryPoint[];
+  goalSteps?: SeriesPoint[] | undefined;
+}) {
   const data: ChartPoint[] = history.map((p) => ({ ...p, goal: goalAt(goalSteps ?? [], p.snapshot_date) }));
   const last = data.at(-1);
   const hasGoal = data.some((p) => p.goal !== undefined);

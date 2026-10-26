@@ -10,7 +10,7 @@ type BotNameFieldProps = {
   onBlur?: () => void;
   /** Sorteia outro nome da lista da estratégia */
   onDraw: () => void;
-  error?: { message?: string };
+  error?: { message?: string } | undefined;
   help?: string;
 };
 

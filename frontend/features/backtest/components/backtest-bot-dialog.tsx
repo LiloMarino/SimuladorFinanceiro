@@ -9,7 +9,7 @@ type BacktestBotDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** A estratégia a configurar; sem ela, o diálogo adiciona uma */
-  participant?: BotFormValues;
+  participant?: BotFormValues | undefined;
   /** As outras estratégias do backtest: ocupam nome e cor */
   others: BotFormValues[];
   startDate: string;

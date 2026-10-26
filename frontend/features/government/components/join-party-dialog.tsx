@@ -25,7 +25,7 @@ type JoinPartyDialogProps = {
   onOpenChange: (open: boolean) => void;
   /** Os partidos de jogadores: o do computador não aceita filiação */
   parties: ElectionParty[];
-  initialPartyId?: number;
+  initialPartyId?: number | undefined;
   cash: string | undefined;
 };
 

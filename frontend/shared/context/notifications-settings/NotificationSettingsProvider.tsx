@@ -25,7 +25,7 @@ export function NotificationSettingsProvider({ children }: PropsWithChildren) {
 
   const updatePreferences = useCallback(
     (next: NotificationPreferences, options?: { onError?: (err: ApiError) => void }) => {
-      updateMutation.mutate(next, { onError: options?.onError });
+      updateMutation.mutate(next, options?.onError ? { onError: options.onError } : {});
     },
     [updateMutation],
   );

@@ -14,7 +14,7 @@ type BotIdentityProps = {
   label: string;
   simulationIds: number[];
   /** Abre o registro das ordens do bot; sem ele, o cartão só informa */
-  onOpenLog?: (bot: PlayerRef) => void;
+  onOpenLog?: ((bot: PlayerRef) => void) | undefined;
 };
 
 /** O bot na tabela: avatar de robô, o nome (que abre o cartão dele), o selo "Bot" e a estratégia embaixo. */
@@ -56,7 +56,7 @@ export function BotIdentity({ player, label, simulationIds, onOpenLog }: BotIden
 type BotCardProps = {
   player: PlayerRef;
   report: BotReport | undefined;
-  onOpenLog?: (bot: PlayerRef) => void;
+  onOpenLog?: ((bot: PlayerRef) => void) | undefined;
 };
 
 /** O cartão do bot: quem o pôs na sala, a estratégia com os parâmetros e o log das ordens, que só abre no fim. */

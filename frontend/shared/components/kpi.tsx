@@ -6,7 +6,7 @@ type KpiProps = {
   value: ReactNode;
   /** Linha de apoio embaixo do valor */
   note?: ReactNode;
-  tone?: "default" | "success" | "destructive";
+  tone?: "default" | "success" | "destructive" | undefined;
   className?: string;
 };
 

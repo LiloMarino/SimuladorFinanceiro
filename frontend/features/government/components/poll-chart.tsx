@@ -92,7 +92,7 @@ export function PollChart({ panel, height = 220 }: PollChartProps) {
             type="linear"
             stroke={party.color ?? "var(--muted-foreground)"}
             strokeWidth={2}
-            strokeDasharray={party.is_computer ? "5 4" : undefined}
+            strokeDasharray={party.is_computer ? "5 4" : "none"}
             dot={false}
             connectNulls
             isAnimationActive={false}

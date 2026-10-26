@@ -367,7 +367,7 @@ function Row({
   label: string;
   value: string;
   strong?: boolean;
-  tone?: "positive" | "negative";
+  tone?: "positive" | "negative" | undefined;
 }) {
   const color = tone === "positive" ? "text-success" : tone === "negative" ? "text-destructive" : "";
   return (

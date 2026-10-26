@@ -30,9 +30,9 @@ import { BotIdentity } from "./bot-identity";
 
 export interface ReportProps {
   simulationIds: number[];
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
   /** Mostra só as linhas deste jogador */
-  onlyPlayer?: string;
+  onlyPlayer?: string | undefined;
 }
 
 /** Aba sem dados: esqueleto enquanto carrega; com erro, só ela falha e oferece tentar de novo. */
@@ -45,8 +45,8 @@ export function TabStatus({
 }: {
   loading: boolean;
   title: string;
-  error?: ApiError | null;
-  onRetry?: () => void;
+  error?: ApiError | null | undefined;
+  onRetry?: (() => void) | undefined;
   /** Com a partida em equipes, o esqueleto tem o formato equipe → membros */
   simulationIds?: number[];
 }) {
@@ -105,7 +105,7 @@ export function ChartCard({
   children,
 }: {
   metric: MetricInfo;
-  description?: string;
+  description?: string | undefined;
   action?: ReactNode;
   children: ReactNode;
 }) {
@@ -148,7 +148,7 @@ export function PlayerCell({
   /** Parcela de crédito em atraso: o selo "Negativado" aparece ao lado do nome */
   delinquent?: boolean;
   /** Abre o log das ordens do bot; sem ele, o cartão do bot só informa */
-  onOpenBotLog?: (bot: PlayerRef) => void;
+  onOpenBotLog?: ((bot: PlayerRef) => void) | undefined;
 }) {
   if (player.is_bot) {
     return <BotIdentity player={player} label={label} simulationIds={simulationIds} onOpenLog={onOpenBotLog} />;
@@ -237,15 +237,15 @@ interface TeamGroups<G> {
 
 interface MetricsTableProps<T extends PlayerRef, G extends { team: number } = never> {
   title: string;
-  description?: string;
+  description?: string | undefined;
   rows: T[];
   columns: MetricColumn<T, G>[];
   simulationIds: number[];
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
   extraColumn?: { header: ReactNode; cell: (row: T) => ReactNode; teamCell?: (team: G, members: T[]) => ReactNode };
   footer?: ReactNode;
   /** Partida em equipes: as linhas se agrupam por equipe, com a da equipe no topo de cada grupo */
-  groups?: TeamGroups<G>;
+  groups?: TeamGroups<G> | undefined;
 }
 
 /** Uma linha por jogador e uma coluna por métrica, cada uma com a sua dica; o melhor da sala em verde. */

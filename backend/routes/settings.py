@@ -39,6 +39,9 @@ class SettingsResponse(SettingsRequest):
 
     debug: bool
 
+    # A resposta sempre traz todas as preferências: o schema de saída as marca como obrigatórias
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
 
 DEFAULT_SETTINGS = SettingsRequest(
     orders=OrderNotificationSettings(

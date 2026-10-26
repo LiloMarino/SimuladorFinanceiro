@@ -256,7 +256,7 @@ function VolumeHeatmap({
   naming: TeamNaming;
   teams: TeamOperations[];
   simulationIds: number[];
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
 }) {
   const months = [...new Set(players.flatMap((p) => p.monthly_volume.map((m) => m.month)))].sort();
   const volumeOf = (m: OperationsPlayer["monthly_volume"][number]) => Number(m.bought) + Number(m.sold);

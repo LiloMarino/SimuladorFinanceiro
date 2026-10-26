@@ -19,7 +19,7 @@ export type BotFormValues = {
 export type BotSource = {
   nickname: string;
   color: string;
-  team?: number | null;
+  team?: number | null | undefined;
   strategyKey: string;
   params: ParamValues;
 };

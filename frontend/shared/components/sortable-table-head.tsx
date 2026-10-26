@@ -6,7 +6,7 @@ import type { SortDirection } from "@/shared/lib/table-sort";
 
 type Props = ComponentProps<typeof TableHead> & {
   label: string;
-  direction?: SortDirection;
+  direction?: SortDirection | undefined;
   onSort: () => void;
   hint?: ReactNode;
 };

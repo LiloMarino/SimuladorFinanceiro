@@ -3,7 +3,7 @@ import { PageLabelContext } from "./PageLabelContext";
 
 interface PageLabelProviderProps {
   children: ReactNode;
-  routeLabels?: Record<string, string>;
+  routeLabels?: Record<string, string> | undefined;
 }
 
 export function PageLabelProvider({ children, routeLabels }: PageLabelProviderProps) {

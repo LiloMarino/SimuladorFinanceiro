@@ -23,7 +23,7 @@ type LobbyTeamPickerProps = {
   savedPlayers: RoomPlayer[];
   naming: TeamNaming;
   /** Nome da partida salva selecionada, quando há */
-  simulationName?: string;
+  simulationName?: string | undefined;
 };
 
 /** "Sua equipe na partida": 10 equipes com os membros; a vazia abre uma nova. */

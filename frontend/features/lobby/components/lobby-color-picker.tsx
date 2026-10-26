@@ -22,7 +22,7 @@ type LobbyColorPickerProps = {
   /** Quem jogou a partida salva selecionada: as cores deles ficam reservadas */
   savedPlayers: RoomPlayer[];
   /** Nome da partida salva selecionada, quando há */
-  simulationName?: string;
+  simulationName?: string | undefined;
 };
 
 /** "Sua cor na partida": 10 cores, as que já têm dono ficam apagadas com a sigla de quem as tem. */

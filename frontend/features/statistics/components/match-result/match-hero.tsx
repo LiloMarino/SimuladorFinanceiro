@@ -108,7 +108,13 @@ function teamHeadline(report: OverviewReport, first: TeamRanking, second: TeamRa
 }
 
 /** O que a frase do topo diz da sua equipe, do empate e de quem ficou fora da média. */
-function TeamSummary({ report, currentPlayerName }: { report: OverviewReport; currentPlayerName?: string }) {
+function TeamSummary({
+  report,
+  currentPlayerName,
+}: {
+  report: OverviewReport;
+  currentPlayerName?: string | undefined;
+}) {
   const { teams, team_naming: naming, goal_net_worth } = report;
   const criterion = rankingMeasure(report);
   const [first, second] = teams;
@@ -222,7 +228,7 @@ function GoalSummary({
   reached: boolean;
   /** Partida só com você: não há outro a quem ganhar ou perder */
   solo: boolean;
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
 }) {
   const { goal_net_worth: goal, teams } = report;
   const inTeams = teams.length > 0;
@@ -294,7 +300,7 @@ const displayGoalPercentOf = (fraction: string | null) =>
 interface MatchHeroProps {
   report: OverviewReport;
   simulation: SimulationListItem | undefined;
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
 }
 
 /** Topo do fim de partida: quem venceu, por qual critério, onde você ficou e o pódio. */

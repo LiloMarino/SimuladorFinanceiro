@@ -11,7 +11,13 @@ import { SCORE_AXES } from "../../lib/metrics";
 import { membersOf } from "../../lib/teams";
 
 /** Um cartão por equipe com quem mais puxou a média dela e quanto cada membro puxou, para cima ou para baixo. */
-export function TeamPullers({ report, currentPlayerName }: { report: OverviewReport; currentPlayerName?: string }) {
+export function TeamPullers({
+  report,
+  currentPlayerName,
+}: {
+  report: OverviewReport;
+  currentPlayerName?: string | undefined;
+}) {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {report.teams.map((team) => (
@@ -28,7 +34,7 @@ function TeamPullerCard({
 }: {
   report: OverviewReport;
   team: Team;
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
 }) {
   const { team_naming: naming } = report;
   const criterion = rankingMeasure(report);

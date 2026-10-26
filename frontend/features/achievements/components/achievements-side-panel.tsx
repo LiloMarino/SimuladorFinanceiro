@@ -9,7 +9,7 @@ const NEAR_LIMIT = 3;
 type AchievementsSidePanelProps = {
   achievements: Achievement[];
   /** A partida em andamento; fora dela não há "nesta partida" */
-  currentSimulationId?: number;
+  currentSimulationId?: number | undefined;
 };
 
 /** Resumo ao lado da lista: o total, as três bloqueadas mais perto de sair e o placar por categoria. */

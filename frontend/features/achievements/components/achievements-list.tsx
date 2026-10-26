@@ -20,11 +20,11 @@ type Tab = "all" | "unlocked" | "locked";
 
 type AchievementsListProps = {
   /** Ausente enquanto a lista carrega ou quando ela falhou: as abas aparecem zeradas e apagadas */
-  achievements?: Achievement[];
-  error?: ApiError | null;
+  achievements?: Achievement[] | undefined;
+  error?: ApiError | null | undefined;
   onRetry: () => void;
   /** Nick do host, quando quem vê a tela é convidado na sala dele */
-  guestOf?: string;
+  guestOf?: string | undefined;
   /** Só com a partida em andamento há para onde levar o primeiro passo */
   canPlay: boolean;
 };

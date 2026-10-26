@@ -171,7 +171,7 @@ function RiskReturn({
   teams: TeamRisk[];
   naming: TeamNaming;
   cdiReturn: string | null;
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
   simulationIds: number[];
   colorOf: (label: string) => string;
 }) {
@@ -338,7 +338,11 @@ function RiskReturn({
                   <Scatter
                     data={points}
                     isAnimationActive={false}
-                    shape={(props: { cx?: number; cy?: number; payload?: (typeof points)[number] }) => (
+                    shape={(props: {
+                      cx?: number | undefined;
+                      cy?: number | undefined;
+                      payload?: (typeof points)[number];
+                    }) => (
                       // Você em destaque: ponto maior com borda branca
                       <circle
                         cx={props.cx}
@@ -376,7 +380,11 @@ function RiskReturn({
                     <Scatter
                       data={teamPoints}
                       isAnimationActive={false}
-                      shape={(props: { cx?: number; cy?: number; payload?: (typeof teamPoints)[number] }) => (
+                      shape={(props: {
+                        cx?: number | undefined;
+                        cy?: number | undefined;
+                        payload?: (typeof teamPoints)[number];
+                      }) => (
                         <rect
                           x={(props.cx ?? 0) - 7}
                           y={(props.cy ?? 0) - 7}

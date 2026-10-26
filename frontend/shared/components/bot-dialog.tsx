@@ -51,7 +51,7 @@ type BotDialogProps = {
   /** Os valores do formulário, resolvidos com a lista de estratégias já carregada */
   initial: (strategies: StrategyInfo[]) => BotFormValues;
   /** Parâmetros salvos do bot em edição, para o "Era X" */
-  saved?: { strategyKey: string; params: ParamValues };
+  saved?: { strategyKey: string; params: ParamValues } | undefined;
   nameTakenMessage: string;
   nameHelp: string;
   submitLabel: string;
@@ -60,7 +60,7 @@ type BotDialogProps = {
   /** Campos a mais depois da cor, como a equipe da sala */
   extraFields?: (form: UseFormReturn<BotFormValues>, others: TakenSlot[]) => ReactNode;
   /** Compara os parâmetros com o padrão da estratégia, em vez de com o salvo */
-  compareToDefault?: boolean;
+  compareToDefault?: boolean | undefined;
   /** Os dados que chegam por fora do diálogo (a sala, as regras) ainda carregam */
   loading?: boolean;
   onSubmit: (bot: BotSubmit, controls: BotSubmitControls) => void;

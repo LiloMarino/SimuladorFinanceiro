@@ -532,7 +532,7 @@ function SidebarMenuBadge({
   className,
   tone = "default",
   ...props
-}: React.ComponentProps<"div"> & { tone?: "default" | "warning" | "plain" | "primary" }) {
+}: React.ComponentProps<"div"> & { tone?: "default" | "warning" | "plain" | "primary" | undefined }) {
   return (
     <div
       data-slot="sidebar-menu-badge"

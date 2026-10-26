@@ -11,7 +11,7 @@ type ProgressProps = ProgressPrimitive.Root.Props &
     /** Tom do preenchimento; o padrão acompanha o tom da trilha */
     indicatorTone?: VariantProps<typeof progressIndicatorVariants>["tone"];
     /** Cor própria do preenchimento (valor CSS), para barras na cor de um jogador */
-    color?: string;
+    color?: string | undefined;
     /** `ProgressMarker`s e `ProgressEndMark`, desenhados sobre a trilha da variante `markers` */
     markers?: ReactNode;
   };
@@ -67,7 +67,7 @@ function ProgressIndicator({
   style,
   ...props
 }: Omit<ProgressPrimitive.Indicator.Props, "style"> &
-  VariantProps<typeof progressIndicatorVariants> & { color?: string; style?: CSSProperties }) {
+  VariantProps<typeof progressIndicatorVariants> & { color?: string | undefined; style?: CSSProperties }) {
   return (
     <ProgressPrimitive.Indicator
       data-slot="progress-indicator"

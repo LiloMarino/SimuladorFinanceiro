@@ -9,7 +9,7 @@ type CoverageAlertsProps = {
   check: CoverageCheck;
   startDate: string;
   /** Abre as regras para trocar a data; só o host tem essa saída */
-  onChangeDate?: () => void;
+  onChangeDate?: (() => void) | undefined;
 };
 
 // O aviso cita até 3 códigos; o resto vira "e mais N" e a lista completa fica na Central

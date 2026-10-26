@@ -66,13 +66,13 @@ interface CursorProps {
   /** Identifica o alvo: o cursor volta a medir quando ele muda. */
   id: string;
   /** Ponto do alvo em que o cursor para, como fração da largura e da altura. */
-  at?: readonly [number, number];
+  at?: readonly [number, number] | undefined;
   /** Pulso de clique ao chegar. */
-  click?: boolean;
+  click?: boolean | undefined;
   /** De onde o cursor parte antes do primeiro alvo. */
   start: { x: number; y: number };
   /** Espera até o alvo terminar de entrar em cena, em ms. */
-  settle?: number;
+  settle?: number | undefined;
 }
 
 /** Cursor do exemplo: desliza até o alvo medido no DOM real do palco. */
@@ -114,7 +114,7 @@ interface HighlightProps {
   finder: Finder | null;
   id: string;
   className?: string;
-  settle?: number;
+  settle?: number | undefined;
 }
 
 /** Contorno azul no alvo: faz o papel do foco e do mouse em cima, que o palco sem interação não tem. */
@@ -137,7 +137,7 @@ interface StepMarkerProps {
   id: string;
   /** Número do passo do texto, a partir de 1. */
   step: number;
-  settle?: number;
+  settle?: number | undefined;
 }
 
 /** Marcador numerado à esquerda do alvo: diz a que passo do texto a cena corresponde. */

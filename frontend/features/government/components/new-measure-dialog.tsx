@@ -53,7 +53,7 @@ type NewMeasureDialogProps = {
   onOpenChange: (open: boolean) => void;
   panel: GovernmentPanel;
   /** O imposto que "Mudar" pré-seleciona; sem ele a medida nasce no primeiro imposto sem pendência */
-  initialKind?: MeasureKind;
+  initialKind?: MeasureKind | undefined;
 };
 
 /** Propor uma medida ao Congresso: um imposto geral ou a regra de um setor ou segmento. */
@@ -73,7 +73,7 @@ export function NewMeasureDialog({ open, onOpenChange, panel, initialKind }: New
 
 type MeasureFormProps = {
   panel: GovernmentPanel;
-  initialKind?: MeasureKind;
+  initialKind?: MeasureKind | undefined;
   onClose: () => void;
 };
 

@@ -43,7 +43,17 @@ function TableRow({
   onActivate,
   ...props
 }: React.ComponentProps<"tr"> & {
-  variant?: "default" | "group" | "warning" | "editing" | "current" | "subtle" | "team" | "member" | "highlight";
+  variant?:
+    | "default"
+    | "group"
+    | "warning"
+    | "editing"
+    | "current"
+    | "subtle"
+    | "team"
+    | "member"
+    | "highlight"
+    | undefined;
   onActivate?: () => void;
 }) {
   return (
@@ -76,8 +86,8 @@ function TableHead({
   variant = "default",
   ...props
 }: React.ComponentProps<"th"> & {
-  numeric?: boolean;
-  variant?: "default" | "compact" | "matrix" | "hint";
+  numeric?: boolean | undefined;
+  variant?: "default" | "compact" | "matrix" | "hint" | undefined;
 }) {
   return (
     <th
@@ -108,9 +118,9 @@ function TableCell({
   tone,
   ...props
 }: React.ComponentProps<"td"> & {
-  numeric?: boolean;
-  variant?: "default" | "group" | "note";
-  tone?: "warning" | "success";
+  numeric?: boolean | undefined;
+  variant?: "default" | "group" | "note" | undefined;
+  tone?: "warning" | "success" | undefined;
 }) {
   return (
     <td

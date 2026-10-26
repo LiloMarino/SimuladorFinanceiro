@@ -263,7 +263,7 @@ function SectorExposure({
   groups: Groups;
   naming: TeamNaming;
   simulationIds: number[];
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
 }) {
   const sectors = [...new Set(players.flatMap((p) => p.sectors.map((s) => s.sector ?? NO_SECTOR)))].sort((a, b) =>
     a === NO_SECTOR ? 1 : b === NO_SECTOR ? -1 : a.localeCompare(b),
@@ -385,7 +385,7 @@ function SectorProfit({
   groups: Groups;
   naming: TeamNaming;
   simulationIds: number[];
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
 }) {
   const scale = Math.max(...players.flatMap((p) => p.sector_profit.map((s) => Math.abs(Number(s.profit)))), 1);
 

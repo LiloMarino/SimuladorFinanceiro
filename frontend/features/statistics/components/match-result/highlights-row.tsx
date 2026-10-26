@@ -21,12 +21,12 @@ interface HighlightProps {
   label: string;
   metric?: MetricInfo;
   value: ReactNode;
-  tone?: "positive" | "negative";
+  tone?: "positive" | "negative" | undefined;
   player: string | undefined;
   color: string | undefined;
-  bot?: boolean;
+  bot?: boolean | undefined;
   /** Equipe de quem lidera, quando a partida é em equipes: o escudo vai ao lado do nome */
-  team?: { index: number | null | undefined; naming: TeamNaming };
+  team?: { index: number | null | undefined; naming: TeamNaming } | undefined;
 }
 
 function Highlight({ label, metric, value, tone, player, color, bot, team }: HighlightProps) {
@@ -70,12 +70,12 @@ function toneOf(value: string | undefined) {
 
 interface HighlightsRowProps {
   simulationId: number;
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
   /** Cor de quem está vendo, para o "seu melhor mês" */
-  currentPlayerColor?: string;
+  currentPlayerColor?: string | undefined;
   /** Equipe de cada jogador (por apelido) e como as equipes se chamam; vazio fora do modo em equipes */
-  teamOf?: (nickname: string | undefined) => number | null | undefined;
-  teamNaming?: TeamNaming;
+  teamOf?: ((nickname: string | undefined) => number | null | undefined) | undefined;
+  teamNaming?: TeamNaming | undefined;
 }
 
 /** Quem foi melhor em quê na partida, e o seu melhor mês. */

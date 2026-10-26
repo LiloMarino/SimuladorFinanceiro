@@ -19,5 +19,5 @@ export interface LineSeries {
   /** Séries do mesmo grupo dividem uma só entrada da legenda (ex.: "Outras equipes · média") */
   legendGroup?: { key: string; label: string };
   /** Equipe do jogador: o escudo dela aparece na legenda */
-  team?: { index: number | null; naming: TeamNaming };
+  team?: { index: number | null; naming: TeamNaming } | undefined;
 }

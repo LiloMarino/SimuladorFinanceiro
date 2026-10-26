@@ -51,7 +51,7 @@ export default function AchievementsPage() {
 
 type LoadedPanelProps = {
   achievements: Achievement[];
-  currentSimulationId?: number;
+  currentSimulationId?: number | undefined;
 };
 
 /** Painel com a lista já resolvida; abrir a tela é o que marca as conquistas como vistas. */

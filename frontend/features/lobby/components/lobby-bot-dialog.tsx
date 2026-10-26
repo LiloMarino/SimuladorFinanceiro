@@ -16,7 +16,7 @@ type LobbyBotDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** O bot a configurar; sem ele, o diálogo adiciona um */
-  bot?: RoomPlayer;
+  bot?: RoomPlayer | undefined;
   grouping: PlayerGrouping;
   naming: TeamNaming;
 };

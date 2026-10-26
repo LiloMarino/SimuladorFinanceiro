@@ -16,7 +16,17 @@ const YOUR_CRITERION: Record<RankingMeasure, string> = {
   SHARPE: "Seu Sharpe",
 };
 
-function Figure({ label, value, detail, tone }: { label: string; value: string; detail?: string; tone?: "negative" }) {
+function Figure({
+  label,
+  value,
+  detail,
+  tone,
+}: {
+  label: string;
+  value: string;
+  detail?: string | undefined;
+  tone?: "negative" | undefined;
+}) {
   return (
     <div className="grid gap-0.5">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
@@ -32,7 +42,7 @@ const withoutUnit = (value: string) => value.replace(/ pts$/, "");
 interface SummaryProps {
   simulationIds: number[];
   simulationId: number;
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
 }
 
 /** Uma partida escolhida: o critério dela, onde você ficou e quem venceu. */
@@ -101,7 +111,7 @@ function SimulationSummary({ simulationIds, simulationId, currentPlayerName }: S
 
 interface SimulationSummariesProps {
   simulationIds: number[];
-  currentPlayerName?: string;
+  currentPlayerName?: string | undefined;
 }
 
 /** O topo da comparação: um resumo por partida. O "você contra você" fecha a aba Geral. */

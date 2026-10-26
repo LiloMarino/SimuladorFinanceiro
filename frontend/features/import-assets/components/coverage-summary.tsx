@@ -12,7 +12,7 @@ type Stat = {
   label: string;
   value: ReactNode;
   detail: ReactNode;
-  variant?: "warning";
+  variant?: "warning" | undefined;
 };
 
 type CoverageSummaryProps = {
@@ -123,7 +123,7 @@ export function CoverageSummary({ series, future, onGenerate }: CoverageSummaryP
   return (
     <div className={cn("grid gap-3", future ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-3")}>
       {stats.map((stat) => (
-        <Card key={stat.label} size="sm" variant={stat.variant}>
+        <Card key={stat.label} size="sm" variant={stat.variant ?? "default"}>
           <CardContent>
             <div className="grid gap-1">
               <span className="text-xs font-medium text-muted-foreground">{stat.label}</span>

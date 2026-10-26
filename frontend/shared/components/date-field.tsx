@@ -27,7 +27,7 @@ type DateFieldProps = {
   /** Mostra o atalho "Hoje" dentro do campo */
   todayChip?: boolean;
   /** Até onde há dado real e futuro gerado: o calendário pinta o futuro e explica a cor */
-  dataEnds?: { realEnd?: string; generatedEnd?: string };
+  dataEnds?: { realEnd?: string | undefined; generatedEnd?: string | undefined };
   /** Período da partida, destacado no calendário */
   period?: { start: string; end: string } | null;
 };
@@ -100,8 +100,7 @@ export function DateField({
               captionLayout="dropdown"
               startMonth={CALENDAR_START}
               endMonth={CALENDAR_END}
-              defaultMonth={selected}
-              selected={selected}
+              {...(selected ? { defaultMonth: selected, selected } : {})}
               onSelect={(day) => {
                 if (day) pick(toIso(day));
               }}

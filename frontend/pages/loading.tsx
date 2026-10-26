@@ -7,10 +7,10 @@ import { cn } from "@/shared/lib/utils";
 const SLOW_AFTER_MS = 10_000;
 
 type LoadingPageProps = {
-  variant?: "page" | "fullscreen";
+  variant?: "page" | "fullscreen" | undefined;
   /** A conexão já falhou: mostra a explicação sem esperar */
   failed?: boolean;
-  onRetry?: () => void;
+  onRetry?: (() => void) | undefined;
   className?: string;
 };
 
@@ -28,7 +28,7 @@ export function LoadingPage({ variant = "page", failed = false, onRetry, classNa
   return <ConnectingScreen failed={failed} onRetry={onRetry} />;
 }
 
-function ConnectingScreen({ failed, onRetry }: { failed: boolean; onRetry?: () => void }) {
+function ConnectingScreen({ failed, onRetry }: { failed: boolean; onRetry?: (() => void) | undefined }) {
   const [slow, setSlow] = useState(false);
 
   useEffect(() => {

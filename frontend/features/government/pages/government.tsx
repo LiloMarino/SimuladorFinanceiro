@@ -24,7 +24,7 @@ export default function GovernmentPage() {
   return <GovernmentContent panel={panel} />;
 }
 
-type Proposal = { kind?: MeasureKind };
+type Proposal = { kind?: MeasureKind | undefined };
 
 function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
   const [proposal, setProposal] = useState<Proposal | null>(null);

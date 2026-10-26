@@ -5661,9 +5661,9 @@ export interface components {
             /** Color */
             color: string;
             /** Team */
-            team?: number | null;
-            activity?: components["schemas"]["PlayerActivity"] | null;
-            bot?: components["schemas"]["RoomBotDTO"] | null;
+            team: number | null;
+            activity: components["schemas"]["PlayerActivity"] | null;
+            bot: components["schemas"]["RoomBotDTO"] | null;
         };
         /** PlayerNotificationSettings */
         PlayerNotificationSettings: {

@@ -318,9 +318,9 @@ function Ranking({
   simulationIds: number[];
   /** Título, descrição e ação próprios, quando o ranking é uma das visões de outro cartão */
   title?: string;
-  description?: string;
+  description?: string | undefined;
   action?: React.ReactNode;
-  onOpenBotLog?: (bot: PlayerRef) => void;
+  onOpenBotLog?: ((bot: PlayerRef) => void) | undefined;
 }) {
   const [onlyPeople, setOnlyPeople] = useState(false);
   const hasBots = report.players.some((p) => p.is_bot);
