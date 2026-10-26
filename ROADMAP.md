@@ -55,9 +55,9 @@
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — |
 | **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F127](#f127) | — |
-| **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | [F156](#f156) | — |
+| **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — |
 | **N39** | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | — |
-| **N40** | Jogar partidas longas e na velocidade máxima sem a tela travar | [F156](#f156) | — |
+| **N40** | Jogar partidas longas e na velocidade máxima sem a tela travar | — | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
@@ -113,7 +113,6 @@
 | [**F152**](#f152) | Promessas de campanha em texto | — | 🔍 |
 | [**F153**](#f153) | Congresso eleito, com bancadas | — | 🔍 |
 | [**F154**](#f154) | Negociar apoio com as bancadas | — | 🔍 |
-| [**F156**](#f156) | Estatísticas rápidas em partida longa | — | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
 
@@ -182,7 +181,6 @@
 | [**F145**](#f145) | Convite de vice para qualquer jogador | M17 | 0 | ⏳ |
 | [**F151**](#f151) | Segundo turno com disputa | M17 | 0 | 🔍 |
 | [**F152**](#f152) | Promessas de campanha em texto | M17 | 0 | 🔍 |
-| [**F156**](#f156) | Estatísticas rápidas em partida longa | M16 | 0 | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
 
@@ -278,11 +276,10 @@
 >
 > **Serve:** N4, N8, N15, N33, N34, N40
 >
-> **Progresso:** 0/2 concluídas
+> **Progresso:** 0/1 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F156**](#f156) | Estatísticas rápidas em partida longa | — | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
 
 ### M17 — Eleição e Congresso disputados
@@ -371,7 +368,6 @@
 | **F140** | Docs reorganizada por tipo de leitor | N25 | — | M14 | — | Alto | Baixo | Alto | Bom | ⏳ Pendente |
 | **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F145** | Convite de vice para qualquer jogador | N34 | — | M17 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F156** | Estatísticas rápidas em partida longa | N40, N38 | — | M16 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -450,9 +446,6 @@
 
 <a id="f145"></a>
 **F145 — Convite de vice para qualquer jogador.** Serve N34. Hoje o vice sai de um `Select` com os filiados do partido (`ticket-dialog.tsx:81`), e o backend recusa quem não é filiado (`government_book.py:311`); o convite e o aceite já existem (`government_book.py:343`, `vice-invite-dialog.tsx`). Plano: (1) **Regra:** o vice pode ser qualquer jogador humano da sala, de outro partido ou sem partido, como numa coligação, e continua filiado ao próprio partido. Fica bloqueado quem já é vice de outra chapa, quem é candidato de alguma chapa e os bots. (2) **Quem convida:** o `Select` vira uma lista de todos os jogadores, com o partido de cada um, e os bloqueados aparecem desabilitados com o motivo ("já é vice do ABC", "candidato pelo XYZ"). (3) **Quem é convidado:** um aviso que se abre na tela dele, pelo Socket.IO, com aceitar e recusar, reaproveitando o `vice-invite-dialog.tsx`; quem convida vê o convite como pendente até a resposta. (4) **Efeitos:** no impeachment, assume o vice enquanto ele estiver na partida, sem exigir filiação; na vitória política, o vice soma para o próprio partido. Esse aviso de aceitar ou recusar é o mecanismo que a negociação com as bancadas (F154) reaproveita.
-
-<a id="f156"></a>
-**F156 — Estatísticas rápidas em partida longa.** Serve N40 e N38. A tela demora a abrir em partida longa, e o backend explica: as rotas de `/api/statistics/*` (`routes/statistics.py:39` a `:155`) leem todos os snapshots diários de todos os jogadores, sem recorte de data (`core/repository/statistics.py:32` e `:54`), e recalculam tudo a cada pedido. Como as estatísticas só mudam na virada do mês, o plano é: (1) medir com o painel de desempenho, numa partida salva longa, quanto vai na leitura e quanto no cálculo; (2) guardar o relatório do mês fechado em memória, por simulação, e devolver o guardado até a próxima virada; (3) nos gráficos de série, mandar um ponto por semana ou por mês quando o período passa de um ano, em vez de um por dia útil. **Aceite:** numa partida de 10 anos com 4 jogadores, a aba Geral abre em menos de 1 segundo.
 
 ---
 ## 2. Nice-to-have
