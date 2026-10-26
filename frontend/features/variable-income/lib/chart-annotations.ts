@@ -13,7 +13,7 @@ export interface AnnotationColors {
 }
 
 /** Quantos pregões depois do padrão o desfecho é conferido. */
-export const OUTCOME_SESSIONS = 5;
+const OUTCOME_SESSIONS = 5;
 
 /** Um rótulo por padrão sobre a vela em que ele termina: verde embaixo (alta), vermelho em cima (baixa), cinza no doji. */
 export function patternMarkers(patterns: CandlePattern[], colors: AnnotationColors): SeriesMarker<Time>[] {

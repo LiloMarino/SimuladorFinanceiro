@@ -30,7 +30,7 @@ const BOT_NAME_MAX = 30;
 /** O que o diálogo entrega ao confirmar: os campos do formulário e os parâmetros já como números. */
 export type BotSubmit = BotFormValues & { params: ParamValues };
 
-export type BotSubmitControls = {
+type BotSubmitControls = {
   close: () => void;
   /** O servidor recusou o nome: a mensagem aparece no campo */
   refuseName: () => void;

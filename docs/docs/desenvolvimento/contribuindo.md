@@ -70,7 +70,7 @@ Sugestões de prefixo:
 
 ### 4. Confira, commite e envie
 
-Na raiz, rode a checagem completa (ruff, pyright, pytest, oxlint, oxfmt, tsc e vitest). Se ela acusar formatação, `pnpm format` formata o backend e o frontend:
+Na raiz, rode a checagem completa (ruff, deptry, pyright, pytest, oxlint, oxfmt, tsc, knip e vitest). Se ela acusar formatação, `pnpm format` formata o backend e o frontend:
 
 ```bash
 pnpm run check

@@ -4,11 +4,11 @@ export const REFRESH_MS = 2000;
 /** Mesmo corte do slow.log do servidor. */
 export const SLOW_P95_MS = 500;
 /** p95 de dez vezes a média ou mais: quase sempre rápida, de vez em quando trava. */
-export const STALL_RATIO = 10;
+const STALL_RATIO = 10;
 export const PAGE_SIZE = 10;
 export const ENGINE_DAY = "Processar um dia";
 /** Mensagem pesada e frequente é o que pesa no navegador em velocidade alta. */
-export const HEAVY_MESSAGE_BYTES = 100_000;
+const HEAVY_MESSAGE_BYTES = 100_000;
 
 export type Kind = MetricItem["kind"];
 export type KindFilter = "all" | Kind;

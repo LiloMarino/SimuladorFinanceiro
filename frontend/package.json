@@ -12,10 +12,11 @@
     "format:check": "oxfmt --check",
     "preview": "vite preview",
     "typecheck": "tsc --build --noEmit",
-    "check": "oxlint && oxfmt --check && tsc --build --noEmit",
+    "knip": "knip",
+    "check": "oxlint && oxfmt --check && tsc --build --noEmit && knip",
     "test": "vitest run",
-    "fta": "npx fta-cli . --format table",
-    "fta:json": "npx fta-cli . --json > metrics.json"
+    "fta": "fta . --format table",
+    "fta:json": "fta . --json > metrics.json"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -49,12 +50,12 @@
   "devDependencies": {
     "@shadcn/lint": "^0.2.3",
     "@tanstack/react-query-devtools": "^5.104.5",
-    "@types/js-cookie": "^3.0.6",
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "fta-cli": "^3.1.0",
+    "knip": "^6.43.0",
     "openapi-typescript": "^7.13.0",
     "oxfmt": "^0.74.0",
     "oxlint": "^1.89.0",

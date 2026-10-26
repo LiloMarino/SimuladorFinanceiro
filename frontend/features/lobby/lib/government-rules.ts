@@ -16,7 +16,7 @@ export const COMPUTER_DIFFICULTIES: { value: ComputerDifficulty; label: string; 
 const MEAN_BUDGET_EXAMPLE = 10_000;
 
 /** "0,5 vez" / "1 vez" / "1,5 vez" */
-export function factorLabel(factor: number) {
+function factorLabel(factor: number) {
   return `${factor.toLocaleString("pt-BR")} vez`;
 }
 

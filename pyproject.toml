@@ -7,18 +7,30 @@ dependencies = [
     "fastapi>=0.136.3",
     "numpy>=2",
     "pandas>=3.0.3",
-    "psycopg-pool>=3.3.1",
     "psycopg[binary]>=3.3.6",
     "pydantic>=2.13.4",
     "pydantic-settings>=2.14.1",
-    "python-dotenv>=1.2.2",
     "python-multipart>=0.0.32",
     "python-socketio>=5.16.2",
     "sqlalchemy>=2.0.50",
+    "starlette>=0.40",
     "toml>=0.10.2",
     "uvicorn[standard]>=0.54.0",
     "yfinance>=1.4.1",
 ]
+
+[tool.deptry]
+known_first_party = ["backend"]
+# Os exemplos da documentação rodam na máquina de quem baixa, com as dependências deles
+extend_exclude = ["docs/static/exemplos"]
+
+[tool.deptry.per_rule_ignores]
+# python-multipart é carregado pelo FastAPI sozinho ao receber formulário e arquivo
+DEP002 = ["python-multipart"]
+# pydantic_core acompanha a versão do pydantic, que já está declarado
+DEP003 = ["pydantic_core"]
+# Os scripts de desenvolvimento usam as ferramentas do grupo dev
+DEP004 = ["playwright", "matplotlib", "yaml", "PIL"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -98,6 +110,7 @@ build = [
 ]
 dev = [
     "actionlint-py>=1.7.12.25",
+    "deptry>=0.25.1",
     "git-cliff>=2.14.2",
     "httpx2>=2.13.1",
     "line-profiler>=5.0.2",

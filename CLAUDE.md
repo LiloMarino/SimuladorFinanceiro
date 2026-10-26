@@ -20,7 +20,7 @@ desempenho", e não "F45". Isso inclui o assunto e o corpo de commits e de PRs.
 
 ## Antes de commitar
 
-- Rode `pnpm run check` na raiz (ruff, pyright, pytest, oxlint, oxfmt, tsc e vitest).
+- Rode `pnpm run check` na raiz (ruff, deptry, pyright, pytest, oxlint, oxfmt, tsc, knip e vitest).
 - Mudou rota ou DTO do backend: rode `pnpm openapi` (regenera `docs/openapi.json` e os tipos do front); o `tests/test_openapi.py` falha se estiver defasado.
 - Mudou os models: `pnpm db:revision` (veja `docs/docs/desenvolvimento/ciclo-banco-dados.md`).
 

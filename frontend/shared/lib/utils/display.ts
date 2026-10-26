@@ -198,15 +198,6 @@ export function displayMonthShort(isoDate: string) {
   return new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(parseLocalDate(isoDate)).replace(".", "");
 }
 
-export function displayMonthYear(date: Date | string) {
-  const d = typeof date === "string" ? new Date(date) : date;
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    month: "short",
-    year: "numeric",
-  }).format(d);
-}
-
 /** ["Ana", "Bia", "Lilo"] → "Ana, Bia e Lilo". */
 export function displayList(items: string[]) {
   return new Intl.ListFormat("pt-BR", { style: "long", type: "conjunction" }).format(items);

@@ -1,8 +1,8 @@
 import type { OrderPreview, OrderPreviewRequest } from "@/types";
 
 /** Dados do exemplo: a conta do palco parte de R$ 100.000 em caixa e PETR4 a R$ 38,12. */
-export const STAGE_CASH_CENTS = 100_000_00;
-export const STAGE_PRICE_CENTS = 38_12;
+const STAGE_CASH_CENTS = 100_000_00;
+const STAGE_PRICE_CENTS = 38_12;
 
 const money = (cents: number) => (cents / 100).toFixed(2);
 

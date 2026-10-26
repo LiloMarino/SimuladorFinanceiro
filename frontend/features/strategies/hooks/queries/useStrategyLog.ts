@@ -5,7 +5,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import type { StrategyLogFilter, StrategyLogPage } from "@/types";
 
 /** Linhas por página; "Carregar mais" abre a seguinte na mesma tela. */
-export const STRATEGY_LOG_PAGE_SIZE = 6;
+const STRATEGY_LOG_PAGE_SIZE = 6;
 
 /** O registro da estratégia, da linha mais recente à mais antiga, uma página por vez. */
 export function useStrategyLog(kind: StrategyLogFilter) {

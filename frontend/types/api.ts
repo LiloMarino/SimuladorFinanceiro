@@ -1,7 +1,6 @@
 import type { components, operations } from "@/types/openapi";
 
 // Stock
-export type Stock = Omit<components["schemas"]["CandleDTO"], "id">;
 export type MarketQuote = components["schemas"]["MarketQuoteDTO"];
 export type OrderPreview = components["schemas"]["OrderPreviewDTO"];
 export type OrderPreviewRequest = components["schemas"]["OrderPreviewRequest"];
@@ -13,18 +12,12 @@ export type StockDetails = Omit<components["schemas"]["StockDetailsDTO"], "id">;
 
 // Portfolio
 export type Position = components["schemas"]["PositionDTO"];
-export type PatrimonialHistory = components["schemas"]["PatrimonialHistoryDTO"];
 export type PortfolioHistoryPoint = components["schemas"]["PortfolioHistoryPointDTO"];
 export type FixedIncomePosition = components["schemas"]["FixedIncomePositionDTO"];
 export type PortfolioState = components["schemas"]["PortfolioDTO"];
-export type CashResponse = components["schemas"]["CashResponse"];
-export type PortfolioPosition = PortfolioState["variable_income"][number];
-export type SectorAllocation = PortfolioState["sectors"][number];
 
 // Fixed Income
 export type RateIndex = components["schemas"]["RateIndexType"];
-export type InvestmentType = components["schemas"]["FixedIncomeType"];
-export type FixedIncomeAssetApi = components["schemas"]["FixedIncomeAssetDTO"];
 export type FixedIncomeOffer = components["schemas"]["FixedIncomeOfferDTO"];
 export type FixedIncomeQuote = components["schemas"]["FixedIncomeQuoteDTO"];
 export type BuyFixedIncomeRequest = components["schemas"]["BuyFixedIncomeRequest"];
@@ -33,7 +26,6 @@ export type RedeemFixedIncomeRequest = components["schemas"]["RedeemFixedIncomeR
 
 // Economic
 export type EconomicIndicators = components["schemas"]["EconomicIndicatorsDTO"];
-export type IndicatorSeries = components["schemas"]["IndicatorSeries"];
 
 // Data center
 export type SeriesCoverage = components["schemas"]["SeriesCoverageDTO"];
@@ -65,7 +57,7 @@ export type OverviewReport = components["schemas"]["OverviewReportDTO"];
 export type StatisticsNextUpdate = components["schemas"]["StatisticsNextUpdateDTO"];
 export type Highlights = components["schemas"]["HighlightsDTO"];
 // Toda linha de jogador de qualquer aba traz quem é e em que simulação
-export type Score = NonNullable<OverviewReport["players"][number]["score"]>;
+type Score = NonNullable<OverviewReport["players"][number]["score"]>;
 export type ScoreAxis = Score["axes"][number]["axis"];
 export type ScoreMetric = Score["axes"][number]["metrics"][number]["metric"];
 export type PlayerRef = Pick<
@@ -88,13 +80,10 @@ export type OperationsPlayer = OperationsReport["players"][number];
 export type CorrelationAssets = components["schemas"]["CorrelationAssetsDTO"];
 export type CorrelationMatrix = components["schemas"]["CorrelationMatrixDTO"];
 export type CorrelationCell = CorrelationMatrix["rows"][number][number];
-export type CorrelationQuery = operations["get_correlation_api_correlation_get"]["parameters"]["query"];
+type CorrelationQuery = operations["get_correlation_api_correlation_get"]["parameters"]["query"];
 export type CorrelationWindow = NonNullable<CorrelationQuery["window"]>;
 
 // Orders
-export type OrderAction = components["schemas"]["OrderAction"];
-export type OrderType = components["schemas"]["OrderType"];
-export type OrderStatus = components["schemas"]["OrderStatus"];
 export type Order = components["schemas"]["OrderDTO"];
 
 // Notifications
@@ -147,7 +136,6 @@ export type SimulationSettings = components["schemas"]["SimulationSettingsRespon
 // Jogador da sala com a cor (chave da paleta) que o servidor deu a ele
 export type RoomPlayer = components["schemas"]["PlayerNickname"];
 // Bots: a estratégia que o jogador-robô joga, como a sala e o ranking o mostram
-export type RoomBot = NonNullable<RoomPlayer["bot"]>;
 export type RoomBotRequest = components["schemas"]["RoomBotRequest"];
 export type BotReport = components["schemas"]["BotReportDTO"];
 export type BotParam = BotReport["params"][number];
@@ -176,9 +164,7 @@ export type ElectionPanel = components["schemas"]["ElectionPanelDTO"];
 export type ElectionPhase = components["schemas"]["ElectionPhase"];
 export type ElectionParty = ElectionPanel["parties"][number];
 export type ElectionRound = components["schemas"]["RoundResultDTO"];
-export type ElectionRunoff = components["schemas"]["RunoffSimulationDTO"];
 export type PartyCandidate = components["schemas"]["PartyCandidateDTO"];
-export type VicePhase = components["schemas"]["VicePhase"];
 export type FoundPartyRequest = components["schemas"]["FoundPartyRequest"];
 export type JoinPartyRequest = components["schemas"]["JoinPartyRequest"];
 export type ContributionRequest = components["schemas"]["ContributionRequest"];
@@ -207,16 +193,13 @@ export type LifeHistoryKind = LifeHistoryRow["kind"];
 export type Achievement = components["schemas"]["AchievementDTO"];
 export type AchievementCategory = components["schemas"]["AchievementCategory"];
 export type AchievementIconName = components["schemas"]["AchievementIcon"];
-export type AchievementUnit = components["schemas"]["AchievementUnit"];
 
 // Crédito
 export type CreditOverview = components["schemas"]["CreditOverviewDTO"];
 export type CreditGrade = components["schemas"]["CreditGrade"];
 export type CreditLoan = CreditOverview["loans"][number];
-export type CreditOverdue = CreditLoan["overdue"][number];
 export type CreditRating = CreditOverview["rating"];
 export type CreditLadderTier = CreditRating["ladder"][number];
-export type CreditOffer = CreditOverview["offer"];
 export type CreditSuggestion = CreditOverview["suggestions"][number];
 export type LoanQuote = components["schemas"]["LoanQuoteDTO"];
 export type PrepaymentPreview = components["schemas"]["PrepaymentPreviewDTO"];
@@ -225,7 +208,6 @@ export type ContractLoanRequest = components["schemas"]["ContractLoanRequestDTO"
 export type PrepayLoanRequest = components["schemas"]["PrepayLoanRequestDTO"];
 
 // Backtest
-export type BacktestConfig = components["schemas"]["BacktestConfigDTO-Output"];
 export type BacktestConfigRequest = components["schemas"]["BacktestConfigDTO-Input"];
 export type BacktestParticipant = components["schemas"]["BacktestParticipantDTO"];
 export type BacktestPriceImpact = components["schemas"]["BacktestPriceImpact"];

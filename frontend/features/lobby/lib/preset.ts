@@ -15,7 +15,7 @@ export const NAME_TAKEN_MESSAGE = "Já existe um preset com esse nome.";
 export const PRESET_NAME_MAX = 60;
 
 /** Como o painel chama cada grupo de regras */
-export const RULE_GROUP_LABELS: Record<PresetRuleGroup, string> = {
+const RULE_GROUP_LABELS: Record<PresetRuleGroup, string> = {
   PERIOD: "Período",
   STARTING_CASH: "Saldo inicial",
   MONTHLY_CONTRIBUTION: "Aporte mensal",

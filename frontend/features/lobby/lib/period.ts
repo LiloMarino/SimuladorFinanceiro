@@ -8,8 +8,8 @@ const RATE_SERIES = ["CDI", "SELIC", "IPCA"];
 
 /** A linha do tempo mede em meses desde jan/1993: 0 é 01/01/1993 e AXIS_MONTHS é o fim de dez/2040. */
 export const AXIS_MONTHS = (CALENDAR_END_YEAR - CALENDAR_START_YEAR + 1) * 12;
-export const AXIS_START_DATE = `${CALENDAR_START_YEAR}-01-01`;
-export const AXIS_END_DATE = `${CALENDAR_END_YEAR}-12-31`;
+const AXIS_START_DATE = `${CALENDAR_START_YEAR}-01-01`;
+const AXIS_END_DATE = `${CALENDAR_END_YEAR}-12-31`;
 
 /** Anos redondos marcados sob a linha. */
 export const AXIS_TICK_YEARS = [1995, 2005, 2015, 2025, 2035];
@@ -38,7 +38,7 @@ export type PeriodShortcut = {
 const SHORTCUT_YEARS = { past: [5, 10, 20], future: [5, 10] } as const;
 
 /** Mês de uma data na linha do tempo: 0 é jan/1993. */
-export function monthIndex(isoDate: string): number {
+function monthIndex(isoDate: string): number {
   const [year, month] = isoDate.split("-").map(Number);
   return (year - CALENDAR_START_YEAR) * 12 + (month - 1);
 }
@@ -60,9 +60,9 @@ export function axisPercent(position: number): number {
   return (Math.min(Math.max(position, 0), AXIS_MONTHS) / AXIS_MONTHS) * 100;
 }
 
-export const firstDayOfMonth = (index: number) => toIso(new Date(CALENDAR_START_YEAR, index, 1));
+const firstDayOfMonth = (index: number) => toIso(new Date(CALENDAR_START_YEAR, index, 1));
 
-export const lastDayOfMonth = (index: number) => toIso(new Date(CALENDAR_START_YEAR, index + 1, 0));
+const lastDayOfMonth = (index: number) => toIso(new Date(CALENDAR_START_YEAR, index + 1, 0));
 
 /** O início de um mês cheio; o primeiro dia com dado vale no lugar do dia 1 quando cai depois dele. */
 function monthStart(index: number, floor: DataFloor | undefined): string {

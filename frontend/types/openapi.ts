@@ -1,1 +1,1 @@
-export type { components, operations, paths } from "@/types/openapi.generated";
+export type { components, operations } from "@/types/openapi.generated";

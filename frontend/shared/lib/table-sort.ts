@@ -1,4 +1,4 @@
-export type SortValue = string | number | null | undefined;
+type SortValue = string | number | null | undefined;
 export type SortDirection = "asc" | "desc";
 export type TableSort<K extends string = string> = { column: K; direction: SortDirection };
 export type SortColumns<T, K extends string = string> = Record<K, (row: T) => SortValue>;

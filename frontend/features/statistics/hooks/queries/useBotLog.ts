@@ -5,7 +5,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import type { StrategyLogPage } from "@/types";
 
 /** Linhas por página; "Carregar mais" abre a seguinte na mesma tela. */
-export const BOT_LOG_PAGE_SIZE = 6;
+const BOT_LOG_PAGE_SIZE = 6;
 
 /** As ordens de um bot na partida, da mais recente à mais antiga, uma página por vez. */
 export function useBotLog(simulationId: number, nickname: string) {

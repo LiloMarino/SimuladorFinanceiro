@@ -16,7 +16,7 @@ export function formatPositiveInteger(value: string) {
 }
 
 /** Casas decimais da cripto: oito, a precisão do satoshi. */
-export const QUANTITY_DECIMALS = 8;
+const QUANTITY_DECIMALS = 8;
 
 /** Quantidade digitada: inteira, ou com uma vírgula e até oito casas quando o ativo é fracionável. */
 export function formatQuantityInput(value: string, fractional: boolean) {

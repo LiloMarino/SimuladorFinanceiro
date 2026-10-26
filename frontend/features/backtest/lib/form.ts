@@ -17,7 +17,7 @@ import { MIN_TRADING_DAYS, weekdaysBetween } from "./period";
 
 /** O teto é o das vagas da sala. */
 export const MAX_PARTICIPANTS = 10;
-export const BOT_NAME_MAX = 30;
+const BOT_NAME_MAX = 30;
 
 export type BacktestFormValues = {
   name: string;
@@ -34,7 +34,7 @@ const DEFAULT_CONTRIBUTION = "1000.00";
 const DEFAULT_YEARS = 10;
 
 /** Dez anos até onde o mercado é real, sem passar do primeiro dado. */
-export function defaultPeriod(coverage: BacktestCoverage) {
+function defaultPeriod(coverage: BacktestCoverage) {
   const end = coverage.real_end ?? coverage.generated_end ?? toIso(new Date());
   const start = parseLocalDate(end);
   start.setFullYear(start.getFullYear() - DEFAULT_YEARS);
@@ -81,7 +81,7 @@ export function formValues(setup: BacktestSetup, strategies: StrategyInfo[]): Ba
 }
 
 /** O primeiro fim que dá pregões suficientes para a nota a partir do início. */
-export function earliestEnd(start: string) {
+function earliestEnd(start: string) {
   const day = parseLocalDate(start);
   while (weekdaysBetween(start, toIso(day)) < MIN_TRADING_DAYS) day.setDate(day.getDate() + 1);
   return toIso(day);

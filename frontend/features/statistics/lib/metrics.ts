@@ -144,16 +144,6 @@ export const WORST_MONTH: MetricInfo = {
   format: percent,
 };
 
-export const RISK_RETURN: MetricInfo = {
-  label: "Risco × retorno",
-  description: "Um ponto por jogador: quanto oscilou (para a direita) e quanto rendeu (para cima)",
-  definition: "Eixo horizontal: volatilidade anual. Eixo vertical: retorno anual. Os dois do período inteiro.",
-  example:
-    "Ex.: um ponto em 10% de volatilidade e 15% de retorno rendeu mais com menos sobe-e-desce que um em 25% e 12%.",
-  reading: "Quanto mais para cima e para a esquerda, melhor: mais retorno com menos risco.",
-  format: percent,
-};
-
 export const SAMPLE_DAYS: MetricInfo = {
   label: "Amostra",
   description: "Quantos retornos diários entraram no cálculo",
@@ -161,25 +151,6 @@ export const SAMPLE_DAYS: MetricInfo = {
   example: "Ex.: 63 pregões são ~3 meses; 252 pregões, um ano.",
   reading: "Com poucos pregões, as métricas mudam muito de um dia para o outro; abaixo de ~63, leia com cautela.",
   format: (value) => `${value} pregões`,
-};
-
-export const COMPOSITION: MetricInfo = {
-  label: "Composição do patrimônio",
-  description: "Caixa, renda variável e renda fixa empilhados, dia a dia",
-  definition: "Quanto do patrimônio estava parado em caixa, em ações e em renda fixa a cada dia útil.",
-  example: "Ex.: uma faixa de renda variável que engorda mostra o jogador entrando na bolsa.",
-  reading: "Não há composição certa: mostra o estilo de cada jogador e quando ele mudou de ideia.",
-  format: (value) => displayMoney(value),
-};
-
-export const SECTOR_EXPOSURE: MetricInfo = {
-  label: "Exposição por setor",
-  description: "Como a renda variável de cada jogador estava dividida entre os setores no último dia",
-  definition:
-    "A fração do valor em ações de cada setor, a preço do último dia. A classificação das ações se edita na Central de dados.",
-  example: "Ex.: R$ 6.000 em bancos e R$ 4.000 em mineração → Financeiro 60%, Materiais Básicos 40%.",
-  reading: "Compare as barras para ver quem apostou em quê; uma barra de uma cor só é uma aposta concentrada.",
-  format: percent,
 };
 
 export const EFFECTIVE_SECTORS: MetricInfo = {
@@ -209,22 +180,6 @@ export const MONTHLY_VOLUME: MetricInfo = {
   example: "Ex.: comprar R$ 5.000 e vender R$ 3.000 num mês → R$ 8.000 negociados.",
   reading: "Mostra quando cada jogador esteve mais ativo; meses vazios são meses só segurando.",
   format: (value) => displayMoney(value),
-};
-
-export const BUY_TRADES: MetricInfo = {
-  label: "Compras",
-  description: "Negócios de compra executados",
-  definition: "Cada execução conta uma vez: uma ordem preenchida em partes conta como vários negócios.",
-  example: "Ex.: uma ordem de 1.000 ações preenchida em 3 partes → 3 compras.",
-  reading: "Junto com as vendas, mostra o quanto o jogador operou.",
-  format: (value) => String(value),
-};
-
-export const SELL_TRADES: MetricInfo = {
-  ...BUY_TRADES,
-  label: "Vendas",
-  description: "Negócios de venda executados",
-  example: "Ex.: vender uma posição de uma vez → 1 venda.",
 };
 
 export const TRADED_VOLUME: MetricInfo = {
@@ -284,7 +239,7 @@ export const SCORE_HISTORY: MetricInfo = {
   format: (value) => displayNumber(String(value), 0),
 };
 
-export const RETURN_OVER_CDI: MetricInfo = {
+const RETURN_OVER_CDI: MetricInfo = {
   label: "Retorno acima do CDI",
   description: "Retorno anual menos o CDI anual do mesmo período",
   definition: "Quantos pontos percentuais por ano a carteira rendeu além do que um título de 100% do CDI renderia.",
@@ -296,7 +251,7 @@ export const RETURN_OVER_CDI: MetricInfo = {
 /** A coluna "vs CDI" da Rentabilidade: o mesmo retorno acima do CDI, com o nome curto. */
 export const VS_CDI: MetricInfo = { ...RETURN_OVER_CDI, label: "vs CDI" };
 
-export const RETURN_OVER_IBOV: MetricInfo = {
+const RETURN_OVER_IBOV: MetricInfo = {
   label: "Retorno acima do Ibovespa",
   description: "Retorno anual menos a variação anual do Ibovespa no período",
   definition: "Quantos pontos percentuais por ano a carteira rendeu além do índice da bolsa.",

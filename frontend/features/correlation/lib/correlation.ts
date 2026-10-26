@@ -30,7 +30,7 @@ export const WINDOWS: { value: CorrelationWindow; label: string }[] = [
   { value: "5y", label: "5 anos" },
 ];
 
-export const READING_BANDS = [
+const READING_BANDS = [
   { min: 0.7, label: "andam muito juntos" },
   { min: 0.3, label: "andam juntos em parte" },
   { min: -0.3, label: "quase independentes" },

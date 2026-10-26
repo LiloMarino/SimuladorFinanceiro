@@ -10,7 +10,7 @@ import type {
 } from "@/types";
 
 /** Onde o indicador é desenhado: sobre o preço ou num painel próprio embaixo do gráfico. */
-export type IndicatorPlace = "price" | "panel";
+type IndicatorPlace = "price" | "panel";
 
 export interface IndicatorInfo {
   key: IndicatorKey;

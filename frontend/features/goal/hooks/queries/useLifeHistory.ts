@@ -7,7 +7,7 @@ import type { LifeHistoryCategory, LifeHistoryPage, LifeHistorySort } from "@/ty
 import type { TableSort } from "@/shared/lib/table-sort";
 
 /** Linhas por página; "Mostrar mais" abre a seguinte na mesma tela. */
-export const LIFE_HISTORY_PAGE_SIZE = 6;
+const LIFE_HISTORY_PAGE_SIZE = 6;
 
 /**
  * O histórico da vida financeira, do mais recente ao mais antigo, uma página de cada vez

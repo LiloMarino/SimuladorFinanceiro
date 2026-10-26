@@ -37,7 +37,7 @@ interface EngineCardProps {
 }
 
 /** Quanto o motor leva por dia contra o tempo que cabe na velocidade pedida. */
-export function EngineCard({ data }: EngineCardProps) {
+function EngineCard({ data }: EngineCardProps) {
   const { item, speed, budgetMs, late, effectiveSpeed } = engineStatus(data);
 
   if (!item) {

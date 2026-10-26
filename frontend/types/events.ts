@@ -8,12 +8,9 @@ import type { components } from "./openapi.generated";
  */
 type RealtimeEventCatalog = components["schemas"]["RealtimeEventCatalog"];
 
-/** Snapshot de patrimônio emitido via WebSocket */
-export type Snapshot = RealtimeEventCatalog["snapshot_update"]["snapshot"];
-
-export type OrderExecutedEvent = RealtimeEventCatalog["order_executed"];
-export type OrderPartialExecutedEvent = RealtimeEventCatalog["order_partial_executed"];
-export type LifeEvent = RealtimeEventCatalog["life_event"];
+type OrderExecutedEvent = RealtimeEventCatalog["order_executed"];
+type OrderPartialExecutedEvent = RealtimeEventCatalog["order_partial_executed"];
+type LifeEvent = RealtimeEventCatalog["life_event"];
 export type FutureRecordingProgressEvent = RealtimeEventCatalog["future_recording_progress"];
 export type AchievementUnlockedEvent = RealtimeEventCatalog["achievement_unlocked"];
 export type StrategyOrderLine = RealtimeEventCatalog["strategy_orders"]["orders"][number];

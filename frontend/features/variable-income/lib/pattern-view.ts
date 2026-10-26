@@ -1,4 +1,4 @@
-import type { CandleChallenge, CandlePattern, CandlePatterns, ChallengeAnswer, PatternStats } from "@/types";
+import type { CandlePattern, CandlePatterns, ChallengeAnswer, PatternStats } from "@/types";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import { MIN_SAMPLE } from "./candle-patterns";
 
@@ -60,11 +60,6 @@ export function displayPatternDays(pattern: Pick<CandlePattern, "start" | "end">
 export function isAnswerFresh(answer: ChallengeAnswer, today: string) {
   if (answer.status === "waiting" || answer.status === "expired") return true;
   return (asTime(today) - asTime(answer.settles_on)) / DAY_MS <= RESULT_VISIBLE_DAYS;
-}
-
-/** O desafio aberto é o do padrão que termina hoje. */
-export function isOpenOn(challenge: CandleChallenge | undefined, pattern: CandlePattern) {
-  return challenge?.open != null && challenge.open.pattern_date === pattern.end;
 }
 
 export const sideWord = (side: "up" | "down") => (side === "up" ? "alta" : "baixa");

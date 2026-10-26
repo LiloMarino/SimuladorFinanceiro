@@ -134,7 +134,7 @@ type HistogramSeriesRef = ISeriesApi<"Histogram">;
 type Series = TechnicalIndicators["series"];
 
 /** As dicas de análise técnica do gráfico; `null` quando a partida as desliga. */
-export interface ChartHints {
+interface ChartHints {
   patterns: CandlePatterns | undefined;
   patternsStatus: "pending" | "error" | "success";
   onRetryPatterns: () => void;

@@ -5,7 +5,7 @@ type Asset = CorrelationAssets["assets"][number];
 // O backend aceita até 20 tickers por matriz
 export const MAX_TICKERS = 20;
 
-export const NO_SECTOR = "Sem setor";
+const NO_SECTOR = "Sem setor";
 
 /** Setores em ordem alfabética, com "Sem setor" no fim; tickers em ordem dentro de cada um. */
 export function bySector(assets: Asset[]): [string, Asset[]][] {

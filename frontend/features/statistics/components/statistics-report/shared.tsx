@@ -213,7 +213,7 @@ export function PlayerToggle({
   );
 }
 
-export interface MetricColumn<T, G = never> {
+interface MetricColumn<T, G = never> {
   metric: MetricInfo;
   value: (row: T) => string | number | null | undefined;
   /** Destaca o melhor da sala: o maior ou o menor valor da coluna */
@@ -228,7 +228,7 @@ export interface MetricColumn<T, G = never> {
 }
 
 /** Equipes de uma tabela agrupada: uma linha por equipe com os membros logo abaixo. */
-export interface TeamGroups<G> {
+interface TeamGroups<G> {
   naming: TeamNaming;
   teams: G[];
   /** O que a linha da equipe diz ao lado do nome, quando não é a média (ex.: "total da equipe") */

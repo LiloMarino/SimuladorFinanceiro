@@ -3,7 +3,7 @@ import { TrendingUp } from "lucide-react";
 import { TOPIC_IDS, type TopicId } from "@/shared/lib/tutorial-topic-ids";
 
 /** Parte da linha do tempo da animação: a partir de `start` (s) vale o passo `step` do texto. */
-export interface Beat {
+interface Beat {
   start: number;
   step: number;
 }

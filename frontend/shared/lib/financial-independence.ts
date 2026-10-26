@@ -1,6 +1,6 @@
 import { displayDecimal } from "@/shared/lib/utils/display";
 
-export const MONTHS_PER_YEAR = 12;
+const MONTHS_PER_YEAR = 12;
 
 /** Faixa de taxa de retirada que o servidor aceita, como fração ao ano (0,04 = 4%). */
 export const WITHDRAWAL_RATE_RANGE = { min: 0.01, max: 0.1 } as const;

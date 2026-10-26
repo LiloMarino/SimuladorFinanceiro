@@ -1,4 +1,4 @@
-export const CSV_MAX_BYTES = 5 * 1024 * 1024;
+const CSV_MAX_BYTES = 5 * 1024 * 1024;
 
 /** O que se sabe do arquivo escolhido; `problem` preenchido quando ele não serve. */
 export type CsvInspection = {

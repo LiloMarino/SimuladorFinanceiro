@@ -5,7 +5,7 @@ import { cn } from "@/shared/lib/utils";
 import { useStage } from "./stage-context";
 import type { Finder } from "./targets";
 
-export interface Rect {
+interface Rect {
   x: number;
   y: number;
   width: number;

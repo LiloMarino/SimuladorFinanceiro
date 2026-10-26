@@ -10,7 +10,7 @@ import type { FuturePreview } from "@/types";
 import { withMinus } from "./future-readings";
 
 /** Pontos do Ibovespa em milhares: 142300 → "142 mil". */
-export const displayThousands = (value: number) =>
+const displayThousands = (value: number) =>
   value >= 1000 ? `${Math.round(value / 1000)} mil` : displayNumber(value, 0);
 
 const displayRate = (value: number, digits: number) =>

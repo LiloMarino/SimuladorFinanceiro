@@ -34,7 +34,7 @@ export const GAME_TYPES: Partial<Record<GameType, GameTypeInfo>> = {
   POLITICAL: POLITICAL_GAME_TYPE,
 };
 
-export const GAME_TYPE_OPTIONS = Object.entries(GAME_TYPES) as [GameType, GameTypeInfo][];
+const GAME_TYPE_OPTIONS = Object.entries(GAME_TYPES) as [GameType, GameTypeInfo][];
 
 /** Os tipos de qualquer partida; os de expansão aparecem à parte, quando a expansão está ligada. */
 export const BASE_GAME_TYPE_OPTIONS = GAME_TYPE_OPTIONS.filter(([value]) => value !== "POLITICAL");

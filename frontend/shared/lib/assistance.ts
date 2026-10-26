@@ -23,7 +23,7 @@ export const ASSISTANCES = [
 
 export type AssistanceField = (typeof ASSISTANCES)[number]["field"];
 
-export type AssistanceMode = "NORMAL" | "EXPERT" | "CUSTOM";
+type AssistanceMode = "NORMAL" | "EXPERT" | "CUSTOM";
 
 export type AssistanceSummary = {
   mode: AssistanceMode;

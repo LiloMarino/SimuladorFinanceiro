@@ -15,7 +15,7 @@ export type BacktestRow = {
   failedOn: string | null;
 };
 
-export type BacktestReference = {
+type BacktestReference = {
   networth: number;
   returnOnContributed: number;
 };

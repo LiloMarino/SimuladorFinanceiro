@@ -17,8 +17,6 @@ export const TEAMS = [
   { number: 10, name: "Marinho" },
 ] as const;
 
-export const MAX_TEAMS = TEAMS.length;
-
 /** Nome curto: a cor ("Índigo") ou o número ("Equipe 1"), conforme a regra da partida. */
 export function teamShortName(team: number, naming: TeamNaming) {
   return naming === "NUMBER" ? `Equipe ${team}` : (TEAMS[team - 1]?.name ?? `Equipe ${team}`);

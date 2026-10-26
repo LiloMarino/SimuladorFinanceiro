@@ -1,1 +1,1 @@
-export { TutorialContext, type TutorialContextValue } from "./TutorialContext";
+export { TutorialContext } from "./TutorialContext";

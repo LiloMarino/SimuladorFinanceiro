@@ -43,7 +43,7 @@ export function pointsTone(points: number) {
 }
 
 /** "Isenção até R$ 20 mil/mês": o teto mensal das vendas de ações sem IR. */
-export function exemptionLabel(limit: string | number) {
+function exemptionLabel(limit: string | number) {
   return `até ${displayMoneyCompact(limit)}/mês`;
 }
 
