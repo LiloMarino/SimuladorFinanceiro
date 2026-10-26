@@ -49,7 +49,7 @@
 | **N29** | Saber o que cada jogador está fazendo enquanto a partida não começa | — | — |
 | **N30** | Repetir uma configuração de partida sem montá-la de novo | — | — |
 | **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92) | — |
-| **N32** | Saber como foi o mês sem montar a conta | [F91](#f91) | — |
+| **N32** | Saber como foi o mês sem montar a conta | — | — |
 | **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — |
 | **N34** | Disputar o poder de mudar as regras da economia da partida | — | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
@@ -73,7 +73,6 @@
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
 | [**F90**](#f90) | Cenários | — | 🔍 |
-| [**F91**](#f91) | Caixa de entrada e resumo do mês | — | ⏳ |
 | [**F92**](#f92) | Noticiário da partida | — | ⏳ |
 | [**F93**](#f93) | Rumores antecipados | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | — | 🔍 |
@@ -146,7 +145,7 @@
 | --- | --- | --- | --- | --- |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
-| [**F91**](#f91) | Caixa de entrada e resumo do mês | M15 | 2 | ⏳ |
+| [**F92**](#f92) | Noticiário da partida | M15 | 1 | ⏳ |
 | [**F106**](#f106) | Governo & Política: gasto público e inflação | — | 1 | 🔍 |
 | [**F139**](#f139) | Demonstração regravada com o jogo de hoje | M14 | 1 | ⏳ |
 | [**F153**](#f153) | Congresso eleito, com bancadas | M17 | 1 | 🔍 |
@@ -252,12 +251,11 @@
 >
 > **Serve:** N31, N32
 >
-> **Progresso:** 0/3 concluídas
+> **Progresso:** 0/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F91**](#f91) | Caixa de entrada e resumo do mês | — | ⏳ |
-| [**F92**](#f92) | Noticiário da partida | [F91](#f91) | ⏳ |
+| [**F92**](#f92) | Noticiário da partida | — | ⏳ |
 | [**F93**](#f93) | Rumores antecipados | [F92](#f92) | 🔍 |
 
 ### M16 — Partida sem tropeços
@@ -336,8 +334,7 @@
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F91** | Caixa de entrada e resumo do mês | N32 | — | M15 | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F92** | Noticiário da partida | N31 | D7 | M15 | [F91](#f91) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F92** | Noticiário da partida | N31 | D7 | M15 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F101** | Carteira separada do jogador | N23 | D9 | — | — | Alto | Alto | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F110** | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
@@ -374,9 +371,6 @@
 
 <a id="f72"></a>
 **F72 — Gráficos padronizados sobre o `ChartContainer` do shadcn.** Serve N15; continua a padronização da interface no shadcn, que deixou o `shared/components/ui/chart.tsx` sem nenhum consumidor. Hoje cada gráfico Recharts repete o `ResponsiveContainer`, a cor da grade e um array `{ key, label, color }` de séries (que é o `ChartConfig`), e uns cinco cards de tooltip feitos à mão reimplementam o `ChartTooltipContent`. Plano: (1) antes|depois no canvas de `player-line-chart` e `networth-chart` com `ChartContainer` + `ChartTooltipContent`, para aprovar o visual do tooltip (texto menor, indicador) e decidir se o `ui/chart.tsx` ganha variante; (2) convenção de pasta por gráfico: `<nome>-chart/` com `<nome>-chart.tsx` (componente puro, recebe o dado da API por prop), `chart-data.ts` (`ChartConfig`, tipos de linha e `build*`), `chart-legend.tsx` opcional (a legenda clicável que liga e desliga série continua própria) e `index.ts` exportando só o componente; gráfico sem legenda nem transformação fica arquivo solto `<nome>-chart.tsx`; (3) migrar `player-line-chart/` (`utils.ts` + `series.ts` → `chart-data.ts`, sai o tooltip próprio), `networth-chart`, `allocation-donut` e os gráficos embutidos em `composition-tab.tsx` (`AreaChart`) e `risk-tab.tsx` (`ScatterChart`), extraídos para pastas próprias; o `stock-chart` (lightweight-charts, imperativo) fica fora do `ChartContainer`; (4) a seção Gráficos entra em `docs/docs/desenvolvimento/convencoes-frontend.md`. Gatilho: a próxima rodada de design no canvas, ou o próximo gráfico novo.
-
-<a id="f91"></a>
-**F91 — Caixa de entrada e resumo do mês.** Serve N32. Como a caixa de entrada dos jogos de gerência de time: tudo o que a partida tem a contar chega num lugar só, sem pausar. (1) **Caixa de entrada:** um envelope na barra da partida, com o número de não lidas, abre um painel lateral com as entradas por data. Cada entrada tem um tipo (resumo, e depois notícia e conquista) e é de um jogador ou da sala inteira. Fica numa tabela `inbox_entries` (simulação, jogador ou nulo para a sala, data do jogo, tipo, conteúdo em JSONB, lida), é criada pelo motor da simulação na virada do mês e chega pelo Socket.IO com um aviso curto que some sozinho. (2) **Resumo do mês, de cada jogador:** patrimônio no início e no fim, rentabilidade do mês ao lado do CDI e do Ibovespa, melhor e pior posição, proventos recebidos, IR pago, aportes e a posição no ranking com quanto ela andou. Sai dos snapshots e dos eventos do mês, calculado no backend. (3) **Retrospectiva do ano:** na virada do ano, uma entrada maior com o ano mês a mês num gráfico pequeno, o melhor mês e a maior queda. Gatilho: antes do noticiário, que entrega as notícias por esta caixa.
 
 <a id="f92"></a>
 **F92 — Noticiário da partida.** Serve N31; segue a D7. Um noticiário sintético: as manchetes nascem das séries que a partida já lê, e por isso funcionam igual no futuro gerado, que é onde o jogo passa a maior parte do tempo, e na história real. Sem LLM e sem internet. (1) **Motor genérico:** uma lista de regras, cada uma olhando as séries no tick e, quando dispara, criando uma entrada da sala na caixa de entrada (F91) a partir de um modelo de texto com algumas variações, para a mesma frase não se repetir. Regra nova é só mais um item da lista. (2) **Macro, as manchetes padrão:** Copom subiu, baixou ou manteve a SELIC, com o tamanho ("Copom sobe a SELIC em 0,5 ponto, para 14,25%"); IPCA do mês acima ou abaixo do anterior; Ibovespa no recorde ou na maior queda do ano. (3) **Empresas:** a mesma lógica para um ativo que sobe ou cai mais de um limite no dia, chega à máxima de 52 semanas ou anuncia provento. O movimento ganha uma causa sintética plausível, sorteada de um banco de causas por setor e direção ("resultado do trimestre acima do esperado", "troca no comando", "vendas de fim de ano fracas" para o varejo). A notícia sai depois do movimento: dá contexto e não dá vantagem. (4) As notícias de um ativo aparecem também na tela dele, como marcadores no gráfico de preço. (5) **Extra, para período real:** marcos históricos curados à mão (crise de 2008, Joesley Day em 2017, Covid em março de 2020), num arquivo de dados com data, manchete e ativos ligados. O futuro gerado sempre começa depois do último dia real, então um marco datado só aparece em período real, e um cenário (F90) pode trazer os seus. Gatilho: depois da caixa de entrada.
