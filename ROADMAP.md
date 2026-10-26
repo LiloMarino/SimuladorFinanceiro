@@ -69,7 +69,6 @@
 | [**F55**](#f55) | Modo aquisição hostil | — | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 💤 |
-| [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 💤 |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F81**](#f81) | CORS restrito à mesma origem | — | 💤 |
@@ -156,7 +155,6 @@
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
-| [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
 | [**F90**](#f90) | Cenários | — | 0 | 🔍 |
 | [**F107**](#f107) | Perfis de público na eleição | M17 | 0 | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
@@ -298,7 +296,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/31 concluídas
+> **Progresso:** 0/30 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -308,7 +306,6 @@
 | [**F55**](#f55) | Modo aquisição hostil | [F103](#f103) | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 💤 |
-| [**F67**](#f67) | Abrir a pasta de configurações | — | ⏳ |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 💤 |
 | [**F72**](#f72) | Gráficos padronizados sobre o ChartContainer do shadcn | — | 💤 |
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
@@ -440,7 +437,6 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **F14** | Janela desktop nativa | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
-| **F67** | Abrir a pasta de configurações | — | — | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
 | **F135** | Tipos mais rígidos no frontend | — | — | — | Alto | Médio | Médio | Médio | ⏳ Pendente |
 | **F136** | Código e dependências sem uso | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
@@ -452,11 +448,6 @@
 
 <a id="f60"></a>
 **F60 — Modo servidor dedicado (`--headless`).** O mesmo executável, sem o navegador: para rodar numa VPS ou num PC ligado direto, sem ninguém jogando nele. `--headless` na linha de comando, ou `[server] headless = true` no `config.toml`, pula o `webbrowser.open` do `main.py`, que hoje roda sempre que o app é o executável, e imprime no terminal os endereços para entrar (o da rede local e, com a F6, o do túnel). O administrador é quem entra com o apelido de `[host] nickname`, que é como o host é definido hoje (`routes/simulation.py`). Como a recuperação de login é por apelido, num servidor exposto à internet qualquer um que digite esse apelido viraria o host; por isso, no modo servidor, o `config.toml` ganha `[host] pin`, e o login com o apelido do host só passa com ele. Serve a quem quer deixar uma sala aberta para os amigos entrarem quando quiserem, sem depender de o host estar com o computador ligado jogando.
-
-<a id="f67"></a>
-**F67 — Abrir a pasta de configurações.** O executável guarda `config.toml`, `.env` e `logs` na pasta de dados do usuário (`%LOCALAPPDATA%\SimuladorFinanceiro` no Windows), que o Windows esconde. Em vez de mudar os arquivos de lugar, a tela de configurações ganha o botão "Abrir pasta de configurações", como o "abrir pasta de mods" de vários jogos. (1) **Rota** `POST /api/settings/open-folder` em `routes/settings.py`, protegida por `verify_host` e que só aceita requisição vinda do próprio computador (`request.client.host` em `127.0.0.1` ou `::1`): o servidor também atende a rede local, e um convidado não pode abrir janelas na máquina do host. (2) **Abertura** da pasta de `app_files_dir()` com `os.startfile` no Windows, `open` no macOS e `xdg-open` no Linux, por `subprocess` sem shell. (3) **Sem interface gráfica** (servidor dedicado, Linux sem `xdg-open`) ou pedido fora do computador do host: a rota responde 409 com o caminho, e o front o mostra num campo com botão "Copiar". O caminho aparece sempre ao lado do botão, então o jogador também o encontra sem abrir nada. (4) Um segundo botão, "Abrir pasta de logs", usa a mesma rota com `target=logs`. Um aviso junto aos botões diz que `db` e `postgres` são do banco e não devem ser editados. Teste: a rota recusa quem não é o host e quem vem de outro IP, e chama o abridor do sistema (substituído por um dublê) com a pasta certa. Não serve nenhuma necessidade listada: o ganho é achar o `config.toml` sem caçar uma pasta oculta.
-
-**Aceite:** no executável do Windows aberto por duplo clique, o botão abre o Explorer na pasta que contém o `config.toml`; um convidado da rede local que chama a rota recebe 403.
 
 <a id="f81"></a>
 **F81 — CORS restrito à mesma origem.** O backend libera CORS para qualquer origem com credenciais (`allow_origins=["*"]` e `allow_credentials=True` no FastAPI, `cors_allowed_origins="*"` no Socket.IO). Não é necessário: o front é servido pelo próprio backend e, no `pnpm dev`, chega pelo proxy do Vite. Hoje o que protege o jogador de um site malicioso aberto durante a partida é o cookie `client_id` com `SameSite=Lax`, que o navegador não manda em requisição de outro site; o CORS liberado só deixa outro site ler as rotas que não pedem identidade. (1) Sai o `CORSMiddleware` de `main.py`. (2) O Socket.IO fica com `cors_allowed_origins` na mesma origem, mais `http://localhost:5173` quando o modo debug estiver ligado: o proxy do Vite troca o `Host` (`changeOrigin: true`) mas mantém o `Origin` do Vite, e o Socket.IO recusaria a conexão em dev sem essa exceção. (3) Teste manual antes de fechar: jogo pelo `localhost`, por outro computador da LAN pelo IP e pelo `pnpm dev`. Gatilho: junto com o link de convite pela internet, quando o servidor passa a ficar exposto fora da LAN.

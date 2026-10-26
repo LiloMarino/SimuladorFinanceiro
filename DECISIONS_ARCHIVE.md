@@ -829,3 +829,9 @@ O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F13
 *Kanban:* Host remove jogador da sala · 1. Atende necessidade · ✅ Concluído · atende N28
 
 **F61 — Host remove jogador da sala.** Cartão de cada pessoa no lobby ganhou o menu ⋯ (só para o host, nunca no próprio host nem nos bots) com "Remover da sala", que pede confirmação. A remoção só vale no lobby: com partida em andamento a rota recusa, então participante offline da partida salva segue dono da vaga e da cor e nada é apagado de simulation_players. A pessoa sai pelo mesmo caminho do logout, a vaga e a cor ficam livres na hora, e a página dela recebe o aviso "O host te removeu da sala" e encerra a sessão, como no botão Sair. A conta continua: o mesmo apelido pode entrar de novo se houver vaga.
+
+### F67 · arquivado em 2026-10-26
+
+*Kanban:* Abrir a pasta de configurações · 2. Nice-to-have · ✅ Concluído
+
+**F67 — Abrir a pasta de configurações.** Nas configurações, o host ganhou o cartão "Pastas do app", com os botões "Abrir pasta de configurações" (config.toml e .env) e "Abrir pasta de logs", e o caminho de cada pasta sempre à vista, com botão Copiar. A rota POST /api/settings/open-folder só atende o host e só requisição vinda do próprio computador (127.0.0.1 ou ::1); abre a pasta no Explorer, Finder ou xdg-open, sem shell. Sem janela para abrir (servidor dedicado, Linux sem xdg-open), a rota responde 409 com o caminho no aviso. Um aviso fixo diz que db e postgres são do banco e não devem ser editados. Os caminhos vêm de GET /api/settings/folders, também só para o host.
