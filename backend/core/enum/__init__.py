@@ -228,15 +228,24 @@ class AchievementIcon(Enum):
     WALLET = "WALLET"
     FLAME = "FLAME"
     CHART_CANDLESTICK = "CHART_CANDLESTICK"
+    RECEIPT = "RECEIPT"
+    ZAP = "ZAP"
+    LAYERS = "LAYERS"
+    ACTIVITY = "ACTIVITY"
+    MOUNTAIN = "MOUNTAIN"
+    HANDSHAKE = "HANDSHAKE"
+    TELESCOPE = "TELESCOPE"
+    MEDAL = "MEDAL"
 
 
 class AchievementUnit(Enum):
-    """Como o progresso da conquista é escrito: dinheiro, contagem ou meses."""
+    """Como o progresso da conquista é escrito: dinheiro, contagem, meses, dias ou pontos."""
 
     BRL = "BRL"
     COUNT = "COUNT"
     MONTHS = "MONTHS"
     DAYS = "DAYS"
+    POINTS = "POINTS"
 
 
 class LifeEventEffect(Enum):

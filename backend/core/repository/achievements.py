@@ -7,13 +7,18 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
+from backend.core.enum import AssetClass, DataOrigin
 from backend.core.models.models import (
     AchievementProgress,
     Achievements,
     EventEquity,
     EventFixedIncome,
+    Segments,
     Simulations,
+    Stock,
+    StockPriceHistory,
 )
+from backend.core.repository.series_version import seen_by
 
 
 @dataclass(frozen=True)
@@ -174,19 +179,7 @@ class AchievementsRepository:
     @transactional
     def held_assets(self, session: Session, simulation_id: int, user_id: int) -> int:
         """Ações e títulos de renda fixa com saldo positivo, somados."""
-        signed = case(
-            (EventEquity.event_type == "BUY", EventEquity.quantity),
-            else_=-EventEquity.quantity,
-        )
-        stocks = session.scalars(
-            select(EventEquity.stock_id)
-            .where(
-                EventEquity.simulation_id == simulation_id,
-                EventEquity.user_id == user_id,
-            )
-            .group_by(EventEquity.stock_id)
-            .having(func.sum(signed) > 0)
-        ).all()
+        stocks = session.scalars(_held_stock_ids(simulation_id, user_id)).all()
 
         signed_amount = case(
             (EventFixedIncome.event_type == "BUY", EventFixedIncome.amount),
@@ -202,3 +195,86 @@ class AchievementsRepository:
             .having(func.sum(signed_amount) > Decimal("0.01"))
         ).all()
         return len(stocks) + len(titles)
+
+    @transactional
+    def held_sectors(self, session: Session, simulation_id: int, user_id: int) -> int:
+        """Setores distintos das ações com saldo positivo; ativo sem setor não conta."""
+        return (
+            session.scalar(
+                select(func.count(func.distinct(Segments.sector_id)))
+                .select_from(Stock)
+                .join(Segments, Segments.id == Stock.segment_id)
+                .where(Stock.id.in_(_held_stock_ids(simulation_id, user_id)))
+            )
+            or 0
+        )
+
+    @transactional
+    def day_traded_assets(
+        self, session: Session, simulation_id: int, user_id: int
+    ) -> int:
+        """Quantos pares (ativo, dia) tiveram compra e venda; a cripto não tem day trade."""
+        bought = func.sum(case((EventEquity.event_type == "BUY", 1), else_=0))
+        sold = func.sum(case((EventEquity.event_type == "SELL", 1), else_=0))
+        pairs = (
+            select(EventEquity.stock_id)
+            .join(Stock, Stock.id == EventEquity.stock_id)
+            .where(
+                EventEquity.simulation_id == simulation_id,
+                EventEquity.user_id == user_id,
+                Stock.asset_class != AssetClass.CRYPTO.value,
+            )
+            .group_by(EventEquity.stock_id, EventEquity.event_date)
+            .having(bought > 0, sold > 0)
+            .subquery()
+        )
+        return session.scalar(select(func.count()).select_from(pairs)) or 0
+
+    @transactional
+    def equity_flows(
+        self, session: Session, simulation_id: int, user_id: int, since: date
+    ) -> list[tuple[str, date, Decimal]]:
+        """Quantidade líquida (compras - vendas) do jogador por ativo e dia, a partir de `since`."""
+        net = func.sum(_signed_quantity())
+        rows = session.execute(
+            select(Stock.ticker, EventEquity.event_date, net)
+            .join(Stock, Stock.id == EventEquity.stock_id)
+            .where(
+                EventEquity.simulation_id == simulation_id,
+                EventEquity.user_id == user_id,
+                EventEquity.event_date >= since,
+            )
+            .group_by(Stock.ticker, EventEquity.event_date)
+        ).all()
+        return [(ticker, day, quantity) for ticker, day, quantity in rows if quantity]
+
+    @transactional
+    def real_market_end(self, session: Session, simulation_id: int) -> date | None:
+        """O último pregão com dado real que a partida enxerga; None sem mercado real."""
+        return session.scalar(
+            select(func.max(StockPriceHistory.price_date)).where(
+                StockPriceHistory.origin == DataOrigin.REAL.value,
+                seen_by(StockPriceHistory, simulation_id),
+            )
+        )
+
+
+def _signed_quantity():
+    """Compra soma e venda subtrai, para o saldo de cada ativo."""
+    return case(
+        (EventEquity.event_type == "BUY", EventEquity.quantity),
+        else_=-EventEquity.quantity,
+    )
+
+
+def _held_stock_ids(simulation_id: int, user_id: int):
+    """Os ativos de renda variável com saldo positivo do jogador na partida."""
+    return (
+        select(EventEquity.stock_id)
+        .where(
+            EventEquity.simulation_id == simulation_id,
+            EventEquity.user_id == user_id,
+        )
+        .group_by(EventEquity.stock_id)
+        .having(func.sum(_signed_quantity()) > 0)
+    )

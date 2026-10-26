@@ -85,6 +85,15 @@ class SimulationSettingsDTO(BaseDTO):
     first_election: date | None = None
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
 
+    @property
+    def expert_mode(self) -> bool:
+        """Modo Especialista: todas as ajudas escondidas."""
+        return not (
+            self.show_equivalent_rate
+            or self.show_maturity_projection
+            or self.show_chart_hints
+        )
+
     @model_validator(mode="after")
     def validate_rules(self):
         if self.start_date > self.end_date:

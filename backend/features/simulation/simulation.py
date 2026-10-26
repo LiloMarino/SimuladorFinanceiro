@@ -230,7 +230,9 @@ class Simulation:
         self._goal_reached = False
 
         # Os snapshots do último pregão são a base da avaliação final das conquistas
-        self._achievements = AchievementEvaluator(settings)
+        self._achievements = AchievementEvaluator(
+            settings, self._engine.assess_income_tax
+        )
         self._last_snapshots: dict[int, SnapshotDTO] = {}
 
         # O mês do último dia processado já recebeu o aporte

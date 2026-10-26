@@ -1,4 +1,5 @@
 import {
+  Activity,
   ChartCandlestick,
   CloudLightning,
   CircleHelp,
@@ -9,22 +10,29 @@ import {
   Gem,
   Hammer,
   HandCoins,
+  Handshake,
   Hourglass,
   Landmark,
+  Layers,
   Lock,
   type LucideIcon,
+  Medal,
+  Mountain,
   Percent,
   PiggyBank,
+  Receipt,
   Rocket,
   ShieldCheck,
   ShoppingCart,
   Snowflake,
   Sunrise,
   Target,
+  Telescope,
   TrendingUp,
   Trophy,
   Users,
   Wallet,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import type { AchievementIconName } from "@/types";
@@ -54,6 +62,14 @@ const ICONS: Record<AchievementIconName, LucideIcon> = {
   WALLET: Wallet,
   FLAME: Flame,
   CHART_CANDLESTICK: ChartCandlestick,
+  RECEIPT: Receipt,
+  ZAP: Zap,
+  LAYERS: Layers,
+  ACTIVITY: Activity,
+  MOUNTAIN: Mountain,
+  HANDSHAKE: Handshake,
+  TELESCOPE: Telescope,
+  MEDAL: Medal,
 };
 
 type AchievementIconProps = {

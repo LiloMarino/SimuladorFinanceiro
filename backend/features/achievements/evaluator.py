@@ -1,3 +1,6 @@
+from collections.abc import Callable
+from functools import cache
+
 from backend.core import repository
 from backend.core.dto.achievements import (
     AchievementUnlockedEventDTO,
@@ -12,9 +15,12 @@ from backend.features.achievements.metrics import (
     METRICS,
     Context,
     MatchResult,
+    Sources,
     Trigger,
+    no_income_tax,
 )
 from backend.features.statistics.report import build_overview_report
+from backend.features.variable_income.income_tax import MonthlyTax
 
 ALL_TRIGGERS = frozenset(Trigger)
 
@@ -25,8 +31,19 @@ class AchievementEvaluator:
     bloqueadas são testadas, e cada métrica é calculada uma vez por jogador e pregão.
     """
 
-    def __init__(self, settings: SimulationDTO):
+    def __init__(
+        self,
+        settings: SimulationDTO,
+        income_tax: Callable[[int], list[MonthlyTax]] | None = None,
+    ):
         self._settings = settings
+        # O mercado real da partida não muda durante ela: lido uma vez
+        self._sources = Sources(
+            income_tax=income_tax or no_income_tax,
+            market_real_end=cache(
+                lambda: repository.achievements.real_market_end(settings.id)
+            ),
+        )
         # Conquistas já desbloqueadas de cada jogador, lidas do banco uma vez por partida
         self._unlocked: dict[int, set[str]] = {}
 
@@ -45,7 +62,7 @@ class AchievementEvaluator:
                 triggers.add(Trigger.ORDER)
             if month_changed:
                 triggers.add(Trigger.MONTH)
-            context = Context(user_id, self._settings, snapshot)
+            context = Context(user_id, self._settings, snapshot, sources=self._sources)
             if new := self._evaluate(context, triggers, track_progress=month_changed):
                 unlocked[user_id] = new
         return unlocked
@@ -56,7 +73,7 @@ class AchievementEvaluator:
         """Roda todas as métricas com o resultado da partida na mão."""
         unlocked = {}
         for user_id, snapshot in snapshots.items():
-            context = Context(user_id, self._settings, snapshot, result)
+            context = Context(user_id, self._settings, snapshot, result, self._sources)
             if new := self._evaluate(context, ALL_TRIGGERS, track_progress=True):
                 unlocked[user_id] = new
         return unlocked

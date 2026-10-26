@@ -69,6 +69,8 @@ class MonthlyTax:
     stock_sales: Decimal
     crypto_sales: Decimal
     exempt_profit: Decimal
+    # A parte do `exempt_profit` que vem de ações em operação comum
+    stock_exempt_profit: Decimal
     pools: Mapping[LossPool, PoolResult]
     tax: Decimal
     darf_amount: Decimal | None
@@ -280,6 +282,11 @@ def assess(
             and class_sales[cls] <= limit
         }
         exempt_profit = sum((raw[key].result for key in exempt_keys), ZERO)
+        stock_exempt_profit = (
+            raw[(AssetClass.STOCK, False)].result
+            if (AssetClass.STOCK, False) in exempt_keys
+            else ZERO
+        )
 
         # Líquido de cada conjunto de compensação, abatido do prejuízo acumulado
         pools: dict[LossPool, PoolResult] = {}
@@ -313,6 +320,7 @@ def assess(
                 stock_sales=class_sales[AssetClass.STOCK],
                 crypto_sales=class_sales[AssetClass.CRYPTO],
                 exempt_profit=exempt_profit,
+                stock_exempt_profit=stock_exempt_profit,
                 pools=pools,
                 tax=tax,
                 darf_amount=due if emits else None,

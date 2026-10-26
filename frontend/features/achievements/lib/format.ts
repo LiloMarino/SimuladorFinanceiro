@@ -28,6 +28,8 @@ export function displayProgress({ current, goal, unit }: Progress) {
       return `${displayNumber(current, 0)} de ${displayNumber(goal, 0)} meses`;
     case "DAYS":
       return `${displayNumber(current, 0)} de ${displayNumber(goal, 0)} dias`;
+    case "POINTS":
+      return `${displayNumber(current, 0)} de ${displayNumber(goal, 0)} pontos`;
   }
 }
 

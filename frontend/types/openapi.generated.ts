@@ -2673,7 +2673,7 @@ export interface components {
          * @description Nomes dos ícones do `lucide-react`; o front tem um ícone para cada valor.
          * @enum {string}
          */
-        AchievementIcon: "SHOPPING_CART" | "LANDMARK" | "HAND_COINS" | "HAMMER" | "TRENDING_UP" | "PIGGY_BANK" | "GEM" | "CROWN" | "EGG" | "CLOUD_LIGHTNING" | "SNOWFLAKE" | "PERCENT" | "TARGET" | "SHIELD_CHECK" | "TROPHY" | "USERS" | "FLAG" | "ROCKET" | "HOURGLASS" | "SUNRISE" | "WALLET" | "FLAME" | "CHART_CANDLESTICK";
+        AchievementIcon: "SHOPPING_CART" | "LANDMARK" | "HAND_COINS" | "HAMMER" | "TRENDING_UP" | "PIGGY_BANK" | "GEM" | "CROWN" | "EGG" | "CLOUD_LIGHTNING" | "SNOWFLAKE" | "PERCENT" | "TARGET" | "SHIELD_CHECK" | "TROPHY" | "USERS" | "FLAG" | "ROCKET" | "HOURGLASS" | "SUNRISE" | "WALLET" | "FLAME" | "CHART_CANDLESTICK" | "RECEIPT" | "ZAP" | "LAYERS" | "ACTIVITY" | "MOUNTAIN" | "HANDSHAKE" | "TELESCOPE" | "MEDAL";
         /**
          * AchievementProgressDTO
          * @description Onde a conquista com meta numérica está: `current` de `goal`, na unidade `unit`.
@@ -2687,10 +2687,10 @@ export interface components {
         };
         /**
          * AchievementUnit
-         * @description Como o progresso da conquista é escrito: dinheiro, contagem ou meses.
+         * @description Como o progresso da conquista é escrito: dinheiro, contagem, meses, dias ou pontos.
          * @enum {string}
          */
-        AchievementUnit: "BRL" | "COUNT" | "MONTHS" | "DAYS";
+        AchievementUnit: "BRL" | "COUNT" | "MONTHS" | "DAYS" | "POINTS";
         /** AchievementUnlockDTO */
         AchievementUnlockDTO: {
             /**

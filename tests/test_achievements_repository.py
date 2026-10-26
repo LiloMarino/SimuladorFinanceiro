@@ -7,7 +7,9 @@ import pytest
 
 from backend.core import repository
 from backend.core.dto.events.equity import EquityEventDTO
-from backend.core.enum import AssetClass, EquityEventType
+from backend.core.dto.sector import StockSegmentDTO
+from backend.core.enum import AssetClass, DataOrigin, EquityEventType
+from backend.core.models.models import StockPriceHistory
 from backend.features.achievements import service
 from tests.fakes import client, simulation_settings
 
@@ -129,3 +131,62 @@ def test_event_measures_follow_the_orders(match: tuple[int, int]):
     # AAA foi vendida inteira, sobra BBB
     assert stats.held_assets(simulation_id, user_id) == 1
     assert stats.fixed_income_buys(simulation_id, user_id) == 0
+
+
+def test_sector_day_trade_and_flow_measures(match: tuple[int, int]):
+    user_id, simulation_id = match
+    sectors = {"AAA": "Energia", "BBB": "Energia", "CCC": "Bancos"}
+    for ticker, sector in sectors.items():
+        repository.stock.add_stock(ticker, ticker, AssetClass.STOCK)
+        repository.stock.classify(ticker, StockSegmentDTO(sector=sector, segment="X"))
+    repository.stock.add_stock("DDD", "DDD", AssetClass.STOCK)
+    buy, sell = EquityEventType.BUY, EquityEventType.SELL
+    repository.event.insert_many(
+        [
+            order(user_id, simulation_id, "AAA", buy, date(2020, 1, 2)),
+            order(user_id, simulation_id, "BBB", buy, date(2020, 1, 2)),
+            order(user_id, simulation_id, "CCC", buy, date(2020, 1, 2)),
+            # Sem setor, não conta
+            order(user_id, simulation_id, "DDD", buy, date(2020, 1, 2)),
+            # CCC comprada e vendida no mesmo dia: day trade, e sai da carteira
+            order(user_id, simulation_id, "CCC", sell, date(2020, 1, 2)),
+            order(user_id, simulation_id, "AAA", sell, date(2020, 1, 3)),
+        ]
+    )
+    stats = repository.achievements
+
+    # AAA foi vendida inteira: sobram BBB (Energia) e DDD (sem setor)
+    assert stats.held_sectors(simulation_id, user_id) == 1
+    assert stats.day_traded_assets(simulation_id, user_id) == 1
+    assert stats.equity_flows(simulation_id, user_id, date(2020, 1, 3)) == [
+        ("AAA", date(2020, 1, 3), Decimal(-10))
+    ]
+
+
+def test_real_market_end_ignores_generated_days(match: tuple[int, int]):
+    _, simulation_id = match
+    stock = repository.stock.add_stock("AAA", "AAA", AssetClass.STOCK)
+    assert repository.achievements.real_market_end(simulation_id) is None
+
+    def row(day: date, origin: DataOrigin) -> StockPriceHistory:
+        return StockPriceHistory(
+            stock_id=stock.id,
+            price_date=day,
+            open=1,
+            high=1,
+            low=1,
+            close=1,
+            volume=1,
+            origin=origin.value,
+        )
+
+    repository.stock.save_real_prices(
+        stock.id,
+        [
+            row(date(2020, 1, 2), DataOrigin.REAL),
+            row(date(2020, 1, 3), DataOrigin.REAL),
+            row(date(2020, 1, 6), DataOrigin.GENERATED),
+        ],
+    )
+
+    assert repository.achievements.real_market_end(simulation_id) == date(2020, 1, 3)

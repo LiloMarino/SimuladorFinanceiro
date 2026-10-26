@@ -84,6 +84,7 @@ def test_selling_15k_with_profit_debits_nothing():
     assert months[(2024, 2)].tax == 0
     assert months[(2024, 2)].darf_amount is None
     assert months[(2024, 2)].exempt_profit == Decimal("2500")
+    assert months[(2024, 2)].stock_exempt_profit == Decimal("2500")
 
 
 def test_month_nets_every_sale_before_taxing():
@@ -328,6 +329,8 @@ def test_crypto_sales_up_to_35k_are_exempt():
     february = months[(2024, 2)]
     assert february.crypto_sales == Decimal("30000")
     assert february.exempt_profit == Decimal("5000")
+    # A isenção da cripto não conta como a de ações
+    assert february.stock_exempt_profit == 0
     assert february.tax == 0
 
 

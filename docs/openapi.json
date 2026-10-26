@@ -7762,7 +7762,15 @@
           "SUNRISE",
           "WALLET",
           "FLAME",
-          "CHART_CANDLESTICK"
+          "CHART_CANDLESTICK",
+          "RECEIPT",
+          "ZAP",
+          "LAYERS",
+          "ACTIVITY",
+          "MOUNTAIN",
+          "HANDSHAKE",
+          "TELESCOPE",
+          "MEDAL"
         ],
         "title": "AchievementIcon",
         "description": "Nomes dos ícones do `lucide-react`; o front tem um ícone para cada valor."
@@ -7797,10 +7805,11 @@
           "BRL",
           "COUNT",
           "MONTHS",
-          "DAYS"
+          "DAYS",
+          "POINTS"
         ],
         "title": "AchievementUnit",
-        "description": "Como o progresso da conquista é escrito: dinheiro, contagem ou meses."
+        "description": "Como o progresso da conquista é escrito: dinheiro, contagem, meses, dias ou pontos."
       },
       "AchievementUnlockDTO": {
         "properties": {

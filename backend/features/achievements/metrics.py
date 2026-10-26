@@ -14,9 +14,14 @@ from backend.core import repository
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import SnapshotDTO
-from backend.core.enum import GameType
+from backend.core.enum import GameType, PlayerGrouping
 from backend.core.utils import next_business_day
-from backend.features.statistics import returns, risk
+from backend.features.statistics import returns, risk, score
+from backend.features.variable_income.income_tax import MonthlyTax
+from backend.features.variable_income.price_impact import (
+    AVERAGE_VOLUME_WINDOW,
+    impact,
+)
 
 ZERO = Decimal(0)
 ONE = Decimal(1)
@@ -28,6 +33,11 @@ DOWNTURN_DEPTH = Decimal("0.20")
 STORM_DEPTH = Decimal("0.30")
 # Caixa abaixo desta fração do patrimônio conta como tudo investido
 FULLY_INVESTED_CASH_SHARE = Decimal("0.01")
+# Deslocamento do preço, em fração, a partir do qual a ordem do jogador "mexeu no mercado"
+MARKET_MOVE = 0.005
+# Dias corridos lidos para trás ao procurar a ordem que moveu o preço: cobrem o intervalo
+# entre o dia da ordem e o pregão em que o avaliador a vê
+MARKET_MOVE_LOOKBACK_DAYS = 7
 
 
 class Trigger(Enum):
@@ -61,6 +71,27 @@ class MatchResult:
 NO_MATCH = MatchResult(winners=frozenset(), players_count=0, ended_by_goal=False)
 
 
+def no_income_tax(_user_id: int) -> list[MonthlyTax]:
+    return []
+
+
+def no_market_end() -> date | None:
+    return None
+
+
+@dataclass(frozen=True)
+class Sources:
+    """Leituras que dependem da partida em andamento e valem para todos os jogadores."""
+
+    # Apuração mensal do IR de um jogador, como o motor a calcula
+    income_tax: Callable[[int], list[MonthlyTax]] = no_income_tax
+    # Último pregão com dado real; None sem mercado real
+    market_real_end: Callable[[], date | None] = no_market_end
+
+
+NO_SOURCES = Sources()
+
+
 @dataclass(eq=False)
 class Context:
     """O jogador no pregão avaliado; o que as métricas lêem do banco é lido uma vez."""
@@ -69,6 +100,7 @@ class Context:
     settings: SimulationDTO
     snapshot: SnapshotDTO
     match: MatchResult = NO_MATCH
+    sources: Sources = NO_SOURCES
     _values: dict[str, Decimal] = field(default_factory=dict)
 
     @property
@@ -86,6 +118,11 @@ class Context:
     @cached_property
     def won(self) -> bool:
         return self.user_id in self.match.winners
+
+    @cached_property
+    def won_against_others(self) -> bool:
+        """Venceu com pelo menos mais um jogador na partida."""
+        return self.won and self.match.players_count >= 2
 
     def buy_dates(self) -> list[date]:
         return repository.achievements.equity_order_dates(
@@ -156,6 +193,13 @@ def fully_invested(ctx: Context) -> Decimal:
     )
 
 
+@metric("beyond_horizon", Trigger.TICK)
+def beyond_horizon(ctx: Context) -> Decimal:
+    """Hoje está depois do último pregão com dado real: o mercado daqui em diante é gerado."""
+    real_end = ctx.sources.market_real_end()
+    return _flag(real_end is not None and ctx.today > real_end)
+
+
 @metric("candle_challenge_hits", Trigger.TICK)
 def candle_challenge_hits(ctx: Context) -> Decimal:
     """Acertos do jogador no desafio da vela nesta partida, entre as respostas já conferidas."""
@@ -200,6 +244,43 @@ def held_assets(ctx: Context) -> Decimal:
     return Decimal(repository.achievements.held_assets(ctx.settings.id, ctx.user_id))
 
 
+@metric("held_sectors", Trigger.ORDER)
+def held_sectors(ctx: Context) -> Decimal:
+    return Decimal(repository.achievements.held_sectors(ctx.settings.id, ctx.user_id))
+
+
+@metric("day_traded", Trigger.ORDER)
+def day_traded(ctx: Context) -> Decimal:
+    return _flag(
+        repository.achievements.day_traded_assets(ctx.settings.id, ctx.user_id) > 0
+    )
+
+
+@metric("moved_market", Trigger.ORDER)
+def moved_market(ctx: Context) -> Decimal:
+    """
+    Uma ordem do jogador, sozinha, deslocou o preço de um ativo em `MARKET_MOVE` ou mais.
+    O deslocamento é o do impacto de preço (quantidade líquida do dia sobre o volume
+    médio), então só existe na partida com o impacto ligado.
+    """
+    settings = ctx.settings
+    if not settings.price_impact_enabled:
+        return ZERO
+    since = ctx.today - timedelta(days=MARKET_MOVE_LOOKBACK_DAYS)
+    for ticker, day, quantity in repository.achievements.equity_flows(
+        settings.id, ctx.user_id, since
+    ):
+        average_volume = repository.stock.get_average_volume(
+            ticker, day, AVERAGE_VOLUME_WINDOW, simulation_id=settings.id
+        )
+        if (
+            abs(impact(quantity, average_volume, settings.price_impact_k))
+            >= MARKET_MOVE
+        ):
+            return ONE
+    return ZERO
+
+
 @metric("bought_on_first_day", Trigger.ORDER)
 def bought_on_first_day(ctx: Context) -> Decimal:
     first_day = next_business_day(ctx.settings.start_date - timedelta(days=1))
@@ -235,6 +316,27 @@ def beat_ibov_year(ctx: Context) -> Decimal:
         return ZERO
     quota = returns.cumulative_returns(window, risk.daily_returns(window))
     return _flag(quota[-1][1] > ibov[-1][1])
+
+
+@metric("exempt_month", Trigger.MONTH)
+def exempt_month(ctx: Context) -> Decimal:
+    """Fechou um mês com ganho em ações isento, por vender abaixo do teto, e sem imposto."""
+    current_month = (ctx.today.year, ctx.today.month)
+    return _flag(
+        any(
+            (m.year, m.month) < current_month
+            and m.stock_exempt_profit > 0
+            and m.tax == 0
+            for m in ctx.sources.income_tax(ctx.user_id)
+        )
+    )
+
+
+@metric("overall_score", Trigger.MONTH)
+def overall_score(ctx: Context) -> Decimal:
+    """Nota geral do jogador hoje; zero antes dos pregões que a nota exige."""
+    player_score = score.player_score(ctx.history)
+    return player_score.total if player_score else ZERO
 
 
 @metric("days_without_selling", Trigger.MONTH)
@@ -343,8 +445,19 @@ def outperformed_storm(ctx: Context) -> Decimal:
 
 @metric("matches_won", Trigger.MATCH_END)
 def matches_won(ctx: Context) -> Decimal:
-    """Venceu com pelo menos mais um jogador na partida."""
-    return _flag(ctx.won and ctx.match.players_count >= 2)
+    return _flag(ctx.won_against_others)
+
+
+@metric("won_expert_mode", Trigger.MATCH_END)
+def won_expert_mode(ctx: Context) -> Decimal:
+    return _flag(ctx.won_against_others and ctx.settings.expert_mode)
+
+
+@metric("won_as_team", Trigger.MATCH_END)
+def won_as_team(ctx: Context) -> Decimal:
+    return _flag(
+        ctx.won_against_others and ctx.settings.player_grouping is PlayerGrouping.TEAMS
+    )
 
 
 @metric("won_room_size", Trigger.MATCH_END)

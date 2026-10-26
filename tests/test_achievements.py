@@ -9,7 +9,12 @@ from backend.core import repository
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import SnapshotDTO
-from backend.core.enum import AchievementCategory, AchievementIcon, IndicatorSeries
+from backend.core.enum import (
+    AchievementCategory,
+    AchievementIcon,
+    IndicatorSeries,
+    PlayerGrouping,
+)
 from backend.core.runtime.event_manager import EventManager
 from backend.core.utils import next_business_day
 from backend.features.achievements import metrics, service
@@ -19,8 +24,10 @@ from backend.features.achievements.metrics import (
     METRICS,
     Context,
     MatchResult,
+    Sources,
     Trigger,
 )
+from backend.features.variable_income.income_tax import MonthlyTax
 from tests.conftest import SetIndicator
 from tests.fakes import simulation_settings
 
@@ -49,8 +56,17 @@ def snapshot(
     )
 
 
-def context(snap: SnapshotDTO, match: MatchResult = metrics.NO_MATCH) -> Context:
-    return Context(1, SETTINGS, snap, match)
+def context(
+    snap: SnapshotDTO,
+    match: MatchResult = metrics.NO_MATCH,
+    settings: SimulationDTO = SETTINGS,
+    sources: Sources = metrics.NO_SOURCES,
+) -> Context:
+    return Context(1, settings, snap, match, sources)
+
+
+def settings_with(**rules: object) -> SimulationDTO:
+    return SimulationDTO(id=1, **{**simulation_settings().model_dump(), **rules})
 
 
 # --------------------------------------------------
@@ -112,6 +128,18 @@ class FakeAchievements:
 
     def equity_order_dates(self, simulation_id, user_id, event_type):
         return []
+
+    def held_sectors(self, simulation_id, user_id):
+        return 0
+
+    def day_traded_assets(self, simulation_id, user_id):
+        return 0
+
+    def equity_flows(self, simulation_id, user_id, since):
+        return []
+
+    def real_market_end(self, simulation_id):
+        return None
 
 
 @pytest.fixture
@@ -322,3 +350,124 @@ def test_history_metrics_read_the_history_once(monkeypatch: pytest.MonkeyPatch):
 
 def test_metric_triggers_are_known():
     assert {m.when for m in METRICS.values()} <= set(Trigger)
+
+
+# --------------------------------------------------
+# As métricas da leva de conquistas sobre as features recentes
+# --------------------------------------------------
+
+
+def month_tax(year: int, month: int, *, exempt: str, tax: str = "0") -> MonthlyTax:
+    return MonthlyTax(
+        year=year,
+        month=month,
+        stock_sales=Decimal(0),
+        crypto_sales=Decimal(0),
+        exempt_profit=Decimal(exempt),
+        stock_exempt_profit=Decimal(exempt),
+        pools={},
+        tax=Decimal(tax),
+        darf_amount=None,
+        due_date=None,
+    )
+
+
+def test_exempt_month_needs_a_closed_month_with_exempt_stock_profit_and_no_tax():
+    today = snapshot(day=date(2020, 3, 2))
+    cases = [
+        ([month_tax(2020, 2, exempt="500")], 1),
+        # O mês em curso ainda pode virar imposto
+        ([month_tax(2020, 3, exempt="500")], 0),
+        ([month_tax(2020, 2, exempt="0")], 0),
+        ([month_tax(2020, 2, exempt="500", tax="30")], 0),
+        ([], 0),
+    ]
+    for months, expected in cases:
+        sources = Sources(income_tax=lambda _user_id, m=months: m)
+
+        ctx = context(today, sources=sources)
+
+        assert ctx.value("exempt_month") == Decimal(expected)
+
+
+def test_beyond_horizon_starts_the_day_after_the_last_real_one():
+    sources = Sources(market_real_end=lambda: date(2020, 1, 10))
+
+    for day, expected in [(date(2020, 1, 10), 0), (date(2020, 1, 13), 1)]:
+        ctx = context(snapshot(day=day), sources=sources)
+        assert ctx.value("beyond_horizon") == Decimal(expected)
+    # Sem mercado real não há horizonte
+    assert context(snapshot()).value("beyond_horizon") == Decimal(0)
+
+
+def test_overall_score_is_the_total_and_zero_before_there_is_one(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.setattr(repository.portfolio, "get_patrimonial_history", lambda _: [])
+    assert context(snapshot()).value("overall_score") == Decimal(0)
+
+    monkeypatch.setattr(
+        metrics.score, "player_score", lambda _h: type("S", (), {"total": Decimal(212)})
+    )
+    assert context(snapshot()).value("overall_score") == Decimal(212)
+
+
+def test_moved_market_needs_the_price_impact_and_an_order_big_enough(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.setattr(
+        repository.stock, "get_average_volume", lambda *_a, **_k: 1000.0
+    )
+    on = settings_with(price_impact_enabled=True)
+
+    # k = 0,02: 100 sobre 1.000 de volume médio desloca 0,63%; 10 desloca 0,2%
+    for quantity, expected in [("100", 1), ("-100", 1), ("10", 0)]:
+        monkeypatch.setattr(
+            repository.achievements,
+            "equity_flows",
+            lambda *_a, q=quantity: [("AAA", START, Decimal(q))],
+        )
+        ctx = context(snapshot(), settings=on)
+        assert ctx.value("moved_market") == Decimal(expected)
+
+    monkeypatch.setattr(
+        repository.achievements,
+        "equity_flows",
+        lambda *_a: [("AAA", START, Decimal(100))],
+    )
+    assert context(snapshot()).value("moved_market") == Decimal(0)
+
+
+def test_expert_mode_is_every_assistance_hidden():
+    hidden = {
+        "show_equivalent_rate": False,
+        "show_maturity_projection": False,
+        "show_chart_hints": False,
+    }
+
+    assert settings_with(**hidden).expert_mode
+    assert not settings_with(**{**hidden, "show_chart_hints": True}).expert_mode
+    assert not SETTINGS.expert_mode
+
+
+def test_match_end_metrics_for_expert_mode_and_teams():
+    won = MatchResult(frozenset({1}), players_count=3, ended_by_goal=False)
+    alone = MatchResult(frozenset({1}), players_count=1, ended_by_goal=False)
+    lost = MatchResult(frozenset({2}), players_count=3, ended_by_goal=False)
+    expert = settings_with(
+        show_equivalent_rate=False,
+        show_maturity_projection=False,
+        show_chart_hints=False,
+    )
+    teams = settings_with(player_grouping=PlayerGrouping.TEAMS)
+
+    def value(name: str, settings: SimulationDTO, match: MatchResult) -> Decimal:
+        return context(snapshot(), match, settings).value(name)
+
+    assert value("won_expert_mode", expert, won) == Decimal(1)
+    assert value("won_expert_mode", SETTINGS, won) == Decimal(0)
+    assert value("won_expert_mode", expert, lost) == Decimal(0)
+    assert value("won_expert_mode", expert, alone) == Decimal(0)
+    assert value("won_as_team", teams, won) == Decimal(1)
+    assert value("won_as_team", SETTINGS, won) == Decimal(0)
+    assert value("won_as_team", teams, lost) == Decimal(0)

@@ -125,6 +125,16 @@ CATALOG: tuple[Achievement, ...] = (
         Decimal(8),
         Unit.COUNT,
     ),
+    Achievement(
+        "every_sector",
+        "Em todo setor",
+        "Manteve ações de 5 setores diferentes ao mesmo tempo.",
+        Icon.LAYERS,
+        Category.WEALTH,
+        "held_sectors",
+        Decimal(5),
+        Unit.COUNT,
+    ),
     # Mercado
     Achievement(
         "outperformed_storm",
@@ -178,6 +188,30 @@ CATALOG: tuple[Achievement, ...] = (
         Decimal(10),
         Unit.COUNT,
     ),
+    Achievement(
+        "within_exemption",
+        "Dentro da isenção",
+        "Fechou um mês vendendo ações com lucro e sem pagar imposto, por ficar abaixo do limite de isenção.",
+        Icon.RECEIPT,
+        Category.MARKET,
+        "exempt_month",
+    ),
+    Achievement(
+        "day_trader",
+        "Day trader",
+        "Comprou e vendeu o mesmo ativo no mesmo dia.",
+        Icon.ZAP,
+        Category.MARKET,
+        "day_traded",
+    ),
+    Achievement(
+        "moved_the_market",
+        "Mexeu o mercado",
+        "Fez uma ordem grande o bastante para mover o preço do ativo, numa partida com impacto de preço.",
+        Icon.ACTIVITY,
+        Category.MARKET,
+        "moved_market",
+    ),
     # Partida
     Achievement(
         "first_win",
@@ -219,6 +253,40 @@ CATALOG: tuple[Achievement, ...] = (
         Icon.SUNRISE,
         Category.MATCH,
         "won_financial_independence",
+    ),
+    Achievement(
+        "no_crutches",
+        "Sem muletas",
+        "Venceu uma partida no modo Especialista, sem nenhuma ajuda.",
+        Icon.MOUNTAIN,
+        Category.MATCH,
+        "won_expert_mode",
+    ),
+    Achievement(
+        "winning_team",
+        "Time vencedor",
+        "Venceu uma partida em equipes.",
+        Icon.HANDSHAKE,
+        Category.MATCH,
+        "won_as_team",
+    ),
+    Achievement(
+        "beyond_the_horizon",
+        "Além do horizonte",
+        "Jogou um dia depois do último com dado real: daqui em diante o mercado é gerado.",
+        Icon.TELESCOPE,
+        Category.MATCH,
+        "beyond_horizon",
+    ),
+    Achievement(
+        "ace_score",
+        "Nota de craque",
+        "Chegou a 250 pontos na nota geral.",
+        Icon.MEDAL,
+        Category.MATCH,
+        "overall_score",
+        Decimal(250),
+        Unit.POINTS,
     ),
     # Secretas
     Achievement(
