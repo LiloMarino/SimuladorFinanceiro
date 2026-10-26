@@ -445,6 +445,19 @@ def get_active_players():
     ]
 
 
+@simulation_router.delete(
+    "/players/{nickname}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Remover um jogador da sala",
+    description="Tira a pessoa da sala no lobby: a vaga e a cor ficam livres e a página dela encerra a sessão com o aviso de que o host a removeu. Recusa com 409 o host e a partida em andamento; com 404, quem não está na sala (para bots, use a rota de bots). Apenas o host pode executar.",
+)
+def remove_player(nickname: str, _: HostVerified):
+    """
+    Remove uma pessoa da sala.
+    """
+    UserManager.remove_player(nickname)
+
+
 @simulation_router.put(
     "/players/me/color",
     status_code=status.HTTP_204_NO_CONTENT,

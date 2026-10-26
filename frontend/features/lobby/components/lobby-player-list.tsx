@@ -22,6 +22,7 @@ import { joinNames } from "../lib/join-names";
 import { LobbyBotDialog } from "./lobby-bot-dialog";
 import { LobbyBotMenu } from "./lobby-bot-menu";
 import { LobbyColorPicker } from "./lobby-color-picker";
+import { LobbyPlayerMenu } from "./lobby-player-menu";
 import { LobbyTeamPicker } from "./lobby-team-picker";
 
 type LobbyPlayersListProps = {
@@ -171,6 +172,7 @@ export function LobbyPlayersList({
                     {bot && isHost && !bot.locked && (
                       <LobbyBotMenu player={player} onConfigure={() => setBotDialog({ bot: player })} />
                     )}
+                    {!bot && isHost && !isRoomHost && <LobbyPlayerMenu player={player} />}
                   </div>
                 )}
               </div>
@@ -237,7 +239,7 @@ export function LobbyPlayersList({
         {full && isHost && selectedSimulationId === null && (
           <p className="mt-3.5 flex items-center gap-2 rounded-lg bg-subtle px-2.5 py-2 text-xs text-muted-foreground">
             <Info className="size-3.5 shrink-0" />
-            Sala cheia: para pôr outro bot, remova um jogador ou um bot.
+            Sala cheia: para pôr outro bot, remova um jogador ou um bot (⋯ no cartão).
           </p>
         )}
 

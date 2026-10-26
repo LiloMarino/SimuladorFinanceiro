@@ -2012,6 +2012,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/players/{nickname}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remover um jogador da sala
+         * @description Tira a pessoa da sala no lobby: a vaga e a cor ficam livres e a página dela encerra a sessão com o aviso de que o host a removeu. Recusa com 409 o host e a partida em andamento; com 404, quem não está na sala (para bots, use a rota de bots). Apenas o host pode executar.
+         */
+        delete: operations["remove_player_api_simulation_players__nickname__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/players/me/color": {
         parameters: {
             query?: never;
@@ -5427,6 +5447,14 @@ export interface components {
             /** Delinquent */
             delinquent: boolean;
         };
+        /**
+         * PlayerRemovedEventDTO
+         * @description Só para quem o host tirou da sala: a página encerra a sessão e conta o motivo.
+         */
+        PlayerRemovedEventDTO: {
+            /** Nickname */
+            nickname: string;
+        };
         /** PlayerReturnsDTO */
         PlayerReturnsDTO: {
             /** Player Nickname */
@@ -5942,6 +5970,7 @@ export interface components {
             order_partial_executed: components["schemas"]["OrderPartialExecutedEventDTO"];
             player_join: components["schemas"]["PlayerPresenceEventDTO"];
             player_exit: components["schemas"]["PlayerPresenceEventDTO"];
+            player_removed: components["schemas"]["PlayerRemovedEventDTO"];
             player_color: components["schemas"]["PlayerPresenceEventDTO"];
             player_team: components["schemas"]["PlayerPresenceEventDTO"];
             player_activity: components["schemas"]["PlayerPresenceEventDTO"];
@@ -12115,6 +12144,44 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PlayerNickname"][];
                 };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    remove_player_api_simulation_players__nickname__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nickname: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unprocessable Content */
             422: {

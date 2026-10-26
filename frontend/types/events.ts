@@ -34,6 +34,7 @@ export type SimulationEvents = {
   order_partial_executed: OrderPartialExecutedEvent;
   player_join: RealtimeEventCatalog["player_join"];
   player_exit: RealtimeEventCatalog["player_exit"];
+  player_removed: RealtimeEventCatalog["player_removed"];
   player_color: RealtimeEventCatalog["player_color"];
   player_team: RealtimeEventCatalog["player_team"];
   player_activity: RealtimeEventCatalog["player_activity"];

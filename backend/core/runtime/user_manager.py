@@ -7,6 +7,7 @@ from threading import Lock
 from typing import ClassVar
 from uuid import UUID, uuid4
 
+from backend.config import toml as app_toml
 from backend.core import repository
 from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.strategy import StrategyParamValue
@@ -198,6 +199,35 @@ class UserManager:
         cls._client_user_cache.pop(client_id, None)
 
         logger.info("Usuário saiu (logout): client_id=%s", client_id)
+
+    @classmethod
+    def remove_player(cls, nickname: str) -> None:
+        """
+        O host tira uma pessoa da sala, no lobby. Sai pelo caminho do logout (a vaga e a
+        cor ficam livres na hora) e o próprio jogador é avisado para encerrar a sessão.
+        O usuário e o histórico dele ficam: só a presença na sala acaba.
+        """
+        if SimulationManager.has_active_simulation():
+            raise ConflictError(
+                "A partida já começou: só dá para remover alguém no lobby."
+            )
+        if nickname == app_toml.host.nickname:
+            raise ConflictError("O host não se remove da sala.")
+
+        with cls._lock:
+            client_id = next(
+                (
+                    cid
+                    for cid, p in cls._active_players.items()
+                    if cid not in cls._bots and p.nickname == nickname
+                ),
+                None,
+            )
+        if client_id is None:
+            raise NotFoundError("Esse jogador não está na sala.")
+
+        cls.player_logout(client_id)
+        cls._emit_player_removed(nickname, client_id)
 
     @classmethod
     def is_pending_join(cls, user: UserDTO) -> bool:
@@ -1025,6 +1055,20 @@ class UserManager:
             PlayerPresenceEventDTO(
                 nickname=user.nickname, color=color, bot=bot
             ).to_json(),
+        )
+
+    @classmethod
+    def _emit_player_removed(cls, nickname: str, client_id: UUID):
+        from backend.features.realtime import notify  # noqa: PLC0415
+        from backend.features.realtime.schemas import (  # noqa: PLC0415
+            PlayerRemovedEventDTO,
+        )
+
+        logger.info("Jogador removido da sala pelo host: %s", nickname)
+        notify(
+            "player_removed",
+            PlayerRemovedEventDTO(nickname=nickname).to_json(),
+            to=client_id,
         )
 
     @classmethod

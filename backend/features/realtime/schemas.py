@@ -67,6 +67,12 @@ class PlayerPresenceEventDTO(BaseDTO):
     previous_nickname: str | None = None
 
 
+class PlayerRemovedEventDTO(BaseDTO):
+    """Só para quem o host tirou da sala: a página encerra a sessão e conta o motivo."""
+
+    nickname: str
+
+
 class SimulationSelectedEventDTO(BaseDTO):
     simulation_id: int | None
 
@@ -257,6 +263,7 @@ class RealtimeEventCatalog(BaseDTO):
     order_partial_executed: OrderPartialExecutedEventDTO
     player_join: PlayerPresenceEventDTO
     player_exit: PlayerPresenceEventDTO
+    player_removed: PlayerRemovedEventDTO
     player_color: PlayerPresenceEventDTO
     player_team: PlayerPresenceEventDTO
     player_activity: PlayerPresenceEventDTO

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Users } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useAuth } from "@/shared/hooks/useAuth";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { queryKeys } from "../lib/queryKeys";
@@ -15,6 +16,7 @@ export function GlobalNotifications() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { preferences } = useNotificationPreferences();
+  const { logout } = useAuth();
 
   useRealtime(
     "order_executed",
@@ -55,6 +57,12 @@ export function GlobalNotifications() {
     },
     preferences.players.join_exit,
   );
+
+  // O host tirou este jogador da sala: o aviso conta o motivo e a sessão encerra, como no botão Sair
+  useRealtime("player_removed", () => {
+    toast.warning("O host te removeu da sala", { description: "Entre de novo com o seu apelido para voltar." });
+    void logout();
+  });
 
   // Conquista nova: o aviso (o sonner pausa a contagem com o mouse em cima) e a lista renovada
   useRealtime("achievement_unlocked", ({ achievements }) => {
