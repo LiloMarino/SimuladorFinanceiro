@@ -805,3 +805,9 @@ O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F13
 *Kanban:* Filtro "Na carteira" na renda fixa · 1. Atende necessidade · ✅ Concluído · atende N15 · marco M16
 
 **F155 — Filtro "Na carteira" na renda fixa.** Serve N15. Entregue: o filtro "Na carteira · N" (contagem dos títulos da lista que o jogador tem) ao lado dos filtros de liquidez e isenção; com ele ligado, cada título mostra o valor aplicado.
+
+### F150 · arquivado em 2026-10-26
+
+*Kanban:* Aviso de abertura da campanha · 1. Atende necessidade · ✅ Concluído · atende N34 · marco M17
+
+**F150 — Aviso de abertura da campanha.** Serve N34. Entregue: no dia em que a campanha abre (inclusive quando já abre no primeiro dia da partida) a partida pausa para todos e um diálogo conta a data do 1º turno e o dia em que as chapas fecham, com atalhos para Fundar partido e Filiar-se (quem não tem partido) ou Contribuição (quem tem), que abrem a página da eleição já com o diálogo certo. Dois lembretes sem pausa, como toast: 7 dias antes de as chapas fecharem e na véspera do 1º turno (o último dia útil antes da votação). Os avisos são eventos em tempo real; a retomada de uma partida não repete a abertura. Teste novo garante que a contribuição de campanha não é cobrada antes da campanha, entre os turnos nem depois do resultado. Fora: cada aviso virar entrada da caixa de entrada, que ainda não existe.
