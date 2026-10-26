@@ -95,7 +95,6 @@
 | [**F131**](#f131) | Catálogo de padrões de vela | — | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | — | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | ⏳ |
-| [**F135**](#f135) | Tipos mais rígidos no frontend | — | ⏳ |
 | [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | ⏳ |
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
 | [**F141**](#f141) | README com as features de hoje | — | ⏳ |
@@ -159,7 +158,6 @@
 | [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
-| [**F135**](#f135) | Tipos mais rígidos no frontend | — | 0 | ⏳ |
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | M14 | 0 | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
 | [**F151**](#f151) | Segundo turno com disputa | M17 | 0 | 🔍 |
@@ -284,7 +282,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/25 concluídas
+> **Progresso:** 0/24 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -311,7 +309,6 @@
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
-| [**F135**](#f135) | Tipos mais rígidos no frontend | — | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
 
 ---
@@ -409,7 +406,6 @@
 | **F14** | Janela desktop nativa | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
-| **F135** | Tipos mais rígidos no frontend | — | — | — | Alto | Médio | Médio | Médio | ⏳ Pendente |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -419,9 +415,6 @@
 
 <a id="f81"></a>
 **F81 — CORS restrito à mesma origem.** O backend libera CORS para qualquer origem com credenciais (`allow_origins=["*"]` e `allow_credentials=True` no FastAPI, `cors_allowed_origins="*"` no Socket.IO). Não é necessário: o front é servido pelo próprio backend e, no `pnpm dev`, chega pelo proxy do Vite. Hoje o que protege o jogador de um site malicioso aberto durante a partida é o cookie `client_id` com `SameSite=Lax`, que o navegador não manda em requisição de outro site; o CORS liberado só deixa outro site ler as rotas que não pedem identidade. (1) Sai o `CORSMiddleware` de `main.py`. (2) O Socket.IO fica com `cors_allowed_origins` na mesma origem, mais `http://localhost:5173` quando o modo debug estiver ligado: o proxy do Vite troca o `Host` (`changeOrigin: true`) mas mantém o `Origin` do Vite, e o Socket.IO recusaria a conexão em dev sem essa exceção. (3) Teste manual antes de fechar: jogo pelo `localhost`, por outro computador da LAN pelo IP e pelo `pnpm dev`. Gatilho: junto com o link de convite pela internet, quando o servidor passa a ficar exposto fora da LAN.
-
-<a id="f135"></a>
-**F135 — Tipos mais rígidos no frontend.** Liga três checagens que o TypeScript e o oxlint têm e o projeto não usa. `noUncheckedIndexedAccess` (237 erros hoje): ler `lista[i]` ou `registro[chave]` passa a dar `T | undefined`, e o código precisa tratar o item que não existe. `exactOptionalPropertyTypes` (222): um campo opcional deixa de aceitar `undefined` escrito explicitamente, o que separa "campo ausente" de "campo presente e vazio". `typescript/no-unnecessary-condition` (66): condição que o tipo diz ser sempre verdadeira ou sempre falsa. As três só valem se o tipo gerado da API (`types/openapi.generated.ts`) for fiel ao que o backend manda: um campo que sempre vem, mas sai opcional no OpenAPI, faz a regra pedir checagem à toa. Plano: conferir quais DTOs do backend saem com campo opcional sem precisar (o FastAPI marca como opcional todo campo com valor padrão) e corrigir no schema; depois ligar uma flag por vez, corrigir e commitar separado. Gatilho: um bug de item ausente ou de campo opcional chegar ao jogador, ou uma rodada de qualidade.
 
 ---
 ## 3. Descartada
