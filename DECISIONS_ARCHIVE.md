@@ -799,3 +799,9 @@ O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F13
 *Kanban:* Desligar o automático na própria boleta · 1. Atende necessidade · ✅ Concluído · atende N4, N15 · marco M16
 
 **F149 — Desligar o automático na própria boleta.** Serve N4 e N15. O aviso das boletas travadas ganhou o botão "Desligar o automático", que chama a mesma mutation da página de Estratégias (movida para shared/hooks/mutations) e destrava a boleta no lugar, mantendo ativo, lado, quantidade e preço; o link "Ir para Estratégias" continua. Vale para a boleta da renda variável e as da renda fixa. Sem confirmação: as ordens abertas são canceladas ao desligar, como na página de Estratégias.
+
+### F155 · arquivado em 2026-10-26
+
+*Kanban:* Filtro "Na carteira" na renda fixa · 1. Atende necessidade · ✅ Concluído · atende N15 · marco M16
+
+**F155 — Filtro "Na carteira" na renda fixa.** Serve N15. Entregue: o filtro "Na carteira · N" (contagem dos títulos da lista que o jogador tem) ao lado dos filtros de liquidez e isenção; com ele ligado, cada título mostra o valor aplicado.

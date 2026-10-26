@@ -32,7 +32,7 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F134](#f134), [F155](#f155) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F134](#f134) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
@@ -114,7 +114,6 @@
 | [**F152**](#f152) | Promessas de campanha em texto | — | 🔍 |
 | [**F153**](#f153) | Congresso eleito, com bancadas | — | 🔍 |
 | [**F154**](#f154) | Negociar apoio com as bancadas | — | 🔍 |
-| [**F155**](#f155) | Filtro "Na carteira" na renda fixa | — | ⏳ |
 | [**F156**](#f156) | Estatísticas rápidas em partida longa | — | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
@@ -185,7 +184,6 @@
 | [**F150**](#f150) | Aviso de abertura da campanha | M17 | 0 | ⏳ |
 | [**F151**](#f151) | Segundo turno com disputa | M17 | 0 | 🔍 |
 | [**F152**](#f152) | Promessas de campanha em texto | M17 | 0 | 🔍 |
-| [**F155**](#f155) | Filtro "Na carteira" na renda fixa | M16 | 0 | ⏳ |
 | [**F156**](#f156) | Estatísticas rápidas em partida longa | M16 | 0 | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
@@ -282,11 +280,10 @@
 >
 > **Serve:** N4, N8, N15, N33, N34, N40
 >
-> **Progresso:** 0/3 concluídas
+> **Progresso:** 0/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F155**](#f155) | Filtro "Na carteira" na renda fixa | — | ⏳ |
 | [**F156**](#f156) | Estatísticas rápidas em partida longa | — | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
 
@@ -378,7 +375,6 @@
 | **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F145** | Convite de vice para qualquer jogador | N34 | — | M17 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F150** | Aviso de abertura da campanha | N34 | — | M17 | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
-| **F155** | Filtro "Na carteira" na renda fixa | N15 | — | M16 | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
 | **F156** | Estatísticas rápidas em partida longa | N40, N38 | — | M16 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
@@ -461,9 +457,6 @@
 
 <a id="f150"></a>
 **F150 — Aviso de abertura da campanha.** Serve N34. A campanha abre sem aviso (1 ano antes do 1º turno, ou no início da partida), e no playtest ninguém percebeu a tempo de fundar partido, se filiar ou mudar a contribuição. Plano: no dia da abertura, um evento `campaign_opened` pausa a partida, como já fazem o resultado de turno e o impeachment, e abre para todos um aviso com a data do 1º turno, o dia em que as chapas fecham e atalhos para Fundar partido, Filiar-se e Contribuição. Dois lembretes sem pausa, como toast: alguns dias antes de as chapas fecharem e na véspera do 1º turno. Quando a caixa de entrada (F91) existir, cada aviso também vira uma entrada da sala; o aviso não espera por ela.
-
-<a id="f155"></a>
-**F155 — Filtro "Na carteira" na renda fixa.** Serve N15. A renda variável já tem o filtro "Na carteira · N" (`variable-income.tsx:16`, `:51` e `:126`); a renda fixa não (`fixed-income.tsx`, filtros de índice, tipo, isentos e liquidez em `:74` a `:87` e `:320` a `:334`), e para ver os títulos que tem o jogador desce até o fim da Carteira. Plano: o mesmo filtro, com a contagem, na barra de filtros da renda fixa, cruzando os títulos da lista com as posições de renda fixa da carteira; com o filtro ligado, cada linha mostra também o valor aplicado. O filtro da renda variável existe e passou despercebido no playtest: vale conferir se ele está à vista.
 
 <a id="f156"></a>
 **F156 — Estatísticas rápidas em partida longa.** Serve N40 e N38. A tela demora a abrir em partida longa, e o backend explica: as rotas de `/api/statistics/*` (`routes/statistics.py:39` a `:155`) leem todos os snapshots diários de todos os jogadores, sem recorte de data (`core/repository/statistics.py:32` e `:54`), e recalculam tudo a cada pedido. Como as estatísticas só mudam na virada do mês, o plano é: (1) medir com o painel de desempenho, numa partida salva longa, quanto vai na leitura e quanto no cálculo; (2) guardar o relatório do mês fechado em memória, por simulação, e devolver o guardado até a próxima virada; (3) nos gráficos de série, mandar um ponto por semana ou por mês quando o período passa de um ano, em vez de um por dia útil. **Aceite:** numa partida de 10 anos com 4 jogadores, a aba Geral abre em menos de 1 segundo.
