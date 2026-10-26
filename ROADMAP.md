@@ -96,7 +96,6 @@
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | — | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | ⏳ |
 | [**F135**](#f135) | Tipos mais rígidos no frontend | — | ⏳ |
-| [**F138**](#f138) | Piloto do modo strict do pyright | — | ⏳ |
 | [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | ⏳ |
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
 | [**F141**](#f141) | README com as features de hoje | — | ⏳ |
@@ -161,7 +160,6 @@
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
 | [**F135**](#f135) | Tipos mais rígidos no frontend | — | 0 | ⏳ |
-| [**F138**](#f138) | Piloto do modo strict do pyright | — | 0 | ⏳ |
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | M14 | 0 | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
 | [**F151**](#f151) | Segundo turno com disputa | M17 | 0 | 🔍 |
@@ -286,7 +284,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/26 concluídas
+> **Progresso:** 0/25 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -314,7 +312,6 @@
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
 | [**F135**](#f135) | Tipos mais rígidos no frontend | — | ⏳ |
-| [**F138**](#f138) | Piloto do modo strict do pyright | — | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
 
 ---
@@ -413,7 +410,6 @@
 | **F60** | Modo servidor dedicado (--headless) | — | — | — | Baixo | Baixo | Baixo | Bom | 💤 Registrado, sem prioridade |
 | **F81** | CORS restrito à mesma origem | — | — | [F6](#f6) | Baixo | Médio | Baixo | Médio | 💤 Registrado, sem prioridade |
 | **F135** | Tipos mais rígidos no frontend | — | — | — | Alto | Médio | Médio | Médio | ⏳ Pendente |
-| **F138** | Piloto do modo strict do pyright | — | — | — | Médio | Baixo | Baixo | Médio | ⏳ Pendente |
 
 <a id="f14"></a>
 **F14 — Janela desktop nativa.** Troca o `webbrowser.open` de `main.py` por uma janela própria via `pywebview`, que usa o WebView do sistema operacional (WebView2 no Windows 10/11, já instalado) e é Python puro — entra no mesmo executável do PyInstaller sem toolchain nova. O uvicorn sobe numa thread e a janela aponta para `localhost`; se o WebView do sistema faltar, cai para o navegador como hoje. Flag no TOML para escolher. Não serve nenhuma necessidade listada (o jogo já funciona no navegador); o ganho é parecer um app desktop. Os convidados do multiplayer continuam entrando pelo navegador.
@@ -426,9 +422,6 @@
 
 <a id="f135"></a>
 **F135 — Tipos mais rígidos no frontend.** Liga três checagens que o TypeScript e o oxlint têm e o projeto não usa. `noUncheckedIndexedAccess` (237 erros hoje): ler `lista[i]` ou `registro[chave]` passa a dar `T | undefined`, e o código precisa tratar o item que não existe. `exactOptionalPropertyTypes` (222): um campo opcional deixa de aceitar `undefined` escrito explicitamente, o que separa "campo ausente" de "campo presente e vazio". `typescript/no-unnecessary-condition` (66): condição que o tipo diz ser sempre verdadeira ou sempre falsa. As três só valem se o tipo gerado da API (`types/openapi.generated.ts`) for fiel ao que o backend manda: um campo que sempre vem, mas sai opcional no OpenAPI, faz a regra pedir checagem à toa. Plano: conferir quais DTOs do backend saem com campo opcional sem precisar (o FastAPI marca como opcional todo campo com valor padrão) e corrigir no schema; depois ligar uma flag por vez, corrigir e commitar separado. Gatilho: um bug de item ausente ou de campo opcional chegar ao jogador, ou uma rodada de qualidade.
-
-<a id="f138"></a>
-**F138 — Piloto do modo strict do pyright.** O `strict` no projeto inteiro dá 3.352 achados; `backend/config`, `backend/routes` e `main.py` ficam quase limpos. Plano: listar essas pastas em `strict` no `pyrightconfig.json`, corrigir os achados e medir quanto cada achado custou; se o custo por achado valer, ampliar pasta por pasta, começando pelas que não tocam o pandas. Gatilho: livre.
 
 ---
 ## 3. Descartada
