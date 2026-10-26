@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-25):** Registradas a regravação da demonstração, a reorganização da docs por tipo de leitor e a atualização do README, no marco Vitrine e primeiros passos.
+> **Última mudança (2026-10-26):** Registrados os achados do playtest: correções no marco Partida sem tropeços, a eleição e o Congresso no marco Eleição e Congresso disputados, e a preparação de cada jogador no lobby.
 
 ## Glossário
 
@@ -21,18 +21,18 @@
 | **N1** | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — |
 | **N2** | Jogar com amigos pela internet sem que cada um instale uma VPN | [F6](#f6) | — |
 | **N3** | Confiar que os números do simulador são exatos e reprodutíveis | [F22](#f22), [F100](#f100) | — |
-| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F10](#f10), [F110](#f110), [F111](#f111), [F127](#f127) | — |
+| **N4** | Testar uma estratégia de investimento automática e ver como ela se sai | [F10](#f10), [F110](#f110), [F111](#f111), [F127](#f127), [F149](#f149) | — |
 | **N5** | Saber quanto risco foi corrido para chegar num resultado | — | — |
 | **N6** | Comparar resultados de simulações diferentes | — | — |
 | **N7** | Que o simulador cobre os custos de operar do mercado real | [F22](#f22), [F100](#f100) | — |
-| **N8** | Jogar contra oponentes controlados pelo computador | — | — |
+| **N8** | Jogar contra oponentes controlados pelo computador | [F146](#f146) | — |
 | **N9** | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — |
 | **N10** | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | — | — |
 | **N11** | Que o cenário econômico simulado seja o histórico real | — | — |
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F134](#f134) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F134](#f134), [F144](#f144), [F149](#f149), [F155](#f155) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
@@ -50,12 +50,14 @@
 | **N30** | Repetir uma configuração de partida sem montá-la de novo | — | — |
 | **N31** | Saber o que está movendo o mercado da partida, como quem lê o noticiário | [F92](#f92) | — |
 | **N32** | Saber como foi o mês sem montar a conta | [F91](#f91) | — |
-| **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111) | — |
-| **N34** | Disputar o poder de mudar as regras da economia da partida | — | — |
+| **N33** | Investir com dinheiro emprestado, pagando o juro do momento | [F111](#f111), [F148](#f148) | — |
+| **N34** | Disputar o poder de mudar as regras da economia da partida | [F144](#f144), [F145](#f145), [F147](#f147), [F150](#f150) | — |
 | **N35** | Tirar da lista as partidas que não interessam mais | — | — |
 | **N36** | Encontrar rapidamente os menores e maiores valores nos dados do jogo | — | — |
 | **N37** | Comprar bitcoin do jeito que dá na vida real, em frações | [F127](#f127) | — |
-| **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | — | — |
+| **N38** | Saber quando as estatísticas vão mudar, sem achar que travaram | [F156](#f156) | — |
+| **N39** | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | — |
+| **N40** | Jogar partidas longas e na velocidade máxima sem a tela travar | [F156](#f156) | — |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | — | 🔍 |
 | [**F6**](#f6) | Link de convite pela internet no lobby | — | ⏳ |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
@@ -105,6 +107,22 @@
 | [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | ⏳ |
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
 | [**F141**](#f141) | README com as features de hoje | — | ⏳ |
+| [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
+| [**F144**](#f144) | Ajustes de layout do playtest | — | ⏳ |
+| [**F145**](#f145) | Convite de vice para qualquer jogador | — | ⏳ |
+| [**F146**](#f146) | Bots "saindo" ao iniciar a partida | — | ⏳ |
+| [**F147**](#f147) | Nome do presidente eleito aparecendo como null | — | ⏳ |
+| [**F148**](#f148) | Empréstimo que não se deixa pagar com o jogador negativado | — | ⏳ |
+| [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
+| [**F150**](#f150) | Aviso de abertura da campanha | — | ⏳ |
+| [**F151**](#f151) | Segundo turno com disputa | — | 🔍 |
+| [**F152**](#f152) | Promessas de campanha em texto | — | 🔍 |
+| [**F153**](#f153) | Congresso eleito, com bancadas | — | 🔍 |
+| [**F154**](#f154) | Negociar apoio com as bancadas | — | 🔍 |
+| [**F155**](#f155) | Filtro "Na carteira" na renda fixa | — | ⏳ |
+| [**F156**](#f156) | Estatísticas rápidas em partida longa | — | ⏳ |
+| [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
+| [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
@@ -149,19 +167,20 @@
 | [**F91**](#f91) | Caixa de entrada e resumo do mês | M15 | 2 | ⏳ |
 | [**F106**](#f106) | Governo & Política: gasto público e inflação | — | 1 | 🔍 |
 | [**F139**](#f139) | Demonstração regravada com o jogo de hoje | M14 | 1 | ⏳ |
+| [**F153**](#f153) | Congresso eleito, com bancadas | M17 | 1 | 🔍 |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F61**](#f61) | Host remove jogador da sala | — | 0 | ⏳ |
 | [**F67**](#f67) | Abrir a pasta de configurações | — | 0 | ⏳ |
 | [**F90**](#f90) | Cenários | — | 0 | 🔍 |
-| [**F107**](#f107) | Perfis de público na eleição | — | 0 | 🔍 |
+| [**F107**](#f107) | Perfis de público na eleição | M17 | 0 | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
 | [**F122**](#f122) | Novas conquistas para as features recentes e antigas | — | 0 | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 0 | 🔍 |
-| [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 0 | 🔍 |
-| [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 0 | 🔍 |
+| [**F129**](#f129) | Governo & Política: rever a aprovação do governo | M17 | 0 | 🔍 |
+| [**F130**](#f130) | Governo & Política: rever os votos e a eleição | M17 | 0 | 🔍 |
 | [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
@@ -171,6 +190,20 @@
 | [**F137**](#f137) | Acessibilidade das telas | — | 0 | ⏳ |
 | [**F138**](#f138) | Piloto do modo strict do pyright | — | 0 | ⏳ |
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | M14 | 0 | ⏳ |
+| [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
+| [**F144**](#f144) | Ajustes de layout do playtest | M16 | 0 | ⏳ |
+| [**F145**](#f145) | Convite de vice para qualquer jogador | M17 | 0 | ⏳ |
+| [**F146**](#f146) | Bots "saindo" ao iniciar a partida | M16 | 0 | ⏳ |
+| [**F147**](#f147) | Nome do presidente eleito aparecendo como null | M16 | 0 | ⏳ |
+| [**F148**](#f148) | Empréstimo que não se deixa pagar com o jogador negativado | M16 | 0 | ⏳ |
+| [**F149**](#f149) | Desligar o automático na própria boleta | M16 | 0 | ⏳ |
+| [**F150**](#f150) | Aviso de abertura da campanha | M17 | 0 | ⏳ |
+| [**F151**](#f151) | Segundo turno com disputa | M17 | 0 | 🔍 |
+| [**F152**](#f152) | Promessas de campanha em texto | M17 | 0 | 🔍 |
+| [**F155**](#f155) | Filtro "Na carteira" na renda fixa | M16 | 0 | ⏳ |
+| [**F156**](#f156) | Estatísticas rápidas em partida longa | M16 | 0 | ⏳ |
+| [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | 🔍 |
+| [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
 
 ---
 
@@ -261,7 +294,7 @@
 >
 > **Serve:** N25
 >
-> **Progresso:** 1/6 concluídas
+> **Progresso:** 1/7 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -270,6 +303,7 @@
 | [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | ⏳ |
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
 | [**F141**](#f141) | README com as features de hoje | [F139](#f139) | ⏳ |
+| [**F158**](#f158) | Animações do Como jogar revistas | [F126](#f126) | 🔍 |
 
 <details><summary>Concluído (1 item)</summary>
 
@@ -293,9 +327,48 @@
 | [**F92**](#f92) | Noticiário da partida | [F91](#f91) | ⏳ |
 | [**F93**](#f93) | Rumores antecipados | [F92](#f92) | 🔍 |
 
+### M16 — Partida sem tropeços
+
+> **Objetivo:** Repetir uma partida com amigos, do lobby ao fim, sem os erros e as travas que o playtest mostrou.
+>
+> **Serve:** N4, N8, N15, N33, N34, N40
+>
+> **Progresso:** 0/8 concluídas
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F144**](#f144) | Ajustes de layout do playtest | — | ⏳ |
+| [**F146**](#f146) | Bots "saindo" ao iniciar a partida | — | ⏳ |
+| [**F147**](#f147) | Nome do presidente eleito aparecendo como null | — | ⏳ |
+| [**F148**](#f148) | Empréstimo que não se deixa pagar com o jogador negativado | — | ⏳ |
+| [**F149**](#f149) | Desligar o automático na própria boleta | — | ⏳ |
+| [**F155**](#f155) | Filtro "Na carteira" na renda fixa | — | ⏳ |
+| [**F156**](#f156) | Estatísticas rápidas em partida longa | — | ⏳ |
+| [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
+
+### M17 — Eleição e Congresso disputados
+
+> **Objetivo:** Uma eleição que todos percebem começar, com 2º turno disputado, promessas visíveis e um Congresso eleito que pesa em cada votação.
+>
+> **Serve:** N34
+>
+> **Progresso:** 0/9 concluídas
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F107**](#f107) | Perfis de público na eleição | — | 🔍 |
+| [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 🔍 |
+| [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 🔍 |
+| [**F145**](#f145) | Convite de vice para qualquer jogador | — | ⏳ |
+| [**F150**](#f150) | Aviso de abertura da campanha | — | ⏳ |
+| [**F151**](#f151) | Segundo turno com disputa | — | 🔍 |
+| [**F152**](#f152) | Promessas de campanha em texto | — | 🔍 |
+| [**F153**](#f153) | Congresso eleito, com bancadas | — | 🔍 |
+| [**F154**](#f154) | Negociar apoio com as bancadas | [F153](#f153) | 🔍 |
+
 ### Sem marco
 
-> **Progresso:** 2/36 concluídas
+> **Progresso:** 2/34 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -318,7 +391,6 @@
 | [**F104**](#f104) | Gestoras: co-gestores | [F44](#f44) | 🔍 |
 | [**F105**](#f105) | Gestoras: rendimentos mensais | [F44](#f44), [F100](#f100) | 🔍 |
 | [**F106**](#f106) | Governo & Política: gasto público e inflação | — | 🔍 |
-| [**F107**](#f107) | Perfis de público na eleição | — | 🔍 |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
@@ -326,13 +398,12 @@
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
-| [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 🔍 |
-| [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 🔍 |
 | [**F134**](#f134) | Acabamentos das telas | — | ⏳ |
 | [**F135**](#f135) | Tipos mais rígidos no frontend | — | ⏳ |
 | [**F136**](#f136) | Código e dependências sem uso | — | ⏳ |
 | [**F137**](#f137) | Acessibilidade das telas | — | ⏳ |
 | [**F138**](#f138) | Piloto do modo strict do pyright | — | ⏳ |
+| [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
 
 <details><summary>Concluído (2 itens)</summary>
 
@@ -373,6 +444,15 @@
 | **F139** | Demonstração regravada com o jogo de hoje | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F140** | Docs reorganizada por tipo de leitor | N25 | — | M14 | — | Alto | Baixo | Alto | Bom | ⏳ Pendente |
 | **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F144** | Ajustes de layout do playtest | N15, N34 | — | M16 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F145** | Convite de vice para qualquer jogador | N34 | — | M17 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
+| **F146** | Bots "saindo" ao iniciar a partida | N8 | — | M16 | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
+| **F147** | Nome do presidente eleito aparecendo como null | N34 | — | M16 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
+| **F148** | Empréstimo que não se deixa pagar com o jogador negativado | N33 | — | M16 | — | Médio | Médio | Alto | Excelente | ⏳ Pendente |
+| **F149** | Desligar o automático na própria boleta | N4, N15 | — | M16 | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F150** | Aviso de abertura da campanha | N34 | — | M17 | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F155** | Filtro "Na carteira" na renda fixa | N15 | — | M16 | — | Baixo | Baixo | Médio | Excelente | ⏳ Pendente |
+| **F156** | Estatísticas rápidas em partida longa | N40, N38 | — | M16 | — | Médio | Médio | Alto | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -457,6 +537,33 @@
 
 <a id="f141"></a>
 **F141 — README com as features de hoje.** Serve N25; retrabalho da F48. O README lista o que o jogo fazia em 2026-10-21 e termina em "Estratégias automáticas: em breve", que já existe. Plano: (1) "O que ele faz" ganha modo automático com estratégias e bots, crédito, governo e eleição, cripto e análise técnica, cada um com uma frase e a imagem da demonstração regravada (F139); as seções com GIF ficam nas quatro ou cinco mais fortes, e o resto vai para "E também", que deixa de ter item "em breve". (2) O parágrafo de abertura e os tipos de partida conferidos contra o lobby de hoje (presets, período). (3) Os links para os docs apontam para as páginas da reorganização (F140) quando ela tiver mudado os caminhos. (4) A intro dos docs repete a mesma lista, e as duas mudam juntas. Gatilho: F139 publicada.
+
+<a id="f144"></a>
+**F144 — Ajustes de layout do playtest.** Serve N15 e N34. Três trocas locais, sem rota nem modelo novos. (1) **Aba Expansões do lobby:** os cards ficam estreitos porque o grid divide a aba em duas colunas a partir do `sm` e o card de dentro divide de novo (`expansion-fields.tsx:53` e `:111`); o card passa a ocupar a largura da aba, com as opções internas em duas colunas só em telas largas. (2) **Sigla do partido:** hoje vai de 2 a 5 letras maiúsculas, no DTO (`core/dto/government.py:20` e `:33`), no `government_book.py:211` e no formulário (`found-party-dialog.tsx:28`, `:32` e `:108`); o teto sobe para 8 letras nos três lugares, e os lugares que mostram a sigla (selo do partido, pesquisa, resultado do turno, topbar do governo) são conferidos com uma sigla de 8. (3) **Rentabilidade por jogador:** em partida longa, a aba (`statistics-report/returns-tab.tsx`, título em `:339`) estoura a largura da tela; o conteúdo largo ganha rolagem própria dentro do card e a página fica sem rolagem horizontal.
+
+<a id="f145"></a>
+**F145 — Convite de vice para qualquer jogador.** Serve N34. Hoje o vice sai de um `Select` com os filiados do partido (`ticket-dialog.tsx:81`), e o backend recusa quem não é filiado (`government_book.py:311`); o convite e o aceite já existem (`government_book.py:343`, `vice-invite-dialog.tsx`). Plano: (1) **Regra:** o vice pode ser qualquer jogador humano da sala, de outro partido ou sem partido, como numa coligação, e continua filiado ao próprio partido. Fica bloqueado quem já é vice de outra chapa, quem é candidato de alguma chapa e os bots. (2) **Quem convida:** o `Select` vira uma lista de todos os jogadores, com o partido de cada um, e os bloqueados aparecem desabilitados com o motivo ("já é vice do ABC", "candidato pelo XYZ"). (3) **Quem é convidado:** um aviso que se abre na tela dele, pelo Socket.IO, com aceitar e recusar, reaproveitando o `vice-invite-dialog.tsx`; quem convida vê o convite como pendente até a resposta. (4) **Efeitos:** no impeachment, assume o vice enquanto ele estiver na partida, sem exigir filiação; na vitória política, o vice soma para o próprio partido. Esse aviso de aceitar ou recusar é o mecanismo que a negociação com as bancadas (F154) reaproveita.
+
+<a id="f146"></a>
+**F146 — Bots "saindo" ao iniciar a partida.** Serve N8. Ao começar a partida, o log mostrou "Tio Patinhas saiu da sala". O início chama `release_bots` (`simulation_loader.py:58` e `:132`), que tira os bots da sala com `_take_out_bots(park=False)` (`user_manager.py:848`) e emite a saída de cada um pelo mesmo `_emit_player_exit` da saída de verdade; o front transforma isso no aviso de saída (`GlobalNotifications.tsx:54`). Plano: separar a liberação do lobby, que acontece no início, da remoção do bot, e emitir a saída só na remoção (`remove_bot`, `user_manager.py:789`), para o bot passar do lobby à partida sem aviso. Teste: iniciar uma partida com bot na sala e conferir que nenhum evento de saída é emitido.
+
+<a id="f147"></a>
+**F147 — Nome do presidente eleito aparecendo como null.** Serve N34. No playtest, o anúncio do resultado mostrou "null" no lugar do jogador eleito. Os pontos que montam o nome: o resultado do turno usa o nome do candidato, com o nome do partido como reserva (`round-result-dialog.tsx:79`), a posse mostra só a sigla (`government-notifications.tsx:101`) e o evento de tempo real tem `party_abbr` e `winner_abbr` opcionais, sem o nome do jogador (`realtime/schemas.py:199`). Plano: reproduzir na partida salva do playtest até o resultado; achar qual campo chega nulo (o caso provável é o candidato que saiu da sala, sem apelido no `user_manager`); levar o nome do eleito no próprio evento, gravado no momento da apuração, para o texto não depender de o jogador estar online; e mostrar "o candidato do ABC" quando a chapa não tiver candidato.
+
+<a id="f148"></a>
+**F148 — Empréstimo que não se deixa pagar com o jogador negativado.** Serve N33. No playtest, um jogador negativado com R$ 20 mil em caixa não conseguiu pagar um empréstimo que a tela mostrava como "Pagar R$ 13 mil", e o console falava em empréstimo infinito. O `logs/error.log` de 25/out tem a pista: a simulação de empréstimo (`routes/credit.py:41`, `features/credit/overview.py:355`) quebra com `leverage_after = Infinity`, porque a alavancagem (dívida ÷ patrimônio) divide por um patrimônio líquido zero ou negativo. O resumo da tela já trata esse caso (`overview.py:296`, nulo quando o patrimônio não é positivo); a simulação e as linhas `:193` e `:375` não. Plano: (1) alavancagem com patrimônio ≤ 0 vira "sem limite" (nulo no DTO e "—" na tela) em todo lugar que a calcula, com teste para patrimônio zero e negativo; (2) abrir a partida salva do playtest e refazer o pagamento, para confirmar se a recusa vinha desse erro (a tela de Crédito quebrando por causa dele) ou do `_require_cash` (`credit_book.py:681`), que compara o valor com o caixa; (3) se for o caixa, conferir de onde sai o valor do botão e o caixa usado na conferência, que precisam ser o mesmo número. **Aceite:** na partida salva, o jogador negativado paga a parcela com o caixa que tem.
+
+<a id="f149"></a>
+**F149 — Desligar o automático na própria boleta.** Serve N4 e N15. Com o automático ligado, a boleta fica travada (`order-ticket.tsx:72`, `inert` em `:156`) e o aviso manda o jogador para Estratégias (`trade-lock-notice.tsx`, link "Ir para Estratégias"); para comprar uma ação na mão, ele sai da tela, desliga lá e volta. Plano: o aviso ganha o botão "Desligar o automático", que chama a mesma mutation da página de Estratégias e, com sucesso, destrava a boleta ali mesmo, mantendo ativo, lado, quantidade e preço preenchidos; o link para Estratégias continua para quem quer trocar a estratégia. A troca vale para todo lugar que usa o `useTradeLock`, como a renda fixa.
+
+<a id="f150"></a>
+**F150 — Aviso de abertura da campanha.** Serve N34. A campanha abre sem aviso (1 ano antes do 1º turno, ou no início da partida), e no playtest ninguém percebeu a tempo de fundar partido, se filiar ou mudar a contribuição. Plano: no dia da abertura, um evento `campaign_opened` pausa a partida, como já fazem o resultado de turno e o impeachment, e abre para todos um aviso com a data do 1º turno, o dia em que as chapas fecham e atalhos para Fundar partido, Filiar-se e Contribuição. Dois lembretes sem pausa, como toast: alguns dias antes de as chapas fecharem e na véspera do 1º turno. Quando a caixa de entrada (F91) existir, cada aviso também vira uma entrada da sala; o aviso não espera por ela.
+
+<a id="f155"></a>
+**F155 — Filtro "Na carteira" na renda fixa.** Serve N15. A renda variável já tem o filtro "Na carteira · N" (`variable-income.tsx:16`, `:51` e `:126`); a renda fixa não (`fixed-income.tsx`, filtros de índice, tipo, isentos e liquidez em `:74` a `:87` e `:320` a `:334`), e para ver os títulos que tem o jogador desce até o fim da Carteira. Plano: o mesmo filtro, com a contagem, na barra de filtros da renda fixa, cruzando os títulos da lista com as posições de renda fixa da carteira; com o filtro ligado, cada linha mostra também o valor aplicado. O filtro da renda variável existe e passou despercebido no playtest: vale conferir se ele está à vista.
+
+<a id="f156"></a>
+**F156 — Estatísticas rápidas em partida longa.** Serve N40 e N38. A tela demora a abrir em partida longa, e o backend explica: as rotas de `/api/statistics/*` (`routes/statistics.py:39` a `:155`) leem todos os snapshots diários de todos os jogadores, sem recorte de data (`core/repository/statistics.py:32` e `:54`), e recalculam tudo a cada pedido. Como as estatísticas só mudam na virada do mês, o plano é: (1) medir com o painel de desempenho, numa partida salva longa, quanto vai na leitura e quanto no cálculo; (2) guardar o relatório do mês fechado em memória, por simulação, e devolver o guardado até a próxima virada; (3) nos gráficos de série, mandar um ponto por semana ou por mês quando o período passa de um ano, em vez de um por dia útil. **Aceite:** numa partida de 10 anos com 4 jogadores, a aba Geral abre em menos de 1 segundo.
 
 ---
 ## 2. Nice-to-have
@@ -543,13 +650,20 @@ O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F13
 | **F104** | Gestoras: co-gestores | Serve N23; falta a divisão das taxas | — | [F44](#f44) | 🔍 Em avaliação |
 | **F105** | Gestoras: rendimentos mensais | Serve N23; falta a parte do lucro distribuída | — | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
 | **F106** | Governo & Política: gasto público e inflação | Serve N34; falta quanto cada medida soma ao IPCA | — | — | 🔍 Em avaliação |
-| **F107** | Perfis de público na eleição | Serve N34; eleitores com perfil sobre a eleição da F95 | — | — | 🔍 Em avaliação |
+| **F107** | Perfis de público na eleição | Serve N34; eleitores com perfil sobre a eleição da F95 | M17 | — | 🔍 Em avaliação |
 | **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | Serve N15; falta escolher o desenho dos dois cards no canvas; liga à F72 | — | — | 🔍 Em avaliação |
 | **F123** | Redesenhar o aviso de conquista desbloqueada | Serve N22 e N15; falta escolher o desenho do aviso no canvas; liga à F122 | — | — | 🔍 Em avaliação |
 | **F128** | Governo & Política: rever os impostos por setor | Serve N34; revisão da versão jogável | — | — | 🔍 Em avaliação |
-| **F129** | Governo & Política: rever a aprovação do governo | Serve N34; inclui a aprovação pesar na reeleição | — | — | 🔍 Em avaliação |
-| **F130** | Governo & Política: rever os votos e a eleição | Serve N34; revisão da versão jogável | — | — | 🔍 Em avaliação |
+| **F129** | Governo & Política: rever a aprovação do governo | Serve N34; inclui a aprovação pesar na reeleição | M17 | — | 🔍 Em avaliação |
+| **F130** | Governo & Política: rever os votos e a eleição | Serve N34; revisão da versão jogável | M17 | — | 🔍 Em avaliação |
 | **F131** | Catálogo de padrões de vela | Serve N19; tópico do Como jogar com cada padrão animado | M11 | [F96](#f96), [F126](#f126) | 🔍 Em avaliação |
+| **F143** | Preparação de cada jogador no lobby | Serve N39 e N34; falta escolher o que cada jogador prepara | — | — | 🔍 Em avaliação |
+| **F151** | Segundo turno com disputa | Serve N34; falta escolher o que mexe nos votos entre os turnos | M17 | — | 🔍 Em avaliação |
+| **F152** | Promessas de campanha em texto | Serve N34; falta escolher entre texto livre e medida da lista | M17 | — | 🔍 Em avaliação |
+| **F153** | Congresso eleito, com bancadas | Serve N34; falta o tamanho da casa e a fórmula do voto | M17 | — | 🔍 Em avaliação |
+| **F154** | Negociar apoio com as bancadas | Serve N34; falta a moeda da troca | M17 | [F153](#f153) | 🔍 Em avaliação |
+| **F157** | Velocidade x100 que quase não acelera | Serve N40 e N24; falta medir o tick no x100 com o painel de desempenho | M16 | — | 🔍 Em avaliação |
+| **F158** | Animações do Como jogar revistas | Serve N25; falta o visual numa rodada no canvas | M14 | [F126](#f126) | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -603,10 +717,31 @@ O que ficou para depois tem card próprio: tipos mais rígidos no frontend ([F13
 **F128 — Governo & Política: rever os impostos por setor.** Serve N34; revisão da versão jogável que a F95 entregou. **Como funciona hoje:** a política de impostos padrão é a de antes da expansão (15% no ganho comum de ações, 20% no day trade e no FII, isenção das vendas de ações até R$ 20 mil no mês, tabela da renda fixa de 22,5% a 15% por prazo, LCI e LCA isentas). O presidente propõe medidas gerais (alíquota do ganho comum, alíquota do day trade, teto da isenção de ações, uma alíquota única no lugar da tabela da renda fixa e a alíquota de LCI e LCA, de 0 a 100% e diferente da vigente) e medidas de setor ou segmento (isentar, ou taxar de mais de 0 até 20 pontos por medida, que se empilham sem teto acumulado). No IR do mês, vale a regra do dia de cada venda; segmento vence setor e, entre iguais, vale a mais nova. A venda de setor isento conta no volume dos R$ 20 mil, mas o ganho e o prejuízo dela saem do cálculo; a venda de setor taxado soma os pontos extras ao resultado positivo. A medida aprovada vale 90 dias depois. Na régua da promessa, corte geral é 1, isenção de setor 2, taxar setor 4 e imposto geral novo 5; na aprovação, isentar setor soma 2, taxar setor tira de 1 a 5 (pontos ÷ 2), corte geral soma de 1 a 3 e imposto geral novo tira de 1 a 5. Falta definir: o que muda nessa mecânica, a partir das ideias de refazer o sistema.
 
 <a id="f129"></a>
-**F129 — Governo & Política: rever a aprovação do governo.** Serve N34; revisão da versão jogável que a F95 entregou. **Como funciona hoje:** a aprovação começa em 50% na posse e é recalculada no último dia útil de cada mês, só com um jogador na presidência, limitada entre 0 e 100%. Fatores: inflação de 12 meses contra a meta do CMN do ano (tabela de 2000 a 2024; fora dela, 3%), +4 dentro ou abaixo da meta e −3 por ponto acima, sem teto; Ibovespa de 12 meses, 1 ponto a cada 5% de alta ou queda, até ±6; medidas aprovadas e já vigentes, em que o corte de imposto soma e não decai, e o imposto novo e a taxação de setor tiram pontos que somem em linha reta em 180 dias; e a promessa, que tira 3 pontos por faixa de distância entre a marca do governo (a média das faixas das medidas aprovadas) e a promessa da campanha. O Congresso vota a fila no mesmo dia: cada medida passa se um sorteio de 0 a 100, feito a partir da semente da partida, da data e do número da medida, sair abaixo da aprovação. A fila não aceita duas medidas iguais; a retirada vale só antes do voto, e a rejeitada pode voltar. Impeachment com aprovação abaixo de 25% em 3 fechamentos de mês seguidos, com aviso no 2º; o vice assume se ainda for filiado, senão entra um governo neutro do computador, sem medidas. Na troca, a fila some, o histórico de aprovação zera, as medidas aprovadas seguem valendo e a carteira de quem saiu volta a operar. **Ainda não existe:** a aprovação não pesa na eleição; a única trava da reeleição é o limite de 2 mandatos seguidos, e por isso "aprovação baixa perde a reeleição" ainda não vale. Falta definir: o que muda nos fatores e nos pesos, e quanto a aprovação do mandato pesa no voto da eleição seguinte.
+**F129 — Governo & Política: rever a aprovação do governo.** Serve N34; revisão da versão jogável que a F95 entregou. **Como funciona hoje:** a aprovação começa em 50% na posse e é recalculada no último dia útil de cada mês, só com um jogador na presidência, limitada entre 0 e 100%. Fatores: inflação de 12 meses contra a meta do CMN do ano (tabela de 2000 a 2024; fora dela, 3%), +4 dentro ou abaixo da meta e −3 por ponto acima, sem teto; Ibovespa de 12 meses, 1 ponto a cada 5% de alta ou queda, até ±6; medidas aprovadas e já vigentes, em que o corte de imposto soma e não decai, e o imposto novo e a taxação de setor tiram pontos que somem em linha reta em 180 dias; e a promessa, que tira 3 pontos por faixa de distância entre a marca do governo (a média das faixas das medidas aprovadas) e a promessa da campanha. O Congresso vota a fila no mesmo dia: cada medida passa se um sorteio de 0 a 100, feito a partir da semente da partida, da data e do número da medida, sair abaixo da aprovação. A fila não aceita duas medidas iguais; a retirada vale só antes do voto, e a rejeitada pode voltar. Impeachment com aprovação abaixo de 25% em 3 fechamentos de mês seguidos, com aviso no 2º; o vice assume se ainda for filiado, senão entra um governo neutro do computador, sem medidas. Na troca, a fila some, o histórico de aprovação zera, as medidas aprovadas seguem valendo e a carteira de quem saiu volta a operar. **Ainda não existe:** a aprovação não pesa na eleição; a única trava da reeleição é o limite de 2 mandatos seguidos, e por isso "aprovação baixa perde a reeleição" ainda não vale. Falta definir: o que muda nos fatores e nos pesos, e quanto a aprovação do mandato pesa no voto da eleição seguinte. **O que o playtest mostrou:** a aprovação quase não sobe e o impeachment chega cedo demais; numa partida, ele veio 3 meses depois da posse, com a aprovação perto de 10%. A regra explica: os fatores tiram com folga (−3 por ponto de inflação acima da meta, sem teto) e somam pouco (+4 dentro da meta, Ibovespa até +6), e 3 fechamentos abaixo de 25% cabem no primeiro trimestre (`approval.py:17` a `:27`, gatilho em `government_book.py:614`). Candidatos para a revisão: uma carência depois da posse sem impeachment, um teto na perda pela inflação, fatores que deixem subir o governo que vai bem e mais fechamentos seguidos abaixo do piso.
 
 <a id="f130"></a>
-**F130 — Governo & Política: rever os votos e a eleição.** Serve N34; revisão da versão jogável que a F95 entregou. **Como funciona hoje:** a primeira eleição é escolhida no lobby e precisa cair dentro da partida; o mandato é de 4 anos, com até 2 seguidos. A campanha abre 1 ano antes do 1º turno (ou no início da partida), as chapas fecham no último dia do mês anterior, o 1º turno é em 7 de outubro e o 2º, 21 dias depois, no próximo dia útil quando a data cai em fim de semana; a posse é em 1º de janeiro. No 1º dia útil de cada mês da campanha, cada filiado paga a contribuição que escolheu, se tiver caixa, e o gasto vira pontos pela raiz quadrada ÷ 64 (R$ 8 mil dão 1,4 ponto) num eleitorado de 100; o que sobra são os indecisos, e a pesquisa guarda uma foto por mês. No 1º turno, vence quem tiver mais de 50% dos votos válidos; senão, vão os dois mais votados, e o empate fica com o partido mais antigo. No 2º turno, os votos de quem ficou de fora vão inteiros para o finalista com a promessa mais próxima. Entre os turnos, até a véspera do 2º, quem está num partido eliminado pode doar a um finalista; a doação rende pela mesma raiz e entra na hora. Os partidos do computador (União do Progresso, Movimento Novo Vigor e Aliança Cidadã) completam até 3 chapas, com a verba da média dos partidos de jogadores vezes 0,5, 1 ou 1,5 pela dificuldade, e a promessa na faixa mais longe dos partidos que já existem. Cada resultado de turno e o impeachment pausam a partida. Só jogadores fundam e se filiam, durante a campanha e fora do 2º turno; bots ficam fora. Na vitória política, vence o partido com a maior soma de patrimônio dos filiados, sem os do computador. Falta definir: o que muda no voto e na eleição, a partir das ideias de refazer o sistema; a F107 (perfis de público) já é uma dessas mudanças.
+**F130 — Governo & Política: rever os votos e a eleição.** Serve N34; revisão da versão jogável que a F95 entregou. **Como funciona hoje:** a primeira eleição é escolhida no lobby e precisa cair dentro da partida; o mandato é de 4 anos, com até 2 seguidos. A campanha abre 1 ano antes do 1º turno (ou no início da partida), as chapas fecham no último dia do mês anterior, o 1º turno é em 7 de outubro e o 2º, 21 dias depois, no próximo dia útil quando a data cai em fim de semana; a posse é em 1º de janeiro. No 1º dia útil de cada mês da campanha, cada filiado paga a contribuição que escolheu, se tiver caixa, e o gasto vira pontos pela raiz quadrada ÷ 64 (R$ 8 mil dão 1,4 ponto) num eleitorado de 100; o que sobra são os indecisos, e a pesquisa guarda uma foto por mês. No 1º turno, vence quem tiver mais de 50% dos votos válidos; senão, vão os dois mais votados, e o empate fica com o partido mais antigo. No 2º turno, os votos de quem ficou de fora vão inteiros para o finalista com a promessa mais próxima. Entre os turnos, até a véspera do 2º, quem está num partido eliminado pode doar a um finalista; a doação rende pela mesma raiz e entra na hora. Os partidos do computador (União do Progresso, Movimento Novo Vigor e Aliança Cidadã) completam até 3 chapas, com a verba da média dos partidos de jogadores vezes 0,5, 1 ou 1,5 pela dificuldade, e a promessa na faixa mais longe dos partidos que já existem. Cada resultado de turno e o impeachment pausam a partida. Só jogadores fundam e se filiam, durante a campanha e fora do 2º turno; bots ficam fora. Na vitória política, vence o partido com a maior soma de patrimônio dos filiados, sem os do computador. Falta definir: o que muda no voto e na eleição, a partir das ideias de refazer o sistema; a F107 (perfis de público), a F151 (segundo turno com disputa), a F152 (promessas em texto) e a F153 (Congresso eleito) já são mudanças dessas.
 
 <a id="f131"></a>
 **F131 — Catálogo de padrões de vela.** Serve N19. Um tópico do "Como jogar" (F126) que lista todos os padrões que as dicas de análise técnica (F96) reconhecem, cada um com o ícone e o nome que aparecem no gráfico (o martelo com o símbolo dele, por exemplo). Navegar pelo catálogo mostra um padrão por vez, com a animação das velas se formando no molde dos roteiros do tutorial, o que o padrão costuma sugerir e o lembrete de que padrão não é garantia. Em aberto: se o catálogo é um tópico do tutorial ou uma tela própria, e se o card do padrão no gráfico ganha um "ver no catálogo". Gatilho: com as dicas de análise técnica e a janela "Como jogar" prontas.
+
+<a id="f143"></a>
+**F143 — Preparação de cada jogador no lobby.** Serve N39 e N34. Hoje o lobby prepara só a partida, pelas mãos do host; o que é de cada jogador só se faz depois do início, com o relógio andando, e os primeiros dias viram configuração. A ideia: um painel "Minha preparação" para cada jogador no lobby, salvo junto com o "Pronto" e aplicado no 1º dia da partida. Candidatos, do mais ao menos valioso: (1) **Partido**, com a expansão Governo & Política ligada: fundar (nome, sigla, cor e promessa) ou pedir filiação ao partido de outro jogador, valendo na abertura da campanha; o convite de vice (F145) também caberia aqui; (2) **contribuição de campanha** do primeiro mês; (3) **modo automático:** a estratégia escolhida e ligada desde o 1º dia; (4) **ordens de abertura:** uma lista de compras executada no primeiro pregão, para ninguém largar atrás por demorar a clicar; (5) **meta pessoal** no modo corrida à meta, se ela passar a ser de cada jogador. Falta definir: quais desses entram, o que deixa de ser regra da sala para virar escolha do jogador, e o que acontece numa partida salva com a preparação de quem não voltou.
+
+<a id="f151"></a>
+**F151 — Segundo turno com disputa.** Serve N34. No playtest, o 2º turno repetiu o 1º sem chance de virada, e a regra explica: ele cai 21 dias depois do 1º, a contribuição só é cobrada no 1º dia útil do mês (entre os turnos não há cobrança nenhuma), os votos dos eliminados vão inteiros para o finalista de promessa mais próxima e o único movimento possível é a doação de quem foi eliminado. Caminhos candidatos: (1) **campanha de 2º turno:** no dia seguinte ao 1º turno, cada finalista define uma contribuição única de 2º turno, paga na hora, que rende pela mesma raiz; (2) **transferência parcial:** os votos de quem ficou de fora se dividem pela distância das promessas em vez de ir inteiros, e uma parte vira indecisa, disputada pela verba; (3) **um evento de campanha** (debate) com resultado sorteado pela semente da partida. Falta escolher quais entram e com que peso, para a virada ficar possível sem virar sorteio. Conversa com a F107, que também mexe na transferência de votos.
+
+<a id="f152"></a>
+**F152 — Promessas de campanha em texto.** Serve N34. Hoje a promessa da chapa é só uma posição na régua de faixas, e ninguém sabe o que o candidato prometeu de fato. A ideia: a chapa registra até 3 promessas curtas ("Isentar o setor elétrico", "Baixar o IR do day trade"), que aparecem na pesquisa, no resultado da eleição e na tela do governo como "Prometeu: …". Falta decidir entre dois desenhos: **texto livre**, só para dar cara à campanha, ou **medida escolhida da lista** das que o governo pode propor, quando a tela marca a promessa como cumprida ou descumprida e a aprovação (F129) passa a pesar isso no lugar da distância de faixas. Com a caixa de entrada (F91), a promessa vira entrada na campanha e a cobrança aparece durante o mandato.
+
+<a id="f153"></a>
+**F153 — Congresso eleito, com bancadas.** Serve N34. Hoje o Congresso é um sorteio: cada medida passa se um número de 0 a 100, tirado da semente da partida, sai abaixo da aprovação. A ideia, que é quase um rework da eleição: (1) **Casa de cadeiras** eleita junto com o presidente e mostrada como um hemiciclo de bolinhas na cor de cada partido, os do computador incluídos. (2) **Eleição própria:** as cadeiras partem das intenções do 1º turno, mas não as copiam: a verba para o Congresso é separada da presidencial, os partidos do computador têm voto de legenda próprio e uma parte das cadeiras sai de um sorteio local pela semente, para o presidente poder ganhar com a oposição maioria na casa, como acontece na vida real. (3) **Votação cadeira a cadeira:** a bancada do governo vota a favor com chance alta, a oposição contra, e a chance de cada partido depende da aprovação e da distância entre a medida e a promessa dele; a tela mostra, antes da votação, a chance de a medida passar. Falta definir: o tamanho da casa, a regra que transforma votos em cadeiras, a fórmula do voto de cada cadeira e como a aprovação (F129) entra nela.
+
+<a id="f154"></a>
+**F154 — Negociar apoio com as bancadas.** Serve N34. Com o Congresso de bancadas (F153), o governo passa a negociar votos: oferece algo em troca de um partido votar com ele por um tempo, o que sobe a chance de aprovação das medidas. Partido de jogador recebe a proposta num aviso de aceitar ou recusar, no mesmo molde do convite de vice (F145); partido do computador responde por regra, pela distância entre as promessas. Falta definir: a moeda da troca (caixa do governo, uma medida do interesse do partido, a vice ou um cargo), quanto tempo o apoio vale e o custo de quebrar o acordo.
+
+<a id="f157"></a>
+**F157 — Velocidade x100 que quase não acelera.** Serve N40 e N24. No playtest, o x100 andou quase como o x1, ou até mais lento. O loop dorme `1 / velocidade` segundos depois de cada tick (`simulation_loop.py:132` a `:156`): no x1 o dia leva o tick mais 1 s, no x100 o tick mais 10 ms. Quando o tick sozinho custa perto de 1 s (a medição da D4 deu de 0,6 a 0,95 s com carga), o x100 fica só umas duas vezes mais rápido que o x1. Falta medir, com o modo debug e o painel de desempenho, numa partida salva longa no x100: quanto custa o tick e em quê (snapshots, bots, eleição, emissão pelo Socket.IO), e se o navegador engasga com um evento por tick e redesenha a tela inteira. O resultado decide as otimizações (agrupar emissões, aliviar o trabalho de cada tick, redesenhar menos no front) e é o ponto de partida das otimizações gerais de desempenho.
+
+<a id="f158"></a>
+**F158 — Animações do Como jogar revistas.** Serve N25; retrabalho da F126. No playtest, o tutorial pareceu estranho: o estilo das animações ficou parecido com o do Create, e o número do passo que aparece no meio da animação, num círculo ao lado do alvo (`StepMarker` em `tutorial/stage/stage-kit.tsx:144`, número vindo de `topic-illustration.tsx:57`, usado em `buy-stock.tsx` e `order-types.tsx`), polui a cena. O salto para o trecho do passo ao clicar numa etapa funciona bem e fica como está. Falta escolher o visual numa rodada no canvas: comparar as animações atuais com as primeiras, feitas no canvas a partir das Dicas e truques do Factorio, decidir se o número sai da cena (o passo ativo já fica destacado na lista) e o que muda no cursor e no destaque.

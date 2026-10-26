@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança (2026-10-25):** Registrada a D18: uma migration por versão, com o caminho antigo cortado só numa major.
+> **Última mudança (2026-10-26):** Registradas a N39 (preparar-se no lobby) e a N40 (partida longa e rápida sem travar), vindas do playtest.
 
 ---
 
@@ -138,6 +138,12 @@ Um bitcoin custa dezenas de milhares de reais, e hoje o jogo só vende ativo em 
 
 **N38. Saber quando as estatísticas vão mudar, sem achar que travaram**
 As estatísticas fecham uma vez por mês de jogo, e entre uma virada e outra os números ficam parados. Sem a tela dizer isso, parece defeito; o jogador precisa saber que a atualização é mensal e quanto falta para a próxima.
+
+**N39. Chegar ao primeiro dia da partida com as próprias escolhas já feitas**
+Na espera do lobby, só o host mexe em alguma coisa: o resto da sala espera. Tudo o que é de cada jogador (partido, campanha, estratégia, primeiras compras) só se faz depois do início, com o relógio andando, e quem demora a configurar larga atrás. O jogador quer usar a espera para se preparar e começar jogando.
+
+**N40. Jogar partidas longas e na velocidade máxima sem a tela travar**
+No playtest, a tela de estatísticas demorou a abrir numa partida longa e o x100 andou quase como o x1. Atravessar anos de mercado depressa é parte do jogo, e uma partida longa não pode ficar mais pesada a cada mês jogado.
 
 ---
 
