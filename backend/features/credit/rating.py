@@ -46,14 +46,17 @@ class RatingScore:
         return grade_for_points(self.total)
 
 
-def leverage(debt: Decimal, networth: Decimal) -> Decimal:
-    """Dívida sobre o patrimônio líquido; sem patrimônio, a dívida não cabe em nada."""
+def leverage(debt: Decimal, networth: Decimal) -> Decimal | None:
+    """Dívida sobre o patrimônio líquido; None (sem limite) quando não há patrimônio para a dívida caber."""
     if debt <= 0:
         return ZERO
-    return debt / networth if networth > 0 else Decimal("Infinity")
+    return debt / networth if networth > 0 else None
 
 
-def leverage_points(value: Decimal) -> Decimal:
+def leverage_points(value: Decimal | None) -> Decimal:
+    """Alavancagem sem limite (None) não pontua."""
+    if value is None:
+        return ZERO
     return max(LEVERAGE_MAX_POINTS - LEVERAGE_POINTS_PER_UNIT * value, ZERO)
 
 

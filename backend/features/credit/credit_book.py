@@ -143,7 +143,7 @@ class Loan:
 class ClosedRating:
     """A alavancagem e a volatilidade do último fechamento mensal."""
 
-    leverage: Decimal
+    leverage: Decimal | None
     volatility: Decimal | None
     sample_size: int
     leverage_points: Decimal

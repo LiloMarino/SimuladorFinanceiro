@@ -24,7 +24,7 @@ export function RiskRatingCard({ rating }: RiskRatingCardProps) {
     {
       key: "leverage",
       name: <MetricLabel metric={LEVERAGE} />,
-      value: LEVERAGE.format(rating.leverage.value),
+      value: rating.leverage.value === null ? "—" : LEVERAGE.format(rating.leverage.value),
       part: rating.leverage,
       description: "Sem dívida vale 40; cada 10% tira 4.",
     },

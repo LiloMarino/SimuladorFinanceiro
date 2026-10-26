@@ -13174,11 +13174,25 @@
             "title": "Schedule"
           },
           "leverage_before": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Leverage Before"
           },
           "leverage_after": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Leverage After"
           },
           "projected_grade": {
@@ -16928,7 +16942,14 @@
             "title": "Max Points"
           },
           "value": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Value"
           }
         },

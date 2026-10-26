@@ -21,7 +21,7 @@ from backend.core.enum import (
 from backend.core.exceptions import InsufficentCashError
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.features.credit.credit_book import CreditBook
-from backend.features.credit.overview import build_overview
+from backend.features.credit.overview import build_overview, build_quote
 from backend.features.fixed_income.market import FixedIncomeMarket
 from backend.features.statistics.credit import credit_standing
 from tests.conftest import SetIndicator
@@ -358,6 +358,33 @@ def test_overview_reads_the_loans_and_the_offer(engine):
     assert overview.offer.available
     assert overview.loans[0].total_installments == 12
     assert overview.upcoming[0].installment_number == 1
+
+
+def test_negative_networth_leaves_leverage_unbounded_in_overview_and_quote(engine):
+    book = engine.credit_book
+    book.contract(PLAYER, Decimal(5000), 12)
+    # Caixa abaixo da dívida: patrimônio líquido negativo
+    engine.cash[PLAYER] = Decimal(1000)
+
+    overview = build_overview(book, PLAYER, engine.current_date)
+    quote = build_quote(book, PLAYER, engine.current_date, Decimal(1000), 12)
+
+    assert overview.networth == Decimal(-4000)
+    assert overview.leverage is None
+    assert quote.leverage_before is None
+    assert quote.leverage_after is None
+    assert quote.projected_points <= 100
+
+
+def test_zero_networth_leaves_leverage_unbounded_in_quote(engine):
+    book = engine.credit_book
+    book.contract(PLAYER, Decimal(5000), 12)
+    engine.cash[PLAYER] = Decimal(5000)
+
+    quote = build_quote(book, PLAYER, engine.current_date, Decimal(1000), 12)
+
+    assert quote.leverage_before is None
+    assert quote.leverage_after is None
 
 
 def test_standing_reads_debt_delinquency_and_interest_from_the_events(

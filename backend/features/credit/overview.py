@@ -293,7 +293,7 @@ def build_overview(book: CreditBook, client_id: UUID, day: date) -> CreditOvervi
         networth=networth,
         assets=assets,
         cash=cash,
-        leverage=leverage(debt, networth) if networth > 0 else None,
+        leverage=leverage(debt, networth),
         next_installments_month=first_month.replace(day=1) if first_month else None,
         next_installments_total=month_total,
         next_installments_first=min((d for d, _ in in_month), default=None),

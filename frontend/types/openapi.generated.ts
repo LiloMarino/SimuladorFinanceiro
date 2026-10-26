@@ -4618,9 +4618,9 @@ export interface components {
             /** Schedule */
             schedule: components["schemas"]["InstallmentRowDTO"][];
             /** Leverage Before */
-            leverage_before: string;
+            leverage_before: string | null;
             /** Leverage After */
-            leverage_after: string;
+            leverage_after: string | null;
             projected_grade: components["schemas"]["CreditGrade"];
             /** Projected Points */
             projected_points: number;
@@ -5873,7 +5873,7 @@ export interface components {
             /** Max Points */
             max_points: string;
             /** Value */
-            value: string;
+            value: string | null;
         };
         /** RatingPaymentsDTO */
         RatingPaymentsDTO: {

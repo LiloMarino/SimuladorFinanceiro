@@ -14,6 +14,7 @@ from backend.features.credit.price import ZERO
 from backend.features.credit.rating import (
     RatingScore,
     count_recent_late,
+    leverage,
     payment_points,
 )
 
@@ -59,16 +60,9 @@ def credit_standing(
         payment_points=payment_points(late),
     )
     debt = sum((loan.debt_on(day) for loan in client.loans.values()), ZERO)
-    leverage = (
-        ZERO
-        if debt <= 0
-        else debt / last.total_networth
-        if last.total_networth > 0
-        else None
-    )
     return CreditStanding(
         debt=debt,
-        leverage=leverage,
+        leverage=leverage(debt, last.total_networth),
         grade=score.grade,
         delinquent=any(loan.overdue for loan in client.loans.values()),
         has_borrowed=client.contracts > 0,

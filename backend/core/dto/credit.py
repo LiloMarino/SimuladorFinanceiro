@@ -22,8 +22,8 @@ class RatingPartDTO(BaseDTO):
 
 
 class RatingLeverageDTO(RatingPartDTO):
-    # Dívida sobre o patrimônio no fechamento do mês (0.259 = 25,9%)
-    value: Decimal
+    # Dívida sobre o patrimônio no fechamento do mês (0.259 = 25,9%); nulo sem patrimônio positivo
+    value: Decimal | None
 
 
 class RatingVolatilityDTO(RatingPartDTO):
@@ -125,7 +125,7 @@ class SuggestionDTO(BaseDTO):
     # Quitar: quanto pagar e o juro que isso poupa nos empréstimos
     amount: Decimal | None = None
     interest_saved: Decimal | None = None
-    # Alavancagem depois de quitar (0.2 = 20%)
+    # Alavancagem depois de quitar (0.2 = 20%); nula sem patrimônio positivo
     leverage_after: Decimal | None = None
     # Volatilidade anual que leva à próxima nota (0.12 = 12%)
     volatility: Decimal | None = None
@@ -176,8 +176,9 @@ class LoanQuoteDTO(BaseDTO):
     total_paid: Decimal
     due_day: int
     schedule: list[InstallmentRowDTO]
-    leverage_before: Decimal
-    leverage_after: Decimal
+    # Nulos quando o patrimônio não é positivo
+    leverage_before: Decimal | None
+    leverage_after: Decimal | None
     # Nota e pontos projetados para o fechamento do mês
     projected_grade: CreditGrade
     projected_points: int

@@ -64,7 +64,9 @@ def test_no_debt_has_full_leverage_points():
 
 
 def test_negative_networth_zeroes_leverage_points():
-    assert leverage(D(1000), D(-5)) > 1000
+    assert leverage(D(1000), D(-5)) is None
+    assert leverage(D(1000), D(0)) is None
+    assert leverage(D(0), D(0)) == 0
     assert score(D(1000), D(-5), D("0.10"), 63, 0).leverage_points == 0
 
 
