@@ -42,9 +42,11 @@ from backend.core.enum import (
 from backend.core.sectors import allocate_by_sector
 from backend.features.government.standings import party_ranking
 from backend.features.statistics import operations, returns, risk, sectors
+from backend.features.statistics.cache import ClosedScores
 from backend.features.statistics.credit import CreditStanding, credit_standing
 from backend.features.statistics.goal import goal_on, goal_steps
 from backend.features.statistics.ranking import build_overview, capital_provided
+from backend.features.statistics.sampling import ChartPeriod, chart_period, thin
 from backend.features.statistics.score import score_history
 from backend.features.statistics.teams import (
     team_composition,
@@ -175,6 +177,7 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
     team_naming, in_teams = _team_context(simulation_ids)
     players = repository.statistics.get_players_history(simulation_ids)
     standings = _credit_standings(simulation_ids, players)
+    period = _chart_period(simulation_ids, players)
 
     entries = []
     for player in players:
@@ -183,12 +186,12 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
         entries.append(
             PlayerReturnsDTO(
                 **_ref(player),
-                networth=[
-                    SeriesPointDTO(date=h.snapshot_date, value=h.total_networth)
-                    for h in player.history
-                ],
+                networth=_points(
+                    [(h.snapshot_date, h.total_networth) for h in player.history],
+                    period,
+                ),
                 cumulative_return=_points(
-                    returns.cumulative_returns(player.history, days)
+                    returns.cumulative_returns(player.history, days), period
                 ),
                 capital_provided=capital_provided(player),
                 annual_return=risk.annual_return(days),
@@ -218,7 +221,7 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
                         series=series,
                         simulation_id=simulation_id,
                         simulation_name=simulation_name,
-                        cumulative_return=_points(cumulative),
+                        cumulative_return=_points(cumulative, period),
                         annual_return=returns.annualize(cumulative),
                     )
                 )
@@ -236,6 +239,7 @@ def build_risk_report(simulation_ids: list[int]) -> RiskReportDTO:
     team_naming, in_teams = _team_context(simulation_ids)
     players = repository.statistics.get_players_history(simulation_ids)
     standings = _credit_standings(simulation_ids, players)
+    period = _chart_period(simulation_ids, players)
     entries = []
     for player in players:
         standing = standings[(player.simulation_id, player.player_nickname)]
@@ -245,8 +249,8 @@ def build_risk_report(simulation_ids: list[int]) -> RiskReportDTO:
         entries.append(
             PlayerRiskDTO(
                 **_ref(player),
-                drawdown=_points(risk.drawdown_series(days)),
-                rolling_volatility=_points(risk.rolling_volatility(days)),
+                drawdown=_points(risk.drawdown_series(days), period),
+                rolling_volatility=_points(risk.rolling_volatility(days), period),
                 max_drawdown=risk.max_drawdown(days),
                 annual_volatility=volatility,
                 sharpe_ratio=risk.sharpe_ratio(days, volatility),
@@ -269,10 +273,21 @@ def build_risk_report(simulation_ids: list[int]) -> RiskReportDTO:
     )
 
 
-def build_score_history_report(simulation_ids: list[int]) -> ScoreHistoryReportDTO:
+def build_score_history_report(
+    simulation_ids: list[int], closed_scores: ClosedScores | None = None
+) -> ScoreHistoryReportDTO:
+    """`closed_scores` guarda a nota dos meses fechados de uma partida só, entre um pedido e outro."""
     team_naming, in_teams = _team_context(simulation_ids)
     entries = [
-        PlayerScoreHistoryDTO(**_ref(player), points=score_history(player.history))
+        PlayerScoreHistoryDTO(
+            **_ref(player),
+            points=score_history(
+                player.history,
+                closed_scores[player.player_nickname]
+                if closed_scores is not None
+                else None,
+            ),
+        )
         for player in repository.statistics.get_players_history(simulation_ids)
     ]
     return ScoreHistoryReportDTO(
@@ -289,6 +304,7 @@ def build_composition_report(simulation_ids: list[int]) -> CompositionReportDTO:
     trades = repository.statistics.get_players_trades(simulation_ids)
     classification = repository.stock.get_classification()
     price_impact = _price_impacts()
+    period = _chart_period(simulation_ids, players)
 
     entries = []
     for player in players:
@@ -304,7 +320,7 @@ def build_composition_report(simulation_ids: list[int]) -> CompositionReportDTO:
         entries.append(
             PlayerCompositionDTO(
                 **_ref(player),
-                history=player.history,
+                history=thin(player.history, lambda h: h.snapshot_date, period),
                 sectors=allocation,
                 effective_sectors=sectors.effective_sectors(allocation),
                 sector_profit=sectors.sector_profit(
@@ -380,8 +396,32 @@ def _ref(player: PlayerHistoryDTO) -> dict:
     }
 
 
-def _points(series: risk.DailyReturns) -> list[SeriesPointDTO]:
-    return [SeriesPointDTO(date=day, value=value) for day, value in series]
+def _points(
+    series: risk.DailyReturns, period: ChartPeriod = "day"
+) -> list[SeriesPointDTO]:
+    return [
+        SeriesPointDTO(date=day, value=value)
+        for day, value in thin(series, lambda point: point[0], period)
+    ]
+
+
+def _chart_period(
+    simulation_ids: list[int], players: list[PlayerHistoryDTO]
+) -> ChartPeriod:
+    """
+    Uma partida só desenha as séries no calendário, onde o fechamento da semana ou do
+    mês basta. Entre simulações o eixo é o número do pregão, e o backtest junta as
+    séries às referências diárias do resultado: os dois recebem um ponto por pregão.
+    """
+    if len(simulation_ids) != 1 or not players:
+        return "day"
+    summary = repository.simulation.get_simulation(simulation_ids[0])
+    if summary is None or summary.is_backtest:
+        return "day"
+    return chart_period(
+        min(p.history[0].snapshot_date for p in players),
+        max(p.history[-1].snapshot_date for p in players),
+    )
 
 
 def _last_day_prices(trades, day: date, impact: PriceImpact) -> dict[str, Decimal]:

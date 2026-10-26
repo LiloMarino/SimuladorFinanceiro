@@ -4,8 +4,9 @@ suas métricas, e cada métrica convertida em pontos por faixas fixas, iguais em
 toda partida, para que a nota compare partidas diferentes.
 """
 
-from collections.abc import Mapping
+from collections.abc import Mapping, MutableMapping
 from dataclasses import dataclass
+from datetime import date
 from decimal import Decimal
 from typing import get_args
 
@@ -112,25 +113,39 @@ def player_score(history: list[PatrimonialHistoryDTO]) -> ScoreDTO | None:
     )
 
 
-def score_history(history: list[PatrimonialHistoryDTO]) -> list[SeriesPointDTO]:
+def score_history(
+    history: list[PatrimonialHistoryDTO],
+    closed: MutableMapping[date, Decimal | None] | None = None,
+) -> list[SeriesPointDTO]:
     """
     A nota total no último snapshot de cada mês, calculada só com os snapshots até
     ele; o último ponto é o último snapshot, então é a nota de `player_score` hoje.
     Os meses antes de 63 retornos ficam de fora.
+
+    `closed` guarda a nota de cada mês que já acabou (todo corte menos o último):
+    ela só depende dos snapshots até o corte, então quem passa o mesmo `closed` a
+    cada virada calcula só o mês novo e o dia de hoje.
     """
-    cuts = [
-        i
-        for i, h in enumerate(history)
-        if i == len(history) - 1
-        or (h.snapshot_date.year, h.snapshot_date.month)
-        != (history[i + 1].snapshot_date.year, history[i + 1].snapshot_date.month)
-    ]
-    scores = [(history[i].snapshot_date, player_score(history[: i + 1])) for i in cuts]
-    return [
-        SeriesPointDTO(date=day, value=score.total)
-        for day, score in scores
-        if score is not None
-    ]
+    memo: MutableMapping[date, Decimal | None] = {} if closed is None else closed
+    last = len(history) - 1
+    points = []
+    for i, h in enumerate(history):
+        day = h.snapshot_date
+        if i < last and (day.year, day.month) == (
+            history[i + 1].snapshot_date.year,
+            history[i + 1].snapshot_date.month,
+        ):
+            continue
+        if i < last and day in memo:
+            total = memo[day]
+        else:
+            score = player_score(history[: i + 1])
+            total = score.total if score else None
+            if i < last:
+                memo[day] = total
+        if total is not None:
+            points.append(SeriesPointDTO(date=day, value=total))
+    return points
 
 
 def _points(band: Band, value: Decimal | None) -> Decimal | None:

@@ -30,6 +30,7 @@ from backend.core.exceptions.http_exceptions import UnprocessableEntityError
 from backend.core.runtime.event_manager import EventManager
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.statistics.cache import ReportCache
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.position import Position
 from tests.fakes import USER_ID, client
@@ -271,6 +272,7 @@ def test_player_joining_mid_match_gets_the_starting_deposit_and_the_day_snapshot
     sim = object.__new__(Simulation)
     sim._engine = _engine()
     sim.settings = cast("SimulationDTO", SimpleNamespace(starting_cash=Decimal("500")))
+    sim.statistics = ReportCache()
     snapshots = []
     monkeypatch.setattr(
         Simulation, "_snapshot_user", lambda _, user: snapshots.append(user)

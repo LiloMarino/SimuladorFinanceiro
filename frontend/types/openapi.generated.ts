@@ -1021,7 +1021,7 @@ export interface paths {
         };
         /**
          * Estatísticas: rentabilidade
-         * @description Patrimônio e retorno acumulado de cada jogador dia a dia, com o CDI e o Ibovespa do mesmo período como referência.
+         * @description Patrimônio e retorno acumulado de cada jogador dia a dia, com o CDI e o Ibovespa do mesmo período como referência. Numa simulação só com mais de um ano, as séries trazem o fechamento de cada semana (até cinco anos) ou de cada mês.
          */
         get: operations["get_returns_api_statistics_returns_get"];
         put?: never;
@@ -1041,7 +1041,7 @@ export interface paths {
         };
         /**
          * Estatísticas: risco
-         * @description Drawdown e volatilidade em janela móvel de cada jogador dia a dia, com as métricas de risco do período.
+         * @description Drawdown e volatilidade em janela móvel de cada jogador dia a dia, com as métricas de risco do período. Numa simulação só com mais de um ano, as séries trazem o fechamento de cada semana (até cinco anos) ou de cada mês.
          */
         get: operations["get_risk_api_statistics_risk_get"];
         put?: never;
@@ -1081,7 +1081,7 @@ export interface paths {
         };
         /**
          * Estatísticas: composição
-         * @description Caixa, renda variável e renda fixa de cada jogador dia a dia, e a exposição e o lucro por setor.
+         * @description Caixa, renda variável e renda fixa de cada jogador dia a dia, e a exposição e o lucro por setor. Numa simulação só com mais de um ano, as séries trazem o fechamento de cada semana (até cinco anos) ou de cada mês.
          */
         get: operations["get_composition_api_statistics_composition_get"];
         put?: never;

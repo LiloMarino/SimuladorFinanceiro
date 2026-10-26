@@ -117,6 +117,7 @@ from backend.features.simulation.life_events import (
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.simulation.simulation_loop import simulation_controller
+from backend.features.statistics.cache import ReportCache
 from backend.features.statistics.goal import goal_on, goal_reached
 from backend.features.strategy.runner import StrategyRunner
 from backend.features.tax_policy import TaxPolicy
@@ -220,6 +221,9 @@ class Simulation:
             if settings.government_enabled and backtest is None
             else None
         )
+
+        # As abas das Estatísticas desta partida, montadas uma vez por mês
+        self.statistics = ReportCache()
 
         # Fora da Clássica: onde cada um está na meta e se alguém já chegou
         self._goal_progress: GoalProgressDTO | None = None
@@ -849,6 +853,9 @@ class Simulation:
         colors = repository.simulation_player.colors(self.settings.id)
         teams = repository.simulation_player.teams(self.settings.id)
         goal = goal_on(self.settings, self._current_date)
+        # A tela refaz a busca do relatório quando a meta sobe: a meta em degraus é dele
+        if self._goal_progress is not None and goal != self._goal_progress.goal:
+            self.statistics.clear()
         self._goal_progress = GoalProgressDTO(
             goal=goal,
             players=[
@@ -1122,12 +1129,14 @@ class Simulation:
     ) -> list[StatisticsSnapshotEntryDTO]:
         """
         `statistics_snapshot_update` faz a tela de Estatísticas buscar o histórico
-        inteiro de novo, então sai só na virada do mês; `snapshot_update` é um merge
-        por data no cache da Carteira e sai todo dia.
+        inteiro de novo, então sai só na virada do mês, depois de o relatório guardado
+        do mês anterior sair; `snapshot_update` é um merge por data no cache da
+        Carteira e sai todo dia.
         """
         snapshots_payload = [self._snapshot_user(user) for user in users]
 
         if month_changed:
+            self.statistics.clear()
             notify(
                 event="statistics_snapshot_update",
                 payload=StatisticsSnapshotUpdateEventDTO(
@@ -1175,3 +1184,4 @@ class Simulation:
         self._engine.add_cash(user.client_id, self.settings.starting_cash)
         EventManager.flush()
         self._snapshot_user(user)
+        self.statistics.clear()
