@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-26):** Registrados os achados do playtest: correções no marco Partida sem tropeços, a eleição e o Congresso no marco Eleição e Congresso disputados, e a preparação de cada jogador no lobby.
+> **Última mudança (2026-10-27):** Registradas a conquista da ordem limitada e os imprevistos no fim da partida, e priorizada a cripto em fração para os bots.
 
 ## Glossário
 
@@ -32,14 +32,14 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F160](#f160) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
 | **N19** | Analisar um ativo com as ferramentas de um trader | — | — |
 | **N20** | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | — |
 | **N21** | Jogar "na unha", sem a interface apontar a melhor escolha | — | — |
-| **N22** | Ter objetivos para buscar além de vencer a partida | — | — |
+| **N22** | Ter objetivos para buscar além de vencer a partida | [F159](#f159) | — |
 | **N23** | Jogar com os amigos de outras formas além de cada um por si | [F69](#f69), [F101](#f101) | — |
 | **N24** | Saber onde está a lentidão durante uma partida | — | — |
 | **N25** | Entender o que é o simulador e como se joga, sem ler um manual | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141) | — |
@@ -88,7 +88,7 @@
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
-| [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
+| [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ⏳ |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | — | 🔍 |
 | [**F130**](#f130) | Governo & Política: rever os votos e a eleição | — | 🔍 |
@@ -105,13 +105,15 @@
 | [**F154**](#f154) | Negociar apoio com as bancadas | — | 🔍 |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
+| [**F159**](#f159) | Conquista "Ordem com paciência" | — | ⏳ |
+| [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
-| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F22](#f22), [F100](#f100) | ✅ |
+| **D1** | Eventos são a fonte da verdade; snapshots são derivados | [F22](#f22), [F100](#f100), [F159](#f159) | ✅ |
 | **D2** | Cálculo financeiro acontece só no backend; o frontend exibe | — | ✅ |
 | **D3** | Dinheiro e quantidade trafegam como Decimal serializado em string | [F22](#f22), [F100](#f100), [F127](#f127) | ✅ |
 | **D4** | Banco de dados embarcado no executável | — | ✅ |
@@ -152,6 +154,7 @@
 | [**F107**](#f107) | Perfis de público na eleição | M17 | 0 | 🔍 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
+| [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 0 | ⏳ |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 0 | 🔍 |
 | [**F129**](#f129) | Governo & Política: rever a aprovação do governo | M17 | 0 | 🔍 |
 | [**F130**](#f130) | Governo & Política: rever os votos e a eleição | M17 | 0 | 🔍 |
@@ -164,6 +167,8 @@
 | [**F152**](#f152) | Promessas de campanha em texto | M17 | 0 | 🔍 |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
+| [**F159**](#f159) | Conquista "Ordem com paciência" | — | 0 | ⏳ |
+| [**F160**](#f160) | Imprevistos no fim da partida de independência | — | 0 | ⏳ |
 
 ---
 
@@ -282,7 +287,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/24 concluídas
+> **Progresso:** 0/26 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -307,9 +312,11 @@
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
-| [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 💤 |
+| [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ⏳ |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
+| [**F159**](#f159) | Conquista "Ordem com paciência" | — | ⏳ |
+| [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ⏳ |
 
 ---
 
@@ -326,7 +333,7 @@
 | **F101** | Carteira separada do jogador | N23 | D9 | — | — | Alto | Alto | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F110** | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F127** | Estratégias e bots operam cripto em fração | N4, N37 | D3 | — | — | Médio | Baixo | Baixo | Regular | 💤 Registrado, sem prioridade |
+| **F127** | Estratégias e bots operam cripto em fração | N4, N37 | D3 | — | — | Médio | Baixo | Baixo | Regular | ⏳ Pendente |
 | **F22** | Preço ajustado e proventos | N3, N7 | D1, D3, D7 | M8 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F100** | Proventos na carteira e nas telas | N3, N7 | D1, D3, D7 | M8 | [F22](#f22) | Médio | Médio | Médio | Bom | ⏳ Pendente |
 | **F132** | Tópicos de "como se joga" do Como jogar | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
@@ -334,6 +341,8 @@
 | **F139** | Demonstração regravada com o jogo de hoje | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F140** | Docs reorganizada por tipo de leitor | N25 | — | M14 | — | Alto | Baixo | Alto | Bom | ⏳ Pendente |
 | **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F159** | Conquista "Ordem com paciência" | N22 | D1 | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
+| **F160** | Imprevistos no fim da partida de independência | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -397,6 +406,12 @@
 
 <a id="f141"></a>
 **F141 — README com as features de hoje.** Serve N25; retrabalho da F48. O README lista o que o jogo fazia em 2026-10-21 e termina em "Estratégias automáticas: em breve", que já existe. Plano: (1) "O que ele faz" ganha modo automático com estratégias e bots, crédito, governo e eleição, cripto e análise técnica, cada um com uma frase e a imagem da demonstração regravada (F139); as seções com GIF ficam nas quatro ou cinco mais fortes, e o resto vai para "E também", que deixa de ter item "em breve". (2) O parágrafo de abertura e os tipos de partida conferidos contra o lobby de hoje (presets, período). (3) Os links para os docs apontam para as páginas da reorganização (F140) quando ela tiver mudado os caminhos. (4) A intro dos docs repete a mesma lista, e as duas mudam juntas. Gatilho: F139 publicada.
+
+<a id="f159"></a>
+**F159 — Conquista "Ordem com paciência".** Serve N22; segue a D1. A 9ª conquista da leva de novas conquistas ficou de fora porque o evento de ordem de ações (`event_equity`) não guarda o tipo da ordem que gerou a execução. Plano: coluna `order_type` em `event_equity` (mercado ou limitada), por migration, com as linhas antigas como mercado; o `Broker` grava o tipo na execução; uma `@metric` em `metrics.py` conta as execuções de ordem limitada do jogador, e a conquista entra no `catalog.py`. Vale qualquer ordem limitada executada, inclusive a que executa na hora porque o preço já estava bom.
+
+<a id="f160"></a>
+**F160 — Imprevistos no fim da partida de independência.** Serve N15. O fim da partida no modo viver de renda ficou sem a frase "passou por N imprevistos", porque o relatório da partida não tem esse número. Plano: o backend conta os imprevistos de cada jogador a partir dos eventos da partida e manda o total num campo novo do relatório de visão geral; `pnpm openapi` regenera o tipo, e `match-result/match-hero.tsx` mostra a frase quando o tipo de partida é o viver de renda. Teste: a contagem bate com os imprevistos sorteados numa partida curta.
 
 ---
 ## 2. Nice-to-have
