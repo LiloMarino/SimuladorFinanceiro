@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-27):** Criado o jornal da partida no lugar da caixa de entrada, a F120 passou a Pendente com o design do canvas, a docs ficou para depois da Gestoras e a Gestoras ganhou o marco da versão 4.0.
+> **Última mudança (2026-10-27):** Registrado o sinal de partida pausada com o destaque da velocidade máxima, e o jornal passou a cobrir as notificações que já existem, sem janela por escolha do jogador.
 
 ## Glossário
 
@@ -32,7 +32,7 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F120](#f120), [F160](#f160) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F120](#f120), [F160](#f160), [F162](#f162) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
@@ -108,6 +108,7 @@
 | [**F159**](#f159) | Conquista "Ordem com paciência" | — | ⏳ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ⏳ |
 | [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | 🔍 |
+| [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
@@ -168,6 +169,7 @@
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
 | [**F159**](#f159) | Conquista "Ordem com paciência" | — | 0 | ⏳ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | 0 | ⏳ |
+| [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | M16 | 0 | ⏳ |
 
 ---
 
@@ -261,11 +263,12 @@
 >
 > **Serve:** N4, N8, N15, N33, N34, N40
 >
-> **Progresso:** 0/1 concluídas
+> **Progresso:** 0/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
+| [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ⏳ |
 
 ### M17 — Eleição e Congresso disputados
 
@@ -355,6 +358,7 @@
 | **F159** | Conquista "Ordem com paciência" | N22 | D1 | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F160** | Imprevistos no fim da partida de independência | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | N15 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F162** | Sinal de partida pausada e destaque da velocidade máxima | N15 | — | M16 | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -427,6 +431,9 @@
 
 <a id="f120"></a>
 **F120 — Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira.** Serve N15. O que incomodava: o tooltip do donut (`allocation-donut.tsx`, um `Tooltip` do Recharts com estilo avulso), o estilo do gráfico de evolução (`networth-chart.tsx`: áreas empilhadas por classe, linha tracejada do aportado, rótulos de fim à direita) e os gráficos parecidos em outros lugares (a área de composição das Estatísticas e a linha de desempenho). O desenho dos dois cards, do estado vazio e do estado com poucos pontos já foi iterado e decidido no canvas, na rodada desta feature. Plano: implementar os boards aprovados, lidos pela skill `design-canvas` (modo de implementar uma feature com design aprovado), nos dois cards da Carteira; os gráficos parecidos seguem o mesmo visual na migração da F72 (convenção de pasta e `ChartContainer`), que fica fora desta feature. Se algum board ainda tiver comentário aberto ou variante sem escolha, o ponto vai para o usuário antes do código.
+
+<a id="f162"></a>
+**F162 — Sinal de partida pausada e destaque da velocidade máxima.** Serve N15. A eleição e o impeachment pausam a partida para todos (`_pause_for_result`, `simulation.py:1100`), e a única pista é o botão da topbar trocar de pausa para play (`layouts/partial/topbar.tsx:74`): o jogador esquece que o jogo está parado. Inspiração: o HoI4 e o Victoria 3, que deixam a pausa impossível de não ver e destacam a velocidade máxima. Plano: (1) **Motivo da pausa:** o estado da simulação ganha `pause_reason` (pausado pelo host, resultado do turno, impeachment), preenchido por quem pausa e limpo na retomada, e chega ao front pelo mesmo caminho da velocidade. (2) **Partida pausada:** a área de data da topbar troca para um selo "Pausado" com o motivo ("Pausado: resultado do 1º turno"), num tom de alerta e com uma pulsação lenta; o título da aba do navegador ganha "⏸" na frente, para quem está em outra aba. (3) **Velocidade máxima:** o segmento do x100 (`SPEED_OPTIONS`, `topbar.tsx:21`) ganha ícone e cor próprios, como o último nível de velocidade dos jogos da Paradox, e a data fica com um realce discreto enquanto ele está ligado. Os tons saem dos tokens do tema, com variante nova no componente quando faltar. Depois de implementar, os estados (pausado com cada motivo e velocidade máxima) entram no canvas.
 
 ---
 ## 2. Nice-to-have
@@ -563,4 +570,4 @@
 **F158 — Animações do Como jogar revistas.** Serve N25; retrabalho da F126. No playtest, o tutorial pareceu estranho: o estilo das animações ficou parecido com o do Create, e o número do passo que aparece no meio da animação, num círculo ao lado do alvo (`StepMarker` em `tutorial/stage/stage-kit.tsx:144`, número vindo de `topic-illustration.tsx:57`, usado em `buy-stock.tsx` e `order-types.tsx`), polui a cena. O salto para o trecho do passo ao clicar numa etapa funciona bem e fica como está. Falta escolher o visual numa rodada no canvas: comparar as animações atuais com as primeiras, feitas no canvas a partir das Dicas e truques do Factorio, decidir se o número sai da cena (o passo ativo já fica destacado na lista) e o que muda no cursor e no destaque.
 
 <a id="f161"></a>
-**F161 — Jornal da partida: notificações configuráveis por tipo.** Serve N31 e N32; retrabalho da F91. A caixa de entrada saiu como um e-mail (envelope com contagem de não lidas, painel lateral, marca de lida), e não é o que o jogo pede: com o tempo correndo, notícia é passageira. O modelo vem do OpenTTD (notícia grande em janela, pequena na faixa de baixo, e cada tipo configurável como completo, resumo ou desligado) e do Victoria 3 (cada tipo de notificação escolhe se abre no centro, aparece no canto, fica só no registro ou some). Proposta: (1) **três canais:** o toast fica só para o retorno do que o próprio jogador fez (ordem executada, erro); o **jornal** recebe o que acontece no mundo e na partida; a **janela no centro** fica para o que muda o jogo. (2) **Jornal** num canto escolhido pelo jogador, como a posição do acesso ao tutorial: sobe a cada manchete, recolhe sozinho e, ao clicar, abre as edições anteriores; os toasts vão para o canto oposto. (3) **Por tipo** (resumo do mês, economia, empresas, governo, conquistas), o jogador escolhe Janela, Jornal, Só no histórico ou Desligado, com um padrão pronto para quem nunca abre a configuração; em empresas, o filtro "só ativos da minha carteira". (4) **Sem "lida":** o histórico é por data, sem contagem. O que pede ação (parcela atrasada, convite de vice pendente, campanha aberta sem filiação) é **alerta**, não notícia: fica à vista enquanto a condição durar, como os alertas do Victoria 3. (5) **Multiplayer:** o tempo é da sala, então a janela no centro não pausa por escolha de um jogador; pausar para todos continua só para os eventos que já pausam hoje. Falta: a rodada no canvas com os dois desenhos (jornal no canto e faixa de manchetes na topbar), as posições do jornal, a tela de configuração por tipo e os alertas; com o desenho escolhido, o card vai para Pendente.
+**F161 — Jornal da partida: notificações configuráveis por tipo.** Serve N31 e N32; retrabalho da F91. A caixa de entrada saiu como um e-mail (envelope com contagem de não lidas, painel lateral, marca de lida), e não é o que o jogo pede: com o tempo correndo, notícia é passageira. O modelo vem do OpenTTD (notícia grande em janela, pequena na faixa de baixo, e cada tipo configurável como completo, resumo ou desligado) e do Victoria 3 (cada tipo de notificação escolhe se aparece, fica só no registro ou some, e só o que é global pausa). Proposta: (1) **Dois canais e uma exceção:** o toast fica só para o retorno do que o próprio jogador fez (ordem enviada, erro de validação) e não se configura, porque é a resposta a um clique; tudo o que acontece no mundo e na partida vai para o **jornal**; a janela no centro fica só para os eventos globais que já pausam a sala (resultado de turno, impeachment), que todos querem ver. (2) **Jornal** num canto escolhido pelo jogador, como a posição do acesso ao tutorial: sobe a cada manchete, recolhe sozinho e, ao clicar, abre o histórico das notícias anteriores, para quem deixou o tempo voar; os toasts vão para o canto oposto. (3) **Configuração por tipo**, num registro único de tipos de notificação (categoria, texto, padrão): cada tipo fica em Jornal, Só no histórico ou Desligado, com um padrão pronto para quem nunca abre a configuração; em empresas, o filtro "só ativos da minha carteira". O registro cobre também as notificações que já existem e hoje saem como toast sem ser resposta a um clique (conquista desbloqueada, jogador entrou ou saiu, medida aprovada ou em vigor, ordem executada pelo automático): cada uma passa a chamar o registro em vez do toast. (4) **Sem "lida":** o histórico é por data, sem contagem. O que pede ação (parcela atrasada, convite de vice pendente, campanha aberta sem filiação) é **pendência**, não notícia: fica à vista enquanto a condição durar e some quando resolvida, como os alertas do Victoria 3. (5) **Multiplayer:** a configuração é de cada jogador e nunca pausa a sala; pausar continua só para os eventos globais. Falta: a rodada no canvas com os dois desenhos (jornal no canto e faixa de manchetes na topbar), as posições do jornal, a tela de configuração por tipo, as pendências e o inventário das notificações que hoje saem como toast; com o desenho escolhido, o card vai para Pendente.
