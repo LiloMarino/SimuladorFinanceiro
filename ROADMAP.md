@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-10-27):** Registradas a conquista da ordem limitada e os imprevistos no fim da partida, e priorizada a cripto em fração para os bots.
+> **Última mudança (2026-10-27):** Criado o jornal da partida no lugar da caixa de entrada, a F120 passou a Pendente com o design do canvas, a docs ficou para depois da Gestoras e a Gestoras ganhou o marco da versão 4.0.
 
 ## Glossário
 
@@ -32,7 +32,7 @@
 | **N12** | Continuar jogando depois do último dia com dado real | — | — |
 | **N13** | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — |
 | **N14** | Atualizar para uma versão nova sem perder as partidas salvas | [F56](#f56) | — |
-| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F160](#f160) | — |
+| **N15** | Usar uma interface agradável e coerente, à altura de um jogo | [F37](#f37), [F72](#f72), [F120](#f120), [F160](#f160) | — |
 | **N16** | Ver a carteira e o mercado por setor e segmento | — | — |
 | **N17** | Enxergar a estrutura do banco e esboçar mudanças nela | — | — |
 | **N18** | Saber quanto os ativos andam juntos antes de montar uma carteira ou estratégia | — | — |
@@ -86,7 +86,7 @@
 | [**F107**](#f107) | Perfis de público na eleição | — | 🔍 |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
-| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
+| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ⏳ |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
@@ -107,6 +107,7 @@
 | [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
 | [**F159**](#f159) | Conquista "Ordem com paciência" | — | ⏳ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ⏳ |
+| [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | 🔍 |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (17 itens — clique pra expandir)</strong></summary>
@@ -143,16 +144,15 @@
 | --- | --- | --- | --- | --- |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
-| [**F92**](#f92) | Noticiário da partida | M15 | 1 | ⏳ |
+| [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | M15 | 2 | 🔍 |
 | [**F106**](#f106) | Governo & Política: gasto público e inflação | — | 1 | 🔍 |
-| [**F139**](#f139) | Demonstração regravada com o jogo de hoje | M14 | 1 | ⏳ |
 | [**F153**](#f153) | Congresso eleito, com bancadas | M17 | 1 | 🔍 |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F90**](#f90) | Cenários | — | 0 | 🔍 |
 | [**F107**](#f107) | Perfis de público na eleição | M17 | 0 | 🔍 |
-| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | 🔍 |
+| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | 0 | ⏳ |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 0 | 🔍 |
@@ -161,7 +161,6 @@
 | [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
-| [**F140**](#f140) | Docs reorganizada por tipo de leitor | M14 | 0 | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
 | [**F151**](#f151) | Segundo turno com disputa | M17 | 0 | 🔍 |
 | [**F152**](#f152) | Promessas de campanha em texto | M17 | 0 | 🔍 |
@@ -237,8 +236,8 @@
 | --- | --- | --- | --- |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | — | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | ⏳ |
-| [**F139**](#f139) | Demonstração regravada com o jogo de hoje | — | ⏳ |
-| [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
+| [**F139**](#f139) | Demonstração regravada com o jogo de hoje | [F44](#f44) | ⏳ |
+| [**F140**](#f140) | Docs reorganizada por tipo de leitor | [F44](#f44) | ⏳ |
 | [**F141**](#f141) | README com as features de hoje | [F139](#f139) | ⏳ |
 | [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
 
@@ -248,12 +247,13 @@
 >
 > **Serve:** N31, N32
 >
-> **Progresso:** 0/2 concluídas
+> **Progresso:** 0/3 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F92**](#f92) | Noticiário da partida | — | ⏳ |
+| [**F92**](#f92) | Noticiário da partida | [F161](#f161) | ⏳ |
 | [**F93**](#f93) | Rumores antecipados | [F92](#f92) | 🔍 |
+| [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | 🔍 |
 
 ### M16 — Partida sem tropeços
 
@@ -285,16 +285,32 @@
 | [**F153**](#f153) | Congresso eleito, com bancadas | — | 🔍 |
 | [**F154**](#f154) | Negociar apoio com as bancadas | [F153](#f153) | 🔍 |
 
+### M18 — Expansão Gestoras
+
+> **Objetivo:** Fundar a própria gestora, abrir capital e disputar as cotas na sala; sai na versão 4.0, depois da 3.1.
+>
+> **Serve:** N23
+>
+> **Progresso:** 0/7 concluídas
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F44**](#f44) | Expansão Gestoras: fundar a gestora e abrir capital | [F101](#f101) | 🔍 |
+| [**F55**](#f55) | Modo aquisição hostil | [F103](#f103) | 🔍 |
+| [**F101**](#f101) | Carteira separada do jogador | — | 💤 |
+| [**F102**](#f102) | Gestoras: emissão de novas cotas e recompra | [F44](#f44) | 🔍 |
+| [**F103**](#f103) | Gestoras: troca de gestor pela assembleia | [F44](#f44) | 🔍 |
+| [**F104**](#f104) | Gestoras: co-gestores | [F44](#f44) | 🔍 |
+| [**F105**](#f105) | Gestoras: rendimentos mensais | [F44](#f44), [F100](#f100) | 🔍 |
+
 ### Sem marco
 
-> **Progresso:** 0/26 concluídas
+> **Progresso:** 0/19 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F14**](#f14) | Janela desktop nativa | — | 💤 |
 | [**F37**](#f37) | Tema escuro | — | 💤 |
-| [**F44**](#f44) | Expansão Gestoras: fundar a gestora e abrir capital | [F101](#f101) | 🔍 |
-| [**F55**](#f55) | Modo aquisição hostil | [F103](#f103) | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | ⏳ |
 | [**F60**](#f60) | Modo servidor dedicado (--headless) | — | 💤 |
 | [**F69**](#f69) | Imprevistos configuráveis e tipos novos | — | 💤 |
@@ -302,15 +318,10 @@
 | [**F81**](#f81) | CORS restrito à mesma origem | [F6](#f6) | 💤 |
 | [**F90**](#f90) | Cenários | — | 🔍 |
 | [**F97**](#f97) | SELIC nas mãos do governo | [F106](#f106) | 🔍 |
-| [**F101**](#f101) | Carteira separada do jogador | — | 💤 |
-| [**F102**](#f102) | Gestoras: emissão de novas cotas e recompra | [F44](#f44) | 🔍 |
-| [**F103**](#f103) | Gestoras: troca de gestor pela assembleia | [F44](#f44) | 🔍 |
-| [**F104**](#f104) | Gestoras: co-gestores | [F44](#f44) | 🔍 |
-| [**F105**](#f105) | Gestoras: rendimentos mensais | [F44](#f44), [F100](#f100) | 🔍 |
 | [**F106**](#f106) | Governo & Política: gasto público e inflação | — | 🔍 |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
-| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 🔍 |
+| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ⏳ |
 | [**F128**](#f128) | Governo & Política: rever os impostos por setor | — | 🔍 |
@@ -329,8 +340,8 @@
 | **F56** | Novidades no app | N14 | — | — | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F69** | Imprevistos configuráveis e tipos novos | N23 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F72** | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | — | — | Médio | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
-| **F92** | Noticiário da partida | N31 | D7 | M15 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
-| **F101** | Carteira separada do jogador | N23 | D9 | — | — | Alto | Alto | Médio | Médio | 💤 Registrado, sem prioridade |
+| **F92** | Noticiário da partida | N31 | D7 | M15 | [F161](#f161) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F101** | Carteira separada do jogador | N23 | D9 | M18 | — | Alto | Alto | Médio | Médio | 💤 Registrado, sem prioridade |
 | **F110** | Combinar estratégias | N4 | D8 | — | — | Médio | Médio | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F111** | Crédito para estratégias e bots | N4, N33 | D8 | — | — | Baixo | Baixo | Médio | Bom | 💤 Registrado, sem prioridade |
 | **F127** | Estratégias e bots operam cripto em fração | N4, N37 | D3 | — | — | Médio | Baixo | Baixo | Regular | ⏳ Pendente |
@@ -338,11 +349,12 @@
 | **F100** | Proventos na carteira e nas telas | N3, N7 | D1, D3, D7 | M8 | [F22](#f22) | Médio | Médio | Médio | Bom | ⏳ Pendente |
 | **F132** | Tópicos de "como se joga" do Como jogar | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 | **F133** | Tópicos de conceitos do Como jogar | N25 | — | M14 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
-| **F139** | Demonstração regravada com o jogo de hoje | N25 | — | M14 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
-| **F140** | Docs reorganizada por tipo de leitor | N25 | — | M14 | — | Alto | Baixo | Alto | Bom | ⏳ Pendente |
+| **F139** | Demonstração regravada com o jogo de hoje | N25 | — | M14 | [F44](#f44) | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F140** | Docs reorganizada por tipo de leitor | N25 | — | M14 | [F44](#f44) | Alto | Baixo | Alto | Bom | ⏳ Pendente |
 | **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F159** | Conquista "Ordem com paciência" | N22 | D1 | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F160** | Imprevistos no fim da partida de independência | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
+| **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | N15 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -370,7 +382,7 @@
 **F72 — Gráficos padronizados sobre o `ChartContainer` do shadcn.** Serve N15; continua a padronização da interface no shadcn, que deixou o `shared/components/ui/chart.tsx` sem nenhum consumidor. Hoje cada gráfico Recharts repete o `ResponsiveContainer`, a cor da grade e um array `{ key, label, color }` de séries (que é o `ChartConfig`), e uns cinco cards de tooltip feitos à mão reimplementam o `ChartTooltipContent`. Plano: (1) antes|depois no canvas de `player-line-chart` e `networth-chart` com `ChartContainer` + `ChartTooltipContent`, para aprovar o visual do tooltip (texto menor, indicador) e decidir se o `ui/chart.tsx` ganha variante; (2) convenção de pasta por gráfico: `<nome>-chart/` com `<nome>-chart.tsx` (componente puro, recebe o dado da API por prop), `chart-data.ts` (`ChartConfig`, tipos de linha e `build*`), `chart-legend.tsx` opcional (a legenda clicável que liga e desliga série continua própria) e `index.ts` exportando só o componente; gráfico sem legenda nem transformação fica arquivo solto `<nome>-chart.tsx`; (3) migrar `player-line-chart/` (`utils.ts` + `series.ts` → `chart-data.ts`, sai o tooltip próprio), `networth-chart`, `allocation-donut` e os gráficos embutidos em `composition-tab.tsx` (`AreaChart`) e `risk-tab.tsx` (`ScatterChart`), extraídos para pastas próprias; o `stock-chart` (lightweight-charts, imperativo) fica fora do `ChartContainer`; (4) a seção Gráficos entra em `docs/docs/desenvolvimento/convencoes-frontend.md`. Gatilho: a próxima rodada de design no canvas, ou o próximo gráfico novo.
 
 <a id="f92"></a>
-**F92 — Noticiário da partida.** Serve N31; segue a D7. Um noticiário sintético: as manchetes nascem das séries que a partida já lê, e por isso funcionam igual no futuro gerado, que é onde o jogo passa a maior parte do tempo, e na história real. Sem LLM e sem internet. (1) **Motor genérico:** uma lista de regras, cada uma olhando as séries no tick e, quando dispara, criando uma entrada da sala na caixa de entrada (F91) a partir de um modelo de texto com algumas variações, para a mesma frase não se repetir. Regra nova é só mais um item da lista. (2) **Macro, as manchetes padrão:** Copom subiu, baixou ou manteve a SELIC, com o tamanho ("Copom sobe a SELIC em 0,5 ponto, para 14,25%"); IPCA do mês acima ou abaixo do anterior; Ibovespa no recorde ou na maior queda do ano. (3) **Empresas:** a mesma lógica para um ativo que sobe ou cai mais de um limite no dia, chega à máxima de 52 semanas ou anuncia provento. O movimento ganha uma causa sintética plausível, sorteada de um banco de causas por setor e direção ("resultado do trimestre acima do esperado", "troca no comando", "vendas de fim de ano fracas" para o varejo). A notícia sai depois do movimento: dá contexto e não dá vantagem. (4) As notícias de um ativo aparecem também na tela dele, como marcadores no gráfico de preço. (5) **Extra, para período real:** marcos históricos curados à mão (crise de 2008, Joesley Day em 2017, Covid em março de 2020), num arquivo de dados com data, manchete e ativos ligados. O futuro gerado sempre começa depois do último dia real, então um marco datado só aparece em período real, e um cenário (F90) pode trazer os seus. Gatilho: depois da caixa de entrada.
+**F92 — Noticiário da partida.** Serve N31; segue a D7. Um noticiário sintético: as manchetes nascem das séries que a partida já lê, e por isso funcionam igual no futuro gerado, que é onde o jogo passa a maior parte do tempo, e na história real. Sem LLM e sem internet. (1) **Motor genérico:** uma lista de regras, cada uma olhando as séries no tick e, quando dispara, criando uma notícia da sala entregue pelo jornal da partida (F161) a partir de um modelo de texto com algumas variações, para a mesma frase não se repetir. Regra nova é só mais um item da lista. (2) **Macro, as manchetes padrão:** Copom subiu, baixou ou manteve a SELIC, com o tamanho ("Copom sobe a SELIC em 0,5 ponto, para 14,25%"); IPCA do mês acima ou abaixo do anterior; Ibovespa no recorde ou na maior queda do ano. (3) **Empresas:** a mesma lógica para um ativo que sobe ou cai mais de um limite no dia, chega à máxima de 52 semanas ou anuncia provento. O movimento ganha uma causa sintética plausível, sorteada de um banco de causas por setor e direção ("resultado do trimestre acima do esperado", "troca no comando", "vendas de fim de ano fracas" para o varejo). A notícia sai depois do movimento: dá contexto e não dá vantagem. (4) As notícias de um ativo aparecem também na tela dele, como marcadores no gráfico de preço. (5) **Extra, para período real:** marcos históricos curados à mão (crise de 2008, Joesley Day em 2017, Covid em março de 2020), num arquivo de dados com data, manchete e ativos ligados. O futuro gerado sempre começa depois do último dia real, então um marco datado só aparece em período real, e um cenário (F90) pode trazer os seus. Gatilho: depois da caixa de entrada.
 
 <a id="f101"></a>
 **F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
@@ -413,6 +425,9 @@
 <a id="f160"></a>
 **F160 — Imprevistos no fim da partida de independência.** Serve N15. O fim da partida no modo viver de renda ficou sem a frase "passou por N imprevistos", porque o relatório da partida não tem esse número. Plano: o backend conta os imprevistos de cada jogador a partir dos eventos da partida e manda o total num campo novo do relatório de visão geral; `pnpm openapi` regenera o tipo, e `match-result/match-hero.tsx` mostra a frase quando o tipo de partida é o viver de renda. Teste: a contagem bate com os imprevistos sorteados numa partida curta.
 
+<a id="f120"></a>
+**F120 — Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira.** Serve N15. O que incomodava: o tooltip do donut (`allocation-donut.tsx`, um `Tooltip` do Recharts com estilo avulso), o estilo do gráfico de evolução (`networth-chart.tsx`: áreas empilhadas por classe, linha tracejada do aportado, rótulos de fim à direita) e os gráficos parecidos em outros lugares (a área de composição das Estatísticas e a linha de desempenho). O desenho dos dois cards, do estado vazio e do estado com poucos pontos já foi iterado e decidido no canvas, na rodada desta feature. Plano: implementar os boards aprovados, lidos pela skill `design-canvas` (modo de implementar uma feature com design aprovado), nos dois cards da Carteira; os gráficos parecidos seguem o mesmo visual na migração da F72 (convenção de pasta e `ChartContainer`), que fica fora desta feature. Se algum board ainda tiver comentário aberto ou variante sem escolha, o ponto vai para o usuário antes do código.
+
 ---
 ## 2. Nice-to-have
 
@@ -444,18 +459,17 @@
 | **F5** | Spike: provider de túnel pela internet | Serve N2; escolhe o provider da F6 | M3 | — | 🔍 Em avaliação |
 | **F28** | Muitos futuros (Monte Carlo) | Serve N10; revisa ou confirma a D7 | M9 | — | 🔍 Em avaliação |
 | **F34** | Gráfico de ações em tela cheia, com ferramentas de trader | Serve N19; escolhe a biblioteca de gráfico | M11 | — | 🔍 Em avaliação |
-| **F44** | Expansão Gestoras: fundar a gestora e abrir capital | Serve N23; falta o protótipo do preço da cota com o formador sintético | — | [F101](#f101) | 🔍 Em avaliação |
-| **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | — | [F103](#f103) | 🔍 Em avaliação |
+| **F44** | Expansão Gestoras: fundar a gestora e abrir capital | Serve N23; falta o protótipo do preço da cota com o formador sintético | M18 | [F101](#f101) | 🔍 Em avaliação |
+| **F55** | Modo aquisição hostil | Serve N23; faltam parte mínima no mercado e o destino do incorporado | M18 | [F103](#f103) | 🔍 Em avaliação |
 | **F90** | Cenários | Serve N22; um preset com objetivo | — | — | 🔍 Em avaliação |
 | **F93** | Rumores antecipados | N31; opção da partida | M15 | [F92](#f92) | 🔍 Em avaliação |
 | **F97** | SELIC nas mãos do governo | N34; opção da expansão Governo & Política | — | [F106](#f106) | 🔍 Em avaliação |
-| **F102** | Gestoras: emissão de novas cotas e recompra | Serve N23; falta o prazo da preferência e o preço da emissão | — | [F44](#f44) | 🔍 Em avaliação |
-| **F103** | Gestoras: troca de gestor pela assembleia | Serve N23; falta como a assembleia escolhe o novo gestor | — | [F44](#f44) | 🔍 Em avaliação |
-| **F104** | Gestoras: co-gestores | Serve N23; falta a divisão das taxas | — | [F44](#f44) | 🔍 Em avaliação |
-| **F105** | Gestoras: rendimentos mensais | Serve N23; falta a parte do lucro distribuída | — | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
+| **F102** | Gestoras: emissão de novas cotas e recompra | Serve N23; falta o prazo da preferência e o preço da emissão | M18 | [F44](#f44) | 🔍 Em avaliação |
+| **F103** | Gestoras: troca de gestor pela assembleia | Serve N23; falta como a assembleia escolhe o novo gestor | M18 | [F44](#f44) | 🔍 Em avaliação |
+| **F104** | Gestoras: co-gestores | Serve N23; falta a divisão das taxas | M18 | [F44](#f44) | 🔍 Em avaliação |
+| **F105** | Gestoras: rendimentos mensais | Serve N23; falta a parte do lucro distribuída | M18 | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
 | **F106** | Governo & Política: gasto público e inflação | Serve N34; falta quanto cada medida soma ao IPCA | — | — | 🔍 Em avaliação |
 | **F107** | Perfis de público na eleição | Serve N34; eleitores com perfil sobre a eleição da F95 | M17 | — | 🔍 Em avaliação |
-| **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | Serve N15; falta escolher o desenho dos dois cards no canvas; liga à F72 | — | — | 🔍 Em avaliação |
 | **F123** | Redesenhar o aviso de conquista desbloqueada | Serve N22 e N15; falta escolher o desenho do aviso no canvas; liga à F122 | — | — | 🔍 Em avaliação |
 | **F128** | Governo & Política: rever os impostos por setor | Serve N34; revisão da versão jogável | — | — | 🔍 Em avaliação |
 | **F129** | Governo & Política: rever a aprovação do governo | Serve N34; inclui a aprovação pesar na reeleição | M17 | — | 🔍 Em avaliação |
@@ -468,6 +482,7 @@
 | **F154** | Negociar apoio com as bancadas | Serve N34; falta a moeda da troca | M17 | [F153](#f153) | 🔍 Em avaliação |
 | **F157** | Velocidade x100 que quase não acelera | Serve N40 e N24; falta medir o tick no x100 com o painel de desempenho | M16 | — | 🔍 Em avaliação |
 | **F158** | Animações do Como jogar revistas | Serve N25; falta o visual numa rodada no canvas | M14 | — | 🔍 Em avaliação |
+| **F161** | Jornal da partida: notificações configuráveis por tipo | Serve N31 e N32; falta o desenho no canvas | M15 | — | 🔍 Em avaliação |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -511,9 +526,6 @@
 <a id="f107"></a>
 **F107 — Perfis de público na eleição.** Ligado à N34; amplia a eleição da expansão Governo & Política (F95). Em vez de um eleitorado único, a eleição ganha eleitores artificiais agrupados em perfis (por exemplo, quem vive de renda, quem empreende, quem depende de serviço público), cada um com a própria posição na régua de promessa e a própria sensibilidade à verba. A transferência de votos do segundo turno deixa de ser "vai inteiro para o finalista com a promessa mais parecida" e passa a ser perfil a perfil, pela distância entre a promessa de cada finalista e a posição daquele perfil, e a pesquisa de intenção de voto pode mostrar o voto por perfil. Falta definir: quais perfis existem e quanto cada um pesa no eleitorado, se o peso muda com a economia da partida (desemprego, inflação), e se a aprovação do governo também passa a ser medida por perfil.
 
-<a id="f120"></a>
-**F120 — Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira.** O que incomoda: o tooltip do donut (`allocation-donut.tsx`, um `Tooltip` do Recharts com estilo avulso) não agrada; o estilo do gráfico de evolução (`networth-chart.tsx`: áreas empilhadas por classe, linha tracejada do aportado, rótulos de fim à direita) parece estranho; e outros lugares usam um gráfico parecido (a área de composição das Estatísticas e a linha de desempenho). Falta escolher o desenho dos dois cards: que tipo de gráfico mostra a evolução (áreas empilhadas, uma linha de patrimônio contra o aportado, ou o patrimônio com o ganho destacado), o que o donut conta e como o tooltip responde, e se os dois cards continuam lado a lado. Parte de uma rodada no canvas, com variantes dos dois cards e do estado vazio e com poucos pontos. Ao aprovar, o visual vale para os gráficos parecidos, e a F72 (convenção de pasta e `ChartContainer`) é o lugar de migrá-los. Sai daqui para Pendente com a variante escolhida.
-
 <a id="f123"></a>
 **F123 — Redesenhar o aviso de conquista desbloqueada.** Hoje o aviso (`achievement-toast.tsx`, aberto com `toast.custom` do sonner) é um cartão escuro de 380 px com uma faixa amarela de 3 px à esquerda, o ícone, o rótulo amarelo em maiúsculas ("Conquista desbloqueada"), o nome e a descrição; quando várias saem no mesmo dia, vira uma lista com "Ver todas". O incômodo existe, mas não está claro de onde vem: pode ser a faixa amarela do canto, o rótulo, o peso do cartão escuro, o tamanho ou a falta de movimento. Falta escolher o desenho depois de ver variantes lado a lado no canvas: (a) o cartão atual sem a faixa, com o ícone em destaque; (b) um cartão claro, no tema do app; (c) um formato compacto, com o ícone e o nome numa linha só e a descrição ao passar o mouse; (d) um formato de "selo" com a categoria e a cor dela. A rodada cobre os estados uma conquista, várias no mesmo dia, secreta revelada e conquista com barra de progresso completa, e decide a posição na tela e a entrada e saída. Sai daqui para Pendente com a variante escolhida.
 
@@ -533,7 +545,7 @@
 **F143 — Preparação de cada jogador no lobby.** Serve N39 e N34. Hoje o lobby prepara só a partida, pelas mãos do host; o que é de cada jogador só se faz depois do início, com o relógio andando, e os primeiros dias viram configuração. A ideia: um painel "Minha preparação" para cada jogador no lobby, salvo junto com o "Pronto" e aplicado no 1º dia da partida. Candidatos, do mais ao menos valioso: (1) **Partido**, com a expansão Governo & Política ligada: fundar (nome, sigla, cor e promessa) ou pedir filiação ao partido de outro jogador, valendo na abertura da campanha; o convite de vice (F145) também caberia aqui; (2) **contribuição de campanha** do primeiro mês; (3) **modo automático:** a estratégia escolhida e ligada desde o 1º dia; (4) **ordens de abertura:** uma lista de compras executada no primeiro pregão, para ninguém largar atrás por demorar a clicar; (5) **meta pessoal** no modo corrida à meta, se ela passar a ser de cada jogador. Falta definir: quais desses entram, o que deixa de ser regra da sala para virar escolha do jogador, e o que acontece numa partida salva com a preparação de quem não voltou.
 
 <a id="f151"></a>
-**F151 — Segundo turno com disputa.** Serve N34. No playtest, o 2º turno repetiu o 1º sem chance de virada, e a regra explica: ele cai 21 dias depois do 1º, a contribuição só é cobrada no 1º dia útil do mês (entre os turnos não há cobrança nenhuma), os votos dos eliminados vão inteiros para o finalista de promessa mais próxima e o único movimento possível é a doação de quem foi eliminado. Caminhos candidatos: (1) **campanha de 2º turno:** no dia seguinte ao 1º turno, cada finalista define uma contribuição única de 2º turno, paga na hora, que rende pela mesma raiz; (2) **transferência parcial:** os votos de quem ficou de fora se dividem pela distância das promessas em vez de ir inteiros, e uma parte vira indecisa, disputada pela verba; (3) **um evento de campanha** (debate) com resultado sorteado pela semente da partida. Falta escolher quais entram e com que peso, para a virada ficar possível sem virar sorteio. Conversa com a F107, que também mexe na transferência de votos.
+**F151 — Segundo turno com disputa.** Serve N34. No playtest, o 2º turno repetiu o 1º sem chance de virada, e a regra explica: ele cai 21 dias depois do 1º, a contribuição só é cobrada no 1º dia útil do mês (entre os turnos não há cobrança nenhuma), os votos dos eliminados vão inteiros para o finalista de promessa mais próxima e o único movimento possível é a doação de quem foi eliminado. Caminhos candidatos: (1) **campanha de 2º turno:** no dia seguinte ao 1º turno, cada finalista define uma contribuição única de 2º turno, paga na hora, que rende pela mesma raiz; (2) **transferência parcial:** os votos de quem ficou de fora se dividem pela distância das promessas em vez de ir inteiros, e uma parte vira indecisa, disputada pela verba; (3) **um evento de campanha** (debate) com resultado sorteado pela semente da partida. Falta escolher quais entram e com que peso, para a virada ficar possível sem virar sorteio. Conversa com a F107, que também mexe na transferência de votos. **Escolhido:** a campanha de 2º turno e a transferência parcial; o debate sorteado fica de fora. Falta: a transferência mede a proximidade das promessas, e o que é uma promessa muda no rework da eleição (F130), então a regra da proximidade sai de lá.
 
 <a id="f152"></a>
 **F152 — Promessas de campanha em texto.** Serve N34. Hoje a promessa da chapa é só uma posição na régua de faixas, e ninguém sabe o que o candidato prometeu de fato. A ideia: a chapa registra até 3 promessas curtas ("Isentar o setor elétrico", "Baixar o IR do day trade"), que aparecem na pesquisa, no resultado da eleição e na tela do governo como "Prometeu: …". Falta decidir entre dois desenhos: **texto livre**, só para dar cara à campanha, ou **medida escolhida da lista** das que o governo pode propor, quando a tela marca a promessa como cumprida ou descumprida e a aprovação (F129) passa a pesar isso no lugar da distância de faixas. Com a caixa de entrada (F91), a promessa vira entrada na campanha e a cobrança aparece durante o mandato.
@@ -549,3 +561,6 @@
 
 <a id="f158"></a>
 **F158 — Animações do Como jogar revistas.** Serve N25; retrabalho da F126. No playtest, o tutorial pareceu estranho: o estilo das animações ficou parecido com o do Create, e o número do passo que aparece no meio da animação, num círculo ao lado do alvo (`StepMarker` em `tutorial/stage/stage-kit.tsx:144`, número vindo de `topic-illustration.tsx:57`, usado em `buy-stock.tsx` e `order-types.tsx`), polui a cena. O salto para o trecho do passo ao clicar numa etapa funciona bem e fica como está. Falta escolher o visual numa rodada no canvas: comparar as animações atuais com as primeiras, feitas no canvas a partir das Dicas e truques do Factorio, decidir se o número sai da cena (o passo ativo já fica destacado na lista) e o que muda no cursor e no destaque.
+
+<a id="f161"></a>
+**F161 — Jornal da partida: notificações configuráveis por tipo.** Serve N31 e N32; retrabalho da F91. A caixa de entrada saiu como um e-mail (envelope com contagem de não lidas, painel lateral, marca de lida), e não é o que o jogo pede: com o tempo correndo, notícia é passageira. O modelo vem do OpenTTD (notícia grande em janela, pequena na faixa de baixo, e cada tipo configurável como completo, resumo ou desligado) e do Victoria 3 (cada tipo de notificação escolhe se abre no centro, aparece no canto, fica só no registro ou some). Proposta: (1) **três canais:** o toast fica só para o retorno do que o próprio jogador fez (ordem executada, erro); o **jornal** recebe o que acontece no mundo e na partida; a **janela no centro** fica para o que muda o jogo. (2) **Jornal** num canto escolhido pelo jogador, como a posição do acesso ao tutorial: sobe a cada manchete, recolhe sozinho e, ao clicar, abre as edições anteriores; os toasts vão para o canto oposto. (3) **Por tipo** (resumo do mês, economia, empresas, governo, conquistas), o jogador escolhe Janela, Jornal, Só no histórico ou Desligado, com um padrão pronto para quem nunca abre a configuração; em empresas, o filtro "só ativos da minha carteira". (4) **Sem "lida":** o histórico é por data, sem contagem. O que pede ação (parcela atrasada, convite de vice pendente, campanha aberta sem filiação) é **alerta**, não notícia: fica à vista enquanto a condição durar, como os alertas do Victoria 3. (5) **Multiplayer:** o tempo é da sala, então a janela no centro não pausa por escolha de um jogador; pausar para todos continua só para os eventos que já pausam hoje. Falta: a rodada no canvas com os dois desenhos (jornal no canto e faixa de manchetes na topbar), as posições do jornal, a tela de configuração por tipo e os alertas; com o desenho escolhido, o card vai para Pendente.
