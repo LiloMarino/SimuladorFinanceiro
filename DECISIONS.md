@@ -331,3 +331,14 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 - Sem a junção, cada feature com banco deixaria um arquivo para sempre, e a linha cresceria sem que o jogador de uma versão recente precisasse de nada dela.
 - Regra de partida em colunas pedia migration a cada regra; no JSON a regra nova é só um campo com padrão, e a leitura estrita recusa chave desconhecida, então regra removida pede uma migration `rules - 'chave'`.
 **Consequências:** a trava de dado perdido conta cada valor preenchido do primeiro nível de um JSONB como uma célula, para que juntar colunas num JSON passe no ensaio e tirar uma chave o reprove. Cada junção se confere com o `pg_dump --schema-only` de um banco feito pela cadeia antiga igual ao de um banco feito pela nova.
+
+### D19 — O eleitorado são grupos, cada um com apoio e rejeição por partido
+**Status:** ✅ Decidida
+
+**Decisão:** a eleição e o governo da expansão Governo & Política se apoiam num eleitorado dividido em grupos (por exemplo: quem vive de investimento, empreendedores, trabalhadores com carteira, servidores, aposentados e quem depende de auxílio), no molde dos grupos de interesse do Victoria 3. Cada grupo tem um peso no eleitorado, o que exige (resultados como inflação e emprego, e medidas como auxílio ou isenção) e, por partido, um apoio e uma rejeição. O apoio sobe e desce com o que o partido faz; a rejeição é a memória das traições e cai devagar. O voto, a aprovação do governo, a transferência do 2º turno e as cadeiras do Congresso saem todos desse mesmo modelo. A identidade do partido nasce de 2 ou 3 bandeiras escolhidas na fundação e depois passa a ser o histórico: o que prometeu, o que aprovou e como a bancada votou.
+**Por quê:**
+- Hoje a eleição é "quem põe mais dinheiro ganha", e o governo é ganha-ganha: isentar imposto só soma aprovação. Com grupos, a mesma medida agrada um grupo e irrita outro, e nenhuma combinação agrada todo mundo.
+- Um modelo só no lugar de quatro regras soltas (a régua da promessa, a aprovação por fatores, a transferência pela proximidade e o Congresso por sorteio), que hoje não conversam.
+- A rejeição dá consequência à promessa quebrada e ao governo ruim, que voltam a pesar na eleição seguinte.
+- Região é só uma mistura de grupos: o mapa por região sai depois, sem mudar o modelo.
+**Consequências:** a régua de promessa por faixas sai; a promessa vira medida da lista, cobrada no mandato. Os partidos do computador passam a existir sempre no Congresso, com perfil próprio por grupo. Os números (grupos, pesos, quanto cada medida mexe em cada grupo) se calibram jogando, antes de o Congresso e as promessas serem montados em cima.
