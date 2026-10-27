@@ -148,7 +148,7 @@
 | ID | Resumo | Marco | Destrava | Status |
 | --- | --- | --- | --- | --- |
 | [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | M17 | 9 | 🔍 |
-| [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | M17 | 6 | 🔍 |
+| [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | M19 | 4 | 🔍 |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
 | [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | M15 | 2 | 🔍 |
@@ -257,7 +257,7 @@
 
 ### M16 — Partida sem tropeços
 
-> **Objetivo:** Repetir uma partida com amigos, do lobby ao fim, sem os erros e as travas que o playtest mostrou.
+> **Objetivo:** Repetir uma partida com amigos, do lobby ao fim, sem os erros e as travas que o playtest mostrou; sai na versão 3.1, junto da eleição disputada.
 >
 > **Serve:** N4, N8, N15, N33, N34, N40
 >
@@ -268,30 +268,26 @@
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
 | [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ⏳ |
 
-### M17 — Eleição e Congresso disputados
+### M17 — Eleição disputada
 
-> **Objetivo:** Uma eleição disputada por grupos de eleitores que lembram promessas e traições, um governo com orçamento a fechar e um Congresso eleito, em que cada partido orienta a própria bancada.
+> **Objetivo:** Uma eleição decidida por grupos de eleitores que lembram promessas e traições, com campanha de ações, 2º turno com virada e a aprovação medida pelos grupos; sai na versão 3.1.
 >
 > **Serve:** N34
 >
-> **Progresso:** 0/10 concluídas
+> **Progresso:** 0/6 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F106**](#f106) | Governo & Política: medidas de gasto público | [F128](#f128), [F107](#f107) | 🔍 |
 | [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | 🔍 |
-| [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | — | 🔍 |
 | [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | [F107](#f107) | 🔍 |
 | [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | [F107](#f107) | 🔍 |
 | [**F151**](#f151) | Segundo turno com disputa | [F130](#f130), [F152](#f152) | 🔍 |
-| [**F152**](#f152) | Promessas de campanha cobradas no mandato | [F107](#f107), [F106](#f106) | 🔍 |
-| [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | [F107](#f107), [F130](#f130) | 🔍 |
-| [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | [F153](#f153), [F128](#f128) | 🔍 |
+| [**F152**](#f152) | Promessas de campanha cobradas no mandato | [F107](#f107) | 🔍 |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ⏳ |
 
 ### M18 — Expansão Gestoras
 
-> **Objetivo:** Fundar a própria gestora, abrir capital e disputar as cotas na sala; sai na versão 4.0, depois da 3.1.
+> **Objetivo:** Fundar a própria gestora, abrir capital e disputar as cotas na sala; sai na versão 4.0, depois da 3.2.
 >
 > **Serve:** N23
 >
@@ -306,6 +302,21 @@
 | [**F103**](#f103) | Gestoras: troca de gestor pela assembleia | [F44](#f44) | 🔍 |
 | [**F104**](#f104) | Gestoras: co-gestores | [F44](#f44) | 🔍 |
 | [**F105**](#f105) | Gestoras: rendimentos mensais | [F44](#f44), [F100](#f100) | 🔍 |
+
+### M19 — Governo com conta a fechar e Congresso
+
+> **Objetivo:** Um governo com orçamento e dívida, em que gastar e isentar têm preço, e um Congresso eleito, em que cada partido orienta a própria bancada; sai na versão 3.2.
+>
+> **Serve:** N34
+>
+> **Progresso:** 0/4 concluídas
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F106**](#f106) | Governo & Política: medidas de gasto público | [F128](#f128), [F107](#f107) | 🔍 |
+| [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | — | 🔍 |
+| [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | [F107](#f107), [F130](#f130) | 🔍 |
+| [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | [F153](#f153), [F128](#f128) | 🔍 |
 
 ### Sem marco
 
@@ -480,18 +491,18 @@
 | **F103** | Gestoras: troca de gestor pela assembleia | Serve N23; falta como a assembleia escolhe o novo gestor | M18 | [F44](#f44) | 🔍 Em avaliação |
 | **F104** | Gestoras: co-gestores | Serve N23; falta a divisão das taxas | M18 | [F44](#f44) | 🔍 Em avaliação |
 | **F105** | Gestoras: rendimentos mensais | Serve N23; falta a parte do lucro distribuída | M18 | [F44](#f44), [F100](#f100) | 🔍 Em avaliação |
-| **F106** | Governo & Política: medidas de gasto público | Serve N34; falta a lista de medidas e o efeito no IPCA | M17 | [F128](#f128), [F107](#f107) | 🔍 Em avaliação |
+| **F106** | Governo & Política: medidas de gasto público | Serve N34; falta a lista de medidas e o efeito no IPCA | M19 | [F128](#f128), [F107](#f107) | 🔍 Em avaliação |
 | **F107** | Grupos de eleitores, com apoio e rejeição por partido | Serve N34; fundação do rework; falta escolher e calibrar os grupos | M17 | — | 🔍 Em avaliação |
 | **F123** | Redesenhar o aviso de conquista desbloqueada | Serve N22 e N15; falta escolher o desenho do aviso no canvas; liga à F122 | — | — | 🔍 Em avaliação |
-| **F128** | Orçamento do governo, dívida pública e prêmio de risco | Serve N34; falta o gasto base e a curva do prêmio de risco | M17 | — | 🔍 Em avaliação |
+| **F128** | Orçamento do governo, dívida pública e prêmio de risco | Serve N34; falta o gasto base e a curva do prêmio de risco | M19 | — | 🔍 Em avaliação |
 | **F129** | Aprovação do governo pelos grupos de eleitores | Serve N34; falta calibrar a satisfação dos grupos | M17 | [F107](#f107) | 🔍 Em avaliação |
 | **F130** | Ações de campanha: a eleição deixa de ser só dinheiro | Serve N34; falta o custo e o efeito de cada ação | M17 | [F107](#f107) | 🔍 Em avaliação |
 | **F131** | Catálogo de padrões de vela | Serve N19; tópico do Como jogar com cada padrão animado | M11 | — | 🔍 Em avaliação |
 | **F143** | Preparação de cada jogador no lobby | Serve N39 e N34; partido salvo no perfil escolhido; falta o resto | — | — | 🔍 Em avaliação |
 | **F151** | Segundo turno com disputa | Serve N34; falta a fração que vira indecisa | M17 | [F130](#f130), [F152](#f152) | 🔍 Em avaliação |
-| **F152** | Promessas de campanha cobradas no mandato | Serve N34; falta o rendimento por grupo e o desconto pela rejeição | M17 | [F107](#f107), [F106](#f106) | 🔍 Em avaliação |
-| **F153** | Congresso eleito, com bancadas orientadas pelo líder | Serve N34; falta o tamanho da casa e a regra das cadeiras | M17 | [F107](#f107), [F130](#f130) | 🔍 Em avaliação |
-| **F154** | Negociar apoio com as bancadas, por emendas | Serve N34; falta o preço das emendas | M17 | [F153](#f153), [F128](#f128) | 🔍 Em avaliação |
+| **F152** | Promessas de campanha cobradas no mandato | Serve N34; falta o rendimento por grupo e o desconto pela rejeição | M17 | [F107](#f107) | 🔍 Em avaliação |
+| **F153** | Congresso eleito, com bancadas orientadas pelo líder | Serve N34; falta o tamanho da casa e a regra das cadeiras | M19 | [F107](#f107), [F130](#f130) | 🔍 Em avaliação |
+| **F154** | Negociar apoio com as bancadas, por emendas | Serve N34; falta o preço das emendas | M19 | [F153](#f153), [F128](#f128) | 🔍 Em avaliação |
 | **F157** | Velocidade x100 que quase não acelera | Serve N40 e N24; falta medir o tick no x100 com o painel de desempenho | M16 | — | 🔍 Em avaliação |
 | **F158** | Animações do Como jogar revistas | Serve N25; falta o visual numa rodada no canvas | M14 | — | 🔍 Em avaliação |
 | **F161** | Jornal da partida: notificações configuráveis por tipo | Serve N31 e N32; falta o desenho no canvas | M15 | — | 🔍 Em avaliação |
@@ -547,7 +558,7 @@
 **F128 — Orçamento do governo, dívida pública e prêmio de risco.** Serve N34. **O problema:** isentar imposto só soma aprovação e não custa nada, porque o governo não tem conta a fechar; nenhum partido tem motivo para ser austero ou gastador. **Proposta:** (1) **Orçamento:** os impostos da partida (a mecânica de hoje, descrita abaixo) viram receita; o governo tem um gasto base, e as medidas de gasto (F106) somam a ele. Receita menos gasto é o resultado do mês; o déficit vira dívida. (2) **Dívida ÷ PIB:** quanto o governo deve comparado ao tamanho da economia (80% quer dizer que deve 80% de tudo o que o país produz num ano). O PIB (Produto Interno Bruto, a soma de tudo o que o país produz) sai de um modelo simples de crescimento da economia, puxado pela bolsa e pelo juro. (3) **Prêmio de risco nos títulos:** a taxa dos títulos do Tesouro passa a ser a SELIC esperada mais um prêmio que sobe com a dívida (por exemplo, 1 ponto com 60% do PIB e 4 pontos com 100%). O governo gastador vê o próprio título ficar caro, e quem investe percebe isso na tela. Os jogadores não financiam o governo de fato: as compras deles são pequenas demais perto da economia. (4) **Grupos:** a dívida alta e o título caro irritam quem vive de investimento (D19), e o corte de gasto irrita quem depende dele, de modo que o austero e o gastador passam a ser estratégias com eleitorado próprio. **Como funciona hoje:** a política de impostos padrão é a de antes da expansão (15% no ganho comum de ações, 20% no day trade e no FII, isenção das vendas de ações até R$ 20 mil no mês, tabela da renda fixa de 22,5% a 15% por prazo, LCI e LCA isentas). O presidente propõe medidas gerais (alíquota do ganho comum, alíquota do day trade, teto da isenção de ações, uma alíquota única no lugar da tabela da renda fixa e a alíquota de LCI e LCA, de 0 a 100% e diferente da vigente) e medidas de setor ou segmento (isentar, ou taxar de mais de 0 até 20 pontos por medida, que se empilham sem teto acumulado). No IR do mês, vale a regra do dia de cada venda; segmento vence setor e, entre iguais, vale a mais nova. A medida aprovada vale 90 dias depois. Falta: o gasto base, a receita de cada imposto numa economia que o jogo não modela por inteiro, a curva do prêmio de risco, o modelo de crescimento e a calibração. Dívida ÷ PIB e crescimento entram no painel da economia (F163).
 
 <a id="f129"></a>
-**F129 — Aprovação do governo pelos grupos de eleitores.** Serve N34. A aprovação passa a ser a satisfação média dos grupos (D19), pesada pelo tamanho de cada um: um grupo satisfeito com as medidas e com os resultados (inflação, emprego, bolsa) aprova, e o resto reprova. Os fatores soltos de hoje (inflação contra a meta, Ibovespa, medidas, distância da promessa) viram o que cada grupo exige. A aprovação do mandato pesa na eleição seguinte pelo apoio e pela rejeição que deixou em cada grupo. O impeachment deixa de ser automático e passa a ser votado pelo Congresso (F153). **Como funciona hoje:** a aprovação começa em 50% na posse e é recalculada no último dia útil de cada mês, limitada entre 0 e 100%. Fatores: inflação de 12 meses contra a meta (+4 dentro ou abaixo, −3 por ponto acima, sem teto); Ibovespa de 12 meses (1 ponto a cada 5%, até ±6); medidas vigentes (corte de imposto soma e não decai; imposto novo e taxação de setor tiram pontos que somem em 180 dias); e a promessa (−3 por faixa de distância). Impeachment com aprovação abaixo de 25% em 3 fechamentos seguidos. **O que o playtest mostrou:** a aprovação quase não sobe e o impeachment chega cedo demais; numa partida, ele veio 3 meses depois da posse, com a aprovação perto de 10%, porque os fatores tiram com folga e somam pouco (`approval.py:17` a `:27`, gatilho em `government_book.py:614`). Falta: a calibração com os grupos, para o governo que vai bem conseguir subir, e a tela da aprovação por grupo, que passa pelo canvas.
+**F129 — Aprovação do governo pelos grupos de eleitores.** Serve N34. A aprovação passa a ser a satisfação média dos grupos (D19), pesada pelo tamanho de cada um: um grupo satisfeito com as medidas e com os resultados (inflação, emprego, bolsa) aprova, e o resto reprova. Os fatores soltos de hoje (inflação contra a meta, Ibovespa, medidas, distância da promessa) viram o que cada grupo exige. A aprovação do mandato pesa na eleição seguinte pelo apoio e pela rejeição que deixou em cada grupo. O impeachment continua automático, recalibrado (candidatos: uma carência depois da posse e mais fechamentos seguidos abaixo do piso), até o Congresso de bancadas (F153) passar a votá-lo. **Como funciona hoje:** a aprovação começa em 50% na posse e é recalculada no último dia útil de cada mês, limitada entre 0 e 100%. Fatores: inflação de 12 meses contra a meta (+4 dentro ou abaixo, −3 por ponto acima, sem teto); Ibovespa de 12 meses (1 ponto a cada 5%, até ±6); medidas vigentes (corte de imposto soma e não decai; imposto novo e taxação de setor tiram pontos que somem em 180 dias); e a promessa (−3 por faixa de distância). Impeachment com aprovação abaixo de 25% em 3 fechamentos seguidos. **O que o playtest mostrou:** a aprovação quase não sobe e o impeachment chega cedo demais; numa partida, ele veio 3 meses depois da posse, com a aprovação perto de 10%, porque os fatores tiram com folga e somam pouco (`approval.py:17` a `:27`, gatilho em `government_book.py:614`). Falta: a calibração com os grupos, para o governo que vai bem conseguir subir, e a tela da aprovação por grupo, que passa pelo canvas.
 
 <a id="f130"></a>
 **F130 — Ações de campanha: a eleição deixa de ser só dinheiro.** Serve N34. **O problema:** hoje a campanha é ajustar a contribuição e assistir; o resultado é previsível, sem virada nem ansiedade, e quem põe mais dinheiro ganha. **Proposta:** (1) **Verba mensal** continua, como base, e passa a se dividir entre a campanha presidencial e a do Congresso (F153), na proporção que o partido escolher. (2) **Ações avulsas:** gasto único na hora, com público-alvo e retorno que diminui conforme se repete no mesmo mês: propaganda na TV (atinge todos os grupos, cara), evento com um grupo (barato, só aquele grupo) e comício (barato, com risco de gafe sorteada pela semente da partida, que tira apoio). Três ou quatro ações bastam. (3) **Promessas** (F152) e a **pesquisa com margem de erro** (F107) completam o que muda na campanha; o voto vem do modelo de grupos (D19). (4) **Anúncio da campanha** no jornal (F161) quando ela abre e quando as chapas fecham. **Como funciona hoje:** a primeira eleição é escolhida no lobby; o mandato é de 4 anos, com até 2 seguidos. A campanha abre 1 ano antes do 1º turno, as chapas fecham no último dia do mês anterior, o 1º turno é em 7 de outubro e o 2º, 21 dias depois; a posse é em 1º de janeiro. No 1º dia útil de cada mês da campanha, cada filiado paga a contribuição que escolheu, e o gasto vira pontos pela raiz quadrada ÷ 64 num eleitorado de 100. Os partidos do computador completam até 3 chapas, com a verba da média dos partidos de jogadores vezes 0,5, 1 ou 1,5 pela dificuldade. Cada resultado de turno e o impeachment pausam a partida. Na vitória política, vence o partido com a maior soma de patrimônio dos filiados. Falta: o custo e o efeito de cada ação, a curva do retorno decrescente, a chance de gafe e a tela da campanha, que passa pelo canvas. Depois, ações por região com o mapa (F164).
@@ -562,7 +573,7 @@
 **F151 — Segundo turno com disputa.** Serve N34. No playtest, o 2º turno repetiu o 1º sem chance de virada: entre os turnos não há cobrança, os votos dos eliminados vão inteiros para o finalista de promessa mais próxima e o único movimento é a doação de quem foi eliminado. **Escolhido:** (1) **transferência grupo a grupo:** os votos de quem ficou de fora se dividem pela afinidade de cada grupo com cada finalista (D19), e uma parte vira indecisa; (2) **campanha de 2º turno:** as ações avulsas (F130) e novas promessas (F152) valem entre os turnos, e cada finalista pode fazer uma contribuição única de 2º turno, paga na hora. A duração de 21 dias fica; volta à mesa se, jogando, ficar curta para a virada. O debate sorteado fica de fora. Falta: a fração que vira indecisa e a calibração com as ações de campanha.
 
 <a id="f152"></a>
-**F152 — Promessas de campanha cobradas no mandato.** Serve N34. A chapa promete até 3 medidas escolhidas da lista das que o governo pode propor (impostos da F128 e gastos da F106), e a promessa aparece no jornal ("Fulano prometeu isentar o setor elétrico"), na pesquisa, no resultado e na tela do governo. (1) **Na campanha:** a promessa rende muito apoio nos grupos que querem a medida e pode tirar apoio dos que não querem (D19). (2) **No mandato:** cumprida, sobe a lealdade daqueles grupos; descumprida até o fim do mandato, vira rejeição duradoura neles. A tela do governo marca cada promessa como cumprida, em andamento ou descumprida. (3) **Na eleição seguinte:** quem traiu promete de novo e rende menos, porque os grupos traídos descontam a promessa pela rejeição. É o que faz o voto deixar de ser só dinheiro: promessa é forte, mas cobra depois. Falta: quanto a promessa rende por grupo, o desconto pela rejeição, a regra de "cumprida" para medida com valor (prometeu baixar o day trade: qualquer corte conta?) e o desenho da tela, que passa pelo canvas.
+**F152 — Promessas de campanha cobradas no mandato.** Serve N34. A chapa promete até 3 medidas escolhidas da lista das que o governo pode propor: as de imposto, que já existem, e as de gasto quando a F106 chegar, na versão seguinte. A promessa a promessa aparece no jornal ("Fulano prometeu isentar o setor elétrico"), na pesquisa, no resultado e na tela do governo. (1) **Na campanha:** a promessa rende muito apoio nos grupos que querem a medida e pode tirar apoio dos que não querem (D19). (2) **No mandato:** cumprida, sobe a lealdade daqueles grupos; descumprida até o fim do mandato, vira rejeição duradoura neles. A tela do governo marca cada promessa como cumprida, em andamento ou descumprida. (3) **Na eleição seguinte:** quem traiu promete de novo e rende menos, porque os grupos traídos descontam a promessa pela rejeição. É o que faz o voto deixar de ser só dinheiro: promessa é forte, mas cobra depois. Falta: quanto a promessa rende por grupo, o desconto pela rejeição, a regra de "cumprida" para medida com valor (prometeu baixar o day trade: qualquer corte conta?) e o desenho da tela, que passa pelo canvas.
 
 <a id="f153"></a>
 **F153 — Congresso eleito, com bancadas orientadas pelo líder.** Serve N34. Hoje o Congresso é um sorteio: cada medida passa se um número de 0 a 100 sai abaixo da aprovação. (1) **Casa de cadeiras,** uma só (sem Senado), eleita junto com o presidente e mostrada como um hemiciclo de bolinhas na cor de cada partido. (2) **Eleição própria:** as cadeiras saem do mesmo modelo de grupos (D19), mas pesando mais a afinidade de longo prazo e o histórico do partido, e com a verba de Congresso que o partido separou da presidencial (F130). Um partido com histórico bom e pouco dinheiro elege bancada sem ganhar a presidência, e o presidente pode governar com a oposição maioria. (3) **Partidos do computador permanentes:** existem sempre na casa, com perfil próprio por grupo, mesmo quando não lançam candidato; um deles faz o papel do "centrão", que vende apoio (F154). (4) **Líder orienta a bancada:** em cada medida, o líder do partido define o voto da bancada (Sim ou Não); uma orientação padrão por tema vale quando ele não escolhe, e votação sem orientação vira pendência no jornal (F161). Quem perdeu a presidência continua jogando. Parte da bancada pode desobedecer quando a medida irrita muito os grupos do partido. (5) **Impeachment votado:** aprovação baixa abre o pedido, e a casa vota; governo com base forte sobrevive à impopularidade. Depois do impeachment, assume o vice; sem vice, governa o partido do computador com mais cadeiras, propondo medidas pelos grupos dele. Falta: o tamanho da casa, a regra que transforma votos em cadeiras, a chance de desobediência, o gatilho do pedido de impeachment e a tela, que passa pelo canvas. Filiados como deputados individuais, com salário e eleição por estado, ficam para depois, se a bancada se mostrar divertida.
