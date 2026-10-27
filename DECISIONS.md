@@ -256,6 +256,8 @@ O número sai dos commits, que seguem o Conventional Commits: `feat:` pede a men
 
 **Atualização (2026-10-24): fim do "Acesso antecipado".** O rótulo saiu do README, da introdução dos docs e do título da release, a partir da 2.3.0. O número continua regido só pela compatibilidade: sair do rótulo não move a versão.
 
+**Atualização (2026-10-27): nome da versão.** Versão menor e maior saem com nome; correção sai só com o número. O nome é o tema principal da versão, normalmente o título do marco que ela fecha ("Eleição disputada"); quando a versão fecha mais de um marco, vale o do tema principal. O nome entra pela primeira linha do `--message-file` do `pnpm release` e aparece no título da release e no CHANGELOG. O nome não acompanha a maior porque ela sobe por quebra de compatibilidade, não por conteúdo: uma maior que só troca o banco ficaria com nome, e uma menor cheia de conteúdo, sem.
+
 ### D13 — Um canal de tempo real só: Socket.IO, com fallback de polling
 **Status:** ✅ Decidida
 
