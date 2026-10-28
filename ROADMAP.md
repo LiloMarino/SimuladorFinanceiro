@@ -87,7 +87,6 @@
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | — | ⏳ |
-| [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | — | ⏳ |
 | [**F131**](#f131) | Catálogo de padrões de vela | — | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | — | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | — | ⏳ |
@@ -108,7 +107,7 @@
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ✅ |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ✅ |
 | [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | — | ✅ |
+| [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | — | ✅ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
 | [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ✅ |
@@ -149,11 +149,11 @@
 | ID | Resumo | Marco | Destrava | Status |
 | --- | --- | --- | --- | --- |
 | [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | M19 | 4 | ⏳ |
-| [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | M17 | 3 | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
 | [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | M15 | 2 | ⏳ |
 | [**F152**](#f152) | Promessas de campanha cobradas no mandato | M17 | 1 | ⏳ |
+| [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | M19 | 1 | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
@@ -281,20 +281,20 @@
 >
 > **Serve:** N34
 >
-> **Progresso:** 3/6 concluídas
+> **Progresso:** 4/6 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | [F107](#f107) | ⏳ |
 | [**F151**](#f151) | Segundo turno com disputa | [F130](#f130), [F152](#f152) | ⏳ |
 | [**F152**](#f152) | Promessas de campanha cobradas no mandato | [F107](#f107) | ⏳ |
 
-<details><summary>Concluído (3 itens)</summary>
+<details><summary>Concluído (4 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | ✅ |
 | [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | [F107](#f107) | ✅ |
+| [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | [F107](#f107) | ✅ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ✅ |
 
 </details>
@@ -395,7 +395,7 @@
 | **F163** | Painel da economia: SELIC e IPCA ao longo da partida | N34 | — | M17 | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F107** | Grupos de eleitores, com apoio e rejeição por partido | N34 | D19 | M17 | — | Alto | Alto | Alto | Bom | ✅ Concluído |
 | **F129** | Aprovação do governo pelos grupos de eleitores | N34 | D19 | M17 | [F107](#f107) | Médio | Médio | Alto | Bom | ✅ Concluído |
-| **F130** | Ações de campanha: a eleição deixa de ser só dinheiro | N34 | D19 | M17 | [F107](#f107) | Alto | Médio | Alto | Bom | ⏳ Pendente |
+| **F130** | Ações de campanha: a eleição deixa de ser só dinheiro | N34 | D19 | M17 | [F107](#f107) | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F152** | Promessas de campanha cobradas no mandato | N34 | D19 | M17 | [F107](#f107) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F151** | Segundo turno com disputa | N34 | D19 | M17 | [F130](#f130), [F152](#f152) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F128** | Orçamento do governo, dívida pública e prêmio de risco | N34 | D19, D14 | M19 | [F107](#f107) | Alto | Alto | Alto | Bom | ⏳ Pendente |
@@ -491,6 +491,7 @@
 
 <a id="f130"></a>
 **F130 — Ações de campanha: a eleição deixa de ser só dinheiro.** Serve N34; a campanha passa a ter escolhas e sorte, sobre o modelo de grupos (D19, F107). (1) **Verba mensal de base:** a contribuição de cada filiado continua sendo cobrada no 1º dia útil de cada mês da campanha e vira apoio espalhado por todos os grupos pelo peso de cada um, com retorno decrescente (hoje é a raiz quadrada ÷ 64 num eleitorado de 100). A divisão da verba entre a campanha presidencial e a do Congresso chega com a F153. (2) **Ações avulsas:** qualquer filiado dispara uma ação e paga na hora, do caixa da própria carteira, como na doação; o partido não tem caixa. O preço de cada ação é fixo em reais e segue a chave "corrigir pela inflação" da partida: ligada, sobe pelo IPCA a cada aniversário, como o salário e a meta (o fator sai de `life_budget.py` para um lugar compartilhado). (3) **As quatro ações e o dado:** cada ação rola um d20, sorteado pela semente da partida e mostrado na tela. A tabela base: 1, desastre, perde o dobro do ganho normal; 2 a 6, fraco, metade; 7 a 14, normal; 15 a 19, bom, 1,5 vez; 20, viralizou, 3 vezes. **TV** (cara, todos os grupos pelo peso) rola com vantagem: dois dados, vale o maior, então o desastre sai 1 vez em 400. **Evento com um grupo** (preço médio) rola um d20 normal e também repara um pouco da rejeição do partido naquele grupo, até um limite por campanha (F107). **Comício** (barato, um grupo) rola normal com os extremos dobrados: o desastre perde 4 vezes o ganho e o viral rende 6. **Ataque ao rival** (preço médio, um grupo e um partido rival): na faixa normal, tira do rival o ganho normal naquele grupo; no 1, o tiro sai pela culatra: o grupo passa a rejeitar quem atacou, em 2 vezes o ganho normal (+10 de rejeição no exemplo de ganho normal 5, confirmado em 28/out), e o apoio de quem atacou e o do rival não mudam. Nas outras ações o desastre só tira apoio, sem somar rejeição. (4) **Retorno decrescente:** a mesma ação no mesmo grupo rende metade a cada repetição no mês (100%, 50%, 25%) e zera no mês seguinte; espalhar entre grupos rende mais do que insistir num só. (5) **Duração:** todo apoio de campanha, da verba e das ações, cai pela metade em 3 meses; no dia da eleição pesam sobretudo os últimos meses, o que abre espaço para a virada. Afinidade e promessas não caem com isso. (6) **Partidos do computador:** a verba segue a média dos partidos de jogadores vezes 0,5, 1 ou 1,5 pela dificuldade, gasta por regra: eventos nos grupos de maior afinidade e TV quando a verba cobre o preço; atacam só na dificuldade difícil. (7) **Notícia:** desastre e viral saem no jornal com uma manchete ("Candidato se envolve em polêmica no comício com aposentados"), assim como a abertura da campanha e o fechamento das chapas, quando o jornal (F161) existir. **Protótipo:** o preço de cada ação, o ganho normal de cada uma, a curva da verba de base e se o dado mexe o bastante para virar uma eleição sem decidir sozinho. **Gatilho:** depois da F107. Depois, ações por região com o mapa (F164). **Canvas:** painel de ações da campanha (ação, grupo, rival, preço e quantas vezes já foi feita no mês); rolagem do d20 com o resultado e o efeito no grupo; histórico de ações do partido na campanha; manchete de desastre e de viral no jornal. **Decidido no canvas em 27 e 28/out:** (a) **Quem vê o quê:** só o próprio partido vê as suas ações, o dado e o efeito; os outros percebem pela pesquisa e pelo jornal. Todo ataque sai no jornal, e não só o desastre e o viral; o atacado vê o efeito no histórico, sem o dado. (b) **Retorno decrescente por partido:** o 2º evento com aposentados no mês rende 50%, seja de qual filiado for. (c) **Sem limite de ações:** o preço e o retorno decrescente bastam. As ações valem até a véspera do 1º turno; entre os turnos, valem as regras do 2º turno (F151). (d) **Reparação:** o desastre não repara rejeição; as outras faixas reparam. (e) **Ataque:** fraco, normal, bom e viral tiram do rival 0,5, 1, 1,5 e 3 vezes o ganho normal (2,5, 5, 7,5 e 15 no exemplo de ganho normal 5); os valores em pontos seguem exemplos até o protótipo. (f) **Tela:** as ações moram na aba Campanha do partido da página Eleição, em passos que mudam com a ação (TV 1 etapa, comício 2, ataque 3), com o resumo do dado sempre à vista. O diálogo do dado mostra a tabela de faixas antes de pagar, sem a trilha de 1 a 20, e o número tirado aparece dentro do hexágono. **Calibrado no protótipo de 28/out** (verba de referência de R$ 10 mil por mês por partido; 1.000 eleições por pergunta): a verba de base fica na curva de hoje, raiz de R$ ÷ 64 pontos por mês em cada grupo. TV R$ 6.000, ganho normal 0,75 em todos os grupos; evento R$ 2.500, ganho normal 1,5 e repara 1 de rejeição, até 6 por campanha no grupo; comício R$ 800, ganho normal 0,5; ataque R$ 2.500, tira 1,5 do rival (no 1, +3 de rejeição para quem atacou). Os ganhos de 5 dos exemplos deixavam o dinheiro e o dado fortes demais (2× de verba vencia 78% e o dado trocava o vencedor em 23%, em 100 eleições). Com os calibrados: o mais rico com 2× a verba do segundo vence 62% (1,5× 51%, 5× 93%, 10× 99%); trocar só a semente do dado muda o vencedor em 8,5%; o líder da pesquisa 3 meses antes do 1º turno perde em 20,5%.
+ **Entregue:** a aba Campanha da página Eleição ganhou o cartão de ações (quatro ações, passos por ação, resumo do dado), o diálogo do d20 com a tabela de faixas, as últimas ações do partido, a verba de base e o histórico com filtros; o dado, o retorno decrescente, o decaimento e os efeitos vivem no registro de eventos do governo. **Fica para o jornal (F161):** a manchete de desastre e de viral, que hoje aparece só no diálogo do dado e no aviso em tempo real.
 
 <a id="f152"></a>
 **F152 — Promessas de campanha cobradas no mandato.** Serve N34; substitui a régua de promessa por faixas, pelo modelo de grupos (D19, F107). (1) **O que se promete:** a chapa promete até 3 medidas da lista das que o governo pode propor: as de imposto, que já existem, e as de gasto quando a F106 chegar, na 3.2. Medida com valor leva um alvo ("day trade a 10%", hoje em 20%); medida de setor é sim ou não ("isentar o setor elétrico"). A promessa aparece no jornal ("Fulano prometeu isentar o setor elétrico"), na pesquisa, no resultado e na tela do governo, e move o radar do partido nos valores da medida. (2) **Na campanha:** a promessa rende apoio nos grupos que querem a medida e tira dos que não querem, na medida da posição de cada grupo no valor; quanto maior o passo prometido, mais rende e mais pesa se falhar. Num grupo, ela rende multiplicada por (1 − rejeição ÷ 100): com 40 de rejeição entre os aposentados, a promessa feita a eles rende 60%. Quem traiu promete de novo e rende menos onde traiu. (3) **No mandato:** no fim do mandato vale o que estiver em vigor. Chegou ao alvo, cumprida; parte do caminho, cumprida na proporção (de 20% para 15% numa promessa de 10% é metade); nada, descumprida. Cumprida sobe a lealdade e repara a rejeição dos grupos que queriam a medida (F107); descumprida soma rejeição neles, na mesma proporção. A tela do governo mostra cada promessa como cumprida, em andamento (com a fração do caminho) ou descumprida. (4) **Impeachment:** o vice que assume herda as promessas da chapa e é cobrado no fim do mandato; sem vice, o mandato acaba no impeachment e o que não foi cumprido vira rejeição. A cobrança fica sempre com o partido da chapa. (5) Os partidos do computador prometem por regra, com medidas dos próprios valores. **Protótipo:** quanto a promessa rende por grupo e por tamanho do passo, e quanto vale a lealdade e a rejeição de uma promessa cumprida ou quebrada. **Gatilho:** depois da F107. **Canvas:** escolha das promessas na chapa (medida, alvo e o rendimento esperado em cada grupo, já descontado pela rejeição); promessas da chapa na pesquisa e no resultado; promessas na tela do governo com o estado de cada uma; balanço do fim do mandato, com o que cada promessa deixou de lealdade e de rejeição em cada grupo. **Decidido no canvas em 27/out:** (a) **Desde o anúncio:** a promessa rende desde o anúncio. Depois dele, trocar, retirar ou baixar o alvo soma rejeição em quem queria; acrescentar até 3 e subir o alvo não custam. (b) **Cumprida soma afinidade,** a parte do apoio que não cai: é o que o item 3 chama de lealdade, sem nenhum número novo por grupo. (c) **Direção contrária pesa mais que não fazer nada:** de 20% para 25% numa promessa de 10% o governo andou meio caminho para trás (−50% do caminho), e a rejeição sai 1,5 vez a cheia. (d) **Reeleição:** com as chapas fechadas, metade do efeito do que estiver em vigor já pesa no voto; o balanço de 31 dez fecha a outra metade. (e) **Quem perdeu:** as promessas de quem perdeu ficam no histórico do partido, sem efeito. (f) **Tela:** a escolha é um diálogo, uma promessa por vez. **Calibrado no protótipo de 28/out:** a promessa rende 4 × passos × reação do grupo à medida, vezes (1 − rejeição ÷ 100) onde rende. Cumprida soma 3 de afinidade e repara 8 de rejeição por passo e unidade de reação, nos grupos que queriam, na proporção do caminho; descumprida soma 8 de rejeição, e na direção contrária 1,5 vez. Em 1.000 eleições seguintes com 2 promessas de 1 passo e verba igual: quem não prometeu vence 35%; cumpriu, 41% (49% com o balanço inteiro); metade do caminho, 33%; nada, 22% (10%); o contrário, 17% (4,5%). Trair custa mais do que cumprir rende, de propósito.
