@@ -31,6 +31,9 @@ export function ViceInviteDialog({ open, onOpenChange, panel }: ViceInviteDialog
   const candidate = party.candidate?.name ?? founder;
   const respond = (accept: boolean) => answer.mutate({ accept }, { onSuccess: () => onOpenChange(false) });
 
+  // A pesquisa só existe depois da primeira atualização semanal: antes, todos os partidos têm 0 ponto
+  const pollPublished = panel.parties.some((candidateParty) => Number(candidateParty.intention_points) > 0);
+
   const homeParty = panel.parties.find((candidateParty) => candidateParty.id === panel.my_party?.party_id);
   const staysIn =
     homeParty && homeParty.id !== party.id
@@ -71,7 +74,8 @@ export function ViceInviteDialog({ open, onOpenChange, panel }: ViceInviteDialog
                 <b>{party.name}</b>
                 <span className="text-xs text-muted-foreground">
                   Candidato: {candidate} ·{" "}
-                  {Number(party.intention_points).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}% na pesquisa ·
+                  {pollPublished &&
+                    `${Number(party.intention_points).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}% na pesquisa · `}
                   verba de {displayMoney(party.budget)}/mês
                 </span>
               </span>
