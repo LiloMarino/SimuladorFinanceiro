@@ -77,7 +77,8 @@ function CreditContent({ overview }: { overview: CreditOverview }) {
       <div className="grid items-start gap-5 xl:grid-cols-[1fr_1.3fr]">
         <RiskRatingCard rating={rating} />
         {openOffer ? (
-          <LoanOfferCard overview={overview} {...openOffer} amountInputRef={amountInput} />
+          // A cada empréstimo aberto ou quitado o formulário nasce de novo, com o valor padrão do limite que sobrou
+          <LoanOfferCard key={loans.length} overview={overview} {...openOffer} amountInputRef={amountInput} />
         ) : (
           <BlockedRatingCard overview={overview} onPayOverdue={firstOverdue ? () => openOverdue(firstOverdue) : null} />
         )}
