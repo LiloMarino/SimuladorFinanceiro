@@ -121,6 +121,7 @@ const simulationFormSchema = z
     computerDifficulty: z.custom<ComputerDifficulty>(
       (value) => value === "EASY" || value === "NORMAL" || value === "HARD",
     ),
+    pollMargin: z.boolean(),
   })
   .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
     message: "O fim precisa ser depois do início.",

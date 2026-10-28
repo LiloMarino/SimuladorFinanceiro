@@ -444,6 +444,8 @@ class GovernmentEventType(Enum):
     """Tudo o que muda o estado político da partida; o estado é o replay desses eventos."""
 
     PARTY_FOUNDED = "PARTY_FOUNDED"
+    # O fundador de um partido sem bandeiras escolhe as 3
+    PARTY_VALUES_SET = "PARTY_VALUES_SET"
     COMPUTER_PARTY_ADDED = "COMPUTER_PARTY_ADDED"
     COMPUTER_PARTY_REMOVED = "COMPUTER_PARTY_REMOVED"
     PARTY_JOINED = "PARTY_JOINED"
@@ -553,7 +555,37 @@ class ApprovalFactorKind(Enum):
     STOCKS = "STOCKS"
     NEW_TAX = "NEW_TAX"
     TAX_CUT = "TAX_CUT"
-    PROMISE = "PROMISE"
+
+
+class VoterGroup(Enum):
+    """Os grupos em que o eleitorado se divide; cada um vota pelo que acha de cada partido."""
+
+    INVESTORS = "INVESTORS"
+    ENTREPRENEURS = "ENTREPRENEURS"
+    FORMAL_WORKERS = "FORMAL_WORKERS"
+    PUBLIC_SERVANTS = "PUBLIC_SERVANTS"
+    RETIREES = "RETIREES"
+    WELFARE = "WELFARE"
+
+
+class VoterValue(Enum):
+    """As bandeiras de um partido e os eixos do perfil dele."""
+
+    FREE_MARKET = "FREE_MARKET"
+    SOCIAL_JUSTICE = "SOCIAL_JUSTICE"
+    STABILITY = "STABILITY"
+    DEVELOPMENT = "DEVELOPMENT"
+    SAVER_PROTECTION = "SAVER_PROTECTION"
+    PUBLIC_SERVICE = "PUBLIC_SERVICE"
+
+
+class GroupReading(Enum):
+    """Um resultado do governo que o grupo de eleitores lê."""
+
+    INFLATION = "INFLATION"
+    SELIC = "SELIC"
+    STOCKS = "STOCKS"
+    CAPITAL_GAINS_TAX = "CAPITAL_GAINS_TAX"
 
 
 class InboxEntryKind(Enum):

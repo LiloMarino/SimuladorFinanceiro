@@ -12,8 +12,8 @@ import {
 import { displayDayMonth, displayMoney, displayMonthShort } from "@/shared/lib/utils/display";
 import type { ElectionPanel } from "@/types";
 import { useAnswerVice } from "../hooks/mutations/useAnswerVice";
-import { PartyMark, PersonMark } from "./party-mark";
-import { PromiseRuler } from "./promise-ruler";
+import { PartyMark } from "./party-mark";
+import { ValueChips } from "./value-chip";
 
 type ViceInviteDialogProps = {
   open: boolean;
@@ -82,21 +82,8 @@ export function ViceInviteDialog({ open, onOpenChange, panel }: ViceInviteDialog
             </div>
 
             <div className="grid gap-1.5">
-              <span className="text-sm font-medium">Promessa do partido</span>
-              <PromiseRuler
-                showEnds
-                markers={[
-                  {
-                    key: party.id,
-                    promise: party.promise,
-                    node: party.candidate ? (
-                      <PersonMark person={party.candidate} />
-                    ) : (
-                      <PartyMark abbr={party.abbr} color={party.color} size="sm" />
-                    ),
-                  },
-                ]}
-              />
+              <span className="text-sm font-medium">Bandeiras do partido</span>
+              <ValueChips values={party.flags} />
             </div>
 
             <ul className="grid rounded-lg border px-3 py-1">

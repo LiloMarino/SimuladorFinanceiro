@@ -1,22 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countdownLabel, monthlyYield, phaseLabel, promiseBand, remainingCollections, rulerPosition } from "./election";
-
-describe("rulerPosition", () => {
-  it("põe o marcador no meio da faixa: cada uma das 5 ocupa 20% da régua", () => {
-    // faixa 1 vai de 0% a 20%, o meio é 10%; faixa 3 fica no centro; faixa 5 termina em 100%, o meio é 90%
-    expect(rulerPosition(1)).toBeCloseTo(10, 6);
-    expect(rulerPosition(3)).toBeCloseTo(50, 6);
-    expect(rulerPosition(5)).toBeCloseTo(90, 6);
-  });
-});
-
-describe("promiseBand", () => {
-  it("nomeia a faixa e segura valores fora da régua nas pontas", () => {
-    expect(promiseBand(2).title).toBe("Impostos baixos");
-    expect(promiseBand(9).value).toBe(5);
-    expect(promiseBand(0).value).toBe(1);
-  });
-});
+import { countdownLabel, monthlyYield, phaseLabel, remainingCollections } from "./election";
 
 describe("monthlyYield", () => {
   it("é a raiz do gasto mensal dividida por 64", () => {

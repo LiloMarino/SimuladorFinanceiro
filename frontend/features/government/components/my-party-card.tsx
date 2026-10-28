@@ -7,10 +7,9 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayMoney, displayMoneyWhole, displayMonthShort } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
 import { BUDGET, SPENT, VOTE_YIELD } from "../lib/election-metrics";
-import { PromiseLabel } from "./promise-hint";
-import { monthlyYield, promiseBand } from "../lib/election";
-import { PartyMark, PersonMark } from "./party-mark";
-import { PromiseRuler } from "./promise-ruler";
+import { monthlyYield } from "../lib/election";
+import { PartyMark } from "./party-mark";
+import { ValueChips } from "./value-chip";
 import { YieldChart } from "./yield-chart";
 
 type MyPartyCardProps = {
@@ -49,7 +48,6 @@ export function MyPartyCard({
   const locked = panel.phase === "BETWEEN_ROUNDS";
   const budget = Number(party.budget);
   const doubled = budget * 2;
-  const band = promiseBand(party.promise);
 
   return (
     <Card>
@@ -161,27 +159,13 @@ export function MyPartyCard({
             </span>
           </div>
 
-          {/* Promessa */}
+          {/* Bandeiras */}
           <div className="grid gap-1.5">
-            <span className="text-sm font-medium">
-              <PromiseLabel />
-            </span>
-            <PromiseRuler
-              showEnds
-              markers={[
-                {
-                  key: party.id,
-                  promise: party.promise,
-                  node: party.candidate ? (
-                    <PersonMark person={party.candidate} />
-                  ) : (
-                    <PartyMark abbr={party.abbr} color={party.color} size="sm" />
-                  ),
-                },
-              ]}
-            />
+            <span className="text-sm font-medium">Bandeiras</span>
+            <ValueChips values={party.flags} />
             <span className="text-xs text-muted-foreground">
-              Faixa {band.value}, {band.title.toLowerCase()}. {band.description}
+              Elas ficam para sempre; o perfil do partido parte delas e se move com as medidas que ele aprova no
+              governo.
             </span>
           </div>
 

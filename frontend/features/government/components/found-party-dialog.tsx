@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Info } from "lucide-react";
@@ -22,8 +22,9 @@ import { useFoundParty } from "../hooks/mutations/useFoundParty";
 import { PARTY_COLORS } from "../lib/party-colors";
 import { contributionAmount } from "../lib/contribution";
 import { ContributionField } from "./contribution-field";
-import { PromiseHint } from "./promise-hint";
-import { PromisePicker } from "./promise-picker";
+import type { ElectionPanel, VoterValue } from "@/types";
+import { FLAGS_PER_PARTY } from "../lib/voters";
+import { FlagsPicker } from "./flags-picker";
 
 const ABBR_PATTERN = /^[A-ZÀ-Ý]{2,8}$/;
 
@@ -31,12 +32,15 @@ const foundPartySchema = z.object({
   name: z.string().trim().min(2, "Dê um nome de pelo menos 2 letras.").max(60, "O nome vai até 60 letras."),
   abbr: z.string().regex(ABBR_PATTERN, "A sigla tem de 2 a 8 letras."),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Escolha uma cor."),
-  promise: z.number().int().min(1).max(5),
+  flags: z
+    .array(z.custom<VoterValue>())
+    .length(FLAGS_PER_PARTY, `Escolha mais uma bandeira: o partido precisa de ${FLAGS_PER_PARTY}.`),
 });
 
 type FoundPartyForm = z.infer<typeof foundPartySchema>;
 
 type FoundPartyDialogProps = {
+  panel: ElectionPanel;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Cores que outros partidos já usam */
@@ -45,8 +49,8 @@ type FoundPartyDialogProps = {
   cash: string | undefined;
 };
 
-/** Fundar um partido: nome, sigla, cor, promessa na régua e a contribuição de quem funda. */
-export function FoundPartyDialog({ open, onOpenChange, takenColors, cash }: FoundPartyDialogProps) {
+/** Fundar um partido: nome, sigla, cor, as 3 bandeiras e a contribuição de quem funda. */
+export function FoundPartyDialog({ panel, open, onOpenChange, takenColors, cash }: FoundPartyDialogProps) {
   const found = useFoundParty();
   const taken = new Set(takenColors.map((color) => color.toUpperCase()));
   const firstFree = PARTY_COLORS.find((color) => !taken.has(color)) ?? PARTY_COLORS[0];
@@ -54,9 +58,11 @@ export function FoundPartyDialog({ open, onOpenChange, takenColors, cash }: Foun
 
   const form = useForm<FoundPartyForm>({
     resolver: zodResolver(foundPartySchema),
-    defaultValues: { name: "", abbr: "", color: firstFree, promise: 3 },
+    defaultValues: { name: "", abbr: "", color: firstFree, flags: [] },
   });
 
+  const color = useWatch({ control: form.control, name: "color" });
+  const abbr = useWatch({ control: form.control, name: "abbr" });
   const monthly = Number(contributionAmount(contribution));
   const overCash = cash !== undefined && monthly > Number(cash);
 
@@ -66,7 +72,7 @@ export function FoundPartyDialog({ open, onOpenChange, takenColors, cash }: Foun
         name: values.name,
         abbr: values.abbr,
         color: values.color,
-        promise: values.promise,
+        flags: values.flags,
         contribution: contributionAmount(contribution),
       },
       { onSuccess: () => onOpenChange(false) },
@@ -75,10 +81,13 @@ export function FoundPartyDialog({ open, onOpenChange, takenColors, cash }: Foun
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col sm:max-w-120">
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col sm:max-w-230">
         <DialogHeader variant="divided">
-          <DialogTitle>Fundar um partido</DialogTitle>
-          <DialogDescription>Só se concorre por partido. Sozinho, é um partido de um filiado.</DialogDescription>
+          <DialogTitle>Fundar partido</DialogTitle>
+          <DialogDescription>
+            Você vira o fundador e o candidato do partido. A fundação é pública: a sala vê o partido, as bandeiras e
+            quem contribui com quanto.
+          </DialogDescription>
         </DialogHeader>
 
         <DialogBody>
@@ -158,15 +167,15 @@ export function FoundPartyDialog({ open, onOpenChange, takenColors, cash }: Foun
 
             <Controller
               control={form.control}
-              name="promise"
-              render={({ field }) => (
-                <Field>
-                  <div className="flex items-center gap-1.5">
-                    <FieldLabel>Promessa do partido</FieldLabel>
-                    <PromiseHint />
-                  </div>
-                  <PromisePicker value={field.value} onChange={field.onChange} />
-                </Field>
+              name="flags"
+              render={({ field, fieldState }) => (
+                <FlagsPicker
+                  panel={panel}
+                  value={field.value}
+                  onChange={field.onChange}
+                  color={color}
+                  error={fieldState.error?.message}
+                />
               )}
             />
 
@@ -182,7 +191,7 @@ export function FoundPartyDialog({ open, onOpenChange, takenColors, cash }: Foun
               <Info />
               <AlertTitle>Você será quem fundou o partido</AlertTitle>
               <AlertDescription>
-                Escolhe candidato e vice entre os filiados e pode expulsar. Nome, sigla, cor e promessa ficam públicos.
+                Escolhe candidato e vice entre os filiados e pode expulsar. Nome, sigla, cor e bandeiras ficam públicos.
               </AlertDescription>
             </Alert>
           </form>
@@ -193,7 +202,7 @@ export function FoundPartyDialog({ open, onOpenChange, takenColors, cash }: Foun
             Cancelar
           </Button>
           <Button type="submit" form="found-party-form" disabled={found.isPending}>
-            Fundar partido
+            {abbr.length >= 2 ? `Fundar o ${abbr}` : "Fundar partido"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,6 +1,6 @@
 """
-As medidas do presidente: o que cada uma muda na política de impostos, onde cai na régua
-da campanha e quanto pesa na aprovação. Tudo aqui é função pura sobre `Measure`.
+As medidas do presidente: o que cada uma muda na política de impostos e quanto pesa
+na aprovação. Tudo aqui é função pura sobre `Measure`.
 """
 
 from bisect import bisect_right
@@ -33,13 +33,6 @@ MONTHS = (
     "nov",
     "dez",
 )
-
-# Régua da campanha: corte geral de imposto é 1, isenção setorial 2, taxar um setor 4 e
-# imposto geral novo 5
-RULER_CUT = 1
-RULER_SECTOR_EXEMPT = 2
-RULER_SECTOR_TAX = 4
-RULER_TAX_UP = 5
 
 # Peso na aprovação: imposto novo tira de 1 a 5 pontos e corte soma de 1 a 3
 MAX_TAX_PENALTY = 5
@@ -85,16 +78,6 @@ def is_cut(measure: Measure) -> bool:
             return _step(measure) > 0
         case _:
             return _step(measure) < 0
-
-
-def ruler_band(measure: Measure) -> int:
-    match measure.kind:
-        case MeasureKind.SECTOR_EXEMPT:
-            return RULER_SECTOR_EXEMPT
-        case MeasureKind.SECTOR_TAX:
-            return RULER_SECTOR_TAX
-        case _:
-            return RULER_CUT if is_cut(measure) else RULER_TAX_UP
 
 
 def approval_impact(measure: Measure) -> int:

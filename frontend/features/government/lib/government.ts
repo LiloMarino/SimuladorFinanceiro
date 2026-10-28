@@ -177,13 +177,12 @@ export function rateToFraction(text: string) {
   return Number.isFinite(value) && text.trim() !== "" ? String(Math.round(value * 100) / 10000) : null;
 }
 
-/** O que a medida rascunhada faz na régua e na aprovação, em uma frase. */
-export function impactSentence(preview: Pick<MeasurePreview, "ruler_band" | "impact">) {
+/** O que a medida rascunhada faz na aprovação, em uma frase. */
+export function impactSentence(preview: Pick<MeasurePreview, "impact">) {
   const points = Math.abs(preview.impact);
   const unit = points === 1 ? "ponto" : "pontos";
-  const where = `Fica na faixa ${preview.ruler_band} da régua`;
   if (preview.impact > 0) {
-    return `${where} e, como corte de imposto, soma ${points} ${unit} à aprovação quando passa a valer.`;
+    return `Como corte de imposto, soma ${points} ${unit} à aprovação quando passa a valer.`;
   }
-  return `${where} e, como imposto novo, tira ${points} ${unit} da aprovação quando passa a valer, efeito que some em 6 meses.`;
+  return `Como imposto novo, tira ${points} ${unit} da aprovação quando passa a valer, efeito que some em 6 meses.`;
 }

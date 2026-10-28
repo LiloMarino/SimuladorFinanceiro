@@ -1,41 +1,38 @@
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { displayDate, displayShortMonthYear, parseLocalDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel } from "@/types";
+import { marginRange, partyFill } from "../lib/voters";
 
 const TICK = { fontSize: 10.5, fill: "var(--faint-foreground)" };
 const UNDECIDED_KEY = "undecided";
 const UNDECIDED_COLOR = "var(--faint-foreground)";
 
-type PollRow = { time: number } & Record<string, number>;
+type PollRow = { time: number; margin: number } & Record<string, number | [number, number]>;
 
 const partyKey = (partyId: number) => `party-${partyId}`;
+const bandKey = (partyId: number) => `band-${partyId}`;
 const numberFormat = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
-/** Uma linha por pesquisa e, no fim, a intenção de hoje; indecisos é o que falta para 100. */
+/** Uma linha por pesquisa publicada, com a faixa da margem de cada partido. */
 function pollRows(panel: ElectionPanel): PollRow[] {
-  const rows: PollRow[] = panel.polls.map((poll) => {
-    const row: PollRow = { time: parseLocalDate(poll.date).getTime(), [UNDECIDED_KEY]: 100 };
+  return panel.polls.map((poll) => {
+    const row: PollRow = {
+      time: parseLocalDate(poll.date).getTime(),
+      margin: poll.margin,
+      [UNDECIDED_KEY]: Number(poll.undecided),
+    };
     for (const entry of poll.entries) {
       const points = Number(entry.points);
       row[partyKey(entry.party_id)] = points;
-      row[UNDECIDED_KEY] = (row[UNDECIDED_KEY] ?? 0) - points;
+      row[bandKey(entry.party_id)] = marginRange(points, poll.margin);
     }
     return row;
   });
-
-  const today = parseLocalDate(panel.today).getTime();
-  const lastRow = rows.at(-1);
-  if (!lastRow || lastRow.time < today) {
-    const row: PollRow = { time: today, [UNDECIDED_KEY]: Number(panel.undecided) };
-    for (const party of panel.parties) row[partyKey(party.id)] = Number(party.intention_points);
-    rows.push(row);
-  }
-  return rows;
 }
 
 type PollChartProps = { panel: ElectionPanel; height?: number };
 
-/** As linhas de intenção de voto ao longo da campanha; o computador e os indecisos vão tracejados. */
+/** As linhas de intenção de voto desde a abertura da campanha; a faixa clara em volta é a margem de erro. */
 export function PollChart({ panel, height = 220 }: PollChartProps) {
   const rows = pollRows(panel);
   const names = new Map(panel.parties.map((party) => [partyKey(party.id), party.abbr]));
@@ -43,7 +40,7 @@ export function PollChart({ panel, height = 220 }: PollChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <LineChart data={rows} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+      <ComposedChart data={rows} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
         <CartesianGrid vertical={false} stroke="var(--border)" />
         <XAxis
           dataKey="time"
@@ -71,26 +68,43 @@ export function PollChart({ panel, height = 220 }: PollChartProps) {
             if (!active || !row) return null;
             return (
               <div className="grid gap-1 rounded-lg border bg-popover px-2.5 py-1.5 text-xs shadow-md">
-                <span className="text-muted-foreground">{displayDate(new Date(row.time))}</span>
-                {payload.map((item) => (
-                  <span key={String(item.dataKey)} className="flex items-center justify-between gap-4">
-                    <span className="flex items-center gap-1.5">
-                      <span className="size-2 rounded-full" style={{ backgroundColor: item.color }} />
-                      {names.get(String(item.dataKey))}
+                <span className="text-muted-foreground">
+                  {displayDate(new Date(row.time))}
+                  {row.margin > 0 && ` · margem de ${row.margin} pontos`}
+                </span>
+                {payload
+                  .filter((item) => names.has(String(item.dataKey)))
+                  .map((item) => (
+                    <span key={String(item.dataKey)} className="flex items-center justify-between gap-4">
+                      <span className="flex items-center gap-1.5">
+                        <span className="size-2 rounded-full" style={{ backgroundColor: item.color }} />
+                        {names.get(String(item.dataKey))}
+                      </span>
+                      <span className="font-mono font-semibold">{numberFormat.format(Number(item.value))}</span>
                     </span>
-                    <span className="font-mono font-semibold">{numberFormat.format(Number(item.value))}</span>
-                  </span>
-                ))}
+                  ))}
               </div>
             );
           }}
         />
         {panel.parties.map((party) => (
+          <Area
+            key={`band-${party.id}`}
+            dataKey={bandKey(party.id)}
+            type="linear"
+            fill={partyFill(party)}
+            fillOpacity={0.12}
+            stroke="none"
+            activeDot={false}
+            isAnimationActive={false}
+          />
+        ))}
+        {panel.parties.map((party) => (
           <Line
             key={party.id}
             dataKey={partyKey(party.id)}
             type="linear"
-            stroke={party.color ?? "var(--muted-foreground)"}
+            stroke={partyFill(party)}
             strokeWidth={2}
             strokeDasharray={party.is_computer ? "5 4" : "none"}
             dot={false}
@@ -107,7 +121,7 @@ export function PollChart({ panel, height = 220 }: PollChartProps) {
           dot={false}
           isAnimationActive={false}
         />
-      </LineChart>
+      </ComposedChart>
     </ResponsiveContainer>
   );
 }

@@ -23,6 +23,8 @@ export const badgeVariants = cva(
         // Selo de equipe sobre fundo escuro: cor cheia e texto branco
         "team-solid": "rounded-md bg-(--team) font-semibold text-white [&>svg]:fill-white [&>svg]:stroke-white",
         team: "rounded-md border-[color-mix(in_srgb,var(--team)_25%,transparent)] bg-[color-mix(in_srgb,var(--team)_8%,transparent)] font-semibold text-foreground [&>svg]:fill-(--team) [&>svg]:stroke-(--team)",
+        // Selo de bandeira: a cor vem da variável --tint, definida por quem renderiza
+        tint: "rounded-md bg-[color-mix(in_srgb,var(--tint)_12%,transparent)] text-(--tint)",
       },
       size: {
         default: "h-6",

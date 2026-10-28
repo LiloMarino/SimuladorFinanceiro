@@ -1,5 +1,4 @@
 import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
-import { MetricHint } from "@/shared/components/metric-hint";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { useElection } from "@/shared/hooks/queries/useElection";
@@ -7,15 +6,12 @@ import type { GovernmentPanel } from "@/types";
 import { useToday } from "../hooks/useToday";
 import { countdownLabel } from "../lib/election";
 import { monthYear } from "../lib/government";
-import { PROMISE_VS_DONE } from "../lib/government-metrics";
 import { PartyMark, PersonMark } from "./party-mark";
-import { PromiseRuler } from "./promise-ruler";
-
-const NUMBER = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
+import { ValueChips } from "./value-chip";
 
 type GovernmentHeaderProps = { panel: GovernmentPanel };
 
-/** Quem governa, por quanto tempo, e a promessa de campanha contra a média do que o governo aprovou. */
+/** Quem governa, por quanto tempo, e as bandeiras do partido no governo. */
 export function GovernmentHeader({ panel }: GovernmentHeaderProps) {
   const { data: election } = useElection();
   const today = useToday(panel);
@@ -24,18 +20,6 @@ export function GovernmentHeader({ panel }: GovernmentHeaderProps) {
 
   const party = election?.parties.find((candidate) => candidate.id === term.party_id);
   const president = term.president;
-  const mark = panel.approval?.mark;
-  const markers = [];
-  if (president && term.promise !== null) {
-    markers.push({ key: "promise", promise: term.promise, node: <PersonMark person={president} size="sm" /> });
-  }
-  if (mark) {
-    markers.push({
-      key: "mark",
-      promise: Number(mark),
-      node: <span className="block size-2.5 rounded-full border-2 border-card bg-foreground" />,
-    });
-  }
 
   return (
     <Card>
@@ -62,19 +46,12 @@ export function GovernmentHeader({ panel }: GovernmentHeaderProps) {
               Central
             </span>
           </div>
-          {president && term.promise !== null && (
-            <div className="grid w-75 gap-1">
-              <span className="flex items-center gap-1 text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
-                Promessa × feito
-                <MetricHint metric={PROMISE_VS_DONE} />
+          {party && (
+            <div className="grid gap-1">
+              <span className="text-[11px] font-semibold tracking-[.06em] text-faint-foreground uppercase">
+                Bandeiras do {party.abbr}
               </span>
-              <PromiseRuler markers={markers} showEnds />
-              <span className="text-[11px] text-muted-foreground">
-                Avatar: prometido, {term.promise}
-                {mark
-                  ? ` · ponto preto: a média das aprovadas, ${NUMBER.format(Number(mark))}`
-                  : " · nenhuma medida aprovada ainda"}
-              </span>
+              <ValueChips values={party.flags} />
             </div>
           )}
         </div>

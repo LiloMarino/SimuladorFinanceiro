@@ -184,7 +184,6 @@ def _measure(
         effective=measure.effective,
         waiting_days=VIGENCE_DAYS - days_left if days_left is not None else None,
         days_left=days_left,
-        ruler_band=rules.ruler_band(measure),
         impact=rules.approval_impact(measure),
         can_withdraw=is_president and queued,
         can_repropose=(
@@ -235,8 +234,6 @@ def _approval(
         floor=approval_rules.FLOOR,
         low_streak=book.state.low_streak,
         impeachment_months=approval_rules.IMPEACHMENT_MONTHS,
-        mark=current.mark,
-        promise=term.promise,
     )
 
 

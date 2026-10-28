@@ -131,15 +131,15 @@ describe("holdingLabel", () => {
 
 describe("impactSentence", () => {
   it("conta o bônus do corte no singular e no plural", () => {
-    expect(impactSentence({ ruler_band: 2, impact: 2 })).toBe(
-      "Fica na faixa 2 da régua e, como corte de imposto, soma 2 pontos à aprovação quando passa a valer.",
+    expect(impactSentence({ impact: 2 })).toBe(
+      "Como corte de imposto, soma 2 pontos à aprovação quando passa a valer.",
     );
-    expect(impactSentence({ ruler_band: 1, impact: 1 })).toContain("soma 1 ponto à");
+    expect(impactSentence({ impact: 1 })).toContain("soma 1 ponto à");
   });
 
   it("conta a perda do imposto novo e avisa que some", () => {
-    expect(impactSentence({ ruler_band: 5, impact: -3 })).toBe(
-      "Fica na faixa 5 da régua e, como imposto novo, tira 3 pontos da aprovação quando passa a valer, efeito que some em 6 meses.",
+    expect(impactSentence({ impact: -3 })).toBe(
+      "Como imposto novo, tira 3 pontos da aprovação quando passa a valer, efeito que some em 6 meses.",
     );
   });
 });

@@ -20,8 +20,8 @@ export const EXPANSIONS: Record<ExpansionKey, ExpansionInfo> = {
     label: "Governo & Política",
     description: "Os jogadores fundam partidos e disputam a eleição para presidente.",
     highlights: [
-      "Partidos com fundador, filiados e contribuição mensal",
-      "Eleição com pesquisa de intenção de voto e 2º turno",
+      "Partidos com bandeiras, fundador, filiados e contribuições",
+      "Eleitorado em seis grupos, cada um com apoio e rejeição por partido; pesquisa mensal e 2º turno",
       "Mandato de 4 anos, com uma reeleição",
     ],
     icon: Landmark,

@@ -1,4 +1,4 @@
-"""Eleição da expansão Governo & Política: calendário, apoio pela raiz quadrada, apuração e partidos do computador."""
+"""Eleição da expansão Governo & Política: calendário, intenção de voto pelos grupos, apuração e partidos do computador."""
 
 from __future__ import annotations
 
@@ -9,17 +9,22 @@ import pytest
 from pydantic import ValidationError
 
 from backend.core.dto.simulation import SimulationSettingsDTO
-from backend.core.enum import GameType, PlayerGrouping
-from backend.features.government import election
+from backend.core.enum import GameType, PlayerGrouping, VoterGroup, VoterValue
+from backend.features.government import election, voters
 from backend.features.government.calendar import election_cycle
-from backend.features.government.state import GovernmentState, Party, Term, vote_points
+from backend.features.government.computer_parties import COMPUTER_PARTIES
+from backend.features.government.state import GovernmentState, Party, Term
 from tests.fakes import simulation_settings
+
+V = VoterValue
+MARKET = (V.FREE_MARKET, V.STABILITY, V.SAVER_PROTECTION)
+SOCIAL = (V.SOCIAL_JUSTICE, V.STABILITY, V.PUBLIC_SERVICE)
+GROWTH = (V.FREE_MARKET, V.DEVELOPMENT, V.PUBLIC_SERVICE)
 
 
 def party(
     party_id: int,
-    promise: int,
-    points: str = "0",
+    flags: tuple[VoterValue, ...] | None = MARKET,
     *,
     members: dict[int, str] | None = None,
     computer: bool = False,
@@ -29,7 +34,7 @@ def party(
         name=f"Partido {party_id}",
         abbr=f"P{party_id}",
         color=None if computer else "#15803d",
-        promise=promise,
+        flags=flags,
         founder_id=None if computer else party_id * 10,
         is_computer=computer,
         founded=date(2020, 10, 7),
@@ -37,7 +42,6 @@ def party(
         members={u: Decimal(c) for u, c in (members or {party_id * 10: "0"}).items()}
         if not computer
         else {},
-        points=Decimal(points),
     )
 
 
@@ -71,35 +75,35 @@ def test_campaign_never_opens_before_the_match_starts():
     assert cycle.campaign_start == date(2020, 6, 1)
 
 
-def test_spending_early_earns_more_votes_than_spending_it_all_at_once():
-    four_months = 4 * vote_points(Decimal(10000))
-    one_month = vote_points(Decimal(40000))
+def test_spending_early_earns_more_support_than_spending_it_all_at_once():
+    early, late = party(1), party(2)
+    for _ in range(4):
+        early.add_campaign(Decimal(10000))
+    late.add_campaign(Decimal(40000))
 
-    assert four_months == Decimal("6.25")
-    assert one_month == Decimal("3.125")
-
-
-def test_doubling_the_budget_does_not_double_the_points():
-    assert vote_points(Decimal(8000)).quantize(Decimal("0.1")) == Decimal("1.4")
-    assert vote_points(Decimal(16000)).quantize(Decimal("0.1")) == Decimal("2.0")
+    group = VoterGroup.FORMAL_WORKERS
+    assert early.campaign[group] == 2 * late.campaign[group]
 
 
-def test_valid_votes_leave_out_the_undecided():
-    state = state_of(party(1, 5, "33"), party(2, 3, "32"), party(3, 2, "23"))
+def test_intention_comes_from_the_groups_and_leaves_some_undecided():
+    state = state_of(party(1, MARKET), party(2, SOCIAL))
 
     poll = election.intention(state)
 
-    assert poll.undecided == Decimal(12)
-    assert poll.valid_shares[1] == Decimal("0.375")
+    assert sum(poll.total.values()) + poll.undecided == 100
+    assert poll.undecided > 0
+    # Investidores preferem o mercado; os assistidos, a justiça social
+    investors = poll.groups[VoterGroup.INVESTORS]
+    welfare = poll.groups[VoterGroup.WELFARE]
+    assert investors.shares[1] > investors.shares[2]
+    assert welfare.shares[2] > welfare.shares[1]
 
 
-def test_points_beyond_the_electorate_are_scaled_down():
-    state = state_of(party(1, 1, "120"), party(2, 5, "80"))
+def test_party_without_candidate_is_left_out_of_the_intention():
+    state = state_of(party(1), party(2, SOCIAL))
+    state.term = Term(None, 20, None, date(2022, 1, 1), consecutive=2)
 
-    poll = election.intention(state)
-
-    assert sum(poll.points.values()) == Decimal(100)
-    assert poll.undecided == Decimal(0)
+    assert set(election.intention(state).total) == {1}
 
 
 def test_first_round_needs_more_than_half_of_the_valid_votes():
@@ -117,37 +121,48 @@ def test_first_round_needs_more_than_half_of_the_valid_votes():
     )
 
 
-def test_voters_of_the_eliminated_party_go_to_the_closest_promise():
-    # PRL (promessa 2) saiu: o FDS (3) está mais perto que o UPR (5)
-    state = state_of(party(1, 5), party(2, 3), party(3, 2))
-    points = {1: Decimal(33), 2: Decimal(32), 3: Decimal(23)}
+def _first_round(shares: dict[VoterGroup, dict[int, int]]) -> voters.Vote:
+    groups = {}
+    for group in VoterGroup:
+        group_shares = {pid: Decimal(v) for pid, v in shares[group].items()}
+        groups[group] = voters.GroupVote(
+            group_shares, Decimal(100) - sum(group_shares.values())
+        )
+    return voters.combine(groups)
 
-    result = election.runoff(state, points, [1, 2])
+
+def test_eliminated_voters_follow_their_group_and_the_undecided_abstain():
+    first_round = _first_round({g: {1: 40, 2: 20, 3: 20} for g in VoterGroup})
+
+    result = election.runoff(first_round, [1, 2])
+
+    assert result.votes == {1: Decimal(50), 2: Decimal(25)}
+    assert result.transfers == {3: 1}
+    assert result.winner_id == 1
+    assert result.shares[1] == Decimal(50) / 75
+
+
+def test_eliminated_party_transfers_to_the_finalist_that_takes_most_of_its_voters():
+    # O partido 3 só tem votos entre os assistidos, onde o 2 é muito mais forte
+    shares = {g: {1: 40, 2: 30, 3: 0} for g in VoterGroup}
+    shares[VoterGroup.WELFARE] = {1: 10, 2: 50, 3: 30}
+
+    result = election.runoff(_first_round(shares), [1, 2])
 
     assert result.transfers == {3: 2}
-    assert result.votes == {1: Decimal(33), 2: Decimal(55)}
-    assert result.winner_id == 2
 
 
-def test_runoff_tie_in_distance_goes_to_the_party_with_more_votes():
-    state = state_of(party(1, 1), party(2, 5), party(3, 3))
-    points = {1: Decimal(30), 2: Decimal(35), 3: Decimal(10)}
+def test_computer_parties_bring_valid_flags_and_fill_the_missing_slots():
+    assert all(voters.is_valid_flags(c.flags) for c in COMPUTER_PARTIES)
 
-    assert election.runoff(state, points, [1, 2]).transfers == {3: 2}
-
-
-def test_computer_takes_the_band_farthest_from_every_party():
-    existing = [party(1, 3, members={10: "0"})]
-
-    assert election.pick_promise(existing) == 1
-
-    existing.append(party(2, 1, computer=True))
-    assert election.pick_promise(existing) == 5
+    state = state_of(party(1, GROWTH))
+    first = election.next_computer_party(state)
+    assert first is not None and first.abbr == COMPUTER_PARTIES[0].abbr
 
 
 def test_computer_budget_is_a_multiple_of_the_average_player_party():
     state = state_of(
-        party(1, 1, members={10: "6000", 11: "2000"}), party(2, 2, members={20: "8000"})
+        party(1, members={10: "6000", 11: "2000"}), party(2, members={20: "8000"})
     )
 
     assert election.computer_spend(state, Decimal("1.5")) == Decimal(12000)
@@ -155,7 +170,7 @@ def test_computer_budget_is_a_multiple_of_the_average_player_party():
 
 
 def test_second_term_president_cannot_run_again():
-    state = state_of(party(1, 3))
+    state = state_of(party(1))
     state.term = Term(1, 10, None, date(2022, 1, 1), consecutive=2)
 
     assert not election.is_eligible(state, 10)
@@ -164,13 +179,13 @@ def test_second_term_president_cannot_run_again():
 
 
 def test_party_without_chosen_ticket_runs_with_the_founder():
-    state = state_of(party(1, 3, members={10: "0", 11: "0"}))
+    state = state_of(party(1, members={10: "0", 11: "0"}))
 
     assert election.effective_ticket(state, state.parties[1]) == (10, None)
 
 
 def test_pending_vice_does_not_run():
-    chosen = party(1, 3, members={10: "0", 11: "0"})
+    chosen = party(1, members={10: "0", 11: "0"})
     chosen.candidate_id, chosen.vice_id = 10, 11
 
     state = state_of(chosen)

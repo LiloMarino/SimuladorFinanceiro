@@ -10,6 +10,7 @@ from backend.core.dto.government import (
     GovernmentPanelDTO,
     JoinPartyRequest,
     MeasurePreviewDTO,
+    PartyFlagsRequest,
     ProposeMeasureRequest,
     TicketRequest,
     ViceAnswerRequest,
@@ -22,7 +23,7 @@ government_router = APIRouter(prefix="/api/government", tags=["Government"])
     "/election",
     response_model=ElectionPanelDTO,
     summary="Obter a eleição",
-    description="Retorna as datas, os partidos com chapa, filiados, verba e promessa, as pesquisas, a simulação do 2º turno, as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+    description="Retorna as datas, os grupos de eleitores, os partidos com chapa, filiados, verba, bandeiras e perfil, as pesquisas com a margem de erro (no total e por grupo), o apoio e a rejeição do partido de quem vê em cada grupo, a simulação do 2º turno, as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
 )
 def get_election(simulation: ActiveSimulation, user: CurrentUser):
     return simulation.get_election(user)
@@ -32,12 +33,24 @@ def get_election(simulation: ActiveSimulation, user: CurrentUser):
     "/parties",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Fundar um partido",
-    description="Funda um partido com nome, sigla de 2 a 8 letras, cor, promessa na régua de 1 a 5 e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.",
+    description="Funda um partido com nome, sigla de 2 a 8 letras, cor, 3 bandeiras diferentes (Mercado livre e Justiça social não andam juntas) e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.",
 )
 def found_party(
     simulation: ActiveSimulation, user: CurrentUser, payload: FoundPartyRequest
 ):
     simulation.found_party(user, payload)
+
+
+@government_router.put(
+    "/parties/flags",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Escolher as bandeiras do partido",
+    description="O fundador de um partido criado antes das bandeiras escolhe as 3; até lá, o perfil do partido é neutro. Depois de escolhidas, as bandeiras não mudam. Mercado livre e Justiça social não andam juntas.",
+)
+def set_party_flags(
+    simulation: ActiveSimulation, user: CurrentUser, payload: PartyFlagsRequest
+):
+    simulation.set_party_flags(user, payload.flags)
 
 
 @government_router.post(

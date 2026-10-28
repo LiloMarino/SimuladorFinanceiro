@@ -70,7 +70,7 @@ export function JoinPartyDialog({ open, onOpenChange, parties, initialPartyId, c
                     <span className="text-xs text-muted-foreground">
                       Fundado por {candidate.founder} · {candidate.members.length}{" "}
                       {candidate.members.length === 1 ? "filiado" : "filiados"} · {displayMoneyWhole(candidate.budget)}
-                      /mês · promessa {candidate.promise}
+                      /mês
                     </span>
                   </button>
                 );

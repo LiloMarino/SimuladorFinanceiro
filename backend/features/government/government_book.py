@@ -16,6 +16,7 @@ from backend.core.dto.government import (
     PARTY_ABBR_PATTERN,
     MeasureHoldingDTO,
     MeasurePreviewDTO,
+    ValueMoveDTO,
 )
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
@@ -26,6 +27,7 @@ from backend.core.enum import (
     MeasureKind,
     MeasureStatus,
     PauseReason,
+    VoterValue,
 )
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -35,7 +37,7 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.utils import next_business_day, required
 from backend.features.government import approval as approval_rules
-from backend.features.government import congress, election
+from backend.features.government import congress, election, voters
 from backend.features.government import measures as rules
 from backend.features.government.calendar import ElectionCycle, election_cycle
 from backend.features.government.measures import PolicyTimeline
@@ -140,6 +142,11 @@ class GovernmentBook:
 
     # Calendário
 
+    @property
+    def seed(self) -> int:
+        """A semente da partida: sorteia o voto do Congresso e o erro das pesquisas."""
+        return self._seed
+
     def cycle(self, index: int | None = None) -> ElectionCycle:
         """A eleição em curso (ou a de índice `index`)."""
         return election_cycle(
@@ -234,12 +241,13 @@ class GovernmentBook:
         name: str,
         abbr: str,
         color: str,
-        promise: int,
+        flags: list[VoterValue],
         contribution: Decimal,
     ) -> None:
         self._ensure_person(user)
         self._ensure_campaign_open(today)
         self._ensure_without_party(user)
+        self._ensure_valid_flags(flags)
         if not PARTY_ABBR_PATTERN.match(abbr):
             raise UnprocessableEntityError("A sigla tem de 2 a 8 letras.")
         parties = self.state.parties.values()
@@ -256,12 +264,33 @@ class GovernmentBook:
             name=name,
             abbr=abbr,
             color=color.lower(),
-            promise=promise,
+            flags=[v.value for v in flags],
             founder_id=user.id,
             contribution=str(contribution),
         )
         self._ensure_computers(today)
         self._notice(GovernmentNoticeKind.PARTY_FOUNDED, user, party_abbr=abbr)
+
+    def set_flags(self, user: UserDTO, today: date, flags: list[VoterValue]) -> None:
+        """O fundador do partido sem bandeiras escolhe as 3; depois elas não mudam mais."""
+        party = self._founded_party(user)
+        if party.flags is not None:
+            raise ConflictError("As bandeiras do partido já foram escolhidas.")
+        self._ensure_valid_flags(flags)
+        self._emit(
+            GovernmentEventType.PARTY_VALUES_SET,
+            today,
+            party_id=party.id,
+            flags=[v.value for v in flags],
+        )
+        self._notice(GovernmentNoticeKind.UPDATED, user, party_abbr=party.abbr)
+
+    def _ensure_valid_flags(self, flags: list[VoterValue]) -> None:
+        if not voters.is_valid_flags(flags):
+            raise UnprocessableEntityError(
+                "Escolha 3 bandeiras diferentes; Mercado livre e Justiça social não "
+                "andam juntas."
+            )
 
     def join_party(
         self, user: UserDTO, today: date, party_id: int, contribution: Decimal
@@ -505,20 +534,18 @@ class GovernmentBook:
         sector: str | None,
         segment: str | None,
     ) -> MeasurePreviewDTO:
-        """O que a medida faria, sem propô-la: régua, pontos na aprovação, voto e vigência."""
+        """O que a medida faria, sem propô-la: perfil do partido, pontos na aprovação, voto e vigência."""
         self._ensure_president(user)
         draft = self._draft(user, today, kind, value, sector, segment)
-        term = required(self.state.term)
-        approved = approval_rules.term_measures(self.state.measures.values(), term)
         current = required(self.approval(today))
         vote = congress.next_vote_date(today)
         tickers = self.tickers(draft)
+        moves = voters.radar_moves(draft.kind, draft.value, draft.before)
         return MeasurePreviewDTO(
             title=rules.title(draft),
-            ruler_band=rules.ruler_band(draft),
-            mark_before=current.mark,
-            mark_after=approval_rules.mark_of([*approved, draft]) or Decimal(0),
-            promise=term.promise,
+            profile_moves=[
+                ValueMoveDTO(value=v, points=points) for v, points in moves.items()
+            ],
             impact=rules.approval_impact(draft),
             chance=current.value,
             vote_date=vote,
@@ -792,7 +819,7 @@ class GovernmentBook:
     def _hold_first_round(self, cycle: ElectionCycle, today: date) -> None:
         self._ensure_computers(today)
         running = self._running()
-        points = {p.id: p.points for p in running}
+        points = election.intention(self.state).total
         shares = election.valid_shares(points)
         winner = election.first_round_winner(shares)
         finalists = [winner] if winner is not None else election.top_two(points)
@@ -811,8 +838,9 @@ class GovernmentBook:
     def _hold_runoff(self, cycle: ElectionCycle, today: date) -> None:
         running = self._running()
         finalists = [f for f in (self.state.runoff or []) if f in self.state.parties]
-        points = {p.id: p.points for p in running}
-        result = election.runoff(self.state, points, finalists)
+        first_round = election.intention(self.state)
+        points = first_round.total
+        result = election.runoff(first_round, finalists)
         self._emit_round(
             cycle,
             today,
@@ -884,7 +912,6 @@ class GovernmentBook:
             president_id=pending.president_id,
             vice_id=pending.vice_id,
             consecutive=pending.consecutive,
-            promise=pending.promise,
         )
         president = people.get(pending.president_id) if pending.president_id else None
         if president is not None:
@@ -904,7 +931,7 @@ class GovernmentBook:
         return [p for p in self.state.parties.values() if election.runs(self.state, p)]
 
     def _ensure_computers(self, today: date) -> None:
-        """O computador completa as vagas até 3 partidos, nas faixas mais longe dos jogadores."""
+        """O computador completa as vagas até 3 partidos, cada um com as bandeiras dele."""
         wanted = max(
             0, election.PARTIES_PER_ELECTION - len(self.state.player_parties())
         )
@@ -918,15 +945,14 @@ class GovernmentBook:
             spec = election.next_computer_party(self.state)
             if spec is None:
                 return
-            name, abbr, candidate = spec
             self._emit(
                 GovernmentEventType.COMPUTER_PARTY_ADDED,
                 today,
                 party_id=self.state.next_party_id,
-                name=name,
-                abbr=abbr,
-                candidate_name=candidate,
-                promise=election.pick_promise(list(self.state.parties.values())),
+                name=spec.name,
+                abbr=spec.abbr,
+                candidate_name=spec.candidate,
+                flags=[v.value for v in spec.flags],
             )
 
     # Regras de quem pode agir

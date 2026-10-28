@@ -6,16 +6,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { displayMoneyWhole } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
 import { BUDGET, INTENTION, SPENT } from "../lib/election-metrics";
-import { PromiseLabel } from "./promise-hint";
-import { PROMISE_ENDS } from "../lib/election";
 import { PersonMark, PartyMark } from "./party-mark";
-import { PromiseRuler } from "./promise-ruler";
+import { ValueChips } from "./value-chip";
 
 const pointsFormat = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 });
 
 type PartiesCardProps = { panel: ElectionPanel };
 
-/** Todos os partidos da disputa: chapa, filiados, apoio, verba, gasto e a promessa na régua. Tudo é público. */
+/** Todos os partidos da disputa: chapa, filiados, intenção, verba, gasto e bandeiras. Tudo é público. */
 export function PartiesCard({ panel }: PartiesCardProps) {
   const mineId = panel.my_party?.party_id;
   const ticketOpen = panel.phase === "CAMPAIGN" && panel.today <= panel.dates.ticket_deadline;
@@ -30,7 +28,7 @@ export function PartiesCard({ panel }: PartiesCardProps) {
           <div className="grid gap-0.5">
             <h2 className="text-[15px] font-semibold">Partidos</h2>
             <span className="text-xs text-muted-foreground">
-              Filiados, contribuições, verba, gasto e promessa de cada partido são públicos, como a prestação de contas
+              Filiados, contribuições, verba, gasto e bandeiras de cada partido são públicos, como a prestação de contas
               de uma campanha.
             </span>
           </div>
@@ -49,9 +47,7 @@ export function PartiesCard({ panel }: PartiesCardProps) {
                 <TableHead numeric>
                   <MetricLabel metric={SPENT} />
                 </TableHead>
-                <TableHead className="w-36">
-                  <PromiseLabel />
-                </TableHead>
+                <TableHead>Bandeiras</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -60,13 +56,6 @@ export function PartiesCard({ panel }: PartiesCardProps) {
               ))}
             </TableBody>
           </Table>
-          <div
-            className="flex justify-between text-[11px] text-muted-foreground"
-            style={{ paddingLeft: "calc(100% - 9.5rem)", paddingRight: "0.625rem" }}
-          >
-            <span>{PROMISE_ENDS.low}</span>
-            <span>{PROMISE_ENDS.high}</span>
-          </div>
         </div>
       </CardContent>
     </Card>
@@ -129,20 +118,8 @@ function PartyRow({ party, current, ticketOpen }: { party: ElectionParty; curren
       </TableCell>
       <TableCell numeric>{displayMoneyWhole(party.budget)}</TableCell>
       <TableCell numeric>{displayMoneyWhole(party.spent)}</TableCell>
-      <TableCell className="w-36">
-        <PromiseRuler
-          markers={[
-            {
-              key: party.id,
-              promise: party.promise,
-              node: party.candidate ? (
-                <PersonMark person={party.candidate} />
-              ) : (
-                <PartyMark abbr={party.abbr} color={party.color} size="sm" />
-              ),
-            },
-          ]}
-        />
+      <TableCell>
+        <ValueChips values={party.flags} />
       </TableCell>
     </TableRow>
   );

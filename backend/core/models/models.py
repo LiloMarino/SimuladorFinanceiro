@@ -756,6 +756,7 @@ class GovernmentEvent(Base):
             "MEASURE_VOTED",
             "APPROVAL_MEASURED",
             "IMPEACHED",
+            "PARTY_VALUES_SET",
             name="government_event_type",
         ),
         nullable=False,

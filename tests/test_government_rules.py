@@ -38,7 +38,6 @@ TERM = Term(
     vice_id=None,
     start=date(2022, 1, 3),
     consecutive=1,
-    promise=3,
 )
 
 
@@ -194,25 +193,24 @@ def test_policy_timeline_switches_on_the_effective_day():
     assert timeline.on(date(2022, 9, 1)).rates[LossPool.DAY_TRADE] == Decimal("0.20")
 
 
-# Régua e peso na aprovação
+# Peso na aprovação
 
 
 @pytest.mark.parametrize(
-    ("built", "band", "impact"),
+    ("built", "impact"),
     [
-        (measure(MeasureKind.STOCK_PROFIT_RATE, "0.05", "0.15"), 1, 1),
-        (measure(MeasureKind.STOCK_PROFIT_RATE, "0.15", "0.20"), 1, 1),
-        (measure(MeasureKind.STOCK_PROFIT_RATE, "0", "0.15"), 1, 2),
-        (measure(MeasureKind.SECTOR_EXEMPT, sector="Energia"), 2, 2),
-        (measure(MeasureKind.SECTOR_TAX, "0.05", sector="Bancos"), 4, -3),
-        (measure(MeasureKind.DAY_TRADE_RATE, "0.225", "0.20"), 5, -3),
-        (measure(MeasureKind.DAY_TRADE_RATE, "0.50", "0.20"), 5, -5),
-        (measure(MeasureKind.STOCK_EXEMPTION, "0", "20000"), 5, -3),
-        (measure(MeasureKind.STOCK_EXEMPTION, "30000", "20000"), 1, 2),
+        (measure(MeasureKind.STOCK_PROFIT_RATE, "0.05", "0.15"), 1),
+        (measure(MeasureKind.STOCK_PROFIT_RATE, "0.15", "0.20"), 1),
+        (measure(MeasureKind.STOCK_PROFIT_RATE, "0", "0.15"), 2),
+        (measure(MeasureKind.SECTOR_EXEMPT, sector="Energia"), 2),
+        (measure(MeasureKind.SECTOR_TAX, "0.05", sector="Bancos"), -3),
+        (measure(MeasureKind.DAY_TRADE_RATE, "0.225", "0.20"), -3),
+        (measure(MeasureKind.DAY_TRADE_RATE, "0.50", "0.20"), -5),
+        (measure(MeasureKind.STOCK_EXEMPTION, "0", "20000"), -3),
+        (measure(MeasureKind.STOCK_EXEMPTION, "30000", "20000"), 2),
     ],
 )
-def test_ruler_band_and_approval_impact(built: Measure, band: int, impact: int):
-    assert rules.ruler_band(built) == band
+def test_approval_impact(built: Measure, impact: int):
     assert rules.approval_impact(built) == impact
 
 
@@ -259,9 +257,7 @@ def test_approval_starts_at_fifty_and_adds_the_factors_of_the_card():
     assert points[ApprovalFactorKind.STOCKS] == 3
     assert points[ApprovalFactorKind.TAX_CUT] == 2
     assert points[ApprovalFactorKind.NEW_TAX] == -3
-    # Marca (2 + 5 + 4) / 3 = 3,67 contra a promessa 3: 0,67 faixa x 3 = -2
-    assert points[ApprovalFactorKind.PROMISE] == -2
-    assert result.value == 54
+    assert result.value == 56
     assert [m.id for m in result.upcoming] == [3]
 
 
@@ -295,7 +291,6 @@ def test_each_government_counts_only_its_own_measures():
         vice_id=None,
         start=date(2022, 4, 29),
         consecutive=1,
-        promise=3,
         succession=True,
     )
     tax = measure(MeasureKind.DAY_TRADE_RATE, "0.225", "0.20")

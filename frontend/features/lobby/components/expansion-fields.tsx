@@ -178,6 +178,62 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
                 </Field>
               )}
             />
+
+            <Controller
+              control={form.control}
+              name="pollMargin"
+              render={({ field }) => (
+                <div
+                  className={cn(
+                    "grid gap-2 rounded-lg border p-3",
+                    field.value ? "border-info-border bg-info-soft/40" : "bg-subtle",
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="inline-flex items-center gap-1 text-sm font-medium">
+                      Margem de erro na pesquisa
+                      <InfoHint label="O que é a margem de erro">
+                        <div className="space-y-1 text-left">
+                          <p>
+                            A pesquisa ouve uma amostra, não o eleitorado inteiro: cada número sai com um erro sorteado
+                            dentro da margem. Grupo menor tem amostra menor e margem maior.
+                          </p>
+                          <p>Ex.: 30% com margem de 3 pontos quer dizer que o real está entre 27% e 33%.</p>
+                          <p>
+                            Quando as faixas de dois partidos se cobrem, é empate técnico: a pesquisa não diz quem está
+                            na frente.
+                          </p>
+                        </div>
+                      </InfoHint>
+                    </span>
+                    <Switch
+                      aria-label="Margem de erro na pesquisa"
+                      checked={field.value}
+                      disabled={readOnly}
+                      onCheckedChange={field.onChange}
+                    />
+                  </div>
+                  <span className="text-xs leading-normal text-muted-foreground">
+                    {field.value
+                      ? "A pesquisa mostra cada número com a faixa onde o real está: “30%, com margem de 3 pontos” é algo entre 27% e 33%. Nos grupos menores a margem cresce: ±11 nos investidores. Sorteada pela semente da partida."
+                      : "A pesquisa mostra o número exato de cada partido, no total e em cada grupo. Bom para aprender o modelo; tira a incerteza da campanha."}
+                  </span>
+                  <span className="rounded-md bg-card px-2.5 py-1.5 text-xs text-muted-foreground">
+                    {field.value ? (
+                      <>
+                        Exemplo com a margem: <b className="font-mono text-foreground">PRL 30% ±3</b> e{" "}
+                        <b className="font-mono text-foreground">FDS 32% ±3</b> aparecem como empate técnico.
+                      </>
+                    ) : (
+                      <>
+                        Exemplo sem a margem: <b className="font-mono text-foreground">PRL 30,4%</b> e{" "}
+                        <b className="font-mono text-foreground">FDS 31,8%</b>, os valores do modelo.
+                      </>
+                    )}
+                  </span>
+                </div>
+              )}
+            />
           </div>
         )}
       </div>

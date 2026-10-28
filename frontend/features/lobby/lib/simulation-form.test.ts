@@ -28,6 +28,7 @@ const settings: SimulationSettingsData = {
   government_enabled: false,
   first_election: null,
   computer_difficulty: "NORMAL",
+  poll_margin: false,
 };
 
 describe("regras da partida ↔ formulário do lobby", () => {

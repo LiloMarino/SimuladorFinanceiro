@@ -4359,7 +4359,7 @@
           "Government"
         ],
         "summary": "Obter a eleição",
-        "description": "Retorna as datas, os partidos com chapa, filiados, verba e promessa, as pesquisas, a simulação do 2º turno, as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "description": "Retorna as datas, os grupos de eleitores, os partidos com chapa, filiados, verba, bandeiras e perfil, as pesquisas com a margem de erro (no total e por grupo), o apoio e a rejeição do partido de quem vê em cada grupo, a simulação do 2º turno, as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
         "operationId": "get_election_api_government_election_get",
         "responses": {
           "200": {
@@ -4406,13 +4406,63 @@
           "Government"
         ],
         "summary": "Fundar um partido",
-        "description": "Funda um partido com nome, sigla de 2 a 8 letras, cor, promessa na régua de 1 a 5 e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.",
+        "description": "Funda um partido com nome, sigla de 2 a 8 letras, cor, 3 bandeiras diferentes (Mercado livre e Justiça social não andam juntas) e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.",
         "operationId": "found_party_api_government_parties_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/FoundPartyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/parties/flags": {
+      "put": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Escolher as bandeiras do partido",
+        "description": "O fundador de um partido criado antes das bandeiras escolhe as 3; até lá, o perfil do partido é neutro. Depois de escolhidas, as bandeiras não mudam. Mercado livre e Justiça social não andam juntas.",
+        "operationId": "set_party_flags_api_government_parties_flags_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartyFlagsRequest"
               }
             }
           },
@@ -8200,28 +8250,6 @@
           "impeachment_months": {
             "type": "integer",
             "title": "Impeachment Months"
-          },
-          "mark": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Mark"
-          },
-          "promise": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Promise"
           }
         },
         "additionalProperties": false,
@@ -8234,9 +8262,7 @@
           "upcoming",
           "floor",
           "low_streak",
-          "impeachment_months",
-          "mark",
-          "promise"
+          "impeachment_months"
         ],
         "title": "ApprovalDTO"
       },
@@ -8282,8 +8308,7 @@
           "INFLATION",
           "STOCKS",
           "NEW_TAX",
-          "TAX_CUT",
-          "PROMISE"
+          "TAX_CUT"
         ],
         "title": "ApprovalFactorKind"
       },
@@ -10097,6 +10122,11 @@
           "computer_difficulty": {
             "$ref": "#/components/schemas/ComputerDifficulty",
             "default": "NORMAL"
+          },
+          "poll_margin": {
+            "type": "boolean",
+            "title": "Poll Margin",
+            "default": true
           }
         },
         "type": "object",
@@ -10739,6 +10769,29 @@
           "dates": {
             "$ref": "#/components/schemas/ElectionDatesDTO"
           },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/VoterGroupDTO"
+            },
+            "type": "array",
+            "title": "Groups"
+          },
+          "affinity_base": {
+            "type": "string",
+            "title": "Affinity Base"
+          },
+          "radar_neutral": {
+            "type": "string",
+            "title": "Radar Neutral"
+          },
+          "radar_flag": {
+            "type": "string",
+            "title": "Radar Flag"
+          },
+          "poll_margin": {
+            "type": "boolean",
+            "title": "Poll Margin"
+          },
           "parties": {
             "items": {
               "$ref": "#/components/schemas/PartyDTO"
@@ -10756,6 +10809,13 @@
             },
             "type": "array",
             "title": "Polls"
+          },
+          "electorate": {
+            "items": {
+              "$ref": "#/components/schemas/ElectorateRowDTO"
+            },
+            "type": "array",
+            "title": "Electorate"
           },
           "runoff_simulation": {
             "anyOf": [
@@ -10887,9 +10947,15 @@
           "phase",
           "election_year",
           "dates",
+          "groups",
+          "affinity_base",
+          "radar_neutral",
+          "radar_flag",
+          "poll_margin",
           "parties",
           "undecided",
           "polls",
+          "electorate",
           "runoff_simulation",
           "finalists",
           "donations",
@@ -10921,6 +10987,59 @@
         ],
         "title": "ElectionPhase",
         "description": "Onde a partida está no ciclo eleitoral."
+      },
+      "ElectorateRowDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "affinity": {
+            "type": "string",
+            "title": "Affinity"
+          },
+          "support": {
+            "type": "string",
+            "title": "Support"
+          },
+          "rejection": {
+            "type": "string",
+            "title": "Rejection"
+          },
+          "support_change": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Support Change"
+          },
+          "rejection_change": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rejection Change"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "affinity",
+          "support",
+          "rejection",
+          "support_change",
+          "rejection_change"
+        ],
+        "title": "ElectorateRowDTO",
+        "description": "O que um grupo acha do partido de quem vê, exato: só os filiados recebem."
       },
       "EngineInfo": {
         "properties": {
@@ -11602,11 +11721,12 @@
             "pattern": "^#[0-9A-Fa-f]{6}$",
             "title": "Color"
           },
-          "promise": {
-            "type": "integer",
-            "maximum": 5.0,
-            "minimum": 1.0,
-            "title": "Promise"
+          "flags": {
+            "items": {
+              "$ref": "#/components/schemas/VoterValue"
+            },
+            "type": "array",
+            "title": "Flags"
           },
           "contribution": {
             "anyOf": [
@@ -11628,7 +11748,7 @@
           "name",
           "abbr",
           "color",
-          "promise"
+          "flags"
         ],
         "title": "FoundPartyRequest"
       },
@@ -12439,6 +12559,66 @@
         ],
         "title": "GovernmentUpdateEventDTO",
         "description": "A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve."
+      },
+      "GroupPollDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/PollEntryDTO"
+            },
+            "type": "array",
+            "title": "Entries"
+          },
+          "undecided": {
+            "type": "string",
+            "title": "Undecided"
+          },
+          "margin": {
+            "type": "integer",
+            "title": "Margin"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "entries",
+          "undecided",
+          "margin"
+        ],
+        "title": "GroupPollDTO"
+      },
+      "GroupReading": {
+        "type": "string",
+        "enum": [
+          "INFLATION",
+          "SELIC",
+          "STOCKS",
+          "CAPITAL_GAINS_TAX"
+        ],
+        "title": "GroupReading",
+        "description": "Um resultado do governo que o grupo de eleitores lê."
+      },
+      "GroupScoreDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "score": {
+            "type": "string",
+            "title": "Score"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "score"
+        ],
+        "title": "GroupScoreDTO"
       },
       "HighlightsDTO": {
         "properties": {
@@ -14212,10 +14392,6 @@
             ],
             "title": "Days Left"
           },
-          "ruler_band": {
-            "type": "integer",
-            "title": "Ruler Band"
-          },
           "impact": {
             "type": "integer",
             "title": "Impact"
@@ -14246,7 +14422,6 @@
           "effective",
           "waiting_days",
           "days_left",
-          "ruler_band",
           "impact",
           "can_withdraw",
           "can_repropose"
@@ -14297,35 +14472,12 @@
             "type": "string",
             "title": "Title"
           },
-          "ruler_band": {
-            "type": "integer",
-            "title": "Ruler Band"
-          },
-          "mark_before": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Mark Before"
-          },
-          "mark_after": {
-            "type": "string",
-            "title": "Mark After"
-          },
-          "promise": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Promise"
+          "profile_moves": {
+            "items": {
+              "$ref": "#/components/schemas/ValueMoveDTO"
+            },
+            "type": "array",
+            "title": "Profile Moves"
           },
           "impact": {
             "type": "integer",
@@ -14368,10 +14520,7 @@
         "type": "object",
         "required": [
           "title",
-          "ruler_band",
-          "mark_before",
-          "mark_after",
-          "promise",
+          "profile_moves",
           "impact",
           "chance",
           "vote_date",
@@ -15535,9 +15684,54 @@
             "type": "boolean",
             "title": "Is Computer"
           },
-          "promise": {
-            "type": "integer",
-            "title": "Promise"
+          "flags": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/VoterValue"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flags"
+          },
+          "radar": {
+            "items": {
+              "$ref": "#/components/schemas/ValueScoreDTO"
+            },
+            "type": "array",
+            "title": "Radar"
+          },
+          "founding_radar": {
+            "items": {
+              "$ref": "#/components/schemas/ValueScoreDTO"
+            },
+            "type": "array",
+            "title": "Founding Radar"
+          },
+          "affinity": {
+            "items": {
+              "$ref": "#/components/schemas/GroupScoreDTO"
+            },
+            "type": "array",
+            "title": "Affinity"
+          },
+          "founding_affinity": {
+            "items": {
+              "$ref": "#/components/schemas/GroupScoreDTO"
+            },
+            "type": "array",
+            "title": "Founding Affinity"
+          },
+          "moves": {
+            "items": {
+              "$ref": "#/components/schemas/ProfileMoveDTO"
+            },
+            "type": "array",
+            "title": "Moves"
           },
           "founder": {
             "anyOf": [
@@ -15614,7 +15808,12 @@
           "abbr",
           "color",
           "is_computer",
-          "promise",
+          "flags",
+          "radar",
+          "founding_radar",
+          "affinity",
+          "founding_affinity",
+          "moves",
           "founder",
           "founded",
           "members",
@@ -15628,6 +15827,23 @@
           "ticket_chosen"
         ],
         "title": "PartyDTO"
+      },
+      "PartyFlagsRequest": {
+        "properties": {
+          "flags": {
+            "items": {
+              "$ref": "#/components/schemas/VoterValue"
+            },
+            "type": "array",
+            "title": "Flags"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "flags"
+        ],
+        "title": "PartyFlagsRequest"
       },
       "PartyMemberDTO": {
         "properties": {
@@ -16843,15 +17059,34 @@
             },
             "type": "array",
             "title": "Entries"
+          },
+          "undecided": {
+            "type": "string",
+            "title": "Undecided"
+          },
+          "margin": {
+            "type": "integer",
+            "title": "Margin"
+          },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/GroupPollDTO"
+            },
+            "type": "array",
+            "title": "Groups"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
           "date",
-          "entries"
+          "entries",
+          "undecided",
+          "margin",
+          "groups"
         ],
-        "title": "PollDTO"
+        "title": "PollDTO",
+        "description": "A pesquisa como foi publicada: com o erro sorteado dentro da margem, se ela vale."
       },
       "PollEntryDTO": {
         "properties": {
@@ -17648,6 +17883,35 @@
           "curve"
         ],
         "title": "PriceImpactPreviewDTO"
+      },
+      "ProfileMoveDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "moves": {
+            "items": {
+              "$ref": "#/components/schemas/ValueMoveDTO"
+            },
+            "type": "array",
+            "title": "Moves"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "description",
+          "moves"
+        ],
+        "title": "ProfileMoveDTO",
+        "description": "Uma medida aprovada que moveu o perfil do partido."
       },
       "ProposeMeasureRequest": {
         "properties": {
@@ -18611,7 +18875,7 @@
           "winner"
         ],
         "title": "RunoffSimulationDTO",
-        "description": "A simulação do 2º turno (ou o resultado dele): os eleitores de quem sai vão ao finalista mais próximo."
+        "description": "A simulação do 2º turno (ou o resultado dele): em cada grupo, os eleitores de quem\nsai se dividem entre os finalistas e os indecisos, que se abstêm."
       },
       "SavePresetRequest": {
         "properties": {
@@ -18746,6 +19010,11 @@
             "$ref": "#/components/schemas/ComputerDifficulty",
             "default": "NORMAL"
           },
+          "poll_margin": {
+            "type": "boolean",
+            "title": "Poll Margin",
+            "default": true
+          },
           "id": {
             "type": "integer",
             "title": "Id"
@@ -18851,6 +19120,7 @@
           "government_enabled",
           "first_election",
           "computer_difficulty",
+          "poll_margin",
           "id",
           "is_backtest",
           "created_at",
@@ -19845,6 +20115,11 @@
             "$ref": "#/components/schemas/ComputerDifficulty",
             "default": "NORMAL"
           },
+          "poll_margin": {
+            "type": "boolean",
+            "title": "Poll Margin",
+            "default": true
+          },
           "id": {
             "type": "integer",
             "title": "Id"
@@ -19877,6 +20152,7 @@
           "government_enabled",
           "first_election",
           "computer_difficulty",
+          "poll_margin",
           "id"
         ],
         "title": "SimulationDTO"
@@ -20090,6 +20366,11 @@
           "computer_difficulty": {
             "$ref": "#/components/schemas/ComputerDifficulty",
             "default": "NORMAL"
+          },
+          "poll_margin": {
+            "type": "boolean",
+            "title": "Poll Margin",
+            "default": true
           }
         },
         "type": "object",
@@ -20238,6 +20519,11 @@
           "computer_difficulty": {
             "$ref": "#/components/schemas/ComputerDifficulty",
             "default": "NORMAL"
+          },
+          "poll_margin": {
+            "type": "boolean",
+            "title": "Poll Margin",
+            "default": true
           }
         },
         "additionalProperties": false,
@@ -20266,7 +20552,8 @@
           "show_chart_hints",
           "government_enabled",
           "first_election",
-          "computer_difficulty"
+          "computer_difficulty",
+          "poll_margin"
         ],
         "title": "SimulationSettingsDTO"
       },
@@ -22536,17 +22823,6 @@
             "type": "integer",
             "title": "Consecutive"
           },
-          "promise": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Promise"
-          },
           "succession": {
             "type": "boolean",
             "title": "Succession"
@@ -22560,7 +22836,6 @@
           "vice",
           "start",
           "consecutive",
-          "promise",
           "succession"
         ],
         "title": "TermDTO"
@@ -23007,6 +23282,11 @@
           "computer_difficulty": {
             "$ref": "#/components/schemas/ComputerDifficulty",
             "default": "NORMAL"
+          },
+          "poll_margin": {
+            "type": "boolean",
+            "title": "Poll Margin",
+            "default": true
           }
         },
         "type": "object",
@@ -23136,6 +23416,42 @@
         "title": "ValidationErrorResponse",
         "description": "O erro padrão (`message`) mais a lista por campo, para marcar o formulário."
       },
+      "ValueMoveDTO": {
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/VoterValue"
+          },
+          "points": {
+            "type": "string",
+            "title": "Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "points"
+        ],
+        "title": "ValueMoveDTO"
+      },
+      "ValueScoreDTO": {
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/VoterValue"
+          },
+          "score": {
+            "type": "string",
+            "title": "Score"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "score"
+        ],
+        "title": "ValueScoreDTO"
+      },
       "VersionResponse": {
         "properties": {
           "version": {
@@ -23225,6 +23541,80 @@
           "SHARPE"
         ],
         "title": "VictoryCriterion"
+      },
+      "VoterGroup": {
+        "type": "string",
+        "enum": [
+          "INVESTORS",
+          "ENTREPRENEURS",
+          "FORMAL_WORKERS",
+          "PUBLIC_SERVANTS",
+          "RETIREES",
+          "WELFARE"
+        ],
+        "title": "VoterGroup",
+        "description": "Os grupos em que o eleitorado se divide; cada um vota pelo que acha de cada partido."
+      },
+      "VoterGroupDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "weight": {
+            "type": "string",
+            "title": "Weight"
+          },
+          "margin": {
+            "type": "integer",
+            "title": "Margin"
+          },
+          "readings": {
+            "items": {
+              "$ref": "#/components/schemas/GroupReading"
+            },
+            "type": "array",
+            "title": "Readings"
+          },
+          "wants": {
+            "items": {
+              "$ref": "#/components/schemas/ValueScoreDTO"
+            },
+            "type": "array",
+            "title": "Wants"
+          },
+          "flag_affinity": {
+            "items": {
+              "$ref": "#/components/schemas/ValueScoreDTO"
+            },
+            "type": "array",
+            "title": "Flag Affinity"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "weight",
+          "margin",
+          "readings",
+          "wants",
+          "flag_affinity"
+        ],
+        "title": "VoterGroupDTO",
+        "description": "Um grupo de eleitores: o tamanho, o que ele quer e o que ele lê do governo."
+      },
+      "VoterValue": {
+        "type": "string",
+        "enum": [
+          "FREE_MARKET",
+          "SOCIAL_JUSTICE",
+          "STABILITY",
+          "DEVELOPMENT",
+          "SAVER_PROTECTION",
+          "PUBLIC_SERVICE"
+        ],
+        "title": "VoterValue",
+        "description": "As bandeiras de um partido e os eixos do perfil dele."
       },
       "YearMonthDTO": {
         "properties": {

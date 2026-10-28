@@ -1505,7 +1505,7 @@ export interface paths {
         };
         /**
          * Obter a eleição
-         * @description Retorna as datas, os partidos com chapa, filiados, verba e promessa, as pesquisas, a simulação do 2º turno, as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         * @description Retorna as datas, os grupos de eleitores, os partidos com chapa, filiados, verba, bandeiras e perfil, as pesquisas com a margem de erro (no total e por grupo), o apoio e a rejeição do partido de quem vê em cada grupo, a simulação do 2º turno, as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.
          */
         get: operations["get_election_api_government_election_get"];
         put?: never;
@@ -1527,9 +1527,29 @@ export interface paths {
         put?: never;
         /**
          * Fundar um partido
-         * @description Funda um partido com nome, sigla de 2 a 8 letras, cor, promessa na régua de 1 a 5 e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.
+         * @description Funda um partido com nome, sigla de 2 a 8 letras, cor, 3 bandeiras diferentes (Mercado livre e Justiça social não andam juntas) e a contribuição mensal de quem funda, que pode ser zero. Só na campanha, um ano antes do 1º turno; um partido por jogador.
          */
         post: operations["found_party_api_government_parties_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/parties/flags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Escolher as bandeiras do partido
+         * @description O fundador de um partido criado antes das bandeiras escolhe as 3; até lá, o perfil do partido é neutro. Depois de escolhidas, as bandeiras não mudam. Mercado livre e Justiça social não andam juntas.
+         */
+        put: operations["set_party_flags_api_government_parties_flags_put"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2848,10 +2868,6 @@ export interface components {
             low_streak: number;
             /** Impeachment Months */
             impeachment_months: number;
-            /** Mark */
-            mark: string | null;
-            /** Promise */
-            promise: number | null;
         };
         /** ApprovalFactorDTO */
         ApprovalFactorDTO: {
@@ -2867,7 +2883,7 @@ export interface components {
          * ApprovalFactorKind
          * @enum {string}
          */
-        ApprovalFactorKind: "BASE" | "INFLATION" | "STOCKS" | "NEW_TAX" | "TAX_CUT" | "PROMISE";
+        ApprovalFactorKind: "BASE" | "INFLATION" | "STOCKS" | "NEW_TAX" | "TAX_CUT";
         /** ApprovalPointDTO */
         ApprovalPointDTO: {
             /**
@@ -3528,6 +3544,11 @@ export interface components {
             first_election?: string | null;
             /** @default NORMAL */
             computer_difficulty: components["schemas"]["ComputerDifficulty"];
+            /**
+             * Poll Margin
+             * @default true
+             */
+            poll_margin: boolean;
         };
         /**
          * CreditCostDTO
@@ -3778,12 +3799,24 @@ export interface components {
             /** Election Year */
             election_year: number;
             dates: components["schemas"]["ElectionDatesDTO"];
+            /** Groups */
+            groups: components["schemas"]["VoterGroupDTO"][];
+            /** Affinity Base */
+            affinity_base: string;
+            /** Radar Neutral */
+            radar_neutral: string;
+            /** Radar Flag */
+            radar_flag: string;
+            /** Poll Margin */
+            poll_margin: boolean;
             /** Parties */
             parties: components["schemas"]["PartyDTO"][];
             /** Undecided */
             undecided: string;
             /** Polls */
             polls: components["schemas"]["PollDTO"][];
+            /** Electorate */
+            electorate: components["schemas"]["ElectorateRowDTO"][];
             runoff_simulation: components["schemas"]["RunoffSimulationDTO"] | null;
             /** Finalists */
             finalists: number[];
@@ -3819,6 +3852,23 @@ export interface components {
          * @enum {string}
          */
         ElectionPhase: "BEFORE_CAMPAIGN" | "CAMPAIGN" | "BETWEEN_ROUNDS" | "AWAITING_TERM" | "TERM";
+        /**
+         * ElectorateRowDTO
+         * @description O que um grupo acha do partido de quem vê, exato: só os filiados recebem.
+         */
+        ElectorateRowDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Affinity */
+            affinity: string;
+            /** Support */
+            support: string;
+            /** Rejection */
+            rejection: string;
+            /** Support Change */
+            support_change: string | null;
+            /** Rejection Change */
+            rejection_change: string | null;
+        };
         /** EngineInfo */
         EngineInfo: {
             /** Speed */
@@ -4045,8 +4095,8 @@ export interface components {
             abbr: string;
             /** Color */
             color: string;
-            /** Promise */
-            promise: number;
+            /** Flags */
+            flags: components["schemas"]["VoterValue"][];
             /**
              * Contribution
              * @default 0
@@ -4278,6 +4328,28 @@ export interface components {
             ticket_deadline: string | null;
             /** First Round */
             first_round: string | null;
+        };
+        /** GroupPollDTO */
+        GroupPollDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Entries */
+            entries: components["schemas"]["PollEntryDTO"][];
+            /** Undecided */
+            undecided: string;
+            /** Margin */
+            margin: number;
+        };
+        /**
+         * GroupReading
+         * @description Um resultado do governo que o grupo de eleitores lê.
+         * @enum {string}
+         */
+        GroupReading: "INFLATION" | "SELIC" | "STOCKS" | "CAPITAL_GAINS_TAX";
+        /** GroupScoreDTO */
+        GroupScoreDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Score */
+            score: string;
         };
         /** HighlightsDTO */
         HighlightsDTO: {
@@ -5019,8 +5091,6 @@ export interface components {
             waiting_days: number | null;
             /** Days Left */
             days_left: number | null;
-            /** Ruler Band */
-            ruler_band: number;
             /** Impact */
             impact: number;
             /** Can Withdraw */
@@ -5047,14 +5117,8 @@ export interface components {
         MeasurePreviewDTO: {
             /** Title */
             title: string;
-            /** Ruler Band */
-            ruler_band: number;
-            /** Mark Before */
-            mark_before: string | null;
-            /** Mark After */
-            mark_after: string;
-            /** Promise */
-            promise: number | null;
+            /** Profile Moves */
+            profile_moves: components["schemas"]["ValueMoveDTO"][];
             /** Impact */
             impact: number;
             /** Chance */
@@ -5479,8 +5543,18 @@ export interface components {
             color: string | null;
             /** Is Computer */
             is_computer: boolean;
-            /** Promise */
-            promise: number;
+            /** Flags */
+            flags: components["schemas"]["VoterValue"][] | null;
+            /** Radar */
+            radar: components["schemas"]["ValueScoreDTO"][];
+            /** Founding Radar */
+            founding_radar: components["schemas"]["ValueScoreDTO"][];
+            /** Affinity */
+            affinity: components["schemas"]["GroupScoreDTO"][];
+            /** Founding Affinity */
+            founding_affinity: components["schemas"]["GroupScoreDTO"][];
+            /** Moves */
+            moves: components["schemas"]["ProfileMoveDTO"][];
             /** Founder */
             founder: string | null;
             /**
@@ -5503,6 +5577,11 @@ export interface components {
             vice_phase: components["schemas"]["VicePhase"];
             /** Ticket Chosen */
             ticket_chosen: boolean;
+        };
+        /** PartyFlagsRequest */
+        PartyFlagsRequest: {
+            /** Flags */
+            flags: components["schemas"]["VoterValue"][];
         };
         /** PartyMemberDTO */
         PartyMemberDTO: {
@@ -5876,7 +5955,10 @@ export interface components {
             /** Team */
             team: number;
         };
-        /** PollDTO */
+        /**
+         * PollDTO
+         * @description A pesquisa como foi publicada: com o erro sorteado dentro da margem, se ela vale.
+         */
         PollDTO: {
             /**
              * Date
@@ -5885,6 +5967,12 @@ export interface components {
             date: string;
             /** Entries */
             entries: components["schemas"]["PollEntryDTO"][];
+            /** Undecided */
+            undecided: string;
+            /** Margin */
+            margin: number;
+            /** Groups */
+            groups: components["schemas"]["GroupPollDTO"][];
         };
         /** PollEntryDTO */
         PollEntryDTO: {
@@ -6181,6 +6269,21 @@ export interface components {
             /** Curve */
             curve: components["schemas"]["PriceImpactPointDTO"][];
         };
+        /**
+         * ProfileMoveDTO
+         * @description Uma medida aprovada que moveu o perfil do partido.
+         */
+        ProfileMoveDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Description */
+            description: string;
+            /** Moves */
+            moves: components["schemas"]["ValueMoveDTO"][];
+        };
         /** ProposeMeasureRequest */
         ProposeMeasureRequest: {
             kind: components["schemas"]["MeasureKind"];
@@ -6472,7 +6575,8 @@ export interface components {
         };
         /**
          * RunoffSimulationDTO
-         * @description A simulação do 2º turno (ou o resultado dele): os eleitores de quem sai vão ao finalista mais próximo.
+         * @description A simulação do 2º turno (ou o resultado dele): em cada grupo, os eleitores de quem
+         *     sai se dividem entre os finalistas e os indecisos, que se abstêm.
          */
         RunoffSimulationDTO: {
             /** Finalists */
@@ -6554,6 +6658,11 @@ export interface components {
             first_election: string | null;
             /** @default NORMAL */
             computer_difficulty: components["schemas"]["ComputerDifficulty"];
+            /**
+             * Poll Margin
+             * @default true
+             */
+            poll_margin: boolean;
             /** Id */
             id: number;
             /** Is Backtest */
@@ -6988,6 +7097,11 @@ export interface components {
             first_election: string | null;
             /** @default NORMAL */
             computer_difficulty: components["schemas"]["ComputerDifficulty"];
+            /**
+             * Poll Margin
+             * @default true
+             */
+            poll_margin: boolean;
             /** Id */
             id: number;
         };
@@ -7095,6 +7209,11 @@ export interface components {
             first_election?: string | null;
             /** @default NORMAL */
             computer_difficulty: components["schemas"]["ComputerDifficulty"];
+            /**
+             * Poll Margin
+             * @default true
+             */
+            poll_margin: boolean;
         };
         /** SimulationSelectedEventDTO */
         SimulationSelectedEventDTO: {
@@ -7167,6 +7286,11 @@ export interface components {
             first_election: string | null;
             /** @default NORMAL */
             computer_difficulty: components["schemas"]["ComputerDifficulty"];
+            /**
+             * Poll Margin
+             * @default true
+             */
+            poll_margin: boolean;
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
@@ -7852,8 +7976,6 @@ export interface components {
             start: string;
             /** Consecutive */
             consecutive: number;
-            /** Promise */
-            promise: number | null;
             /** Succession */
             succession: boolean;
         };
@@ -8052,6 +8174,11 @@ export interface components {
             first_election?: string | null;
             /** @default NORMAL */
             computer_difficulty: components["schemas"]["ComputerDifficulty"];
+            /**
+             * Poll Margin
+             * @default true
+             */
+            poll_margin: boolean;
         };
         /** UserClaimRequest */
         UserClaimRequest: {
@@ -8102,6 +8229,18 @@ export interface components {
             /** Detail */
             detail: components["schemas"]["ValidationErrorItem"][];
         };
+        /** ValueMoveDTO */
+        ValueMoveDTO: {
+            value: components["schemas"]["VoterValue"];
+            /** Points */
+            points: string;
+        };
+        /** ValueScoreDTO */
+        ValueScoreDTO: {
+            value: components["schemas"]["VoterValue"];
+            /** Score */
+            score: string;
+        };
         /** VersionResponse */
         VersionResponse: {
             /** Version */
@@ -8136,6 +8275,35 @@ export interface components {
          * @enum {string}
          */
         VictoryCriterion: "SCORE" | "RETURN" | "NETWORTH" | "SHARPE";
+        /**
+         * VoterGroup
+         * @description Os grupos em que o eleitorado se divide; cada um vota pelo que acha de cada partido.
+         * @enum {string}
+         */
+        VoterGroup: "INVESTORS" | "ENTREPRENEURS" | "FORMAL_WORKERS" | "PUBLIC_SERVANTS" | "RETIREES" | "WELFARE";
+        /**
+         * VoterGroupDTO
+         * @description Um grupo de eleitores: o tamanho, o que ele quer e o que ele lê do governo.
+         */
+        VoterGroupDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Weight */
+            weight: string;
+            /** Margin */
+            margin: number;
+            /** Readings */
+            readings: components["schemas"]["GroupReading"][];
+            /** Wants */
+            wants: components["schemas"]["ValueScoreDTO"][];
+            /** Flag Affinity */
+            flag_affinity: components["schemas"]["ValueScoreDTO"][];
+        };
+        /**
+         * VoterValue
+         * @description As bandeiras de um partido e os eixos do perfil dele.
+         * @enum {string}
+         */
+        VoterValue: "FREE_MARKET" | "SOCIAL_JUSTICE" | "STABILITY" | "DEVELOPMENT" | "SAVER_PROTECTION" | "PUBLIC_SERVICE";
         /** YearMonthDTO */
         YearMonthDTO: {
             /**
@@ -11445,6 +11613,46 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["FoundPartyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_party_flags_api_government_parties_flags_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PartyFlagsRequest"];
             };
         };
         responses: {

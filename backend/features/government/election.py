@@ -1,44 +1,28 @@
 """
-A apuração: intenção de voto a partir do apoio, 1º turno, transferência de votos no 2º
-e a escolha dos partidos do computador. Tudo aqui é função pura sobre `GovernmentState`.
+A apuração: intenção de voto pelos grupos de eleitores, 1º turno, transferência de
+votos no 2º e a escolha dos partidos do computador. Tudo aqui é função pura sobre
+`GovernmentState`.
 """
 
 from dataclasses import dataclass
 from decimal import Decimal
 
-from backend.features.government.state import (
-    ELECTORATE,
-    GovernmentState,
-    Party,
+from backend.features.government import voters
+from backend.features.government.computer_parties import (
+    COMPUTER_PARTIES,
+    ComputerParty,
 )
+from backend.features.government.state import GovernmentState, Party
 
 PARTIES_PER_ELECTION = 3
-PROMISE_BANDS = (1, 2, 3, 4, 5)
 MAJORITY = Decimal("0.5")
-
-# Quem o computador lança: nome do partido, sigla e candidato
-COMPUTER_PARTIES: tuple[tuple[str, str, str], ...] = (
-    ("União do Progresso", "UPR", "Helena Prado"),
-    ("Movimento Novo Vigor", "MNV", "Caio Menezes"),
-    ("Aliança Cidadã", "ACI", "Marta Lopes"),
-)
-
-
-@dataclass(frozen=True)
-class Intention:
-    """Em cada 100 eleitores, quantos votariam em cada partido hoje."""
-
-    # Pontos por partido; passam de 100 só se a soma passar, e aí é reescalada
-    points: dict[int, Decimal]
-    undecided: Decimal
-    # Fatia de cada partido nos votos válidos (os dados a algum partido)
-    valid_shares: dict[int, Decimal]
 
 
 @dataclass(frozen=True)
 class Runoff:
     """A disputa entre dois partidos, com os votos de quem saiu já transferidos."""
 
+    # Em cada 100 eleitores, quantos votam em cada finalista; o resto se abstém
     votes: dict[int, Decimal]
     shares: dict[int, Decimal]
     transfers: dict[int, int]
@@ -109,16 +93,10 @@ def runs(state: GovernmentState, party: Party) -> bool:
     return party.is_computer or effective_ticket(state, party)[0] is not None
 
 
-def intention(state: GovernmentState) -> Intention:
-    parties = [p for p in state.parties.values() if runs(state, p)]
-    total = sum((p.points for p in parties), Decimal(0))
-    scale = ELECTORATE / total if total > ELECTORATE else Decimal(1)
-    points = {p.id: p.points * scale for p in parties}
-    shown = sum(points.values(), Decimal(0))
-    return Intention(
-        points=points,
-        undecided=max(ELECTORATE - shown, Decimal(0)),
-        valid_shares=valid_shares({p.id: p.points for p in parties}),
+def intention(state: GovernmentState) -> voters.Vote:
+    """O voto de hoje, exato, entre os partidos que concorrem."""
+    return voters.vote(
+        {p.id: p.standings() for p in state.parties.values() if runs(state, p)}
     )
 
 
@@ -143,55 +121,50 @@ def first_round_winner(shares: dict[int, Decimal]) -> int | None:
     return next((pid for pid, share in shares.items() if share > MAJORITY), None)
 
 
-def runoff(
-    state: GovernmentState, points: dict[int, Decimal], finalists: list[int]
-) -> Runoff:
+def runoff(first_round: voters.Vote, finalists: list[int]) -> Runoff:
     """
-    Os eleitores de quem saiu vão para o finalista com a promessa mais parecida; em
-    distância igual, para o que tem mais votos próprios.
+    Em cada grupo, os eleitores de quem saiu se dividem entre os finalistas e os
+    indecisos, na proporção do saldo de cada um no grupo; os indecisos se abstêm. Cada
+    partido que saiu aponta para o finalista que levou mais dos eleitores dele.
     """
-    votes = {pid: points[pid] for pid in finalists}
+    second = voters.restrict(first_round, finalists)
+    votes = {pid: second.total.get(pid, Decimal(0)) for pid in finalists}
     transfers: dict[int, int] = {}
-    for pid, value in points.items():
+    for pid in first_round.total:
         if pid in finalists:
             continue
-        target = min(
+        transfers[pid] = max(
             finalists,
-            key=lambda f: (
-                abs(state.parties[f].promise - state.parties[pid].promise),
-                -points[f],
-                f,
-            ),
+            key=lambda f: (_received(first_round, second, pid, f), -f),
         )
-        transfers[pid] = target
-        votes[target] += value
     shares = valid_shares(votes)
-    winner = min(finalists, key=lambda f: (-votes[f], -points[f], f))
+    winner = min(
+        finalists,
+        key=lambda f: (-votes[f], -first_round.total.get(f, Decimal(0)), f),
+    )
     return Runoff(votes, shares, transfers, winner)
 
 
-def pick_promise(parties: list[Party]) -> int:
-    """
-    A faixa da régua mais longe de todos os partidos que já existem; entre faixas
-    igualmente longe, a que tem menos partidos, e depois a de número menor.
-    """
-    taken = [p.promise for p in parties]
-    if not taken:
-        return PROMISE_BANDS[len(PROMISE_BANDS) // 2]
-    return min(
-        PROMISE_BANDS,
-        key=lambda band: (
-            -min(abs(band - t) for t in taken),
-            sum(1 for t in taken if t == band),
-            band,
+def _received(
+    first_round: voters.Vote, second: voters.Vote, source: int, finalist: int
+) -> Decimal:
+    """Quantos eleitores de `source` vão para `finalist`, somados pelo peso dos grupos."""
+    return sum(
+        (
+            voters.WEIGHTS[g]
+            * gv.shares.get(source, Decimal(0))
+            * second.groups[g].shares[finalist]
+            / voters.HUNDRED
+            for g, gv in first_round.groups.items()
         ),
+        Decimal(0),
     )
 
 
-def next_computer_party(state: GovernmentState) -> tuple[str, str, str] | None:
+def next_computer_party(state: GovernmentState) -> ComputerParty | None:
     """O próximo partido da lista que ainda não está na disputa."""
     used = {p.abbr for p in state.parties.values()}
-    return next((c for c in COMPUTER_PARTIES if c[1] not in used), None)
+    return next((c for c in COMPUTER_PARTIES if c.abbr not in used), None)
 
 
 def computer_spend(state: GovernmentState, factor: Decimal) -> Decimal:

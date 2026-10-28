@@ -11,16 +11,17 @@ from backend.core.dto.base import BaseDTO
 from backend.core.enum import (
     ApprovalFactorKind,
     ElectionPhase,
+    GroupReading,
     MeasureKind,
     MeasureStatus,
     VicePhase,
+    VoterGroup,
+    VoterValue,
 )
 
 PARTY_NAME_MAX_LENGTH = 60
 PARTY_ABBR_PATTERN = re.compile(r"^[A-ZÀ-Ý]{2,8}$")
 PARTY_COLOR_PATTERN = r"^#[0-9A-Fa-f]{6}$"
-PROMISE_MIN = 1
-PROMISE_MAX = 5
 
 PartyName = Annotated[
     str,
@@ -36,6 +37,57 @@ Contribution = Annotated[Decimal, Field(ge=0, max_digits=14, decimal_places=2)]
 
 
 # Resposta
+
+
+class ValueScoreDTO(BaseDTO):
+    value: VoterValue
+    score: Decimal
+
+
+class GroupScoreDTO(BaseDTO):
+    group: VoterGroup
+    score: Decimal
+
+
+class ValueMoveDTO(BaseDTO):
+    value: VoterValue
+    # Pontos de perfil que o valor ganha (positivo) ou perde
+    points: Decimal
+
+
+class ProfileMoveDTO(BaseDTO):
+    """Uma medida aprovada que moveu o perfil do partido."""
+
+    date: date
+    description: str
+    moves: list[ValueMoveDTO]
+
+
+class VoterGroupDTO(BaseDTO):
+    """Um grupo de eleitores: o tamanho, o que ele quer e o que ele lê do governo."""
+
+    group: VoterGroup
+    # Fatia do eleitorado, de 0 a 1
+    weight: Decimal
+    # Margem de erro da pesquisa no grupo, em pontos
+    margin: int
+    readings: list[GroupReading]
+    # O que o grupo quer em cada valor, de 0 (rejeita) a 100 (quer); 50 é indiferente
+    wants: list[ValueScoreDTO]
+    # Quanto cada bandeira soma (ou tira) da afinidade inicial com o grupo
+    flag_affinity: list[ValueScoreDTO]
+
+
+class ElectorateRowDTO(BaseDTO):
+    """O que um grupo acha do partido de quem vê, exato: só os filiados recebem."""
+
+    group: VoterGroup
+    affinity: Decimal
+    support: Decimal
+    rejection: Decimal
+    # Diferença entre as duas últimas pesquisas; nula antes da segunda
+    support_change: Decimal | None
+    rejection_change: Decimal | None
 
 
 class PartyMemberDTO(BaseDTO):
@@ -64,17 +116,25 @@ class PartyDTO(BaseDTO):
     # Cor escolhida pelo fundador (#RRGGBB); nula no partido do computador
     color: str | None
     is_computer: bool
-    # Posição na régua: 1 impostos baixos a 5 gasto alto
-    promise: int
+    # As 3 bandeiras; nulas no partido fundado antes delas, até o fundador escolher
+    flags: list[VoterValue] | None
+    # O perfil de hoje e o da fundação, de 0 a 100 em cada valor
+    radar: list[ValueScoreDTO]
+    founding_radar: list[ValueScoreDTO]
+    # Afinidade de cada grupo com o perfil de hoje e com o da fundação, de 0 a 100
+    affinity: list[GroupScoreDTO]
+    founding_affinity: list[GroupScoreDTO]
+    # O que moveu o perfil, do mais recente ao mais antigo
+    moves: list[ProfileMoveDTO]
     founder: str | None
     founded: date
     members: list[PartyMemberDTO]
     # Verba por mês (soma das contribuições) e o que já saiu na campanha
     budget: Decimal
     spent: Decimal
-    # Em cada 100 eleitores, quantos votariam no partido hoje
+    # Em cada 100 eleitores, quantos votariam no partido na última pesquisa publicada
     intention_points: Decimal
-    # Fatia nos votos válidos, de 0 a 1
+    # Fatia nos votos válidos dessa pesquisa, de 0 a 1
     valid_share: Decimal
     candidate: PartyCandidateDTO | None
     vice: PartyCandidateDTO | None
@@ -88,9 +148,22 @@ class PollEntryDTO(BaseDTO):
     points: Decimal
 
 
+class GroupPollDTO(BaseDTO):
+    group: VoterGroup
+    entries: list[PollEntryDTO]
+    undecided: Decimal
+    # Pontos para mais ou para menos; zero quando a sala desligou a margem
+    margin: int
+
+
 class PollDTO(BaseDTO):
+    """A pesquisa como foi publicada: com o erro sorteado dentro da margem, se ela vale."""
+
     date: date
     entries: list[PollEntryDTO]
+    undecided: Decimal
+    margin: int
+    groups: list[GroupPollDTO]
 
 
 class RunoffEntryDTO(BaseDTO):
@@ -106,7 +179,10 @@ class RunoffEntryDTO(BaseDTO):
 
 
 class RunoffSimulationDTO(BaseDTO):
-    """A simulação do 2º turno (ou o resultado dele): os eleitores de quem sai vão ao finalista mais próximo."""
+    """
+    A simulação do 2º turno (ou o resultado dele): em cada grupo, os eleitores de quem
+    sai se dividem entre os finalistas e os indecisos, que se abstêm.
+    """
 
     finalists: list[int]
     entries: list[RunoffEntryDTO]
@@ -149,8 +225,6 @@ class TermDTO(BaseDTO):
     vice: PartyCandidateDTO | None
     start: date
     consecutive: int
-    # A promessa do partido na régua; nula no governo do computador
-    promise: int | None
     # O vice assumiu depois de um impeachment
     succession: bool
 
@@ -212,9 +286,20 @@ class ElectionPanelDTO(BaseDTO):
     phase: ElectionPhase
     election_year: int
     dates: ElectionDatesDTO
+    groups: list[VoterGroupDTO]
+    # Afinidade de partida de toda bandeira com todo grupo, antes do que cada bandeira soma
+    affinity_base: Decimal
+    # No perfil de 0 a 100: onde fica o valor que o partido não defende e onde fica a bandeira
+    radar_neutral: Decimal
+    radar_flag: Decimal
+    # A pesquisa mostra a margem de erro; desligada, mostra o número exato
+    poll_margin: bool
     parties: list[PartyDTO]
+    # Indecisos na última pesquisa publicada
     undecided: Decimal
     polls: list[PollDTO]
+    # Apoio e rejeição do partido de quem vê em cada grupo; vazio para quem não é filiado
+    electorate: list[ElectorateRowDTO]
     # A simulação do 2º turno entre os dois primeiros de hoje; nula com menos de 2 partidos
     runoff_simulation: RunoffSimulationDTO | None
     # Entre os turnos: os finalistas e as doações já feitas
@@ -263,8 +348,6 @@ class MeasureDTO(BaseDTO):
     # Aprovada: dias de espera já cumpridos e os que faltam
     waiting_days: int | None
     days_left: int | None
-    # Faixa da régua, de 1 a 5
-    ruler_band: int
     # Pontos na aprovação ao valer: positivo é corte, negativo é imposto novo
     impact: int
     can_withdraw: bool
@@ -303,9 +386,6 @@ class ApprovalDTO(BaseDTO):
     # Meses seguidos abaixo do piso e quantos levam ao impeachment
     low_streak: int
     impeachment_months: int
-    # A marca do governo e a promessa da campanha, na régua de 1 a 5
-    mark: Decimal | None
-    promise: int | None
 
 
 class TaxRowDTO(BaseDTO):
@@ -412,10 +492,8 @@ class MeasureHoldingDTO(BaseDTO):
 
 class MeasurePreviewDTO(BaseDTO):
     title: str
-    ruler_band: int
-    mark_before: Decimal | None
-    mark_after: Decimal
-    promise: int | None
+    # Quanto a medida, aprovada, move o perfil do partido do presidente
+    profile_moves: list[ValueMoveDTO]
     # Pontos na aprovação ao valer: positivo é corte, negativo é imposto novo
     impact: int
     chance: int
@@ -432,8 +510,12 @@ class FoundPartyRequest(BaseDTO):
     name: PartyName
     abbr: PartyAbbr
     color: Annotated[str, StringConstraints(pattern=PARTY_COLOR_PATTERN)]
-    promise: Annotated[int, Field(ge=PROMISE_MIN, le=PROMISE_MAX)]
+    flags: list[VoterValue]
     contribution: Contribution = Decimal(0)
+
+
+class PartyFlagsRequest(BaseDTO):
+    flags: list[VoterValue]
 
 
 class JoinPartyRequest(BaseDTO):

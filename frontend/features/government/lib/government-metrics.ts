@@ -23,15 +23,3 @@ export const CHANCE: MetricInfo = {
     "Quanto maior a aprovação, mais fácil passar. A chance só diz a probabilidade: uma medida com 80% ainda pode cair.",
   format: (value) => `${value}%`,
 };
-
-export const PROMISE_VS_DONE: MetricInfo = {
-  label: "Promessa × feito",
-  description: "A faixa que o governo prometeu contra a média do que aprovou",
-  definition:
-    "A régua vai do imposto baixo (1) ao gasto alto (5). O avatar marca a promessa de campanha; o ponto preto é a média da faixa das medidas aprovadas neste governo.",
-  example:
-    "Ex.: prometeu 3 e aprovou medidas nas faixas 2, 4 e 5: a média é 3,7, e a distância de 0,7 faixa tira 2 pontos da aprovação (3 por faixa).",
-  reading:
-    "Quanto mais perto o ponto fica do avatar, menos a aprovação perde. Sem medidas aprovadas, o ponto não aparece.",
-  format: (value) => String(value),
-};

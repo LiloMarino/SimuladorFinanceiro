@@ -82,6 +82,7 @@ class SimulationRulesRequest(BaseModel):
     government_enabled: bool = False
     first_election: date | None = None
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
+    poll_margin: bool = True
 
     @model_validator(mode="after")
     def validate_government_rules(self):

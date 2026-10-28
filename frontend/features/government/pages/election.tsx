@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { MailQuestion, UserPlus, HandCoins } from "lucide-react";
+import { Flag, Lock, MailQuestion, UserPlus, HandCoins } from "lucide-react";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { ElectionPanel } from "@/types";
+import { ChooseFlagsDialog } from "../components/choose-flags-dialog";
 import { ContributionDialog } from "../components/contribution-dialog";
 import { DonateDialog } from "../components/donate-dialog";
 import { ElectionHeader } from "../components/election-header";
+import { ElectorateCard } from "../components/electorate-card";
 import { BeforeCampaignEmpty, ElectionError, ElectionSkeleton } from "../components/election-states";
 import { ExpelDialog } from "../components/expel-dialog";
 import { FoundPartyDialog } from "../components/found-party-dialog";
@@ -18,6 +21,7 @@ import { JoinPartyDialog } from "../components/join-party-dialog";
 import { LeavePartyDialog } from "../components/leave-party-dialog";
 import { MyPartyCard } from "../components/my-party-card";
 import { PartiesCard } from "../components/parties-card";
+import { PartyProfilesCard } from "../components/party-profiles-card";
 import { PollCard } from "../components/poll-card";
 import { RankingCard } from "../components/ranking-card";
 import { TermCard } from "../components/term-card";
@@ -40,7 +44,8 @@ export default function ElectionPage() {
   return <ElectionContent key={location.key} panel={panel} initialDialog={shortcut ?? null} />;
 }
 
-type Dialog = "found" | "join" | "contribution" | "ticket" | "vice" | "leave" | "donate";
+type Dialog = "found" | "join" | "contribution" | "ticket" | "vice" | "leave" | "donate" | "flags";
+type Tab = "race" | "campaign";
 
 function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initialDialog: Dialog | null }) {
   const { user } = useAuth();
@@ -48,6 +53,7 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
   const [dialog, setDialog] = useState<Dialog | null>(initialDialog);
   const [joinPartyId, setJoinPartyId] = useState<number | undefined>();
   const [expelling, setExpelling] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>("race");
 
   const cash = portfolio?.cash;
   const nickname = user?.nickname ?? "";
@@ -70,6 +76,23 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
   // Vaga de vice aberta: a chapa tem candidato e ainda não tem vice nem convite pendente
   const viceOpen =
     !!party && !!mine?.is_founder && panel.can_edit_ticket && party.vice === null && party.vice_phase === "NONE";
+
+  // A corrida é pública: quem não é filiado vê só ela, sem a barra de abas
+  const race = (
+    <div className="grid gap-5">
+      {campaignOpen && <PollCard panel={panel} />}
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="grid min-w-0 gap-5">
+          {panel.parties.length > 0 && <PartyProfilesCard panel={panel} />}
+          {campaignOpen && <PartiesCard panel={panel} />}
+        </div>
+        <div className="grid gap-5">
+          <TermCard panel={panel} />
+          <RankingCard panel={panel} />
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="grid gap-5">
@@ -124,34 +147,68 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
         </Alert>
       )}
 
-      {!campaignOpen && !hasTerm && <BeforeCampaignEmpty panel={panel} />}
-
-      {(campaignOpen || hasTerm) && (
-        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="grid min-w-0 gap-5">
-            {campaignOpen && <PollCard panel={panel} />}
-            {campaignOpen && <PartiesCard panel={panel} />}
-            <RankingCard panel={panel} />
-          </div>
-          <div className="grid gap-5">
-            {party && mine && (
-              <MyPartyCard
-                panel={panel}
-                party={party}
-                nickname={nickname}
-                onEditTicket={() => setDialog("ticket")}
-                onChangeContribution={() => setDialog("contribution")}
-                onExpel={setExpelling}
-                onLeave={() => setDialog("leave")}
-              />
-            )}
-            <TermCard panel={panel} />
-          </div>
-        </div>
+      {party && party.flags === null && (
+        <Alert variant={mine?.is_founder ? "warning" : "info"}>
+          {mine?.is_founder ? <Flag /> : <Lock />}
+          <AlertTitle>
+            {mine?.is_founder
+              ? `Escolha as bandeiras do ${party.abbr}`
+              : `O fundador do ${party.abbr} ainda não escolheu as bandeiras`}
+          </AlertTitle>
+          <AlertDescription>
+            {mine?.is_founder
+              ? `A régua de promessa de 1 a 5 saiu do jogo. Até você escolher 3 bandeiras, o ${party.abbr} entra na pesquisa com um perfil neutro, com a mesma afinidade em todos os grupos.`
+              : "Até a escolha, o partido entra na pesquisa com um perfil neutro, com a mesma afinidade em todos os grupos."}
+          </AlertDescription>
+          {mine?.is_founder && (
+            <AlertAction>
+              <Button size="sm" onClick={() => setDialog("flags")}>
+                Escolher bandeiras
+              </Button>
+            </AlertAction>
+          )}
+        </Alert>
       )}
 
+      {!campaignOpen && !hasTerm && <BeforeCampaignEmpty panel={panel} />}
+
+      {(campaignOpen || hasTerm) &&
+        (party && mine ? (
+          <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
+            <TabsList variant="line">
+              <TabsTrigger value="race">Corrida</TabsTrigger>
+              <TabsTrigger value="campaign">Campanha do {party.abbr}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="race">{race}</TabsContent>
+            <TabsContent value="campaign">
+              <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+                <div className="grid min-w-0 gap-5">
+                  {panel.electorate.length > 0 && <ElectorateCard panel={panel} party={party} />}
+                </div>
+                <MyPartyCard
+                  panel={panel}
+                  party={party}
+                  nickname={nickname}
+                  onEditTicket={() => setDialog("ticket")}
+                  onChangeContribution={() => setDialog("contribution")}
+                  onExpel={setExpelling}
+                  onLeave={() => setDialog("leave")}
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
+        ) : (
+          race
+        ))}
+
       {/* Diálogos */}
-      <FoundPartyDialog open={dialog === "found"} onOpenChange={close} takenColors={takenColors} cash={cash} />
+      <FoundPartyDialog
+        open={dialog === "found"}
+        onOpenChange={close}
+        panel={panel}
+        takenColors={takenColors}
+        cash={cash}
+      />
       <JoinPartyDialog
         open={dialog === "join"}
         onOpenChange={close}
@@ -177,6 +234,9 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
             isVice={panel.my_vice?.party_id === party.id && panel.my_vice.phase === "ACCEPTED"}
           />
           <ExpelDialog nickname={expelling} onClose={() => setExpelling(null)} party={party} />
+          {mine.is_founder && party.flags === null && (
+            <ChooseFlagsDialog open={dialog === "flags"} onOpenChange={close} panel={panel} party={party} />
+          )}
         </>
       )}
       <ViceInviteDialog open={dialog === "vice"} onOpenChange={close} panel={panel} />

@@ -12,21 +12,26 @@ from decimal import Decimal
 
 from backend.core.dto.events.government import GovernmentEventDTO
 from backend.core.enum import GovernmentEventType as Event
-from backend.core.enum import MeasureKind, MeasureStatus
+from backend.core.enum import MeasureKind, MeasureStatus, VoterGroup, VoterValue
 from backend.core.utils import required
+from backend.features.government import voters
+from backend.features.government.computer_parties import COMPUTER_FLAGS
 
-# Pontos de intenção de voto por gasto: R$ 8 mil num mês dão √8000 ÷ 64 = 1,4 ponto
-# (de 100 eleitores). O apoio rende pela raiz quadrada, então dobrar a verba não
-# dobra os votos.
-SQRT_DIVISOR = Decimal(64)
-ELECTORATE = Decimal(100)
 # A medida aprovada vale depois da noventena
 VIGENCE_DAYS = 90
 
 
-def vote_points(amount: Decimal) -> Decimal:
-    """Pontos de intenção de voto que um gasto de `amount` rende."""
-    return amount.sqrt() / SQRT_DIVISOR if amount > 0 else Decimal(0)
+@dataclass(frozen=True)
+class ProfileMove:
+    """Uma medida aprovada que moveu o perfil do partido do governo."""
+
+    day: date
+    measure_id: int
+    changes: dict[VoterValue, Decimal]
+
+
+def _zero_by_group() -> dict[VoterGroup, Decimal]:
+    return dict.fromkeys(VoterGroup, Decimal(0))
 
 
 @dataclass
@@ -36,8 +41,8 @@ class Party:
     abbr: str
     # Cor escolhida pelo fundador (hex); o partido do computador não tem
     color: str | None
-    # Posição na régua de 1 (impostos baixos) a 5 (gasto alto)
-    promise: int
+    # As 3 bandeiras; nulas no partido fundado antes delas, até o fundador escolher
+    flags: tuple[VoterValue, ...] | None
     founder_id: int | None
     is_computer: bool
     founded: date
@@ -48,20 +53,45 @@ class Party:
     candidate_id: int | None = None
     vice_id: int | None = None
     vice_accepted: bool = False
-    # Pontos de intenção de voto e gasto acumulados na campanha em curso
-    points: Decimal = Decimal(0)
+    # O perfil de hoje, de 0 a 100 em cada valor, e o que o moveu
+    radar: dict[VoterValue, Decimal] = field(default_factory=dict)
+    moves: list[ProfileMove] = field(default_factory=list)
+    # Apoio da campanha em curso em cada grupo; volta a zero a cada eleição
+    campaign: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
+    # Rejeição em cada grupo: atravessa as eleições e só cai por reparação
+    rejection: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
     spent: Decimal = Decimal(0)
+
+    def __post_init__(self) -> None:
+        if not self.radar:
+            self.radar = voters.initial_radar(self.flags)
 
     @property
     def budget(self) -> Decimal:
         """Verba por mês: a soma das contribuições."""
         return sum(self.members.values(), Decimal(0))
 
+    def standing(self, group: VoterGroup) -> voters.Standing:
+        return voters.standing(
+            group, self.radar, self.campaign[group], self.rejection[group]
+        )
+
+    def standings(self) -> dict[VoterGroup, voters.Standing]:
+        return {g: self.standing(g) for g in VoterGroup}
+
+    def add_campaign(self, amount: Decimal) -> None:
+        """A verba vira apoio igual em todos os grupos."""
+        points = voters.campaign_points(amount)
+        for group in VoterGroup:
+            self.campaign[group] += points
+
 
 @dataclass(frozen=True)
 class Poll:
+    """A pesquisa do mês: o que cada grupo achava de cada partido no dia."""
+
     day: date
-    points: dict[int, Decimal]
+    standings: dict[int, dict[VoterGroup, voters.Standing]]
 
 
 @dataclass(frozen=True)
@@ -114,8 +144,6 @@ class Term:
     start: date
     # Mandatos seguidos do mesmo presidente: o 2º é o último
     consecutive: int
-    # A promessa do partido na campanha, na régua de 1 a 5
-    promise: int | None = None
     # O vice assumiu depois de um impeachment, ou o computador ficou no lugar
     succession: bool = False
 
@@ -214,7 +242,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 name=_str(p, "name"),
                 abbr=_str(p, "abbr"),
                 color=_str(p, "color"),
-                promise=_int(p, "promise"),
+                flags=_flags(p),
                 founder_id=founder,
                 is_computer=False,
                 founded=day,
@@ -228,13 +256,15 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 name=_str(p, "name"),
                 abbr=_str(p, "abbr"),
                 color=None,
-                promise=_int(p, "promise"),
+                flags=_flags(p) or COMPUTER_FLAGS.get(_str(p, "abbr")),
                 founder_id=None,
                 is_computer=True,
                 founded=day,
                 candidate_name=_str(p, "candidate_name"),
             )
             state.next_party_id = max(state.next_party_id, party_id + 1)
+        case Event.PARTY_VALUES_SET:
+            _set_flags(state.parties[_int(p, "party_id")], required(_flags(p)))
         case Event.COMPUTER_PARTY_REMOVED:
             state.parties.pop(_int(p, "party_id"), None)
         case Event.PARTY_JOINED:
@@ -265,17 +295,20 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 party = state.parties.get(party_id)
                 if party is not None:
                     party.spent += amount
-                    party.points += vote_points(amount)
+                    party.add_campaign(amount)
             state.last_collection = date.fromisoformat(_str(p, "month"))
             state.polls.append(
-                Poll(day, {pid: party.points for pid, party in state.parties.items()})
+                Poll(
+                    day,
+                    {pid: party.standings() for pid, party in state.parties.items()},
+                )
             )
         case Event.DONATION_MADE:
             party_id = _int(p, "party_id")
             amount = _money(p, "amount")
             party = state.parties[party_id]
             party.spent += amount
-            party.points += vote_points(amount)
+            party.add_campaign(amount)
             state.donations.append(Donation(day, _int(p, "user_id"), party_id, amount))
         case Event.ELECTION_ROUND:
             _apply_round(state, event)
@@ -286,7 +319,6 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 vice_id=_opt_int(p, "vice_id"),
                 start=day,
                 consecutive=_int(p, "consecutive"),
-                promise=_opt_int(p, "promise"),
             )
             state.pending_term = None
             _reset_government(state)
@@ -313,6 +345,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             if p["approved"]:
                 measure.status = MeasureStatus.APPROVED
                 measure.effective = day + timedelta(days=VIGENCE_DAYS)
+                _move_profile(state, measure, day)
             else:
                 measure.status = MeasureStatus.REJECTED
         case Event.APPROVAL_MEASURED:
@@ -349,7 +382,6 @@ def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> Non
         vice_id=None,
         start=event.event_date,
         consecutive=1,
-        promise=term.promise if successor is not None else None,
         succession=True,
     )
     _reset_government(state)
@@ -414,14 +446,12 @@ def _apply_round(state: GovernmentState, event: GovernmentEventDTO) -> None:
         and president is not None
         and previous.president_id == president
     )
-    winner_party = state.parties.get(winner) if winner is not None else None
     state.pending_term = Term(
         party_id=winner,
         president_id=president,
         vice_id=ticket.vice_id if ticket else None,
         start=date(event.event_date.year + 1, 1, 1),
         consecutive=(previous.consecutive + 1 if previous and same_president else 1),
-        promise=winner_party.promise if winner_party else None,
     )
     # A campanha seguinte recomeça do zero: os partidos ficam, o apoio não
     state.runoff = None
@@ -429,8 +459,31 @@ def _apply_round(state: GovernmentState, event: GovernmentEventDTO) -> None:
     state.polls = []
     state.donations = []
     for party in state.parties.values():
-        party.points = Decimal(0)
+        party.campaign = _zero_by_group()
         party.spent = Decimal(0)
+
+
+def _set_flags(party: Party, flags: tuple[VoterValue, ...]) -> None:
+    """O partido sem bandeiras sai do neutro: cada bandeira sobe ao nível de bandeira."""
+    party.flags = flags
+    for value in flags:
+        party.radar[value] = voters.clamp(
+            party.radar[value] + voters.RADAR_FLAG - voters.RADAR_NEUTRAL
+        )
+
+
+def _move_profile(state: GovernmentState, measure: Measure, day: date) -> None:
+    """A medida aprovada move o perfil do partido que governa; o do computador não muda."""
+    term = state.term
+    party = state.parties.get(term.party_id) if term and term.party_id else None
+    if party is None or party.is_computer:
+        return
+    changes = voters.radar_moves(measure.kind, measure.value, measure.before)
+    if not changes:
+        return
+    for value, points in changes.items():
+        party.radar[value] = voters.clamp(party.radar[value] + points)
+    party.moves.append(ProfileMove(day, measure.id, changes))
 
 
 def _int(p: dict[str, object], key: str) -> int:
@@ -454,6 +507,13 @@ def _opt_money(p: dict[str, object], key: str) -> Decimal | None:
 def _opt_str(p: dict[str, object], key: str) -> str | None:
     value = p.get(key)
     return None if value is None else str(value)
+
+
+def _flags(p: dict[str, object]) -> tuple[VoterValue, ...] | None:
+    flags = p.get("flags")
+    if flags is None:
+        return None
+    return tuple(VoterValue(str(v)) for v in flags)  # type: ignore[attr-defined]
 
 
 def _money(p: dict[str, object], key: str) -> Decimal:

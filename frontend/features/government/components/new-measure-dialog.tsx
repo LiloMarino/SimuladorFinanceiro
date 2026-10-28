@@ -22,6 +22,7 @@ import { formatMoney } from "@/shared/lib/utils/format";
 import type { GovernmentPanel, MeasureKind, ProposeMeasureRequest } from "@/types";
 import { useProposeMeasure } from "../hooks/mutations/useProposeMeasure";
 import { useMeasurePreview } from "../hooks/queries/useMeasurePreview";
+import { VALUE_INFO, signedPoints as signedProfilePoints } from "../lib/voters";
 import {
   GENERAL_KINDS,
   type GeneralKind,
@@ -39,7 +40,6 @@ type ExemptionRule = "keep" | "end" | "change";
 type SectorChange = "tax" | "exempt";
 
 const WHOLE_SECTOR = "all";
-const MARK = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
 
 /** Escolhe a opção de um grupo de uma só opção: soltar a marcada não muda nada. */
 const pick =
@@ -318,15 +318,15 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
                   </Row>
                 )}
                 <Row label="Aprovação, ao valer">{signedPoints(data.impact)}</Row>
-                <Row label="Marca do governo na régua">
-                  {data.mark_before ? MARK.format(Number(data.mark_before)) : "—"} →{" "}
-                  {MARK.format(Number(data.mark_after))}
+                <Row label="Perfil do partido, se aprovada">
+                  {data.profile_moves.length > 0
+                    ? data.profile_moves
+                        .map((move) => `${signedProfilePoints(Number(move.points))} ${VALUE_INFO[move.value].label}`)
+                        .join(" · ")
+                    : "não muda"}
                 </Row>
               </dl>
-              <p className="text-xs leading-normal text-muted-foreground">
-                {impactSentence(data)}
-                {data.promise !== null && ` A promessa de campanha foi a faixa ${data.promise}.`}
-              </p>
+              <p className="text-xs leading-normal text-muted-foreground">{impactSentence(data)}</p>
               <Alert variant="info">
                 <Gavel />
                 <AlertTitle>O Congresso vota em {displayDayMonth(data.vote_date)}</AlertTitle>

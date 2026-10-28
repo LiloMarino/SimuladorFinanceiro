@@ -8,25 +8,6 @@ export type ElectionShortcut = "found" | "join" | "contribution";
 /** Quantas vezes a raiz do gasto mensal divide em pontos de intenção (a cada 100 eleitores). */
 const VOTE_DIVISOR = 64;
 
-export const PROMISE_BANDS = [
-  { value: 1, title: "Impostos bem baixos", description: "Corte geral de imposto." },
-  { value: 2, title: "Impostos baixos", description: "Isenção para um setor." },
-  { value: 3, title: "Meio-termo", description: "Mexe pouco nos dois." },
-  { value: 4, title: "Gasto alto", description: "Taxa um setor; o gasto público fica entre 4 e 5." },
-  { value: 5, title: "Gasto bem alto", description: "Imposto geral novo." },
-] as const;
-
-export const PROMISE_ENDS = { low: "Impostos baixos", high: "Gasto alto" } as const;
-
-export function promiseBand(promise: number) {
-  return PROMISE_BANDS[Math.min(Math.max(promise, 1), 5) - 1] ?? PROMISE_BANDS[0];
-}
-
-/** Posição da faixa na régua, em % da largura: cada uma das 5 faixas ocupa um quinto e o marcador fica no meio dela. */
-export function rulerPosition(promise: number) {
-  return ((promise - 0.5) / 5) * 100;
-}
-
 /** Pontos de intenção que uma verba mensal rende por mês: raiz do gasto dividida por 64. */
 export function monthlyYield(monthlySpend: number) {
   return Math.sqrt(Math.max(monthlySpend, 0)) / VOTE_DIVISOR;

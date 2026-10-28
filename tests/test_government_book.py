@@ -22,6 +22,8 @@ from backend.core.enum import (
     MeasureStatus,
     PauseReason,
     VicePhase,
+    VoterGroup,
+    VoterValue,
 )
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -30,11 +32,11 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.features.government import approval as approval_rules
-from backend.features.government import congress, election
+from backend.features.government import congress, election, voters
 from backend.features.government.calendar import election_cycle
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_panel
-from backend.features.government.state import Party, replay, vote_points
+from backend.features.government.state import Party, replay
 from backend.features.tax_policy import LossPool
 from tests.fakes import FakeSimulationEngine, client, simulation_settings
 
@@ -52,6 +54,10 @@ SEED = 7
 RED = "#dc2626"
 BLUE = "#2563eb"
 GREEN = "#15803d"
+FLAGS = [VoterValue.STABILITY, VoterValue.DEVELOPMENT, VoterValue.SAVER_PROTECTION]
+# Bandeiras que agradam poucos grupos: o partido fica atrás do computador
+NICHE = [VoterValue.FREE_MARKET, VoterValue.SAVER_PROTECTION, VoterValue.PUBLIC_SERVICE]
+WORKERS = VoterGroup.FORMAL_WORKERS
 
 
 class PoliticalEngine(FakeSimulationEngine):
@@ -116,14 +122,21 @@ def book(engine, stored, notices, captured_events, office) -> GovernmentBook:
     )
 
 
-def found(book: GovernmentBook, user: UserDTO, abbr: str, color: str, amount="10000"):
+def found(
+    book: GovernmentBook,
+    user: UserDTO,
+    abbr: str,
+    color: str,
+    amount="10000",
+    flags: list[VoterValue] = FLAGS,
+):
     book.found_party(
         user,
         CAMPAIGN_OPEN,
         name=f"Partido {abbr}",
         abbr=abbr,
         color=color,
-        promise=3,
+        flags=flags,
         contribution=Decimal(amount),
     )
 
@@ -165,7 +178,7 @@ def test_party_opens_only_during_the_campaign_year(book: GovernmentBook):
             name="Cedo",
             abbr="CED",
             color=RED,
-            promise=2,
+            flags=FLAGS,
             contribution=Decimal(0),
         )
 
@@ -231,7 +244,7 @@ def test_monthly_contribution_buys_votes_and_is_charged_once_a_month(
     book.on_tick(USERS, date(2020, 11, 4), True)
 
     assert engine.get_cash(ALICE.client_id) == Decimal(90000)
-    assert party.points == vote_points(Decimal(10000))
+    assert party.campaign[WORKERS] == voters.campaign_points(Decimal(10000))
     computers = book.state.computer_parties()
     # Dificuldade Fácil: o computador gasta metade da verba do partido de jogadores
     assert all(c.spent == Decimal(5000) for c in computers)
@@ -246,7 +259,7 @@ def test_member_without_cash_skips_the_month(
     book.on_tick(USERS, date(2020, 11, 3), True)
 
     assert engine.get_cash(ALICE.client_id) == Decimal(500)
-    assert party_of(book, ALICE).points == 0
+    assert party_of(book, ALICE).campaign[WORKERS] == 0
 
 
 def test_no_collection_before_the_campaign_opens(
@@ -259,7 +272,7 @@ def test_no_collection_before_the_campaign_opens(
 
     assert book.state.last_collection is None
     assert engine.get_cash(ALICE.client_id) == Decimal(100000)
-    assert party_of(book, ALICE).points == 0
+    assert party_of(book, ALICE).campaign[WORKERS] == 0
 
 
 def test_campaign_opening_is_announced_once_and_pauses_the_game(
@@ -363,7 +376,7 @@ def test_no_collection_between_the_rounds(
     book: GovernmentBook, engine: PoliticalEngine
 ):
     found(book, ALICE, "AAA", RED, "8000")
-    found(book, BOB, "BBB", BLUE, "2000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
     run_campaign(book)
     book.on_tick(USERS, FIRST_ROUND, False)
     assert book.state.runoff is not None
@@ -380,7 +393,7 @@ def test_no_collection_between_the_rounds(
 
 def test_no_collection_after_the_result(book: GovernmentBook, engine: PoliticalEngine):
     found(book, ALICE, "AAA", RED, "8000")
-    found(book, BOB, "BBB", BLUE, "2000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
     run_campaign(book)
     book.on_tick(USERS, FIRST_ROUND, False)
     book.on_tick(USERS, RUNOFF, False)
@@ -406,7 +419,7 @@ def test_two_rounds_end_with_the_term_starting_in_january(
     book: GovernmentBook, notices
 ):
     found(book, ALICE, "AAA", RED, "8000")
-    found(book, BOB, "BBB", BLUE, "2000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
     run_campaign(book)
 
     assert book.on_tick(USERS, FIRST_ROUND, False) == PauseReason.FIRST_ROUND_RESULT
@@ -440,7 +453,7 @@ def test_winning_party_keeps_members_but_restarts_the_support(book: GovernmentBo
     party = party_of(book, ALICE)
 
     assert party is not None
-    assert party.points == 0
+    assert party.campaign[WORKERS] == 0
     assert party.spent == 0
     assert book.state.polls == []
 
@@ -449,7 +462,7 @@ def test_donation_goes_only_to_a_finalist_and_only_from_an_eliminated_party(
     book: GovernmentBook, engine: PoliticalEngine
 ):
     found(book, ALICE, "AAA", RED, "8000")
-    found(book, BOB, "BBB", BLUE, "2000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
     run_campaign(book)
     book.on_tick(USERS, FIRST_ROUND, False)
     finalist = party_of(book, ALICE).id
@@ -462,11 +475,13 @@ def test_donation_goes_only_to_a_finalist_and_only_from_an_eliminated_party(
     with pytest.raises(ConflictError, match="prazo"):
         book.donate(BOB, date(2021, 10, 28), finalist, Decimal(1000))
 
-    before = book.state.parties[finalist].points
+    before = book.state.parties[finalist].campaign[WORKERS]
     book.donate(BOB, date(2021, 10, 10), finalist, Decimal(1000))
 
     assert engine.get_cash(BOB.client_id) == eliminated_cash - 1000
-    assert book.state.parties[finalist].points == before + vote_points(Decimal(1000))
+    assert book.state.parties[finalist].campaign[
+        WORKERS
+    ] == before + voters.campaign_points(Decimal(1000))
 
 
 def test_between_rounds_only_donations_are_open(book: GovernmentBook):
@@ -625,7 +640,7 @@ def test_only_members_run_on_the_ticket(book: GovernmentBook):
 
 def test_replay_rebuilds_the_same_state(book: GovernmentBook, stored):
     found(book, ALICE, "AAA", RED, "8000")
-    found(book, BOB, "BBB", BLUE, "2000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
     run_campaign(book)
     book.on_tick(USERS, FIRST_ROUND, False)
     book.donate(BOB, date(2021, 10, 10), party_of(book, ALICE).id, Decimal(500))
@@ -637,9 +652,9 @@ def test_replay_rebuilds_the_same_state(book: GovernmentBook, stored):
     assert rebuilt.cycle == book.state.cycle
     assert rebuilt.term == book.state.term
     assert rebuilt.results == book.state.results
-    assert {p.id: (p.members, p.points) for p in rebuilt.parties.values()} == {
-        p.id: (p.members, p.points) for p in book.state.parties.values()
-    }
+    assert {
+        p.id: (p.members, p.campaign, p.radar) for p in rebuilt.parties.values()
+    } == {p.id: (p.members, p.campaign, p.radar) for p in book.state.parties.values()}
 
 
 def test_resumed_book_starts_from_the_stored_events(
@@ -650,13 +665,13 @@ def test_resumed_book_starts_from_the_stored_events(
 
     resumed = GovernmentBook(settings(), engine, lambda *_: None, SEED)
 
-    assert party_of(resumed, ALICE).points == party_of(book, ALICE).points
+    assert party_of(resumed, ALICE).campaign == party_of(book, ALICE).campaign
     assert resumed.state.last_collection == date(2020, 11, 1)
 
 
 def test_panel_follows_the_phase_of_the_race(book: GovernmentBook):
     found(book, ALICE, "AAA", RED, "8000")
-    found(book, BOB, "BBB", BLUE, "2000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
     networths = {u.id: Decimal(1000 * u.id) for u in USERS}
 
     def panel(user: UserDTO, today: date):
@@ -765,7 +780,6 @@ def test_term_start_hands_the_office_to_the_player_president(
 
     assert office == [ALICE.id]
     assert book.state.term is not None
-    assert book.state.term.promise == 3
 
 
 def test_only_the_president_proposes_and_the_queue_is_public(
@@ -1016,3 +1030,83 @@ def test_measure_in_force_is_announced_on_its_day(
 
     kinds = [n["kind"] for n in notices]
     assert kinds.count(GovernmentNoticeKind.MEASURE_IN_FORCE.value) == 1
+
+
+# Bandeiras, perfil e pesquisa
+
+
+def test_party_needs_three_flags_without_both_extremes(book: GovernmentBook):
+    with pytest.raises(UnprocessableEntityError, match="3 bandeiras"):
+        found(book, ALICE, "AAA", RED, flags=FLAGS[:2])
+    with pytest.raises(UnprocessableEntityError, match="não andam juntas"):
+        found(
+            book,
+            ALICE,
+            "AAA",
+            RED,
+            flags=[VoterValue.FREE_MARKET, VoterValue.SOCIAL_JUSTICE, FLAGS[0]],
+        )
+
+
+def test_founder_of_a_party_without_flags_chooses_them_once(
+    book: GovernmentBook, engine, stored
+):
+    found(book, ALICE, "AAA", RED)
+    founded = next(e for e in stored if e.payload.get("abbr") == "AAA")
+    founded.payload.pop("flags")
+    resumed = GovernmentBook(settings(), engine, lambda *_: None, SEED)
+    party = party_of(resumed, ALICE)
+    assert party.flags is None
+    assert set(party.radar.values()) == {voters.RADAR_NEUTRAL}
+
+    with pytest.raises(ConflictError, match="nenhum partido"):
+        resumed.set_flags(CARLA, CAMPAIGN_OPEN, FLAGS)
+    resumed.set_flags(ALICE, CAMPAIGN_OPEN, FLAGS)
+
+    party = party_of(resumed, ALICE)
+    assert party.flags == tuple(FLAGS)
+    assert party.radar[FLAGS[0]] == voters.RADAR_FLAG
+    with pytest.raises(ConflictError, match="já foram escolhidas"):
+        resumed.set_flags(ALICE, CAMPAIGN_OPEN, FLAGS)
+
+
+def test_approved_measure_moves_the_profile_of_the_governing_party(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    propose(book)
+    congress_says(monkeypatch, True)
+
+    book.on_tick(USERS, FIRST_VOTE, False)
+
+    # Subir o IR do ganho comum de 15% para 20% recua o mercado e avança a justiça social
+    party = party_of(book, ALICE)
+    assert party.radar[VoterValue.FREE_MARKET] == voters.RADAR_NEUTRAL - 6
+    assert party.radar[VoterValue.SOCIAL_JUSTICE] == voters.RADAR_NEUTRAL + 6
+    assert party.radar[VoterValue.DEVELOPMENT] == voters.RADAR_FLAG - 2
+    assert [m.measure_id for m in party.moves] == [1]
+
+
+def test_panel_publishes_the_poll_with_margin_and_the_exact_standing_to_members(
+    book: GovernmentBook,
+):
+    found(book, ALICE, "AAA", RED)
+    run_campaign(book)
+    exact_rules = settings().model_copy(update={"poll_margin": False})
+
+    def panel(user: UserDTO, rules: SimulationDTO):
+        return build_panel(book, rules, USERS, user, date(2021, 9, 10), {})
+
+    published = panel(ALICE, settings())
+    exact = panel(ALICE, exact_rules)
+
+    assert len(published.electorate) == len(VoterGroup)
+    assert panel(CARLA, settings()).electorate == []
+    poll, truth = published.polls[-1], exact.polls[-1]
+    assert (poll.margin, truth.margin) == (voters.TOTAL_MARGIN, 0)
+    for group, real in zip(poll.groups, truth.groups, strict=True):
+        assert group.margin == voters.MARGINS[group.group]
+        for shown, value in zip(group.entries, real.entries, strict=True):
+            assert abs(shown.points - value.points) <= group.margin
+    assert poll.entries != truth.entries
+    assert published.runoff_simulation is not None

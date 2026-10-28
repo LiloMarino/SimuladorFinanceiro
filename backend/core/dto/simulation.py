@@ -84,6 +84,8 @@ class SimulationSettingsDTO(BaseDTO):
     # Data do 1º turno da primeira eleição; as seguintes caem a cada 4 anos
     first_election: date | None = None
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
+    # A pesquisa eleitoral mostra cada número com a margem de erro, sorteada pela semente
+    poll_margin: bool = True
 
     @property
     def expert_mode(self) -> bool:

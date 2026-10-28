@@ -61,6 +61,7 @@ from backend.core.enum import (
     PauseReason,
     PlayerGrouping,
     PrepaymentMode,
+    VoterValue,
 )
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.indicators import annual_index_rate
@@ -390,9 +391,13 @@ class Simulation:
             name=party.name,
             abbr=party.abbr,
             color=party.color,
-            promise=party.promise,
+            flags=party.flags,
             contribution=party.contribution,
         )
+
+    @synchronized
+    def set_party_flags(self, user: UserDTO, flags: list[VoterValue]) -> None:
+        self._ensure_government().set_flags(user, self._current_date, flags)
 
     @synchronized
     def join_party(self, user: UserDTO, party_id: int, contribution: Decimal) -> None:

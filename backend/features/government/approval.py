@@ -24,7 +24,6 @@ INFLATION_PENALTY = Decimal(3)
 # A bolsa soma ou tira 1 ponto a cada 5% de alta ou queda, até 6
 STOCKS_STEP = Decimal("0.05")
 STOCKS_LIMIT = 6
-PROMISE_PENALTY = Decimal(3)
 
 # Meta de inflação do CMN em cada ano; fora da tabela vale a última
 INFLATION_TARGETS: dict[int, Decimal] = {
@@ -68,8 +67,6 @@ class Factor:
 class Approval:
     value: int
     factors: list[Factor]
-    # A marca do governo na régua: média das medidas aprovadas
-    mark: Decimal | None
     # Medidas aprovadas que ainda vão pesar quando valerem
     upcoming: list[Measure]
 
@@ -169,29 +166,6 @@ def measure_factors(measures: Iterable[Measure], today: date) -> list[Factor]:
     return factors
 
 
-def mark_of(measures: Iterable[Measure]) -> Decimal | None:
-    """A média das faixas das medidas aprovadas: a marca do governo na régua."""
-    bands = [rules.ruler_band(m) for m in measures]
-    return Decimal(sum(bands)) / len(bands) if bands else None
-
-
-def promise_factor(promise: int | None, mark: Decimal | None) -> Factor | None:
-    if promise is None or mark is None:
-        return None
-    distance = mark - promise
-    points = -_rounded(PROMISE_PENALTY * abs(distance))
-    if points == 0:
-        return None
-    side = "à direita" if distance > 0 else "à esquerda"
-    shown = rules.number(abs(distance))
-    return Factor(
-        ApprovalFactorKind.PROMISE,
-        points,
-        f"Promessa: a marca do governo ({rules.number(mark)}) está {shown} "
-        f"faixa {side} da prometida ({promise})",
-    )
-
-
 def term_measures(measures: Iterable[Measure], term: Term) -> list[Measure]:
     """As medidas aprovadas do governo em curso."""
     return [
@@ -207,7 +181,6 @@ def assess(
     term: Term, measures: Iterable[Measure], market: Market, today: date
 ) -> Approval:
     approved = term_measures(measures, term)
-    mark = mark_of(approved)
     factors = [
         Factor(
             ApprovalFactorKind.BASE,
@@ -217,14 +190,12 @@ def assess(
         inflation_factor(market),
         stocks_factor(market),
         *measure_factors(approved, today),
-        promise_factor(term.promise, mark),
     ]
     present = [f for f in factors if f is not None]
     value = max(0, min(100, sum(f.points for f in present)))
     return Approval(
         value=value,
         factors=present,
-        mark=mark,
         upcoming=[
             m
             for m in approved
