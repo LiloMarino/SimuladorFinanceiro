@@ -87,7 +87,6 @@
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | — | ⏳ |
-| [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | — | ⏳ |
 | [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | — | ⏳ |
 | [**F131**](#f131) | Catálogo de padrões de vela | — | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | — | ⏳ |
@@ -109,7 +108,7 @@
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | ✅ |
 | [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ✅ |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ✅ |
+| [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | — | ✅ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
 | [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ✅ |
@@ -159,7 +159,6 @@
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F90**](#f90) | Cenários | — | 0 | 🔍 |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
-| [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | M17 | 0 | ⏳ |
 | [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
@@ -282,20 +281,20 @@
 >
 > **Serve:** N34
 >
-> **Progresso:** 2/6 concluídas
+> **Progresso:** 3/6 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | [F107](#f107) | ⏳ |
 | [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | [F107](#f107) | ⏳ |
 | [**F151**](#f151) | Segundo turno com disputa | [F130](#f130), [F152](#f152) | ⏳ |
 | [**F152**](#f152) | Promessas de campanha cobradas no mandato | [F107](#f107) | ⏳ |
 
-<details><summary>Concluído (2 itens)</summary>
+<details><summary>Concluído (3 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | ✅ |
+| [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | [F107](#f107) | ✅ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ✅ |
 
 </details>
@@ -395,7 +394,7 @@
 | **F162** | Sinal de partida pausada e destaque da velocidade máxima | N15 | — | M16 | — | Baixo | Baixo | Alto | Excelente | ✅ Concluído |
 | **F163** | Painel da economia: SELIC e IPCA ao longo da partida | N34 | — | M17 | — | Baixo | Baixo | Médio | Bom | ✅ Concluído |
 | **F107** | Grupos de eleitores, com apoio e rejeição por partido | N34 | D19 | M17 | — | Alto | Alto | Alto | Bom | ✅ Concluído |
-| **F129** | Aprovação do governo pelos grupos de eleitores | N34 | D19 | M17 | [F107](#f107) | Médio | Médio | Alto | Bom | ⏳ Pendente |
+| **F129** | Aprovação do governo pelos grupos de eleitores | N34 | D19 | M17 | [F107](#f107) | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F130** | Ações de campanha: a eleição deixa de ser só dinheiro | N34 | D19 | M17 | [F107](#f107) | Alto | Médio | Alto | Bom | ⏳ Pendente |
 | **F152** | Promessas de campanha cobradas no mandato | N34 | D19 | M17 | [F107](#f107) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F151** | Segundo turno com disputa | N34 | D19 | M17 | [F130](#f130), [F152](#f152) | Médio | Médio | Alto | Bom | ⏳ Pendente |
