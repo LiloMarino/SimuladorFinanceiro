@@ -86,7 +86,6 @@
 | [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | ⏳ |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
-| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | — | ⏳ |
 | [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | — | ⏳ |
@@ -112,7 +111,7 @@
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (21 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | — | ✅ |
 | **D18** | Uma migration por versão; caminho antigo só cai numa major | — | ✅ |
 | **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154) | ✅ |
+| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ✅ |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ✅ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
 | [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
@@ -156,7 +156,6 @@
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
 | [**F90**](#f90) | Cenários | — | 0 | 🔍 |
-| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | 0 | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 0 | 🔍 |
 | [**F131**](#f131) | Catálogo de padrões de vela | M11 | 0 | 🔍 |
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
@@ -326,7 +325,7 @@
 
 ### Sem marco
 
-> **Progresso:** 2/19 concluídas
+> **Progresso:** 3/19 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -341,17 +340,17 @@
 | [**F97**](#f97) | SELIC nas mãos do governo | [F106](#f106), [F128](#f128) | 🔍 |
 | [**F110**](#f110) | Combinar estratégias | — | 💤 |
 | [**F111**](#f111) | Crédito para estratégias e bots | — | 💤 |
-| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ⏳ |
 | [**F123**](#f123) | Redesenhar o aviso de conquista desbloqueada | — | 🔍 |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
 | [**F159**](#f159) | Conquista "Ordem com paciência" | [F44](#f44) | ⏳ |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | [F107](#f107) | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | [F128](#f128) | 🔍 |
 
-<details><summary>Concluído (2 itens)</summary>
+<details><summary>Concluído (3 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
+| [**F120**](#f120) | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | — | ✅ |
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ✅ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
 
@@ -382,7 +381,7 @@
 | **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F159** | Conquista "Ordem com paciência" | N22 | D1 | — | [F44](#f44) | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F160** | Imprevistos no fim da partida de independência | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ✅ Concluído |
-| **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | N15 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
+| **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | N15 | — | — | — | Médio | Baixo | Médio | Bom | ✅ Concluído |
 | **F162** | Sinal de partida pausada e destaque da velocidade máxima | N15 | — | M16 | — | Baixo | Baixo | Alto | Excelente | ✅ Concluído |
 | **F163** | Painel da economia: SELIC e IPCA ao longo da partida | N34 | — | M17 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F107** | Grupos de eleitores, com apoio e rejeição por partido | N34 | D19 | M17 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
@@ -467,7 +466,7 @@
 **F160 — Imprevistos no fim da partida de independência.** Serve N15. O fim da partida no modo viver de renda ficou sem a frase "passou por N imprevistos", porque o relatório da partida não tinha esse número. Implementado: o backend conta os imprevistos de cada jogador a partir dos eventos de caixa da partida (a demissão tem categoria própria no histórico e fica fora da conta) e manda o total no campo `unexpected_count` de cada jogador do relatório de visão geral; `pnpm openapi` regenerou o tipo. O topo do fim de partida (`match-result/match-hero.tsx`) mostra "Você passou por N imprevistos" na partida de viver de renda com imprevistos ligados (quem só assiste vê a frase do líder). Teste: a contagem por jogador sobre eventos gravados no banco e o campo no ranking.
 
 <a id="f120"></a>
-**F120 — Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira.** Serve N15. O que incomodava: o tooltip do donut (`allocation-donut.tsx`, um `Tooltip` do Recharts com estilo avulso), o estilo do gráfico de evolução (`networth-chart.tsx`: áreas empilhadas por classe, linha tracejada do aportado, rótulos de fim à direita) e os gráficos parecidos em outros lugares (a área de composição das Estatísticas e a linha de desempenho). O desenho dos dois cards, do estado vazio e do estado com poucos pontos já foi iterado e decidido no canvas, na rodada desta feature. Plano: implementar os boards aprovados, lidos pela skill `design-canvas` (modo de implementar uma feature com design aprovado), nos dois cards da Carteira; os gráficos parecidos seguem o mesmo visual na migração da F72 (convenção de pasta e `ChartContainer`), que fica fora desta feature. Se algum board ainda tiver comentário aberto ou variante sem escolha, o ponto vai para o usuário antes do código.
+**F120 — Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira.** Serve N15. A Carteira mostra a evolução do patrimônio e a distribuição em dois cards empilhados, pelo design aprovado no canvas. O gráfico traz o patrimônio de hoje e o ganho sobre o aportado no cabeçalho, o período (6M, 1A e Tudo, os períodos maiores que a partida ficam desligados) e dois modos: Ganho, com o aportado em cinza e verde ou vermelho entre as duas linhas, a dívida em faixa abaixo do zero e a meta da corrida; e Por classe, um painel por classe com a própria escala. O tooltip abre do lado que tem espaço e traz o patrimônio por classe, a dívida, o aportado e o ganho; o vazio, o carregando e o erro do histórico têm cada um o seu estado. A distribuição é um anel por classe com o caixa em cinza, a lista das classes, a dívida e o patrimônio no rodapé e os 8 maiores ativos de qualquer classe mais "Outros"; a fatia e a linha da classe se acendem juntas. Os gráficos parecidos (composição das Estatísticas e linha de desempenho) seguem o mesmo visual na migração da F72.
 
 <a id="f162"></a>
 **F162 — Sinal de partida pausada e destaque da velocidade máxima.** Serve N15. A eleição e o impeachment pausam a partida para todos, e a única pista era o botão da barra da partida trocar de pausa para play. Implementado: (1) **Motivo da pausa:** o estado da simulação guarda o motivo (pausado pelo host, campanha aberta, resultado do 1º turno, resultado do 2º turno, impeachment), preenchido por quem pausa; o calendário do governo devolve o motivo em vez de um sim/não, e ele chega ao front junto da velocidade (rota de estado e evento de velocidade). (2) **Partida pausada:** a área da data ganha um selo âmbar "Pausado" com o motivo ("Pausado: resultado do 1º turno") e pulsação lenta (desligada para quem pede menos movimento), e o título da aba do navegador ganha "⏸" na frente. (3) **Velocidade máxima:** o segmento do x100 ganha ícone de raio e o tom azul das informações, e a data ganha fundo azul suave enquanto ele está ligado. Os tons saem dos tokens do tema, com variante nova no selo (tamanho de estado e pulsação) e no controle segmentado (nível máximo). Os estados entraram no canvas.
