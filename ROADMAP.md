@@ -106,7 +106,6 @@
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
 | [**F159**](#f159) | Conquista "Ordem com paciência" | — | ⏳ |
-| [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ⏳ |
 | [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ⏳ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ⏳ |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 🔍 |
@@ -114,7 +113,7 @@
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (20 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -136,6 +135,7 @@
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | — | ✅ |
 | **D18** | Uma migration por versão; caminho antigo só cai numa major | — | ✅ |
 | **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154) | ✅ |
+| [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
 | [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
 
 </details>
@@ -165,7 +165,6 @@
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
-| [**F160**](#f160) | Imprevistos no fim da partida de independência | — | 0 | ⏳ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | M17 | 0 | ⏳ |
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | M15 | 0 | ⏳ |
 
@@ -328,7 +327,7 @@
 
 ### Sem marco
 
-> **Progresso:** 0/19 concluídas
+> **Progresso:** 1/19 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
@@ -348,9 +347,16 @@
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
 | [**F159**](#f159) | Conquista "Ordem com paciência" | [F44](#f44) | ⏳ |
-| [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ⏳ |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | [F107](#f107) | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | [F128](#f128) | 🔍 |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
+
+</details>
 
 ---
 
@@ -376,7 +382,7 @@
 | **F140** | Docs reorganizada por tipo de leitor | N25 | — | M14 | [F44](#f44) | Alto | Baixo | Alto | Bom | ⏳ Pendente |
 | **F141** | README com as features de hoje | N25 | — | M14 | [F139](#f139) | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
 | **F159** | Conquista "Ordem com paciência" | N22 | D1 | — | [F44](#f44) | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
-| **F160** | Imprevistos no fim da partida de independência | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
+| **F160** | Imprevistos no fim da partida de independência | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ✅ Concluído |
 | **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | N15 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
 | **F162** | Sinal de partida pausada e destaque da velocidade máxima | N15 | — | M16 | — | Baixo | Baixo | Alto | Excelente | ✅ Concluído |
 | **F163** | Painel da economia: SELIC e IPCA ao longo da partida | N34 | — | M17 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
@@ -459,7 +465,7 @@
 **F159 — Conquista "Ordem com paciência".** Serve N22; segue a D1. A 9ª conquista da leva de novas conquistas ficou de fora porque o evento de ordem de ações (`event_equity`) não guarda o tipo da ordem que gerou a execução. Plano: coluna `order_type` em `event_equity` (mercado ou limitada), por migration, com as linhas antigas como mercado; o `Broker` grava o tipo na execução; uma `@metric` em `metrics.py` conta as execuções de ordem limitada do jogador, e a conquista entra no `catalog.py`. Vale qualquer ordem limitada executada, inclusive a que executa na hora porque o preço já estava bom. Fica para a rodada de conquistas feita com o usuário depois da Gestoras, junto com a docs, quando dá para ver todas as features que pedem conquista.
 
 <a id="f160"></a>
-**F160 — Imprevistos no fim da partida de independência.** Serve N15. O fim da partida no modo viver de renda ficou sem a frase "passou por N imprevistos", porque o relatório da partida não tem esse número. Plano: o backend conta os imprevistos de cada jogador a partir dos eventos da partida e manda o total num campo novo do relatório de visão geral; `pnpm openapi` regenera o tipo, e `match-result/match-hero.tsx` mostra a frase quando o tipo de partida é o viver de renda. Teste: a contagem bate com os imprevistos sorteados numa partida curta.
+**F160 — Imprevistos no fim da partida de independência.** Serve N15. O fim da partida no modo viver de renda ficou sem a frase "passou por N imprevistos", porque o relatório da partida não tinha esse número. Implementado: o backend conta os imprevistos de cada jogador a partir dos eventos de caixa da partida (a demissão tem categoria própria no histórico e fica fora da conta) e manda o total no campo `unexpected_count` de cada jogador do relatório de visão geral; `pnpm openapi` regenerou o tipo. O topo do fim de partida (`match-result/match-hero.tsx`) mostra "Você passou por N imprevistos" na partida de viver de renda com imprevistos ligados (quem só assiste vê a frase do líder). Teste: a contagem por jogador sobre eventos gravados no banco e o campo no ranking.
 
 <a id="f120"></a>
 **F120 — Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira.** Serve N15. O que incomodava: o tooltip do donut (`allocation-donut.tsx`, um `Tooltip` do Recharts com estilo avulso), o estilo do gráfico de evolução (`networth-chart.tsx`: áreas empilhadas por classe, linha tracejada do aportado, rótulos de fim à direita) e os gráficos parecidos em outros lugares (a área de composição das Estatísticas e a linha de desempenho). O desenho dos dois cards, do estado vazio e do estado com poucos pontos já foi iterado e decidido no canvas, na rodada desta feature. Plano: implementar os boards aprovados, lidos pela skill `design-canvas` (modo de implementar uma feature com design aprovado), nos dois cards da Carteira; os gráficos parecidos seguem o mesmo visual na migração da F72 (convenção de pasta e `ChartContainer`), que fica fora desta feature. Se algum board ainda tiver comentário aberto ou variante sem escolha, o ponto vai para o usuário antes do código.
