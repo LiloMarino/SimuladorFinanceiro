@@ -3,8 +3,6 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ErrorState } from "@/shared/components/error-state";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
-import { useGoalSteps } from "@/shared/hooks/queries/useGoalSteps";
-import { usePatrimonialHistory } from "@/shared/hooks/queries/usePatrimonialHistory";
 import { AllocationDonut } from "../components/allocation-donut";
 import { IncomeTaxCard } from "../components/income-tax-card";
 import { NetworthChart } from "../components/networth-chart";
@@ -15,17 +13,13 @@ import { SectorAllocationCard } from "../components/sector-allocation-card";
 export default function PortfolioPage() {
   usePageLabel("Carteira");
   const { data: portfolio, isLoading, error, refetch } = usePortfolio();
-  const { data: history } = usePatrimonialHistory();
-  const goalSteps = useGoalSteps();
 
   if (isLoading) {
     return (
       <div className="grid gap-5">
         <Skeleton className="h-36" />
-        <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
-          <Skeleton className="h-80" />
-          <Skeleton className="h-80" />
-        </div>
+        <Skeleton className="h-96" />
+        <Skeleton className="h-64" />
       </div>
     );
   }
@@ -49,10 +43,8 @@ export default function PortfolioPage() {
     <>
       <PortfolioSummary portfolio={portfolio} />
 
-      <div className="grid items-start gap-5 lg:grid-cols-[1.3fr_1fr]">
-        <NetworthChart history={history ?? []} goalSteps={goalSteps} />
-        <AllocationDonut portfolio={portfolio} />
-      </div>
+      <NetworthChart portfolio={portfolio} />
+      <AllocationDonut portfolio={portfolio} />
 
       <div className="grid items-start gap-5 lg:grid-cols-[1.6fr_1fr]">
         <SectorAllocationCard portfolio={portfolio} />
