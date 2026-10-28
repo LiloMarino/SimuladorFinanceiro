@@ -40,9 +40,9 @@ export function AppFoldersCard() {
         <CardDescription>Os arquivos que você edita à mão, no computador que roda o servidor.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {FOLDERS.map(({ target, label, description }) => (
-            <div key={target} className="grid gap-1.5">
+            <div key={target} className="grid grid-cols-1 gap-1.5">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-xs text-muted-foreground">{description}</span>
                 <Button variant="outline" size="sm" onClick={() => open.mutate(target)} disabled={open.isPending}>

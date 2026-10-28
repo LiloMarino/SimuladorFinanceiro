@@ -102,7 +102,7 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
         <div className="grid gap-4">
           <div className="flex flex-wrap items-center gap-4">
             <ExpansionEmblem expansion="government" size="lg" />
-            <div className="grid min-w-0 flex-1 gap-1">
+            <div className="grid min-w-64 flex-1 gap-1">
               <div className="flex flex-wrap items-center gap-2.5">
                 <b className="text-xl">Eleição de {monthYear(dates.first_round)}</b>
                 <Badge variant="secondary">{phaseLabel(phase)}</Badge>

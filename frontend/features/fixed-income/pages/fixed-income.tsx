@@ -284,7 +284,7 @@ export default function FixedIncomePage() {
         <Card variant="success">
           <CardContent>
             <div className="flex flex-wrap items-center gap-5">
-              <div className="grid min-w-0 flex-1 gap-1">
+              <div className="grid min-w-64 flex-1 gap-1">
                 <span className="flex flex-wrap items-center gap-2">
                   <DailyLiquidityBadge>Sempre disponível</DailyLiquidityBadge>
                   <b className="text-[15px] font-semibold">{permanentCdb.name}</b>
