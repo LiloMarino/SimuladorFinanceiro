@@ -9,6 +9,7 @@ export async function revalidateSimulation(client: QueryClient) {
     queryKeys.fixedIncome(),
     queryKeys.portfolio(),
     queryKeys.economicIndicators(),
+    queryKeys.economyPanel(),
     queryKeys.myStrategy(),
   ];
   await Promise.all(keys.map((queryKey) => client.cancelQueries({ queryKey })));

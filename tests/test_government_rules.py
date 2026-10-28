@@ -17,6 +17,7 @@ from backend.core.enum import (
     MeasureKind,
     MeasureStatus,
 )
+from backend.core.indicators import inflation_target
 from backend.features.fixed_income.accrual import income_tax_rate
 from backend.features.government import approval as approval_rules
 from backend.features.government import congress
@@ -304,8 +305,8 @@ def test_each_government_counts_only_its_own_measures():
 
 
 def test_inflation_target_follows_the_official_year_and_falls_back_to_three():
-    assert approval_rules.inflation_target(date(2021, 6, 1)) == Decimal("0.0375")
-    assert approval_rules.inflation_target(date(2031, 6, 1)) == Decimal("0.03")
+    assert inflation_target(date(2021, 6, 1)) == Decimal("0.0375")
+    assert inflation_target(date(2031, 6, 1)) == Decimal("0.03")
 
 
 # Calendário do Congresso

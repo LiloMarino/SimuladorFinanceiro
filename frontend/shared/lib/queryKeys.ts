@@ -30,6 +30,7 @@ export const queryKeys = {
   backtestResult: (simulationId: number) => ["backtest", "result", simulationId] as const,
   botTickers: () => ["simulation", "bot-tickers"] as const,
   economicIndicators: () => ["economic-indicators"] as const,
+  economyPanel: () => ["economy-panel"] as const,
   fixedIncomeList: () => ["fixed-income", "list"] as const,
   fixedIncomeAsset: (id: string) => ["fixed-income", id] as const,
   fixedIncomeProjection: (id: string, amount: string, currentDate: string) =>

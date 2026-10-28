@@ -9,7 +9,11 @@ from datetime import date, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
 from backend.core.enum import ApprovalFactorKind, IndicatorSeries, MeasureStatus
-from backend.core.indicators import annual_index_rate, last_known_value
+from backend.core.indicators import (
+    annual_index_rate,
+    inflation_target,
+    last_known_value,
+)
 from backend.core.utils import required
 from backend.features.government import measures as rules
 from backend.features.government.state import Measure, Term
@@ -25,22 +29,6 @@ INFLATION_PENALTY = Decimal(3)
 STOCKS_STEP = Decimal("0.05")
 STOCKS_LIMIT = 6
 
-# Meta de inflação do CMN em cada ano; fora da tabela vale a última
-INFLATION_TARGETS: dict[int, Decimal] = {
-    2000: Decimal("6.0"),
-    2001: Decimal("4.0"),
-    2002: Decimal("3.5"),
-    2003: Decimal("4.0"),
-    2004: Decimal("5.5"),
-    **dict.fromkeys(range(2005, 2019), Decimal("4.5")),
-    2019: Decimal("4.25"),
-    2020: Decimal("4.0"),
-    2021: Decimal("3.75"),
-    2022: Decimal("3.5"),
-    2023: Decimal("3.25"),
-    2024: Decimal("3.0"),
-}
-DEFAULT_TARGET = Decimal("3.0")
 MINUS = "\u2212"
 
 
@@ -69,12 +57,6 @@ class Approval:
     factors: list[Factor]
     # Medidas aprovadas que ainda vão pesar quando valerem
     upcoming: list[Measure]
-
-
-def inflation_target(day: date) -> Decimal:
-    if day.year in INFLATION_TARGETS:
-        return INFLATION_TARGETS[day.year] / 100
-    return DEFAULT_TARGET / 100
 
 
 def market_on(day: date) -> Market:

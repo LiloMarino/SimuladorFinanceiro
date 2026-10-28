@@ -20,6 +20,7 @@ from backend.core.dto.credit import (
     PrepaymentPreviewDTO,
 )
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
+from backend.core.dto.economy import EconomyPanelDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, FixedIncomeOfferDTO
 from backend.core.dto.fixed_income_projection import (
     FixedIncomeQuoteDTO,
@@ -83,6 +84,7 @@ from backend.features.credit.overview import (
     build_prepayment_preview,
 )
 from backend.features.credit.overview import build_quote as build_loan_quote
+from backend.features.economy.panel import build_economy_panel
 from backend.features.fixed_income.accrual import (
     income_tax_brackets,
     income_tax_rate,
@@ -1079,6 +1081,10 @@ class Simulation:
             selic=annual_index_rate(IndicatorSeries.SELIC, self._current_date),
             cdi=annual_index_rate(IndicatorSeries.CDI, self._current_date),
         )
+
+    @synchronized
+    def get_economy_panel(self) -> EconomyPanelDTO:
+        return build_economy_panel(self.settings.start_date, self._current_date)
 
     @synchronized
     def preview_order(

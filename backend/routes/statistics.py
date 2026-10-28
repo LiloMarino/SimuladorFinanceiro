@@ -8,6 +8,7 @@ from backend.core.dependencies import ActiveSimulation, ClientID
 from backend.core.dto.bot import BotReportDTO
 from backend.core.dto.candle_challenge import CandleChallengeRankingDTO
 from backend.core.dto.economic_indicators import EconomicIndicatorsDTO
+from backend.core.dto.economy import EconomyPanelDTO
 from backend.core.dto.statistics_report import (
     CompositionReportDTO,
     HighlightsDTO,
@@ -183,3 +184,13 @@ def get_economic_indicators(simulation: ActiveSimulation):
     """
     indicators = simulation.get_economic_indicators()
     return indicators
+
+
+@statistics_router.get(
+    "/economy",
+    response_model=EconomyPanelDTO,
+    summary="Obter o painel da economia",
+    description="A SELIC, o IPCA de 12 meses, o juro real e a meta de inflação, um ponto por mês desde o início da partida até hoje, e os dias em que o Copom mudou a SELIC.",
+)
+def get_economy(simulation: ActiveSimulation):
+    return simulation.get_economy_panel()

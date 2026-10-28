@@ -1232,6 +1232,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/economy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter o painel da economia
+         * @description A SELIC, o IPCA de 12 meses, o juro real e a meta de inflação, um ponto por mês desde o início da partida até hoje, e os dias em que o Copom mudou a SELIC.
+         */
+        get: operations["get_economy_api_economy_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/achievements": {
         parameters: {
             query?: never;
@@ -3394,6 +3414,21 @@ export interface components {
             /** Contribution */
             contribution: number | string;
         };
+        /**
+         * CopomChangeDTO
+         * @description Dia em que a SELIC mudou de nível.
+         */
+        CopomChangeDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Change */
+            change: string;
+            /** Selic */
+            selic: string;
+        };
         /** CorrelationAssetDTO */
         CorrelationAssetDTO: {
             /** Ticker */
@@ -3754,6 +3789,34 @@ export interface components {
             selic: string;
             /** Cdi */
             cdi: string;
+        };
+        /** EconomyPanelDTO */
+        EconomyPanelDTO: {
+            /** Points */
+            points: components["schemas"]["EconomyPointDTO"][];
+            /** Copom Changes */
+            copom_changes: components["schemas"]["CopomChangeDTO"][];
+        };
+        /**
+         * EconomyPointDTO
+         * @description A economia num dia da partida; as taxas são frações (0.1425 = 14,25% ao ano).
+         */
+        EconomyPointDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Selic */
+            selic: string;
+            /** Ipca */
+            ipca: string;
+            /** Real Rate */
+            real_rate: string;
+            /** Target */
+            target: string;
+            /** Tolerance */
+            tolerance: string;
         };
         /** ElectionDatesDTO */
         ElectionDatesDTO: {
@@ -10998,6 +11061,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EconomicIndicatorsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_economy_api_economy_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EconomyPanelDTO"];
                 };
             };
             /** @description Unprocessable Content */

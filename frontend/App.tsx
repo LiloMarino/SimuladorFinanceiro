@@ -17,10 +17,12 @@ import {
   Landmark,
   Gavel,
   GraduationCap,
+  LineChart,
 } from "lucide-react";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
 import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
+import EconomyPage from "./features/economy/pages/economy";
 import ElectionPage from "./features/government/pages/election";
 import GovernmentPage from "./features/government/pages/government";
 import PortfolioPage from "./features/portfolio/pages/portfolio";
@@ -60,6 +62,7 @@ import { DebugTools } from "@/shared/components/debug-tools";
 const navItems: NavItem[] = [
   { key: "variable-income", label: "Renda variável", endpoint: "/variable-income", icon: TrendingUp, group: "Mercado" },
   { key: "fixed-income", label: "Renda fixa", endpoint: "/fixed-income", icon: Coins, group: "Mercado" },
+  { key: "economy", label: "Economia", endpoint: "/economy", icon: LineChart, group: "Mercado" },
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet, group: "Você" },
   { key: "goal", label: "Meta", endpoint: "/goal", icon: Flag, group: "Você", goalOnly: true },
   { key: "credit", label: "Crédito", endpoint: "/credit", icon: Banknote, group: "Você", creditAlert: true },
@@ -156,6 +159,7 @@ export default function App() {
                           <Route path="/goal" element={<GoalPage />} />
                           <Route path="/credit" element={<CreditPage />} />
                           <Route path="/statistics" element={<StatisticsPage />} />
+                          <Route path="/economy" element={<EconomyPage />} />
                           <Route path="/election" element={<ElectionPage />} />
                           <Route path="/government" element={<GovernmentPage />} />
                         </Route>

@@ -3573,6 +3573,48 @@
         }
       }
     },
+    "/api/economy": {
+      "get": {
+        "tags": [
+          "Statistics"
+        ],
+        "summary": "Obter o painel da economia",
+        "description": "A SELIC, o IPCA de 12 meses, o juro real e a meta de inflação, um ponto por mês desde o início da partida até hoje, e os dias em que o Copom mudou a SELIC.",
+        "operationId": "get_economy_api_economy_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EconomyPanelDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/achievements": {
       "get": {
         "tags": [
@@ -9731,6 +9773,32 @@
         ],
         "title": "ContributionRequest"
       },
+      "CopomChangeDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "change": {
+            "type": "string",
+            "title": "Change"
+          },
+          "selic": {
+            "type": "string",
+            "title": "Selic"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "change",
+          "selic"
+        ],
+        "title": "CopomChangeDTO",
+        "description": "Dia em que a SELIC mudou de nível."
+      },
       "CorrelationAssetDTO": {
         "properties": {
           "ticker": {
@@ -10706,6 +10774,72 @@
           "cdi"
         ],
         "title": "EconomicIndicatorsDTO"
+      },
+      "EconomyPanelDTO": {
+        "properties": {
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/EconomyPointDTO"
+            },
+            "type": "array",
+            "title": "Points"
+          },
+          "copom_changes": {
+            "items": {
+              "$ref": "#/components/schemas/CopomChangeDTO"
+            },
+            "type": "array",
+            "title": "Copom Changes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "points",
+          "copom_changes"
+        ],
+        "title": "EconomyPanelDTO"
+      },
+      "EconomyPointDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "selic": {
+            "type": "string",
+            "title": "Selic"
+          },
+          "ipca": {
+            "type": "string",
+            "title": "Ipca"
+          },
+          "real_rate": {
+            "type": "string",
+            "title": "Real Rate"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target"
+          },
+          "tolerance": {
+            "type": "string",
+            "title": "Tolerance"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "selic",
+          "ipca",
+          "real_rate",
+          "target",
+          "tolerance"
+        ],
+        "title": "EconomyPointDTO",
+        "description": "A economia num dia da partida; as taxas são frações (0.1425 = 14,25% ao ano)."
       },
       "ElectionDatesDTO": {
         "properties": {

@@ -26,6 +26,7 @@ export type RedeemFixedIncomeRequest = components["schemas"]["RedeemFixedIncomeR
 
 // Economic
 export type EconomicIndicators = components["schemas"]["EconomicIndicatorsDTO"];
+export type EconomyPanel = components["schemas"]["EconomyPanelDTO"];
 
 // Data center
 export type SeriesCoverage = components["schemas"]["SeriesCoverageDTO"];

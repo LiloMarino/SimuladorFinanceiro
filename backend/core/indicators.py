@@ -19,6 +19,34 @@ IPCA_WINDOW_MONTHS = 12
 # Indexadores que a renda fixa usa; a partida só nasce com os três cobertos
 RATE_SERIES = (IndicatorSeries.CDI, IndicatorSeries.SELIC, IndicatorSeries.IPCA)
 
+# Meta de inflação do CMN em cada ano; fora da tabela vale a última
+INFLATION_TARGETS: dict[int, Decimal] = {
+    2000: Decimal("6.0"),
+    2001: Decimal("4.0"),
+    2002: Decimal("3.5"),
+    2003: Decimal("4.0"),
+    2004: Decimal("5.5"),
+    **dict.fromkeys(range(2005, 2019), Decimal("4.5")),
+    2019: Decimal("4.25"),
+    2020: Decimal("4.0"),
+    2021: Decimal("3.75"),
+    2022: Decimal("3.5"),
+    2023: Decimal("3.25"),
+    2024: Decimal("3.0"),
+}
+DEFAULT_TARGET = Decimal("3.0")
+
+# Tolerância em pontos acima e abaixo da meta, em cada ano; fora da tabela vale a última
+INFLATION_TOLERANCES: dict[int, Decimal] = {
+    2000: Decimal("2.0"),
+    2001: Decimal("2.0"),
+    2002: Decimal("2.0"),
+    2003: Decimal("2.5"),
+    2004: Decimal("2.5"),
+    **dict.fromkeys(range(2005, 2017), Decimal("2.0")),
+}
+DEFAULT_TOLERANCE = Decimal("1.5")
+
 
 def index_value_on(series: IndicatorSeries, day: date) -> Decimal | None:
     """
@@ -61,6 +89,11 @@ def index_daily_rate(series: IndicatorSeries, day: date) -> Decimal | None:
     return None if value is None else daily_rate(series, value, day)
 
 
+def annualize_daily(value: Decimal) -> Decimal:
+    """Taxa anual (0.149) de uma taxa diária em % (0.0551), composta por 252 dias úteis."""
+    return (1 + value / 100) ** BUSINESS_DAYS_PER_YEAR - 1
+
+
 def annual_index_rate(series: IndicatorSeries, on: date) -> Decimal:
     """
     Taxa anual do indexador conhecida em `on` (0.149 = 14,9% a.a.).
@@ -78,7 +111,18 @@ def annual_index_rate(series: IndicatorSeries, on: date) -> Decimal:
     value = last_known_value(series, on)
     if value is None:
         return Decimal(0)
-    return (1 + value / 100) ** BUSINESS_DAYS_PER_YEAR - 1
+    return annualize_daily(value)
+
+
+def inflation_target(day: date) -> Decimal:
+    if day.year in INFLATION_TARGETS:
+        return INFLATION_TARGETS[day.year] / 100
+    return DEFAULT_TARGET / 100
+
+
+def inflation_tolerance(day: date) -> Decimal:
+    """Folga da meta do ano, em fração: 0.015 vale 1,5 ponto para cima e para baixo."""
+    return INFLATION_TOLERANCES.get(day.year, DEFAULT_TOLERANCE) / 100
 
 
 def ensure_indicator_coverage(start_date: date) -> None:
