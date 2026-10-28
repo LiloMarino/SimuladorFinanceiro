@@ -58,6 +58,7 @@ from backend.core.enum import (
     GameType,
     IndicatorSeries,
     OrderAction,
+    PauseReason,
     PlayerGrouping,
     PrepaymentMode,
 )
@@ -182,6 +183,8 @@ class Simulation:
         meta nem conquistas, e os snapshots saem do balanço do motor, gravados em lote.
         """
         self._speed = 0
+        # Quem parou a partida; vale enquanto a velocidade é 0
+        self._pause_reason = PauseReason.HOST
         self.backtest = backtest
         # Snapshots do backtest ainda não gravados, e o aporte acumulado de cada jogador
         self._pending_snapshots: list[SnapshotDTO] = []
@@ -705,10 +708,10 @@ class Simulation:
         elif month_changed:
             self._apply_monthly_contributions(users)
         self._settle_credit(users, month_changed)
-        if self._government is not None and self._government.on_tick(
-            users, self._current_date, month_changed
+        if self._government is not None and (
+            reason := self._government.on_tick(users, self._current_date, month_changed)
         ):
-            self._pause_for_result()
+            self._pause_for_result(reason)
         self._collect_income_tax(users)
         if self._life is not None:
             self._charge_overdraft(users)
@@ -992,12 +995,18 @@ class Simulation:
         return self._current_date.strftime("%d/%m/%Y")
 
     @synchronized
-    def set_speed(self, speed: int):
+    def set_speed(self, speed: int, reason: PauseReason = PauseReason.HOST):
         logger.info("Velocidade da simulação alterada para %sx", speed)
         self._speed = speed
+        if speed <= 0:
+            self._pause_reason = reason
 
     def get_speed(self) -> int:
         return self._speed
+
+    def get_pause_reason(self) -> PauseReason | None:
+        """O motivo da pausa; nulo com a partida em andamento."""
+        return self._pause_reason if self._speed <= 0 else None
 
     @synchronized
     def get_stocks(self) -> list[CandleDTO]:
@@ -1097,11 +1106,14 @@ class Simulation:
         # Remove os empréstimos em cache
         self._engine.credit_book.forget(client_id)
 
-    def _pause_for_result(self) -> None:
+    def _pause_for_result(self, reason: PauseReason) -> None:
         """O resultado de um turno pausa a partida para todos, com o dia já apurado."""
-        self.set_speed(0)
+        self.set_speed(0, reason)
         simulation_controller.pause()
-        notify("speed_update", SpeedUpdateEventDTO(speed=0).to_json())
+        notify(
+            "speed_update",
+            SpeedUpdateEventDTO(speed=0, pause_reason=reason).to_json(),
+        )
 
     def _has_month_changed(self) -> bool:
         current_month = (self._current_date.year, self._current_date.month)

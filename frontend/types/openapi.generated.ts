@@ -5591,6 +5591,12 @@ export interface components {
             /** Hits */
             hits: number;
         };
+        /**
+         * PauseReason
+         * @description Por que a partida está parada; o host pausa, e o calendário do governo também.
+         * @enum {string}
+         */
+        PauseReason: "HOST" | "CAMPAIGN_OPENED" | "FIRST_ROUND_RESULT" | "RUNOFF_RESULT" | "IMPEACHMENT";
         /** PeakDTO */
         PeakDTO: {
             /** Value */
@@ -7182,6 +7188,7 @@ export interface components {
             current_date: string;
             /** Speed */
             speed: number;
+            pause_reason: components["schemas"]["PauseReason"] | null;
             /** Cash */
             cash: string;
         };
@@ -7236,10 +7243,14 @@ export interface components {
         SnapshotUpdateEventDTO: {
             snapshot: components["schemas"]["PortfolioHistoryPointDTO"];
         };
-        /** SpeedUpdateEventDTO */
+        /**
+         * SpeedUpdateEventDTO
+         * @description Nova velocidade da partida; com ela parada (0), o motivo da pausa.
+         */
         SpeedUpdateEventDTO: {
             /** Speed */
             speed: number;
+            pause_reason: components["schemas"]["PauseReason"] | null;
         };
         /**
          * StatisticsNextUpdateDTO

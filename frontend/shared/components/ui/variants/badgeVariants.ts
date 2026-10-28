@@ -29,6 +29,13 @@ export const badgeVariants = cva(
         sm: "h-5 px-1.5",
         // Etiqueta de estado ao lado de um nome ("Nova", "Secreta")
         tag: "h-5 rounded-md px-[7px] text-[11px] font-semibold",
+        // Selo de estado da partida, na altura dos controles da topbar
+        status: "h-8 px-3 text-[13px]",
+      },
+      // Pulsação lenta, para o estado que o jogador não pode esquecer
+      pulse: {
+        true: "motion-safe:animate-pulse",
+        false: "",
       },
       // Valores e códigos: fonte mono com algarismos alinhados
       numeric: {
@@ -40,6 +47,7 @@ export const badgeVariants = cva(
       variant: "default",
       size: "default",
       numeric: false,
+      pulse: false,
     },
   },
 );

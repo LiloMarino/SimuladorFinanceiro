@@ -15847,6 +15847,18 @@
         ],
         "title": "PatternStatsDTO"
       },
+      "PauseReason": {
+        "type": "string",
+        "enum": [
+          "HOST",
+          "CAMPAIGN_OPENED",
+          "FIRST_ROUND_RESULT",
+          "RUNOFF_RESULT",
+          "IMPEACHMENT"
+        ],
+        "title": "PauseReason",
+        "description": "Por que a partida está parada; o host pausa, e o calendário do governo também."
+      },
       "PeakDTO": {
         "properties": {
           "value": {
@@ -20317,6 +20329,16 @@
             "type": "integer",
             "title": "Speed"
           },
+          "pause_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PauseReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "cash": {
             "type": "string",
             "title": "Cash"
@@ -20326,6 +20348,7 @@
         "required": [
           "current_date",
           "speed",
+          "pause_reason",
           "cash"
         ],
         "title": "SimulationStateResponse"
@@ -20463,14 +20486,26 @@
           "speed": {
             "type": "integer",
             "title": "Speed"
+          },
+          "pause_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PauseReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "speed"
+          "speed",
+          "pause_reason"
         ],
-        "title": "SpeedUpdateEventDTO"
+        "title": "SpeedUpdateEventDTO",
+        "description": "Nova velocidade da partida; com ela parada (0), o motivo da pausa."
       },
       "StatisticsNextUpdateDTO": {
         "properties": {

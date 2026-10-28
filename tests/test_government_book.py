@@ -20,6 +20,7 @@ from backend.core.enum import (
     GovernmentNoticeKind,
     MeasureKind,
     MeasureStatus,
+    PauseReason,
     VicePhase,
 )
 from backend.core.exceptions.http_exceptions import (
@@ -264,16 +265,16 @@ def test_no_collection_before_the_campaign_opens(
 def test_campaign_opening_is_announced_once_and_pauses_the_game(
     book: GovernmentBook, notices
 ):
-    assert book.on_tick(USERS, date(2020, 10, 5), False) is False
+    assert book.on_tick(USERS, date(2020, 10, 5), False) is None
     assert notices == []
 
-    assert book.on_tick(USERS, date(2020, 10, 7), False) is True
+    assert book.on_tick(USERS, date(2020, 10, 7), False) == PauseReason.CAMPAIGN_OPENED
     assert [notice["kind"] for notice in notices] == ["CAMPAIGN_OPENED"]
     # O aviso leva as datas que o diálogo conta: fecho das chapas e 1º turno
     assert notices[0]["ticket_deadline"] == "2021-09-30"
     assert notices[0]["first_round"] == "2021-10-07"
 
-    assert book.on_tick(USERS, date(2020, 10, 8), False) is False
+    assert book.on_tick(USERS, date(2020, 10, 8), False) is None
     assert len(notices) == 1
 
 
@@ -286,9 +287,11 @@ def test_campaign_opening_on_a_weekend_is_announced_on_the_next_tick(
     weekend = GovernmentBook(SimulationDTO(**rules), engine, lambda *_: None, SEED)
 
     weekend.on_tick(USERS, date(2020, 10, 1), False)
-    assert weekend.on_tick(USERS, date(2020, 10, 2), False) is False
+    assert weekend.on_tick(USERS, date(2020, 10, 2), False) is None
     assert notices == []
-    assert weekend.on_tick(USERS, date(2020, 10, 5), False) is True
+    assert (
+        weekend.on_tick(USERS, date(2020, 10, 5), False) == PauseReason.CAMPAIGN_OPENED
+    )
     assert [notice["kind"] for notice in notices] == ["CAMPAIGN_OPENED"]
 
 
@@ -299,7 +302,7 @@ def test_campaign_that_opens_with_the_game_is_announced_on_the_first_day(
     rules.update(first_election=date(2020, 6, 1))
     early = GovernmentBook(SimulationDTO(**rules), engine, lambda *_: None, SEED)
 
-    assert early.on_tick(USERS, date(2020, 1, 1), False) is True
+    assert early.on_tick(USERS, date(2020, 1, 1), False) == PauseReason.CAMPAIGN_OPENED
     assert [notice["kind"] for notice in notices] == ["CAMPAIGN_OPENED"]
 
 
@@ -310,7 +313,7 @@ def test_resumed_game_does_not_repeat_the_campaign_opening(
     rules.update(first_election=date(2020, 6, 1))
     resumed = GovernmentBook(SimulationDTO(**rules), engine, lambda *_: None, SEED)
 
-    assert resumed.on_tick(USERS, date(2020, 2, 3), False) is False
+    assert resumed.on_tick(USERS, date(2020, 2, 3), False) is None
     assert notices == []
 
 
@@ -321,7 +324,7 @@ def test_reminders_come_before_the_tickets_close_and_on_the_eve_of_the_vote(
     assert notices == []
 
     # Sem pausa: os lembretes são só toast
-    assert book.on_tick(USERS, date(2021, 9, 23), False) is False
+    assert book.on_tick(USERS, date(2021, 9, 23), False) is None
     assert [n["kind"] for n in notices] == ["TICKETS_CLOSING"]
     assert notices[0]["ticket_deadline"] == "2021-09-30"
 
@@ -329,7 +332,7 @@ def test_reminders_come_before_the_tickets_close_and_on_the_eve_of_the_vote(
     assert len(notices) == 1
 
     book.on_tick(USERS, date(2021, 10, 5), False)
-    assert book.on_tick(USERS, date(2021, 10, 6), False) is False
+    assert book.on_tick(USERS, date(2021, 10, 6), False) is None
     kinds = [n["kind"] for n in notices]
     assert kinds == ["TICKETS_CLOSING", "UPDATED", "ELECTION_EVE"]
     assert notices[-1]["first_round"] == "2021-10-07"
@@ -406,18 +409,18 @@ def test_two_rounds_end_with_the_term_starting_in_january(
     found(book, BOB, "BBB", BLUE, "2000")
     run_campaign(book)
 
-    assert book.on_tick(USERS, FIRST_ROUND, False) is True
+    assert book.on_tick(USERS, FIRST_ROUND, False) == PauseReason.FIRST_ROUND_RESULT
     alice_party = party_of(book, ALICE)
     # Nenhum passou de 50% dos válidos: vão ao 2º turno a Alice e o computador mais votado
     assert alice_party.id in (book.state.runoff or [])
     assert party_of(book, BOB).id not in (book.state.runoff or [])
     assert book.state.pending_term is None
 
-    assert book.on_tick(USERS, RUNOFF, False) is True
+    assert book.on_tick(USERS, RUNOFF, False) == PauseReason.RUNOFF_RESULT
     assert book.state.pending_term is not None
     assert book.state.cycle == 1
 
-    assert book.on_tick(USERS, TERM_START, False) is False
+    assert book.on_tick(USERS, TERM_START, False) is None
     assert book.state.term is not None
     assert book.state.term.consecutive == 1
     posse = notices[-1]
@@ -905,13 +908,13 @@ def test_three_months_below_the_floor_remove_the_president_and_the_vice_takes_ov
     book.on_tick(USERS, FIRST_VOTE, False)
     market(BAD_MARKET)
 
-    assert book.on_tick(USERS, date(2022, 2, 28), False) is False
-    assert book.on_tick(USERS, date(2022, 3, 31), False) is False
+    assert book.on_tick(USERS, date(2022, 2, 28), False) is None
+    assert book.on_tick(USERS, date(2022, 3, 31), False) is None
     propose(book, "0.25")
     assert GovernmentNoticeKind.IMPEACHMENT_WARNING.value in [
         n["kind"] for n in notices
     ]
-    assert book.on_tick(USERS, date(2022, 4, 29), False) is True
+    assert book.on_tick(USERS, date(2022, 4, 29), False) == PauseReason.IMPEACHMENT
 
     term = book.state.term
     assert term is not None

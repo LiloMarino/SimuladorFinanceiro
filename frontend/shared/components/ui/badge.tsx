@@ -9,6 +9,7 @@ function Badge({
   variant = "default",
   size = "default",
   numeric = false,
+  pulse = false,
   render,
   ...props
 }: useRender.ComponentProps<"span"> & VariantProps<typeof badgeVariants>) {
@@ -16,7 +17,7 @@ function Badge({
     defaultTagName: "span",
     props: mergeProps<"span">(
       {
-        className: cn(badgeVariants({ variant, size, numeric }), className),
+        className: cn(badgeVariants({ variant, size, numeric, pulse }), className),
       },
       props,
     ),

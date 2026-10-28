@@ -485,6 +485,16 @@ class VicePhase(Enum):
     ACCEPTED = "ACCEPTED"
 
 
+class PauseReason(Enum):
+    """Por que a partida está parada; o host pausa, e o calendário do governo também."""
+
+    HOST = "HOST"
+    CAMPAIGN_OPENED = "CAMPAIGN_OPENED"
+    FIRST_ROUND_RESULT = "FIRST_ROUND_RESULT"
+    RUNOFF_RESULT = "RUNOFF_RESULT"
+    IMPEACHMENT = "IMPEACHMENT"
+
+
 class GovernmentNoticeKind(Enum):
     """O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."""
 

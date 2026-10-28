@@ -25,6 +25,7 @@ from backend.core.enum import (
     GovernmentNoticeKind,
     MeasureKind,
     MeasureStatus,
+    PauseReason,
 )
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
@@ -147,11 +148,13 @@ class GovernmentBook:
             self._settings.start_date,
         )
 
-    def on_tick(self, users: list[UserDTO], today: date, month_changed: bool) -> bool:
+    def on_tick(
+        self, users: list[UserDTO], today: date, month_changed: bool
+    ) -> PauseReason | None:
         """
         Roda o calendário do dia: posse, contribuição do mês, fechamento do mês do governo
-        e apuração. Devolve se o dia trouxe a abertura da campanha, um resultado de turno ou
-        um impeachment, que pausam a partida para todos.
+        e apuração. Devolve o motivo da pausa quando o dia trouxe a abertura da campanha,
+        um resultado de turno ou um impeachment, que pausam a partida para todos.
         """
         people = {user.id: user for user in users}
         self._people = people
@@ -171,16 +174,16 @@ class GovernmentBook:
             self._collect(people, today)
 
         if self._close_month(today):
-            return True
+            return PauseReason.IMPEACHMENT
 
         if self.state.runoff is not None:
             if today >= cycle.runoff:
                 self._hold_runoff(cycle, today)
-                return True
+                return PauseReason.RUNOFF_RESULT
         elif today >= cycle.first_round:
             self._hold_first_round(cycle, today)
-            return True
-        return campaign_opened
+            return PauseReason.FIRST_ROUND_RESULT
+        return PauseReason.CAMPAIGN_OPENED if campaign_opened else None
 
     def _announce_calendar(
         self, cycle: ElectionCycle, previous: date | None, today: date

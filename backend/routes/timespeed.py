@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from backend.core.dependencies import ActiveSimulation, ClientID
+from backend.core.enum import PauseReason
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import SpeedUpdateEventDTO
 from backend.features.simulation.simulation_loop import simulation_controller
@@ -23,6 +24,7 @@ class SetSpeedResponse(BaseModel):
 class SimulationStateResponse(BaseModel):
     current_date: date
     speed: int
+    pause_reason: PauseReason | None
     cash: Decimal
 
 
@@ -46,7 +48,12 @@ def set_speed(simulation: ActiveSimulation, payload: SetSpeedRequest):
             simulation_controller.unpause()
 
         # Só confirma a pausa depois de terminar o dia em andamento.
-        notify("speed_update", SpeedUpdateEventDTO(speed=speed).to_json())
+        notify(
+            "speed_update",
+            SpeedUpdateEventDTO(
+                speed=speed, pause_reason=simulation.get_pause_reason()
+            ).to_json(),
+        )
     return SetSpeedResponse(speed=speed)
 
 
@@ -63,9 +70,11 @@ def get_simulation_state(client_id: ClientID, simulation: ActiveSimulation):
     with simulation.lock:
         current_date = simulation.get_current_date()
         speed = simulation.get_speed()
+        pause_reason = simulation.get_pause_reason()
         cash = simulation.get_cash(client_id)
     return SimulationStateResponse(
         current_date=current_date,
         speed=speed,
+        pause_reason=pause_reason,
         cash=cash,
     )

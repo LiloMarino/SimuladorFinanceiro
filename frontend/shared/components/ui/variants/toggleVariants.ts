@@ -12,7 +12,7 @@ export const toggleVariants = cva(
         // Troca de modo da página (manual | automático): itens altos, em destaque
         mode: "rounded-[9px] text-[15px] font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-sm",
       },
-      // Cor do item: lado de compra (success), de venda (destructive), de resgate (dark) ou de futuro (future)
+      // Cor do item: lado de compra (success), de venda (destructive), de resgate (dark), de futuro (future) ou de nível máximo (max)
       tone: {
         neutral: "",
         success:
@@ -20,6 +20,8 @@ export const toggleVariants = cva(
         destructive:
           "aria-pressed:bg-destructive aria-pressed:text-destructive-foreground aria-pressed:hover:text-destructive-foreground",
         dark: "aria-pressed:bg-foreground aria-pressed:text-primary-foreground aria-pressed:hover:text-primary-foreground",
+        // Nível máximo de uma escala (a velocidade máxima da partida)
+        max: "text-info hover:text-info aria-pressed:bg-info aria-pressed:text-info-foreground aria-pressed:hover:text-info-foreground",
         // Atalho que olha para a frente, no futuro gerado
         future: "text-future-foreground hover:text-future-foreground aria-pressed:text-future-foreground",
       },

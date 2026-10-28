@@ -37,6 +37,7 @@ from backend.core.enum import (
     CreditGrade,
     GovernmentNoticeKind,
     OrderAction,
+    PauseReason,
     PlayerActivity,
 )
 
@@ -46,7 +47,10 @@ class CashUpdateEventDTO(BaseDTO):
 
 
 class SpeedUpdateEventDTO(BaseDTO):
+    """Nova velocidade da partida; com ela parada (0), o motivo da pausa."""
+
     speed: int
+    pause_reason: PauseReason | None
 
 
 class SimulationTickUpdateEventDTO(BaseDTO):

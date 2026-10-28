@@ -18,6 +18,7 @@ from sqlalchemy import Engine
 from backend.core import repository
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
+from backend.core.enum import PauseReason
 from backend.core.player_colors import PLAYER_COLORS
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
@@ -220,3 +221,22 @@ def test_resting_order_executed_by_new_day_uses_that_days_date(paused_match):
     trades = client.get("/api/variable-income/BANK_A/trades").json()
     assert len(trades) == 1
     assert trades[0]["event_date"] == "2003-04-01"
+
+
+def test_state_reports_why_the_match_is_paused(paused_match):
+    sim, users, client = paused_match
+    client.cookies.set("client_id", str(users[0].client_id))
+
+    assert client.get("/api/get-simulation-state").json()["pause_reason"] == "HOST"
+
+    client.post("/api/set-speed", json={"speed": 4})
+    assert client.get("/api/get-simulation-state").json()["pause_reason"] is None
+
+    sim.set_speed(0, PauseReason.FIRST_ROUND_RESULT)
+    state = client.get("/api/get-simulation-state").json()
+    assert (state["speed"], state["pause_reason"]) == (0, "FIRST_ROUND_RESULT")
+
+    # O host que pausa de novo assume o motivo da pausa
+    client.post("/api/set-speed", json={"speed": 1})
+    client.post("/api/set-speed", json={"speed": 0})
+    assert client.get("/api/get-simulation-state").json()["pause_reason"] == "HOST"

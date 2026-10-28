@@ -27,6 +27,7 @@ export function useSetSimulationSpeed() {
       queryClient.setQueryData(queryKeys.simulationState(), (prev: SimulationState | undefined) => ({
         ...prev,
         speed,
+        pause_reason: speed <= 0 ? "HOST" : null,
       }));
       return { previous };
     },
