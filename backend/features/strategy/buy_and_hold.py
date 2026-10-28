@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from decimal import Decimal
-
 import pandas as pd
 
 from backend.core.dto.strategy import SignalLineDTO, SignalPointDTO, StrategyParamValue
@@ -27,8 +25,9 @@ DEFAULT_ASSET = "BOVA11"
 
 class BuyAndHold(BaseStrategy):
     """
-    Referência de renda variável: todo o caixa vira cotas inteiras de um único ativo,
-    que nunca é vendido. O que sobra do arredondamento fica no caixa até o dia seguinte.
+    Referência de renda variável: todo o caixa vira cotas de um único ativo, que nunca é
+    vendido: inteiras, ou em fração (até oito casas) na cripto. O que sobra do
+    arredondamento fica no caixa até o dia seguinte.
     """
 
     key = "buy_and_hold"
@@ -64,7 +63,7 @@ class BuyAndHold(BaseStrategy):
         if quote is None:
             return
 
-        quantity = int(ctx.cash // Decimal(str(quote.close)))
+        quantity = ctx.affordable(ticker, ctx.cash)
         if quantity > 0:
             ctx.buy(ticker, quantity, f"Pôs o caixa parado em {ticker}")
 

@@ -571,6 +571,7 @@ class StrategyRunner:
                 candle.volume,
                 segment.sector if segment else None,
                 segment.segment if segment else None,
+                engine.stocks[ticker].asset_class.fractional,
             )
         return _Market(
             quotes=quotes,

@@ -38,11 +38,7 @@ from backend.features.realtime import notify
 from backend.features.realtime.schemas import CashUpdateEventDTO
 from backend.features.statistics.sectors import effective_sectors
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, PolicyOn, TaxPolicy
-from backend.features.variable_income.broker import (
-    Broker,
-    affordable_quantity,
-    to_money,
-)
+from backend.features.variable_income.broker import Broker, to_money
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.order import MarketOrder
 from backend.features.variable_income.entities.position import Position
@@ -52,6 +48,7 @@ from backend.features.variable_income.income_tax import (
     darf_due_date,
 )
 from backend.features.variable_income.matching_engine import MatchingEngine
+from backend.features.variable_income.quantity import affordable_quantity
 
 
 class SimulationEngine:

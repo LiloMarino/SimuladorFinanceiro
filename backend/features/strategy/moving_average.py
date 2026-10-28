@@ -143,7 +143,7 @@ class MovingAverageCross(BaseStrategy):
             _, _, up, down = _crossings(_close(frame), short, long_)
             if up.iloc[-1]:
                 price = Decimal(str(quote.close))
-                quantity = int(cash * percent / 100 // price)
+                quantity = ctx.affordable(ticker, cash * percent / 100)
                 if quantity > 0:
                     ctx.buy(
                         ticker,

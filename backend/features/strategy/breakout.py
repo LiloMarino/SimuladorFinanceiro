@@ -148,7 +148,7 @@ class VolumeBreakout(BaseStrategy):
             holding = ctx.holdings.get(ticker)
             if broke_out.iloc[-1] and not holding:
                 price = Decimal(str(quote.close))
-                quantity = int(cash * percent / 100 // price)
+                quantity = ctx.affordable(ticker, cash * percent / 100)
                 if quantity > 0:
                     ctx.buy(
                         ticker,

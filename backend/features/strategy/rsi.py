@@ -160,7 +160,7 @@ class RelativeStrength(BaseStrategy):
             )
             if dipped.iloc[-1]:
                 price = Decimal(str(quote.close))
-                quantity = int(cash * percent / 100 // price)
+                quantity = ctx.affordable(ticker, cash * percent / 100)
                 if quantity > 0:
                     ctx.buy(ticker, quantity, f"O IFR caiu abaixo de {buy_below}")
                     cash -= price * quantity

@@ -12,6 +12,7 @@ from backend.core.dto.fixed_income_asset import FixedIncomeOfferDTO
 from backend.core.enum import OrderAction
 from backend.features.strategy import intents
 from backend.features.strategy.intents import Intent
+from backend.features.variable_income.quantity import affordable_quantity
 
 
 @dataclass(frozen=True)
@@ -22,6 +23,8 @@ class Quote:
     volume: int
     sector: str | None
     segment: str | None
+    # Só a cripto negocia fração de unidade
+    fractional: bool = False
 
 
 @dataclass(frozen=True)
@@ -87,6 +90,15 @@ class StrategyContext:
     def history(self, ticker: str, days: int) -> pd.DataFrame:
         """Os últimos `days` pregões do ativo até hoje (OHLCV), do mais antigo ao mais novo."""
         return self.history_source(ticker, days)
+
+    def affordable(self, ticker: str, money: Decimal) -> Decimal:
+        """O que o dinheiro paga do ativo ao preço de hoje: inteiro, ou até oito casas na cripto."""
+        quote = self.quotes.get(ticker)
+        if quote is None:
+            return Decimal(0)
+        return affordable_quantity(
+            money, Decimal(str(quote.close)), fractional=quote.fractional
+        )
 
     def buy(
         self,

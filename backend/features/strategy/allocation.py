@@ -13,7 +13,9 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from decimal import ROUND_DOWN, Decimal
+from decimal import Decimal
+
+from backend.features.variable_income.quantity import affordable_quantity
 
 ZERO = Decimal(0)
 
@@ -59,8 +61,8 @@ def distribute(items: Sequence[Item], amount: Decimal) -> list[Decimal]:
     ]
 
 
-def whole_shares(move: Decimal, price: Decimal) -> int:
-    """Cotas inteiras de uma movimentação em reais, arredondadas para mexer menos."""
+def whole_shares(move: Decimal, price: Decimal, *, fractional: bool = False) -> Decimal:
+    """Cotas de uma movimentação em reais, arredondadas para mexer menos: inteiras, ou até oito casas na cripto."""
     if price <= 0:
-        return 0
-    return int((abs(move) / price).to_integral_value(rounding=ROUND_DOWN))
+        return ZERO
+    return affordable_quantity(abs(move), price, fractional=fractional)

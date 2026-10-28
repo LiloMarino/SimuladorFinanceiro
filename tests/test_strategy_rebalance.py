@@ -9,6 +9,7 @@ import pytest
 
 from backend.core.dto.strategy import AllocationViewDTO
 from backend.core.enum import StrategyAction
+from backend.core.utils import required
 from backend.features.strategy.context import FixedHolding, Holding
 from backend.features.strategy.rebalance import TargetRebalance
 from tests.strategy_helpers import closes, context, offer
@@ -200,3 +201,31 @@ def test_validate_reports_the_field_that_is_out_of_range(params, field):
 
 def test_validate_accepts_the_defaults():
     assert TargetRebalance.validate(PARAMS, {"AAA"}) == {}
+
+
+def test_crypto_is_bought_and_sold_in_fractions():
+    # Meta 60% com R$ 10.000 a R$ 30.000 a unidade: 0,2 unidade
+    ctx = context(
+        cash="10000",
+        history={"AAA": closes([30000.0])},
+        offers=[LIQUID],
+        fractional=frozenset({"AAA"}),
+    )
+    TargetRebalance().next(ctx, PARAMS)
+    buy = ctx.intents[0]
+    assert (buy.action, buy.quantity) == (StrategyAction.BUY, Decimal("0.2"))
+
+    # 0,5 unidade (R$ 15.000) contra R$ 1.000 em renda fixa: vende até a meta, em fração
+    ctx = context(
+        cash="0",
+        history={"AAA": closes([30000.0])},
+        holdings={"AAA": Holding("AAA", Decimal("0.5"), Decimal(0), Decimal(100))},
+        fixed_holdings=[fixed("1000")],
+        offers=[LIQUID],
+        fractional=frozenset({"AAA"}),
+    )
+    TargetRebalance().next(ctx, PARAMS)
+    sell = next(i for i in ctx.intents if i.action is StrategyAction.SELL)
+    quantity = required(sell.quantity)
+    assert Decimal(0) < quantity < Decimal("0.5")
+    assert quantity == quantity.quantize(Decimal("1E-8"))

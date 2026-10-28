@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import threading
 from collections.abc import Callable
-from decimal import ROUND_DOWN, Decimal
+from decimal import Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -30,23 +30,9 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-QUANTITY_STEP = Decimal("1E-8")
-
-
 def to_money(price: float) -> Decimal:
     """Preço de ação (float na origem) em Decimal pelo texto, sem a expansão binária."""
     return Decimal(str(price))
-
-
-def affordable_quantity(
-    money: Decimal, price: Decimal | None, *, fractional: bool
-) -> Decimal:
-    """O que o dinheiro paga ao preço: inteiro, ou até oito casas na cripto."""
-    if not price:
-        return Decimal(0)
-    if fractional:
-        return (money / price).quantize(QUANTITY_STEP, rounding=ROUND_DOWN)
-    return money // price
 
 
 def load_positions(client_id: UUID) -> dict[str, Position]:

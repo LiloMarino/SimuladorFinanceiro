@@ -1,6 +1,8 @@
-"""Comprar e segurar: o caixa vira cotas inteiras do ativo e nada é vendido."""
+"""Comprar e segurar: o caixa vira cotas do ativo (inteiras, ou em fração na cripto) e nada é vendido."""
 
 from __future__ import annotations
+
+from decimal import Decimal
 
 from backend.core.dto.strategy import StrategyParamValue
 from backend.core.enum import StrategyAction
@@ -20,6 +22,20 @@ def test_puts_the_idle_cash_in_whole_shares_of_the_asset():
     assert intent.ticker == "AAA"
     # R$ 1.050 a R$ 30: 35 cotas, arredondando para baixo
     assert intent.quantity == 35
+
+
+def test_crypto_takes_the_cash_in_eight_decimal_places():
+    ctx = context(
+        cash="1050",
+        history={"AAA": closes([100.0, 100.0, 30000.0])},
+        fractional=frozenset({"AAA"}),
+    )
+
+    BuyAndHold().next(ctx, PARAMS)
+
+    [intent] = ctx.intents
+    # R$ 1.050 a R$ 30.000: 0,035 unidade, sem exigir uma unidade inteira
+    assert intent.quantity == Decimal("0.035")
 
 
 def test_never_sells_even_when_the_price_falls():

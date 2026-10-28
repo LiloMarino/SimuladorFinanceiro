@@ -77,6 +77,7 @@ def context(
     holdings: dict[str, Holding] | None = None,
     fixed_holdings: list[FixedHolding] | None = None,
     offers: list[FixedIncomeOfferDTO] | None = None,
+    fractional: frozenset[str] = frozenset(),
 ) -> StrategyContext:
     frames = history or {}
     return StrategyContext(
@@ -87,7 +88,13 @@ def context(
         fixed_offers=offers or [],
         quotes={
             ticker: Quote(
-                ticker, ticker, float(frame["close"].iloc[-1]), 1000, None, None
+                ticker,
+                ticker,
+                float(frame["close"].iloc[-1]),
+                1000,
+                None,
+                None,
+                ticker in fractional,
             )
             for ticker, frame in frames.items()
         },

@@ -117,7 +117,7 @@ class TwelveMonthMomentum(BaseStrategy):
             price = Decimal(str(quote.close))
             holding = ctx.holdings.get(ticker)
             gap = share - (price * holding.size if holding else Decimal(0))
-            quantity = int(min(gap, cash) // price)
+            quantity = ctx.affordable(ticker, min(gap, cash))
             if quantity > 0:
                 ctx.buy(
                     ticker,

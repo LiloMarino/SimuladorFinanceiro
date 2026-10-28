@@ -16,7 +16,7 @@ from backend.core.enum import (
     StrategyParamKind,
     StrategyView,
 )
-from backend.core.utils import format_money, required
+from backend.core.utils import format_money, format_quantity, required
 from backend.features.strategy.allocation import Item, distribute, whole_shares
 from backend.features.strategy.base_strategy import (
     BaseStrategy,
@@ -150,17 +150,27 @@ class TargetRebalance(BaseStrategy):
         quote = ctx.quotes.get(asset)
         if quote is not None:
             price = Decimal(str(quote.close))
-            shares = whole_shares(stock_move, price)
+            shares = whole_shares(stock_move, price, fractional=quote.fractional)
             if stock_move < 0:
                 holding = ctx.holdings.get(asset)
-                shares = min(shares, holding.size - holding.reserved) if holding else 0
+                shares = (
+                    min(shares, holding.size - holding.reserved) if holding else ZERO
+                )
                 if shares > 0:
-                    ctx.sell(asset, shares, f"{why}: vendeu {shares} {asset}")
+                    ctx.sell(
+                        asset,
+                        shares,
+                        f"{why}: vendeu {format_quantity(shares)} {asset}",
+                    )
                     available += price * shares
             elif stock_move > 0:
-                shares = min(shares, int(available // price))
+                shares = min(shares, ctx.affordable(asset, available))
                 if shares > 0:
-                    ctx.buy(asset, shares, f"{why}: comprou {shares} {asset}")
+                    ctx.buy(
+                        asset,
+                        shares,
+                        f"{why}: comprou {format_quantity(shares)} {asset}",
+                    )
                     available -= price * shares
 
         offer = _liquid_offer(ctx)

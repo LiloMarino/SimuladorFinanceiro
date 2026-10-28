@@ -26,6 +26,12 @@ def format_money(value: Decimal) -> str:
     return "R$ " + f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
+def format_quantity(value: Decimal) -> str:
+    """Quantidade sem zeros à direita nem expoente: 35, 0,005."""
+    text = format(value.normalize(), "f")
+    return text.replace(".", ",")
+
+
 def resource_path(relative: str) -> Path:
     """
     Resolve caminho de recurso em dev e no executável PyInstaller. Em dev é relativo à
