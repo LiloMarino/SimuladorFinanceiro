@@ -1,6 +1,12 @@
 from fastapi import APIRouter, status
 
 from backend.core.dependencies import ActiveSimulation, CurrentUser
+from backend.core.dto.campaign import (
+    CampaignActionRequest,
+    CampaignHistoryDTO,
+    CampaignPanelDTO,
+    CampaignRollDTO,
+)
 from backend.core.dto.government import (
     ContributionRequest,
     DonationRequest,
@@ -132,6 +138,38 @@ def answer_vice(
 )
 def donate(simulation: ActiveSimulation, user: CurrentUser, payload: DonationRequest):
     simulation.donate_to_party(user, payload.party_id, payload.amount)
+
+
+@government_router.get(
+    "/campaign",
+    response_model=CampaignPanelDTO,
+    summary="Obter as ações de campanha do meu partido",
+    description="Retorna, para o partido de quem vê, o preço de cada ação (TV, evento, comício e ataque), o que o dado rola em cada grupo e quanto a ação rende hoje pelo retorno decrescente, o apoio e a rejeição do partido, os rivais, as últimas ações, a verba de base e quanto do apoio de hoje ainda vale no 1º turno. Só os filiados veem; recusa com 409 a quem não tem partido.",
+)
+def get_campaign(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_campaign(user)
+
+
+@government_router.get(
+    "/campaign/history",
+    response_model=CampaignHistoryDTO,
+    summary="Obter o histórico de campanha do meu partido",
+    description="Cada ação dos filiados com o dado e o efeito no dia, a verba de base e os ataques recebidos (sem o dado do rival), com quanto cada um vale hoje depois da queda pela metade a cada 3 meses. Só os filiados do partido veem.",
+)
+def get_campaign_history(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_campaign_history(user)
+
+
+@government_router.post(
+    "/campaign/actions",
+    response_model=CampaignRollDTO,
+    summary="Disparar uma ação de campanha",
+    description="Qualquer filiado dispara TV, evento com um grupo, comício ou ataque a um rival e paga na hora, da própria carteira. O dado sai da semente da partida e a resposta traz o número tirado, a faixa e o efeito. Vale da abertura da campanha até a véspera do 1º turno; a ação que falha antes do dado não cobra nada.",
+)
+def campaign_action(
+    simulation: ActiveSimulation, user: CurrentUser, payload: CampaignActionRequest
+):
+    return simulation.campaign_action(user, payload)
 
 
 @government_router.get(

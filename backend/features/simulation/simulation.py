@@ -13,6 +13,12 @@ import pandas as pd
 
 from backend import config
 from backend.core import repository
+from backend.core.dto.campaign import (
+    CampaignActionRequest,
+    CampaignHistoryDTO,
+    CampaignPanelDTO,
+    CampaignRollDTO,
+)
 from backend.core.dto.candle import CandleDTO, MarketQuoteDTO
 from backend.core.dto.credit import (
     CreditOverviewDTO,
@@ -99,6 +105,11 @@ from backend.features.fixed_income.assistance import (
     build_quote,
 )
 from backend.features.fixed_income.liquidity import overdraft_cover, total_redeemable
+from backend.features.government.campaign_panel import (
+    build_campaign,
+    build_history,
+    build_roll,
+)
 from backend.features.government.governance import build_governance
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_panel
@@ -383,6 +394,40 @@ class Simulation:
             user,
             self._current_date,
             networths,
+        )
+
+    @synchronized
+    def get_campaign(self, user: UserDTO) -> CampaignPanelDTO:
+        return build_campaign(
+            self._ensure_government(),
+            repository.simulation_player.participants(self.settings.id),
+            user,
+            self._current_date,
+        )
+
+    @synchronized
+    def get_campaign_history(self, user: UserDTO) -> CampaignHistoryDTO:
+        return build_history(
+            self._ensure_government(),
+            repository.simulation_player.participants(self.settings.id),
+            user,
+            self._current_date,
+        )
+
+    @synchronized
+    def campaign_action(
+        self, user: UserDTO, request: CampaignActionRequest
+    ) -> CampaignRollDTO:
+        book = self._ensure_government()
+        result = book.campaign_action(
+            user, self._current_date, request.action, request.group, request.rival_id
+        )
+        return build_roll(
+            book,
+            repository.simulation_player.participants(self.settings.id),
+            user,
+            self._current_date,
+            result,
         )
 
     @synchronized

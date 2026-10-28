@@ -11,10 +11,17 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core.dto.events.government import GovernmentEventDTO
+from backend.core.enum import (
+    CampaignActionKind,
+    DiceBand,
+    MeasureKind,
+    MeasureStatus,
+    VoterGroup,
+    VoterValue,
+)
 from backend.core.enum import GovernmentEventType as Event
-from backend.core.enum import MeasureKind, MeasureStatus, VoterGroup, VoterValue
 from backend.core.utils import required
-from backend.features.government import voters
+from backend.features.government import campaign, voters
 from backend.features.government.computer_parties import COMPUTER_FLAGS
 
 # A medida aprovada vale depois da noventena
@@ -58,8 +65,12 @@ class Party:
     # O perfil de hoje, de 0 a 100 em cada valor, e o que o moveu
     radar: dict[VoterValue, Decimal] = field(default_factory=dict)
     moves: list[ProfileMove] = field(default_factory=list)
-    # Apoio da campanha em curso em cada grupo; volta a zero a cada eleição
+    # Apoio da campanha em curso em cada grupo (verba, doações e ações); volta a zero a
+    # cada eleição e cai pela metade a cada 3 meses, até o dia em `campaign_day`
     campaign: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
+    campaign_day: date | None = None
+    # Rejeição que as ações já repararam em cada grupo nesta campanha
+    repaired: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
     # Rejeição em cada grupo: atravessa as eleições e só cai por reparação
     rejection: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
     # Apoio que os meses de governo deixaram em cada grupo; cai pela metade em 3 meses
@@ -92,6 +103,21 @@ class Party:
         for group in VoterGroup:
             self.campaign[group] += points
 
+    def decay_to(self, day: date) -> None:
+        """O apoio da campanha perde a parte que o tempo leva entre `campaign_day` e `day`."""
+        if self.campaign_day is not None and day > self.campaign_day:
+            keep = campaign.decay_factor((day - self.campaign_day).days)
+            for group in VoterGroup:
+                self.campaign[group] *= keep
+        if self.campaign_day is None or day > self.campaign_day:
+            self.campaign_day = day
+
+    def reset_campaign(self) -> None:
+        self.campaign = _zero_by_group()
+        self.campaign_day = None
+        self.repaired = _zero_by_group()
+        self.spent = Decimal(0)
+
 
 @dataclass(frozen=True)
 class Poll:
@@ -107,6 +133,47 @@ class Donation:
     user_id: int
     party_id: int
     amount: Decimal
+
+
+@dataclass(frozen=True)
+class BaseCharge:
+    """A verba de base de um partido num mês: o que os filiados pagaram e o apoio que rendeu."""
+
+    day: date
+    party_id: int
+    amount: Decimal
+    points: Decimal
+
+
+@dataclass(frozen=True)
+class CampaignRecord:
+    """Uma ação avulsa de campanha como saiu: o dado e o efeito, guardados no dia."""
+
+    id: int
+    day: date
+    kind: CampaignActionKind
+    party_id: int
+    # Quem disparou; nulo no partido do computador
+    user_id: int | None
+    group: VoterGroup | None
+    rival_id: int | None
+    price: Decimal
+    rolls: tuple[int, ...]
+    roll: int
+    band: DiceBand
+    # Retorno decrescente do dia: 1, 0,5, 0,25...
+    rate: Decimal
+    # Mudança do apoio de quem a ação atinge, em cada grupo atingido (negativa no ataque)
+    support: Decimal
+    # Mudança da rejeição do partido que agiu no grupo (negativa repara, positiva é a culatra)
+    rejection: Decimal
+
+    @property
+    def target_id(self) -> int:
+        """O partido cujo apoio a ação mexe: o rival no ataque, o próprio nos demais."""
+        if self.kind is CampaignActionKind.ATTACK and self.rival_id is not None:
+            return self.rival_id
+        return self.party_id
 
 
 @dataclass(frozen=True)
@@ -209,6 +276,10 @@ class GovernmentState:
     results: list[RoundResult] = field(default_factory=list)
     # Finalistas enquanto o 2º turno não acontece
     runoff: list[int] | None = None
+    # A verba de base e as ações avulsas da campanha em curso
+    charges: list[BaseCharge] = field(default_factory=list)
+    actions: list[CampaignRecord] = field(default_factory=list)
+    next_action_id: int = 1
     # O eleito que espera a posse
     pending_term: Term | None = None
     term: Term | None = None
@@ -228,6 +299,26 @@ class GovernmentState:
             return self.approvals[-1].satisfaction
         start = self.term.satisfaction if self.term else {}
         return {g: start.get(g, NEUTRAL_SATISFACTION) for g in VoterGroup}
+
+    def advance(self, day: date) -> None:
+        """Leva o apoio de campanha de todos os partidos até `day`, aplicando a queda do tempo."""
+        for party in self.parties.values():
+            party.decay_to(day)
+
+    def uses(
+        self,
+        party_id: int,
+        kind: CampaignActionKind,
+        group: VoterGroup | None,
+        day: date,
+    ) -> int:
+        """Quantas vezes o partido fez a mesma ação no mesmo grupo no mês de `day`."""
+        return sum(
+            1
+            for a in self.actions
+            if (a.party_id, a.kind, a.group) == (party_id, kind, group)
+            and (a.day.year, a.day.month) == (day.year, day.month)
+        )
 
     def party_of(self, user_id: int) -> Party | None:
         return next(
@@ -252,6 +343,7 @@ def replay(events: Iterable[GovernmentEventDTO]) -> GovernmentState:
 def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
     p = event.payload
     day = event.event_date
+    state.advance(day)
     match event.event_type:
         case Event.PARTY_FOUNDED:
             party_id = _int(p, "party_id")
@@ -315,6 +407,11 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 if party is not None:
                     party.spent += amount
                     party.add_campaign(amount)
+                    state.charges.append(
+                        BaseCharge(
+                            day, party_id, amount, voters.campaign_points(amount)
+                        )
+                    )
             state.last_collection = date.fromisoformat(_str(p, "month"))
             state.polls.append(
                 Poll(
@@ -329,6 +426,8 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             party.spent += amount
             party.add_campaign(amount)
             state.donations.append(Donation(day, _int(p, "user_id"), party_id, amount))
+        case Event.CAMPAIGN_ACTION:
+            _apply_action(state, event)
         case Event.ELECTION_ROUND:
             _apply_round(state, event)
         case Event.TERM_STARTED:
@@ -483,9 +582,56 @@ def _apply_round(state: GovernmentState, event: GovernmentEventDTO) -> None:
     state.cycle += 1
     state.polls = []
     state.donations = []
+    state.charges = []
+    state.actions = []
     for party in state.parties.values():
-        party.campaign = _zero_by_group()
-        party.spent = Decimal(0)
+        party.reset_campaign()
+
+
+def _apply_action(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    """A ação rola no dia: o dado e o preço vêm do evento, o efeito sai das regras e do estado."""
+    p = event.payload
+    party = state.parties.get(_int(p, "party_id"))
+    if party is None:
+        return
+    kind = CampaignActionKind(_str(p, "action"))
+    group = VoterGroup(_str(p, "group")) if p.get("group") else None
+    rolls = tuple(int(x) for x in _list(p, "rolls"))  # type: ignore[call-overload]
+    day = event.event_date
+    result = campaign.outcome(
+        kind,
+        rolls,
+        state.uses(party.id, kind, group, day),
+        campaign.EVENT_REPAIR_LIMIT - party.repaired[group] if group else Decimal(0),
+        party.rejection[group] if group else Decimal(0),
+    )
+    record = CampaignRecord(
+        id=state.next_action_id,
+        day=day,
+        kind=kind,
+        party_id=party.id,
+        user_id=_opt_int(p, "user_id"),
+        group=group,
+        rival_id=_opt_int(p, "rival_id"),
+        price=_money(p, "price"),
+        rolls=rolls,
+        roll=result.roll,
+        band=result.band,
+        rate=result.rate,
+        support=result.support,
+        rejection=result.rejection,
+    )
+    state.next_action_id += 1
+    state.actions.append(record)
+    party.spent += record.price
+    target = state.parties.get(record.target_id)
+    if target is not None and result.support != 0:
+        for affected in [group] if group else list(VoterGroup):
+            target.campaign[affected] += result.support
+    if group is not None and result.rejection != 0:
+        party.rejection[group] = voters.clamp(party.rejection[group] + result.rejection)
+        if result.rejection < 0:
+            party.repaired[group] += -result.rejection
 
 
 def _set_flags(party: Party, flags: tuple[VoterValue, ...]) -> None:

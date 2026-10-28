@@ -60,6 +60,8 @@ def build_panel(
     networths: dict[int, Decimal],
 ) -> ElectionPanelDTO:
     state = book.state
+    # Os números de campanha chegam a hoje com a queda do tempo aplicada
+    state.advance(today)
     people = {user.id: user for user in users}
     phase = _phase(state, book.cycle(), today)
     # Entre a apuração e a posse o ciclo já avançou: as datas são as da eleição que acabou

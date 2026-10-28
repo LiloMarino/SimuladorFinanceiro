@@ -23,6 +23,9 @@ const EMPTY_NOTICE: GovernmentNotice = {
   groups_reproved: null,
   ticket_deadline: null,
   first_round: null,
+  campaign_action: null,
+  group: null,
+  rival_abbr: null,
 };
 
 const notice = (partial: Partial<GovernmentNotice>): GovernmentNotice => ({

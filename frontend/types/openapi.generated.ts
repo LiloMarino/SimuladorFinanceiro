@@ -1716,6 +1716,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/campaign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter as ações de campanha do meu partido
+         * @description Retorna, para o partido de quem vê, o preço de cada ação (TV, evento, comício e ataque), o que o dado rola em cada grupo e quanto a ação rende hoje pelo retorno decrescente, o apoio e a rejeição do partido, os rivais, as últimas ações, a verba de base e quanto do apoio de hoje ainda vale no 1º turno. Só os filiados veem; recusa com 409 a quem não tem partido.
+         */
+        get: operations["get_campaign_api_government_campaign_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/campaign/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter o histórico de campanha do meu partido
+         * @description Cada ação dos filiados com o dado e o efeito no dia, a verba de base e os ataques recebidos (sem o dado do rival), com quanto cada um vale hoje depois da queda pela metade a cada 3 meses. Só os filiados do partido veem.
+         */
+        get: operations["get_campaign_history_api_government_campaign_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/campaign/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Disparar uma ação de campanha
+         * @description Qualquer filiado dispara TV, evento com um grupo, comício ou ataque a um rival e paga na hora, da própria carteira. O dado sai da semente da partida e a resposta traz o número tirado, a faixa e o efeito. Vale da abertura da campanha até a véspera do 1º turno; a ação que falha antes do dado não cobra nada.
+         */
+        post: operations["campaign_action_api_government_campaign_actions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/government": {
         parameters: {
             query?: never;
@@ -3268,6 +3328,192 @@ export interface components {
             /** Quantity */
             quantity: number | string;
         };
+        /** CampaignActionDTO */
+        CampaignActionDTO: {
+            action: components["schemas"]["CampaignActionKind"];
+            /** Price */
+            price: string;
+            /** Missing */
+            missing: string;
+            /** Advantage */
+            advantage: boolean;
+            /** Targets */
+            targets: components["schemas"]["CampaignTargetDTO"][];
+        };
+        /**
+         * CampaignActionKind
+         * @description As quatro ações avulsas que um filiado dispara na campanha.
+         * @enum {string}
+         */
+        CampaignActionKind: "TV" | "EVENT" | "RALLY" | "ATTACK";
+        /** CampaignActionRequest */
+        CampaignActionRequest: {
+            action: components["schemas"]["CampaignActionKind"];
+            group?: components["schemas"]["VoterGroup"] | null;
+            /** Rival Id */
+            rival_id?: number | null;
+        };
+        /**
+         * CampaignEntryDTO
+         * @description Uma linha do histórico: uma ação, a verba de base ou um ataque recebido.
+         */
+        CampaignEntryDTO: {
+            /** Id */
+            id: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            kind: components["schemas"]["CampaignEntryKind"];
+            /** Nickname */
+            nickname: string | null;
+            /** Party Abbr */
+            party_abbr: string;
+            /** Party Color */
+            party_color: string | null;
+            group: components["schemas"]["VoterGroup"] | null;
+            /** Rival Abbr */
+            rival_abbr: string | null;
+            /** Rolls */
+            rolls: number[];
+            /** Roll */
+            roll: number | null;
+            band: components["schemas"]["DiceBand"] | null;
+            /** Support */
+            support: string;
+            /** Rejection */
+            rejection: string;
+            /** Worth Now */
+            worth_now: string;
+            /** Worth Share */
+            worth_share: string;
+            /** Price */
+            price: string | null;
+            /** Newsworthy */
+            newsworthy: boolean;
+        };
+        /**
+         * CampaignEntryKind
+         * @description O que uma linha do histórico de campanha do partido conta.
+         * @enum {string}
+         */
+        CampaignEntryKind: "TV" | "EVENT" | "RALLY" | "ATTACK" | "BASE_BUDGET" | "ATTACK_RECEIVED";
+        /** CampaignGroupDTO */
+        CampaignGroupDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Campaign */
+            campaign: string;
+        };
+        /** CampaignHistoryDTO */
+        CampaignHistoryDTO: {
+            /** Entries */
+            entries: components["schemas"]["CampaignEntryDTO"][];
+        };
+        /**
+         * CampaignPanelDTO
+         * @description O cartão de ações de campanha do partido de quem vê.
+         */
+        CampaignPanelDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Party Abbr */
+            party_abbr: string;
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            /** Open */
+            open: boolean;
+            /** Closed Reason */
+            closed_reason: string | null;
+            /**
+             * Campaign Start
+             * Format: date
+             */
+            campaign_start: string;
+            /**
+             * First Round
+             * Format: date
+             */
+            first_round: string;
+            /** Share At Vote */
+            share_at_vote: string;
+            /** Actions */
+            actions: components["schemas"]["CampaignActionDTO"][];
+            /** Rivals */
+            rivals: components["schemas"]["CampaignRivalDTO"][];
+            /** Groups */
+            groups: components["schemas"]["CampaignGroupDTO"][];
+            /** Recent */
+            recent: components["schemas"]["CampaignEntryDTO"][];
+            /** Actions Spent */
+            actions_spent: string;
+            /** Actions Count */
+            actions_count: number;
+            /** Base Spent */
+            base_spent: string;
+            /** Base Charges */
+            base_charges: number;
+            /** Last Charge Date */
+            last_charge_date: string | null;
+            /** Last Charge Amount */
+            last_charge_amount: string | null;
+            /** Last Charge Points */
+            last_charge_points: string | null;
+        };
+        /** CampaignRivalDTO */
+        CampaignRivalDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Abbr */
+            abbr: string;
+            /** Name */
+            name: string;
+            /** Color */
+            color: string | null;
+        };
+        /**
+         * CampaignRollDTO
+         * @description O resultado de uma ação recém-rolada.
+         */
+        CampaignRollDTO: {
+            entry: components["schemas"]["CampaignEntryDTO"];
+            /** Target Abbr */
+            target_abbr: string | null;
+            /** Support Before */
+            support_before: string | null;
+            /** Support After */
+            support_after: string | null;
+            /** Rejection Before */
+            rejection_before: string | null;
+            /** Rejection After */
+            rejection_after: string | null;
+        };
+        /**
+         * CampaignTargetDTO
+         * @description Uma ação aplicada a um grupo (ou a todos, na TV), com o dado que ela rolaria hoje.
+         */
+        CampaignTargetDTO: {
+            group: components["schemas"]["VoterGroup"] | null;
+            /** Uses This Month */
+            uses_this_month: number;
+            /** Rate */
+            rate: string;
+            /** Repair Left */
+            repair_left: string;
+            /** Repair Limit */
+            repair_limit: string;
+            /** Support */
+            support: string | null;
+            /** Rejection */
+            rejection: string | null;
+            /** Bands */
+            bands: components["schemas"]["DiceBandDTO"][];
+            /** Average */
+            average: string;
+        };
         /** CancelOrderRequest */
         CancelOrderRequest: {
             /** Order Id */
@@ -3783,6 +4029,29 @@ export interface components {
             spread: string | null;
             /** Debt Limit */
             debt_limit: string;
+        };
+        /**
+         * DiceBand
+         * @description A faixa em que o d20 de uma ação caiu.
+         * @enum {string}
+         */
+        DiceBand: "DISASTER" | "WEAK" | "NORMAL" | "GOOD" | "VIRAL";
+        /**
+         * DiceBandDTO
+         * @description Uma faixa do dado de uma ação: onde cai, com que chance e o que muda.
+         */
+        DiceBandDTO: {
+            band: components["schemas"]["DiceBand"];
+            /** First Roll */
+            first_roll: number;
+            /** Last Roll */
+            last_roll: number;
+            /** Chance */
+            chance: string;
+            /** Support */
+            support: string;
+            /** Rejection */
+            rejection: string;
         };
         /** DonationDTO */
         DonationDTO: {
@@ -4353,7 +4622,7 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED";
+        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION";
         /** GovernmentPanelDTO */
         GovernmentPanelDTO: {
             /**
@@ -4436,6 +4705,10 @@ export interface components {
             ticket_deadline: string | null;
             /** First Round */
             first_round: string | null;
+            campaign_action: components["schemas"]["CampaignActionKind"] | null;
+            group: components["schemas"]["VoterGroup"] | null;
+            /** Rival Abbr */
+            rival_abbr: string | null;
         };
         /**
          * GroupApprovalDTO
@@ -12114,6 +12387,124 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_campaign_api_government_campaign_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignPanelDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_campaign_history_api_government_campaign_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignHistoryDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    campaign_action_api_government_campaign_actions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignRollDTO"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

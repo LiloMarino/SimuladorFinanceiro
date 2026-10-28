@@ -4893,6 +4893,157 @@
         ]
       }
     },
+    "/api/government/campaign": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter as ações de campanha do meu partido",
+        "description": "Retorna, para o partido de quem vê, o preço de cada ação (TV, evento, comício e ataque), o que o dado rola em cada grupo e quanto a ação rende hoje pelo retorno decrescente, o apoio e a rejeição do partido, os rivais, as últimas ações, a verba de base e quanto do apoio de hoje ainda vale no 1º turno. Só os filiados veem; recusa com 409 a quem não tem partido.",
+        "operationId": "get_campaign_api_government_campaign_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignPanelDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/campaign/history": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter o histórico de campanha do meu partido",
+        "description": "Cada ação dos filiados com o dado e o efeito no dia, a verba de base e os ataques recebidos (sem o dado do rival), com quanto cada um vale hoje depois da queda pela metade a cada 3 meses. Só os filiados do partido veem.",
+        "operationId": "get_campaign_history_api_government_campaign_history_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignHistoryDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/campaign/actions": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Disparar uma ação de campanha",
+        "description": "Qualquer filiado dispara TV, evento com um grupo, comício ou ataque a um rival e paga na hora, da própria carteira. O dado sai da semente da partida e a resposta traz o número tirado, a faixa e o efeito. Vale da abertura da campanha até a véspera do 1º turno; a ação que falha antes do dado não cobra nada.",
+        "operationId": "campaign_action_api_government_campaign_actions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignRollDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/government": {
       "get": {
         "tags": [
@@ -9317,6 +9468,617 @@
         ],
         "title": "BuyFixedIncomeRequest"
       },
+      "CampaignActionDTO": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/CampaignActionKind"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "missing": {
+            "type": "string",
+            "title": "Missing"
+          },
+          "advantage": {
+            "type": "boolean",
+            "title": "Advantage"
+          },
+          "targets": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignTargetDTO"
+            },
+            "type": "array",
+            "title": "Targets"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "price",
+          "missing",
+          "advantage",
+          "targets"
+        ],
+        "title": "CampaignActionDTO"
+      },
+      "CampaignActionKind": {
+        "type": "string",
+        "enum": [
+          "TV",
+          "EVENT",
+          "RALLY",
+          "ATTACK"
+        ],
+        "title": "CampaignActionKind",
+        "description": "As quatro ações avulsas que um filiado dispara na campanha."
+      },
+      "CampaignActionRequest": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/CampaignActionKind"
+          },
+          "group": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VoterGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rival_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rival Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "CampaignActionRequest"
+      },
+      "CampaignEntryDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/CampaignEntryKind"
+          },
+          "nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nickname"
+          },
+          "party_abbr": {
+            "type": "string",
+            "title": "Party Abbr"
+          },
+          "party_color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Color"
+          },
+          "group": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VoterGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rival_abbr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rival Abbr"
+          },
+          "rolls": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Rolls"
+          },
+          "roll": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roll"
+          },
+          "band": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DiceBand"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "support": {
+            "type": "string",
+            "title": "Support"
+          },
+          "rejection": {
+            "type": "string",
+            "title": "Rejection"
+          },
+          "worth_now": {
+            "type": "string",
+            "title": "Worth Now"
+          },
+          "worth_share": {
+            "type": "string",
+            "title": "Worth Share"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "newsworthy": {
+            "type": "boolean",
+            "title": "Newsworthy"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "date",
+          "kind",
+          "nickname",
+          "party_abbr",
+          "party_color",
+          "group",
+          "rival_abbr",
+          "rolls",
+          "roll",
+          "band",
+          "support",
+          "rejection",
+          "worth_now",
+          "worth_share",
+          "price",
+          "newsworthy"
+        ],
+        "title": "CampaignEntryDTO",
+        "description": "Uma linha do histórico: uma ação, a verba de base ou um ataque recebido."
+      },
+      "CampaignEntryKind": {
+        "type": "string",
+        "enum": [
+          "TV",
+          "EVENT",
+          "RALLY",
+          "ATTACK",
+          "BASE_BUDGET",
+          "ATTACK_RECEIVED"
+        ],
+        "title": "CampaignEntryKind",
+        "description": "O que uma linha do histórico de campanha do partido conta."
+      },
+      "CampaignGroupDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "campaign": {
+            "type": "string",
+            "title": "Campaign"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "campaign"
+        ],
+        "title": "CampaignGroupDTO"
+      },
+      "CampaignHistoryDTO": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignEntryDTO"
+            },
+            "type": "array",
+            "title": "Entries"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entries"
+        ],
+        "title": "CampaignHistoryDTO"
+      },
+      "CampaignPanelDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "party_abbr": {
+            "type": "string",
+            "title": "Party Abbr"
+          },
+          "today": {
+            "type": "string",
+            "format": "date",
+            "title": "Today"
+          },
+          "open": {
+            "type": "boolean",
+            "title": "Open"
+          },
+          "closed_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed Reason"
+          },
+          "campaign_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Campaign Start"
+          },
+          "first_round": {
+            "type": "string",
+            "format": "date",
+            "title": "First Round"
+          },
+          "share_at_vote": {
+            "type": "string",
+            "title": "Share At Vote"
+          },
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignActionDTO"
+            },
+            "type": "array",
+            "title": "Actions"
+          },
+          "rivals": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignRivalDTO"
+            },
+            "type": "array",
+            "title": "Rivals"
+          },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignGroupDTO"
+            },
+            "type": "array",
+            "title": "Groups"
+          },
+          "recent": {
+            "items": {
+              "$ref": "#/components/schemas/CampaignEntryDTO"
+            },
+            "type": "array",
+            "title": "Recent"
+          },
+          "actions_spent": {
+            "type": "string",
+            "title": "Actions Spent"
+          },
+          "actions_count": {
+            "type": "integer",
+            "title": "Actions Count"
+          },
+          "base_spent": {
+            "type": "string",
+            "title": "Base Spent"
+          },
+          "base_charges": {
+            "type": "integer",
+            "title": "Base Charges"
+          },
+          "last_charge_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Charge Date"
+          },
+          "last_charge_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Charge Amount"
+          },
+          "last_charge_points": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Charge Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "party_abbr",
+          "today",
+          "open",
+          "closed_reason",
+          "campaign_start",
+          "first_round",
+          "share_at_vote",
+          "actions",
+          "rivals",
+          "groups",
+          "recent",
+          "actions_spent",
+          "actions_count",
+          "base_spent",
+          "base_charges",
+          "last_charge_date",
+          "last_charge_amount",
+          "last_charge_points"
+        ],
+        "title": "CampaignPanelDTO",
+        "description": "O cartão de ações de campanha do partido de quem vê."
+      },
+      "CampaignRivalDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "abbr": {
+            "type": "string",
+            "title": "Abbr"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "abbr",
+          "name",
+          "color"
+        ],
+        "title": "CampaignRivalDTO"
+      },
+      "CampaignRollDTO": {
+        "properties": {
+          "entry": {
+            "$ref": "#/components/schemas/CampaignEntryDTO"
+          },
+          "target_abbr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Abbr"
+          },
+          "support_before": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Support Before"
+          },
+          "support_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Support After"
+          },
+          "rejection_before": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rejection Before"
+          },
+          "rejection_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rejection After"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entry",
+          "target_abbr",
+          "support_before",
+          "support_after",
+          "rejection_before",
+          "rejection_after"
+        ],
+        "title": "CampaignRollDTO",
+        "description": "O resultado de uma ação recém-rolada."
+      },
+      "CampaignTargetDTO": {
+        "properties": {
+          "group": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VoterGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "uses_this_month": {
+            "type": "integer",
+            "title": "Uses This Month"
+          },
+          "rate": {
+            "type": "string",
+            "title": "Rate"
+          },
+          "repair_left": {
+            "type": "string",
+            "title": "Repair Left"
+          },
+          "repair_limit": {
+            "type": "string",
+            "title": "Repair Limit"
+          },
+          "support": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Support"
+          },
+          "rejection": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rejection"
+          },
+          "bands": {
+            "items": {
+              "$ref": "#/components/schemas/DiceBandDTO"
+            },
+            "type": "array",
+            "title": "Bands"
+          },
+          "average": {
+            "type": "string",
+            "title": "Average"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "uses_this_month",
+          "rate",
+          "repair_left",
+          "repair_limit",
+          "support",
+          "rejection",
+          "bands",
+          "average"
+        ],
+        "title": "CampaignTargetDTO",
+        "description": "Uma ação aplicada a um grupo (ou a todos, na TV), com o dado que ela rolaria hoje."
+      },
       "CancelOrderRequest": {
         "properties": {
           "order_id": {
@@ -10756,6 +11518,57 @@
           "debt_limit"
         ],
         "title": "CreditRatingChangedEventDTO"
+      },
+      "DiceBand": {
+        "type": "string",
+        "enum": [
+          "DISASTER",
+          "WEAK",
+          "NORMAL",
+          "GOOD",
+          "VIRAL"
+        ],
+        "title": "DiceBand",
+        "description": "A faixa em que o d20 de uma ação caiu."
+      },
+      "DiceBandDTO": {
+        "properties": {
+          "band": {
+            "$ref": "#/components/schemas/DiceBand"
+          },
+          "first_roll": {
+            "type": "integer",
+            "title": "First Roll"
+          },
+          "last_roll": {
+            "type": "integer",
+            "title": "Last Roll"
+          },
+          "chance": {
+            "type": "string",
+            "title": "Chance"
+          },
+          "support": {
+            "type": "string",
+            "title": "Support"
+          },
+          "rejection": {
+            "type": "string",
+            "title": "Rejection"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "band",
+          "first_roll",
+          "last_roll",
+          "chance",
+          "support",
+          "rejection"
+        ],
+        "title": "DiceBandDTO",
+        "description": "Uma faixa do dado de uma ação: onde cai, com que chance e o que muda."
       },
       "DonationDTO": {
         "properties": {
@@ -12436,7 +13249,8 @@
           "MEASURE_IN_FORCE",
           "IMPEACHMENT",
           "IMPEACHMENT_WARNING",
-          "MONTH_CLOSED"
+          "MONTH_CLOSED",
+          "CAMPAIGN_ACTION"
         ],
         "title": "GovernmentNoticeKind",
         "description": "O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."
@@ -12797,6 +13611,37 @@
               }
             ],
             "title": "First Round"
+          },
+          "campaign_action": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CampaignActionKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "group": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VoterGroup"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rival_abbr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rival Abbr"
           }
         },
         "additionalProperties": false,
@@ -12821,7 +13666,10 @@
           "groups_approved",
           "groups_reproved",
           "ticket_deadline",
-          "first_round"
+          "first_round",
+          "campaign_action",
+          "group",
+          "rival_abbr"
         ],
         "title": "GovernmentUpdateEventDTO",
         "description": "A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve."

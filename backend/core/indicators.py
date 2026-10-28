@@ -138,3 +138,30 @@ def ensure_indicator_coverage(start_date: date) -> None:
             f"Sem dado de {', '.join(missing)} em {start_date:%d/%m/%Y}. "
             "Atualize os indicadores na Central de dados ou escolha outra data inicial."
         )
+
+
+def anniversaries(start: date, day: date) -> list[date]:
+    """Os aniversários de `start` até `day`, inclusive; 29/02 vira 28/02 nos anos comuns."""
+    result = []
+    year = start.year + 1
+    while True:
+        try:
+            anniversary = start.replace(year=year)
+        except ValueError:
+            anniversary = start.replace(year=year, day=28)
+        if anniversary > day:
+            return result
+        result.append(anniversary)
+        year += 1
+
+
+def inflation_factor(start: date, day: date) -> Decimal:
+    """
+    Quanto os valores fixos em reais da partida subiram desde `start`: o IPCA de 12
+    meses acumulado em cada aniversário. É o fator do salário, da despesa, da meta e
+    dos preços das ações de campanha.
+    """
+    factor = Decimal(1)
+    for anniversary in anniversaries(start, day):
+        factor *= 1 + annual_index_rate(IndicatorSeries.IPCA, anniversary)
+    return factor

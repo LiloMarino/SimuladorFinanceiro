@@ -187,6 +187,17 @@ export type MeasureStatus = components["schemas"]["MeasureStatus"];
 export type ProposeMeasureRequest = components["schemas"]["ProposeMeasureRequest"];
 export type MeasurePreview = components["schemas"]["MeasurePreviewDTO"];
 export type GovernmentApproval = NonNullable<GovernmentPanel["approval"]>;
+export type CampaignPanel = components["schemas"]["CampaignPanelDTO"];
+export type CampaignActionKind = components["schemas"]["CampaignActionKind"];
+export type CampaignAction = CampaignPanel["actions"][number];
+export type CampaignTarget = CampaignAction["targets"][number];
+export type CampaignBand = CampaignTarget["bands"][number];
+export type CampaignEntry = CampaignPanel["recent"][number];
+export type CampaignEntryKind = components["schemas"]["CampaignEntryKind"];
+export type CampaignHistory = components["schemas"]["CampaignHistoryDTO"];
+export type CampaignRoll = components["schemas"]["CampaignRollDTO"];
+export type CampaignActionRequest = components["schemas"]["CampaignActionRequest"];
+export type DiceBand = components["schemas"]["DiceBand"];
 
 // Viver de renda
 export type LifeStatus = components["schemas"]["LifeStatusDTO"];

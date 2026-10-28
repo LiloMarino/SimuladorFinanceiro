@@ -68,6 +68,7 @@ class CashflowEventType(Enum):
     LOAN_PAYMENT = "LOAN_PAYMENT"
     CAMPAIGN_CONTRIBUTION = "CAMPAIGN_CONTRIBUTION"
     CAMPAIGN_DONATION = "CAMPAIGN_DONATION"
+    CAMPAIGN_ACTION = "CAMPAIGN_ACTION"
 
     @property
     def sign(self) -> int:
@@ -94,6 +95,7 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.LOAN_PAYMENT: -1,
     CashflowEventType.CAMPAIGN_CONTRIBUTION: -1,
     CashflowEventType.CAMPAIGN_DONATION: -1,
+    CashflowEventType.CAMPAIGN_ACTION: -1,
 }
 
 # Aporte, salário, despesa e imprevisto são o dinheiro da vida do jogador; o juro
@@ -456,6 +458,8 @@ class GovernmentEventType(Enum):
     VICE_ANSWERED = "VICE_ANSWERED"
     CAMPAIGN_SPENT = "CAMPAIGN_SPENT"
     DONATION_MADE = "DONATION_MADE"
+    # Ação avulsa de campanha (TV, evento, comício ou ataque) com o dado já rolado
+    CAMPAIGN_ACTION = "CAMPAIGN_ACTION"
     ELECTION_ROUND = "ELECTION_ROUND"
     TERM_STARTED = "TERM_STARTED"
     MEASURE_PROPOSED = "MEASURE_PROPOSED"
@@ -518,6 +522,42 @@ class GovernmentNoticeKind(Enum):
     IMPEACHMENT = "IMPEACHMENT"
     IMPEACHMENT_WARNING = "IMPEACHMENT_WARNING"
     MONTH_CLOSED = "MONTH_CLOSED"
+    CAMPAIGN_ACTION = "CAMPAIGN_ACTION"
+
+
+class CampaignActionKind(Enum):
+    """As quatro ações avulsas que um filiado dispara na campanha."""
+
+    # Todos os grupos de uma vez, com dois dados (vale o maior)
+    TV = "TV"
+    # Um grupo; também repara um pouco da rejeição do partido nele
+    EVENT = "EVENT"
+    # Um grupo, barato, com os extremos do dado dobrados
+    RALLY = "RALLY"
+    # Um grupo e um partido rival: tira apoio do rival
+    ATTACK = "ATTACK"
+
+
+class DiceBand(Enum):
+    """A faixa em que o d20 de uma ação caiu."""
+
+    DISASTER = "DISASTER"
+    WEAK = "WEAK"
+    NORMAL = "NORMAL"
+    GOOD = "GOOD"
+    VIRAL = "VIRAL"
+
+
+class CampaignEntryKind(Enum):
+    """O que uma linha do histórico de campanha do partido conta."""
+
+    TV = "TV"
+    EVENT = "EVENT"
+    RALLY = "RALLY"
+    ATTACK = "ATTACK"
+    BASE_BUDGET = "BASE_BUDGET"
+    # Ataque que outro partido fez ao partido de quem vê: sem o dado do rival
+    ATTACK_RECEIVED = "ATTACK_RECEIVED"
 
 
 class MeasureKind(Enum):

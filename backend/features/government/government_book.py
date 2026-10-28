@@ -6,6 +6,7 @@ eventos e só muda por `_emit`, que grava o evento e o aplica.
 
 import logging
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
 from uuid import UUID
@@ -21,7 +22,9 @@ from backend.core.dto.government import (
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
+    CampaignActionKind,
     CashflowEventType,
+    ComputerDifficulty,
     GovernmentEventType,
     GovernmentNoticeKind,
     GroupVerdict,
@@ -39,12 +42,13 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.utils import next_business_day, required
 from backend.features.government import approval as approval_rules
-from backend.features.government import congress, election, voters
+from backend.features.government import campaign, congress, election, voters
 from backend.features.government import measures as rules
 from backend.features.government.calendar import ElectionCycle, election_cycle
 from backend.features.government.measures import PolicyTimeline
 from backend.features.government.state import (
     VIGENCE_DAYS,
+    CampaignRecord,
     GovernmentState,
     Measure,
     Party,
@@ -61,6 +65,16 @@ logger = logging.getLogger(__name__)
 # Alíquota e pontos somados a um setor vão até 100% e 20 pontos
 RATE_LIMIT = Decimal(1)
 SECTOR_EXTRA_LIMIT = Decimal("0.2")
+
+
+@dataclass(frozen=True)
+class CampaignResult:
+    """A ação rolada e o apoio e a rejeição de antes, no grupo que ela atingiu."""
+
+    record: CampaignRecord
+    # Apoio de quem a ação atinge e rejeição do partido que agiu, antes de rolar; nulos na TV
+    support_before: Decimal | None
+    rejection_before: Decimal | None
 
 
 class GovernmentBook:
@@ -168,6 +182,8 @@ class GovernmentBook:
         """
         people = {user.id: user for user in users}
         self._people = people
+        # O apoio de campanha chega ao dia de hoje com a queda do tempo aplicada
+        self.state.advance(today)
         previous, self._previous_day = self._previous_day, today
         pending = self.state.pending_term
         if pending is not None and today >= pending.start:
@@ -477,6 +493,124 @@ class GovernmentBook:
             party_abbr=party.abbr,
             amount=amount,
         )
+
+    # Ações avulsas de campanha
+
+    def campaign_closed_reason(self, today: date) -> str | None:
+        """Por que as ações não estão abertas hoje; nulo quando valem."""
+        cycle = self.cycle()
+        if self.state.runoff is not None:
+            return "Entre os turnos valem as regras do 2º turno."
+        if today < cycle.campaign_start:
+            return "A campanha ainda não abriu."
+        if today >= cycle.first_round:
+            return "As ações valem até a véspera do 1º turno."
+        return None
+
+    def action_price(self, kind: CampaignActionKind, today: date) -> Decimal:
+        """O preço da ação no dia, corrigido pelo IPCA quando a partida corrige os valores."""
+        return campaign.price(
+            kind,
+            self._settings.start_date,
+            today,
+            self._settings.inflation_adjusted,
+        )
+
+    def cash_of(self, user: UserDTO) -> Decimal:
+        return self._engine.get_cash(user.client_id)
+
+    def running_parties(self) -> list[Party]:
+        """Os partidos que concorrem hoje, do mais antigo ao mais novo."""
+        return sorted(self._running(), key=lambda p: p.id)
+
+    def campaign_action(
+        self,
+        user: UserDTO,
+        today: date,
+        kind: CampaignActionKind,
+        group: VoterGroup | None,
+        rival_id: int | None,
+    ) -> CampaignResult:
+        """
+        Dispara uma ação de campanha do partido de `user`: a validação vem antes da
+        cobrança, então a ação que falha não cobra nada. O dado sai da semente da partida.
+        """
+        self._ensure_person(user)
+        party = self._my_party(user)
+        reason = self.campaign_closed_reason(today)
+        if reason is not None:
+            raise ConflictError(reason)
+        rival = self._check_action_target(party, kind, group, rival_id)
+        price = self.action_price(kind, today)
+        missing = price - self.cash_of(user)
+        if missing > 0:
+            raise ConflictError(
+                f"Caixa insuficiente para essa ação: faltam R$ {missing:,.2f}."
+            )
+        self._engine.pay_campaign(
+            user.client_id, price, CashflowEventType.CAMPAIGN_ACTION
+        )
+        target = rival or party
+        support_before = target.standing(group).support if group else None
+        rejection_before = party.rejection[group] if group else None
+        record = self._emit_action(party, user.id, today, kind, group, rival, price)
+        self._notice(
+            GovernmentNoticeKind.CAMPAIGN_ACTION,
+            user,
+            party_abbr=party.abbr,
+            campaign_action=kind,
+            group=group,
+            rival_abbr=rival.abbr if rival else None,
+        )
+        return CampaignResult(record, support_before, rejection_before)
+
+    def _check_action_target(
+        self,
+        party: Party,
+        kind: CampaignActionKind,
+        group: VoterGroup | None,
+        rival_id: int | None,
+    ) -> Party | None:
+        """Confere o grupo e o rival que a ação pede; devolve o rival do ataque."""
+        if kind is CampaignActionKind.TV:
+            if group is not None:
+                raise UnprocessableEntityError("A TV atinge todos os grupos.")
+        elif group is None:
+            raise UnprocessableEntityError("Escolha o grupo da ação.")
+        if kind is not CampaignActionKind.ATTACK:
+            if rival_id is not None:
+                raise UnprocessableEntityError("Só o ataque tem rival.")
+            return None
+        rival = self.state.parties.get(rival_id) if rival_id is not None else None
+        if rival is None or not election.runs(self.state, rival):
+            raise NotFoundError("Escolha um partido rival que esteja na eleição.")
+        if rival.id == party.id:
+            raise ConflictError("O ataque vai a um partido rival, e não ao seu.")
+        return rival
+
+    def _emit_action(
+        self,
+        party: Party,
+        user_id: int | None,
+        today: date,
+        kind: CampaignActionKind,
+        group: VoterGroup | None,
+        rival: Party | None,
+        price: Decimal,
+    ) -> CampaignRecord:
+        rolls = campaign.roll_dice(self._seed, self.state.next_action_id, kind)
+        self._emit(
+            GovernmentEventType.CAMPAIGN_ACTION,
+            today,
+            user_id=user_id,
+            party_id=party.id,
+            action=kind.value,
+            group=group.value if group else None,
+            rival_id=rival.id if rival else None,
+            price=str(price),
+            rolls=list(rolls),
+        )
+        return self.state.actions[-1]
 
     # Medidas do presidente
 
@@ -839,8 +973,10 @@ class GovernmentBook:
                 total += contribution
             spent[str(party.id)] = str(total)
         computer_amount = election.computer_spend(self.state, self._factor)
-        for party in self.state.computer_parties():
-            spent[str(party.id)] = str(computer_amount)
+        for party in sorted(self.state.computer_parties(), key=lambda p: p.id):
+            spent[str(party.id)] = str(
+                self._computer_campaign(party, computer_amount, today)
+            )
         self._emit(
             GovernmentEventType.CAMPAIGN_SPENT,
             today,
@@ -848,6 +984,54 @@ class GovernmentBook:
             spent=spent,
         )
         self._notice(GovernmentNoticeKind.UPDATED)
+
+    def _computer_campaign(self, party: Party, budget: Decimal, today: date) -> Decimal:
+        """
+        O computador gasta uma fatia da verba do mês em ações, por regra: TV quando a
+        fatia cobre o preço; senão eventos nos grupos de maior afinidade; na dificuldade
+        difícil, ataque ao líder da pesquisa. Devolve o que sobra para a verba de base.
+        """
+        pot = budget * campaign.COMPUTER_ACTION_SHARE
+        plan: list[tuple[CampaignActionKind, VoterGroup | None, Party | None]] = []
+        tv = self.action_price(CampaignActionKind.TV, today)
+        event = self.action_price(CampaignActionKind.EVENT, today)
+        attack = self.action_price(CampaignActionKind.ATTACK, today)
+        if pot >= tv:
+            plan.append((CampaignActionKind.TV, None, None))
+            pot -= tv
+        else:
+            by_affinity = sorted(
+                VoterGroup,
+                key=lambda g: (-voters.affinity(g, party.radar), g.value),
+            )
+            for group in by_affinity:
+                if pot < event:
+                    break
+                plan.append((CampaignActionKind.EVENT, group, None))
+                pot -= event
+        if (
+            self._settings.computer_difficulty is ComputerDifficulty.HARD
+            and pot >= attack
+        ):
+            target = self._attack_target(party)
+            if target is not None:
+                plan.append((CampaignActionKind.ATTACK, target[1], target[0]))
+        left = budget
+        for kind, group, rival in plan:
+            price = self.action_price(kind, today)
+            self._emit_action(party, None, today, kind, group, rival, price)
+            left -= price
+        return left
+
+    def _attack_target(self, party: Party) -> tuple[Party, VoterGroup] | None:
+        """O líder da pesquisa entre os rivais e o grupo em que ele está mais forte."""
+        rivals = [p for p in self.running_parties() if p.id != party.id]
+        if not rivals:
+            return None
+        totals = election.intention(self.state).total
+        leader = max(rivals, key=lambda p: (totals.get(p.id, Decimal(0)), -p.id))
+        group = max(VoterGroup, key=lambda g: (leader.standing(g).balance, g.value))
+        return leader, group
 
     def _hold_first_round(self, cycle: ElectionCycle, today: date) -> None:
         self._ensure_computers(today)
@@ -1076,6 +1260,9 @@ class GovernmentBook:
         groups_reproved: list[VoterGroup] | None = None,
         ticket_deadline: date | None = None,
         first_round: date | None = None,
+        campaign_action: CampaignActionKind | None = None,
+        group: VoterGroup | None = None,
+        rival_abbr: str | None = None,
     ) -> None:
         notify(
             "government_update",
@@ -1100,5 +1287,8 @@ class GovernmentBook:
                 groups_reproved=groups_reproved,
                 ticket_deadline=ticket_deadline,
                 first_round=first_round,
+                campaign_action=campaign_action,
+                group=group,
+                rival_abbr=rival_abbr,
             ).to_json(),
         )

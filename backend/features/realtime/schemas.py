@@ -34,6 +34,7 @@ from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusR
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.strategy import StrategyOrderLineDTO
 from backend.core.enum import (
+    CampaignActionKind,
     CreditGrade,
     GovernmentNoticeKind,
     OrderAction,
@@ -231,6 +232,10 @@ class GovernmentUpdateEventDTO(BaseDTO):
     # Nos avisos do calendário: o dia em que as chapas fecham e o do 1º turno
     ticket_deadline: date | None = None
     first_round: date | None = None
+    # Na ação de campanha: qual, em que grupo (nulo na TV) e contra qual partido (só no ataque)
+    campaign_action: CampaignActionKind | None = None
+    group: VoterGroup | None = None
+    rival_abbr: str | None = None
 
 
 class StrategyUpdateEventDTO(BaseDTO):

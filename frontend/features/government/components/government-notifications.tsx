@@ -8,6 +8,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionRound, GovernmentNotice, GovernmentPanel, PortfolioState } from "@/types";
 import { calendarToast } from "../lib/calendar-toast";
+import { campaignToast } from "../lib/campaign";
 import { inForceToast, monthClosedToast, votedToast, warningToast } from "../lib/measure-toast";
 import type { ElectionShortcut } from "../lib/election";
 import { donationContext, roundToast } from "../lib/round-toast";
@@ -35,6 +36,7 @@ export function GovernmentNotifications() {
   const renew = () => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.election() });
     void queryClient.invalidateQueries({ queryKey: queryKeys.government() });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.campaign() });
     void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
   };
 
@@ -171,6 +173,14 @@ export function GovernmentNotifications() {
           setImpeachment(queryClient.getQueryData<GovernmentPanel>(queryKeys.government()) ?? null);
         });
         break;
+      case "CAMPAIGN_ACTION": {
+        // Quem fez a ação já viu o dado no diálogo; os outros filiados e o partido atacado recebem o aviso
+        const election = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
+        const mine = election?.parties.find((party) => party.id === election.my_party?.party_id);
+        const notice = campaignToast(event, mine && me ? { abbr: mine.abbr, nickname: me } : undefined);
+        if (notice) toast[notice.tone](notice.title, { description: notice.description });
+        break;
+      }
       case "UPDATED":
         break;
     }

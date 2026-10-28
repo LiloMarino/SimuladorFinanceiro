@@ -9,6 +9,7 @@ import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { ElectionPanel } from "@/types";
+import { CampaignSection } from "../components/campaign-section";
 import { ChooseFlagsDialog } from "../components/choose-flags-dialog";
 import { ContributionDialog } from "../components/contribution-dialog";
 import { DonateDialog } from "../components/donate-dialog";
@@ -181,19 +182,28 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
             </TabsList>
             <TabsContent value="race">{race}</TabsContent>
             <TabsContent value="campaign">
-              <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-                <div className="grid min-w-0 gap-5">
-                  {panel.electorate.length > 0 && <ElectorateCard panel={panel} party={party} />}
-                </div>
-                <MyPartyCard
+              <div className="grid gap-5">
+                <CampaignSection
                   panel={panel}
                   party={party}
+                  cash={cash}
                   nickname={nickname}
-                  onEditTicket={() => setDialog("ticket")}
                   onChangeContribution={() => setDialog("contribution")}
-                  onExpel={setExpelling}
-                  onLeave={() => setDialog("leave")}
                 />
+                <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+                  <div className="grid min-w-0 gap-5">
+                    {panel.electorate.length > 0 && <ElectorateCard panel={panel} party={party} />}
+                  </div>
+                  <MyPartyCard
+                    panel={panel}
+                    party={party}
+                    nickname={nickname}
+                    onEditTicket={() => setDialog("ticket")}
+                    onChangeContribution={() => setDialog("contribution")}
+                    onExpel={setExpelling}
+                    onLeave={() => setDialog("leave")}
+                  />
+                </div>
               </div>
             </TabsContent>
           </Tabs>

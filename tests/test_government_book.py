@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
@@ -14,6 +14,8 @@ from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
+    CampaignActionKind,
+    CampaignEntryKind,
     CashflowEventType,
     ComputerDifficulty,
     ElectionPhase,
@@ -33,8 +35,9 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.utils import required
 from backend.features.government import approval as approval_rules
-from backend.features.government import congress, election, voters
+from backend.features.government import campaign, congress, election, voters
 from backend.features.government.calendar import election_cycle
+from backend.features.government.campaign_panel import build_campaign, build_history
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_panel
 from backend.features.government.state import Party, replay
@@ -245,7 +248,10 @@ def test_monthly_contribution_buys_votes_and_is_charged_once_a_month(
     book.on_tick(USERS, date(2020, 11, 4), True)
 
     assert engine.get_cash(ALICE.client_id) == Decimal(90000)
-    assert party.campaign[WORKERS] == voters.campaign_points(Decimal(10000))
+    # A verba de 3 nov já perdeu 1 dia da queda pela metade a cada 3 meses
+    assert party.campaign[WORKERS] == voters.campaign_points(
+        Decimal(10000)
+    ) * campaign.decay_factor(1)
     computers = book.state.computer_parties()
     # Dificuldade Fácil: o computador gasta metade da verba do partido de jogadores
     assert all(c.spent == Decimal(5000) for c in computers)
@@ -476,6 +482,7 @@ def test_donation_goes_only_to_a_finalist_and_only_from_an_eliminated_party(
     with pytest.raises(ConflictError, match="prazo"):
         book.donate(BOB, date(2021, 10, 28), finalist, Decimal(1000))
 
+    book.state.advance(date(2021, 10, 10))
     before = book.state.parties[finalist].campaign[WORKERS]
     book.donate(BOB, date(2021, 10, 10), finalist, Decimal(1000))
 
@@ -1201,3 +1208,295 @@ def test_panel_publishes_the_poll_with_margin_and_the_exact_standing_to_members(
             assert abs(shown.points - value.points) <= group.margin
     assert poll.entries != truth.entries
     assert published.runoff_simulation is not None
+
+
+# Ações avulsas de campanha
+
+ACTION_DAY = date(2020, 11, 10)
+RETIREES = VoterGroup.RETIREES
+
+
+@pytest.fixture
+def dice(monkeypatch: pytest.MonkeyPatch):
+    """Fixa o número que o dado vai dar; a TV rola dois dados com o mesmo número."""
+
+    def fix(roll: int) -> None:
+        monkeypatch.setattr(
+            campaign,
+            "roll_dice",
+            lambda _seed, _id, kind: (
+                (roll,) * (2 if kind is CampaignActionKind.TV else 1)
+            ),
+        )
+
+    return fix
+
+
+def two_parties(book: GovernmentBook) -> tuple[Party, Party]:
+    found(book, ALICE, "AAA", RED)
+    found(book, BOB, "BBB", BLUE)
+    return party_of(book, ALICE), party_of(book, BOB)
+
+
+def test_event_is_paid_on_click_and_lifts_the_group(
+    book: GovernmentBook, engine: PoliticalEngine, notices
+):
+    mine, _ = two_parties(book)
+    cash = engine.get_cash(ALICE.client_id)
+    spent = mine.spent
+    support = mine.standing(RETIREES).support
+
+    result = book.campaign_action(
+        ALICE, ACTION_DAY, CampaignActionKind.EVENT, RETIREES, None
+    )
+
+    record = result.record
+    price = campaign.PRICES[CampaignActionKind.EVENT]
+    assert engine.get_cash(ALICE.client_id) == cash - price
+    assert record.rolls == campaign.roll_dice(SEED, record.id, CampaignActionKind.EVENT)
+    assert result.support_before == support
+    assert mine.spent == spent + price
+    assert mine.campaign[RETIREES] == pytest.approx(record.support)
+    assert notices[-1]["kind"] == GovernmentNoticeKind.CAMPAIGN_ACTION.value
+    assert notices[-1]["party_abbr"] == "AAA"
+
+
+def test_any_member_acts_and_the_return_halves_for_the_whole_party(
+    book: GovernmentBook, dice
+):
+    mine, _ = two_parties(book)
+    book.join_party(CARLA, CAMPAIGN_OPEN, mine.id, Decimal(0))
+    dice(10)
+
+    first = book.campaign_action(
+        ALICE, ACTION_DAY, CampaignActionKind.RALLY, RETIREES, None
+    ).record
+    second = book.campaign_action(
+        CARLA, ACTION_DAY, CampaignActionKind.RALLY, RETIREES, None
+    ).record
+    other_group = book.campaign_action(
+        ALICE, ACTION_DAY, CampaignActionKind.RALLY, WORKERS, None
+    ).record
+    next_month = book.campaign_action(
+        ALICE, date(2020, 12, 2), CampaignActionKind.RALLY, RETIREES, None
+    ).record
+
+    assert (first.rate, second.rate) == (1, Decimal("0.5"))
+    assert (other_group.rate, next_month.rate) == (1, 1)
+    assert second.user_id == CARLA.id
+
+
+def test_tv_reaches_every_group_with_the_higher_of_two_dice(
+    book: GovernmentBook, monkeypatch: pytest.MonkeyPatch
+):
+    mine, _ = two_parties(book)
+    monkeypatch.setattr(campaign, "roll_dice", lambda *_: (3, 16))
+
+    record = book.campaign_action(
+        ALICE, ACTION_DAY, CampaignActionKind.TV, None, None
+    ).record
+
+    assert record.roll == 16
+    assert record.support > 0
+    for group in VoterGroup:
+        assert mine.campaign[group] == pytest.approx(record.support)
+
+
+def test_attack_takes_support_from_the_rival_in_the_group(book: GovernmentBook, dice):
+    mine, rival = two_parties(book)
+    dice(10)
+
+    record = book.campaign_action(
+        ALICE, ACTION_DAY, CampaignActionKind.ATTACK, RETIREES, rival.id
+    ).record
+
+    assert rival.campaign[RETIREES] == pytest.approx(
+        -campaign.NORMAL_GAIN[CampaignActionKind.ATTACK]
+    )
+    assert mine.campaign[RETIREES] == 0
+    assert record.target_id == rival.id
+
+
+def test_attack_disaster_backfires_as_rejection_for_the_attacker(
+    book: GovernmentBook, dice
+):
+    mine, rival = two_parties(book)
+    dice(1)
+
+    book.campaign_action(
+        ALICE, ACTION_DAY, CampaignActionKind.ATTACK, RETIREES, rival.id
+    )
+
+    assert mine.rejection[RETIREES] > 0
+    assert rival.campaign[RETIREES] == 0
+
+
+def test_event_repairs_rejection_up_to_the_campaign_limit(book: GovernmentBook, dice):
+    mine, _ = two_parties(book)
+    mine.rejection[RETIREES] = Decimal(10)
+    dice(10)
+
+    for day in range(2, 10):
+        book.campaign_action(
+            ALICE, date(2020, 11, day), CampaignActionKind.EVENT, RETIREES, None
+        )
+
+    assert mine.repaired[RETIREES] == campaign.EVENT_REPAIR_LIMIT
+    assert mine.rejection[RETIREES] == 10 - campaign.EVENT_REPAIR_LIMIT
+
+
+def test_failed_action_charges_nothing(book: GovernmentBook, engine: PoliticalEngine):
+    mine, rival = two_parties(book)
+    cash = engine.get_cash(ALICE.client_id)
+
+    with pytest.raises(UnprocessableEntityError, match="grupo"):
+        book.campaign_action(ALICE, ACTION_DAY, CampaignActionKind.EVENT, None, None)
+    with pytest.raises(UnprocessableEntityError, match="todos os grupos"):
+        book.campaign_action(ALICE, ACTION_DAY, CampaignActionKind.TV, RETIREES, None)
+    with pytest.raises(NotFoundError, match="rival"):
+        book.campaign_action(
+            ALICE, ACTION_DAY, CampaignActionKind.ATTACK, RETIREES, None
+        )
+    with pytest.raises(ConflictError, match="rival"):
+        book.campaign_action(
+            ALICE, ACTION_DAY, CampaignActionKind.ATTACK, RETIREES, mine.id
+        )
+    with pytest.raises(UnprocessableEntityError, match="rival"):
+        book.campaign_action(
+            ALICE, ACTION_DAY, CampaignActionKind.EVENT, RETIREES, rival.id
+        )
+    assert engine.get_cash(ALICE.client_id) == cash
+
+    engine.add_cash(ALICE.client_id, -(cash - 100))
+    with pytest.raises(ConflictError, match="Caixa insuficiente"):
+        book.campaign_action(ALICE, ACTION_DAY, CampaignActionKind.TV, None, None)
+    assert engine.get_cash(ALICE.client_id) == 100
+    assert book.state.actions == []
+
+
+def test_actions_are_for_members_during_the_campaign_until_the_eve(
+    book: GovernmentBook,
+):
+    two_parties(book)
+
+    with pytest.raises(ConflictError, match="partido"):
+        book.campaign_action(CARLA, ACTION_DAY, CampaignActionKind.TV, None, None)
+    with pytest.raises(ForbiddenError):
+        book.campaign_action(BOT, ACTION_DAY, CampaignActionKind.TV, None, None)
+    with pytest.raises(ConflictError, match="véspera"):
+        book.campaign_action(ALICE, FIRST_ROUND, CampaignActionKind.TV, None, None)
+
+    eve = FIRST_ROUND - timedelta(days=1)
+    assert book.campaign_closed_reason(eve) is None
+    book.campaign_action(ALICE, eve, CampaignActionKind.TV, None, None)
+
+
+def test_actions_close_between_the_rounds(book: GovernmentBook):
+    found(book, ALICE, "AAA", RED, "8000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
+    run_campaign(book)
+    book.on_tick(USERS, FIRST_ROUND, False)
+
+    with pytest.raises(ConflictError, match="2º turno"):
+        book.campaign_action(
+            ALICE, date(2021, 10, 10), CampaignActionKind.TV, None, None
+        )
+
+
+def test_campaign_support_halves_every_three_months(book: GovernmentBook, dice):
+    mine, _ = two_parties(book)
+    dice(10)
+    book.campaign_action(ALICE, ACTION_DAY, CampaignActionKind.RALLY, RETIREES, None)
+    start = mine.campaign[RETIREES]
+
+    book.on_tick(USERS, ACTION_DAY + timedelta(days=campaign.HALF_LIFE_DAYS), False)
+
+    assert mine.campaign[RETIREES] == pytest.approx(start / 2)
+
+
+def test_replay_restores_actions_decay_and_repairs(book: GovernmentBook, stored):
+    _, rival = two_parties(book)
+    book.campaign_action(ALICE, ACTION_DAY, CampaignActionKind.EVENT, RETIREES, None)
+    book.campaign_action(ALICE, ACTION_DAY, CampaignActionKind.TV, None, None)
+    book.campaign_action(
+        ALICE, date(2020, 11, 12), CampaignActionKind.ATTACK, WORKERS, rival.id
+    )
+    book.on_tick(USERS, date(2020, 12, 20), False)
+    book.state.advance(date(2020, 12, 20))
+
+    rebuilt = replay(stored)
+    rebuilt.advance(date(2020, 12, 20))
+
+    assert rebuilt.actions == book.state.actions
+    assert rebuilt.next_action_id == book.state.next_action_id
+    for party_id, party in book.state.parties.items():
+        again = rebuilt.parties[party_id]
+        for group in VoterGroup:
+            assert again.campaign[group] == pytest.approx(party.campaign[group])
+        assert again.repaired == party.repaired
+
+
+def test_computer_spends_part_of_its_monthly_budget_on_actions(
+    book: GovernmentBook,
+):
+    found(book, ALICE, "AAA", RED, "10000")
+
+    book.on_tick(USERS, date(2020, 11, 3), True)
+
+    computers = {p.id for p in book.state.computer_parties()}
+    actions = [a for a in book.state.actions if a.user_id is None]
+    assert actions
+    assert {a.party_id for a in actions} <= computers
+    for computer in computers:
+        paid = sum(a.price for a in actions if a.party_id == computer)
+        assert paid <= book.state.parties[computer].spent
+
+
+def test_actions_and_charges_reset_after_the_election(book: GovernmentBook):
+    found(book, ALICE, "AAA", RED, "8000")
+    found(book, BOB, "BBB", BLUE, "2000", NICHE)
+    run_campaign(book)
+    book.campaign_action(ALICE, date(2021, 9, 10), CampaignActionKind.TV, None, None)
+
+    book.on_tick(USERS, FIRST_ROUND, False)
+    book.on_tick(USERS, RUNOFF, False)
+
+    assert book.state.actions == []
+    assert book.state.charges == []
+    assert all(
+        sum(p.repaired.values()) == 0 and p.spent == 0
+        for p in book.state.parties.values()
+    )
+
+
+def test_campaign_panel_lists_prices_history_and_received_attacks(
+    book: GovernmentBook, dice
+):
+    mine, _ = two_parties(book)
+    dice(10)
+    book.campaign_action(ALICE, ACTION_DAY, CampaignActionKind.EVENT, RETIREES, None)
+    book.campaign_action(BOB, ACTION_DAY, CampaignActionKind.ATTACK, RETIREES, mine.id)
+
+    panel = build_campaign(book, USERS, ALICE, ACTION_DAY)
+    seen_by_rival = build_history(book, USERS, BOB, ACTION_DAY)
+
+    assert panel.open is True
+    assert panel.party_abbr == "AAA"
+    assert [a.action for a in panel.actions] == list(CampaignActionKind)
+    event = next(a for a in panel.actions if a.action is CampaignActionKind.EVENT)
+    retirees = next(t for t in event.targets if t.group is RETIREES)
+    assert retirees.uses_this_month == 1
+    assert retirees.rate == Decimal("0.5")
+    assert retirees.repair_limit == campaign.EVENT_REPAIR_LIMIT
+    assert {r.abbr for r in panel.rivals} == {"BBB"} | {
+        p.abbr for p in book.state.computer_parties()
+    }
+    assert "AAA" not in {r.abbr for r in panel.rivals}
+    kinds = [e.kind for e in panel.recent]
+    assert CampaignEntryKind.ATTACK_RECEIVED in kinds
+    received = next(
+        e for e in panel.recent if e.kind is CampaignEntryKind.ATTACK_RECEIVED
+    )
+    assert received.rolls == [] and received.roll is None and received.price is None
+    assert [e.kind for e in seen_by_rival.entries] == [CampaignEntryKind.ATTACK]
+    assert seen_by_rival.entries[0].rolls == [10]
