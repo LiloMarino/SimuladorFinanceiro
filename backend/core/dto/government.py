@@ -8,6 +8,12 @@ from typing import Annotated
 from pydantic import Field, StringConstraints
 
 from backend.core.dto.base import BaseDTO
+from backend.core.dto.promises import (
+    PromiseDTO,
+    PromiseOptionDTO,
+    PromiseRecordDTO,
+    TermPromisesDTO,
+)
 from backend.core.enum import (
     ApprovalFactorKind,
     ElectionPhase,
@@ -142,6 +148,9 @@ class PartyDTO(BaseDTO):
     vice_phase: VicePhase
     # A chapa foi escolhida pela fundadora; falso quando é a padrão
     ticket_chosen: bool
+    # As promessas da campanha em curso e as das eleições que passaram
+    promises: list[PromiseDTO]
+    past_promises: list[PromiseRecordDTO]
 
 
 class PollEntryDTO(BaseDTO):
@@ -200,6 +209,8 @@ class RoundPartyDTO(BaseDTO):
     vice: PartyCandidateDTO | None
     points: Decimal
     share: Decimal
+    # As promessas que a chapa levou à urna
+    promises: list[PromiseDTO]
 
 
 class RoundResultDTO(BaseDTO):
@@ -228,6 +239,8 @@ class TermDTO(BaseDTO):
     consecutive: int
     # O vice assumiu depois de um impeachment
     succession: bool
+    # As promessas da chapa, cobradas no fim do mandato
+    promises: list[PromiseDTO]
 
 
 class PlayerStandingDTO(BaseDTO):
@@ -351,6 +364,8 @@ class MeasureDTO(BaseDTO):
     days_left: int | None
     # Pontos no alvo da aprovação geral quando a medida vale cheia
     impact: int
+    # A medida cumpre uma promessa da chapa que governa
+    fulfills_promise: bool
     can_withdraw: bool
     can_repropose: bool
 
@@ -439,6 +454,8 @@ class TaxRowDTO(BaseDTO):
     top_value: Decimal | None
     # A medida da fila ou esperando a vigência que muda esta linha
     pending: MeasureDTO | None
+    # A chapa que governa prometeu mexer nesta linha
+    promised: bool
 
 
 class SectorMeasureDTO(BaseDTO):
@@ -511,6 +528,25 @@ class GovernmentPanelDTO(BaseDTO):
     last_impeachment: ImpeachmentDTO | None
     # Quantos dias a medida aprovada espera para valer
     vigence_days: int
+    # As promessas da chapa que governa; nulo no governo do computador e sem promessas
+    promises: TermPromisesDTO | None
+
+
+class PromisesPanelDTO(BaseDTO):
+    """O diálogo das promessas da chapa: o que a fundadora pode prometer e até quando."""
+
+    party_id: int
+    party_abbr: str
+    is_founder: bool
+    # Se a lista aceita mudança hoje; fechada, `closed_reason` explica
+    open: bool
+    closed_reason: str | None
+    # A lista trava quando as chapas fecham
+    ticket_deadline: date
+    max_promises: int
+    promises: list[PromiseDTO]
+    options: list[PromiseOptionDTO]
+    sectors: list[SectorOptionDTO]
 
 
 # Requisições do governo

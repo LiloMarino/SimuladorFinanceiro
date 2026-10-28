@@ -9,6 +9,7 @@ import type { ElectionPanel, ElectionParty } from "@/types";
 import { BUDGET, SPENT, VOTE_YIELD } from "../lib/election-metrics";
 import { monthlyYield } from "../lib/election";
 import { PartyMark } from "./party-mark";
+import { PromiseBadges } from "./promise-badges";
 import { ValueChips } from "./value-chip";
 import { YieldChart } from "./yield-chart";
 
@@ -17,6 +18,7 @@ type MyPartyCardProps = {
   party: ElectionParty;
   nickname: string;
   onEditTicket: () => void;
+  onEditPromises: () => void;
   onChangeContribution: () => void;
   onExpel: (nickname: string) => void;
   onLeave: () => void;
@@ -40,6 +42,7 @@ export function MyPartyCard({
   party,
   nickname,
   onEditTicket,
+  onEditPromises,
   onChangeContribution,
   onExpel,
   onLeave,
@@ -156,6 +159,27 @@ export function MyPartyCard({
               {budget > 0
                 ? ` Com ${displayMoneyWhole(budget)} o ${party.abbr} ganha +${yieldLabel(budget)}; dobrar para ${displayMoneyWhole(doubled)} dá +${yieldLabel(doubled)}, e não +${(monthlyYield(budget) * 2).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}.`
                 : " Sem verba, o partido não ganha pontos."}
+            </span>
+          </div>
+
+          {/* Promessas */}
+          <div className="grid gap-1.5">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm font-medium">Promessas da chapa</span>
+              {mine?.is_founder && (
+                <Button size="xs" variant="outline" onClick={onEditPromises}>
+                  {party.promises.length > 0 ? "Editar promessas" : "Escolher promessas"}
+                </Button>
+              )}
+            </div>
+            {party.promises.length > 0 ? (
+              <PromiseBadges promises={party.promises} />
+            ) : (
+              <span className="text-xs text-muted-foreground">A chapa ainda não prometeu nada.</span>
+            )}
+            <span className="text-xs text-muted-foreground">
+              Até 3 medidas que o governo pode propor. A promessa rende apoio desde o anúncio e é cobrada no fim do
+              mandato.
             </span>
           </div>
 

@@ -13,6 +13,7 @@ import {
 import { displayDayMonth, displayShortDate, displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionRound } from "@/types";
 import { PartyMark, PersonMark } from "./party-mark";
+import { PromiseBadges } from "./promise-badges";
 
 type RoundResultDialogProps = {
   result: ElectionRound | null;
@@ -84,6 +85,13 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
                       {winner.vice ? `Vice: ${winner.vice.name}. ` : "Chapa sem vice. "}
                       A posse é em {displayShortDate(panel?.dates.inauguration ?? result.date)}, e o mandato dura 4
                       anos.
+                      {winner.promises.length > 0 && (
+                        <span className="mt-2 grid gap-1">
+                          <b className="text-foreground">O que o governo eleito prometeu</b>
+                          <PromiseBadges promises={winner.promises} computer={winner.is_computer} />
+                          <span>Cobradas no fim do mandato, pelo que estiver em vigor.</span>
+                        </span>
+                      )}
                     </AlertDescription>
                   </Alert>
                 ) : (

@@ -10,6 +10,7 @@ import { BeforeFirstTerm, GovernmentError, GovernmentSkeleton } from "../compone
 import { NewMeasureDialog } from "../components/new-measure-dialog";
 import { QueueCard } from "../components/queue-card";
 import { TaxesCard } from "../components/taxes-card";
+import { TermPromisesCard } from "../components/term-promises-card";
 
 export default function GovernmentPage() {
   usePageLabel("Governo");
@@ -41,6 +42,9 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
         <ApprovalCard panel={panel} />
         <TaxesCard panel={panel} onPropose={(kind) => setProposal({ kind })} />
       </div>
+
+      {/* Promessas da chapa que governa */}
+      {panel.promises && <TermPromisesCard promises={panel.promises} termEnd={panel.term_end} />}
 
       {/* Fila do Congresso e carteira do presidente */}
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">

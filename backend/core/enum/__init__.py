@@ -467,6 +467,12 @@ class GovernmentEventType(Enum):
     MEASURE_VOTED = "MEASURE_VOTED"
     APPROVAL_MEASURED = "APPROVAL_MEASURED"
     IMPEACHED = "IMPEACHED"
+    # A chapa anuncia, troca ou retira promessas
+    PROMISES_SET = "PROMISES_SET"
+    # Com as chapas fechadas, metade do efeito das promessas em vigor passa a pesar no voto
+    PROMISES_WEIGHED = "PROMISES_WEIGHED"
+    # O balanço do fim do mandato: o que cada promessa cumpriu deixa afinidade e rejeição
+    PROMISES_SETTLED = "PROMISES_SETTLED"
 
 
 class ElectionPhase(Enum):
@@ -523,6 +529,8 @@ class GovernmentNoticeKind(Enum):
     IMPEACHMENT_WARNING = "IMPEACHMENT_WARNING"
     MONTH_CLOSED = "MONTH_CLOSED"
     CAMPAIGN_ACTION = "CAMPAIGN_ACTION"
+    PROMISES_SET = "PROMISES_SET"
+    PROMISES_SETTLED = "PROMISES_SETTLED"
 
 
 class CampaignActionKind(Enum):
@@ -598,6 +606,19 @@ class ApprovalFactorKind(Enum):
     SELIC = "SELIC"
     STOCKS = "STOCKS"
     MEASURE = "MEASURE"
+
+
+class PromiseState(Enum):
+    """Como uma promessa está diante do que vale hoje na política do país."""
+
+    # Chegou ao alvo
+    FULFILLED = "FULFILLED"
+    # Andou parte do caminho até o alvo
+    IN_PROGRESS = "IN_PROGRESS"
+    # Nada mudou desde o anúncio
+    UNTOUCHED = "UNTOUCHED"
+    # A política andou no sentido oposto ao do alvo
+    CONTRARY = "CONTRARY"
 
 
 class GroupVerdict(Enum):

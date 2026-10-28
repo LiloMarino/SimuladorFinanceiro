@@ -5044,6 +5044,209 @@
         ]
       }
     },
+    "/api/government/promises": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter as promessas da minha chapa",
+        "description": "Retorna, para a fundadora do partido, as promessas anunciadas, as medidas gerais que se prometem com o que valem hoje e o passo de referência, os setores e até quando a lista aceita mudança (o último dia de inscrição das chapas). Recusa com 403 a quem não funda o partido.",
+        "operationId": "get_promises_api_government_promises_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromisesPanelDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Anunciar as promessas da chapa",
+        "description": "Só a fundadora define a lista (até 3 medidas), da abertura da campanha até o fim da inscrição das chapas. Medida com valor leva um alvo; medida de setor é sim ou não. A promessa rende apoio desde o anúncio; retirar, trocar ou baixar o alvo depois dele soma rejeição nos grupos que queriam a medida. A lista substitui a anterior.",
+        "operationId": "set_promises_api_government_promises_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromisesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/promises/preview": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Simular as promessas da chapa",
+        "description": "Mostra a lista de promessas como ficaria, sem anunciá-la: em cada grupo de eleitores, o apoio que cada promessa rende hoje (já descontado pela rejeição do partido), a afinidade e a reparação de rejeição se for cumprida e a rejeição que soma se for descumprida, mais a rejeição que voltar atrás nas já anunciadas custaria.",
+        "operationId": "preview_promises_api_government_promises_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromisesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromisesPreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/balances": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter os balanços de promessas",
+        "description": "O balanço das promessas de cada governo que acabou, do mais recente ao mais antigo: o estado de cada promessa (cumprida, em andamento, descumprida ou na direção contrária) e a fração do caminho andada. Os números por grupo (afinidade somada e rejeição somada ou reparada) só chegam aos filiados do partido da chapa.",
+        "operationId": "get_balances_api_government_balances_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BalanceDTO"
+                  },
+                  "type": "array",
+                  "title": "Response Get Balances Api Government Balances Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/government": {
       "get": {
         "tags": [
@@ -9242,6 +9445,101 @@
         "title": "BacktestStoppedDTO",
         "description": "O backtest parado e salvo até onde chegou."
       },
+      "BalanceDTO": {
+        "properties": {
+          "term_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Term Start"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "party_abbr": {
+            "type": "string",
+            "title": "Party Abbr"
+          },
+          "party_color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Color"
+          },
+          "impeached": {
+            "type": "boolean",
+            "title": "Impeached"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BalanceItemDTO"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "totals": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseEffectDTO"
+            },
+            "type": "array",
+            "title": "Totals"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "term_start",
+          "date",
+          "party_id",
+          "party_abbr",
+          "party_color",
+          "impeached",
+          "items",
+          "totals"
+        ],
+        "title": "BalanceDTO",
+        "description": "O balanço das promessas de um governo, no fim do mandato ou no impeachment sem vice."
+      },
+      "BalanceItemDTO": {
+        "properties": {
+          "promise": {
+            "$ref": "#/components/schemas/PromiseDTO"
+          },
+          "state": {
+            "$ref": "#/components/schemas/PromiseState"
+          },
+          "done": {
+            "type": "string",
+            "title": "Done"
+          },
+          "effects": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseEffectDTO"
+            },
+            "type": "array",
+            "title": "Effects"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "promise",
+          "state",
+          "done",
+          "effects"
+        ],
+        "title": "BalanceItemDTO"
+      },
       "BandsSeriesDTO": {
         "properties": {
           "upper": {
@@ -13250,7 +13548,9 @@
           "IMPEACHMENT",
           "IMPEACHMENT_WARNING",
           "MONTH_CLOSED",
-          "CAMPAIGN_ACTION"
+          "CAMPAIGN_ACTION",
+          "PROMISES_SET",
+          "PROMISES_SETTLED"
         ],
         "title": "GovernmentNoticeKind",
         "description": "O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."
@@ -13363,6 +13663,16 @@
           "vigence_days": {
             "type": "integer",
             "title": "Vigence Days"
+          },
+          "promises": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermPromisesDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -13382,7 +13692,8 @@
           "portfolio",
           "sectors",
           "last_impeachment",
-          "vigence_days"
+          "vigence_days",
+          "promises"
         ],
         "title": "GovernmentPanelDTO"
       },
@@ -15589,6 +15900,10 @@
             "type": "integer",
             "title": "Impact"
           },
+          "fulfills_promise": {
+            "type": "boolean",
+            "title": "Fulfills Promise"
+          },
           "can_withdraw": {
             "type": "boolean",
             "title": "Can Withdraw"
@@ -15616,6 +15931,7 @@
           "waiting_days",
           "days_left",
           "impact",
+          "fulfills_promise",
           "can_withdraw",
           "can_repropose"
         ],
@@ -16991,6 +17307,20 @@
           "ticket_chosen": {
             "type": "boolean",
             "title": "Ticket Chosen"
+          },
+          "promises": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseDTO"
+            },
+            "type": "array",
+            "title": "Promises"
+          },
+          "past_promises": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseRecordDTO"
+            },
+            "type": "array",
+            "title": "Past Promises"
           }
         },
         "additionalProperties": false,
@@ -17017,7 +17347,9 @@
           "candidate",
           "vice",
           "vice_phase",
-          "ticket_chosen"
+          "ticket_chosen",
+          "promises",
+          "past_promises"
         ],
         "title": "PartyDTO"
       },
@@ -19106,6 +19438,503 @@
         "title": "ProfileMoveDTO",
         "description": "Uma medida aprovada que moveu o perfil do partido."
       },
+      "PromiseDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/MeasureKind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target"
+          },
+          "baseline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
+          },
+          "announced": {
+            "type": "string",
+            "format": "date",
+            "title": "Announced"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "title",
+          "target",
+          "baseline",
+          "sector",
+          "segment",
+          "announced"
+        ],
+        "title": "PromiseDTO",
+        "description": "Uma medida prometida, pública: o alvo, o \"era\" no anúncio e o dia do anúncio."
+      },
+      "PromiseEffectDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "loyalty": {
+            "type": "string",
+            "title": "Loyalty"
+          },
+          "rejection": {
+            "type": "string",
+            "title": "Rejection"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "loyalty",
+          "rejection"
+        ],
+        "title": "PromiseEffectDTO",
+        "description": "O que o balanço deixa num grupo: afinidade somada e rejeição somada (negativa repara)."
+      },
+      "PromiseOptionDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/MeasureKind"
+          },
+          "baseline": {
+            "type": "string",
+            "title": "Baseline"
+          },
+          "step": {
+            "type": "string",
+            "title": "Step"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "baseline",
+          "step",
+          "limit"
+        ],
+        "title": "PromiseOptionDTO",
+        "description": "Uma medida geral que se pode prometer: o que vale hoje e o passo de referência."
+      },
+      "PromisePreviewDTO": {
+        "properties": {
+          "promise": {
+            "$ref": "#/components/schemas/PromiseDTO"
+          },
+          "values": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseValueDTO"
+            },
+            "type": "array",
+            "title": "Values"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseRowDTO"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "promise",
+          "values",
+          "rows"
+        ],
+        "title": "PromisePreviewDTO"
+      },
+      "PromiseProgressDTO": {
+        "properties": {
+          "promise": {
+            "$ref": "#/components/schemas/PromiseDTO"
+          },
+          "state": {
+            "$ref": "#/components/schemas/PromiseState"
+          },
+          "done": {
+            "type": "string",
+            "title": "Done"
+          },
+          "current": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "promise",
+          "state",
+          "done",
+          "current"
+        ],
+        "title": "PromiseProgressDTO",
+        "description": "Uma promessa do mandato em curso e o caminho já andado."
+      },
+      "PromiseRecordDTO": {
+        "properties": {
+          "election_year": {
+            "type": "integer",
+            "title": "Election Year"
+          },
+          "elected": {
+            "type": "boolean",
+            "title": "Elected"
+          },
+          "promises": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseDTO"
+            },
+            "type": "array",
+            "title": "Promises"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "election_year",
+          "elected",
+          "promises"
+        ],
+        "title": "PromiseRecordDTO",
+        "description": "As promessas que um partido levou a uma eleição que passou."
+      },
+      "PromiseRequest": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/MeasureKind"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "segment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segment"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "PromiseRequest"
+      },
+      "PromiseRowDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "wanted": {
+            "type": "boolean",
+            "title": "Wanted"
+          },
+          "support": {
+            "type": "string",
+            "title": "Support"
+          },
+          "support_full": {
+            "type": "string",
+            "title": "Support Full"
+          },
+          "rejection": {
+            "type": "string",
+            "title": "Rejection"
+          },
+          "loyalty": {
+            "type": "string",
+            "title": "Loyalty"
+          },
+          "repair": {
+            "type": "string",
+            "title": "Repair"
+          },
+          "breach": {
+            "type": "string",
+            "title": "Breach"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "wanted",
+          "support",
+          "support_full",
+          "rejection",
+          "loyalty",
+          "repair",
+          "breach"
+        ],
+        "title": "PromiseRowDTO",
+        "description": "O que uma promessa faz num grupo de eleitores."
+      },
+      "PromiseState": {
+        "type": "string",
+        "enum": [
+          "FULFILLED",
+          "IN_PROGRESS",
+          "UNTOUCHED",
+          "CONTRARY"
+        ],
+        "title": "PromiseState",
+        "description": "Como uma promessa está diante do que vale hoje na política do país."
+      },
+      "PromiseTotalRowDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "support": {
+            "type": "string",
+            "title": "Support"
+          },
+          "retreat": {
+            "type": "string",
+            "title": "Retreat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "support",
+          "retreat"
+        ],
+        "title": "PromiseTotalRowDTO",
+        "description": "A soma das promessas num grupo: o apoio que rendem hoje, e o que a retirada custa."
+      },
+      "PromiseValueDTO": {
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/VoterValue"
+          },
+          "effect": {
+            "type": "string",
+            "title": "Effect"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "effect"
+        ],
+        "title": "PromiseValueDTO",
+        "description": "Quanto a promessa cumprida avança (positivo) ou recua (negativo) um valor."
+      },
+      "PromisesPanelDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "party_abbr": {
+            "type": "string",
+            "title": "Party Abbr"
+          },
+          "is_founder": {
+            "type": "boolean",
+            "title": "Is Founder"
+          },
+          "open": {
+            "type": "boolean",
+            "title": "Open"
+          },
+          "closed_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed Reason"
+          },
+          "ticket_deadline": {
+            "type": "string",
+            "format": "date",
+            "title": "Ticket Deadline"
+          },
+          "max_promises": {
+            "type": "integer",
+            "title": "Max Promises"
+          },
+          "promises": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseDTO"
+            },
+            "type": "array",
+            "title": "Promises"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseOptionDTO"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "sectors": {
+            "items": {
+              "$ref": "#/components/schemas/SectorOptionDTO"
+            },
+            "type": "array",
+            "title": "Sectors"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "party_abbr",
+          "is_founder",
+          "open",
+          "closed_reason",
+          "ticket_deadline",
+          "max_promises",
+          "promises",
+          "options",
+          "sectors"
+        ],
+        "title": "PromisesPanelDTO",
+        "description": "O diálogo das promessas da chapa: o que a fundadora pode prometer e até quando."
+      },
+      "PromisesPreviewDTO": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PromisePreviewDTO"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "totals": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseTotalRowDTO"
+            },
+            "type": "array",
+            "title": "Totals"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "totals"
+        ],
+        "title": "PromisesPreviewDTO",
+        "description": "A lista de promessas como ficaria, uma linha por promessa e a soma por grupo."
+      },
+      "PromisesRequest": {
+        "properties": {
+          "promises": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseRequest"
+            },
+            "type": "array",
+            "title": "Promises"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "promises"
+        ],
+        "title": "PromisesRequest"
+      },
       "ProposeMeasureRequest": {
         "properties": {
           "kind": {
@@ -19912,6 +20741,13 @@
           "share": {
             "type": "string",
             "title": "Share"
+          },
+          "promises": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseDTO"
+            },
+            "type": "array",
+            "title": "Promises"
           }
         },
         "additionalProperties": false,
@@ -19925,7 +20761,8 @@
           "candidate",
           "vice",
           "points",
-          "share"
+          "share",
+          "promises"
         ],
         "title": "RoundPartyDTO"
       },
@@ -23271,6 +24108,10 @@
                 "type": "null"
               }
             ]
+          },
+          "promised": {
+            "type": "boolean",
+            "title": "Promised"
           }
         },
         "additionalProperties": false,
@@ -23279,7 +24120,8 @@
           "kind",
           "value",
           "top_value",
-          "pending"
+          "pending",
+          "promised"
         ],
         "title": "TaxRowDTO"
       },
@@ -24019,6 +24861,13 @@
           "succession": {
             "type": "boolean",
             "title": "Succession"
+          },
+          "promises": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseDTO"
+            },
+            "type": "array",
+            "title": "Promises"
           }
         },
         "additionalProperties": false,
@@ -24029,9 +24878,64 @@
           "vice",
           "start",
           "consecutive",
-          "succession"
+          "succession",
+          "promises"
         ],
         "title": "TermDTO"
+      },
+      "TermPromisesDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "party_abbr": {
+            "type": "string",
+            "title": "Party Abbr"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseProgressDTO"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "weighed": {
+            "type": "boolean",
+            "title": "Weighed"
+          },
+          "last_vote": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Vote"
+          },
+          "projection": {
+            "items": {
+              "$ref": "#/components/schemas/PromiseEffectDTO"
+            },
+            "type": "array",
+            "title": "Projection"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "party_abbr",
+          "items",
+          "weighed",
+          "last_vote",
+          "projection"
+        ],
+        "title": "TermPromisesDTO",
+        "description": "As promessas da chapa que governa, no cartão do Governo."
       },
       "TickerSuggestionDTO": {
         "properties": {

@@ -23,6 +23,7 @@ import {
 } from "../lib/voters";
 import { PartyMark } from "./party-mark";
 import { ProfileRadar } from "./profile-radar";
+import { PromiseBadges } from "./promise-badges";
 import { ValueChips } from "./value-chip";
 
 const FOUNDING_COLOR = "var(--muted-foreground)";
@@ -98,6 +99,7 @@ function PartyTile({ party, selected, onCompare }: PartyTileProps) {
         )}
       </div>
       <ValueChips values={party.flags} />
+      <PartyPromises party={party} />
       <div className="flex justify-center">
         <ProfileRadar
           width={282}
@@ -126,6 +128,29 @@ function PartyTile({ party, selected, onCompare }: PartyTileProps) {
         Comparar com um grupo
         <ChevronRight />
       </Button>
+    </div>
+  );
+}
+
+/** As promessas da chapa nesta eleição, e as das eleições que já passaram. */
+function PartyPromises({ party }: { party: ElectionParty }) {
+  if (party.promises.length === 0 && party.past_promises.length === 0) return null;
+  return (
+    <div className="grid gap-1.5">
+      {party.promises.length > 0 && (
+        <div className="grid gap-1">
+          <span className="text-xs font-medium text-muted-foreground">Promessas</span>
+          <PromiseBadges promises={party.promises} computer={party.is_computer} />
+        </div>
+      )}
+      {party.past_promises.map((record) => (
+        <div key={record.election_year} className="grid gap-1">
+          <span className="text-xs text-muted-foreground">
+            Em {record.election_year} · {record.elected ? "eleita" : "não eleita"}
+          </span>
+          <PromiseBadges promises={record.promises} />
+        </div>
+      ))}
     </div>
   );
 }

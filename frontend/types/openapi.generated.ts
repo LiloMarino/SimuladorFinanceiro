@@ -1776,6 +1776,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/promises": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter as promessas da minha chapa
+         * @description Retorna, para a fundadora do partido, as promessas anunciadas, as medidas gerais que se prometem com o que valem hoje e o passo de referência, os setores e até quando a lista aceita mudança (o último dia de inscrição das chapas). Recusa com 403 a quem não funda o partido.
+         */
+        get: operations["get_promises_api_government_promises_get"];
+        /**
+         * Anunciar as promessas da chapa
+         * @description Só a fundadora define a lista (até 3 medidas), da abertura da campanha até o fim da inscrição das chapas. Medida com valor leva um alvo; medida de setor é sim ou não. A promessa rende apoio desde o anúncio; retirar, trocar ou baixar o alvo depois dele soma rejeição nos grupos que queriam a medida. A lista substitui a anterior.
+         */
+        put: operations["set_promises_api_government_promises_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/promises/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simular as promessas da chapa
+         * @description Mostra a lista de promessas como ficaria, sem anunciá-la: em cada grupo de eleitores, o apoio que cada promessa rende hoje (já descontado pela rejeição do partido), a afinidade e a reparação de rejeição se for cumprida e a rejeição que soma se for descumprida, mais a rejeição que voltar atrás nas já anunciadas custaria.
+         */
+        post: operations["preview_promises_api_government_promises_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/balances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter os balanços de promessas
+         * @description O balanço das promessas de cada governo que acabou, do mais recente ao mais antigo: o estado de cada promessa (cumprida, em andamento, descumprida ou na direção contrária) e a fração do caminho andada. Os números por grupo (afinidade somada e rejeição somada ou reparada) só chegam aos filiados do partido da chapa.
+         */
+        get: operations["get_balances_api_government_balances_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/government": {
         parameters: {
             query?: never;
@@ -3250,6 +3314,43 @@ export interface components {
             /** Simulation Id */
             simulation_id: number;
         };
+        /**
+         * BalanceDTO
+         * @description O balanço das promessas de um governo, no fim do mandato ou no impeachment sem vice.
+         */
+        BalanceDTO: {
+            /**
+             * Term Start
+             * Format: date
+             */
+            term_start: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Party Id */
+            party_id: number;
+            /** Party Abbr */
+            party_abbr: string;
+            /** Party Color */
+            party_color: string | null;
+            /** Impeached */
+            impeached: boolean;
+            /** Items */
+            items: components["schemas"]["BalanceItemDTO"][];
+            /** Totals */
+            totals: components["schemas"]["PromiseEffectDTO"][];
+        };
+        /** BalanceItemDTO */
+        BalanceItemDTO: {
+            promise: components["schemas"]["PromiseDTO"];
+            state: components["schemas"]["PromiseState"];
+            /** Done */
+            done: string;
+            /** Effects */
+            effects: components["schemas"]["PromiseEffectDTO"][];
+        };
         /** BandsSeriesDTO */
         BandsSeriesDTO: {
             /** Upper */
@@ -4622,7 +4723,7 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION";
+        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED";
         /** GovernmentPanelDTO */
         GovernmentPanelDTO: {
             /**
@@ -4660,6 +4761,7 @@ export interface components {
             last_impeachment: components["schemas"]["ImpeachmentDTO"] | null;
             /** Vigence Days */
             vigence_days: number;
+            promises: components["schemas"]["TermPromisesDTO"] | null;
         };
         /**
          * GovernmentUpdateEventDTO
@@ -5502,6 +5604,8 @@ export interface components {
             days_left: number | null;
             /** Impact */
             impact: number;
+            /** Fulfills Promise */
+            fulfills_promise: boolean;
             /** Can Withdraw */
             can_withdraw: boolean;
             /** Can Repropose */
@@ -5986,6 +6090,10 @@ export interface components {
             vice_phase: components["schemas"]["VicePhase"];
             /** Ticket Chosen */
             ticket_chosen: boolean;
+            /** Promises */
+            promises: components["schemas"]["PromiseDTO"][];
+            /** Past Promises */
+            past_promises: components["schemas"]["PromiseRecordDTO"][];
         };
         /** PartyFlagsRequest */
         PartyFlagsRequest: {
@@ -6693,6 +6801,185 @@ export interface components {
             /** Moves */
             moves: components["schemas"]["ValueMoveDTO"][];
         };
+        /**
+         * PromiseDTO
+         * @description Uma medida prometida, pública: o alvo, o "era" no anúncio e o dia do anúncio.
+         */
+        PromiseDTO: {
+            kind: components["schemas"]["MeasureKind"];
+            /** Title */
+            title: string;
+            /** Target */
+            target: string | null;
+            /** Baseline */
+            baseline: string | null;
+            /** Sector */
+            sector: string | null;
+            /** Segment */
+            segment: string | null;
+            /**
+             * Announced
+             * Format: date
+             */
+            announced: string;
+        };
+        /**
+         * PromiseEffectDTO
+         * @description O que o balanço deixa num grupo: afinidade somada e rejeição somada (negativa repara).
+         */
+        PromiseEffectDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Loyalty */
+            loyalty: string;
+            /** Rejection */
+            rejection: string;
+        };
+        /**
+         * PromiseOptionDTO
+         * @description Uma medida geral que se pode prometer: o que vale hoje e o passo de referência.
+         */
+        PromiseOptionDTO: {
+            kind: components["schemas"]["MeasureKind"];
+            /** Baseline */
+            baseline: string;
+            /** Step */
+            step: string;
+            /** Limit */
+            limit: string | null;
+        };
+        /** PromisePreviewDTO */
+        PromisePreviewDTO: {
+            promise: components["schemas"]["PromiseDTO"];
+            /** Values */
+            values: components["schemas"]["PromiseValueDTO"][];
+            /** Rows */
+            rows: components["schemas"]["PromiseRowDTO"][];
+        };
+        /**
+         * PromiseProgressDTO
+         * @description Uma promessa do mandato em curso e o caminho já andado.
+         */
+        PromiseProgressDTO: {
+            promise: components["schemas"]["PromiseDTO"];
+            state: components["schemas"]["PromiseState"];
+            /** Done */
+            done: string;
+            /** Current */
+            current: string | null;
+        };
+        /**
+         * PromiseRecordDTO
+         * @description As promessas que um partido levou a uma eleição que passou.
+         */
+        PromiseRecordDTO: {
+            /** Election Year */
+            election_year: number;
+            /** Elected */
+            elected: boolean;
+            /** Promises */
+            promises: components["schemas"]["PromiseDTO"][];
+        };
+        /** PromiseRequest */
+        PromiseRequest: {
+            kind: components["schemas"]["MeasureKind"];
+            /** Target */
+            target?: number | string | null;
+            /** Sector */
+            sector?: string | null;
+            /** Segment */
+            segment?: string | null;
+        };
+        /**
+         * PromiseRowDTO
+         * @description O que uma promessa faz num grupo de eleitores.
+         */
+        PromiseRowDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Wanted */
+            wanted: boolean;
+            /** Support */
+            support: string;
+            /** Support Full */
+            support_full: string;
+            /** Rejection */
+            rejection: string;
+            /** Loyalty */
+            loyalty: string;
+            /** Repair */
+            repair: string;
+            /** Breach */
+            breach: string;
+        };
+        /**
+         * PromiseState
+         * @description Como uma promessa está diante do que vale hoje na política do país.
+         * @enum {string}
+         */
+        PromiseState: "FULFILLED" | "IN_PROGRESS" | "UNTOUCHED" | "CONTRARY";
+        /**
+         * PromiseTotalRowDTO
+         * @description A soma das promessas num grupo: o apoio que rendem hoje, e o que a retirada custa.
+         */
+        PromiseTotalRowDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Support */
+            support: string;
+            /** Retreat */
+            retreat: string;
+        };
+        /**
+         * PromiseValueDTO
+         * @description Quanto a promessa cumprida avança (positivo) ou recua (negativo) um valor.
+         */
+        PromiseValueDTO: {
+            value: components["schemas"]["VoterValue"];
+            /** Effect */
+            effect: string;
+        };
+        /**
+         * PromisesPanelDTO
+         * @description O diálogo das promessas da chapa: o que a fundadora pode prometer e até quando.
+         */
+        PromisesPanelDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Party Abbr */
+            party_abbr: string;
+            /** Is Founder */
+            is_founder: boolean;
+            /** Open */
+            open: boolean;
+            /** Closed Reason */
+            closed_reason: string | null;
+            /**
+             * Ticket Deadline
+             * Format: date
+             */
+            ticket_deadline: string;
+            /** Max Promises */
+            max_promises: number;
+            /** Promises */
+            promises: components["schemas"]["PromiseDTO"][];
+            /** Options */
+            options: components["schemas"]["PromiseOptionDTO"][];
+            /** Sectors */
+            sectors: components["schemas"]["SectorOptionDTO"][];
+        };
+        /**
+         * PromisesPreviewDTO
+         * @description A lista de promessas como ficaria, uma linha por promessa e a soma por grupo.
+         */
+        PromisesPreviewDTO: {
+            /** Items */
+            items: components["schemas"]["PromisePreviewDTO"][];
+            /** Totals */
+            totals: components["schemas"]["PromiseTotalRowDTO"][];
+        };
+        /** PromisesRequest */
+        PromisesRequest: {
+            /** Promises */
+            promises: components["schemas"]["PromiseRequest"][];
+        };
         /** ProposeMeasureRequest */
         ProposeMeasureRequest: {
             kind: components["schemas"]["MeasureKind"];
@@ -6947,6 +7234,8 @@ export interface components {
             points: string;
             /** Share */
             share: string;
+            /** Promises */
+            promises: components["schemas"]["PromiseDTO"][];
         };
         /** RoundResultDTO */
         RoundResultDTO: {
@@ -8168,6 +8457,8 @@ export interface components {
             /** Top Value */
             top_value: string | null;
             pending: components["schemas"]["MeasureDTO"] | null;
+            /** Promised */
+            promised: boolean;
         };
         /**
          * TeamCompositionDTO
@@ -8387,6 +8678,26 @@ export interface components {
             consecutive: number;
             /** Succession */
             succession: boolean;
+            /** Promises */
+            promises: components["schemas"]["PromiseDTO"][];
+        };
+        /**
+         * TermPromisesDTO
+         * @description As promessas da chapa que governa, no cartão do Governo.
+         */
+        TermPromisesDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Party Abbr */
+            party_abbr: string;
+            /** Items */
+            items: components["schemas"]["PromiseProgressDTO"][];
+            /** Weighed */
+            weighed: boolean;
+            /** Last Vote */
+            last_vote: string | null;
+            /** Projection */
+            projection: components["schemas"]["PromiseEffectDTO"][];
         };
         /** TickerSuggestionDTO */
         TickerSuggestionDTO: {
@@ -12504,6 +12815,164 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CampaignRollDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_promises_api_government_promises_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromisesPanelDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_promises_api_government_promises_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PromisesRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_promises_api_government_promises_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PromisesRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromisesPreviewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_balances_api_government_balances_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BalanceDTO"][];
                 };
             };
             /** @description Unprocessable Content */

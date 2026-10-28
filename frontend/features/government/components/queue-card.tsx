@@ -76,7 +76,14 @@ export function QueueCard({ panel }: QueueCardProps) {
                     </TableCell>
                     <TableCell className="whitespace-normal">
                       <span className="grid gap-0.5">
-                        <b className="font-medium">{measure.title}</b>
+                        <span className="flex flex-wrap items-center gap-1.5">
+                          <b className="font-medium">{measure.title}</b>
+                          {measure.fulfills_promise && (
+                            <Badge variant="info" size="sm">
+                              cumpre a promessa
+                            </Badge>
+                          )}
+                        </span>
                         <span className="text-xs text-muted-foreground">{stageDate(measure)}</span>
                       </span>
                     </TableCell>

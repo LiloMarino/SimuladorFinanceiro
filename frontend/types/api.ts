@@ -198,6 +198,14 @@ export type CampaignHistory = components["schemas"]["CampaignHistoryDTO"];
 export type CampaignRoll = components["schemas"]["CampaignRollDTO"];
 export type CampaignActionRequest = components["schemas"]["CampaignActionRequest"];
 export type DiceBand = components["schemas"]["DiceBand"];
+export type PromisesPanel = components["schemas"]["PromisesPanelDTO"];
+export type PromisesPreview = components["schemas"]["PromisesPreviewDTO"];
+export type PromisesRequest = components["schemas"]["PromisesRequest"];
+export type PromiseRequest = components["schemas"]["PromiseRequest"];
+export type PromiseState = components["schemas"]["PromiseState"];
+export type CampaignPromise = components["schemas"]["PromiseDTO"];
+export type PromiseBalance = components["schemas"]["BalanceDTO"];
+export type TermPromises = components["schemas"]["TermPromisesDTO"];
 
 // Viver de renda
 export type LifeStatus = components["schemas"]["LifeStatusDTO"];

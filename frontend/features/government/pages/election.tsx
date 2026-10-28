@@ -24,6 +24,7 @@ import { MyPartyCard } from "../components/my-party-card";
 import { PartiesCard } from "../components/parties-card";
 import { PartyProfilesCard } from "../components/party-profiles-card";
 import { PollCard } from "../components/poll-card";
+import { PromisesDialog } from "../components/promises-dialog";
 import { RankingCard } from "../components/ranking-card";
 import { TermCard } from "../components/term-card";
 import { TicketDialog } from "../components/ticket-dialog";
@@ -45,7 +46,7 @@ export default function ElectionPage() {
   return <ElectionContent key={location.key} panel={panel} initialDialog={shortcut ?? null} />;
 }
 
-type Dialog = "found" | "join" | "contribution" | "ticket" | "vice" | "leave" | "donate" | "flags";
+type Dialog = "found" | "join" | "contribution" | "ticket" | "promises" | "vice" | "leave" | "donate" | "flags";
 type Tab = "race" | "campaign";
 
 function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initialDialog: Dialog | null }) {
@@ -158,7 +159,7 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
           </AlertTitle>
           <AlertDescription>
             {mine?.is_founder
-              ? `A régua de promessa de 1 a 5 saiu do jogo. Até você escolher 3 bandeiras, o ${party.abbr} entra na pesquisa com um perfil neutro, com a mesma afinidade em todos os grupos.`
+              ? `Até você escolher 3 bandeiras, o ${party.abbr} entra na pesquisa com um perfil neutro, com a mesma afinidade em todos os grupos.`
               : "Até a escolha, o partido entra na pesquisa com um perfil neutro, com a mesma afinidade em todos os grupos."}
           </AlertDescription>
           {mine?.is_founder && (
@@ -199,6 +200,7 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
                     party={party}
                     nickname={nickname}
                     onEditTicket={() => setDialog("ticket")}
+                    onEditPromises={() => setDialog("promises")}
                     onChangeContribution={() => setDialog("contribution")}
                     onExpel={setExpelling}
                     onLeave={() => setDialog("leave")}
@@ -236,6 +238,9 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
             cash={cash}
           />
           <TicketDialog open={dialog === "ticket"} onOpenChange={close} party={party} panel={panel} cash={cash} />
+          {mine.is_founder && (
+            <PromisesDialog open={dialog === "promises"} onOpenChange={close} abbr={party.abbr} groups={panel.groups} />
+          )}
           <LeavePartyDialog
             open={dialog === "leave"}
             onOpenChange={close}

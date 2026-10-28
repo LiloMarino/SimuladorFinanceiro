@@ -12,6 +12,8 @@ import { campaignToast } from "../lib/campaign";
 import { inForceToast, monthClosedToast, votedToast, warningToast } from "../lib/measure-toast";
 import type { ElectionShortcut } from "../lib/election";
 import { donationContext, roundToast } from "../lib/round-toast";
+import { useRenewElection } from "../hooks/mutations/useRenewElection";
+import { BalanceDialog } from "./balance-dialog";
 import { CampaignOpenedDialog } from "./campaign-opened-dialog";
 import { ImpeachmentDialog } from "./impeachment-dialog";
 import { RoundResultDialog } from "./round-result-dialog";
@@ -31,14 +33,10 @@ export function GovernmentNotifications() {
   const [impeachment, setImpeachment] = useState<GovernmentPanel | null>(null);
   const [campaign, setCampaign] = useState<GovernmentNotice | null>(null);
   const [viceInvite, setViceInvite] = useState(false);
+  const [balanceOpen, setBalanceOpen] = useState(false);
   const me = user?.nickname;
 
-  const renew = () => {
-    void queryClient.invalidateQueries({ queryKey: queryKeys.election() });
-    void queryClient.invalidateQueries({ queryKey: queryKeys.government() });
-    void queryClient.invalidateQueries({ queryKey: queryKeys.campaign() });
-    void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
-  };
+  const renew = useRenewElection();
 
   const openGovernment = () => void navigate("/government");
   const showMeasure = (notice: {
@@ -181,6 +179,17 @@ export function GovernmentNotifications() {
         if (notice) toast[notice.tone](notice.title, { description: notice.description });
         break;
       }
+      case "PROMISES_SET":
+        toast.info(`${event.actor ?? "O fundador"} anunciou as promessas do ${abbr}`, {
+          action: { label: "Ver eleição", onClick: () => void navigate("/election") },
+        });
+        break;
+      case "PROMISES_SETTLED":
+        toast.info(`O mandato do ${abbr} fechou o balanço das promessas`, {
+          description: "Cumprida soma afinidade e repara rejeição; descumprida soma rejeição.",
+          action: { label: "Ver balanço", onClick: () => setBalanceOpen(true) },
+        });
+        break;
       case "UPDATED":
         break;
     }
@@ -203,6 +212,7 @@ export function GovernmentNotifications() {
         onClose={() => setCampaign(null)}
         onShortcut={openShortcut}
       />
+      <BalanceDialog open={balanceOpen} onOpenChange={setBalanceOpen} />
       <ImpeachmentDialog panel={impeachment} onClose={() => setImpeachment(null)} />
       <RoundResultDialog
         result={shown?.result ?? null}

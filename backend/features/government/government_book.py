@@ -19,6 +19,7 @@ from backend.core.dto.government import (
     MeasurePreviewDTO,
     ValueMoveDTO,
 )
+from backend.core.dto.promises import PromiseRequest
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
@@ -42,10 +43,17 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.utils import next_business_day, required
 from backend.features.government import approval as approval_rules
-from backend.features.government import campaign, congress, election, voters
+from backend.features.government import (
+    campaign,
+    congress,
+    election,
+    promises,
+    voters,
+)
 from backend.features.government import measures as rules
 from backend.features.government.calendar import ElectionCycle, election_cycle
 from backend.features.government.measures import PolicyTimeline
+from backend.features.government.promises import Promise
 from backend.features.government.state import (
     VIGENCE_DAYS,
     CampaignRecord,
@@ -185,11 +193,13 @@ class GovernmentBook:
         # O apoio de campanha chega ao dia de hoje com a queda do tempo aplicada
         self.state.advance(today)
         previous, self._previous_day = self._previous_day, today
+        self._settle_term_end(today)
         pending = self.state.pending_term
         if pending is not None and today >= pending.start:
             self._start_term(today, people)
 
         cycle = self.cycle()
+        self._weigh_promises(cycle, today)
         campaign_opened = self._announce_calendar(cycle, previous, today)
         self._announce_in_force(previous, today)
         if (
@@ -612,6 +622,206 @@ class GovernmentBook:
         )
         return self.state.actions[-1]
 
+    # Promessas de campanha
+
+    def promise_value(self, promise: Promise, day: date) -> Decimal | None:
+        """O que a medida prometida vale no país no dia; nulo na medida de setor."""
+        return rules.general_value(self.policy(day), promise.kind)
+
+    def promise_exempt(self, promise: Promise, day: date) -> bool:
+        rule = self.policy(day).sector_rule(promise.sector, promise.segment)
+        return rule is not None and rule.exempt
+
+    def promise_progress(self, promise: Promise, day: date) -> Decimal:
+        """Quanto do caminho do "era" ao alvo o país andou no dia."""
+        return promises.progress(
+            promise, self.promise_value(promise, day), self.promise_exempt(promise, day)
+        )
+
+    def promise_effects(
+        self, items: tuple[Promise, ...], day: date
+    ) -> promises.GroupEffects:
+        """O balanço das promessas no dia, somado em cada grupo."""
+        return promises.total(
+            promises.settle(item, self.promise_progress(item, day)) for item in items
+        )
+
+    def promise_baseline(self, kind: MeasureKind, day: date) -> Decimal | None:
+        """O "era" de uma promessa nova: o que a medida muda, como está hoje."""
+        return rules.general_value(self.policy(day), kind)
+
+    def promises_open_reason(self, today: date) -> str | None:
+        """Por que a chapa não mexe nas promessas hoje; nulo quando pode."""
+        cycle = self.cycle()
+        if self.state.runoff is not None:
+            return "Entre os turnos as promessas já estão travadas."
+        if today < cycle.campaign_start:
+            return "A campanha ainda não abriu."
+        if today > cycle.ticket_deadline:
+            return "As promessas travam quando as chapas fecham."
+        return None
+
+    def founded_party(self, user: UserDTO) -> Party:
+        """O partido que `user` fundou (ou herdou)."""
+        self._ensure_person(user)
+        return self._founded_party(user)
+
+    def draft_promises(
+        self, user: UserDTO, today: date, items: list[PromiseRequest]
+    ) -> list[Promise]:
+        """Valida a lista de promessas da chapa como ficaria; a que já existia mantém o "era" e o anúncio."""
+        party = self.founded_party(user)
+        reason = self.promises_open_reason(today)
+        if reason is not None:
+            raise ConflictError(reason)
+        if len(items) > promises.MAX_PROMISES:
+            raise UnprocessableEntityError(
+                f"No máximo {promises.MAX_PROMISES} promessas por chapa."
+            )
+        existing = {p.key: p for p in party.promises}
+        final: list[Promise] = []
+        for item in items:
+            promise = self._build_promise(item, existing.get(_key(item)), today)
+            if any(p.key == promise.key for p in final):
+                raise ConflictError("A mesma medida não é prometida duas vezes.")
+            final.append(promise)
+        return final
+
+    def set_promises(
+        self, user: UserDTO, today: date, items: list[PromiseRequest]
+    ) -> None:
+        """
+        A fundadora anuncia a lista de promessas da chapa (até 3). Uma promessa nova rende
+        desde o anúncio; voltar atrás depois dele (retirar, trocar ou baixar o alvo) soma
+        rejeição em quem queria a medida.
+        """
+        party = self.founded_party(user)
+        final = self.draft_promises(user, today, items)
+        if final == party.promises:
+            raise ConflictError("As promessas não mudaram.")
+        self._emit(
+            GovernmentEventType.PROMISES_SET,
+            today,
+            party_id=party.id,
+            promises=[promises.to_payload(p) for p in final],
+        )
+        self._notice(GovernmentNoticeKind.PROMISES_SET, user, party_abbr=party.abbr)
+
+    def _build_promise(
+        self, item: PromiseRequest, old: Promise | None, today: date
+    ) -> Promise:
+        """Valida o pedido e monta a promessa; a que já existia mantém o "era" e o dia do anúncio."""
+        kind = item.kind
+        if not promises.promisable(kind):
+            raise UnprocessableEntityError("Essa medida não se promete.")
+        announced = old.announced if old else today
+        if kind.is_sector:
+            self._ensure_located(item.sector, item.segment)
+            promise = Promise(kind, None, None, item.sector, item.segment, announced)
+            if old is None and self.promise_exempt(promise, today):
+                raise ConflictError(
+                    "Esse setor já é isento: não se promete o que já vale."
+                )
+            return promise
+        if item.sector is not None or item.segment is not None:
+            raise UnprocessableEntityError("Essa medida não é de um setor.")
+        limit = None if kind is MeasureKind.STOCK_EXEMPTION else RATE_LIMIT
+        target = item.target
+        if target is None or target < 0 or (limit is not None and target > limit):
+            raise UnprocessableEntityError("Informe um alvo válido para a promessa.")
+        baseline = old.baseline if old else self.promise_baseline(kind, today)
+        if target == baseline:
+            raise ConflictError(
+                "Esse já é o valor em vigor: não se promete o que já vale."
+            )
+        return Promise(kind, target, baseline, None, None, announced)
+
+    def _announce_computer_promises(self, today: date) -> None:
+        """Cada partido do computador promete, por regra, medidas dos próprios valores."""
+        if self.promises_open_reason(today) is not None:
+            return
+        baselines = {
+            kind: value
+            for kind in promises.GENERAL_KINDS
+            if (value := self.promise_baseline(kind, today)) is not None
+        }
+        for party in sorted(self.state.computer_parties(), key=lambda p: p.id):
+            if party.promises:
+                continue
+            picks = promises.computer_picks(party.radar, baselines, today)
+            if picks:
+                self._emit(
+                    GovernmentEventType.PROMISES_SET,
+                    today,
+                    party_id=party.id,
+                    promises=[promises.to_payload(p) for p in picks],
+                )
+
+    def _weigh_promises(self, cycle: ElectionCycle, today: date) -> None:
+        """
+        Com as chapas fechadas, o partido que governa e concorre passa a ser votado com
+        metade do balanço das promessas em vigor; o balanço do fim do mandato fecha o resto.
+        """
+        term = self.state.term
+        if (
+            term is None
+            or term.weighed
+            or term.settled
+            or not term.promises
+            or term.party_id is None
+            or today <= cycle.ticket_deadline
+        ):
+            return
+        party = self.state.parties.get(term.party_id)
+        if party is None or party.is_computer or not election.runs(self.state, party):
+            return
+        half = promises.scaled(
+            self.promise_effects(term.promises, today), promises.WEIGHED_SHARE
+        )
+        self._emit(
+            GovernmentEventType.PROMISES_WEIGHED,
+            today,
+            party_id=party.id,
+            effects=promises.effects_to_payload(half),
+        )
+
+    def _settle_term_end(self, today: date) -> None:
+        """No fim do mandato vale o que estava em vigor em 31 de dezembro."""
+        end = self.term_end()
+        if end is not None and today >= end:
+            self._settle_promises(today, end)
+
+    def _settle_promises(
+        self, today: date, day: date, *, impeached: bool = False
+    ) -> None:
+        """Fecha o balanço das promessas da chapa que governa, pelo que valia em `day`."""
+        term = self.state.term
+        if term is None or term.settled or not term.promises or term.party_id is None:
+            return
+        party = self.state.parties.get(term.party_id)
+        if party is None or party.is_computer:
+            return
+        items = []
+        for promise in term.promises:
+            done = self.promise_progress(promise, day)
+            items.append(
+                {
+                    "promise": promises.to_payload(promise),
+                    "done": str(done),
+                    "effects": promises.effects_to_payload(
+                        promises.settle(promise, done)
+                    ),
+                }
+            )
+        self._emit(
+            GovernmentEventType.PROMISES_SETTLED,
+            today,
+            party_id=party.id,
+            impeached=impeached,
+            items=items,
+        )
+        self._notice(GovernmentNoticeKind.PROMISES_SETTLED, party_abbr=party.abbr)
+
     # Medidas do presidente
 
     def propose(
@@ -901,6 +1111,9 @@ class GovernmentBook:
         term = required(self.state.term)
         out = self.president()
         successor = self._successor()
+        # Sem vice o mandato acaba aqui, e o que não foi cumprido vira rejeição
+        if successor is None:
+            self._settle_promises(today, today, impeached=True)
         self._emit(
             GovernmentEventType.IMPEACHED,
             today,
@@ -953,6 +1166,7 @@ class GovernmentBook:
         if self.state.last_collection == month:
             return
         self._ensure_computers(today)
+        self._announce_computer_promises(today)
 
         spent: dict[str, str] = {}
         for party in self.state.player_parties():
@@ -1100,6 +1314,7 @@ class GovernmentBook:
                 "color": party.color,
                 "is_computer": party.is_computer,
                 "candidate_name": party.candidate_name,
+                "promises": [promises.to_payload(p) for p in party.promises],
             }
         donations: dict[int, Decimal] = {}
         for donation in self.state.donations:
@@ -1292,3 +1507,7 @@ class GovernmentBook:
                 rival_abbr=rival_abbr,
             ).to_json(),
         )
+
+
+def _key(item: PromiseRequest) -> tuple[MeasureKind, str | None, str | None]:
+    return (item.kind, item.sector, item.segment)

@@ -51,7 +51,16 @@ export function TaxesCard({ panel, onPropose }: TaxesCardProps) {
                 if (!isGeneral(kind)) return null;
                 return (
                   <TableRow key={kind}>
-                    <TableCell className="whitespace-normal">{generalLabel(kind, row.value)}</TableCell>
+                    <TableCell className="whitespace-normal">
+                      <span className="flex flex-wrap items-center gap-1.5">
+                        {generalLabel(kind, row.value)}
+                        {row.promised && (
+                          <Badge variant="info" size="sm">
+                            prometido
+                          </Badge>
+                        )}
+                      </span>
+                    </TableCell>
                     <TableCell numeric>{generalToday(kind, row.value, row.top_value)}</TableCell>
                     <TableCell numeric>
                       {row.pending ? (

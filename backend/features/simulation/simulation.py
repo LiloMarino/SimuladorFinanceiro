@@ -39,6 +39,7 @@ from backend.core.dto.government import (
     FoundPartyRequest,
     GovernmentPanelDTO,
     MeasurePreviewDTO,
+    PromisesPanelDTO,
     ProposeMeasureRequest,
 )
 from backend.core.dto.life import LifeEventDTO, LifeStatusDTO
@@ -49,6 +50,7 @@ from backend.core.dto.patrimonial_history import (
     PortfolioHistoryPointDTO,
 )
 from backend.core.dto.position import PositionDTO
+from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.stock_details import StockDetailsDTO
@@ -110,9 +112,14 @@ from backend.features.government.campaign_panel import (
     build_history,
     build_roll,
 )
-from backend.features.government.governance import build_governance
+from backend.features.government.governance import build_governance, sector_options
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_panel
+from backend.features.government.promise_panel import (
+    build_balances,
+    build_preview,
+    build_promises_panel,
+)
 from backend.features.inbox.service import Inbox
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
@@ -429,6 +436,33 @@ class Simulation:
             self._current_date,
             result,
         )
+
+    @synchronized
+    def get_promises(self, user: UserDTO) -> PromisesPanelDTO:
+        return build_promises_panel(
+            self._ensure_government(),
+            user,
+            self._current_date,
+            sector_options(self._engine),
+        )
+
+    @synchronized
+    def preview_promises(
+        self, user: UserDTO, request: PromisesRequest
+    ) -> PromisesPreviewDTO:
+        book = self._ensure_government()
+        drafts = book.draft_promises(user, self._current_date, request.promises)
+        return build_preview(book, user, self._current_date, drafts)
+
+    @synchronized
+    def set_promises(self, user: UserDTO, request: PromisesRequest) -> None:
+        self._ensure_government().set_promises(
+            user, self._current_date, request.promises
+        )
+
+    @synchronized
+    def get_balances(self, user: UserDTO) -> list[BalanceDTO]:
+        return build_balances(self._ensure_government(), user)
 
     @synchronized
     def found_party(self, user: UserDTO, party: FoundPartyRequest) -> None:

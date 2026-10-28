@@ -39,6 +39,7 @@ from backend.features.government import election, voters
 from backend.features.government import measures as rules
 from backend.features.government.calendar import ElectionCycle
 from backend.features.government.government_book import GovernmentBook
+from backend.features.government.promise_panel import promise_dto, record_dto
 from backend.features.government.state import (
     GovernmentState,
     Party,
@@ -394,6 +395,8 @@ def _party(
         vice=_person(people, party.vice_id if party.vice_id is not None else vice_id),
         vice_phase=vice_phase,
         ticket_chosen=party.candidate_id is not None,
+        promises=[promise_dto(p) for p in party.promises],
+        past_promises=[record_dto(r) for r in reversed(party.past_promises)],
     )
 
 
@@ -491,6 +494,7 @@ def _round_party(
         vice=_person(people, ticket.vice_id),
         points=result.points.get(pid, Decimal(0)),
         share=result.shares.get(pid, Decimal(0)),
+        promises=[promise_dto(p) for p in ticket.promises],
     )
 
 
@@ -511,6 +515,7 @@ def build_term(
         start=term.start,
         consecutive=term.consecutive,
         succession=term.succession,
+        promises=[promise_dto(p) for p in term.promises],
     )
 
 

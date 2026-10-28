@@ -6,9 +6,10 @@ rodando e na retomada.
 """
 
 from collections.abc import Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from decimal import Decimal
+from typing import Any
 
 from backend.core.dto.events.government import GovernmentEventDTO
 from backend.core.enum import (
@@ -21,8 +22,9 @@ from backend.core.enum import (
 )
 from backend.core.enum import GovernmentEventType as Event
 from backend.core.utils import required
-from backend.features.government import campaign, voters
+from backend.features.government import campaign, promises, voters
 from backend.features.government.computer_parties import COMPUTER_FLAGS
+from backend.features.government.promises import GroupEffects, Promise
 
 # A medida aprovada vale depois da noventena
 VIGENCE_DAYS = 90
@@ -75,6 +77,11 @@ class Party:
     rejection: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
     # Apoio que os meses de governo deixaram em cada grupo; cai pela metade em 3 meses
     term_support: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
+    # Afinidade que as promessas cumpridas somaram em cada grupo: não cai com o tempo
+    loyalty: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
+    # As promessas da campanha em curso e as das eleições passadas
+    promises: list[Promise] = field(default_factory=list)
+    past_promises: list["PromiseRecord"] = field(default_factory=list)
     spent: Decimal = Decimal(0)
 
     def __post_init__(self) -> None:
@@ -87,11 +94,15 @@ class Party:
         return sum(self.members.values(), Decimal(0))
 
     def standing(self, group: VoterGroup) -> voters.Standing:
+        rejection = self.rejection[group]
         return voters.standing(
             group,
             self.radar,
-            self.campaign[group] + self.term_support[group],
-            self.rejection[group],
+            self.campaign[group]
+            + self.term_support[group]
+            + self.loyalty[group]
+            + promises.campaign_yield(self.promises, group, rejection),
+            rejection,
         )
 
     def standings(self) -> dict[VoterGroup, voters.Standing]:
@@ -117,6 +128,41 @@ class Party:
         self.campaign_day = None
         self.repaired = _zero_by_group()
         self.spent = Decimal(0)
+
+
+@dataclass(frozen=True)
+class PromiseRecord:
+    """As promessas de um partido numa eleição que passou, como ficaram na apuração."""
+
+    cycle: int
+    year: int
+    promises: tuple[Promise, ...]
+    elected: bool
+
+
+@dataclass(frozen=True)
+class BalanceItem:
+    """Uma promessa no balanço: quanto do caminho foi andado e o que deixou em cada grupo."""
+
+    promise: Promise
+    done: Decimal
+    effects: GroupEffects
+
+
+@dataclass(frozen=True)
+class Balance:
+    """O balanço das promessas de um governo, no fim do mandato ou no impeachment sem vice."""
+
+    day: date
+    party_id: int
+    term_start: date
+    items: tuple[BalanceItem, ...]
+    # Impeachment sem vice: o mandato acabou antes do fim
+    impeached: bool
+
+    @property
+    def total(self) -> GroupEffects:
+        return promises.total(item.effects for item in self.items)
 
 
 @dataclass(frozen=True)
@@ -187,6 +233,8 @@ class Ticket:
     color: str | None
     is_computer: bool
     candidate_name: str | None
+    # As promessas que a chapa levou à urna
+    promises: tuple[Promise, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -222,6 +270,12 @@ class Term:
     succession: bool = False
     # A satisfação de cada grupo na posse; vazia vale o ponto neutro
     satisfaction: dict[VoterGroup, Decimal] = field(default_factory=dict)
+    # As promessas da chapa, cobradas no fim do mandato
+    promises: tuple[Promise, ...] = ()
+    # Com as chapas fechadas, metade do balanço já pesou no voto; `applied` é o que pesou
+    weighed: bool = False
+    applied: GroupEffects = field(default_factory=dict)
+    settled: bool = False
 
 
 @dataclass
@@ -291,6 +345,8 @@ class GovernmentState:
     low_streak: int = 0
     last_measured: date | None = None
     impeachments: list[Impeachment] = field(default_factory=list)
+    # O balanço das promessas de cada governo que acabou
+    balances: list[Balance] = field(default_factory=list)
 
     @property
     def satisfaction(self) -> dict[VoterGroup, Decimal]:
@@ -439,6 +495,7 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
                 start=day,
                 consecutive=_int(p, "consecutive"),
                 satisfaction=dict(pending.satisfaction) if pending else {},
+                promises=pending.promises if pending else (),
             )
             state.pending_term = None
             _reset_government(state)
@@ -476,6 +533,12 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             _remember_month(state, satisfaction)
         case Event.IMPEACHED:
             _apply_impeachment(state, event)
+        case Event.PROMISES_SET:
+            _apply_promises_set(state, event)
+        case Event.PROMISES_WEIGHED:
+            _apply_promises_weighed(state, event)
+        case Event.PROMISES_SETTLED:
+            _apply_promises_settled(state, event)
 
 
 def _reset_government(state: GovernmentState) -> None:
@@ -506,6 +569,10 @@ def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> Non
         consecutive=1,
         succession=True,
         satisfaction=state.satisfaction,
+        # O vice herda as promessas da chapa e é cobrado no fim do mandato
+        promises=term.promises if successor is not None else (),
+        weighed=term.weighed,
+        applied=term.applied,
     )
     _reset_government(state)
 
@@ -539,6 +606,10 @@ def _apply_round(state: GovernmentState, event: GovernmentEventDTO) -> None:
             color=_opt_str(t, "color"),
             is_computer=bool(t["is_computer"]),
             candidate_name=_opt_str(t, "candidate_name"),
+            promises=tuple(
+                promises.from_payload(item)  # type: ignore[arg-type]
+                for item in _opt_list(t, "promises")
+            ),
         )
         for pid, t in _dict(p, "tickets").items()
     }
@@ -569,6 +640,7 @@ def _apply_round(state: GovernmentState, event: GovernmentEventDTO) -> None:
         and president is not None
         and previous.president_id == president
     )
+    winner_party = state.parties.get(winner) if winner is not None else None
     state.pending_term = Term(
         party_id=winner,
         president_id=president,
@@ -576,7 +648,20 @@ def _apply_round(state: GovernmentState, event: GovernmentEventDTO) -> None:
         start=date(event.event_date.year + 1, 1, 1),
         consecutive=(previous.consecutive + 1 if previous and same_president else 1),
         satisfaction=_satisfaction(p, "winner_satisfaction"),
+        promises=tuple(winner_party.promises) if winner_party else (),
     )
+    # As promessas de quem perdeu ficam no histórico do partido, sem efeito
+    for party in state.parties.values():
+        if party.promises:
+            party.past_promises.append(
+                PromiseRecord(
+                    cycle=result.cycle,
+                    year=event.event_date.year,
+                    promises=tuple(party.promises),
+                    elected=party.id == winner,
+                )
+            )
+            party.promises = []
     # A campanha seguinte recomeça do zero: os partidos ficam, o apoio não
     state.runoff = None
     state.cycle += 1
@@ -632,6 +717,76 @@ def _apply_action(state: GovernmentState, event: GovernmentEventDTO) -> None:
         party.rejection[group] = voters.clamp(party.rejection[group] + result.rejection)
         if result.rejection < 0:
             party.repaired[group] += -result.rejection
+
+
+def _apply_promises_set(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    """
+    A chapa fica com a lista nova. Quem já tinha anunciado e volta atrás (retira, troca
+    ou baixa o alvo) paga a rejeição de voltar atrás nos grupos que queriam a medida.
+    """
+    p = event.payload
+    party = state.parties.get(_int(p, "party_id"))
+    if party is None:
+        return
+    stored: list[dict[str, Any]] = _list(p, "promises")  # type: ignore[assignment]
+    new = [promises.from_payload(item) for item in stored]
+    by_key = {item.key: item for item in new}
+    for old in party.promises:
+        cost = promises.retreat(old, by_key.get(old.key))
+        for group, amount in cost.items():
+            party.rejection[group] = voters.add_rejection(
+                party.rejection[group], amount
+            )
+    party.promises = new
+
+
+def _apply_promises_weighed(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    """Metade do balanço em vigor passa a pesar no voto do partido que governa e concorre."""
+    p = event.payload
+    term = state.term
+    party = state.parties.get(_int(p, "party_id"))
+    if term is None or party is None:
+        return
+    weighed = promises.effects_from_payload(_dict(p, "effects"))
+    _credit(party, weighed)
+    state.term = replace(term, weighed=True, applied=weighed)
+
+
+def _apply_promises_settled(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    """O balanço do mandato fecha o que falta do que já pesou no voto."""
+    p = event.payload
+    term = state.term
+    party_id = _int(p, "party_id")
+    if term is None:
+        return
+    stored: list[dict[str, Any]] = _list(p, "items")  # type: ignore[assignment]
+    items = tuple(
+        BalanceItem(
+            promise=promises.from_payload(item["promise"]),
+            done=Decimal(str(item["done"])),
+            effects=promises.effects_from_payload(item["effects"]),
+        )
+        for item in stored
+    )
+    balance = Balance(
+        day=event.event_date,
+        party_id=party_id,
+        term_start=term.start,
+        items=items,
+        impeached=bool(p.get("impeached", False)),
+    )
+    state.balances.append(balance)
+    party = state.parties.get(party_id)
+    if party is not None and not party.is_computer:
+        _credit(party, promises.remaining(balance.total, term.applied))
+    state.term = replace(term, settled=True, applied={})
+
+
+def _credit(party: Party, effects: GroupEffects) -> None:
+    """Afinidade que não cai e rejeição que só o balanço mexe."""
+    for group, effect in effects.items():
+        party.loyalty[group] += effect.loyalty
+        party.rejection[group] = voters.clamp(party.rejection[group] + effect.rejection)
 
 
 def _set_flags(party: Party, flags: tuple[VoterValue, ...]) -> None:
@@ -721,6 +876,11 @@ def _dict(p: dict[str, object], key: str) -> dict[str, dict[str, object]]:
 
 def _list(p: dict[str, object], key: str) -> list[object]:
     return p[key]  # type: ignore[return-value]
+
+
+def _opt_list(p: dict[str, object], key: str) -> list[object]:
+    """A lista guardada no evento; ausente nos eventos antigos, vazia."""
+    return p.get(key) or []  # type: ignore[return-value]
 
 
 def _satisfaction(p: dict[str, object], key: str) -> dict[VoterGroup, Decimal]:

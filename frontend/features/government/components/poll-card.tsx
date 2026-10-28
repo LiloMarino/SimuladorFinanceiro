@@ -18,6 +18,7 @@ import { GroupPollBar } from "./group-poll-bar";
 import { PersonMark, PartyMark } from "./party-mark";
 import { PollChart } from "./poll-chart";
 import { PollLegend } from "./poll-legend";
+import { PromiseBadges } from "./promise-badges";
 
 /** A barra de hoje vai até 50 pontos: quem passa disso enche a barra. */
 const BAR_SCALE = 50;
@@ -152,23 +153,33 @@ type TodayRowProps = { party: ElectionParty; points: number; margin: number; tie
 
 function TodayRow({ party, points, margin, tie }: TodayRowProps) {
   return (
-    <div className="grid grid-cols-[minmax(0,190px)_80px_120px_1fr] items-center gap-3">
-      <span className="flex min-w-0 items-center gap-2">
-        <PartyMark abbr={party.abbr} color={party.color} size="sm" />
-        <span className="truncate text-[13px]">{party.candidate?.name ?? party.name}</span>
-      </span>
-      <span className="font-mono text-[15px] font-semibold whitespace-nowrap">
-        {pollPercent(points, margin)}
-        {margin > 0 && <span className="font-normal text-faint-foreground"> ±{margin}</span>}
-      </span>
-      <RangeBar points={points} margin={margin} color={partyFill(party)} />
-      <span>
-        {tie && (
-          <Badge variant="warning" size="sm">
-            Empate técnico
-          </Badge>
-        )}
-      </span>
+    <div className="grid gap-1.5">
+      <div className="grid grid-cols-[minmax(0,190px)_80px_120px_1fr] items-center gap-3">
+        <span className="flex min-w-0 items-center gap-2">
+          <PartyMark abbr={party.abbr} color={party.color} size="sm" />
+          <span className="truncate text-[13px]">{party.candidate?.name ?? party.name}</span>
+        </span>
+        <span className="font-mono text-[15px] font-semibold whitespace-nowrap">
+          {pollPercent(points, margin)}
+          {margin > 0 && <span className="font-normal text-faint-foreground"> ±{margin}</span>}
+        </span>
+        <RangeBar points={points} margin={margin} color={partyFill(party)} />
+        <span>
+          {tie && (
+            <Badge variant="warning" size="sm">
+              Empate técnico
+            </Badge>
+          )}
+        </span>
+      </div>
+      {party.promises.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 pl-8">
+          <span className="text-xs text-muted-foreground">
+            {party.is_computer ? "Promete pelos valores dele" : "Promessas"}
+          </span>
+          <PromiseBadges promises={party.promises} computer={party.is_computer} />
+        </div>
+      )}
     </div>
   );
 }

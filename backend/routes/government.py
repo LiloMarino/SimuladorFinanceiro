@@ -17,10 +17,12 @@ from backend.core.dto.government import (
     JoinPartyRequest,
     MeasurePreviewDTO,
     PartyFlagsRequest,
+    PromisesPanelDTO,
     ProposeMeasureRequest,
     TicketRequest,
     ViceAnswerRequest,
 )
+from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
 
 government_router = APIRouter(prefix="/api/government", tags=["Government"])
 
@@ -170,6 +172,50 @@ def campaign_action(
     simulation: ActiveSimulation, user: CurrentUser, payload: CampaignActionRequest
 ):
     return simulation.campaign_action(user, payload)
+
+
+@government_router.get(
+    "/promises",
+    response_model=PromisesPanelDTO,
+    summary="Obter as promessas da minha chapa",
+    description="Retorna, para a fundadora do partido, as promessas anunciadas, as medidas gerais que se prometem com o que valem hoje e o passo de referência, os setores e até quando a lista aceita mudança (o último dia de inscrição das chapas). Recusa com 403 a quem não funda o partido.",
+)
+def get_promises(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_promises(user)
+
+
+@government_router.post(
+    "/promises/preview",
+    response_model=PromisesPreviewDTO,
+    summary="Simular as promessas da chapa",
+    description="Mostra a lista de promessas como ficaria, sem anunciá-la: em cada grupo de eleitores, o apoio que cada promessa rende hoje (já descontado pela rejeição do partido), a afinidade e a reparação de rejeição se for cumprida e a rejeição que soma se for descumprida, mais a rejeição que voltar atrás nas já anunciadas custaria.",
+)
+def preview_promises(
+    simulation: ActiveSimulation, user: CurrentUser, payload: PromisesRequest
+):
+    return simulation.preview_promises(user, payload)
+
+
+@government_router.put(
+    "/promises",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Anunciar as promessas da chapa",
+    description="Só a fundadora define a lista (até 3 medidas), da abertura da campanha até o fim da inscrição das chapas. Medida com valor leva um alvo; medida de setor é sim ou não. A promessa rende apoio desde o anúncio; retirar, trocar ou baixar o alvo depois dele soma rejeição nos grupos que queriam a medida. A lista substitui a anterior.",
+)
+def set_promises(
+    simulation: ActiveSimulation, user: CurrentUser, payload: PromisesRequest
+):
+    simulation.set_promises(user, payload)
+
+
+@government_router.get(
+    "/balances",
+    response_model=list[BalanceDTO],
+    summary="Obter os balanços de promessas",
+    description="O balanço das promessas de cada governo que acabou, do mais recente ao mais antigo: o estado de cada promessa (cumprida, em andamento, descumprida ou na direção contrária) e a fração do caminho andada. Os números por grupo (afinidade somada e rejeição somada ou reparada) só chegam aos filiados do partido da chapa.",
+)
+def get_balances(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_balances(user)
 
 
 @government_router.get(

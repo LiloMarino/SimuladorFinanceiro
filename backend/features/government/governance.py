@@ -26,24 +26,17 @@ from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import GroupVerdict, MeasureKind, MeasureStatus, VoterGroup
 from backend.features.government import approval as approval_rules
-from backend.features.government import congress, voters
+from backend.features.government import congress, promises, voters
 from backend.features.government import measures as rules
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_term
+from backend.features.government.promise_panel import build_term_promises
 from backend.features.government.state import (
     NEUTRAL_SATISFACTION,
     VIGENCE_DAYS,
     Measure,
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
-
-GENERAL_KINDS = (
-    MeasureKind.STOCK_PROFIT_RATE,
-    MeasureKind.DAY_TRADE_RATE,
-    MeasureKind.STOCK_EXEMPTION,
-    MeasureKind.FIXED_INCOME_TABLE,
-    MeasureKind.LCI_LCA_RATE,
-)
 
 
 def build_governance(
@@ -61,8 +54,13 @@ def build_governance(
     current = book.approval(today)
     measures = sorted(state.measures.values(), key=lambda m: m.id)
 
+    # As medidas que a chapa que governa prometeu: ganham a marca de promessa
+    promised = {p.key for p in term.promises} if term is not None else set()
+
     def dto(measure: Measure) -> MeasureDTO:
-        return _measure(measure, people, today, current, is_president, measures)
+        return _measure(
+            measure, people, today, current, is_president, measures, promised
+        )
 
     pending = [
         m
@@ -105,8 +103,9 @@ def build_governance(
                 pending=next(
                     (dto(m) for m in reversed(pending) if m.kind is kind), None
                 ),
+                promised=any(key[0] is kind for key in promised),
             )
-            for kind in GENERAL_KINDS
+            for kind in promises.GENERAL_KINDS
         ],
         sector_measures=[
             SectorMeasureDTO(measure=dto(m), assets=len(book.tickers(m)))
@@ -120,7 +119,7 @@ def build_governance(
             if president is not None and end is not None
             else None
         ),
-        sectors=_sector_options(engine),
+        sectors=sector_options(engine),
         last_impeachment=(
             ImpeachmentDTO(
                 date=impeachment.day,
@@ -133,6 +132,7 @@ def build_governance(
             else None
         ),
         vigence_days=VIGENCE_DAYS,
+        promises=build_term_promises(book, viewer, today),
     )
 
 
@@ -163,6 +163,7 @@ def _measure(
     current: approval_rules.Approval | None,
     is_president: bool,
     measures: list[Measure],
+    promised: set[tuple[MeasureKind, str | None, str | None]],
 ) -> MeasureDTO:
     queued = measure.status is MeasureStatus.QUEUED
     waiting = measure.status is MeasureStatus.APPROVED and _waiting(measure, today)
@@ -191,6 +192,10 @@ def _measure(
         waiting_days=VIGENCE_DAYS - days_left if days_left is not None else None,
         days_left=days_left,
         impact=approval_rules.measure_impact(measure),
+        fulfills_promise=(
+            measure.status in (MeasureStatus.QUEUED, MeasureStatus.APPROVED)
+            and (measure.kind, measure.sector, measure.segment) in promised
+        ),
         can_withdraw=is_president and queued,
         can_repropose=(
             is_president
@@ -400,7 +405,7 @@ def _interests(
     return interests
 
 
-def _sector_options(engine: SimulationEngine) -> list[SectorOptionDTO]:
+def sector_options(engine: SimulationEngine) -> list[SectorOptionDTO]:
     by_sector: dict[str, dict[str, list[str]]] = {}
     for ticker, located in engine.classification.items():
         by_sector.setdefault(located.sector, {}).setdefault(located.segment, []).append(
