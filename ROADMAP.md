@@ -95,7 +95,6 @@
 | [**F141**](#f141) | README com as features de hoje | — | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
 | [**F151**](#f151) | Segundo turno com disputa | — | ⏳ |
-| [**F152**](#f152) | Promessas de campanha cobradas no mandato | — | ⏳ |
 | [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | — | ⏳ |
 | [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | — | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
@@ -107,7 +106,7 @@
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | [**F127**](#f127) | Estratégias e bots operam cripto em fração | — | ✅ |
 | [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | — | ✅ |
 | [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | — | ✅ |
+| [**F152**](#f152) | Promessas de campanha cobradas no mandato | — | ✅ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
 | [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ✅ |
@@ -152,7 +152,6 @@
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
 | [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | M15 | 2 | ⏳ |
-| [**F152**](#f152) | Promessas de campanha cobradas no mandato | M17 | 1 | ⏳ |
 | [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | M19 | 1 | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
@@ -163,6 +162,7 @@
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
+| [**F151**](#f151) | Segundo turno com disputa | M17 | 0 | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 0 | 🔍 |
@@ -281,20 +281,20 @@
 >
 > **Serve:** N34
 >
-> **Progresso:** 4/6 concluídas
+> **Progresso:** 5/6 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F151**](#f151) | Segundo turno com disputa | [F130](#f130), [F152](#f152) | ⏳ |
-| [**F152**](#f152) | Promessas de campanha cobradas no mandato | [F107](#f107) | ⏳ |
 
-<details><summary>Concluído (4 itens)</summary>
+<details><summary>Concluído (5 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F107**](#f107) | Grupos de eleitores, com apoio e rejeição por partido | — | ✅ |
 | [**F129**](#f129) | Aprovação do governo pelos grupos de eleitores | [F107](#f107) | ✅ |
 | [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | [F107](#f107) | ✅ |
+| [**F152**](#f152) | Promessas de campanha cobradas no mandato | [F107](#f107) | ✅ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ✅ |
 
 </details>
@@ -396,7 +396,7 @@
 | **F107** | Grupos de eleitores, com apoio e rejeição por partido | N34 | D19 | M17 | — | Alto | Alto | Alto | Bom | ✅ Concluído |
 | **F129** | Aprovação do governo pelos grupos de eleitores | N34 | D19 | M17 | [F107](#f107) | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F130** | Ações de campanha: a eleição deixa de ser só dinheiro | N34 | D19 | M17 | [F107](#f107) | Alto | Médio | Alto | Bom | ✅ Concluído |
-| **F152** | Promessas de campanha cobradas no mandato | N34 | D19 | M17 | [F107](#f107) | Médio | Médio | Alto | Bom | ⏳ Pendente |
+| **F152** | Promessas de campanha cobradas no mandato | N34 | D19 | M17 | [F107](#f107) | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F151** | Segundo turno com disputa | N34 | D19 | M17 | [F130](#f130), [F152](#f152) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F128** | Orçamento do governo, dívida pública e prêmio de risco | N34 | D19, D14 | M19 | [F107](#f107) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F106** | Governo & Política: medidas de gasto público | N34 | D19, D14 | M19 | [F128](#f128), [F107](#f107) | Alto | Alto | Alto | Bom | ⏳ Pendente |
@@ -495,6 +495,7 @@
 
 <a id="f152"></a>
 **F152 — Promessas de campanha cobradas no mandato.** Serve N34; substitui a régua de promessa por faixas, pelo modelo de grupos (D19, F107). (1) **O que se promete:** a chapa promete até 3 medidas da lista das que o governo pode propor: as de imposto, que já existem, e as de gasto quando a F106 chegar, na 3.2. Medida com valor leva um alvo ("day trade a 10%", hoje em 20%); medida de setor é sim ou não ("isentar o setor elétrico"). A promessa aparece no jornal ("Fulano prometeu isentar o setor elétrico"), na pesquisa, no resultado e na tela do governo, e move o radar do partido nos valores da medida. (2) **Na campanha:** a promessa rende apoio nos grupos que querem a medida e tira dos que não querem, na medida da posição de cada grupo no valor; quanto maior o passo prometido, mais rende e mais pesa se falhar. Num grupo, ela rende multiplicada por (1 − rejeição ÷ 100): com 40 de rejeição entre os aposentados, a promessa feita a eles rende 60%. Quem traiu promete de novo e rende menos onde traiu. (3) **No mandato:** no fim do mandato vale o que estiver em vigor. Chegou ao alvo, cumprida; parte do caminho, cumprida na proporção (de 20% para 15% numa promessa de 10% é metade); nada, descumprida. Cumprida sobe a lealdade e repara a rejeição dos grupos que queriam a medida (F107); descumprida soma rejeição neles, na mesma proporção. A tela do governo mostra cada promessa como cumprida, em andamento (com a fração do caminho) ou descumprida. (4) **Impeachment:** o vice que assume herda as promessas da chapa e é cobrado no fim do mandato; sem vice, o mandato acaba no impeachment e o que não foi cumprido vira rejeição. A cobrança fica sempre com o partido da chapa. (5) Os partidos do computador prometem por regra, com medidas dos próprios valores. **Protótipo:** quanto a promessa rende por grupo e por tamanho do passo, e quanto vale a lealdade e a rejeição de uma promessa cumprida ou quebrada. **Gatilho:** depois da F107. **Canvas:** escolha das promessas na chapa (medida, alvo e o rendimento esperado em cada grupo, já descontado pela rejeição); promessas da chapa na pesquisa e no resultado; promessas na tela do governo com o estado de cada uma; balanço do fim do mandato, com o que cada promessa deixou de lealdade e de rejeição em cada grupo. **Decidido no canvas em 27/out:** (a) **Desde o anúncio:** a promessa rende desde o anúncio. Depois dele, trocar, retirar ou baixar o alvo soma rejeição em quem queria; acrescentar até 3 e subir o alvo não custam. (b) **Cumprida soma afinidade,** a parte do apoio que não cai: é o que o item 3 chama de lealdade, sem nenhum número novo por grupo. (c) **Direção contrária pesa mais que não fazer nada:** de 20% para 25% numa promessa de 10% o governo andou meio caminho para trás (−50% do caminho), e a rejeição sai 1,5 vez a cheia. (d) **Reeleição:** com as chapas fechadas, metade do efeito do que estiver em vigor já pesa no voto; o balanço de 31 dez fecha a outra metade. (e) **Quem perdeu:** as promessas de quem perdeu ficam no histórico do partido, sem efeito. (f) **Tela:** a escolha é um diálogo, uma promessa por vez. **Calibrado no protótipo de 28/out:** a promessa rende 4 × passos × reação do grupo à medida, vezes (1 − rejeição ÷ 100) onde rende. Cumprida soma 3 de afinidade e repara 8 de rejeição por passo e unidade de reação, nos grupos que queriam, na proporção do caminho; descumprida soma 8 de rejeição, e na direção contrária 1,5 vez. Em 1.000 eleições seguintes com 2 promessas de 1 passo e verba igual: quem não prometeu vence 35%; cumpriu, 41% (49% com o balanço inteiro); metade do caminho, 33%; nada, 22% (10%); o contrário, 17% (4,5%). Trair custa mais do que cumprir rende, de propósito.
+ **Entregue:** a chapa promete até 3 medidas num diálogo da aba Campanha do partido (uma por vez: medida, alvo com controle deslizante e o "hoje", valores que a medida move, tabela por grupo com o rendimento já descontado pela rejeição e o que soma se descumprir, total pelo peso dos grupos e o custo de voltar atrás antes do clique); a lista vale desde o anúncio e trava quando as chapas fecham. A promessa aparece como selo, com o dia do anúncio, nos perfis dos partidos (inclusive o histórico das eleições que passaram) e em "Seu partido"; os partidos do computador prometem por regra, até 2 medidas dos próprios valores, e não são cobrados. No Governo, o cartão das promessas mostra cada uma como cumprida, em andamento (com a fração do caminho), sem andar ou na direção contrária, a última votação que conta, o "se o mandato acabasse hoje" (só para os filiados) e o aviso de que metade já pesa na reeleição; os impostos ganham a etiqueta "prometido" e a fila, "cumpre a promessa". O balanço sai em 31 de dezembro (ou no impeachment sem vice; o vice herda as promessas) e fica num diálogo com o estado de cada promessa para a sala e a matriz de afinidade e rejeição por grupo só para os filiados; o aviso em tempo real abre o balanço. Tudo vive no registro de eventos do governo e se reconstrói no replay. **Escolhas:** o radar do partido não se move no anúncio (o diálogo mostra quais valores a medida avança ou recua, e o radar se move quando a medida é aprovada, como já era); a metade que pesa na reeleição é creditada uma vez, no primeiro dia depois de as chapas fecharem, e o balanço de 31 dez soma só o que falta; a promessa de setor é só a isenção; voltar atrás custa metade da rejeição de descumprir. **Fica para o jornal (F161):** as manchetes do anúncio, da volta atrás e da cobrança, que hoje aparecem só como aviso em tempo real. Promessas de gasto chegam com a F106.
 
 <a id="f151"></a>
 **F151 — Segundo turno com disputa.** Serve N34. No playtest, o 2º turno repetiu o 1º sem chance de virada: entre os turnos não havia cobrança, os votos dos eliminados iam inteiros para o finalista de promessa mais próxima (`runoff` em `election.py`) e o único movimento era a doação de quem foi eliminado. (1) **Transferência grupo a grupo:** no dia seguinte ao 1º turno, os votos de cada eliminado se dividem, em cada grupo, pela afinidade do grupo com cada finalista (D19, F107). Uma parte fica indecisa, e essa parte cresce quando o grupo gosta pouco dos dois: aposentados com afinidade baixa com ambos deixam metade dos votos do eliminado indecisa, e investidores próximos de um finalista transferem 90%. (2) **Declaração de apoio:** o líder do partido eliminado declara apoio a um finalista ou neutralidade. Os grupos que confiam no eliminado (afinidade alta e rejeição baixa) seguem a indicação com parte dos votos indecisos. O partido do computador eliminado declara por regra, para o finalista de valores mais próximos. A declaração sai no jornal. A doação a um finalista continua. (3) **Campanha de 2º turno:** as ações avulsas (F130) valem entre os turnos, cada finalista pode fazer uma contribuição única de 2º turno, paga na hora e convertida como a verba mensal, e pode acrescentar 1 promessa (até 4 no total, F152); retirar promessa não é permitido. (4) **No dia do 2º turno,** os indecisos que sobraram se abstêm, e o vencedor sai dos votos válidos. A duração de 21 dias fica; volta à mesa se, jogando, ficar curta para a virada. O debate sorteado fica de fora. **Protótipo:** a curva da fração indecisa pela afinidade, quanto do apoio declarado os grupos seguem e se uma virada acontece numa fração razoável das eleições. **Gatilho:** depois da F130 e da F152. **Canvas:** resultado do 1º turno com a transferência por grupo (quanto foi para cada finalista e quanto ficou indeciso); painel do 2º turno com os indecisos por grupo, as ações, a contribuição única e a promessa extra; declaração de apoio do eliminado; resultado do 2º turno com a abstenção. **Decidido no canvas em 27 e 28/out:** (a) **Quem vê o quê:** a transferência grupo a grupo é pública como pesquisa, com a margem de cada grupo; o número exato só sai no resultado do 2º turno. (b) **Declaração:** o líder do eliminado declara uma vez, até a véspera, sem volta; sem declarar, conta como neutro. Quanto mais tarde, menos indecisos sobram para seguir. (c) **Contribuição de 2º turno:** uma por filiado do finalista; a soma vira apoio pela raiz, como a verba mensal (dobrar o dinheiro não dobra o apoio). (d) **Ações no 2º turno:** o ganho de uma ação sai primeiro dos indecisos do grupo; quando eles acabam, tira do rival. No ataque, o que o rival perde vira indeciso no grupo: os dois disputam, e quem sobrar no dia do 2º turno não vota. A repetição de ação no grupo zera no dia seguinte ao 1º turno, e tudo volta a render 100%. (e) **Pesquisa semanal entre os turnos,** porque a mensal só sairia depois da votação. (f) **Tela:** o 2º turno é um estado da página Eleição, nas abas Corrida e Campanha do partido, e não tem painel próprio (no lugar do painel do 2º turno da linha Canvas). **Calibrado no protótipo de 28/out:** a fração que fica indecisa na transferência é 1 ÷ (1 + (afinidade somada com os dois finalistas, descontada a rejeição, ÷ 20)²): somada 20 deixa metade indecisa, 60 deixa 1 em 10. A declaração leva até 50% dos indecisos vindos do eliminado, vezes a confiança no eliminado ((afinidade − rejeição) ÷ 50, entre 0 e 1). A contribuição única de 2º turno entra pela raiz da verba de base. Em 994 eleições com 2º turno, o 1º colocado do 1º turno perdeu o 2º em 15%, com abstenção média de 13%. Afrouxar a transferência (metade indecisa só com afinidade somada 30) não subiu a virada e subiu o peso do dado para 12%.
