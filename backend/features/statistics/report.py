@@ -35,12 +35,14 @@ from backend.core.dto.statistics_report import (
 from backend.core.enum import (
     EquityEventType,
     GameType,
+    LifeEventEffect,
     PlayerGrouping,
     TeamNaming,
     VictoryCriterion,
 )
 from backend.core.sectors import allocate_by_sector
 from backend.features.government.standings import party_ranking
+from backend.features.simulation.life_events import LIFE_EVENTS_BY_KEY
 from backend.features.statistics import operations, returns, risk, sectors
 from backend.features.statistics.cache import ClosedScores
 from backend.features.statistics.credit import CreditStanding, credit_standing
@@ -76,6 +78,7 @@ def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
         in_teams=in_teams,
         team_naming=team_naming,
         delinquent=frozenset(key for key, s in standings.items() if s.delinquent),
+        unexpected=_unexpected_counts(simulation_ids),
         parties=_party_ranking(simulation_ids, players),
     )
 
@@ -90,6 +93,21 @@ def _party_ranking(
     if summary is None or not summary.government_enabled:
         return []
     return party_ranking(summary.id, players)
+
+
+def _unexpected_counts(simulation_ids: list[int]) -> dict[tuple[int, str], int]:
+    """Os imprevistos de cada jogador; a demissão tem categoria própria no histórico e fica fora."""
+    return {
+        player: sum(total for key, total in by_key.items() if not _is_layoff(key))
+        for player, by_key in repository.statistics.get_players_unexpected(
+            simulation_ids
+        ).items()
+    }
+
+
+def _is_layoff(life_event_key: str) -> bool:
+    kind = LIFE_EVENTS_BY_KEY.get(life_event_key)
+    return kind is not None and kind.effect is LifeEventEffect.SKIP_NEXT_SALARY
 
 
 def _credit_standings(

@@ -118,3 +118,13 @@ def test_leader_gap_is_the_distance_to_first_in_the_criterion():
 
     gaps = {p.player_nickname: p.leader_gap for p in report.players}
     assert gaps == {"Bia": Decimal("0"), "Ana": Decimal("4000")}
+
+
+def test_unexpected_count_follows_the_player_and_defaults_to_zero():
+    report = build_overview(
+        [player("Ana", networth="11000"), player("Bia", networth="12000")],
+        unexpected={(1, "Ana"): 4},
+    )
+
+    counts = {p.player_nickname: p.unexpected_count for p in report.players}
+    assert counts == {"Ana": 4, "Bia": 0}

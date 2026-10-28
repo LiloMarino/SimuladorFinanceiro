@@ -103,6 +103,8 @@ class PlayerRankingDTO(PlayerRefDTO):
     team_contribution: Decimal | None
     # Tem parcela em atraso: o selo "Negativado"
     delinquent: bool
+    # Imprevistos de vida sorteados na partida (a demissão não entra); 0 fora do viver de renda
+    unexpected_count: int
 
 
 class TeamPullerDTO(BaseDTO):

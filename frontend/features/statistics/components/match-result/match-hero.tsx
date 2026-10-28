@@ -244,6 +244,8 @@ function GoalSummary({
       : 0;
   const goalText = goal ? ` (meta ${displayMoneyCompact(goal)})` : "";
   const independence = report.game_type === "FINANCIAL_INDEPENDENCE";
+  // A frase dos imprevistos fala de você; quem só assiste vê a do líder
+  const unexpectedSubject = you ?? report.players[0];
   const leaderName = "player_nickname" in leader ? leader.player_nickname : teamName(leader.team, report.team_naming);
 
   return (
@@ -277,6 +279,14 @@ function GoalSummary({
           {independence ? "independência" : "meta"}
           {goal ? <> de {displayMoneyCompact(goal)}</> : null}
           {solo ? "." : ": quem fica mais perto vence."}
+        </>
+      )}
+      {independence && simulation && simulation.unexpected_per_year > 0 && unexpectedSubject && (
+        <>
+          {" "}
+          {unexpectedSubject === you ? "Você" : <b className="text-white">{unexpectedSubject.player_nickname}</b>}{" "}
+          passou por <b className="font-mono text-white">{unexpectedSubject.unexpected_count}</b>{" "}
+          {unexpectedSubject.unexpected_count === 1 ? "imprevisto" : "imprevistos"}.
         </>
       )}
       {yourRank &&

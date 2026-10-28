@@ -5760,6 +5760,8 @@ export interface components {
             team_contribution: string | null;
             /** Delinquent */
             delinquent: boolean;
+            /** Unexpected Count */
+            unexpected_count: number;
         };
         /**
          * PlayerRemovedEventDTO

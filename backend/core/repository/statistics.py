@@ -122,6 +122,34 @@ class StatisticsRepository:
         return trades
 
     @transactional
+    def get_players_unexpected(
+        self, session: Session, simulation_ids: list[int]
+    ) -> dict[PlayerKey, dict[str, int]]:
+        """Quantos imprevistos de cada tipo (chave do evento) cada jogador sofreu."""
+        rows = session.execute(
+            select(
+                EventCashflow.simulation_id,
+                Users.nickname,
+                EventCashflow.life_event_key,
+                func.count(),
+            )
+            .join(Users, Users.id == EventCashflow.user_id)
+            .where(
+                EventCashflow.simulation_id.in_(simulation_ids),
+                EventCashflow.event_type == CashflowEventType.UNEXPECTED_EXPENSE.value,
+            )
+            .group_by(
+                EventCashflow.simulation_id,
+                Users.nickname,
+                EventCashflow.life_event_key,
+            )
+        ).all()
+        counts: dict[PlayerKey, dict[str, int]] = defaultdict(dict)
+        for simulation_id, nickname, key, total in rows:
+            counts[(simulation_id, nickname)][key or ""] = total
+        return counts
+
+    @transactional
     def get_players_tax(
         self, session: Session, simulation_ids: list[int]
     ) -> dict[PlayerKey, Decimal]:

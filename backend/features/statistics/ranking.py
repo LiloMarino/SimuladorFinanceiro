@@ -32,6 +32,7 @@ def build_overview(
     in_teams: bool = False,
     team_naming: TeamNaming = TeamNaming.COLOR,
     delinquent: frozenset[tuple[int, str]] = frozenset(),
+    unexpected: dict[tuple[int, str], int] | None = None,
     parties: list[PartyRankingDTO] | None = None,
 ) -> OverviewReportDTO:
     """
@@ -43,7 +44,8 @@ def build_overview(
     Ordenar por ela já põe na frente quem chegou e, entre quem chegou no mesmo
     dia, o maior patrimônio; sem ninguém na meta, vence quem ficou mais perto.
 
-    `delinquent` traz quem tem parcela em atraso (simulação e apelido).
+    `delinquent` traz quem tem parcela em atraso (simulação e apelido) e
+    `unexpected`, quantos imprevistos de vida cada um sofreu (sem eles, zero).
 
     Em equipes, o valor da equipe em cada critério é a média dos membros e a
     equipe com a melhor média vence; o patrimônio médio desempata. Na meta, a
@@ -88,6 +90,9 @@ def build_overview(
                 (player.simulation_id, player.player_nickname)
             ),
             delinquent=(player.simulation_id, player.player_nickname) in delinquent,
+            unexpected_count=(unexpected or {}).get(
+                (player.simulation_id, player.player_nickname), 0
+            ),
         )
         for position, performance in enumerate(performances, start=1)
         for (
