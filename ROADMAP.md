@@ -108,14 +108,13 @@
 | [**F159**](#f159) | Conquista "Ordem com paciência" | — | ⏳ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ⏳ |
 | [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ⏳ |
-| [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ⏳ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ⏳ |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 🔍 |
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (18 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (19 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -137,6 +136,7 @@
 | **D17** | Os tópicos do tutorial se animam em código, com o motion | — | ✅ |
 | **D18** | Uma migration por versão; caminho antigo só cai numa major | — | ✅ |
 | **D19** | O eleitorado são grupos, cada um com apoio e rejeição por partido | [F106](#f106), [F107](#f107), [F128](#f128), [F129](#f129), [F130](#f130), [F151](#f151), [F152](#f152), [F153](#f153), [F154](#f154) | ✅ |
+| [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
 
 </details>
 
@@ -166,7 +166,6 @@
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | 0 | ⏳ |
-| [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | M16 | 0 | ⏳ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | M17 | 0 | ⏳ |
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | M15 | 0 | ⏳ |
 
@@ -263,12 +262,19 @@
 >
 > **Serve:** N4, N8, N15, N33, N34, N40
 >
-> **Progresso:** 0/2 concluídas
+> **Progresso:** 1/2 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
-| [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
+
+</details>
 
 ### M17 — Eleição disputada
 
@@ -372,7 +378,7 @@
 | **F159** | Conquista "Ordem com paciência" | N22 | D1 | — | [F44](#f44) | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F160** | Imprevistos no fim da partida de independência | N15 | — | — | — | Baixo | Baixo | Baixo | Bom | ⏳ Pendente |
 | **F120** | Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira | N15 | — | — | — | Médio | Baixo | Médio | Bom | ⏳ Pendente |
-| **F162** | Sinal de partida pausada e destaque da velocidade máxima | N15 | — | M16 | — | Baixo | Baixo | Alto | Excelente | ⏳ Pendente |
+| **F162** | Sinal de partida pausada e destaque da velocidade máxima | N15 | — | M16 | — | Baixo | Baixo | Alto | Excelente | ✅ Concluído |
 | **F163** | Painel da economia: SELIC e IPCA ao longo da partida | N34 | — | M17 | — | Baixo | Baixo | Médio | Bom | ⏳ Pendente |
 | **F107** | Grupos de eleitores, com apoio e rejeição por partido | N34 | D19 | M17 | — | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F129** | Aprovação do governo pelos grupos de eleitores | N34 | D19 | M17 | [F107](#f107) | Médio | Médio | Alto | Bom | ⏳ Pendente |
@@ -459,7 +465,7 @@
 **F120 — Repensar a evolução do patrimônio e a distribuição dos investimentos na carteira.** Serve N15. O que incomodava: o tooltip do donut (`allocation-donut.tsx`, um `Tooltip` do Recharts com estilo avulso), o estilo do gráfico de evolução (`networth-chart.tsx`: áreas empilhadas por classe, linha tracejada do aportado, rótulos de fim à direita) e os gráficos parecidos em outros lugares (a área de composição das Estatísticas e a linha de desempenho). O desenho dos dois cards, do estado vazio e do estado com poucos pontos já foi iterado e decidido no canvas, na rodada desta feature. Plano: implementar os boards aprovados, lidos pela skill `design-canvas` (modo de implementar uma feature com design aprovado), nos dois cards da Carteira; os gráficos parecidos seguem o mesmo visual na migração da F72 (convenção de pasta e `ChartContainer`), que fica fora desta feature. Se algum board ainda tiver comentário aberto ou variante sem escolha, o ponto vai para o usuário antes do código.
 
 <a id="f162"></a>
-**F162 — Sinal de partida pausada e destaque da velocidade máxima.** Serve N15. A eleição e o impeachment pausam a partida para todos (`_pause_for_result`, `simulation.py:1100`), e a única pista é o botão da topbar trocar de pausa para play (`layouts/partial/topbar.tsx:74`): o jogador esquece que o jogo está parado. Inspiração: o HoI4 e o Victoria 3, que deixam a pausa impossível de não ver e destacam a velocidade máxima. Plano: (1) **Motivo da pausa:** o estado da simulação ganha `pause_reason` (pausado pelo host, resultado do turno, impeachment), preenchido por quem pausa e limpo na retomada, e chega ao front pelo mesmo caminho da velocidade. (2) **Partida pausada:** a área de data da topbar troca para um selo "Pausado" com o motivo ("Pausado: resultado do 1º turno"), num tom de alerta e com uma pulsação lenta; o título da aba do navegador ganha "⏸" na frente, para quem está em outra aba. (3) **Velocidade máxima:** o segmento do x100 (`SPEED_OPTIONS`, `topbar.tsx:21`) ganha ícone e cor próprios, como o último nível de velocidade dos jogos da Paradox, e a data fica com um realce discreto enquanto ele está ligado. Os tons saem dos tokens do tema, com variante nova no componente quando faltar. Depois de implementar, os estados (pausado com cada motivo e velocidade máxima) entram no canvas.
+**F162 — Sinal de partida pausada e destaque da velocidade máxima.** Serve N15. A eleição e o impeachment pausam a partida para todos, e a única pista era o botão da barra da partida trocar de pausa para play. Implementado: (1) **Motivo da pausa:** o estado da simulação guarda o motivo (pausado pelo host, campanha aberta, resultado do 1º turno, resultado do 2º turno, impeachment), preenchido por quem pausa; o calendário do governo devolve o motivo em vez de um sim/não, e ele chega ao front junto da velocidade (rota de estado e evento de velocidade). (2) **Partida pausada:** a área da data ganha um selo âmbar "Pausado" com o motivo ("Pausado: resultado do 1º turno") e pulsação lenta (desligada para quem pede menos movimento), e o título da aba do navegador ganha "⏸" na frente. (3) **Velocidade máxima:** o segmento do x100 ganha ícone de raio e o tom azul das informações, e a data ganha fundo azul suave enquanto ele está ligado. Os tons saem dos tokens do tema, com variante nova no selo (tamanho de estado e pulsação) e no controle segmentado (nível máximo). Os estados entraram no canvas.
 
 <a id="f163"></a>
 **F163 — Painel da economia: SELIC e IPCA ao longo da partida.** Serve N34. A SELIC e o IPCA já existem no jogo, mas só aparecem como o número do dia: ninguém vê a SELIC subindo em resposta à inflação, nem o efeito de uma medida meses depois. O painel mostra as duas séries desde o início da partida, no mesmo gráfico de linha, com a meta de inflação do ano como faixa de referência e as reuniões do Copom marcadas. Cada métrica leva uma descrição curta e uma dica: a SELIC é o juro básico da economia (10% ao ano quer dizer que R$ 100 parados nela viram R$ 110 em um ano); o IPCA é a inflação oficial (5% em 12 meses quer dizer que o que custava R$ 100 custa R$ 105); e o juro real é a SELIC menos o IPCA (10% − 4% = 6%), que mede quanto o dinheiro rende de verdade. É a base para as métricas que chegam com o orçamento (F128): dívida pública ÷ PIB e crescimento da economia entram no mesmo painel quando existirem.
