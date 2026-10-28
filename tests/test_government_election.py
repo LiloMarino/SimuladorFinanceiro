@@ -142,6 +142,23 @@ def test_eliminated_voters_follow_their_group_and_the_undecided_abstain():
     assert result.shares[1] == Decimal(50) / 75
 
 
+def test_a_group_starts_satisfied_in_the_share_it_gave_the_winner_of_the_valid_votes():
+    shares = {g: {1: 54, 2: 36} for g in VoterGroup}
+    shares[VoterGroup.RETIREES] = {1: 20, 2: 60}
+
+    first_round = _first_round(shares)
+    start = election.start_satisfaction(first_round, 1)
+
+    # Quem ganhou com 54 de 90 dos votos válidos do grupo começa com 60 nele
+    assert start[VoterGroup.WELFARE] == 60
+    assert start[VoterGroup.RETIREES] == 25
+
+    # No 2º turno a satisfação sai da divisão entre os dois finalistas
+    runoff = election.runoff(first_round, [1, 2])
+    assert runoff.satisfaction[VoterGroup.WELFARE] == 60
+    assert runoff.satisfaction[VoterGroup.RETIREES] == 25
+
+
 def test_eliminated_party_transfers_to_the_finalist_that_takes_most_of_its_voters():
     # O partido 3 só tem votos entre os assistidos, onde o 2 é muito mais forte
     shares = {g: {1: 40, 2: 30, 3: 0} for g in VoterGroup}

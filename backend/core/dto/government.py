@@ -12,6 +12,7 @@ from backend.core.enum import (
     ApprovalFactorKind,
     ElectionPhase,
     GroupReading,
+    GroupVerdict,
     MeasureKind,
     MeasureStatus,
     VicePhase,
@@ -348,7 +349,7 @@ class MeasureDTO(BaseDTO):
     # Aprovada: dias de espera já cumpridos e os que faltam
     waiting_days: int | None
     days_left: int | None
-    # Pontos na aprovação ao valer: positivo é corte, negativo é imposto novo
+    # Pontos no alvo da aprovação geral quando a medida vale cheia
     impact: int
     can_withdraw: bool
     can_repropose: bool
@@ -356,7 +357,8 @@ class MeasureDTO(BaseDTO):
 
 class ApprovalFactorDTO(BaseDTO):
     kind: ApprovalFactorKind
-    points: int
+    # Pontos que o fator soma ao alvo do grupo (ou o ponto neutro, no BASE)
+    points: Decimal
     description: str
     measure_id: int | None
 
@@ -366,8 +368,25 @@ class ApprovalPointDTO(BaseDTO):
     value: int
 
 
+class GroupApprovalDTO(BaseDTO):
+    """A satisfação de um grupo com o governo, o alvo dela e o que a puxa."""
+
+    group: VoterGroup
+    # Fatia do grupo no eleitorado
+    weight: Decimal
+    readings: list[GroupReading]
+    satisfaction: int
+    # Onde a satisfação para se nada mudar
+    target: int
+    verdict: GroupVerdict
+    # A satisfação no fechamento anterior, para a seta
+    previous: int | None
+    history: list[ApprovalPointDTO]
+    factors: list[ApprovalFactorDTO]
+
+
 class UpcomingEffectDTO(BaseDTO):
-    """Medida aprovada que ainda não vale e vai pesar na aprovação quando valer."""
+    """Medida aprovada que ainda não vale e vai pesar no alvo dos grupos quando valer."""
 
     measure_id: int
     description: str
@@ -375,17 +394,41 @@ class UpcomingEffectDTO(BaseDTO):
     impact: int
 
 
+class ClosingDTO(BaseDTO):
+    """O que o último fechamento fez com o apoio e a rejeição do partido do presidente."""
+
+    month: date
+    party_abbr: str
+    approved: list[VoterGroup]
+    reproved: list[VoterGroup]
+    neutral: list[VoterGroup]
+
+
 class ApprovalDTO(BaseDTO):
+    # A aprovação geral: a média das satisfações pesada pelo tamanho dos grupos
     value: int
-    # Aprovação do mês anterior, para a seta
+    # Aprovação do fechamento anterior, para a seta
     previous: int | None
+    # Alvo da aprovação geral
+    target: int
+    # Do dia da posse ao último fechamento
     history: list[ApprovalPointDTO]
-    factors: list[ApprovalFactorDTO]
+    groups: list[GroupApprovalDTO]
     upcoming: list[UpcomingEffectDTO]
+    # Quando a satisfação anda um terço até o alvo
+    closes_on: date
+    # Satisfação abaixo da qual o grupo reprova o mês e acima da qual aprova
+    reproves_below: int
+    approves_above: int
     floor: int
-    # Meses seguidos abaixo do piso e quantos levam ao impeachment
+    # Fechamentos seguidos abaixo do piso e quantos levam ao impeachment
     low_streak: int
     impeachment_months: int
+    # O piso não conta até o fim da carência
+    grace_until: date
+    in_grace: bool
+    # Só para os filiados do partido do presidente
+    closing: ClosingDTO | None
 
 
 class TaxRowDTO(BaseDTO):
@@ -444,7 +487,7 @@ class ImpeachmentDTO(BaseDTO):
     date: date
     president: str | None
     successor: str | None
-    # A regra que o disparou: meses seguidos abaixo do piso de aprovação
+    # A regra que o disparou: fechamentos seguidos abaixo do piso de aprovação
     months: int
     floor: int
 
@@ -494,7 +537,7 @@ class MeasurePreviewDTO(BaseDTO):
     title: str
     # Quanto a medida, aprovada, move o perfil do partido do presidente
     profile_moves: list[ValueMoveDTO]
-    # Pontos na aprovação ao valer: positivo é corte, negativo é imposto novo
+    # Pontos no alvo da aprovação geral quando a medida vale cheia, pesados pelo tamanho dos grupos
     impact: int
     chance: int
     vote_date: date

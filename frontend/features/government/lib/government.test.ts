@@ -116,9 +116,13 @@ describe("aprovação", () => {
     expect(approvalArrow({ value: 50, previous: null })).toBe("");
   });
 
-  it("conta os meses abaixo do piso no plural certo", () => {
-    expect(lowStreakLabel({ low_streak: 1, floor: 25 })).toBe("1 mês abaixo de 25%");
-    expect(lowStreakLabel({ low_streak: 2, floor: 25 })).toBe("2 meses seguidos abaixo de 25%");
+  it("conta os fechamentos abaixo do piso sobre o total do impeachment", () => {
+    expect(lowStreakLabel({ low_streak: 1, floor: 25, impeachment_months: 6 })).toBe(
+      "1 de 6 meses seguidos abaixo de 25%",
+    );
+    expect(lowStreakLabel({ low_streak: 5, floor: 25, impeachment_months: 6 })).toBe(
+      "5 de 6 meses seguidos abaixo de 25%",
+    );
   });
 });
 
@@ -130,16 +134,17 @@ describe("holdingLabel", () => {
 });
 
 describe("impactSentence", () => {
-  it("conta o bônus do corte no singular e no plural", () => {
-    expect(impactSentence({ impact: 2 })).toBe(
-      "Como corte de imposto, soma 2 pontos à aprovação quando passa a valer.",
-    );
-    expect(impactSentence({ impact: 1 })).toContain("soma 1 ponto à");
+  it("conta o quanto a medida soma ao alvo no singular e no plural", () => {
+    expect(impactSentence({ impact: 2 })).toContain("Soma 2 pontos ao alvo da aprovação geral");
+    expect(impactSentence({ impact: 1 })).toContain("Soma 1 ponto ao alvo");
   });
 
-  it("conta a perda do imposto novo e avisa que some", () => {
-    expect(impactSentence({ impact: -3 })).toBe(
-      "Como imposto novo, tira 3 pontos da aprovação quando passa a valer, efeito que some em 6 meses.",
-    );
+  it("conta o quanto a medida tira do alvo e que o efeito cai pela metade", () => {
+    expect(impactSentence({ impact: -3 })).toContain("Tira 3 pontos do alvo da aprovação geral");
+    expect(impactSentence({ impact: -3 })).toContain("cai pela metade a cada 6 meses");
+  });
+
+  it("diz que a medida não muda o alvo quando os grupos se compensam", () => {
+    expect(impactSentence({ impact: 0 })).toContain("Não muda o alvo");
   });
 });

@@ -7,12 +7,17 @@ votos no 2º e a escolha dos partidos do computador. Tudo aqui é função pura 
 from dataclasses import dataclass
 from decimal import Decimal
 
+from backend.core.enum import VoterGroup
 from backend.features.government import voters
 from backend.features.government.computer_parties import (
     COMPUTER_PARTIES,
     ComputerParty,
 )
-from backend.features.government.state import GovernmentState, Party
+from backend.features.government.state import (
+    NEUTRAL_SATISFACTION,
+    GovernmentState,
+    Party,
+)
 
 PARTIES_PER_ELECTION = 3
 MAJORITY = Decimal("0.5")
@@ -27,6 +32,8 @@ class Runoff:
     shares: dict[int, Decimal]
     transfers: dict[int, int]
     winner_id: int
+    # Como cada grupo votou no vencedor, que é a satisfação com que o governo começa
+    satisfaction: dict[VoterGroup, Decimal]
 
 
 def is_eligible(state: GovernmentState, user_id: int) -> bool:
@@ -100,6 +107,24 @@ def intention(state: GovernmentState) -> voters.Vote:
     )
 
 
+def start_satisfaction(
+    result: voters.Vote, winner_id: int
+) -> dict[VoterGroup, Decimal]:
+    """
+    A satisfação de posse de cada grupo: a fatia dele nos votos válidos do turno que
+    decidiu a eleição. Quem ganhou com 54% num grupo começa com 54 nele.
+    """
+    satisfaction = {}
+    for group, gv in result.groups.items():
+        valid = sum(gv.shares.values(), Decimal(0))
+        satisfaction[group] = (
+            gv.shares.get(winner_id, Decimal(0)) * voters.HUNDRED / valid
+            if valid > 0
+            else NEUTRAL_SATISFACTION
+        )
+    return satisfaction
+
+
 def valid_shares(points: dict[int, Decimal]) -> dict[int, Decimal]:
     """Fatia de cada um nos votos válidos; sem nenhum voto, todos empatam."""
     total = sum(points.values(), Decimal(0))
@@ -142,7 +167,7 @@ def runoff(first_round: voters.Vote, finalists: list[int]) -> Runoff:
         finalists,
         key=lambda f: (-votes[f], -first_round.total.get(f, Decimal(0)), f),
     )
-    return Runoff(votes, shares, transfers, winner)
+    return Runoff(votes, shares, transfers, winner, start_satisfaction(second, winner))
 
 
 def _received(

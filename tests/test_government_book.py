@@ -31,6 +31,7 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
+from backend.core.utils import required
 from backend.features.government import approval as approval_rules
 from backend.features.government import congress, election, voters
 from backend.features.government.calendar import election_cycle
@@ -721,12 +722,12 @@ def test_party_ranking_adds_up_the_networth_of_the_members(book: GovernmentBook)
 
 # Governar: medidas, Congresso, aprovação e impeachment
 
+# Inflação na meta, SELIC no ponto neutro e bolsa em alta: os grupos miram acima de 50
 GOOD_MARKET = approval_rules.Market(
-    inflation=Decimal("0.03"), stocks=Decimal("0.10"), target=Decimal("0.04")
-)
-# Inflação 8 pontos acima da meta e bolsa em queda: 50 - 20 - 6 = 24%, abaixo do piso
-BAD_MARKET = approval_rules.Market(
-    inflation=Decimal("0.12"), stocks=Decimal("-0.40"), target=Decimal("0.04")
+    inflation=Decimal("0.03"),
+    selic=Decimal("0.10"),
+    stocks=Decimal("0.15"),
+    target=Decimal("0.04"),
 )
 FIRST_VOTE = date(2022, 1, 31)
 SECTORS = {
@@ -745,6 +746,26 @@ def market(monkeypatch: pytest.MonkeyPatch):
 
     use(GOOD_MARKET)
     return use
+
+
+@pytest.fixture
+def bleak(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Um governo que nenhum grupo aprova: o alvo de todos é zero e a satisfação só desce."""
+    monkeypatch.setattr(
+        approval_rules,
+        "group_target",
+        lambda *_: approval_rules.GroupTarget(Decimal(0), []),
+    )
+
+
+def close_months(book: GovernmentBook, count: int, first: date = FIRST_VOTE):
+    """Fecha `count` meses do governo a partir do mês de `first`; devolve o motivo da última pausa."""
+    paused = None
+    year, month = first.year, first.month
+    for _ in range(count):
+        paused = book.on_tick(USERS, congress.last_business_day(year, month), False)
+        year, month = (year + 1, 1) if month == 12 else (year, month + 1)
+    return paused
 
 
 def congress_says(monkeypatch: pytest.MonkeyPatch, approved: bool) -> None:
@@ -835,7 +856,9 @@ def test_approved_measure_binds_only_ninety_days_after_the_vote(
 
     measure = book.state.measures[1]
     assert measure.status is MeasureStatus.APPROVED
-    assert measure.chance == 56
+    # A chance do voto é a aprovação do fechamento do mês
+    closing = book.state.approvals[0].satisfaction
+    assert measure.chance == approval_rules.rounded(approval_rules.overall(closing))
     assert measure.effective == date(2022, 5, 1)
     before, after = date(2022, 4, 29), date(2022, 5, 2)
     assert book.policy(before).rates[LossPool.COMMON] == Decimal("0.15")
@@ -892,14 +915,36 @@ def test_approval_is_measured_every_month_and_kept_for_the_chart(
     book: GovernmentBook, engine, market
 ):
     govern(book, engine)
+    start = dict(book.state.satisfaction)
 
     book.on_tick(USERS, FIRST_VOTE, False)
 
-    assert [(p.day, p.value) for p in book.state.approvals] == [(FIRST_VOTE, 56)]
+    [point] = book.state.approvals
+    assert point.day == FIRST_VOTE
+    # Cada grupo andou um terço do caminho até o alvo
+    targets = required(book.approval(FIRST_VOTE)).targets
+    for group, value in point.satisfaction.items():
+        expected = approval_rules.next_satisfaction(start[group], targets[group].target)
+        assert value == expected
     assert book.state.low_streak == 0
     # Fechado o mês, a mesma data não mede de novo
     book.on_tick(USERS, FIRST_VOTE, False)
     assert len(book.state.approvals) == 1
+
+
+def test_each_group_starts_satisfied_in_the_proportion_it_voted_for_the_winner(
+    book: GovernmentBook, engine
+):
+    govern(book, engine)
+
+    start = book.state.satisfaction
+    assert set(start) == set(VoterGroup)
+    assert all(0 < value < 100 for value in start.values())
+    # A posse parte da fatia de cada grupo no vencedor: sai do 2º turno, que decidiu
+    final = book.state.results[-1]
+    assert final.round == 2
+    winner_share = final.shares[required(final.winner_id)] * 100
+    assert abs(approval_rules.overall(start) - winner_share) < 10
 
 
 def test_president_wallet_is_frozen_and_the_others_keep_trading(
@@ -913,30 +958,35 @@ def test_president_wallet_is_frozen_and_the_others_keep_trading(
     assert book.term_end() == date(2025, 12, 31)
 
 
-def test_three_months_below_the_floor_remove_the_president_and_the_vice_takes_over(
-    book: GovernmentBook, engine, market, office, notices, monkeypatch
+def test_six_closings_below_the_floor_after_the_grace_remove_the_president(
+    book: GovernmentBook, engine, market, bleak, office, notices, monkeypatch
 ):
     govern(book, engine, vice=True)
     propose(book)
     congress_says(monkeypatch, True)
-    book.on_tick(USERS, FIRST_VOTE, False)
-    market(BAD_MARKET)
 
-    assert book.on_tick(USERS, date(2022, 2, 28), False) is None
-    assert book.on_tick(USERS, date(2022, 3, 31), False) is None
-    propose(book, "0.25")
+    # No 1º ano o piso não conta: nenhum fechamento soma à contagem
+    assert close_months(book, 12) is None
+    assert book.state.low_streak == 0
+    assert required(book.approval(date(2022, 12, 31))).value < approval_rules.FLOOR
+
+    # Do 13º mês em diante a contagem corre; o aviso vem no 5º fechamento abaixo do piso
+    assert close_months(book, 5, date(2023, 1, 31)) is None
+    assert book.state.low_streak == 5
     assert GovernmentNoticeKind.IMPEACHMENT_WARNING.value in [
         n["kind"] for n in notices
     ]
-    assert book.on_tick(USERS, date(2022, 4, 29), False) == PauseReason.IMPEACHMENT
+    propose(book, "0.25")
+    assert close_months(book, 1, date(2023, 6, 30)) == PauseReason.IMPEACHMENT
 
     term = book.state.term
     assert term is not None
     assert (term.president_id, term.succession) == (BOB.id, True)
     assert office[-1] == BOB.id
-    # A medida aprovada segue os 90 dias; a fila não votada de quem saiu some
-    assert book.state.measures[1].status is MeasureStatus.APPROVED
+    # A fila não votada de quem saiu some; o sucessor começa no ponto em que o governo caiu
     assert book.state.measures[2].status is MeasureStatus.DROPPED
+    assert term.satisfaction == book.state.satisfaction
+    assert book.state.approvals == []
     book.ensure_can_trade(ALICE.client_id)
     with pytest.raises(ConflictError):
         book.ensure_can_trade(BOB.client_id)
@@ -944,7 +994,7 @@ def test_three_months_below_the_floor_remove_the_president_and_the_vice_takes_ov
 
 
 def test_impeachment_hands_the_office_to_a_vice_from_another_party(
-    book: GovernmentBook, engine, market, office, monkeypatch
+    book: GovernmentBook, engine, market, bleak, office, monkeypatch
 ):
     engine.classification = SECTORS
     found(book, ALICE, "AAA", RED, "10000")
@@ -954,10 +1004,8 @@ def test_impeachment_hands_the_office_to_a_vice_from_another_party(
     book.on_tick(USERS, FIRST_ROUND, False)
     book.on_tick(USERS, RUNOFF, False)
     book.on_tick(USERS, TERM_START, False)
-    market(BAD_MARKET)
 
-    for day in (date(2022, 1, 31), date(2022, 2, 28), date(2022, 3, 31)):
-        book.on_tick(USERS, day, False)
+    assert close_months(book, 18) == PauseReason.IMPEACHMENT
 
     term = book.state.term
     assert term is not None
@@ -967,13 +1015,11 @@ def test_impeachment_hands_the_office_to_a_vice_from_another_party(
 
 
 def test_impeachment_without_a_vice_leaves_a_neutral_computer_government(
-    book: GovernmentBook, engine, market, monkeypatch
+    book: GovernmentBook, engine, market, bleak, monkeypatch
 ):
     govern(book, engine)
-    market(BAD_MARKET)
 
-    for day in (date(2022, 1, 31), date(2022, 2, 28), date(2022, 3, 31)):
-        book.on_tick(USERS, day, False)
+    assert close_months(book, 18) == PauseReason.IMPEACHMENT
 
     term = book.state.term
     assert term is not None
@@ -981,23 +1027,66 @@ def test_impeachment_without_a_vice_leaves_a_neutral_computer_government(
     book.ensure_can_trade(ALICE.client_id)
     with pytest.raises(ForbiddenError):
         propose(book, "0.25")
+    # Sem presidente ninguém é aprovado: os grupos ficam onde estavam
+    assert book.approval(date(2023, 7, 31)) is None
+    assert close_months(book, 3, date(2023, 7, 31)) is None
+    assert book.state.approvals == []
 
 
-def test_a_month_above_the_floor_resets_the_streak(
-    book: GovernmentBook, engine, market
+def test_a_closing_above_the_floor_resets_the_streak(
+    book: GovernmentBook, engine, market, monkeypatch
 ):
     govern(book, engine)
-    market(BAD_MARKET)
-    book.on_tick(USERS, date(2022, 1, 31), False)
-    book.on_tick(USERS, date(2022, 2, 28), False)
+    with monkeypatch.context() as bleak_month:
+        bleak_month.setattr(
+            approval_rules,
+            "group_target",
+            lambda *_: approval_rules.GroupTarget(Decimal(0), []),
+        )
+        close_months(book, 14)
     assert book.state.low_streak == 2
 
-    market(GOOD_MARKET)
-    book.on_tick(USERS, date(2022, 3, 31), False)
+    # Um alvo alto leva a aprovação de volta acima do piso em poucos meses
+    monkeypatch.setattr(
+        approval_rules,
+        "group_target",
+        lambda *_: approval_rules.GroupTarget(Decimal(100), []),
+    )
+    close_months(book, 3, date(2023, 3, 31))
 
     assert book.state.low_streak == 0
     assert book.state.term is not None
     assert book.state.term.president_id == ALICE.id
+
+
+def test_months_the_groups_approve_or_reprove_move_the_governing_party(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    party = party_of(book, ALICE)
+    before = dict(party.rejection)
+
+    def targets(group_targets: dict[VoterGroup, int]):
+        monkeypatch.setattr(
+            approval_rules,
+            "group_target",
+            lambda group, *_: approval_rules.GroupTarget(
+                Decimal(group_targets[group]), []
+            ),
+        )
+
+    # Metade dos grupos mira 100 (aprova) e a outra mira 0 (reprova), partindo do meio
+    targets({g: 100 if i % 2 else 0 for i, g in enumerate(VoterGroup)})
+    close_months(book, 6)
+
+    approving = [g for i, g in enumerate(VoterGroup) if i % 2]
+    reproving = [g for i, g in enumerate(VoterGroup) if not i % 2]
+    for group in approving:
+        assert party.term_support[group] > 0
+        assert party.rejection[group] <= before[group]
+    for group in reproving:
+        assert party.term_support[group] < 0
+        assert party.rejection[group] > before[group]
 
 
 def test_replay_rebuilds_measures_approval_and_policy(
@@ -1012,6 +1101,8 @@ def test_replay_rebuilds_measures_approval_and_policy(
 
     assert resumed.state.measures == book.state.measures
     assert resumed.state.approvals == book.state.approvals
+    assert resumed.state.satisfaction == book.state.satisfaction
+    assert party_of(resumed, ALICE).term_support == party_of(book, ALICE).term_support
     assert resumed.policy(date(2022, 6, 1)).rates[LossPool.COMMON] == Decimal("0.20")
 
 

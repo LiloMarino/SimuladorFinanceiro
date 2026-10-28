@@ -11,7 +11,13 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 
-from backend.core.enum import GroupReading, MeasureKind, VoterGroup, VoterValue
+from backend.core.enum import (
+    GroupReading,
+    GroupVerdict,
+    MeasureKind,
+    VoterGroup,
+    VoterValue,
+)
 
 G = VoterGroup
 V = VoterValue
@@ -125,6 +131,19 @@ SQRT_DIVISOR = Decimal(64)
 # Os indecisos entram na divisão de cada grupo como um partido de saldo fixo: com dois
 # partidos de saldo 30 e 25, 15 ÷ 70 = 21% do grupo fica indeciso
 UNDECIDED_BALANCE = Decimal(15)
+
+# Faixa neutra da satisfação: acima de 55 o grupo aprova o mês, abaixo de 45 reprova e,
+# entre as duas, o mês passa em branco
+APPROVES_ABOVE = Decimal(55)
+REPROVES_BELOW = Decimal(45)
+# Mês aprovado: +1 de apoio ao partido do governo e -0,25 de rejeição; mês reprovado:
+# -1 de apoio e +0,5 de rejeição
+APPROVED_SUPPORT = Decimal(1)
+APPROVED_REPAIR = Decimal("0.25")
+REPROVED_SUPPORT = Decimal(-1)
+REPROVED_REJECTION = Decimal("0.5")
+# O apoio que o mandato dá cai pela metade em 3 meses: a cada mês sobra 0,5 ** (1/3)
+SUPPORT_MONTHLY_KEEP = Decimal("0.5") ** (Decimal(1) / 3)
 
 # O que cada tipo de medida avança ou recua nos valores, por passo de referência; o
 # passo no sentido contrário (subir o que a tabela corta) tem o efeito inverso
@@ -323,6 +342,33 @@ def combine(groups: dict[VoterGroup, GroupVote]) -> Vote:
     return Vote(groups=groups, total=total, undecided=undecided)
 
 
+def month_verdict(satisfaction: Decimal) -> GroupVerdict:
+    """Se o grupo aprova, reprova ou fica neutro no fechamento do mês."""
+    if satisfaction > APPROVES_ABOVE:
+        return GroupVerdict.APPROVES
+    if satisfaction < REPROVES_BELOW:
+        return GroupVerdict.REPROVES
+    return GroupVerdict.NEUTRAL
+
+
+def remember_month(
+    support: Decimal, rejection: Decimal, verdict: GroupVerdict
+) -> tuple[Decimal, Decimal]:
+    """
+    O que o mês do governo deixa para o partido do presidente num grupo: o apoio que já
+    havia perde parte pelo tempo e soma ou tira 1 conforme o veredito; a rejeição
+    repara no mês aprovado e sobe no reprovado.
+    """
+    kept = support * SUPPORT_MONTHLY_KEEP
+    match verdict:
+        case GroupVerdict.APPROVES:
+            return kept + APPROVED_SUPPORT, repair_rejection(rejection, APPROVED_REPAIR)
+        case GroupVerdict.REPROVES:
+            return kept + REPROVED_SUPPORT, add_rejection(rejection, REPROVED_REJECTION)
+        case GroupVerdict.NEUTRAL:
+            return kept, rejection
+
+
 def published(
     exact: Decimal, margin: int, seed: int, day: date, key: str, party_id: int
 ) -> Decimal:
@@ -360,6 +406,12 @@ def measure_effects(
     ]
     sign = Decimal(-1) if kind is MeasureKind.SECTOR_TAX else Decimal(1)
     return {v: sign * effect * steps for v, effect in table.items()}
+
+
+def reaction(group: VoterGroup, effects: Mapping[VoterValue, Decimal]) -> Decimal:
+    """Quanto o grupo quer o que a medida faz: a posição dele em cada valor vezes o que a medida move."""
+    positions = POSITIONS[group]
+    return sum((positions[v] * effect for v, effect in effects.items()), ZERO)
 
 
 def radar_moves(

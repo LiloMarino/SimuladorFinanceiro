@@ -39,6 +39,7 @@ from backend.core.enum import (
     OrderAction,
     PauseReason,
     PlayerActivity,
+    VoterGroup,
 )
 
 
@@ -223,6 +224,10 @@ class GovernmentUpdateEventDTO(BaseDTO):
     # No impeachment: quem saiu (actor) e quem assumiu (target, nulo sem vice); no aviso, os meses abaixo do piso
     months_below_floor: int | None = None
     approval: int | None = None
+    # No fechamento do mês: a aprovação do mês anterior e os grupos que aprovaram e reprovaram
+    previous_approval: int | None = None
+    groups_approved: list[VoterGroup] | None = None
+    groups_reproved: list[VoterGroup] | None = None
     # Nos avisos do calendário: o dia em que as chapas fecham e o do 1º turno
     ticket_deadline: date | None = None
     first_round: date | None = None

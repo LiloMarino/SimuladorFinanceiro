@@ -1,6 +1,6 @@
 """
-As medidas do presidente: o que cada uma muda na política de impostos e quanto pesa
-na aprovação. Tudo aqui é função pura sobre `Measure`.
+As medidas do presidente: o que cada uma muda na política de impostos. Tudo aqui é
+função pura sobre `Measure`.
 """
 
 from bisect import bisect_right
@@ -34,85 +34,7 @@ MONTHS = (
     "dez",
 )
 
-# Peso na aprovação: imposto novo tira de 1 a 5 pontos e corte soma de 1 a 3
-MAX_TAX_PENALTY = 5
-MAX_CUT_BONUS = 3
-# Pontos de alíquota que valem 1 ponto de bônus no corte
-CUT_POINTS_PER_BONUS = Decimal("7.5")
-# Pontos somados a um setor que valem 1 ponto de penalidade
-SECTOR_POINTS_PER_PENALTY = Decimal(2)
-SECTOR_EXEMPT_BONUS = 2
-EXEMPTION_RAISED_BONUS = 2
-EXEMPTION_LOWERED_PENALTY = 3
-
-# Em quanto tempo o efeito de um imposto novo na aprovação some
-FADE_DAYS = 180
-
 HUNDRED = Decimal(100)
-
-
-def _round(value: Decimal) -> int:
-    return int(value.quantize(Decimal(1), ROUND_HALF_UP))
-
-
-def _clamp(value: int, low: int, high: int) -> int:
-    return max(low, min(high, value))
-
-
-def _step(measure: Measure) -> Decimal:
-    """O quanto a medida muda o imposto geral: positivo é imposto maior."""
-    value = required(measure.value)
-    before = required(measure.before)
-    return value - before
-
-
-def is_cut(measure: Measure) -> bool:
-    """Se a medida alivia o imposto de quem paga; a que tira imposto vale como corte."""
-    match measure.kind:
-        case MeasureKind.SECTOR_EXEMPT:
-            return True
-        case MeasureKind.SECTOR_TAX:
-            return False
-        case MeasureKind.STOCK_EXEMPTION:
-            # O teto maior isenta mais vendas
-            return _step(measure) > 0
-        case _:
-            return _step(measure) < 0
-
-
-def approval_impact(measure: Measure) -> int:
-    """Pontos de aprovação ao valer: corte soma, imposto novo tira."""
-    match measure.kind:
-        case MeasureKind.SECTOR_EXEMPT:
-            return SECTOR_EXEMPT_BONUS
-        case MeasureKind.SECTOR_TAX:
-            points = _round(
-                required(measure.value) * HUNDRED / SECTOR_POINTS_PER_PENALTY
-            )
-            return -_clamp(points, 1, MAX_TAX_PENALTY)
-        case MeasureKind.STOCK_EXEMPTION:
-            return (
-                EXEMPTION_RAISED_BONUS
-                if is_cut(measure)
-                else -EXEMPTION_LOWERED_PENALTY
-            )
-        case _:
-            points = abs(_step(measure)) * HUNDRED
-            if is_cut(measure):
-                return _clamp(_round(points / CUT_POINTS_PER_BONUS), 1, MAX_CUT_BONUS)
-            return -_clamp(_round(points), 1, MAX_TAX_PENALTY)
-
-
-def fade(measure: Measure, today: date) -> Decimal:
-    """Quanto do efeito de imposto novo ainda pesa: cheio ao valer, zero em 6 meses."""
-    elapsed = (today - required(measure.effective)).days
-    return max(Decimal(0), 1 - Decimal(elapsed) / FADE_DAYS)
-
-
-def current_effect(measure: Measure, today: date) -> int:
-    """Pontos que a medida em vigor soma à aprovação hoje; o corte não some, o imposto novo sim."""
-    impact = approval_impact(measure)
-    return impact if impact > 0 else _round(impact * fade(measure, today))
 
 
 def apply_measure(policy: TaxPolicy, measure: Measure) -> TaxPolicy:

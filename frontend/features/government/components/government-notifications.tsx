@@ -8,7 +8,7 @@ import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionRound, GovernmentNotice, GovernmentPanel, PortfolioState } from "@/types";
 import { calendarToast } from "../lib/calendar-toast";
-import { inForceToast, votedToast, warningToast } from "../lib/measure-toast";
+import { inForceToast, monthClosedToast, votedToast, warningToast } from "../lib/measure-toast";
 import type { ElectionShortcut } from "../lib/election";
 import { donationContext, roundToast } from "../lib/round-toast";
 import { CampaignOpenedDialog } from "./campaign-opened-dialog";
@@ -141,14 +141,30 @@ export function GovernmentNotifications() {
         break;
       case "IMPEACHMENT_WARNING":
         if (event.actor === me) {
-          const floor = queryClient.getQueryData<GovernmentPanel>(queryKeys.government())?.approval?.floor ?? 25;
-          const notice = warningToast(event, floor);
+          const approval = queryClient.getQueryData<GovernmentPanel>(queryKeys.government())?.approval;
+          const notice = warningToast(event, {
+            floor: approval?.floor ?? 25,
+            impeachment_months: approval?.impeachment_months ?? 6,
+          });
           toast.error(notice.title, {
             description: notice.description,
             action: { label: "Ver governo", onClick: openGovernment },
           });
         }
         break;
+      case "MONTH_CLOSED": {
+        // O fechamento conta o que mudou no apoio só aos filiados do partido do governo
+        const election = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
+        const mine = election?.parties.find((party) => party.id === election.my_party?.party_id);
+        if (mine && mine.abbr === event.party_abbr) {
+          const notice = monthClosedToast(event);
+          toast[notice.tone](notice.title, {
+            description: notice.description,
+            action: { label: "Abrir o Governo", onClick: openGovernment },
+          });
+        }
+        break;
+      }
       case "IMPEACHMENT":
         // O diálogo lê o governo já com o sucessor no cache
         void queryClient.refetchQueries({ queryKey: queryKeys.government() }).then(() => {

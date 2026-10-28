@@ -2876,24 +2876,43 @@ export interface components {
             value: number;
             /** Previous */
             previous: number | null;
+            /** Target */
+            target: number;
             /** History */
             history: components["schemas"]["ApprovalPointDTO"][];
-            /** Factors */
-            factors: components["schemas"]["ApprovalFactorDTO"][];
+            /** Groups */
+            groups: components["schemas"]["GroupApprovalDTO"][];
             /** Upcoming */
             upcoming: components["schemas"]["UpcomingEffectDTO"][];
+            /**
+             * Closes On
+             * Format: date
+             */
+            closes_on: string;
+            /** Reproves Below */
+            reproves_below: number;
+            /** Approves Above */
+            approves_above: number;
             /** Floor */
             floor: number;
             /** Low Streak */
             low_streak: number;
             /** Impeachment Months */
             impeachment_months: number;
+            /**
+             * Grace Until
+             * Format: date
+             */
+            grace_until: string;
+            /** In Grace */
+            in_grace: boolean;
+            closing: components["schemas"]["ClosingDTO"] | null;
         };
         /** ApprovalFactorDTO */
         ApprovalFactorDTO: {
             kind: components["schemas"]["ApprovalFactorKind"];
             /** Points */
-            points: number;
+            points: string;
             /** Description */
             description: string;
             /** Measure Id */
@@ -2901,9 +2920,10 @@ export interface components {
         };
         /**
          * ApprovalFactorKind
+         * @description O que empurra o alvo de satisfação de um grupo; BASE é o ponto neutro.
          * @enum {string}
          */
-        ApprovalFactorKind: "BASE" | "INFLATION" | "STOCKS" | "NEW_TAX" | "TAX_CUT";
+        ApprovalFactorKind: "BASE" | "INFLATION" | "SELIC" | "STOCKS" | "MEASURE";
         /** ApprovalPointDTO */
         ApprovalPointDTO: {
             /**
@@ -3387,6 +3407,25 @@ export interface components {
         };
         /** @enum {string} */
         ChallengeStatus: "waiting" | "hit" | "miss" | "void" | "expired";
+        /**
+         * ClosingDTO
+         * @description O que o último fechamento fez com o apoio e a rejeição do partido do presidente.
+         */
+        ClosingDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Party Abbr */
+            party_abbr: string;
+            /** Approved */
+            approved: components["schemas"]["VoterGroup"][];
+            /** Reproved */
+            reproved: components["schemas"]["VoterGroup"][];
+            /** Neutral */
+            neutral: components["schemas"]["VoterGroup"][];
+        };
         /** CompositionReportDTO */
         CompositionReportDTO: {
             player_grouping: components["schemas"]["PlayerGrouping"];
@@ -4314,7 +4353,7 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING";
+        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED";
         /** GovernmentPanelDTO */
         GovernmentPanelDTO: {
             /**
@@ -4387,10 +4426,38 @@ export interface components {
             months_below_floor: number | null;
             /** Approval */
             approval: number | null;
+            /** Previous Approval */
+            previous_approval: number | null;
+            /** Groups Approved */
+            groups_approved: components["schemas"]["VoterGroup"][] | null;
+            /** Groups Reproved */
+            groups_reproved: components["schemas"]["VoterGroup"][] | null;
             /** Ticket Deadline */
             ticket_deadline: string | null;
             /** First Round */
             first_round: string | null;
+        };
+        /**
+         * GroupApprovalDTO
+         * @description A satisfação de um grupo com o governo, o alvo dela e o que a puxa.
+         */
+        GroupApprovalDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Weight */
+            weight: string;
+            /** Readings */
+            readings: components["schemas"]["GroupReading"][];
+            /** Satisfaction */
+            satisfaction: number;
+            /** Target */
+            target: number;
+            verdict: components["schemas"]["GroupVerdict"];
+            /** Previous */
+            previous: number | null;
+            /** History */
+            history: components["schemas"]["ApprovalPointDTO"][];
+            /** Factors */
+            factors: components["schemas"]["ApprovalFactorDTO"][];
         };
         /** GroupPollDTO */
         GroupPollDTO: {
@@ -4414,6 +4481,12 @@ export interface components {
             /** Score */
             score: string;
         };
+        /**
+         * GroupVerdict
+         * @description Como um grupo fecha o mês: acima da faixa neutra aprova, abaixo reprova.
+         * @enum {string}
+         */
+        GroupVerdict: "APPROVES" | "NEUTRAL" | "REPROVES";
         /** HighlightsDTO */
         HighlightsDTO: {
             biggest_return: components["schemas"]["PlayerHighlightDTO"] | null;
@@ -8113,7 +8186,7 @@ export interface components {
         };
         /**
          * UpcomingEffectDTO
-         * @description Medida aprovada que ainda não vale e vai pesar na aprovação quando valer.
+         * @description Medida aprovada que ainda não vale e vai pesar no alvo dos grupos quando valer.
          */
         UpcomingEffectDTO: {
             /** Measure Id */

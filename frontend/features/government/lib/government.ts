@@ -35,13 +35,6 @@ export function signedPoints(points: number) {
   return `${points > 0 ? "+" : MINUS}${Math.abs(points)}`;
 }
 
-/** Tom do número que muda a aprovação: positivo soma, negativo tira. */
-export function pointsTone(points: number) {
-  if (points > 0) return "text-success";
-  if (points < 0) return "text-destructive";
-  return "";
-}
-
 /** "Isenção até R$ 20 mil/mês": o teto mensal das vendas de ações sem IR. */
 function exemptionLabel(limit: string | number) {
   return `até ${displayMoneyCompact(limit)}/mês`;
@@ -147,16 +140,15 @@ export function approvalArrow(approval: Pick<GovernmentApproval, "value" | "prev
   return approval.value > approval.previous ? "▲" : "▼";
 }
 
-/** Meses abaixo do piso, no plural certo: "2 meses seguidos abaixo de 25%". */
-export function lowStreakLabel(approval: Pick<GovernmentApproval, "low_streak" | "floor">) {
-  const months = approval.low_streak;
-  return months === 1 ? `1 mês abaixo de ${approval.floor}%` : `${months} meses seguidos abaixo de ${approval.floor}%`;
+/** Fechamentos abaixo do piso sobre o total que derruba o governo: "3 de 6 meses seguidos abaixo de 25%". */
+export function lowStreakLabel(approval: Pick<GovernmentApproval, "low_streak" | "floor" | "impeachment_months">) {
+  return `${approval.low_streak} de ${approval.impeachment_months} meses seguidos abaixo de ${approval.floor}%`;
 }
 
 /** Quem assume se o impeachment vier: o vice, ou um governo neutro do computador. */
 export function successionLabel(panel: Pick<GovernmentPanel, "term">) {
   const vice = panel.term?.vice;
-  return vice ? `${vice.name} assume` : "o governo passa a um computador neutro";
+  return vice ? `${vice.name}, a vice, assume` : "o governo passa a um computador neutro";
 }
 
 /** A carteira como fração do total: 0.34 → "34%". */
@@ -177,12 +169,15 @@ export function rateToFraction(text: string) {
   return Number.isFinite(value) && text.trim() !== "" ? String(Math.round(value * 100) / 10000) : null;
 }
 
-/** O que a medida rascunhada faz na aprovação, em uma frase. */
+/** O que a medida rascunhada faz no alvo da aprovação, em uma frase. */
 export function impactSentence(preview: Pick<MeasurePreview, "impact">) {
   const points = Math.abs(preview.impact);
   const unit = points === 1 ? "ponto" : "pontos";
   if (preview.impact > 0) {
-    return `Como corte de imposto, soma ${points} ${unit} à aprovação quando passa a valer.`;
+    return `Soma ${points} ${unit} ao alvo da aprovação geral quando passa a valer, pesado pelo tamanho de cada grupo. O efeito cai pela metade a cada 6 meses.`;
   }
-  return `Como imposto novo, tira ${points} ${unit} da aprovação quando passa a valer, efeito que some em 6 meses.`;
+  if (preview.impact < 0) {
+    return `Tira ${points} ${unit} do alvo da aprovação geral quando passa a valer, pesado pelo tamanho de cada grupo. O efeito cai pela metade a cada 6 meses.`;
+  }
+  return "Não muda o alvo da aprovação geral: os grupos que gostam e os que não gostam se compensam.";
 }

@@ -19,6 +19,8 @@ from backend.features.government.computer_parties import COMPUTER_FLAGS
 
 # A medida aprovada vale depois da noventena
 VIGENCE_DAYS = 90
+# Satisfação de um grupo sem posse registrada
+NEUTRAL_SATISFACTION = Decimal(50)
 
 
 @dataclass(frozen=True)
@@ -60,6 +62,8 @@ class Party:
     campaign: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
     # Rejeição em cada grupo: atravessa as eleições e só cai por reparação
     rejection: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
+    # Apoio que os meses de governo deixaram em cada grupo; cai pela metade em 3 meses
+    term_support: dict[VoterGroup, Decimal] = field(default_factory=_zero_by_group)
     spent: Decimal = Decimal(0)
 
     def __post_init__(self) -> None:
@@ -73,7 +77,10 @@ class Party:
 
     def standing(self, group: VoterGroup) -> voters.Standing:
         return voters.standing(
-            group, self.radar, self.campaign[group], self.rejection[group]
+            group,
+            self.radar,
+            self.campaign[group] + self.term_support[group],
+            self.rejection[group],
         )
 
     def standings(self) -> dict[VoterGroup, voters.Standing]:
@@ -146,6 +153,8 @@ class Term:
     consecutive: int
     # O vice assumiu depois de um impeachment, ou o computador ficou no lugar
     succession: bool = False
+    # A satisfação de cada grupo na posse; vazia vale o ponto neutro
+    satisfaction: dict[VoterGroup, Decimal] = field(default_factory=dict)
 
 
 @dataclass
@@ -173,8 +182,10 @@ class Measure:
 
 @dataclass(frozen=True)
 class ApprovalPoint:
+    """A satisfação de cada grupo no fechamento de um mês do governo."""
+
     day: date
-    value: int
+    satisfaction: dict[VoterGroup, Decimal]
 
 
 @dataclass(frozen=True)
@@ -203,12 +214,20 @@ class GovernmentState:
     term: Term | None = None
     measures: dict[int, Measure] = field(default_factory=dict)
     next_measure_id: int = 1
-    # A aprovação medida no fechamento de cada mês do governo em curso
+    # A satisfação medida no fechamento de cada mês do governo em curso
     approvals: list[ApprovalPoint] = field(default_factory=list)
-    # Meses seguidos abaixo do piso; o impeachment vem quando chega ao limite
+    # Meses seguidos abaixo do piso, depois da carência; o impeachment vem no limite
     low_streak: int = 0
     last_measured: date | None = None
     impeachments: list[Impeachment] = field(default_factory=list)
+
+    @property
+    def satisfaction(self) -> dict[VoterGroup, Decimal]:
+        """A satisfação de cada grupo hoje: a do último fechamento, ou a da posse."""
+        if self.approvals:
+            return self.approvals[-1].satisfaction
+        start = self.term.satisfaction if self.term else {}
+        return {g: start.get(g, NEUTRAL_SATISFACTION) for g in VoterGroup}
 
     def party_of(self, user_id: int) -> Party | None:
         return next(
@@ -313,12 +332,14 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
         case Event.ELECTION_ROUND:
             _apply_round(state, event)
         case Event.TERM_STARTED:
+            pending = state.pending_term
             state.term = Term(
                 party_id=_opt_int(p, "party_id"),
                 president_id=_opt_int(p, "president_id"),
                 vice_id=_opt_int(p, "vice_id"),
                 start=day,
                 consecutive=_int(p, "consecutive"),
+                satisfaction=dict(pending.satisfaction) if pending else {},
             )
             state.pending_term = None
             _reset_government(state)
@@ -349,9 +370,11 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             else:
                 measure.status = MeasureStatus.REJECTED
         case Event.APPROVAL_MEASURED:
-            state.approvals.append(ApprovalPoint(day, _int(p, "value")))
+            satisfaction = _satisfaction(p, "satisfaction")
+            state.approvals.append(ApprovalPoint(day, satisfaction))
             state.low_streak = _int(p, "low_streak")
             state.last_measured = date.fromisoformat(_str(p, "month"))
+            _remember_month(state, satisfaction)
         case Event.IMPEACHED:
             _apply_impeachment(state, event)
 
@@ -383,6 +406,7 @@ def _apply_impeachment(state: GovernmentState, event: GovernmentEventDTO) -> Non
         start=event.event_date,
         consecutive=1,
         succession=True,
+        satisfaction=state.satisfaction,
     )
     _reset_government(state)
 
@@ -452,6 +476,7 @@ def _apply_round(state: GovernmentState, event: GovernmentEventDTO) -> None:
         vice_id=ticket.vice_id if ticket else None,
         start=date(event.event_date.year + 1, 1, 1),
         consecutive=(previous.consecutive + 1 if previous and same_president else 1),
+        satisfaction=_satisfaction(p, "winner_satisfaction"),
     )
     # A campanha seguinte recomeça do zero: os partidos ficam, o apoio não
     state.runoff = None
@@ -470,6 +495,30 @@ def _set_flags(party: Party, flags: tuple[VoterValue, ...]) -> None:
         party.radar[value] = voters.clamp(
             party.radar[value] + voters.RADAR_FLAG - voters.RADAR_NEUTRAL
         )
+
+
+def _remember_month(
+    state: GovernmentState, satisfaction: dict[VoterGroup, Decimal]
+) -> None:
+    """O mês fechado mexe no apoio e na rejeição dos partidos do presidente e do vice."""
+    term = state.term
+    if term is None:
+        return
+    governing = {
+        party.id: party
+        for party in (
+            state.parties.get(term.party_id) if term.party_id is not None else None,
+            state.party_of(term.vice_id) if term.vice_id is not None else None,
+        )
+        if party is not None and not party.is_computer
+    }
+    for party in governing.values():
+        for group, value in satisfaction.items():
+            party.term_support[group], party.rejection[group] = voters.remember_month(
+                party.term_support[group],
+                party.rejection[group],
+                voters.month_verdict(value),
+            )
 
 
 def _move_profile(state: GovernmentState, measure: Measure, day: date) -> None:
@@ -526,6 +575,15 @@ def _dict(p: dict[str, object], key: str) -> dict[str, dict[str, object]]:
 
 def _list(p: dict[str, object], key: str) -> list[object]:
     return p[key]  # type: ignore[return-value]
+
+
+def _satisfaction(p: dict[str, object], key: str) -> dict[VoterGroup, Decimal]:
+    """A satisfação por grupo guardada no evento; ausente, todos os grupos no ponto neutro."""
+    stored = p.get(key) or {}
+    return {
+        g: Decimal(str(stored.get(g.value, NEUTRAL_SATISFACTION)))  # type: ignore[attr-defined]
+        for g in VoterGroup
+    }
 
 
 def _money_map(p: dict[str, object], key: str) -> dict[int, Decimal]:

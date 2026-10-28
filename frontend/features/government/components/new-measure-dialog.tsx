@@ -317,7 +317,7 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
                       : "ninguém"}
                   </Row>
                 )}
-                <Row label="Aprovação, ao valer">{signedPoints(data.impact)}</Row>
+                <Row label="Alvo da aprovação, ao valer">{signedPoints(data.impact)}</Row>
                 <Row label="Perfil do partido, se aprovada">
                   {data.profile_moves.length > 0
                     ? data.profile_moves

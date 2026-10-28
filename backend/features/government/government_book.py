@@ -24,9 +24,11 @@ from backend.core.enum import (
     CashflowEventType,
     GovernmentEventType,
     GovernmentNoticeKind,
+    GroupVerdict,
     MeasureKind,
     MeasureStatus,
     PauseReason,
+    VoterGroup,
     VoterValue,
 )
 from backend.core.exceptions.http_exceptions import (
@@ -118,12 +120,13 @@ class GovernmentBook:
         )
 
     def approval(self, today: date) -> approval_rules.Approval | None:
-        """A aprovação de hoje; só existe sob um presidente jogador."""
+        """A satisfação de hoje e o alvo de cada grupo; só existe sob um presidente jogador."""
         term = self.state.term
         if term is None or term.president_id is None:
             return None
         return approval_rules.assess(
             term,
+            self.state.satisfaction,
             self.state.measures.values(),
             approval_rules.market_on(today),
             today,
@@ -546,7 +549,7 @@ class GovernmentBook:
             profile_moves=[
                 ValueMoveDTO(value=v, points=points) for v, points in moves.items()
             ],
-            impact=rules.approval_impact(draft),
+            impact=approval_rules.measure_impact(draft),
             chance=current.value,
             vote_date=vote,
             effective=vote + timedelta(days=VIGENCE_DAYS),
@@ -669,9 +672,10 @@ class GovernmentBook:
 
     def _close_month(self, today: date) -> bool:
         """
-        No último dia útil do mês mede-se a aprovação, o Congresso vota a fila com chance
-        igual a ela e, depois de 3 meses abaixo do piso, o presidente sofre impeachment.
-        Devolve se houve impeachment, que pausa a partida.
+        No último dia útil do mês cada grupo anda um terço do caminho até o alvo, o
+        Congresso vota a fila com chance igual à aprovação resultante e, depois de 6
+        fechamentos seguidos abaixo do piso (a contar do 13º mês do mandato), o
+        presidente sofre impeachment. Devolve se houve impeachment, que pausa a partida.
         """
         term = self.state.term
         month = today.replace(day=1)
@@ -682,14 +686,21 @@ class GovernmentBook:
             or self.state.last_measured == month
         ):
             return False
-        current = required(self.approval(today))
-        streak = (
-            self.state.low_streak + 1 if current.value < approval_rules.FLOOR else 0
+        before = required(self.approval(today))
+        satisfaction = {
+            g: approval_rules.next_satisfaction(before.satisfaction[g], t.target)
+            for g, t in before.targets.items()
+        }
+        value = approval_rules.rounded(approval_rules.overall(satisfaction))
+        below = (
+            not approval_rules.in_grace(term, month) and value < approval_rules.FLOOR
         )
+        streak = self.state.low_streak + 1 if below else 0
         self._emit(
             GovernmentEventType.APPROVAL_MEASURED,
             today,
-            value=current.value,
+            value=value,
+            satisfaction={g.value: str(v) for g, v in satisfaction.items()},
             low_streak=streak,
             month=month.isoformat(),
         )
@@ -701,11 +712,33 @@ class GovernmentBook:
                 GovernmentNoticeKind.IMPEACHMENT_WARNING,
                 self.president(),
                 months_below_floor=streak,
-                approval=current.value,
+                approval=value,
             )
-        self._vote(today, current.value)
-        self._notice(GovernmentNoticeKind.UPDATED, approval=current.value)
+        self._vote(today, value)
+        self._notice_month_closed(before.value, satisfaction, value)
         return False
+
+    def _notice_month_closed(
+        self,
+        previous: int,
+        satisfaction: dict[VoterGroup, Decimal],
+        value: int,
+    ) -> None:
+        """Conta à sala como os grupos fecharam o mês; o front mostra só aos filiados do governo."""
+        term = required(self.state.term)
+        verdicts = {g: voters.month_verdict(v) for g, v in satisfaction.items()}
+        self._notice(
+            GovernmentNoticeKind.MONTH_CLOSED,
+            party_abbr=self._party_abbr(term.party_id),
+            approval=value,
+            previous_approval=previous,
+            groups_approved=[
+                g for g, v in verdicts.items() if v is GroupVerdict.APPROVES
+            ],
+            groups_reproved=[
+                g for g, v in verdicts.items() if v is GroupVerdict.REPROVES
+            ],
+        )
 
     def _vote(self, today: date, chance: int) -> None:
         for measure in self._queue():
@@ -819,7 +852,8 @@ class GovernmentBook:
     def _hold_first_round(self, cycle: ElectionCycle, today: date) -> None:
         self._ensure_computers(today)
         running = self._running()
-        points = election.intention(self.state).total
+        vote = election.intention(self.state)
+        points = vote.total
         shares = election.valid_shares(points)
         winner = election.first_round_winner(shares)
         finalists = [winner] if winner is not None else election.top_two(points)
@@ -833,6 +867,9 @@ class GovernmentBook:
             finalists=finalists,
             winner=winner,
             transfers={},
+            satisfaction=(
+                election.start_satisfaction(vote, winner) if winner is not None else {}
+            ),
         )
 
     def _hold_runoff(self, cycle: ElectionCycle, today: date) -> None:
@@ -851,6 +888,7 @@ class GovernmentBook:
             finalists=finalists,
             winner=result.winner_id,
             transfers=result.transfers,
+            satisfaction=result.satisfaction,
         )
 
     def _emit_round(
@@ -865,6 +903,7 @@ class GovernmentBook:
         finalists: list[int],
         winner: int | None,
         transfers: dict[int, int],
+        satisfaction: dict[VoterGroup, Decimal],
     ) -> None:
         tickets: dict[str, dict[str, object]] = {}
         for party in running:
@@ -895,6 +934,10 @@ class GovernmentBook:
             winner_id=winner,
             transfers={str(k): v for k, v in transfers.items()},
             donations={str(k): str(v) for k, v in donations.items()},
+            winner_satisfaction={
+                g.value: str(v.quantize(approval_rules.SATISFACTION_PRECISION))
+                for g, v in satisfaction.items()
+            },
         )
         winner_party = self.state.parties.get(winner) if winner is not None else None
         self._notice(
@@ -1028,6 +1071,9 @@ class GovernmentBook:
         tickers: list[str] | None = None,
         months_below_floor: int | None = None,
         approval: int | None = None,
+        previous_approval: int | None = None,
+        groups_approved: list[VoterGroup] | None = None,
+        groups_reproved: list[VoterGroup] | None = None,
         ticket_deadline: date | None = None,
         first_round: date | None = None,
     ) -> None:
@@ -1049,6 +1095,9 @@ class GovernmentBook:
                 tickers=tickers,
                 months_below_floor=months_below_floor,
                 approval=approval,
+                previous_approval=previous_approval,
+                groups_approved=groups_approved,
+                groups_reproved=groups_reproved,
                 ticket_deadline=ticket_deadline,
                 first_round=first_round,
             ).to_json(),

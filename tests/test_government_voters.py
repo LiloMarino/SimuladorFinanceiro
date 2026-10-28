@@ -7,7 +7,7 @@ from decimal import Decimal
 
 import pytest
 
-from backend.core.enum import MeasureKind, VoterGroup, VoterValue
+from backend.core.enum import GroupVerdict, MeasureKind, VoterGroup, VoterValue
 from backend.features.government import voters
 
 G = VoterGroup
@@ -213,3 +213,56 @@ def test_approved_measure_moves_the_profile_by_its_effect(
     )
 
     assert result == {v: Decimal(points) for v, points in moves.items()}
+
+
+@pytest.mark.parametrize(
+    ("satisfaction", "verdict"),
+    [
+        (56, GroupVerdict.APPROVES),
+        (55, GroupVerdict.NEUTRAL),
+        (50, GroupVerdict.NEUTRAL),
+        (45, GroupVerdict.NEUTRAL),
+        (44, GroupVerdict.REPROVES),
+    ],
+)
+def test_a_group_approves_above_55_and_reproves_below_45(
+    satisfaction: int, verdict: GroupVerdict
+):
+    assert voters.month_verdict(Decimal(satisfaction)) is verdict
+
+
+def test_an_approved_month_adds_support_and_repairs_rejection():
+    support, rejection = voters.remember_month(
+        Decimal(0), Decimal(2), GroupVerdict.APPROVES
+    )
+
+    assert support == voters.APPROVED_SUPPORT
+    assert rejection == voters.repair_rejection(Decimal(2), voters.APPROVED_REPAIR)
+    assert rejection < 2
+
+
+def test_a_reproved_month_takes_support_and_raises_rejection():
+    support, rejection = voters.remember_month(
+        Decimal(0), Decimal(2), GroupVerdict.REPROVES
+    )
+
+    assert support == voters.REPROVED_SUPPORT
+    assert rejection == voters.add_rejection(Decimal(2), voters.REPROVED_REJECTION)
+    assert rejection > 2
+
+
+def test_support_loses_half_its_weight_in_three_months_without_a_verdict():
+    support = Decimal(8)
+    for _ in range(3):
+        support, _ = voters.remember_month(support, Decimal(0), GroupVerdict.NEUTRAL)
+
+    assert float(support) == pytest.approx(4, abs=0.001)
+
+
+def test_reaction_is_the_group_position_times_what_the_measure_moves():
+    effects = {V.FREE_MARKET: Decimal(2), V.SOCIAL_JUSTICE: Decimal(-3)}
+    positions = voters.POSITIONS[G.INVESTORS]
+
+    result = voters.reaction(G.INVESTORS, effects)
+
+    assert result == positions[V.FREE_MARKET] * 2 + positions[V.SOCIAL_JUSTICE] * -3

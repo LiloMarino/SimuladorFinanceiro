@@ -8,9 +8,11 @@ from backend.core.dto.government import (
     ApprovalDTO,
     ApprovalFactorDTO,
     ApprovalPointDTO,
+    ClosingDTO,
     FrozenPortfolioDTO,
     FrozenSliceDTO,
     GovernmentPanelDTO,
+    GroupApprovalDTO,
     ImpeachmentDTO,
     InterestDTO,
     MeasureDTO,
@@ -22,13 +24,17 @@ from backend.core.dto.government import (
 )
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import MeasureKind, MeasureStatus
+from backend.core.enum import GroupVerdict, MeasureKind, MeasureStatus, VoterGroup
 from backend.features.government import approval as approval_rules
-from backend.features.government import congress
+from backend.features.government import congress, voters
 from backend.features.government import measures as rules
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_term
-from backend.features.government.state import VIGENCE_DAYS, Measure
+from backend.features.government.state import (
+    NEUTRAL_SATISFACTION,
+    VIGENCE_DAYS,
+    Measure,
+)
 from backend.features.simulation.simulation_engine import SimulationEngine
 
 GENERAL_KINDS = (
@@ -82,7 +88,7 @@ def build_governance(
         is_president=is_president,
         term_end=end,
         next_election=book.cycle().first_round,
-        approval=_approval(book, current, today),
+        approval=_approval(book, current, viewer, today),
         taxes=[
             TaxRowDTO(
                 kind=kind,
@@ -184,7 +190,7 @@ def _measure(
         effective=measure.effective,
         waiting_days=VIGENCE_DAYS - days_left if days_left is not None else None,
         days_left=days_left,
-        impact=rules.approval_impact(measure),
+        impact=approval_rules.measure_impact(measure),
         can_withdraw=is_president and queued,
         can_repropose=(
             is_president
@@ -195,29 +201,36 @@ def _measure(
 
 
 def _approval(
-    book: GovernmentBook, current: approval_rules.Approval | None, today: date
+    book: GovernmentBook,
+    current: approval_rules.Approval | None,
+    viewer: UserDTO,
+    today: date,
 ) -> ApprovalDTO | None:
     term = book.state.term
     if current is None or term is None:
         return None
     measured = book.state.approvals
-    history = [ApprovalPointDTO(date=term.start, value=approval_rules.BASE)]
-    history += [ApprovalPointDTO(date=p.day, value=p.value) for p in measured]
-    if history[-1].date != today:
-        history.append(ApprovalPointDTO(date=today, value=current.value))
-    before = [p for p in history if p.date < today]
+    # A linha parte da posse e segue um ponto por fechamento de mês
+    start = {g: term.satisfaction.get(g, NEUTRAL_SATISFACTION) for g in VoterGroup}
+    series = [(term.start, start), *((p.day, p.satisfaction) for p in measured)]
+    history = [
+        ApprovalPointDTO(
+            date=day, value=approval_rules.rounded(approval_rules.overall(values))
+        )
+        for day, values in series
+    ]
+    before = series[-2][1] if len(series) > 1 else None
     return ApprovalDTO(
         value=current.value,
-        previous=before[-1].value if before else None,
+        previous=(
+            approval_rules.rounded(approval_rules.overall(before))
+            if before is not None
+            else None
+        ),
+        target=current.target,
         history=history,
-        factors=[
-            ApprovalFactorDTO(
-                kind=f.kind,
-                points=f.points,
-                description=f.description,
-                measure_id=f.measure_id,
-            )
-            for f in current.factors
+        groups=[
+            _group_approval(group, current, series) for group in _groups_by_weight()
         ],
         upcoming=[
             UpcomingEffectDTO(
@@ -227,13 +240,78 @@ def _approval(
                     f"{rules.short_date(m.decided or today)}, pesa quando valer"
                 ),
                 effective=m.effective or today,
-                impact=rules.approval_impact(m),
+                impact=approval_rules.measure_impact(m),
             )
             for m in current.upcoming
         ],
+        closes_on=congress.next_vote_date(today),
+        reproves_below=int(voters.REPROVES_BELOW),
+        approves_above=int(voters.APPROVES_ABOVE),
         floor=approval_rules.FLOOR,
         low_streak=book.state.low_streak,
         impeachment_months=approval_rules.IMPEACHMENT_MONTHS,
+        grace_until=approval_rules.grace_end(term),
+        in_grace=approval_rules.in_grace(term, today.replace(day=1)),
+        closing=_closing(book, viewer),
+    )
+
+
+def _groups_by_weight() -> list[VoterGroup]:
+    return sorted(VoterGroup, key=lambda g: voters.WEIGHTS[g], reverse=True)
+
+
+def _group_approval(
+    group: VoterGroup,
+    current: approval_rules.Approval,
+    series: list[tuple[date, dict[VoterGroup, Decimal]]],
+) -> GroupApprovalDTO:
+    target = current.targets[group]
+    satisfaction = current.satisfaction[group]
+    return GroupApprovalDTO(
+        group=group,
+        weight=voters.WEIGHTS[group],
+        readings=list(voters.READINGS[group]),
+        satisfaction=approval_rules.rounded(satisfaction),
+        target=approval_rules.rounded(target.target),
+        verdict=voters.month_verdict(satisfaction),
+        previous=(
+            approval_rules.rounded(series[-2][1][group]) if len(series) > 1 else None
+        ),
+        history=[
+            ApprovalPointDTO(date=day, value=approval_rules.rounded(values[group]))
+            for day, values in series
+        ],
+        factors=[
+            ApprovalFactorDTO(
+                kind=f.kind,
+                points=f.points.quantize(Decimal("0.1")),
+                description=f.description,
+                measure_id=f.measure_id,
+            )
+            for f in target.factors
+        ],
+    )
+
+
+def _closing(book: GovernmentBook, viewer: UserDTO) -> ClosingDTO | None:
+    """O que o último fechamento fez com o partido do presidente, para os filiados dele."""
+    state = book.state
+    term = state.term
+    party = state.parties.get(term.party_id) if term and term.party_id else None
+    if party is None or viewer.id not in party.members or not state.approvals:
+        return None
+    last = state.approvals[-1]
+    verdicts = {g: voters.month_verdict(v) for g, v in last.satisfaction.items()}
+
+    def groups(wanted: GroupVerdict) -> list[VoterGroup]:
+        return [g for g in _groups_by_weight() if verdicts[g] is wanted]
+
+    return ClosingDTO(
+        month=last.day,
+        party_abbr=party.abbr,
+        approved=groups(GroupVerdict.APPROVES),
+        reproved=groups(GroupVerdict.REPROVES),
+        neutral=groups(GroupVerdict.NEUTRAL),
     )
 
 

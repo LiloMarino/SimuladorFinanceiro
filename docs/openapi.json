@@ -8260,6 +8260,10 @@
             ],
             "title": "Previous"
           },
+          "target": {
+            "type": "integer",
+            "title": "Target"
+          },
           "history": {
             "items": {
               "$ref": "#/components/schemas/ApprovalPointDTO"
@@ -8267,12 +8271,12 @@
             "type": "array",
             "title": "History"
           },
-          "factors": {
+          "groups": {
             "items": {
-              "$ref": "#/components/schemas/ApprovalFactorDTO"
+              "$ref": "#/components/schemas/GroupApprovalDTO"
             },
             "type": "array",
-            "title": "Factors"
+            "title": "Groups"
           },
           "upcoming": {
             "items": {
@@ -8280,6 +8284,19 @@
             },
             "type": "array",
             "title": "Upcoming"
+          },
+          "closes_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Closes On"
+          },
+          "reproves_below": {
+            "type": "integer",
+            "title": "Reproves Below"
+          },
+          "approves_above": {
+            "type": "integer",
+            "title": "Approves Above"
           },
           "floor": {
             "type": "integer",
@@ -8292,6 +8309,25 @@
           "impeachment_months": {
             "type": "integer",
             "title": "Impeachment Months"
+          },
+          "grace_until": {
+            "type": "string",
+            "format": "date",
+            "title": "Grace Until"
+          },
+          "in_grace": {
+            "type": "boolean",
+            "title": "In Grace"
+          },
+          "closing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ClosingDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -8299,12 +8335,19 @@
         "required": [
           "value",
           "previous",
+          "target",
           "history",
-          "factors",
+          "groups",
           "upcoming",
+          "closes_on",
+          "reproves_below",
+          "approves_above",
           "floor",
           "low_streak",
-          "impeachment_months"
+          "impeachment_months",
+          "grace_until",
+          "in_grace",
+          "closing"
         ],
         "title": "ApprovalDTO"
       },
@@ -8314,7 +8357,7 @@
             "$ref": "#/components/schemas/ApprovalFactorKind"
           },
           "points": {
-            "type": "integer",
+            "type": "string",
             "title": "Points"
           },
           "description": {
@@ -8348,11 +8391,12 @@
         "enum": [
           "BASE",
           "INFLATION",
+          "SELIC",
           "STOCKS",
-          "NEW_TAX",
-          "TAX_CUT"
+          "MEASURE"
         ],
-        "title": "ApprovalFactorKind"
+        "title": "ApprovalFactorKind",
+        "description": "O que empurra o alvo de satisfação de um grupo; BASE é o ponto neutro."
       },
       "ApprovalPointDTO": {
         "properties": {
@@ -9681,6 +9725,51 @@
           "void",
           "expired"
         ]
+      },
+      "ClosingDTO": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "party_abbr": {
+            "type": "string",
+            "title": "Party Abbr"
+          },
+          "approved": {
+            "items": {
+              "$ref": "#/components/schemas/VoterGroup"
+            },
+            "type": "array",
+            "title": "Approved"
+          },
+          "reproved": {
+            "items": {
+              "$ref": "#/components/schemas/VoterGroup"
+            },
+            "type": "array",
+            "title": "Reproved"
+          },
+          "neutral": {
+            "items": {
+              "$ref": "#/components/schemas/VoterGroup"
+            },
+            "type": "array",
+            "title": "Neutral"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "party_abbr",
+          "approved",
+          "reproved",
+          "neutral"
+        ],
+        "title": "ClosingDTO",
+        "description": "O que o último fechamento fez com o apoio e a rejeição do partido do presidente."
       },
       "CompositionReportDTO": {
         "properties": {
@@ -12346,7 +12435,8 @@
           "MEASURE_VOTED",
           "MEASURE_IN_FORCE",
           "IMPEACHMENT",
-          "IMPEACHMENT_WARNING"
+          "IMPEACHMENT_WARNING",
+          "MONTH_CLOSED"
         ],
         "title": "GovernmentNoticeKind",
         "description": "O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."
@@ -12645,6 +12735,45 @@
             ],
             "title": "Approval"
           },
+          "previous_approval": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Approval"
+          },
+          "groups_approved": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/VoterGroup"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groups Approved"
+          },
+          "groups_reproved": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/VoterGroup"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groups Reproved"
+          },
           "ticket_deadline": {
             "anyOf": [
               {
@@ -12688,11 +12817,83 @@
           "tickers",
           "months_below_floor",
           "approval",
+          "previous_approval",
+          "groups_approved",
+          "groups_reproved",
           "ticket_deadline",
           "first_round"
         ],
         "title": "GovernmentUpdateEventDTO",
         "description": "A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve."
+      },
+      "GroupApprovalDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "weight": {
+            "type": "string",
+            "title": "Weight"
+          },
+          "readings": {
+            "items": {
+              "$ref": "#/components/schemas/GroupReading"
+            },
+            "type": "array",
+            "title": "Readings"
+          },
+          "satisfaction": {
+            "type": "integer",
+            "title": "Satisfaction"
+          },
+          "target": {
+            "type": "integer",
+            "title": "Target"
+          },
+          "verdict": {
+            "$ref": "#/components/schemas/GroupVerdict"
+          },
+          "previous": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalPointDTO"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "factors": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalFactorDTO"
+            },
+            "type": "array",
+            "title": "Factors"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "weight",
+          "readings",
+          "satisfaction",
+          "target",
+          "verdict",
+          "previous",
+          "history",
+          "factors"
+        ],
+        "title": "GroupApprovalDTO",
+        "description": "A satisfação de um grupo com o governo, o alvo dela e o que a puxa."
       },
       "GroupPollDTO": {
         "properties": {
@@ -12753,6 +12954,16 @@
           "score"
         ],
         "title": "GroupScoreDTO"
+      },
+      "GroupVerdict": {
+        "type": "string",
+        "enum": [
+          "APPROVES",
+          "NEUTRAL",
+          "REPROVES"
+        ],
+        "title": "GroupVerdict",
+        "description": "Como um grupo fecha o mês: acima da faixa neutra aprova, abaixo reprova."
       },
       "HighlightsDTO": {
         "properties": {
@@ -23196,7 +23407,7 @@
           "impact"
         ],
         "title": "UpcomingEffectDTO",
-        "description": "Medida aprovada que ainda não vale e vai pesar na aprovação quando valer."
+        "description": "Medida aprovada que ainda não vale e vai pesar no alvo dos grupos quando valer."
       },
       "UpcomingInstallmentDTO": {
         "properties": {

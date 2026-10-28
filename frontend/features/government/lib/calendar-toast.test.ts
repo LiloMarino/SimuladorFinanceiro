@@ -18,6 +18,9 @@ const EMPTY_NOTICE: GovernmentNotice = {
   tickers: null,
   months_below_floor: null,
   approval: null,
+  previous_approval: null,
+  groups_approved: null,
+  groups_reproved: null,
   ticket_deadline: null,
   first_round: null,
 };

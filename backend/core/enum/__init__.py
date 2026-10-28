@@ -517,6 +517,7 @@ class GovernmentNoticeKind(Enum):
     MEASURE_IN_FORCE = "MEASURE_IN_FORCE"
     IMPEACHMENT = "IMPEACHMENT"
     IMPEACHMENT_WARNING = "IMPEACHMENT_WARNING"
+    MONTH_CLOSED = "MONTH_CLOSED"
 
 
 class MeasureKind(Enum):
@@ -550,11 +551,21 @@ class MeasureStatus(Enum):
 
 
 class ApprovalFactorKind(Enum):
+    """O que empurra o alvo de satisfação de um grupo; BASE é o ponto neutro."""
+
     BASE = "BASE"
     INFLATION = "INFLATION"
+    SELIC = "SELIC"
     STOCKS = "STOCKS"
-    NEW_TAX = "NEW_TAX"
-    TAX_CUT = "TAX_CUT"
+    MEASURE = "MEASURE"
+
+
+class GroupVerdict(Enum):
+    """Como um grupo fecha o mês: acima da faixa neutra aprova, abaixo reprova."""
+
+    APPROVES = "APPROVES"
+    NEUTRAL = "NEUTRAL"
+    REPROVES = "REPROVES"
 
 
 class VoterGroup(Enum):
