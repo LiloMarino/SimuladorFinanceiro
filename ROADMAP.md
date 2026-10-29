@@ -99,13 +99,12 @@
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
 | [**F159**](#f159) | Conquista "Ordem com paciência" | — | ⏳ |
-| [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ⏳ |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 🔍 |
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -135,6 +134,7 @@
 | [**F151**](#f151) | Segundo turno com disputa | — | ✅ |
 | [**F152**](#f152) | Promessas de campanha cobradas no mandato | — | ✅ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
+| [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ✅ |
 | [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ✅ |
 
@@ -151,7 +151,7 @@
 | [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | M19 | 4 | ⏳ |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
-| [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | M15 | 2 | ⏳ |
+| [**F92**](#f92) | Noticiário da partida | M15 | 1 | ⏳ |
 | [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | M19 | 1 | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
@@ -245,14 +245,21 @@
 >
 > **Serve:** N31, N32
 >
-> **Progresso:** 0/4 concluídas
+> **Progresso:** 1/4 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F92**](#f92) | Noticiário da partida | [F161](#f161) | ⏳ |
 | [**F93**](#f93) | Rumores antecipados | [F92](#f92) | 🔍 |
-| [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ⏳ |
 | [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ⏳ |
+
+<details><summary>Concluído (1 item)</summary>
+
+| ID | Resumo | Depende de | Status |
+| --- | --- | --- | --- |
+| [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ✅ |
+
+</details>
 
 ### M16 — Partida sem tropeços
 
@@ -402,7 +409,7 @@
 | **F106** | Governo & Política: medidas de gasto público | N34 | D19, D14 | M19 | [F128](#f128), [F107](#f107) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F153** | Congresso eleito, com bancadas orientadas pelo líder | N34 | D19 | M19 | [F107](#f107), [F130](#f130) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F154** | Negociar apoio com as bancadas, por emendas | N34 | D19 | M19 | [F153](#f153), [F128](#f128) | Médio | Médio | Alto | Bom | ⏳ Pendente |
-| **F161** | Jornal da partida: notificações configuráveis por tipo | N31, N32 | — | M15 | — | Alto | Médio | Alto | Bom | ⏳ Pendente |
+| **F161** | Jornal da partida: notificações configuráveis por tipo | N31, N32 | — | M15 | — | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F166** | Pendências da partida: o que pede ação fica à vista até ser resolvido | N15 | — | M15 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
 
 <a id="f6"></a>
@@ -513,7 +520,7 @@
 **F154 — Negociar apoio com as bancadas, por emendas.** Serve N34. Com o Congresso de bancadas (F153), o governo monta maioria pagando emendas: verba do orçamento (F128) destinada à base do partido aliado, que entra como gasto e agrada os grupos desse partido (D19). (1) **Apoio por prazo:** o aliado entra na base por 6 meses, renováveis, e o líder dele orienta Sim em tudo o que o governo propuser, em troca de uma emenda mensal. A desobediência da bancada (F153) continua valendo. (2) **Preço por cadeira:** cada cadeira custa uma fração fixa do PIB por mês, e o centrão cobra 1,5 vez isso. O partido de jogador recebe a proposta num aviso de aceitar ou recusar, no mesmo molde do convite de vice (F145), com o valor e o prazo. O partido do computador responde pelo perfil: o centrão aceita quase sempre, e os outros só quando os valores do governo combinam com os deles. (3) **Quebra:** se o governo para de pagar, os grupos do aliado, que recebiam a emenda, somam rejeição ao partido do presidente; se o aliado orienta Não durante o prazo, os grupos do governo somam rejeição ao aliado. Nos dois casos o acordo acaba e sai no jornal (F161). Como a rejeição só cai com reparação (F107), trair a base cobra na eleição seguinte. **Protótipo:** o preço por cadeira e o tamanho da rejeição na quebra. **Gatilho:** depois da F153 e da F128. **Canvas:** proposta de acordo do governo (partido, prazo, preço e as cadeiras que somam à base, com a maioria marcada); aviso de proposta para o partido de jogador; a base do governo no hemiciclo e as emendas no orçamento; aviso e manchete de quebra de acordo.
 
 <a id="f161"></a>
-**F161 — Jornal da partida: notificações configuráveis por tipo.** Serve N31 e N32; retrabalho da F91. A caixa de entrada saiu como um e-mail (envelope com contagem de não lidas, painel lateral, marca de lida), e não é o que o jogo pede: com o tempo correndo, notícia é passageira. O modelo vem do OpenTTD (notícia grande em janela, pequena na faixa, e cada tipo configurável) e do Victoria 3 (cada tipo escolhe se aparece, fica só no registro ou some, e só o que é global pausa). Decidido no canvas em 27/out: (1) **Régua:** no jornal entra só o que pareceria notícia num jornal de verdade: economia, empresas, política (calendário da eleição, resultado, posse, medidas propostas, votadas e em vigor, vida dos partidos) e marcos históricos. O que é do jogador continua toast, com liga/desliga por tipo: ordens (manuais, a limite e do automático), jogador entrou ou saiu, parcelas pagas, empréstimo quitado, nota de risco, imprevisto, resposta do vice e resumo do mês. A resposta a um clique é toast e não se configura. O que pede ação é pendência, feature própria (F166). (2) **Como aparece**, escolha de cada jogador: o cartão do jornal num canto (embaixo à esquerda, o padrão; embaixo à direita; em cima à esquerda) ou a faixa de manchetes abaixo da topbar; os toasts ficam embaixo, no lado oposto (com a faixa, embaixo à direita). Em cima à direita fica de fora, porque divide a borda com a aba do tutorial. Várias manchetes no mesmo pregão: sobe a mais importante, com "+N neste pregão", sem fila. (3) **Configuração por tipo**, num registro único de tipos (categoria, texto, padrão): Janela, Jornal, Só no histórico ou Desligado. Janela abre a manchete no centro sem pausar e sem escurecer o fundo, fecha sozinha em 8 s, no máximo uma por pregão; no padrão fica para poucos tipos, e serve a quem quer ênfase numa categoria. Resultado de turno e impeachment ficam presos na janela com pausa. Em empresas, o filtro "só ativos da minha carteira". (4) **Histórico** da partida inteira, salvo com ela, por data, sem "lida" e sem contagem, com busca, filtro por seção e "só minha carteira". Ele mora numa página própria, com o item Jornal no menu lateral, sob Mercado; "Abrir o jornal" no cartão e o selo recolhido levam para ela. (5) **A caixa de entrada sai:** resumo do mês e retrospectiva viram toast com Abrir, e os passados ficam numa aba Resumos em Estatísticas. (6) **Multiplayer:** a configuração é de cada jogador e nunca pausa a sala. (7) **Ficam como estão,** fora do jornal e da configuração: aviso de que o host removeu o jogador, erro no servidor, conquista e aviso do backtest. O histórico em página própria foi escolhido no canvas em 28/out.
+**F161 — Jornal da partida: notificações configuráveis por tipo.** Serve N31 e N32; retrabalho da F91. A caixa de entrada saiu como um e-mail (envelope com contagem de não lidas, painel lateral, marca de lida), e não é o que o jogo pede: com o tempo correndo, notícia é passageira. O modelo vem do OpenTTD (notícia grande em janela, pequena na faixa, e cada tipo configurável) e do Victoria 3 (cada tipo escolhe se aparece, fica só no registro ou some, e só o que é global pausa). Decidido no canvas em 27/out: (1) **Régua:** no jornal entra só o que pareceria notícia num jornal de verdade: economia, empresas, política (calendário da eleição, resultado, posse, medidas propostas, votadas e em vigor, vida dos partidos) e marcos históricos. O que é do jogador continua toast, com liga/desliga por tipo: ordens (manuais, a limite e do automático), jogador entrou ou saiu, parcelas pagas, empréstimo quitado, nota de risco, imprevisto, resposta do vice e resumo do mês. A resposta a um clique é toast e não se configura. O que pede ação é pendência, feature própria (F166). (2) **Como aparece**, escolha de cada jogador: o cartão do jornal num canto (embaixo à esquerda, o padrão; embaixo à direita; em cima à esquerda) ou a faixa de manchetes abaixo da topbar; os toasts ficam embaixo, no lado oposto (com a faixa, embaixo à direita). Em cima à direita fica de fora, porque divide a borda com a aba do tutorial. Várias manchetes no mesmo pregão: sobe a mais importante, com "+N neste pregão", sem fila. (3) **Configuração por tipo**, num registro único de tipos (categoria, texto, padrão): Janela, Jornal, Só no histórico ou Desligado. Janela abre a manchete no centro sem pausar e sem escurecer o fundo, fecha sozinha em 8 s, no máximo uma por pregão; no padrão fica para poucos tipos, e serve a quem quer ênfase numa categoria. Resultado de turno e impeachment ficam presos na janela com pausa. Em empresas, o filtro "só ativos da minha carteira". (4) **Histórico** da partida inteira, salvo com ela, por data, sem "lida" e sem contagem, com busca, filtro por seção e "só minha carteira". Ele mora numa página própria, com o item Jornal no menu lateral, sob Mercado; "Abrir o jornal" no cartão e o selo recolhido levam para ela. (5) **A caixa de entrada sai:** resumo do mês e retrospectiva viram toast com Abrir, e os passados ficam numa aba Resumos em Estatísticas. (6) **Multiplayer:** a configuração é de cada jogador e nunca pausa a sala. (7) **Ficam como estão,** fora do jornal e da configuração: aviso de que o host removeu o jogador, erro no servidor, conquista e aviso do backtest. O histórico em página própria foi escolhido no canvas em 28/out. **Entregue:** a caixa de entrada saiu e o jornal entrou. Um registro único de tipos de notificação (7 tipos de manchete em 4 seções e 9 tipos de aviso pessoal) manda no que o jogador vê: cada tipo de manchete tem nível Janela, Jornal, Só no histórico ou Desligado, e cada aviso pessoal liga e desliga. A manchete nova chega pronta pelo tempo real: a de nível Janela abre no centro da tela sem pausar e fecha em 8 s (a segunda espera a primeira; a terceira vira só cartão), a de nível Jornal vira cartão de papel num canto (ou uma faixa de 40 px sob a topbar) e recolhe num selo depois de cerca de 6 s; numa rajada no mesmo pregão aparece só a mais importante, com "+N neste pregão". Os avisos ficam embaixo, no lado oposto ao do cartão. A página Jornal, sob Mercado, guarda o histórico da partida inteira, com busca, abas por seção, "Só minha carteira" e os estados vazio, carregando, erro e filtro sem resultado. Em Configurações há o cartão Jornal (nível por tipo, com Restaurar padrão), a escolha da posição em quatro cartões de esboço e o cartão Avisos (um interruptor por tipo). O resumo do mês e a retrospectiva do ano viraram a aba Resumos de Estatísticas, com o toast "Resumo de <mês>" e o botão Abrir. Os toasts políticos que viraram manchete saíram do aviso. **Ficou de fora:** a opção "Só ativos da minha carteira" por tipo na configuração do jornal (o contrato de configurações não tem o campo; a página do jornal já filtra pela carteira); a aba Resumos não tem board no canvas. **Decidido na implementação:** a janela aceita uma fila de duas; a faixa mostra a última manchete elegível, apagada, depois do tempo do cartão; o aviso do ataque entre outros partidos saiu e o ataque ao partido do jogador segue como aviso.
 
 <a id="f166"></a>
 **F166 — Pendências da partida.** Separada do jornal da partida (F161) em 27/out: notícia é passageira, e o que pede ação fica à vista até ser resolvido, como os alertas do Victoria 3. Tipos: parcela em atraso, caixa que não cobre a próxima parcela, caixa negativo, estratégia desligada por erro, risco de impeachment (só o presidente), convite de vice e campanha aberta sem filiação; a votação sem orientação do líder (F153) entra quando existir. Cada uma traz a ação que a resolve e some quando a condição acaba. Ao nascer, sobe um toast uma vez; depois ela fica no lugar dela. Campanha aberta e convite de vice deixam de abrir diálogo sozinhos: clicar na pendência abre o mesmo diálogo de hoje. Pendência não se desliga. Lugar na tela, escolhido no canvas em 28/out (janela ao lado): Pendências é uma linha no topo do menu lateral, com a contagem (vermelha se alguma é grave); clicar abre a lista numa janela ao lado, com a ação de cada pendência, que fecha fora dela ou no Esc, sem pausar o jogo. As graves vêm primeiro, e a janela rola por dentro se a lista passar da tela. A topbar fica fora, por falta de espaço no pior caso.
