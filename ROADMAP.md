@@ -91,7 +91,6 @@
 | [**F140**](#f140) | Docs reorganizada por tipo de leitor | — | ⏳ |
 | [**F141**](#f141) | README com as features de hoje | — | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 🔍 |
-| [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | — | ⏳ |
 | [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | — | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | — | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | — | 🔍 |
@@ -101,7 +100,7 @@
 | [**F167**](#f167) | Notícias do ativo como marcadores no gráfico de preço | — | 💤 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (33 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -133,6 +132,7 @@
 | [**F130**](#f130) | Ações de campanha: a eleição deixa de ser só dinheiro | — | ✅ |
 | [**F151**](#f151) | Segundo turno com disputa | — | ✅ |
 | [**F152**](#f152) | Promessas de campanha cobradas no mandato | — | ✅ |
+| [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | — | ✅ |
 | [**F160**](#f160) | Imprevistos no fim da partida de independência | — | ✅ |
 | [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ✅ |
 | [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
@@ -151,7 +151,6 @@
 | --- | --- | --- | --- | --- |
 | [**F5**](#f5) | Spike: provider de túnel pela internet | M3 | 2 | 🔍 |
 | [**F22**](#f22) | Preço ajustado e proventos | M8 | 2 | ⏳ |
-| [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | M19 | 1 | ⏳ |
 | [**F28**](#f28) | Muitos futuros (Monte Carlo) | M9 | 0 | 🔍 |
 | [**F34**](#f34) | Gráfico de ações em tela cheia, com ferramentas de trader | M11 | 0 | 🔍 |
 | [**F56**](#f56) | Novidades no app | — | 0 | ⏳ |
@@ -163,6 +162,7 @@
 | [**F132**](#f132) | Tópicos de "como se joga" do Como jogar | M14 | 0 | ⏳ |
 | [**F133**](#f133) | Tópicos de conceitos do Como jogar | M14 | 0 | ⏳ |
 | [**F143**](#f143) | Preparação de cada jogador no lobby | — | 0 | 🔍 |
+| [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | M19 | 0 | ⏳ |
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 0 | 🔍 |
@@ -332,19 +332,19 @@
 >
 > **Serve:** N34
 >
-> **Progresso:** 2/4 concluídas
+> **Progresso:** 3/4 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
-| [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | [F107](#f107), [F130](#f130) | ⏳ |
 | [**F154**](#f154) | Negociar apoio com as bancadas, por emendas | [F153](#f153), [F128](#f128) | ⏳ |
 
-<details><summary>Concluído (2 itens)</summary>
+<details><summary>Concluído (3 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F106**](#f106) | Governo & Política: medidas de gasto público | [F128](#f128), [F107](#f107) | ✅ |
 | [**F128**](#f128) | Orçamento do governo, dívida pública e prêmio de risco | [F107](#f107) | ✅ |
+| [**F153**](#f153) | Congresso eleito, com bancadas orientadas pelo líder | [F107](#f107), [F130](#f130) | ✅ |
 
 </details>
 
@@ -416,7 +416,7 @@
 | **F151** | Segundo turno com disputa | N34 | D19 | M17 | [F130](#f130), [F152](#f152) | Médio | Médio | Alto | Bom | ✅ Concluído |
 | **F128** | Orçamento do governo, dívida pública e prêmio de risco | N34 | D19, D14 | M19 | [F107](#f107) | Alto | Alto | Alto | Bom | ✅ Concluído |
 | **F106** | Governo & Política: medidas de gasto público | N34 | D19, D14 | M19 | [F128](#f128), [F107](#f107) | Alto | Alto | Alto | Bom | ✅ Concluído |
-| **F153** | Congresso eleito, com bancadas orientadas pelo líder | N34 | D19 | M19 | [F107](#f107), [F130](#f130) | Alto | Alto | Alto | Bom | ⏳ Pendente |
+| **F153** | Congresso eleito, com bancadas orientadas pelo líder | N34 | D19 | M19 | [F107](#f107), [F130](#f130) | Alto | Alto | Alto | Bom | ✅ Concluído |
 | **F154** | Negociar apoio com as bancadas, por emendas | N34 | D19 | M19 | [F153](#f153), [F128](#f128) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F161** | Jornal da partida: notificações configuráveis por tipo | N31, N32 | — | M15 | — | Alto | Médio | Alto | Bom | ✅ Concluído |
 | **F166** | Pendências da partida: o que pede ação fica à vista até ser resolvido | N15 | — | M15 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
