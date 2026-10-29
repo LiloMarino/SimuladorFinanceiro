@@ -101,10 +101,9 @@
 | [**F159**](#f159) | Conquista "Ordem com paciência" | — | ⏳ |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 🔍 |
 | [**F165**](#f165) | Tela do Tesouro: títulos pelo risco do governo | — | 🔍 |
-| [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
 
 | ID | Resumo | Condiciona (F#) | Status |
 | --- | --- | --- | --- |
@@ -137,6 +136,7 @@
 | [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ✅ |
 | [**F162**](#f162) | Sinal de partida pausada e destaque da velocidade máxima | — | ✅ |
 | [**F163**](#f163) | Painel da economia: SELIC e IPCA ao longo da partida | — | ✅ |
+| [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ✅ |
 
 </details>
 
@@ -165,7 +165,6 @@
 | [**F157**](#f157) | Velocidade x100 que quase não acelera | M16 | 0 | 🔍 |
 | [**F158**](#f158) | Animações do Como jogar revistas | M14 | 0 | 🔍 |
 | [**F164**](#f164) | Mapa do Brasil por região na eleição | — | 0 | 🔍 |
-| [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | M15 | 0 | ⏳ |
 
 ---
 
@@ -245,19 +244,19 @@
 >
 > **Serve:** N31, N32
 >
-> **Progresso:** 1/4 concluídas
+> **Progresso:** 2/4 concluídas
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F92**](#f92) | Noticiário da partida | [F161](#f161) | ⏳ |
 | [**F93**](#f93) | Rumores antecipados | [F92](#f92) | 🔍 |
-| [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ⏳ |
 
-<details><summary>Concluído (1 item)</summary>
+<details><summary>Concluído (2 itens)</summary>
 
 | ID | Resumo | Depende de | Status |
 | --- | --- | --- | --- |
 | [**F161**](#f161) | Jornal da partida: notificações configuráveis por tipo | — | ✅ |
+| [**F166**](#f166) | Pendências da partida: o que pede ação fica à vista até ser resolvido | — | ✅ |
 
 </details>
 
@@ -410,7 +409,7 @@
 | **F153** | Congresso eleito, com bancadas orientadas pelo líder | N34 | D19 | M19 | [F107](#f107), [F130](#f130) | Alto | Alto | Alto | Bom | ⏳ Pendente |
 | **F154** | Negociar apoio com as bancadas, por emendas | N34 | D19 | M19 | [F153](#f153), [F128](#f128) | Médio | Médio | Alto | Bom | ⏳ Pendente |
 | **F161** | Jornal da partida: notificações configuráveis por tipo | N31, N32 | — | M15 | — | Alto | Médio | Alto | Bom | ✅ Concluído |
-| **F166** | Pendências da partida: o que pede ação fica à vista até ser resolvido | N15 | — | M15 | — | Médio | Baixo | Alto | Bom | ⏳ Pendente |
+| **F166** | Pendências da partida: o que pede ação fica à vista até ser resolvido | N15 | — | M15 | — | Médio | Baixo | Alto | Bom | ✅ Concluído |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -523,7 +522,7 @@
 **F161 — Jornal da partida: notificações configuráveis por tipo.** Serve N31 e N32; retrabalho da F91. A caixa de entrada saiu como um e-mail (envelope com contagem de não lidas, painel lateral, marca de lida), e não é o que o jogo pede: com o tempo correndo, notícia é passageira. O modelo vem do OpenTTD (notícia grande em janela, pequena na faixa, e cada tipo configurável) e do Victoria 3 (cada tipo escolhe se aparece, fica só no registro ou some, e só o que é global pausa). Decidido no canvas em 27/out: (1) **Régua:** no jornal entra só o que pareceria notícia num jornal de verdade: economia, empresas, política (calendário da eleição, resultado, posse, medidas propostas, votadas e em vigor, vida dos partidos) e marcos históricos. O que é do jogador continua toast, com liga/desliga por tipo: ordens (manuais, a limite e do automático), jogador entrou ou saiu, parcelas pagas, empréstimo quitado, nota de risco, imprevisto, resposta do vice e resumo do mês. A resposta a um clique é toast e não se configura. O que pede ação é pendência, feature própria (F166). (2) **Como aparece**, escolha de cada jogador: o cartão do jornal num canto (embaixo à esquerda, o padrão; embaixo à direita; em cima à esquerda) ou a faixa de manchetes abaixo da topbar; os toasts ficam embaixo, no lado oposto (com a faixa, embaixo à direita). Em cima à direita fica de fora, porque divide a borda com a aba do tutorial. Várias manchetes no mesmo pregão: sobe a mais importante, com "+N neste pregão", sem fila. (3) **Configuração por tipo**, num registro único de tipos (categoria, texto, padrão): Janela, Jornal, Só no histórico ou Desligado. Janela abre a manchete no centro sem pausar e sem escurecer o fundo, fecha sozinha em 8 s, no máximo uma por pregão; no padrão fica para poucos tipos, e serve a quem quer ênfase numa categoria. Resultado de turno e impeachment ficam presos na janela com pausa. Em empresas, o filtro "só ativos da minha carteira". (4) **Histórico** da partida inteira, salvo com ela, por data, sem "lida" e sem contagem, com busca, filtro por seção e "só minha carteira". Ele mora numa página própria, com o item Jornal no menu lateral, sob Mercado; "Abrir o jornal" no cartão e o selo recolhido levam para ela. (5) **A caixa de entrada sai:** resumo do mês e retrospectiva viram toast com Abrir, e os passados ficam numa aba Resumos em Estatísticas. (6) **Multiplayer:** a configuração é de cada jogador e nunca pausa a sala. (7) **Ficam como estão,** fora do jornal e da configuração: aviso de que o host removeu o jogador, erro no servidor, conquista e aviso do backtest. O histórico em página própria foi escolhido no canvas em 28/out. **Entregue:** a caixa de entrada saiu e o jornal entrou. Um registro único de tipos de notificação (7 tipos de manchete em 4 seções e 9 tipos de aviso pessoal) manda no que o jogador vê: cada tipo de manchete tem nível Janela, Jornal, Só no histórico ou Desligado, e cada aviso pessoal liga e desliga. A manchete nova chega pronta pelo tempo real: a de nível Janela abre no centro da tela sem pausar e fecha em 8 s (a segunda espera a primeira; a terceira vira só cartão), a de nível Jornal vira cartão de papel num canto (ou uma faixa de 40 px sob a topbar) e recolhe num selo depois de cerca de 6 s; numa rajada no mesmo pregão aparece só a mais importante, com "+N neste pregão". Os avisos ficam embaixo, no lado oposto ao do cartão. A página Jornal, sob Mercado, guarda o histórico da partida inteira, com busca, abas por seção, "Só minha carteira" e os estados vazio, carregando, erro e filtro sem resultado. Em Configurações há o cartão Jornal (nível por tipo, com Restaurar padrão), a escolha da posição em quatro cartões de esboço e o cartão Avisos (um interruptor por tipo). O resumo do mês e a retrospectiva do ano viraram a aba Resumos de Estatísticas, com o toast "Resumo de <mês>" e o botão Abrir. Os toasts políticos que viraram manchete saíram do aviso. **Ficou de fora:** a opção "Só ativos da minha carteira" por tipo na configuração do jornal (o contrato de configurações não tem o campo; a página do jornal já filtra pela carteira); a aba Resumos não tem board no canvas. **Decidido na implementação:** a janela aceita uma fila de duas; a faixa mostra a última manchete elegível, apagada, depois do tempo do cartão; o aviso do ataque entre outros partidos saiu e o ataque ao partido do jogador segue como aviso.
 
 <a id="f166"></a>
-**F166 — Pendências da partida.** Separada do jornal da partida (F161) em 27/out: notícia é passageira, e o que pede ação fica à vista até ser resolvido, como os alertas do Victoria 3. Tipos: parcela em atraso, caixa que não cobre a próxima parcela, caixa negativo, estratégia desligada por erro, risco de impeachment (só o presidente), convite de vice e campanha aberta sem filiação; a votação sem orientação do líder (F153) entra quando existir. Cada uma traz a ação que a resolve e some quando a condição acaba. Ao nascer, sobe um toast uma vez; depois ela fica no lugar dela. Campanha aberta e convite de vice deixam de abrir diálogo sozinhos: clicar na pendência abre o mesmo diálogo de hoje. Pendência não se desliga. Lugar na tela, escolhido no canvas em 28/out (janela ao lado): Pendências é uma linha no topo do menu lateral, com a contagem (vermelha se alguma é grave); clicar abre a lista numa janela ao lado, com a ação de cada pendência, que fecha fora dela ou no Esc, sem pausar o jogo. As graves vêm primeiro, e a janela rola por dentro se a lista passar da tela. A topbar fica fora, por falta de espaço no pior caso.
+**F166 — Pendências da partida.** Separada do jornal da partida (F161) em 27/out: notícia é passageira, e o que pede ação fica à vista até ser resolvido, como os alertas do Victoria 3. Tipos: parcela em atraso, caixa que não cobre a próxima parcela, caixa negativo, estratégia desligada por erro, risco de impeachment (só o presidente), convite de vice e campanha aberta sem filiação; a votação sem orientação do líder (F153) entra quando existir. Cada uma traz a ação que a resolve e some quando a condição acaba. Ao nascer, sobe um toast uma vez; depois ela fica no lugar dela. Campanha aberta e convite de vice deixam de abrir diálogo sozinhos: clicar na pendência abre o mesmo diálogo de hoje. Pendência não se desliga. Lugar na tela, escolhido no canvas em 28/out (janela ao lado): Pendências é uma linha no topo do menu lateral, com a contagem (vermelha se alguma é grave); clicar abre a lista numa janela ao lado, com a ação de cada pendência, que fecha fora dela ou no Esc, sem pausar o jogo. As graves vêm primeiro, e a janela rola por dentro se a lista passar da tela. A topbar fica fora, por falta de espaço no pior caso. **Entregue:** Pendências é uma linha no topo do menu lateral, com a contagem (vermelha se alguma é grave, âmbar se são só avisos) e sem aparecer quando não há nenhuma. Clicar abre a lista numa janela ao lado, com a ação de cada pendência; ela fecha fora ou no Esc, sem pausar o jogo, e rola por dentro. A lista é calculada no servidor a cada consulta (nada fica guardado) e some item a item quando a condição acaba; ela se renova com os eventos de caixa, parcela, estratégia e governo e depois de qualquer ação do jogador. Os sete tipos entraram: parcela em atraso e caixa negativo (graves), risco de impeachment, caixa que não cobre a próxima parcela, estratégia desligada por erro, convite de vice e campanha aberta sem filiação (avisos). Ao nascer, sobe um toast "Nova pendência" uma vez, com a ação; os toasts de atraso, de parcela sem caixa e de estratégia desligada saíram. Pagar leva ao pagamento da parcela, e religar, à estratégia. Campanha aberta e convite de vice não abrem mais diálogo sozinhos: a ação leva à Eleição e abre o mesmo diálogo (o da campanha ganhou lugar na página, com as datas e os atalhos). A barra lateral ganhou o selo vermelho para a contagem grave. **Ficou de fora:** a linha verde "resolvida" que ficaria 2 s na lista e o aviso "Role para ver mais N" do desenho; a votação sem orientação do líder, que entra com o Congresso. **Decidido na implementação:** o risco de impeachment aparece para o presidente com a aprovação até 10 pontos acima do piso ou com fechamentos seguidos abaixo dele, e só depois do período de carência; a estratégia desligada por erro fica na lista até o jogador ligar uma estratégia de novo; a abertura da campanha continua pausando a sala, embora o diálogo não abra mais sozinho.
 
 ---
 ## 2. Nice-to-have
