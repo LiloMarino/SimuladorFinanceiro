@@ -15,13 +15,14 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/compon
 import { Input } from "@/shared/components/ui/input";
 import { cn } from "@/shared/lib/utils";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { displayDayMonth, displayMoney, displayMoneyCompact, displayPercent } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayMoney, displayMoneyCompact } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
 import type { ElectionPanel } from "@/types";
 import { useDonate } from "../hooks/mutations/useDonate";
 import { useToday } from "../hooks/useToday";
 import { countdownLabel, monthlyYield } from "../lib/election";
 import { contributionText } from "../lib/contribution";
+import { runoffLeaderId } from "../lib/runoff";
 import { PartyMark, PersonMark } from "./party-mark";
 
 type DonateDialogProps = {
@@ -40,7 +41,7 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
   const [text, setText] = useState("");
   const donate = useDonate();
   const mine = panel.my_party ? panel.parties.find((party) => party.id === panel.my_party?.party_id) : undefined;
-  const simulation = panel.runoff_simulation;
+  const leaderId = runoffLeaderId(panel.runoff_race);
   const today = useToday(panel);
 
   const amount = Number(normalizeNumberString(text)) || 0;
@@ -62,8 +63,9 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
           <div className="grid gap-3.5">
             <div role="radiogroup" aria-label="Finalista" className="grid grid-cols-2 gap-2.5">
               {finalists.map((party) => {
-                const entry = simulation?.entries.find((candidate) => candidate.party_id === party.id);
-                const leads = simulation?.winner === party.id;
+                const poll = panel.runoff_race?.polls.at(-1);
+                const points = poll?.entries.find((candidate) => candidate.party_id === party.id)?.points;
+                const leads = leaderId === party.id;
                 return (
                   <button
                     key={party.id}
@@ -81,9 +83,9 @@ export function DonateDialog({ open, onOpenChange, panel, cash }: DonateDialogPr
                       <PartyMark abbr={party.abbr} color={party.color} size="sm" />
                       {party.candidate && <PersonMark person={party.candidate} />}
                     </span>
-                    {entry && (
+                    {points !== undefined && (
                       <span className="text-xs text-muted-foreground">
-                        {displayPercent(entry.share, 0)} na simulação ·{" "}
+                        {Math.round(Number(points))}% na pesquisa ·{" "}
                         {leads ? "lidera" : "doar aqui é contra quem lidera"}
                       </span>
                     )}

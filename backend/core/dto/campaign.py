@@ -39,7 +39,8 @@ class CampaignTargetDTO(BaseDTO):
     # Quanto do limite de reparação da campanha ainda cabe no grupo e o limite inteiro
     repair_left: Decimal
     repair_limit: Decimal
-    # O apoio e a rejeição de hoje do seu partido no grupo; nulos na TV
+    # O apoio e a rejeição de hoje do seu partido no grupo; nulos na TV. No 2º turno o
+    # apoio é o voto do partido no grupo (em cada 100 do grupo)
     support: Decimal | None
     rejection: Decimal | None
     bands: list[DiceBandDTO]
@@ -98,6 +99,8 @@ class CampaignGroupDTO(BaseDTO):
     group: VoterGroup
     # O que a campanha soma hoje ao apoio do partido no grupo, já com a queda
     campaign: Decimal
+    # No 2º turno: os indecisos do grupo hoje, em cada 100 eleitores dele; nulo no 1º turno
+    undecided: Decimal | None
 
 
 class CampaignPanelDTO(BaseDTO):

@@ -59,14 +59,24 @@ describe("donationContext", () => {
       { id: 1, abbr: "FDS" },
       { id: 2, abbr: "UPR" },
     ],
-    runoff_simulation: { winner: 1 },
+    runoff_race: {
+      finalists: [1, 2],
+      polls: [
+        {
+          entries: [
+            { party_id: 1, points: "52" },
+            { party_id: 2, points: "33" },
+          ],
+        },
+      ],
+    },
   } as unknown as ElectionPanel;
 
   it("diz contra quem lidera quando a doação vai ao outro finalista", () => {
-    expect(donationContext(panel, "UPR")).toBe("Contra o FDS, que lidera a simulação do 2º turno.");
+    expect(donationContext(panel, "UPR")).toBe("Contra o FDS, que lidera a pesquisa do 2º turno.");
   });
 
   it("diz a favor quando a doação vai a quem lidera", () => {
-    expect(donationContext(panel, "FDS")).toBe("A favor do FDS, que lidera a simulação do 2º turno.");
+    expect(donationContext(panel, "FDS")).toBe("A favor do FDS, que lidera a pesquisa do 2º turno.");
   });
 });

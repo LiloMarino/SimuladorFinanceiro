@@ -48,6 +48,7 @@ from backend.features.government import (
     congress,
     election,
     promises,
+    second_round,
     voters,
 )
 from backend.features.government import measures as rules
@@ -216,6 +217,7 @@ class GovernmentBook:
             if today >= cycle.runoff:
                 self._hold_runoff(cycle, today)
                 return PauseReason.RUNOFF_RESULT
+            self._run_between_rounds(cycle, today)
         elif today >= cycle.first_round:
             self._hold_first_round(cycle, today)
             return PauseReason.FIRST_ROUND_RESULT
@@ -504,13 +506,98 @@ class GovernmentBook:
             amount=amount,
         )
 
+    # 2º turno: declaração de apoio e contribuição única
+
+    def endorse(self, user: UserDTO, today: date, endorsed_id: int | None) -> None:
+        """
+        A fundadora do partido eliminado declara apoio a um finalista, ou neutralidade
+        (`endorsed_id` nulo). A declaração é uma só e não se desfaz.
+        """
+        self._ensure_person(user)
+        party = self._founded_party(user)
+        race = self._open_race(today)
+        if party.id in race.finalists:
+            raise ConflictError("Só quem ficou de fora declara apoio.")
+        if party.id not in self._eliminated():
+            raise ConflictError("Seu partido não disputou o 1º turno.")
+        if party.id in race.endorsements:
+            raise ConflictError("A declaração de apoio é uma só.")
+        if endorsed_id is not None and endorsed_id not in race.finalists:
+            raise UnprocessableEntityError("O apoio vai a um dos finalistas.")
+        self._emit(
+            GovernmentEventType.RUNOFF_ENDORSED,
+            today,
+            party_id=party.id,
+            user_id=user.id,
+            endorsed_id=endorsed_id,
+        )
+        self._notice(
+            GovernmentNoticeKind.ENDORSEMENT,
+            user,
+            party_abbr=party.abbr,
+            rival_abbr=self._party_abbr(endorsed_id),
+        )
+
+    def contribute_runoff(self, user: UserDTO, today: date, amount: Decimal) -> None:
+        """A contribuição única do filiado de um finalista, que vai para a campanha do 2º turno."""
+        self._ensure_person(user)
+        party = self._my_party(user)
+        race = self._open_race(today)
+        if party.id not in race.finalists:
+            raise ConflictError("Só filiado de finalista contribui; os demais doam.")
+        if any(c.user_id == user.id for c in self.state.race_contributions):
+            raise ConflictError("A contribuição do 2º turno é uma só.")
+        if amount <= 0:
+            raise UnprocessableEntityError("Informe um valor maior que zero.")
+        if self._engine.get_cash(user.client_id) < amount:
+            raise ConflictError("Caixa insuficiente para essa contribuição.")
+        self._engine.pay_campaign(
+            user.client_id, amount, CashflowEventType.CAMPAIGN_DONATION
+        )
+        self._emit(
+            GovernmentEventType.RUNOFF_CONTRIBUTION,
+            today,
+            user_id=user.id,
+            party_id=party.id,
+            amount=str(amount),
+        )
+        self._notice(
+            GovernmentNoticeKind.DONATION,
+            user,
+            party_abbr=party.abbr,
+            amount=amount,
+        )
+
+    def _open_race(self, today: date) -> second_round.Race:
+        """A disputa do 2º turno, enquanto o prazo de campanha dela vale."""
+        race = self.state.race
+        if race is None:
+            raise ConflictError("Isso só vale entre o 1º e o 2º turno.")
+        if today > self.cycle().donation_deadline:
+            raise ConflictError("O prazo do 2º turno acabou: a votação é amanhã.")
+        return race
+
+    def _eliminated(self) -> set[int]:
+        """Os partidos que disputaram o 1º turno e não chegaram ao 2º."""
+        result = self.state.results[-1] if self.state.results else None
+        if result is None:
+            return set()
+        return set(result.tickets) - set(self.state.runoff or [])
+
     # Ações avulsas de campanha
 
-    def campaign_closed_reason(self, today: date) -> str | None:
-        """Por que as ações não estão abertas hoje; nulo quando valem."""
+    def campaign_closed_reason(
+        self, today: date, party: Party | None = None
+    ) -> str | None:
+        """Por que as ações não estão abertas hoje (para `party`, quando dada); nulo quando valem."""
         cycle = self.cycle()
-        if self.state.runoff is not None:
-            return "Entre os turnos valem as regras do 2º turno."
+        runoff = self.state.runoff
+        if runoff is not None:
+            if today > cycle.donation_deadline:
+                return "As ações valem até a véspera do 2º turno."
+            if party is not None and party.id not in runoff:
+                return "Entre os turnos só os finalistas fazem ações."
+            return None
         if today < cycle.campaign_start:
             return "A campanha ainda não abriu."
         if today >= cycle.first_round:
@@ -525,6 +612,13 @@ class GovernmentBook:
             today,
             self._settings.inflation_adjusted,
         )
+
+    def support_of(self, party: Party, group: VoterGroup) -> Decimal:
+        """O apoio do partido no grupo: a pesquisa da campanha, ou o voto dele no 2º turno."""
+        race = self.state.race
+        if race is not None and party.id in race.finalists:
+            return race.groups[group].votes[party.id]
+        return party.standing(group).support
 
     def cash_of(self, user: UserDTO) -> Decimal:
         return self._engine.get_cash(user.client_id)
@@ -547,7 +641,7 @@ class GovernmentBook:
         """
         self._ensure_person(user)
         party = self._my_party(user)
-        reason = self.campaign_closed_reason(today)
+        reason = self.campaign_closed_reason(today, party)
         if reason is not None:
             raise ConflictError(reason)
         rival = self._check_action_target(party, kind, group, rival_id)
@@ -561,7 +655,7 @@ class GovernmentBook:
             user.client_id, price, CashflowEventType.CAMPAIGN_ACTION
         )
         target = rival or party
-        support_before = target.standing(group).support if group else None
+        support_before = self.support_of(target, group) if group else None
         rejection_before = party.rejection[group] if group else None
         record = self._emit_action(party, user.id, today, kind, group, rival, price)
         self._notice(
@@ -596,6 +690,8 @@ class GovernmentBook:
             raise NotFoundError("Escolha um partido rival que esteja na eleição.")
         if rival.id == party.id:
             raise ConflictError("O ataque vai a um partido rival, e não ao seu.")
+        if self.state.runoff is not None and rival.id not in self.state.runoff:
+            raise ConflictError("No 2º turno o ataque vai ao outro finalista.")
         return rival
 
     def _emit_action(
@@ -650,11 +746,18 @@ class GovernmentBook:
         """O "era" de uma promessa nova: o que a medida muda, como está hoje."""
         return rules.general_value(self.policy(day), kind)
 
-    def promises_open_reason(self, today: date) -> str | None:
-        """Por que a chapa não mexe nas promessas hoje; nulo quando pode."""
+    def promises_open_reason(
+        self, today: date, party: Party | None = None
+    ) -> str | None:
+        """Por que a chapa (`party`, quando dada) não mexe nas promessas hoje; nulo quando pode."""
         cycle = self.cycle()
-        if self.state.runoff is not None:
-            return "Entre os turnos as promessas já estão travadas."
+        runoff = self.state.runoff
+        if runoff is not None:
+            if today > cycle.donation_deadline:
+                return "As promessas fecham na véspera do 2º turno."
+            if party is not None and party.id not in runoff:
+                return "Entre os turnos só os finalistas prometem."
+            return None
         if today < cycle.campaign_start:
             return "A campanha ainda não abriu."
         if today > cycle.ticket_deadline:
@@ -671,13 +774,15 @@ class GovernmentBook:
     ) -> list[Promise]:
         """Valida a lista de promessas da chapa como ficaria; a que já existia mantém o "era" e o anúncio."""
         party = self.founded_party(user)
-        reason = self.promises_open_reason(today)
+        reason = self.promises_open_reason(today, party)
         if reason is not None:
             raise ConflictError(reason)
-        if len(items) > promises.MAX_PROMISES:
-            raise UnprocessableEntityError(
-                f"No máximo {promises.MAX_PROMISES} promessas por chapa."
-            )
+        runoff = self.state.runoff
+        limit = (
+            second_round.MAX_PROMISES if runoff is not None else promises.MAX_PROMISES
+        )
+        if len(items) > limit:
+            raise UnprocessableEntityError(f"No máximo {limit} promessas por chapa.")
         existing = {p.key: p for p in party.promises}
         final: list[Promise] = []
         for item in items:
@@ -685,13 +790,15 @@ class GovernmentBook:
             if any(p.key == promise.key for p in final):
                 raise ConflictError("A mesma medida não é prometida duas vezes.")
             final.append(promise)
+        if runoff is not None and any(old not in final for old in party.promises):
+            raise ConflictError("No 2º turno as promessas só se acrescentam.")
         return final
 
     def set_promises(
         self, user: UserDTO, today: date, items: list[PromiseRequest]
     ) -> None:
         """
-        A fundadora anuncia a lista de promessas da chapa (até 3). Uma promessa nova rende
+        A fundadora anuncia a lista de promessas da chapa (até 3; até 4 no 2º turno, só acrescentando). Uma promessa nova rende
         desde o anúncio; voltar atrás depois dele (retirar, trocar ou baixar o alvo) soma
         rejeição em quem queria a medida.
         """
@@ -1271,22 +1378,117 @@ class GovernmentBook:
         )
 
     def _hold_runoff(self, cycle: ElectionCycle, today: date) -> None:
+        """A votação do 2º turno: o voto de cada grupo entre os finalistas; quem seguia indeciso se abstém."""
         running = self._running()
         finalists = [f for f in (self.state.runoff or []) if f in self.state.parties]
-        first_round = election.intention(self.state)
-        points = first_round.total
-        result = election.runoff(first_round, finalists)
+        first_round = self.state.results[-1].points if self.state.results else {}
+        race = self.state.race
+        if race is None or len(finalists) != 2:
+            # Um finalista só: ele leva o 2º turno sem disputa
+            vote = voters.restrict(election.intention(self.state), finalists)
+        else:
+            vote = race.vote()
+        votes = {pid: vote.total.get(pid, Decimal(0)) for pid in finalists}
+        shares = election.valid_shares(votes)
+        winner = second_round.winner(votes, first_round)
+        points = {
+            pid: votes.get(pid, first_round.get(pid, Decimal(0))) for pid in first_round
+        }
         self._emit_round(
             cycle,
             today,
             round_number=2,
             running=running,
-            points={pid: result.votes.get(pid, points[pid]) for pid in points},
-            shares=result.shares,
+            points=points,
+            shares=shares,
             finalists=finalists,
-            winner=result.winner_id,
-            transfers=result.transfers,
-            satisfaction=result.satisfaction,
+            winner=winner,
+            transfers=self._transfers(race, finalists),
+            satisfaction=election.start_satisfaction(vote, winner),
+            groups=vote.groups,
+            not_voted=vote.undecided,
+        )
+
+    def _transfers(
+        self, race: second_round.Race | None, finalists: list[int]
+    ) -> dict[int, int]:
+        """Para qual finalista foi, no total do país, a maior parte dos eleitores de cada partido que saiu."""
+        if race is None:
+            return {}
+        flow: dict[int, dict[int, Decimal]] = {}
+        for group, disputed in race.groups.items():
+            for eliminated, sent in disputed.sent.items():
+                for finalist, amount in sent.items():
+                    by_finalist = flow.setdefault(eliminated, {})
+                    by_finalist[finalist] = by_finalist.get(finalist, Decimal(0)) + (
+                        voters.WEIGHTS[group] * amount
+                    )
+        return {
+            eliminated: max(by_finalist, key=lambda f: (by_finalist[f], -f))
+            for eliminated, by_finalist in flow.items()
+        }
+
+    def _run_between_rounds(self, cycle: ElectionCycle, today: date) -> None:
+        """
+        O calendário entre os turnos: o computador eliminado declara apoio, o computador
+        finalista contribui e faz o evento dele uma vez, e a pesquisa sai a cada semana.
+        """
+        race = self.state.race
+        if race is None:
+            return
+        changed = False
+        for party in self.state.computer_parties():
+            if party.id in race.finalists or party.id in race.endorsements:
+                continue
+            if party.id not in self._eliminated():
+                continue
+            finalists = {f: self.state.parties[f].radar for f in race.finalists}
+            self._emit(
+                GovernmentEventType.RUNOFF_ENDORSED,
+                today,
+                party_id=party.id,
+                user_id=None,
+                endorsed_id=second_round.computer_endorsement(party.radar, finalists),
+            )
+            changed = True
+        for finalist in race.finalists:
+            party = self.state.parties[finalist]
+            if party.is_computer and not self.state.runoff_total(finalist):
+                self._computer_runoff(party, today)
+                changed = True
+        eve = cycle.donation_deadline
+        due = sum(
+            1
+            for d in second_round.poll_days(required(self.state.race_started), eve)
+            if d <= today
+        )
+        while len(self.state.race_polls) < due:
+            self._emit(GovernmentEventType.RUNOFF_POLL, today)
+            changed = True
+        if changed:
+            self._notice(GovernmentNoticeKind.UPDATED)
+
+    def _computer_runoff(self, party: Party, today: date) -> None:
+        """O finalista do computador contribui com metade da verba mensal e faz um evento no grupo com mais indecisos."""
+        race = required(self.state.race)
+        budget = election.computer_spend(self.state, self._factor)
+        amount = budget * second_round.COMPUTER_CONTRIBUTION_SHARE
+        self._emit(
+            GovernmentEventType.RUNOFF_CONTRIBUTION,
+            today,
+            user_id=None,
+            party_id=party.id,
+            amount=str(amount),
+        )
+        group = max(VoterGroup, key=lambda g: (race.groups[g].undecided, g.value))
+        self._emit_action(
+            party,
+            None,
+            today,
+            CampaignActionKind.EVENT,
+            group,
+            None,
+            self.action_price(CampaignActionKind.EVENT, today),
         )
 
     def _emit_round(
@@ -1302,6 +1504,8 @@ class GovernmentBook:
         winner: int | None,
         transfers: dict[int, int],
         satisfaction: dict[VoterGroup, Decimal],
+        groups: dict[VoterGroup, voters.GroupVote] | None = None,
+        not_voted: Decimal = Decimal(0),
     ) -> None:
         tickets: dict[str, dict[str, object]] = {}
         for party in running:
@@ -1337,6 +1541,14 @@ class GovernmentBook:
                 g.value: str(v.quantize(approval_rules.SATISFACTION_PRECISION))
                 for g, v in satisfaction.items()
             },
+            groups={
+                g.value: {
+                    "shares": {str(k): str(v) for k, v in gv.shares.items()},
+                    "undecided": str(gv.undecided),
+                }
+                for g, gv in (groups or {}).items()
+            },
+            not_voted=str(not_voted),
         )
         winner_party = self.state.parties.get(winner) if winner is not None else None
         self._notice(

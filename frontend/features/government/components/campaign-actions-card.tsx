@@ -29,6 +29,7 @@ import {
   signed,
   targetOf,
 } from "../lib/campaign";
+import { dayAfter } from "../lib/runoff";
 import { GROUP_INFO } from "../lib/voters";
 import { ActionIcon } from "./campaign-action-icon";
 import { BandsTable } from "./campaign-dice";
@@ -53,6 +54,10 @@ export function CampaignActionsCard({ campaign, groups, cash }: CampaignActionsC
   const top = useRef<HTMLDivElement>(null);
 
   const weights = new Map(groups.map((info) => [info.group, info.weight]));
+  // No 2º turno cada grupo mostra os indecisos que as ações disputam
+  const undecided = campaign.groups.some((item) => item.undecided !== null)
+    ? new Map(campaign.groups.map((item) => [item.group, item.undecided]))
+    : null;
   const action = campaign.actions.find((candidate) => candidate.action === kind);
   const rivalId = chosenRival ?? (campaign.rivals.length === 1 ? (campaign.rivals[0]?.party_id ?? null) : null);
   const rival = campaign.rivals.find((candidate) => candidate.party_id === rivalId);
@@ -98,6 +103,7 @@ export function CampaignActionsCard({ campaign, groups, cash }: CampaignActionsC
               rivalId={rivalId}
               onRival={setChosenRival}
               weights={weights}
+              undecided={undecided}
               cash={cashNumber}
               missing={missing}
               onRoll={() => setRolling(true)}
@@ -161,6 +167,7 @@ type ActionBodyProps = {
   rivalId: number | null;
   onRival: (id: number) => void;
   weights: Map<VoterGroup, string>;
+  undecided: Map<VoterGroup, string | null> | null;
   cash: number | null;
   missing: (action: CampaignAction) => number;
   onRoll: () => void;
@@ -176,6 +183,7 @@ function ActionBody({
   rivalId,
   onRival,
   weights,
+  undecided,
   cash,
   missing,
   onRoll,
@@ -220,8 +228,9 @@ function ActionBody({
                 2 · Grupo
               </span>
               <span className="text-xs text-faint-foreground">
-                Repetir a ação no mesmo grupo no mês rende 100%, 50%, 25%; em {nextMonthLabel(campaign.today)} volta a
-                100%
+                {undecided
+                  ? `Repetir a ação no mesmo grupo rende 100%, 50%, 25%, contando desde ${displayDayMonth(dayAfter(campaign.first_round))}; o ganho sai primeiro dos indecisos do grupo`
+                  : `Repetir a ação no mesmo grupo no mês rende 100%, 50%, 25%; em ${nextMonthLabel(campaign.today)} volta a 100%`}
               </span>
             </div>
             <GroupChoices
@@ -230,6 +239,7 @@ function ActionBody({
               group={group}
               onGroup={onGroup}
               weights={weights}
+              undecided={undecided}
               today={campaign.today}
             />
           </div>
@@ -374,12 +384,13 @@ type GroupChoicesProps = {
   group: VoterGroup;
   onGroup: (group: VoterGroup) => void;
   weights: Map<VoterGroup, string>;
+  undecided: Map<VoterGroup, string | null> | null;
   today: string;
 };
 
 const GROUP_ROW = "grid grid-cols-[16px_28px_minmax(0,1fr)_54px_64px_92px_74px] items-center gap-3";
 
-function GroupChoices({ action, kind, group, onGroup, weights, today }: GroupChoicesProps) {
+function GroupChoices({ action, kind, group, onGroup, weights, undecided, today }: GroupChoicesProps) {
   return (
     <div role="radiogroup" aria-label="Grupo" className="grid gap-0.5">
       <div
@@ -391,10 +402,11 @@ function GroupChoices({ action, kind, group, onGroup, weights, today }: GroupCho
         <span />
         <span />
         <span>Grupo</span>
-        <span className="text-right">Apoio</span>
-        <span className="text-right">Rejeição</span>
+        <span className="text-right">{undecided ? "Voto" : "Apoio"}</span>
+        <span className="text-right">{undecided ? "Indecisos" : "Rejeição"}</span>
         <span>
-          {ACTION_INFO[kind].plural} em {monthLabel(today)}
+          {ACTION_INFO[kind].plural}
+          {undecided ? " no 2º turno" : ` em ${monthLabel(today)}`}
         </span>
         <span className="text-right">Rende</span>
       </div>
@@ -432,7 +444,11 @@ function GroupChoices({ action, kind, group, onGroup, weights, today }: GroupCho
               </span>
             </span>
             <span className="text-right font-mono">{Math.round(Number(target.support ?? 0))}</span>
-            <span className="text-right font-mono">{Math.round(Number(target.rejection ?? 0))}</span>
+            <span className="text-right font-mono">
+              {undecided
+                ? Math.round(Number(undecided.get(target.group) ?? 0))
+                : Math.round(Number(target.rejection ?? 0))}
+            </span>
             <span className="flex items-center gap-1.5">
               <span className="flex gap-0.5" aria-hidden>
                 {[0, 1, 2].map((pip) => (

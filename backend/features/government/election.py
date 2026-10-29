@@ -1,10 +1,9 @@
 """
-A apuração: intenção de voto pelos grupos de eleitores, 1º turno, transferência de
-votos no 2º e a escolha dos partidos do computador. Tudo aqui é função pura sobre
+A apuração: intenção de voto pelos grupos de eleitores, 1º turno e a escolha dos
+partidos do computador. Tudo aqui é função pura sobre
 `GovernmentState`.
 """
 
-from dataclasses import dataclass
 from decimal import Decimal
 
 from backend.core.enum import VoterGroup
@@ -21,19 +20,6 @@ from backend.features.government.state import (
 
 PARTIES_PER_ELECTION = 3
 MAJORITY = Decimal("0.5")
-
-
-@dataclass(frozen=True)
-class Runoff:
-    """A disputa entre dois partidos, com os votos de quem saiu já transferidos."""
-
-    # Em cada 100 eleitores, quantos votam em cada finalista; o resto se abstém
-    votes: dict[int, Decimal]
-    shares: dict[int, Decimal]
-    transfers: dict[int, int]
-    winner_id: int
-    # Como cada grupo votou no vencedor, que é a satisfação com que o governo começa
-    satisfaction: dict[VoterGroup, Decimal]
 
 
 def is_eligible(state: GovernmentState, user_id: int) -> bool:
@@ -144,46 +130,6 @@ def top_two(points: dict[int, Decimal]) -> list[int]:
 def first_round_winner(shares: dict[int, Decimal]) -> int | None:
     """Mais de 50% dos válidos leva no 1º turno."""
     return next((pid for pid, share in shares.items() if share > MAJORITY), None)
-
-
-def runoff(first_round: voters.Vote, finalists: list[int]) -> Runoff:
-    """
-    Em cada grupo, os eleitores de quem saiu se dividem entre os finalistas e os
-    indecisos, na proporção do saldo de cada um no grupo; os indecisos se abstêm. Cada
-    partido que saiu aponta para o finalista que levou mais dos eleitores dele.
-    """
-    second = voters.restrict(first_round, finalists)
-    votes = {pid: second.total.get(pid, Decimal(0)) for pid in finalists}
-    transfers: dict[int, int] = {}
-    for pid in first_round.total:
-        if pid in finalists:
-            continue
-        transfers[pid] = max(
-            finalists,
-            key=lambda f: (_received(first_round, second, pid, f), -f),
-        )
-    shares = valid_shares(votes)
-    winner = min(
-        finalists,
-        key=lambda f: (-votes[f], -first_round.total.get(f, Decimal(0)), f),
-    )
-    return Runoff(votes, shares, transfers, winner, start_satisfaction(second, winner))
-
-
-def _received(
-    first_round: voters.Vote, second: voters.Vote, source: int, finalist: int
-) -> Decimal:
-    """Quantos eleitores de `source` vão para `finalist`, somados pelo peso dos grupos."""
-    return sum(
-        (
-            voters.WEIGHTS[g]
-            * gv.shares.get(source, Decimal(0))
-            * second.groups[g].shares[finalist]
-            / voters.HUNDRED
-            for g, gv in first_round.groups.items()
-        ),
-        Decimal(0),
-    )
 
 
 def next_computer_party(state: GovernmentState) -> ComputerParty | None:

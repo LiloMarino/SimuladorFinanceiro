@@ -23,14 +23,35 @@ export const VALID_SHARE: MetricInfo = {
 };
 
 export const RUNOFF: MetricInfo = {
-  label: "Simulação do 2º turno",
-  description: "Como seria o 2º turno se fosse hoje",
+  label: "Pesquisa do 2º turno",
+  description: "De cada 100 eleitores, quantos votariam em cada finalista se a votação fosse hoje",
   definition:
-    "Os dois partidos com mais pontos disputam. Em cada grupo, os eleitores de quem saiu se dividem entre os finalistas e os indecisos na mesma proporção em que o grupo já está; os indecisos não votam.",
+    "Em cada grupo, os votos do partido que saiu se dividem entre os finalistas pela afinidade do grupo com cada um (descontada a rejeição). Uma parte fica indecisa, e as ações, as contribuições e as doações tiram votos dos indecisos antes de tirar do rival.",
   example:
-    "Ex.: entre os aposentados, PRL 46, UPR 24 e indecisos 13; os 17 do FDS, que saiu, vão 46 : 24 : 13 para PRL, UPR e indecisos.",
+    "Ex.: entre os aposentados, 24 de cada 100 votaram no MRC; 30 desses vão ao PRL, 20 ao FDS e 50 ficam indecisos.",
   reading:
-    "Quem somar mais votos válidos vence. É só uma projeção feita com a última pesquisa: ela muda a cada mês, e as doações entre os turnos também mexem.",
+    "Quem somar mais votos no dia leva. Quem continuar indeciso na votação não vota. A pesquisa sai toda semana, com a margem de erro de cada grupo.",
+  format: (value) => displayPercent(value, 0),
+};
+
+export const UNDECIDED: MetricInfo = {
+  label: "Indecisos",
+  description: "Eleitores do partido que saiu e ainda não escolheram entre os finalistas",
+  definition:
+    "Parte dos votos do partido eliminado não vai a ninguém de cara: cresce quando o grupo gosta pouco dos dois finalistas. Eles podem ser conquistados por ações, contribuições, doações e pela declaração de apoio do partido que saiu.",
+  example: "Ex.: 8 de cada 100 aposentados continuam indecisos; uma ação que rende +3 leva 3 deles ao seu partido.",
+  reading:
+    "Quanto mais indecisos, mais o 2º turno está aberto. Quem ainda estiver indeciso no dia da votação não vota.",
+  format: (value) => Number(value).toLocaleString("pt-BR", { maximumFractionDigits: 1 }),
+};
+
+export const TRUST: MetricInfo = {
+  label: "Confiança no partido",
+  description: "O quanto o grupo segue a recomendação do partido que saiu",
+  definition:
+    "É a afinidade do grupo com o partido menos a rejeição, dividida por 50 e limitada entre 0 e 100%. A declaração de apoio leva até metade dos indecisos vindos do partido, vezes essa confiança.",
+  example: "Ex.: afinidade 64 e rejeição 14 dão confiança de 100%: metade dos indecisos do partido segue o apoio.",
+  reading: "Confiança alta e indecisos de sobra fazem a declaração valer muito; confiança baixa quase não move voto.",
   format: (value) => displayPercent(value, 0),
 };
 

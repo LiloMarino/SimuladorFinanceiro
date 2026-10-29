@@ -37,7 +37,7 @@ def build_campaign(
     state.advance(today)
     party = _my_party(book, viewer)
     cycle = book.cycle()
-    reason = book.campaign_closed_reason(today)
+    reason = book.campaign_closed_reason(today, party)
     cash = book.cash_of(viewer)
     entries = _entries(book, users, party, today)
     mine = [a for a in state.actions if a.party_id == party.id]
@@ -65,7 +65,14 @@ def build_campaign(
             if p.id != party.id
         ],
         groups=[
-            CampaignGroupDTO(group=g, campaign=party.campaign[g]) for g in VoterGroup
+            CampaignGroupDTO(
+                group=g,
+                campaign=party.campaign[g],
+                undecided=(
+                    state.race.groups[g].undecided if state.race is not None else None
+                ),
+            )
+            for g in VoterGroup
         ],
         recent=[e for e in entries if e.kind is not CampaignEntryKind.BASE_BUDGET][
             :RECENT
@@ -106,7 +113,7 @@ def build_roll(
         entry=entry,
         target_abbr=target.abbr if target and group else None,
         support_before=result.support_before,
-        support_after=target.standing(group).support if target and group else None,
+        support_after=book.support_of(target, group) if target and group else None,
         rejection_before=result.rejection_before,
         rejection_after=party.rejection[group] if group else None,
     )
@@ -152,7 +159,7 @@ def _action(
                     if kind is CampaignActionKind.EVENT
                     else ZERO
                 ),
-                support=party.standing(group).support if group is not None else None,
+                support=book.support_of(party, group) if group is not None else None,
                 rejection=rejection,
                 bands=[
                     DiceBandDTO(

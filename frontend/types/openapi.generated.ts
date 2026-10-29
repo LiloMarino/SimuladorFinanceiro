@@ -1525,7 +1525,7 @@ export interface paths {
         };
         /**
          * Obter a eleição
-         * @description Retorna as datas, os grupos de eleitores, os partidos com chapa, filiados, verba, bandeiras e perfil, as pesquisas com a margem de erro (no total e por grupo), o apoio e a rejeição do partido de quem vê em cada grupo, a simulação do 2º turno, as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         * @description Retorna as datas, os grupos de eleitores, os partidos com chapa, filiados, verba, bandeiras e perfil, as pesquisas com a margem de erro (no total e por grupo), o apoio e a rejeição do partido de quem vê em cada grupo, a disputa do 2º turno (pesquisa semanal, para onde foram os votos de quem saiu, declarações e contribuições), as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.
          */
         get: operations["get_election_api_government_election_get"];
         put?: never;
@@ -1710,6 +1710,46 @@ export interface paths {
          * @description Entre os turnos, quem ficou de fora doa a um dos finalistas, até a véspera do 2º turno. A doação é pública, sai do caixa de uma vez e vira apoio do finalista.
          */
         post: operations["donate_api_government_donations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/runoff/endorsement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Declarar apoio no 2º turno
+         * @description A fundadora do partido que ficou de fora declara apoio a um dos finalistas, ou neutralidade (sem partido no pedido). A declaração é uma só e não se desfaz: os indecisos que vieram do partido seguem o apoio na medida da confiança de cada grupo nele. Vale até a véspera do 2º turno; o partido do computador declara sozinho.
+         */
+        post: operations["endorse_api_government_runoff_endorsement_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/runoff/contribution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Contribuir na campanha do 2º turno
+         * @description Cada filiado de finalista faz uma contribuição única, paga na hora da própria carteira. O valor rende pela raiz do total do partido, igual em todos os grupos, e sai primeiro dos indecisos de cada grupo. Vale até a véspera do 2º turno.
+         */
+        post: operations["contribute_runoff_api_government_runoff_contribution_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3505,6 +3545,8 @@ export interface components {
             group: components["schemas"]["VoterGroup"];
             /** Campaign */
             campaign: string;
+            /** Undecided */
+            undecided: string | null;
         };
         /** CampaignHistoryDTO */
         CampaignHistoryDTO: {
@@ -4131,6 +4173,20 @@ export interface components {
             /** Debt Limit */
             debt_limit: string;
         };
+        /** DeclarationDTO */
+        DeclarationDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Party Id */
+            party_id: number;
+            /** Nickname */
+            nickname: string | null;
+            /** Endorsed Party Id */
+            endorsed_party_id: number | null;
+        };
         /**
          * DiceBand
          * @description A faixa em que o d20 de uma ação caiu.
@@ -4289,7 +4345,7 @@ export interface components {
             polls: components["schemas"]["PollDTO"][];
             /** Electorate */
             electorate: components["schemas"]["ElectorateRowDTO"][];
-            runoff_simulation: components["schemas"]["RunoffSimulationDTO"] | null;
+            runoff_race: components["schemas"]["RunoffRaceDTO"] | null;
             /** Finalists */
             finalists: number[];
             /** Donations */
@@ -4340,6 +4396,11 @@ export interface components {
             support_change: string | null;
             /** Rejection Change */
             rejection_change: string | null;
+        };
+        /** EndorsementRequest */
+        EndorsementRequest: {
+            /** Party Id */
+            party_id?: number | null;
         };
         /** EngineInfo */
         EngineInfo: {
@@ -4723,7 +4784,7 @@ export interface components {
          * @description O que o aviso em tempo real conta; o front escolhe o toast pelo tipo.
          * @enum {string}
          */
-        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED";
+        GovernmentNoticeKind: "UPDATED" | "CAMPAIGN_OPENED" | "TICKETS_CLOSING" | "ELECTION_EVE" | "PARTY_FOUNDED" | "EXPELLED" | "VICE_INVITED" | "VICE_ANSWERED" | "DONATION" | "ELECTION_RESULT" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_WITHDRAWN" | "MEASURE_VOTED" | "MEASURE_IN_FORCE" | "IMPEACHMENT" | "IMPEACHMENT_WARNING" | "MONTH_CLOSED" | "CAMPAIGN_ACTION" | "PROMISES_SET" | "PROMISES_SETTLED" | "ENDORSEMENT";
         /** GovernmentPanelDTO */
         GovernmentPanelDTO: {
             /**
@@ -6958,6 +7019,8 @@ export interface components {
             ticket_deadline: string;
             /** Max Promises */
             max_promises: number;
+            /** Add Only */
+            add_only: boolean;
             /** Promises */
             promises: components["schemas"]["PromiseDTO"][];
             /** Options */
@@ -7216,6 +7279,13 @@ export interface components {
             /** Team */
             team?: number | null;
         };
+        /** RoundDonationDTO */
+        RoundDonationDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Amount */
+            amount: string;
+        };
         /** RoundPartyDTO */
         RoundPartyDTO: {
             /** Party Id */
@@ -7254,35 +7324,59 @@ export interface components {
             finalists: number[];
             /** Winner */
             winner: number | null;
-            runoff: components["schemas"]["RunoffSimulationDTO"] | null;
+            /** Groups */
+            groups: components["schemas"]["GroupPollDTO"][];
+            /** Not Voted */
+            not_voted: string;
+            /** Donations */
+            donations: components["schemas"]["RoundDonationDTO"][];
         };
-        /** RunoffEntryDTO */
-        RunoffEntryDTO: {
+        /** RunoffContributionDTO */
+        RunoffContributionDTO: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Nickname */
+            nickname: string | null;
             /** Party Id */
             party_id: number;
-            /** Own Points */
-            own_points: string;
-            /** Received Points */
-            received_points: string;
-            /** Share */
-            share: string;
-            /** Transfer To */
-            transfer_to: number | null;
-            /** Donated */
-            donated: string;
+            /** Amount */
+            amount: string;
+        };
+        /** RunoffContributionRequest */
+        RunoffContributionRequest: {
+            /** Amount */
+            amount: number | string;
         };
         /**
-         * RunoffSimulationDTO
-         * @description A simulação do 2º turno (ou o resultado dele): em cada grupo, os eleitores de quem
-         *     sai se dividem entre os finalistas e os indecisos, que se abstêm.
+         * RunoffRaceDTO
+         * @description O 2º turno em andamento: pesquisa semanal, transferência dos eliminados e o que os partidos podem fazer.
          */
-        RunoffSimulationDTO: {
+        RunoffRaceDTO: {
             /** Finalists */
             finalists: number[];
-            /** Entries */
-            entries: components["schemas"]["RunoffEntryDTO"][];
-            /** Winner */
-            winner: number;
+            /** Polls */
+            polls: components["schemas"]["PollDTO"][];
+            /** Next Poll */
+            next_poll: string | null;
+            /** Transfers */
+            transfers: components["schemas"]["TransferDTO"][];
+            /** Declarations */
+            declarations: components["schemas"]["DeclarationDTO"][];
+            /** Contributions */
+            contributions: components["schemas"]["RunoffContributionDTO"][];
+            /** My Contribution */
+            my_contribution: string | null;
+            /** Can Declare */
+            can_declare: boolean;
+            /** Can Contribute */
+            can_contribute: boolean;
+            /** Can Add Promise */
+            can_add_promise: boolean;
+            /** Promise Limit */
+            promise_limit: number;
         };
         /** SavePresetRequest */
         SavePresetRequest: {
@@ -8744,6 +8838,45 @@ export interface components {
             bytes_per_s: number;
             /** Bytes Per Msg */
             bytes_per_msg: number;
+        };
+        /**
+         * TransferDTO
+         * @description Para onde foram os votos de um partido eliminado, grupo a grupo e no eleitorado todo.
+         */
+        TransferDTO: {
+            /** Party Id */
+            party_id: number;
+            /** Groups */
+            groups: components["schemas"]["TransferGroupDTO"][];
+            /** Voted */
+            voted: string;
+            /** Sent */
+            sent: components["schemas"]["PollEntryDTO"][];
+            /** Undecided */
+            undecided: string;
+            /** Declared */
+            declared: boolean;
+            /** Endorsed Party Id */
+            endorsed_party_id: number | null;
+        };
+        /**
+         * TransferGroupDTO
+         * @description O voto de um partido eliminado dentro de um grupo e para onde ele foi, em cada 100 do grupo.
+         */
+        TransferGroupDTO: {
+            group: components["schemas"]["VoterGroup"];
+            /** Voted */
+            voted: string;
+            /** Sent */
+            sent: components["schemas"]["PollEntryDTO"][];
+            /** Undecided */
+            undecided: string;
+            /** Undecided Now */
+            undecided_now: string;
+            /** Trust */
+            trust: string;
+            /** Would Follow */
+            would_follow: string;
         };
         /** TunnelStatusDTO */
         TunnelStatusDTO: {
@@ -12689,6 +12822,86 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["DonationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    endorse_api_government_runoff_endorsement_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EndorsementRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    contribute_runoff_api_government_runoff_contribution_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunoffContributionRequest"];
             };
         };
         responses: {

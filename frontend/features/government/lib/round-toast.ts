@@ -1,5 +1,6 @@
 import { displayDayMonth, displayPercent } from "@/shared/lib/utils/display";
 import type { ElectionPanel } from "@/types";
+import { runoffLeaderId } from "./runoff";
 
 export type RoundToast = {
   tone: "success" | "info" | "warning";
@@ -60,11 +61,11 @@ export function roundToast(panel: ElectionPanel): RoundToast | null {
   };
 }
 
-/** A linha de contexto do toast de doação: a favor de quem lidera a simulação do 2º turno, ou contra. */
+/** A linha de contexto do toast de doação: a favor de quem lidera a pesquisa do 2º turno, ou contra. */
 export function donationContext(panel: ElectionPanel | undefined, targetAbbr: string): string | null {
-  const leader = panel?.parties.find((party) => party.id === panel.runoff_simulation?.winner);
+  const leader = panel?.parties.find((party) => party.id === runoffLeaderId(panel.runoff_race));
   if (!leader) return null;
   return leader.abbr === targetAbbr
-    ? `A favor do ${leader.abbr}, que lidera a simulação do 2º turno.`
-    : `Contra o ${leader.abbr}, que lidera a simulação do 2º turno.`;
+    ? `A favor do ${leader.abbr}, que lidera a pesquisa do 2º turno.`
+    : `Contra o ${leader.abbr}, que lidera a pesquisa do 2º turno.`;
 }

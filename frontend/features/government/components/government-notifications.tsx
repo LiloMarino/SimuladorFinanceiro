@@ -184,6 +184,14 @@ export function GovernmentNotifications() {
           action: { label: "Ver eleição", onClick: () => void navigate("/election") },
         });
         break;
+      case "ENDORSEMENT":
+        toast.info(
+          event.rival_abbr
+            ? `O ${abbr} declarou apoio ao ${event.rival_abbr} no 2º turno`
+            : `O ${abbr} declarou neutralidade no 2º turno`,
+          { action: { label: "Ver eleição", onClick: () => void navigate("/election") } },
+        );
+        break;
       case "PROMISES_SETTLED":
         toast.info(`O mandato do ${abbr} fechou o balanço das promessas`, {
           description: "Cumprida soma afinidade e repara rejeição; descumprida soma rejeição.",

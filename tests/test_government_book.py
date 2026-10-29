@@ -482,14 +482,17 @@ def test_donation_goes_only_to_a_finalist_and_only_from_an_eliminated_party(
     with pytest.raises(ConflictError, match="prazo"):
         book.donate(BOB, date(2021, 10, 28), finalist, Decimal(1000))
 
-    book.state.advance(date(2021, 10, 10))
-    before = book.state.parties[finalist].campaign[WORKERS]
+    race = book.state.race
+    assert race is not None
+    before = race.groups[WORKERS].votes[finalist]
     book.donate(BOB, date(2021, 10, 10), finalist, Decimal(1000))
 
     assert engine.get_cash(BOB.client_id) == eliminated_cash - 1000
-    assert book.state.parties[finalist].campaign[
-        WORKERS
-    ] == before + voters.campaign_points(Decimal(1000))
+    # A doação vira voto do finalista no grupo, tirado dos indecisos
+    unit = race.groups[WORKERS].unit
+    assert race.groups[WORKERS].votes[finalist] == pytest.approx(
+        before + voters.campaign_points(Decimal(1000)) * unit
+    )
 
 
 def test_between_rounds_only_donations_are_open(book: GovernmentBook):
@@ -1207,7 +1210,7 @@ def test_panel_publishes_the_poll_with_margin_and_the_exact_standing_to_members(
         for shown, value in zip(group.entries, real.entries, strict=True):
             assert abs(shown.points - value.points) <= group.margin
     assert poll.entries != truth.entries
-    assert published.runoff_simulation is not None
+    assert published.runoff_race is None
 
 
 # Ações avulsas de campanha
@@ -1391,16 +1394,23 @@ def test_actions_are_for_members_during_the_campaign_until_the_eve(
     book.campaign_action(ALICE, eve, CampaignActionKind.TV, None, None)
 
 
-def test_actions_close_between_the_rounds(book: GovernmentBook):
+def test_between_the_rounds_only_the_finalists_act_until_the_eve(book: GovernmentBook):
     found(book, ALICE, "AAA", RED, "8000")
     found(book, BOB, "BBB", BLUE, "2000", NICHE)
     run_campaign(book)
     book.on_tick(USERS, FIRST_ROUND, False)
+    gap = date(2021, 10, 10)
 
-    with pytest.raises(ConflictError, match="2º turno"):
-        book.campaign_action(
-            ALICE, date(2021, 10, 10), CampaignActionKind.TV, None, None
-        )
+    with pytest.raises(ConflictError, match="só os finalistas"):
+        book.campaign_action(BOB, gap, CampaignActionKind.TV, None, None)
+    with pytest.raises(ConflictError, match="véspera do 2º turno"):
+        book.campaign_action(ALICE, RUNOFF, CampaignActionKind.TV, None, None)
+
+    race = book.state.race
+    assert race is not None
+    before = race.groups[WORKERS].votes[party_of(book, ALICE).id]
+    book.campaign_action(ALICE, gap, CampaignActionKind.EVENT, WORKERS, None)
+    assert race.groups[WORKERS].votes[party_of(book, ALICE).id] >= before
 
 
 def test_campaign_support_halves_every_three_months(book: GovernmentBook, dice):

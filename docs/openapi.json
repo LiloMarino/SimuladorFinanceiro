@@ -4401,7 +4401,7 @@
           "Government"
         ],
         "summary": "Obter a eleição",
-        "description": "Retorna as datas, os grupos de eleitores, os partidos com chapa, filiados, verba, bandeiras e perfil, as pesquisas com a margem de erro (no total e por grupo), o apoio e a rejeição do partido de quem vê em cada grupo, a simulação do 2º turno, as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "description": "Retorna as datas, os grupos de eleitores, os partidos com chapa, filiados, verba, bandeiras e perfil, as pesquisas com a margem de erro (no total e por grupo), o apoio e a rejeição do partido de quem vê em cada grupo, a disputa do 2º turno (pesquisa semanal, para onde foram os votos de quem saiu, declarações e contribuições), as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
         "operationId": "get_election_api_government_election_get",
         "responses": {
           "200": {
@@ -4856,6 +4856,106 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/DonationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/runoff/endorsement": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Declarar apoio no 2º turno",
+        "description": "A fundadora do partido que ficou de fora declara apoio a um dos finalistas, ou neutralidade (sem partido no pedido). A declaração é uma só e não se desfaz: os indecisos que vieram do partido seguem o apoio na medida da confiança de cada grupo nele. Vale até a véspera do 2º turno; o partido do computador declara sozinho.",
+        "operationId": "endorse_api_government_runoff_endorsement_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndorsementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/runoff/contribution": {
+      "post": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Contribuir na campanha do 2º turno",
+        "description": "Cada filiado de finalista faz uma contribuição única, paga na hora da própria carteira. O valor rende pela raiz do total do partido, igual em todos os grupos, e sai primeiro dos indecisos de cada grupo. Vale até a véspera do 2º turno.",
+        "operationId": "contribute_runoff_api_government_runoff_contribution_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunoffContributionRequest"
               }
             }
           },
@@ -10013,13 +10113,25 @@
           "campaign": {
             "type": "string",
             "title": "Campaign"
+          },
+          "undecided": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Undecided"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
           "group",
-          "campaign"
+          "campaign",
+          "undecided"
         ],
         "title": "CampaignGroupDTO"
       },
@@ -11817,6 +11929,50 @@
         ],
         "title": "CreditRatingChangedEventDTO"
       },
+      "DeclarationDTO": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nickname"
+          },
+          "endorsed_party_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endorsed Party Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "party_id",
+          "nickname",
+          "endorsed_party_id"
+        ],
+        "title": "DeclarationDTO"
+      },
       "DiceBand": {
         "type": "string",
         "enum": [
@@ -12151,10 +12307,10 @@
             "type": "array",
             "title": "Electorate"
           },
-          "runoff_simulation": {
+          "runoff_race": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/RunoffSimulationDTO"
+                "$ref": "#/components/schemas/RunoffRaceDTO"
               },
               {
                 "type": "null"
@@ -12290,7 +12446,7 @@
           "undecided",
           "polls",
           "electorate",
-          "runoff_simulation",
+          "runoff_race",
           "finalists",
           "donations",
           "my_party",
@@ -12374,6 +12530,24 @@
         ],
         "title": "ElectorateRowDTO",
         "description": "O que um grupo acha do partido de quem vê, exato: só os filiados recebem."
+      },
+      "EndorsementRequest": {
+        "properties": {
+          "party_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "EndorsementRequest"
       },
       "EngineInfo": {
         "properties": {
@@ -13550,7 +13724,8 @@
           "MONTH_CLOSED",
           "CAMPAIGN_ACTION",
           "PROMISES_SET",
-          "PROMISES_SETTLED"
+          "PROMISES_SETTLED",
+          "ENDORSEMENT"
         ],
         "title": "GovernmentNoticeKind",
         "description": "O que o aviso em tempo real conta; o front escolhe o toast pelo tipo."
@@ -19853,6 +20028,10 @@
             "type": "integer",
             "title": "Max Promises"
           },
+          "add_only": {
+            "type": "boolean",
+            "title": "Add Only"
+          },
           "promises": {
             "items": {
               "$ref": "#/components/schemas/PromiseDTO"
@@ -19885,6 +20064,7 @@
           "closed_reason",
           "ticket_deadline",
           "max_promises",
+          "add_only",
           "promises",
           "options",
           "sectors"
@@ -20685,6 +20865,25 @@
         ],
         "title": "RoomBotRequest"
       },
+      "RoundDonationDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "amount"
+        ],
+        "title": "RoundDonationDTO"
+      },
       "RoundPartyDTO": {
         "properties": {
           "party_id": {
@@ -20806,15 +21005,23 @@
             ],
             "title": "Winner"
           },
-          "runoff": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/RunoffSimulationDTO"
-              },
-              {
-                "type": "null"
-              }
-            ]
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/GroupPollDTO"
+            },
+            "type": "array",
+            "title": "Groups"
+          },
+          "not_voted": {
+            "type": "string",
+            "title": "Not Voted"
+          },
+          "donations": {
+            "items": {
+              "$ref": "#/components/schemas/RoundDonationDTO"
+            },
+            "type": "array",
+            "title": "Donations"
           }
         },
         "additionalProperties": false,
@@ -20826,57 +21033,72 @@
           "parties",
           "finalists",
           "winner",
-          "runoff"
+          "groups",
+          "not_voted",
+          "donations"
         ],
         "title": "RoundResultDTO"
       },
-      "RunoffEntryDTO": {
+      "RunoffContributionDTO": {
         "properties": {
-          "party_id": {
-            "type": "integer",
-            "title": "Party Id"
-          },
-          "own_points": {
+          "date": {
             "type": "string",
-            "title": "Own Points"
+            "format": "date",
+            "title": "Date"
           },
-          "received_points": {
-            "type": "string",
-            "title": "Received Points"
-          },
-          "share": {
-            "type": "string",
-            "title": "Share"
-          },
-          "transfer_to": {
+          "nickname": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Transfer To"
+            "title": "Nickname"
           },
-          "donated": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "amount": {
             "type": "string",
-            "title": "Donated"
+            "title": "Amount"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "date",
+          "nickname",
           "party_id",
-          "own_points",
-          "received_points",
-          "share",
-          "transfer_to",
-          "donated"
+          "amount"
         ],
-        "title": "RunoffEntryDTO"
+        "title": "RunoffContributionDTO"
       },
-      "RunoffSimulationDTO": {
+      "RunoffContributionRequest": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "title": "RunoffContributionRequest"
+      },
+      "RunoffRaceDTO": {
         "properties": {
           "finalists": {
             "items": {
@@ -20885,27 +21107,91 @@
             "type": "array",
             "title": "Finalists"
           },
-          "entries": {
+          "polls": {
             "items": {
-              "$ref": "#/components/schemas/RunoffEntryDTO"
+              "$ref": "#/components/schemas/PollDTO"
             },
             "type": "array",
-            "title": "Entries"
+            "title": "Polls"
           },
-          "winner": {
+          "next_poll": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Poll"
+          },
+          "transfers": {
+            "items": {
+              "$ref": "#/components/schemas/TransferDTO"
+            },
+            "type": "array",
+            "title": "Transfers"
+          },
+          "declarations": {
+            "items": {
+              "$ref": "#/components/schemas/DeclarationDTO"
+            },
+            "type": "array",
+            "title": "Declarations"
+          },
+          "contributions": {
+            "items": {
+              "$ref": "#/components/schemas/RunoffContributionDTO"
+            },
+            "type": "array",
+            "title": "Contributions"
+          },
+          "my_contribution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "My Contribution"
+          },
+          "can_declare": {
+            "type": "boolean",
+            "title": "Can Declare"
+          },
+          "can_contribute": {
+            "type": "boolean",
+            "title": "Can Contribute"
+          },
+          "can_add_promise": {
+            "type": "boolean",
+            "title": "Can Add Promise"
+          },
+          "promise_limit": {
             "type": "integer",
-            "title": "Winner"
+            "title": "Promise Limit"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
           "finalists",
-          "entries",
-          "winner"
+          "polls",
+          "next_poll",
+          "transfers",
+          "declarations",
+          "contributions",
+          "my_contribution",
+          "can_declare",
+          "can_contribute",
+          "can_add_promise",
+          "promise_limit"
         ],
-        "title": "RunoffSimulationDTO",
-        "description": "A simulação do 2º turno (ou o resultado dele): em cada grupo, os eleitores de quem\nsai se dividem entre os finalistas e os indecisos, que se abstêm."
+        "title": "RunoffRaceDTO",
+        "description": "O 2º turno em andamento: pesquisa semanal, transferência dos eliminados e o que os partidos podem fazer."
       },
       "SavePresetRequest": {
         "properties": {
@@ -25049,6 +25335,111 @@
           "bytes_per_msg"
         ],
         "title": "TrafficItem"
+      },
+      "TransferDTO": {
+        "properties": {
+          "party_id": {
+            "type": "integer",
+            "title": "Party Id"
+          },
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/TransferGroupDTO"
+            },
+            "type": "array",
+            "title": "Groups"
+          },
+          "voted": {
+            "type": "string",
+            "title": "Voted"
+          },
+          "sent": {
+            "items": {
+              "$ref": "#/components/schemas/PollEntryDTO"
+            },
+            "type": "array",
+            "title": "Sent"
+          },
+          "undecided": {
+            "type": "string",
+            "title": "Undecided"
+          },
+          "declared": {
+            "type": "boolean",
+            "title": "Declared"
+          },
+          "endorsed_party_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endorsed Party Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "party_id",
+          "groups",
+          "voted",
+          "sent",
+          "undecided",
+          "declared",
+          "endorsed_party_id"
+        ],
+        "title": "TransferDTO",
+        "description": "Para onde foram os votos de um partido eliminado, grupo a grupo e no eleitorado todo."
+      },
+      "TransferGroupDTO": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VoterGroup"
+          },
+          "voted": {
+            "type": "string",
+            "title": "Voted"
+          },
+          "sent": {
+            "items": {
+              "$ref": "#/components/schemas/PollEntryDTO"
+            },
+            "type": "array",
+            "title": "Sent"
+          },
+          "undecided": {
+            "type": "string",
+            "title": "Undecided"
+          },
+          "undecided_now": {
+            "type": "string",
+            "title": "Undecided Now"
+          },
+          "trust": {
+            "type": "string",
+            "title": "Trust"
+          },
+          "would_follow": {
+            "type": "string",
+            "title": "Would Follow"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "group",
+          "voted",
+          "sent",
+          "undecided",
+          "undecided_now",
+          "trust",
+          "would_follow"
+        ],
+        "title": "TransferGroupDTO",
+        "description": "O voto de um partido eliminado dentro de um grupo e para onde ele foi, em cada 100 do grupo."
       },
       "TunnelStatusDTO": {
         "properties": {

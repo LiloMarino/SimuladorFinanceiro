@@ -55,8 +55,9 @@ export function PromisesDialog({ open, onOpenChange, abbr, groups }: PromisesDia
         <DialogHeader variant="divided">
           <DialogTitle>Promessas da chapa do {abbr}</DialogTitle>
           <DialogDescription>
-            Até 3 medidas que o governo pode propor. A promessa rende apoio desde o anúncio e é cobrada no fim do
-            mandato.
+            {panel?.add_only
+              ? `Entre os turnos a chapa acrescenta promessas, até ${panel.max_promises}. As já anunciadas não se retiram nem se trocam, e a nova rende desde o anúncio.`
+              : "Até 3 medidas que o governo pode propor. A promessa rende apoio desde o anúncio e é cobrada no fim do mandato."}
           </DialogDescription>
         </DialogHeader>
         {panel ? (
@@ -101,6 +102,8 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
   const [selected, setSelected] = useState(0);
 
   const locked = !panel.open;
+  // Entre os turnos as promessas já anunciadas ficam como estão; só entram novas
+  const fixedCount = panel.add_only ? panel.promises.length : 0;
   const complete = drafts.filter((draft) => isComplete(draft, panel.options));
   const hasIncomplete = complete.length < drafts.length;
   const request = locked ? null : { promises: complete.map(toRequest) };
@@ -135,9 +138,9 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
               <Lock />
               <AlertTitle>{panel.closed_reason}</AlertTitle>
               <AlertDescription>
-                {panel.ticket_deadline
-                  ? `As chapas fecham em ${displayDayMonth(panel.ticket_deadline)}. Até a eleição, nada muda nas promessas.`
-                  : "Até a eleição, nada muda nas promessas."}
+                {panel.add_only
+                  ? "Até a votação do 2º turno, nada muda nas promessas."
+                  : `As chapas fecham em ${displayDayMonth(panel.ticket_deadline)}. Até a eleição, nada muda nas promessas.`}
               </AlertDescription>
             </Alert>
           )}
@@ -182,7 +185,7 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
                         )}
                       </span>
                     </button>
-                    {!locked && (
+                    {!locked && index >= fixedCount && (
                       <Button
                         size="icon-xs"
                         variant="ghost"
@@ -231,7 +234,13 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
             <div className="grid min-w-0 content-start gap-4">
               {current ? (
                 <>
-                  <PromiseEditor draft={current} panel={panel} taken={taken} disabled={locked} onChange={update} />
+                  <PromiseEditor
+                    draft={current}
+                    panel={panel}
+                    taken={taken}
+                    disabled={locked || selected < fixedCount}
+                    onChange={update}
+                  />
                   {preview.isError && (
                     <Alert variant="destructive">
                       <TriangleAlert />
@@ -274,8 +283,9 @@ function PromisesForm({ panel, groups, onClose }: PromisesFormProps) {
       <DialogFooter variant="divided" className="sm:data-[variant=divided]:justify-end">
         <span className="mr-auto flex max-w-[620px] items-center gap-1.5 text-xs text-muted-foreground">
           <Info className="size-3.5 shrink-0" />
-          No anúncio, a sala vê as promessas e elas passam a render. Depois dele, trocar, retirar ou baixar o alvo custa
-          rejeição.
+          {panel.add_only
+            ? "No anúncio, a sala vê a promessa nova e ela passa a render no voto de cada grupo."
+            : "No anúncio, a sala vê as promessas e elas passam a render. Depois dele, trocar, retirar ou baixar o alvo custa rejeição."}
         </span>
         <Button variant="outline" onClick={onClose}>
           Cancelar

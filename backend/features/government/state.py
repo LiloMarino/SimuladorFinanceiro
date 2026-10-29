@@ -22,7 +22,7 @@ from backend.core.enum import (
 )
 from backend.core.enum import GovernmentEventType as Event
 from backend.core.utils import required
-from backend.features.government import campaign, promises, voters
+from backend.features.government import campaign, promises, second_round, voters
 from backend.features.government.computer_parties import COMPUTER_FLAGS
 from backend.features.government.promises import GroupEffects, Promise
 
@@ -223,6 +223,34 @@ class CampaignRecord:
 
 
 @dataclass(frozen=True)
+class RunoffPoll:
+    """A pesquisa semanal entre os turnos: o voto exato de cada grupo no dia."""
+
+    day: date
+    vote: voters.Vote
+
+
+@dataclass(frozen=True)
+class RunoffContribution:
+    """A contribuição única de 2º turno de um filiado do finalista (nulo no computador)."""
+
+    day: date
+    user_id: int | None
+    party_id: int
+    amount: Decimal
+
+
+@dataclass(frozen=True)
+class Declaration:
+    """O apoio declarado pelo partido eliminado; `endorsed_id` nulo é neutralidade."""
+
+    day: date
+    party_id: int
+    user_id: int | None
+    endorsed_id: int | None
+
+
+@dataclass(frozen=True)
 class Ticket:
     """A chapa e os dados do partido na apuração, guardados como estavam."""
 
@@ -254,6 +282,9 @@ class RoundResult:
     # No 2º turno: para qual finalista foram os eleitores de cada partido que saiu
     transfers: dict[int, int]
     donations: dict[int, Decimal]
+    # No 2º turno: o voto de cada grupo entre os finalistas e quem não votou, em pontos do eleitorado
+    groups: dict[VoterGroup, voters.GroupVote] = field(default_factory=dict)
+    not_voted: Decimal = Decimal(0)
 
 
 @dataclass(frozen=True)
@@ -330,6 +361,13 @@ class GovernmentState:
     results: list[RoundResult] = field(default_factory=list)
     # Finalistas enquanto o 2º turno não acontece
     runoff: list[int] | None = None
+    # A disputa do 2º turno por grupo, o dia do 1º turno, as pesquisas semanais, as
+    # contribuições únicas e os apoios declarados pelos partidos eliminados
+    race: second_round.Race | None = None
+    race_started: date | None = None
+    race_polls: list[RunoffPoll] = field(default_factory=list)
+    race_contributions: list[RunoffContribution] = field(default_factory=list)
+    declarations: list[Declaration] = field(default_factory=list)
     # A verba de base e as ações avulsas da campanha em curso
     charges: list[BaseCharge] = field(default_factory=list)
     actions: list[CampaignRecord] = field(default_factory=list)
@@ -368,12 +406,26 @@ class GovernmentState:
         group: VoterGroup | None,
         day: date,
     ) -> int:
-        """Quantas vezes o partido fez a mesma ação no mesmo grupo no mês de `day`."""
+        """
+        Quantas vezes o partido fez a mesma ação no mesmo grupo no mês de `day`; a contagem
+        recomeça no dia seguinte ao 1º turno.
+        """
+        since = date(day.year, day.month, 1)
+        if self.race_started is not None:
+            since = max(since, self.race_started + timedelta(days=1))
         return sum(
             1
             for a in self.actions
             if (a.party_id, a.kind, a.group) == (party_id, kind, group)
             and (a.day.year, a.day.month) == (day.year, day.month)
+            and a.day >= since
+        )
+
+    def runoff_total(self, party_id: int) -> Decimal:
+        """Quanto o partido já contribuiu no 2º turno."""
+        return sum(
+            (c.amount for c in self.race_contributions if c.party_id == party_id),
+            Decimal(0),
         )
 
     def party_of(self, user_id: int) -> Party | None:
@@ -480,10 +532,20 @@ def apply(state: GovernmentState, event: GovernmentEventDTO) -> None:
             amount = _money(p, "amount")
             party = state.parties[party_id]
             party.spent += amount
-            party.add_campaign(amount)
+            if state.race is not None:
+                state.race.gain(party_id, voters.campaign_points(amount))
+            else:
+                party.add_campaign(amount)
             state.donations.append(Donation(day, _int(p, "user_id"), party_id, amount))
         case Event.CAMPAIGN_ACTION:
             _apply_action(state, event)
+        case Event.RUNOFF_POLL:
+            if state.race is not None:
+                state.race_polls.append(RunoffPoll(day, state.race.vote()))
+        case Event.RUNOFF_ENDORSED:
+            _apply_endorsement(state, event)
+        case Event.RUNOFF_CONTRIBUTION:
+            _apply_runoff_contribution(state, event)
         case Event.ELECTION_ROUND:
             _apply_round(state, event)
         case Event.TERM_STARTED:
@@ -625,11 +687,15 @@ def _apply_round(state: GovernmentState, event: GovernmentEventDTO) -> None:
         tickets=tickets,
         transfers={int(a): int(b) for a, b in _dict(p, "transfers").items()},  # type: ignore[call-overload]
         donations=_money_map(p, "donations"),
+        groups=_group_votes(p),
+        not_voted=Decimal(str(p.get("not_voted", 0))),
     )
     state.results.append(result)
     # Sem finalistas ninguém concorreu: o governo continua do computador
     if winner is None and result.finalists:
         state.runoff = result.finalists
+        if len(result.finalists) == 2:
+            _start_race(state, result, tickets)
         return
 
     ticket = tickets.get(winner) if winner is not None else None
@@ -664,6 +730,11 @@ def _apply_round(state: GovernmentState, event: GovernmentEventDTO) -> None:
             party.promises = []
     # A campanha seguinte recomeça do zero: os partidos ficam, o apoio não
     state.runoff = None
+    state.race = None
+    state.race_started = None
+    state.race_polls = []
+    state.race_contributions = []
+    state.declarations = []
     state.cycle += 1
     state.polls = []
     state.donations = []
@@ -710,13 +781,94 @@ def _apply_action(state: GovernmentState, event: GovernmentEventDTO) -> None:
     state.actions.append(record)
     party.spent += record.price
     target = state.parties.get(record.target_id)
-    if target is not None and result.support != 0:
-        for affected in [group] if group else list(VoterGroup):
+    affected_groups = [group] if group else list(VoterGroup)
+    if state.race is not None:
+        # Entre os turnos o efeito mexe no voto do grupo, e o ataque que sai pela culatra
+        # tira votos de quem atacou
+        if result.support != 0:
+            state.race.gain(record.target_id, result.support, affected_groups)
+    elif target is not None and result.support != 0:
+        for affected in affected_groups:
             target.campaign[affected] += result.support
     if group is not None and result.rejection != 0:
         party.rejection[group] = voters.clamp(party.rejection[group] + result.rejection)
         if result.rejection < 0:
             party.repaired[group] += -result.rejection
+
+
+def _party_net(party: Party, group: VoterGroup) -> Decimal:
+    """A afinidade do grupo com o partido (com a que as promessas cumpridas somaram) menos a rejeição."""
+    return (
+        voters.affinity(group, party.radar)
+        + party.loyalty[group]
+        - party.rejection[group]
+    )
+
+
+def _start_race(
+    state: GovernmentState, result: RoundResult, tickets: dict[int, Ticket]
+) -> None:
+    """O 1º turno sem vencedor abre o 2º: a transferência dos eliminados é calculada ali."""
+    running = [state.parties[pid] for pid in tickets if pid in state.parties]
+    state.race = second_round.start(
+        {p.id: p.standings() for p in running},
+        {p.id: {g: _party_net(p, g) for g in VoterGroup} for p in running},
+        (result.finalists[0], result.finalists[1]),
+    )
+    state.race_started = result.day
+    state.race_polls = []
+    state.race_contributions = []
+    state.declarations = []
+
+
+def _apply_endorsement(state: GovernmentState, event: GovernmentEventDTO) -> None:
+    """O eliminado declara apoio (ou neutralidade) uma vez; os indecisos dele seguem pela confiança."""
+    p = event.payload
+    race = state.race
+    party = state.parties.get(_int(p, "party_id"))
+    if race is None or party is None or party.id in race.endorsements:
+        return
+    endorsed = _opt_int(p, "endorsed_id")
+    trust = {
+        g: second_round.trust(
+            voters.affinity(g, party.radar) + party.loyalty[g], party.rejection[g]
+        )
+        for g in VoterGroup
+    }
+    race.endorse(party.id, endorsed, trust)
+    state.declarations.append(
+        Declaration(event.event_date, party.id, _opt_int(p, "user_id"), endorsed)
+    )
+
+
+def _apply_runoff_contribution(
+    state: GovernmentState, event: GovernmentEventDTO
+) -> None:
+    """A contribuição única rende a diferença da raiz do total do partido, em todos os grupos."""
+    p = event.payload
+    race = state.race
+    party = state.parties.get(_int(p, "party_id"))
+    if race is None or party is None:
+        return
+    amount = _money(p, "amount")
+    before = state.runoff_total(party.id)
+    state.race_contributions.append(
+        RunoffContribution(event.event_date, _opt_int(p, "user_id"), party.id, amount)
+    )
+    party.spent += amount
+    race.gain(party.id, second_round.contribution_points(before + amount, before))
+
+
+def _group_votes(p: dict[str, object]) -> dict[VoterGroup, voters.GroupVote]:
+    """O voto por grupo guardado no 2º turno; ausente nos eventos antigos, vazio."""
+    stored = p.get("groups") or {}
+    return {
+        VoterGroup(group): voters.GroupVote(
+            shares=_money_map(value, "shares"),
+            undecided=Decimal(str(value["undecided"])),
+        )
+        for group, value in stored.items()  # type: ignore[attr-defined]
+    }
 
 
 def _apply_promises_set(state: GovernmentState, event: GovernmentEventDTO) -> None:
@@ -737,7 +889,16 @@ def _apply_promises_set(state: GovernmentState, event: GovernmentEventDTO) -> No
             party.rejection[group] = voters.add_rejection(
                 party.rejection[group], amount
             )
+    previous = party.promises
     party.promises = new
+    # Entre os turnos a promessa acrescentada rende na hora, no voto de cada grupo
+    if state.race is not None and party.id in state.race.finalists:
+        for group in VoterGroup:
+            gained = promises.campaign_yield(
+                new, group, party.rejection[group]
+            ) - promises.campaign_yield(previous, group, party.rejection[group])
+            if gained != 0:
+                state.race.gain(party.id, gained, [group])
 
 
 def _apply_promises_weighed(state: GovernmentState, event: GovernmentEventDTO) -> None:

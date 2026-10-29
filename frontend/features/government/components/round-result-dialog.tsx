@@ -12,6 +12,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import { displayDayMonth, displayShortDate, displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionRound } from "@/types";
+import { GROUP_INFO, pollPoints } from "../lib/voters";
 import { PartyMark, PersonMark } from "./party-mark";
 import { PromiseBadges } from "./promise-badges";
 
@@ -30,7 +31,7 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
   const ranked = result
     ? [...result.parties].sort((a, b) => Number(b.share) - Number(a.share) || a.party_id - b.party_id)
     : [];
-  const donations = result?.runoff?.entries.filter((entry) => Number(entry.donated) > 0) ?? [];
+  const donations = result?.donations.filter((entry) => Number(entry.amount) > 0) ?? [];
   const canDonate = panel?.can_donate ?? false;
 
   return (
@@ -73,6 +74,29 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
                   ))}
                 </div>
 
+                {result.round === 2 && (
+                  <div className="grid gap-1.5 text-xs text-muted-foreground">
+                    <span className="text-sm font-medium text-foreground">
+                      Por grupo de eleitores · não votaram {Number(result.not_voted).toFixed(1).replace(".", ",")}% do
+                      eleitorado
+                    </span>
+                    {result.groups.map((group) => {
+                      const points = pollPoints(group.entries);
+                      return (
+                        <span key={group.group} className="flex flex-wrap justify-between gap-x-3">
+                          <span>{GROUP_INFO[group.group].label}</span>
+                          <span className="font-mono">
+                            {finalists
+                              .map((party) => `${party.abbr} ${Math.round(points.get(party.party_id) ?? 0)}`)
+                              .join(" · ")}
+                            {` · indecisos ${Math.round(Number(group.undecided))}`}
+                          </span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
                 {winner ? (
                   <Alert variant="success">
                     <Trophy />
@@ -99,8 +123,8 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
                     <Gavel />
                     <AlertTitle>Vai ao 2º turno: {finalists.map((party) => party.abbr).join(" e ")}</AlertTitle>
                     <AlertDescription>
-                      Ninguém passou de 50% dos votos válidos. Os eleitores dos partidos que ficaram de fora vão para o
-                      finalista com a promessa mais parecida.
+                      Ninguém passou de 50% dos votos válidos. Os eleitores dos partidos que ficaram de fora se dividem
+                      entre os finalistas e os indecisos, e a disputa continua até a votação.
                       {panel && ` O 2º turno é em ${displayShortDate(panel.dates.runoff)}.`}
                     </AlertDescription>
                   </Alert>
@@ -113,7 +137,7 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
                       {displayDayMonth(panel.dates.donation_deadline)}
                     </AlertTitle>
                     <AlertDescription>
-                      A favor de quem lidera ou contra. A doação é pública e sai do patrimônio de quem doa.
+                      A doação é pública, sai do patrimônio de quem doa e vira verba do finalista.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -125,7 +149,7 @@ export function RoundResultDialog({ result, panel, onClose, onOpenPage }: RoundR
                       const party = result.parties.find((p) => p.party_id === entry.party_id);
                       return (
                         <span key={entry.party_id}>
-                          {party?.abbr}: {displayMoney(entry.donated)} doados
+                          {party?.abbr}: {displayMoney(entry.amount)} doados
                         </span>
                       );
                     })}

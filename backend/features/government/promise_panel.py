@@ -21,7 +21,7 @@ from backend.core.dto.promises import (
 )
 from backend.core.dto.user import UserDTO
 from backend.core.enum import MeasureKind, VoterGroup
-from backend.features.government import congress, promises, voters
+from backend.features.government import congress, promises, second_round, voters
 from backend.features.government import measures as rules
 from backend.features.government.government_book import (
     RATE_LIMIT,
@@ -96,7 +96,7 @@ def build_promises_panel(
     sectors: list[SectorOptionDTO],
 ) -> PromisesPanelDTO:
     party = book.founded_party(viewer)
-    reason = book.promises_open_reason(today)
+    reason = book.promises_open_reason(today, party)
     return PromisesPanelDTO(
         party_id=party.id,
         party_abbr=party.abbr,
@@ -104,7 +104,12 @@ def build_promises_panel(
         open=reason is None,
         closed_reason=reason,
         ticket_deadline=book.cycle().ticket_deadline,
-        max_promises=promises.MAX_PROMISES,
+        max_promises=(
+            second_round.MAX_PROMISES
+            if book.state.runoff is not None
+            else promises.MAX_PROMISES
+        ),
+        add_only=book.state.runoff is not None,
         promises=[promise_dto(p) for p in party.promises],
         options=[
             PromiseOptionDTO(

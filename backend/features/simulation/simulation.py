@@ -524,6 +524,14 @@ class Simulation:
         self._ensure_government().donate(user, self._current_date, party_id, amount)
 
     @synchronized
+    def endorse(self, user: UserDTO, party_id: int | None) -> None:
+        self._ensure_government().endorse(user, self._current_date, party_id)
+
+    @synchronized
+    def contribute_runoff(self, user: UserDTO, amount: Decimal) -> None:
+        self._ensure_government().contribute_runoff(user, self._current_date, amount)
+
+    @synchronized
     def get_governance(self, user: UserDTO) -> GovernmentPanelDTO:
         return build_governance(
             self._ensure_government(),

@@ -11,6 +11,7 @@ from backend.core.dto.government import (
     ContributionRequest,
     DonationRequest,
     ElectionPanelDTO,
+    EndorsementRequest,
     ExpelRequest,
     FoundPartyRequest,
     GovernmentPanelDTO,
@@ -19,6 +20,7 @@ from backend.core.dto.government import (
     PartyFlagsRequest,
     PromisesPanelDTO,
     ProposeMeasureRequest,
+    RunoffContributionRequest,
     TicketRequest,
     ViceAnswerRequest,
 )
@@ -31,7 +33,7 @@ government_router = APIRouter(prefix="/api/government", tags=["Government"])
     "/election",
     response_model=ElectionPanelDTO,
     summary="Obter a eleição",
-    description="Retorna as datas, os grupos de eleitores, os partidos com chapa, filiados, verba, bandeiras e perfil, as pesquisas com a margem de erro (no total e por grupo), o apoio e a rejeição do partido de quem vê em cada grupo, a simulação do 2º turno, as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+    description="Retorna as datas, os grupos de eleitores, os partidos com chapa, filiados, verba, bandeiras e perfil, as pesquisas com a margem de erro (no total e por grupo), o apoio e a rejeição do partido de quem vê em cada grupo, a disputa do 2º turno (pesquisa semanal, para onde foram os votos de quem saiu, declarações e contribuições), as doações, o resultado dos turnos, o governo em vigor e o ranking de jogadores e de partidos. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
 )
 def get_election(simulation: ActiveSimulation, user: CurrentUser):
     return simulation.get_election(user)
@@ -140,6 +142,32 @@ def answer_vice(
 )
 def donate(simulation: ActiveSimulation, user: CurrentUser, payload: DonationRequest):
     simulation.donate_to_party(user, payload.party_id, payload.amount)
+
+
+@government_router.post(
+    "/runoff/endorsement",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Declarar apoio no 2º turno",
+    description="A fundadora do partido que ficou de fora declara apoio a um dos finalistas, ou neutralidade (sem partido no pedido). A declaração é uma só e não se desfaz: os indecisos que vieram do partido seguem o apoio na medida da confiança de cada grupo nele. Vale até a véspera do 2º turno; o partido do computador declara sozinho.",
+)
+def endorse(
+    simulation: ActiveSimulation, user: CurrentUser, payload: EndorsementRequest
+):
+    simulation.endorse(user, payload.party_id)
+
+
+@government_router.post(
+    "/runoff/contribution",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Contribuir na campanha do 2º turno",
+    description="Cada filiado de finalista faz uma contribuição única, paga na hora da própria carteira. O valor rende pela raiz do total do partido, igual em todos os grupos, e sai primeiro dos indecisos de cada grupo. Vale até a véspera do 2º turno.",
+)
+def contribute_runoff(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    payload: RunoffContributionRequest,
+):
+    simulation.contribute_runoff(user, payload.amount)
 
 
 @government_router.get(

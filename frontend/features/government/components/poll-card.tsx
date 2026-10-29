@@ -3,7 +3,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { displayList, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty, ElectionPoll } from "@/types";
-import { INTENTION, POLL_MARGIN, RUNOFF, VALID_SHARE } from "../lib/election-metrics";
+import { INTENTION, POLL_MARGIN, VALID_SHARE } from "../lib/election-metrics";
 import {
   GROUP_INFO,
   inTechnicalTie,
@@ -15,7 +15,7 @@ import {
   pollPoints,
 } from "../lib/voters";
 import { GroupPollBar } from "./group-poll-bar";
-import { PersonMark, PartyMark } from "./party-mark";
+import { PartyMark } from "./party-mark";
 import { PollChart } from "./poll-chart";
 import { PollLegend } from "./poll-legend";
 import { PromiseBadges } from "./promise-badges";
@@ -26,7 +26,7 @@ const WIN_LINE = 0.5;
 
 type PollCardProps = { panel: ElectionPanel };
 
-/** A pesquisa mensal e pública: a corrida com a margem, o 1º turno de hoje, cada grupo e a simulação do 2º turno. */
+/** A pesquisa mensal e pública: a corrida com a margem, o 1º turno de hoje, e cada grupo. */
 export function PollCard({ panel }: PollCardProps) {
   const latest = panel.polls.at(-1);
   const parties = partyOrder(panel.parties);
@@ -143,8 +143,6 @@ function PollBody({ panel, poll, parties }: PollBodyProps) {
       </div>
 
       <GroupBreakdown panel={panel} poll={poll} parties={parties} />
-
-      <RunoffSimulation panel={panel} />
     </>
   );
 }
@@ -257,65 +255,6 @@ function GroupBreakdown({ panel, poll, parties }: PollBodyProps) {
           );
         })}
       </div>
-    </div>
-  );
-}
-
-function RunoffSimulation({ panel }: { panel: ElectionPanel }) {
-  const simulation = panel.runoff_simulation;
-  const byId = new Map(panel.parties.map((party) => [party.id, party]));
-  const finalists = simulation?.finalists.map((id) => byId.get(id)).filter((party) => party !== undefined) ?? [];
-  if (!simulation || finalists.length !== 2) return null;
-  const finalistEntries = simulation.entries.filter((entry) => simulation.finalists.includes(entry.party_id));
-
-  return (
-    <div className="grid gap-2.5 border-t pt-4">
-      <span className="text-xs font-medium">
-        <MetricLabel metric={RUNOFF} />
-      </span>
-      <div className="grid gap-1.5">
-        <div className="flex justify-between gap-2 text-[13px]">
-          {finalists.map((party) => (
-            <span key={party.id} className="inline-flex min-w-0 items-center gap-1.5">
-              {party.candidate && <PersonMark person={party.candidate} />}
-              <span className="truncate">{party.candidate?.name ?? party.name}</span>
-              <PartyMark abbr={party.abbr} color={party.color} size="sm" />
-            </span>
-          ))}
-        </div>
-        <div className="flex h-3 overflow-hidden rounded-full bg-muted">
-          {finalistEntries.map((entry) => {
-            const party = byId.get(entry.party_id);
-            return (
-              <span
-                key={entry.party_id}
-                style={{
-                  width: `${Number(entry.share) * 100}%`,
-                  backgroundColor: party ? partyFill(party) : undefined,
-                }}
-              />
-            );
-          })}
-        </div>
-        <div className="flex justify-between font-mono text-[13px] font-semibold">
-          {finalistEntries.map((entry) => (
-            <span key={entry.party_id}>{displayPercent(entry.share, 0)}</span>
-          ))}
-        </div>
-      </div>
-      {simulation.entries
-        .filter((entry) => entry.transfer_to !== null)
-        .map((entry) => {
-          const from = byId.get(entry.party_id);
-          const to = entry.transfer_to !== null ? byId.get(entry.transfer_to) : undefined;
-          if (!from || !to) return null;
-          return (
-            <span key={entry.party_id} className="text-xs text-muted-foreground">
-              Os eleitores do {from.abbr} se dividem entre os finalistas pelo saldo de cada um no grupo; a maior parte
-              vai para o {to.abbr}.
-            </span>
-          );
-        })}
     </div>
   );
 }

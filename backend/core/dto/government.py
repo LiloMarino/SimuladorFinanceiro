@@ -176,27 +176,69 @@ class PollDTO(BaseDTO):
     groups: list[GroupPollDTO]
 
 
-class RunoffEntryDTO(BaseDTO):
+class TransferGroupDTO(BaseDTO):
+    """O voto de um partido eliminado dentro de um grupo e para onde ele foi, em cada 100 do grupo."""
+
+    group: VoterGroup
+    voted: Decimal
+    # O que cada finalista recebeu no 1º turno
+    sent: list[PollEntryDTO]
+    # Os que ficaram indecisos na hora, e os que ainda estão
+    undecided: Decimal
+    undecided_now: Decimal
+    # Confiança do grupo no partido eliminado (de 0 a 1), que decide quantos indecisos a declaração leva
+    trust: Decimal
+    # Quantos eleitores do grupo (em cada 100) mudariam do indeciso para o finalista apoiado se o partido declarasse hoje
+    would_follow: Decimal
+
+
+class TransferDTO(BaseDTO):
+    """Para onde foram os votos de um partido eliminado, grupo a grupo e no eleitorado todo."""
+
     party_id: int
-    # Votos próprios, os que vieram de quem saiu e a fatia final
-    own_points: Decimal
-    received_points: Decimal
-    share: Decimal
-    # Para quem foram os eleitores deste partido; nulo para finalista
-    transfer_to: int | None
-    # Doado a este partido entre os turnos
-    donated: Decimal
+    groups: list[TransferGroupDTO]
+    # Em cada 100 eleitores do país: os que votaram nele, os que foram a cada finalista e os que ficaram indecisos
+    voted: Decimal
+    sent: list[PollEntryDTO]
+    undecided: Decimal
+    # A declaração de apoio dele, quando houve; `declared` distingue neutralidade de silêncio
+    declared: bool
+    endorsed_party_id: int | None
 
 
-class RunoffSimulationDTO(BaseDTO):
-    """
-    A simulação do 2º turno (ou o resultado dele): em cada grupo, os eleitores de quem
-    sai se dividem entre os finalistas e os indecisos, que se abstêm.
-    """
+class DeclarationDTO(BaseDTO):
+    date: date
+    party_id: int
+    # Quem declarou; nulo no partido do computador
+    nickname: str | None
+    # Nulo é neutralidade
+    endorsed_party_id: int | None
+
+
+class RunoffContributionDTO(BaseDTO):
+    date: date
+    # Nulo no finalista do computador
+    nickname: str | None
+    party_id: int
+    amount: Decimal
+
+
+class RunoffRaceDTO(BaseDTO):
+    """O 2º turno em andamento: pesquisa semanal, transferência dos eliminados e o que os partidos podem fazer."""
 
     finalists: list[int]
-    entries: list[RunoffEntryDTO]
-    winner: int
+    # As pesquisas semanais publicadas, com a margem de cada grupo
+    polls: list[PollDTO]
+    next_poll: date | None
+    transfers: list[TransferDTO]
+    declarations: list[DeclarationDTO]
+    contributions: list[RunoffContributionDTO]
+    # O que o filiado de quem vê já contribuiu; nulo se ainda não contribuiu
+    my_contribution: Decimal | None
+    can_declare: bool
+    can_contribute: bool
+    can_add_promise: bool
+    promise_limit: int
 
 
 class RoundPartyDTO(BaseDTO):
@@ -213,6 +255,11 @@ class RoundPartyDTO(BaseDTO):
     promises: list[PromiseDTO]
 
 
+class RoundDonationDTO(BaseDTO):
+    party_id: int
+    amount: Decimal
+
+
 class RoundResultDTO(BaseDTO):
     date: date
     election_year: int
@@ -221,7 +268,11 @@ class RoundResultDTO(BaseDTO):
     finalists: list[int]
     # Nulo quando o 1º turno não decidiu
     winner: int | None
-    runoff: RunoffSimulationDTO | None
+    # No 2º turno: o voto de cada grupo entre os finalistas, exato, e quem não votou (em pontos do eleitorado)
+    groups: list[GroupPollDTO]
+    not_voted: Decimal
+    # O que se doou a cada finalista entre os turnos
+    donations: list[RoundDonationDTO]
 
 
 class DonationDTO(BaseDTO):
@@ -314,8 +365,8 @@ class ElectionPanelDTO(BaseDTO):
     polls: list[PollDTO]
     # Apoio e rejeição do partido de quem vê em cada grupo; vazio para quem não é filiado
     electorate: list[ElectorateRowDTO]
-    # A simulação do 2º turno entre os dois primeiros de hoje; nula com menos de 2 partidos
-    runoff_simulation: RunoffSimulationDTO | None
+    # Entre os turnos: a disputa do 2º turno
+    runoff_race: RunoffRaceDTO | None
     # Entre os turnos: os finalistas e as doações já feitas
     finalists: list[int]
     donations: list[DonationDTO]
@@ -544,6 +595,8 @@ class PromisesPanelDTO(BaseDTO):
     # A lista trava quando as chapas fecham
     ticket_deadline: date
     max_promises: int
+    # Entre os turnos as promessas só se acrescentam: nenhuma sai nem muda
+    add_only: bool
     promises: list[PromiseDTO]
     options: list[PromiseOptionDTO]
     sectors: list[SectorOptionDTO]
@@ -621,3 +674,12 @@ class ViceAnswerRequest(BaseDTO):
 class DonationRequest(BaseDTO):
     party_id: int
     amount: Annotated[Decimal, Field(gt=0, max_digits=14, decimal_places=2)]
+
+
+class RunoffContributionRequest(BaseDTO):
+    amount: Annotated[Decimal, Field(gt=0, max_digits=14, decimal_places=2)]
+
+
+class EndorsementRequest(BaseDTO):
+    # Nulo é neutralidade
+    party_id: int | None = None

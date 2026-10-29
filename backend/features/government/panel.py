@@ -8,7 +8,6 @@ from backend.core.dto.government import (
     ElectionDatesDTO,
     ElectionPanelDTO,
     ElectorateRowDTO,
-    GroupPollDTO,
     GroupScoreDTO,
     MyPartyDTO,
     MyViceDTO,
@@ -17,13 +16,10 @@ from backend.core.dto.government import (
     PartyMemberDTO,
     PartyStandingDTO,
     PlayerStandingDTO,
-    PollDTO,
-    PollEntryDTO,
     ProfileMoveDTO,
+    RoundDonationDTO,
     RoundPartyDTO,
     RoundResultDTO,
-    RunoffEntryDTO,
-    RunoffSimulationDTO,
     TermDTO,
     ValueMoveDTO,
     ValueScoreDTO,
@@ -34,16 +30,16 @@ from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import ElectionPhase, GameType, VicePhase, VoterGroup, VoterValue
 from backend.core.runtime.user_manager import UserManager
-from backend.core.utils import required
 from backend.features.government import election, voters
 from backend.features.government import measures as rules
 from backend.features.government.calendar import ElectionCycle
 from backend.features.government.government_book import GovernmentBook
+from backend.features.government.poll_panel import group_polls, poll_dto, publish
 from backend.features.government.promise_panel import promise_dto, record_dto
+from backend.features.government.runoff_panel import build_race
 from backend.features.government.state import (
     GovernmentState,
     Party,
-    Poll,
     RoundResult,
     Term,
     Ticket,
@@ -69,7 +65,10 @@ def build_panel(
     cycle = book.cycle(
         state.cycle - 1 if phase is ElectionPhase.AWAITING_TERM else None
     )
-    published = [_published(p, book.seed, settings.poll_margin) for p in state.polls]
+    published = [
+        publish(voters.vote(p.standings), p.day, book.seed, settings.poll_margin)
+        for p in state.polls
+    ]
     latest = published[-1] if published else None
 
     in_campaign = phase is ElectionPhase.CAMPAIGN
@@ -99,11 +98,15 @@ def build_panel(
         ],
         undecided=latest.undecided if latest else voters.HUNDRED,
         polls=[
-            _poll(poll.day, vote, settings.poll_margin)
+            poll_dto(poll.day, vote, settings.poll_margin)
             for poll, vote in zip(state.polls, published, strict=True)
         ],
         electorate=_electorate(state, mine) if mine is not None else [],
-        runoff_simulation=_simulation(state, latest),
+        runoff_race=(
+            build_race(book, settings, viewer, people, today)
+            if state.race is not None
+            else None
+        ),
         finalists=state.runoff or [],
         donations=[
             DonationDTO(
@@ -170,53 +173,6 @@ def _group(group: VoterGroup) -> VoterGroupDTO:
         flag_affinity=_scores(
             {v: voters.AFFINITY_PER_POSITION * pos for v, pos in positions.items()}
         ),
-    )
-
-
-def _published(poll: Poll, seed: int, with_margin: bool) -> voters.Vote:
-    """
-    A pesquisa como sai: o voto de cada grupo com o erro sorteado dentro da margem do
-    grupo, e o total somado deles. Assim o total e as barras dos grupos batem, e o erro
-    do total fica perto dos 3 pontos que a pesquisa anuncia.
-    """
-    exact = voters.vote(poll.standings)
-    if not with_margin:
-        return exact
-    groups = {}
-    for group, result in exact.groups.items():
-        shares = {
-            pid: voters.published(
-                value, voters.MARGINS[group], seed, poll.day, group.value, pid
-            )
-            for pid, value in result.shares.items()
-        }
-        rest = voters.HUNDRED - sum(shares.values(), Decimal(0))
-        groups[group] = voters.GroupVote(shares, max(Decimal(0), rest))
-    return voters.combine(groups)
-
-
-def _entries(points: dict[int, Decimal]) -> list[PollEntryDTO]:
-    return [
-        PollEntryDTO(party_id=pid, points=value)
-        for pid, value in sorted(points.items())
-    ]
-
-
-def _poll(day: date, vote: voters.Vote, with_margin: bool) -> PollDTO:
-    return PollDTO(
-        date=day,
-        entries=_entries(vote.total),
-        undecided=vote.undecided,
-        margin=voters.TOTAL_MARGIN if with_margin else 0,
-        groups=[
-            GroupPollDTO(
-                group=group,
-                entries=_entries(result.shares),
-                undecided=result.undecided,
-                margin=voters.MARGINS[group] if with_margin else 0,
-            )
-            for group, result in vote.groups.items()
-        ],
     )
 
 
@@ -400,34 +356,6 @@ def _party(
     )
 
 
-def _simulation(
-    state: GovernmentState, latest: voters.Vote | None
-) -> RunoffSimulationDTO | None:
-    """O 2º turno pela última pesquisa publicada, entre os finalistas ou os dois primeiros dela."""
-    if latest is None:
-        return None
-    finalists = state.runoff or election.top_two(latest.total)
-    if len(finalists) < 2:
-        return None
-    result = election.runoff(latest, finalists)
-    entries = []
-    for pid, own in sorted(latest.total.items()):
-        is_finalist = pid in finalists
-        entries.append(
-            RunoffEntryDTO(
-                party_id=pid,
-                own_points=own,
-                received_points=result.votes[pid] - own if is_finalist else Decimal(0),
-                share=result.shares.get(pid, Decimal(0)),
-                transfer_to=None if is_finalist else result.transfers[pid],
-                donated=Decimal(0),
-            )
-        )
-    return RunoffSimulationDTO(
-        finalists=finalists, entries=entries, winner=result.winner_id
-    )
-
-
 def _round(
     result: RoundResult, state: GovernmentState, people: dict[int, UserDTO]
 ) -> RoundResultDTO:
@@ -435,13 +363,6 @@ def _round(
         _round_party(pid, ticket, result, people)
         for pid, ticket in sorted(result.tickets.items())
     ]
-    runoff = None
-    if result.round == 2:
-        first = next(
-            (r for r in state.results if r.cycle == result.cycle and r.round == 1),
-            None,
-        )
-        runoff = _stored_runoff(result, first)
     return RoundResultDTO(
         date=result.day,
         election_year=result.day.year,
@@ -449,35 +370,15 @@ def _round(
         parties=parties,
         finalists=result.finalists,
         winner=result.winner_id,
-        runoff=runoff,
-    )
-
-
-def _stored_runoff(
-    result: RoundResult, first: RoundResult | None
-) -> RunoffSimulationDTO:
-    """
-    O 2º turno como foi apurado: o finalista tem guardado o voto final, e o que ele
-    trazia é o do 1º turno; a diferença veio de quem saiu (e das doações).
-    """
-    entries = []
-    for pid in sorted(result.points):
-        total = result.points[pid]
-        own = total
-        if pid in result.finalists and first is not None:
-            own = min(total, first.points.get(pid, total))
-        entries.append(
-            RunoffEntryDTO(
-                party_id=pid,
-                own_points=own,
-                received_points=total - own,
-                share=result.shares.get(pid, Decimal(0)),
-                transfer_to=result.transfers.get(pid),
-                donated=result.donations.get(pid, Decimal(0)),
-            )
-        )
-    return RunoffSimulationDTO(
-        finalists=result.finalists, entries=entries, winner=required(result.winner_id)
+        groups=group_polls(
+            voters.combine(result.groups),
+            with_margin=False,
+        ),
+        not_voted=result.not_voted,
+        donations=[
+            RoundDonationDTO(party_id=pid, amount=amount)
+            for pid, amount in sorted(result.donations.items())
+        ],
     )
 
 

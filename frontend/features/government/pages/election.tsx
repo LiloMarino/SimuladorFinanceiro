@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Flag, Lock, MailQuestion, UserPlus, HandCoins } from "lucide-react";
+import { Flag, Lock, MailQuestion, UserPlus, HandCoins, Megaphone, PiggyBank, ScrollText } from "lucide-react";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
@@ -13,6 +13,7 @@ import { CampaignSection } from "../components/campaign-section";
 import { ChooseFlagsDialog } from "../components/choose-flags-dialog";
 import { ContributionDialog } from "../components/contribution-dialog";
 import { DonateDialog } from "../components/donate-dialog";
+import { EndorseDialog } from "../components/endorse-dialog";
 import { ElectionHeader } from "../components/election-header";
 import { ElectorateCard } from "../components/electorate-card";
 import { BeforeCampaignEmpty, ElectionError, ElectionSkeleton } from "../components/election-states";
@@ -26,6 +27,8 @@ import { PartyProfilesCard } from "../components/party-profiles-card";
 import { PollCard } from "../components/poll-card";
 import { PromisesDialog } from "../components/promises-dialog";
 import { RankingCard } from "../components/ranking-card";
+import { RunoffContributionDialog } from "../components/runoff-contribution-dialog";
+import { RunoffPollCard } from "../components/runoff-poll-card";
 import { TermCard } from "../components/term-card";
 import { TicketDialog } from "../components/ticket-dialog";
 import { ViceInviteDialog } from "../components/vice-invite-dialog";
@@ -46,7 +49,18 @@ export default function ElectionPage() {
   return <ElectionContent key={location.key} panel={panel} initialDialog={shortcut ?? null} />;
 }
 
-type Dialog = "found" | "join" | "contribution" | "ticket" | "promises" | "vice" | "leave" | "donate" | "flags";
+type Dialog =
+  | "found"
+  | "join"
+  | "contribution"
+  | "ticket"
+  | "promises"
+  | "vice"
+  | "leave"
+  | "donate"
+  | "flags"
+  | "endorse"
+  | "runoff-contribution";
 type Tab = "race" | "campaign";
 
 function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initialDialog: Dialog | null }) {
@@ -79,9 +93,13 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
   const viceOpen =
     !!party && !!mine?.is_founder && panel.can_edit_ticket && party.vice === null && party.vice_phase === "NONE";
 
+  // A disputa do 2º turno, quando há
+  const runoffRace = panel.runoff_race;
+
   // A corrida é pública: quem não é filiado vê só ela, sem a barra de abas
   const race = (
     <div className="grid gap-5">
+      {panel.runoff_race && <RunoffPollCard panel={panel} race={panel.runoff_race} />}
       {campaignOpen && <PollCard panel={panel} />}
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="grid min-w-0 gap-5">
@@ -147,6 +165,57 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
             </Button>
           </AlertAction>
         </Alert>
+      )}
+
+      {party && mine && runoffRace && (
+        <>
+          {runoffRace.can_declare && (
+            <Alert variant="warning">
+              <Megaphone />
+              <AlertTitle>O {party.abbr} ficou fora: declare apoio a um finalista ou fique neutro</AlertTitle>
+              <AlertDescription>
+                Até {displayDayMonth(panel.dates.donation_deadline)}. Seus eleitores indecisos seguem a indicação na
+                proporção da confiança que o grupo tem no {party.abbr}.
+              </AlertDescription>
+              <AlertAction>
+                <Button size="sm" onClick={() => setDialog("endorse")}>
+                  Declarar
+                </Button>
+              </AlertAction>
+            </Alert>
+          )}
+          {runoffRace.can_contribute && (
+            <Alert variant="info">
+              <PiggyBank />
+              <AlertTitle>Contribua uma vez com a campanha do {party.abbr} no 2º turno</AlertTitle>
+              <AlertDescription>
+                Até {displayDayMonth(panel.dates.donation_deadline)}. O valor sai do seu caixa de uma vez e vira verba
+                do partido.
+              </AlertDescription>
+              <AlertAction>
+                <Button size="sm" onClick={() => setDialog("runoff-contribution")}>
+                  Contribuir
+                </Button>
+              </AlertAction>
+            </Alert>
+          )}
+          {runoffRace.can_add_promise && (
+            <Alert variant="info">
+              <ScrollText />
+              <AlertTitle>
+                O {party.abbr} tem {party.promises.length} de {runoffRace.promise_limit} promessas
+              </AlertTitle>
+              <AlertDescription>
+                No 2º turno as promessas só se acrescentam: as que já foram feitas ficam como estão.
+              </AlertDescription>
+              <AlertAction>
+                <Button size="sm" variant="outline" onClick={() => setDialog("promises")}>
+                  Acrescentar
+                </Button>
+              </AlertAction>
+            </Alert>
+          )}
+        </>
       )}
 
       {party && party.flags === null && (
@@ -256,6 +325,25 @@ function ElectionContent({ panel, initialDialog }: { panel: ElectionPanel; initi
       )}
       <ViceInviteDialog open={dialog === "vice"} onOpenChange={close} panel={panel} />
       <DonateDialog open={dialog === "donate"} onOpenChange={close} panel={panel} cash={cash} />
+      {party && runoffRace && (
+        <>
+          <EndorseDialog
+            open={dialog === "endorse"}
+            onOpenChange={close}
+            panel={panel}
+            race={runoffRace}
+            party={party}
+          />
+          <RunoffContributionDialog
+            open={dialog === "runoff-contribution"}
+            onOpenChange={close}
+            panel={panel}
+            race={runoffRace}
+            party={party}
+            cash={cash}
+          />
+        </>
+      )}
     </div>
   );
 }

@@ -473,6 +473,12 @@ class GovernmentEventType(Enum):
     PROMISES_WEIGHED = "PROMISES_WEIGHED"
     # O balanço do fim do mandato: o que cada promessa cumpriu deixa afinidade e rejeição
     PROMISES_SETTLED = "PROMISES_SETTLED"
+    # Entre os turnos: o partido eliminado declara apoio a um finalista, ou neutralidade
+    RUNOFF_ENDORSED = "RUNOFF_ENDORSED"
+    # Entre os turnos: a contribuição única de um filiado do finalista
+    RUNOFF_CONTRIBUTION = "RUNOFF_CONTRIBUTION"
+    # Entre os turnos: a pesquisa semanal, com o voto exato do dia
+    RUNOFF_POLL = "RUNOFF_POLL"
 
 
 class ElectionPhase(Enum):
@@ -531,6 +537,7 @@ class GovernmentNoticeKind(Enum):
     CAMPAIGN_ACTION = "CAMPAIGN_ACTION"
     PROMISES_SET = "PROMISES_SET"
     PROMISES_SETTLED = "PROMISES_SETTLED"
+    ENDORSEMENT = "ENDORSEMENT"
 
 
 class CampaignActionKind(Enum):
