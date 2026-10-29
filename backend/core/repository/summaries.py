@@ -13,12 +13,12 @@ from backend.core.dto.summaries import (
     SummaryDTO,
 )
 from backend.core.enum import CashflowEventType, SummaryKind
-from backend.core.models.models import EventCashflow, InboxEntries, Snapshots
+from backend.core.models.models import EventCashflow, Snapshots, Summaries
 
 _content: TypeAdapter[SummaryContent] = TypeAdapter(SummaryContent)
 
 
-def _summary_dto(row: InboxEntries) -> SummaryDTO:
+def _summary_dto(row: Summaries) -> SummaryDTO:
     return SummaryDTO(
         id=row.id,
         game_date=row.game_date,
@@ -37,7 +37,7 @@ class SummaryRepository:
         content: SummaryContent,
     ) -> SummaryDTO:
         row = session.scalars(
-            insert(InboxEntries)
+            insert(Summaries)
             .values(
                 simulation_id=simulation_id,
                 user_id=user_id,
@@ -46,7 +46,7 @@ class SummaryRepository:
                 content=content.to_json(),
                 created_at=datetime.now(UTC),
             )
-            .returning(InboxEntries)
+            .returning(Summaries)
         ).one()
         return _summary_dto(row)
 
@@ -56,12 +56,12 @@ class SummaryRepository:
     ) -> list[SummaryDTO]:
         """Do mais novo para o mais antigo."""
         rows = session.scalars(
-            select(InboxEntries)
+            select(Summaries)
             .where(
-                InboxEntries.simulation_id == simulation_id,
-                InboxEntries.user_id == user_id,
+                Summaries.simulation_id == simulation_id,
+                Summaries.user_id == user_id,
             )
-            .order_by(InboxEntries.game_date.desc(), InboxEntries.id.desc())
+            .order_by(Summaries.game_date.desc(), Summaries.id.desc())
         )
         return [_summary_dto(row) for row in rows]
 
@@ -71,14 +71,14 @@ class SummaryRepository:
     ) -> list[MonthSummaryDTO]:
         """Os resumos do jogador entregues depois de `after`, em ordem."""
         rows = session.scalars(
-            select(InboxEntries)
+            select(Summaries)
             .where(
-                InboxEntries.simulation_id == simulation_id,
-                InboxEntries.user_id == user_id,
-                InboxEntries.kind == SummaryKind.MONTH_SUMMARY.value,
-                InboxEntries.game_date > after,
+                Summaries.simulation_id == simulation_id,
+                Summaries.user_id == user_id,
+                Summaries.kind == SummaryKind.MONTH_SUMMARY.value,
+                Summaries.game_date > after,
             )
-            .order_by(InboxEntries.game_date, InboxEntries.id)
+            .order_by(Summaries.game_date, Summaries.id)
         )
         return [MonthSummaryDTO.model_validate(row.content) for row in rows]
 
@@ -87,13 +87,13 @@ class SummaryRepository:
         self, session: Session, simulation_id: int, user_id: int
     ) -> MonthSummaryDTO | None:
         row = session.scalars(
-            select(InboxEntries)
+            select(Summaries)
             .where(
-                InboxEntries.simulation_id == simulation_id,
-                InboxEntries.user_id == user_id,
-                InboxEntries.kind == SummaryKind.MONTH_SUMMARY.value,
+                Summaries.simulation_id == simulation_id,
+                Summaries.user_id == user_id,
+                Summaries.kind == SummaryKind.MONTH_SUMMARY.value,
             )
-            .order_by(InboxEntries.game_date.desc(), InboxEntries.id.desc())
+            .order_by(Summaries.game_date.desc(), Summaries.id.desc())
             .limit(1)
         ).first()
         return MonthSummaryDTO.model_validate(row.content) if row else None

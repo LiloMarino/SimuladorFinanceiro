@@ -302,3 +302,58 @@ def test_turned_off_notices_stay_off_in_the_notification_registry(
             "PLAYER_PRESENCE": False,
         }
     }
+
+
+BEFORE_SUMMARIES = "a8c2e5d0f6b4"
+
+
+def test_summaries_keep_their_rows_after_the_rename(
+    pg_url: str, engine: Engine
+) -> None:
+    """Os resumos gravados na tabela da caixa de entrada seguem na tabela de resumos."""
+    alembic = alembic_config(pg_url)
+    command.upgrade(alembic, BEFORE_SUMMARIES)
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "INSERT INTO users (client_id, nickname, created_at) "
+                "VALUES (gen_random_uuid(), 'Ana', now())"
+            )
+        )
+        connection.execute(
+            text(
+                "INSERT INTO simulations (name, rules, random_seed, created_at, "
+                "last_simulated_at) VALUES ('Partida', CAST('{}' AS jsonb), 7, now(), now())"
+            )
+        )
+        connection.execute(
+            text(
+                "INSERT INTO inbox_entries (simulation_id, user_id, game_date, kind, "
+                "content, created_at) SELECT s.id, u.id, '2020-02-01', 'MONTH_SUMMARY', "
+                'CAST(\'{"kind": "MONTH_SUMMARY"}\' AS jsonb), now() '
+                "FROM simulations s, users u"
+            )
+        )
+
+    command.upgrade(alembic, "head")
+
+    with engine.begin() as connection:
+        row = connection.execute(
+            text("SELECT game_date, kind::text, content FROM summaries")
+        ).one()
+        assert tuple(row) == (
+            date(2020, 2, 1),
+            "MONTH_SUMMARY",
+            {"kind": "MONTH_SUMMARY"},
+        )
+        connection.execute(
+            text(
+                "INSERT INTO summaries (simulation_id, user_id, game_date, kind, "
+                "content, created_at) SELECT simulation_id, user_id, '2020-03-01', "
+                "'YEAR_REVIEW', content, now() FROM summaries"
+            )
+        )
+        assert connection.execute(text("SELECT count(*) FROM summaries")).scalar() == 2
+    assert schema_diff(engine) == []
+    columns = {column["name"] for column in inspect(engine).get_columns("summaries")}
+    assert "read" not in columns

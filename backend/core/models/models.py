@@ -978,27 +978,27 @@ class AchievementProgress(Base):
     best: Mapped[decimal.Decimal] = mapped_column(Numeric(30, 6), nullable=False)
 
 
-class InboxEntries(Base):
+class Summaries(Base):
     """O resumo do mês e a retrospectiva do ano de cada jogador, criados pelo motor na virada."""
 
-    __tablename__ = "inbox_entries"
+    __tablename__ = "summaries"
     __table_args__ = (
         ForeignKeyConstraint(
             ["simulation_id"],
             ["simulations.id"],
             ondelete="CASCADE",
             onupdate="CASCADE",
-            name="inbox_entries_simulation_id_fkey",
+            name="summaries_simulation_id_fkey",
         ),
         ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],
             ondelete="CASCADE",
             onupdate="CASCADE",
-            name="inbox_entries_user_id_fkey",
+            name="summaries_user_id_fkey",
         ),
-        PrimaryKeyConstraint("id", name="inbox_entries_pkey"),
-        Index("inbox_entries_simulation_user_idx", "simulation_id", "user_id"),
+        PrimaryKeyConstraint("id", name="summaries_pkey"),
+        Index("summaries_simulation_user_idx", "simulation_id", "user_id"),
     )
 
     id: Mapped[int] = mapped_column(
@@ -1018,14 +1018,11 @@ class InboxEntries(Base):
     user_id: Mapped[int | None] = mapped_column(Integer)
     game_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     kind: Mapped[str] = mapped_column(
-        Enum("MONTH_SUMMARY", "YEAR_REVIEW", name="inbox_entry_kind"),
+        Enum("MONTH_SUMMARY", "YEAR_REVIEW", name="summary_kind"),
         nullable=False,
     )
     # O formato de cada tipo mora no DTO de `SummaryContent`
     content: Mapped[dict] = mapped_column(JSONB, nullable=False)
-    read: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=text("false")
-    )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )
