@@ -85,14 +85,12 @@ Antes de apagar as migrations antigas, confira que o `pg_dump --schema-only` de 
 | Já no head | Nada |
 | Com tabelas, sem `alembic_version`, igual aos models | É marcado no head (`stamp`) |
 | Com tabelas, sem `alembic_version`, diferente dos models | A inicialização é recusada: o banco é anterior às migrations e precisa ser trocado por um novo |
-| Numa revisão anterior | Ensaio numa cópia, backup, e então upgrade |
+| Numa revisão anterior | Backup, e então upgrade |
 | Numa revisão que esta versão não conhece | Recusado: o banco é de uma versão anterior à que a linha de revisões cobre; abra-o uma vez com a versão anterior e volte |
 
-**Ensaio:** as migrations rodam primeiro numa cópia (`<banco>_dryrun`), e o upgrade só é aplicado no banco real se nenhuma tabela perder linha nem célula preenchida. Numa coluna JSONB, cada valor não nulo do primeiro nível de um objeto é uma célula, então juntar colunas num JSON passa no ensaio e tirar uma chave do JSON não. A cópia é apagada no fim.
+**Backup:** antes do upgrade, o banco como estava é copiado para `<banco>_bkp_AAAAMMDD_HHMMSS`; ficam os 3 mais recentes. Remover ou renomear tabela e coluna é permitido: o backup é o caminho de volta.
 
-**Backup:** antes do upgrade, o banco como estava é copiado para `<banco>_bkp_AAAAMMDD_HHMMSS`; ficam os 3 mais recentes.
-
-As duas cópias usam `CREATE DATABASE ... TEMPLATE`, que exige o banco sem outras conexões abertas: com pgAdmin ou DBeaver conectados, a migration é recusada até que eles sejam fechados. O DDL do Postgres é transacional, então uma migration que falha no meio é desfeita inteira.
+O backup usa `CREATE DATABASE ... TEMPLATE`, que exige o banco sem outras conexões abertas: com pgAdmin ou DBeaver conectados, a migration é recusada até que eles sejam fechados. O DDL do Postgres é transacional, então uma migration que falha no meio é desfeita inteira.
 
 ---
 

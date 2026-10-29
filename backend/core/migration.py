@@ -1,11 +1,9 @@
 """Leva o banco ao head das migrations antes de o app subir.
 
-Banco com dado só migra depois de um ensaio numa cópia, em que nenhuma tabela
-pode perder linha nem célula preenchida, e de um backup do banco como estava.
+Banco com dado migra depois de um backup dele como estava.
 """
 
 import logging
-from dataclasses import dataclass
 from datetime import datetime
 
 from alembic import command
@@ -13,11 +11,10 @@ from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.script import ScriptDirectory
-from sqlalchemy import JSON, Engine, create_engine, inspect, text
+from sqlalchemy import Engine, create_engine, inspect, text
 from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.pool import NullPool
-from sqlalchemy.types import TypeEngine
 
 from backend.core.logger import TERMINAL
 from backend.core.models.models import Base
@@ -32,15 +29,6 @@ RELEASES_URL = "https://github.com/LiloMarino/SimuladorFinanceiro/releases"
 
 class MigrationError(Exception):
     """Migration recusada: o banco fica como estava."""
-
-
-@dataclass(frozen=True, slots=True)
-class TableFingerprint:
-    rows: int
-    filled_cells: int
-
-
-type Fingerprint = dict[str, TableFingerprint]
 
 
 def alembic_config(database_url: str = "") -> Config:
@@ -72,68 +60,6 @@ def schema_diff(engine: Engine) -> list:
     with engine.connect() as connection:
         context = MigrationContext.configure(connection, opts={"compare_type": True})
         return compare_metadata(context, Base.metadata)
-
-
-def _filled_cells(column: str, column_type: TypeEngine) -> str:
-    """O SQL que conta as células preenchidas de uma coluna.
-
-    Num JSONB, cada valor não nulo do primeiro nível de um objeto é uma célula;
-    um valor que não é objeto conta 1, e nulo conta 0. Assim juntar colunas num
-    JSON preserva o total, e tirar uma chave do JSON o reduz.
-    """
-    if not isinstance(column_type, JSON):
-        return f"COUNT({column})"
-    return (
-        f"COALESCE(SUM(CASE WHEN {column} IS NULL THEN 0 "  # noqa: S608
-        f"ELSE CASE jsonb_typeof({column}) "
-        "WHEN 'null' THEN 0 "
-        f"WHEN 'object' THEN (SELECT COUNT(*) FROM jsonb_each({column}) "
-        "WHERE value <> 'null'::jsonb) "
-        "ELSE 1 END END), 0)"
-    )
-
-
-def fingerprint(engine: Engine) -> Fingerprint:
-    """Linhas e células preenchidas por tabela.
-
-    Rename de coluna preserva o total de células; coluna removida ou recriada
-    vazia o reduz.
-    """
-    inspector = inspect(engine)
-    quote = engine.dialect.identifier_preparer.quote
-    result: Fingerprint = {}
-    with engine.connect() as connection:
-        for table in inspector.get_table_names():
-            if table == VERSION_TABLE:
-                continue
-            filled = " + ".join(
-                _filled_cells(quote(column["name"]), column["type"])
-                for column in inspector.get_columns(table)
-            )
-            rows, filled_cells = connection.execute(
-                text(f"SELECT COUNT(*), {filled} FROM {quote(table)}")  # noqa: S608
-            ).one()
-            result[table] = TableFingerprint(rows=rows, filled_cells=filled_cells)
-    return result
-
-
-def assert_no_data_loss(before: Fingerprint, after: Fingerprint) -> None:
-    problems: list[str] = []
-    for table, old in before.items():
-        new = after.get(table)
-        if new is None:
-            # Tabela vazia some sem levar dado
-            if old.rows:
-                problems.append(f"a tabela {table} sumiu com {old.rows} linhas")
-        elif new.rows < old.rows:
-            problems.append(f"{table} caiu de {old.rows} para {new.rows} linhas")
-        elif new.filled_cells < old.filled_cells:
-            problems.append(
-                f"{table} caiu de {old.filled_cells} para {new.filled_cells} "
-                "células preenchidas (coluna removida ou recriada vazia)"
-            )
-    if problems:
-        raise MigrationError("A migration perderia dado: " + "; ".join(problems))
 
 
 def backups_to_drop(backups: list[str], keep: int = BACKUPS_KEPT) -> list[str]:
@@ -222,25 +148,6 @@ def _list_backups(url: URL) -> list[str]:
         admin.dispose()
 
 
-def _dry_run(url: URL) -> None:
-    """Aplica as migrations numa cópia e só retorna se nenhum dado se perdeu."""
-    copy_name = f"{url.database}_dryrun"
-    copy_database(url, copy_name)
-    copy_url = url.set(database=copy_name)
-    try:
-        engine = create_engine(copy_url, poolclass=NullPool)
-        try:
-            before = fingerprint(engine)
-            command.upgrade(
-                alembic_config(copy_url.render_as_string(hide_password=False)), "head"
-            )
-            assert_no_data_loss(before, fingerprint(engine))
-        finally:
-            engine.dispose()
-    finally:
-        drop_databases(url, [copy_name])
-
-
 def _backup(url: URL) -> None:
     name = f"{url.database}_bkp_{datetime.now():%Y%m%d_%H%M%S}"  # noqa: DTZ005
     copy_database(url, name)
@@ -295,7 +202,6 @@ def migrate(database_url: str) -> None:
         logger.info("Banco existente marcado na revisão %s", head)
         return
 
-    _dry_run(url)
     _backup(url)
     command.upgrade(config, "head")
     logger.info("Banco migrado de %s até %s", revision, head, extra=TERMINAL)

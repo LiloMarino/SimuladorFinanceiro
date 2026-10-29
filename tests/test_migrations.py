@@ -1,5 +1,5 @@
-"""As migrations chegam exatamente no schema dos models, e o `migrate` só entra
-num banco existente quando nada se perde."""
+"""As migrations chegam exatamente no schema dos models, e o `migrate` guarda um
+backup do banco existente antes de subir."""
 
 from __future__ import annotations
 
@@ -20,13 +20,10 @@ from backend.core import migration
 from backend.core.enum import VictoryCriterion
 from backend.core.migration import (
     MigrationError,
-    TableFingerprint,
     alembic_config,
-    assert_no_data_loss,
     backups_to_drop,
     current_revision,
     drop_databases,
-    fingerprint,
     head_revision,
     migrate,
     schema_diff,
@@ -56,10 +53,10 @@ def test_downgrade_then_upgrade_again(pg_url: str, engine: Engine) -> None:
     assert current_revision(engine) == head_revision()
 
 
-def test_versioned_database_migrates_through_the_dry_run(
+def test_versioned_database_is_backed_up_and_migrated(
     pg_url: str, engine: Engine, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Banco com dado no head antigo passa pelo ensaio e pelo backup até o head novo."""
+    """Banco com dado no head antigo ganha um backup e sobe até o head novo."""
     migrate(pg_url)
     with engine.begin() as connection:
         connection.execute(
@@ -75,6 +72,7 @@ def test_versioned_database_migrates_through_the_dry_run(
         assert current_revision(engine) == NEWER_REVISION
         with engine.connect() as connection:
             assert connection.execute(text("SELECT ticker FROM stock")).scalar() == "T"
+        assert len(_backups(pg_url)) == 1
     finally:
         drop_databases(make_url(pg_url), _backups(pg_url))
 
@@ -159,35 +157,6 @@ def test_unversioned_database_with_old_schema_is_refused(
     assert "random_seed" not in columns
 
 
-def test_data_loss_is_refused() -> None:
-    before = {
-        "stock": TableFingerprint(rows=3, filled_cells=9),
-        "users": TableFingerprint(rows=1, filled_cells=5),
-    }
-
-    assert_no_data_loss(before, dict(before))
-    with pytest.raises(MigrationError, match="stock caiu de 3 para 2 linhas"):
-        assert_no_data_loss(
-            before, {**before, "stock": TableFingerprint(rows=2, filled_cells=6)}
-        )
-    with pytest.raises(MigrationError, match="células preenchidas"):
-        assert_no_data_loss(
-            before, {**before, "users": TableFingerprint(rows=1, filled_cells=4)}
-        )
-    with pytest.raises(MigrationError, match="a tabela users sumiu com 1 linhas"):
-        assert_no_data_loss(before, {"stock": before["stock"]})
-
-
-def test_dropping_an_empty_table_loses_nothing() -> None:
-    """Tabela vazia que some não é perda de dado."""
-    before = {
-        "stock": TableFingerprint(rows=3, filled_cells=9),
-        "unused": TableFingerprint(rows=0, filled_cells=0),
-    }
-
-    assert_no_data_loss(before, {"stock": before["stock"]})
-
-
 def test_only_the_latest_backups_are_kept() -> None:
     backups = [
         "db_bkp_20261003_101500",
@@ -200,58 +169,11 @@ def test_only_the_latest_backups_are_kept() -> None:
     assert backups_to_drop(backups[:2], keep=3) == []
 
 
-def test_fingerprint_counts_the_values_of_a_json_object(
-    pg_url: str, engine: Engine
-) -> None:
-    """Num JSONB, cada valor não nulo do primeiro nível é uma célula."""
-    with engine.begin() as connection:
-        connection.execute(text("CREATE TABLE sample (id int, data jsonb)"))
-        connection.execute(
-            text(
-                "INSERT INTO sample VALUES "
-                """(1, '{"a": 1, "b": null, "c": "x"}'), """  # objeto: a e c
-                "(2, '[1, 2]'), "  # não é objeto: 1
-                "(3, 'null'), "  # nulo do JSON: 0
-                "(4, NULL), "  # nulo do SQL: 0
-                "(5, '5')"  # escalar: 1
-            )
-        )
-
-    assert fingerprint(engine)["sample"] == TableFingerprint(
-        rows=5, filled_cells=5 + 2 + 1 + 0 + 0 + 1
-    )
-
-
-def test_merging_columns_into_json_keeps_the_total(pg_url: str, engine: Engine) -> None:
-    """Juntar colunas num JSON preserva o total; tirar uma chave do JSON o reduz."""
-    with engine.begin() as connection:
-        connection.execute(text("CREATE TABLE sample (a int, b text, c text)"))
-        connection.execute(
-            text("INSERT INTO sample VALUES (1, 'x', NULL), (2, NULL, NULL)")
-        )
-    before = fingerprint(engine)
-
-    with engine.begin() as connection:
-        connection.execute(text("ALTER TABLE sample ADD COLUMN data jsonb"))
-        connection.execute(
-            text("UPDATE sample SET data = jsonb_build_object('a', a, 'b', b, 'c', c)")
-        )
-        connection.execute(
-            text("ALTER TABLE sample DROP COLUMN a, DROP COLUMN b, DROP COLUMN c")
-        )
-    assert_no_data_loss(before, fingerprint(engine))
-
-    with engine.begin() as connection:
-        connection.execute(text("UPDATE sample SET data = data - 'a'"))
-    with pytest.raises(MigrationError, match="células preenchidas"):
-        assert_no_data_loss(before, fingerprint(engine))
-
-
 SAVED_BY_2_3 = "f3a6c2d85b17"
 
 
 def test_match_saved_by_2_3_opens_the_same_in_3_0(pg_url: str, engine: Engine) -> None:
-    """A partida das colunas da 2.3 migra para o JSON sem perder célula e abre igual no DTO."""
+    """A partida das colunas da 2.3 migra para o JSON e abre igual no DTO."""
     expected = simulation_settings().model_copy(
         update={
             "name": "Clássica",
@@ -278,12 +200,10 @@ def test_match_saved_by_2_3_opens_the_same_in_3_0(pg_url: str, engine: Engine) -
                 "'INDIVIDUAL', 'COLOR', true, true, now(), now())"
             )
         )
-    before = fingerprint(engine)
 
     command.upgrade(alembic, "head")
 
     assert current_revision(engine) == head_revision()
-    assert_no_data_loss(before, fingerprint(engine))
     with engine.connect() as connection:
         name, rules = connection.execute(
             text("SELECT name, rules FROM simulations")
@@ -356,7 +276,7 @@ BEFORE_NEWS = "f7b1d4c9e5a3"
 def test_turned_off_notices_stay_off_in_the_notification_registry(
     pg_url: str, engine: Engine
 ) -> None:
-    """As preferências de aviso de antes viram os avisos do registro, sem perder célula."""
+    """As preferências de aviso de antes viram os avisos do registro."""
     alembic = alembic_config(pg_url)
     command.upgrade(alembic, BEFORE_NEWS)
     old = {
@@ -371,11 +291,8 @@ def test_turned_off_notices_stay_off_in_the_notification_registry(
             ),
             {"settings": json.dumps(old)},
         )
-    before = fingerprint(engine)
-
     command.upgrade(alembic, "head")
 
-    assert_no_data_loss(before, fingerprint(engine))
     with engine.connect() as connection:
         settings = connection.execute(text("SELECT settings FROM users")).scalar_one()
     assert settings["notifications"] == {

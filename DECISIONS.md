@@ -332,7 +332,9 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 - Cortar caminho é perda para quem atualiza, e o guia de versionamento (D12) define perda assim como major.
 - Sem a junção, cada feature com banco deixaria um arquivo para sempre, e a linha cresceria sem que o jogador de uma versão recente precisasse de nada dela.
 - Regra de partida em colunas pedia migration a cada regra; no JSON a regra nova é só um campo com padrão, e a leitura estrita recusa chave desconhecida, então regra removida pede uma migration `rules - 'chave'`.
-**Consequências:** a trava de dado perdido conta cada valor preenchido do primeiro nível de um JSONB como uma célula, para que juntar colunas num JSON passe no ensaio e tirar uma chave o reprove. Cada junção se confere com o `pg_dump --schema-only` de um banco feito pela cadeia antiga igual ao de um banco feito pela nova.
+**Consequências:** cada junção se confere com o `pg_dump --schema-only` de um banco feito pela cadeia antiga igual ao de um banco feito pela nova.
+
+**Atualização (2026-10-29):** a trava que recusava a migration quando uma tabela perdia linha ou célula preenchida, e o ensaio numa cópia que a alimentava, foram retirados; o backup antes do upgrade fica. Migration de remoção e de renomeio é comum, e a trava travava o desenvolvimento a cada uma; o backup já devolve o banco como estava.
 
 ### D19 — O eleitorado são grupos, cada um com apoio e rejeição por partido
 **Status:** ✅ Decidida
