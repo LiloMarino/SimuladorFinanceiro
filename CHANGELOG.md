@@ -4,6 +4,56 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 3.1.0 Eleição disputada (29/10/2026)
+
+A eleição agora é uma disputa de verdade: o eleitorado se divide em grupos, cada um com a sua opinião sobre os partidos, e a campanha tem ações (TV, evento, comício e ataque) decididas com o dado. As promessas de campanha são cobradas no fim do mandato, o segundo turno tem disputa com virada possível, e a aprovação do governo passa a depender da satisfação de cada grupo. O painel da economia mostra a SELIC, o IPCA e a meta de inflação, e o jornal da partida traz manchetes de economia, empresas e marcos históricos, com as pendências ao lado do menu. Também entram a evolução do patrimônio redesenhada, a compra de cripto em fração para estratégias e bots, o filtro Na carteira na renda fixa e o selo de partida pausada.
+
+Suas partidas salvas e o `config.toml` continuam valendo.
+
+
+### Novidades
+
+- Ajustado o layout da aba Expansões, da sigla do partido e da rentabilidade por jogador
+- Desligar o automático direto no aviso das boletas travadas
+- Adicionado o filtro Na carteira à renda fixa
+- Adicionado o aviso de abertura da campanha com lembretes das chapas e da véspera do 1º turno
+- Acelerada a abertura das estatísticas em partida longa
+- Convite de vice para qualquer jogador da sala
+- Host remove jogador da sala no lobby
+- Adicionado o botão para abrir a pasta de configurações e a de logs
+- Adicionadas oito conquistas sobre IR, setores, impacto de preço, Especialista, equipes, mercado gerado e nota geral
+- Ajustados os acabamentos das telas de estatísticas, lobby, correlação, ajustes e indicadores
+- Adicionada a caixa de entrada com o resumo do mês e a retrospectiva do ano
+- Removidos código e dependências sem uso e adicionados o Knip e o deptry à checagem
+- Ligado o plugin de acessibilidade do oxlint e corrigidos os achados
+- Ligado o modo strict do pyright em config, routes e main.py
+- Marcados como obrigatórios os campos com valor padrão nas respostas da API
+- Ligado o noUncheckedIndexedAccess no frontend e tratados os itens ausentes
+- Ligado o exactOptionalPropertyTypes no frontend e tratadas as props opcionais
+- Ligada a regra no-unnecessary-condition no oxlint e removidas as condições desnecessárias
+- Adicionado o selo de partida pausada com o motivo e o destaque da velocidade máxima na barra da partida
+- Adicionada a contagem de imprevistos ao fim da partida de viver de renda
+- Adicionada a compra e venda fracionária de cripto às estratégias e aos bots
+- Redesenhados a evolução do patrimônio e a distribuição na carteira
+- Adicionados os grupos de eleitores com bandeiras, apoio, rejeição e pesquisa com margem de erro
+- Adicionado o painel da economia com a SELIC, o IPCA, o juro real, a meta de inflação e as mudanças do Copom
+- Adicionada a aprovação do governo pela satisfação de cada grupo de eleitores, com alvo, carência e contagem do impeachment
+- Adicionadas as ações de campanha com o dado: TV, evento, comício e ataque, com histórico e verba de base
+- Adicionadas as promessas de campanha cobradas no fim do mandato, com rendimento por grupo e balanço
+- Adicionado o segundo turno com disputa por grupo de eleitores, declaração de apoio, contribuição e pesquisa semanal
+- Adicionado o jornal da partida com manchetes por tipo, página de histórico, resumos em Estatísticas e avisos configuráveis
+- Adicionadas as pendências da partida com lista ao lado do menu, aviso ao nascer e ação que resolve cada uma
+- Adicionado o noticiário da partida com manchetes de economia, empresas e marcos históricos e o filtro de ativos da carteira
+
+### Correções
+
+- Removida a notificação de saída dos bots ao iniciar a partida
+- Alavancagem sem limite quando o patrimônio não é positivo
+- Nome do presidente eleito no aviso da posse e no resultado
+- Corrigido o layout estreito do destaque da renda fixa, do cabeçalho da eleição e do cartão das pastas do app
+- Reiniciado o formulário de empréstimo depois de assinar o contrato
+- Ocultado o 0% de pesquisa no convite de vice antes da primeira pesquisa
+
 ## 3.0.0 Governo & Política (25/10/2026)
 
 - A expansão Governo & Política: os jogadores fundam partidos, disputam eleições em dois turnos, governam por mandatos de quatro anos, propõem medidas de imposto ao Congresso e acompanham a aprovação do governo.
