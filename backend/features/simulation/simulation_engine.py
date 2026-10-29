@@ -1,5 +1,5 @@
 import threading
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from datetime import date
 from decimal import Decimal
 from functools import cached_property
@@ -76,7 +76,9 @@ class SimulationEngine:
         self.broker = Broker(self, self._lock)
         self.fixed_broker = FixedBroker(self, self._lock)
         self.credit_book = CreditBook(self, self._lock)
-        self.fixed_income_market = FixedIncomeMarket(simulation_id, end_date)
+        self.fixed_income_market = FixedIncomeMarket(
+            simulation_id, end_date, self.risk_premium_on
+        )
         self.matching_engine = MatchingEngine(self.broker)
         self._cash: LazyDict[UUID, Decimal] = LazyDict(
             loader=repository.user.get_user_balance
@@ -98,6 +100,17 @@ class SimulationEngine:
     def tax_policy_on(self, day: date) -> TaxPolicy:
         source = self._tax_policy_source
         return DEFAULT_TAX_POLICY if source is None else source(day)
+
+    # O prêmio de risco do Tesouro de cada dia vem do orçamento do governo; sem a
+    # expansão é zero
+    _risk_premium_source: Callable[[date], Decimal] | None = None
+
+    def use_risk_premium(self, source: Callable[[date], Decimal]) -> None:
+        self._risk_premium_source = source
+
+    def risk_premium_on(self, day: date) -> Decimal:
+        source = self._risk_premium_source
+        return Decimal(0) if source is None else source(day)
 
     def get_cash(self, client_id: UUID) -> Decimal:
         with self._lock:

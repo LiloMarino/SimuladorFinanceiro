@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from backend.core.enum import IndicatorSeries
 from backend.core.indicators import annualize_daily, inflation_tolerance
+from backend.features.economy.growth import MacroCourse
 from backend.features.economy.panel import build_economy_panel, month_ends
 from tests.conftest import SetIndicator
 
@@ -38,7 +39,9 @@ def test_panel_has_real_rate_as_selic_minus_ipca_and_the_year_target(
     )
     indicators(IndicatorSeries.IPCA, {date(2022, 1, 1): Decimal("0.5")})
 
-    panel = build_economy_panel(date(2022, 1, 3), date(2022, 1, 4))
+    panel = build_economy_panel(
+        date(2022, 1, 3), date(2022, 1, 4), MacroCourse(date(2022, 1, 3))
+    )
 
     first, last = panel.points
     assert first.date == date(2022, 1, 3)
@@ -66,7 +69,9 @@ def test_panel_marks_the_day_selic_changed_level_and_ignores_noise(
     )
     indicators(IndicatorSeries.IPCA, {date(2022, 1, 1): Decimal("0.5")})
 
-    panel = build_economy_panel(date(2022, 1, 3), date(2022, 1, 5))
+    panel = build_economy_panel(
+        date(2022, 1, 3), date(2022, 1, 5), MacroCourse(date(2022, 1, 3))
+    )
 
     (change,) = panel.copom_changes
     assert change.date == date(2022, 1, 5)
@@ -90,7 +95,9 @@ def test_panel_leaves_out_the_days_after_today(indicators: SetIndicator):
     )
     indicators(IndicatorSeries.IPCA, {date(2022, 1, 1): Decimal("0.5")})
 
-    panel = build_economy_panel(date(2022, 1, 3), date(2022, 1, 4))
+    panel = build_economy_panel(
+        date(2022, 1, 3), date(2022, 1, 4), MacroCourse(date(2022, 1, 3))
+    )
 
     assert panel.copom_changes == []
     assert panel.points[-1].selic == annualize_daily(DAILY_LOW)
@@ -100,3 +107,29 @@ def test_tolerance_was_two_points_until_2016_and_follows_the_year():
     assert inflation_tolerance(date(2010, 6, 1)) == Decimal("0.02")
     assert inflation_tolerance(date(2004, 6, 1)) == Decimal("0.025")
     assert inflation_tolerance(date(2031, 6, 1)) == Decimal("0.015")
+
+
+def test_panel_carries_growth_unemployment_and_the_growth_parts(
+    indicators: SetIndicator,
+):
+    indicators(
+        IndicatorSeries.SELIC,
+        {date(2022, 1, 3): DAILY_LOW, date(2022, 3, 1): DAILY_LOW},
+    )
+    indicators(IndicatorSeries.IPCA, {date(2022, 1, 1): Decimal("0.5")})
+
+    panel = build_economy_panel(
+        date(2022, 1, 3), date(2022, 3, 15), MacroCourse(date(2022, 1, 3))
+    )
+
+    first, *_, last = panel.points
+    # No começo o país está na tendência e no desemprego neutro; depois do fechamento anda
+    assert first.growth == Decimal("0.02")
+    assert first.unemployment == Decimal("0.09")
+    assert last.growth != first.growth
+    # Sem a expansão Governo a dívida fica de fora
+    assert panel.debt is None
+    assert first.debt is None and first.premium is None
+    parts = panel.growth_parts
+    assert parts.target == parts.trend + parts.real_rate_part + parts.stocks_part
+    assert parts.growth == last.growth

@@ -1,5 +1,7 @@
 import logging
+from collections.abc import Callable
 from datetime import date
+from decimal import Decimal
 
 from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
@@ -22,9 +24,16 @@ class FixedIncomeMarket:
     - Fornecer consultas de ativos disponíveis e busca por UUID
     """
 
-    def __init__(self, simulation_id: int, end_date: date):
+    def __init__(
+        self,
+        simulation_id: int,
+        end_date: date,
+        risk_premium_on: Callable[[date], Decimal] = lambda _day: Decimal(0),
+    ):
+        """`risk_premium_on` dá o prêmio de risco do país que o Tesouro soma às taxas do mês."""
         self._simulation_id = simulation_id
         self._end_date = end_date
+        self._risk_premium_on = risk_premium_on
         self._current_month: tuple[int, int] | None = None
         self._assets: dict[str, FixedIncomeAssetDTO] = {}
         self._issued_assets: dict[str, FixedIncomeAssetDTO] = {}
@@ -69,7 +78,11 @@ class FixedIncomeMarket:
             str(asset.asset_uuid): asset for asset in (fixed, rare) if asset is not None
         }
         self._assets.update(
-            FixedIncomeFactory.generate_assets(current_date=current_date, n=10)
+            FixedIncomeFactory.generate_assets(
+                current_date=current_date,
+                n=10,
+                risk_premium=self._risk_premium_on(current_date),
+            )
         )
         # A renovação da vitrine não invalida uma oferta ainda aberta no navegador.
         self._issued_assets.update(self._assets)

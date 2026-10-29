@@ -67,6 +67,8 @@ export const READING_LABEL: Record<VoterGroupInfo["readings"][number], string> =
   SELIC: "SELIC",
   STOCKS: "Ibovespa",
   CAPITAL_GAINS_TAX: "imposto",
+  UNEMPLOYMENT: "desemprego",
+  RISK_PREMIUM: "prêmio de risco",
 };
 
 /** A bandeira que `value` exclui, se houver. */

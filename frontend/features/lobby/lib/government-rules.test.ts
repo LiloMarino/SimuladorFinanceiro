@@ -4,6 +4,8 @@ import {
   defaultFirstElection,
   difficultyExample,
   governmentRuleError,
+  initialAccountDescription,
+  initialAccountExample,
   spansYears,
   wholeYears,
 } from "./government-rules";
@@ -69,5 +71,49 @@ describe("difficultyExample", () => {
     expect(difficultyExample("EASY")).toContain("R$ 5.000");
     expect(difficultyExample("NORMAL")).toContain("R$ 10.000 por mês");
     expect(difficultyExample("HARD")).toContain("R$ 15.000");
+  });
+});
+
+describe("initialAccountExample", () => {
+  const preview = {
+    year: 2017,
+    playable: { debt: "0.6984", primary: "0", primary_amount: "0", premium: "0.0097" },
+    realistic: { debt: "0.6984", primary: "-0.017", primary_amount: "-110000000000", premium: "0.0097" },
+  };
+
+  it("na conta jogável o resultado primário é zero e não traz valor em reais", () => {
+    const example = initialAccountExample("PLAYABLE", preview);
+
+    expect(example.figures).toEqual(["dívida 69,8% do PIB", "resultado primário zero"]);
+    expect(example.premium).toContain("0,97 ponto");
+  });
+
+  it("na conta realista mostra o déficit em % do PIB e em reais", () => {
+    const example = initialAccountExample("REALISTIC", preview);
+
+    expect(example.figures[1]).toBe("déficit primário de 1,7% do PIB por ano (R$ 110 bi)");
+  });
+
+  it("sem prêmio, explica que a dívida está abaixo da faixa", () => {
+    const calm = { ...preview, playable: { ...preview.playable, premium: "0" } };
+
+    expect(initialAccountExample("PLAYABLE", calm).premium).toContain("abaixo de 50% do PIB");
+  });
+});
+
+describe("initialAccountDescription", () => {
+  const preview = {
+    year: 2017,
+    playable: { debt: "0.6984", primary: "0", primary_amount: "0", premium: "0.0097" },
+    realistic: { debt: "0.6984", primary: "-0.017", primary_amount: "-110000000000", premium: "0.0097" },
+  };
+
+  it("a realista cita o ano e o déficit herdados", () => {
+    expect(initialAccountDescription("REALISTIC", preview)).toContain("conta real de 2017");
+    expect(initialAccountDescription("REALISTIC", preview)).toContain("déficit primário de 1,7%");
+  });
+
+  it("sem os dados do servidor, a realista fica genérica", () => {
+    expect(initialAccountDescription("REALISTIC", undefined)).toContain("reais do ano anterior");
   });
 });

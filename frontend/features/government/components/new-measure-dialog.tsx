@@ -22,6 +22,7 @@ import { formatMoney } from "@/shared/lib/utils/format";
 import type { GovernmentPanel, MeasureKind, ProposeMeasureRequest } from "@/types";
 import { useProposeMeasure } from "../hooks/mutations/useProposeMeasure";
 import { useMeasurePreview } from "../hooks/queries/useMeasurePreview";
+import { MeasureBudgetEffect } from "./measure-budget-effect";
 import { VALUE_INFO, signedPoints as signedProfilePoints } from "../lib/voters";
 import {
   GENERAL_KINDS,
@@ -327,6 +328,7 @@ function MeasureForm({ panel, initialKind, onClose }: MeasureFormProps) {
                 </Row>
               </dl>
               <p className="text-xs leading-normal text-muted-foreground">{impactSentence(data)}</p>
+              <MeasureBudgetEffect effect={data.budget} />
               <Alert variant="info">
                 <Gavel />
                 <AlertTitle>O Congresso vota em {displayDayMonth(data.vote_date)}</AlertTitle>

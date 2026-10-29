@@ -29,6 +29,20 @@ class TesouroFactory(AbstractFixedIncomeFactory):
             RateIndexType.PREFIXADO: self.create_prefixado,
         }
 
+    @staticmethod
+    def with_risk_premium(
+        asset: FixedIncomeAssetDTO, risk_premium: Decimal
+    ) -> FixedIncomeAssetDTO:
+        """O título com o prêmio de risco do país somado à taxa: spread, prefixada ou spread da SELIC."""
+        if risk_premium <= 0:
+            return asset
+        return asset.model_copy(
+            update={
+                "interest_rate": asset.interest_rate + risk_premium,
+                "risk_premium": risk_premium,
+            }
+        )
+
     def create_ipca(self, current_date: date) -> FixedIncomeAssetDTO:
         maturity_date = self._generate_maturity(current_date, 3, 15)
         maturity_year = maturity_date.year

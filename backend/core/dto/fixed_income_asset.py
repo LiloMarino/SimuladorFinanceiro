@@ -23,6 +23,8 @@ class FixedIncomeAssetDTO(BaseDTO):
     player_cap: Decimal | None = None
     # Último dia em que a oferta aceita aporte; None é sem prazo
     offered_until: date | None = None
+    # Quanto o prêmio de risco do país somou à taxa do título na emissão (fração ao ano); só o Tesouro, só com a expansão de governo
+    risk_premium: Decimal | None = None
 
 
 class FixedIncomeOfferDTO(FixedIncomeAssetDTO):

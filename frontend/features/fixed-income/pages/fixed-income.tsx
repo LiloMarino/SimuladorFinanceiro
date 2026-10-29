@@ -20,6 +20,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { DailyLiquidityBadge } from "@/shared/components/daily-liquidity-badge";
 import { ErrorState } from "@/shared/components/error-state";
 import { useSimulation } from "@/shared/hooks/useSimulation";
+import { useBudget } from "@/shared/hooks/queries/useBudget";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useEconomicIndicators } from "@/shared/hooks/queries/useEconomicIndicators";
@@ -35,6 +36,9 @@ import type { FixedIncomeOffer } from "@/types";
 import { useFixedIncomeAssets } from "../hooks/queries/useFixedIncomeAssets";
 import { displayCap, isPermanentCdb, isRareOffer } from "../lib/daily-liquidity";
 import { INVESTMENT_TYPE_LABELS, timeToMaturity } from "../lib/labels";
+import { hasPremium, isTreasury, purchasePremiumNote } from "../lib/premium";
+import { PremiumStrip } from "../components/premium-strip";
+import { PremiumTag } from "../components/premium-tag";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
 import { sortNumber } from "@/shared/lib/table-sort";
@@ -71,7 +75,9 @@ export default function FixedIncomePage() {
   const { data: portfolio } = usePortfolio();
   const { data: simulation } = useSimulationState();
   const { data: indicators } = useEconomicIndicators();
-  const showRate = useSimulation().simulation?.simulation?.show_equivalent_rate ?? true;
+  const { simulation: match } = useSimulation();
+  const showRate = match?.simulation?.show_equivalent_rate ?? true;
+  const { data: budget } = useBudget({ enabled: !!match?.simulation?.government_enabled });
   const [indexFilter, setIndexFilter] = useState<IndexFilter>("ALL");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
   const [onlyExempt, setOnlyExempt] = useState(false);
@@ -191,87 +197,101 @@ export default function FixedIncomePage() {
         {header}
         <TableBody>
           {message && <TableEmptyRow colSpan={showRate ? COLUMNS : COLUMNS_WITHOUT_RATE}>{message}</TableEmptyRow>}
-          {visible.map((o) => (
-            <TableRow key={o.asset_uuid} onActivate={() => void navigate(`/fixed-income/${o.asset_uuid}`)}>
-              <TableCell>
-                <div className="grid">
-                  <span className="flex items-center gap-2 font-semibold">
-                    <span className="max-w-[300px] truncate">{o.name}</span>
-                    {held.has(o.asset_uuid) && (
-                      <Badge variant="info" size="sm">
-                        na carteira
-                      </Badge>
-                    )}
-                  </span>
-                  {onlyHeld && (
-                    <span className="text-xs font-medium text-info">
-                      {displayMoney(held.get(o.asset_uuid)?.total_applied ?? 0)} aplicados
-                    </span>
-                  )}
-                  <span className="max-w-[300px] truncate text-xs text-muted-foreground">{o.issuer}</span>
-                  {isRareOffer(o) && o.offered_until && o.player_cap && (
-                    <span className="text-xs font-medium text-warning">
-                      oferta do catálogo de {displayMonthName(o.offered_until)} · até {displayCap(o.player_cap)} por
-                      jogador
-                    </span>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell>
-                <Badge variant="secondary">{INVESTMENT_TYPE_LABELS[o.investment_type]}</Badge>
-              </TableCell>
-              <TableCell>
-                <span className="font-mono">{displayRateLabel(o.rate_index, o.interest_rate)}</span>
-              </TableCell>
-              {showRate && (
+          {visible.map((o) => {
+            const position = held.get(o.asset_uuid);
+            return (
+              <TableRow key={o.asset_uuid} onActivate={() => void navigate(`/fixed-income/${o.asset_uuid}`)}>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <span className="h-1.5 w-22 overflow-hidden rounded-full bg-muted">
-                      <span
-                        className="block h-full rounded-full bg-success"
-                        style={{ width: `${(Number(o.effective_annual_rate) / topRate) * 100}%` }}
-                      />
+                  <div className="grid">
+                    <span className="flex items-center gap-2 font-semibold">
+                      <span className="max-w-[300px] truncate">{o.name}</span>
+                      {held.has(o.asset_uuid) && (
+                        <Badge variant="info" size="sm">
+                          na carteira
+                        </Badge>
+                      )}
                     </span>
-                    <span className="font-mono font-semibold">
-                      {o.effective_annual_rate === null ? "—" : `${displayPercent(o.effective_annual_rate)} a.a.`}
-                    </span>
+                    {onlyHeld && (
+                      <span className="text-xs font-medium text-info">
+                        {displayMoney(held.get(o.asset_uuid)?.total_applied ?? 0)} aplicados
+                      </span>
+                    )}
+                    <span className="max-w-[300px] truncate text-xs text-muted-foreground">{o.issuer}</span>
+                    {isRareOffer(o) && o.offered_until && o.player_cap && (
+                      <span className="text-xs font-medium text-warning">
+                        oferta do catálogo de {displayMonthName(o.offered_until)} · até {displayCap(o.player_cap)} por
+                        jogador
+                      </span>
+                    )}
                   </div>
                 </TableCell>
-              )}
-              <TableCell>
-                <div className="grid">
-                  <span className="font-mono">{displayDate(parseLocalDate(o.maturity_date))}</span>
-                  {today && (
-                    <span className="text-xs text-muted-foreground">{timeToMaturity(o.maturity_date, today)}</span>
+                <TableCell>
+                  <Badge variant="secondary">{INVESTMENT_TYPE_LABELS[o.investment_type]}</Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="grid gap-1">
+                    <span className="font-mono">{displayRateLabel(o.rate_index, o.interest_rate)}</span>
+                    {budget && hasPremium(o) && position && (
+                      <span className="text-xs text-muted-foreground">
+                        {purchasePremiumNote(position.first_applied_date, o)}
+                      </span>
+                    )}
+                    {budget && !position && hasPremium(o) && <PremiumTag offer={o} budget={budget} />}
+                    {budget && !isTreasury(o) && (
+                      <span className="text-xs text-muted-foreground">sem prêmio: o prêmio é só do Tesouro</span>
+                    )}
+                  </div>
+                </TableCell>
+                {showRate && (
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="h-1.5 w-22 overflow-hidden rounded-full bg-muted">
+                        <span
+                          className="block h-full rounded-full bg-success"
+                          style={{ width: `${(Number(o.effective_annual_rate) / topRate) * 100}%` }}
+                        />
+                      </span>
+                      <span className="font-mono font-semibold">
+                        {o.effective_annual_rate === null ? "—" : `${displayPercent(o.effective_annual_rate)} a.a.`}
+                      </span>
+                    </div>
+                  </TableCell>
+                )}
+                <TableCell>
+                  <div className="grid">
+                    <span className="font-mono">{displayDate(parseLocalDate(o.maturity_date))}</span>
+                    {today && (
+                      <span className="text-xs text-muted-foreground">{timeToMaturity(o.maturity_date, today)}</span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {o.daily_liquidity ? (
+                    <DailyLiquidityBadge>Qualquer dia</DailyLiquidityBadge>
+                  ) : (
+                    <span className="text-[13px] text-muted-foreground">No vencimento</span>
                   )}
-                </div>
-              </TableCell>
-              <TableCell>
-                {o.daily_liquidity ? (
-                  <DailyLiquidityBadge>Qualquer dia</DailyLiquidityBadge>
-                ) : (
-                  <span className="text-[13px] text-muted-foreground">No vencimento</span>
-                )}
-              </TableCell>
-              <TableCell>
-                {o.tax_exempt ? (
-                  <Badge variant="success">Isento</Badge>
-                ) : (
-                  <Badge variant="secondary">22,5% → {displayPercent(o.income_tax_rate_at_maturity, 1)}</Badge>
-                )}
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  nativeButton={false}
-                  render={<Link to={`/fixed-income/${o.asset_uuid}`} onClick={(e) => e.stopPropagation()} />}
-                >
-                  Investir
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+                <TableCell>
+                  {o.tax_exempt ? (
+                    <Badge variant="success">Isento</Badge>
+                  ) : (
+                    <Badge variant="secondary">22,5% → {displayPercent(o.income_tax_rate_at_maturity, 1)}</Badge>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    nativeButton={false}
+                    render={<Link to={`/fixed-income/${o.asset_uuid}`} onClick={(e) => e.stopPropagation()} />}
+                  >
+                    Investir
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     );
@@ -279,6 +299,9 @@ export default function FixedIncomePage() {
 
   return (
     <div className="grid gap-5">
+      {/* Prêmio de risco do governo */}
+      {budget && Number(budget.month.premium) > 0 && <PremiumStrip budget={budget} />}
+
       {/* CDB de 100% do CDI */}
       {permanentCdb && (
         <Card variant="success">

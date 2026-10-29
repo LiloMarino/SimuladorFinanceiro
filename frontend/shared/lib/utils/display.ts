@@ -51,6 +51,23 @@ export function displayMoneyCompact(value: Numeric): string {
   return MONEY_COMPACT_FORMAT.format(value as Intl.StringNumericLiteral | number);
 }
 
+const LARGE_MONEY_FORMAT = new Intl.NumberFormat("pt-BR", { maximumSignificantDigits: 3 });
+const LARGE_MONEY_UNITS = [
+  { from: 1e12, suffix: "tri" },
+  { from: 1e9, suffix: "bi" },
+  { from: 1e6, suffix: "mi" },
+] as const;
+
+/** Reais na escala do orçamento do país, com 3 algarismos e o menos tipográfico (5.76e12 → "R$ 5,76 tri", −2.72e10 → "−R$ 27,2 bi"). */
+export function displayMoneyLarge(value: Numeric) {
+  const amount = Number(value);
+  const magnitude = Math.abs(amount);
+  const unit = LARGE_MONEY_UNITS.find(({ from }) => magnitude >= from);
+  const sign = amount < 0 ? "−" : "";
+  if (!unit) return `${sign}${displayMoneyWhole(magnitude)}`;
+  return `${sign}R$ ${LARGE_MONEY_FORMAT.format(magnitude / unit.from)} ${unit.suffix}`;
+}
+
 export function displayPercent(value: Numeric, digits = 2) {
   return new Intl.NumberFormat("pt-BR", {
     style: "percent",

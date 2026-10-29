@@ -89,6 +89,11 @@ def subtract_business_days(d: date, n: int) -> date:
     return d
 
 
+def last_day_of_month(d: date) -> date:
+    """O último dia do mês de `d`."""
+    return (d.replace(day=1) + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+
+
 def business_days_in_month(d: date) -> int:
     """Quantos dias úteis tem o mês de `d`."""
     first = d.replace(day=1)

@@ -3,6 +3,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/shared/components/ui/empty";
+import { MetricLabel } from "@/shared/components/metric-hint";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Progress } from "@/shared/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
@@ -11,8 +12,9 @@ import type { GovernmentMeasure, GovernmentPanel } from "@/types";
 import { useReproposeMeasure } from "../hooks/mutations/useReproposeMeasure";
 import { useWithdrawMeasure } from "../hooks/mutations/useWithdrawMeasure";
 import { useToday } from "../hooks/useToday";
+import { signedShareLabel, shareLabel } from "../lib/budget";
 import { daysUntil, nextStep, STAGES } from "../lib/government";
-import { CHANCE } from "../lib/government-metrics";
+import { CHANCE, QUEUE_BUDGET } from "../lib/government-metrics";
 import { MeasureSteps } from "./measure-steps";
 
 type QueueCardProps = { panel: GovernmentPanel };
@@ -49,6 +51,9 @@ export function QueueCard({ panel }: QueueCardProps) {
                 <TableRow>
                   <TableHead>Etapa</TableHead>
                   <TableHead>Medida</TableHead>
+                  <TableHead numeric>
+                    <MetricLabel metric={QUEUE_BUDGET} />
+                  </TableHead>
                   <TableHead>Próximo passo</TableHead>
                   <TableHead numeric>
                     <span className="inline-flex items-center gap-1">
@@ -87,6 +92,11 @@ export function QueueCard({ panel }: QueueCardProps) {
                         <span className="text-xs text-muted-foreground">{stageDate(measure)}</span>
                       </span>
                     </TableCell>
+                    <TableCell numeric>
+                      <span className={budgetTone(measure.budget_effect)}>
+                        {signedShareLabel(measure.budget_effect)}
+                      </span>
+                    </TableCell>
                     <TableCell className="whitespace-normal">{nextStep(measure, today)}</TableCell>
                     <TableCell numeric>
                       <ChanceCell measure={measure} today={today} vigenceDays={panel.vigence_days} />
@@ -115,6 +125,18 @@ export function QueueCard({ panel }: QueueCardProps) {
                     </TableCell>
                   </TableRow>
                 ))}
+                <TableRow>
+                  <TableCell colSpan={2}>
+                    <b>Se a fila inteira passar</b>
+                  </TableCell>
+                  <TableCell numeric>
+                    <b className={budgetTone(panel.queue_budget.total)}>{signedShareLabel(panel.queue_budget.total)}</b>
+                  </TableCell>
+                  <TableCell colSpan={3} variant="note" className="whitespace-normal">
+                    resultado de {shareLabel(panel.queue_budget.result_now)} para{" "}
+                    {shareLabel(panel.queue_budget.result_if_passes)} do PIB por ano
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           )}
@@ -127,6 +149,13 @@ export function QueueCard({ panel }: QueueCardProps) {
       </CardContent>
     </Card>
   );
+}
+
+/** Medida que soma à receita pesa em verde; a que tira, em vermelho. */
+function budgetTone(change: string | number) {
+  const value = Number(change);
+  if (value > 0) return "text-success";
+  return value < 0 ? "text-destructive" : "text-muted-foreground";
 }
 
 /** "Proposta em 02 mar", "Aprovada em 29 fev": o dia em que a etapa atual começou. */

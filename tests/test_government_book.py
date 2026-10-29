@@ -36,7 +36,13 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.utils import required
 from backend.features.government import approval as approval_rules
-from backend.features.government import campaign, congress, election, voters
+from backend.features.government import (
+    budget_panel,
+    campaign,
+    congress,
+    election,
+    voters,
+)
 from backend.features.government.calendar import election_cycle
 from backend.features.government.campaign_panel import build_campaign, build_history
 from backend.features.government.government_book import GovernmentBook
@@ -770,7 +776,7 @@ def market(monkeypatch: pytest.MonkeyPatch):
     """O mercado que a aprovação lê; cada teste escolhe o dele."""
 
     def use(value: approval_rules.Market) -> None:
-        monkeypatch.setattr(approval_rules, "market_on", lambda _day: value)
+        monkeypatch.setattr(approval_rules, "market_on", lambda _day, *_: value)
 
     use(GOOD_MARKET)
     return use
@@ -1582,3 +1588,51 @@ def test_the_impeachment_names_the_president_who_falls(
     assert texts(headlines, NewsType.ELECTION_RESULT)[-1] == (
         "Impeachment tira Alice (AAA) da Presidência"
     )
+
+
+def test_the_engine_reads_the_risk_premium_from_the_budget(
+    book: GovernmentBook, engine
+):
+    # A dívida de largada passa de 50% do PIB: o Tesouro já cobra prêmio no primeiro dia
+    premium = engine.risk_premium_on(CAMPAIGN_OPEN)
+
+    assert premium == book.risk_premium_on(CAMPAIGN_OPEN)
+    assert premium == book.budget().premium_on(CAMPAIGN_OPEN)
+
+
+def test_preview_estimates_what_the_measure_does_to_the_budget(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+
+    cut = book.preview(
+        ALICE, TERM_START, MeasureKind.STOCK_PROFIT_RATE, Decimal("0.05"), None, None
+    )
+    raise_ = book.preview(
+        ALICE, TERM_START, MeasureKind.DAY_TRADE_RATE, Decimal("0.30"), None, None
+    )
+
+    assert cut.budget.revenue_change < 0
+    assert cut.budget.result_after < cut.budget.result_before
+    assert cut.budget.debt_after > cut.budget.debt_before
+    assert cut.budget.rate_before == Decimal("0.15")
+    assert cut.budget.rate_after == Decimal("0.05")
+    assert raise_.budget.revenue_change > 0
+    assert raise_.budget.debt_after < raise_.budget.debt_before
+
+
+def test_queue_budget_sums_the_queued_measures_on_the_current_policy(
+    book: GovernmentBook, engine, market
+):
+    govern(book, engine)
+    propose(book, "0.20")
+
+    queue = budget_panel.queue_budget(
+        book.budget(),
+        book.latest_policy(),
+        [m for m in book.state.measures.values() if m.status is MeasureStatus.QUEUED],
+        TERM_START,
+    )
+
+    assert queue.total > 0
+    assert queue.result_if_passes == queue.result_now + queue.total

@@ -8,6 +8,7 @@ from typing import Annotated
 from pydantic import Field, StringConstraints
 
 from backend.core.dto.base import BaseDTO
+from backend.core.dto.budget import BudgetEffectDTO, QueueBudgetDTO
 from backend.core.dto.promises import (
     PromiseDTO,
     PromiseOptionDTO,
@@ -415,6 +416,8 @@ class MeasureDTO(BaseDTO):
     days_left: int | None
     # Pontos no alvo da aprovação geral quando a medida vale cheia
     impact: int
+    # Quanto a medida muda a receita do governo, em fração do PIB por ano
+    budget_effect: Decimal
     # A medida cumpre uma promessa da chapa que governa
     fulfills_promise: bool
     can_withdraw: bool
@@ -573,6 +576,8 @@ class GovernmentPanelDTO(BaseDTO):
     taxes: list[TaxRowDTO]
     sector_measures: list[SectorMeasureDTO]
     queue: list[MeasureDTO]
+    # A fila inteira do Congresso, se passar
+    queue_budget: QueueBudgetDTO
     next_vote: date
     portfolio: FrozenPortfolioDTO | None
     sectors: list[SectorOptionDTO]
@@ -633,6 +638,8 @@ class MeasurePreviewDTO(BaseDTO):
     effective: date
     assets: int | None
     holdings: list[MeasureHoldingDTO]
+    # O que a medida faz com a conta do governo, estimado
+    budget: BudgetEffectDTO
 
 
 # Requisições

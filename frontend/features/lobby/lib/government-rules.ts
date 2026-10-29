@@ -1,7 +1,8 @@
 import { addYears, format } from "date-fns";
-import { parseLocalDate } from "@/shared/lib/utils/display";
+import { displayPremiumPoints } from "@/shared/lib/budget-metrics";
+import { displayMoneyLarge, displayPercent, parseLocalDate } from "@/shared/lib/utils/display";
 import { isIsoDate } from "@/shared/lib/utils/date-field";
-import type { ComputerDifficulty } from "@/types";
+import type { ComputerDifficulty, InitialAccount, InitialAccountPreview } from "@/types";
 
 /** A campanha dura um ano e o mandato, quatro: menos que isso a partida não fecha um ciclo. */
 export const GOVERNMENT_MIN_YEARS = 5;
@@ -11,6 +12,12 @@ export const COMPUTER_DIFFICULTIES: { value: ComputerDifficulty; label: string; 
   { value: "EASY", label: "Fácil", factor: 0.5 },
   { value: "NORMAL", label: "Médio", factor: 1 },
   { value: "HARD", label: "Difícil", factor: 1.5 },
+];
+
+/** As duas contas iniciais do governo: de onde a partida parte na dívida e no resultado primário. */
+export const INITIAL_ACCOUNTS: { value: InitialAccount; label: string }[] = [
+  { value: "PLAYABLE", label: "Jogável" },
+  { value: "REALISTIC", label: "Realista" },
 ];
 
 const MEAN_BUDGET_EXAMPLE = 10_000;
@@ -73,4 +80,45 @@ export function governmentRuleError({ start, end, firstElection }: GovernmentRul
     return { path: "firstElection" as const, message: "A primeira eleição precisa cair dentro da partida." };
   }
   return null;
+}
+
+/** "déficit primário de 1,7% do PIB por ano" / "superávit primário de ..." / "resultado primário zero" */
+function primaryPhrase(primary: string) {
+  const value = Number(primary);
+  if (value === 0) return "resultado primário zero";
+  return `${value < 0 ? "déficit" : "superávit"} primário de ${displayPercent(Math.abs(value), 1)} do PIB por ano`;
+}
+
+/** O prêmio chega em fração (0.0097) e sai em pontos percentuais. */
+function premiumPhrase(premium: string) {
+  if (Number(premium) === 0)
+    return "A dívida está abaixo de 50% do PIB: os títulos do Tesouro ainda não cobram prêmio de risco.";
+  return `O prêmio de risco já vale desde o início: ${displayPremiumPoints(premium)} a mais nos títulos do Tesouro.`;
+}
+
+/** O que a conta escolhida faz com o resultado primário, em uma frase. */
+export function initialAccountDescription(account: InitialAccount, preview: InitialAccountPreview | undefined) {
+  if (account === "PLAYABLE") {
+    return "Começa com a dívida real do ano anterior e a receita igual ao gasto: a dívida só cresce com os juros, e o déficit nasce das medidas do governo.";
+  }
+  if (!preview) return "Começa com a dívida e o déficit reais do ano anterior ao início da partida.";
+  return `O primeiro governo herda a conta real de ${preview.year}: dívida de ${displayPercent(preview.realistic.debt, 1)} do PIB e ${primaryPhrase(preview.realistic.primary)}.`;
+}
+
+export type InitialAccountExample = {
+  year: number;
+  /** Os números que a conta escolhida herda, na ordem em que aparecem */
+  figures: string[];
+  premium: string;
+};
+
+/** O exemplo da conta escolhida: a dívida, o resultado primário (com o valor em reais) e o prêmio que a dívida já cobra. */
+export function initialAccountExample(account: InitialAccount, preview: InitialAccountPreview): InitialAccountExample {
+  const option = account === "PLAYABLE" ? preview.playable : preview.realistic;
+  const amount = Number(option.primary) === 0 ? "" : ` (${displayMoneyLarge(Math.abs(Number(option.primary_amount)))})`;
+  return {
+    year: preview.year,
+    figures: [`dívida ${displayPercent(option.debt, 1)} do PIB`, `${primaryPhrase(option.primary)}${amount}`],
+    premium: premiumPhrase(option.premium),
+  };
 }

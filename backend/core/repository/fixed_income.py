@@ -23,6 +23,7 @@ def _to_asset_dto(asset: FixedIncomeAsset) -> FixedIncomeAssetDTO:
         daily_liquidity=asset.daily_liquidity,
         player_cap=asset.player_cap,
         offered_until=asset.offered_until,
+        risk_premium=asset.risk_premium,
     )
 
 
@@ -48,6 +49,7 @@ class FixedIncomeRepository:
             daily_liquidity=asset.daily_liquidity,
             player_cap=asset.player_cap,
             offered_until=asset.offered_until,
+            risk_premium=asset.risk_premium,
         )
         session.add(db_asset)
         session.flush()

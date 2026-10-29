@@ -1,8 +1,22 @@
 import { Kpi } from "@/shared/components/kpi";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { cn } from "@/shared/lib/utils";
+import { DEBT_GDP, GROWTH, UNEMPLOYMENT } from "@/shared/lib/budget-metrics";
 import type { EconomyPanel } from "@/types";
-import { ipcaExample, lastCopomNote, realRateTone, selicExample, targetNote } from "../lib/economy";
+import {
+  debtNote,
+  debtTone,
+  growthExample,
+  ipcaExample,
+  lastCopomNote,
+  lastMonthChange,
+  monthChangeNote,
+  realRateTone,
+  selicExample,
+  targetNote,
+  unemploymentExample,
+} from "../lib/economy";
 import { IPCA, REAL_RATE, SELIC } from "../lib/economy-metrics";
 
 type EconomyKpisProps = { panel: EconomyPanel };
@@ -12,7 +26,7 @@ type TileProps = {
   value: string;
   note: string;
   description: string;
-  tone?: "destructive" | "default";
+  tone?: "destructive" | "warning" | "default";
 };
 
 function Tile({ metric, value, note, description, tone = "default" }: TileProps) {
@@ -38,13 +52,14 @@ function Tile({ metric, value, note, description, tone = "default" }: TileProps)
   );
 }
 
-/** Os três números de hoje: SELIC, inflação de 12 meses e o juro real que sobra entre as duas. */
+/** Os números de hoje: SELIC, crescimento, dívida (só com a expansão Governo), inflação, juro real e desemprego. */
 export function EconomyKpis({ panel }: EconomyKpisProps) {
   const today = panel.points.at(-1);
   if (!today) return null;
+  const { debt, growth_parts: parts } = panel;
 
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
+    <div className={cn("grid gap-3 sm:grid-cols-3", debt ? "xl:grid-cols-6" : "xl:grid-cols-5")}>
       {/* SELIC */}
       <Tile
         metric={SELIC}
@@ -52,6 +67,26 @@ export function EconomyKpis({ panel }: EconomyKpisProps) {
         note={lastCopomNote(panel.copom_changes)}
         description={selicExample(today)}
       />
+
+      {/* Crescimento do PIB */}
+      <Tile
+        metric={GROWTH}
+        value={GROWTH.format(today.growth)}
+        note={monthChangeNote(lastMonthChange(panel.points, "growth"))}
+        description={growthExample(parts.trend)}
+        tone={Number(today.growth) < 0 ? "destructive" : "default"}
+      />
+
+      {/* Dívida em % do PIB */}
+      {debt && (
+        <Tile
+          metric={DEBT_GDP}
+          value={DEBT_GDP.format(debt.debt)}
+          note={debtNote(debt.premium)}
+          description="Quanto o governo deve perto de tudo o que o país produz num ano."
+          tone={debtTone(debt.premium)}
+        />
+      )}
 
       {/* IPCA */}
       <Tile metric={IPCA} value={IPCA.format(today.ipca)} note={targetNote(today)} description={ipcaExample(today)} />
@@ -63,6 +98,14 @@ export function EconomyKpis({ panel }: EconomyKpisProps) {
         note="SELIC − IPCA"
         description={`${REAL_RATE.description}.`}
         tone={realRateTone(today)}
+      />
+
+      {/* Desemprego */}
+      <Tile
+        metric={UNEMPLOYMENT}
+        value={UNEMPLOYMENT.format(today.unemployment)}
+        note={monthChangeNote(lastMonthChange(panel.points, "unemployment"))}
+        description={unemploymentExample(today)}
       />
     </div>
   );

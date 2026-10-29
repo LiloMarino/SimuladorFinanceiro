@@ -6,6 +6,7 @@ import {
   displayShortMonthYear,
   parseLocalDate,
 } from "@/shared/lib/utils/display";
+import { displayPremiumPoints } from "@/shared/lib/budget-metrics";
 import type { EconomyPanel } from "@/types";
 
 type EconomyPoint = EconomyPanel["points"][number];
@@ -21,6 +22,10 @@ export type EconomyRow = {
   target: number;
   /** A faixa da meta: de meta − tolerância até meta + tolerância */
   band: [number, number];
+  growth: number;
+  unemployment: number;
+  /** Só nas partidas com a expansão Governo */
+  debt: number | null;
   /** Mudança da SELIC decidida nesse dia, quando houve */
   copom: CopomChange | undefined;
 };
@@ -42,6 +47,9 @@ export function economyRows(panel: EconomyPanel, range: EconomyRange = "all"): E
         number,
         number,
       ],
+      growth: Number(point.growth),
+      unemployment: Number(point.unemployment),
+      debt: point.debt === null ? null : Number(point.debt),
       copom: changeByDate.get(point.date),
     }))
     .filter((row) => row.time >= since);
@@ -81,4 +89,103 @@ export function ipcaExample(point: EconomyPoint): string {
 /** Juro real negativo é dinheiro perdendo da inflação. */
 export function realRateTone(point: EconomyPoint): "destructive" | "default" {
   return Number(point.real_rate) < 0 ? "destructive" : "default";
+}
+
+type MonthlySeries = "growth" | "unemployment";
+
+/** Quanto o número andou no último fechamento de mês: o valor só muda nos fechamentos, então vale a última diferença entre pontos vizinhos. */
+export function lastMonthChange(points: EconomyPoint[], key: MonthlySeries): number | null {
+  for (let i = points.length - 1; i > 0; i -= 1) {
+    const now = points[i]?.[key];
+    const before = points[i - 1]?.[key];
+    if (now !== undefined && before !== undefined && now !== before) return Number(now) - Number(before);
+  }
+  return null;
+}
+
+const POINTS_FORMAT = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+/** Fração em pontos percentuais com uma casa e o menos tipográfico (0.011 → "+1,1", −0.009 → "−0,9"). */
+export function signedPoints(fraction: number) {
+  const points = Math.round(fraction * 1000) / 10;
+  if (points === 0) return POINTS_FORMAT.format(0);
+  return `${points < 0 ? "−" : "+"}${POINTS_FORMAT.format(Math.abs(points))}`;
+}
+
+/** "▲ 0,3 no mês" / "▼ 0,3 no mês" / "estável no mês"; sem fechamento ainda, o aviso de que o mês não fechou. */
+export function monthChangeNote(change: number | null): string {
+  if (change === null) return "ainda sem fechamento";
+  const points = Math.abs(Math.round(change * 1000) / 10);
+  if (points === 0) return "estável no mês";
+  return `${change > 0 ? "▲" : "▼"} ${POINTS_FORMAT.format(points)} no mês`;
+}
+
+/** Onde o crescimento mora hoje, contra a tendência. */
+export function growthExample(trend: string): string {
+  return `Quanto a economia cresceu em 12 meses. A tendência é ${displayPercent(trend, 0)}.`;
+}
+
+/** Desemprego em "de cada 100". */
+export function unemploymentExample(point: EconomyPoint): string {
+  const per100 = (Number(point.unemployment) * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+  return `De cada 100 pessoas que procuram emprego, ${per100} não acham.`;
+}
+
+/** Com prêmio, o aviso de que a dívida já encarece o Tesouro. */
+export function debtNote(premium: string): string {
+  return Number(premium) > 0 ? `prêmio de ${displayPremiumPoints(premium)}` : "sem prêmio de risco";
+}
+
+export function debtTone(premium: string): "warning" | "default" {
+  return Number(premium) > 0 ? "warning" : "default";
+}
+
+type GrowthParts = EconomyPanel["growth_parts"];
+
+export type GrowthLine = {
+  label: string;
+  detail: string | null;
+  value: string;
+  tone: "up" | "down" | "neutral";
+};
+
+function lineTone(part: number): GrowthLine["tone"] {
+  if (part > 0) return "up";
+  return part < 0 ? "down" : "neutral";
+}
+
+/** As três partes que somam o alvo do crescimento, com o motivo de cada uma. */
+export function growthLines(parts: GrowthParts): GrowthLine[] {
+  const realRatePart = Number(parts.real_rate_part);
+  const stocksPart = Number(parts.stocks_part);
+  const realRate = Number(parts.real_rate);
+  const neutral = Number(parts.neutral_real_rate);
+  const cheapCredit = realRate < neutral;
+
+  return [
+    { label: "Tendência da economia", detail: null, value: signedPoints(Number(parts.trend)), tone: "neutral" },
+    {
+      label: `Juro real ${cheapCredit ? "abaixo" : "acima"} do neutro`,
+      detail: `${displayPercent(realRate, 2)} contra ${displayPercent(neutral, 0)}: ${
+        cheapCredit ? "crédito barato empurra" : "crédito caro freia"
+      }`,
+      value: signedPoints(realRatePart),
+      tone: lineTone(realRatePart),
+    },
+    {
+      label: "Bolsa em 12 meses",
+      detail:
+        parts.stocks === null
+          ? "Sem série da bolsa nesse período: não empurra nem freia"
+          : `Ibovespa ${signedPercent(Number(parts.stocks))}: empresas investem ${stocksPart >= 0 ? "mais" : "menos"}`,
+      value: signedPoints(stocksPart),
+      tone: lineTone(stocksPart),
+    },
+  ];
+}
+
+/** "+3%" / "−17%", sem casas. */
+function signedPercent(fraction: number) {
+  const percent = Math.round(fraction * 100);
+  return `${percent < 0 ? "−" : "+"}${Math.abs(percent)}%`;
 }

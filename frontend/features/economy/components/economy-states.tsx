@@ -4,12 +4,16 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
-/** Esqueleto no formato da tela: a faixa de números e o gráfico. */
+/** Esqueleto no formato da tela: a faixa de números, o gráfico e os cartões de crescimento e desemprego. */
 export function EconomySkeleton() {
   return (
     <div className="grid gap-5" aria-busy="true" aria-label="Carregando a economia">
       <Skeleton className="h-28" />
       <Skeleton className="h-96" />
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Skeleton className="h-96" />
+        <Skeleton className="h-96" />
+      </div>
     </div>
   );
 }

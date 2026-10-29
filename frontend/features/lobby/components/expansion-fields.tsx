@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Controller, useWatch, type UseFormReturn } from "react-hook-form";
 import { TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
@@ -9,6 +10,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Switch } from "@/shared/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { EXPANSIONS } from "@/shared/lib/expansions";
+import { isIsoDate } from "@/shared/lib/utils/date-field";
 import { displayIsoDate } from "@/shared/lib/utils/display";
 import { cn } from "@/shared/lib/utils";
 import {
@@ -17,9 +19,13 @@ import {
   defaultFirstElection,
   difficultyExample,
   GOVERNMENT_MIN_YEARS,
+  INITIAL_ACCOUNTS,
+  initialAccountDescription,
+  initialAccountExample,
   spansYears,
   wholeYears,
 } from "../lib/government-rules";
+import { useInitialAccount } from "../hooks/queries/useInitialAccount";
 import type { SimulationFormValues } from "./lobby-match";
 
 const GOVERNMENT = EXPANSIONS.government;
@@ -37,6 +43,7 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
     name: ["governmentEnabled", "startDate", "endDate", "firstElection", "computerDifficulty", "gameType"],
   });
   const longEnough = spansYears(startDate, endDate, GOVERNMENT_MIN_YEARS);
+  const initialAccount = useInitialAccount(startDate, { enabled: enabled && isIsoDate(startDate) });
   const opening = campaignOpening(startDate, firstElection);
 
   // Ligar sugere a data da primeira eleição; desligar tira a vitória política, que depende da expansão
@@ -234,6 +241,78 @@ export function ExpansionFields({ form, readOnly }: ExpansionFieldsProps) {
                 </div>
               )}
             />
+
+            {/* Conta inicial do governo */}
+            <Controller
+              control={form.control}
+              name="initialAccount"
+              render={({ field }) => (
+                <div className="grid gap-2 rounded-lg border border-info-border bg-info-soft/40 p-3">
+                  <span className="inline-flex items-center gap-1 text-sm font-medium">
+                    Conta inicial do governo
+                    <InfoHint label="O que é a conta inicial">
+                      <div className="space-y-1 text-left">
+                        <p>
+                          A conta do país tem a dívida (o que o governo já deve) e o resultado primário (receita menos
+                          despesa, sem contar os juros da dívida). Aqui você escolhe com que resultado primário a
+                          partida começa.
+                        </p>
+                        <p>
+                          Ex.: um déficit primário de 1,7% do PIB quer dizer que o governo gasta 1,7% do PIB a mais do
+                          que arrecada, por ano, fora os juros.
+                        </p>
+                        <p>
+                          Jogável começa com receita igual ao gasto, e o déficit só aparece se o presidente mexer nos
+                          impostos. Realista começa com o déficit que o Brasil tinha no ano de início.
+                        </p>
+                      </div>
+                    </InfoHint>
+                  </span>
+                  <ToggleGroup
+                    variant="segmented"
+                    aria-label="Conta inicial do governo"
+                    value={[field.value]}
+                    onValueChange={(values) => values[0] && field.onChange(values[0])}
+                    disabled={readOnly}
+                    className="w-full"
+                  >
+                    {INITIAL_ACCOUNTS.map((option) => (
+                      <ToggleGroupItem key={option.value} value={option.value} className="flex-1">
+                        {option.label}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                  <span className="text-xs leading-normal text-muted-foreground">
+                    {initialAccountDescription(field.value, initialAccount.data)}
+                  </span>
+                  {initialAccount.data && (
+                    <span className="rounded-md bg-card px-2.5 py-1.5 text-xs text-muted-foreground">
+                      Começa em {initialAccount.data.year} com:{" "}
+                      {initialAccountExample(field.value, initialAccount.data).figures.map((figure, index) => (
+                        <Fragment key={figure}>
+                          {index > 0 && " · "}
+                          <b className="font-mono text-foreground">{figure}</b>
+                        </Fragment>
+                      ))}
+                      . {initialAccountExample(field.value, initialAccount.data).premium}
+                    </span>
+                  )}
+                  <span className="text-[11.5px] text-faint-foreground">
+                    Dívida e déficit saem dos dados anuais do Banco Central; no futuro gerado, vale o último ano com
+                    dado.
+                  </span>
+                </div>
+              )}
+            />
+
+            {/* Juros */}
+            <Alert variant="muted">
+              <AlertTitle>SELIC com o Banco Central autônomo</AlertTitle>
+              <AlertDescription>
+                Como no Brasil desde 2021: a SELIC reage à inflação sozinha, como no gerador. O governo mexe nos
+                impostos, não nos juros.
+              </AlertDescription>
+            </Alert>
           </div>
         )}
       </div>

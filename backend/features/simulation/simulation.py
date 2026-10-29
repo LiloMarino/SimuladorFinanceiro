@@ -13,6 +13,7 @@ import pandas as pd
 
 from backend import config
 from backend.core import repository
+from backend.core.dto.budget import BudgetDTO
 from backend.core.dto.campaign import (
     CampaignActionRequest,
     CampaignHistoryDTO,
@@ -99,6 +100,7 @@ from backend.features.credit.overview import (
     build_prepayment_preview,
 )
 from backend.features.credit.overview import build_quote as build_loan_quote
+from backend.features.economy.growth import MacroCourse
 from backend.features.economy.panel import build_economy_panel
 from backend.features.fixed_income.accrual import (
     income_tax_brackets,
@@ -114,6 +116,7 @@ from backend.features.fixed_income.assistance import (
     build_quote,
 )
 from backend.features.fixed_income.liquidity import overdraft_cover, total_redeemable
+from backend.features.government.budget_panel import build_budget
 from backend.features.government.campaign_panel import (
     build_campaign,
     build_history,
@@ -250,6 +253,9 @@ class Simulation:
         if backtest is not None:
             self._strategies.on_failure = self._backtest_failed
 
+        # Crescimento e desemprego do país: o painel da economia e a aprovação leem o mesmo curso
+        self._macro = MacroCourse(settings.start_date)
+
         # Expansão Governo & Política: o estado político volta dos eventos gravados
         self._government = (
             GovernmentBook(
@@ -258,6 +264,7 @@ class Simulation:
                 self._take_office,
                 lambda day, headline: news.publish(settings.id, day, headline),
                 random_seed,
+                self._macro,
             )
             if settings.government_enabled and backtest is None
             else None
@@ -565,6 +572,16 @@ class Simulation:
             repository.simulation_player.participants(self.settings.id),
             user,
             self._current_date,
+        )
+
+    @synchronized
+    def get_budget(self) -> BudgetDTO:
+        book = self._ensure_government()
+        return build_budget(
+            book.budget(),
+            book.policy(self._current_date),
+            self._current_date,
+            book.term_end(),
         )
 
     @synchronized
@@ -1223,7 +1240,12 @@ class Simulation:
 
     @synchronized
     def get_economy_panel(self) -> EconomyPanelDTO:
-        return build_economy_panel(self.settings.start_date, self._current_date)
+        return build_economy_panel(
+            self.settings.start_date,
+            self._current_date,
+            self._macro,
+            self._government.budget() if self._government is not None else None,
+        )
 
     @synchronized
     def preview_order(

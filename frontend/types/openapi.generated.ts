@@ -1261,7 +1261,7 @@ export interface paths {
         };
         /**
          * Obter o painel da economia
-         * @description A SELIC, o IPCA de 12 meses, o juro real e a meta de inflação, um ponto por mês desde o início da partida até hoje, e os dias em que o Copom mudou a SELIC.
+         * @description A SELIC, o IPCA de 12 meses, o juro real, a meta de inflação, o crescimento do PIB e o desemprego, um ponto por mês desde o início da partida até hoje, os dias em que o Copom mudou a SELIC e o que puxa o crescimento hoje. Nas partidas com a expansão Governo & Política, traz também a dívida em % do PIB e o prêmio de risco de cada ponto e o resumo da dívida.
          */
         get: operations["get_economy_api_economy_get"];
         put?: never;
@@ -1909,9 +1909,49 @@ export interface paths {
         };
         /**
          * Obter o governo
-         * @description Retorna o governo em vigor, a aprovação com o histórico e os fatores, os impostos de hoje, as medidas por setor, a fila do Congresso (pública), o próximo voto e a carteira congelada do presidente. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         * @description Retorna o governo em vigor, a aprovação com o histórico e os fatores, os impostos de hoje, as medidas por setor, a fila do Congresso (pública) com o efeito de cada medida no orçamento e o da fila inteira, o próximo voto e a carteira congelada do presidente. Recusa com 409 quando a partida não usa a expansão Governo & Política.
          */
         get: operations["get_government_api_government_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/budget": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter o orçamento
+         * @description Retorna a conta do governo no último fechamento de mês (receita, gasto, juros, resultado e dívida, em % do PIB por ano e em reais), a receita de cada imposto do jogo contra a política padrão, os fechamentos já feitos, a projeção da dívida até o fim do mandato e a curva do prêmio de risco. Pública: a sala inteira vê. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         */
+        get: operations["get_budget_api_government_budget_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/government/initial-account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter a conta inicial do governo
+         * @description Para uma data de início, mostra o que a partida herda nas duas contas iniciais: a dívida do fim do ano anterior em % do PIB, o resultado primário (zero na jogável, o real do ano de início na realista) e o prêmio de risco que a dívida já cobra. Antes de a sala existir, o lobby usa para explicar a escolha.
+         */
+        get: operations["get_initial_account_api_government_initial_account_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1951,7 +1991,7 @@ export interface paths {
         put?: never;
         /**
          * Simular uma medida
-         * @description Mostra o que a medida faria sem propô-la: faixa na régua, marca do governo antes e depois, pontos na aprovação, chance no próximo voto, quando passaria a valer e, nas medidas de setor, quem tem os ativos atingidos.
+         * @description Mostra o que a medida faria sem propô-la: faixa na régua, marca do governo antes e depois, pontos na aprovação, chance no próximo voto, quando passaria a valer, o efeito estimado no orçamento (imposto atingido, receita, resultado e dívida no fim do mandato) e, nas medidas de setor, quem tem os ativos atingidos.
          */
         post: operations["preview_measure_api_government_measures_preview_post"];
         delete?: never;
@@ -3107,7 +3147,7 @@ export interface components {
          * @description O que empurra o alvo de satisfação de um grupo; BASE é o ponto neutro.
          * @enum {string}
          */
-        ApprovalFactorKind: "BASE" | "INFLATION" | "SELIC" | "STOCKS" | "MEASURE";
+        ApprovalFactorKind: "BASE" | "INFLATION" | "SELIC" | "STOCKS" | "UNEMPLOYMENT" | "RISK_PREMIUM" | "MEASURE";
         /** ApprovalPointDTO */
         ApprovalPointDTO: {
             /**
@@ -3483,6 +3523,145 @@ export interface components {
             added_by: string;
             /** Log Open */
             log_open: boolean;
+        };
+        /**
+         * BudgetAmountsDTO
+         * @description O mês do último fechamento em reais: o que entrou, o que saiu e o resultado.
+         */
+        BudgetAmountsDTO: {
+            /** Revenue */
+            revenue: string;
+            /** Spending */
+            spending: string;
+            /** Primary */
+            primary: string;
+            /** Interest */
+            interest: string;
+            /** Result */
+            result: string;
+            /** Debt */
+            debt: string;
+        };
+        /** BudgetDTO */
+        BudgetDTO: {
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            month: components["schemas"]["BudgetMonthDTO"];
+            amounts: components["schemas"]["BudgetAmountsDTO"];
+            /** Taxes */
+            taxes: components["schemas"]["BudgetTaxDTO"][];
+            /** Fixed Revenue */
+            fixed_revenue: string;
+            /** Total Revenue */
+            total_revenue: string;
+            /** Total Difference */
+            total_difference: string;
+            /** History */
+            history: components["schemas"]["BudgetMonthDTO"][];
+            /** Projection */
+            projection: components["schemas"]["BudgetMonthDTO"][];
+            /**
+             * Projection End
+             * Format: date
+             */
+            projection_end: string;
+            /** Premium Curve */
+            premium_curve: components["schemas"]["PremiumPointDTO"][];
+            /** Premium Floor */
+            premium_floor: string;
+        };
+        /**
+         * BudgetEffectDTO
+         * @description O que uma medida faz com a conta do governo, estimado: o imposto atingido, a
+         *     receita dele e o resultado e a dívida no fim do mandato, antes e depois.
+         */
+        BudgetEffectDTO: {
+            /** Revenue Change */
+            revenue_change: string;
+            /** Revenue Change Amount */
+            revenue_change_amount: string;
+            /** Tax Name */
+            tax_name: string;
+            /** Rate Before */
+            rate_before: string | null;
+            /** Rate After */
+            rate_after: string | null;
+            /** Tax Revenue Before */
+            tax_revenue_before: string;
+            /** Tax Revenue After */
+            tax_revenue_after: string;
+            /** Result Before */
+            result_before: string;
+            /** Result After */
+            result_after: string;
+            /**
+             * Debt End
+             * Format: date
+             */
+            debt_end: string;
+            /** Debt Before */
+            debt_before: string;
+            /** Debt After */
+            debt_after: string;
+        };
+        /**
+         * BudgetMonthDTO
+         * @description O orçamento no fim de um mês, em fração do PIB por ano (0.0183 = 1,83%). Antes do
+         *     primeiro fechamento, `closed` é falso e juros e resultado ainda não existem.
+         */
+        BudgetMonthDTO: {
+            /**
+             * Month End
+             * Format: date
+             */
+            month_end: string;
+            /** Revenue */
+            revenue: string;
+            /** Spending */
+            spending: string;
+            /** Primary */
+            primary: string;
+            /** Interest */
+            interest: string;
+            /** Result */
+            result: string;
+            /** Debt */
+            debt: string;
+            /** Premium */
+            premium: string;
+            /** Gdp */
+            gdp: string;
+            /** Closed */
+            closed: boolean;
+        };
+        /**
+         * BudgetTaxDTO
+         * @description Um imposto do jogo: a alíquota de hoje e a padrão, o que arrecada e a diferença contra a padrão.
+         */
+        BudgetTaxDTO: {
+            /** Key */
+            key: string;
+            /** Name */
+            name: string;
+            /** Rate */
+            rate: string | null;
+            /** Default Rate */
+            default_rate: string | null;
+            /** Revenue */
+            revenue: string;
+            /** Difference */
+            difference: string;
+            /** Top Rate */
+            top_rate: string | null;
+            /** Floor Rate */
+            floor_rate: string | null;
+            /** Default Top Rate */
+            default_top_rate: string | null;
+            /** Default Floor Rate */
+            default_floor_rate: string | null;
         };
         /** BuyFixedIncomeRequest */
         BuyFixedIncomeRequest: {
@@ -4058,6 +4237,8 @@ export interface components {
              * @default true
              */
             poll_margin: boolean;
+            /** @default PLAYABLE */
+            initial_account: components["schemas"]["InitialAccount"];
         };
         /**
          * CreditCostDTO
@@ -4219,6 +4400,27 @@ export interface components {
             /** Debt Limit */
             debt_limit: string;
         };
+        /**
+         * DebtSummaryDTO
+         * @description A dívida do governo no último fechamento de mês.
+         */
+        DebtSummaryDTO: {
+            /**
+             * Month End
+             * Format: date
+             */
+            month_end: string;
+            /** Debt */
+            debt: string;
+            /** Premium */
+            premium: string;
+            /** Debt Amount */
+            debt_amount: string;
+            /** Gdp */
+            gdp: string;
+            /** Month Result */
+            month_result: string | null;
+        };
         /** DeclarationDTO */
         DeclarationDTO: {
             /**
@@ -4307,6 +4509,8 @@ export interface components {
             points: components["schemas"]["EconomyPointDTO"][];
             /** Copom Changes */
             copom_changes: components["schemas"]["CopomChangeDTO"][];
+            growth_parts: components["schemas"]["GrowthPartsDTO"];
+            debt: components["schemas"]["DebtSummaryDTO"] | null;
         };
         /**
          * EconomyPointDTO
@@ -4328,6 +4532,14 @@ export interface components {
             target: string;
             /** Tolerance */
             tolerance: string;
+            /** Growth */
+            growth: string;
+            /** Unemployment */
+            unemployment: string;
+            /** Debt */
+            debt: string | null;
+            /** Premium */
+            premium: string | null;
         };
         /** ElectionDatesDTO */
         ElectionDatesDTO: {
@@ -4499,6 +4711,8 @@ export interface components {
             player_cap: string | null;
             /** Offered Until */
             offered_until: string | null;
+            /** Risk Premium */
+            risk_premium: string | null;
         };
         /**
          * FixedIncomeOfferDTO
@@ -4532,6 +4746,8 @@ export interface components {
             player_cap: string | null;
             /** Offered Until */
             offered_until: string | null;
+            /** Risk Premium */
+            risk_premium: string | null;
             /** Index Rate */
             index_rate: string;
             /** Effective Annual Rate */
@@ -4857,6 +5073,7 @@ export interface components {
             sector_measures: components["schemas"]["SectorMeasureDTO"][];
             /** Queue */
             queue: components["schemas"]["MeasureDTO"][];
+            queue_budget: components["schemas"]["QueueBudgetDTO"];
             /**
              * Next Vote
              * Format: date
@@ -4956,7 +5173,7 @@ export interface components {
          * @description Um resultado do governo que o grupo de eleitores lê.
          * @enum {string}
          */
-        GroupReading: "INFLATION" | "SELIC" | "STOCKS" | "CAPITAL_GAINS_TAX";
+        GroupReading: "INFLATION" | "SELIC" | "STOCKS" | "CAPITAL_GAINS_TAX" | "UNEMPLOYMENT" | "RISK_PREMIUM";
         /** GroupScoreDTO */
         GroupScoreDTO: {
             group: components["schemas"]["VoterGroup"];
@@ -4969,6 +5186,29 @@ export interface components {
          * @enum {string}
          */
         GroupVerdict: "APPROVES" | "NEUTRAL" | "REPROVES";
+        /**
+         * GrowthPartsDTO
+         * @description O que puxa o alvo do crescimento hoje, em fração ao ano: tendência + juro real +
+         *     bolsa dão o alvo, e o crescimento anda um quarto do caminho até ele a cada mês.
+         */
+        GrowthPartsDTO: {
+            /** Trend */
+            trend: string;
+            /** Real Rate */
+            real_rate: string;
+            /** Real Rate Part */
+            real_rate_part: string;
+            /** Neutral Real Rate */
+            neutral_real_rate: string;
+            /** Stocks */
+            stocks: string | null;
+            /** Stocks Part */
+            stocks_part: string;
+            /** Target */
+            target: string;
+            /** Growth */
+            growth: string;
+        };
         /** HighlightsDTO */
         HighlightsDTO: {
             biggest_return: components["schemas"]["PlayerHighlightDTO"] | null;
@@ -5349,6 +5589,36 @@ export interface components {
              */
             series: components["schemas"]["IndicatorKey"][];
         };
+        /**
+         * InitialAccount
+         * @description A conta do governo no primeiro dia: a dívida real com receita igual ao gasto, ou com o déficit real.
+         * @enum {string}
+         */
+        InitialAccount: "PLAYABLE" | "REALISTIC";
+        /**
+         * InitialAccountDTO
+         * @description A conta inicial do governo para um início de partida, nas duas opções da sala.
+         */
+        InitialAccountDTO: {
+            /** Year */
+            year: number;
+            playable: components["schemas"]["InitialAccountOptionDTO"];
+            realistic: components["schemas"]["InitialAccountOptionDTO"];
+        };
+        /**
+         * InitialAccountOptionDTO
+         * @description O que a partida herda numa das duas contas iniciais.
+         */
+        InitialAccountOptionDTO: {
+            /** Debt */
+            debt: string;
+            /** Primary */
+            primary: string;
+            /** Primary Amount */
+            primary_amount: string;
+            /** Premium */
+            premium: string;
+        };
         /** InstallmentRowDTO */
         InstallmentRowDTO: {
             /** Number */
@@ -5688,6 +5958,8 @@ export interface components {
             days_left: number | null;
             /** Impact */
             impact: number;
+            /** Budget Effect */
+            budget_effect: string;
             /** Fulfills Promise */
             fulfills_promise: boolean;
             /** Can Withdraw */
@@ -5734,6 +6006,7 @@ export interface components {
             assets: number | null;
             /** Holdings */
             holdings: components["schemas"]["MeasureHoldingDTO"][];
+            budget: components["schemas"]["BudgetEffectDTO"];
         };
         /**
          * MeasureStatus
@@ -6869,6 +7142,16 @@ export interface components {
         PositionUpdateEventDTO: {
             position: components["schemas"]["PositionDTO"];
         };
+        /**
+         * PremiumPointDTO
+         * @description Um ponto da curva do prêmio de risco: a dívida em fração do PIB e o prêmio que ela cobra.
+         */
+        PremiumPointDTO: {
+            /** Debt */
+            debt: string;
+            /** Premium */
+            premium: string;
+        };
         /** PrepayLoanRequestDTO */
         PrepayLoanRequestDTO: {
             /** Amount */
@@ -7199,6 +7482,18 @@ export interface components {
             sector?: string | null;
             /** Segment */
             segment?: string | null;
+        };
+        /**
+         * QueueBudgetDTO
+         * @description A fila inteira do Congresso, se passar: o que muda na receita e no resultado.
+         */
+        QueueBudgetDTO: {
+            /** Total */
+            total: string;
+            /** Result Now */
+            result_now: string;
+            /** Result If Passes */
+            result_if_passes: string;
         };
         /** RankingMoveDTO */
         RankingMoveDTO: {
@@ -7603,6 +7898,8 @@ export interface components {
              * @default true
              */
             poll_margin: boolean;
+            /** @default PLAYABLE */
+            initial_account: components["schemas"]["InitialAccount"];
             /** Id */
             id: number;
             /** Is Backtest */
@@ -8019,6 +8316,8 @@ export interface components {
              * @default true
              */
             poll_margin: boolean;
+            /** @default PLAYABLE */
+            initial_account: components["schemas"]["InitialAccount"];
             /** Id */
             id: number;
         };
@@ -8131,6 +8430,8 @@ export interface components {
              * @default true
              */
             poll_margin: boolean;
+            /** @default PLAYABLE */
+            initial_account: components["schemas"]["InitialAccount"];
         };
         /** SimulationSelectedEventDTO */
         SimulationSelectedEventDTO: {
@@ -8208,6 +8509,8 @@ export interface components {
              * @default true
              */
             poll_margin: boolean;
+            /** @default PLAYABLE */
+            initial_account: components["schemas"]["InitialAccount"];
         };
         /** SimulationSettingsResponse */
         SimulationSettingsResponse: {
@@ -9188,6 +9491,8 @@ export interface components {
              * @default true
              */
             poll_margin: boolean;
+            /** @default PLAYABLE */
+            initial_account: components["schemas"]["InitialAccount"];
         };
         /** UserClaimRequest */
         UserClaimRequest: {
@@ -13420,6 +13725,84 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GovernmentPanelDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_budget_api_government_budget_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_initial_account_api_government_initial_account_get: {
+        parameters: {
+            query: {
+                start: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InitialAccountDTO"];
                 };
             };
             /** @description Unprocessable Content */

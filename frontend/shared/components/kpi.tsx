@@ -6,7 +6,7 @@ type KpiProps = {
   value: ReactNode;
   /** Linha de apoio embaixo do valor */
   note?: ReactNode;
-  tone?: "default" | "success" | "destructive" | undefined;
+  tone?: "default" | "success" | "warning" | "destructive" | undefined;
   className?: string;
 };
 
@@ -19,6 +19,7 @@ export function Kpi({ label, value, note, tone = "default", className }: KpiProp
         className={cn(
           "font-mono text-[22px] leading-tight font-semibold whitespace-nowrap tabular-nums",
           tone === "success" && "text-success",
+          tone === "warning" && "text-warning",
           tone === "destructive" && "text-destructive",
         )}
       >

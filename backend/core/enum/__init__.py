@@ -426,6 +426,13 @@ class SignalPane(Enum):
     OSCILLATOR = "oscillator"
 
 
+class InitialAccount(Enum):
+    """A conta do governo no primeiro dia: a dívida real com receita igual ao gasto, ou com o déficit real."""
+
+    PLAYABLE = "PLAYABLE"
+    REALISTIC = "REALISTIC"
+
+
 class ComputerDifficulty(Enum):
     """A verba de cada partido do computador, em múltiplo da média dos partidos de jogadores."""
 
@@ -612,6 +619,8 @@ class ApprovalFactorKind(Enum):
     INFLATION = "INFLATION"
     SELIC = "SELIC"
     STOCKS = "STOCKS"
+    UNEMPLOYMENT = "UNEMPLOYMENT"
+    RISK_PREMIUM = "RISK_PREMIUM"
     MEASURE = "MEASURE"
 
 
@@ -665,6 +674,8 @@ class GroupReading(Enum):
     SELIC = "SELIC"
     STOCKS = "STOCKS"
     CAPITAL_GAINS_TAX = "CAPITAL_GAINS_TAX"
+    UNEMPLOYMENT = "UNEMPLOYMENT"
+    RISK_PREMIUM = "RISK_PREMIUM"
 
 
 class SummaryKind(Enum):

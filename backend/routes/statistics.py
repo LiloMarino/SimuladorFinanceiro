@@ -190,7 +190,7 @@ def get_economic_indicators(simulation: ActiveSimulation):
     "/economy",
     response_model=EconomyPanelDTO,
     summary="Obter o painel da economia",
-    description="A SELIC, o IPCA de 12 meses, o juro real e a meta de inflação, um ponto por mês desde o início da partida até hoje, e os dias em que o Copom mudou a SELIC.",
+    description="A SELIC, o IPCA de 12 meses, o juro real, a meta de inflação, o crescimento do PIB e o desemprego, um ponto por mês desde o início da partida até hoje, os dias em que o Copom mudou a SELIC e o que puxa o crescimento hoje. Nas partidas com a expansão Governo & Política, traz também a dívida em % do PIB e o prêmio de risco de cada ponto e o resumo da dívida.",
 )
 def get_economy(simulation: ActiveSimulation):
     return simulation.get_economy_panel()

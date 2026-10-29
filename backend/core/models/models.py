@@ -69,6 +69,7 @@ class FixedIncomeAsset(Base):
     )
     player_cap: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 2))
     offered_until: Mapped[datetime.date | None] = mapped_column(Date)
+    risk_premium: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
 
     event_fixed_income: Mapped[list["EventFixedIncome"]] = relationship(
         "EventFixedIncome", back_populates="asset"

@@ -8,6 +8,7 @@ from backend.core.dto.base import BaseDTO
 from backend.core.enum import (
     ComputerDifficulty,
     GameType,
+    InitialAccount,
     PlayerGrouping,
     SimulationStatus,
     TeamNaming,
@@ -86,6 +87,8 @@ class SimulationSettingsDTO(BaseDTO):
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
     # A pesquisa eleitoral mostra cada número com a margem de erro, sorteada pela semente
     poll_margin: bool = True
+    # A conta do governo na largada: a jogável parte de números redondos, a realista da tabela do ano
+    initial_account: InitialAccount = InitialAccount.PLAYABLE
 
     @property
     def expert_mode(self) -> bool:

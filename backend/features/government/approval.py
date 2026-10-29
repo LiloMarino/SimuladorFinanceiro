@@ -78,6 +78,27 @@ STOCKS_WEIGHT: dict[VoterGroup, Decimal] = {
     G.RETIREES: Decimal(1),
     G.WELFARE: ZERO,
 }
+# Desemprego: pontos por ponto percentual acima de 9%, até 4 para cada lado
+UNEMPLOYMENT_NEUTRAL = Decimal("0.09")
+UNEMPLOYMENT_CAP = Decimal(4)
+UNEMPLOYMENT_WEIGHT: dict[VoterGroup, Decimal] = {
+    G.INVESTORS: Decimal("0.25"),
+    G.ENTREPRENEURS: Decimal("0.5"),
+    G.FORMAL_WORKERS: Decimal(1),
+    G.PUBLIC_SERVANTS: Decimal("0.25"),
+    G.RETIREES: Decimal("0.25"),
+    G.WELFARE: Decimal(1),
+}
+# Prêmio de risco: pontos por ponto percentual cobrado nos títulos novos, até 6
+PREMIUM_CAP = Decimal(6)
+PREMIUM_WEIGHT: dict[VoterGroup, Decimal] = {
+    G.INVESTORS: Decimal(2),
+    G.ENTREPRENEURS: Decimal("0.5"),
+    G.FORMAL_WORKERS: Decimal("0.5"),
+    G.PUBLIC_SERVANTS: ZERO,
+    G.RETIREES: Decimal(1),
+    G.WELFARE: ZERO,
+}
 # Medida: 6 pontos por unidade de reação do grupo, cheia ao valer e pela metade a cada 6 meses
 MEASURE_POINTS = Decimal(6)
 MEASURE_HALF_LIFE_MONTHS = Decimal(6)
@@ -97,6 +118,9 @@ class Market:
     stocks: Decimal | None
     # Meta de inflação do ano (0.04)
     target: Decimal
+    # Desemprego (0.116) e prêmio de risco nos títulos novos (0.019) do último fechamento
+    unemployment: Decimal = UNEMPLOYMENT_NEUTRAL
+    premium: Decimal = ZERO
 
 
 @dataclass(frozen=True)
@@ -133,7 +157,12 @@ class Approval:
         return rounded(overall({g: t.target for g, t in self.targets.items()}))
 
 
-def market_on(day: date) -> Market:
+def market_on(
+    day: date,
+    unemployment: Decimal = UNEMPLOYMENT_NEUTRAL,
+    premium: Decimal = ZERO,
+) -> Market:
+    """O mercado do dia; o desemprego e o prêmio vêm do último fechamento do país."""
     stocks = None
     now = last_known_value(IndicatorSeries.IBOV, day)
     before = last_known_value(IndicatorSeries.IBOV, day - timedelta(days=365))
@@ -144,6 +173,8 @@ def market_on(day: date) -> Market:
         selic=annual_index_rate(IndicatorSeries.SELIC, day),
         stocks=stocks,
         target=inflation_target(day),
+        unemployment=unemployment,
+        premium=premium,
     )
 
 
@@ -206,6 +237,26 @@ def stocks_factor(group: VoterGroup, market: Market) -> Factor | None:
     )
 
 
+def unemployment_factor(group: VoterGroup, market: Market) -> Factor:
+    gap = _clip(_pp(market.unemployment - UNEMPLOYMENT_NEUTRAL), UNEMPLOYMENT_CAP)
+    where = "acima" if market.unemployment > UNEMPLOYMENT_NEUTRAL else "abaixo"
+    return Factor(
+        ApprovalFactorKind.UNEMPLOYMENT,
+        -UNEMPLOYMENT_WEIGHT[group] * gap,
+        f"Desemprego de {rules.percent(market.unemployment)}, {where} dos "
+        f"{rules.percent(UNEMPLOYMENT_NEUTRAL)} neutros",
+    )
+
+
+def premium_factor(group: VoterGroup, market: Market) -> Factor:
+    points = min(_pp(market.premium), PREMIUM_CAP)
+    return Factor(
+        ApprovalFactorKind.RISK_PREMIUM,
+        -PREMIUM_WEIGHT[group] * points,
+        f"Prêmio de risco de {rules.number(_pp(market.premium))} ponto(s) nos títulos novos do Tesouro",
+    )
+
+
 def measure_fade(measure: Measure, today: date) -> Decimal:
     """Quanto do efeito da medida ainda pesa: cheio ao valer e pela metade a cada 6 meses."""
     elapsed = Decimal((today - required(measure.effective)).days) / DAYS_PER_MONTH
@@ -260,6 +311,8 @@ def group_target(
         inflation_factor(group, market),
         selic_factor(group, market),
         stocks_factor(group, market),
+        unemployment_factor(group, market),
+        premium_factor(group, market),
         *measure_factors(group, measures, today),
     ]
     present = [f for f in factors if f is not None]

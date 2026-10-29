@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import type { GovernmentPanel, MeasureKind } from "@/types";
+import { AccountsTab } from "../components/accounts-tab";
 import { ApprovalCard } from "../components/approval-card";
 import { FrozenPortfolioCard } from "../components/frozen-portfolio-card";
 import { GovernmentHeader } from "../components/government-header";
@@ -9,7 +12,6 @@ import { ImpeachmentAlert } from "../components/impeachment-alert";
 import { BeforeFirstTerm, GovernmentError, GovernmentSkeleton } from "../components/government-states";
 import { NewMeasureDialog } from "../components/new-measure-dialog";
 import { QueueCard } from "../components/queue-card";
-import { TaxesCard } from "../components/taxes-card";
 import { TermPromisesCard } from "../components/term-promises-card";
 
 export default function GovernmentPage() {
@@ -25,8 +27,18 @@ export default function GovernmentPage() {
 
 type Proposal = { kind?: MeasureKind | undefined };
 
+const TABS = ["mandate", "accounts", "congress"] as const;
+type Tab = (typeof TABS)[number];
+
+/** A aba vem do endereço (?tab=); sem ela ou com valor desconhecido, abre o Mandato. */
+function tabFrom(value: string | null): Tab {
+  return TABS.find((tab) => tab === value) ?? "mandate";
+}
+
 function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
   const [proposal, setProposal] = useState<Proposal | null>(null);
+  const [params, setParams] = useSearchParams();
+  const tab = tabFrom(params.get("tab"));
 
   if (panel.computer_until_inauguration) return <BeforeFirstTerm />;
 
@@ -37,20 +49,36 @@ function GovernmentContent({ panel }: { panel: GovernmentPanel }) {
       {/* Aviso de impeachment, só para o presidente */}
       {panel.is_president && <ImpeachmentAlert panel={panel} />}
 
-      {/* Aprovação e impostos */}
-      <div className="grid items-start gap-5 xl:grid-cols-2">
-        <ApprovalCard panel={panel} />
-        <TaxesCard panel={panel} onPropose={(kind) => setProposal({ kind })} />
-      </div>
+      <Tabs value={tab} onValueChange={(value: string) => setParams({ tab: tabFrom(value) }, { replace: true })}>
+        <TabsList variant="line">
+          <TabsTrigger value="mandate">Mandato</TabsTrigger>
+          <TabsTrigger value="accounts">Contas</TabsTrigger>
+          <TabsTrigger value="congress">Congresso</TabsTrigger>
+        </TabsList>
 
-      {/* Promessas da chapa que governa */}
-      {panel.promises && <TermPromisesCard promises={panel.promises} termEnd={panel.term_end} />}
+        {/* Aprovação, promessas da chapa e carteira do presidente */}
+        <TabsContent value="mandate">
+          <div className="grid gap-5 pt-3">
+            <ApprovalCard panel={panel} />
+            {panel.promises && <TermPromisesCard promises={panel.promises} termEnd={panel.term_end} />}
+            <FrozenPortfolioCard panel={panel} />
+          </div>
+        </TabsContent>
 
-      {/* Fila do Congresso e carteira do presidente */}
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
-        <QueueCard panel={panel} />
-        <FrozenPortfolioCard panel={panel} />
-      </div>
+        {/* Orçamento do país e impostos */}
+        <TabsContent value="accounts">
+          <div className="pt-3">
+            <AccountsTab panel={panel} onPropose={(kind) => setProposal({ kind })} />
+          </div>
+        </TabsContent>
+
+        {/* Fila do Congresso */}
+        <TabsContent value="congress">
+          <div className="pt-3">
+            <QueueCard panel={panel} />
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {panel.is_president && (
         <NewMeasureDialog

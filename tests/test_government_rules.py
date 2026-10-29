@@ -203,13 +203,17 @@ def market(
     stocks: str | None = "0.05",
     target: str = "0.04",
     selic: str = "0.10",
+    unemployment: str = "0.09",
+    premium: str = "0",
 ):
-    """Por padrão o mercado no ponto neutro: inflação na meta, SELIC em 10% e bolsa em 5%."""
+    """Por padrão o mercado no ponto neutro: inflação na meta, SELIC em 10%, bolsa em 5%, desemprego em 9% e prêmio zero."""
     return approval_rules.Market(
         inflation=Decimal(inflation),
         selic=Decimal(selic),
         stocks=None if stocks is None else Decimal(stocks),
         target=Decimal(target),
+        unemployment=Decimal(unemployment),
+        premium=Decimal(premium),
     )
 
 
@@ -251,6 +255,49 @@ def test_each_result_is_capped_in_both_directions():
     assert rise is not None and rise.points == 24
     assert fall is not None and fall.points == -24
     assert approval_rules.stocks_factor(investors, market(stocks=None)) is None
+
+
+def test_unemployment_above_the_neutral_weighs_most_on_formal_workers_and_welfare():
+    high = market(unemployment="0.12")
+
+    formal = approval_rules.unemployment_factor(VoterGroup.FORMAL_WORKERS, high)
+    welfare = approval_rules.unemployment_factor(VoterGroup.WELFARE, high)
+    retirees = approval_rules.unemployment_factor(VoterGroup.RETIREES, high)
+
+    assert formal.points == welfare.points == -3
+    assert retirees.points == Decimal("-0.75")
+    assert formal.kind is ApprovalFactorKind.UNEMPLOYMENT
+
+
+def test_unemployment_below_the_neutral_pleases_and_is_capped():
+    low = approval_rules.unemployment_factor(
+        VoterGroup.FORMAL_WORKERS, market(unemployment="0.05")
+    )
+    extreme = approval_rules.unemployment_factor(
+        VoterGroup.FORMAL_WORKERS, market(unemployment="0.18")
+    )
+
+    assert low.points == 4
+    assert extreme.points == -4
+
+
+def test_risk_premium_irritates_investors_and_spares_public_servants():
+    premium = market(premium="0.019")
+
+    investors = approval_rules.premium_factor(VoterGroup.INVESTORS, premium)
+    servants = approval_rules.premium_factor(VoterGroup.PUBLIC_SERVANTS, premium)
+
+    assert investors.points == Decimal("-3.8")
+    assert servants.points == 0
+    assert investors.kind is ApprovalFactorKind.RISK_PREMIUM
+
+
+def test_risk_premium_has_no_effect_at_zero_and_is_capped_at_six_points():
+    none = approval_rules.premium_factor(VoterGroup.INVESTORS, market())
+    huge = approval_rules.premium_factor(VoterGroup.INVESTORS, market(premium="0.20"))
+
+    assert none.points == 0
+    assert huge.points == -12
 
 
 def test_the_same_result_pleases_one_group_and_irritates_another():

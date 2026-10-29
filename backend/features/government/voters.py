@@ -89,12 +89,20 @@ POSITIONS: dict[VoterGroup, dict[VoterValue, Decimal]] = {
 
 # Os resultados do governo que mais pesam para cada grupo, na ordem em que pesam
 READINGS: dict[VoterGroup, tuple[GroupReading, ...]] = {
-    G.INVESTORS: (GroupReading.STOCKS, GroupReading.INFLATION),
+    G.INVESTORS: (
+        GroupReading.STOCKS,
+        GroupReading.INFLATION,
+        GroupReading.RISK_PREMIUM,
+    ),
     G.ENTREPRENEURS: (GroupReading.SELIC, GroupReading.STOCKS),
-    G.FORMAL_WORKERS: (GroupReading.INFLATION, GroupReading.SELIC),
+    G.FORMAL_WORKERS: (
+        GroupReading.INFLATION,
+        GroupReading.SELIC,
+        GroupReading.UNEMPLOYMENT,
+    ),
     G.PUBLIC_SERVANTS: (GroupReading.INFLATION, GroupReading.CAPITAL_GAINS_TAX),
     G.RETIREES: (GroupReading.INFLATION, GroupReading.SELIC),
-    G.WELFARE: (GroupReading.INFLATION,),
+    G.WELFARE: (GroupReading.INFLATION, GroupReading.UNEMPLOYMENT),
 }
 
 # Margem de erro da pesquisa em pontos: cresce nos grupos menores, de amostra menor

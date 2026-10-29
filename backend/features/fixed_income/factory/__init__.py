@@ -72,8 +72,13 @@ class FixedIncomeFactory:
 
     @classmethod
     def generate_assets(
-        cls, current_date: date, n: int, seed: int | None = None
+        cls,
+        current_date: date,
+        n: int,
+        seed: int | None = None,
+        risk_premium: Decimal = Decimal(0),
     ) -> dict[str, FixedIncomeAssetDTO]:
+        """Os títulos do mês; o Tesouro sai com o prêmio de risco do país somado à taxa."""
         if seed is not None:
             random.seed(seed)
 
@@ -94,17 +99,29 @@ class FixedIncomeFactory:
         for asset_type, rate_index in combinations:
             factory = cls._registry[asset_type]
             for _ in range(base_count):
-                asset = factory.create_asset(rate_index, current_date)
+                asset = cls._issue(factory, rate_index, current_date, risk_premium)
                 generated[str(asset.asset_uuid)] = asset
 
         # Restante aleatório porém balanceado
         extras = random.sample(combinations, remainder)
         for asset_type, rate_index in extras:
             factory = cls._registry[asset_type]
-            asset = factory.create_asset(rate_index, current_date)
+            asset = cls._issue(factory, rate_index, current_date, risk_premium)
             generated[str(asset.asset_uuid)] = asset
 
         return generated
+
+    @staticmethod
+    def _issue(
+        factory: AbstractFixedIncomeFactory,
+        rate_index: RateIndexType,
+        current_date: date,
+        risk_premium: Decimal,
+    ) -> FixedIncomeAssetDTO:
+        asset = factory.create_asset(rate_index, current_date)
+        if isinstance(factory, TesouroFactory):
+            return factory.with_risk_premium(asset, risk_premium)
+        return asset
 
     @classmethod
     def daily_liquidity_cdb(

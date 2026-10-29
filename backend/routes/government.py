@@ -1,6 +1,9 @@
+from datetime import date
+
 from fastapi import APIRouter, status
 
 from backend.core.dependencies import ActiveSimulation, CurrentUser
+from backend.core.dto.budget import BudgetDTO, InitialAccountDTO
 from backend.core.dto.campaign import (
     CampaignActionRequest,
     CampaignHistoryDTO,
@@ -25,6 +28,7 @@ from backend.core.dto.government import (
     ViceAnswerRequest,
 )
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
+from backend.features.government.budget_panel import build_initial_account
 
 government_router = APIRouter(prefix="/api/government", tags=["Government"])
 
@@ -250,10 +254,30 @@ def get_balances(simulation: ActiveSimulation, user: CurrentUser):
     "",
     response_model=GovernmentPanelDTO,
     summary="Obter o governo",
-    description="Retorna o governo em vigor, a aprovação com o histórico e os fatores, os impostos de hoje, as medidas por setor, a fila do Congresso (pública), o próximo voto e a carteira congelada do presidente. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+    description="Retorna o governo em vigor, a aprovação com o histórico e os fatores, os impostos de hoje, as medidas por setor, a fila do Congresso (pública) com o efeito de cada medida no orçamento e o da fila inteira, o próximo voto e a carteira congelada do presidente. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
 )
 def get_government(simulation: ActiveSimulation, user: CurrentUser):
     return simulation.get_governance(user)
+
+
+@government_router.get(
+    "/budget",
+    response_model=BudgetDTO,
+    summary="Obter o orçamento",
+    description="Retorna a conta do governo no último fechamento de mês (receita, gasto, juros, resultado e dívida, em % do PIB por ano e em reais), a receita de cada imposto do jogo contra a política padrão, os fechamentos já feitos, a projeção da dívida até o fim do mandato e a curva do prêmio de risco. Pública: a sala inteira vê. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+)
+def get_budget(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_budget()
+
+
+@government_router.get(
+    "/initial-account",
+    response_model=InitialAccountDTO,
+    summary="Obter a conta inicial do governo",
+    description="Para uma data de início, mostra o que a partida herda nas duas contas iniciais: a dívida do fim do ano anterior em % do PIB, o resultado primário (zero na jogável, o real do ano de início na realista) e o prêmio de risco que a dívida já cobra. Antes de a sala existir, o lobby usa para explicar a escolha.",
+)
+def get_initial_account(user: CurrentUser, start: date):
+    return build_initial_account(start)
 
 
 @government_router.post(
@@ -272,7 +296,7 @@ def propose_measure(
     "/measures/preview",
     response_model=MeasurePreviewDTO,
     summary="Simular uma medida",
-    description="Mostra o que a medida faria sem propô-la: faixa na régua, marca do governo antes e depois, pontos na aprovação, chance no próximo voto, quando passaria a valer e, nas medidas de setor, quem tem os ativos atingidos.",
+    description="Mostra o que a medida faria sem propô-la: faixa na régua, marca do governo antes e depois, pontos na aprovação, chance no próximo voto, quando passaria a valer, o efeito estimado no orçamento (imposto atingido, receita, resultado e dívida no fim do mandato) e, nas medidas de setor, quem tem os ativos atingidos.",
 )
 def preview_measure(
     simulation: ActiveSimulation, user: CurrentUser, payload: ProposeMeasureRequest

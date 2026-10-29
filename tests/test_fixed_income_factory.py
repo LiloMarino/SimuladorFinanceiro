@@ -116,3 +116,28 @@ def test_issuers_come_from_a_real_bank_pool_and_name_the_asset():
         assert asset.name.startswith(asset.investment_type.name)
         assert asset.name.endswith(asset.issuer)
         assert "XPTO" not in asset.issuer
+
+
+def test_risk_premium_adds_to_the_treasury_rate_and_only_to_it():
+    """O mesmo sorteio com prêmio de 1,64 ponto: só o Tesouro sobe, na taxa do próprio título."""
+    premium = Decimal("0.016442")
+    without = list(FixedIncomeFactory.generate_assets(TODAY, 24, seed=7).values())
+    with_premium = list(
+        FixedIncomeFactory.generate_assets(
+            TODAY, 24, seed=7, risk_premium=premium
+        ).values()
+    )
+
+    for plain, priced in zip(without, with_premium, strict=True):
+        if plain.investment_type is FixedIncomeType.TESOURO_DIRETO:
+            assert priced.interest_rate == plain.interest_rate + premium
+            assert priced.risk_premium == premium
+        else:
+            assert priced.interest_rate == plain.interest_rate
+            assert priced.risk_premium is None
+
+
+def test_no_premium_leaves_the_catalog_untouched():
+    assets = list(FixedIncomeFactory.generate_assets(TODAY, 12, seed=7).values())
+
+    assert all(asset.risk_premium is None for asset in assets)

@@ -26,7 +26,8 @@ from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import GroupVerdict, MeasureKind, MeasureStatus, VoterGroup
 from backend.features.government import approval as approval_rules
-from backend.features.government import congress, promises, voters
+from backend.features.government import budget as budget_rules
+from backend.features.government import budget_panel, congress, promises, voters
 from backend.features.government import measures as rules
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.panel import build_term
@@ -59,7 +60,14 @@ def build_governance(
 
     def dto(measure: Measure) -> MeasureDTO:
         return _measure(
-            measure, people, today, current, is_president, measures, promised
+            measure,
+            people,
+            today,
+            current,
+            is_president,
+            measures,
+            promised,
+            budget_rules.measure_effect(book.policy_before(measure), measure),
         )
 
     pending = [
@@ -113,6 +121,12 @@ def build_governance(
             if m.kind.is_sector and m.status is MeasureStatus.APPROVED
         ],
         queue=[dto(m) for m in [*pending, *rejected]],
+        queue_budget=budget_panel.queue_budget(
+            book.budget(),
+            book.latest_policy(),
+            [m for m in pending if m.status is MeasureStatus.QUEUED],
+            today,
+        ),
         next_vote=congress.next_vote_date(today),
         portfolio=(
             _portfolio(engine, president, end, pending, today)
@@ -164,6 +178,7 @@ def _measure(
     is_president: bool,
     measures: list[Measure],
     promised: set[tuple[MeasureKind, str | None, str | None]],
+    budget_effect: Decimal,
 ) -> MeasureDTO:
     queued = measure.status is MeasureStatus.QUEUED
     waiting = measure.status is MeasureStatus.APPROVED and _waiting(measure, today)
@@ -192,6 +207,7 @@ def _measure(
         waiting_days=VIGENCE_DAYS - days_left if days_left is not None else None,
         days_left=days_left,
         impact=approval_rules.measure_impact(measure),
+        budget_effect=budget_effect,
         fulfills_promise=(
             measure.status in (MeasureStatus.QUEUED, MeasureStatus.APPROVED)
             and (measure.kind, measure.sector, measure.segment) in promised

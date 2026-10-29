@@ -34,6 +34,7 @@ export function toFormValues(settings: SimulationSettingsData): SimulationFormVa
     firstElection: settings.first_election ?? "",
     computerDifficulty: settings.computer_difficulty,
     pollMargin: settings.poll_margin,
+    initialAccount: settings.initial_account,
   };
 }
 
@@ -68,5 +69,6 @@ export function toSettingsBody(values: SimulationFormValues): CreateSimulationRe
     first_election: values.governmentEnabled && values.firstElection ? values.firstElection : null,
     computer_difficulty: values.computerDifficulty,
     poll_margin: values.pollMargin,
+    initial_account: values.initialAccount,
   };
 }

@@ -3621,7 +3621,7 @@
           "Statistics"
         ],
         "summary": "Obter o painel da economia",
-        "description": "A SELIC, o IPCA de 12 meses, o juro real e a meta de inflação, um ponto por mês desde o início da partida até hoje, e os dias em que o Copom mudou a SELIC.",
+        "description": "A SELIC, o IPCA de 12 meses, o juro real, a meta de inflação, o crescimento do PIB e o desemprego, um ponto por mês desde o início da partida até hoje, os dias em que o Copom mudou a SELIC e o que puxa o crescimento hoje. Nas partidas com a expansão Governo & Política, traz também a dívida em % do PIB e o prêmio de risco de cada ponto e o resumo da dívida.",
         "operationId": "get_economy_api_economy_get",
         "responses": {
           "200": {
@@ -5405,7 +5405,7 @@
           "Government"
         ],
         "summary": "Obter o governo",
-        "description": "Retorna o governo em vigor, a aprovação com o histórico e os fatores, os impostos de hoje, as medidas por setor, a fila do Congresso (pública), o próximo voto e a carteira congelada do presidente. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "description": "Retorna o governo em vigor, a aprovação com o histórico e os fatores, os impostos de hoje, as medidas por setor, a fila do Congresso (pública) com o efeito de cada medida no orçamento e o da fila inteira, o próximo voto e a carteira congelada do presidente. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
         "operationId": "get_government_api_government_get",
         "responses": {
           "200": {
@@ -5444,6 +5444,112 @@
             "APIKeyCookie": []
           }
         ]
+      }
+    },
+    "/api/government/budget": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter o orçamento",
+        "description": "Retorna a conta do governo no último fechamento de mês (receita, gasto, juros, resultado e dívida, em % do PIB por ano e em reais), a receita de cada imposto do jogo contra a política padrão, os fechamentos já feitos, a projeção da dívida até o fim do mandato e a curva do prêmio de risco. Pública: a sala inteira vê. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "operationId": "get_budget_api_government_budget_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/government/initial-account": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter a conta inicial do governo",
+        "description": "Para uma data de início, mostra o que a partida herda nas duas contas iniciais: a dívida do fim do ano anterior em % do PIB, o resultado primário (zero na jogável, o real do ano de início na realista) e o prêmio de risco que a dívida já cobra. Antes de a sala existir, o lobby usa para explicar a escolha.",
+        "operationId": "get_initial_account_api_government_initial_account_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Start"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitialAccountDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
       }
     },
     "/api/government/measures": {
@@ -5502,7 +5608,7 @@
           "Government"
         ],
         "summary": "Simular uma medida",
-        "description": "Mostra o que a medida faria sem propô-la: faixa na régua, marca do governo antes e depois, pontos na aprovação, chance no próximo voto, quando passaria a valer e, nas medidas de setor, quem tem os ativos atingidos.",
+        "description": "Mostra o que a medida faria sem propô-la: faixa na régua, marca do governo antes e depois, pontos na aprovação, chance no próximo voto, quando passaria a valer, o efeito estimado no orçamento (imposto atingido, receita, resultado e dívida no fim do mandato) e, nas medidas de setor, quem tem os ativos atingidos.",
         "operationId": "preview_measure_api_government_measures_preview_post",
         "requestBody": {
           "content": {
@@ -8899,6 +9005,8 @@
           "INFLATION",
           "SELIC",
           "STOCKS",
+          "UNEMPLOYMENT",
+          "RISK_PREMIUM",
           "MEASURE"
         ],
         "title": "ApprovalFactorKind",
@@ -9896,6 +10004,375 @@
         ],
         "title": "BotReportDTO",
         "description": "O bot de uma partida como o ranking o mostra: o que ele joga e quem o pôs na sala."
+      },
+      "BudgetAmountsDTO": {
+        "properties": {
+          "revenue": {
+            "type": "string",
+            "title": "Revenue"
+          },
+          "spending": {
+            "type": "string",
+            "title": "Spending"
+          },
+          "primary": {
+            "type": "string",
+            "title": "Primary"
+          },
+          "interest": {
+            "type": "string",
+            "title": "Interest"
+          },
+          "result": {
+            "type": "string",
+            "title": "Result"
+          },
+          "debt": {
+            "type": "string",
+            "title": "Debt"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revenue",
+          "spending",
+          "primary",
+          "interest",
+          "result",
+          "debt"
+        ],
+        "title": "BudgetAmountsDTO",
+        "description": "O mês do último fechamento em reais: o que entrou, o que saiu e o resultado."
+      },
+      "BudgetDTO": {
+        "properties": {
+          "today": {
+            "type": "string",
+            "format": "date",
+            "title": "Today"
+          },
+          "month": {
+            "$ref": "#/components/schemas/BudgetMonthDTO"
+          },
+          "amounts": {
+            "$ref": "#/components/schemas/BudgetAmountsDTO"
+          },
+          "taxes": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetTaxDTO"
+            },
+            "type": "array",
+            "title": "Taxes"
+          },
+          "fixed_revenue": {
+            "type": "string",
+            "title": "Fixed Revenue"
+          },
+          "total_revenue": {
+            "type": "string",
+            "title": "Total Revenue"
+          },
+          "total_difference": {
+            "type": "string",
+            "title": "Total Difference"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetMonthDTO"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "projection": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetMonthDTO"
+            },
+            "type": "array",
+            "title": "Projection"
+          },
+          "projection_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Projection End"
+          },
+          "premium_curve": {
+            "items": {
+              "$ref": "#/components/schemas/PremiumPointDTO"
+            },
+            "type": "array",
+            "title": "Premium Curve"
+          },
+          "premium_floor": {
+            "type": "string",
+            "title": "Premium Floor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "today",
+          "month",
+          "amounts",
+          "taxes",
+          "fixed_revenue",
+          "total_revenue",
+          "total_difference",
+          "history",
+          "projection",
+          "projection_end",
+          "premium_curve",
+          "premium_floor"
+        ],
+        "title": "BudgetDTO"
+      },
+      "BudgetEffectDTO": {
+        "properties": {
+          "revenue_change": {
+            "type": "string",
+            "title": "Revenue Change"
+          },
+          "revenue_change_amount": {
+            "type": "string",
+            "title": "Revenue Change Amount"
+          },
+          "tax_name": {
+            "type": "string",
+            "title": "Tax Name"
+          },
+          "rate_before": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Before"
+          },
+          "rate_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate After"
+          },
+          "tax_revenue_before": {
+            "type": "string",
+            "title": "Tax Revenue Before"
+          },
+          "tax_revenue_after": {
+            "type": "string",
+            "title": "Tax Revenue After"
+          },
+          "result_before": {
+            "type": "string",
+            "title": "Result Before"
+          },
+          "result_after": {
+            "type": "string",
+            "title": "Result After"
+          },
+          "debt_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Debt End"
+          },
+          "debt_before": {
+            "type": "string",
+            "title": "Debt Before"
+          },
+          "debt_after": {
+            "type": "string",
+            "title": "Debt After"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revenue_change",
+          "revenue_change_amount",
+          "tax_name",
+          "rate_before",
+          "rate_after",
+          "tax_revenue_before",
+          "tax_revenue_after",
+          "result_before",
+          "result_after",
+          "debt_end",
+          "debt_before",
+          "debt_after"
+        ],
+        "title": "BudgetEffectDTO",
+        "description": "O que uma medida faz com a conta do governo, estimado: o imposto atingido, a\nreceita dele e o resultado e a dívida no fim do mandato, antes e depois."
+      },
+      "BudgetMonthDTO": {
+        "properties": {
+          "month_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Month End"
+          },
+          "revenue": {
+            "type": "string",
+            "title": "Revenue"
+          },
+          "spending": {
+            "type": "string",
+            "title": "Spending"
+          },
+          "primary": {
+            "type": "string",
+            "title": "Primary"
+          },
+          "interest": {
+            "type": "string",
+            "title": "Interest"
+          },
+          "result": {
+            "type": "string",
+            "title": "Result"
+          },
+          "debt": {
+            "type": "string",
+            "title": "Debt"
+          },
+          "premium": {
+            "type": "string",
+            "title": "Premium"
+          },
+          "gdp": {
+            "type": "string",
+            "title": "Gdp"
+          },
+          "closed": {
+            "type": "boolean",
+            "title": "Closed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month_end",
+          "revenue",
+          "spending",
+          "primary",
+          "interest",
+          "result",
+          "debt",
+          "premium",
+          "gdp",
+          "closed"
+        ],
+        "title": "BudgetMonthDTO",
+        "description": "O orçamento no fim de um mês, em fração do PIB por ano (0.0183 = 1,83%). Antes do\nprimeiro fechamento, `closed` é falso e juros e resultado ainda não existem."
+      },
+      "BudgetTaxDTO": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate"
+          },
+          "default_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Rate"
+          },
+          "revenue": {
+            "type": "string",
+            "title": "Revenue"
+          },
+          "difference": {
+            "type": "string",
+            "title": "Difference"
+          },
+          "top_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top Rate"
+          },
+          "floor_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Floor Rate"
+          },
+          "default_top_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Top Rate"
+          },
+          "default_floor_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Floor Rate"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "rate",
+          "default_rate",
+          "revenue",
+          "difference",
+          "top_rate",
+          "floor_rate",
+          "default_top_rate",
+          "default_floor_rate"
+        ],
+        "title": "BudgetTaxDTO",
+        "description": "Um imposto do jogo: a alíquota de hoje e a padrão, o que arrecada e a diferença contra a padrão."
       },
       "BuyFixedIncomeRequest": {
         "properties": {
@@ -11557,6 +12034,10 @@
             "type": "boolean",
             "title": "Poll Margin",
             "default": true
+          },
+          "initial_account": {
+            "$ref": "#/components/schemas/InitialAccount",
+            "default": "PLAYABLE"
           }
         },
         "type": "object",
@@ -12030,6 +12511,54 @@
         ],
         "title": "CreditRatingChangedEventDTO"
       },
+      "DebtSummaryDTO": {
+        "properties": {
+          "month_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Month End"
+          },
+          "debt": {
+            "type": "string",
+            "title": "Debt"
+          },
+          "premium": {
+            "type": "string",
+            "title": "Premium"
+          },
+          "debt_amount": {
+            "type": "string",
+            "title": "Debt Amount"
+          },
+          "gdp": {
+            "type": "string",
+            "title": "Gdp"
+          },
+          "month_result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Month Result"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month_end",
+          "debt",
+          "premium",
+          "debt_amount",
+          "gdp",
+          "month_result"
+        ],
+        "title": "DebtSummaryDTO",
+        "description": "A dívida do governo no último fechamento de mês."
+      },
       "DeclarationDTO": {
         "properties": {
           "date": {
@@ -12247,13 +12776,28 @@
             },
             "type": "array",
             "title": "Copom Changes"
+          },
+          "growth_parts": {
+            "$ref": "#/components/schemas/GrowthPartsDTO"
+          },
+          "debt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DebtSummaryDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
           "points",
-          "copom_changes"
+          "copom_changes",
+          "growth_parts",
+          "debt"
         ],
         "title": "EconomyPanelDTO"
       },
@@ -12283,6 +12827,36 @@
           "tolerance": {
             "type": "string",
             "title": "Tolerance"
+          },
+          "growth": {
+            "type": "string",
+            "title": "Growth"
+          },
+          "unemployment": {
+            "type": "string",
+            "title": "Unemployment"
+          },
+          "debt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debt"
+          },
+          "premium": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Premium"
           }
         },
         "additionalProperties": false,
@@ -12293,7 +12867,11 @@
           "ipca",
           "real_rate",
           "target",
-          "tolerance"
+          "tolerance",
+          "growth",
+          "unemployment",
+          "debt",
+          "premium"
         ],
         "title": "EconomyPointDTO",
         "description": "A economia num dia da partida; as taxas são frações (0.1425 = 14,25% ao ano)."
@@ -12776,6 +13354,17 @@
               }
             ],
             "title": "Offered Until"
+          },
+          "risk_premium": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Premium"
           }
         },
         "additionalProperties": false,
@@ -12790,7 +13379,8 @@
           "interest_rate",
           "daily_liquidity",
           "player_cap",
-          "offered_until"
+          "offered_until",
+          "risk_premium"
         ],
         "title": "FixedIncomeAssetDTO"
       },
@@ -12852,6 +13442,17 @@
             ],
             "title": "Offered Until"
           },
+          "risk_premium": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Premium"
+          },
           "index_rate": {
             "type": "string",
             "title": "Index Rate"
@@ -12889,6 +13490,7 @@
           "daily_liquidity",
           "player_cap",
           "offered_until",
+          "risk_premium",
           "index_rate",
           "effective_annual_rate",
           "tax_exempt",
@@ -13904,6 +14506,9 @@
             "type": "array",
             "title": "Queue"
           },
+          "queue_budget": {
+            "$ref": "#/components/schemas/QueueBudgetDTO"
+          },
           "next_vote": {
             "type": "string",
             "format": "date",
@@ -13964,6 +14569,7 @@
           "taxes",
           "sector_measures",
           "queue",
+          "queue_budget",
           "next_vote",
           "portfolio",
           "sectors",
@@ -14367,7 +14973,9 @@
           "INFLATION",
           "SELIC",
           "STOCKS",
-          "CAPITAL_GAINS_TAX"
+          "CAPITAL_GAINS_TAX",
+          "UNEMPLOYMENT",
+          "RISK_PREMIUM"
         ],
         "title": "GroupReading",
         "description": "Um resultado do governo que o grupo de eleitores lê."
@@ -14399,6 +15007,63 @@
         ],
         "title": "GroupVerdict",
         "description": "Como um grupo fecha o mês: acima da faixa neutra aprova, abaixo reprova."
+      },
+      "GrowthPartsDTO": {
+        "properties": {
+          "trend": {
+            "type": "string",
+            "title": "Trend"
+          },
+          "real_rate": {
+            "type": "string",
+            "title": "Real Rate"
+          },
+          "real_rate_part": {
+            "type": "string",
+            "title": "Real Rate Part"
+          },
+          "neutral_real_rate": {
+            "type": "string",
+            "title": "Neutral Real Rate"
+          },
+          "stocks": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stocks"
+          },
+          "stocks_part": {
+            "type": "string",
+            "title": "Stocks Part"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target"
+          },
+          "growth": {
+            "type": "string",
+            "title": "Growth"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "trend",
+          "real_rate",
+          "real_rate_part",
+          "neutral_real_rate",
+          "stocks",
+          "stocks_part",
+          "target",
+          "growth"
+        ],
+        "title": "GrowthPartsDTO",
+        "description": "O que puxa o alvo do crescimento hoje, em fração ao ano: tendência + juro real +\nbolsa dão o alvo, e o crescimento anda um quarto do caminho até ele a cada mês."
       },
       "HighlightsDTO": {
         "properties": {
@@ -15136,6 +15801,68 @@
         "additionalProperties": false,
         "type": "object",
         "title": "IndicatorsRequestDTO"
+      },
+      "InitialAccount": {
+        "type": "string",
+        "enum": [
+          "PLAYABLE",
+          "REALISTIC"
+        ],
+        "title": "InitialAccount",
+        "description": "A conta do governo no primeiro dia: a dívida real com receita igual ao gasto, ou com o déficit real."
+      },
+      "InitialAccountDTO": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "playable": {
+            "$ref": "#/components/schemas/InitialAccountOptionDTO"
+          },
+          "realistic": {
+            "$ref": "#/components/schemas/InitialAccountOptionDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "year",
+          "playable",
+          "realistic"
+        ],
+        "title": "InitialAccountDTO",
+        "description": "A conta inicial do governo para um início de partida, nas duas opções da sala."
+      },
+      "InitialAccountOptionDTO": {
+        "properties": {
+          "debt": {
+            "type": "string",
+            "title": "Debt"
+          },
+          "primary": {
+            "type": "string",
+            "title": "Primary"
+          },
+          "primary_amount": {
+            "type": "string",
+            "title": "Primary Amount"
+          },
+          "premium": {
+            "type": "string",
+            "title": "Premium"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "debt",
+          "primary",
+          "primary_amount",
+          "premium"
+        ],
+        "title": "InitialAccountOptionDTO",
+        "description": "O que a partida herda numa das duas contas iniciais."
       },
       "InstallmentRowDTO": {
         "properties": {
@@ -16105,6 +16832,10 @@
             "type": "integer",
             "title": "Impact"
           },
+          "budget_effect": {
+            "type": "string",
+            "title": "Budget Effect"
+          },
           "fulfills_promise": {
             "type": "boolean",
             "title": "Fulfills Promise"
@@ -16136,6 +16867,7 @@
           "waiting_days",
           "days_left",
           "impact",
+          "budget_effect",
           "fulfills_promise",
           "can_withdraw",
           "can_repropose"
@@ -16228,6 +16960,9 @@
             },
             "type": "array",
             "title": "Holdings"
+          },
+          "budget": {
+            "$ref": "#/components/schemas/BudgetEffectDTO"
           }
         },
         "additionalProperties": false,
@@ -16240,7 +16975,8 @@
           "vote_date",
           "effective",
           "assets",
-          "holdings"
+          "holdings",
+          "budget"
         ],
         "title": "MeasurePreviewDTO"
       },
@@ -19565,6 +20301,26 @@
         ],
         "title": "PositionUpdateEventDTO"
       },
+      "PremiumPointDTO": {
+        "properties": {
+          "debt": {
+            "type": "string",
+            "title": "Debt"
+          },
+          "premium": {
+            "type": "string",
+            "title": "Premium"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "debt",
+          "premium"
+        ],
+        "title": "PremiumPointDTO",
+        "description": "Um ponto da curva do prêmio de risco: a dívida em fração do PIB e o prêmio que ela cobra."
+      },
       "PrepayLoanRequestDTO": {
         "properties": {
           "amount": {
@@ -20485,6 +21241,31 @@
           "kind"
         ],
         "title": "ProposeMeasureRequest"
+      },
+      "QueueBudgetDTO": {
+        "properties": {
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "result_now": {
+            "type": "string",
+            "title": "Result Now"
+          },
+          "result_if_passes": {
+            "type": "string",
+            "title": "Result If Passes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "total",
+          "result_now",
+          "result_if_passes"
+        ],
+        "title": "QueueBudgetDTO",
+        "description": "A fila inteira do Congresso, se passar: o que muda na receita e no resultado."
       },
       "RankingMoveDTO": {
         "properties": {
@@ -21656,6 +22437,10 @@
             "title": "Poll Margin",
             "default": true
           },
+          "initial_account": {
+            "$ref": "#/components/schemas/InitialAccount",
+            "default": "PLAYABLE"
+          },
           "id": {
             "type": "integer",
             "title": "Id"
@@ -21762,6 +22547,7 @@
           "first_election",
           "computer_difficulty",
           "poll_margin",
+          "initial_account",
           "id",
           "is_backtest",
           "created_at",
@@ -22729,6 +23515,10 @@
             "title": "Poll Margin",
             "default": true
           },
+          "initial_account": {
+            "$ref": "#/components/schemas/InitialAccount",
+            "default": "PLAYABLE"
+          },
           "id": {
             "type": "integer",
             "title": "Id"
@@ -22762,6 +23552,7 @@
           "first_election",
           "computer_difficulty",
           "poll_margin",
+          "initial_account",
           "id"
         ],
         "title": "SimulationDTO"
@@ -22980,6 +23771,10 @@
             "type": "boolean",
             "title": "Poll Margin",
             "default": true
+          },
+          "initial_account": {
+            "$ref": "#/components/schemas/InitialAccount",
+            "default": "PLAYABLE"
           }
         },
         "type": "object",
@@ -23133,6 +23928,10 @@
             "type": "boolean",
             "title": "Poll Margin",
             "default": true
+          },
+          "initial_account": {
+            "$ref": "#/components/schemas/InitialAccount",
+            "default": "PLAYABLE"
           }
         },
         "additionalProperties": false,
@@ -23162,7 +23961,8 @@
           "government_enabled",
           "first_election",
           "computer_difficulty",
-          "poll_margin"
+          "poll_margin",
+          "initial_account"
         ],
         "title": "SimulationSettingsDTO"
       },
@@ -26151,6 +26951,10 @@
             "type": "boolean",
             "title": "Poll Margin",
             "default": true
+          },
+          "initial_account": {
+            "$ref": "#/components/schemas/InitialAccount",
+            "default": "PLAYABLE"
           }
         },
         "type": "object",

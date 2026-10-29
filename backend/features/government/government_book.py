@@ -44,8 +44,11 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.core.utils import next_business_day, required
+from backend.features.economy.growth import MacroCourse
 from backend.features.government import approval as approval_rules
+from backend.features.government import budget as budget_rules
 from backend.features.government import (
+    budget_panel,
     campaign,
     congress,
     election,
@@ -55,6 +58,7 @@ from backend.features.government import (
     voters,
 )
 from backend.features.government import measures as rules
+from backend.features.government.budget import BudgetCourse
 from backend.features.government.calendar import ElectionCycle, election_cycle
 from backend.features.government.measures import PolicyTimeline
 from backend.features.government.promises import Promise
@@ -99,10 +103,12 @@ class GovernmentBook:
         on_office: Callable[[UserDTO, date], None],
         on_news: Callable[[date, Headline], None],
         random_seed: int,
+        macro: MacroCourse | None = None,
     ):
         """
         `on_office` roda na posse de cada presidente jogador: a carteira dele congela.
         `on_news` publica no jornal da partida a manchete de cada fato político.
+        `macro` é o crescimento e o desemprego do país, que o orçamento e a aprovação leem.
         """
         self._settings = settings
         self._engine = engine
@@ -117,8 +123,33 @@ class GovernmentBook:
         self._previous_day: date | None = None
         self._people: dict[int, UserDTO] = {}
         self._timeline = PolicyTimeline(self.state.measures.values())
-        # O engine lê os impostos de cada dia do governo
+        # O orçamento lê a política de cada dia e a conta de largada da sala
+        self._macro = macro or MacroCourse(settings.start_date)
+        self._budget = BudgetCourse(
+            settings.start_date,
+            self.policy,
+            budget_rules.initial_account(settings.start_date, settings.initial_account),
+            self._macro,
+        )
+        # O engine lê os impostos e o prêmio de risco de cada dia do governo
         engine.use_tax_policy(self.policy)
+        engine.use_risk_premium(self._budget.premium_on)
+
+    def budget(self) -> BudgetCourse:
+        return self._budget
+
+    def latest_policy(self) -> TaxPolicy:
+        """A política depois de todas as medidas aprovadas valerem."""
+        return self._timeline.latest
+
+    def policy_before(self, measure: Measure) -> TaxPolicy:
+        """A política em que a medida cai: a do dia anterior à vigência, ou a final para a que ainda não vale."""
+        if measure.status is MeasureStatus.APPROVED and measure.effective is not None:
+            return self.policy(measure.effective - timedelta(days=1))
+        return self._timeline.latest
+
+    def risk_premium_on(self, day: date) -> Decimal:
+        return self._budget.premium_on(day)
 
     # Impostos e carteira do presidente
 
@@ -161,7 +192,11 @@ class GovernmentBook:
             term,
             self.state.satisfaction,
             self.state.measures.values(),
-            approval_rules.market_on(today),
+            approval_rules.market_on(
+                today,
+                self._macro.latest(today).unemployment,
+                self._budget.premium_on(today),
+            ),
             today,
         )
 
@@ -1123,6 +1158,14 @@ class GovernmentBook:
             effective=vote + timedelta(days=VIGENCE_DAYS),
             assets=len(tickers) if draft.kind.is_sector else None,
             holdings=self._holdings(tickers) if draft.kind.is_sector else [],
+            budget=budget_panel.measure_budget(
+                self._budget,
+                self._timeline.latest,
+                draft,
+                today,
+                vote + timedelta(days=VIGENCE_DAYS),
+                self.term_end(),
+            ),
         )
 
     def _holdings(self, tickers: list[str]) -> list[MeasureHoldingDTO]:

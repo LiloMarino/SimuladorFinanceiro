@@ -25,6 +25,7 @@ from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     ComputerDifficulty,
     GameType,
+    InitialAccount,
     LifeHistoryCategory,
     LifeHistorySort,
     PlayerActivity,
@@ -83,6 +84,7 @@ class SimulationRulesRequest(BaseModel):
     first_election: date | None = None
     computer_difficulty: ComputerDifficulty = ComputerDifficulty.NORMAL
     poll_margin: bool = True
+    initial_account: InitialAccount = InitialAccount.PLAYABLE
 
     @model_validator(mode="after")
     def validate_government_rules(self):

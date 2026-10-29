@@ -25,6 +25,10 @@ class LossPool(Enum):
     CRYPTO = "CRYPTO"
 
 
+# Prazo médio das aplicações em renda fixa, em dias corridos
+FIXED_INCOME_AVERAGE_DAYS = 540
+
+
 @dataclass(frozen=True, slots=True)
 class SectorRule:
     """
@@ -70,6 +74,14 @@ class TaxPolicy:
             if self.fixed_income_brackets
             else self.fixed_income_floor
         )
+
+    @property
+    def fixed_income_average_rate(self) -> Decimal:
+        """A alíquota da renda fixa no prazo médio das aplicações: 17,5% na tabela padrão."""
+        for max_days, rate in self.fixed_income_brackets:
+            if max_days >= FIXED_INCOME_AVERAGE_DAYS:
+                return rate
+        return self.fixed_income_floor
 
     def sector_rule(self, sector: str | None, segment: str | None) -> SectorRule | None:
         """

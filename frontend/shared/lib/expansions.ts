@@ -23,6 +23,7 @@ export const EXPANSIONS: Record<ExpansionKey, ExpansionInfo> = {
       "Partidos com bandeiras, fundador, filiados e contribuições",
       "Eleitorado em seis grupos, cada um com apoio e rejeição por partido; pesquisa mensal e 2º turno",
       "Mandato de 4 anos, com uma reeleição",
+      "Orçamento do país: cada imposto pesa na receita, o déficit vira dívida, e dívida alta encarece os títulos do Tesouro",
     ],
     icon: Landmark,
     emblemClass: "bg-expansion-government",

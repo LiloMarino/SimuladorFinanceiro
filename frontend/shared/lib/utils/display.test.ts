@@ -9,6 +9,7 @@ import {
   displayList,
   displayMoney,
   displayMoneyCompact,
+  displayMoneyLarge,
   displayMoneyWhole,
   displayMonthName,
   displayMonthShort,
@@ -33,6 +34,23 @@ describe("dinheiro", () => {
   it("duas casas, milhar com ponto e vírgula decimal", () => {
     expect(displayMoney("1234.567891")).toBe(`R$${NBSP}1.234,57`);
     expect(displayMoney(0)).toBe(`R$${NBSP}0,00`);
+  });
+
+  it("escala do orçamento: trilhões e bilhões com 3 algarismos", () => {
+    expect(displayMoneyLarge(5.76e12)).toBe("R$ 5,76 tri");
+    expect(displayMoneyLarge(7.4e12)).toBe("R$ 7,4 tri");
+    expect(displayMoneyLarge(110e9)).toBe("R$ 110 bi");
+  });
+
+  it("escala do orçamento: o déficit leva o menos tipográfico e o que passa de mil bilhões vira trilhão", () => {
+    expect(displayMoneyLarge(-27.2e9)).toBe("−R$ 27,2 bi");
+    expect(displayMoneyLarge(999e9)).toBe("R$ 999 bi");
+    expect(displayMoneyLarge(1000e9)).toBe("R$ 1 tri");
+  });
+
+  it("escala do orçamento: abaixo de um milhão são reais inteiros", () => {
+    expect(displayMoneyLarge(0)).toBe(`R$${NBSP}0`);
+    expect(displayMoneyLarge(-950000)).toBe(`−R$${NBSP}950.000`);
   });
 
   it("inteiro e compacto", () => {

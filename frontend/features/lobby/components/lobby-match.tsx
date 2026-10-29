@@ -27,6 +27,7 @@ import { GAME_TYPES } from "@/shared/lib/game-types";
 import { VICTORY_CRITERIA } from "@/shared/lib/victory-criteria";
 import type {
   ComputerDifficulty,
+  InitialAccount,
   GameType,
   PlayerGrouping,
   RoomPlayer,
@@ -122,6 +123,7 @@ const simulationFormSchema = z
       (value) => value === "EASY" || value === "NORMAL" || value === "HARD",
     ),
     pollMargin: z.boolean(),
+    initialAccount: z.custom<InitialAccount>((value) => value === "PLAYABLE" || value === "REALISTIC"),
   })
   .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
     message: "O fim precisa ser depois do início.",
